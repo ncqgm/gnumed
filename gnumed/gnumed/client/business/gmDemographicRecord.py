@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.57 2005-02-03 20:17:18 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmDemographicRecord.py,v 1.58 2005-02-12 14:00:21 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -120,7 +120,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				vba.city,
 				vba.postcode,
 				at.name,
-				vbp.i_id as id,
+				vbp.i_pk as pk_identity,
 				title,
 				firstnames,
 				lastnames,
@@ -141,7 +141,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 			where
 				lpoa.id_address = vba.id
 				and lpoa.id_type = at.id
-				and lpoa.id_identity = vbp.i_id
+				and lpoa.id_identity = vbp.i_pk
 				and lpoa.id_org = %%s
 				"""
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['id'])
@@ -156,8 +156,8 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		"""
 		Binds a person to this organisation at this address
 		"""
-		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values ((select id from address_types where type=%(type)s), create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(i_id)s)"
-		address['i_id'] = person['id']
+		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values ((select id from address_types where type=%(type)s), create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(i_pk)s)"
+		address['i_pk'] = person['id']
 		address['org_id'] = self['id']
 		if not id_addr:
 			return (False, None)
@@ -254,18 +254,27 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 #==============================================================================
 class cIdentity (cOrg):
 	_table = "identity"
-	_cmd_fetch_payload = "select * from v_basic_person where i_id=%s"
-	_cmds_lock_rows_for_update = ["select 1 from identity where id=%(id)s and xmin_identity = %(xmin_identity)"]
-	_cmds_store_payload = ["""
-	update identity set title=%(title)s, dob=%(dob)s, cob=%(cob)s, gender=%(gender)s,
-	fk_marital_status = %(fk_marital_status)s, karyotype = %(karyotype)s, pupic = %(pupic)s where id=%(id)s""", "select xmin_identity from v_basic_person where id=%(id)s"]
-	_updatable_fields = ["title", "dob", "cob", "gender", "fk_marital_status", "karyotype", "pupic"]	
+	_cmd_fetch_payload = "select * from v_basic_person where i_pk=%s"
+	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(i_pk)s and xmin_identity = %(xmin_identity)"]
+	_cmds_store_payload = [
+		"""update identity set
+			title=%(title)s,
+			dob=%(dob)s,
+			cob=%(cob)s,
+			gender=%(gender)s,
+			fk_marital_status = %(fk_marital_status)s,
+			karyotype = %(karyotype)s,
+			pupic = %(pupic)s
+		where pk=%(i_pk)s""",
+		"""select xmin_identity from v_basic_person where i_pk=%(i_pk)s"""
+	]
+	_updatable_fields = ["title", "dob", "cob", "gender", "fk_marital_status", "karyotype", "pupic"]
 	#--------------------------------------------------------
 	def get_all_names(self):
 		cmd = """
 				select n.firstnames, n.lastnames, i.title
 				from names n, identity i
-				where n.id_identity=%s and i.id=%s"""
+				where n.id_identity=%s and i.pk=%s"""
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self._cache['id'], self.__cache['id'])
 		if rows is None:
 			return None
@@ -301,8 +310,8 @@ class cIdentity (cOrg):
 		"""
 		Binds an address to this person
 		"""
-		cmd = "insert into lnk_person_org_address ((select id from address_types where type = %s), id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(i_id)s)"
-		address["i_id"] = self['id']
+		cmd = "insert into lnk_person_org_address ((select id from address_types where type = %s), id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(i_pk)s)"
+		address["i_pk"] = self['id']
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#---------------------------------------------------------------------
 	def get_occupation (self):
@@ -330,16 +339,16 @@ class cIdentity (cOrg):
 	def get_relatives(self):
 		cmd = """
 select
-        t.description, v.id as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, fk_marital_status,
+        t.description, v.i_pk as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, fk_marital_status,
 	marital_status, xmin_identity, preferred
 from
 	v_basic_person v, relation_types t, lnk_person2relative l
 where
 	(l.id_identity = %s and
-	v.id = l.id_relative and
+	v.i_pk = l.id_relative and
 	t.id = l.id_relation_type) or
 	(l.id_relation = %s and
-	v.id = i.id_identity and
+	v.i_pk = i.id_identity and
 	t.inverse = l.id_relation_type)
 """
 		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self['id'], self['id']])
@@ -370,11 +379,11 @@ where
 		if rel_type:
 			return gmPG.run_commit2 (
 				'personalia',
-				[(cmd1, [self['id'], relation['id'], relation['id'], aelf['id']]),
+				[(cmd1, [self['id'], relation['id'], relation['id'], self['id']]),
 				 (cmd2, [relation['id'], self['id'], rel_type])]
 			)
 		else:
-			return gmPG.run_commit2 ('personalia', [(cmd1, [self['id'], relation['id'], relation['id'], aelf['id']])])
+			return gmPG.run_commit2 ('personalia', [(cmd1, [self['id'], relation['id'], relation['id'], self['id']])])
 	#----------------------------------------------------------------------
 	def delete_relative(self, relation):
 		self.set_relative (None, relation)
@@ -651,7 +660,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.57  2005-02-03 20:17:18  ncq
+# Revision 1.58  2005-02-12 14:00:21  ncq
+# - identity.id -> pk
+# - v_basic_person.i_id -> i_pk
+# - likely missed some places here, though
+#
+# Revision 1.57  2005/02/03 20:17:18  ncq
 # - get_demographic_record() -> get_identity()
 #
 # Revision 1.56  2005/02/01 10:16:07  ihaywood
