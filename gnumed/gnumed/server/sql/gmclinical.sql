@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.140 $
+-- $Revision: 1.141 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -83,6 +83,9 @@ create table clin_episode (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
+	fk_clin_narrative integer
+		unique
+		default null,
 --	description text
 --		default null,
 	is_open boolean
@@ -98,11 +101,11 @@ alter table clin_episode add constraint standalone_epi_needs_patient
 		((fk_health_issue is not null) and (fk_patient is null))
 	);
 
--- FIXME: we still need this but in a different way
+-- FIXME: need trigger on INSERT/UPDATE - when fk_clin_narrative NOT NULL: cyclic consistency ...
 --alter table clin_episode add constraint standalone_epi_needs_name
 --	check (
 --		(fk_health_issue is not null) or
---		((fk_health_issue is null) and (coalesce(trim(both from description), '') != ''))
+--		((fk_health_issue is null) and (fk_clin_narrative))
 --	);
 
 select add_table_for_audit('clin_episode');
@@ -251,8 +254,7 @@ create table clin_root_item (
 		default CURRENT_TIMESTAMP,
 	fk_encounter integer
 		not null
-		references clin_encounter(id)
-		deferrable,
+		references clin_encounter(id),
 	fk_episode integer
 		not null
 		references clin_episode(pk),
@@ -330,15 +332,13 @@ comment on table lnk_type2item is
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
+-- narrative
 create table clin_narrative (
 	pk serial primary key,
 	is_rfe boolean
 		not null
 		default false,
 	is_aoe boolean
-		not null
-		default false,
-	is_episode_name boolean
 		not null
 		default false,
 	unique(fk_encounter, narrative, soap_cat)
@@ -368,9 +368,16 @@ comment on column clin_narrative.is_rfe is
 comment on column clin_narrative.is_aoe is
 	'if TRUE the narrative stores an Assessment of Encounter
 	 which also implies soap_cat = a';
-comment on column clin_narrative.is_episode_name is
-	'if TRUE: narrative is used as the name of the
-	 episode linked by fk_episode';
+
+alter table clin_episode
+add constraint rfi_fk_clin_narrative
+	foreign key (fk_clin_narrative)
+		references clin_narrative(pk)
+		on update cascade
+		on delete restrict
+		deferrable
+		initially deferred
+;
 
 -- --------------------------------------------
 create table lnk_code2narr (
@@ -1077,11 +1084,20 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.140 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.141 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.140  2004-11-24 15:39:33  ncq
+-- Revision 1.141  2004-11-28 14:35:03  ncq
+-- - I first thought putting is_episode_name into clin_narrative would solve
+--   more issues that putting fk_clin_narrative into clin_episode, it turned
+--   out to be the other way round, however
+-- - still missing:
+--   - trigger to ensure cyclic consistency between clin_narrative
+--     and clin_episode
+--   - a (deferred) constraint forcing standalon episodes to have a narrative FK
+--
+-- Revision 1.140  2004/11/24 15:39:33  ncq
 -- - clin_episode does not have clinically_relevant anymore as per discussion on list
 --
 -- Revision 1.139  2004/11/21 21:54:30  ncq
