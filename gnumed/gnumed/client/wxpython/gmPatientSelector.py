@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.28 2004-02-04 00:55:02 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPatientSelector.py,v 1.29 2004-02-05 18:41:31 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -298,19 +298,10 @@ and hit <ENTER>
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
-		self._display_name()
+		wxCallAfter(self._display_name)
 	#--------------------------------------------------------
 	def SetActivePatient(self, anID = None, data = None):
-		if anID is None:
-			return None
-		if anID == self.curr_pat['ID']:
-			return None
-		if self.curr_pat is not None:
-			old_ID = self.curr_pat['ID']
-		else:
-			old_ID = -1
-		self.curr_pat = gmPatient.gmCurrentPatient(anID)
-		if old_ID == self.curr_pat['ID']:
+		if not gmPatient.set_active_patient(anID):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 
@@ -586,7 +577,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.28  2004-02-04 00:55:02  ncq
+# Revision 1.29  2004-02-05 18:41:31  ncq
+# - make _on_patient_selected() thread-safe
+# - move SetActivePatient() logic into gmPatient
+#
+# Revision 1.28  2004/02/04 00:55:02  ncq
 # - moved UI-independant patient searching code into business/gmPatient.py where it belongs
 #
 # Revision 1.27  2003/11/22 14:49:32  ncq
