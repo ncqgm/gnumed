@@ -1,0 +1,37 @@
+This program should:
+
+1. read a configuration file 
+
+2. parse the configuration file into a symbol table/Dictionary
+
+3. read the dictionary.
+
+4. generate a persistable data structure from the dictionary definitions under data.
+
+5. generate a gui editor for the data structure 
+
+6. generate the links for actions in the editor to transfer data to and from editor from 
+  the datastore.
+
+
+response
+
+1. use an xml document reader.
+	rationale:
+		- modelled after the ant system.
+		- trendy to use xml files.
+		- xml fits in with tree based EHR 
+
+	potential problems
+		- a highly fine grained datastore , i.e. nodal with nodal types, 
+		may cause problems when data volumes get high ( > 10,000 ?)
+		, especially implemented on a relational system, designed to preserve
+		conceptual layout at a readable level.
+
+
+
+
+
+		
+	
+  
