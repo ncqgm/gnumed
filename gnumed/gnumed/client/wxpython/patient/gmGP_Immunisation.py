@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.19 2003-12-29 17:10:59 uid66147 Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmGP_Immunisation.py,v 1.20 2004-01-06 10:09:06 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -204,6 +204,21 @@ class ImmunisationPanel(wxPanel):
 			label = _('ERROR: cannot retrieve due/overdue vaccinations')
 			self.LBOX_missing_shots.Append(label, None)
 		else:
+			# due
+			for shot in missing_shots['due']:
+				if shot[3]:
+					shot_str = _('booster')
+				else:
+					shot_str = _('shot %s') % shot[2]
+				# time_left, seq_no, regime, latest_due, comment
+				label = _('%.0d weeks left: %s for %s, due %s (%s)') % (
+					shot[5].days / 7,
+					shot_str,
+					shot[1],
+					shot[4].Format('%m/%Y'),
+					shot[7]
+				)
+				self.LBOX_missing_shots.Append(label, shot[0])	# pk_vacc_def
 			# overdue
 			for shot in missing_shots['overdue']:
 				if shot[3]:
@@ -219,22 +234,6 @@ class ImmunisationPanel(wxPanel):
 					shot_str,
 					shot[1],
 					shot[6]
-				)
-				self.LBOX_missing_shots.Append(label, shot[0])	# pk_vacc_def
-			# due
-			for shot in missing_shots['due']:
-				_log.Log(gmLog.lData, shot)
-				if shot[3]:
-					shot_str = _('booster')
-				else:
-					shot_str = _('shot %s') % shot[2]
-				# time_left, seq_no, regime, latest_due, comment
-				label = _('%.0d weeks left: %s for %s, due %s (%s)') % (
-					shot[5].days / 7,
-					shot_str,
-					shot[1],
-					shot[4].Format('%m/%Y'),
-					shot[7]
 				)
 				self.LBOX_missing_shots.Append(label, shot[0])	# pk_vacc_def
 #======================================================================
@@ -275,7 +274,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.19  2003-12-29 17:10:59  uid66147
+# Revision 1.20  2004-01-06 10:09:06  ncq
+# - reorder due/overdue listing
+#
+# Revision 1.19  2003/12/29 17:10:59  uid66147
 # - upon selection transfer given_vaccination into edit area for modification
 #
 # Revision 1.18  2003/12/02 02:12:06  ncq
