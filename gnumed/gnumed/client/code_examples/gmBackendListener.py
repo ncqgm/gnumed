@@ -75,8 +75,8 @@ if __name__ == "__main__":
 
 	def OnPatientSelected():
 		sys.stdout.flush()
-		print "\nBacked says: patient has been selected"
-			
+		print "\nBackend says: patient data has been modified"
+
 	print "this demo will self-terminate in approx. 30 secs."
 	print "or you can try to stop it with Ctrl-C!"		
 	listener = BackendListener(database='gnumed', user='hherb', password='')
