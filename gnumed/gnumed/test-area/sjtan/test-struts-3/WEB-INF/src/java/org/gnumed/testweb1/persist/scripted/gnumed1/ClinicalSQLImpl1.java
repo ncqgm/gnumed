@@ -46,6 +46,7 @@ public class ClinicalSQLImpl1 implements ClinicalSQL ,
                     .createVaccine(new Integer(rs.getInt(1)), rs.getString(2), rs.getString(3), rs.getBoolean(5),  rs.getString(4));
                     vaccines.add(vaccine);
                 }
+                
     }
     
     public List getVaccines(Connection conn) throws SQLException {
@@ -54,7 +55,7 @@ public class ClinicalSQLImpl1 implements ClinicalSQL ,
                  refreshVaccineList(conn);
             }
         }
-        
+       
         return new java.util.ArrayList( Collections.synchronizedList(vaccines));
         
     }

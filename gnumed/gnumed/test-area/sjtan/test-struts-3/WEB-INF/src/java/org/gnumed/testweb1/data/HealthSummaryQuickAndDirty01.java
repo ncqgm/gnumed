@@ -131,7 +131,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
                 encounter.setId( new Long(((Number)b.get("id")).longValue()));
                 encounter.setDescription((String)b.get("description"));
                 encounter.setStarted((java.util.Date) b.get("started"));
-                
+                encounter.setLastAffirmed((java.util.Date) b.get("last_affirmed"));
                 emap.put(encounter.getId(), encounter);
                 newList.add(encounter);
             } catch(Exception e) {

@@ -66,23 +66,13 @@ import java.util.List;
  *
  * @author  sjtan
  */
-public class ClinicalActionUtil {
+public class ClinicalActionUtil extends ActionUtil {
     Log log = LogFactory.getFactory().getLog(ClinicalActionUtil.class);
     /** Creates a new instance of ClinicalAction */
     public ClinicalActionUtil() {
     }
     
     
-    public   void setScopedMappingAttribute(HttpServletRequest request, ActionMapping mapping,   Object form) {
-        if ( "session".equals(mapping.getScope() )) {
-            request.getSession().setAttribute(mapping.getAttribute(), form);
-            log.info("SESSION FORM ATTRIBUTE KEY"+ mapping.getAttribute());
-        } else {
-            request.setAttribute(mapping.getAttribute(), form);
-            log.info("REQUEST FORM ATTRIBUTE KEY"+ mapping.getAttribute());
-            
-        }
-    }
     /**
      * @param request
      * @param id
@@ -141,35 +131,39 @@ public class ClinicalActionUtil {
         }
     }
     
-     void setRequestAttributes(HttpServlet servlet, HttpServletRequest request,  ActionForm form,
+    void setRequestAttributes(HttpServlet servlet, HttpServletRequest request,  ActionForm form,
     ActionMapping mapping )
-    throws DataSourceException
-    {
-    
-            setVaccinesOnSession(servlet, request);
+    throws DataSourceException {
+        
+        setVaccinesOnSession(servlet, request);
+        
+        Long id =null;
+        if (form != null) {
+            id = new Long(( (ClinicalUpdateForm)form).getPatientId().longValue());
+        }
+        else {
+           id= getIdFromRequest( request);
+        }
+        if (id != null && id.longValue() != (long) 0) {
+            setDemographicDetailOnSession(servlet, request, id);
+            setHealthRecordOnSession(servlet, request, id);
             
-            Long id = getIdFromRequest( request);
+        }
+        
+        if (form == null) {
             
-            if (id != null && id.longValue() != (long) 0) {
-                 setDemographicDetailOnSession(servlet, request, id);
-                 setHealthRecordOnSession(servlet, request, id);
-                
-            }
+            DataObjectFactory factory =
+            (DataObjectFactory) servlet.getServletContext()
+            .getAttribute(Constants.Servlet.OBJECT_FACTORY);
             
-            if (form == null) {
-                
-                DataObjectFactory factory =
-                (DataObjectFactory) servlet.getServletContext()
-                .getAttribute(Constants.Servlet.OBJECT_FACTORY);
-                
-                form = new ClinicalUpdateForm(factory, new Integer( id.intValue()) );
-                
-                
-            }
-            
-            log.info("FORM is " + form);
+            form = new ClinicalUpdateForm(factory, new Integer( id.intValue()) );
             
             
-            setScopedMappingAttribute(request, mapping, form);
+        }
+        
+        log.info("FORM is " + form);
+        
+        
+        setScopedMappingAttribute(request, mapping, form);
     }
 }

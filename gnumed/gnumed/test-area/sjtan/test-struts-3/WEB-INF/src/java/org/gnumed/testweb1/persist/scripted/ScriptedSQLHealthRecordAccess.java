@@ -301,8 +301,8 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             PreparedStatement insertEncounter = conn.prepareStatement(s1);
             insertEncounter.setObject(1,idEncounter);
             insertEncounter.setString(2, encounter.getDescription());
-            insertEncounter.setDate(3,  new java.sql.Date(started.getTime()) );
-            insertEncounter.setDate(4,new java.sql.Date( affirmed.getTime()));
+            insertEncounter.setTimestamp(3,  new java.sql.Timestamp(started.getTime()) );
+            insertEncounter.setTimestamp(4,new java.sql.Timestamp( affirmed.getTime()));
             insertEncounter.setObject(5, summary.getIdentityId());
             insertEncounter.execute();
             
@@ -487,7 +487,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         stmt.setInt(1, id.intValue());
         stmt.setBoolean(2, narrative.isAoe());
         stmt.setBoolean(3, narrative.isRfe());
-        stmt.setDate(4, new java.sql.Date( narrative.getClin_when().getTime() ));
+        stmt.setTimestamp(4, new java.sql.Timestamp( narrative.getClin_when().getTime() ));
         stmt.setString(5, narrative.getNarrative());
         
         

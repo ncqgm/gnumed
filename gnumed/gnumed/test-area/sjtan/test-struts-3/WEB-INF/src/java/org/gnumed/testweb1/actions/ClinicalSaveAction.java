@@ -152,7 +152,11 @@ public class ClinicalSaveAction extends Action {
               
             
             e.printStackTrace();
-            util.setScopedMappingAttribute(request, mapping, form);
+            try {
+                util.setRequestAttributes( servlet,  request,   form, mapping);
+            } catch (Exception e2) {
+                log.info(e2);
+            }
             log.info(e);
             ActionError error = new ActionError(e.toString(), e);
             errors.add("failure in EditClinical", error);
