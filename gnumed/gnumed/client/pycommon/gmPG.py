@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 	_ = lambda x:x
 _log.Log(gmLog.lData, __version__)
 
-import gmLoginInfo, gmExceptions
+import gmLoginInfo, gmExceptions, gmPyCompat
 
 import gmCLI
 if gmCLI.has_arg("--debug"):
@@ -1182,7 +1182,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.34 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.35 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1400,7 +1400,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.34  2004-11-21 20:54:59  ncq
+# Revision 1.35  2004-11-24 15:56:39  ncq
+# - import gmPyCompat
+#
+# Revision 1.34  2004/11/21 20:54:59  ncq
 # - give concurrency retries some slack
 #
 # Revision 1.33  2004/11/03 22:19:53  ncq
