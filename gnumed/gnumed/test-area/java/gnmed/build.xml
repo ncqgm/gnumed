@@ -152,7 +152,7 @@
         </java>
     </target>
 
-    <target depends="init, xdocletToHibernate, compile" name="testUI1">
+    <target depends="compile" name="testUI1">
         <java classname="quickmed.usecases.test.Testgnmed1" failonerror="true" fork="true">
             <classpath path="./lib">
                 <pathelement location="."/>

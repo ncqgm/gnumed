@@ -5,13 +5,15 @@
  */
 
 package quickmed.usecases.test;
-import org.gnumed.gmIdentity.identity;
+import org.gnumed.gmIdentity.*;
+import java.util.*;
+
 /**
  *
  * @author  sjtan
  */
 public class PatientInnerFrame extends javax.swing.JInternalFrame {
-    
+    final static String TERMS = "SummaryTerms";
     /** Creates new form PatientInnerFrame */
     public PatientInnerFrame() {
         initComponents();
@@ -56,10 +58,10 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
 
         pack();
     }//GEN-END:initComponents
-
+    
     private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
         // Add your handling code here:
-           summaryPanel1.transferFormToModel();
+        summaryPanel1.transferFormToModel();
         gnmed.test.DomainPrinter.getInstance().printIdentity( System.out, summaryPanel1.getIdentity());
         try {
             IdentityManager.instance().save(summaryPanel1.getIdentity());
@@ -67,18 +69,20 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
             throw new RuntimeException(e);
         }
     }//GEN-LAST:event_formInternalFrameClosing
-
+    
     private void onCloseFinalizeIdentity(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_onCloseFinalizeIdentity
-       
+        
     }//GEN-LAST:event_onCloseFinalizeIdentity
-
+    
     /** Getter for property identity.
      * @return Value of property identity.
      *
      */
     public identity getIdentity() {
+        if (summaryPanel1 == null)
+            return null;
         return summaryPanel1.getIdentity();
-    }    
+    }
     
     /** Setter for property identity.
      * @param identity New value of property identity.
@@ -86,12 +90,23 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
      */
     public void setIdentity(identity identity) {
         summaryPanel1.setIdentity(identity);
-    }    
+       changeTitle();
+    }
+    
+    void changeTitle() {
+        if (getIdentity() != null && getIdentity().getNamess().size() >0) {
+            Iterator j =  getIdentity().getNamess().iterator();
+            if ( j.hasNext()) {
+                Names n = (Names) j.next();
+               setTitle( n.getFirstnames() +" "+ n.getLastnames()+ ", " + ResourceBundle.getBundle(TERMS).getString("medical_record"));
+            }
+        }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private quickmed.usecases.test.SummaryPanel summaryPanel1;
     // End of variables declaration//GEN-END:variables
-
+    
     
 }

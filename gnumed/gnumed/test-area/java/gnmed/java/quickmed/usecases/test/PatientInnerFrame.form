@@ -29,10 +29,6 @@
       </Constraints>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="quickmed.usecases.test.SummaryPanel" name="summaryPanel1">
-        </Component>
-      </SubComponents>
     </Container>
   </SubComponents>
 </Form>

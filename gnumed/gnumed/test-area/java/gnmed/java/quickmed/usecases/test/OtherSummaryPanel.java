@@ -86,16 +86,16 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     //    }
     //
     protected void resizeProblemColumns() {
-        tableWithPopup2.getTable().getColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
+        tableWithPopup2.getTable().getColumnModel().getColumn(0).setPreferredWidth(NO_WIDTH);
         tableWithPopup2.getTable().getColumnModel().getColumn(1).setPreferredWidth(PREF_PROBLEM_WIDTH);
-        tableWithPopup2.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH*2);
-             tableWithPopup2.getTable().getColumnModel().getColumn(0).setMinWidth(DATE_WIDTH /4);
+        tableWithPopup2.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH);
+        tableWithPopup2.getTable().getColumnModel().getColumn(0).setMinWidth(DATE_WIDTH /4);
         tableWithPopup2.getTable().getColumnModel().getColumn(1).setMaxWidth(PREF_PROBLEM_WIDTH +MAX_DIFF/3);
         
     }
     protected void resizeDrugColumns() {
-        tableWithPopup1.getTable().getColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
-        tableWithPopup1.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH + NO_WIDTH);
+        tableWithPopup1.getTable().getColumnModel().getColumn(0).setPreferredWidth(NO_WIDTH);
+        tableWithPopup1.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH);
         
         tableWithPopup1.getTable().getColumnModel().getColumn(1).setPreferredWidth(DRUG_WIDTH);
         tableWithPopup1.getTable().getColumnModel().getColumn(1).setMaxWidth(DRUG_WIDTH + MAX_DIFF);
