@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.144 $
+-- $Revision: 1.145 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -832,25 +832,31 @@ comment on column allergy.narrative is
 create table form_instances (
 	pk serial primary key,
 	fk_form_def integer
+		not null
 		references form_defs(pk)
 		on update cascade
-		on delete set null,
+		on delete restrict,
 	form_name text not null
-	-- clin_root_item.narrative used as status field
 ) inherits (clin_root_item);
 
 alter table form_instances add constraint form_is_plan
 	check (soap_cat='p');
+
+--select add_x_db_fk_def('form_instances', 'xfk_form_def', 'reference', 'form_defss', 'pk');
 
 select add_table_for_audit('form_instances');
 
 comment on table form_instances is
 	'instances of forms, like a log of all processed forms';
 comment on column form_instances.fk_form_def is
-	'points to the definition of this instance';
+	'points to the definition of this instance,
+	 this FK will fail once we start separating services,
+	 make it into a x_db_fk then';
 comment on column form_instances.form_name is
 	'a string uniquely identifying the form template,
 	 necessary for the audit trail';
+comment on column form_instances.narrative is
+	'can be used as a status field, eg. "printed", "faxed" etc.';
 
 -- --------------------------------------------
 create table form_data (
@@ -859,11 +865,17 @@ create table form_data (
 		not null
 		references form_instances(pk)
 		on update cascade
-		on delete cascade,
-	place_holder text not null,
+		on delete restrict,
+	fk_form_field integer
+		not null
+		references form_fields(pk)
+		on update cascade
+		on delete restrict,
 	value text not null,
-	unique(fk_instance, place_holder)
+	unique(fk_instance, fk_form_field)
 ) inherits (audit_fields);
+
+--select add_x_db_fk_def('form_data', 'xfk_form_field', 'reference', 'form_fields', 'pk');
 
 select add_table_for_audit('form_data');
 
@@ -872,9 +884,10 @@ comment on table form_data is
 	 later re-use/validation';
 comment on column form_data.fk_instance is
 	'the form instance this value was used in';
-comment on column form_data.place_holder is
-	'the place holder in the form template that
-	 should be replaced by this value';
+comment on column form_data.fk_form_field is
+	'points to the definition of the field in the form
+	 which in turn defines the place holder in the
+	 template to replace with <value>';
 comment on column form_data.value is
 	'the value to replace the place holder with';
 
@@ -1068,11 +1081,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.144 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.145 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.144  2005-01-24 17:57:43  ncq
+-- Revision 1.145  2005-01-29 18:42:50  ncq
+-- - add form_data.fk_form_field
+-- - improve comments on form_instances
+--
+-- Revision 1.144  2005/01/24 17:57:43  ncq
 -- - cleanup
 -- - Ian's enhancements to address and forms tables
 --
