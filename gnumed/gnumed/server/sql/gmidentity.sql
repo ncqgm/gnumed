@@ -217,14 +217,6 @@ where
 
 GRANT SELECT ON v_basic_person TO PUBLIC;
 
--- insert some example people
-
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Ian', 'Haywood', '19/12/77', 'UK', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Ms.', 'Cilla', 'Raby', '1/3/79', 'AU', 'f');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Horst', 'Herb', '1/1/70', 'DE', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Richard', 'Terry', '1/1/60', 'AU', 'm');
-insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Karsten', 'Hilbert', '1/1/70', 'DE', 'm');
-
 
 -- IH 9/3/02 Add some rules
 
@@ -278,3 +270,10 @@ CREATE TRIGGER t_delete_names BEFORE DELETE ON identity
 FOR EACH ROW EXECUTE PROCEDURE delete_names (); 
 
 
+-- insert some example people
+
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Mr.', 'Ian', 'Haywood', '19/12/77', 'UK', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Ms.', 'Cilla', 'Raby', '1/3/79', 'AU', 'f');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Horst', 'Herb', '1/1/70', 'DE', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Richard', 'Terry', '1/1/60', 'AU', 'm');
+insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) values ('Dr.', 'Karsten', 'Hilbert', '23/10/74', 'DE', 'm');
