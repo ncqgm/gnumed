@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.7 2003-03-31 01:14:22 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmMedDoc.py,v 1.8 2003-04-18 22:33:44 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil
@@ -351,6 +351,28 @@ class gmMedDoc:
 	def __getitem__(self, item):
 		if item == 'metadata':
 			return self.__fetch_metadata()
+		if item == 'descriptions':
+			return self.__fetch_descriptions()
+	#--------------------------------------------------------
+	def __fetch_descriptions(self):
+		"""Get document descriptions.
+
+		- will return a list of strings
+		"""
+		cursor = self.__defconn.cursor()
+		cmd = "SELECT substring(text from 1 for 50) FROM doc_desc WHERE doc_id='%s';" %  self.ID
+		if not gmPG.run_query(cursor, cmd):
+			cursor.close()
+			_log.Log(gmLog.lErr, 'Cannot load document [%s] descriptions.' % self.ID)
+			return None
+		result = cursor.fetchall()
+		cursor.close()
+		if len(result) == 0:
+			return None
+		data = []
+		for desc in result:
+			data.extend(desc)
+		return data
 	#--------------------------------------------------------
 	def __fetch_metadata(self):
 		"""Document meta data loader for GnuMed compatible database."""
@@ -595,7 +617,10 @@ def call_viewer_on_file(aFile = None):
 	return 1, ""
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.7  2003-03-31 01:14:22  ncq
+# Revision 1.8  2003-04-18 22:33:44  ncq
+# - load document descriptions from database
+#
+# Revision 1.7  2003/03/31 01:14:22  ncq
 # - fixed KeyError on metadata[]
 #
 # Revision 1.6  2003/03/30 00:18:32  ncq
