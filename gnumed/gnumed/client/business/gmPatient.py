@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.51 2004-08-20 13:28:16 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPatient.py,v 1.52 2004-08-24 14:27:06 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -433,9 +433,9 @@ class cPatientSearcher_SQL:
 		- "McBurney" -> "McBurney"
 		"""
 		if aName is None:
+			_log.Log(gmLog.lErr, 'argument error: aName is None')
 			return None
-		else:
-			return aName[:1].upper() + aName[1:]
+		return aName[:1].upper() + aName[1:]
 	#--------------------------------------------------------
 	def __normalize_soundalikes(self, aString = None, aggressive = 0):
 		"""Transform some characters into a regex for their sound-alikes."""
@@ -445,16 +445,17 @@ class cPatientSearcher_SQL:
 			return aString
 
 		# umlauts
-		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|E)')
-		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe)')
-		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue)')
-		normalized = normalized.replace(u'ä', u'(ä|ae|e)')
-		normalized = normalized.replace(u'ö', u'(ö|oe)')
-		normalized = normalized.replace(u'ü', u'(ü|ue|y)')
-		normalized = normalized.replace(u'ß', u'(ß|sz|ss)')
+		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|A|E)')
+		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe|O)')
+		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue|U)')
+		normalized = normalized.replace(u'ä', u'(ä|ae|e|a)')
+		normalized = normalized.replace(u'ö', u'(ö|oe|o)')
+		normalized = normalized.replace(u'ü', u'(ü|ue|u|y|i)')
+		normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
 		# common soundalikes
 		# - René, Desiré, ...
-		normalized = normalized.replace(u'é', u'(é|e)')
+		normalized = normalized.replace(u'é', u'(é|e|è)')
+		normalized = normalized.replace(u'è', u'(è|e|é)')
 		# FIXME: how to sanely replace t -> th ?
 		normalized = normalized.replace('Th', '(Th|T)')
 		normalized = normalized.replace('th', '(th|t)')
@@ -478,25 +479,27 @@ class cPatientSearcher_SQL:
 		"""Compose queries if search term seems unambigous."""
 		queries = []
 
-		# "<digits>" - patient ID or DOB
+		# "<digits>" - GnuMed patient ID or DOB
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
-			tmp = raw.replace(' ', '')
-			tmp = tmp.replace('\t', '')
-			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			tmp = raw.strip()
+			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id ILIKE '%s%%'" % tmp])
 			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			return queries
 
-		# "#<digits>" - patient ID
-		if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
+		# "#<di git s orc hars>" - GnuMed patient ID or external ID
+		if re.match("^(\s|\t)*#.+$", raw):
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
 			tmp = tmp.replace('#', '')
 			# this seemingly stupid query ensures the id actually exists
 			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
+
+#			tmp = tmp.replace(' ')
+#			queries.append(["select id_identity from lnk_identity2ext_id where norm_external_id *~ '^%s$'" % tmp])
 #			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
 			return queries
 
-		# "<Z I  FF ERN>" - DOB or patient ID
+		# "<d igi ts>" - DOB or patient ID
 		if re.match("^(\d|\s|\t)+$", raw):
 			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			tmp = raw.replace(' ', '')
@@ -911,7 +914,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.51  2004-08-20 13:28:16  ncq
+# Revision 1.52  2004-08-24 14:27:06  ncq
+# - improve __normalize_soundalikes()
+# - fix nasty bug: missing ] resulting in endless logging
+# - prepare search on external id
+#
+# Revision 1.51  2004/08/20 13:28:16  ncq
 # - cleanup/improve inline docs
 # - allow gmCurrentPatient._patient to be reset to gmNull.cNull on aPKey = -1
 # - teach patient searcher about ", something" to be first name
