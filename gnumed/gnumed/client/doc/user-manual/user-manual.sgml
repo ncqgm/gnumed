@@ -147,13 +147,8 @@ If CVS asks for a password, use a blank line. The module name is
       <para>You would type:</para>
 
 	<screen>
-Source tree: cvs -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
-	</screen>
-	
-      <para>Remeber to hit enter when it asks for a password. Then type:</para>
-
-	<screen>
-cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
+export CVS_RSH="ssh"
+cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 	</screen>
       <para>You should then see the cvs directory download into a gnumed directory</para>
     </sect1>
@@ -705,8 +700,8 @@ RECOMMENDATION: install gnumed in "/home/your_user_name/"
 	-- where 'your_user_name' is your favourite normal user - e.g. 'michael'
 	  </para>
 	  <screen>
-$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
-$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+$ export CVS_RSH="ssh"
+$ cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 	  </screen>
 	</sect2>
 	<sect2>
@@ -922,13 +917,9 @@ exit
         <para>
 		Open a new terminal window, and type
         </para>
-        <screen>
-cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
-		</screen>
-        <para>
-		Just press 'return' when asked for a password. Then type
 		<screen>
-cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+export CVS_RSH="ssh"
+cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 		</screen>
         </para><para>
 		All the gnumed files will be downloaded to your hard drive.
@@ -1237,7 +1228,7 @@ Mine is cd /home/gnumed/gnumed/gnumed/client/wxpython
 ./gnumed.sh - this should bring up a login GUI. If the GUI comes up, you have successfully installed the client.
 
 </para></listitem><listitem><para>
-Write an e mail to "Karsten" and request a hostname, a username, and a password and input them into the GUI. Under the "options" button, select "gnumed-public" and put in the hostname and leave the port as 5432. In the main GUI, input username and pasword.
+Write an e mail to "Karsten" and request a hostname, a username, and a password and input them into the GUI. Under the "options" button, select "gnumed" and put in the hostname and leave the port as 5432. In the main GUI, input username and pasword.
 
 <emphasis>NOTE: If Karsten gives you "anydoc" as the username and password, he actually means any-doc for both fields. Also NOTE: You should be logged onto the net when you do this, I was user gnumed when I did it.</emphasis>
 
