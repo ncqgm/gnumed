@@ -1,5 +1,12 @@
 #! /bin/bash
-# create here two symbolic links (we cannot do that in cvs):
+
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/amis-orig/create_links,v $
+# $Revision: 1.2 $
+
+# create two symbolic links here (we cannot do that in cvs):
+
+echo "creating links to original AMIS data on CD-ROM"
+echo "this only works if the AMIS CD is mounted under /cdrom"
+
 ln -s /cdrom/basis/version2 basis
 ln -s /cdrom/interakt interakt
-
