@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.52 2004-08-24 14:27:06 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmPatient.py,v 1.53 2004-08-24 19:15:42 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -437,8 +437,8 @@ class cPatientSearcher_SQL:
 			return None
 		return aName[:1].upper() + aName[1:]
 	#--------------------------------------------------------
-	def __normalize_soundalikes(self, aString = None, aggressive = 0):
-		"""Transform some characters into a regex for their sound-alikes."""
+	def __normalize(self, aString = None, aggressive = 0):
+		"""Transform some characters into a regex."""
 		if aString is None:
 			return None
 		if len(aString) == 0:
@@ -452,6 +452,7 @@ class cPatientSearcher_SQL:
 		normalized = normalized.replace(u'ö', u'(ö|oe|o)')
 		normalized = normalized.replace(u'ü', u'(ü|ue|u|y|i)')
 		normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
+
 		# common soundalikes
 		# - René, Desiré, ...
 		normalized = normalized.replace(u'é', u'(é|e|è)')
@@ -460,9 +461,15 @@ class cPatientSearcher_SQL:
 		normalized = normalized.replace('Th', '(Th|T)')
 		normalized = normalized.replace('th', '(th|t)')
 		# FIXME: how to prevent replacing (f|v|ph) -> (f|(v|f|ph)|ph) ?
-		#normalized = normalized.replace('v','(v|f|ph)')
-		#normalized = normalized.replace('f','(f|v|ph)')
-		#normalized = normalized.replace('ph','(ph|f|v)')
+#		normalized = normalized.replace('v','(v|f|ph)')
+#		normalized = normalized.replace('f','(f|v|ph)')
+#		normalized = normalized.replace('ph','(ph|f|v)')
+
+		# apostrophes et al
+		normalized = normalized.replace('"', """("|'|`|-|\s)*""")
+		normalized = normalized.replace('`', """("|'|`|-|\s)*""")
+		normalized = normalized.replace("'", """("|'|`|-|\s)*""")
+		normalized = normalized.replace('-', """(-|\s)*""")
 
 		if aggressive == 1:
 			pass
@@ -520,7 +527,7 @@ class cPatientSearcher_SQL:
 		# " , <alpha>" - first name
 		if re.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw):
 			tmp = raw.split(',')[1].strip()
-			tmp = self.__normalize_soundalikes(tmp)
+			tmp = self.__normalize(tmp)
 			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
 			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s'" % tmp])
 			return queries
@@ -597,13 +604,13 @@ class cPatientSearcher_SQL:
 		queries = []
 
 		# replace Umlauts
-		no_umlauts = self.__normalize_soundalikes(a_search_term)
+		normalized = self.__normalize(a_search_term)
 
 		# "<CHARS>" - single name part
 		# yes, I know, this is culture specific (did you read the docs ?)
 		if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", a_search_term):
 			# there's no intermediate whitespace due to the regex
-			tmp = no_umlauts.strip()
+			tmp = normalized.strip()
 			# assumption: this is a last name
 			queries.append(["SELECT DISTINCT id_identity FROM names WHERE lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
 			queries.append(["SELECT DISTINCT id_identity FROM names WHERE lastnames  ~* '^%s'" % tmp])
@@ -615,12 +622,12 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# try to split on (major) part separators
-		parts_list = re.split(",|;", no_umlauts)
+		parts_list = re.split(",|;", normalized)
 
 		# only one "major" part ? (i.e. no ",;" ?)
 		if len(parts_list) == 1:
 			# re-split on whitespace
-			sub_parts_list = re.split("\s*|\t*", no_umlauts)
+			sub_parts_list = re.split("\s*|\t*", normalized)
 
 			# parse into name/date parts
 			date_count = 0
@@ -914,7 +921,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.52  2004-08-24 14:27:06  ncq
+# Revision 1.53  2004-08-24 19:15:42  ncq
+# - __normalize_soundalikes() -> __normalize() + improve (apostrophy/hyphen)
+#
+# Revision 1.52  2004/08/24 14:27:06  ncq
 # - improve __normalize_soundalikes()
 # - fix nasty bug: missing ] resulting in endless logging
 # - prepare search on external id
