@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.11 2004-05-08 22:13:11 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmClinItem.py,v 1.12 2004-05-12 14:28:53 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -23,14 +23,14 @@ class cClinItem:
 	"""Represents clinical data items.
 
 	Rules:
-	- instances DO EXIST in the database
-	- verifies its existence upon instantiation
+	- instances ARE ASSUMED TO EXIST in the database
+	- DOES verify its existence on instantiation (fetching data fails)
 	- does NOT verify FK targets existence
 	- does NOT create new entries in the database
-	- NO lazy fetching of fields
+	- does NOT lazy-fetch fields
 	"""
 	#--------------------------------------------------------
-	def __init__(self, aPKey = None):
+	def __init__(self, aPK_obj = None):
 		self._is_modified = False
 		# check descendants
 		#<DEBUG>
@@ -38,21 +38,19 @@ class cClinItem:
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
 		#</DEBUG>
-		self.pk = aPKey
-#		if self.pk is None:
-#			raise gmExceptions.ConstructorError, "[%s]: must have primary key" % self.__class__.__name__
+		self.pk_obj = aPK_obj
 		result = self.refetch_payload()
 		if result is True:
 			return
 		if result is None:
-			raise gmExceptions.NoSuchClinItemError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk)
+			raise gmExceptions.NoSuchClinItemError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk_obj)
 		if result is False:
-			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk)
+			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
 	#--------------------------------------------------------
 	def __del__(self):
 		if self.__dict__.has_key('_is_modified'):
 			if self._is_modified:
-				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk))
+				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
 				_log.Log(gmLog.lData, self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
@@ -90,20 +88,22 @@ class cClinItem:
 		return self.__class__._updatable_fields
 	#--------------------------------------------------------
 	def refetch_payload(self):
+		"""Fetch item values from backend.
+		"""
 		if self._is_modified:
-			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk))
+			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 			return False
 		self._payload = None
 		data, self._idx = gmPG.run_ro_query(
 			'historica',
 			self.__class__._cmd_fetch_payload,
 			True,
-			self.pk)
+			self.pk_obj)
 		if data is None:
-			_log.Log(gmLog.lErr, '[%s:%s]: error retrieving instance' % (self.__class__.__name__, self.pk))
+			_log.Log(gmLog.lErr, '[%s:%s]: error retrieving instance' % (self.__class__.__name__, self.pk_obj))
 			return False
 		if len(data) == 0:
-			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk))
+			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
 			return None
 		self._payload = data[0]
 		return True
@@ -119,14 +119,19 @@ class cClinItem:
 			queries.append((query, [params]))
 		status, err = gmPG.run_commit('historica', queries, True)
 		if status is None:
-			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk))
+			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lData, params)
 			return (None, err)
 		self._is_modified = False
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.11  2004-05-08 22:13:11  ncq
+# Revision 1.12  2004-05-12 14:28:53  ncq
+# - allow dict style pk definition in __init__ for multicolum primary keys (think views)
+# - self.pk -> self.pk_obj
+# - __init__(aPKey) -> __init__(aPK_obj)
+#
+# Revision 1.11  2004/05/08 22:13:11  ncq
 # - cleanup
 #
 # Revision 1.10  2004/05/08 17:27:21  ncq

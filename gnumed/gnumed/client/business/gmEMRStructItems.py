@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 from Gnumed.pycommon import gmLog
@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
 	print "health issue test"
 	print "-----------------"
-	h_issue = cHealthIssue(aPKey=1)
+	h_issue = cHealthIssue(aPK_obj=1)
 	print h_issue
 	fields = h_issue.get_fields()
 	for field in fields:
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
 	print "episode test"
 	print "------------"
-	episode = cEpisode(aPKey=1)
+	episode = cEpisode(aPK_obj=1)
 	print episode
 	fields = episode.get_fields()
 	for field in fields:
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
 	print "encounter test"
 	print "--------------"
-	encounter = cEncounter(aPKey=1)
+	encounter = cEncounter(aPK_obj=1)
 	print encounter
 	fields = encounter.get_fields()
 	for field in fields:
@@ -112,6 +112,11 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.1  2004-04-17 12:18:50  ncq
+# Revision 1.2  2004-05-12 14:28:53  ncq
+# - allow dict style pk definition in __init__ for multicolum primary keys (think views)
+# - self.pk -> self.pk_obj
+# - __init__(aPKey) -> __init__(aPK_obj)
+#
+# Revision 1.1  2004/04/17 12:18:50  ncq
 # - health issue, episode, encounter classes
 #

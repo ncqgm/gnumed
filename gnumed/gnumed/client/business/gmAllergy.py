@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.5 2004-04-20 13:32:33 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmAllergy.py,v 1.6 2004-05-12 14:28:52 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 from Gnumed.pycommon import gmLog
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
-	allg = cAllergy(aPKey=1)
+	allg = cAllergy(aPK_obj=1)
 	print allg
 #	fields = allg.get_fields()
 #	for field in fields:
@@ -72,7 +72,12 @@ if __name__ == '__main__':
 #	allg.save_payload()
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.5  2004-04-20 13:32:33  ncq
+# Revision 1.6  2004-05-12 14:28:52  ncq
+# - allow dict style pk definition in __init__ for multicolum primary keys (think views)
+# - self.pk -> self.pk_obj
+# - __init__(aPKey) -> __init__(aPK_obj)
+#
+# Revision 1.5  2004/04/20 13:32:33  ncq
 # - improved __str__ output
 #
 # Revision 1.4  2004/04/20 00:17:55  ncq
