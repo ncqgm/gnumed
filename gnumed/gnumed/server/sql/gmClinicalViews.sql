@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.5 2003-05-01 15:05:36 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.6 2003-05-02 15:06:19 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -54,6 +54,7 @@ drop function f_announce_allergy_add_del();
 create function f_announce_allergy_add_del() returns opaque as '
 begin
 	notify "allergy_add_del_db";
+	return NEW;
 end;
 ' language 'plpgsql';
 
@@ -86,11 +87,13 @@ select
 from
 	allergy a, _enum_allergy_type at, clin_narrative cn, v_patient_transactions vpt
 where
-	cn.src_table='allergy'
-		and
-	cn.id=a.id_comment
-		and
+--	cn.src_table='allergy'
+--		and
+--	cn.id=a.id_comment
+--		and
 	vpt.id_transaction=a.id_clin_transaction
+		and
+	at.id=a.id_type
 ;
 
 -- =============================================
@@ -109,11 +112,15 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.5  2003-05-01 15:05:36  ncq
+-- Revision 1.6  2003-05-02 15:06:19  ncq
+-- - make trigger return happy
+-- - tweak v_i18n_patient_allergies - not done yet
+--
+-- Revision 1.5  2003/05/01 15:05:36  ncq
 -- - function/trigger to announce insertion/deletion of allergy
 -- - allergy.id_substance -> allergy.substance_code
 --
