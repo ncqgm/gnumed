@@ -20,7 +20,7 @@
 This widget allows the display of SOAP notes, or similar,
 with
 highlighted headings which are portected from user editing.
-A pluggable autocompletion mechanism will be provided
+A pluggable autocompletion mechanism is provided
 """
     
 import string, re
@@ -43,9 +43,9 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         @type id: number
         @paramid: the window ID
         @type headers: list of strings
-        @param headers: the headers to displayed in the widget, in order
-        @type matchers: dictionary of cMatchProvider
-        @param matchers: the plugged match providers, by activationg keyword,
+        @param headers: the headers to be displayed in the widget, in order
+        @type matchers: dictionary of L{Gnumed.pycommon.gmMatchProvider.cMatchProvider}
+        @param matchers: the plugged match providers, by activating keyword,
                          which may or may not be the same as rhe headers 
         """
         wxStyledTextCtrl.__init__ (self, parent, id, size = wxSize (400, 400))
@@ -124,6 +124,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             event.Skip ()
         else:
             if event.KeyCode () in [WXK_RETURN, WXK_RIGHT, WXK_DELETE]:
+                self.__matcher = None
                 if self.GetCharAt (pos) == 10: # we are at the end of a line
                     pos += 1
                     if self.GetStyleAt (pos) == STYLE_HEADER: # the next line is a header
@@ -135,10 +136,15 @@ class SOAPTextCtrl (wxStyledTextCtrl):
                         event.Skip ()
                 else:
                     event.Skip ()
-            elif event.KeyCode () in [WXK_LEFT, WXK_BACK] and pos > 0 and self.GetStyleAt (pos-1) == STYLE_HEADER:
-                # trying to move left onto a header, veto
-                pass
+            elif event.KeyCode () in [WXK_LEFT, WXK_BACK] and pos > 0:
+                self.__matcher = None
+                if self.GetStyleAt (pos-1) == STYLE_HEADER:
+                    # trying to move left onto a header, veto
+                    pass
+                else:
+                    event.Skip ()
             elif event.KeyCode () == WXK_UP:
+                self.__matcher = None
                 line = self.LineFromPosition (pos)
                 col = self.GetColumn (pos)
                 if line > 0:
@@ -151,6 +157,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
                         #print "line : %d pos: %d lineend: %d" % (line, pos, lineend)
                         event.Skip ()
             elif event.KeyCode () == WXK_DOWN:
+                self.__matcher = None
                 line = self.LineFromPosition (pos)
                 col = self.GetColumn (pos)
                 line += 1
@@ -166,14 +173,13 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             ch = string.lower (chr (event.KeyCode ()))
             if ch in string.letters:
                 self.autocompstr += ch
-                if not self.AutoCompActive ():
-                    clist = []
-                    for i in completions:
-                        if string.find (i, self.autocompstr) == 0:
-                            clist.append (i)
-                    if len (clist) > 0 and len (clist) < 7:
-                        clist.sort ()
-                        self.UserListShow (1, string.join (clist, '\n'))
+                if not self.AutoCompActive () and len (self.autocompstr) > 0:
+                    if self.__matcher is None:
+                        self.__find_matcher ()
+                    if self.__matcher:
+                        flag, self.mlist = self.__matcher.getMatches (self.autocompstr)
+                        if flag:
+                            self.UserListShow (1, string.join ([i['label'] for i in self.mlist], '\n'))
             else:
                 if ch != '\r':
                     self.autocompstr = ''
@@ -190,6 +196,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         self.GotoPos (start + len (text))
         
     def __mouse_down (self, event):
+        self.__matcher = None
         pos = self.PositionFromPoint (event.GetPosition ())
         if self.GetStyleAt (pos) == STYLE_HEADER:
             doclen = self.GetLength ()
@@ -199,18 +206,42 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         else:
             event.Skip ()
 
+    def __find_matcher (self):
+        pos = self.GetCurrentPos ()
+        text = self.GetText ()
+        highestpos = -1
+        for (name, matcher) in self.matchers.items ():
+            rfind = string.rfind (text, name, 0, pos)
+            if rfind > highestpos:
+                highestpos = rfind
+                self.__matcher = matcher
+            
+
 
 ### For testing only
 
+from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
-completions = ['oesophagus', 'febrile', 'phlegmon', 'anaesthetic', 'phenoxybenzylpenicillin', 'penicillinamine']
+AOElist = [{'label':'otitis media', 'data':1, 'weight':1}, {'label':'otitis externa', 'data':2, 'weight':1},
+            {'label':'cellulitis', 'data':3, 'weight':1}, {'label':'gingvitis', 'data':4, 'weight':1},
+            {'label':'ganglion', 'data':5, 'weight':1}]
+
+Subjlist = [{'label':'earache', 'data':1, 'weight':1}, {'label':'earache', 'data':1, 'weight':1},
+           {'label':'ear discahrge', 'data':2, 'weight':1}, {'label':'eardrum bulging', 'data':3, 'weight':1},
+           {'label':'sore arm', 'data':4, 'weight':1}, {'label':'sore tooth', 'data':5, 'weight':1}]
+
+Planlist = [{'label':'pencillin V', 'data':1, 'weight':1}, {'label':'penicillin X', 'data':2, 'weight':1},
+            {'label':'penicillinamine', 'data':3, 'weight':1}, {'label':'penthrane', 'data':4, 'weight':1},
+            {'label':'penthidine', 'data':5, 'weight':1}]
 
 class testFrame(wxFrame):
     def __init__(self, title):
         # begin wxGlade: MyFrame.__init__
         wxFrame.__init__(self, None, wxNewId (), title)
-        self.text_ctrl_1 = SOAPTextCtrl(self, -1)
-        self.text_ctrl_1.set_data ({'Subjective':'earache', 'Assessment':'otitis media'})
+        matchers = {"AOE": cMatchProvider_FixedList (AOElist), "Plan": cMatchProvider_FixedList (Planlist),
+                    "Subj": cMatchProvider_FixedList (Subjlist), "Obj": None}
+        self.text_ctrl_1 = SOAPTextCtrl(self, -1, headers=['RFE', "Subj", "Obj", "Assess", "AOE", "Plan"], matchers = matchers)
+        self.text_ctrl_1.set_data ({'RFE':'earache', 'Assess':'otitis media'})
         EVT_CLOSE (self, self.OnClose)
 
         self.__do_layout()
