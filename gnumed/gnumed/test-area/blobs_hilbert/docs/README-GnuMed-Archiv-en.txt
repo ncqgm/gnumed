@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-en.txt,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 #------------------------------------------------------------------------
 
 What GNUmedArchive is and what it is not.
@@ -144,12 +144,12 @@ Server
 	PostgreSQL-database adapter for python
 	---------
 
-	Linux )   http://prdownloads.sourceforge.net/pypgsql/pypgsql-2.2.tar.gz?download
+	Linux )   http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.3.tar.gz?download
 			The packages contains a file named "readme" which contains installation instructions.
 			You might have to adapt the file setup.py to your system before compiling.
 
 	Windows ) There is an installer for this package available as well.
-			http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.1.win32-py2.2.exe?download
+			http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.3.win32-py2.2.exe?download
 
 	mx-tools
 	-------------------
@@ -405,7 +405,10 @@ Windows
 
 #------------------------------------------------------------------------
 # $Log: README-GnuMed-Archiv-en.txt,v $
-# Revision 1.3  2003-01-26 23:27:26  ncq
+# Revision 1.4  2003-04-04 15:54:50  ncq
+# - updates by Basti
+#
+# Revision 1.3  2003/01/26 23:27:26  ncq
 # - updated
 #
 # Revision 1.2  2003/01/19 16:32:44  ncq

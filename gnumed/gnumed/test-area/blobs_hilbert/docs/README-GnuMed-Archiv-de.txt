@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-de.txt,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 #------------------------------------------------------------------------
 
 Sie lesen gerade eine Vorversion des Installationshandbuchs zu GNUmedArchiv.
@@ -40,7 +40,7 @@ Sie brauchen:
 auf dem Client
 --------------
 
-	Python
+	Python - http://www.python.org
 	------
 
 	Linux )	Bei Linux kann man sich entscheiden ob man Python von den Quellen installiert oder auf
@@ -102,7 +102,7 @@ auf dem Client
 	Windows - http://twainmodule.sourceforge.net/ - damit man von Python aus Scannen kann (Windows)
 
 
-	PythonImagingLibrary
+	PythonImagingLibrary 
 	--------------------
 	http://www.pythonware.com - PIL 1.1.3
 
@@ -114,7 +114,7 @@ auf dem Client
 
 Server
 ------
-	Python
+	Python - http://www.python.org
 	------
 
 	Linux )	Bei Linux kann man sich entscheiden ob man Python von den Quellen installiert oder auf
@@ -133,7 +133,7 @@ Server
 	Mac ) 	http://www.python.org/2.2.1/mac.html oder http://www.cwi.nl/~jack/macpython.html
 
 
-	Posgresql-Datenbank
+	Posgresql-Datenbank - http://postgresql.org
 	---------
 	Linux ) Suse 8.0 ) Von der CD oder aus dem Netz (http://www.postgresql.org) muss das Paket postgresql
 			installiert werden. Zusätzlich habe ich noch folgende Pakete installliert :
@@ -142,14 +142,15 @@ Server
 
 	Python-Schnittstelle für PostgreSQL
 	---------
-
-	Linux )   http://prdownloads.sourceforge.net/pypgsql/pypgsql-2.2.tar.gz?download
+	URL
+	
+	Linux )   http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.3.tar.gz?download
 			Die Datei enthält eine Datei namens "readme" in der die Installation beschrieben ist.
 			Man muss evtl. die Datei setup.py an das eigene System anpassen bevor es kompiliert wird.
 			Wichtig sind dabei die Pfade zu den entsprechenden Bibliotheken.
 
 	Windows ) Auch für dieses Paket gibt es einen Installer
-			http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.1.win32-py2.2.exe?download
+			http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.3.win32-py2.2.exe?download
 
 	mx-tools
 	-------------------
@@ -437,7 +438,10 @@ DOS
 
 #------------------------------------------------------------------------
 $Log: README-GnuMed-Archiv-de.txt,v $
-Revision 1.6  2003-01-26 23:27:26  ncq
+Revision 1.7  2003-04-04 15:54:50  ncq
+- updates by Basti
+
+Revision 1.6  2003/01/26 23:27:26  ncq
 - updated
 
 Revision 1.5  2003/01/19 16:32:44  ncq
