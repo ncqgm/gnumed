@@ -10,14 +10,14 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.20 2004-07-06 00:26:06 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPatientExporter.py,v 1.21 2004-07-09 22:39:40 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
-from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions
+from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -38,7 +38,7 @@ def prompted_input(prompt, default=None):
 	return usr_input
 #--------------------------------------------------------
 class cEmrExport:
-	def __init__(self, constraints = None):
+	def __init__(self, constraints = None, fileout = None):
 		"""Default constructor.
 
 		constraints - Exporter constraints for filtering clinical items
@@ -54,6 +54,7 @@ class cEmrExport:
 			}
 		else:
 			self.__constraints = constraints
+		self.__target = fileout
 		self.__patient = None
 		self.lab_new_encounter = True
 	#--------------------------------------------------------
@@ -169,7 +170,6 @@ class cEmrExport:
 			table_count += 1
 		#print "Number of tables to display: %i " % table_count
 		
-		txt = ''
 		for cont in range(table_count):
 			start = cont*5
 			end = (cont+1)*5
@@ -185,15 +185,15 @@ class cEmrExport:
 			# Get date field length
 			column_length = len(vacc_dates[0]) 
 			# Print table header (column dates)
-			txt += '\n\n'
-			txt += ' '*max_indication_length + '|'
+			self.__target.write('\n\n')
+			self.__target.write(' '*max_indication_length + '|')
 			for a_date in vacc_dates:
-				txt+= str(a_date) + "\t|"
-			txt += '\n'
+				self.__target.write(str(a_date) + "\t|")
+			self.__target.write('\n')
 			# Print rows
 			for an_indication in vacc_indications:
 				row_column = 0
-				txt+= an_indication + " "*(max_indication_length-len(an_indication)) + "|"
+				self.__target.write(an_indication + " "*(max_indication_length-len(an_indication)) + "|")
 				for a_date in vacc_dates:
 					cell_txt = self.get_vaccination_for_cell(emr.get_vaccinations(indications = [an_indication]), a_date, 'date')
 					if cell_txt is None:
@@ -201,12 +201,11 @@ class cEmrExport:
 					if cell_txt is None:
 						cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indications = [an_indication])['boosters'], a_date, 'latest_due', '*DUE    ')					
 					if cell_txt is not None:
-						txt += cell_txt + '\t|'									
+						self.__target.write(cell_txt + '\t|')
 					else:
-						txt+= ' '*column_length + '\t|'
-				txt += '\t\n'    		
+						self.__target.write(' '*column_length + '\t|')
+				self.__target.write('\t\n')
 					
-		return txt
     #--------------------------------------------------------
 	def get_encounters_for_items(self, emr, items):
 	    """
@@ -340,23 +339,21 @@ class cEmrExport:
 	    filtered_encounters = self.get_set_for_field(filtered_items, 'pk_encounter')
 	    
 	    # All values fetched and filtered, we can begin with the tree
-	    txt = ''
 	    h_issues = emr.get_health_issues(id_list = filtered_issues)
 	    for h_issue in h_issues:
-	        txt += '\n' + 3*' ' + 'Health Issue: ' + h_issue['description'] + '\n'
+	        self.__target.write('\n' + 3*' ' + 'Health Issue: ' + h_issue['description'] + '\n')
 	        for an_episode in emr.get_episodes(id_list=filtered_episodes, issues = [h_issue['id']]):
-	           txt += '\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n'
+	           self.__target.write('\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n')
 	           items =  filter(lambda item: item['pk_episode'] in [an_episode['pk_episode']], filtered_items)
 	           encounters = self.get_encounters_for_items(emr, items)
 	           for an_encounter in encounters:
                     self.lab_new_encounter = True
-                    txt += '\n' + 9*' ' + 'Encounter, ' + an_encounter['l10n_type'] + ': ' + an_encounter['started'].Format('%Y-%m-%d') + ' to ' + \
+                    self.__target.write('\n' + 9*' ' + 'Encounter, ' + an_encounter['l10n_type'] + ': ' + an_encounter['started'].Format('%Y-%m-%d') + ' to ' + \
                     an_encounter['last_affirmed'].Format('%Y-%m-%d') + ' ' + \
-                    '"' + an_encounter['description'] + '"\n'
+                    '"' + an_encounter['description'] + '"\n')
                     for an_item  in items:
                         if an_item['pk_encounter'] == an_encounter['pk_encounter']:
-                            txt += self.get_item_output(an_item)
-	    return txt
+                            self.__target.write(self.get_item_output(an_item))
 	#--------------------------------------------------------
 	def dump_clinical_record(self):
 		"""
@@ -372,27 +369,24 @@ class cEmrExport:
 				'Please check the log file for details.'
 			))
 			return None
-		txt ='\n'
-		txt += 'Overview\n'
-		txt += '--------\n'
+		self.__target.write('\nOverview\n')
+		self.__target.write('--------\n')
 		
-		txt += "1) Allergy status (for details, see below):\n\n"
+		self.__target.write("1) Allergy status (for details, see below):\n\n")
 		for allergy in 	emr.get_allergies():
-			txt += "   " + allergy['descriptor'] + "\n"
-		txt += "\n"
+			self.__target.write("   " + allergy['descriptor'] + "\n\n")
 		
-		txt += "2) Vaccination status (* indicates booster):\n"
-		txt += self.get_vacc_table(emr)
+		self.__target.write("2) Vaccination status (* indicates booster):\n")
+		self.get_vacc_table(emr)
 		
-		txt += "\n3) Historical:\n\n"
-		txt += self.get_historical_tree(emr)
+		self.__target.write("\n3) Historical:\n\n")
+		self.get_historical_tree(emr)
 
 		try:
 			emr.cleanup()
 		except:
 			print "error cleaning up EMR"
 			
-		return txt	    
 	#--------------------------------------------------------
 	def dump_med_docs(self):
 	    """
@@ -401,20 +395,19 @@ class cEmrExport:
 	    """
 	    doc_folder = self.__patient.get_document_folder()
 	    doc_ids = doc_folder.get_doc_list()
-	    txt = '\n'
-	    txt += '4) Medical documents: (date) reference - type "comment"\n'
-	    txt += '                         object - comment'
+	    
+	    self.__target.write('\n4) Medical documents: (date) reference - type "comment"\n')
+	    self.__target.write('                         object - comment')
 	    for doc_id in doc_ids:
 	        med_doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
 	        doc_metadata = med_doc.get_metadata()
-	        txt += '\n\n' + 3*' ' + \
+	        self.__target.write('\n\n' + 3*' ' + \
 	        '(' + doc_metadata['date'].Format('%Y-%m-%d') + ') ' + doc_metadata['reference'] +\
-	        ' - ' + doc_metadata['type']+ ' "' + doc_metadata['comment'] + '"'
+	        ' - ' + doc_metadata['type']+ ' "' + doc_metadata['comment'] + '"')
 	        for objKey in doc_metadata['objects'].keys():
-	            txt += '\n' + 6*' ' + str(doc_metadata['objects'][objKey]['index']) + '-' +\
-	            doc_metadata['objects'][objKey]['comment']
-	    txt += '\n\n'
-	    return txt
+	            self.__target.write('\n' + 6*' ' + str(doc_metadata['objects'][objKey]['index']) + '-' +\
+	            doc_metadata['objects'][objKey]['comment'])
+	    self.__target.write('\n\n')
 	#--------------------------------------------------------    
 	def dump_demographic_record(self, all = False):
 		"""
@@ -431,70 +424,65 @@ class cEmrExport:
 			))
 			return None
 
-		txt = '\n\n\nDemographics'
-		txt += '\n------------\n'
-		txt += '   Id: ' + str(dump['id']) + '\n'
+		self.__target.write('\n\n\nDemographics')
+		self.__target.write('\n------------\n')
+		self.__target.write('   Id: ' + str(dump['id']) + '\n')
 		for name in dump['names']:
 			if dump['names'].index(name) == 0:
-				txt += '   Name (Active): ' + name['first'] + ', ' + name['last'] + '\n'
+				self.__target.write('   Name (Active): ' + name['first'] + ', ' + name['last'] + '\n')
 			else:
-				txt += '   Name ' + dump['names'].index(name) + ': ' + name['first'] + ', ' +  name['last'] + '\n'
-		txt += '   Gender: ' + dump['gender'] + '\n'
-		txt += '   Title: ' + dump['title'] + '\n'
-		txt += '   Dob: ' + dump['dob'] + '\n'
-		txt += '   Medical age: ' + dump['mage'] + '\n'
+				self.__target.write('   Name ' + dump['names'].index(name) + ': ' + name['first'] + ', ' +  name['last'] + '\n')
+		self.__target.write('   Gender: ' + dump['gender'] + '\n')
+		self.__target.write('   Title: ' + dump['title'] + '\n')
+		self.__target.write('   Dob: ' + dump['dob'] + '\n')
+		self.__target.write('   Medical age: ' + dump['mage'] + '\n')
 		addr_types = dump['addresses'].keys()
 		for addr_t in addr_types:
 			addr_lst = dump['addresses'][addr_t]
 			for address in addr_lst:
-				txt += '   Address (' + addr_t + '): ' + address + '\n'
-		return txt
+				self.__target.write('   Address (' + addr_t + '): ' + address + '\n')
 	#--------------------------------------------------------    
 	def dump_constraints(self):
 	    """
             Dumps exporter filtering constraints
 	    """
-	    txt = ''
 	    self.__first_constraint = True
 	    
 	    if not self.__constraints['since'] is None:
-	        txt += self.dump_constraints_header()
-	        txt += '\nSince: %s' % self.__constraints['since'].Format('%Y-%m-%d')
+	        self.dump_constraints_header()
+	        self.__target.write('\nSince: %s' % self.__constraints['since'].Format('%Y-%m-%d'))
 	    
 	    if not self.__constraints['until'] is None:
-	        txt += self.dump_constraints_header()
-	        txt += '\nUntil: %s' % self.__constraints['until'].Format('%Y-%m-%d')
+	        self.dump_constraints_header()
+	        self.__target.write('\nUntil: %s' % self.__constraints['until'].Format('%Y-%m-%d'))
 	    
 	    if not self.__constraints['encounters'] is None:
-	        txt += self.dump_constraints_header()
-	        txt += '\nEncounters: '
+	        self.dump_constraints_header()
+	        self.__target.write('\nEncounters: ')
 	        for enc in self.__constraints['encounters']:
-	            txt += str(enc) + ' '
+	            self.__target.write(str(enc) + ' ')
 	    
 	    if not self.__constraints['episodes'] is None:
-	        txt += self.dump_constraints_header()
-	        txt += '\nEpisodes: '
+	        self.dump_constraints_header()
+	        self.__target.write('\nEpisodes: ')
 	        for epi in self.__constraints['episodes']:
-	            txt += str(epi) + ' '
+	            self.__target.write(str(epi) + ' ')
 	    
 	    if not self.__constraints['issues'] is None:
-	        txt += self.dump_constraints_header()
-	        txt += '\nIssues: '
+	        self.dump_constraints_header()
+	        self.__target.write('\nIssues: ')
 	        for iss in self.__constraints['issues']:
-	            txt += str(iss) + ' '
+	            self.__target.write(str(iss) + ' ')
 	    
-	    return txt
 	#--------------------------------------------------------    
 	def dump_constraints_header(self):
 	    """
             Dumps constraints header
 	    """
-	    head_txt = ''
 	    if self.__first_constraint == True:
-	        head_txt = '\nClinical items dump constraints\n'
-	        head_txt += '-'*(len(head_txt)-2)
+	        self.__target.write('\nClinical items dump constraints\n')
+	        self.__target.write('-'*(len(head_txt)-2))
 	        self.__first_constraint = False
-	    return head_txt
 #============================================================
 # main
 #------------------------------------------------------------
@@ -509,8 +497,8 @@ def parse_constraints():
     """
         Obtains, parses and normalizes config file options
     """
-	if isinstance(_cfg, gmNull.cNull):
-		usage()
+    if isinstance(_cfg, gmNull.cNull):
+        usage()
 
     # Retrieve options
     cfg_group = 'constraints'
@@ -522,7 +510,7 @@ def parse_constraints():
         'issues': _cfg.get(cfg_group, 'issues')
     }
 
-    # Normalice null constraints (None is interpreted as non existing constraint along all methods)
+    # Normalize null constraints (None is interpreted as non existing constraint along all methods)
     for a_constraint in constraints.keys():
         if len(constraints[a_constraint]) == 0:
             constraints[a_constraint] = None
@@ -550,7 +538,7 @@ def run():
 		outFile = open(gmCLI.arg['--fileout'], 'wb')
 	else:
 		usage()
-	export_tool = cEmrExport(parse_constraints())
+	export_tool = cEmrExport(parse_constraints(), outFile)
 	
 	# More variable initializations
 	patient = None
@@ -577,23 +565,11 @@ def run():
 		export_tool.set_patient(patient)
 		
 		# Dump patient EMR sections
-		chunk = ''
-		chunk = export_tool.dump_constraints()
-		print chunk
-		outFile.write('\n' + chunk)
+		export_tool.dump_constraints()
+		export_tool.dump_demographic_record(True)
+		export_tool.dump_clinical_record()
+		export_tool.dump_med_docs()
 		
-		chunk = export_tool.dump_demographic_record(True)
-		print chunk
-		outFile.write('\n' + chunk)
-		
-		chunk = export_tool.dump_clinical_record()
-		print chunk
-		outFile.write('\n' + chunk)
-		
-		chunk = export_tool.dump_med_docs()
-		print chunk
-		outFile.write('\n' + chunk)
-
 	# Clean ups
 	outFile.close()
 	export_tool.cleanup()
@@ -626,7 +602,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.20  2004-07-06 00:26:06  ncq
+# Revision 1.21  2004-07-09 22:39:40  ncq
+# - write to file like object passed to __init__
+#
+# Revision 1.20  2004/07/06 00:26:06  ncq
 # - fail on _cfg is_instance of cNull(), not on missing conf-file option
 #
 # Revision 1.19  2004/07/03 17:15:59  ncq
