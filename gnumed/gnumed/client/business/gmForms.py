@@ -8,9 +8,9 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.3 2004-02-25 09:46:20 ncq Exp $
-__version__ = "$Revision: 1.3 $"
-__author__ ="Ian Haywood <ihaywood@gnu.org"
+# $Id: gmForms.py,v 1.4 2004-03-07 08:10:22 ihaywood Exp $
+__version__ = "$Revision: 1.4 $"
+__author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     sys.path.append(os.path.join('..', 'pycommon'))
  
 # start logging
-import gmLog
+from Gnumed.client.pycommon import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
     _log.SetAllLogLevels(gmLog.lData)
@@ -28,48 +28,65 @@ _log.Log(gmLog.lData, __version__)
 from mx import DateTime
 #============================================================
 
-class gmForm:
+class gmFormEngine:
     """
     Ancestor for forms
     No real functionality as yet
     Descendants should override class variables country, type, electronic, date as neccessary
     """
 
-    country = "UF"
-    discipline = ""
-    electronic = 0
-    date = DateTime.Date (1970, 1, 1)
-
-    def process (self, params):
+    def process (self, template, params):
         """
-        Accept a list of parameters for processing into a form.
-        Returns a Python file (or file-like) object representing the
-        transmitable form of the form.
+        Accept a template [format specific to the engine] and
+        dictionary of parameters [specific to the template] for processing into a form.
+        Returns a Python file or file-like object representing the
+        transmittable form of the form.
         For paper forms, this should be PostScript data or similar.
         """
         pass
 
-    def flags (self):
-        """
-        Return a list of strings representing specific checkbox options to display to the user.
-        Can be added a fields to params above, holding a boolean
-        """
-        return []
 
-    def cleanup (self):
-        """
-        A sop to LaTeX which can't function as a true filter.
-        Deletes temporary files
-        """
-        pass
+class BasicTextForm (gmForm):
+    """
+    Takes a plain text form and subsitutes the fields
+    which are marked using an escape character.
+    """
+
+    def __subst (self, match):
+        elif self.params.has_key (match): # we have a parameter matching the field
+            if type (self.params[match]) is types.ListType:
+                self.start_list = 1 # we've got a list, keep repeating this line
+                if len (self.params[match]) >= self.index:
+                    _log.gmLog (gmLog.lErr, "array field %s exhausted at index %d" % (match, self.index))
+                    return ""
+                elif len (self.params[match]) == self.index+1: # stop when list exhausted, separate flag so other flags don't overwrite
+                    self.stop_list = 1
+                return self.params[match][self.index]
+            else:
+                return self.params[match]
+        else:
+            _log.Log (gmLog.lErr, "can't find %s in form dictionary" % match)
+            return ""
     
+    def process (self, template, params, escape='@'):
+        regex = "%s(\\w)+" % escape
+        result = cStringIO.StringIO ()
+        for line in template.split ('\n'):
+            self.index = 0
+            self.start_list = 0
+            self.stop_list = 0
+            result.write (re.sub (regex, lambda x: self.__subst (x.group (1)), line) + '\n')
+            if self.start_list:
+                while not self.stop_list:
+                    self.index += 1
+                    result.write (re.sub (regex, lambda x: self.__subst (x.group (1)), line) + '\n')
+        result.seek (0)
+                
+                
+        
 class LaTeXForm (gmForm):
     """
-    A forms ancestor for forms using LaTeX
-    Decendants override class variables discipline, country and date as necessary.
-    Class variable template holds the LaTeX template document as a python string
-    The document may embed calls to methods as @foo where foo (self) is defined in the descendant
-    class, the string returned by the function is replaced in the text
+    A forms engine wrapping LaTeX
     """
 
     def texify (self, item):
@@ -77,39 +94,23 @@ class LaTeXForm (gmForm):
         Convience function to escape strings for TeX output
         """
 
-        if type (item) is types.StringType:
+        if type (item) is types.StringType or type (item) is types.UnicodeType:
             item = item.replace ("\\", "\\backspace")
             item = item.replace ("&", "\\&")
             item = item.replace ("$", "\\$")
             item = item.replace ('"', "")
             item = item.replace ("\n", "\\\\ ")
-        if len (item).strip () == 0:
-	    item = "\relax"
-        if type (item) is types.ListType:
-            # convert to LaTeX table format 
-            str = ''
-            for line in item:
-                line = [texify (i) for i in line]
-                linestr = string.join (line, " & ")
-                str += linestr
-            str += ' \\\\ '
-            item = str
-        if type (item) is types.NoneType:
-            item = "\\relax"
+            if len (item).strip () == 0:
+                item = "\relax " # sometimes TeX really hates empty strings, this seems to mollify it
+        if type (item) is types.ListType: 
+            item = [self.texify (i) for i in item]
+        if type (item) is types.DictType:
+            for i in item.keys ():
+                item[i] = self.texify (i)
         return item
-	    
-    def __subst (self, match):
-        if self.__dict__.has_key (match): # we have a method matching the field
-            return self.__dict__ [match] () # call it and return the result
-        elif self.params.has_key (match): # we have a parameter matching the field
-            return self.texify (self.params[match]) # escape and return the value
-        else:
-            return "\relax % Can't get a value for %s\n" % match
-    
+
     def process (self, params):
-        self.params = params
-        # perform substition with results of method calls
-        self.latex = re.sub ("@(\w+)", lambda x: self.__subst (x.group (1)), self.template)
+        self.params = self.texify (params)
         # create a 'playground' directory
         self.tmp = tempfile.mktemp ()
         os.makedirs (self.tmp)
