@@ -253,7 +253,7 @@ CREATE RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person
     WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
     OR NEW.title != OLD.title DO INSTEAD 
     INSERT INTO names (title, firstnames, lastnames, id_identity, active)
-     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.id, 't');
+     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.id, 't'); 
 
 -- rule for identity change
 -- yes, you would use this, think carefully.....
