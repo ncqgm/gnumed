@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -444,6 +444,8 @@ comment on column staff.sign is
 -- ===================================================================
 -- organisation related tables
 -- ===================================================================
+-- FIXME: that way lieth great peril
+-- FIXME: missing alter table ... primary key
 create table org_address (
 	is_postal_address bool not null default true,
 	id integer unique not null default nextval ('address_id_seq')
@@ -553,7 +555,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	lnk_job2person,
 	lnk_job2person_id_seq,
 	org_address,
-	org_address_id_seq,
 	org,
 	org_id_seq,
 	lnk_org2address,
@@ -564,11 +565,15 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.19 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.20 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.19  2004-02-18 06:37:47  ihaywood
+-- Revision 1.20  2004-02-18 14:18:51  ncq
+-- - since we dare let org_address inherit from address
+--   there's no org_address_id_seq to be granted rights on
+--
+-- Revision 1.19  2004/02/18 06:37:47  ihaywood
 -- extra organisation table to represent comm channels
 --
 -- Revision 1.18  2003/12/29 15:36:50  uid66147
