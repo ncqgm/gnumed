@@ -1,7 +1,7 @@
 # scanning for section headers,
-#	then for components in file  gmEditArea.py 
-#	and generating a script template for attaching
-#	a listener to the components.  
+	#	then for components in file  gmEditArea.py 
+	#	and generating a script template for attaching
+	#	a listener to the components.  
 
 from wxPython.wx import * 
 
@@ -37,22 +37,22 @@ class gmSECTION_SUMMARY_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
 
@@ -87,22 +87,22 @@ class gmSECTION_DEMOGRAPHICS_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
 
@@ -137,22 +137,22 @@ class gmSECTION_CLINICALNOTES_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
 
@@ -242,132 +242,132 @@ class gmSECTION_FAMILYHISTORY_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.txt_familymembername,\
 			self.id_map['txt_familymembername'],\
-			self.text_entered_txt_familymembername)
+			self.txt_familymembername_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymemberrelationship,\
 			self.id_map['txt_familymemberrelationship'],\
-			self.text_entered_txt_familymemberrelationship)
+			self.txt_familymemberrelationship_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymembercondition,\
 			self.id_map['txt_familymembercondition'],\
-			self.text_entered_txt_familymembercondition)
+			self.txt_familymembercondition_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymemberconditioncomment,\
 			self.id_map['txt_familymemberconditioncomment'],\
-			self.text_entered_txt_familymemberconditioncomment)
+			self.txt_familymemberconditioncomment_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymemberage_onset,\
 			self.id_map['txt_familymemberage_onset'],\
-			self.text_entered_txt_familymemberage_onset)
+			self.txt_familymemberage_onset_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymembercaused_death,\
 			self.id_map['txt_familymembercaused_death'],\
-			self.text_entered_txt_familymembercaused_death)
+			self.txt_familymembercaused_death_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymemberage_death,\
 			self.id_map['txt_familymemberage_death'],\
-			self.text_entered_txt_familymemberage_death)
+			self.txt_familymemberage_death_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymemberprogressnotes,\
 			self.id_map['txt_familymemberprogressnotes'],\
-			self.text_entered_txt_familymemberprogressnotes)
+			self.txt_familymemberprogressnotes_text_entered)
 
 		EVT_TEXT(self.panel.txt_familymemberdate_of_birth,\
 			self.id_map['txt_familymemberdate_of_birth'],\
-			self.text_entered_txt_familymemberdate_of_birth)
+			self.txt_familymemberdate_of_birth_text_entered)
 
 		EVT_RADIOBUTTON(self.panel.rb_familymember_conditionconfidential,\
 			self.id_map['rb_familymember_conditionconfidential'],\
-			self.radiobutton_clicked_rb_familymember_conditionconfidential)
+			self.rb_familymember_conditionconfidential_radiobutton_clicked)
 
 		EVT_BUTTON(self.panel.btn_familymembernextcondition,\
 			self.id_map['btn_familymembernextcondition'],\
-			self.button_clicked_btn_familymembernextcondition)
+			self.btn_familymembernextcondition_button_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_txt_familymembername( self, event):
+	def txt_familymembername_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymembername received ", event
+		print "txt_familymembername_text_entered received ", event
 			
 
-	def text_entered_txt_familymemberrelationship( self, event):
+	def txt_familymemberrelationship_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymemberrelationship received ", event
+		print "txt_familymemberrelationship_text_entered received ", event
 			
 
-	def text_entered_txt_familymembercondition( self, event):
+	def txt_familymembercondition_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymembercondition received ", event
+		print "txt_familymembercondition_text_entered received ", event
 			
 
-	def text_entered_txt_familymemberconditioncomment( self, event):
+	def txt_familymemberconditioncomment_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymemberconditioncomment received ", event
+		print "txt_familymemberconditioncomment_text_entered received ", event
 			
 
-	def text_entered_txt_familymemberage_onset( self, event):
+	def txt_familymemberage_onset_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymemberage_onset received ", event
+		print "txt_familymemberage_onset_text_entered received ", event
 			
 
-	def text_entered_txt_familymembercaused_death( self, event):
+	def txt_familymembercaused_death_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymembercaused_death received ", event
+		print "txt_familymembercaused_death_text_entered received ", event
 			
 
-	def text_entered_txt_familymemberage_death( self, event):
+	def txt_familymemberage_death_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymemberage_death received ", event
+		print "txt_familymemberage_death_text_entered received ", event
 			
 
-	def text_entered_txt_familymemberprogressnotes( self, event):
+	def txt_familymemberprogressnotes_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymemberprogressnotes received ", event
+		print "txt_familymemberprogressnotes_text_entered received ", event
 			
 
-	def text_entered_txt_familymemberdate_of_birth( self, event):
+	def txt_familymemberdate_of_birth_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_familymemberdate_of_birth received ", event
+		print "txt_familymemberdate_of_birth_text_entered received ", event
 			
 
-	def radiobutton_clicked_rb_familymember_conditionconfidential( self, event):
+	def rb_familymember_conditionconfidential_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_familymember_conditionconfidential received ", event
+		print "rb_familymember_conditionconfidential_radiobutton_clicked received ", event
 			
 
-	def button_clicked_btn_familymembernextcondition( self, event):
+	def btn_familymembernextcondition_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btn_familymembernextcondition received ", event
+		print "btn_familymembernextcondition_button_clicked received ", event
 			
 
 
@@ -467,152 +467,152 @@ class gmSECTION_PASTHISTORY_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.txt_condition,\
 			self.id_map['txt_condition'],\
-			self.text_entered_txt_condition)
+			self.txt_condition_text_entered)
 
 		EVT_RADIOBUTTON(self.panel.rb_sideleft,\
 			self.id_map['rb_sideleft'],\
-			self.radiobutton_clicked_rb_sideleft)
+			self.rb_sideleft_radiobutton_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb_sideright,\
 			self.id_map['rb_sideright'],\
-			self.radiobutton_clicked_rb_sideright)
+			self.rb_sideright_radiobutton_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb_sideboth,\
 			self.id_map['rb_sideboth'],\
-			self.radiobutton_clicked_rb_sideboth)
+			self.rb_sideboth_radiobutton_clicked)
 
 		EVT_TEXT(self.panel.txt_notes1,\
 			self.id_map['txt_notes1'],\
-			self.text_entered_txt_notes1)
+			self.txt_notes1_text_entered)
 
 		EVT_TEXT(self.panel.txt_notes2,\
 			self.id_map['txt_notes2'],\
-			self.text_entered_txt_notes2)
+			self.txt_notes2_text_entered)
 
 		EVT_TEXT(self.panel.txt_agenoted,\
 			self.id_map['txt_agenoted'],\
-			self.text_entered_txt_agenoted)
+			self.txt_agenoted_text_entered)
 
 		EVT_TEXT(self.panel.txt_yearnoted,\
 			self.id_map['txt_yearnoted'],\
-			self.text_entered_txt_yearnoted)
+			self.txt_yearnoted_text_entered)
 
 		EVT_CHECKBOX(self.panel.cb_active,\
 			self.id_map['cb_active'],\
-			self.checkbox_clicked_cb_active)
+			self.cb_active_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.cb_operation,\
 			self.id_map['cb_operation'],\
-			self.checkbox_clicked_cb_operation)
+			self.cb_operation_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.cb_confidential,\
 			self.id_map['cb_confidential'],\
-			self.checkbox_clicked_cb_confidential)
+			self.cb_confidential_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.cb_significant,\
 			self.id_map['cb_significant'],\
-			self.checkbox_clicked_cb_significant)
+			self.cb_significant_checkbox_clicked)
 
 		EVT_TEXT(self.panel.txt_progressnotes,\
 			self.id_map['txt_progressnotes'],\
-			self.text_entered_txt_progressnotes)
+			self.txt_progressnotes_text_entered)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_txt_condition( self, event):
+	def txt_condition_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_condition received ", event
+		print "txt_condition_text_entered received ", event
 			
 
-	def radiobutton_clicked_rb_sideleft( self, event):
+	def rb_sideleft_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_sideleft received ", event
+		print "rb_sideleft_radiobutton_clicked received ", event
 			
 
-	def radiobutton_clicked_rb_sideright( self, event):
+	def rb_sideright_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_sideright received ", event
+		print "rb_sideright_radiobutton_clicked received ", event
 			
 
-	def radiobutton_clicked_rb_sideboth( self, event):
+	def rb_sideboth_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_sideboth received ", event
+		print "rb_sideboth_radiobutton_clicked received ", event
 			
 
-	def text_entered_txt_notes1( self, event):
+	def txt_notes1_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_notes1 received ", event
+		print "txt_notes1_text_entered received ", event
 			
 
-	def text_entered_txt_notes2( self, event):
+	def txt_notes2_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_notes2 received ", event
+		print "txt_notes2_text_entered received ", event
 			
 
-	def text_entered_txt_agenoted( self, event):
+	def txt_agenoted_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_agenoted received ", event
+		print "txt_agenoted_text_entered received ", event
 			
 
-	def text_entered_txt_yearnoted( self, event):
+	def txt_yearnoted_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_yearnoted received ", event
+		print "txt_yearnoted_text_entered received ", event
 			
 
-	def checkbox_clicked_cb_active( self, event):
+	def cb_active_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_active received ", event
+		print "cb_active_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_cb_operation( self, event):
+	def cb_operation_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_operation received ", event
+		print "cb_operation_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_cb_confidential( self, event):
+	def cb_confidential_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_confidential received ", event
+		print "cb_confidential_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_cb_significant( self, event):
+	def cb_significant_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_significant received ", event
+		print "cb_significant_checkbox_clicked received ", event
 			
 
-	def text_entered_txt_progressnotes( self, event):
+	def txt_progressnotes_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_progressnotes received ", event
+		print "txt_progressnotes_text_entered received ", event
 			
 
 
@@ -677,82 +677,82 @@ class gmSECTION_VACCINATION_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.txt_targetdisease,\
 			self.id_map['txt_targetdisease'],\
-			self.text_entered_txt_targetdisease)
+			self.txt_targetdisease_text_entered)
 
 		EVT_TEXT(self.panel.txt_vaccine,\
 			self.id_map['txt_vaccine'],\
-			self.text_entered_txt_vaccine)
+			self.txt_vaccine_text_entered)
 
 		EVT_TEXT(self.panel.txt_dategiven,\
 			self.id_map['txt_dategiven'],\
-			self.text_entered_txt_dategiven)
+			self.txt_dategiven_text_entered)
 
 		EVT_TEXT(self.panel.txt_serialno,\
 			self.id_map['txt_serialno'],\
-			self.text_entered_txt_serialno)
+			self.txt_serialno_text_entered)
 
 		EVT_TEXT(self.panel.txt_sitegiven,\
 			self.id_map['txt_sitegiven'],\
-			self.text_entered_txt_sitegiven)
+			self.txt_sitegiven_text_entered)
 
 		EVT_TEXT(self.panel.txt_progressnotes,\
 			self.id_map['txt_progressnotes'],\
-			self.text_entered_txt_progressnotes)
+			self.txt_progressnotes_text_entered)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_txt_targetdisease( self, event):
+	def txt_targetdisease_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_targetdisease received ", event
+		print "txt_targetdisease_text_entered received ", event
 			
 
-	def text_entered_txt_vaccine( self, event):
+	def txt_vaccine_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_vaccine received ", event
+		print "txt_vaccine_text_entered received ", event
 			
 
-	def text_entered_txt_dategiven( self, event):
+	def txt_dategiven_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_dategiven received ", event
+		print "txt_dategiven_text_entered received ", event
 			
 
-	def text_entered_txt_serialno( self, event):
+	def txt_serialno_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_serialno received ", event
+		print "txt_serialno_text_entered received ", event
 			
 
-	def text_entered_txt_sitegiven( self, event):
+	def txt_sitegiven_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_sitegiven received ", event
+		print "txt_sitegiven_text_entered received ", event
 			
 
-	def text_entered_txt_progressnotes( self, event):
+	def txt_progressnotes_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_progressnotes received ", event
+		print "txt_progressnotes_text_entered received ", event
 			
 
 
@@ -832,112 +832,112 @@ class gmSECTION_ALLERGIES_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.text1,\
 			self.id_map['text1'],\
-			self.text_entered_text1)
+			self.text1_text_entered)
 
 		EVT_TEXT(self.panel.text2,\
 			self.id_map['text2'],\
-			self.text_entered_text2)
+			self.text2_text_entered)
 
 		EVT_TEXT(self.panel.text3,\
 			self.id_map['text3'],\
-			self.text_entered_text3)
+			self.text3_text_entered)
 
 		EVT_TEXT(self.panel.text4,\
 			self.id_map['text4'],\
-			self.text_entered_text4)
+			self.text4_text_entered)
 
 		EVT_TEXT(self.panel.text5,\
 			self.id_map['text5'],\
-			self.text_entered_text5)
+			self.text5_text_entered)
 
 		EVT_CHECKBOX(self.panel.cb1,\
 			self.id_map['cb1'],\
-			self.checkbox_clicked_cb1)
+			self.cb1_checkbox_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb1,\
 			self.id_map['rb1'],\
-			self.radiobutton_clicked_rb1)
+			self.rb1_radiobutton_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb2,\
 			self.id_map['rb2'],\
-			self.radiobutton_clicked_rb2)
+			self.rb2_radiobutton_clicked)
 
 		EVT_CHECKBOX(self.panel.cb2,\
 			self.id_map['cb2'],\
-			self.checkbox_clicked_cb2)
+			self.cb2_checkbox_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_text1( self, event):
+	def text1_text_entered( self, event):
 		pass
 
-		print "text_entered_text1 received ", event
+		print "text1_text_entered received ", event
 			
 
-	def text_entered_text2( self, event):
+	def text2_text_entered( self, event):
 		pass
 
-		print "text_entered_text2 received ", event
+		print "text2_text_entered received ", event
 			
 
-	def text_entered_text3( self, event):
+	def text3_text_entered( self, event):
 		pass
 
-		print "text_entered_text3 received ", event
+		print "text3_text_entered received ", event
 			
 
-	def text_entered_text4( self, event):
+	def text4_text_entered( self, event):
 		pass
 
-		print "text_entered_text4 received ", event
+		print "text4_text_entered received ", event
 			
 
-	def text_entered_text5( self, event):
+	def text5_text_entered( self, event):
 		pass
 
-		print "text_entered_text5 received ", event
+		print "text5_text_entered received ", event
 			
 
-	def checkbox_clicked_cb1( self, event):
+	def cb1_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb1 received ", event
+		print "cb1_checkbox_clicked received ", event
 			
 
-	def radiobutton_clicked_rb1( self, event):
+	def rb1_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb1 received ", event
+		print "rb1_radiobutton_clicked received ", event
 			
 
-	def radiobutton_clicked_rb2( self, event):
+	def rb2_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb2 received ", event
+		print "rb2_radiobutton_clicked received ", event
 			
 
-	def checkbox_clicked_cb2( self, event):
+	def cb2_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb2 received ", event
+		print "cb2_checkbox_clicked received ", event
 			
 
 
@@ -1047,172 +1047,172 @@ class gmSECTION_SCRIPT_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.text1,\
 			self.id_map['text1'],\
-			self.text_entered_text1)
+			self.text1_text_entered)
 
 		EVT_TEXT(self.panel.text2,\
 			self.id_map['text2'],\
-			self.text_entered_text2)
+			self.text2_text_entered)
 
 		EVT_TEXT(self.panel.text3,\
 			self.id_map['text3'],\
-			self.text_entered_text3)
+			self.text3_text_entered)
 
 		EVT_TEXT(self.panel.text4,\
 			self.id_map['text4'],\
-			self.text_entered_text4)
+			self.text4_text_entered)
 
 		EVT_TEXT(self.panel.text5,\
 			self.id_map['text5'],\
-			self.text_entered_text5)
+			self.text5_text_entered)
 
 		EVT_TEXT(self.panel.text6,\
 			self.id_map['text6'],\
-			self.text_entered_text6)
+			self.text6_text_entered)
 
 		EVT_TEXT(self.panel.text7,\
 			self.id_map['text7'],\
-			self.text_entered_text7)
+			self.text7_text_entered)
 
 		EVT_TEXT(self.panel.text8,\
 			self.id_map['text8'],\
-			self.text_entered_text8)
+			self.text8_text_entered)
 
 		EVT_TEXT(self.panel.text9,\
 			self.id_map['text9'],\
-			self.text_entered_text9)
+			self.text9_text_entered)
 
 		EVT_CHECKBOX(self.panel.cb_veteran,\
 			self.id_map['cb_veteran'],\
-			self.checkbox_clicked_cb_veteran)
+			self.cb_veteran_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.cb_reg24,\
 			self.id_map['cb_reg24'],\
-			self.checkbox_clicked_cb_reg24)
+			self.cb_reg24_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.cb_usualmed,\
 			self.id_map['cb_usualmed'],\
-			self.checkbox_clicked_cb_usualmed)
+			self.cb_usualmed_checkbox_clicked)
 
 		EVT_BUTTON(self.panel.btn_authority,\
 			self.id_map['btn_authority'],\
-			self.button_clicked_btn_authority)
+			self.btn_authority_button_clicked)
 
 		EVT_BUTTON(self.panel.btn_briefPI,\
 			self.id_map['btn_briefPI'],\
-			self.button_clicked_btn_briefPI)
+			self.btn_briefPI_button_clicked)
 
 		EVT_TEXT(self.panel.text10,\
 			self.id_map['text10'],\
-			self.text_entered_text10)
+			self.text10_text_entered)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_text1( self, event):
+	def text1_text_entered( self, event):
 		pass
 
-		print "text_entered_text1 received ", event
+		print "text1_text_entered received ", event
 			
 
-	def text_entered_text2( self, event):
+	def text2_text_entered( self, event):
 		pass
 
-		print "text_entered_text2 received ", event
+		print "text2_text_entered received ", event
 			
 
-	def text_entered_text3( self, event):
+	def text3_text_entered( self, event):
 		pass
 
-		print "text_entered_text3 received ", event
+		print "text3_text_entered received ", event
 			
 
-	def text_entered_text4( self, event):
+	def text4_text_entered( self, event):
 		pass
 
-		print "text_entered_text4 received ", event
+		print "text4_text_entered received ", event
 			
 
-	def text_entered_text5( self, event):
+	def text5_text_entered( self, event):
 		pass
 
-		print "text_entered_text5 received ", event
+		print "text5_text_entered received ", event
 			
 
-	def text_entered_text6( self, event):
+	def text6_text_entered( self, event):
 		pass
 
-		print "text_entered_text6 received ", event
+		print "text6_text_entered received ", event
 			
 
-	def text_entered_text7( self, event):
+	def text7_text_entered( self, event):
 		pass
 
-		print "text_entered_text7 received ", event
+		print "text7_text_entered received ", event
 			
 
-	def text_entered_text8( self, event):
+	def text8_text_entered( self, event):
 		pass
 
-		print "text_entered_text8 received ", event
+		print "text8_text_entered received ", event
 			
 
-	def text_entered_text9( self, event):
+	def text9_text_entered( self, event):
 		pass
 
-		print "text_entered_text9 received ", event
+		print "text9_text_entered received ", event
 			
 
-	def checkbox_clicked_cb_veteran( self, event):
+	def cb_veteran_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_veteran received ", event
+		print "cb_veteran_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_cb_reg24( self, event):
+	def cb_reg24_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_reg24 received ", event
+		print "cb_reg24_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_cb_usualmed( self, event):
+	def cb_usualmed_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_usualmed received ", event
+		print "cb_usualmed_checkbox_clicked received ", event
 			
 
-	def button_clicked_btn_authority( self, event):
+	def btn_authority_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btn_authority received ", event
+		print "btn_authority_button_clicked received ", event
 			
 
-	def button_clicked_btn_briefPI( self, event):
+	def btn_briefPI_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btn_briefPI received ", event
+		print "btn_briefPI_button_clicked received ", event
 			
 
-	def text_entered_text10( self, event):
+	def text10_text_entered( self, event):
 		pass
 
-		print "text_entered_text10 received ", event
+		print "text10_text_entered received ", event
 			
 
 
@@ -1322,172 +1322,172 @@ class gmSECTION_REQUESTS_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.txt_request_type,\
 			self.id_map['txt_request_type'],\
-			self.text_entered_txt_request_type)
+			self.txt_request_type_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_company,\
 			self.id_map['txt_request_company'],\
-			self.text_entered_txt_request_company)
+			self.txt_request_company_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_street,\
 			self.id_map['txt_request_street'],\
-			self.text_entered_txt_request_street)
+			self.txt_request_street_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_suburb,\
 			self.id_map['txt_request_suburb'],\
-			self.text_entered_txt_request_suburb)
+			self.txt_request_suburb_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_phone,\
 			self.id_map['txt_request_phone'],\
-			self.text_entered_txt_request_phone)
+			self.txt_request_phone_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_requests,\
 			self.id_map['txt_request_requests'],\
-			self.text_entered_txt_request_requests)
+			self.txt_request_requests_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_notes,\
 			self.id_map['txt_request_notes'],\
-			self.text_entered_txt_request_notes)
+			self.txt_request_notes_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_medications,\
 			self.id_map['txt_request_medications'],\
-			self.text_entered_txt_request_medications)
+			self.txt_request_medications_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_copyto,\
 			self.id_map['txt_request_copyto'],\
-			self.text_entered_txt_request_copyto)
+			self.txt_request_copyto_text_entered)
 
 		EVT_TEXT(self.panel.txt_request_progressnotes,\
 			self.id_map['txt_request_progressnotes'],\
-			self.text_entered_txt_request_progressnotes)
+			self.txt_request_progressnotes_text_entered)
 
 		EVT_CHECKBOX(self.panel.cb_includeallmedications,\
 			self.id_map['cb_includeallmedications'],\
-			self.checkbox_clicked_cb_includeallmedications)
+			self.cb_includeallmedications_checkbox_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb_request_bill_bb,\
 			self.id_map['rb_request_bill_bb'],\
-			self.radiobutton_clicked_rb_request_bill_bb)
+			self.rb_request_bill_bb_radiobutton_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb_request_bill_private,\
 			self.id_map['rb_request_bill_private'],\
-			self.radiobutton_clicked_rb_request_bill_private)
+			self.rb_request_bill_private_radiobutton_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb_request_bill_rebate,\
 			self.id_map['rb_request_bill_rebate'],\
-			self.radiobutton_clicked_rb_request_bill_rebate)
+			self.rb_request_bill_rebate_radiobutton_clicked)
 
 		EVT_RADIOBUTTON(self.panel.rb_request_bill_wcover,\
 			self.id_map['rb_request_bill_wcover'],\
-			self.radiobutton_clicked_rb_request_bill_wcover)
+			self.rb_request_bill_wcover_radiobutton_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_txt_request_type( self, event):
+	def txt_request_type_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_type received ", event
+		print "txt_request_type_text_entered received ", event
 			
 
-	def text_entered_txt_request_company( self, event):
+	def txt_request_company_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_company received ", event
+		print "txt_request_company_text_entered received ", event
 			
 
-	def text_entered_txt_request_street( self, event):
+	def txt_request_street_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_street received ", event
+		print "txt_request_street_text_entered received ", event
 			
 
-	def text_entered_txt_request_suburb( self, event):
+	def txt_request_suburb_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_suburb received ", event
+		print "txt_request_suburb_text_entered received ", event
 			
 
-	def text_entered_txt_request_phone( self, event):
+	def txt_request_phone_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_phone received ", event
+		print "txt_request_phone_text_entered received ", event
 			
 
-	def text_entered_txt_request_requests( self, event):
+	def txt_request_requests_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_requests received ", event
+		print "txt_request_requests_text_entered received ", event
 			
 
-	def text_entered_txt_request_notes( self, event):
+	def txt_request_notes_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_notes received ", event
+		print "txt_request_notes_text_entered received ", event
 			
 
-	def text_entered_txt_request_medications( self, event):
+	def txt_request_medications_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_medications received ", event
+		print "txt_request_medications_text_entered received ", event
 			
 
-	def text_entered_txt_request_copyto( self, event):
+	def txt_request_copyto_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_copyto received ", event
+		print "txt_request_copyto_text_entered received ", event
 			
 
-	def text_entered_txt_request_progressnotes( self, event):
+	def txt_request_progressnotes_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_request_progressnotes received ", event
+		print "txt_request_progressnotes_text_entered received ", event
 			
 
-	def checkbox_clicked_cb_includeallmedications( self, event):
+	def cb_includeallmedications_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_cb_includeallmedications received ", event
+		print "cb_includeallmedications_checkbox_clicked received ", event
 			
 
-	def radiobutton_clicked_rb_request_bill_bb( self, event):
+	def rb_request_bill_bb_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_request_bill_bb received ", event
+		print "rb_request_bill_bb_radiobutton_clicked received ", event
 			
 
-	def radiobutton_clicked_rb_request_bill_private( self, event):
+	def rb_request_bill_private_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_request_bill_private received ", event
+		print "rb_request_bill_private_radiobutton_clicked received ", event
 			
 
-	def radiobutton_clicked_rb_request_bill_rebate( self, event):
+	def rb_request_bill_rebate_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_request_bill_rebate received ", event
+		print "rb_request_bill_rebate_radiobutton_clicked received ", event
 			
 
-	def radiobutton_clicked_rb_request_bill_wcover( self, event):
+	def rb_request_bill_wcover_radiobutton_clicked( self, event):
 		pass
 
-		print "radiobutton_clicked_rb_request_bill_wcover received ", event
+		print "rb_request_bill_wcover_radiobutton_clicked received ", event
 			
 
 
@@ -1557,92 +1557,92 @@ class gmSECTION_MEASUREMENTS_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.combo_measurement_type,\
 			self.id_map['combo_measurement_type'],\
-			self.text_entered_combo_measurement_type)
+			self.combo_measurement_type_text_entered)
 
 		EVT_TEXT(self.panel.txt_measurement_value,\
 			self.id_map['txt_measurement_value'],\
-			self.text_entered_txt_measurement_value)
+			self.txt_measurement_value_text_entered)
 
 		EVT_TEXT(self.panel.txt_txt_measurement_date,\
 			self.id_map['txt_txt_measurement_date'],\
-			self.text_entered_txt_txt_measurement_date)
+			self.txt_txt_measurement_date_text_entered)
 
 		EVT_TEXT(self.panel.txt_txt_measurement_comment,\
 			self.id_map['txt_txt_measurement_comment'],\
-			self.text_entered_txt_txt_measurement_comment)
+			self.txt_txt_measurement_comment_text_entered)
 
 		EVT_TEXT(self.panel.txt_txt_measurement_progressnote,\
 			self.id_map['txt_txt_measurement_progressnote'],\
-			self.text_entered_txt_txt_measurement_progressnote)
+			self.txt_txt_measurement_progressnote_text_entered)
 
 		EVT_BUTTON(self.panel.btn_nextvalue,\
 			self.id_map['btn_nextvalue'],\
-			self.button_clicked_btn_nextvalue)
+			self.btn_nextvalue_button_clicked)
 
 		EVT_BUTTON(self.panel.btn_graph,\
 			self.id_map['btn_graph'],\
-			self.button_clicked_btn_graph)
+			self.btn_graph_button_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_combo_measurement_type( self, event):
+	def combo_measurement_type_text_entered( self, event):
 		pass
 
-		print "text_entered_combo_measurement_type received ", event
+		print "combo_measurement_type_text_entered received ", event
 			
 
-	def text_entered_txt_measurement_value( self, event):
+	def txt_measurement_value_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_measurement_value received ", event
+		print "txt_measurement_value_text_entered received ", event
 			
 
-	def text_entered_txt_txt_measurement_date( self, event):
+	def txt_txt_measurement_date_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_txt_measurement_date received ", event
+		print "txt_txt_measurement_date_text_entered received ", event
 			
 
-	def text_entered_txt_txt_measurement_comment( self, event):
+	def txt_txt_measurement_comment_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_txt_measurement_comment received ", event
+		print "txt_txt_measurement_comment_text_entered received ", event
 			
 
-	def text_entered_txt_txt_measurement_progressnote( self, event):
+	def txt_txt_measurement_progressnote_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_txt_measurement_progressnote received ", event
+		print "txt_txt_measurement_progressnote_text_entered received ", event
 			
 
-	def button_clicked_btn_nextvalue( self, event):
+	def btn_nextvalue_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btn_nextvalue received ", event
+		print "btn_nextvalue_button_clicked received ", event
 			
 
-	def button_clicked_btn_graph( self, event):
+	def btn_graph_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btn_graph received ", event
+		print "btn_graph_button_clicked received ", event
 			
 
 
@@ -1792,252 +1792,252 @@ class gmSECTION_REFERRALS_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_BUTTON(self.panel.btnpreview,\
 			self.id_map['btnpreview'],\
-			self.button_clicked_btnpreview)
+			self.btnpreview_button_clicked)
 
 		EVT_TEXT(self.panel.txt_referralcategory,\
 			self.id_map['txt_referralcategory'],\
-			self.text_entered_txt_referralcategory)
+			self.txt_referralcategory_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralname,\
 			self.id_map['txt_referralname'],\
-			self.text_entered_txt_referralname)
+			self.txt_referralname_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralorganisation,\
 			self.id_map['txt_referralorganisation'],\
-			self.text_entered_txt_referralorganisation)
+			self.txt_referralorganisation_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralstreet1,\
 			self.id_map['txt_referralstreet1'],\
-			self.text_entered_txt_referralstreet1)
+			self.txt_referralstreet1_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralstreet2,\
 			self.id_map['txt_referralstreet2'],\
-			self.text_entered_txt_referralstreet2)
+			self.txt_referralstreet2_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralstreet3,\
 			self.id_map['txt_referralstreet3'],\
-			self.text_entered_txt_referralstreet3)
+			self.txt_referralstreet3_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralsuburb,\
 			self.id_map['txt_referralsuburb'],\
-			self.text_entered_txt_referralsuburb)
+			self.txt_referralsuburb_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralpostcode,\
 			self.id_map['txt_referralpostcode'],\
-			self.text_entered_txt_referralpostcode)
+			self.txt_referralpostcode_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralfor,\
 			self.id_map['txt_referralfor'],\
-			self.text_entered_txt_referralfor)
+			self.txt_referralfor_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralwphone,\
 			self.id_map['txt_referralwphone'],\
-			self.text_entered_txt_referralwphone)
+			self.txt_referralwphone_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralwfax,\
 			self.id_map['txt_referralwfax'],\
-			self.text_entered_txt_referralwfax)
+			self.txt_referralwfax_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralwemail,\
 			self.id_map['txt_referralwemail'],\
-			self.text_entered_txt_referralwemail)
+			self.txt_referralwemail_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralcopyto,\
 			self.id_map['txt_referralcopyto'],\
-			self.text_entered_txt_referralcopyto)
+			self.txt_referralcopyto_text_entered)
 
 		EVT_TEXT(self.panel.txt_referralprogressnotes,\
 			self.id_map['txt_referralprogressnotes'],\
-			self.text_entered_txt_referralprogressnotes)
+			self.txt_referralprogressnotes_text_entered)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_usefirstname,\
 			self.id_map['chkbox_referral_usefirstname'],\
-			self.checkbox_clicked_chkbox_referral_usefirstname)
+			self.chkbox_referral_usefirstname_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_headoffice,\
 			self.id_map['chkbox_referral_headoffice'],\
-			self.checkbox_clicked_chkbox_referral_headoffice)
+			self.chkbox_referral_headoffice_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_medications,\
 			self.id_map['chkbox_referral_medications'],\
-			self.checkbox_clicked_chkbox_referral_medications)
+			self.chkbox_referral_medications_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_socialhistory,\
 			self.id_map['chkbox_referral_socialhistory'],\
-			self.checkbox_clicked_chkbox_referral_socialhistory)
+			self.chkbox_referral_socialhistory_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_familyhistory,\
 			self.id_map['chkbox_referral_familyhistory'],\
-			self.checkbox_clicked_chkbox_referral_familyhistory)
+			self.chkbox_referral_familyhistory_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_pastproblems,\
 			self.id_map['chkbox_referral_pastproblems'],\
-			self.checkbox_clicked_chkbox_referral_pastproblems)
+			self.chkbox_referral_pastproblems_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_activeproblems,\
 			self.id_map['chkbox_referral_activeproblems'],\
-			self.checkbox_clicked_chkbox_referral_activeproblems)
+			self.chkbox_referral_activeproblems_checkbox_clicked)
 
 		EVT_CHECKBOX(self.panel.chkbox_referral_habits,\
 			self.id_map['chkbox_referral_habits'],\
-			self.checkbox_clicked_chkbox_referral_habits)
+			self.chkbox_referral_habits_checkbox_clicked)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def button_clicked_btnpreview( self, event):
+	def btnpreview_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnpreview received ", event
+		print "btnpreview_button_clicked received ", event
 			
 
-	def text_entered_txt_referralcategory( self, event):
+	def txt_referralcategory_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralcategory received ", event
+		print "txt_referralcategory_text_entered received ", event
 			
 
-	def text_entered_txt_referralname( self, event):
+	def txt_referralname_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralname received ", event
+		print "txt_referralname_text_entered received ", event
 			
 
-	def text_entered_txt_referralorganisation( self, event):
+	def txt_referralorganisation_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralorganisation received ", event
+		print "txt_referralorganisation_text_entered received ", event
 			
 
-	def text_entered_txt_referralstreet1( self, event):
+	def txt_referralstreet1_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralstreet1 received ", event
+		print "txt_referralstreet1_text_entered received ", event
 			
 
-	def text_entered_txt_referralstreet2( self, event):
+	def txt_referralstreet2_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralstreet2 received ", event
+		print "txt_referralstreet2_text_entered received ", event
 			
 
-	def text_entered_txt_referralstreet3( self, event):
+	def txt_referralstreet3_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralstreet3 received ", event
+		print "txt_referralstreet3_text_entered received ", event
 			
 
-	def text_entered_txt_referralsuburb( self, event):
+	def txt_referralsuburb_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralsuburb received ", event
+		print "txt_referralsuburb_text_entered received ", event
 			
 
-	def text_entered_txt_referralpostcode( self, event):
+	def txt_referralpostcode_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralpostcode received ", event
+		print "txt_referralpostcode_text_entered received ", event
 			
 
-	def text_entered_txt_referralfor( self, event):
+	def txt_referralfor_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralfor received ", event
+		print "txt_referralfor_text_entered received ", event
 			
 
-	def text_entered_txt_referralwphone( self, event):
+	def txt_referralwphone_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralwphone received ", event
+		print "txt_referralwphone_text_entered received ", event
 			
 
-	def text_entered_txt_referralwfax( self, event):
+	def txt_referralwfax_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralwfax received ", event
+		print "txt_referralwfax_text_entered received ", event
 			
 
-	def text_entered_txt_referralwemail( self, event):
+	def txt_referralwemail_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralwemail received ", event
+		print "txt_referralwemail_text_entered received ", event
 			
 
-	def text_entered_txt_referralcopyto( self, event):
+	def txt_referralcopyto_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralcopyto received ", event
+		print "txt_referralcopyto_text_entered received ", event
 			
 
-	def text_entered_txt_referralprogressnotes( self, event):
+	def txt_referralprogressnotes_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_referralprogressnotes received ", event
+		print "txt_referralprogressnotes_text_entered received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_usefirstname( self, event):
+	def chkbox_referral_usefirstname_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_usefirstname received ", event
+		print "chkbox_referral_usefirstname_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_headoffice( self, event):
+	def chkbox_referral_headoffice_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_headoffice received ", event
+		print "chkbox_referral_headoffice_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_medications( self, event):
+	def chkbox_referral_medications_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_medications received ", event
+		print "chkbox_referral_medications_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_socialhistory( self, event):
+	def chkbox_referral_socialhistory_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_socialhistory received ", event
+		print "chkbox_referral_socialhistory_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_familyhistory( self, event):
+	def chkbox_referral_familyhistory_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_familyhistory received ", event
+		print "chkbox_referral_familyhistory_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_pastproblems( self, event):
+	def chkbox_referral_pastproblems_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_pastproblems received ", event
+		print "chkbox_referral_pastproblems_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_activeproblems( self, event):
+	def chkbox_referral_activeproblems_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_activeproblems received ", event
+		print "chkbox_referral_activeproblems_checkbox_clicked received ", event
 			
 
-	def checkbox_clicked_chkbox_referral_habits( self, event):
+	def chkbox_referral_habits_checkbox_clicked( self, event):
 		pass
 
-		print "checkbox_clicked_chkbox_referral_habits received ", event
+		print "chkbox_referral_habits_checkbox_clicked received ", event
 			
 
 
@@ -2112,102 +2112,102 @@ class gmSECTION_RECALLS_handler:
 
 		EVT_BUTTON(self.panel.btnOK,\
 			self.id_map['btnOK'],\
-			self.button_clicked_btnOK)
+			self.btnOK_button_clicked)
 
 		EVT_BUTTON(self.panel.btnClear,\
 			self.id_map['btnClear'],\
-			self.button_clicked_btnClear)
+			self.btnClear_button_clicked)
 
 		EVT_TEXT(self.panel.combo_tosee,\
 			self.id_map['combo_tosee'],\
-			self.text_entered_combo_tosee)
+			self.combo_tosee_text_entered)
 
 		EVT_TEXT(self.panel.combo_recall_method,\
 			self.id_map['combo_recall_method'],\
-			self.text_entered_combo_recall_method)
+			self.combo_recall_method_text_entered)
 
 		EVT_TEXT(self.panel.combo_apptlength,\
 			self.id_map['combo_apptlength'],\
-			self.text_entered_combo_apptlength)
+			self.combo_apptlength_text_entered)
 
 		EVT_TEXT(self.panel.txt_recall_for,\
 			self.id_map['txt_recall_for'],\
-			self.text_entered_txt_recall_for)
+			self.txt_recall_for_text_entered)
 
 		EVT_TEXT(self.panel.txt_recall_due,\
 			self.id_map['txt_recall_due'],\
-			self.text_entered_txt_recall_due)
+			self.txt_recall_due_text_entered)
 
 		EVT_TEXT(self.panel.txt_recall_addtext,\
 			self.id_map['txt_recall_addtext'],\
-			self.text_entered_txt_recall_addtext)
+			self.txt_recall_addtext_text_entered)
 
 		EVT_TEXT(self.panel.txt_recall_include,\
 			self.id_map['txt_recall_include'],\
-			self.text_entered_txt_recall_include)
+			self.txt_recall_include_text_entered)
 
 		EVT_TEXT(self.panel.txt_recall_progressnotes,\
 			self.id_map['txt_recall_progressnotes'],\
-			self.text_entered_txt_recall_progressnotes)
+			self.txt_recall_progressnotes_text_entered)
 
-	def button_clicked_btnOK( self, event):
+	def btnOK_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnOK received ", event
+		print "btnOK_button_clicked received ", event
 			
 
-	def button_clicked_btnClear( self, event):
+	def btnClear_button_clicked( self, event):
 		pass
 
-		print "button_clicked_btnClear received ", event
+		print "btnClear_button_clicked received ", event
 			
 
-	def text_entered_combo_tosee( self, event):
+	def combo_tosee_text_entered( self, event):
 		pass
 
-		print "text_entered_combo_tosee received ", event
+		print "combo_tosee_text_entered received ", event
 			
 
-	def text_entered_combo_recall_method( self, event):
+	def combo_recall_method_text_entered( self, event):
 		pass
 
-		print "text_entered_combo_recall_method received ", event
+		print "combo_recall_method_text_entered received ", event
 			
 
-	def text_entered_combo_apptlength( self, event):
+	def combo_apptlength_text_entered( self, event):
 		pass
 
-		print "text_entered_combo_apptlength received ", event
+		print "combo_apptlength_text_entered received ", event
 			
 
-	def text_entered_txt_recall_for( self, event):
+	def txt_recall_for_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_recall_for received ", event
+		print "txt_recall_for_text_entered received ", event
 			
 
-	def text_entered_txt_recall_due( self, event):
+	def txt_recall_due_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_recall_due received ", event
+		print "txt_recall_due_text_entered received ", event
 			
 
-	def text_entered_txt_recall_addtext( self, event):
+	def txt_recall_addtext_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_recall_addtext received ", event
+		print "txt_recall_addtext_text_entered received ", event
 			
 
-	def text_entered_txt_recall_include( self, event):
+	def txt_recall_include_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_recall_include received ", event
+		print "txt_recall_include_text_entered received ", event
 			
 
-	def text_entered_txt_recall_progressnotes( self, event):
+	def txt_recall_progressnotes_text_entered( self, event):
 		pass
 
-		print "text_entered_txt_recall_progressnotes received ", event
+		print "txt_recall_progressnotes_text_entered received ", event
 			
 section_num_map =  {1: 'gmSECTION_SUMMARY', 2: 'gmSECTION_DEMOGRAPHICS', 3: 'gmSECTION_CLINICALNOTES', 4: 'gmSECTION_FAMILYHISTORY', 5: 'gmSECTION_PASTHISTORY', 6: 'gmSECTION_VACCINATION', 7: 'gmSECTION_ALLERGIES', 8: 'gmSECTION_SCRIPT', 9: 'gmSECTION_REQUESTS', 10: 'gmSECTION_MEASUREMENTS', 11: 'gmSECTION_REFERRALS', 12: 'gmSECTION_RECALLS'}
 
@@ -2216,4 +2216,4 @@ gb = gmGuiBroker.GuiBroker()
 for k,v in section_num_map.items():
 	exec("prototype = %s_handler(None)" % v)
 	gb[v] = prototype
-
+	
