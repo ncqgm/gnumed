@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.19 2005-03-01 20:38:19 ncq Exp $
+-- $Id: gmI18N.sql,v 1.20 2005-03-31 20:08:38 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -77,6 +77,29 @@ comment on function i18n(text) is
 	'insert original strings into i18n_keys for later translation';
 
 -- =============================================
+--drop function i18n_upd_tx(text, text, text);
+
+create function i18n_upd_tx(text, text, text) returns boolean as '
+declare
+	_lang alias for $1;
+	_orig alias for $2;
+	_trans alias for $3;
+	_tmp text;
+begin
+	select into _tmp ''1'' from i18n_keys where orig=_orig;
+	if not found then
+		_tmp := ''String "'' || _orig || ''" not found in i18n_keys. No use storing translation.'';
+		raise notice ''%'', _tmp;
+		-- return ''String "'' || _orig || ''" not found in i18n_keys. No use storing translation.'';
+		return False;
+	end if;
+	delete from i18n_translations where lang=_lang and orig=_orig;
+	insert into i18n_translations (lang, orig, trans) values (_lang, _orig, _trans);
+	-- return _orig || '' == ('' || _lang || '') ==> '' || _trans;
+	return True;
+end;' language 'plpgsql';
+
+-- =============================================
 create function _(text) returns text as '
 DECLARE
     orig_str ALIAS FOR $1;
@@ -109,7 +132,7 @@ comment on function _(text) is
 	'will return either the translation into i18n_curr_lang.lang
 	 for the current user or the input';
 
-
+-- =============================================
 create function _(text, text) returns text as '
 DECLARE
 	orig_str ALIAS FOR $1;
@@ -235,11 +258,14 @@ TO group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.19  2005-03-01 20:38:19  ncq
+-- Revision 1.20  2005-03-31 20:08:38  ncq
+-- - add i18n_upd_tx() for safe update of translations
+--
+-- Revision 1.19  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.18  2005/02/03 20:28:25  ncq
