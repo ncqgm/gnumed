@@ -10,14 +10,15 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.29 2004-09-10 10:39:01 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPatientExporter.py,v 1.30 2004-09-29 10:12:50 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
 import mx.DateTime.Parser as mxParser
+import mx.DateTime as mxDT
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
@@ -130,107 +131,195 @@ class cEmrExport:
             Exporter class cleanup code
         """
         pass
-    #--------------------------------------------------------
-    def get_vaccination_for_cell(self, vaccs, date, field, text = None):
-        """
-        Checks if a cell matchs a pair vaccination indication - date. It it happends, returns the appropiate text to display
-        vaccs - list of vaccination items
-        date  - date to check
-        text  - text to display in the cell if there's a match vaccination indication - date
-        field - name of the field in vaccination item that contains the adecuate date        
-        """
-        for a_vacc in vaccs:
-            if  a_vacc[field].Format('%Y-%m-%d') == date:
-                if text == None:
-                    return a_vacc['batch_no']
-                if text == 'DUE':
-                    if a_vacc['overdue']:
-                        text = 'OVERDUE  '
-                    else:
-                        text = 'DUE      '
-                return text
-        return None                
+
     #--------------------------------------------------------
     def get_vacc_table(self):
         """
         Retrieves string containg ASCII vaccination table
         """        
+        
         emr = self.__patient.get_clinical_record()
-        # Retrieve all patient vaccination items
-        vaccinations = []
-        vaccinations.extend(emr.get_vaccinations())
-        due_vaccs = emr.get_missing_vaccinations()
-        vaccinations.extend(due_vaccs['due'])
-        vaccinations.extend(due_vaccs['boosters'])
-        #print "Total vaccination items : %i" % len(vaccinations)
         
-        # Retrieve all vaccination indications
-        vacc_indications = []
-        status, v_indications = gmVaccination.get_indications_from_vaccinations(vaccinations)
-        for v_ind in v_indications:
-            if v_ind[0] not in vacc_indications:
-                vacc_indications.append(v_ind[0])
-                #print v_ind[0]
-        vacc_indications.sort()
-        #print "Total vaccination indications : %i " % len(vacc_indications)
-        #print ""
+        # patient dob
+        patient_dob = mxParser.DateFromString(self.__patient.get_demographic_record().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
+        date_length = len(patient_dob.Format('%Y-%m-%d'))+4 # <(YYYY-mm-dd)>
+        # vaccination regimes
+        vacc_regimes = emr.get_scheduled_vaccination_regimes()
+        # dictionary of pairs indication : scheduled vaccination
+        vaccinations4regimes = {}
+        for a_vacc_regime in vacc_regimes:
+            indication = a_vacc_regime[0] # vaccination regime indication
+            vaccinations4regimes[indication] = emr.get_scheduled_vaccinations(indications=[indication])
+        # vaccination regimes count
+        chart_columns = len(vacc_regimes)
+        # foot headers
+        foot_headers = ['last booster', 'next booster']        
+        # string for both: ending of vaccinations; non boosters needed
+        ending_str = '###'
         
-        # Get list of vaccination dates
-        #print "Dates: "
-        total_vacc_dates = []
-        for a_vacc in vaccinations:
-            try:
-                a_date = a_vacc['date'].Format('%Y-%m-%d')
-            except:
-                a_date = a_vacc['latest_due'].Format('%Y-%m-%d')
-            if not a_date in total_vacc_dates:
-                total_vacc_dates.append(a_date)
-                #print a_date
-        total_vacc_dates.sort()
-        #print "Total vaccination dates : %i " % len(total_vacc_dates)
-        #print ""
+        # FIXME multiple tables when so many indications (don't fit in width)
+        # chart row count, columns width and vaccination dictionary of pairs indication : given shot
+        column_widths = []
+        chart_rows = -1
+        vaccinations = {}        
+        temp = -1
+        for foot_header in foot_headers: # first column width
+            if len(foot_header) > temp:
+                temp = len(foot_header)
+        column_widths.append(temp)        
+        for a_vacc_regime in vacc_regimes:
+            if a_vacc_regime[2] > chart_rows: # seq no -> row count 
+                chart_rows = a_vacc_regime[2] 
+            if (len(a_vacc_regime[1])) > date_length: # l10n indication -> column width
+                column_widths.append(len(a_vacc_regime[1])) 
+            else:
+                column_widths.append(date_length)  # date -> column width at least
+            vaccinations[a_vacc_regime[0]] = emr.get_vaccinations(indications=[a_vacc_regime[0]]) # given shots 4 indication
+        chart_rows += 1 # one extra row for last ###
         
-        # Number of partial tables to display, depending on the number of dates (columns)
-        table_count = int(len(total_vacc_dates) / 5)
-        if len(total_vacc_dates) % 5 > 0:
-            table_count += 1
-        #print "Number of tables to display: %i " % table_count
+        #print 'column widths: %s' %(column_widths)    
+        #print 'chart rows count: %s'  %(chart_rows)
+        #print 'vaccinations: %s' %(vaccinations)
         
-        for cont in range(table_count):
-            start = cont*5
-            end = (cont+1)*5
-            if end > len(total_vacc_dates):
-                end = len(total_vacc_dates)
-            vacc_dates = total_vacc_dates[start:end]
-            # Get max indication str length
-            max_indication_length = -1
-            for an_indication in vacc_indications:
-                if len(an_indication) > max_indication_length:
-                    max_indication_length = len(an_indication)
-            max_indication_length +=3
-            # Get date field length
-            column_length = len(vacc_dates[0]) 
-            # Print table header (column dates)
-            self.__target.write('\n\n')
-            self.__target.write(' '*max_indication_length + '|')
-            for a_date in vacc_dates:
-                self.__target.write(str(a_date) + "\t|")
-            self.__target.write('\n')
-            # Print rows
-            for an_indication in vacc_indications:
-                row_column = 0
-                self.__target.write(an_indication + " "*(max_indication_length-len(an_indication)) + "|")
-                for a_date in vacc_dates:
-                    cell_txt = self.get_vaccination_for_cell(emr.get_vaccinations(indications = [an_indication]), a_date, 'date')
-                    if cell_txt is None:
-                        cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indications = [an_indication])['due'], a_date, 'latest_due', 'DUE')
-                    if cell_txt is None:
-                        cell_txt = self.get_vaccination_for_cell(emr.get_missing_vaccinations(indications = [an_indication])['boosters'], a_date, 'latest_due', '*DUE    ')                    
-                    if cell_txt is not None:
-                        self.__target.write(cell_txt + '\t|')
+        # patient dob in top of vaccination chart 
+        txt = '\nDOB: %s' %(patient_dob.Format('%Y-%m-%d')) + '\n'       
+        
+        # vacc chart table headers
+        # top ---- header line
+        for column_width in column_widths: 
+            txt += column_width * '-' + '-'
+        txt += '\n'                
+        # indication names header line
+        txt += column_widths[0] * ' ' + '|'
+        col_index = 1
+        for a_vacc_regime in vacc_regimes:
+            txt +=  a_vacc_regime[1] + (column_widths[col_index] - len(a_vacc_regime[1])) * ' ' + '|'
+            col_index += 1
+        txt +=  '\n'
+        # bottom ---- header line
+        for column_width in column_widths:
+            txt += column_width * '-' + '-'
+        txt += '\n'        
+        
+        # vacc chart data
+        due_date = None        
+        # previously displayed date list
+        prev_displayed_date = [patient_dob]
+        for a_regime in vacc_regimes:
+            prev_displayed_date.append(patient_dob) # initialice with patient dob (useful for due first shot date calculation)
+        # iterate data rows
+        for row_index in range(0, chart_rows):            
+            row_header = '%s#' %(row_index+1)
+            txt += row_header + (column_widths[0] - len(row_header)) * ' ' + '|'
+                        
+            for col_index in range(1, chart_columns+1):
+                indication =vacc_regimes[col_index-1][0] 
+                seq_no = vacc_regimes[col_index-1][2]
+                if row_index == seq_no: # had just ended scheduled vaccinations
+                    txt += ending_str + (column_widths[col_index] - len(ending_str)) * ' ' + '|'
+                elif row_index < seq_no: # vaccination scheduled
+                    try:
+                        vacc_date = vaccinations[indication][row_index]['date'] # vaccination given                        
+                        vacc_date_str = vacc_date.Format('%Y-%m-%d')                        
+                        txt +=  vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'                        
+                        prev_displayed_date[col_index] = vacc_date                                                
+                    except:                        
+                        if row_index == 0: # due first shot
+                            due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['age_due_min'] # FIXME 'age_due_min' not properly retrieved
+                        else: # due any other than first shot
+                            due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['min_interval']
+                        #print 'Due date for vaccination #%s for %s: %s (age_due_min=%s)' %(row_index, indication, due_date.Format('%Y-%m-%d'), vaccinations4regimes[indication][0]['age_due_min'])                        
+                        txt += '('+ due_date.Format('<%Y-%m-%d') + '>)' + (column_widths[col_index] - date_length) * ' ' + '|'
+                        prev_displayed_date[col_index] = due_date
+                else: # not scheduled vaccination at that position
+                    txt += column_widths[col_index] * ' ' + '|'
+            txt += '\n' # end of scheduled vaccination dates display
+            for column_width in column_widths: # ------ separator line
+                txt += column_width * '-' + '-'
+            txt += '\n'
+            
+                        
+        # scheduled vaccination boosters (date retrieving)
+        all_vreg_boosters = []                
+        for vaccs4indication in vaccinations.values(): # iterate over vaccinations by indication
+            given_boosters = [] # will contain given boosters for current indication
+            for a_vacc in vaccs4indication:
+                try:
+                     if a_vacc['is booster']:
+                         given_boosters.append(a_vacc)
+                except:
+                    # not a booster
+                    pass
+            if len(given_boosters) > 0:
+                all_vreg_boosters.append(given_boosters[len(given_boosters)-1]) # last of given boosters
+            else:
+                all_vreg_boosters.append(None)
+        #print all_vreg_boosters
+
+        # next booster in schedule
+        all_next_boosters = []
+        for a_booster in all_vreg_boosters:
+            all_next_boosters.append(None)
+        # scheduled vaccination boosters (displaying string)
+        cont = 0
+        for vaccs in vaccinations4regimes.values():
+            if vaccs[len(vaccs)-1]['vacc_seq_no'] is not None: # booster is not scheduled/needed
+                all_vreg_boosters[cont] = ending_str
+                all_next_boosters[cont] = ending_str
+            else:
+                indication = vacc_regimes[cont][0]
+                if len(vaccinations[indication]) > vacc_regimes[cont][2]: # boosters given
+                    all_vreg_boosters[cont] = vaccinations[indication][len(vaccinations[indication])-1]['date'].Format('%Y-%m-%d') # show last given booster date
+                    scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
+                    booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                                        
+                    if booster_date < mxDT.today():
+                        all_next_boosters[cont] = '<(' + booster_date.Format('%Y-%m-%d') + ')>' # next booster is due
                     else:
-                        self.__target.write(' '*column_length + '\t|')
-                self.__target.write('\t\n')
+                        all_next_boosters[cont] = booster_date.Format('%Y-%m-%d')
+                elif len(vaccinations[indication]) == vacc_regimes[cont][2]: # just finished vaccinations, begin boosters
+                    all_vreg_boosters[cont] = column_widths[cont+1] * ' '
+                    scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
+                    booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                    
+                    if booster_date < mxDT.today():
+                        all_next_boosters[cont] = '<(' + booster_date.Format('%Y-%m-%d') + ')>' # next booster is due
+                    else:
+                        all_next_boosters[cont] = booster_date.Format('%Y-%m-%d')
+                else:
+                    all_vreg_boosters[cont] = column_widths[cont+1] * ' '  # unfinished schedule
+                    all_next_boosters[cont] = column_widths[cont+1] * ' '
+            cont += 1
+                     
+        #print all_vreg_boosters
+        #print all_next_boosters
+        
+        # given boosters
+        foot_header = foot_headers[0]
+        col_index = 0
+        txt += foot_header + (column_widths[0] - len(foot_header)) * ' ' + '|'
+        col_index += 1
+        for a_vacc_regime in vacc_regimes:
+            txt +=  str(all_vreg_boosters[col_index-1]) + (column_widths[col_index] - len(str(all_vreg_boosters[col_index-1]))) * ' ' + '|'
+            col_index += 1
+        txt +=  '\n'
+        for column_width in column_widths:            
+            txt += column_width * '-' + '-'
+        txt += '\n' 
+        
+        # next booster
+        foot_header = foot_headers[1]
+        col_index = 0
+        txt += foot_header + (column_widths[0] - len(foot_header)) * ' ' + '|'
+        col_index += 1
+        for a_vacc_regime in vacc_regimes:
+            txt +=  str(all_next_boosters[col_index-1]) + (column_widths[col_index] - len(str(all_next_boosters[col_index-1]))) * ' ' + '|'
+            col_index += 1
+        txt +=  '\n'
+        for column_width in column_widths:
+            txt += column_width * '-' + '-'
+        txt += '\n'                
+
+        #print txt
+        self.__target.write(txt)
                     
     #--------------------------------------------------------
     def get_encounters_for_items(self, items):
@@ -623,9 +712,9 @@ class cEmrExport:
         for doc_id in doc_ids:
             med_doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
             doc_metadata = med_doc.get_metadata()
-            self.__target.write('\n\n' + 3*' ' + \
-            '(' + doc_metadata['date'].Format('%Y-%m-%d') + ') ' + doc_metadata['reference'] +\
-            ' - ' + doc_metadata['type']+ ' "' + doc_metadata['comment'] + '"')
+            self.__target.write('\n\n' + 3*' ' + '(%s) %s - %s "%s"' \
+                %(doc_metadata['date'].Format('%Y-%m-%d'),doc_metadata['reference'],\
+                  doc_metadata['type'],doc_metadata['comment'] ))
             for objKey in doc_metadata['objects'].keys():
                 self.__target.write('\n' + 6*' ' + str(doc_metadata['objects'][objKey]['index']) + '-' +\
                 doc_metadata['objects'][objKey]['comment'])
@@ -826,7 +915,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.29  2004-09-10 10:39:01  ncq
+# Revision 1.30  2004-09-29 10:12:50  ncq
+# - Carlos added intuitive vaccination table - muchos improvos !
+#
+# Revision 1.29  2004/09/10 10:39:01  ncq
 # - fixed assignment that needs to be comparison == in lambda form
 #
 # Revision 1.28  2004/09/06 18:55:09  ncq
