@@ -13,15 +13,15 @@ class ScratchPadRecalls(wxPanel):
     def __init__(self, parent,id):
 	wxPanel.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,style = wxRAISED_BORDER)
 	#add a label which is the heading for the text data entry 'Scratchpad' 	
-	scratchpad_lbl = wxStaticText(self,-1, "Scratch Pad",style = wxALIGN_CENTRE) #add static text control for the capion
+	scratchpad_lbl = wxStaticText(self,-1, _("Scratch Pad"),style = wxALIGN_CENTRE) #add static text control for the capion
 	scratchpad_lbl.SetForegroundColour(wxColor(0,0,131))               #set caption text colour 
-	scratchpad_lbl.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+	scratchpad_lbl.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 	#Add a text control under that
 	scratchpad_txt = wxTextCtrl(self,-1,"",wxDefaultPosition,wxDefaultSize,0)
 	#Add a label for the recalls/reviews list
-	recalls_lbl = wxStaticText(self,-1, "Recalls/Reviews",style = wxALIGN_CENTRE) #add static text control for the capion
+	recalls_lbl = wxStaticText(self,-1, _("Recalls/Reviews"),style = wxALIGN_CENTRE) #add static text control for the capion
 	recalls_lbl.SetForegroundColour(wxColor(0,0,131))               #set caption text colour 
-	recalls_lbl.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+	recalls_lbl.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 
         #------------------------------------------------------------------------------
 	#Add a simple listcontrol under that for scratchpad items and insert dummy data
@@ -50,8 +50,8 @@ class ScratchPadRecalls(wxPanel):
 	#--------------------------------------------------------------------------
 	list_recalls = wxListCtrl(self, -1,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 	list_recalls.SetForegroundColour(wxColor(255,0,0))
-	list_recalls.InsertColumn(0, "Recall or Review")
-	list_recalls.InsertColumn(1, "Status", wxLIST_FORMAT_LEFT)
+	list_recalls.InsertColumn(0, _("Recall or Review"))
+	list_recalls.InsertColumn(1, _("Status"), wxLIST_FORMAT_LEFT)
 	
 	#-------------------------------------------------------------
 	#loop through the scriptdata array and add to the list control
@@ -105,7 +105,3 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(ScratchPadRecalls, -1)
 	app.MainLoop()
-
-
-
-

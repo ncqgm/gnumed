@@ -31,7 +31,6 @@ import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert mes
 import gmEditArea                              #panel class holding editing
 import gmPlugin
 import gmLog
-import gmI18N
 
 gmSECTION_SCRIPT = 8
 # script popup
@@ -111,7 +110,7 @@ class PrescriptionPanel (wxPanel):
 		#add the divider headings below the editing area for drug interactions
 		#and add text control to show mini-drug interactions
 		#---------------------------------------------------------------------
-		self.interactiontext_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Drug Interactions")
+		self.interactiontext_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Drug Interactions"))
 		self.sizer_divider_interaction_text = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_divider_interaction_text.Add(self.interactiontext_subheading,1, wxEXPAND)
 		self.interactiontxt = wxTextCtrl(self,-1,
@@ -122,7 +121,7 @@ class PrescriptionPanel (wxPanel):
 		#------------------------------------------------------------------------------------
 		#add the divider headings below the drug interactions as heading for items prescribed
 		#------------------------------------------------------------------------------------
-		self.itemsprescribedheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Items prescribed this consultation")
+		self.itemsprescribedheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Items prescribed this consultation"))
 		self.sizer_itemsprescribed = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_itemsprescribed.Add(self.itemsprescribedheading,1, wxEXPAND)
 		#--------------------------------------------------------------------------------------                                                                               
@@ -139,10 +138,10 @@ class PrescriptionPanel (wxPanel):
 		EVT_RIGHT_UP(self.list_script, self.OnRightClickUp)
 		#----------------------------------------
 		# add some dummy data to the allergy list
-		self.list_script.InsertColumn(0, "Drug")
-		self.list_script.InsertColumn(1, "Strength")
-		self.list_script.InsertColumn(2, "Directions")
-		self.list_script.InsertColumn(3, "For")
+		self.list_script.InsertColumn(0, _("Drug"))
+		self.list_script.InsertColumn(1, _("Strength"))
+		self.list_script.InsertColumn(2, _("Directions"))
+		self.list_script.InsertColumn(3, _("For"))
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
 		#note the different syntax for the first coloum of each row
@@ -266,7 +265,7 @@ class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 		return  PrescriptionPanel (parent, -1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(PrescriptionPanel, -1)
 	app.MainLoop()

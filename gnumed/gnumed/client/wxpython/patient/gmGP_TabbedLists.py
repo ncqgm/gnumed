@@ -105,34 +105,34 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	info.m_mask = wxLIST_MASK_TEXT | wxLIST_MASK_IMAGE | wxLIST_MASK_FORMAT
 	info.m_image = -1
 	info.m_format = 0
-	info.m_text = "Drug"
+	info.m_text = _("Drug")
 	self.List_Script.InsertColumnInfo(0, info)
 
 	
 	info.m_format = wxLIST_FORMAT_LEFT
-	info.m_text = "Dose"
+	info.m_text = _("Dose")
 	self.List_Script.InsertColumnInfo(1, info)
 	
 	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = "Instructions"
+	info.m_text = _("Instructions")
 	self.List_Script.InsertColumnInfo(2, info)
 
 	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = "Last Date"
+	info.m_text = _("Last Date")
 	self.List_Script.InsertColumnInfo(3, info)
 	
 	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = "Prescribed For"
+	info.m_text = _("Prescribed For")
 	self.List_Script.InsertColumnInfo(4, info)
 	
 	
 	info.m_format = wxLIST_FORMAT_RIGHT
-	info.m_text = "Quantity"
+	info.m_text = _("Quantity")
 	self.List_Script.InsertColumnInfo(5, info)
 	
 	
 	info.m_format = 0
-	info.m_text = "First Date"
+	info.m_text = _("First Date")
 	self.List_Script.InsertColumnInfo(6, info)
 	#-------------------------------------------------------------
 	#loop through the scriptdata array and add to the list control

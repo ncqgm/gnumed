@@ -47,9 +47,6 @@ requestprompts = {
 13:("")
 }
 
-#class MyFrame(wxFrame):
-	#def __init__(self,parent,ID,title,position,size,style):
-		#wxFrame.__init__(self,parent,ID,title, wxDefaultPosition,wxSize(600,550))
 class ReferralsPanel (wxPanel):
      def __init__(self,parent, id):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
@@ -76,7 +73,7 @@ class ReferralsPanel (wxPanel):
 		#-----------------------------------------------------------------
 		#add the divider headings for requests generated this consultation
 		#-----------------------------------------------------------------
-		self.referralsgenerated_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Referral letter details")
+		self.referralsgenerated_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Referral letter details"))
 		self.sizer_referralsgenerated = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_referralsgenerated.Add(self.referralsgenerated_subheading,1, wxEXPAND)
 		#---------------------------------------------------------------------------------

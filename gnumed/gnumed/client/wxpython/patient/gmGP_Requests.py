@@ -32,8 +32,6 @@ import gmEditArea             			#panel class holding editing prompts and text b
 import gmPlugin, gmLog
 
 
-
-ID_REQUESTDATE = wxNewId ()
 ID_REQUESTSLIST = wxNewId()
 gmSECTION_REQUESTS = 9
 #------------------------------------
@@ -70,7 +68,7 @@ class RequestsPanel (wxPanel):
 		#--------------------------------------------
 		self.sizer_top  = wxBoxSizer(wxHORIZONTAL)
 		#FIXME remove the date text below
-		self.txt_requestDate = wxTextCtrl(self,ID_REQUESTDATE,"12/06/2002",wxDefaultPosition,wxDefaultSize)
+		self.txt_requestDate = wxTextCtrl(self, -1, "12/06/2002",wxDefaultPosition,wxDefaultSize)
 		self.spacer = wxWindow(self,-1, wxDefaultPosition,wxDefaultSize,0) 
 		self.spacer.SetBackgroundColour(wxColor(222,222,222))
 		self.sizer_top.Add(self.spacer,6,wxEXPAND)
@@ -83,7 +81,7 @@ class RequestsPanel (wxPanel):
 		#-----------------------------------------------------------------
 		#add the divider headings for requests generated this consultation
 		#-----------------------------------------------------------------
-		self.requestsgenerated_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Requests generated this consultation")
+		self.requestsgenerated_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Requests generated this consultation"))
 		self.sizer_requestsgenerated = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_requestsgenerated.Add(self.requestsgenerated_subheading,1, wxEXPAND)
 		#--------------------------------------------------------------------------------------                                                                               
@@ -99,7 +97,7 @@ class RequestsPanel (wxPanel):
 		self.list_requests.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		#----------------------------------------	  
 		# add some dummy data to the allergy list
-		self.list_requests.InsertColumn(0, "Request summary")
+		self.list_requests.InsertColumn(0, _("Request summary"))
 		self.list_requests.InsertColumn(1, "")
 		#-------------------------------------------------------------
 		#loop through the requestdata array and add to the list control

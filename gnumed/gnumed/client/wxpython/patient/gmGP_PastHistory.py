@@ -80,7 +80,7 @@ class PastHistoryPanel(wxPanel):
 		#-----------------------------------------------
 		#add the divider headings below the editing area
 		#-----------------------------------------------
-		self.significant_history_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Significant Past Problems")
+		self.significant_history_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Significant Past Problems"))
 		self.sizer_significant_history_heading = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_significant_history_heading.Add(self.significant_history_heading,1, wxEXPAND)
 		#--------------------------------------------------------------------------------------                                                                               
@@ -99,8 +99,8 @@ class PastHistoryPanel(wxPanel):
 		#---------------------------------------------------------	  
 		# add some dummy data to the significant past problem list
 		#---------------------------------------------------------
-		self.significant_problem_list.InsertColumn(0, "year onset")
-		self.significant_problem_list.InsertColumn(1, "Condition")
+		self.significant_problem_list.InsertColumn(0, _("year onset"))
+		self.significant_problem_list.InsertColumn(1, _("Condition"))
 		#-------------------------------------------------------------------------
 		#loop through the significanthistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
@@ -118,8 +118,8 @@ class PastHistoryPanel(wxPanel):
 		#------------------------------------------------	  
 		#add some dummy data to the active problems list
 		#------------------------------------------------
-		self.active_problem_list.InsertColumn(0, "Year Onset")
-		self.active_problem_list.InsertColumn(1, "Condition")
+		self.active_problem_list.InsertColumn(0, _("Year Onset"))
+		self.active_problem_list.InsertColumn(1, _("Condition"))
 		#-------------------------------------------------------------
 		#loop through the activehistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
@@ -138,7 +138,7 @@ class PastHistoryPanel(wxPanel):
 		#add a richtext control or a wxTextCtrl multiline to display the class text information
 		#e.g. would contain say information re the penicillins
 		#--------------------------------------------------------------------------------------
-		self.active_problems_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Active Problems")
+		self.active_problems_heading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Active Problems"))
 		#----------------------------------------
 		#add an alert caption panel to the bottom
 		#----------------------------------------
