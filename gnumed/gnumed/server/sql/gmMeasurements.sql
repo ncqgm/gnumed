@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.40 $
+-- $Revision: 1.41 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -356,12 +356,8 @@ create table lab_request (
 	results_reported_when timestamp with time zone
 		default null,
 	request_status text
-		default null
-		check (
-			(request_status in ('preliminary', 'partial', 'final'))
-				or
-			((request_status is null) and (is_pending is true))
-		),
+		not null
+		check (request_status in ('pending', 'preliminary', 'partial', 'final')),
 	is_pending boolean
 		not null
 		default true,
@@ -369,11 +365,6 @@ create table lab_request (
 	-- FIXME: there really ought to be a constraint like this:
 --	unique (fk_patient, request_id)
 ) inherits (clin_root_item);
-
--- those are fixed strings, so we can translate them on the way out ...
-select i18n('preliminary');
-select i18n('partial');
-select i18n('final');
 
 alter table lab_request alter column soap_cat set default 'p';
 
@@ -403,7 +394,7 @@ comment on column lab_request.results_reported_when is
 	LDT: 8302
 	HL7: OBR.results_report_status_change';
 comment on column lab_request.request_status is
-	'final, preliminary, partial
+	'pending, final, preliminary, partial
 	 LDT: 8401';
 comment on column lab_request.is_pending is
 	'true if any (even partial) results are still pending';
@@ -442,11 +433,15 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.40 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.40  2005-03-08 16:50:00  ncq
+-- Revision 1.41  2005-03-31 17:50:45  ncq
+-- - improved check constraint on lab_request.request_status
+-- - strings moved to gmClinicalData.sql
+--
+-- Revision 1.40  2005/03/08 16:50:00  ncq
 -- - add HL7 mapping docs to field comments
 --
 -- Revision 1.39  2005/02/15 18:25:14  ncq
