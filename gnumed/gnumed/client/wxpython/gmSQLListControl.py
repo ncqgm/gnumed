@@ -19,9 +19,21 @@
 import sys, time
 from wxPython.wx import *
 from Gnumed.pycommon import gmPG, gmLog
-from Gnumed.wxpython import gmLabels
 
 _log = gmLog.gmDefLog
+
+
+def LabelListControl(listctrl, labellist):
+    """Set the labels of a list box control
+
+    listctrl: a wxListCtrl
+    labellist: a list of strings
+    """
+    for i in range(len(labellist)):
+        listctrl.InsertColumn(i, labellist[i])
+    #listctrl.SetSingleStyle(wxLC_VRULES)
+    #listctrl.SetSingleStyle(wxLC_HRULES)
+
 
 class SQLListControl(wxListCtrl):
 	"Intelligent list control able to display SQL query results in a formatted way"
@@ -65,7 +77,7 @@ class SQLListControl(wxListCtrl):
 
 	def SetLabels(self, labels):
 		self.__labels = labels
-		gmLabels.LabelListControl(self, self.__labels)
+		LabelListControl(self, self.__labels)
 
 
 	def GetLabels(self):
@@ -155,7 +167,7 @@ class SQLListControl(wxListCtrl):
 			if self.__hide_id:
 				del self.__labels[0]
 
-		gmLabels.LabelListControl(self, self.__labels)
+		LabelListControl(self, self.__labels)
 		rowcount=0
 		for row in queryresult:
 			colcount = 0
