@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -544,6 +544,7 @@ def run_query(aCursor = None, aQuery = None, *args):
 		aCursor.execute(aQuery, *args)
 	except:
 		_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose=0)
+		return None
 	return 1
 #---------------------------------------------------
 def getBackendName():
@@ -748,7 +749,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.57  2003-06-23 14:25:40  ncq
+# Revision 1.58  2003-06-23 21:21:55  ncq
+# - missing "return None" in run_query added
+#
+# Revision 1.57  2003/06/23 14:25:40  ncq
 # - let DB-API do the quoting
 #
 # Revision 1.56  2003/06/21 10:53:03  ncq
