@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.66 2004-01-26 21:48:48 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmClinicalRecord.py,v 1.67 2004-01-26 22:08:52 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -716,10 +716,10 @@ class gmClinicalRecord:
 		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load vaccinated indications for patient [%s]' % self.id_patient)
-			return None
+			return (None, [[_('ERROR: cannot retrieve vaccinated indications'), _('ERROR: cannot retrieve vaccinated indications')]])
 		if len(rows) == 0:
-			return [[_('no vaccinations recorded'), '']]
-		return rows
+			return (1, [[_('no vaccinations recorded'), _('no vaccinations recorded')]])
+		return (1, rows)
 	#--------------------------------------------------------
 	def get_vaccinated_regimes(self):
 		cmd = """
@@ -1217,7 +1217,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.66  2004-01-26 21:48:48  ncq
+# Revision 1.67  2004-01-26 22:08:52  ncq
+# - gracefully handle failure to retrive vacc_ind
+#
+# Revision 1.66  2004/01/26 21:48:48  ncq
 # - v_patient_vacc4ind -> v_pat_vacc4ind
 #
 # Revision 1.65  2004/01/24 17:07:46  ncq
