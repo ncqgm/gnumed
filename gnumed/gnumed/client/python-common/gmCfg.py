@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -361,10 +361,6 @@ class cCfgFile:
 		"""
 		self._cfg_data = {}
 		# get conf file name
-		print "aPath=", aPath, "aFile=",aFile
-		if aFile == None:
-			aFile = "gnumed.conf"
-
 		if not self.__get_conf_name(aPath, aFile):
 			raise IOError, "cannot find config file"
 		# load config file
@@ -557,12 +553,6 @@ class cCfgFile:
 				return 1
 			else:
 				_log.Log(gmLog.lWarn, 'config file [%s] not found' % self.cfgName)
-				_log.Log(gmLog.lWarn, "creating config file [%s] " % self.cfgName)
-				f = file( self.cfgName, 'w+')
-				f.close()
-				# re-try
-				return self.__get_conf_name( aDir, aName)	
-
 				if aDir != None:
 					self.cfgName = os.path.abspath(os.path.join(aDir, aName))
 					if os.path.exists(self.cfgName):
@@ -921,7 +911,6 @@ else:
 
 	# have a sane pointer even if we fail
 	gmDefCfgFile = None
-	gmDefCfgFile = cCfgFile()
 
 	# - if we don't find any config file we return None
 	# - IF the caller really knows what she does she can handle
@@ -933,7 +922,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.36  2003-02-09 02:02:30  sjtan
+# Revision 1.37  2003-02-09 09:48:28  ncq
+# - revert breakage created by sjtan
+#
+# Revision 1.36  2003/02/09 02:02:30  sjtan
 #
 # allows first time run of gmGuiMain without a conf file. A Default conf file called gnumed.conf is created.
 #
