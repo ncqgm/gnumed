@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -12,7 +12,7 @@ echo "_____________"
 echo "=> modules <="
 echo "============="
 
-mkdir -v modules
+mkdir modules
 ln -vs ../../../client/python-common/gmLog.py modules/gmLog.py
 ln -vs ../../../client/python-common/gmI18N.py modules/gmI18N.py
 ln -vs ../../../client/python-common/gmCfg.py modules/gmCfg.py
@@ -36,7 +36,7 @@ echo "____________"
 echo "=> client <="
 echo "============"
 
-mkdir -v client
+mkdir client
 ln -vs ../modules client/modules
 
 # viewer
@@ -49,7 +49,7 @@ ln -vs ../docs/sample.conf client/sample.conf
 ln -vs ../docs/README-client client/README
 
 # locale
-mkdir -vp client/locale/de_DE@euro/LC_MESSAGES
+mkdir -p client/locale/de_DE@euro/LC_MESSAGES
 ln -vs ../../../../../../client/locale/de-gnumed.mo client/locale/de_DE@euro/LC_MESSAGES/gnumed.mo
 
 #ln -vs ../../scan/gmScanMedDocs.py client/gmScanMedDocs.py
@@ -75,7 +75,7 @@ echo "____________"
 echo "=> server <="
 echo "============"
 
-mkdir -v server
+mkdir server
 ln -vs ../modules server/modules
 
 # importer
