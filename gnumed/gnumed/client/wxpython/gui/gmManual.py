@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.23 2004-08-04 17:16:02 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmManual.py,v 1.24 2004-12-27 18:42:05 shilbert Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -154,7 +154,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALCONTENTS,
 			images_for_gnumed_browser16_16.getcontentsBitmap(),
-			shortHelpString="Gnumed Manual Contents",
+			shortHelpString=_("Gnumed Manual Contents"),
 			isToggle=True
 		)
 		EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
@@ -170,7 +170,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALBACK,
 			images_for_gnumed_browser16_16.get1leftarrowBitmap(),
-			shortHelpString="Back",
+			shortHelpString=_("Back"),
 			isToggle=False
 		)
 		EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
@@ -178,7 +178,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALFORWARD,
 			images_for_gnumed_browser16_16.get1rightarrowBitmap(),
-			shortHelpString="Forward",
+			shortHelpString=_("Forward"),
 			isToggle=True
 		)
 		EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
@@ -186,7 +186,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALRELOAD,
 			images_for_gnumed_browser16_16.getreloadBitmap(),
-			shortHelpString="Reload",
+			shortHelpString=_("Reload"),
 			isToggle=True
 		)
 
@@ -195,7 +195,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALHOME,
 			images_for_gnumed_browser16_16.getgohomeBitmap(),
-			shortHelpString="Home",
+			shortHelpString=_("Home"),
 			isToggle=True
 		)
 		EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
@@ -205,7 +205,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALBABELFISH,
 			images_for_gnumed_browser16_16.getbabelfishBitmap(),
-			shortHelpString="Translate text",
+			shortHelpString=_("Translate text"),
 			isToggle=False
 		)
 		#EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
@@ -215,7 +215,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALBOOKMARKS,
 			images_for_gnumed_browser16_16.getbookmarkBitmap(),
-			shortHelpString="Bookmarks",
+			shortHelpString=_("Bookmarks"),
 			isToggle=True
 		)
 		#EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
@@ -223,7 +223,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALADDBOOKMARK,
 			images_for_gnumed_browser16_16.getbookmark_addBitmap(),
-			shortHelpString="Add Bookmark",
+			shortHelpString=_("Add Bookmark"),
 			isToggle=True
 		)
 		#EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
@@ -245,7 +245,10 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.23  2004-08-04 17:16:02  ncq
+# Revision 1.24  2004-12-27 18:42:05  shilbert
+# - added some missing _() for i18n
+#
+# Revision 1.23  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
