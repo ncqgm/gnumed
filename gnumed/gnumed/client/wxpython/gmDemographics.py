@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.4 2003-11-20 02:14:42 sjtan Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmDemographics.py,v 1.5 2003-11-22 12:29:16 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -41,6 +41,9 @@ import time
 from gmPhraseWheel import cPhraseWheel
 from gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP
 import gmDemographicRecord
+
+import gmLog
+_log = gmLog.gmDefLog
 
 ID_PATIENT = wxNewId()
 ID_PATIENTSLIST = wxNewId()
@@ -479,7 +482,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self._save_data()
 
 	def setNewPatient(self, isNew):
-		self.newPatient = isNew
+		self._newPatient = isNew
 
 	def newPatient(self):
 		self.setNewPatient(1)
@@ -533,8 +536,11 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 			print sys.exc_info()[0]
 			return	
 	
+		try:
+			self._save_addresses()
+		except:
+			_log.LogException("save address", sys.exc_info() )
 
-		self._save_addresses()
 	
 		m = self.get_input_value_map()
 			
@@ -546,6 +552,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		myPatient.setTitle( m['title'])
 
 		self.setNewPatient(0)
+
 		gmDispatcher.send( gmSignals.patient_selected(), { 'id':  myPatient.getID() } )
 
 
@@ -700,7 +707,10 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 		m['firstname'].SetValue( myPatient.getActiveName()['first'] )
 		m['surname'].SetValue( myPatient.getActiveName()['last'] )
-		m['title'].SetValue( myPatient.getTitle() )
+		title = myPatient.getTitle()
+		if title == None:
+			title = ''
+		m['title'].SetValue( title )
 		dob = myPatient.getDOB()
 		#mx date time object will not convert to int() sometimes, but always printable,
 		# so parse it as a string , and extract into a 9-sequence time value, and then convert
@@ -810,7 +820,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.4  2003-11-20 02:14:42  sjtan
+# Revision 1.5  2003-11-22 12:29:16  sjtan
+#
+# minor debugging; remove _newPatient flag attribute conflict with method name newPatient.
+#
+# Revision 1.4  2003/11/20 02:14:42  sjtan
 #
 # use global module function getPostcodeByUrbId() , and renamed MP_urb_by_zip.
 #
