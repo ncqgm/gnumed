@@ -18,24 +18,29 @@
     <jsp:include page="./patient_detail_block.jsp"/>   
     <jsp:include page="./relative_url_javascript.jsp"/>  
     <h5>Problem List</h5>
-    <table border='1' cellpadding='2'e>
+    <table cellpadding='2' >
     <logic:iterate   id="healthIssue" 
         name="healthRecord" 
         property="healthSummary.healthIssues"
         indexId="index" >
-        <bean:define id="tableCol" value="<%=Integer.toString(index.intValue() % 3) %>" />
+        <bean:define id="tableCol" value="<%=Integer.toString(index.intValue() % 2) %>" />
         <logic:equal name="tableCol" value="0">
             <tr>
         </logic:equal>
+            
             <td>
+                <i><bean:write name="healthIssue" property="earliestNarrative.clin_when" format="MMM yy" />
+                </i>
+                 <b>
                 <bean:write name="healthIssue" property="description" />
+                </b> 
             </td>
-            <logic:equal name="tableCol" value="2">
+            <logic:equal name="tableCol" value="1">
         </tr>
         </logic:equal>
             
     </logic:iterate>
-    <logic:notEqual name='tableCol' value='2'>
+    <logic:notEqual name='tableCol' value='1'>
         </tr>
     </logic:notEqual>
     

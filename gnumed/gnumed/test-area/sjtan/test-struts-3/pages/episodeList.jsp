@@ -16,7 +16,7 @@
   
         <a name="episodeList"/>
   
-    <table>
+    <table border='1'>
         <logic:iterate   id="episode" 
             name="healthRecord" 
             property="healthSummary.clinEpisodes"

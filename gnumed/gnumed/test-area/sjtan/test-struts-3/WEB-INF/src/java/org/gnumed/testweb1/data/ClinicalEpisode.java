@@ -91,4 +91,5 @@ public interface ClinicalEpisode {
      */
     public java.util.List getRootItems();
     
+    public ClinNarrative getEarliestNarrative();
 }

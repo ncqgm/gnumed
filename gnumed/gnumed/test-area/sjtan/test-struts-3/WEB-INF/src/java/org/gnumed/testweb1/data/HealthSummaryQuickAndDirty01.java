@@ -165,7 +165,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
         while (j.hasNext()) {
             DynaBean nb = (DynaBean) j.next();
             
-            ClinNarrative narrative = dof.createClinNarrative();
+            ClinNarrative narrative = dof.createEntryClinNarrative();
             
             
             try {

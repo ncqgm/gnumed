@@ -25,7 +25,7 @@ public class Algorithms {
         stopWords.put(word, word);
     }
     
-   public static String[] filterOutStopWords( String[] ss) {
+    public static String[] filterOutStopWords( String[] ss) {
         List l = new ArrayList();
         for (int i =0; i < ss.length; ++i) {
             if  ( stopWords.get(ss[i]) != null ) {
@@ -34,27 +34,27 @@ public class Algorithms {
             l.add(ss[i]);
         }
         
-        return (String[]) l.toArray(new String[0]); 
+        return (String[]) l.toArray(new String[0]);
         
     }
-   
-   public static boolean isCharMatchedInWords(String ss1, String ss2, double wordThreshold, double wordCountFraction ) {
-       int[] n = findMatchingTokens(ss1, ss2, wordThreshold);
-       int min = n[1] < n[2] ? n[1]: n[2];
-       return (double)min * wordCountFraction < (double) n[0];
-   }
-   
+    
+    public static boolean isCharMatchedInWords(String ss1, String ss2, double wordThreshold, double wordCountFraction ) {
+        int[] n = findMatchingTokens(ss1, ss2, wordThreshold);
+        int min = n[1] < n[2] ? n[1]: n[2];
+        return (double)min * wordCountFraction < (double) n[0];
+    }
+    
     /** this is a O^2 brute-force maximal character in order match algorithm for words in sentences
      *
-     *@param threshold  the threshold for character count match. 
+     *@param threshold  the threshold for character count match.
      *
-     *@return an array of int , the first element is the number of matches , the second and third the number of 
+     *@return an array of int , the first element is the number of matches , the second and third the number of
      *  processed non-stopword tokens in each string.
-     */ 
+     */
     public static int[] findMatchingTokens( String ss1, String ss2 , double threshold) {
         
-        String[] sa1 = filterOutStopWords ( ss1.split("\\s+") );
-        String[] sa2 = filterOutStopWords ( ss2.split("\\s+") );
+        String[] sa1 = filterOutStopWords( ss1.split("\\s+") );
+        String[] sa2 = filterOutStopWords( ss2.split("\\s+") );
         
         
         
@@ -69,10 +69,17 @@ public class Algorithms {
                 if (matched[j]) continue;
                 String s1 = sa1[i];
                 String s2 = sa2[j];
-               
+                
                 String minS = s1.length() < s2.length() ? s1 : s2;
+                String maxS = s1.length() > s2.length() ? s1 : s2;
                 String matchS = findInOrderMatchingChars(s1, s2);
-                if ( matchS.length() > minS.length() * threshold ) {
+                if ( matchS.length() > minS.length() * threshold
+                  
+                  &&
+                minS.length() > maxS.length() * (1-threshold) 
+                  
+                  ) {
+                    
                     matched[j] = true;
                     ++count;
                 }
@@ -151,19 +158,21 @@ public class Algorithms {
         
         printIntArray(findMatchingTokens("Headache", "Head ache", .9));
         
-       printIntArray(findMatchingTokens("central chest pain", "chest pain", .9));
+        printIntArray(findMatchingTokens("central chest pain", "chest pain", .9));
         
         printIntArray(findMatchingTokens("abdo pain", "abdominal pain", .7));
         
         printIntArray(findMatchingTokens("cough and sore throat , mild fever", "cough , sob and fever", .7));
         
-        printIntArray(findMatchingTokens("low back pain", "lumbar back pain", .7)); 
+        printIntArray(findMatchingTokens("low back pain", "lumbar back pain", .7));
         
-        printIntArray(findMatchingTokens("loin pain, abdo pain persistent", "loin and abdominal pain", .7)); 
+        printIntArray(findMatchingTokens("loin pain, abdo pain persistent", "loin and abdominal pain", .7));
         
-        printIntArray(findMatchingTokens("loin pain, abdo pain persistent", "chest and throat pain", .7)); 
+        printIntArray(findMatchingTokens("loin pain, abdo pain persistent", "chest and throat pain", .7));
         
-        printIntArray(findMatchingTokens("lac arm requires sutures", "review of sutures lac arm", .7)); 
+        printIntArray(findMatchingTokens("lac arm requires sutures", "review of sutures lac arm", .7));
+        
+        printIntArray(findMatchingTokens("urti", "hypercholesterolemia", .7));
     }
     
 }

@@ -36,71 +36,76 @@
             
             <td colspan='2'>
             <sub>   <html:link
-                        anchor="encounterTop"
-                            action="ClinicalEdit.do"
-                            paramId="id"
-                            paramName="clinicalUpdateForm"
-                            paramProperty="patientId"
-                            > entry top </html:link></sub>
+            anchor="encounterTop"
+            action="ClinicalEdit.do"
+            paramId="id"
+            paramName="clinicalUpdateForm"
+            paramProperty="patientId"
+            > entry top </html:link></sub>
             <logic:iterate id="narrative" name="encounter" property="narratives"
                 indexId="index">
                 <div class='pastNotesNarrative<%=Integer.toString(index.intValue() % 2 )%>'>
-                <table style='pastNotesNarrative<%=Integer.toString(index.intValue() % 2 )%>' >
+                    <table style='pastNotesNarrative<%=Integer.toString(index.intValue() % 2 )%>' >
         
-                <tr>
-                    <td>
+                        <tr>
+                            
+                            <td nowrap='true' >
         
-                        <bean:define    id="itemId"
-                        name="narrative" property="id"/> 
+                                <bean:define    id="itemId"
+                                name="narrative" property="id"/> 
      
-                        <a name="itemDetail<%=itemId%>">
-                
-                        <bean:write name="narrative" property="clin_when" format="dd/MM/yyyy hh:mm" />
-                        </a>
-                    </td>
-       
-                    <td>
-                        <b>
-                        <i>episode:</i>
-                        <bean:write name="narrative" property="episode.description"/>
-                        </b>
-                    </td>   
-                    <td>
-                        <b>
-                        <i>issue:</>
-                        <bean:write  name="narrative" property="episode.healthIssue.description" />
-                        </b>
-                    </td>    
-                </tr>
-                <tr>
+                                <a name="itemDetail<%=itemId%>"/>
+                                 soap cat
+                            </td>
+                            <td nowrap='true' >
+                                <b>
+                                <i>issue:</>
+                                <bean:write  name="narrative" property="episode.healthIssue.description" />
+                                </b>
+                            </td>    
+                            <td>
+                             <bean:write name="narrative" property="clinWhenString" />
+                            </td>
+                            <td nowrap='true' >
+                                <b>
+                                <i>episode:</i>
+                                <bean:write name="narrative" property="episode.description"/>
+                                </b>
+
+                            </td> 
+                              
+                        </tr>
+                        <tr>
         
-                    <td>
-                        <b>
-                        <bean:write name="narrative" property="soapCat"/>
-                        </b>
+                        <td>
+                            <b>
+                            <bean:write name="narrative" property="soapCat"/>
+                            </b>
                         
-                    </td>
+                        </td>
         
-                    <td colspan='2'> 
-                        <bean:write name="narrative" property="narrative"/>
-                          <i><sub> 
-                          <%--
-                    <a href='<%=request.getAttribute("contextPath")%>#linkItemDetail<%=itemId%>'>to summary</a>
-                          --%>
-                       
-                        <html-el:link
-                        anchor="linkItemDetail${itemId}"
-                            action="ClinicalEdit.do"
-                            paramId="id"
-                            paramName="clinicalUpdateForm"
-                            paramProperty="patientId"
-                            > to summary</html-el:link>
+                        <td colspan='3' width='75%'> 
+                            <bean:write name="narrative" property="narrative"/>
+                          
+                            <%--
+                            <a href='<%=request.getAttribute("contextPath")%>#linkItemDetail<%=itemId%>'>to summary</a>
+                            --%>
+                        </td>
+                        <td >
+                            <i><sub> 
+                                <html-el:link
+                                anchor="linkItemDetail${itemId}"
+                                action="ClinicalEdit.do"
+                                paramId="id"
+                                paramName="clinicalUpdateForm"
+                                paramProperty="patientId"
+                                > to summary</html-el:link>
                        
                             
-                          </sub> </i> 
-                    </td>
-                </tr>
-                </table>
+                            </sub> </i> 
+                        </td>
+                        </tr>
+                    </table>
                 </div>
             </logic:iterate>
                

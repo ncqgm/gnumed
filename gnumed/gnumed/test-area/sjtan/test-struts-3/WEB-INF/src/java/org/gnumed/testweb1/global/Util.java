@@ -29,7 +29,14 @@ import javax.servlet.http.HttpSession;
  */
 public class Util {
     static DateFormat[] dateFormats = null;
-   
+    static DateFormat outputDateTimeFormat = null;
+    static DateFormat outputDateFormat = null;
+    static {
+        outputDateFormat= SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT);
+        outputDateTimeFormat = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.SHORT, SimpleDateFormat.SHORT);
+        
+    };
+    
     static Log log = null;
     
     /** Creates a new instance of Util */
@@ -44,10 +51,19 @@ public class Util {
     
     private static DateFormat[] getDateFormats() {
         if ( dateFormats == null) {
-            dateFormats = new DateFormat[3];
-            dateFormats[0] = DateFormat.getDateInstance(DateFormat.SHORT);
-            dateFormats[1] = DateFormat.getDateInstance(DateFormat.MEDIUM);
-            dateFormats[2] =  new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
+            dateFormats = new DateFormat[] {
+                DateFormat.getDateInstance(DateFormat.SHORT),
+                DateFormat.getDateInstance(DateFormat.MEDIUM),
+                new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S"),
+                new SimpleDateFormat("dd-MM-yyyy"),
+                new SimpleDateFormat("dd-MM-yyyy hh:mm"),
+                new SimpleDateFormat("MMM/yyyy"),
+                new SimpleDateFormat("MM/yyyy"),
+                new SimpleDateFormat("MMM-yyyy"),
+                new SimpleDateFormat("MMM yyyy"),
+                new SimpleDateFormat("MM-yyyy"),
+                new SimpleDateFormat("yyyy")
+            };
         }
         return dateFormats;
     }
@@ -69,6 +85,33 @@ public class Util {
             { log.info("Config no match"); }
         }
         return null;
+    }
+    
+    public static String getDateString(java.util.Date date) {
+        return outputDateFormat.format(date);
+    }
+    
+    public static String getDateTimeString(java.util.Date date) {
+        return outputDateTimeFormat.format(date);
+    }
+    
+    public static String getShortestDateTimeString(java.util.Date date) {
+        try {
+            if ( date.getTime() == outputDateFormat.parse(outputDateFormat.format(date)).getTime() ) {
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(date);
+                if ( cal.get(cal.DAY_OF_MONTH) == cal.getMinimum(cal.DAY_OF_MONTH) ){
+                    if  (cal.get(cal.MONTH) == cal.getMinimum(cal.MONTH) ) {
+                        return new SimpleDateFormat("yyyy").format(date);
+                    }
+                    return new  SimpleDateFormat("MMM yyyy").format(date);
+                }
+                return outputDateFormat.format(date);
+            }
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return outputDateTimeFormat.format(date);
     }
     
     public static void tranferFromResultSet(java.lang.Object target,

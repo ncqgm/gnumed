@@ -720,6 +720,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
             }
         }
         
+        
     }
     
     

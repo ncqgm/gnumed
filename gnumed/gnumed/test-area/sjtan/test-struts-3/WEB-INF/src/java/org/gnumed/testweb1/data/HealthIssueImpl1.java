@@ -5,7 +5,7 @@
  */
 
 package org.gnumed.testweb1.data;
-
+import java.util.Iterator;
 /**
  *
  * @author  sjtan
@@ -56,6 +56,22 @@ public class HealthIssueImpl1 implements HealthIssue {
             episodes.add( index, clinicalEpisode);
         }
         
+    }
+    
+    public ClinNarrative getEarliestNarrative() {
+        Iterator ei = episodes.iterator();
+        ClinNarrative early = null;
+        while (ei.hasNext()) {
+            ClinicalEpisode en = (ClinicalEpisode) ei.next();
+            
+            ClinNarrative n = en.getEarliestNarrative();
+            
+            if ( early == null || n.getClin_when().getTime() < early.getClin_when().getTime()) {
+                early = n;
+            }
+        }
+        
+        return early;
     }
     
 }

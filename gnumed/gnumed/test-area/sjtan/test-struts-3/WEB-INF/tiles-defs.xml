@@ -55,8 +55,8 @@
         <put name="content" value="/TestListNames.do" type="page"/>
         </definition>
         
-        <definition name="encounter" page="/pages/intraLinkedClinical.jsp">
-         <put name="content" value="/pages/encounter.jsp" type="page"/>
+        <definition name="encounterEntry" page="/pages/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/clinicalEntry.jsp" type="page"/>
          </definition>
          
            <definition name="clinSummary" page="/pages/intraLinkedClinical.jsp">
@@ -72,7 +72,7 @@
          </definition>
          
          <definition name="clinicalentry" page="/pages/main_2tiles.jsp">
-         <put name="leftTop" value="encounter" />
+         <put name="leftTop" value="encounterEntry" />
             <put name="leftBottom" value="pastNotes" />
          <put name="rightTop" value="clinSummary" />
          <put name="rightBottom" value="episodeList" />

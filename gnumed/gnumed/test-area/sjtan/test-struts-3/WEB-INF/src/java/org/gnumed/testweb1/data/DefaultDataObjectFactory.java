@@ -12,22 +12,23 @@ import org.apache.struts.config.PlugInConfig;
 import java.util.Map;
 import java.util.ResourceBundle;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.*;
 /**
  *
  * @author  sjtan
  */
 public class DefaultDataObjectFactory implements DataObjectFactory {
-    
-    
+    static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
+   
     public static int nEntryVaccs =10, nEntryMeds =20, nEntryNarratives=6, nEntryAllergies=5;
     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy" };
-    public final static String[] factoryMethods = new String[] { "createClinNarrative", "createMedication", "createVaccination", "createAllergy" };
+    public final static String[] factoryMethods = new String[] { "createEntryClinNarrative", "createMedication", "createVaccination", "createAllergy" };
    
     final static int[] nEntries = new int[] {nEntryNarratives, nEntryMeds, nEntryVaccs, nEntryAllergies };
     
-    private  ClinicalEncounter loadEntryObjects( ClinicalEncounter ce, ClinNarrative n, Medication m, Vaccination v, Allergy a) {
-         Object[] oo = new Object[] { n, m, v, a };
+    private  ClinicalEncounter loadEntryObjects( ClinicalEncounter ce) {
+        log.info( ce + "BEING LOADED");
         for (int i = 0; i < nEntries.length; ++i) {
             try {
                 for (int j = 0; j < nEntries[i]; ++j) {
@@ -35,6 +36,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
                     getClass().getMethod( factoryMethods[i], new Class[0] ).invoke( this, new Object[0] ) );
                 }
             } catch (Exception e) {
+                log.error(e);
                 e.printStackTrace();
             }
             
@@ -102,8 +104,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     
     public ClinicalEncounter createEntryClinicalEncounter() {
-        return loadEntryObjects( createClinicalEncounter(),
-        createClinNarrative(), createMedication(), createVaccination(), createAllergy() );
+        return loadEntryObjects( createClinicalEncounter() );
         
        
     }
@@ -136,5 +137,11 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         return new VitalsImpl1();
     }
     
+    public ClinNarrative createEntryClinNarrative() {
+        ClinNarrative cn = new EntryClinNarrativeImpl1();
+        cn.setEpisode(createClinicalEpisode());
+        return cn;
+    
+    }
     
 }

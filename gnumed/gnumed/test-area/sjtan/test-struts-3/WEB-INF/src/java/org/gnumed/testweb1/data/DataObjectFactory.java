@@ -37,5 +37,5 @@ public interface DataObjectFactory {
      HealthRecord01 createHealthRecord(HealthSummary01 hs);
      
      public ClinicalEncounter createEntryClinicalEncounter();
-     
+     public ClinNarrative createEntryClinNarrative();
 }

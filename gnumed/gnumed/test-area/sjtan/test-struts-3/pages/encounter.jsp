@@ -202,7 +202,10 @@ onchange=""
                      
                             </html:select>
                         </td>
-                                
+                         <td >
+                         <bean:message key="narrative.clin_when" />
+                         <html:text name="narrative" property="clinWhenString" size="30" indexed="true"/>       
+                         </td>
                         <td> <bean:message key="rfe"/> <html:radio name="narrative" property="rfe" indexed="true" value="false" />
                         </td> 
                         <td><bean:message key="aoe"/> <html:radio name="narrative" property="aoe" indexed="true" value="false"/>

@@ -62,15 +62,23 @@ public class ScriptedSQLDemographicDataAccess implements DemographicDataAccess, 
     }
     
     public DemographicDetail findDemographicDetailById(final Long id) throws DataSourceException{
+        Connection conn = null;
         try {
             checkDataSourceExists();
             DataSource src = getDataSource();
-            Connection conn = src.getConnection();
+             conn = src.getConnection();
             return demographicDetailSQL.findByPrimaryKey(conn, id);
            
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
             throw new DataSourceException(e);
+        } finally {
+            try {
+            conn.close();
+            } catch (Exception e) {
+                log.error(e.getLocalizedMessage());
+            throw new DataSourceException(e);
+            }
         }
     }
     
