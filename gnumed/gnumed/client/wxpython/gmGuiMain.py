@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-04-01 02:30:51 $
-# @version $Revision: 1.14 $ $Date: 2002-04-01 02:30:51 $ $Author: ihaywood $
+# @Date: $Date: 2002-04-01 02:40:56 $
+# @version $Revision: 1.15 $ $Date: 2002-04-01 02:40:56 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -137,7 +137,7 @@ class MainFrame(wxFrame):
 	def RegisterEvents(self):
 		#register events we want to react to
 		EVT_IDLE(self, self.OnIdle)
-		#EVT_CLOSE(self, self.OnClose)
+		EVT_CLOSE(self, self.OnClose)
 		EVT_ICONIZE(self, self.OnIconize)
 		EVT_MAXIMIZE(self, self.OnMaximize)
 
@@ -289,7 +289,6 @@ class MainFrame(wxFrame):
 
 
 	def OnFileExit(self, event):
-		self.timer.Stop ()
 		self.Close()
 
 
@@ -300,6 +299,7 @@ class MainFrame(wxFrame):
 		ANY code that should be executed before a regular shutdown
 		should go in here
 		"""
+		self.timer.Stop ()
 		self.mainmenu=None
 		self.window=None
 		self.Destroy()
