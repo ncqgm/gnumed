@@ -11,12 +11,12 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.3 2003-08-24 09:15:20 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmGuiHelpers.py,v 1.4 2003-08-26 12:35:52 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
-import sys
+import sys, string
 
 if __name__ == '__main__':
 	print "This is not intended to be run standalone !"
@@ -33,8 +33,8 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 		aMessage = _('programmer forgot to specify error message')
 
 	if aLogLevel is not None:
-		log_msg = str.replace(aMessage, '\015', ' ')
-		log_msg = str.replace(log_msg, '\012', ' ')
+		log_msg = string.replace(aMessage, '\015', ' ')
+		log_msg = string.replace(log_msg, '\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
 	aMessage = aMessage + _("\n\nPlease consult the error log for all the gory details !")
@@ -77,7 +77,10 @@ def gm_show_question(aMessage = None, aTitle = None):
 		return 0
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.3  2003-08-24 09:15:20  ncq
+# Revision 1.4  2003-08-26 12:35:52  ncq
+# - properly replace \n\r
+#
+# Revision 1.3  2003/08/24 09:15:20  ncq
 # - remove spurious self's
 #
 # Revision 1.2  2003/08/24 08:58:07  ncq
