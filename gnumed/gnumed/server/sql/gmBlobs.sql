@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.12 $ $Date: 2002-10-29 23:08:08 $ $Author: ncq $
+-- $Revision: 1.13 $ $Date: 2002-11-01 16:11:07 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -16,18 +16,18 @@ INSERT INTO doc_type(id, name) values(1,'discharge summary internal');
 INSERT INTO doc_type(id, name) values(2,'discharge summary surgical');
 INSERT INTO doc_type(id, name) values(3,'discharge summary psychiatric');
 INSERT INTO doc_type(id, name) values(4,'discharge summary neurological');
-INSERT INTO doc_type(id, name) values(4,'discharge summary orthopaedic');
-INSERT INTO doc_type(id, name) values(5,'discharge summary other');
+INSERT INTO doc_type(id, name) values(5,'discharge summary orthopaedic');
+INSERT INTO doc_type(id, name) values(6,'discharge summary other');
 
-INSERT INTO doc_type(id, name) values(6,'referral report internal');
-INSERT INTO doc_type(id, name) values(7,'referral report surgical');
-INSERT INTO doc_type(id, name) values(8,'referral report ENT');
-INSERT INTO doc_type(id, name) values(9,'referral report eye');
-INSERT INTO doc_type(id, name) values(10,'referral report urology');
-INSERT INTO doc_type(id, name) values(11,'referral report orthopaedic');
-INSERT INTO doc_type(id, name) values(12,'referral report neuro');
-INSERT INTO doc_type(id, name) values(13,'referral report radiology');
-INSERT INTO doc_type(id, name) values(14,'referral report other');
+INSERT INTO doc_type(id, name) values(7,'referral report internal');
+INSERT INTO doc_type(id, name) values(8,'referral report surgical');
+INSERT INTO doc_type(id, name) values(9,'referral report ENT');
+INSERT INTO doc_type(id, name) values(10,'referral report eye');
+INSERT INTO doc_type(id, name) values(11,'referral report urology');
+INSERT INTO doc_type(id, name) values(12,'referral report orthopaedic');
+INSERT INTO doc_type(id, name) values(13,'referral report neuro');
+INSERT INTO doc_type(id, name) values(14,'referral report radiology');
+INSERT INTO doc_type(id, name) values(15,'referral report other');
 
 -- add any number of types here, this is just to give you an idea
 
@@ -42,10 +42,11 @@ CREATE TABLE "doc_med" (
 );
 
 COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing several data objects such as several pages of a paper document';
-COMMENT ON COLUMN "doc_med.type" IS 'semantic type of document (not type of file or mime type), such as "referral letter", "discharge summary", etc.';
-COMMENT ON COLUMN "doc_med.comment" IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
-COMMENT ON COLUMN "doc_med.date" IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
-COMMENT ON COLUMN "doc_med.ext_ref" IS 'external reference string of physical document, original paper copy can be found with this';
+COMMENT ON COLUMN doc_med.patient_id IS 'the patient this document belongs to';
+COMMENT ON COLUMN doc_med.type IS 'semantic type of document (not type of file or mime type), such as >referral letter<, >discharge summary<, etc.';
+COMMENT ON COLUMN doc_med.comment IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
+COMMENT ON COLUMN doc_med.date IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
+COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical document, original paper copy can be found with this';
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
