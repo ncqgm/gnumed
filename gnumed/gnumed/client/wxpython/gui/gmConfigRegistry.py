@@ -25,6 +25,7 @@ _cfg = gmCfg.gmDefCfgFile
 
 from wxPython.wx import *
 from gmConfigCommon import *
+from gmGuiHelpers import gm_show_error, gm_show_question
 
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
@@ -208,12 +209,11 @@ class cConfTree(wxTreeCtrl):
 		eval(tmpFunc)[0]=object
 		return aSubTree
 	#------------------------------------------------------------------------
-
 	def SaveCurrParam(self):
 		"""save parameter dialog"""
-	# self.currSelParam is the name of the parameter with optional
-	# cookie part appended, defParamName the name without cookie part !
-	# you must use the latter to access config definitions !
+		# self.currSelParam is the name of the parameter with optional
+		# cookie part appended, defParamName the name without cookie part !
+		# you must use the latter to access config definitions !
 
 		if not (self.currSelParam is None or self.currSelSubtree is None):
 
@@ -223,8 +223,11 @@ class cConfTree(wxTreeCtrl):
 			newValue = currConfSource.castType(self.currSelParam,val)
 
 			if newValue is None:
-				self.__show_error('Type of entered value is not compatible with type expected.')
-				
+				gm_show_error (
+					_('Type of entered value is not compatible with type expected.'),
+					_('saving configuration')
+				)
+
 			# a particular config definition refers to a parameter name
 			# without the cookie part. we have to strip the 
 			# cookie off get the correct parameter
@@ -237,10 +240,9 @@ class cConfTree(wxTreeCtrl):
 			# new value should be stored unchecked
 
 			if not confDefinition or not currConfSource.hasParameterDefinition(defParamName):
-				if self.__show_question(
-"""There is no config definition for this parameter.
-This means that it can't be checked for validity. 
-Anyway store parameter ?"""):
+				if gm_show_question (
+					_("There is no config definition for this parameter.\nThus it can't be checked for validity.\n\nSave anyway ?"),
+					_('saving configuration')):
 					currConfSource.setConfigData( self.currSelParam,newValue)
 				
 					# reshow new data to mark it non modified
@@ -256,7 +258,10 @@ Anyway store parameter ?"""):
 				self.__show_parameter(self.currSelSubtree,self.currSelParam)
 			else:
 				# TODO: display some hint on what could be wrong
-				self.__show_error('Entered value is not valid.')
+				gm_show_error (
+					_('Entered value is not valid.'),
+					_('saving configuration')
+				)
 
 	#------------------------------------------------------------------------
 	def OnActivate (self, event):
@@ -315,47 +320,6 @@ Anyway store parameter ?"""):
 			self.paramTextCtrl.ShowParam(aParam,currType,value)
 			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
-
-
-	#------------------------------------------------------------------------
-	def __show_error(self, aMessage = None, aTitle = ''):
-			# sanity checks
-			tmp = aMessage
-			if aMessage is None:
-				tmp = _('programmer forgot to specify error message')
-
-			tmp = tmp + _("\n\nPlease consult the error log for further information !")
-
-			dlg = wxMessageDialog(
-				NULL,
-				tmp,
-				aTitle,
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return 1
-
-	#------------------------------------------------------------------------
-	def __show_question(self, aMessage = None, aTitle = ''):
-			# sanity checks
-			tmp = aMessage
-			if aMessage is None:
-				tmp = _('programmer forgot to specify question')
-
-			dlg = wxMessageDialog(
-				NULL,
-				tmp,
-				aTitle,
-				wxYES_NO | wxICON_EXCLAMATION | wxNO_DEFAULT
-			)
-			result = dlg.ShowModal()
-			dlg.Destroy()
-			if result == wxID_YES:
-				return 1
-			else: 
-				return 0
-
 ###############################################################################
 class cParamCtrl(wxTextCtrl):
 	def __init__(self, parent, id,value,pos,size,style,type ):
@@ -565,7 +529,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.5  2003-08-23 18:40:43  hinnef
+# Revision 1.6  2003-08-24 08:58:18  ncq
+# - use gm_show_*
+#
+# Revision 1.5  2003/08/23 18:40:43  hinnef
 # split up in gmConfigRegistry.py and gmConfigCommon.py, debugging, more comments
 #
 # Revision 1.4  2003/06/26 21:41:51  ncq

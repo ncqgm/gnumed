@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.1 2003-08-21 00:11:48 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmGuiHelpers.py,v 1.2 2003-08-24 08:58:07 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -42,11 +42,11 @@ def gm_show_error(self, aMessage = None, aTitle = None, aLogLevel = None):
 	if aTitle is None:
 		aTitle = _('generic error message dialog')
 
-	dlg = wxMessageDialog(
-		NULL,
-		aMessage,
-		aTitle,
-		wxOK | wxICON_ERROR
+	dlg = wxMessageDialog (
+		parent = NULL,
+		message = aMessage,
+		caption = aTitle,
+		style = wxOK | wxICON_ERROR
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -61,15 +61,22 @@ def gm_show_question(self, aMessage = None, aTitle = None):
 
 	dlg = wxMessageDialog(
 		NULL,
-		tmp,
+		aMessage,
 		aTitle,
-		wxYES_NO | wxICON_QUESTION
+		wxYES_NO | wxICON_QUESTION | wxNO_DEFAULT
 	)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
-	return btn_pressed
+
+	if btn_pressed == wxID_YES:
+		return 1
+	else:
+		return 0
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.1  2003-08-21 00:11:48  ncq
+# Revision 1.2  2003-08-24 08:58:07  ncq
+# - use gm_show_*
+#
+# Revision 1.1  2003/08/21 00:11:48  ncq
 # - adds some widely used wxPython GUI helper functions
 #
