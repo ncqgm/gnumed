@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.6 2003-11-22 14:47:24 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmDemographics.py,v 1.7 2004-01-04 09:33:32 ihaywood Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -40,7 +40,7 @@ import time
 
 from gmPhraseWheel import cPhraseWheel
 from gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP
-import gmDemographicRecord
+import gmDemographicRecord, gmPatient
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -424,9 +424,13 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		sizer_control = wxBoxSizer(wxHORIZONTAL)
 		b1 = wxButton( self, -1, _("SAVE"))
 		b2 = wxButton( self, -1, _("CANCEL"))
+		b3 = wxButton( self, -1, _("NEW"))
 		sizer_control.Add( b1, 0, wxEXPAND)
 		sizer_control.Add( b2, 0, wxEXPAND)
-		self.btn_save , self.btn_del = b1, b2
+		sizer_control.Add( b3, 0, wxEXPAND)
+		self.btn_save = b1
+		self.btn_del = b2
+		self.btn_new = b3
 		self.mainsizer.Add(sizer_control)	
 		
 		self.SetSizer(self.mainsizer)
@@ -447,6 +451,8 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 		b = self.btn_save
 		EVT_BUTTON(b, b.GetId(), self._save_btn_pressed)
+		EVT_BUTTON(self.btn_del, self.btn_del.GetId (), self._del_button_pressed)
+		EVT_BUTTON(self.btn_new, self.btn_new.GetId (), self._new_button_pressed)
 
 		l = self.addresslist
 		EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected) 
@@ -484,15 +490,11 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 	def setNewPatient(self, isNew):
 		self._newPatient = isNew
 
-	def newPatient(self):
+	def _new_button_pressed(self, event):
 		self.setNewPatient(1)
 		self.__init_data()
-		import gmPatient
 		id = gmPatient.create_dummy_identity()
-		print "id = ", id
-		self.patient = gmPatient.gmCurrentPatient(id)
-		
-
+		gmPatient.gmCurrentPatient(id)
 	
 	def __init_data(self):
 		for k, w in self.input_fields.items():
@@ -524,10 +526,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		if "" in nameFields or "?" in nameFields:
 			raise Error("firstname and surname are required fields for identity")
 
-
-
-
-
 	
 	def _save_data(self):
 		try:
@@ -544,19 +542,20 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 	
 		m = self.get_input_value_map()
 			
-		myPatient = self.get_demographic_record()
+		myPatient = self.patient.get_demographic_record()
 
 		myPatient.addName(m['firstname'].strip(), m['surname'].strip(), activate=1)
 		myPatient.setGender( m['sex'] )
 		myPatient.setDOB( m['birthdate'])
 		myPatient.setTitle( m['title'])
-
 		self.setNewPatient(0)
 
 		gmDispatcher.send( gmSignals.patient_selected(), { 'id':  myPatient.getID() } )
 
 
-
+	def _del_button_pressed (self, event):
+		# do we really want this?
+		pass
 	
 
 	def _add_address_pressed(self, event):
@@ -683,7 +682,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 	
 	def _updateUI(self):
 		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
-		myPatient = self.get_demographic_record()
+		myPatient = self.patient.get_demographic_record()
 		
 		print self, "GOT THIS"
 		print "ID       ", myPatient.getID ()
@@ -697,7 +696,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
                         print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
 
 		try:
-			print "relations ", self.get_patient().get_demographic_record().get_relatives()
+			print "relations ", myPatient.get_relatives()
 		except:
 			gmLog.gmDefLog.LogException("relations ", sys.exc_info(), verbose= 1)
 			pass
@@ -820,7 +819,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.6  2003-11-22 14:47:24  ncq
+# Revision 1.7  2004-01-04 09:33:32  ihaywood
+# minor bugfixes, can now create new patients, but doesn't update properly
+#
+# Revision 1.6  2003/11/22 14:47:24  ncq
 # - use addName instead of setActiveName
 #
 # Revision 1.5  2003/11/22 12:29:16  sjtan

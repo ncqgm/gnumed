@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.133 2003-12-29 23:32:56 ncq Exp $
-__version__ = "$Revision: 1.133 $"
+# $Id: gmGuiMain.py,v 1.134 2004-01-04 09:33:32 ihaywood Exp $
+__version__ = "$Revision: 1.134 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -659,7 +659,7 @@ class gmApp(wxApp):
 			wxInitAllImageHandlers()
 	#----------------------------------------------
 	def __set_db_lang(self):
-		if system_locale is None:
+		if system_locale is None or system_locale == '':
 			_log.Log(gmLog.lWarn, "system locale is undefined (probably meaning 'C')")
 			return 1
 
@@ -739,14 +739,15 @@ class gmApp(wxApp):
 		# try setting database language (only possible if translation exists)
 		cmd = "select set_curr_lang(%s) "
 		for lang in [system_locale_level['full'], system_locale_level['country'], system_locale_level['language']]:
-			result = gmPG.run_commit('default', [
-				(cmd, [lang])
-			])
-			if result is None:
-				_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
-				continue
-			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
-			return 1
+			if len (lang) > 0:
+				result = gmPG.run_commit('default', [
+					(cmd, [lang])
+					])
+				if result is None:
+					_log.Log(gmLog.lErr, 'Cannot set database language to [%s].' % lang)
+					continue
+				_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
+				return 1
 		return None
 #=================================================
 def main():
@@ -768,7 +769,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.133  2003-12-29 23:32:56  ncq
+# Revision 1.134  2004-01-04 09:33:32  ihaywood
+# minor bugfixes, can now create new patients, but doesn't update properly
+#
+# Revision 1.133  2003/12/29 23:32:56  ncq
 # - reverted tolerance to missing db account <-> staff member mapping
 # - added comment as to why
 #
