@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.9 2003-01-16 14:45:03 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmLoginInfo.py,v 1.10 2003-05-17 17:26:37 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 #====================================================================
@@ -25,6 +25,8 @@ class LoginInfo:
 
 	#private variables
 	__user = 'guest'
+	__ro_user = 'guest'
+	__rw_user = ''
 	__passwd = ''
 	__host = 'localhost'
 	__port = 5432
@@ -51,7 +53,7 @@ class LoginInfo:
 	#------------------------------------------
 	def GetInfo(self):
 		return (
-			self.GetUser(),
+			self.GetUser(readonly=1),
 			self.GetPassword(),
 			self.GetHost(),
 			self.GetPort(),
@@ -67,17 +69,20 @@ class LoginInfo:
 					self.GetHost(),
 					str(self.GetPort()),
 					self.GetDatabase(),
-					self.GetUser(),
+					self.GetUser(readonly=1),
 					self.GetOptions(),
 					self.GetTTY()
 				)
 		return info
 	#------------------------------------------
-	def GetPGDB_DSN(self):
+	def GetPGDB_DSN(self, readonly=2):
+		if readonly == 2:
+			print "GetPGDB_DSN(): old style call, please convert"
+			_log.Log(gmLog.lWarn, 'old style call, please convert')
 		dsn = "%s:%s:%s:%s:%s:%s" % (
 			self.GetHost(),
 			self.GetDatabase(),
-			self.GetUser(),
+			self.GetUser(readonly),
 			self.GetPassword(),
 			self.GetOptions(),
 			self.GetTTY()
@@ -85,7 +90,10 @@ class LoginInfo:
 		host = "%s:%s" % (self.GetHost(), str(self.GetPort()))
 		return dsn, host
 	#------------------------------------------
-	def GetDBAPI_DSN(self):
+	def GetDBAPI_DSN(self, readonly=2):
+		if readonly == 2:
+			print "GetDBAPI_DSN(): old style call, please convert"
+			_log.Log(gmLog.lWarn, 'old style call, please convert')
 		if self.GetHost () == "unix": # the virtual host "unix" is for UNIX socket connection
 			host = ""
 			port = "" # the port setting is ignored
@@ -96,17 +104,42 @@ class LoginInfo:
 			host,
 			port,
 			self.GetDatabase(),
-			self.GetUser(),
+			self.GetUser(readonly),
 			self.GetPassword(),
 			self.GetOptions(),
 			self.GetTTY())
 		return dsn
 	#------------------------------------------
-	def SetUser(self, user):
-		self.__user = user
+	def SetUser(self, user, readonly=2):
+		# FIXME: once all callers are converted move this to readonly=1
+		if readonly == 2:
+			self.__user = user
+			self.__ro_user = user
+			self.__rw_user = '_%s' % user
+			if len(user) > 0:
+				if user[0] == '_':
+					self.__ro_user = user[1:]
+					self.__rw_user = user
+		elif readonly == 1:
+			self.__ro_user = user
+		elif readonly == 0:
+			self.__rw_user = user
+			return self.__rw_user
+		else:
+			self.__ro_user = user
 	#------------------------------------------
-	def GetUser(self):
-		return self.__user
+	def GetUser(self, readonly=2):
+		# FIXME: once all callers are converted move this to readonly=1
+		if readonly == 2:
+			print "GetUser(): old style call, please convert"
+			_log.Log(gmLog.lWarn, 'old style call, please convert')
+			return self.__user
+		elif readonly == 1:
+			return self.__ro_user
+		elif readonly == 0:
+			return self.__rw_user
+		else:
+			return self.__ro_user
 	#------------------------------------------
 	def SetPassword(self, passwd):
 		self.__passwd = passwd
@@ -156,7 +189,9 @@ class LoginInfo:
 	def Clear(self):
 		"clears all connection information regarding user, password etc."
 
-		self.__user = ""
+		self.__user = "guest"
+		self.__ro_user = "guest"
+		self.__rw_user = ""
 		self.__passwd = ""
 		self.__host = "localhost"
 		self.__port = 5432
@@ -172,7 +207,13 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.9  2003-01-16 14:45:03  ncq
+# Revision 1.10  2003-05-17 17:26:37  ncq
+# - start clean up of _user/user mess:
+#   - introduce __ro/rw_user
+#   - add "readonly" parameter to GetUser(), Get*_DSN() and SetUser()
+#   - make SetUser()/Get* smart about old style use, log warning
+#
+# Revision 1.9  2003/01/16 14:45:03  ncq
 # - debianized
 #
 # Revision 1.8  2003/01/04 09:34:16  ncq
