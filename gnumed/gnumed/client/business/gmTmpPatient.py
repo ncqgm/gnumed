@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.2 2003-02-06 15:40:58 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmTmpPatient.py,v 1.3 2003-02-08 00:09:46 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,22 +23,28 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmBackendListener, gmSignals
+import gmExceptions, gmPG, gmSignals
 
-curr_pat = None
+gmDefPatient = None
 #============================================================
 # may get preloaded by the waiting list
-class cPatient:
-	"""Represent a patient that DOES EXIST in the database.
+class gmPatient:
+	"""Represents a patient that DOES EXIST in the database.
 
 	- searching and creation is done OUTSIDE this object
 	"""
 	def __init__(self, aPKey = None):
-		"""Fails if patient referenced by aPKey does not exist.
+		"""Fails if
+
+		- no connection to database possible
+		- patient referenced by aPKey does not exist.
 		"""
+		self.__backend = gmPG.ConnectionPool()
+		self.__defconn = self.__backend.GetConnection('personalia')
+
 		self.ID = aPKey			# == identity.id == primary key
-		if self.__pkey_exists() is None:
-			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database."
+		if not self.__pkey_exists():
+			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
 
 		self.__cache = {}
 		self.__query_trees = {}
@@ -50,14 +56,32 @@ class cPatient:
 		self.locked = (1==0)
 
 		# register backend notification interests ...
-		# FIXME: this should be a brokered listener object, no ?
-		if not self.__register_interests():
-			raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
+		#if not self.__register_interests():
+		#	raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
+
+		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.ID)
 	#--------------------------------------------------------
 	def setQueryTree(self, aCol, aQueryTree = None):
 		if aQueryTree is None:
 			return None
 		self.__query_trees[aCol] = aQueryTree
+	#--------------------------------------------------------
+	def __pkey_exists(self):
+		"""Does this primary key exist ?
+
+		- true/false/None
+		"""
+		curs = self.__defconn.cursor()
+		cmd = "select exists(select id from identity where id = %s);"
+		try:
+			curs.execute(cmd, self.ID)
+		except:
+			curs.close
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info(), fatal=0)
+			return None
+		res = curs.fetchone()[0]
+		curs.close()
+		return res
 	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it.
@@ -90,20 +114,70 @@ class cPatient:
 	# messaging
 	#--------------------------------------------------------
 	def __register_interests(self):
-		self.db_listener = gmBackendListener.BackendListener(
+		# backend
+		self.__backend.Listen(
 			service = 'personalia',
-			database = ,
-			user = ,
-			password = ,
-			host = 
-			)
-		self.db_listener.RegisterCallback(
-			callback = self.__patient_modified,
-			signal = "%s.%s" % (gmSignals.patient_modified(), self.ID)
+			signal = "%s.%s" % (gmSignals.patient_modified(), self.ID),
+			callback = self.__patient_modified
 		)
+		# frontend
 	#--------------------------------------------------------
 	def __patient_modified(self):
 		# uh, oh, cache may have been modified ...
+		# <DEBUG>
+		_log.Log(gmLog.lData, "patient_modified signal received from backend")
+		# </DEBUG>
+	#--------------------------------------------------------
+	def getMedDocsList(self):
+		"""Build a complete list of metadata for all documents of our patient.
+
+		"""
+		blobs_conn = self.__backend.GetConnection('blobs')
+
+		curs = blobs_conn.cursor()
+		cmd = "SELECT id from doc_med WHERE patient_id=%s"
+		try:
+			curs.execute(cmd, self.ID)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return None
+
+		tmp = curs.fetchall()
+		docs = []
+		for doc_id in tmp:
+			docs.extend(doc_id)		
+		_log.Log(gmLog.lData, "document IDs: %s" % docs)
+
+		if curs.rowcount == 0:
+			curs.close()
+			_log.Log(gmLog.lInfo, "No documents found for patient (ID [%s])." % self.ID)
+			return None
+
+		curs.close()
+		self.__backend.ReleaseConnection('blobs')
+
+		return docs
+	#--------------------------------------------------------
+	def getActiveName(self, format = None):
+		if format is None:
+			format = '$first$ $last$'
+		curs = self.__defconn.cursor()
+		cmd = "select firstnames, lastnames from v_basic_person where id = %s;"
+		try:
+			curs.execute(cmd, self.ID)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return None
+		data = curs.fetchone()
+		curs.close()
+		if data is None:
+			return None
+		else:
+			result = format.replace('$first$', data[0])
+			result = result.replace('$last$', data[1])
+			return result
 #============================================================
 def get_patient():
 	"""Get a patient object.
@@ -115,8 +189,28 @@ def get_patient():
 	exception - failure
 	"""
 #============================================================
+if __name__ == "__main__":
+	while 1:
+		pID = raw_input('a patient ID: ')
+		try:
+			myPatient = gmPatient(aPKey = pID)
+		except:
+			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
+			print "patient", pID, "does not exist"
+			continue
+		print "patient", pID, "exists"
+		print myPatient.getMedDocsList()
+else:
+	# shock and horror
+	myPatient = gmPatient(aPKey = 8)
+	gmDefPatient = myPatient
+	_log.Log(gmLog.lData, myPatient.getActiveName())
+#============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.2  2003-02-06 15:40:58  ncq
+# Revision 1.3  2003-02-08 00:09:46  ncq
+# - finally starts being useful
+#
+# Revision 1.2  2003/02/06 15:40:58  ncq
 # - hit hard the merge wall
 #
 # Revision 1.1  2003/02/01 17:53:12  ncq
