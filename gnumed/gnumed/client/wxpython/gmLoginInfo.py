@@ -52,12 +52,14 @@ class LoginInfo:
 		self.GetDatabase(), self.GetOptions(), self.GetTTY(), self.GetProfile()
 
 	def GetInfoStr(self):
-	    info = "host:port=%s:%s, db=%s, user=%s, pw=%s, opts=%s, tty=%s" % (self.GetHost(), str(self.GetPort()),
+	    # don't hand out passwords just like that
+	    info = "host:port=%s:%s, db=%s, user=%s, pw=??, opts=%s, tty=%s" % (self.GetHost(), str(self.GetPort()),
 										self.GetDatabase(),
 										self.GetUser(),
-									        self.GetPassword(),
 										self.GetOptions(),
 									        self.GetTTY())
+
+									        #self.GetPassword(),
 	    return info
 
 	def GetPGDB_DSN(self):
