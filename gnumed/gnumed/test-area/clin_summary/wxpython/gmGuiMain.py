@@ -411,4 +411,4 @@ if __name__ == '__main__':
 	main()
 
 # clean up
-myLog.Close()
+#myLog.close()

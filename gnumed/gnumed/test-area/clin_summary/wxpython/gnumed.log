@@ -112,3 +112,45 @@ Can't run GNUMed without database connection
 2002-05-17 21:45:17 ------------------------------------------------------------
 2002-05-17 21:45:17 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
 2002-05-17 21:45:17 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:04:01 ------------------------------------------------------------
+2002-06-01 14:04:01 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:04:01 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:05:00 ------------------------------------------------------------
+2002-06-01 14:05:00 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:05:00 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:05:50 ------------------------------------------------------------
+2002-06-01 14:05:50 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:05:50 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:06:20 ------------------------------------------------------------
+2002-06-01 14:06:20 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:06:20 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:07:22 ------------------------------------------------------------
+2002-06-01 14:07:22 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:07:22 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:07:52 ------------------------------------------------------------
+2002-06-01 14:07:52 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:07:52 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:12:53 ------------------------------------------------------------
+2002-06-01 14:12:53 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:12:56 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:14:50 ------------------------------------------------------------
+2002-06-01 14:14:50 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:14:50 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:14:50 [PANIC] (gmLog.py::close:303): SECURITY: closing log target (ID = /home/ian/gnumed/gnumed/test-area/clin_summary/wxpython/gnumed.log)
+2002-06-01 14:16:52 ------------------------------------------------------------
+2002-06-01 14:16:52 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:16:52 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:16:52 [INFO]  (./gmGuiMain.py::OnInit:363): set resource path to: /home/ian/gnumed/gnumed/test-area/clin_summary
+2002-06-01 14:16:52 [INFO]  (./gmLogin.py::Login:40): login attempt #0 of 3
+2002-06-01 14:16:58 [PANIC] (./gmGuiMain.py::OnInit:370): Login attempt unsuccesful
+Can't run GNUMed without database connection
+2002-06-01 14:17:01 ------------------------------------------------------------
+2002-06-01 14:17:01 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:17:01 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:17:01 [INFO]  (./gmGuiMain.py::OnInit:363): set resource path to: /home/ian/gnumed/gnumed/test-area/clin_summary
+2002-06-01 14:17:01 [INFO]  (./gmLogin.py::Login:40): login attempt #0 of 3
+2002-06-01 14:18:08 ------------------------------------------------------------
+2002-06-01 14:18:08 [PANIC] (gmLog.py::__init__:297): SECURITY: initial log level is [INFO]  
+2002-06-01 14:18:08 [INFO]  (gmLog.py::AddTarget:132): SECURITY: adding log target "stdout/stderr"
+2002-06-01 14:18:08 [INFO]  (./gmGuiMain.py::OnInit:363): set resource path to: /home/ian/gnumed/gnumed/test-area/clin_summary
+2002-06-01 14:18:08 [INFO]  (./gmLogin.py::Login:40): login attempt #0 of 3
