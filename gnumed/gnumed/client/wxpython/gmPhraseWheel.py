@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.14 2003-09-29 23:11:58 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPhraseWheel.py,v 1.15 2003-09-30 18:52:40 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -23,8 +23,6 @@ _log = gmLog.gmDefLog
 import gmExceptions, gmPG
 
 from wxPython.wx import *
-
-import mx.DateTime as mxDT
 
 _true = (1==1)
 _false = (1==0)
@@ -371,7 +369,7 @@ class cMatchProvider_SQL(cMatchProvider):
 			matching_rows = curs.fetchall()
 			curs.close()
 			for row in matching_rows:
-				matches.append({'ID': row[0], 'label': row[1]})
+				matches.append({'data': row[0], 'label': row[1]})
 
 		# no matches found
 		if len(matches) == 0:
@@ -387,142 +385,6 @@ class cMatchProvider_SQL(cMatchProvider):
 		if item1 == item2:
 			return 0
 		return 1
-#============================================================
-class cMatchProvider_Date(cMatchProvider):
-	def __init__(self, allow_past = None):
-		self.__def_text = _('enter date here')
-		self.__expanders = []
-		self.__display_format = _('%d.%b %Y (%a)')
-		self.__allow_past = allow_past
-		self.__expanders.append(self.__single_number)
-		self.__expanders.append(self.__explicit_offset)
-		cMatchProvider.__init__(self)
-	#--------------------------------------------------------
-	# internal matching algorithms
-	#
-	# if we end up here:
-	#	- aFragment will not be "None"
-	#   - aFragment will be lower case
-	#	- we _do_ deliver matches (whether we find any is a different story)
-	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
-		"""Return matches for aFragment at start of phrases."""
-		self.__now = mxDT.now()
-		print "now:", self.__now
-		matches = []
-		for expander in self.__expanders:
-			items = expander(aFragment)
-			if items is not None:
-				matches.extend(items)
-		if len(matches) > 0:
-			return (_true, matches)
-		else:
-			return (_false, [])
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		"""Return matches for aFragment at start of words inside phrases."""
-		return self.getMatchesByPhrase(aFragment)
-	#--------------------------------------------------------
-	def getMatchesBySubstr(self, aFragment):
-		"""Return matches for aFragment as a true substring."""
-		return self.getMatchesByPhrase(aFragment)
-	#--------------------------------------------------------
-	def getAllMatches(self):
-		"""Return all items."""
-		return None
-	#--------------------------------------------------------
-	# date fragment expanders
-	#--------------------------------------------------------
-	def __single_number(self, aFragment):
-		if not re.match("^(\s|\t)*\d+(\s|\t)*$", aFragment):
-			return None
-		val = aFragment.replace(' ', '')
-		val = int(val.replace('\t', ''))
-
-		matches = []
-		# nth day of this month (if larger than today or past explicitely allowed)
-		if (self.__now.day <= val) or (self.__allow_past):
-			target_date = self.__now + mxDT.RelativeDateTime(day = val)
-			print "target:", target_date, '(that day, this month)'
-			tmp = {
-				'value': target_date,
-				'label': target_date.strftime(self.__display_format),
-				'ID': 0
-			}
-			matches.append(tmp)
-		# day of next month
-		target_date = self.__now + mxDT.RelativeDateTime(months = 1, day = val)
-		print "target:", target_date, '(that day, next month)'
-		tmp = {
-			'value': target_date,
-			'label': target_date.strftime(self.__display_format),
-			'ID': 1
-		}
-		matches.append(tmp)
-		# X days from now (if <32)
-		if val < 32:
-			target_date = self.__now + mxDT.RelativeDateTime(days = val)
-			print "target:", target_date, '(that many days from today)'
-			tmp = {
-				'value': target_date,
-				'label': target_date.strftime(self.__display_format),
-				'ID': 2
-			}
-			matches.append(tmp)
-		# X weeks from now (if <5)
-		if val < 7:
-			target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
-			print "target:", target_date, '(that many weeks from today)'
-			tmp = {
-				'value': target_date,
-				'label': target_date.strftime(self.__display_format),
-				'ID': 3
-			}
-			matches.append(tmp)
-		# day of this week
-		# day of next week
-		return matches
-	#--------------------------------------------------------
-	def __explicit_offset(self, aFragment):
-		# "+/-XXd/w/m/t"
-		if not re.match("^(\s|\t)*(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[mMdDtTwW](\s|\t)*$", aFragment):
-			return None
-		print aFragment
-		# allow past ?
-		is_future = 1
-		if string.find(aFragment, '-') > -1:
-			is_future = None
-			if not self.__allow_past:
-				return None
-
-		val = int(re.search('\d{1,2}', aFragment).group())
-		print val
-		target_date = None
-		if re.search('[dDtT]', aFragment):
-			if is_future:
-				target_date = self.__now + mxDT.RelativeDateTime(days = val)
-			else:
-				target_date = self.__now - mxDT.RelativeDateTime(days = val)
-		elif re.search('[wW]', aFragment):
-			if is_future:
-				target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
-			else:
-				target_date = self.__now - mxDT.RelativeDateTime(weeks = val)
-		elif re.search('[mM]', aFragment):
-			if is_future:
-				target_date = self.__now + mxDT.RelativeDateTime(months = val)
-			else:
-				target_date = self.__now - mxDT.RelativeDateTime(months = val)
-		if target_date is None:
-			return None
-		tmp = {
-			'value': target_date,
-			'label': target_date.strftime(self.__display_format),
-			'ID': 1
-		}
-		print tmp
-		return [tmp]
-	#--------------------------------------------------------
 #============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
@@ -558,14 +420,13 @@ class cPhraseWheel (wxTextCtrl):
 
 	default_phrase_separators = re.compile('[;/|]+')
 
-	def __init__ (self,
-					parent,
-					id_callback,
-					id = -1,
-					pos = wxDefaultPosition,
-					size = wxDefaultSize,
-					aMatchProvider = None,
-					aDelay = 300):
+	def __init__ (
+		self,
+		id_callback = None,
+		aMatchProvider = None,
+		aDelay = 300,
+		*args,
+		**kwargs):
 		"""
 		id_callback holds a reference to another Python function.
 		This function is called when the user selects a value.
@@ -579,11 +440,11 @@ class cPhraseWheel (wxTextCtrl):
 		self.__currMatches = []
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
+		self.allow_multiple_phrases()
 
-		wxTextCtrl.__init__ (self, parent, id, "", pos, size)
+		wxTextCtrl.__init__ (self, *args, **kwargs)
 		# unnecessary as we are using styles
 		#self.SetBackgroundColour (wxColour (200, 100, 100))
-		self.parent = parent
 
 		# set event handlers
 		# 1) entered text changed
@@ -594,12 +455,16 @@ class cPhraseWheel (wxTextCtrl):
 		EVT_KEY_DOWN (self, self.__on_key_pressed)
 		# 3) evil user wants to resize widget
 		EVT_SIZE (self, self.on_resize)
+		# parent notification callback
+		self.notify_caller = id_callback
 
-		self.id_callback = id_callback
-
-		x, y = pos
-		width, height = size
-		self.__picklist_win = wxWindow (parent, -1, pos = (x, y+height), size = (width, height*6))
+		tmp = kwargs.copy()
+		width, height = kwargs['size']
+		x, y = kwargs['pos']
+		tmp['pos'] = (x, y + height)
+		tmp['size'] = (width, height*6)
+		tmp['id'] = -1
+		self.__picklist_win = wxWindow(*args, **tmp)
 		self.panel = wxPanel(self.__picklist_win, -1)
 		self.__picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self.__picklist.Clear()
@@ -609,46 +474,53 @@ class cPhraseWheel (wxTextCtrl):
 		self.left_part = ''
 		self.right_part = ''
 	#--------------------------------------------------------
-	def __updateMatches(self):
+	def allow_multiple_phrases(self, state = _true):
+		self.__handle_multiple_phrases = state
+	#--------------------------------------------------------
+	def _updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
 
-		entire_input = self.GetValue()
-#		print "---------------------"
-#		print "phrase wheel content:", entire_input
-		cursor_pos = self.GetInsertionPoint()
-#		print "cursor at position:", cursor_pos
-		left_of_cursor = entire_input[:cursor_pos]
-		right_of_cursor = entire_input[cursor_pos:]
-#		print "cursor in input: %s>>>CURSOR<<<%s" % (left_of_cursor, right_of_cursor)
-		# find last phrase separator before cursor position
-		left_boundary = self.phrase_separators.search(left_of_cursor)
-		if left_boundary is not None:
-#			print "left boundary span:", left_boundary.span()
-			phrase_start = left_boundary.end()
-		else:
-			phrase_start = 0
-		self.left_part = entire_input[:phrase_start]
-#		print "phrase start:", phrase_start
-		# find next phrase separator after cursor position
-		right_boundary = self.phrase_separators.search(right_of_cursor)
-		if right_boundary is not None:
-#			print "right boundary span:", right_boundary.span()
-			phrase_end = cursor_pos + (right_boundary.start() - 1)
-		else:
-			phrase_end = len(entire_input) - 1
-		self.right_part = entire_input[phrase_end+1:]
-#		print "phrase end:", phrase_end
-
 		# get current(ly relevant part of) input
-		relevant_input = entire_input[phrase_start:phrase_end+1]
+		if self.__handle_multiple_phrases:
+			entire_input = self.GetValue()
+#			print "---------------------"
+#			print "phrase wheel content:", entire_input
+			cursor_pos = self.GetInsertionPoint()
+#			print "cursor at position:", cursor_pos
+			left_of_cursor = entire_input[:cursor_pos]
+			right_of_cursor = entire_input[cursor_pos:]
+#			print "cursor in input: %s>>>CURSOR<<<%s" % (left_of_cursor, right_of_cursor)
+				# find last phrase separator before cursor position
+			left_boundary = self.phrase_separators.search(left_of_cursor)
+			if left_boundary is not None:
+#				print "left boundary span:", left_boundary.span()
+				phrase_start = left_boundary.end()
+			else:
+				phrase_start = 0
+			self.left_part = entire_input[:phrase_start]
+#			print "phrase start:", phrase_start
+			# find next phrase separator after cursor position
+			right_boundary = self.phrase_separators.search(right_of_cursor)
+			if right_boundary is not None:
+#				print "right boundary span:", right_boundary.span()
+				phrase_end = cursor_pos + (right_boundary.start() - 1)
+			else:
+				phrase_end = len(entire_input) - 1
+			self.right_part = entire_input[phrase_end+1:]
+#			print "phrase end:", phrase_end
+
+			relevant_input = entire_input[phrase_start:phrase_end+1]
+		else:
+			relevant_input = self.GetValue()
 #		print "relevant input:", relevant_input
+
 		# get all currently matching items
 		(matched, self.__currMatches) = self.__matcher.getMatches(relevant_input)
 		# and refill our picklist with them
 		self.__picklist.Clear()
 		if matched:
 			for item in self.__currMatches:
-				self.__picklist.Append(item['label'], clientData = item['ID'])
+				self.__picklist.Append(item['label'], clientData = item['data'])
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
@@ -684,16 +556,21 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
-	def OnSelected (self):
+	def on_list_item_selected (self):
 		"""Gets called when user selected a list item."""
 		self.__hide_picklist()
 
-		n = self.__picklist.GetSelection()		# get selected item
-		data = self.__picklist.GetClientData(n)		# get data associated with selected item
-		selected_string = self.__picklist.GetString(n)
-		self.SetValue('%s%s%s' % (self.left_part, selected_string, self.right_part))
+		selection_idx = self.__picklist.GetSelection()
+		if self.__handle_multiple_phrases:
+			self.SetValue('%s%s%s' % (self.left_part, self.__picklist.GetString(selection_idx), self.right_part))
+		else:
+			self.SetValue(self.__picklist.GetString(selection_idx))
 
-		self.id_callback (data)				# and tell our parent about the user's selection
+		# and tell our parent about the user's selection
+		if self.notify_caller is not None:
+			# get data associated with selected item
+			data = self.__picklist.GetClientData(selection_idx)
+			self.notify_caller (data)
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -705,7 +582,7 @@ class cPhraseWheel (wxTextCtrl):
 		# if we have a pick list
 		if self.__picklist_visible:
 			# tell the input field about it
-			self.OnSelected()
+			self.on_list_item_selected()
 	#--------------------------------------------------------
 	def __on_down_arrow(self, key):
 #		import pdb
@@ -723,7 +600,7 @@ class cPhraseWheel (wxTextCtrl):
 			# don't need timer anymore since user explicitely requested list
 			self.__timer.Stop()
 			# update matches according to current input
-			self.__updateMatches()
+			self._updateMatches()
 			# if we do have matches now show list
 			if len(self.__currMatches) > 0:
 				self.__show_picklist()
@@ -795,7 +672,7 @@ class cPhraseWheel (wxTextCtrl):
 		 - the value in the input field has not changed since the timer started
 		"""
 		# update matches according to current input
-		self.__updateMatches()
+		self._updateMatches()
 		# we now have either:
 		# - all possible items (within reasonable limits) if input was '*'
 		# - all matching items
@@ -832,20 +709,23 @@ if __name__ == '__main__':
 				style=wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
 			)
 
-			items = [	{'ID':1, 'label':"Bloggs", 	'weight':5},
-						{'ID':2, 'label':"Baker",  	'weight':4},
-						{'ID':3, 'label':"Jones",  	'weight':3},
-						{'ID':4, 'label':"Judson", 	'weight':2},
-						{'ID':5, 'label':"Jacobs", 	'weight':1},
-						{'ID':6, 'label':"Judson-Jacobs",'weight':5}
+			items = [	{'data':1, 'label':"Bloggs", 	'weight':5},
+						{'data':2, 'label':"Baker",  	'weight':4},
+						{'data':3, 'label':"Jones",  	'weight':3},
+						{'data':4, 'label':"Judson", 	'weight':2},
+						{'data':5, 'label':"Jacobs", 	'weight':1},
+						{'data':6, 'label':"Judson-Jacobs",'weight':5}
 					]
 			mp1 = cMatchProvider_FixedList(items)
-			ww1 = cPhraseWheel(frame, clicked, pos = (50, 50), size = (180, 30), aMatchProvider=mp1)
+			ww1 = cPhraseWheel(
+				parent = frame,
+				id = -1,
+				id_callback = clicked,
+				pos = (50, 50),
+				size = (180, 30),
+				aMatchProvider = mp1
+			)
 			ww1.on_resize (None)
-
-			mp3 = cMatchProvider_Date(allow_past = 0)
-			ww3 = cPhraseWheel(frame, clicked, pos = (50, 150), size = (180, 30), aMatchProvider=mp3)
-			ww3.on_resize(None)
 
 			print "Do you want to test the database connected phrase wheel ?"
 			yes_no = raw_input('y/n: ')
@@ -857,8 +737,14 @@ if __name__ == '__main__':
 					'limit': 25
 				}
 				mp2 = cMatchProvider_SQL([src])
-#				mp2.setIgnoredChars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
-				ww2 = cPhraseWheel(frame, clicked, pos = (50, 250), size = (180, 30), aMatchProvider=mp2)
+				ww2 = cPhraseWheel(
+					parent = frame,
+					id = -1,
+					id_callback = clicked,
+					pos = (50, 250),
+					size = (180, 30),
+					aMatchProvider = mp2
+				)
 				ww2.on_resize (None)
 
 			frame.Show (1)
@@ -869,7 +755,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.14  2003-09-29 23:11:58  ncq
+# Revision 1.15  2003-09-30 18:52:40  ncq
+# - factored out date input wheel
+#
+# Revision 1.14  2003/09/29 23:11:58  ncq
 # - add __explicit_offset() date expander
 #
 # Revision 1.13  2003/09/29 00:16:55  ncq
