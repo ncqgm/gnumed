@@ -177,6 +177,14 @@ class MainFrame(wxFrame):
 		self.SearchPatientWindow = gmSQLSimpleSearch.SQLSimpleSearch(nb, -1)
 		nb.AddPage(self.SearchPatientWindow, _("Patient"))
 
+		#Drug information
+		try:
+			import gmDrugDisplay
+			pnl = gmDrugDisplay.DrugDisplay(nb, -1)
+			nb.AddPage(pnl, _("Drug reference"))
+		except:
+			pass
+
 		#GNUMeds online manual
 		pnl = gmmanual.ManualHtmlPanel(nb, self, self.log)
 		nb.AddPage(pnl, _("Manual"))
@@ -325,7 +333,7 @@ class gmApp(wxApp):
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		#create the main window
-		frame = MainFrame(None, -1, _('GNUMed client'), size=(600,480))
+		frame = MainFrame(None, -1, _('GNUMed client'), size=(700,580))
 		frame.Maximize(true)
 		#frame.Unlock()
 		frame.Show(true)
