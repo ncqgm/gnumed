@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.68 2005-03-29 18:55:39 cfmoro Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmDemographicRecord.py,v 1.69 2005-03-30 21:04:01 cfmoro Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -228,7 +228,7 @@ class cIdentity (cOrg):
 				select n.firstnames, n.lastnames, i.title, n.preferred
 				from names n, identity i
 				where n.id_identity=%s and i.pk=%s"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.__cache['id'], self.__cache['id'])
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'], self['pk_identity'])
 		if rows is None:
 			return None
 		if len(rows) == 0:
@@ -596,7 +596,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.68  2005-03-29 18:55:39  cfmoro
+# Revision 1.69  2005-03-30 21:04:01  cfmoro
+# id -> pk_identity
+#
+# Revision 1.68  2005/03/29 18:55:39  cfmoro
 # Var name fix
 #
 # Revision 1.67  2005/03/20 16:47:26  ncq
