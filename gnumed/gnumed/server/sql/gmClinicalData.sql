@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.9 2003-05-12 12:43:39 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.10 2003-07-27 21:57:34 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -58,14 +58,14 @@ insert into _enum_hx_source (description) values (i18n('notes'));
 insert into _enum_hx_source (description) values (i18n('correspondence'));
 
 -- ===================================================================
-INSERT INTO enum_coding_systems (description) values (i18n('general'));
-INSERT INTO enum_coding_systems (description) values (i18n('clinical'));
-INSERT INTO enum_coding_systems (description) values (i18n('diagnosis'));
-INSERT INTO enum_coding_systems (description) values (i18n('therapy'));
-INSERT INTO enum_coding_systems (description) values (i18n('pathology'));
-INSERT INTO enum_coding_systems (description) values (i18n('bureaucratic'));
-INSERT INTO enum_coding_systems (description) values (i18n('ean'));
-INSERT INTO enum_coding_systems (description) values (i18n('other'));
+--INSERT INTO enum_coding_systems (description) values (i18n('general'));
+--INSERT INTO enum_coding_systems (description) values (i18n('clinical'));
+--INSERT INTO enum_coding_systems (description) values (i18n('diagnosis'));
+--INSERT INTO enum_coding_systems (description) values (i18n('therapy'));
+--INSERT INTO enum_coding_systems (description) values (i18n('pathology'));
+--INSERT INTO enum_coding_systems (description) values (i18n('bureaucratic'));
+--INSERT INTO enum_coding_systems (description) values (i18n('ean'));
+--INSERT INTO enum_coding_systems (description) values (i18n('other'));
 
 -- ===================================================================
 INSERT INTO enum_confidentiality_level (description) values (i18n('public'));
@@ -122,11 +122,14 @@ insert into enum_immunities (name) values ('tetanus');
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.9  2003-05-12 12:43:39  ncq
+-- Revision 1.10  2003-07-27 21:57:34  ncq
+-- - comment out *semantic* type of coding system ... (what was that intended for anyways?)
+--
+-- Revision 1.9  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
