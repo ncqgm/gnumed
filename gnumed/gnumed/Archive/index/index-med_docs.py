@@ -12,7 +12,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -505,7 +505,7 @@ class indexFrame(wxPanel):
 		if not self.__load_doc(full_dir):
 			_log.Log(gmLog.lErr, "Cannot load document object file list.")
 			self.__show_error (
-				_('Cannot load document object list from xDT file.'),
+				_('Cannot load document object file list.'),
 				_('loading document')
 			)
 			return None
@@ -955,7 +955,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.5  2003-04-22 10:14:31  ncq
+# Revision 1.6  2003-04-25 12:56:19  ncq
+# - clarified message
+#
+# Revision 1.5  2003/04/22 10:14:31  ncq
 # - disabled some fields from being tabbed in
 #
 # Revision 1.4  2003/04/20 16:10:12  ncq
