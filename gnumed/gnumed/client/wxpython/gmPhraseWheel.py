@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.24 2003-11-07 20:48:04 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPhraseWheel.py,v 1.25 2003-11-09 02:24:42 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -82,10 +82,11 @@ class cPhraseWheel (wxTextCtrl):
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 		self.allow_multiple_phrases()
 		self.relevant_input = ''
-
-		self.notify_caller = []
 		self.data = None
-		self.have_called = 0
+		self.input_was_selected = None
+
+		self.listener_callbacks = []
+		self.notified_listeners = 0
 
 		if kwargs.has_key('id_callback'):
 			self.addCallback(kwargs['id_callback'])
@@ -125,15 +126,16 @@ class cPhraseWheel (wxTextCtrl):
 	def allow_multiple_phrases(self, state = _true):
 		self.__handle_multiple_phrases = state
 	#-------------------------------------------------------
-	def addCallback (self, func):
+	def addCallback (self, callback_func):
+		"""Add a callback for a listener.
+
+		The callback will be invoked whenever an item is selected
+		from the picklist. The associated data is passed in as
+		a single parameter. Callbacks must be able to cope with
+		None as the data parameter as that is sent whenever the
+		user changes a previously selected value.
 		"""
-		This function with be called whenever the phrasewheel slects
-		a value. The match provider's data value is sent as a single
-		parameter.
-		WARNING: this function must cope with being called with None
-		(when the user changes a selected value)
-		"""
-		self.notify_caller.append (func)
+		self.listener_callbacks.append(callback_func)
 	#--------------------------------------------------------
 	def getData (self):
 		return self.data
@@ -160,10 +162,10 @@ class cPhraseWheel (wxTextCtrl):
 		if len (matches) == 1:
 			self.data = matches[0]['data']
 			self.SetValue (matches[0]['label'])
-			for call in self.notify_caller:
+			for call in self.listener_callbacks:
 				# get data associated with selected item
 				call (self.data)
-			self.have_called = 1
+			self.notified_listeners = 1
 		if len (matches) > 1:
 			# cache these results
 			self.__real_matcher = self.__matcher
@@ -232,6 +234,11 @@ class cPhraseWheel (wxTextCtrl):
 	def __show_picklist(self):
 		"""Display the pick list."""
 
+		# this helps if the current input was already selected from the
+		# list but still is the substring of another pick list item
+		if self.input_was_selected:
+			return 1
+
 		# if only one match and text == match
 		if len(self.__currMatches) == 1:
 			if self.__currMatches[0]['label'] == self.relevant_input:
@@ -281,10 +288,13 @@ class cPhraseWheel (wxTextCtrl):
 
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
-		# and tell our parent about the user's selection
-		for call in self.notify_caller:
-			call (self.data)
-		self.have_called = 1
+		# and tell the listeners about the user's selection
+		for call_listener in self.listener_callbacks:
+			call_listener(self.data)
+		# remember that we did so
+		self.notified_listeners = 1
+		# remember that the current value was selected from the list
+		self.input_was_selected = 1
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
@@ -299,8 +309,6 @@ class cPhraseWheel (wxTextCtrl):
 			self.on_list_item_selected()
 	#--------------------------------------------------------
 	def __on_down_arrow(self, key):
-#		import pdb
-#		pdb.set_trace ()
 		# if we already have a pick list go to next item
 		if self.__picklist_visible:
 #			self._picklist.ProcessEvent (key)
@@ -359,6 +367,9 @@ class cPhraseWheel (wxTextCtrl):
 	def __on_text_update (self, event):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
 
+		# dirty "selected" flag
+		self.input_was_selected = None
+
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
 		if len(self.GetValue()) == 0:
@@ -368,13 +379,14 @@ class cPhraseWheel (wxTextCtrl):
 		else:
 			# start timer for delayed match retrieval
 			self.__timer.Start(oneShot = _true)
-		if self.have_called:
-			# Aargh! we told all the callbacks we selected foo,
-			# now the user is typing again!
-			self.have_called = 0
+
+		if self.notified_listeners:
+			# Aargh! we told the listeners that we selected "foo"
+			# but now the user is typing again !
+			self.notified_listeners = 0
 			self.data = None
-			for call in self.notify_caller:
-				call (None)
+			for notify_listener in self.listener_callbacks:
+				notify_listener(None)
 	#--------------------------------------------------------
 	def on_resize (self, event):
 		sz = self.GetSize()
@@ -486,7 +498,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.24  2003-11-07 20:48:04  ncq
+# Revision 1.25  2003-11-09 02:24:42  ncq
+# - added Syans "input was selected from list" state flag to avoid unnecessary list
+#   drop downs
+# - variable name cleanup
+#
+# Revision 1.24  2003/11/07 20:48:04  ncq
 # - place comments where they belong
 #
 # Revision 1.23  2003/11/05 22:21:06  sjtan
