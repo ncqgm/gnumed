@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.11 2004-10-27 12:16:54 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmVaccWidgets.py,v 1.12 2004-12-15 22:14:21 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,18 +24,14 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
-class cVaccinationEditArea(gmEditArea.gmEditArea):
+class cVaccinationEditArea(gmEditArea.cEditArea):
 	"""
 	- warn on apparent duplicates
 	- ask if "missing" (= previous, non-recorded) vaccinations
 	  should be estimated and saved (add note "auto-generated")
 	"""
 	def __init__(self, parent, id):
-		try:
-			gmEditArea.gmEditArea.__init__(self, parent, id, aType = 'vaccination')
-		except gmExceptions.ConstructorError:
-			_log.LogException('cannot instantiate vaccination edit area', sys.exc_info(), verbose=1)
-			raise
+		gmEditArea.cEditArea.__init__(self, parent, id)
 	#----------------------------------------------------
 	def _define_fields(self, parent):
 #		# regime/disease
@@ -166,7 +162,7 @@ class cVaccinationEditArea(gmEditArea.gmEditArea):
 	#----------------------------------------------------
 	def _save_new_entry(self):
 		# FIXME: validation ?
-		emr = self.patient.get_clinical_record()
+		emr = self._patient.get_clinical_record()
 		# create new vaccination
 		successfull, data = emr.add_vaccination(vaccine=self.fld_vaccine.GetValue())
 		if not successfull:
@@ -180,7 +176,7 @@ class cVaccinationEditArea(gmEditArea.gmEditArea):
 		data['batch_no'] = self.fld_batch_no.GetValue()
 		successfull, err = data.save_payload()
 		if not successfull:
-			gmGuiHelpers.gm_beep_status_text(_('Cannot save vaccination: %s') % err)
+			gmGuiHelpers.gm_beep_status_text(_('Cannot save new vaccination: %s') % err)
 			return False
 		_gb['main.statustext'](_('Vaccination saved.'))
 		self.data = data
@@ -423,9 +419,10 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LBOX_missing_shots.Clear()
 
 		emr = self.__pat.get_clinical_record()
-		status, indications = emr.get_vaccinated_indications()
 
+		t1 = time.time()
 		# populate vaccinated-indications list
+		status, indications = emr.get_vaccinated_indications()
 		# FIXME: would be faster to use Set() but can't
 		# use Set(labels, client_data), and have to know
 		# line position in SetClientData :-(
@@ -433,7 +430,9 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
 #		self.LBOX_vaccinated_indications.Set(lines)
 #		self.LBOX_vaccinated_indications.SetClientData(data)
+		print "vaccinated indications took", time.time()-t1, "seconds"
 
+		t1 = time.time()
 		# populate active schedules list
 		scheds = emr.get_scheduled_vaccination_regimes()
 		if scheds is None:
@@ -446,9 +445,12 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			for sched in scheds:
 				label = _('%s for %s (%s shots): %s') % (sched['regime'], sched['l10n_indication'], sched['shots'], sched['comment'])
 				self.LBOX_active_schedules.Append(label)
+		print "active schedules took", time.time()-t1, "seconds"
 
+		t1 = time.time()
 		# populate missing-shots list
 		missing_shots = emr.get_missing_vaccinations()
+		print "getting missing shots took", time.time()-t1, "seconds"
 		if missing_shots is None:
 			label = _('ERROR: cannot retrieve due/overdue vaccinations')
 			self.LBOX_missing_shots.Append(label, None)
@@ -491,6 +493,8 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				shot['vacc_comment']
 			)
 			self.LBOX_missing_shots.Append(label, shot)
+		print "displaying missing shots took", time.time()-t1, "seconds"
+
 		return True
 	#----------------------------------------------------
 	def _on_patient_selected(self, **kwargs):
@@ -519,7 +523,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.11  2004-10-27 12:16:54  ncq
+# Revision 1.12  2004-12-15 22:14:21  ncq
+# - convert to new style edit area
+#
+# Revision 1.11  2004/10/27 12:16:54  ncq
 # - make wxNewId() call internal to classes so that
 #   "import <a class> from <us>" works properly
 # - cleanup, properly use helpers
