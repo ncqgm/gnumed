@@ -6,6 +6,7 @@
 
 package gnmed.test;
 import java.util.*;
+import java.util.logging.*;
 import java.io.*;
 /**
  *
@@ -46,6 +47,10 @@ public class TestProperties extends Properties {
      
     public int getIntProperty( String name) throws Exception {
         String p = getProperty(name);
+        if (p== null) {
+            Logger.global.info("NO VALUE FOUND FOR PROPERTY" + name);
+            return 0;
+        }
         return Integer.parseInt(p.trim());
     }
     

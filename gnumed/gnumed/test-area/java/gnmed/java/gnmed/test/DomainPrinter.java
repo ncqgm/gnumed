@@ -76,6 +76,70 @@ public class DomainPrinter {
             ps.println();
             ps.println();
         }
+        
+        if ( id.getClin_encounters().size() > 0) {
+            ps.println("*******clinical encounters************");
+            Iterator ei = id.getClin_encounters().iterator();
+            while(ei.hasNext()) {
+                clin_encounter encounter = (clin_encounter) ei.next();
+                printClinEncounter( ps, encounter);
+                ps.println();
+            }
+        }
+    }
+    
+    static class ClinRootItemComparator implements  Comparator {
+        
+        static Map map = new HashMap();
+        static { 
+            map.put("clin_history", "a");
+            map.put("allergy", "b");
+            map.put("clin_physical", "c");
+            map.put("clin_note", "d");
+            map.put("script", "e");
+        };
+        
+        static String getClassNameOnly( Object o) {
+            String name = o.getClass().getName();
+            return name.substring(name.lastIndexOf(".")+1);
+        }
+        
+        static Comparable getOrdinal( Object o) {
+            return (Comparable)  map.get(getClassNameOnly(o) );
+        }
+        
+        public int compare(Object o1, Object o2) {
+            return getOrdinal(o1).compareTo(getOrdinal(o2));
+            
+        }
+        
+    }
+    
+    TreeSet orderedRootItems = new TreeSet( new DomainPrinter.ClinRootItemComparator());
+    
+    void printClinEncounter( java.io.PrintStream ps, clin_encounter e) {
+//        clin_root_item dummy = new clin_root_item();
+//        e.addClin_root_item(dummy);
+//        e.removeClin_root_item(dummy);
+        ps.print("Seen by ");
+        printNames(ps, (Names)e.getProvider().getNamess().iterator().next());
+        ps.print(" at ");
+        printAddress(ps, e.getLocation());
+         ps.print("PROBLEM: ");
+        ps.println(e.getDescription());
+        orderedRootItems.clear();
+        orderedRootItems.addAll( e.getClin_root_items());
+        Iterator i = orderedRootItems.iterator();
+        while (i.hasNext()) {
+            printClinRootItem( ps, (clin_root_item) i.next());
+        }
+    }
+    
+    void printClinRootItem( java.io.PrintStream ps, clin_root_item item) {
+        ps.print(DomainPrinter.ClinRootItemComparator.getClassNameOnly(item));
+        ps.println(":");
+        ps.print(item.getNarrative());
+        ps.println();
     }
     
     public  void printAddress(java.io.PrintStream ps, address a) {
@@ -84,7 +148,7 @@ public class DomainPrinter {
         u.getName();
         s.getName();
         a.getNumber();
-   //     System.out.println("urb = " + u.getName() + " state = " + u.getState());
+        //     System.out.println("urb = " + u.getName() + " state = " + u.getState());
         state sta = u.getState();
         sta.getName();
         ps.println("Address = " +  a.getNumber() + ", "+s.getName() + ", "+u.getName()+", "+sta.getName() + " "+u.getPostcode());
@@ -118,7 +182,10 @@ public class DomainPrinter {
     public void printClinDiagnosis(java.io.PrintStream ps, clin_diagnosis diagnosis) {
         ps.print(diagnosis.getApprox_start());
         ps.print("  ");
-        ps.print(diagnosis.getCode_ref().getDisease_code().getDescription());
+        code_ref cref = diagnosis.getCode_ref();
+        disease_code dcode = cref.getDisease_code();
+        ps.print(dcode.
+        getDescription());
     }
     
     public static  String getStringList(String[] list) {

@@ -29,12 +29,15 @@ public class TestClinHealthIssue  extends TestCase {
     "gout", "arthritis", "failure"
     };
     
-    TestIdentityAddress identitySource = new TestIdentityAddress();
+    TestIdentityAddress identitySource;
     /** Creates a new instance of TestClinHealthIssue */
     public TestClinHealthIssue() {
     }
+    void init() throws Exception {
+        identitySource = new TestIdentityAddress();
+    }
     
-    public static String getSQLSubstr(String substr) {
+    public static String createSQLSubstr(String substr) {
         StringBuffer sb = new StringBuffer();
         sb.append('%');
         sb.append(substr);
@@ -55,7 +58,7 @@ public class TestClinHealthIssue  extends TestCase {
     
     public static clin_health_issue createClinHealthIssue(String substr) throws Exception  {
         clin_health_issue issue = new clin_health_issue();
-        disease_code code = findDiseaseCode( getSQLSubstr(substr));
+        disease_code code = findDiseaseCode(createSQLSubstr(substr));
         clin_diagnosis diagnosis = new clin_diagnosis();
         code_ref ref = new code_ref();
         ref.setDisease_code(code);
@@ -81,6 +84,8 @@ public class TestClinHealthIssue  extends TestCase {
     
     
     public identity createTestIdentityWithHealthIssues() throws Exception {
+        if (identitySource == null)
+            init();
         identity id = identitySource.createPersonWithAddresses(r.nextInt(3)+1);
         id = addRandomNumberOfRandomHealthIssues(id);
         return id;
@@ -92,61 +97,82 @@ public class TestClinHealthIssue  extends TestCase {
             DomainPrinter.getInstance().printIdentity(System.out, id);
         }
     }
-        
-        public  List createManyPersonsWithIssues() throws Exception {
-            int n = r.nextInt(20) + 20;
-            List l = new ArrayList();
-            for (int i = 0; i <n ; ++i) {
-                identity id = createTestIdentityWithHealthIssues();
-                l.add(id);
-            }
-            return l;
+    
+    public  List createManyPersonsWithIssues() throws Exception {
+        int n = r.nextInt(20) + 20;
+        List l = new ArrayList();
+        for (int i = 0; i <n ; ++i) {
+            identity id = createTestIdentityWithHealthIssues();
+            l.add(id);
         }
-        public void testCreateIdentityHealthIssue() throws Exception {
-            
-            printIdentities(createManyPersonsWithIssues());
+        return l;
+    }
+    public void testCreateIdentityHealthIssue() throws Exception {
+        
+        printIdentities(createManyPersonsWithIssues());
+    }
+    
+    public int countIdentitiesWithHealthIssues() throws Exception {
+        Session sess = HibernateInit.openSession();
+        java.sql.ResultSet rs = sess.
+        connection().
+        createStatement().
+        executeQuery("select count(distinct(identity)) from clin_health_issue");
+        int count = 0;
+        if (rs.next())
+            count = rs.getInt(1);
+        sess.close();
+        return count;
+    }
+    
+    public void testStoreIdentityHealthIssue() throws Exception {
+        Session sess = HibernateInit.openSession();
+        int preCount = countIdentitiesWithHealthIssues();
+        List l = createManyPersonsWithIssues();
+        
+        Session sess2 = HibernateInit.openSession();
+        for (int i = 0; i < l.size(); ++i) {
+            sess2.save(l.get(i));
         }
+        sess2.flush();
+        sess2.connection().commit();
         
-        public List findIdentitiesWithOneOrMoreHealthIssue() throws Exception {
-             Session sess = HibernateInit.openSession();
-             List l2 = sess.find("from id in class org.gnumed.gmIdentity.identity where id.clin_health_issues.size >= 1");
-            sess.close();
-             return l2;
+        
+        boolean notFound = false;
+        
+        int postCount = countIdentitiesWithHealthIssues();
+        Logger.global.info(java.text.MessageFormat.format("identity with issue precount= {0}, postcount= {1}",new Object[] { new Integer(preCount), new Integer(postCount) } ) );
+        
+        assertTrue( "\npersons with issues before="+ new Integer(preCount).toString()+
+        "\npersons with issues created" +new Integer((int)l.size()).toString() +
+        "\npersons with issues after " +new Integer(postCount).toString() ,
+        preCount + l.size() == postCount );
+        
+        List retrieveList = new ArrayList();
+        for (int i = 0; i < l.size(); ++i) {
+            retrieveList.add( ((identity)l.get(i)).getId());
         }
-        
-        public void testStoreIdentityHealthIssue() throws Exception {
-            Session sess = HibernateInit.openSession();
-           
-            List l0 = findIdentitiesWithOneOrMoreHealthIssue() ;
-            List l = createManyPersonsWithIssues();
-            Session sess2 = HibernateInit.openSession();
-            for (int i = 0; i < l.size(); ++i) {
-                sess2.save(l.get(i));
-            }
-            sess2.flush();
-            sess2.connection().commit();
-            sess2.close();
-            boolean notFound = false;
-            
-            List l3 = findIdentitiesWithOneOrMoreHealthIssue() ;
-           assertTrue( "\npersons with issues before="+ new Integer((int)l0.size()).toString()+
-                      "\npersons with issues created" +new Integer((int)l.size()).toString() +
-                      "\npersons with issues after " +new Integer((int)l3.size()).toString() ,
-                      l0.size() + l.size() == l3.size() );
-           }
-        
-        
-        /**
-         * @param args the command line arguments
-         */
-        
-        public static void main(String[] args) throws Exception {
-            HibernateInit.initAll();
-            
-            TestSuite suite = new TestSuite();
-            suite.addTestSuite(TestClinHealthIssue.class);
-            junit.textui.TestRunner.run(suite);
-            
+        l.clear();
+        System.out.println("***********************************\n******************************* Retrieving ***********************\n");
+        Session sess3 = HibernateInit.openSession();
+        for (int i = 0 ; i < retrieveList.size(); ++i) {
+            identity id2 = (identity) sess3.load( identity.class , (java.io.Serializable) retrieveList.get(i) );
+            DomainPrinter.getInstance().printIdentity(System.out, id2);
         }
+        sess3.close();
+    }
+    
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) throws Exception {
+        HibernateInit.initAll();
+        
+        TestSuite suite = new TestSuite();
+        suite.addTestSuite(TestClinHealthIssue.class);
+        junit.textui.TestRunner.run(suite);
         
     }
+    
+}

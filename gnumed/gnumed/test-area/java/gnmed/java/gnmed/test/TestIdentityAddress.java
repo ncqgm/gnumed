@@ -19,11 +19,12 @@ public class TestIdentityAddress extends TestCase {
     String[] addressTypes = {"home", "work", "school", "holiday house" };
     
     /** Creates a new instance of TestIdentityAddress */
-    public TestIdentityAddress() {
+    public TestIdentityAddress() throws Exception  {
+        create_address_types();
     }
     
     public void setUp() throws Exception {
-        create_address_types();
+        
     }
     
     void create_address_types() throws Exception {

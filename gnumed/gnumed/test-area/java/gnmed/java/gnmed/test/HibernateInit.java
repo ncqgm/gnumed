@@ -23,6 +23,7 @@ import org.drugref.*;
  * @author  sjtan
  */
 public class HibernateInit {
+    static final String SCHEMA_FLAG = "schema.has.been.exported";
     private static SessionFactory sessions;
     private static Configuration ds;
     private static WeakHashMap oldSessions = new WeakHashMap();
@@ -32,13 +33,15 @@ public class HibernateInit {
     
     static {
         try {
-      initLogger();  
+            initLogger();
         } catch (Exception e) {
             e.printStackTrace();
         }
     };
     
     public static Session openSession() throws Exception {
+        if (sessions == null) 
+            initAll();
         Session s =  sessions.openSession();
         oldSessions.put(s, new Integer(1) );
         return s;
@@ -84,33 +87,40 @@ public class HibernateInit {
         addClass(urb.class).
         addClass(country.class).
         addClass(address_type.class);
-     
-       
+        
+        
     }
     
     public static void initGmClinical() throws Exception {
-         ds.
+        ds.
         addClass(clin_health_issue.class).
         addClass(enum_coding_systems.class).
         addClass(code_ref.class).
         addClass(coding_systems.class).
-        addClass(clin_issue_component.class) 
+        addClass(clin_issue_component.class) .
+        addClass(clin_encounter.class).
+        addClass(clin_root_item.class).
+        addClass(enum_encounter_type.class).
+        addClass(curr_encounter.class).
+  //      addClass(script.class).
+        
+        addClass(enum_allergy_type.class).
+        addClass(enum_hx_source.class).
+        addClass(enum_hx_type.class).
+        addClass(clin_episode.class)
+        
+        
         ;
-         
-         ds.addClass( disease_code.class);
+        
+        ds.addClass( disease_code.class);
     }
     //
-    //        addClass(clin_encounter.class).
-    //        addClass(clin_root_item.class).
-    //        addClass(clin_episode.class).
-    //        addClass(enum_encounter_type.class).
-    //        addClass(enum_allergy_type.class).
-    //        addClass(enum_hx_source.class).
-    //        addClass(enum_hx_type.class).
-   
-    //        addClass(curr_encounter.class).
-    //        addClass(script.class).
-   
+    
+    
+    
+    
+    
+    
     //        ;
     
     
@@ -121,7 +131,7 @@ public class HibernateInit {
     }
     
     public static void initAll() throws Exception {
-         HibernateInit.init();
+        HibernateInit.init();
         HibernateInit.initGmIdentity();
         HibernateInit.initGmClinical();
         HibernateInit.finalizeInit();
@@ -129,12 +139,15 @@ public class HibernateInit {
     }
     
     public static void exportDatabase() throws Exception {
-//        new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).create(true, true);
-        String exported = TestProperties.properties.getProperty("exported");
+        //        new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).create(true, true);
+        String exported = TestProperties.properties.getProperty(SCHEMA_FLAG);
         System.out.println("****    TestProperties.exported="+exported);
-        if ( exported == null || exported.toLowerCase().equals("false")
-        || exported.trim().length() == 0)
+        if ( exported == null ||  !exported.toLowerCase().equals("true") )
+        {
             new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).create(true, true);
+            return;
+        }
+//        new net.sf.hibernate.tool.hbm2ddl.SchemaUpdate(ds).execute(true);
         //        if ( TestProperties.prop.getProperty("exported" ).equals(null) ||
         //        TestProperties.prop.getProperty("exported", "false").equals("false")) {
         //            new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).drop(true, true);
@@ -155,7 +168,7 @@ public class HibernateInit {
     public static void setExported(boolean exported) {
         try {
             String val = exported ? "true" : "false";
-            TestProperties.properties.setProperty("exported", "true");
+            TestProperties.properties.setProperty(SCHEMA_FLAG, "true");
             TestProperties.properties.save();
         } catch (Exception e) {
             e.printStackTrace();
@@ -170,10 +183,10 @@ public class HibernateInit {
     public static void initLogger() throws Exception {
         if (TestProperties.properties.getProperty("logger").equals("on"))
             Logger.global.setLevel(Level.ALL);
-        else 
+        else
             Logger.global.setLevel(Level.OFF);
     }
-        
+    
     
     /**
      * @param args the command line arguments
