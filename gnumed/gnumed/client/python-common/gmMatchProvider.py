@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.6 2003-11-19 23:18:37 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMatchProvider.py,v 1.7 2003-11-20 00:33:12 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -44,7 +44,7 @@ class cMatchProvider:
 		self.setThresholds()
 		self.setWordSeparators()
 		self.setIgnoredChars()
-		self.__context = {}
+		self.__context_val = {}
 	#--------------------------------------------------------
 	# actions
 	#--------------------------------------------------------
@@ -192,7 +192,7 @@ class cMatchProvider:
 		can pass a fixed value, in which case it is nt called,
 		but used in context as is (i.e a constant context)
 		"""
-		self.__context[name] = val
+		self.__context_val[name] = val
 #------------------------------------------------------------
 # usable instances
 #------------------------------------------------------------
@@ -400,28 +400,31 @@ class cMatchProvider_SQL(cMatchProvider):
 		for src in self.srcs:
 			curs = src['conn'].cursor()
 			# FIXME: deal with gmpw_score...
-			context_where = ''
-			vars = [aFragment]
-			# matches keys of the extra conditions and context
-			# where a condition has a matching context variable,
-			# the expression is added to the where clause on the
-			# query
-			if  self.__dict__.has_key('__context'):
-				for context_var, condition in src['extra conditions'].iteritems ():
-					if self.__context.has_key (context_var) and self.__context[context_var]:
-						context_where += " and (%s)"% self.condition
-						vars.append (self.__context[context_var])
-			if src['extra conditions'].has_key ('default'):
-				context_where += " and (%s)" % src['extra conditions']['default']
-						       
-			cmd = "select %s, %s from %s where %s %s %%s%s" % (
+			ctxt_where = ''
+			values = [aFragment]
+			# any extra conditions defined for this source ?
+			if src.has_key('extra conditions')
+				# loop over name and condition for contexts
+				for ctxt_name, ctxt_condition in src['extra conditions'].iteritems():
+					# value known for this context condition ?
+					if self.__context_val.has_key(ctxt_name) and self.__context_val[ctxt_name]:
+						# add context condition
+						ctxt_where += " and (%s)" % ctxt_condition
+						# remember value for condition
+						values.append(self.__context_val[ctxt_name])
+			# do we have any contexts that always apply ?
+			if src['extra conditions'].has_key('default'):
+				ctxt_where += " and (%s)" % src['extra conditions']['default']
+
+			cmd = "select %s, %s from %s where %s %s %%s %s" % (
 				src['pk'],
 				src['column'],
 				src['table'],
 				src['column'],
 				search_condition,
-				context_where)
-			if not gmPG.run_query(curs, cmd, vars):
+				ctxt_where
+			)
+			if not gmPG.run_query(curs, cmd, values):
 				curs.close()
 				_log.Log(gmLog.lErr, 'cannot check for matches in %s' % src)
 				return (_false, [])
@@ -450,6 +453,9 @@ class cMatchProvider_SQL(cMatchProvider):
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.6  2003-11-19 23:18:37  ncq
+# Revision 1.7  2003-11-20 00:33:12  ncq
+# - improve comments on extra conditions in __find_matches()
+#
+# Revision 1.6  2003/11/19 23:18:37  ncq
 # - some cleanup
 #
