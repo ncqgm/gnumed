@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.1 2004-01-04 10:30:06 ihaywood Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmForms.py,v 1.2 2004-01-06 23:22:57 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -25,7 +25,6 @@ if __name__ == "__main__":
     _log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
  
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg
 from mx import DateTime
 #============================================================
 
