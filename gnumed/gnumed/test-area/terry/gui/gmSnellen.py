@@ -10,15 +10,16 @@
 
 
 from wxPython.wx import *
+import gmPlugin
 import math
 import random
 import gettext
 _ = gettext.gettext
 
+ID_SNELLENMENU = wxNewId ()
 
-class Snellen (wxFrame):
 
-
+class SnellenChart (wxFrame):
     def convert (self, X,Y):
         """
         Converts a pair of co-ordinates from block co-ords to real.
@@ -408,7 +409,7 @@ class SnellenDialogue (wxDialog):
         vbox.Add (hbox2, 1, wxEXPAND)
         hbox3 = wxBoxSizer (wxHORIZONTAL)
         hbox3.Add (wxStaticText(self, -1, _("Alphabet: ")), 0, wxALL, 15)
-        self.alpha_ctrl = wxChoice (self, -1, choices=Snellen.alphabets.keys ())
+        self.alpha_ctrl = wxChoice (self, -1, choices=SnellenChart.alphabets.keys ())
         hbox3.Add (self.alpha_ctrl, 1, wxTOP, 15)
         vbox.Add (hbox3, 1, wxEXPAND)
         self.mirror_ctrl = wxCheckBox (self, -1, label = _("Mirror"))
@@ -444,16 +445,31 @@ double-click ends""")), 0, wxALL, 15)
         if self.Validate () and self.TransferDataFromWindow ():
             selected_alpha_string = self.alpha_ctrl.GetStringSelection ()
             if selected_alpha_string is None or len (selected_alpha_string) < 2:
-                alpha = Snellen.latin
+                alpha = SnellenChart.latin
             else:
-                alpha = Snellen.alphabets[selected_alpha_string]
+                alpha = SnellenChart.alphabets[selected_alpha_string]
             sizeY = self.sizeY_ctrl.GetValue ()
             sizeX = self.sizeX_ctrl.GetValue ()
-            frame = Snellen (sizeX, sizeY, alpha
+            frame = SnellenChart (sizeX, sizeY, alpha
         = alpha, mirr = self.mirror_ctrl.GetValue ())
             frame.Show (1)
             self.Destroy ()
-            
+
+
+
+
+class gmSnellen (gmPlugin.wxBasePlugin):
+    def name ():
+        return 'SnellenPlugin'
+
+    def register (self):
+        menu = self.gb['main.toolsmenu']
+        menu.Append (ID_SNELLENMENU, "Snellen", "Snellen Chart")
+        EVT_MENU (self.gb['main.frame'], ID_SNELLENMENU, self.OnSnellenTool)
+        
+    def OnSnellenTool (self, event):
+        frame = SnellenDialogue (self.gb['main.frame'])
+        frame.Show (1)
     
 
 if __name__ == '__main__':

@@ -28,8 +28,13 @@ from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmEditArea_1h             #panel class holding editing prompts and text boxes
+import gmEditArea_1h             #panel class holding editing prompts
+                                 #and text boxes
+import gmPlugin
+import images_gnuMedGP_Toolbar
 ID_ALLERGYLIST = wxNewId()
+ID_ALLERGIES = wxNewId ()
+ID_ALL_MENU = wxNewId ()
 gmSECTION_ALLERGY = 7
 #------------------------------------
 #Dummy data to simulate allergy items
@@ -49,10 +54,9 @@ allergyprompts = {
 6:("Type")
  }
 
-class MyFrame(wxFrame):
-     def __init__(self,parent,ID,title,position,size,style):
-          wxFrame.__init__(self,parent,ID,title,
-                           wxDefaultPosition,wxSize(600,550))
+class AllergyPanel(wxPanel):
+       def __init__(self, parent,id):
+	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
           #--------------------
           #add the main heading
           #--------------------
@@ -85,7 +89,7 @@ class MyFrame(wxFrame):
           #--------------------------------------------------------------------------------------
        	  self.list_allergy = wxListCtrl(self, ID_ALLERGYLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
           #self.list_allergy.SetForegroundColour(wxColor(131,129,131))	
-	  self.list_allergy.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, 'xselfont'))
+	  self.list_allergy.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
           #----------------------------------------	  
           # add some dummy data to the allergy list
 	  self.list_allergy.InsertColumn(0, "Type")
@@ -129,7 +133,7 @@ class MyFrame(wxFrame):
           #----------------------------------------
           #add an alert caption panel to the bottom
           #----------------------------------------
-          self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,"  Alerts  ")
+          #self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,"  Alerts  ")
           #---------------------------------------------                                                                               
           #add all elements to the main background sizer
           #---------------------------------------------
@@ -142,24 +146,40 @@ class MyFrame(wxFrame):
           self.mainsizer.Add(self.list_allergy,4,wxEXPAND)
           self.mainsizer.Add(self.classtext_subheading,0,wxEXPAND)
           self.mainsizer.Add(self.classtxt,4,wxEXPAND)
-          self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
+          #self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
           self.SetSizer(self.mainsizer)
           self.mainsizer.Fit
           self.SetAutoLayout(true)
           self.Show(true)
-      
-          
-          
-class App(wxApp):
-     def OnInit(self):
-         #frame = MyFrame(NULL,-1,"Allergies")
-         frame = MyFrame(NULL, -1, "gnuMEdGP_PreAlphaGUI__AllergyPanel_V0.0.5", 
-		                           wxDefaultPosition, size = wxSize(600,500),
-		                           style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
-         frame.Show (true)
-         self.SetTopWindow(frame)
-         return true
-    
+
+class gmGP_Allergies (gmPlugin.wxBasePlugin):
+    """
+    Plugin to encapsulate the allergies window
+    """
+    def name (self):
+        return 'AllergiesPlugin'
+
+    def register (self):
+        self.mwm = self.gb['main.manager']
+        self.mwm.RegisterLeftSide ('allergies', AllergyPanel
+        (self.mwm, -1))
+        tb2 = self.gb['main.bottom_toolbar']
+        tb2.AddSeparator()
+	tool1 = tb2.AddTool(ID_ALLERGIES, images_gnuMedGP_Toolbar.getToolbar_AllergiesBitmap(), shortHelpString="Allergies")
+        EVT_TOOL (tb2, ID_ALLERGIES, self.OnAllergiesTool)
+        menu = self.gb['main.viewmenu']
+        menu.Append (ID_ALL_MENU, "&Allergies", "Allergies")
+        EVT_MENU (self.gb['main.frame'], ID_ALL_MENU, self.OnAllergiesTool)
+
+
+    def OnAllergiesTool (self, event):
+        self.mwm.Display ('allergies')
+
+
+	  
 if __name__ == "__main__":
-    app = App(0)
-    app.MainLoop()#!/usr/bin/python
+	app = wxPyWidgetTester(size = (600, 600))
+	app.SetWidget(AllergyPanel, -1)
+	app.MainLoop()
+           
+ 

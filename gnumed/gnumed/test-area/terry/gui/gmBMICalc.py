@@ -25,6 +25,8 @@
 ############################################################################
 
 from wxPython.wx import *
+import gmPlugin
+import images_gnuMedGP_Toolbar
 #from wxPython.lib.wxPlotCanvas import *
 #from wxPython.lib              import wxPlotCanvas  #insert these modules once graph active
 
@@ -291,6 +293,26 @@ class TestFrame(wxFrame):
               		
 	def OnCloseWindow(self, event):
 		self.Destroy()
+
+ID_BMIMENU = wxNewId ()
+ID_BMITOOL = wxNewId ()
+
+class gmBMICalc (gmPlugin.wxBasePlugin):
+    def name ():
+        return 'SnellenPlugin'
+
+    def register (self):
+        menu = self.gb['main.toolsmenu']
+        menu.Append (ID_BMIMENU, "BMI", "Body Mass Index Calculator")
+        EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
+	tb = self.gb['main.bottom_toolbar']
+	tb.AddTool (ID_BMITOOL,images_gnuMedGP_Toolbar.getToolbar_BMICalcBitmap(),shortHelpString="Body Mass Index Calculator")
+	EVT_TOOL (tb, ID_BMITOOL, self.OnBMITool)
+        
+    def OnBMITool (self, event):
+	    frame = TestFrame(NULL, -1, "gnuMEdGP_PreAlphaGUI__gmBMICalc_V0.0.1", wxDefaultPosition, size = wxSize(800,600),style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
+	    wxGetApp ().SetTopWindow(frame)
+
 
 class App(wxApp):
 	def OnInit(self):

@@ -1,10 +1,10 @@
 #!/usr/bin/python
 #############################################################################
 #
-# gmAllergies:
+# gmPrescription:
 # ----------------------------------
 #
-# This panel will hold all the allergy details, and allow entry
+# This panel will hold all the prescrition, and allow entry
 # of those details via the editing area (gmEditArea.py - currently a
 # vapour module
 #
@@ -28,8 +28,18 @@ from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmEditArea_1h             #panel class holding editing prompts and text boxes
+import gmEditArea_1h             #panel class holding editing prompts
+                                 #and text boxes
+
+import gmEditArea_1h             #panel class holding editing
+                                   #prompts and text boxes
+
+import images_gnuMedGP_Toolbar
+import gmPlugin
+
+ID_SCRIPTICON = wxNewId ()
 ID_SCRIPTLIST = wxNewId()
+ID_SCRIPTMENU = wxNewId ()
 gmSECTION_SCRIPT = 8
 #------------------------------------
 #Dummy data to simulate script items
@@ -53,10 +63,9 @@ scriptprompts = {
  }
 
 
-class MyFrame(wxFrame):
-     def __init__(self,parent,ID,title,position,size,style):
-          wxFrame.__init__(self,parent,ID,title,
-                           wxDefaultPosition,wxSize(600,550))
+class PrescriptionPanel (wxPanel):
+     def __init__(self,parent, id):
+          wxPanel.__init__(self,parent, id)
           #--------------------
           #add the main heading
           #--------------------
@@ -96,7 +105,7 @@ class MyFrame(wxFrame):
 	  self.sizer_divider_interaction_text = wxBoxSizer(wxHORIZONTAL) 
           self.sizer_divider_interaction_text.Add(self.interactiontext_subheading,1, wxEXPAND)
 	  self.interactiontxt = wxTextCtrl(self,-1,
-                   "Mini-Drug interaction text goes here (click this for full description)", size=(200, 100), style=wxTE_MULTILINE)
+                   "Mini-Drug interaction text goes here (click this for full description)", style=wxTE_MULTILINE)
 	  self.interactiontxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
 	  #------------------------------------------------------------------------------------
           #add the divider headings below the drug interactions as heading for items prescribed
@@ -158,11 +167,36 @@ class MyFrame(wxFrame):
 	  self.mainsizer.Add(self.list_script,4,wxEXPAND)
           self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
           self.SetSizer(self.mainsizer)
-          self.mainsizer.Fit
+          # self.mainsizer.Fit
           self.SetAutoLayout(true)
           self.Show(true)
       
           
+class gmGP_Prescriptions (gmPlugin.wxBasePlugin):
+    """
+    Plugin to encapsulate the prescriptions window
+    """
+    def name (self):
+        return 'PrescriptionPlugin'
+
+    def register (self):
+         self.mwm = self.gb['main.manager']
+         self.mwm.RegisterLeftSide ('prescriptions', PrescriptionPanel
+                                    (self.mwm, -1))
+         tb2 = self.gb['main.bottom_toolbar']
+         tb2.AddSeparator()
+         tool1 = tb2.AddTool(ID_SCRIPTICON,
+                             images_gnuMedGP_Toolbar.getToolbar_ScriptBitmap(),
+                             shortHelpString="Prescribing Pad")
+         EVT_TOOL (tb2, ID_SCRIPTICON, self.OnScriptTool)
+         menu = self.gb['main.viewmenu']
+         menu.Append (ID_SCRIPTMENU, "&pre&Scription", "Script Pad")
+         EVT_MENU (self.gb['main.frame'], ID_SCRIPTMENU, self.OnScriptTool)
+        
+    def OnScriptTool (self, event):
+        self.mwm.Display ('prescriptions')
+
+
           
 class App(wxApp):
      def OnInit(self):
