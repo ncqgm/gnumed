@@ -32,6 +32,8 @@ e.g. getNarrative(index) ...  id='narrative'
                     if (linkBoxes != null) linkBoxes.style.display='none';
         }
       }
+      
+      
 
       function showEntryIssue(checkbox, index) {
         if (checkbox.checked) {
@@ -144,11 +146,15 @@ e.g. getNarrative(index) ...  id='narrative'
                 link
                 <html-el:checkbox styleId="linkBox${index}" name="narrative" property="linkedToPreviousEpisode" indexed="true" 
                 onchange="showEntry(this, ${index});
-                          if (this.checked) document.getElementById('checkIssue${index}').checked=0;
+                          if (this.checked) {
+                                document.getElementById('checkIssue${index}').checked=0;
+                                document.getElementById('entryIssue${index}').style.display='none';
+                           }     
+                          
                 "
                 value="0"
                 />
-                new issue
+                new episode
                 <input type="checkbox"  id="checkIssue<%=index%>"
                 onchange="showEntry(this, <%=index%>); showEntryIssue(this, <%=index%>);
                 "
@@ -198,18 +204,20 @@ e.g. getNarrative(index) ...  id='narrative'
                     style="display:none" >
                     <html:text name="narrative" property="newHealthIssueName" indexed="true"/>
                 </div>
-                
-                </div>
-               </td>
-               </tr>
+               
+               
+                   </td> 
+                   <td colspan='2' align=center id='episodeEntry<%=index%>'> <bean:message key="main.complaint" />
+                        <html:text  name="narrative" property="episode.description" indexed="true" size="40"  />
+                   </td>
+                </tr>
                </table>
-
+              </div>
+                 
                 <table > 
                 
                     <tr>
-                    <td colspan='3' id='episodeEntry<%=index%>'> <bean:message key="main.complaint" />
-                        <html:text  name="narrative" property="episode.description" indexed="true" size="40"  />
-                    </td>
+                   
                     <bean:message key="narrative.notes" />
                     <bean:message key="narrative.soap"/>
                     <html-el:select styleId="soapCat${index}" name="narrative" property="soapCat" indexed="true" 
@@ -248,8 +256,8 @@ e.g. getNarrative(index) ...  id='narrative'
                             document.getElementById('allergyInput${index}').style.display='none'; 
                             }"  />
                         </td>
-                        <td colspan='2' >
-                            <div  id="allergyInput<%=index%>" style='display: none'>
+                        <td  colspan='4' >
+                            <div  id="allergyInput<%=index%>" style='display:none'>
                                 <table><tr>
                                 <td>
                                     <bean:message key="allergy.definite"/>

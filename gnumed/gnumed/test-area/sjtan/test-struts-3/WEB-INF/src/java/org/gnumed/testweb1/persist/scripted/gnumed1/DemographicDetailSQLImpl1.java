@@ -6,34 +6,31 @@
 
 package org.gnumed.testweb1.persist.scripted.gnumed1;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
-
-
-
-
-import java.util.*;
-import java.util.Map.Entry;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.ResultSetDynaClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.struts.util.MessageResources;
-import org.apache.struts.util.PropertyMessageResourcesFactory;
 import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.DemographicDetail;
-import org.gnumed.testweb1.global.CommType;
 import org.gnumed.testweb1.global.Constants;
 import org.gnumed.testweb1.global.Util;
-import org.gnumed.testweb1.persist.DataSourceException;
-import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
-import org.gnumed.testweb1.persist.ResourceBundleUsing;
 import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
-import java.util.PropertyResourceBundle;
+import org.gnumed.testweb1.persist.DataSourceException;
+import org.gnumed.testweb1.persist.ResourceBundleUsing;
+import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
 
 
 
@@ -359,17 +356,17 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
             
             if ( cid == null ) {
                 nextId.execute();
-
+                
                 ResultSet rs = nextId.getResultSet();
                 if (!rs.next())
                     throw new SQLException("failed comm_channel sequencer");
-
+                
                 cid = new Long( rs.getLong(1) );
-
+                
                 insert.setLong(1, cid.longValue() );
                 insert.setInt(3, id_type);
-
-
+                
+                
                 insert.setString(2,url );
                 insert.execute();
             }
@@ -524,7 +521,12 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
             conn.commit();
             detail = insertIdentity(conn, detail);
             insertNames(conn, detail);
-            insertAddress(conn, detail);
+            
+            if (detail.getStreet() != null
+            && !detail.getStreet().trim().equals("")) {
+                insertAddress(conn, detail);
+            }
+            
             insertContacts(conn, detail);
             writeExtIds(conn, detail);
             
@@ -559,7 +561,9 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL , DataObj
             conn.commit();
             updateIdentity(conn, detail);
             updateNames( conn, detail);
-            updateAddress(conn, detail);
+            if (detail.getStreet() != null && detail.getStreet().trim().length() >0) {
+                updateAddress(conn, detail);
+            }
             updateContacts(conn, detail);
             writeExtIds(conn, detail);
             conn.commit();
