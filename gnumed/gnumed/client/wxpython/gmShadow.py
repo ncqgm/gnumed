@@ -26,7 +26,8 @@ class Shadow (wxPanel):
         dc = wxPaintDC (self)
         w, h = self.GetClientSizeTuple ()
         dc.SetPen (wxTRANSPARENT_PEN)
-        dc.SetBrush (wxWHITE_BRUSH)
+        #dc.SetBrush (wxWHITE_BRUSH)
+        dc.SetBrush (wxBrush (wxColour (235, 235, 235), wxSOLID))
         # draw white bars
         dc.DrawRectangle (0, h-self.sw, w, self.sw)
         dc.DrawRectangle (w-self.sw, 0, self.sw, h)
