@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -625,7 +625,6 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	# is it a cursor ?
 	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
 		curs = link_obj
-		conn = None
 	# is it a connection ?
 	elif (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
 		curs = link_obj.cursor()
@@ -677,11 +676,11 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 			_log.Log(gmLog.lData, 'last query returned %s rows' % curs.rowcount)
 	# clean up
 	if close_cursor:
-		curs.close()
-	if conn:
 		conn.commit()
+		curs.close()
 	if close_conn:
 		conn.close()
+
 	# FIXME:
 	# this is very wasteful, why can't we save this read-write connection
 	# for the next time it's used (I understand it can't be shared at once)
@@ -697,6 +696,7 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	#>     ... error checking ...
 	#>     do_stuff()
 	#>     conn.commit()
+
 	if data is None:
 		status = 1
 	else:
@@ -1095,7 +1095,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.2  2004-03-03 05:24:01  ihaywood
+# Revision 1.3  2004-03-03 14:49:22  ncq
+# - need to commit() before curs.close() in run_commit()
+# - micro-optimize when to commit() [eg, link_obj not a cursor]
+#
+# Revision 1.2  2004/03/03 05:24:01  ihaywood
 # patient photograph support
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
