@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.131 2003-12-29 16:56:00 uid66147 Exp $
-__version__ = "$Revision: 1.131 $"
+# $Id: gmGuiMain.py,v 1.132 2003-12-29 20:44:16 uid67323 Exp $
+__version__ = "$Revision: 1.132 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -557,8 +557,20 @@ class gmTopLevelFrame(wxFrame):
 		else:
 			pat_str = _('no patient')
 
+
+		# try to find a meaningful name even if the current user
+		# has no staff entry
+		# should we issue a warning here ?
+		try:
+			display_name = _whoami.get_staff_name()
+		except:
+			try:
+				display_name = _whoami.get_db_account()
+			except:
+				display_name = ""
+
 		# generate title from template
-		title = "GnuMed [%s@%s] %s: %s" % (_whoami.get_staff_name(), _whoami.get_workplace(), self.title_activity, pat_str)
+		title = "GnuMed [%s@%s] %s: %s" % (display_name, _whoami.get_workplace(), self.title_activity, pat_str)
 
 		# set it
 		self.SetTitle(title)
@@ -768,7 +780,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.131  2003-12-29 16:56:00  uid66147
+# Revision 1.132  2003-12-29 20:44:16  uid67323
+# -fixed the bug that made gnumed crash if no staff entry was available for the current user
+#
+# Revision 1.131  2003/12/29 16:56:00  uid66147
 # - current user now handled by whoami
 # - updateTitle() has only one parameter left: anActivity, the others can be derived
 #
