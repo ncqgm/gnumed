@@ -9,8 +9,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.14 2004-04-21 22:01:15 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmForms.py,v 1.15 2004-04-21 22:05:28 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -105,7 +105,7 @@ class gmFormEngine:
 			queries.append((cmd, [key, params[key]]))
 		status, err = gmPG.run_commit('historica', queries, True)
 		if status is None:
-			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s)' % (self.pk_def, form_name))
+			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
 			return False
 		return True
 #============================================================
@@ -389,7 +389,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.14  2004-04-21 22:01:15  ncq
+# Revision 1.15  2004-04-21 22:05:28  ncq
+# - better error reporting
+#
+# Revision 1.14  2004/04/21 22:01:15  ncq
 # - generic store() for storing instance in form_data/form_instances
 #
 # Revision 1.13	 2004/04/18 08:39:57  ihaywood
