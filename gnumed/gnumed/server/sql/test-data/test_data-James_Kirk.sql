@@ -4,12 +4,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
+set time zone '+2:00';
+
 -- identity
 -- name
 delete from names where
@@ -421,11 +423,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.23  2004-06-01 10:15:18  ncq
+-- Revision 1.24  2004-06-02 00:14:46  ncq
+-- - add time zone setting
+--
+-- Revision 1.23  2004/06/01 10:15:18  ncq
 -- - fk_patient, not id_patient in allergy_state
 --
 -- Revision 1.22  2004/05/30 21:03:29  ncq

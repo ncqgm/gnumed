@@ -4,12 +4,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
+set time zone '+2:00';
+
 -- identity
 -- name
 delete from names where
@@ -90,11 +92,14 @@ insert into lab_request (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.2  2004-05-30 21:03:29  ncq
+-- Revision 1.3  2004-06-02 00:14:47  ncq
+-- - add time zone setting
+--
+-- Revision 1.2  2004/05/30 21:03:29  ncq
 -- - encounter_type.id -> encounter_type.pk
 --
 -- Revision 1.1  2004/05/12 23:54:37  ncq

@@ -4,12 +4,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
+set time zone '+2:00';
+
 -- pathology lab
 insert into test_org
 	(fk_org, fk_adm_contact, fk_med_contact, internal_name, comment)
@@ -97,11 +99,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.6  2004-05-06 23:32:44  ncq
+-- Revision 1.7  2004-06-02 00:14:47  ncq
+-- - add time zone setting
+--
+-- Revision 1.6  2004/05/06 23:32:44  ncq
 -- - internal_name now local_name
 -- - technically_abnormal now text
 --
