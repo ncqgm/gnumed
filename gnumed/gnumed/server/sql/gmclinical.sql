@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.40 $
+-- $Revision: 1.41 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -375,8 +375,8 @@ create table constituents
 
 comment on table constituents is
 'the constituent substances of the various drugs (normalised out to support compound drugs like Augmentin)';
-comment on column constituents.name is
-'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
+--comment on column constituents.name is
+--'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
 comment on column constituents.dose is
 'the amount of drug (if salt, the amount of active base substance, in a unit (see amount_unit above)';
  
@@ -457,11 +457,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.40 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.40  2003-05-05 12:26:31  ncq
+-- Revision 1.41  2003-05-05 12:40:03  ncq
+-- - name is not a field of constituents anymore
+--
+-- Revision 1.40  2003/05/05 12:26:31  ncq
 -- - remove comment on xref_id in script_drug, xref_id does not exist
 --
 -- Revision 1.39  2003/05/05 11:58:51  ncq
