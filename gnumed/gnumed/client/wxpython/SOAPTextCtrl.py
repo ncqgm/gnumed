@@ -140,9 +140,9 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         id = self.GetId ()
 
         self.SetWrapMode (wxSTC_WRAP_WORD)
-        self.StyleSetSpec (STYLE_HEADER, "fore:#7F11010,bold,face:Times,size:12")
-        self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0")
-        self.StyleSetSpec (STYLE_KEYWORD, "fore:#3030A0")
+        self.StyleSetSpec (STYLE_HEADER, "fore:#7F11010,bold,face:Times,size:14")
+        self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0,face:Times,size:14")
+        self.StyleSetSpec (STYLE_KEYWORD, "fore:#3030A0,face:Times,size:14")
 	"""
 	StyleSetSpec(styleNum, spec)
 	it takes a string object spec and applies the information from the string as the attributes for the style specified by the integer parameter styleNum. Returns None.

@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -633,9 +633,9 @@ class cLabJournalNB(wxNotebook):
 			result['pk_reviewer'] = _whoami.get_staff_ID()
 			if not result['abnormal']:
 				result['abnormal'] = ''
-			status, error = result.save_payload()
+			successfull, error = result.save_payload()
 			# repopulate
-			if status:
+			if successfull:
 				self.__populate_notebook()
 			else:
 				_log.Log(gmLog.lErr, 'setting result status to reviewed failed %s' % error)
@@ -865,7 +865,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.6  2004-10-20 21:47:24  ncq
+# Revision 1.7  2004-10-27 12:18:19  ncq
+# - insignificant cleanup
+#
+# Revision 1.6  2004/10/20 21:47:24  ncq
 # - cleanup, improve variable naming/error handling
 # - in LabJournal consolidate layouting
 #
