@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -492,19 +492,22 @@ else:
 			return gmShowLab.tab_name
 
 		def GetWidget (self, parent):
-			self.panel = cPluginGridPanel(parent, -1)
-			return self.panel
+			self._widget = cPluginGridPanel(parent, -1)
+			return self._widget
 
 		def MenuInfo (self):
 			return ('tools', _('Show &archived lab data'))
 
-		def ReceiveFocus(self):
-			if self.panel.grid.update() is None:
+		def populate_with_data(self):
+			# no use reloading if invisible
+			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+				return 1
+			if self._widget.grid.update() is None:
 				_log.Log(gmLog.lErr, "cannot update grid with lab data")
 				return None
-			# FIXME: register interest in patient_changed signal, too
-			self.panel.Layout()
-			self.panel.Refresh()
+			# FIXME: ?!?
+			self._widget.Layout()
+			self._widget.Refresh()
 			return 1
 
 		def can_receive_focus(self):
@@ -513,7 +516,7 @@ else:
 				return None
 			return 1
 
-		def DoToolbar (self, tb, widget):
+		def populate_toolbar (self, tb, widget):
 			#tool1 = tb.AddTool(
 			#   wxID_PNL_BTN_load_pages,
 			#   images_Archive_plugin.getcontentsBitmap(),
@@ -587,7 +590,18 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.8  2004-05-21 07:28:55  shilbert
+# Revision 1.9  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.8  2004/05/21 07:28:55  shilbert
 # - multiline cells now actually work
 # - grid now fully expands as per request by ncq
 #

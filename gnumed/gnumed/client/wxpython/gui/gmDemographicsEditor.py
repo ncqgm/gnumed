@@ -1,7 +1,7 @@
 """GnuMed demographics editor plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import sys
@@ -22,17 +22,14 @@ class gmDemographicsEditor(gmPlugin.wxNotebookPlugin):
 
 	def GetWidget (self, parent):
 		try:
-			self.panel = gmDemographics.PatientsPanel( parent, -1)
+			self._widget = gmDemographics.PatientsPanel( parent, -1)
 		except:
 			gmLog.gmDefLog.LogException("failed to instantiate gmDemographics.PatientsPanel", sys.exc_info(), verbose=1)
 			return None
-		return self.panel
+		return self._widget
 
 	def MenuInfo (self):
 		return ('tools', _("editor for demographics"))
-
-	def ReceiveFocus(self):
-		pass
 
 	def can_receive_focus(self):
 		# need patient (unless we use this as a first-off patient input widget)
@@ -42,7 +39,7 @@ class gmDemographicsEditor(gmPlugin.wxNotebookPlugin):
 
 	# FIXME: I can't see why we'd need this ?
 #	def newPatient(self):
-#		self.panel.newPatient()
+#		self._widget.newPatient()
 
 #================================================================
 # MAIN
@@ -60,7 +57,18 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.5  2004-03-07 22:05:08  ncq
+# Revision 1.6  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.5  2004/03/07 22:05:08  ncq
 # - some cleanup
 #
 # Revision 1.4  2004/03/07 13:19:18  ihaywood

@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.31 2004-05-18 22:40:04 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmGP_Immunisation.py,v 1.32 2004-06-13 22:31:50 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -241,10 +241,21 @@ class ImmunisationPanel(wxPanel):
 				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
 	#----------------------------------------------------
 	def _on_patient_selected(self, **kwargs):
-		wxCallAfter(self.__reset_ui_content)
+		return 1
+		# FIXME:
+#		if has_focus:
+#			wxCallAfter(self.__reset_ui_content)
+#		else:
+#			return 1
 	#----------------------------------------------------
 	def _on_vaccinations_updated(self, **kwargs):
-		wxCallAfter(self.__reset_ui_content)
+		return 1
+		# FIXME:
+#		if has_focus:
+#			wxCallAfter(self.__reset_ui_content)
+#		else:
+#			is_stale == True
+#			return 1
 #======================================================================
 class gmGP_Immunisation(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
@@ -283,7 +294,18 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.31  2004-05-18 22:40:04  ncq
+# Revision 1.32  2004-06-13 22:31:50  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.31  2004/05/18 22:40:04  ncq
 # - latest due -> latest_due
 #
 # Revision 1.30  2004/05/18 20:43:17  ncq

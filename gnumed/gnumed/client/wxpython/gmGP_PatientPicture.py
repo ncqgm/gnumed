@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.9 2004-06-01 07:59:55 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmGP_PatientPicture.py,v 1.10 2004-06-13 22:31:48 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -51,8 +51,12 @@ class cPatientPicture (wxStaticBitmap):
 			wxSize(self.x, self.y)
 		)
 
-		gmDispatcher.connect (self.newPatient, gmSignals.patient_selected ())
+		gmDispatcher.connect(receiver=self._on_patient_selected, signal=gmSignals.patient_selected())
 
+	def _on_patient_selected(self):
+		print "updating patient photo, needs to be implemented, async"
+
+	# FIXME: do this async from _on_patient_selected
 	def newPatient (self, signal, kwds):
 		global current_patient
 		global current_photo
@@ -100,7 +104,18 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.9  2004-06-01 07:59:55  ncq
+# Revision 1.10  2004-06-13 22:31:48  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.9  2004/06/01 07:59:55  ncq
 # - comments improved
 #
 # Revision 1.8  2004/05/28 08:57:08  shilbert

@@ -1,7 +1,7 @@
 """GnuMed single box SOAP notes plugin.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSingleBoxSoapPlugin.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 from Gnumed.pycommon import gmLog
@@ -20,14 +20,11 @@ class gmSingleBoxSoapPlugin(gmPlugin.wxNotebookPlugin):
         return gmSingleBoxSoapPlugin.tab_name
 
     def GetWidget (self, parent):
-        self.panel = gmSingleBoxSOAPPanel(parent, -1)
-        return self.panel
+        self._widget = gmSingleBoxSOAPPanel(parent, -1)
+        return self._widget
 
     def MenuInfo (self):
         return ('tools', _("David's single box SOAP entry"))
-
-    def ReceiveFocus(self):
-        pass
 
     def can_receive_focus(self):
         # need patient
@@ -50,7 +47,18 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmSingleBoxSoapPlugin.py,v $
-# Revision 1.6  2004-03-08 23:34:27  shilbert
+# Revision 1.7  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.6  2004/03/08 23:34:27  shilbert
 # - adapt to new API from Gnumed.foo import bar
 #
 # Revision 1.5  2003/11/17 10:56:41  sjtan

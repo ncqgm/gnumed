@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.17 2004-03-18 09:43:02 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmManual.py,v 1.18 2004-06-13 22:31:49 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -146,10 +146,14 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		self.HtmlPanel = ManualHtmlPanel (parent, self.gb['main.frame'])
 		return self.HtmlPanel
 
-	def ReceiveFocus(self):
+	def populate_with_data(self):
+		# no use reloading if invisible
+		if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+			return 1
 		self.HtmlPanel.FirstLoad()
+		return 1
 
-	def DoToolbar (self, tb, widget):
+	def populate_toolbar (self, tb, widget):
 		tool1 = tb.AddTool(
 			ID_MANUALCONTENTS,
 			images_for_gnumed_browser16_16.getcontentsBitmap(),
@@ -244,7 +248,18 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.17  2004-03-18 09:43:02  ncq
+# Revision 1.18  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.17  2004/03/18 09:43:02  ncq
 # - import gmI18N if standalone
 #
 # Revision 1.16  2004/03/12 13:25:15  ncq

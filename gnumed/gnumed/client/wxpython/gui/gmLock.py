@@ -1,15 +1,15 @@
 """
-Implements a lock console function for those who need it
+Implements a lock client function for those who need it
 
 Dare I say HIPAA ?
-"""
 
+FIXME: move to top panel proper
+"""
 from wxPython.wx import *
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
 import cPickle, zlib
 import gmPlugin
 import images_gnuMedGP_Toolbar
-
 
 ID_LOCKMENU = wxNewId ()
 ID_LOCKBUTTON = wxNewId ()
@@ -19,18 +19,18 @@ class gmLock (gmPlugin.wxBasePlugin):
         return 'LockConsolePlugin'
 
     def register (self):
-        menu = self.gb['main.toolsmenu']
-        menu.Append (ID_LOCKMENU, "Lock", "Lock Console")
-        EVT_MENU (self.gb['main.frame'], ID_LOCKMENU, self.OnLockTool)
-	self.main_toolbar_panel = self.gb['main.toolbar']
-	self.tb_lock = wxToolBar(self.main_toolbar_panel,-1,wxDefaultPosition,wxDefaultSize,wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
-	self.tool1 = self.tb_lock.AddTool(ID_LOCKBUTTON, getpadlock_closedBitmap(),shortHelpString="Lock gnuMed")
-	self.tb_lock.AddControl(wxStaticBitmap(self.tb_lock, -1, getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+		menu = self.gb['main.toolsmenu']
+		menu.Append (ID_LOCKMENU, "Lock", "Lock Console")
+		EVT_MENU (self.gb['main.frame'], ID_LOCKMENU, self.OnLockTool)
+		top_panel = self.gb['main.top_panel']
+		self.tb_lock = wxToolBar(top_panel,-1,wxDefaultPosition,wxDefaultSize,wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+		self.tool1 = self.tb_lock.AddTool(ID_LOCKBUTTON, getpadlock_closedBitmap(),shortHelpString="Lock gnuMed")
+		self.tb_lock.AddControl(wxStaticBitmap(self.tb_lock, -1, getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 	
-	#self.tool = wxBitmapButton (self.tb, ID_LOCKBUTTON, bitmap= images_gnuMedGP_Toolbar.getpadlock_closedBitmap(), style=0)
-	#self.tool.SetToolTip (wxToolTip('Lock Console'))
-	self.main_toolbar_panel.AddWidgetLeftBottom (self.tb_lock)
-	EVT_TOOL (self.tb_lock, ID_LOCKBUTTON, self.OnLockTool)
+		#self.tool = wxBitmapButton (self.tb, ID_LOCKBUTTON, bitmap= images_gnuMedGP_Toolbar.getpadlock_closedBitmap(), style=0)
+		#self.tool.SetToolTip (wxToolTip('Lock Console'))
+		top_panel.AddWidgetLeftBottom (self.tb_lock)
+		EVT_TOOL (self.tb_lock, ID_LOCKBUTTON, self.OnLockTool)
 
     def unregister (self):
         #tb2 = self.gb['toolbar.Clinical']

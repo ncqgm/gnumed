@@ -2,14 +2,15 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.10 2004-03-09 10:51:50 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmEMRTextDump.py,v 1.11 2004-06-13 22:31:48 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
 
 from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher, gmExceptions
 from Gnumed.business import gmPatient
+from Gnumed.pycommon.gmPyCompat import *
 
 from wxPython.wx import *
 
@@ -42,20 +43,21 @@ class gmEMRDumpPanel(wxPanel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._retrieve_EMR_text)
+		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._on_patient_selected)
 		return 1
 	#--------------------------------------------------------
-	def _retrieve_EMR_text(self):
-		wxCallAfter(self.__retrieve_EMR_text)
+	def _on_patient_selected(self):
+		pass
+		# FIXME: if has_focus ...
 	#--------------------------------------------------------
-	def __retrieve_EMR_text(self):
+	def populate(self):
 		pat = gmPatient.gmCurrentPatient()
 		# this should not really happen
 		if not pat.is_connected():
 			_log.Log(gmLog.lErr, 'no active patient, cannot get EMR text dump')
 			self.txt.SetValue(_('Currently there is no active patient. Cannot retrieve EMR text.'))
 			return None
-		emr = pat['clinical record']
+		emr = pat.get_clinical_record()
 		if emr is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
 			self.txt.SetValue(_(
@@ -80,7 +82,7 @@ class gmEMRDumpPanel(wxPanel):
 			for line in dump[age]:
 				txt = txt + "%s\n" % line
 		self.txt.SetValue(txt)
-		return 1
+		return True
 #============================================================
 class gmScrolledEMRTextDump(wxScrolledWindow):
 	def __init__(self, parent):
@@ -121,7 +123,18 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.10  2004-03-09 10:51:50  ncq
+# Revision 1.11  2004-06-13 22:31:48  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.10  2004/03/09 10:51:50  ncq
 # - cleanup
 #
 # Revision 1.9  2004/03/09 10:12:41  shilbert

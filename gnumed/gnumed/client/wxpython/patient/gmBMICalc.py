@@ -21,7 +21,7 @@
 # - patient related "normal" range
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -573,15 +573,15 @@ else:
 			menu.Append (ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
 			EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
 
-			self.tb = self.gb['main.toolbar']
-			self.tool = wxToolBar (self.tb, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+			top_panel = self.gb['main.top_panel']
+			self.tool = wxToolBar (top_panel, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
 			self.tool.AddTool(
 				ID_BMITOOL,
 				self.GetIcon(),
 				shortHelpString = _("BMI Calculator")
 			)
-			self.tb.AddWidgetRightBottom (self.tool)
-			EVT_TOOL (self.tool, ID_BMITOOL, self.OnBMITool)
+			top_panel.AddWidgetRightBottom (self.tool)
+			EVT_TOOL(self.tool, ID_BMITOOL, self.OnBMITool)
 		#---------------------
 		def unregister (self):
 			menu = self.gb['main.toolsmenu']
@@ -607,7 +607,18 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.28  2004-03-14 22:36:33  ncq
+# Revision 1.29  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.28  2004/03/14 22:36:33  ncq
 # - Andreas will find any bug I try to sneak in, even missing ,
 #
 # Revision 1.27  2004/03/12 13:25:43  ncq

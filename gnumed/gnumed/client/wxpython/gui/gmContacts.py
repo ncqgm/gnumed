@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -903,7 +903,7 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 	def MenuInfo (self):
 		return ('view', _('&Contacts'))
 
-	def DoToolbar (self, tb, widget):
+	def populate_toolbar (self, tb, widget):
 	      tool1 = tb.AddTool(ID_SEARCHGLOBAL, images_contacts_toolbar16_16.getfind_globalBitmap(),
 				shortHelpString=_("Global Search Of Contacts Database"), isToggle=false)
 	      tb.AddControl(wxTextCtrl(tb, ID_SEARCHGLOBAL, name =_("txtGlobalSearch"),size =(100,-1),style = 0, value = ''))
@@ -1012,7 +1012,18 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.30  2004-06-01 15:11:59  sjtan
+# Revision 1.31  2004-06-13 22:31:48  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.30  2004/06/01 15:11:59  sjtan
 #
 # cut ctrl-x and paste ctrl-v, works through clipboard, so can paste name/address info onto
 # text editors (oowriter, kwrite tried out). Drag and drop doesn't work to outside apps.

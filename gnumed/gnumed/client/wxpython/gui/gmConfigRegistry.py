@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -479,7 +479,6 @@ class gmConfigEditorPanel(wxPanel):
 		self.mainSizer.Fit(self)
 		self.mainSizer.SetSizeHints(self)
 		self.Layout()
-		self.configTree.update()
 
 	def ApplyChanges(self,event):
 		if self.configEntryParamCtrl.IsModified():
@@ -520,20 +519,33 @@ else:
 			workplace = _whoami.get_workplace()
 			currUser = _whoami.get_db_account()
 			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
-
-			self.panel = gmConfigEditorPanel(parent,currUser,workplace)
-			return self.panel
+			self._widget = gmConfigEditorPanel(parent,currUser,workplace)
+			return self._widget
 
 		def MenuInfo (self):
 			return ('tools', _('&ConfigRegistry'))
 
-		def ReceiveFocus(self):
-			self.panel.configTree.update()
+		def populate_with_data(self):
+			# no use reloading if invisible
+			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+				return 1
+			self._widget.configTree.update()
 			return 1
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.17  2004-03-12 22:30:12  ncq
+# Revision 1.18  2004-06-13 22:31:48  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.17  2004/03/12 22:30:12  ncq
 # - Hilmar, thanks :-)
 # - also some cleanup (hehe, you guessed it)
 #

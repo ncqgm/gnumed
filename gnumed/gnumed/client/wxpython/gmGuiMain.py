@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.146 2004-06-01 07:59:55 ncq Exp $
-__version__ = "$Revision: 1.146 $"
+# $Id: gmGuiMain.py,v 1.147 2004-06-13 22:31:48 ncq Exp $
+__version__ = "$Revision: 1.147 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -137,7 +137,7 @@ class gmTopLevelFrame(wxFrame):
 		# important patient data is always there
 		# - top panel with toolbars
 		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
-		self.guibroker['main.toolbar'] = self.top_panel
+		self.guibroker['main.top_panel'] = self.top_panel
 		# add to main windows sizer
 		# problem:
 		# - we want this to NOT grow vertically, hence proportion = 0
@@ -295,7 +295,7 @@ class gmTopLevelFrame(wxFrame):
 			)
 
 			try:
-				plugin = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker)
+				plugin = gmPlugin.InstPlugin ('gui', curr_plugin)
 				if plugin:
 					_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
 					plugin.register()
@@ -364,7 +364,7 @@ class gmTopLevelFrame(wxFrame):
 			_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
 		new_page.ReceiveFocus()
 		# activate toolbar of new page
-		self.top_panel.ShowBar(new_page.internal_name())
+		self.top_panel.ShowBar(new_page.__class__.__name__)
 		event.Skip() # required for MSW
 	#----------------------------------------------
 	def on_patient_selected(self, **kwargs):
@@ -396,9 +396,9 @@ class gmTopLevelFrame(wxFrame):
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
 		_log.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
 		for plugin_name in plugin_list:
-			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
+			plugin = gmPlugin.InstPlugin ('gui', plugin_name)
 			if isinstance (plugin, gmPlugin.wxNotebookPlugin):
-				if not (plugin.internal_name() in self.guibroker['modules.gui'].keys()):
+				if not (plugin.__class__.__name__ in self.guibroker['modules.gui'].keys()):
 					# if not installed
 					id = wxNewId ()
 					load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
@@ -767,7 +767,18 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.146  2004-06-01 07:59:55  ncq
+# Revision 1.147  2004-06-13 22:31:48  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.146  2004/06/01 07:59:55  ncq
 # - comments improved
 #
 # Revision 1.145  2004/05/15 15:51:03  sjtan

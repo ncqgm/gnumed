@@ -6,7 +6,6 @@ Status: blank screen
 
 """
 
-
 # make this into GNUMed plugin
 
 from Gnumed.wxpython import gmPlugin

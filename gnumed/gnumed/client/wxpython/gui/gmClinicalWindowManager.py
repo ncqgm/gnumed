@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.16 2004-05-28 15:14:36 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.17 2004-06-13 22:31:48 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ =	"I.Haywood"
 
 import sys
@@ -193,9 +193,9 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return None # we add our own submenu
 	#----------------------------------------------
 	def GetWidget (self, parent):
-		self.panel = gmClinicalPanel (parent)
-		self.gb['clinical.manager'] = self.panel
-		return self.panel
+		self._widget = gmClinicalPanel (parent)
+		self.gb['clinical.manager'] = self._widget
+		return self._widget
 	#----------------------------------------------
 	def register (self):
 		gmPlugin.wxNotebookPlugin.register(self)
@@ -211,16 +211,15 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		for plugin in plugin_list:
 			p = gmPlugin.InstPlugin(
 				'patient',
-				plugin,
-				guibroker = self.gb
+				plugin
 			)
 			try:
 				p.register()
 			except:
 				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info(), verbose = 0)
-		#self.panel.Show (0)
-		self.panel.DisplayDefault()
-		self.gb['toolbar.%s' % self.internal_name()].Realize()
+		#self._widget.Show (0)
+		self._widget.DisplayDefault()
+		self.gb['toolbar.%s' % self.__class__.__name__].Realize()
 	#----------------------------------------------
 	def unregister (self):
 		# tidy up after ourselves
@@ -230,10 +229,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		# FIXME: should we unregister () each of our sub-modules?
 	#----------------------------------------------
 	def ReceiveFocus(self):
-		try:
-			self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
-		except:
-			self.gb['modules.patient'][self.gb['modules.patient'].keys()[0]].Shown()
+		pass
 	#----------------------------------------------
 	def can_receive_focus(self):
 		# need patient
@@ -242,7 +238,18 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.16  2004-05-28 15:14:36  ncq
+# Revision 1.17  2004-06-13 22:31:48  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.16  2004/05/28 15:14:36  ncq
 # - import sys missing
 #
 # Revision 1.15  2004/04/16 00:33:14  ncq

@@ -2,7 +2,7 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmLog
@@ -20,14 +20,18 @@ class gmEMRTextDumpPlugin(gmPlugin.wxNotebookPlugin):
 		return gmEMRTextDumpPlugin.tab_name
 
 	def GetWidget (self, parent):
-		self.panel = gmEMRTextDump.gmEMRDumpPanel(parent, -1)
-		return self.panel
+		self._widget = gmEMRTextDump.gmEMRDumpPanel(parent, -1)
+		return self._widget
 
 	def MenuInfo (self):
 		return ('tools', _("simple EMR text viewer"))
 
-	def ReceiveFocus(self):
-		pass
+	def populate_with_data(self):
+		# no use reloading if invisible
+		if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+			return 1
+		self._widget.populate()
+		return 1
 
 	def can_receive_focus(self):
 		# need patient
@@ -50,7 +54,18 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.5  2004-03-09 10:53:14  ncq
+# Revision 1.6  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.5  2004/03/09 10:53:14  ncq
 # - cleanup
 #
 # Revision 1.4  2004/03/09 10:12:01  shilbert

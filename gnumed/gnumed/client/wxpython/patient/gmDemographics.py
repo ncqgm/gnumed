@@ -15,16 +15,17 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.28 2003-11-23 23:33:15 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmDemographics.py,v 1.29 2004-06-13 22:31:50 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
 from mx import DateTime
+
+from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals
+
 import gmPlugin
-import gmGuiBroker
 import gmPatientNameQuery
-import gmLog, gmDispatcher, gmSignals
 import gmSQLListControl, gmDataPanelMixin
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
 import cPickle, zlib
@@ -401,22 +402,18 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 	#--------------------------------------------------------
 	def register (self):
 		# first, set up the widgets on the top line of the toolbar
-		top_panel = self.gb['main.toolbar']
+		top_panel = self.gb['main.top_panel']
 
 		# and register ourselves as a widget
-		self.gb['modules.patient'][self.internal_name()] = self
+		self.gb['modules.patient'][self.__class__.__name__] = self
 		self.mwm = self.gb['clinical.manager']
 		self.widget = PatientsPanel (self.mwm, self)
-		self.mwm.RegisterWholeScreen(self.internal_name(), self.widget)
-		self.set_widget_reference(self.widget)
-		self.RegisterInterests ()
-
-	def Shown (self):
-		pass
-	#--------------------------------------------------------		
+		self.mwm.RegisterWholeScreen(self.__class__.__name__, self.widget)
+		self.RegisterInterests()
+	#--------------------------------------------------------
 	def OnTool (self, event):
 		pass
-#		self.mwm.Display (self.internal_name ())
+#		self.mwm.Display (self.__class__.__name__)
 #		print "OnTool"
 #		self.gb['modules.gui']['Patient'].Raise()
 
@@ -454,7 +451,18 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.28  2003-11-23 23:33:15  ncq
+# Revision 1.29  2004-06-13 22:31:50  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.28  2003/11/23 23:33:15  ncq
 # - cleanup
 #
 # Revision 1.27  2003/11/22 02:01:17  ihaywood

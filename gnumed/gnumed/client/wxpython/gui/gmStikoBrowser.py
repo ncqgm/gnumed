@@ -15,7 +15,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -148,7 +148,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
     def GetWidget (self, parent):
         return StikoHtmlPanel (parent, self.gb['main.frame'])
 
-    def DoToolbar (self, tb, widget):
+    def populate_toolbar (self, tb, widget):
         tool1 = tb.AddTool(
             ID_STIKOCONTENTS,
             images_for_gnumed_browser16_16.getcontentsBitmap(),
@@ -244,7 +244,18 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.8  2004-03-18 09:43:02  ncq
+# Revision 1.9  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.8  2004/03/18 09:43:02  ncq
 # - import gmI18N if standalone
 #
 # Revision 1.7  2004/03/09 08:03:26  ncq

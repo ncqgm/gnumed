@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.7 2004-03-19 09:05:55 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPregCalc.py,v 1.8 2004-06-13 22:31:50 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -454,14 +454,14 @@ else:
 			menu = self.gb['main.toolsmenu']
 			menu.Append (ID_MENU, _("Preg. Calc"), _("Pregnancy Calculator"))
 			EVT_MENU (self.gb['main.frame'], ID_MENU, self.OnTool)
-			self.tb = self.gb['main.toolbar']
-			self.tool = wxToolBar (self.tb, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+			top_panel = self.gb['main.top_panel']
+			self.tool = wxToolBar (top_panel, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
 			self.tool.AddTool(
 				ID_PregCalc_BUTTON,
 				wxBitmapFromXPMData(cPickle.loads(zlib.decompress( _icons[_("""icon_Preg_calc""")] ))),
 				shortHelpString = _("Pregnancy Calculator")
 			)
-			self.tb.AddWidgetRightBottom (self.tool)
+			self.top_panel.AddWidgetRightBottom (self.tool)
 			EVT_TOOL (self.tool, ID_PregCalc_BUTTON, self.OnTool)
 		#---------------------
 		def unregister (self):
@@ -475,7 +475,18 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.7  2004-03-19 09:05:55  ncq
+# Revision 1.8  2004-06-13 22:31:50  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.7  2004/03/19 09:05:55  ncq
 # - fix imports
 #
 # Revision 1.6  2003/11/17 10:56:42  sjtan

@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -336,7 +336,6 @@ class cLabJournalNB(wxNotebook):
 	#------------------------------------------------------------------------
 	def update(self):
 		if self.curr_pat['ID'] is None:
-			_log.Log(gmLog.lErr, 'need patient for update, no patient related notebook tabs will be visible')
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot load lab journal.\nYou first need to select a patient.'),
 				aTitle = _('loading lab journal')
@@ -665,19 +664,21 @@ if __name__ != '__main__':
 			return gmLabJournal.tab_name
 
 		def GetWidget (self, parent):
-			self.panel = cPluginPanel(parent, -1)
-			return self.panel
+			self._widget = cPluginPanel(parent, -1)
+			return self._widget
 
 		def MenuInfo (self):
 			return ('tools', _('Show &lab journal'))
 
-		def ReceiveFocus(self):
-			if self.panel.nb.update() is None:
+		def populate_with_data(self):
+			# no use reloading if invisible
+			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
+				return 1
+			if self._widget.nb.update() is None:
 				_log.Log(gmLog.lErr, "cannot update lab journal with data")
 				return None
-			# FIXME: register interest in patient_changed signal, too
-			#self.panel.tree.SelectItem(self.panel.tree.root)
-			self.DoStatusText()
+			#self._widget.tree.SelectItem(self._widget.tree.root)
+#			self.DoStatusText()
 			return 1
 
 		def can_receive_focus(self):
@@ -686,7 +687,7 @@ if __name__ != '__main__':
 				return None
 			return 1
 
-		def DoToolbar (self, tb, widget):
+		def populate_toolbar (self, tb, widget):
 			
 			tb.AddControl(wxStaticBitmap(
 				tb,
@@ -729,7 +730,18 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.25  2004-06-05 11:31:54  shilbert
+# Revision 1.26  2004-06-13 22:31:49  ncq
+# - gb['main.toolbar'] -> gb['main.top_panel']
+# - self.internal_name() -> self.__class__.__name__
+# - remove set_widget_reference()
+# - cleanup
+# - fix lazy load in _on_patient_selected()
+# - fix lazy load in ReceiveFocus()
+# - use self._widget in self.GetWidget()
+# - override populate_with_data()
+# - use gb['main.notebook.raised_plugin']
+#
+# Revision 1.25  2004/06/05 11:31:54  shilbert
 # - GUI cleanup as per ncq's request
 # - request reviewed via single-click, double-click, <SPACE> implemented
 #
