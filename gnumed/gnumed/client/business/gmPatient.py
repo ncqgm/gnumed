@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.50 2004-08-18 08:13:51 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPatient.py,v 1.51 2004-08-20 13:28:16 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -188,73 +188,61 @@ class gmCurrentPatient(gmBorg.cBorg):
 	There may be many instances of this but they all share state.
 	"""
 	def __init__(self, aPKey = None):
-		# share state among all instances ...
+		"""Change or get currently active patient.
+
+		aPKey:
+		* None: get currently active patient
+		* -1: unset currently active patient
+		* other: set active patient to aPKey if possible
+		"""
 		gmBorg.cBorg.__init__(self)
 
 		# make sure we do have a patient pointer
+		# FIXME: speed up by use of try: except:
 		if not self.__dict__.has_key('_patient'):
 			self._patient = gmNull.cNull()
 
 		# set initial lock state,
 		# this lock protects against activating another patient
 		# when we are controlled from a remote application
-		if not self.__dict__.has_key('locked'):
+		# FIXME: speed up by use of try: except:
+		if not self.__dict__.has_key('_locked'):
 			self.unlock()
 
-		# - user wants copy of current patient
+		# user wants copy of current patient
 		if aPKey is None:
-			# do nothing which will return ourselves
-#			if self._patient is None:
-#				tmp = 'None'
-#			else:
-#				tmp = str(self._patient['ID'])
-			_log.Log(gmLog.lData, 'current patient (%s) requested' % self._patient['ID'])
 			return None
 
-		# possibly change us, depending on PKey
-#		_log.Log(gmLog.lData, 'patient [%s] requested' % aPKey)
-		# no previous patient
-#		if self._patient is None:
-#			_log.Log(gmLog.lData, 'no previous patient')
-#			try:
-#				self._patient = gmPerson(aPKey)
-#			except:
-#				_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
-#				return None
-			# remote app must lock explicitly
-#			self.unlock()
-#			self.__send_selection_notification()
-#			return None
-
-		# user wants change of current patient
-		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._patient['ID'], aPKey))
-		# are we really supposed to become someone else ?
+		# same ID, no change needed
 		if self._patient['ID'] == aPKey:
-			# no, same patient, do nothing
-			_log.Log(gmLog.lData, 'same ID, no change needed')
 			return None
 
-		# yes, but CAN we ?
-		if self.locked is not None:
-			# no
+		# user wants different patient
+		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._patient['ID'], aPKey))
+
+		# but not if patient is locked
+		if self._locked:
 			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self._patient['ID'], aPKey))
-			return None
-		# yes
-		try:
-			tmp = gmPerson(aPKey)
-		except:
-			_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
-			# returning None (and thereby silently staying
-			# the same patient) is a design decision
-			# FIXME: maybe raise exception here ?
+			# FIXME: exception ?
 			return None
 
-		# clean up after ourselves
+		# user wants to explicitely unset current patient
+		if aPKey == -1:
+			_log.Log(gmLog.lData, 'explicitely unsetting patient')
+			new_pat = gmNull.cNull()
+		else:
+			try:
+				new_pat = gmPerson(aPKey)
+			except:
+				_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
+				# returning None on INTERNAL errors (and thus silently
+				# staying the same patient) is a design decision
+				# FIXME: maybe raise exception here ?
+				return None
+
 		self.__send_pre_selection_notification()
 		self._patient.cleanup()
-		# and change to new patient
-		self._patient = tmp
-		self.unlock()
+		self._patient = new_pat
 		self.__send_selection_notification()
 
 		return None
@@ -272,13 +260,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		return self._patient.get_document_folder()
 	#--------------------------------------------------------
 	def get_ID(self):
-#		if self._patient is None:
-#			return None
 		return self._patient.getID()
 	#--------------------------------------------------------
 	def export_data(self):
-#		if self._patient is None:
-#			return None
 		return self._patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
@@ -303,13 +287,13 @@ class gmCurrentPatient(gmBorg.cBorg):
 	# patient change handling
 	#--------------------------------------------------------
 	def lock(self):
-		self.locked = 1
+		self._locked = True
 	#--------------------------------------------------------
 	def unlock(self):
-		self.locked = None
+		self._locked = False
 	#--------------------------------------------------------
 	def is_locked(self):
-		return self.locked
+		return self._locked
 	#--------------------------------------------------------
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
@@ -341,10 +325,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
 		return self._patient[aVar]
-#		if self._patient is not None:
-#			return self._patient[aVar]
-#		else:
-#			return None
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -404,16 +384,14 @@ class cPatientSearcher_SQL:
 				_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
 			# generate queries
 			if search_term is None:
-				_log.Log(gmLog.lErr, 'need search term')
+				_log.Log(gmLog.lErr, 'need search term (search_dict AND search_term are None')
 				return None
 			query_lists = self.__generate_queries(search_term)
 
 		# anything to do ?
-		if query_lists is None:
+		if (query_lists is None) or (len(query_lists) == 0):
 			_log.Log(gmLog.lErr, 'query tree empty')
-			return None
-		if len(query_lists) == 0:
-			_log.Log(gmLog.lErr, 'query tree empty')
+			_log.Log(gmLog.lErr, '[%s] [%s] [%s]' % (search_term, a_locale, str(search_dict)))
 			return None
 
 		# collect IDs here
@@ -495,12 +473,12 @@ class cPatientSearcher_SQL:
 	# must escape strings before use !!
 	# ORDER BY !
 	# FIXME: what about "< 40" ?
-
+	#--------------------------------------------------------
 	def __make_simple_query(self, raw):
 		"""Compose queries if search term seems unambigous."""
 		queries = []
 
-		# "<ZIFFERN>" - patient ID or DOB
+		# "<digits>" - patient ID or DOB
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
@@ -508,7 +486,7 @@ class cPatientSearcher_SQL:
 			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			return queries
 
-		# "#<ZIFFERN>" - patient ID
+		# "#<digits>" - patient ID
 		if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
 			tmp = raw.replace(' ', '')
 			tmp = tmp.replace('\t', '')
@@ -534,6 +512,14 @@ class cPatientSearcher_SQL:
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
 			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % tmp])
+			return queries
+
+		# " , <alpha>" - first name
+		if re.match("^(\s|\t)*,(\s|\t)*([^0-9])+(\s|\t)*$", raw):
+			tmp = raw.split(',')[1].strip()
+			tmp = self.__normalize_soundalikes(tmp)
+			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s'" % tmp])
 			return queries
 
 		# "*|$<...>" - DOB
@@ -855,9 +841,13 @@ def create_dummy_identity():
 	return data[0][0]
 #============================================================
 def set_active_patient(anID = None):
-	# argument error
+	"""Set active patient.
+
+	If anID is -1 the active patient will be unset.
+	"""
 	if anID is None:
-		return None
+		_log.Log(gmLog.lErr, 'programming error: anID is None, must be -1 or (int > 0)')
+		return False
 	tstart = time.time()
 	pat = gmCurrentPatient()
 	old_ID = pat.get_ID()
@@ -877,7 +867,7 @@ def set_active_patient(anID = None):
 		_log.Log (gmLog.lErr, 'error changing active patient')
 		return False
 	duration = time.time() - tstart
-	_log.Log(gmLog.lData, "set_active_patient took %s seconds" % duration)
+	_log.Log(gmLog.lData, "set_active_patient took %3.3f seconds" % duration)
 	return True
 #============================================================
 # main/testing
@@ -921,7 +911,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.50  2004-08-18 08:13:51  ncq
+# Revision 1.51  2004-08-20 13:28:16  ncq
+# - cleanup/improve inline docs
+# - allow gmCurrentPatient._patient to be reset to gmNull.cNull on aPKey = -1
+# - teach patient searcher about ", something" to be first name
+#
+# Revision 1.50  2004/08/18 08:13:51  ncq
 # - fixed encoding special comment
 #
 # Revision 1.49  2004/07/21 07:53:12  ncq
