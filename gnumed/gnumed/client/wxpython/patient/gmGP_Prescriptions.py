@@ -32,6 +32,12 @@ import gmEditArea                              #panel class holding editing
 import gmPlugin
 import gmLog
 
+
+ID_SCRIPTICON = wxNewId ()
+ID_SCRIPTLIST = wxNewId()
+ID_SCRIPTMENU = wxNewId ()
+ID_POPUP1 = wxNewId()
+
 gmSECTION_SCRIPT = 8
 # script popup
 ID_AuthInd = wxNewId()
@@ -164,7 +170,7 @@ class PrescriptionPanel (wxPanel):
 		#add an alert caption panel to the bottom
 		#----------------------------------------
 		self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,"  Alerts  ")
-		#---------------------------------------------                                                                               
+		#---------------------------------------------
 		#add all elements to the main background sizer
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
@@ -179,7 +185,7 @@ class PrescriptionPanel (wxPanel):
 		self.SetSizer(self.mainsizer)
 		self.SetAutoLayout(true)
 		self.Show(true)
-	  
+
 	def OnRightClickUp(self, event):
 		"""A right mouse click triggers a popup menu for the list script"""
 
@@ -218,12 +224,13 @@ class PrescriptionPanel (wxPanel):
 		aMenu.Append(ID_Exit, _("Exit"))
 
 		##connect the events to event handler functions
+		EVT_MENU(self, ID_POPUP1, self.OnExitMenu)
 		EVT_MENU(self, ID_PregInfo, gmLog.gmDefLog.Log(gmLog.lErr, "This should display Pregnancy Information !"))
 		#EVT_MENU(self, ID_, gmLog.gmDefLog.Log(gmLog.lErr, "This should ... !")
 
-		# show the menu 
-		#self.PopupMenu(aMenu, event.GetPosition())
-		self.list_script.PopupMenu(aMenu,event.GetPosition()) 
+		# show the menu
+		self.PopupMenu(aMenu, event.GetPosition())
+		#self.list_script.PopupMenu(aMenu,event.GetPosition())
 		# whatever the user selected in the menu will have
 		# been handled already virtue of the MENU events
 		# created above
@@ -234,6 +241,9 @@ class PrescriptionPanel (wxPanel):
 		# anybody else needs to intercept right click events?
 		event.Skip()
 #--------------------------------------------------------------------
+	def OnExitMenu(self, event):
+		print "OnExitMenu"
+
 class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the prescriptions window
