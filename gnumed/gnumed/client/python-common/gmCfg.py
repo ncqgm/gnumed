@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -805,17 +805,24 @@ def create_default_cfg_file():
 	base_dir = tmp
 
 	# get base name from name of script
-	base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
+	base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+	conf_name = base_name + ".conf"
 
 	# - now the path exists but we still need to
 	#   make sure the file itself exists
-	tmp = os.path.join(base_dir, base_name)
+	tmp = os.path.join(base_dir, conf_name)
 	if not os.path.exists(tmp):
 		try:
 			f = open(tmp, "wb")
-			f.close
-		except:
-			_log.LogException("Cannot create empty default config file.", sys.exc_info(), fatal=0)
+			f.write('# [%s]: empty default config file' % base_name)
+			f.write('# -------------------------------------------------------------')
+			f.write('# created by gmCfg because no other config file could be found,')
+			f.write('# please check the docs that came with the software')
+			f.write('# to find out what options you can set in here')
+			f.write('')
+			f.close()
+		except StandardError:
+			_log.LogException("Cannot create empty default config file [%s]." % tmp, sys.exc_info(), fatal=0)
 			return None
 
 	_log.Log(gmLog.lErr, 'Created empty config file [%s].' % tmp)
@@ -932,7 +939,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.43  2003-03-27 21:10:12  ncq
+# Revision 1.44  2003-03-30 21:38:28  ncq
+# - put some blurb in new, empty config files
+#
+# Revision 1.43  2003/03/27 21:10:12  ncq
 # - move '__default__' to cfg_DEFAULT constant
 #
 # Revision 1.42  2003/03/23 10:32:50  ncq
