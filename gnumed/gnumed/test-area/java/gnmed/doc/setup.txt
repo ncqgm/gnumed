@@ -12,7 +12,17 @@ grant all on schema public to yourname;
 ant testLoadPostcode
 
 4.Need to load part of org.drugref.data.dump
+
 psql -f org.drugref.data.dump -h 127.0.0.1 template1
+
+in cygwin, it worked by going into psql interactive and doing
+\i org.drugref.data.dump
+
+If the above doesn't work, load the schema and data dump together
+( the hibernate mappings use the same table and field names as
+the drugref schema ).
+
+
 
 This loads the disease_code table with the data from drugref.org 
 

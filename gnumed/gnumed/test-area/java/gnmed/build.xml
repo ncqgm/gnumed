@@ -142,7 +142,7 @@
     	    <jvmarg line="-server"/>
         </java>
     </target>
-    <target depends="init, xdocletToHibernate, compile" name="testScript">
+    <target depends="init, compile" name="testScript">
         <java classname="gnmed.test.TestScript" failonerror="true" fork="true">
             <classpath path="./lib">
                 <pathelement location="."/>

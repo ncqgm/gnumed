@@ -105,3 +105,15 @@ setLastnames.
 22. Mobile telephone not saving because the xdoclet tag was spelt  many-tp-one  , inside
     identity.java : misspelled xdoclet tags won't be picked up, just ignored.
 
+23. indentity_role needed for contacts. May need comment storage about
+	specifics of playing that role (e.g. when available, likes doing ...)
+    so made identity_role_info  ; this splits the many-to-many association
+(one provider can be more than one role ) to one-to-many , and many-to-one ,
+with identity_role_info in the middle.
+
+
+24. Need to get a more interactive address parser. 
+
+
+
+
