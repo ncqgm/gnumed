@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -99,18 +99,17 @@ comment on column test_type.basic_unit is
 	 comparing results delivered in differing units';
 
 -- ====================================
--- FIXME: run demon to make sure that local_code is always
--- associated with the same local_name
 create table test_type_local (
 	pk serial primary key,
 	fk_test_type integer
-		unique
 		not null
 		references test_type(id)
 		on update cascade
 		on delete cascade,
 	local_code text not null,
-	local_name text not null
+	local_name text not null,
+	unique (fk_test_type, local_code),
+	unique (local_code, local_name)
 );
 
 comment on table test_type_local is
@@ -355,11 +354,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.29  2004-09-17 20:15:00  ncq
+-- Revision 1.30  2004-09-28 12:30:22  ncq
+-- - add constraint on test_type_local
+--
+-- Revision 1.29  2004/09/17 20:15:00  ncq
 -- - add val_target_* to test_result
 --
 -- Revision 1.28  2004/07/17 20:57:53  ncq
