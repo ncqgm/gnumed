@@ -1,0 +1,305 @@
+<HTML
+><HEAD
+><TITLE
+>GNUMed</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="NEXT"
+TITLE="Preface"
+HREF="f28.html"></HEAD
+><BODY
+CLASS="BOOK"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="AEN1"><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+><A
+NAME="AEN2">GNUMed</H1
+><H2
+CLASS="SUBTITLE"
+>Developers's Manual</H2
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN6">Gerardo Arnaez</H3
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN9">Hilmar Berger</H3
+><DIV
+CLASS="REVHISTORY"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+COLSPAN="3"
+><B
+>Revision History</B
+></TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+>Revision 0.1.1</TD
+><TD
+ALIGN="LEFT"
+>2002-08-12</TD
+><TD
+ALIGN="LEFT"
+>Revised by: hb</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+COLSPAN="3"
+>Added some basic description of gnumed client modules.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+>Revision 0.1</TD
+><TD
+ALIGN="LEFT"
+>2002-08-03</TD
+><TD
+ALIGN="LEFT"
+>Revised by: gea</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+COLSPAN="3"
+>Initial developers manual written, mostly will copy from savanah.gnu.org</TD
+></TR
+></TABLE
+></DIV
+><DIV
+><DIV
+CLASS="ABSTRACT"
+><A
+NAME="AEN12"><P
+></P
+><P
+>      
+      Copyright (c) 2001,2002 GNUMed developers</P
+><P
+>      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.1
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, with no
+      Front-Cover Texts, and with no Back-Cover Texts.</P
+><P
+>      A copy of the license is included in the section entitled "GNU
+      Free Documentation License".</P
+><P
+></P
+></DIV
+></DIV
+><HR></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="f28.html"
+>Preface</A
+></DT
+><DT
+>1. <A
+HREF="intro.html"
+>Introduction</A
+></DT
+><DT
+>2. <A
+HREF="c38.html"
+>Checking out, Checking in GnuMed CVS</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="x40.html"
+>Developer CVS Access via SSH (Version 1, RSA)</A
+></DT
+><DT
+>2.2. <A
+HREF="x69.html"
+>Basic commands</A
+></DT
+></DL
+></DD
+><DT
+>3. <A
+HREF="c80.html"
+>Coding Guidelines</A
+></DT
+><DD
+><DL
+><DT
+>3.1. <A
+HREF="x82.html"
+>strings and translation</A
+></DT
+><DT
+>3.2. <A
+HREF="x89.html"
+>Database Guidelines</A
+></DT
+><DT
+>3.3. <A
+HREF="x94.html"
+>Widgets</A
+></DT
+><DT
+>3.4. <A
+HREF="x97.html"
+>Comments. Documenting Code</A
+></DT
+><DT
+>3.5. <A
+HREF="x110.html"
+>CVS Guidelines</A
+></DT
+><DT
+>3.6. <A
+HREF="x113.html"
+>DEBUGGING/LOGGING</A
+></DT
+></DL
+></DD
+><DT
+>4. <A
+HREF="c117.html"
+>Modules</A
+></DT
+><DD
+><DL
+><DT
+>4.1. <A
+HREF="x119.html"
+>python-common</A
+></DT
+><DT
+>4.2. <A
+HREF="x160.html"
+>wxpython</A
+></DT
+><DT
+>4.3. <A
+HREF="x207.html"
+>wxpython/gui - "whole page" plugin widgets regarding the notebook</A
+></DT
+><DT
+>4.4. <A
+HREF="x210.html"
+>wxpython/gui-de - same as ../gui for Germany (AMIS-browser should life here)</A
+></DT
+><DT
+>4.5. <A
+HREF="x213.html"
+>wxpython/patient - "patient page" plugin widgets</A
+></DT
+></DL
+></DD
+><DT
+>5. <A
+HREF="c216.html"
+>Design</A
+></DT
+><DD
+><DL
+><DT
+>5.1. <A
+HREF="x218.html"
+>GNUMed Database Architecture</A
+></DT
+><DT
+>5.2. <A
+HREF="x251.html"
+>List of distributed database services</A
+></DT
+><DT
+>5.3. <A
+HREF="x377.html"
+>FAQ</A
+></DT
+><DT
+>5.4. <A
+HREF="x382.html"
+>GUI design</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="f28.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Preface</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

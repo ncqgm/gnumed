@@ -1,0 +1,316 @@
+<HTML
+><HEAD
+><TITLE
+>Developer CVS Access via SSH (Version 1, RSA)</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Checking out, Checking in GnuMed CVS"
+HREF="c38.html"><LINK
+REL="PREVIOUS"
+TITLE="Checking out, Checking in GnuMed CVS"
+HREF="c38.html"><LINK
+REL="NEXT"
+TITLE="Basic commands"
+HREF="x69.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: Developers's Manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c38.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Checking out, Checking in GnuMed CVS</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x69.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN40">2.1. Developer CVS Access via SSH (Version 1, RSA)</H1
+><P
+>Only project developers can access the CVS tree via this method. SSH1 must be installed on your client machine. If you have SSH version two, add
+	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>Host subversions.gnu.org
+Protocol 1</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+      </P
+><P
+>In my case, I simply re-installed ssh, and made sure both Protcol 1 and 2 were allowed and then put in <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>Protocol 1,2</PRE
+></FONT
+></TD
+></TR
+></TABLE
+> in my <EM
+>~/.ssh/config</EM
+> file.
+      </P
+><P
+>Getting a ssh1 key is quite simple. You may either use an already existing ssh1-key (e.g. the one you already use to encrypt/sign your mail) or create a new one. </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN48">2.1.1. Use an existing ssh1-key</H2
+><P
+>      	Copy the contents of the public part of the key (usually the file ~/.ssh/identity.pub to the ssh-key text field at Savannah (see below).
+      	Add the line <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>export CVS_RSH=ssh</PRE
+></FONT
+></TD
+></TR
+></TABLE
+> to your .profile.
+      	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN52">2.1.2. Create a new ssh1-key (using OpenSSH)</H2
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+><P
+>      	    	<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> ssh-keygen [-i ~/.ssh/key_file_name] -t rsa1  </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+      	    	key_file_name is the name of the key you want to create. If you want to create your primary key (the key you want to use for mail etc.) you can drop the part in brackets. In this case you will find the key file in ~/.ssh/identity.pub.
+      	    	</P
+></LI
+><LI
+><P
+>      	    	Then copy and paste the contents of the public part of the key (the file ~/.ssh/key_file_name.pub to the ssh-key text field at Savannah (see below). Be sure not to copy line breaks.
+		</P
+></LI
+><LI
+><P
+>      	    	If you created a your primary key,add the line <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>export CVS_RSH=ssh</PRE
+></FONT
+></TD
+></TR
+></TABLE
+> to your .profile.
+      	    	</P
+><P
+>		If you created a new key particularly for the cvs, enter the following lines
+		<TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+> echo "#! /bin/sh\nssh -i ~/.ssh/key_file_name $@" &#62; ~/bin/ssh_cvs
+chmod +x ~/bin/ssh_cvs
+    	    	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+    	    	Add the line <TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>export CVS_RSH=ssh_cvs</PRE
+></FONT
+></TD
+></TR
+></TABLE
+> to your .profile.		
+    	    	</P
+></LI
+></OL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN66">2.1.3. Uploading your SSH1-Key</H2
+><P
+> Copy and paste the public part of the ssh1-key to savannah.gnu.org using https://savannah.gnu.org/account/editsshkeys.php.
+	    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c38.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x69.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Checking out, Checking in GnuMed CVS</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c38.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Basic commands</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
