@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 - import documents into the document archive
@@ -14,7 +14,7 @@ search for FIXME to find places to fix
 #######################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/import/Attic/import-med_docs.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 
 # modules
 import os, fileinput, string, time, sys, os.path
@@ -159,7 +159,11 @@ sys.exit(0)
 
 #=========================================================
 # $Log: import-med_docs.py,v $
-# Revision 1.7  2002-11-08 15:52:18  ncq
+# Revision 1.8  2002-11-23 16:45:21  ncq
+# - make work with pyPgSQL
+# - fully working now but needs a bit of polish
+#
+# Revision 1.7  2002/11/08 15:52:18  ncq
 # - make it work with pyPgSQL
 #
 # Revision 1.6  2002/10/01 09:47:36  ncq

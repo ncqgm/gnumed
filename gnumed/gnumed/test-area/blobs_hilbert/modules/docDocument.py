@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -52,7 +52,7 @@ class cDocument:
 	def loadMetaDataFromXML(self, aBaseDir = None, aCfg = None, aSection = None):
 		"""Load document metadata from XML file."""
 		# sanity checks
-		if aCfg == None:
+		if aCfg is None:
 			_log.Log(gmLog.lErr, "Parameter aCfg must point to a config parser object.")
 			return None
 
@@ -127,9 +127,10 @@ class cDocument:
 
 		return 1
 	#-----------------------------------
-	def loadImgListFromXML(self, aDescFile = None, aBaseDir = None):
+	def loadImgListFromXML(self, aDescFile = None, aBaseDir = None, aCfg = None, aSection = None):
+		# FIXME: sanity checks
 		# list of data files
-		if not self.__read_img_list(aDescFile, aBaseDir):
+		if not self.__read_img_list(aDescFile, aBaseDir, aCfg, aSection):
 			_log.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
 			return None
 		else:
@@ -356,7 +357,7 @@ class cDocument:
 		aFile = open(obj['file name'], 'wb+')
 		# it would be a fatal error to see more than one result as oids are supposed to be unique
 		#aFile.write(self.__unescapeByteA(cursor.fetchone()[0]))
-		aFile.write(cursor.fetchone().data)
+		aFile.write(str(cursor.fetchone()[0]))
 		aFile.close()
 		# close our connection
 		cursor.close()
@@ -696,7 +697,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.20  2002-11-08 15:51:37  ncq
+# Revision 1.21  2002-11-23 16:45:21  ncq
+# - make work with pyPgSQL
+# - fully working now but needs a bit of polish
+#
+# Revision 1.20  2002/11/08 15:51:37  ncq
 # - make it work with pyPgSQL
 #
 # Revision 1.19  2002/10/01 09:47:36  ncq
