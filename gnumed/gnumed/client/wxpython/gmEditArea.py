@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.54 2004-01-22 23:42:19 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmEditArea.py,v 1.55 2004-01-24 10:24:17 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -583,7 +583,7 @@ class gmEditArea(wxPanel):
 	def __register_events(self):
 		# connect standard buttons
 		EVT_BUTTON(self.btn_OK, wxID_BTN_OK, self._on_OK_btn_pressed)
-		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_new_btn_pressed)
+		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
 		#self._register_dirty_editarea_listener()
 
 		# client internal signals
@@ -599,13 +599,13 @@ class gmEditArea(wxPanel):
 		event.Skip()
 		if self.data_ID is None:
 			print "must be new entry"
-			self._accept_new_entry()
+			self._save_new_entry()
 		else:
 			print "must be modified entry"
-			self._accept_modified_entry()
+			self._save_modified_entry()
 #		self._pre_save_data()
 	#--------------------------------------------------------
-	def _on_new_btn_pressed(self, event):
+	def _on_clear_btn_pressed(self, event):
 		# FIXME: check for unsaved data
 		self.set_data()
 		event.Skip()
@@ -1221,7 +1221,7 @@ class gmAllergyEditArea(gmEditArea):
 		self._add_prompt(line = 6, label = _("Progress Note"))
 		self._add_prompt(line = 7, label = '')
 	#----------------------------------------------------
-	def _accept_new_entry(self):
+	def _save_new_entry(self):
 		allergy = {}
 		allergy['date noted'] = self.fld_date_noted.GetValue()
 		allergy['substance'] = self.fld_substance.GetValue()
@@ -1433,7 +1433,7 @@ class gmVaccinationEditArea(gmEditArea):
 		self._add_prompt(line = 4, label = _("Progress Note"))
 		self._add_prompt(line = 5, label = '')
 	#----------------------------------------------------
-	def _accept_new_entry(self):
+	def _save_new_entry(self):
 		vacc = {}
 		vacc['vaccine'] = self.fld_vaccine.GetValue()
 		vacc['batch no'] = self.fld_batch_no.GetValue()
@@ -1451,7 +1451,7 @@ class gmVaccinationEditArea(gmEditArea):
 		self.data_ID = data
 		return 1
 	#----------------------------------------------------
-	def _accept_modified_entry(self):
+	def _save_modified_entry(self):
 		vacc = {}
 		vacc['ID'] = self.data_ID
 		vacc['vaccine'] = self.fld_vaccine.GetValue()
@@ -2332,7 +2332,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.54  2004-01-22 23:42:19  ncq
+# Revision 1.55  2004-01-24 10:24:17  ncq
+# - method rename for consistency
+#
+# Revision 1.54  2004/01/22 23:42:19  ncq
 # - follow Richard's GUI specs more closely on standard buttons
 #
 # Revision 1.53  2004/01/21 14:00:09  ncq
