@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -531,23 +531,19 @@ def _import_listener_engine():
 	listener_api = gmBackendListener
 	return 1
 #---------------------------------------------------
-def run_query(aCursor = None, aCmd = None):
-	# FIXME: adapt to pyPgSQL style of %s
-
+def run_query(aCursor = None, aQuery = None, *args):
 	# sanity checks
 	if aCursor is None:
 		_log.Log(gmLog.lErr, 'need cursor to run query')
 		return None
-	if aCmd is None:
+	if aQuery is None:
 		_log.Log(gmLog.lErr, 'need query to run it')
 		return None
 
 	try:
-		aCursor.execute(aCmd)
+		aCursor.execute(aQuery, *args)
 	except:
-		_log.LogException("query >>>%s<<< failed" % aCmd, sys.exc_info())
-		return None
-
+		_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose=0)
 	return 1
 #---------------------------------------------------
 def getBackendName():
@@ -752,7 +748,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.56  2003-06-21 10:53:03  ncq
+# Revision 1.57  2003-06-23 14:25:40  ncq
+# - let DB-API do the quoting
+#
+# Revision 1.56  2003/06/21 10:53:03  ncq
 # - correctly handle failing connections to cfg db
 #
 # Revision 1.55  2003/06/14 22:41:51  ncq
