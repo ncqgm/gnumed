@@ -362,10 +362,7 @@ class LogTargetDummy(LogTarget):
 def myExitFunc():
     pass
     # FIXME - do something useful
-    #sys.exitfunc = oldExitFunc
-
     #gmDefLog.close()
-
     # should close other loggers, too, but I need to keep track of them first
 #------- MAIN -------------------------------------------------------
 if __name__ == "__main__":
@@ -425,9 +422,6 @@ if __name__ == "__main__":
     print "Done."
 else:
     gmDefLog = Logger()
-    # this seemed to fail for some people
-    #oldExitFunc = sys.exitfunc
-    #sys.exitfunc = myExitFunc
     # this needs Python 2.x
     atexit.register(myExitFunc)
 
@@ -436,6 +430,7 @@ else:
 #
 # target email
 # target wxPython
+# target DB-API
 #
 # log areas ?
 #
@@ -445,3 +440,5 @@ else:
 # callable()
 # type()
 # __del__
+# __is_sublclass__
+#
