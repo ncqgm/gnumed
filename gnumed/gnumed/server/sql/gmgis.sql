@@ -20,7 +20,6 @@
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-\i gnumed.sql
 
 -- any table that needs auditing MUST inherit audit_gis
 -- A python script (gmhistorian.py) generates automatically all triggers
@@ -173,8 +172,8 @@ create table address_external_ref (
 DROP function find_state(text, text);
 CREATE FUNCTION find_state (text, text) RETURNS text AS '
 DECLARE
-        pcode ALIAS FOR $1;
-	ccode ALIAS FOR $2;
+        pcode ALIAS FOR $1;	-- post code
+	ccode ALIAS FOR $2;	-- country code
         s RECORD;
 	retval text := NULL;
 BEGIN
@@ -215,7 +214,6 @@ create view v_basic_address as
 -- implement it as a real table and create rules / triggers for insert,
 -- update and delete that will update the underlying tables accordingly
 select
-	ia.id as id, 
 	a.id as addr_id,
         s.country as country,
         s.code as state,
@@ -227,18 +225,13 @@ select
  	t.name as address_at
 
 from
-	identities_addresses ia, 
         address a,
         state s,
         urb u,
         street str  ,
 	address_type t
-where	
-	ia.id_address = a.id
-	and
+where
         a.street = str.id
-        and
-        t.id = ia.id_type
         and
         str.id_urb = u.id
         and
@@ -273,32 +266,74 @@ BEGIN
 END;' LANGUAGE 'plpgsql';
 
 
+-- This function returns the id of a state, BUT if the state does not
+-- exist, it is created.
+drop function find_or_create_state(text, text);
+CREATE FUNCTION find_or_create_state(text, text) RETURNS integer AS '
+DECLARE
+        s_code ALIAS FOR $1;
+        s_country ALIAS FOR $2;
+        s RECORD;
+BEGIN
+        SELECT INTO s * FROM state 
+	WHERE code = s_code
+	AND country = s_country;
+        IF FOUND THEN
+           RETURN s.id;
+        ELSE
+           INSERT INTO state (code, country) VALUES (s_code, s_country);
+           RETURN currval (''state_id_seq'');
+        END IF;
+END;' LANGUAGE 'plpgsql';
+
+
+
+-- This function returns the id of urb, BUT if the urb does not
+-- exist, it is created.
+drop function find_urb(text, text, text, text);
+CREATE FUNCTION find_urb (text, text, text, text) RETURNS integer AS '
+DECLARE
+        u_country ALIAS FOR $1;
+        u_state ALIAS FOR $2;
+	u_postcode ALIAS FOR $3;
+        u_name ALIAS FOR $4;
+        u RECORD;
+	state_code INTEGER;
+BEGIN
+	state_code = find_or_create_state(u_state, u_country);
+	SELECT INTO u * FROM urb
+	WHERE statecode = statecode
+	AND postcode = u_postcode
+	AND name = u_name;
+
+        IF FOUND THEN
+           RETURN u.id;
+        ELSE
+           INSERT INTO urb (statecode, postcode, name)
+	   VALUES (state_code, u_postcode, u_name);
+           RETURN currval (''urb_id_seq'');
+        END IF;
+END;' LANGUAGE 'plpgsql';
+
+
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 drop rule insert_address;
 
-CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD 
-        INSERT INTO address (id, street, number, addendum)
-        VALUES ( nextval('address_id_seq'),
-                  find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE
-                           (urb.name = NEW.city) AND
-                           (urb.postcode = NEW.postcode) AND
-                           (urb.statecode = state.id) AND
-                           state.code = NEW.state AND
-                           state.country = NEW.country)),
-               NEW.number, NEW.street2);
+CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
+        INSERT INTO address (street, number, addendum)
+        VALUES (find_street (NEW.street, 
+	                      find_urb(NEW.country, NEW.state, NEW.postcode, NEW.city)),
+                NEW.number,
+	        NEW.street2);
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
--- deletes the basic address data as identified by it's unique id
--- provided that there is no external reference left
 
 CREATE RULE delete_address AS ON DELETE TO v_basic_address DO INSTEAD
 	DELETE FROM address
-	WHERE (decrease_refcount(OLD.id) > 0)
-	AND address.id = OLD.id;
+	WHERE address.id = OLD.addr_id;
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
