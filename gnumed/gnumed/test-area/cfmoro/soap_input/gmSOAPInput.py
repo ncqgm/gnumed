@@ -13,7 +13,7 @@
         -Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -27,7 +27,10 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
-import SOAP2, SOAPMultiSash
+sys.path.append ('../../ian') 
+import SOAP2
+
+import SOAPMultiSash
 from gmSOAPimporter import cSOAPImporter
 
 _log = gmLog.gmDefLog
