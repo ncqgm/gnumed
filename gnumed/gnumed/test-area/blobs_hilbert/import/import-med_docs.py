@@ -8,6 +8,8 @@
   per repository subdirectory
 
 search for FIXME to find places to fix
+
+@copyright: GPL
 """
 #######################################################
 # modules
@@ -23,7 +25,7 @@ from docDocument import cDocument
 from docDatabase import cDatabase
 #######################################################
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 __log__ = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
