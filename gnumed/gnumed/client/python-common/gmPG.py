@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.64 $"
+__version__ = "$Revision: 1.65 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -16,14 +16,23 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x
 _log.Log(gmLog.lData, __version__)
 
-import gmI18N, gmLoginInfo, gmExceptions, gmCLI
+import gmLoginInfo, gmExceptions
+
+import gmCLI
+if gmCLI.has_arg("--debug"):
+	_query_logging_verbosity = 1
+else:
+	_query_logging_verbosity = 0
+del gmCLI
 
 #3rd party dependencies
 
-# FIXME: this needs a better way of specifying which library to
-# load, add SQL-relay, too
+# FIXME: this needs a better way of specifying which library to load
+# add SQL-relay, too
+
 # first, do we have the preferred postgres-python library available ?
 try:
 	import pyPgSQL.PgSQL # try preferred backend library
@@ -55,15 +64,8 @@ assert(float(dbapi.apilevel) >= 2.0)
 assert(dbapi.threadsafety > 0)
 assert(dbapi.paramstyle == 'pyformat')
 
-
-#=====================================================================
-
-# convience function to escape strings for incorporation into SQL queries
-
-def esc (s):
-	return string.replace (s, "'", "''")
-
 listener_api = None
+default_client_encoding = None
 #======================================================================
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -80,13 +82,16 @@ class ConnectionPool:
 	__listeners = {}
 	#gmLoginInfo.LoginInfo instance
 	__login = None
+	# default encoding for connections
+	__encoding = default_client_encoding
 	#-----------------------------
-	def __init__(self, login=None):
+	def __init__(self, login=None, encoding=None):
 		"""parameter login is of type gmLoginInfo.LoginInfo"""
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
 			self.SetFetchReturnsList()
+			ConnectionPool.__encoding = encoding
 			ConnectionPool.__connected = self.__setup_default_ro_conns(login)
 	#-----------------------------
 	def __del__(self):
@@ -96,57 +101,88 @@ class ConnectionPool:
 	#-----------------------------
 	# connection API
 	#-----------------------------
-	def GetConnection(self, service = "default", readonly = 1, checked = 1):
-		"""check connection is live"""
+	def GetConnection(self, service = "default", readonly = 1, checked = 1, encoding = None):
+		"""Get a connection."""
+		# use default encoding if none given
+		if encoding is None:
+			encoding = ConnectionPool.__encoding
+#		conn =  self.GetConnectionUnchecked(service, readonly, encoding)
+		logininfo = self.GetLoginInfoFor(service)
 
-		conn =  self.GetConnectionUnchecked(service, readonly)
+		# either get brand-new read-write connection
+		if not readonly:
+			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
+			conn = self.__pgconnect(logininfo, readonly = 0, encoding)
+		# or a cached read-only connection
+		else:
+			_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
+			if ConnectionPool.__databases.has_key(service):
+				try:
+					ConnectionPool.__connections_in_use[service] += 1
+				except KeyError:
+					ConnectionPool.__connections_in_use[service] = 1
+				conn = ConnectionPool.__databases[service]
+			else:
+				_log.Log(gmLog.lInfo, 'service [%s] not explicitely configured, connecting to service [default] instead' % service)
+				try:
+					ConnectionPool.__connections_in_use['default'] += 1
+				except KeyError:
+					ConnectionPool.__connections_in_use['default'] = 1
+				conn = ConnectionPool.__databases['default']
+
+		# check whether connection is alive and well
 		if checked:
 			try:
 				cursor = conn.cursor()
-				cursor.execute("select 1;")
+				cursor.execute("select 1")
 				cursor.close()
 			except StandardError:
-				_log.LogException("connection is dead", sys.exc_info(), 4)
+				_log.LogException("connection health check failed", sys.exc_info(), 4)
 				_log.Data("trying a direct connection via __pgconnect()")
 				# actually this sort of defies the whole thing since
 				# GetLoginInfoFor() depends on GetConnection() ...
+				# however, the condition this check was to catch only
+				# ever occurred later in the life of a read-only
+				# connection at which point GetLoginInfoFor() would
+				# only return cached data and not actually go fetch
+				# things, hence it should work anyhow
 				logininfo = self.GetLoginInfoFor(service)
-				conn = self.__pgconnect(logininfo, readonly)
+				conn = self.__pgconnect(logininfo, readonly, encoding)
 				try:
 					cursor = conn.cursor()
-					cursor.execute("select 1;")
+					cursor.execute("select 1")
 					cursor.close()
 				except:
-					_log.LogException("connection is dead", sys.exc_info(), 4)
-					return  None
+					_log.LogException("connection health check failed", sys.exc_info(), 4)
+					return None
 
 		return conn
 	#-----------------------------
-	def GetConnectionUnchecked(self, service = "default", readonly = 1):
+	def GetConnectionUnchecked(self, service = "default", readonly = 1, encoding = None):
 		"""if a distributed service exists, return it - otherwise return the default server"""
-
-		logininfo = self.GetLoginInfoFor(service)
+		_log.Log(gmLog.lErr, 'use of GetConnectionUnchecked() deprecated')
+#		logininfo = self.GetLoginInfoFor(service)
 
 		# get new read-write connection
-		if not readonly:
-			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
-			return self.__pgconnect(logininfo, readonly = 0)
+#		if not readonly:
+#			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
+#			return self.__pgconnect(logininfo, readonly = 0)
 
 		# return a cached read-only connection
-		_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
-		if ConnectionPool.__databases.has_key(service):
-			try:
-				ConnectionPool.__connections_in_use[service] += 1
-			except:
-				ConnectionPool.__connections_in_use[service] = 1
-			return ConnectionPool.__databases[service]
-		else:
-			try:
-				ConnectionPool.__connections_in_use['default'] += 1
-			except:
-				ConnectionPool.__connections_in_use['default'] = 1
-
-			return ConnectionPool.__databases['default']
+#		_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
+#		if ConnectionPool.__databases.has_key(service):
+#			try:
+#				ConnectionPool.__connections_in_use[service] += 1
+#			except:
+#				ConnectionPool.__connections_in_use[service] = 1
+#			return ConnectionPool.__databases[service]
+#		else:
+#			try:
+#				ConnectionPool.__connections_in_use['default'] += 1
+#			except:
+#				ConnectionPool.__connections_in_use['default'] = 1
+#
+#			return ConnectionPool.__databases['default']
 		
 	#-----------------------------
 	def ReleaseConnection(self, service):
@@ -233,9 +269,6 @@ class ConnectionPool:
 		"""list all distributed services available on this system
 		(according to configuration database)"""
 		return ConnectionPool.__databases.keys()
-	#-----------------------------	
-	def LogError(self, msg):
-		"This function must be overridden by GUI applications"
 	#-----------------------------		
 	def SetFetchReturnsList(self, on=1):
 		"""when performance is crucial, let the db adapter
@@ -308,7 +341,7 @@ class ConnectionPool:
 		ConnectionPool.__login = login
 
 		# connect to the configuration server
-		cfg_db = self.__pgconnect(login, readonly=1)
+		cfg_db = self.__pgconnect(login, readonly=1, encoding=ConnectionPool.__encoding)
 		if cfg_db is None:
 			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
@@ -350,18 +383,17 @@ class ConnectionPool:
 			ConnectionPool.__connections_in_use[service] = 0
 			dblogin = self.GetLoginInfoFor(service, login)
 			# update 'Database Broker' dictionary
-			conn = self.__pgconnect(dblogin, readonly=1)
+			conn = self.__pgconnect(dblogin, readonly=1, encoding=ConnectionPool.__encoding)
 			if conn is None:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
 			ConnectionPool.__databases[service] = conn
 		cursor.close()
 		return ConnectionPool.__connected
 	#-----------------------------
-	def __pgconnect(self, login, readonly=2):
+	def __pgconnect(self, login, readonly=2, encoding=None):
 		"""connect to a postgres backend as specified by login object; return a connection object"""
 		dsn = ""
 		hostport = ""
-
 		if _isPGDB:
 			dsn, hostport = login.GetPGDB_DSN(readonly)
 		else:
@@ -378,16 +410,25 @@ class ConnectionPool:
 			return None
 
 		# set the default characteristics of our sessions
+		curs = conn.cursor()
+		# - client encoding
+		if encoding is None:
+			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
+		else:
+			cmd = "set client_encoding='%s'" % encoding
+			if not run_query(curs, cmd):
+				_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
+				_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
+		# - transaction isolation level
 		if readonly:
 			isolation_level = 'READ COMMITTED'
 		else:
 			isolation_level = 'SERIALIZABLE'
 		cmd = 'set session characteristics as transaction isolation level %s' % isolation_level
-		curs = conn.cursor()
 		if not run_query(curs, cmd):
 			curs.close()
 			conn.close()
-			_log.Log(gmLog.lErr, 'cannot set connection characteristics to "%s"' % isolation_level)
+			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % isolation_level)
 			return None
 
 		#  this needs >= 7.4
@@ -547,11 +588,7 @@ def run_query(aCursor = None, aQuery = None, *args):
 	try:
 		aCursor.execute(aQuery, *args)
 	except:
-		if gmCLI.has_arg("--debug"):
-			log_much = 1
-		else:
-			log_much = 0
-		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = log_much)
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = _query_logging_verbosity)
 		return None
 	return 1
 #---------------------------------------------------
@@ -710,7 +747,6 @@ def run_notifications_debugger():
 #------------------------------------------------------------------
 if __name__ == "__main__":
 	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-	_ = lambda x:x
 
 	print "Do you want to test the backend notification code ?"
 	yes_no = raw_input('y/n: ')
@@ -772,7 +808,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.64  2003-07-09 15:44:31  ncq
+# Revision 1.65  2003-07-21 19:21:22  ncq
+# - remove esc(), correct quoting needs to be left to DB-API module
+# - set client_encoding on connections
+# - consolidate GetConnection()/GetConnectionUnchecked()
+#
+# Revision 1.64  2003/07/09 15:44:31  ncq
 # - our RO connections need to be READ COMMITTED so they can
 #   see concurrent committed writes
 #
