@@ -16,6 +16,7 @@
 #	24.10.2001 hherb persistent changes across multiple processes enabled
 #	25.10.2001 hherb more flexible configuration options, more commenting
 #	07.02.2002 hherb saved parameters now showing corectly in combo boxes
+#   	05.09.2002 hberger moved options to own dialog
 #       06.09.2002 rterry simplified gui
 #                  -duplication and visual clutter removed
 #                   removed duplication of information in display
@@ -25,10 +26,9 @@
 #                   ok, cancel in most operating systems
 #                   reference to help removed (have help button for that)
 #                   date removed - can't see use of this in login - clutters
-#
+#   	06.09.2002 hberger removed old code, fixed "login on close window" bug
+
 # @TODO:
-#FIXME:rterry:Has anyone noticed that if one closes the dialog it logs on anyway!
-#             whereas it should cancel like the cancel button does
 ############################################################################
 
 """gmLoginDialog - This module provides a login dialog to GNUMed
@@ -145,21 +145,16 @@ class LoginPanel(wxPanel):
 	def __init__(self, parent, id, pos = wxPyDefaultPosition, size = wxPyDefaultSize, style = wxTAB_TRAVERSAL,
 		loginparams = None,
 		isDialog = 0,
-		configroot = '/login' ,
-		configfilename = 'gnumed',
 		maxitems = 8):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
 
-		#file name of configuration file - wxConfig takes care of path, extension etc.
-		self.confname = configfilename
 		self.gb = gmGuiBroker.GuiBroker ()
-		#root of setings in the configuration file for this particular dialog
-		self.configroot = configroot
 
-		#true if dialog was cancelled by user
-		self.cancelled = false
+		#true if dialog was cancelled by user 
+		#if the dialog is closed manually, login should be cancelled
+		self.cancelled = true
 
 		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
@@ -183,29 +178,7 @@ class LoginPanel(wxPanel):
 			self.topsizer.Add(bmp, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 		except:
 			self.topsizer.Add(wxStaticText (self, -1, "Cannot find image" + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
-		#---------------------------------------------------------------------------------------	
-                #Old code: commented out rterry 06.09.2002
-		#I don't think this is needed:
-		#  a) Date not relevant to login screen
-		#  b) help button exists at the bottom anyway
-		#  c) my version consolidates the site (here Desktop Dr.Jekyll, into the login heading)
-		#-------------------------------------------------------------------------------------- 
-    	    	#### add some infos on top of the login prompts
-		####self.infobox = wxStaticBox( self, -1,'')
-		####self.infoboxsizer = wxStaticBoxSizer( self.infobox, wxVERTICAL )
-    	    	
-		#### current date
-    	    	####date = time.strftime("%d.%m.%Y")
-		####self.infoboxsizer.Add(wxStaticText (self, -1, _("Date: ") + date, style=wxALIGN_LEFT), 0,wxGROW|wxALIGN_CENTRE_VERTICAL|wxALL,10)
 
-    	    	#### workplace
-    	    	####workplace  = "Desktop Dr.Jekyll"
-		####self.infoboxsizer.Add(wxStaticText (self, -1, _("Workplace: ") + workplace, style=wxALIGN_LEFT), 0, wxGROW|wxALIGN_CENTRE_VERTICAL|wxALL, 10)
-
-    	    	####  who to contact in case of problems with gnumed (local service provider etc.)
-       	    	####contactinfo  = "0815-HELPME"
-		####self.infoboxsizer.Add(wxStaticText (self, -1, _("Contact: ") + contactinfo, style=wxALIGN_LEFT), 0, wxGROW|wxALIGN_CENTRE_VERTICAL|wxALL, 10)
-    	    	####self.infoboxsizer.Fit(self)
 		#-----------------------------------------------------------
                 #FIXME - This needs to be got from somewhere, not fixed text
 		#why doesn't this align in the centre
@@ -239,32 +212,7 @@ class LoginPanel(wxPanel):
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 		self.pwdentry = wxTextCtrl( self, 1, '', wxDefaultPosition, wxSize(80,-1), wxTE_PASSWORD )
 		self.pboxgrid.AddWindow( self.pwdentry, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		#-----------------------------------------------
-		#old button code - commented out rterry 06Sept02
-		#-----------------------------------------------
-		####self.buttonsizer = wxBoxSizer( wxHORIZONTAL )
-		####ID_BUTTON_LOGIN = wxNewId()
-		####button = wxButton( self, ID_BUTTON_LOGIN, _("&Login"), wxDefaultPosition, wxDefaultSize, 0 )
-		####button.SetDefault()
-		####self.buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-		####self.buttonsizer.AddSpacer( 10, 20, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-		####ID_BUTTON_OPTIONS = wxNewId()
-		####button = wxButton( self, ID_BUTTON_OPTIONS, _("&Options"), wxDefaultPosition, wxDefaultSize, 0 )
-		####button.SetToolTip( wxToolTip(_("Set advanced options like database, host, port etc.")) )
-		####self.buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-		####self.buttonsizer.AddSpacer( 10, 20, 0, wxALIGN_CENTRE|wxALL, 5 )
 		
-		####ID_BUTTON_HELP = wxNewId()
-		####button = wxButton( self, ID_BUTTON_HELP, _("&Help"), wxDefaultPosition, wxDefaultSize, 0 )
-		####self.buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-		####self.buttonsizer.AddSpacer( 10, 20, 1, wxALIGN_CENTRE|wxALL, 5 )
-
-		####ID_BUTTON_CANCEL = wxNewId()
-		####button = wxButton( self, ID_BUTTON_CANCEL, _("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 )
 		#----------------------------------------------------------------------
 		#new button code inserted rterry 06Sept02
 		#button order re-arraged to make it consistant with usual dialog format
@@ -475,8 +423,7 @@ class LoginDialog(wxDialog):
 		wxDialog.__init__(self, parent, id, title)
 		self.panel = LoginPanel(self, -1, isDialog=1)
 		self.Fit () # needed for Windoze.
-		self.Centre()
-
+		self.Centre()		
 
 
 ########################################################################################
@@ -531,55 +478,89 @@ class OptionPanel(wxPanel):
 		self.pboxgrid.AddGrowableCol( 1 )
 
 		#DATABASE COMBO
-		label = wxStaticText( self, -1, _("database"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.dbcombo = wxComboBox( self, -1, self.loginparams.databaselist[0], wxDefaultPosition, wxSize(100,-1),
-			self.loginparams.databaselist , wxCB_DROPDOWN )
+		label_db = wxStaticText( self, -1, _("database"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.pboxgrid.AddWindow( label_db, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.dbcombo = wxComboBox( 
+		    	self, 
+			-1, 
+			self.loginparams.databaselist[0],
+			wxDefaultPosition,
+			wxSize(100,-1),
+			self.loginparams.databaselist ,
+			wxCB_DROPDOWN )
 		self.pboxgrid.AddWindow( self.dbcombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		#HOST NAME / IP NUMBER COMBO
-		label = wxStaticText( self, -1, _("host"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.hostcombo = wxComboBox( self, -1, self.loginparams.hostlist[0], wxDefaultPosition, wxSize(100,-1),
-			self.loginparams.hostlist , wxCB_DROPDOWN )
+		label_host = wxStaticText( self, -1, _("host"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.pboxgrid.AddWindow( label_host, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.hostcombo = wxComboBox( 
+		    	self, 
+			-1, 
+			self.loginparams.hostlist[0], 
+			wxDefaultPosition, wxSize(100,-1),
+			self.loginparams.hostlist , 
+			wxCB_DROPDOWN 
+		)
 		self.pboxgrid.AddWindow( self.hostcombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		#PORT NUMBER COMBO
-		label = wxStaticText( self, -1, _("port"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.portcombo = wxComboBox( self, -1, self.loginparams.portlist[0], wxDefaultPosition, wxSize(100,-1),
-			self.loginparams.portlist , wxCB_DROPDOWN )
+		label_port = wxStaticText( self, -1, _("port"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.pboxgrid.AddWindow( label_port, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.portcombo = wxComboBox( 
+		    	self, 
+			-1, 
+			self.loginparams.portlist[0], 
+			wxDefaultPosition, 
+			wxSize(100,-1),
+			self.loginparams.portlist , 
+			wxCB_DROPDOWN 
+		)
 		self.pboxgrid.AddWindow( self.portcombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		#DATABASE BACKEND OPTIONS COMBO
-		label = wxStaticText( self, -1, _("backend options"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.beoptioncombo= wxComboBox( self, -1, self.loginparams.backendoptionlist[0], wxDefaultPosition, wxSize(100,-1),
-			self.loginparams.backendoptionlist , wxCB_DROPDOWN )
+		label_dboptions = wxStaticText( self, -1, _("backend options"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.pboxgrid.AddWindow( label_dboptions, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.beoptioncombo= wxComboBox( 
+		    	self, 
+			-1, 
+			self.loginparams.backendoptionlist[0], 
+			wxDefaultPosition, 
+			wxSize(100,-1),
+			self.loginparams.backendoptionlist ,
+			wxCB_DROPDOWN 
+		)
 		self.pboxgrid.AddWindow( self.beoptioncombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
-		self.buttonsizer = wxBoxSizer( wxHORIZONTAL )
-		
+		self.button_gridsizer = wxGridSizer(1,3,0,0)
+
+		#---------------------
+		# create options ok button
+		#---------------------
 		ID_BUTTON_OK = wxNewId()
-		button = wxButton( self, ID_BUTTON_OK, _("&Ok"), wxDefaultPosition, wxDefaultSize, 0 )
-		button.SetDefault()
-		self.buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-		self.buttonsizer.AddSpacer( 10, 20, 0, wxALIGN_CENTRE|wxALL, 5 )
-
+		button_ok = wxButton( self, ID_BUTTON_OK, _("&Ok"), wxDefaultPosition, wxDefaultSize, 0 )
+#		button_ok.SetDefault()
+		#---------------------
+		# create options help button
+		#---------------------
 		ID_BUTTON_HELP = wxNewId()
-		button = wxButton( self, ID_BUTTON_HELP, _("&Help"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
-
-		self.buttonsizer.AddSpacer( 10, 20, 1, wxALIGN_CENTRE|wxALL, 5 )
-
+		button_help = wxButton( self, ID_BUTTON_HELP, _("&Help"), wxDefaultPosition, wxDefaultSize, 0 )
+		#---------------------
+		# create options cancel button
+		#---------------------
 		ID_BUTTON_CANCEL = wxNewId()
-		button = wxButton( self, ID_BUTTON_CANCEL, _("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
+		button_cancel = wxButton( self, ID_BUTTON_CANCEL, _("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 )
 
+		#----------------------------
+		#Add buttons to the gridsizer
+		#----------------------------
+		self.button_gridsizer.AddWindow( button_help, 0, wxALIGN_CENTRE|wxALL, 5 )
+		self.button_gridsizer.AddWindow( button_ok, 0, wxALIGN_CENTRE|wxALL, 5 )
+		self.button_gridsizer.AddWindow( button_cancel, 0, wxALIGN_CENTRE|wxALL, 5 )
+
+    	    	# add all sub-sizers to the topsizer
 		self.paramsboxsizer.AddSizer(self.pboxgrid, 1, wxGROW|wxALL, 10)
 		self.topsizer.AddSizer(self.paramsboxsizer, 1, wxGROW|wxALL, 10)
-		self.topsizer.AddSizer( self.buttonsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.topsizer.AddSizer( self.button_gridsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		self.SetAutoLayout( true )
 		self.SetSizer( self.topsizer)
