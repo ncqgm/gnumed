@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.49 2003-04-09 13:06:03 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmPlugin.py,v 1.50 2003-04-20 15:38:50 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -145,12 +145,12 @@ class wxBasePlugin (gmPlugin):
 	def unregister(self):
 		del self.gb['modules.%s' % self.set][self.name ()]
 		_log.Log(gmLog.lInfo, "unloaded plugin %s/%s" % (self.set, self.name()))
-
+	#-----------------------------------------------------
 	def set_widget_reference(self, widget):
 		"""puts a reference to widget in a map keyed as 'widgets'
 		in the guiBroker. The widget's map key is it's class name"""
-		_log.Log(gmLog.lInfo, "\n ********** gmBasePlugin.set_widget_reference() for %s\n" % self.__class__.__name__)
-		_log.Log(gmLog.lInfo,  " ***** widget class = %s \n" %widget.__class__.__name__ )
+		_log.Log(gmLog.lInfo, "class name [%s]" % self.__class__.__name__)
+		_log.Log(gmLog.lInfo,  "widget class [%s]" % widget.__class__.__name__ )
 		#_log.Log(gmLog.lInfo, "attributes = %s \n**** \n"%widget.__dict__ )
 
 		if not self.gb.has_key( 'widgets'):
@@ -509,7 +509,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.49  2003-04-09 13:06:03  ncq
+# Revision 1.50  2003-04-20 15:38:50  ncq
+# - clean out some excessive logging
+#
+# Revision 1.49  2003/04/09 13:06:03  ncq
 # - some cleanup
 #
 # Revision 1.48  2003/04/05 01:09:03  ncq
