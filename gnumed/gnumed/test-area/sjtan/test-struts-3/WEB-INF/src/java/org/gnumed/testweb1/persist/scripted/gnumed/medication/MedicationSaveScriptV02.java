@@ -63,17 +63,18 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 		stmt.setString(++j, med.getDirections());
  
 		stmt.setBoolean(++j, med.isPRN());
+		stmt.setBoolean(++j, med.isSR());
 		//	stmt.setDate(++j, new java.sql.Date(med.getStart().getTime()));
 		// //deprecated
 		stmt.setTimestamp(++j, new java.sql.Timestamp(med.getLast().getTime()));
 		stmt.setTimestamp(++j, med.getDiscontinued() == null ? null
 				: new java.sql.Timestamp(med.getDiscontinued().getTime()));
 		rootItemInserter.setClinRootItemStatement(stmt, med, ++j);
-		j = 15;
+		j = 16;
  
 		stmt.setString(++j, "p");
 		//		stmt.setBoolean(++j, med.isSR());
-		j = 18;
+		j = 19;
 		if (med.getGenericName() == null
 				|| "".equals(med.getGenericName().trim())) {
 			log.info("setting " + j + 1 + " to null");
@@ -103,8 +104,10 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 				+ ClinMedicationFieldsV02.period + ", "
 				+ ClinMedicationFieldsV02.form + ", "
 				+ ClinMedicationFieldsV02.directions + ", "
-				+ ClinMedicationFieldsV02.prn + ", "// + started +", " //-
-													// deprecated to clin_when?
+				+ ClinMedicationFieldsV02.prn + ", " +
+				 ClinMedicationFieldsV02.sr + ", " 
+				// + started +", " //-
+												// deprecated to clin_when?
 				+ ClinMedicationFieldsV02.last_prescribed + ", "
 				+ ClinMedicationFieldsV02.discontinued + ", " + // 14
 				// fields
@@ -113,7 +116,7 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 				+ "  ) "
 
 				+ "values (?,  ? , ? , ?, ?,  " + "?, ? , ? , ? , ? , "
-				+ "?, ? , ? , ? , ? , " + "?, ? , ? , ? )"; //, ? )";
+				+ "?, ? , ? , ? , ? , " + "?, ? , ? , ? , ?)"; 
 		return s9;
 	}
 

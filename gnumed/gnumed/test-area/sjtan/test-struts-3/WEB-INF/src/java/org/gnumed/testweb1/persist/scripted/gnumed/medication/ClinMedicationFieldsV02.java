@@ -21,7 +21,7 @@ public interface ClinMedicationFieldsV02 extends ClinMedicationFields {
 		dose = "dosage", // now an array of float or double
 		period = "period", // now a string year, mons, days
 									 // hh:mm:ss.msec
-		prn = "is_prn",
+		prn = "is_prn", sr="is_cr",
 	//	 started="clin_when";
 		generic="generic";
 }
