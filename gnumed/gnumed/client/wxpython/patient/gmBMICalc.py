@@ -21,7 +21,7 @@
 # - patient related "normal" range
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -464,7 +464,7 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 			"This text box needs to be replaced by a graph class....\n"
 			"which amongst other things could show this patients mass trends!!!!\n\n"
 			"The mass range on the green epilpse would be calculated for each patient...\n\n"
-			"BTW, don't worry about your weight, the 'normal' range (63-79) is hardcoded."
+			"BTW, don't worry about your weight, the 'normal' range (63-79) is hardcoded.",
 			size=(200, 100),
 			style = wxTE_MULTILINE | wxTE_READONLY
 		)
@@ -607,7 +607,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.27  2004-03-12 13:25:43  ncq
+# Revision 1.28  2004-03-14 22:36:33  ncq
+# - Andreas will find any bug I try to sneak in, even missing ,
+#
+# Revision 1.27  2004/03/12 13:25:43  ncq
 # - note on hardcoded normal range
 #
 # Revision 1.26  2004/03/10 15:48:36  ncq
