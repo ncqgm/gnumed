@@ -1,6 +1,18 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-en.txt,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 #------------------------------------------------------------------------
+
+What GNUmedArchive is and what it is not.
+------------------------------------------
+GNUmedArchive may be used to digitalize paper documents in a doctor's office
+Those documents can be viewed with a viewer program when neccessary.
+GNUmedArchive is not a PACS for radiologists and never will be. It has not
+been designed to handle huge quantities of documents efficiently. It is neither
+an electronic record. It is no more and hopefully no less than a piece of
+software use can you to transfer paper documents into digital ones for
+the purpose of saving space.
+
+If you manage to blow up your house with it, please take pictures.
 
 What you are about to read is an early version of the GNUmedArchive installation guide
 contents :
@@ -387,7 +399,10 @@ Windows
 
 #------------------------------------------------------------------------
 # $Log: README-GnuMed-Archiv-en.txt,v $
-# Revision 1.1  2003-01-19 13:44:09  ncq
+# Revision 1.2  2003-01-19 16:32:44  ncq
+# - what is GnuMed/Archive
+#
+# Revision 1.1  2003/01/19 13:44:09  ncq
 # - new Englisch installation manual
 # - fixes for German
 #

@@ -1,8 +1,18 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-de.txt,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 #------------------------------------------------------------------------
 
-Sie lesen gerade eine Vorversion des Installationshandbuchs zu GNUmedArchiv
+Sie lesen gerade eine Vorversion des Installationshandbuchs zu GNUmedArchiv.
+
+Was GNUmedArchive ist und was nicht.
+------------------------------------
+GNUmedArchive kann in einer Hausarztpraxis zum Digitalisieren von Papierbefunden
+eingesetzt werden. Diese eingescannten Befunde können dann mit dem
+Betrachterprogramm wieder angezeigt werden. GNUmedArchive ist kein PACS für Radiologen.
+Es ist nicht dafür konzipiert ,zehn-oder gar huntertausende Bilder effizient zu
+verwalten. Es ist auch keine elektronische Karteikarte. Es ist ein Zusatzprogramm,
+das in der Hausarztpraxis Papierdokumente in digitale Bilder überführt und bei Bedarf
+auch wieder anzeigt.
 
 Inhalt :
 --------
@@ -422,7 +432,10 @@ DOS
 
 #------------------------------------------------------------------------
 $Log: README-GnuMed-Archiv-de.txt,v $
-Revision 1.4  2003-01-19 13:44:09  ncq
+Revision 1.5  2003-01-19 16:32:44  ncq
+- what is GnuMed/Archive
+
+Revision 1.4  2003/01/19 13:44:09  ncq
 - new Englisch installation manual
 - fixes for German
 
