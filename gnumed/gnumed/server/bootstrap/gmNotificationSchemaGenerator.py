@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -28,7 +28,7 @@ _log.Log(gmLog.lInfo, __version__)
 # SQL statements for notification triggers
 #------------------------------------------------------------------
 trigger_schema = """
-create function F_announce_%(sig)s_mod() returns opaque as '
+create function f_announce_%(sig)s_mod() returns opaque as '
 declare
 	episode_id integer;
 	patient_id integer;
@@ -101,7 +101,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.8  2004-07-17 21:23:49  ncq
+# Revision 1.9  2004-09-17 20:57:12  ncq
+# - use lowercase since things will be lowercase anyways
+#
+# Revision 1.8  2004/07/17 21:23:49  ncq
 # - run_query now has verbosity argument, so use it
 #
 # Revision 1.7  2004/06/28 13:31:17  ncq
