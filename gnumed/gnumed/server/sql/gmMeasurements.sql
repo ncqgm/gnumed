@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -25,6 +25,7 @@ create table test_org (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
+	internal_name text unique,
 	"comment" text
 ) inherits (audit_fields);
 
@@ -42,6 +43,9 @@ COMMENT ON COLUMN test_org.fk_adm_contact IS
 COMMENT ON COLUMN test_org.fk_med_contact IS
 	'whom to call for medical questions (result verification,
 	 additional test requests)';
+comment on column test_org.internal_name is
+	'you can store here the name a test org identifies
+	 itself with when sending data';
 comment on column test_org."comment" is
 	'useful for, say, dummy records where you want
 	 to mark up stuff like "pharmacy such-and-such"
@@ -54,13 +58,13 @@ comment on column test_org."comment" is
 -- ====================================
 create table test_type (
 	id serial primary key,
-	id_provider integer references test_org(pk),
+	fk_test_org integer references test_org(pk),
 	code text not null,
 	coding_system text default null,
 	name text,
 	comment text,
 	basic_unit text not null,
-	unique (id_provider, code)
+	unique (fk_test_org, code)
 ) inherits (audit_fields);
 
 select add_table_for_audit('test_type');
@@ -75,7 +79,7 @@ select add_x_db_fk_def('test_type', 'basic_unit', 'reference', 'basic_unit', 'na
 
 comment on table test_type is
 	'measurement type, like a "method" in a lab';
-comment on column test_type.id_provider is
+comment on column test_type.fk_test_org is
 	'organisation carrying out this type of measurement, eg. a particular lab';
 comment on column test_type.code is
 	'short name, acronym or code of this type of measurement,
@@ -217,8 +221,8 @@ create table lab_request (
 		on delete restrict,
 	lab_request_id text default null,
 	lab_rxd_when timestamp with time zone not null,
-	result_reported_when timestamp with time zone not null,
-	result_status text not null default 'preliminary',
+	results_reported_when timestamp with time zone not null,
+	request_status text not null default 'preliminary',
 	is_pending boolean not null default true,
 	unique (fk_test_org, request_id)
 	-- FIXME: there really should be a constraint like that
@@ -236,12 +240,28 @@ comment on column lab_request.lab_request_id is
 comment on column lab_request.lab_rxd_when is
 	'when did the lab receive the request+request
 	 LDT: 8301';
-comment on column lab_request.result_reported_when is
+comment on column lab_request.results_reported_when is
 	'when was the report on the result generated,
 	LDT: 8302';
-comment on column lab_request.result_status is
+comment on column lab_request.request_status is
 	'final, preliminary, complete, incomplete, etc.
 	 LDT: 8401';
+
+-- ====================================
+create table lnk_result2lab_req (
+	pk serial primary key,
+	fk_result integer
+		unique
+		not null
+		references test_result(id)
+		on update cascade
+		on delete cascade,
+	fk_request integer
+		not null
+		references lab_request(pk)
+		on update cascade
+		on delete cascade
+);
 
 -- ====================================
 -- ====================================
@@ -273,13 +293,46 @@ comment on column lab_request.result_status is
 --COMMENT ON TABLE lab_test IS 'to unify tests accross lab result providers with different names for the same test';
 
 -- =============================================
+grant select on
+	test_org
+	, test_type
+	, lnk_tst2norm
+	, test_result
+	, lab_request
+	, lnk_result2lab_req
+to group "gm-doctors";
+
+grant select, insert, update, delete on
+	test_org
+	, test_org_pk_seq
+	, test_type
+	, test_type_id_seq
+	, lnk_tst2norm
+	, lnk_tst2norm_id_seq
+	, test_result
+	, test_result_id_seq
+	, lab_request
+	, lab_request_pk_seq
+	, lnk_result2lab_req
+	, lnk_result2lab_req_pk_seq
+to group "gm-doctors";
+
+-- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.13  2004-03-12 23:43:34  ncq
+-- Revision 1.14  2004-03-18 10:01:10  ncq
+-- - test_type.id_provider -> fk_test_org
+-- - test_org.internal_name
+-- - lab_request.result_reported_when -> results_reported_when
+-- - lab_request.result_status -> request_status
+-- - lnk_result2lab_req
+-- - grants
+--
+-- Revision 1.13  2004/03/12 23:43:34  ncq
 -- - did forget a , in test_result
 --
 -- Revision 1.12  2004/03/12 23:15:42  ncq
