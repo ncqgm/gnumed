@@ -1164,4 +1164,7 @@ else:
 			self.viewer.Populate()
 			return 1
 
-test
+# $Log: gmConfigeditor.py,v $
+# Revision 1.3  2003-04-05 00:22:05  shilbert
+# clean up
+#
