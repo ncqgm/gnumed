@@ -4,11 +4,11 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.6 2004-05-12 14:28:52 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmAllergy.py,v 1.7 2004-05-30 18:33:28 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmPG
 from Gnumed.business import gmClinItem
 
 gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
@@ -34,11 +34,6 @@ class cAllergy(gmClinItem.cClinItem):
 				narrative=%(reaction)s
 			where id=%(id)s"""
 		]
-#--              id_item,
-#--              id_episode,
-#--              id_patient,
-#--              id_encounter,
-#--              id_health_issue
 
 	_updatable_fields = [
 		'substance',
@@ -51,7 +46,64 @@ class cAllergy(gmClinItem.cClinItem):
 		'definite',
 		'reaction'
 	]
-	
+#============================================================
+# convenience functions
+#------------------------------------------------------------
+def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id=None):
+	"""Creates a new allergy clinical item.
+
+	substance - allergic substance
+	allg_type - allergy or sensitivity
+	encounter_id - encounter's primary key
+	episode_id - episode's primary key
+	"""
+	# sanity checks:
+	# 1) any of the args being None should fail the SQL code
+	# 2) do episode/encounter belong to the same patient ?
+	cmd = "select id_patient from v_patient_items where id_episode=%s and id_encounter=%s"
+	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
+	if rows is None:
+		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
+		return (None, _('internal error, check log'))
+	if len(rows) == 0:
+		_log(gmLog.lErr, 'episode [%s] and encounter [%s] do not belong to the same patient' % (episode_id, encounter_id))
+		return (None, _('consistency error, check log'))
+	if len(rows) > 1:
+		_log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
+		return (None, _('consistency error, check log'))
+	pat_id = rows[0][0]
+	# insert new allergy
+	queries = []
+	if type(allg_type) == types.IntType:
+		cmd = """
+			insert into allergy (id_type, id_encounter, id_episode, substance)
+			values (%s, %s, %s, %s)"""
+	else:
+		cmd = """
+			insert into allergy (id_type, id_encounter, id_episode,  substance)
+			values ((select id from _enum_allergy_type where value=%s), %s, %s, %s)"""
+		allg_type = str(allg_type)
+	queries.append((cmd, [allg_type, encounter_id, episode_id, substance]))
+	# set patient has_allergy status
+	cmd = """delete from allergy_state where fk_patient=%s"""
+	queries.append((cmd, [pat_id]))
+	cmd = """insert into allergy_state (fk_patient, has_allergy) values (%s, 1)"""
+	queries.append((cmd, [pat_id]))
+	# get PK of inserted row
+	cmd = "select currval('allergy_id_seq')"
+	queries.append((cmd, []))
+
+	result, msg = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (None, msg)
+
+	try:
+		allergy = cAllergy(aPK_obj = result[0][0])
+	except gmExceptions.ConstructorError:
+		_log.LogException('cannot instantiate allergy [%s]' % (result[0][0]), sys.exc_info, verbose=0)
+		return (None, _('internal error, check log'))
+
+	return (True, allergy)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -72,7 +124,10 @@ if __name__ == '__main__':
 #	allg.save_payload()
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.6  2004-05-12 14:28:52  ncq
+# Revision 1.7  2004-05-30 18:33:28  ncq
+# - cleanup, create_allergy, done mostly by Carlos
+#
+# Revision 1.6  2004/05/12 14:28:52  ncq
 # - allow dict style pk definition in __init__ for multicolum primary keys (think views)
 # - self.pk -> self.pk_obj
 # - __init__(aPKey) -> __init__(aPK_obj)
