@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.159 2005-02-13 15:44:52 ncq Exp $
-__version__ = "$Revision: 1.159 $"
+# $Id: gmClinicalRecord.py,v 1.160 2005-02-20 10:31:44 sjtan Exp $
+__version__ = "$Revision: 1.160 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -831,11 +831,35 @@ where
 		# none found whatsoever
 		if episode is None:
 			# so try to create default episode ...
-			success, result = gmEMRStructItems.create_episode(
-				pk_health_issue=self.__health_issue['id'],
-				soap_cat = 's',
-				encounter_id=self.__encounter['pk_encounter']
-			)
+			success,result = False, ['no result'] 
+			
+			#precondition self.__health_issue , and self.__encounter must exist
+			try:
+				x = self.__health_issue
+				if x is None:
+					raise Exception
+			except:
+				self.__health_issue = self.add_health_issue("xxxDEFAULTxxx")
+				_log.Log(gmLog.lInfo, "Found health issue  %s " % self.__health_issue)
+
+			try:
+				x = self.__encounter
+				if x is None:
+					raise Exception
+			except:
+				self.__initiate_active_encounter()	
+			
+			#preconditions should have been checked and attempted
+
+			try:
+				success, result = gmEMRStructItems.create_episode(
+					pk_health_issue=self.__health_issue['id'],
+					soap_cat = 's',
+					encounter_id=self.__encounter['pk_encounter']
+				)
+			except:
+				_log.LogException( 'trying to create_episode with __health_issue=[%s] and __encounter=[%s]' % (str(self.__health_issue), str(self.__encounter) ) , sys.exc_info(), verbose=0 )
+
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.pk_patient)
 				_log.Log(gmLog.lErr, result)
@@ -928,11 +952,12 @@ where
 
 		- silently returns if it already exists
 		"""
-		try:
-			self.__db_cache['health issues']
-		except KeyError:
-			self.get_health_issues()
-		# try to create it
+		issues = self.get_health_issues()
+		l = [i for i in issues if  i['description'] == health_issue_name]
+		if len(l) > 0:
+			return l[0]
+		
+	
 		success, issue = gmEMRStructItems.create_health_issue(patient_id=self.pk_patient, description=health_issue_name)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (health_issue_name, self.pk_patient))
@@ -1667,7 +1692,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.159  2005-02-13 15:44:52  ncq
+# Revision 1.160  2005-02-20 10:31:44  sjtan
+#
+# lazy initialize preconditions for create_episode.
+#
+# Revision 1.159  2005/02/13 15:44:52  ncq
 # - v_basic_person.i_pk -> pk_identity
 #
 # Revision 1.158  2005/02/12 13:52:45  ncq
