@@ -1,28 +1,13 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.45 $
+-- $Revision: 1.46 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
-
--- ===================================================================
--- clinical narrative aggregation, this is a generic table for SOAP
--- -------------------------------------------------------------------
-create table clin_narrative (
-	pk_narr serial primary key,
-	narrative text
-);
-
-comment on table clin_narrative is
-	'contains all the clinical narrative aggregated for full text search,
-	 ancestor for all tables that want to store clinical free text,
-	 do *not* use directly !';
-comment on column clin_narrative.narrative is
-	'well, the narrative itself';
 
 -- ===================================================================
 -- generic EMR structure
@@ -32,17 +17,22 @@ create table clin_health_issue (
 	id_patient integer not null,
 	description varchar(128) default '__default__',
 	unique (id_patient, description)
-);
+) inherits (audit_mark);
 
 comment on table clin_health_issue is
 	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
 comment on column clin_health_issue.id_patient is
- 	'id of patient this health issue relates to';
+ 	'id of patient this health issue relates to, should
+	 be reference but might be outside our own database';
 comment on column clin_health_issue.description is
 	'descriptive name of this health issue, may change over time';
 
--- start: start of first episode
--- end: end of most recent episode
+
+create table log_clin_health_issue (
+	id integer not null,
+	id_patient integer not null,
+	description varchar(128)
+) inherits (audit_log);
 
 -- -------------------------------------------------------------------
 create table clin_episode (
@@ -50,7 +40,7 @@ create table clin_episode (
 	id_health_issue integer not null references clin_health_issue(id),
 	description varchar(128) default '__default__',
 	unique (id_health_issue, description)
-) inherits (clin_narrative);
+) inherits (audit_mark);
 
 comment on table clin_episode is
 	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
@@ -67,6 +57,12 @@ comment on column clin_episode.description is
 -- recording of episodes removes the ambiguity that results from basing them
 -- on start/end dates of bouts of care,
 
+create table log_clin_episode (
+	id integer not null,
+	id_health_issue integer not null,
+	description varchar(128)
+) inherits (audit_log);
+
 -- -------------------------------------------------------------------
 create table _enum_encounter_type (
 	id serial primary key,
@@ -81,8 +77,9 @@ create table clin_encounter (
 	id serial primary key,
 	id_location integer,
 	id_provider integer,
-	id_type integer not null references _enum_encounter_type(id)
-) inherits (clin_narrative);
+	id_type integer not null references _enum_encounter_type(id),
+	description varchar(128) default '__default__'
+);
 
 comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
@@ -92,29 +89,68 @@ comment on COLUMN clin_encounter.id_provider is
 	'ID of (main) provider of care';
 comment on COLUMN clin_encounter.id_type is
 	'ID of encounter type of this encounter';
+comment on column clin_encounter.description is
+	'descriptive name of this encounter, may change over time; if
+	 "__default__" applications should display "<date> (<provider>)"
+	 plus some marker for "default"';
 
 -- about the only reason for this table to exist is the id_type
--- field, otherwiese one could just store the data in clin_item
+-- field, otherwiese one could just store the data in clin_root_item
+
+-- ===================================================================
+-- EMR item root with narrative aggregation
+-- -------------------------------------------------------------------
+create table clin_root_item (
+	pk_item serial primary key,
+	id_encounter integer not null references clin_encounter(id),
+	id_episode integer not null references clin_episode(id),
+	narrative text
+);
+
+comment on TABLE clin_root_item is
+	'ancestor table for clinical items of any kind, basic
+	 unit of clinical information, do *not* store data in
+	 here directly, use child tables,
+	 contains all the clinical narrative aggregated for full
+	 text search, ancestor for all tables that want to store
+	 clinical free text';
+comment on COLUMN clin_root_item.pk_item is
+	'the primary key, not named "id" as usual since child tables
+	 will have "id" primary keys already';
+comment on COLUMN clin_root_item.id_encounter is
+	'the encounter this item belongs to';
+comment on COLUMN clin_root_item.id_episode is
+	'the episode this item belongs to';
+comment on column clin_root_item.narrative is
+	'each clinical item by default inherits a free text field for clinical narrative';
+
+
+create table log_dummy_clin_root_item (
+	pk_item integer not null,
+	id_encounter integer not null,
+	id_episode integer not null,
+	narrative text
+);
+
+comment on table log_dummy_clin_root_item is
+	'dummy audit trail table to make it easier to create
+	 real audit trail tables by inheritance, not actually
+	 used for auditing as clin_root_item is not audited';
 
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
-create table clin_item (
-	pk_item serial primary key,
-	id_encounter integer not null references clin_encounter(id),
-	id_episode integer not null references clin_episode(id)
-) inherits (clin_narrative);
+create table clin_note (
+	id serial primary key
+) inherits (audit_mark, clin_root_item);
 
-comment on TABLE clin_item is
-	'ancestor table for clinical items of any kind, can be used
-	 directly for generic EMR entries';
-comment on COLUMN clin_item.pk_item is
-	'the primary key, not named "id" as usual since child tables
-	 will have "id" primary keys already';
-comment on COLUMN clin_item.id_encounter is
-	'the encounter this item belongs to';
-comment on COLUMN clin_item.id_episode is
-	'the episode this item belongs to';
+comment on TABLE clin_note is
+	'Other tables link to rows in this table if they need
+	 more than their one inherted narrative field for free text.';
+
+create table log_clin_note (
+	id integer not null
+) inherits (audit_log, log_dummy_clin_root_item);
 
 -- --------------------------------------------
 create table _enum_hx_type (
@@ -139,9 +175,9 @@ create table clin_history (
 	id serial primary key,
 	id_type integer not null references _enum_hx_type(id),
 	id_source integer REFERENCES _enum_hx_source(id)
-) inherits (clin_item);
+) inherits (clin_root_item);
 
--- narrative provided by clin_item
+-- narrative provided by clin_root_item
 
 comment on TABLE clin_history is
 	'narrative details of history taken during a clinical encounter';
@@ -153,9 +189,9 @@ comment on COLUMN clin_history.id_source is
 -- --------------------------------------------
 create table clin_physical (
 	id serial primary key
-) inherits (clin_item);
+) inherits (clin_root_item);
 
--- narrative provided by clin_item
+-- narrative provided by clin_root_item
 
 comment on TABLE clin_physical is
 	'narrative details of physical exam during a clinical encounter';
@@ -178,9 +214,9 @@ create table allergy (
 	reaction text default '',
 	generic_specific boolean default false,
 	definate boolean default false
-) inherits (clin_item, audit_mark);
+) inherits (audit_mark, clin_root_item);
 
--- narrative provided by clin_item
+-- narrative provided by clin_root_item
 
 comment on table allergy is
 	'patient allergy details';
@@ -208,14 +244,6 @@ comment on column allergy.definate is
 	'true: definate, false: not definate';
 
 create table log_allergy (
-	-- clin_narrative
-	pk_narr integer not null,
-	narrative text,
-	-- clin_item
-	pk_item integer not null,
-	id_encounter integer not null,
-	id_episode integer not null,
-	-- allergy
 	id integer not null,
 	substance varchar(128) not null,
 	substance_code varchar(256),
@@ -226,7 +254,7 @@ create table log_allergy (
 	reaction text,
 	generic_specific boolean not null,
 	definate boolean not null
-) inherits (audit_log);
+) inherits (audit_log, log_dummy_clin_root_item);
 
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
@@ -409,23 +437,28 @@ comment on table enum_immunities is
 
 -- =============================================
 GRANT SELECT ON
-	"clin_narrative",
+	"clin_root_item",
+	"log_dummy_clin_root_item",
 	"clin_health_issue",
+	"log_clin_health_issue",
 	"clin_episode",
+	"log_clin_episode",
 	"_enum_encounter_type",
 	"clin_encounter",
-	"clin_item",
+	"clin_note",
+	"log_clin_note",
 	"_enum_hx_type",
 	"_enum_hx_source",
 	"clin_history",
 	"clin_physical",
 	"_enum_allergy_type",
-	"allergy"
+	"allergy",
+	"log_allergy"
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	"clin_narrative",
-	"clin_narrative_pk_narr_seq",
+	"clin_root_item",
+	"clin_root_item_pk_item_seq",
 	"clin_health_issue",
 	"clin_health_issue_id_seq",
 	"clin_episode",
@@ -434,8 +467,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"_enum_encounter_type_id_seq",
 	"clin_encounter",
 	"clin_encounter_id_seq",
-	"clin_item",
-	"clin_item_pk_item_seq",
+	"clin_note",
+	"clin_note_id_seq",
 	"_enum_hx_type",
 	"_enum_hx_type_id_seq",
 	"_enum_hx_source",
@@ -450,13 +483,28 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"allergy_id_seq"
 TO GROUP "_gm-doctors";
 
+GRANT SELECT, INSERT ON
+	"log_dummy_clin_root_item",
+	"log_clin_health_issue",
+	"log_clin_episode",
+	"log_clin_note",
+	"log_allergy"
+TO GROUP "_gm-doctors";
+
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.45 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.46 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.45  2003-05-13 14:49:10  ncq
+-- Revision 1.46  2003-05-14 22:06:27  ncq
+-- - merge clin_narrative and clin_item
+-- - clin_item -> clin_root_item, general cleanup
+-- - set up a few more audits
+-- - set up dummy tables for audit trail table inheritance
+-- - appropriate grants
+--
+-- Revision 1.45  2003/05/13 14:49:10  ncq
 -- - warning on clin_narrative to not use directly
 -- - make allergy the only audited table for now, add audit table for it
 --
