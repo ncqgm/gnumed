@@ -22,10 +22,6 @@ class Toolbar(wxPanel):
 	#create the second tool bar underneath which will hold most of the buttons
 	#-------------------------------------------------------------------------
 	self.bottomlinesizer = wxBoxSizer (wxHORIZONTAL)
-	if 0:
-		self.fixedtoolbar = wxToolBar(self,-1,style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
-		self.fixedtoolbar.SetToolBitmapSize((16,16))
-		self.bottomlinesizer.Add (self.fixedtoolbar, 0, wxEXPAND)
         self.bottomline = wxPanel (self, -1)
         self.subbars = {}
 	self.bottomlinesizer.Add (self.bottomline, 1, wxGROW)
@@ -34,7 +30,7 @@ class Toolbar(wxPanel):
         self.sizer.Add(self.toplinesizer,1,wxEXPAND)
         self.sizer.Add(self.bottomlinesizer,1,wxEXPAND)
 	## mini-toolbar for tools on right-hand of bottom line
-	self.rightbottomtoolbar = wxToolBar (self, -1, size = wxSize (65, -1), style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+	self.rightbottomtoolbar = wxToolBar (self, -1, size=wxSize (65, -1), style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
         self.rightbottomtoolbar.SetToolBitmapSize((16,16))
 	self.rightbottomtoolbar_no_tools = 0
 	self.AddWidgetRightBottom (self.rightbottomtoolbar)
@@ -110,7 +106,7 @@ class Toolbar(wxPanel):
 	# right toolbar does not size properly
 	self.rightbottomtoolbar.SetSize (wxSize (self.rightbottomtoolbar_no_tools*20, 20))
 	self.sizer.Layout ()
-	self.sizer.Fit ()
+	self.sizer.Fit (self)
             
     def ShowBar (self, key):
         """
