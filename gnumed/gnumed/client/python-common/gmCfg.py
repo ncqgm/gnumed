@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -210,7 +210,11 @@ class cCfgSQL:
 			data_type = 'numeric'
 		elif type(value) is ListType:
 			data_type = 'str_array'
-			data_value = self.dbapi.PgArray(value)
+			try:
+				data_value = self.dbapi.PgArray(value)
+			except AttributeError:
+				_log.LogException('this dbapi does not support PgArray', sys.exc_info())
+				return None
 		elif isinstance(value, self.dbapi.PgArray):
 			data_type = 'str_array'
 			data_value = value
@@ -923,7 +927,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.39  2003-02-15 08:51:05  ncq
+# Revision 1.40  2003-02-21 08:51:57  ncq
+# - catch exception on missing PgArray
+#
+# Revision 1.39  2003/02/15 08:51:05  ncq
 # - don't remove empty lines in lists
 #
 # Revision 1.38  2003/02/11 16:52:36  ncq
