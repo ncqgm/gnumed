@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.69 $
+-- $Revision: 1.70 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -666,9 +666,8 @@ comment on table enum_immunities is
 
 
 -- =============================================
-create sequence id_clin_history_editarea_seq;
 create table clin_history_editarea(
-                                id integer primary key default nextval('id_clin_history_editarea_seq'),
+                                id serial primary key,
                                 id_clin_history integer references clin_history on delete cascade,
                                 condition text,
                                 age varchar(20),
@@ -708,7 +707,7 @@ GRANT SELECT ON
 	clin_history_editarea
 TO GROUP "gm-doctors";
 
-GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES, TRIGGER, RULE ON
+GRANT SELECT, INSERT, UPDATE, DELETE
 	"clin_root_item",
 	"clin_root_item_pk_item_seq",
 	"clin_health_issue",
@@ -749,19 +748,16 @@ GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES, TRIGGER, RULE ON
 	id_clin_history_editarea_seq 
 TO GROUP "_gm-doctors";
 
---grant create on schema public to group "_gm-doctors";
---grant insert, update on log_allergy to group "_gm-doctors";
-
---GRANT SELECT, INSERT ON
---TO GROUP "_gm-doctors";
-
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.69 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.70 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.69  2003-11-17 11:14:53  sjtan
+-- Revision 1.70  2003-11-17 20:14:45  ncq
+-- - cleanup grants, make primary key serial data type
+--
+-- Revision 1.69  2003/11/17 11:14:53  sjtan
 --
 -- (perhaps temporary) extra referencing table for past history.
 --
