@@ -51,7 +51,7 @@ Usage:
 @copyright: GPL
 """
 
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, time, traceback, os.path, atexit, os, string, getopt
@@ -500,7 +500,6 @@ def __open_default_logfile():
     try:
 	cmd_line = getopt.getopt(sys.argv[1:], '', ['log-file=',])
     except getopt.GetoptError:
-	print "1"
 	pass
 
     # config file given on command line ?
@@ -511,9 +510,8 @@ def __open_default_logfile():
 	first_opt = known_opts[0]
 	# 3) tuple(first_opt) -> (option name, option value)
 	logName = os.path.abspath(first_opt[1])
-	print logName
 	try:
-	    loghandle = cLogTargetFile (lData, logName, "wb")
+	    loghandle = cLogTargetFile (lInfo, logName, "wb")
 	    return loghandle
 	except:
 	    return None
@@ -528,7 +526,7 @@ def __open_default_logfile():
 	# ~/.base_dir/base_name.log
 	logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
 	try:
-	    loghandle = cLogTargetFile (lData, logName, "wb")
+	    loghandle = cLogTargetFile (lInfo, logName, "wb")
 	    return loghandle
 	except:
 	    pass
@@ -536,7 +534,7 @@ def __open_default_logfile():
 	# /var/log/base_dir/base_name.log
 	logName = os.path.join('/var/log', base_dir, base_name)
 	try:
-	    loghandle = cLogTargetFile (lData, logName, "ab")
+	    loghandle = cLogTargetFile (lInfo, logName, "ab")
 	    return loghandle
 	except:
 	    pass
@@ -544,7 +542,7 @@ def __open_default_logfile():
 	# /var/log/base_name.log
 	logName = os.path.join('/var/log', base_name)
 	try:
-	    loghandle = cLogTargetFile (lData, logName, "ab")
+	    loghandle = cLogTargetFile (lInfo, logName, "ab")
 	    return loghandle
 	except:
 	    pass
@@ -553,7 +551,7 @@ def __open_default_logfile():
 	# last resort for inferior operating systems such as DOS/Windows
 	logName = os.path.abspath(os.path.join(os.path.split(sys.argv[0])[0], base_name))
 	try:
-	    loghandle = cLogTargetFile (lData, logName, "wb")
+	    loghandle = cLogTargetFile (lInfo, logName, "wb")
 	    return loghandle
 	except:
 	    pass
@@ -633,7 +631,7 @@ if __name__ == "__main__":
     print "Done."
 else:
     # register application specific default log file
-    gmDefLog = cLogger(__open_default_logfile())
+    gmDefLog = cLogger(aTarget=__open_default_logfile())
     # this needs Python 2.x
     atexit.register(myExitFunc)
 #---------------------------------------------------------------
