@@ -21,6 +21,7 @@
 -- correct library path? Or prompt the user?
 
 -- create the neccessary procedural languages
+-- you may have to modify the path to the shared library according to your postgresql installation
 CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
     '/usr/lib/pgsql/plpgsql.so' LANGUAGE 'C';
 
