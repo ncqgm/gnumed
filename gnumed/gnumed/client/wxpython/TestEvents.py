@@ -1,20 +1,22 @@
 
 from wxPython.wx import *
-from PropertySupport import *
 
 sys.path.append("../python-common")
 from gmLog import *
-import sys, traceback
+import sys
 
-
+# why do we need a special logger here ?
 logger = cLogger( cLogTargetConsole())
 logger.SetInfoLevel()
 
 class TestEvents:
 
 	def  test_checkbox(self,  editarea):
+		# wouldn't it make sense to look in
+		# editarea.__dict__['edit_fields'] ?
 		map = editarea.__dict__
 		for k,v  in map.items():
+			# and then check k.__class__.__name__ or so ?
 			if k[0:2] == "cb":
 				EVT_CHECKBOX(v, v.GetId(),self.checkClicked)
 			
