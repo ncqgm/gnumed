@@ -1,10 +1,7 @@
 import gmDispatcher, gmSignals, gmLog
-global _log 
 _log = gmLog.gmDefLog 
 import time, sys, traceback
-import yaml
 
-to_stdout = 0
 
 class gmEditAreaFacade:
 
@@ -60,7 +57,6 @@ class gmEditAreaFacade:
 		except:
 			self._traceback()
 
-		import gmLog
 		if type(list) == type(""):
 			gmLog.gmDefLog.Log(gmLog.lInfo, list)
 			return
@@ -70,13 +66,6 @@ class gmEditAreaFacade:
 		gmLog.gmDefLog.Log(gmLog.lInfo, "  ".join(strList))
 			
 
-
-	def _traceback(self, msg = "_traceback()"):
-		import gmLog
-		gmLog.gmDefLog.LogException(msg, sys.exc_info(), verbose=1)
-
-		#self._print sys.exc_info()[0], sys.exc_info()[1]
-		#traceback.print_tb(sys.exc_info()[2])
 
 	def _error_sql_construct_report(self, f, values, formatting, op = "insert"):
 		self._traceback("error whilst formatting")
