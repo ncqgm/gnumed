@@ -6,7 +6,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #=======================================================================================
@@ -23,20 +23,21 @@ def guess_mimetype(aFileName = None):
 		return None
 
 	desperate_guess = "application/octet-stream"
+	mime_guesser_cmd = ("file -i -b %s" % aFileName)
 
 	mime_type = desperate_guess
 	# this only works on POSIX with 'file' installed (which is standard, however)
 	# it might work of Cygwin installations
 	# -i get mime type
 	# -b don't display a header
-	aPipe = os.popen("file -i -b %s" % aFileName)
+	aPipe = os.popen(mime_guesser_cmd)
 	tmp = aPipe.readline()
 	ret_code = aPipe.close()
 	if ret_code == None:
 		mime_type = string.replace(tmp, "\n", "")
 		__log__.Log(gmLog.lData, "%s -> %s" % (aFileName, mime_type))
 	else:
-		__log__.Log(gmLog.lErr, "Something went awry while calling `file -i -b`.")
+		__log__.Log(gmLog.lErr, "Something went awry while calling `%s`." % mime_guesser_cmd)
 		__log__.Log(gmLog.lErr, "%s (%s): [%s] %s" % (os.name, sys.platform, ret_code, tmp))
 
 	# if we still have "application/octet-stream" we either
@@ -44,6 +45,7 @@ def guess_mimetype(aFileName = None):
 	# suffer from a deficient operating system altogether,
 	# it can't get much worse if we try ourselves
 	if mime_type == desperate_guess:
+		__log__.Log(gmLog.lInfo, "OS level mime detection failed, falling back to built-in.")
 		# we must trade speed vs. RAM now by loading a data file
 		try:
 			import docMagic
