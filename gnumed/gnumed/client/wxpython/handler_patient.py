@@ -21,8 +21,10 @@ class gmBMICalc_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.txtHeight.SetId(id)
+		id = self.panel.txtHeight.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txtHeight.SetId(id)
 		self.id_map['txtHeight'] = id
 		
 
@@ -66,163 +68,227 @@ class gmDemographics_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.addresslist.SetId(id)
+		id = self.panel.addresslist.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.addresslist.SetId(id)
 		self.id_map['addresslist'] = id
 		
 
-		id = wxNewId()
-		self.panel.combo_relationship.SetId(id)
+		id = self.panel.combo_relationship.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.combo_relationship.SetId(id)
 		self.id_map['combo_relationship'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_surname.SetId(id)
+		id = self.panel.txt_surname.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_surname.SetId(id)
 		self.id_map['txt_surname'] = id
 		
 
-		id = wxNewId()
-		self.panel.combo_title.SetId(id)
+		id = self.panel.combo_title.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.combo_title.SetId(id)
 		self.id_map['combo_title'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_firstname.SetId(id)
+		id = self.panel.txt_firstname.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_firstname.SetId(id)
 		self.id_map['txt_firstname'] = id
 		
 
-		id = wxNewId()
-		self.panel.combo_sex.SetId(id)
+		id = self.panel.combo_sex.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.combo_sex.SetId(id)
 		self.id_map['combo_sex'] = id
 		
 
-		id = wxNewId()
-		self.panel.cb_preferredname.SetId(id)
+		id = self.panel.cb_preferredname.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.cb_preferredname.SetId(id)
 		self.id_map['cb_preferredname'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_preferred.SetId(id)
+		id = self.panel.txt_preferred.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_preferred.SetId(id)
 		self.id_map['txt_preferred'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_address.SetId(id)
+		id = self.panel.txt_address.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_address.SetId(id)
 		self.id_map['txt_address'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_suburb.SetId(id)
+		id = self.panel.txt_suburb.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_suburb.SetId(id)
 		self.id_map['txt_suburb'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_zip.SetId(id)
+		id = self.panel.txt_zip.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_zip.SetId(id)
 		self.id_map['txt_zip'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_birthdate.SetId(id)
+		id = self.panel.txt_birthdate.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_birthdate.SetId(id)
 		self.id_map['txt_birthdate'] = id
 		
 
-		id = wxNewId()
-		self.panel.combo_maritalstatus.SetId(id)
+		id = self.panel.combo_maritalstatus.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.combo_maritalstatus.SetId(id)
 		self.id_map['combo_maritalstatus'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_occupation.SetId(id)
+		id = self.panel.txt_occupation.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_occupation.SetId(id)
 		self.id_map['txt_occupation'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_countryofbirth.SetId(id)
+		id = self.panel.txt_countryofbirth.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_countryofbirth.SetId(id)
 		self.id_map['txt_countryofbirth'] = id
 		
 
-		id = wxNewId()
-		self.panel.btn_browseNOK.SetId(id)
+		id = self.panel.btn_browseNOK.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.btn_browseNOK.SetId(id)
 		self.id_map['btn_browseNOK'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_nameNOK.SetId(id)
+		id = self.panel.txt_nameNOK.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_nameNOK.SetId(id)
 		self.id_map['txt_nameNOK'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_homephone.SetId(id)
+		id = self.panel.txt_homephone.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_homephone.SetId(id)
 		self.id_map['txt_homephone'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_workphone.SetId(id)
+		id = self.panel.txt_workphone.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_workphone.SetId(id)
 		self.id_map['txt_workphone'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_fax.SetId(id)
+		id = self.panel.txt_fax.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_fax.SetId(id)
 		self.id_map['txt_fax'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_email.SetId(id)
+		id = self.panel.txt_email.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_email.SetId(id)
 		self.id_map['txt_email'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_web.SetId(id)
+		id = self.panel.txt_web.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_web.SetId(id)
 		self.id_map['txt_web'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_mobile.SetId(id)
+		id = self.panel.txt_mobile.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_mobile.SetId(id)
 		self.id_map['txt_mobile'] = id
 		
 
-		id = wxNewId()
-		self.panel.cb_addressresidence.SetId(id)
+		id = self.panel.cb_addressresidence.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.cb_addressresidence.SetId(id)
 		self.id_map['cb_addressresidence'] = id
 		
 
-		id = wxNewId()
-		self.panel.cb_addresspostal.SetId(id)
+		id = self.panel.cb_addresspostal.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.cb_addresspostal.SetId(id)
 		self.id_map['cb_addresspostal'] = id
 		
 
-		id = wxNewId()
-		self.panel.btn_photo_import.SetId(id)
+		id = self.panel.btn_photo_import.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.btn_photo_import.SetId(id)
 		self.id_map['btn_photo_import'] = id
 		
 
-		id = wxNewId()
-		self.panel.btn_photo_export.SetId(id)
+		id = self.panel.btn_photo_export.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.btn_photo_export.SetId(id)
 		self.id_map['btn_photo_export'] = id
 		
 
-		id = wxNewId()
-		self.panel.btn_photo_aquire.SetId(id)
+		id = self.panel.btn_photo_aquire.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.btn_photo_aquire.SetId(id)
 		self.id_map['btn_photo_aquire'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_findpatient.SetId(id)
+		id = self.panel.txt_findpatient.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_findpatient.SetId(id)
 		self.id_map['txt_findpatient'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_age.SetId(id)
+		id = self.panel.txt_age.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_age.SetId(id)
 		self.id_map['txt_age'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_allergies.SetId(id)
+		id = self.panel.txt_allergies.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_allergies.SetId(id)
 		self.id_map['txt_allergies'] = id
 		
 
-		id = wxNewId()
-		self.panel.combo_consultation_type.SetId(id)
+		id = self.panel.combo_consultation_type.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.combo_consultation_type.SetId(id)
 		self.id_map['combo_consultation_type'] = id
 		
 
@@ -578,8 +644,10 @@ class gmGP_Allergies_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.classtxt.SetId(id)
+		id = self.panel.classtxt.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.classtxt.SetId(id)
 		self.id_map['classtxt'] = id
 		
 
@@ -619,8 +687,10 @@ class gmGP_FamilyHistory_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.txt_social_history.SetId(id)
+		id = self.panel.txt_social_history.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_social_history.SetId(id)
 		self.id_map['txt_social_history'] = id
 		
 
@@ -656,8 +726,10 @@ class gmGP_Immunisation_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.missingimmunisation_listbox.SetId(id)
+		id = self.panel.missingimmunisation_listbox.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.missingimmunisation_listbox.SetId(id)
 		self.id_map['missingimmunisation_listbox'] = id
 		
 
@@ -707,13 +779,17 @@ class gmGP_Prescriptions_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.txt_scriptDate.SetId(id)
+		id = self.panel.txt_scriptDate.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_scriptDate.SetId(id)
 		self.id_map['txt_scriptDate'] = id
 		
 
-		id = wxNewId()
-		self.panel.interactiontxt.SetId(id)
+		id = self.panel.interactiontxt.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.interactiontxt.SetId(id)
 		self.id_map['interactiontxt'] = id
 		
 
@@ -761,13 +837,17 @@ class gmGP_Referrals_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.txt_referraldate.SetId(id)
+		id = self.panel.txt_referraldate.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_referraldate.SetId(id)
 		self.id_map['txt_referraldate'] = id
 		
 
-		id = wxNewId()
-		self.panel.txt_referral_letter.SetId(id)
+		id = self.panel.txt_referral_letter.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_referral_letter.SetId(id)
 		self.id_map['txt_referral_letter'] = id
 		
 
@@ -813,8 +893,10 @@ class gmGP_Requests_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.txt_requestDate.SetId(id)
+		id = self.panel.txt_requestDate.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.txt_requestDate.SetId(id)
 		self.id_map['txt_requestDate'] = id
 		
 
@@ -850,8 +932,10 @@ class gmGP_ScratchPadRecalls_handler:
 		self.id_map = {}
 
 
-		id = wxNewId()
-		self.panel.scratchpad_txt.SetId(id)
+		id = self.panel.scratchpad_txt.GetId()
+		if id  <= 0:
+			id = wxNewId()
+			self.panel.scratchpad_txt.SetId(id)
 		self.id_map['scratchpad_txt'] = id
 		
 
