@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -371,8 +371,7 @@ class cDocTree(wxTreeCtrl):
 if __name__ == '__main__':
 
     from Gnumed.pycommon import gmLoginInfo
-    from Gnumed.business import gmXdtObjects, gmXdtMappings
-    from Gnumed.business.gmDemographicRecord import gm2long_gender_map
+    from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
 
     wxID_btn_quit = wxNewId()
 
@@ -422,7 +421,7 @@ if __name__ == '__main__':
                 raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
 
             try:
-                gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0][0])
+                gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
             except:
                 # this is an emergency
                 gmGuiHelpers.gm_show_error(
@@ -438,7 +437,7 @@ if __name__ == '__main__':
             self.SetTitle(_("stored medical documents"))
 
             # make patient panel
-            gender = gm2long_gender_map[gmXdtMappings.xdt_gmgender_map[self.__xdt_pat['gender']]]
+            gender = gmDemographicRecord.map_gender_gm2long[gmXdtMappings.map_gender_xdt2gm[self.__xdt_pat['gender']]]
             self.pat_panel = wxStaticText(
                 id = -1,
                 parent = self,
@@ -624,7 +623,10 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.39  2004-03-20 18:30:54  shilbert
+# Revision 1.40  2004-03-20 19:48:07  ncq
+# - adapt to flat id list from get_patient_ids
+#
+# Revision 1.39  2004/03/20 18:30:54  shilbert
 # - runs standalone again
 #
 # Revision 1.38  2004/03/19 21:26:15  shilbert

@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.33 2004-03-12 13:23:41 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPatientSelector.py,v 1.34 2004-03-20 19:48:07 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -50,10 +50,10 @@ def pat_expand_default(curs = None, ID_list = None):
 	# ...
 	# Note: this query must ALWAYS return the ID in field 0
 	cmd = """
-		SELECT i_id, n_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
+		SELECT i_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
 		FROM v_basic_person
-		WHERE i_id in (%s) and n_id in (%s)
-		""" % (string.join(map(lambda x:str(x[0]), ID_list), ','), string.join(map(lambda x:str(x[1]), ID_list), ','))
+		WHERE i_id in (%s)
+		""" % string.join(map(lambda x:str(x[0]), ID_list), ',')
 
 	if not gmPG.run_query(curs, cmd):
 		_log.Log(gmLog.lErr, 'Cannot fetch patient data.')
@@ -61,9 +61,9 @@ def pat_expand_default(curs = None, ID_list = None):
 		pat_data = curs.fetchall()
 
 	col_order = [
-		{'label': _('last name'),	'data idx': 2},
-		{'label': _('first name'),	'data idx': 3},
-		{'label': _('dob'),			'data idx': 4}
+		{'label': _('last name'),	'data idx': 1},
+		{'label': _('first name'),	'data idx': 2},
+		{'label': _('dob'),			'data idx': 3}
 	]
 	return pat_data, col_order
 #------------------------------------------------------------
@@ -440,7 +440,7 @@ and hit <ENTER>
 			# and make our selection known to others
 			data, self.prev_col_order = self.pat_expander(curs, ids)
 			curs.close()
-			self.SetActivePatient(ids[0][0], data[0])
+			self.SetActivePatient(ids[0], data[0])
 		else:
 			# get corresponding patient data
 			start = time.time()
@@ -455,7 +455,7 @@ and hit <ENTER>
 			result = dlg.ShowModal()
 			dlg.Destroy()
 			for pat in pat_list:
-				if pat[0] == result:
+				if result == pat[0]:
 					self.SetActivePatient(result, pat)
 					break
 #============================================================
@@ -579,7 +579,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.33  2004-03-12 13:23:41  ncq
+# Revision 1.34  2004-03-20 19:48:07  ncq
+# - adapt to flat id list from get_patient_ids
+#
+# Revision 1.33  2004/03/12 13:23:41  ncq
 # - cleanup
 #
 # Revision 1.32  2004/03/05 11:22:35  ncq
