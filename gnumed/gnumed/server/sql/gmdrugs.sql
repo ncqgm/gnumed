@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.21 $ $Date: 2002-11-07 03:15:55 $ $Author: ihaywood $
+-- $Revision: 1.22 $ $Date: 2002-11-11 03:17:43 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.21  2002-11-07 03:15:55  ihaywood
+-- Revision 1.22  2002-11-11 03:17:43  ihaywood
+-- id fields for some columns
+--
+-- Revision 1.21  2002/11/07 03:15:55  ihaywood
 -- *** empty log message ***
 --
 -- Revision 1.20  2002/11/03 12:12:13  hherb
@@ -334,6 +337,7 @@ comment on column substance_dosage.dosage_max is
 
 
 create table link_drug_class(
+	id serial,
 	id_drug integer references drug_element(id),
 	id_class integer references drug_element(id)
 );
@@ -343,6 +347,7 @@ comment on table link_drug_class is
 
 
 create table link_drug_warning(
+	id serial,
 	id_drug integer references drug_element(id),
 	id_warning integer references drug_warning(id)
 );
@@ -382,6 +387,7 @@ insert into adverse_effects (severity, description) values (2, 'ototoxicity');
 
 
 create table link_drug_adverse_effects(
+	id serial,
 	id_drug integer references drug_element(id),
 	id_adverse_effect integer references adverse_effects(id),
 	frequency char check(frequency in ('c', 'i', 'r')),
@@ -427,6 +433,7 @@ comment on table link_drug_interactions is
 
 
 create table link_drug_disease_interactions(
+	id serial,
 	id_drug integer references drug_element(id),
 	id_code_system integer references code_systems(id),
 	disease_code char(20),
