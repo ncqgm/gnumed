@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.12 2005-02-23 03:20:44 cfmoro Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmSOAPWidgets.py,v 1.13 2005-03-03 21:12:49 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,13 +16,22 @@ from wxPython import wx
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.wxpython import gmResizingWidgets
-from Gnumed.business import gmPerson, gmEMRStructItems
+from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
+#============================================================
+class cSOAPLineDef:
+	def __init__(self):
+		self.label = _('label missing')
+		self.text = ''
+		self.data = {
+			'soap_cat': _('soap cat missing'),
+			'narrative instance': None
+		}
 #============================================================
 class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
@@ -32,7 +41,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		Labels and categories are customizable.
 
 		@param input_defs: note's labels and categories
-		@type input_defs: list of dicts of {'label': ..., 'soap_cat': ...}
+		@type input_defs: list of cSOAPLineDef instances
 		"""
 		if input_defs is None or len(input_defs) == 0:
 			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % (input_defs)
@@ -44,12 +53,13 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		"""
 		input_fields = []
 		# add fields to edit widget
+		# note: this may produce identically labelled lines
 		for line_def in self.__input_defs:
-			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def)
-			self.AddWidget (widget=input_field, label=line_def['label'])
+			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def.data)
+			input_field.SetText(line_def.text)
+			self.AddWidget(widget=input_field, label=line_def.label)
 			self.Newline()
 			input_fields.append(input_field)
-
 		# setup tab navigation between input fields
 		for field_idx in range(len(input_fields)):
 			# previous
@@ -75,17 +85,43 @@ class cResizingSoapPanel(wx.wxPanel):
 	and a staticText that displays which health problem its current note is related to.
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent, problem=None, input_defs=None):
+	def __init__(self, parent, problem=None, input_defs=None, default_labels = None):
 		"""Construct a new SOAP input widget
 
 		@param parent: the parent widget
-		problem:
-			cProblem instance
-			for clarity let's assume there cannot be a SOAP editor w/o a health problem
+
+		@param problem: the problem to create the SOAP editor for.
+		For clarity let's assume there cannot be a SOAP editor w/o
+		a health problem.
+		@type problem gmEMRStructItems.cProblem instance
+
+		@param input_defs: can be either the input lines definitions
+		(dictionary) or the encounter (instance) from which they
+		will be retrieved.
+		@type input_defs: either a dictionary or a
+		gmEMRStructItems.cEncounter instance.
+
+		@param default_labels: The user customized labels for each of
+		soap categories.
+		@type default_labels: A dictionary instance the keys of which
+		are soap categories.
 		"""
+		# sanity check
 		if not isinstance(problem, gmEMRStructItems.cProblem):
 			raise gmExceptions.ConstructorError, 'cannot make progress note editor for health problem [%s]' % str(problem)
-		self.__problem = None
+		self.__problem = problem
+
+		# if encounter given, obtain input lines definitions from it
+		if isinstance(input_defs, gmEMRStructItems.cEncounter):
+			if default_labels is None:
+				default_labels = {
+					's': _('History Taken'),
+					'o': _('Findings'),
+					'a': _('Assessment'),
+					'p': _('Plan')
+			}
+			input_defs = self.__get_narrative(encounter = input_defs, default_labels = default_labels)
+
 		# do layout
 		wx.wxPanel.__init__ (self,
 			parent,
@@ -98,14 +134,32 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.__soap_heading = wx.wxStaticText(self, -1, 'error: no problem given')
 		# - editor
 		if input_defs is None:
+			soap_lines = []
 			# make Richard the default ;-)
-			soap_lines = [
-				{'label': 'Patient Request', 'soap_cat': 's'},
-				{'label': 'History Taken', 'soap_cat': 's'},
-				{'label': 'Findings', 'soap_cat': 'o'},
-				{'label': 'Assessment', 'soap_cat': 'a'},
-				{'label': 'Plan', 'soap_cat': 'p'},
-			]
+			line = cSOAPLineDef()
+			line.label = _('Patient Request')
+			line.data['soap_cat'] = 's'
+			soap_lines.append()
+
+			line = cSOAPLineDef()
+			line.label = _('History Taken')
+			line.data['soap_cat'] = 's'
+			soap_lines.append()
+
+			line = cSOAPLineDef()
+			line.label = _('Findings')
+			line.data['soap_cat'] = 'o'
+			soap_lines.append()
+
+			line = cSOAPLineDef()
+			line.label = _('Assessment')
+			line.data['soap_cat'] = 'a'
+			soap_lines.append()
+
+			line = cSOAPLineDef()
+			line.label = _('Plan')
+			line.data['soap_cat'] = 'p'
+			soap_lines.append()
 		else:
 			soap_lines = input_defs
 		self.__soap_text_editor = cResizingSoapWin (
@@ -135,7 +189,6 @@ class cResizingSoapPanel(wx.wxPanel):
 		# display health problem
 		txt = 'problem: %s' % self.__problem['problem']
 		self.__set_heading(txt)
-		self.Clear()
 		# flag indicating saved state
 		self.__is_saved = False		
 	#--------------------------------------------------------
@@ -145,7 +198,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		"""
 		return self.__problem
 	#--------------------------------------------------------
-	def GetSOAP(self):
+	def get_editor(self):
 		"""
 		Retrieves widget's SOAP text editor
 		"""
@@ -177,6 +230,44 @@ class cResizingSoapPanel(wx.wxPanel):
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
+	def __get_narrative(self, encounter=None, default_labels=None):
+		"""
+		Retrieve the soap editor input lines definitions built from
+		all the narratives for the given problem along a specific
+		encounter.
+
+		@param encounter The encounter to obtain the narrative for.
+		@type A gmEMRStructItems.cEncounter instance.
+
+		@param default_labels: The user customized labels for each
+		soap category.
+		@type default_labels: A dictionary instance which keys are
+		soap categories.
+		"""
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_clinical_record()
+		soap_lines = []
+		# for each soap cat
+		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:
+			# retrieve narrative for given problem/encounter
+			narr_items =  emr.get_clin_narrative (
+				encounters = [encounter['pk_encounter']],
+				issues = [self.__problem['pk_health_issue']],
+				soap_cats = [soap_cat]
+			)
+			try:
+				# FIXME: add more data such as doctor sig
+				label_txt = default_labels[narrative['soap_cat']]
+			except:
+				label_txt = narrative['soap_cat']
+			for narrative in narr_items:
+				line = cSOAPLineDef()
+				line.label = label_txt
+				line.text = narrative['narrative']
+				line.data['narrative instance'] = narrative
+				soap_lines.append(line)
+		return soap_lines
+	#--------------------------------------------------------	
 	def __set_heading(self, txt):
 		"""Configure SOAP widget's heading title
 
@@ -290,6 +381,10 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 if __name__ == "__main__":
 
 	import sys
+	_log = gmLog.gmDefLog
+	_log.SetAllLogLevels(gmLog.lData)
+	from Gnumed.pycommon import gmPG
+	gmPG.set_default_client_encoding('latin1')
 
 	def create_widget_on_test_kwd1(*args, **kwargs):
 		print "test keyword must have been typed..."
@@ -316,8 +411,22 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 
 	try:
+		# obtain patient
+		patient = gmPerson.ask_for_patient()
+		if patient is None:
+			print "No patient. Exiting gracefully..."
+			sys.exit(0)
+		
+		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
+		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)		
+		default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
+		app = wx.wxPyWidgetTester(size=(300,500))
+		app.SetWidget(cResizingSoapPanel, problem, encounter, default_labels)
+		app.MainLoop()
+		del app		
+		
 		app = wx.wxPyWidgetTester(size=(300,300))
-		app.SetWidget(cResizingSoapPanel, {'problem': 'cold/cough'})
+		app.SetWidget(cResizingSoapPanel, problem)
 		app.MainLoop()
 		del app
 
@@ -331,7 +440,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.12  2005-02-23 03:20:44  cfmoro
+# Revision 1.13  2005-03-03 21:12:49  ncq
+# - some cleanups, switch to using data transfer classes
+#   instead of complex and unwieldy dictionaries
+#
+# Revision 1.12  2005/02/23 03:20:44  cfmoro
 # Restores SetProblem function. Clean ups
 #
 # Revision 1.11  2005/02/21 19:07:42  ncq
