@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -156,26 +156,6 @@ comment on column comm_channel.url is
 
 -- ===================================================================
 
-create table enum_ext_id_types (
-	id serial primary key,
-	name text,
-	issuer text,
-	context char default 'p' check (context in ('p', 'o', 'c', 's'))
-);
-
-comment on table enum_ext_id_types is
-'a list of all bureaucratic IDs/serial number, etc.';
-comment on column enum_ext_id_types.issuer is
-'the authority issuing the number';
-comment on column enum_ext_id_types.context is
-'the context in which this number is used
-	- p for ordinary persons
-	- o for organisations
-	- c for clinicians
-	- s for staff in this clinic
-'; 
--- ===================================================================
-
 -- the following table still needs a lot of work.
 -- especially the GPS and map related information needs to be
 -- normalized
@@ -259,14 +239,35 @@ comment on column identity.deceased IS
 comment on column identity.title IS
 	'yes, a title is an attribute of an identity, not of a name !';
 
+-- ===================================================================
+create table enum_ext_id_types (
+	pk serial primary key,
+	name text,
+	issuer text,
+	context char default 'p' check (context in ('p', 'o', 'c', 's')),
+	unique (name, issuer)
+);
+
+comment on table enum_ext_id_types is
+	'a list of all bureaucratic IDs/serial numbers/3rd party primary keys, etc.';
+comment on column enum_ext_id_types.issuer is
+	'the authority/system issuing the number';
+-- FIXME: is context really a property of *type* ?
+comment on column enum_ext_id_types.context is
+	'the context in which this number is used
+		- p for ordinary persons
+		- o for organisations
+		- c for clinicians
+		- s for staff in this clinic';
+
 -- ==========================================================
 create table ext_person_id (
 	id serial primary key,
 	id_identity integer not null references identity(id),
 	external_id text not null,
-	origin integer not null references enum_ext_id_types (id),
+	fk_origin integer not null references enum_ext_id_types(pk),
 	comment text,
-	unique (id_identity, external_id, origin)
+	unique (id_identity, external_id, fk_origin)
 ) inherits (audit_fields);
 
 select add_table_for_audit('ext_person_id');
@@ -277,7 +278,7 @@ comment on column ext_person_id.external_id is
 	'textual representation of external ID which
 	 may be Social Security Number, patient ID of
 	 another EMR system, you-name-it';
-comment on column ext_person_id.origin is
+comment on column ext_person_id.fk_origin is
 	'originating system';
 
 -- ==========================================================
@@ -586,11 +587,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.23 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.24 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.23  2004-03-03 23:51:41  ihaywood
+-- Revision 1.24  2004-03-04 10:40:29  ncq
+-- - cleanup, comments, renamed id->pk, origin -> fk_origin
+--
+-- Revision 1.23  2004/03/03 23:51:41  ihaywood
 -- external ID tables harmonised
 --
 -- Revision 1.22  2004/03/02 10:22:30  ihaywood
