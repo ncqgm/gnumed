@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.10 2004-08-20 13:19:52 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmVaccination.py,v 1.11 2004-09-28 12:28:12 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -15,8 +15,6 @@ from Gnumed.business import gmClinItem
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lInfo, __version__)
 #============================================================
 class cVaccination(gmClinItem.cClinItem):
@@ -47,6 +45,35 @@ class cVaccination(gmClinItem.cClinItem):
 		'site',
 		'batch_no'
 	]
+	#--------------------------------------------------------
+	def set_booster_status(self, is_booster=None):
+		if is_booster is None:
+			return False
+		self._idx['is_booster'] = len(self._payload)
+		self._payload.append(is_booster)
+		return True
+	#--------------------------------------------------------
+	def set_seq_no(self, seq_no=None):
+		if seq_no is None:
+			return False
+		self._idx['seq_no'] = len(self._payload)
+		self._payload.append(seq_no)
+		return True
+	#--------------------------------------------------------
+#	def get_next_shot_due(self):
+		"""
+		Retrieves next shot due date
+		"""
+		# FIXME: this will break due to not being initialized
+#		return self.__next_shot_due
+	#--------------------------------------------------------
+#	def set_next_shot_due(self, next_shot_due):
+#		"""
+#		Sets next shot due date
+#		
+#		* next_shot_due : Schedulled date for next vaccination shot
+#		"""
+#		self.__next_shot_due = next_shot_due
 #============================================================
 class cMissingVaccination(gmClinItem.cClinItem):
 	"""Represents one missing vaccination.
@@ -65,7 +92,9 @@ class cMissingVaccination(gmClinItem.cClinItem):
 					and
 				seq_no=%(seq_no)s
 			order by time_left)
+
 				UNION
+
 			(select *, True as overdue
 			from v_pat_missing_vaccs vpmv
 			where
@@ -103,6 +132,18 @@ class cMissingBooster(gmClinItem.cClinItem):
 				and
 			indication=%(indication)s
 		order by amount_overdue"""
+	_cmds_store_payload = []
+
+	_updatable_fields = []
+#============================================================
+class cScheduledVaccination(gmClinItem.cClinItem):
+	"""Represents one vaccination scheduled following a regime.
+	"""
+	_cmd_fetch_payload = """
+			select *
+			from v_vaccs_scheduled4pat
+			where pk_vacc_def=%s"""
+
 	_cmds_store_payload = []
 
 	_updatable_fields = []
@@ -194,7 +235,6 @@ def get_indications_from_vaccinations(vaccinations=None):
 #------------------------------------------------------------
 if __name__ == '__main__':
 	import sys
-	_log = gmLog.gmDefLog
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
 	#--------------------------------------------------------
@@ -205,7 +245,6 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', vacc[field]
 		print "updatable:", vacc.get_updatable_fields()
-		print vacc['wrong attribute']
 		try:
 			vacc['wrong attribute'] = 'hallo'
 		except:
@@ -227,8 +266,8 @@ if __name__ == '__main__':
 		# Test for an overdue vaccination
 		pk_args = {
 			'pat_id': 12,
-			'indication': 'diphtheria',
-			'seq_no': 6
+			'indication': 'haemophilus influenzae b',
+			'seq_no': 2
 		}
 		missing_vacc = cMissingVaccination(aPK_obj=pk_args)
 		fields = missing_vacc.get_fields()
@@ -240,7 +279,7 @@ if __name__ == '__main__':
 	def test_due_booster():
 		pk_args = {
 			'pat_id': 12,
-			'indication': 'influenza'
+			'indication': 'tetanus'
 		}
 		missing_booster = cMissingBooster(aPK_obj=pk_args)
 		fields = missing_booster.get_fields()
@@ -248,14 +287,38 @@ if __name__ == '__main__':
 		print missing_booster
 		for field in fields:
 			print field, ':', missing_booster[field]
+			
 	#--------------------------------------------------------
+	def test_scheduled_vacc():
+		scheduled_vacc = cScheduledVaccination(aPK_obj=20)
+		print scheduled_vacc
+		fields = scheduled_vacc.get_fields()
+		for field in fields:
+			print field, ':', scheduled_vacc[field]
+		print "updatable:", scheduled_vacc.get_updatable_fields()
+		try:		
+			print scheduled_vacc['wrong attribute']
+		except:
+			_log.LogException('programming error', sys.exc_info(), verbose=0)			
+		try:
+			scheduled_vacc['wrong attribute'] = 'hallo'
+		except:
+			_log.LogException('programming error', sys.exc_info(), verbose=0)			
+	#--------------------------------------------------------
+	
 	gmPG.set_default_client_encoding('latin1')
+	test_scheduled_vacc()
 	test_vacc()
 	test_due_vacc()
-	test_due_booster()
+#	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.10  2004-08-20 13:19:52  ncq
+# Revision 1.11  2004-09-28 12:28:12  ncq
+# - cVaccination: add set_booster_status(), set_seq_no()
+# - add cScheduledVaccination (by Carlos)
+# - improve testing
+#
+# Revision 1.10  2004/08/20 13:19:52  ncq
 # - add license
 #
 # Revision 1.9  2004/06/28 12:18:52  ncq
