@@ -45,7 +45,7 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string
@@ -54,6 +54,7 @@ import gmLog
 _log = gmLog.gmDefLog
 _cli_args = {}
 
+# define global shortcuts
 has_arg = _cli_args.has_key
 arg = _cli_args
 ######################################################################
