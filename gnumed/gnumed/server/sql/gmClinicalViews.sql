@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.73 2004-06-26 07:33:55 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.74 2004-06-26 23:42:44 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -13,15 +13,92 @@
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop index idx_item_encounter;
-drop index idx_item_episode;
+drop index idx_cri_encounter;
+drop index idx_cri_episode;
+
+drop index idx_clnote_encounter;
+drop index idx_clnote_episode;
+
+drop index idx_clanote_encounter;
+drop index idx_clanote_episode;
+
+drop index idx_chist_encounter;
+drop index idx_chist_episode;
+
+drop index idx_cphys_encounter;
+drop index idx_cphys_episode;
+
+drop index idx_vacc_encounter;
+drop index idx_vacc_episode;
+
+drop index idx_allg_encounter;
+drop index idx_allg_episode;
+
+drop index idx_formi_encounter;
+drop index idx_formi_episode;
+
+drop index idx_cwdiag_encounter;
+drop index idx_cwdiag_episode;
+
+drop index idx_cmeds_encounter;
+drop index idx_cmeds_episode;
+
+drop index idx_ref_encounter;
+drop index idx_ref_episode;
+
+drop index idx_tres_encounter;
+drop index idx_tres_episode;
+
+drop index idx_lreq_encounter;
+drop index idx_lreq_episode;
+
 drop index idx_episode_h_issue;
+
 drop index idx_allergy_comment;
 \set ON_ERROR_STOP 1
 
-create index idx_item_encounter on clin_root_item(id_encounter);
-create index idx_item_episode on clin_root_item(fk_episode);
-create index idx_episode_h_issue on clin_episode(id_health_issue);
+-- clin_root_item & children indices
+create index idx_cri_encounter on clin_root_item(fk_encounter);
+create index idx_cri_episode on clin_root_item(fk_episode);
+
+create index idx_clnote_encounter on clin_note(fk_encounter);
+create index idx_clnote_episode on clin_note(fk_episode);
+
+create index idx_clanote_encounter on clin_aux_note(fk_encounter);
+create index idx_clanote_episode on clin_aux_note(fk_episode);
+
+create index idx_chist_encounter on clin_history(fk_encounter);
+create index idx_chist_episode on clin_history(fk_episode);
+
+create index idx_cphys_encounter on clin_physical(fk_encounter);
+create index idx_cphys_episode on clin_physical(fk_episode);
+
+create index idx_vacc_encounter on vaccination(fk_encounter);
+create index idx_vacc_episode on vaccination(fk_episode);
+
+create index idx_allg_encounter on allergy(fk_encounter);
+create index idx_allg_episode on allergy(fk_episode);
+
+create index idx_formi_encounter on form_instances(fk_encounter);
+create index idx_formi_episode on form_instances(fk_episode);
+
+create index idx_cwdiag_encounter on clin_working_diag(fk_encounter);
+create index idx_cwdiag_episode on clin_working_diag(fk_episode);
+
+create index idx_cmeds_encounter on curr_medication(fk_encounter);
+create index idx_cmeds_episode on curr_medication(fk_episode);
+
+create index idx_ref_encounter on referral(fk_encounter);
+create index idx_ref_episode on referral(fk_episode);
+
+create index idx_tres_encounter on test_result(fk_encounter);
+create index idx_tres_episode on test_result(fk_episode);
+
+create index idx_lreq_encounter on lab_request(fk_encounter);
+create index idx_lreq_episode on lab_request(fk_episode);
+
+
+create index idx_episode_h_issue on clin_episode(fk_health_issue);
 
 -- =============================================
 -- encounters
@@ -57,7 +134,7 @@ drop view v_i18n_curr_encounters;
 
 create view v_i18n_curr_encounters as
 select
-	cu_e.id_encounter as pk_encounter,
+	cu_e.fk_encounter as pk_encounter,
 	cu_e.started as started,
 	cu_e.last_affirmed as last_affirmed,
 	cu_e.comment as status,
@@ -73,7 +150,7 @@ from
 where
 	et.pk = cl_e.fk_type
 		and
-	cu_e.id_encounter = cl_e.id
+	cu_e.fk_encounter = cl_e.id
 ;
 
 \unset ON_ERROR_STOP
@@ -128,12 +205,12 @@ select
 	chi.id_patient as id_patient,
 	cep.id as pk_episode,
 	cep.description as description,
-	chi.id as id_health_issue,
+	chi.id as pk_health_issue,
 	chi.description as health_issue
 from
 	clin_episode cep, clin_health_issue chi
 where
-	cep.id_health_issue=chi.id
+	cep.fk_health_issue=chi.id
 ;
 
 -- =============================================
@@ -188,9 +265,9 @@ select
 	end as is_modified,
 	vpep.id_patient as id_patient,
 	cri.pk_item as id_item,
-	cri.id_encounter as id_encounter,
+	cri.fk_encounter as pk_encounter,
 	cri.fk_episode as pk_episode,
-	vpep.id_health_issue as id_health_issue,
+	vpep.pk_health_issue as pk_health_issue,
 	cri.soap_cat as soap_cat,
 	cri.narrative as narrative,
 	pgc.relname as src_table
@@ -281,9 +358,9 @@ select
 	lr.pk as pk_request,
 	lr.fk_test_org as pk_test_org,
 	lr.fk_requestor as pk_requestor,
-	vpep.id_health_issue as pk_health_issue,
+	vpep.pk_health_issue as pk_health_issue,
 	tr0.fk_episode as pk_episode,
-	tr0.id_encounter as pk_encounter
+	tr0.fk_encounter as pk_encounter
 from
 	(lnk_result2lab_req lr2lr inner join test_result tr1 on (lr2lr.fk_result=tr1.id)) tr0
 		inner join
@@ -360,9 +437,9 @@ select
 	a.narrative as reaction,
 	a.id_type as id_type,
 	a.clin_when as date,
-	vpep.id_health_issue as id_health_issue,
+	vpep.pk_health_issue as pk_health_issue,
 	a.fk_episode as pk_episode,
-	a.id_encounter as id_encounter
+	a.fk_encounter as pk_encounter
 from
 	allergy a,
 	_enum_allergy_type at,
@@ -429,9 +506,9 @@ select
 	vind.id as pk_indication,
 	v.fk_provider as pk_provider,
 	vcine.id as pk_vaccine,
-	vpep.id_health_issue as id_health_issue,
+	vpep.pk_health_issue as pk_health_issue,
 	v.fk_episode as pk_episode,
-	v.id_encounter as id_encounter
+	v.fk_encounter as pk_encounter
 from
 	vaccination v,
 	vaccine vcine,
@@ -577,7 +654,7 @@ create trigger at_curr_encounter_ins
 
 create function f_curr_encounter_force_upd() returns opaque as '
 begin
-	NEW.id_encounter := OLD.id_encounter;
+	NEW.fk_encounter := OLD.fk_encounter;
 	NEW.started := OLD.started;
 	NEW.last_affirmed := CURRENT_TIMESTAMP;
 	return NEW;
@@ -606,7 +683,7 @@ select
 	cwd.is_definite as is_definite,
 	cwd.is_significant as is_significant,
 	cauxn.narrative as comment,
-	cwd.id_encounter as pk_encounter,
+	cwd.fk_encounter as pk_encounter,
 	cwd.fk_episode as pk_episode
 from
 	clin_working_diag cwd,
@@ -620,20 +697,20 @@ where
 
 -- =============================================
 GRANT SELECT ON
-	clin_root_item,
-	clin_health_issue,
-	clin_episode,
-	last_act_episode,
-	encounter_type,
-	clin_encounter,
-	curr_encounter,
-	clin_note,
-	clin_aux_note,
-	_enum_hx_type,
-	_enum_hx_source,
-	clin_history,
-	clin_physical,
-	_enum_allergy_type
+	clin_root_item
+	, clin_health_issue
+	, clin_episode
+	, last_act_episode
+	, encounter_type
+	, clin_encounter
+	, curr_encounter
+	, clin_note
+	, clin_aux_note
+	, _enum_hx_type
+	, _enum_hx_source
+	, clin_history
+	, clin_physical
+	, _enum_allergy_type
 	, allergy
 	, allergy_state
 	, vaccination
@@ -758,11 +835,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.73 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.74 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.73  2004-06-26 07:33:55  ncq
+-- Revision 1.74  2004-06-26 23:42:44  ncq
+-- - indices on clin_root_item fields in descendants
+-- - id_* -> fk/pk_*
+--
+-- Revision 1.73  2004/06/26 07:33:55  ncq
 -- - id_episode -> fk/pk_episode
 --
 -- Revision 1.72  2004/06/13 08:08:35  ncq
