@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -128,16 +128,17 @@ class cCfgSQL:
 
 		# retrieve option definition
 		if _gmPG.run_query(curs, None, """
-select cfg_item.id, cfg_template.type
-from cfg_item, cfg_template
+select
+	cfg_item.id, cfg_template.type
+from
+	cfg_item, cfg_template
 where
-cfg_template.name like %s and
-cfg_item.workplace like %s and
-cfg_item.cookie like %s and
-(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || 
-CURRENT_USER or cfg_item.owner like %s or cfg_item.owner like '_' || %s)
-and cfg_template.id = cfg_item.id_template limit 1;
-""", option, workplace, cookie, user, user) is None:
+	cfg_template.name like %s and
+	cfg_item.workplace like %s and
+	cfg_item.cookie like %s and
+	cfg_template.id = cfg_item.id_template and
+	(cfg_item.owner like CURRENT_USER or cfg_item.owner like %s)
+limit 1""", option, workplace, cookie, user, user) is None:
 			curs.close()
 			return None
 
@@ -149,7 +150,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		(item_id, value_type) = result
 
 		# retrieve values from appropriate table
-		cmd = "select value from cfg_%s where id_item=%%s limit 1;" % value_type
+		cmd = "select value from cfg_%s where id_item=%%s limit 1" % value_type
 		if _gmPG.run_query(curs, None, cmd, item_id) is None:
 			curs.close()
 			return None
@@ -175,16 +176,17 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		curs = self.conn.cursor()
 		# retrieve option definition
 		if _gmPG.run_query(curs, None, """
-select cfg_item.id, cfg_template.type
-from cfg_item, cfg_template
+select
+	cfg_item.id, cfg_template.type
+from
+	cfg_item, cfg_template
 where
-cfg_template.name like %s and
-cfg_item.workplace like %s and
-cfg_item.cookie like %s and
-(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER 
-or cfg_item.owner like %s or cfg_item.owner like '_' || %s)
-and cfg_template.id = cfg_item.id_template limit 1;
-""", option, workplace, cookie, user, user) is None:
+	cfg_template.name like %s and
+	cfg_item.workplace like %s and
+	cfg_item.cookie like %s and
+	cfg_template.id = cfg_item.id_template and
+	(cfg_item.owner like CURRENT_USER or cfg_item.owner like %s)
+limit 1""", option, workplace, cookie, user, user) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -298,7 +300,7 @@ and cfg_template.id = cfg_item.id_template limit 1;
 		# FIXME: this does not always find the existing entry (in particular if user=None)
 		# reason: different handling of None in set() and get()
 		# do we need to insert a new option or update an existing one ?
-		# FIXME: this should be autofixed now since we don't do user/_user anymore
+		# FIXME: this should be autofixed now since we don't do user/_user anymore, please verify
 		if self.get(workplace, user, cookie, option) is None:
 			# insert new option
 			# insert option instance
@@ -324,7 +326,6 @@ and cfg_template.id = cfg_item.id_template limit 1;
 				curs.close()
 				return None
 
-		# actually commit our stuff
 		aRWConn.commit()
 		curs.close()
 
@@ -391,10 +392,10 @@ where %s""" % where_clause
 		"""
 		# sanity checks
 		if option is None:
-			_log.Log(gmLog.lErr, "Need to know which option to store.")
+			_log.Log(gmLog.lErr, "Need to know which option to delete.")
 			return None
 		if aRWConn is None:
-			_log.Log(gmLog.lErr, "Need rw connection to database to store the value.")
+			_log.Log(gmLog.lErr, "Need rw connection to database to delete the value.")
 			return None
 
 		cache_key = self.__make_key(workplace, user, cookie, option)
@@ -418,7 +419,7 @@ where %s""" % where_clause
 		# check if this is the only reference to this template
 		# if yes, delete template, too
 		# here we assume that only 
-		cmd = "select id from cfg_item where id_template like %s;"
+		cmd = "select id from cfg_item where id_template like %s"
 		if _gmPG.run_query(curs, None, cmd, template_id) is None:
 			curs.close()
 			return None
@@ -435,7 +436,7 @@ where %s""" % where_clause
 
 		# delete template if last reference
 		if template_ref_count == 1:
-			cmd = "delete from cfg_template where id like %s;"
+			cmd = "delete from cfg_template where id like %s"
 			if _gmPG.run_query(curs, None, cmd, template_id) is None:
 				curs.close()
 				return None
@@ -1233,7 +1234,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.14  2004-07-24 17:10:09  ncq
+# Revision 1.15  2004-08-11 08:00:05  ncq
+# - improve log prefix
+# - cleanup SQL cfg/remove old use of _USER
+#
+# Revision 1.14  2004/07/24 17:10:09  ncq
 # - fix getAllParams()
 #
 # Revision 1.13  2004/07/19 13:53:35  ncq

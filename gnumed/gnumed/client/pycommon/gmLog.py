@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -340,7 +340,8 @@ class cLogTarget:
 			timestamp = self.__timestamp()
 			severity = self.__LogLevelPrefix[aLogLevel]
 			self.__tracestack()
-			caller = "(" + self.__modulename + "::" + self.__functionname + ":" + str(self.__linenumber) + "): "
+			caller = '(%s:%s@%s): ' % (self.__modulename, self.__functionname, str(self.__linenumber))
+#			caller = "(" + self.__modulename + ":" + self.__functionname + "@" + str(self.__linenumber) + "): "
 			if aLogLevel > lErr:
 				self.dump2stdout (timestamp, severity, caller, aMsg + "\n")
 			else:
@@ -818,7 +819,11 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.4  2004-06-26 23:06:00  ncq
+# Revision 1.5  2004-08-11 08:00:05  ncq
+# - improve log prefix
+# - cleanup SQL cfg/remove old use of _USER
+#
+# Revision 1.4  2004/06/26 23:06:00  ncq
 # - cleanup
 # - I checked it, no matter where we import (function-/class-/method-
 #   local or globally) it will always only be done once so we can
