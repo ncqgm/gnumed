@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -13,8 +13,8 @@
 -- ===================================================================
 
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
-(101, -- this is the hardwired value in client/business/gmForms.py
- 'Referral', 'Standard specialist referral letter for AU', 1, 'L', 
+(1,
+ 'Standard Referral', 'Standard specialist referral letter for AU', 1, 'L', 
  '\\documentclass{letter}
 \\address{ @SENDER \\\\ @SENDERADDRESS }
 \\signature{@SENDER }
@@ -46,23 +46,25 @@ insert into form_defs (pk, name_short, name_long, revision, engine, template) va
 \\end{document}');
 
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
-(102, -- hardwired value in gmForms.py
- 'E-mail referral', 'E-mail referral letter for Australia', 1, 'T',
+(2, 
+ 'E-mail Referral', 'E-mail referral letter for Australia', 1, 'T',
 -- WARNING: no standard for this actually exists in AU!
 -- this is for demonstration purposes only 
 'To: @RECIPIENT <@RECIPIENTADDRESS>
 From: @SENDER <@SENDERADDRESS>
-Subject: @PATIENT, @PATIENTADDRESS
 
-@TEXT');
+Re: @PATIENT, @PATIENTADDRESS
+
+@TEXT
+');
 
 
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
-(201, -- hardwired number in gmForms.py
-'Script', 'Prescription using the standard form of the Pharmaceutical Benefits Scheme', 1, 'L',
+(3, 
+'PBS Script', 'Prescription using the standard form of the Pharmaceutical Benefits Scheme', 1, 'L',
 '\\documentclass{a4form}
 \\usepackage{multicol}
-% this is a template of a community PBS script form
+% this is a template of a *community* PBS script form
 % (hospital scripts are completely different and must be handwritten [sob])
 
 \\begin{document}
