@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.178 2005-02-03 20:19:16 ncq Exp $
-__version__ = "$Revision: 1.178 $"
+# $Id: gmGuiMain.py,v 1.179 2005-02-12 13:58:20 ncq Exp $
+__version__ = "$Revision: 1.179 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -371,7 +371,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		pat = gmPerson.gmCurrentPatient()
 		if pat.is_connected():
 			ident = pat.get_identity()
-			pat_str = "%s %s.%s (%s) #%d" % (ident['title'][:4], ident['firstnames'], ident['lastnames'], ident['dob'].Format (_('%d/%m/%y')), int(ident['id']))
+			pat_str = "%s %s.%s (%s) #%d" % (ident['title'][:4], ident['firstnames'], ident['lastnames'], ident['dob'].Format (_('%d/%m/%y')), int(ident['i_pk']))
 		else:
 			pat_str = _('no patient')
 
@@ -642,7 +642,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.178  2005-02-03 20:19:16  ncq
+# Revision 1.179  2005-02-12 13:58:20  ncq
+# - v_basic_person.i_id -> i_pk
+#
+# Revision 1.178  2005/02/03 20:19:16  ncq
 # - get_demographic_record() -> get_identity()
 #
 # Revision 1.177  2005/02/01 10:16:07  ihaywood

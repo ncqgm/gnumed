@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.12 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPatSearchWidgets.py,v 1.13 2005-02-12 13:59:11 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -55,9 +55,9 @@ def pat_expand_default(curs = None, ID_list = None):
 	# ...
 	# Note: this query must ALWAYS return the ID in field 0
 	cmd = """
-		SELECT i_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
+		SELECT i_pk, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
 		FROM v_basic_person
-		WHERE i_id in (%s)
+		WHERE i_pk in (%s)
 		""" % ','.join(map(lambda x: str(x), ID_list))
 	pat_data = gmPG.run_ro_query(curs, cmd)
 	if pat_data is None:
@@ -706,7 +706,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.12  2005-02-01 10:16:07  ihaywood
+# Revision 1.13  2005-02-12 13:59:11  ncq
+# - v_basic_person.i_id -> i_pk
+#
+# Revision 1.12  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
