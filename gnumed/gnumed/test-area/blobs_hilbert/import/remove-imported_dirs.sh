@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/remove-imported_dirs.sh,v $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/import/Attic/remove-imported_dirs.sh,v $
 # $Revision
 # GnuMed, GPL, Karsten.Hilbert@gmx.net
 
@@ -26,3 +26,9 @@ for DIR in $REPOSITORY ; do
 		#mv -f --strip-trailing-slashes $DIR $BACKUP
 	fi
 done
+
+#==============================================================
+# $Log: remove-imported_dirs.sh,v $
+# Revision 1.1  2002-12-23 08:51:29  ncq
+# - the remove script belongs into import/ of course
+#

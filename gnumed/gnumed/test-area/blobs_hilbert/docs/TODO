@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -13,6 +13,7 @@ scan
 ----
 - test consecutive IDs
 - quit button
+- als jpg mit lossless-Kompression speichern
 
 index
 -----
@@ -20,7 +21,7 @@ index
 
 import
 ------
-- move/delete script for after successfull import
+- move/delete script for after successful import
 
 viewer
 ------
@@ -30,7 +31,6 @@ viewer
 =====================================================
 post-1.0
 ========
-- rewrite for sizers
 - integrate as plugin with GnuMed
 - integrate into GnuMed messaging infrastructure
 
@@ -40,6 +40,8 @@ index
 
 - Funktion Seiten umsortieren fertigstellen
 - wxDateEntry() mit ordentlichem Validator
+
+- load external file(s) (fax, digicam etc.)
 
 import
 ------
@@ -53,13 +55,10 @@ import
 
 - investigate binary cursors
 
-- move/remove succesfully imported files
-    - make this an option
-
 scan
 ----
  > hack zum Ermitteln der scanner-Parameter 
- > Funktionalität einbauen die unterschiedliche Dokumente mit unterschiedlichen 
+ > Funktionalität einbauen die unterschiedliche Dokumententypen mit unterschiedlichen 
  > Scan-Parametern verknüpft
 - Paginiernummer aufdrucken
 - Barcode aufdrucken: Name/dob/Paginiernummer
@@ -73,6 +72,7 @@ viewer
  > Starten) - ist aber meist verknüpft
  Man kann wohl eigene mailcap-Dateien mit verwenden. Mm, oder
  doch nicht.
+ - eigene mime type -> viewer mappings
 
  bessere Darstellung der Felder eines Entry
 
@@ -81,7 +81,7 @@ viewer
  > anzuzeigen wenn man auf dem Namen steht
   Geht, aber will man das wirklich ?
 
- > - in Gunmed einbauen
+ - Gunmed-Plugin
 
  mehrere Versionen (Funktionalität)
 

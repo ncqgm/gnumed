@@ -8,10 +8,10 @@ It knows nothing about the documents itself. All it does
 is to let the user select a page to display and tries to
 hand it over to an appropriate viewer.
 
-For that it relies on mime types.
+For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -69,11 +69,11 @@ class cDocTree(wxTreeCtrl):
 		"""Set up our specialised tree.
 		"""
 		# sanity checks
-		if aPatient == None:
+		if aPatient is None:
 			_log.Log(gmLog.lErr, "Cannot retrieve documents without knowing the patient !")
 			return None
 
-		if aConn == None:
+		if aConn is None:
 			_log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
 			return None
 
@@ -89,7 +89,7 @@ class cDocTree(wxTreeCtrl):
 
 		# read documents from database
 		self.doc_list = aPatient.getDocsFromGNUmed(self.__conn)
-		if self.doc_list == None:
+		if self.doc_list is None:
 			_log.Log(gmLog.lErr, "Cannot find any documents.")
 			return None
 
@@ -321,7 +321,10 @@ else:
 			return ('tools', '&Show Documents')
 #================================================================
 # $Log: show-med_docs.py,v $
-# Revision 1.12  2002-12-22 11:50:20  ncq
+# Revision 1.13  2002-12-23 08:51:29  ncq
+# - the remove script belongs into import/ of course
+#
+# Revision 1.12  2002/12/22 11:50:20  ncq
 # - removed useless _() wrapper
 #
 # Revision 1.11  2002/12/13 11:22:34  ncq
