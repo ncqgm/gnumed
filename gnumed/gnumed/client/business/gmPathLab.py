@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.14 2004-05-06 23:37:19 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPathLab.py,v 1.15 2004-05-08 17:29:18 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types,sys
@@ -97,7 +97,7 @@ class cLabResult(gmClinItem.cClinItem):
 			if data is None:
 				raise gmExceptions.ConstructorError, 'error getting lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
 			if len(data) == 0:
-				raise gmExceptions.ConstructorError, 'no lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
+				raise gmExceptions.NoSuchClinItemError, 'no lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
 			pk = data[0][0]
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPKey=pk)
@@ -172,7 +172,7 @@ class cLabRequest(gmClinItem.cClinItem):
 				raise gmExceptions.ConstructorError, 'error getting lab request for [%s:%s]' % (lab, req_id)
 			# no such request
 			if len(data) == 0:
-				raise gmExceptions.ConstructorError, 'no lab request for [%s:%s]' % (lab, req_id)
+				raise gmExceptions.NoSuchClinItemError, 'no lab request for [%s:%s]' % (lab, req_id)
 			pk = data[0][0]
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPKey=pk)
@@ -244,7 +244,7 @@ class cTestType(gmClinItem.cClinItem):
 				raise gmExceptions.ConstructorError, 'error getting test type for [%s:%s:%s]' % (lab, code, name)
 			# no such request
 			if len(data) == 0:
-				raise gmExceptions.ConstructorError, 'no test type for [%s:%s:%s]' % (lab, code, name)
+				raise gmExceptions.NoSuchClinItemError, 'no test type for [%s:%s:%s]' % (lab, code, name)
 			pk = data[0][0]
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPKey=pk)
@@ -276,11 +276,11 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	ttype = None
 	try:
 		ttype = cTestType(lab=lab, code=code)
-	except gmExceptions.ConstructorError, msg:
-		# either not found or operational error
+	except gmExceptions.NoSuchClinItemError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
-		if str(msg).startswith('no test type for'):
-			return (False, msg)
+		return (False, msg)
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 	# found ?
 	if ttype is not None:
 		if name is None:
@@ -289,7 +289,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.14 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.15 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -358,19 +358,18 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	req = None
 	try:
 		req = cLabRequest(lab=lab, req_id=req_id)
-	except gmExceptions.ConstructorError, msg:
-		# either not found or operational error
+	except gmExceptions.NoSuchClinItemError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
-		# FIXME: use specific exception instead of testing for data !
-		if not str(msg).startswith('no lab request'):
-			return (False, msg)
-	# found ?
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		return (False, msg)
+	# found
 	if req is not None:
 		db_pat = req.get_patient()
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.14 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.15 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -411,13 +410,12 @@ def create_test_result(patient_id=None, when_field=None, when=None, test_type=No
 			val_alpha=val_alpha,
 			unit=unit
 		)
-	except gmExceptions.ConstructorError, msg:
-		# either not found or operational error
+	except gmExceptions.NoSuchClinItemError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
-		# FIXME: use specific exception instead of testing for data !
-		if not str(msg).startswith('no lab result'):
-			return (False, msg)
-	# found ?
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		return (False, msg)
+	# found
 	if tres is not None:
 		return (True, tres)
 	# not found
@@ -479,7 +477,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.14  2004-05-06 23:37:19  ncq
+# Revision 1.15  2004-05-08 17:29:18  ncq
+# - us NoSuchClinItemError
+#
+# Revision 1.14  2004/05/06 23:37:19  ncq
 # - lab result _update_payload update
 # - lab result.__init__ now supports values other than the PK
 # - add create_test_result()
