@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -33,13 +33,10 @@ except ImportError:
 	wxID_BTN_move_page,
 	wxID_BTN_save_doc,
 	wxID_BTN_acquire_page,
-	wxID_SCANFRAMESCANWINDOW,
 	wxID_PNL_main
-] = map(lambda _init_ctrls: wxNewId(), range(9))
+] = map(lambda _init_ctrls: wxNewId(), range(8))
 #==================================================
 class scanFrame(wxFrame):
-	page = 0
-	selected_pic = ''
 	# a dict holding our objects
 	acquired_pages = []
 	#----------------------------------------------
@@ -86,16 +83,6 @@ class scanFrame(wxFrame):
 		)
 		self._init_utils()
 		self.SetClientSize(wxSize(631, 473))
-
-		#-- main window ------------------------
-#		self.WIN_main = wxWindow(
-#			id = wxID_SCANFRAMESCANWINDOW,
-#			name = 'WIN_main',
-#			parent = self,
-#			pos = wxPoint(0, 0),
-#			size = wxSize(631, 473),
-#			style = 0
-#		)
 
 		#-- main panel -------------
 		self.PNL_main = wxPanel(
@@ -339,6 +326,16 @@ class scanFrame(wxFrame):
 			elif btn == wxID_CANCEL:
 				return 1
 	#-----------------------------------
+	# internal methods
+	#-----------------------------------
+	def __reload_LBOX_doc_pages(self):
+		if len(self.acquired_pages) > 0:
+			self.LBOX_doc_pages.Clear()
+			for i in self.acquired_pages:
+				fname = self.acquired_pages[i]
+				path, name = os.path.split(fname)
+				self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
+	#-----------------------------------
 	# TWAIN related scanning code
 	#-----------------------------------
 	def __acquire_from_twain(self):
@@ -508,16 +505,6 @@ class scanFrame(wxFrame):
 
 		return 1
 	#-----------------------------------
-	# internal methods
-	#-----------------------------------
-	def __reload_LBOX_doc_pages(self):
-		if len(self.acquired_pages) > 0:
-			self.LBOX_doc_pages.Clear()
-			for i in self.acquired_pages:
-				fname = self.acquired_pages[i]
-				path, name = os.path.split(fname)
-				self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
-	#-----------------------------------
 	def on_save_doc(self, event):
 		return
 		if self.picList != []:
@@ -579,43 +566,3 @@ if __name__ == '__main__':
 		exc = sys.exc_info()
 		_log.LogException('Unhandled exception.', exc, fatal=1)
 		raise
-
-#======================================================
-	#-----------------------------------
-#	def savePage(self,im):
-#		if len(self.picList) != 0:
-#			lastPageInList=self.picList[len(self.picList)-1]
-#			biggest_number_strg=lastPageInList.replace(_('page'),'')
-#			biggest_number= int(biggest_number_strg) + 1
-
-		# twain specific
-#		if scan_drv == 'wintwain':
-#			if len(self.picList) == 0:
-#				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.bmp')
-#			else:
-#				shutil.copy(self.tmpfilename,_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.bmp')
-		# SANE way of life # Write the image out as a JPG file
-		# Note : file format is determined by extension ; otherwise specify type
-#		else:
-#			if len(self.picList) == 0:
-#				im.save(_cfg.get("tmpdir", "tmpdir") + _('page')+str(1)+'.jpg')
-#				print "I just saved page 1"
-				# remove when sane works one day
-#				return
-#			else:
-#				im.save(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
-#				print "I just saved" + str(_cfg.get("tmpdir", "tmpdir") + _('page') + `biggest_number` +'.jpg')
-	
-	#-----------------------------------
-
-#	def UpdatePicList(self):
-#		if len(self.picList) == 0:
-#			self.LBOX_doc_pages.Append(_('page1'))
-#			self.picList.append(_('page1'))
-#		else:
-#			lastPageInList=self.picList[len(self.picList)-1]
-#			biggest_number_strg=lastPageInList.replace(_('page'),'')
-#			biggest_number= int(biggest_number_strg) + 1
-#			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
-#			self.picList.append(_('page') + `biggest_number`)
-
