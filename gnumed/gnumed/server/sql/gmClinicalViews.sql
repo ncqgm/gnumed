@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.28 2003-11-09 14:54:56 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.29 2003-11-09 22:45:45 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -401,48 +401,6 @@ where
 	vdef1.fk_indication = vind.id
 ;
 
-\unset ON_ERROR_STOP
-drop view v_patient_vacc_status;
-\set ON_ERROR_STOP 1
-
-create view v_patient_vacc_status as
-select
-	v.fk_patient as pk_patient,
-	vind.description as indication,
-	v.id as pk_vaccination,
-	v.date_given as date,
-	vcine.trade_name as vaccine,
-	vcine.short_name as vaccine_short,
-	v.batch_no as batch_no,
-
-	vdef1.is_booster as is_booster,
-	case when vdef1.is_booster
-		then null
-		else vdef1.seq_no
-	end as seq_no,
-	case when 
-		(vdef1.seq_no = (select max(vdef2.seq_no) from vacc_def vdef2 where vdef2.fk_indication = vdef1.fk_indication group by vdef2.fk_indication))
-			and
-		(not vdef1.is_booster)
-		then true
-		else false
-	end as is_last_shot,
-	v.site as site,
-	v.fk_provider as pk_provider
-from
-	(vacc_def vdef1 left outer join	vaccination v on (vdef1.id = v.fk_vacc_def)),
-	vaccine vcine,
-	vacc_indication vind
-where
-	v.fk_vaccine = vcine.id
-		and
-	v.fk_vacc_def = vdef1.id
-		and
-	vdef1.fk_indication = vind.id
-order by
-	(v.fk_patient, vdef1.fk_indication, vdef1.seq_no)
-;
-
 -- ==========================================================
 -- current encounter stuff
 \unset ON_ERROR_STOP
@@ -469,7 +427,6 @@ create trigger at_curr_encounter_ins
 
 create function f_curr_encounter_force_upd() returns opaque as '
 begin
-	NEW.id_patient := OLD.id_patient;
 	NEW.id_encounter := OLD.id_encounter;
 	NEW.started := OLD.started;
 	NEW.last_affirmed := CURRENT_TIMESTAMP;
@@ -510,11 +467,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.28  2003-11-09 14:54:56  ncq
+-- Revision 1.29  2003-11-09 22:45:45  ncq
+-- - curr_encounter doesn't have id_patient anymore, fix trigger funcs
+--
+-- Revision 1.28  2003/11/09 14:54:56  ncq
 -- - update view defs
 --
 -- Revision 1.27  2003/10/31 23:27:06  ncq
