@@ -342,14 +342,16 @@ class ContactsPanel(wxPanel):
           self.Show(true)
       
 class gmContacts (gmPlugin.wxNotebookPlugin):
+	tab_name = _("Contacts")
+
 	def name (self):
-		return "Contacts"
+		return gmContacts.tab_name
 
 	def GetWidget (self, parent):
 		return ContactsPanel (parent, -1)
 
 	def MenuInfo (self):
-		return ('view', '&Contacts')
+		return ('view', _('&Contacts'))
 
 	def DoToolbar (self, tb, widget):
 	      tool1 = tb.AddTool(ID_SEARCHGLOBAL, images_contacts_toolbar16_16.getfind_globalBitmap(),

@@ -31,8 +31,8 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-# $Id: gmDrugDisplay.py,v 1.9 2003-04-01 12:29:29 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmDrugDisplay.py,v 1.10 2003-04-28 12:11:30 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 
 #===========================================================================
 # firstly in wxPython you have to import any modules we want to use, here
@@ -554,8 +554,10 @@ else:
 
 	class gmDrugDisplay (gmPlugin.wxNotebookPlugin):
 
+		tab_name = _("MIMS")
+
 		def name (self):
-			return "MIMS"
+			return gmDrugDisplay.tab_name
 
 		def MenuInfo (self):
 			return ("reference", _("&drugs (MIMS)"))
@@ -564,7 +566,10 @@ else:
 			return DrugDisplay (parent, -1)
 #===========================================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.9  2003-04-01 12:29:29  ncq
+# Revision 1.10  2003-04-28 12:11:30  ncq
+# - refactor name() to not directly return _(<name>)
+#
+# Revision 1.9  2003/04/01 12:29:29  ncq
 # - i18n + moved to menu "reference"
 #
 # Revision 1.8  2003/02/09 10:19:44  ncq

@@ -465,8 +465,10 @@ double-click ends""")), 0, wxALL, 15)
 
 
 class gmSnellen (gmPlugin.wxBasePlugin):
+    tab_name = _('Snellen Chart')
+
     def name (self):
-        return 'SnellenPlugin'
+        return gmSnellen.tab_name
 
     def register (self):
         menu = self.gb['main.toolsmenu']

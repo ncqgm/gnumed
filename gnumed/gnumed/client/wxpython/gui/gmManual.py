@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.11 2003-02-15 14:55:55 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmManual.py,v 1.12 2003-04-28 12:11:30 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import sys, os
@@ -138,8 +138,10 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 	"""
 	Plugin to encapsulate the manual window
 	"""
+	tab_name = _('Manual')
+
 	def name (self):
-		return _('Manual')
+		return gmManual.tab_name
 
 	def MenuInfo (self):
 		return ('help', '&Manual')
@@ -246,7 +248,10 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.11  2003-02-15 14:55:55  ncq
+# Revision 1.12  2003-04-28 12:11:30  ncq
+# - refactor name() to not directly return _(<name>)
+#
+# Revision 1.11  2003/02/15 14:55:55  ncq
 # - whitespace fixup, dynamic loading sped up
 #
 # Revision 1.10	 2003/02/15 14:39:59  ncq

@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -555,8 +555,10 @@ else:
 	import gmPlugin
 
 	class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
+		tab_name = _("Documents")
+
 		def name (self):
-			return _("Documents")
+			return gmShowMedDocs.tab_name
 
 		def GetWidget (self, parent):
 			self.panel = cPluginTreePanel(parent, -1)
@@ -599,7 +601,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.22  2003-04-20 15:39:36  ncq
+# Revision 1.23  2003-04-28 12:11:30  ncq
+# - refactor name() to not directly return _(<name>)
+#
+# Revision 1.22  2003/04/20 15:39:36  ncq
 # - call_viewer was moved to gmMimeLib
 #
 # Revision 1.21  2003/04/19 15:01:33  ncq

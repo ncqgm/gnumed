@@ -6,12 +6,13 @@ class gmPython (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the Python shell
     """
+    tab_name = _('Python Shell')
 
     def name (self):
-        return 'Python Shell'
+        return gmPython. tab_name
 
     def MenuInfo (self):
-        return ('view', '&Python')
+        return ('view', _('&Python'))
 
     def GetWidget (self, parent):
         from wxPython.lib.PyCrust import shell, version, filling

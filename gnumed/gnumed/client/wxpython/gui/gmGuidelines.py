@@ -142,16 +142,14 @@ class GuidelinesHtmlPanel(wxPanel):
         self.printer.PrintFile(self.html.GetOpenedPage())
 
 
-
-
-
-
 class gmGuidelines (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the manual window
     """
+    tab_name = _('Guidelines')
+
     def name (self):
-        return _('Guidelines')
+        return gmGuidelines.tab_name
 
     def MenuInfo (self):
         return ('reference', _('&Guidelines'))

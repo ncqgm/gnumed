@@ -16,7 +16,7 @@
 #
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -135,11 +135,13 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the STIKO window
     """
+    tab_name = _('StIKo')
+
     def name (self):
-        return 'StIKo'
+        return gmStikoBrowser.tab_name
 
     def MenuInfo (self):
-        return ('reference', '&StIKo')
+        return ('reference', _('&StIKo'))
 
     def GetWidget (self, parent):
         return StikoHtmlPanel (parent, self.gb['main.frame'])
