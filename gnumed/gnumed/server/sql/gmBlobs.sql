@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.9 $ $Date: 2002-06-16 19:37:28 $ $Author: ncq $
+-- $Revision: 1.10 $ $Date: 2002-06-25 12:19:45 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -19,14 +19,14 @@ INSERT INTO doc_type(id, name) values(4,'discharge summary orthopaedic');
 INSERT INTO doc_type(id, name) values(5,'discharge summary other');
 
 INSERT INTO doc_type(id, name) values(6,'referral report internal');
-INSERT INTO doc_type(id, name) values(6,'referral report surgical');
-INSERT INTO doc_type(id, name) values(6,'referral report ENT');
-INSERT INTO doc_type(id, name) values(6,'referral report eye');
-INSERT INTO doc_type(id, name) values(6,'referral report urology');
-INSERT INTO doc_type(id, name) values(6,'referral report orthopaedic');
-INSERT INTO doc_type(id, name) values(6,'referral report neuro');
-INSERT INTO doc_type(id, name) values(6,'referral report radiology');
-INSERT INTO doc_type(id, name) values(6,'referral report other');
+INSERT INTO doc_type(id, name) values(7,'referral report surgical');
+INSERT INTO doc_type(id, name) values(8,'referral report ENT');
+INSERT INTO doc_type(id, name) values(9,'referral report eye');
+INSERT INTO doc_type(id, name) values(10,'referral report urology');
+INSERT INTO doc_type(id, name) values(11,'referral report orthopaedic');
+INSERT INTO doc_type(id, name) values(12,'referral report neuro');
+INSERT INTO doc_type(id, name) values(13,'referral report radiology');
+INSERT INTO doc_type(id, name) values(14,'referral report other');
 
 -- add any number of types here, this is just to give you an idea
 
@@ -55,12 +55,15 @@ CREATE TABLE "doc_med_external_ref" (
 -- =============================================
 CREATE TABLE "doc_obj" (
 	"doc_id" integer references doc_med(id),
+	"seq_idx" integer,
 	"comment" character varying(30),
 	"data" bytea
 );
 
 COMMENT ON TABLE "doc_obj" IS 'several of these may form a medical document such as multiple scanned pages/images';
+COMMENT ON COLUMN doc_obj.seq_idx IS 'index of this object in the sequence of objects for this document';
 COMMENT ON COLUMN doc_obj.comment IS 'optional tiny comment for this object, such as "page 1"';
+COMMENT ON COLUMN doc_obj.data IS 'actual binary object data';
 
 -- =============================================
 CREATE TABLE "doc_desc" (
@@ -71,14 +74,12 @@ CREATE TABLE "doc_desc" (
 COMMENT ON TABLE "doc_desc" is 'A textual description of the content such as a result summary. Several of these may belong to one document object.';
 
 -- =============================================
-
 -- questions:
 --  - do we need doc_desc linkeable to doc_obj, too ?
 --  - do we need a "source" field in doc_desc so we can distinguish between "that's what the OCR software understood from this referral letter scan" vs "that's what the cardiologist thinks of this ECG"
 --  - how do we protect documents from being accessed by unauthorized users ?
 --    - on access search for the oid in gmCrypto tables for a matching key/PW hash record ??
 --  - should (potentially large) binary objects be moved to audit tables ?!?
---  - should we sequence objects ?
 
 -- notes:
 -- - as this uses BYTEA for storing binary data we have the following limitations
