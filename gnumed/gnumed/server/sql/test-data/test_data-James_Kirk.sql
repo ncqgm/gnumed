@@ -4,14 +4,12 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-set time zone '+2:00';
-
 -- identity
 -- name
 delete from names where
@@ -24,10 +22,10 @@ delete from identity where
 		and
 	cob = 'CA'
 		and
-	id in (select i_id from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22');
+	id in (select i_id from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22+2:00');
 
 insert into identity (gender, dob, cob, title)
-values ('m', '1931-3-22', 'CA', 'Capt.');
+values ('m', '1931-3-22+2:00', 'CA', 'Capt.');
 
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'Kirk', 'James T.');
@@ -65,7 +63,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_id_seq'),
 	-1,
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
+	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
 	'first for this RFE'
 );
@@ -119,7 +117,7 @@ insert into vaccination (
 	currval('clin_episode_id_seq'),
 	'contaminated knife cut, prev booster > 7 yrs',
 	currval('identity_id_seq'),
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
+	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select id from vaccine where trade_name='Tetasorbat SSW'),
 	'2000-9-17',
 	'left deltoid muscle',
@@ -161,7 +159,7 @@ insert into lab_request (
 	'inflammation screen, possibly extraterrestrial contamination',
 	(select pk from test_org where internal_name='Enterprise Main Lab'),
 	'EML#SC937-0176-CEC#11',
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'::timestamp),
+	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'SC937-0176-CEC#15034',
 	'2000-9-17 17:40',
 	'2000-9-17 18:10',
@@ -292,7 +290,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_id_seq'),
 	-1,
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
+	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
 	'second for this RFE'
 );
@@ -423,11 +421,16 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.24  2004-06-02 00:14:46  ncq
+-- Revision 1.25  2004-06-02 13:46:46  ncq
+-- - setting default session timezone has incompatible syntax
+--   across version range 7.1-7.4, henceforth specify timezone
+--   directly in timestamp values, which works
+--
+-- Revision 1.24  2004/06/02 00:14:46  ncq
 -- - add time zone setting
 --
 -- Revision 1.23  2004/06/01 10:15:18  ncq

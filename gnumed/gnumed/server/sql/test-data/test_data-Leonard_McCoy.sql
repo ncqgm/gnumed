@@ -4,16 +4,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-set time zone '+2:00';
-
 insert into identity (gender, dob, cob, title)
-values ('m', '1920-1-20', 'US', 'Dr.');
+values ('m', '1920-1-20+2:00', 'US', 'Dr.');
 
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'McCoy', 'Leonard');
@@ -33,11 +31,16 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Leonard_McCoy.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.9  2004-06-02 00:14:47  ncq
+-- Revision 1.10  2004-06-02 13:46:46  ncq
+-- - setting default session timezone has incompatible syntax
+--   across version range 7.1-7.4, henceforth specify timezone
+--   directly in timestamp values, which works
+--
+-- Revision 1.9  2004/06/02 00:14:47  ncq
 -- - add time zone setting
 --
 -- Revision 1.8  2004/03/18 10:59:24  ncq

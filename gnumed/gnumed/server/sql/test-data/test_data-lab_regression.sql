@@ -4,14 +4,12 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-set time zone '+2:00';
-
 -- identity
 -- name
 delete from names where
@@ -24,10 +22,10 @@ delete from identity where
 		and
 	cob = 'CA'
 		and
-	id in (select i_id from v_basic_person where firstnames='Laborata' and lastnames='Testwoman' and dob='1931-3-22');
+	id in (select i_id from v_basic_person where firstnames='Laborata' and lastnames='Testwoman' and dob='1931-3-22+2:00');
 
 insert into identity (gender, dob, cob, title)
-values ('f', '1931-3-22', 'CA', '');
+values ('f', '1931-3-22+2:00', 'CA', '');
 
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'Testwoman', 'Laborata');
@@ -65,7 +63,7 @@ insert into clin_encounter (
 ) values (
 	currval('identity_id_seq'),
 	-1,
-	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
+	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='chart review'),
 	'first for this RFE'
 );
@@ -85,18 +83,23 @@ insert into lab_request (
 	'used for anonymized import regression tests',
 	(select pk from test_org where internal_name='your own practice'),
 	'anon: sample ID',
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'::timestamp),
+	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	true
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.3  2004-06-02 00:14:47  ncq
+-- Revision 1.4  2004-06-02 13:46:46  ncq
+-- - setting default session timezone has incompatible syntax
+--   across version range 7.1-7.4, henceforth specify timezone
+--   directly in timestamp values, which works
+--
+-- Revision 1.3  2004/06/02 00:14:47  ncq
 -- - add time zone setting
 --
 -- Revision 1.2  2004/05/30 21:03:29  ncq

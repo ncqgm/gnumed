@@ -4,16 +4,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Julian_Bashir.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-set time zone '+2:00';
-
 insert into identity (gender, dob, cob, title)
-values ('m', '1965-11-21', 'SD', 'Dr.');
+values ('m', '1965-11-21+2:00', 'SD', 'Dr.');
 
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'Bashir', 'Julian');
@@ -30,11 +28,16 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Julian_Bashir.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Julian_Bashir.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: test_data-Julian_Bashir.sql,v $
--- Revision 1.5  2004-06-02 00:14:47  ncq
+-- Revision 1.6  2004-06-02 13:46:46  ncq
+-- - setting default session timezone has incompatible syntax
+--   across version range 7.1-7.4, henceforth specify timezone
+--   directly in timestamp values, which works
+--
+-- Revision 1.5  2004/06/02 00:14:47  ncq
 -- - add time zone setting
 --
 -- Revision 1.4  2004/01/18 21:59:06  ncq

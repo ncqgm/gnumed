@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -17,8 +17,8 @@ insert into test_org
 	(fk_org, fk_adm_contact, fk_med_contact, internal_name, comment)
 values (
 	99999,
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='Spock' and dob='1931-3-26'::timestamp),
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'::timestamp),
+	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='Spock' and dob='1931-3-26+2:00'::timestamp),
+	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'Enterprise Main Lab',
 	'the main path lab aboard the USS Enterprise'
 );
@@ -99,11 +99,16 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.7  2004-06-02 00:14:47  ncq
+-- Revision 1.8  2004-06-02 13:46:46  ncq
+-- - setting default session timezone has incompatible syntax
+--   across version range 7.1-7.4, henceforth specify timezone
+--   directly in timestamp values, which works
+--
+-- Revision 1.7  2004/06/02 00:14:47  ncq
 -- - add time zone setting
 --
 -- Revision 1.6  2004/05/06 23:32:44  ncq
