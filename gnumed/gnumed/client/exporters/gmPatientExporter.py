@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.44 2005-04-02 20:45:12 cfmoro Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmPatientExporter.py,v 1.45 2005-04-02 21:37:27 cfmoro Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -478,9 +478,14 @@ class cEmrExport:
         if not self.__fetch_filtered_items():
             return
         emr = self.__patient.get_clinical_record()
+        unlinked_episodes = emr.get_episodes(issues = [None])
         h_issues = emr.get_health_issues(id_list = self.__constraints['issues'])
         root_node = emr_tree.GetRootItem()
         # build the tree
+        # unlinked episodes
+        if len(unlinked_episodes) > 0:
+            h_issues.insert(0, {'description':_('DEFAULT ISSUE'), 'id':None})
+        # existing issues
         for a_health_issue in h_issues:
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetPyData(issue_node, a_health_issue)
@@ -614,6 +619,10 @@ class cEmrExport:
                 
         # begin with the tree
         h_issues = emr.get_health_issues(id_list = self.__constraints['issues'])
+        # unlinked episodes
+        unlinked_episodes = emr.get_episodes(issues = [None])
+        if len(unlinked_episodes) > 0:
+            h_issues.insert(0, {'description':_('DEFAULT ISSUE'), 'id':None})        
         for a_health_issue in h_issues:
             self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
@@ -910,7 +919,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.44  2005-04-02 20:45:12  cfmoro
+# Revision 1.45  2005-04-02 21:37:27  cfmoro
+# Unlinked episodes displayes in EMR tree and dump
+#
+# Revision 1.44  2005/04/02 20:45:12  cfmoro
 # Implementated  exporting emr from gui client
 #
 # Revision 1.43  2005/03/30 21:14:31  cfmoro

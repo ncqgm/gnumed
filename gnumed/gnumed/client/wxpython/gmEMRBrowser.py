@@ -2,12 +2,12 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.21 2005-04-02 20:45:14 cfmoro Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmEMRBrowser.py,v 1.22 2005-04-02 21:37:27 cfmoro Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
-import sys
+import sys, types
 
 from wxPython import wx
 
@@ -156,7 +156,8 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
         self.__display_narrative_on_right_pane()
 
         # update displayed text
-        if isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue):
+        if isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue) \
+        or isinstance(sel_item_obj, types.DictType):
             label = _('Health Issue')
             txt = self.__exporter.get_issue_info(issue=sel_item_obj)
 
@@ -629,7 +630,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.21  2005-04-02 20:45:14  cfmoro
+# Revision 1.22  2005-04-02 21:37:27  cfmoro
+# Unlinked episodes displayes in EMR tree and dump
+#
+# Revision 1.21  2005/04/02 20:45:14  cfmoro
 # Implementated  exporting emr from gui client
 #
 # Revision 1.20  2005/03/30 22:10:07  ncq
