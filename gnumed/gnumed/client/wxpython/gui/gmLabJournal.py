@@ -152,15 +152,14 @@ class cLabJournalNB(wxNotebook):
 
 		vbszr.AddWindow( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
 
-		# maybe have a look at MultiColumnList
 		# our actual list
 		tID = wxNewId()
 		self.lbox_pending = gmLabIDListCtrl(
 			self.PNL_due_tab,
 			tID,
-			size=(400,100),
+			size=wxDefaultSize,
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
-		)#|wxLC_HRULES)
+		)
 
 		self.lbox_pending.InsertColumn(0, _("date"))
 		self.lbox_pending.InsertColumn(1, _("lab"))
@@ -168,7 +167,7 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_pending.InsertColumn(3, _("patient"))
 		self.lbox_pending.InsertColumn(4, _("status"))
 		
-		vbszr.AddWindow( self.lbox_pending, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr.AddWindow( self.lbox_pending, 1, wxEXPAND|wxALIGN_CENTER|wxALL, 5 )
 		return vbszr
 
 	def __init_SZR_import_errors (self):
@@ -178,11 +177,11 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_errors = gmLabIDListCtrl(
 			self.PNL_errors_tab,
 			tID,
-			size=(400,100),
+			size=wxDefaultSize,
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
-		)#|wxLC_HRULES)
+		)
 		
-		vbszr.AddWindow(self.lbox_errors, 0, wxALIGN_CENTER | wxALL, 5)
+		vbszr.AddWindow(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
 
 		self.lbox_errors.InsertColumn(0, _("when"))
 		self.lbox_errors.InsertColumn(1, _("problem"))
@@ -196,11 +195,11 @@ class cLabJournalNB(wxNotebook):
 		self.review_Ctrl = gmLabIDListCtrl(
 			self.PNL_review_tab,
 			tID,
-			size=(500,200),
+			size=wxDefaultSize,
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
-		)#|wxLC_HRULES)
+		)
 
-		vbszr.AddWindow(self.review_Ctrl, 0, wxALIGN_CENTER | wxALL, 5)
+		vbszr.AddWindow(self.review_Ctrl, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
 		self.review_Ctrl.InsertColumn(0, _("patient name"))
 		self.review_Ctrl.InsertColumn(1, _("dob"))
@@ -613,7 +612,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.9  2004-05-08 17:43:55  ncq
+# Revision 1.10  2004-05-18 19:38:54  shilbert
+# - gui enhancements (wxExpand)
+#
+# Revision 1.9  2004/05/08 17:43:55  ncq
 # - cleanup here and there
 #
 # Revision 1.8  2004/05/06 23:32:45  shilbert
