@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.52 2004-04-20 00:17:56 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.53 2004-04-21 15:30:24 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -290,10 +290,17 @@ select
 	lr.lab_rxd_when,
 	tr.clin_when as val_when,
 	lr.results_reported_when as reported_when,
-	coalesce(ttu.internal_code, '') as unified_code,
-	coalesce(ttu.internal_name, '') as unified_name,
+	coalesce(ttu.internal_code, ttu.code) as unified_code,
+	coalesce(ttu.internal_name, ttu.name) as unified_name,
 	ttu.code as lab_code,
 	ttu.name as lab_name,
+	case when coalesce(trim(both from tr.val_alpha), '') = ''
+		then tr.val_num::text
+		else case when tr.val_num is null
+			then tr.val_alpha
+			else tr.val_num::text || ' (' || tr.val_alpha || ')'
+		end
+	end as unified_val,
 	tr.val_num,
 	tr.val_alpha,
 	tr.val_unit,
@@ -415,7 +422,7 @@ select
 	a.id as id,
 	a.pk_item as id_item,
 	vpep.id_patient as id_patient,
-	case when coalesce(a.allergene, '') = ''
+	case when coalesce(trim(both from a.allergene), '') = ''
 		then a.substance
 		else a.allergene
 	end as descriptor,
@@ -748,11 +755,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.52 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.53 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.52  2004-04-20 00:17:56  ncq
+-- Revision 1.53  2004-04-21 15:30:24  ncq
+-- - fix coalesce on unified_name/code in v_results4lab_req
+-- - add unified_val
+--
+-- Revision 1.52  2004/04/20 00:17:56  ncq
 -- - allergies API revamped, kudos to Carlos
 --
 -- Revision 1.51  2004/04/17 12:42:09  ncq
