@@ -1,0 +1,140 @@
+Requirements:
+-------------
+A running PostgreSQL server reachable by TCP/IP.
+Get PostgreSQL from:
+ http://www.postgresql.org
+The postgres server can run on the local or a remote
+machine.
+
+A database login for the server that can access the tables.
+
+A GNUMed compatible database on the server. Get
+the SQL schema definition from:
+ http://savannah.gnu.org/projects/gnumed
+
+It depends on several GNUMed client modules. These are
+also available via CVS from
+ http://savannah.gnu.org/projects/gnumed
+
+A working Python 2.1+. This is available from:
+ http://www.python.org
+for both Linux and Windows. Linux is recommended.
+
+Operation:
+----------
+Getting documents into the GNUmed database consists of
+three phases:
+
+1) batch scanning the documents
+2) associating scanned documents with patient meta data
+3) actually importing associated documents
+
+Import-med_docs.py is a phase-3 tool for the medical
+document archive in GNUmed.
+
+It reads documents and associated meta data from
+subdirectories of several repository directories. It
+will store those documents in a GNUMed database if
+all sanity checks pass.
+
+Each subdirectory of a repository may contain only
+one medical document and its metadata. One document,
+hwoever, may consist of several image files.
+
+--------------------------------------------------------------
+Herzlichen Glückwusch ! Sie sind dabei das Dokumentenarchiv 'DocSys' auszuprobieren.
+
+1. Vorbereitung
+2. Installation
+3. Starten
+
+1.1 JAVA besorgen
+	Das Dokumentarchiv macht Gebrauch von JAVA. JAVA muss daher auf dem PC installiert sein. Möglichweise ist es schon installiert. Wenn ja, findet sich ein entsprechendes
+Icon in der Systemsteuerung. Wenn nein, muss man sich das Paket beschaffen. So man Internetgang hat, kann man sich das Paket bei SUN (http://java.sun.com) herunterladen.
+Das Programm begnügt sich mit der RuntimeEdition v1.3. Das Paket für Windows heisst jre13*.exe.
+
+1.2 JAVA Twain Schnittstelle besorgen. 
+	Die von uns verwendete Scanneransteuerung
+für Windows ist ein kommerzielles Produkt der Firma Gnome. Die Version zum Ausprobieren findet man unter http://www.gnome.sk. Das Paket kostet 275 Euro.
+Das ist viel zu viel aber wir kennen derzeit keine Alternative. Die Probierversion läuft aber ewig und man muss nur ab und an einen Knopf drücken. 
+Unter Linux kann man sich die Kosten sparen. Da verwenden wir SANE statt TWAIN.
+SANE (http://www.mostang.com/sane/) steht unter der GPL und ist damit frei verfügbar.
+Leider sind wir noch nicht dazu gekommen es zu implementieren. Da unser Programm im Quellcode verfügbar ist, kann sich ja ein findiger Programmierer ransetzen.
+
+1.3 Datenbank aufsetzen.
+Wir verwenden PostgreSQL. Im Paket befindet sich eine Datei mit der Datenbank-Tabellen-Struktur. Mit Hilfe dieser Datei wird die Datenbank für das Archiv erzeugt.
+
+2. Installation
+Das Dokumentenarchiv braucht nicht installiert zu werden. Wenn man dieses Dokument liest, hat man das Paket wahrscheinlich schon entpackt. Wenn nicht, entpackt man es einfach nach 
+"C:\", "D:\" oder sonstwohin.
+
+Im Verzeichnis 'docsyssa' gibt es eine Datei namens 'docsys.cfg'. Die muss an das eigene System angepasst werden. 
+
+3.Das Dokumentenarchiv besteht aus zwei Teilprogrammen.
+Programm1 wird über die Batch-Datei 'scannen.bat' gestartet.
+Programm 2 wird über die Batch-Datei 'erfassen.bat' gestartet.
+
+Beide Batch-Dateien müssen an das eigene System angepasst werden.
+Man öffnet die Dateien in einem Texteditor seiner Wahl und passt die Laufwerksbuchstaben und Verzeichnisse an. 
+
+Hier ein Beispiel für den Fall , dass das Paket direkt nach 'C:\docsyssa' entpackt wurde :
+
+[scannen.bat]
+
+SET PATH=C:\WINDOWS;C:\WINDOWS\COMMAND;c:\jre\bin;c:\docsyssa
+SET CLASSPATH=C:\docsyssa\postgresql.jar;C:\docsyssa\cdc_standard.jar; C:\docsyssa\twain.jar; C:\jre\lib;c:\jre
+c:
+cd \
+cd c:\docsyssa
+del patient.dat
+copy tmed.bdt patient.dat
+java -jar scannen.jar 
+del tmed.bdt
+
+und
+
+[erfassen.bat]
+
+SET PATH=C:\WINDOWS;C:\WINDOWS\COMMAND;c:\jre\bin;c:\docsyssa
+SET CLASSPATH=C:\docsyssa\postgresql.jar;C:\docsyssa\cdc_standard.jar; C:\docsyssa\twain.jar;C:\jre\lib;c:\jre
+c:
+cd \
+cd c:\docsyssa
+del patient.dat
+copy tmed.bdt patient.dat
+java -jar erfassen.jar 
+del tmed.bdt
+
+Durch Doppelklick auf die mitgelieferten Windows-Verknüpfungen werden die Programme
+gestartet. Auch diese müssen angepasst werden oder man erstellt sich seine eigenen Verknüpfungen.
+
+Die Verknüpfung 'erfassen.bat' soll direkt aus Turbomed gestartet werden. Dazu wird
+'erfassen.bat' als externes Programm in der Turbomeddatei '289.gdt' eingetragen.
+Was man wie einzutragen hat, findet man im Turbomed-Handbuch im Kapitel 'GDT'
+
+Bei mir sieht die Datei so aus :
+
+[289.gdt] 
+
+1
+2
+Befunde zuordnen #c:\docsyssa\tmed.bdt#c:\docsyssa\erfassen.bat###
+3
+Befunde zuordnen #c:\docsyssa\tmed.bdt#c:\docsyssa\erfassen.bat###
+4
+Befunde zuordnen #d:\docsyssa\tmed.bdt#d:\docsyssa\erfassen.bat###
+
+Dadurch können die Arbeitsstationen 2,3 und 4 das Erfassungsprogramm aus der Karteikarte heraus aufrufen.
+
+Viel Spass mit dem Programm
+
+Bei Fragen erreichen Sie uns unter :
+
+Tobias Hilbert
+Hauptstrasse 30
+02999 Knappensee
+Tel : 035726 5130
+email : tobias.hilbert@gmx.net
+-----------------------------------------------------------------
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README,v $
+$Revision: 1.1 $
