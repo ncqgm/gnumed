@@ -7,16 +7,12 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.47 2003-11-17 11:34:22 sjtan Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.47 2003-11-17 11:34:22 sjtan Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmClinicalRecord.py,v 1.48 2003-11-18 14:16:41 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, string
-import time
-import traceback
+import sys, os.path, string, time
 
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
@@ -337,8 +333,6 @@ class gmClinicalRecord:
 					data.append(allergy)
 		else:
 			data = self.__db_cache['allergies']
-		_print("allergy data = ", data)
-		_print("allergy col_idx = " ,col_idx)
 		return data
 	#--------------------------------------------------------
 	def get_allergy_names(self, remove_sensitivities = None):
@@ -556,7 +550,6 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
-			_print("insert")
 			return None
 		# get ID of insertion
 		cmd = "select currval('clin_health_issue_id_seq')"
@@ -564,7 +557,6 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
-			_print("find currval")
 			return None
 		id_issue = rw_curs.fetchone()[0]
 		# and commit our work
@@ -838,9 +830,11 @@ where
 		rw_curs = rw_conn.cursor()
 		# FIXME: id_type hardcoded, not reading checkbox states (allergy or sensitivity)
 		cmd = """
-insert into
-allergy(id_type, id_encounter, id_episode,  substance, reaction, definite)
-values (%s, %s, %s, %s, %s, %s)
+insert into allergy (
+	id_type, id_encounter, id_episode,  substance, reaction, definite
+) values (
+	%s, %s, %s, %s, %s, %s
+)
 """
 		gmPG.run_query (rw_curs, cmd, 1, self.id_encounter, self.id_episode, map["substance"], map["reaction"], map["definite"])
 		rw_curs.close()
@@ -848,7 +842,7 @@ values (%s, %s, %s, %s, %s, %s)
 		rw_conn.close()
 
 		return 1
-
+	#------------------------------------------------------------------
 	def get_past_history(self):
 		if not self.__dict__.has_key('past_history'):
 			from gmPastHistory import gmPastHistory
@@ -868,7 +862,6 @@ values (%s, %s, %s, %s, %s, %s)
 
 class gmClinicalPart:
 	def __init__(self, backend, patient):
-		#gmEditAreaFacade.__init__(self, backend, patient)
 		self._backend = backend
 		self.patient = patient
 		
@@ -876,17 +869,9 @@ class gmClinicalPart:
 		return self.patient.id_patient
 
 	def id_encounter(self):
-		id = self.patient.id_encounter
-		if id == None:
-			status, result =  self.patient.attach_to_encounter(forced = 1)
-			_print("GOT ", status, result, " from attach_to_encounter")
-
-		_print("id_encounter=", id		)
-
-		return id		
+		return self.patient.id_encounter
 
 	def id_episode(self):
-		_print("id_episode", self.patient.id_episode)
 		return self.patient.id_episode
 
 
@@ -896,32 +881,26 @@ class gmClinicalPart:
                return s
 
 
-	def _traceback(self, msg = "_traceback()"):
-		import gmLog
-		gmLog.gmDefLog.LogException(msg, sys.exc_info(), verbose=1)
-		#_print(sys.exc_info()[0], sys.exc_info()[1])
-		#traceback.print_tb(sys.exc_info()[2])
+#	def _print(self, *kargs):
 
-	def _print(self, *kargs):
+#		try:
+#			if len(kargs) > 1:
+#				list = kargs
+#			else:
+#				list = kargs[0]
 
-		try:
-			if len(kargs) > 1:
-				list = kargs
-			else:
-				list = kargs[0]
-
-			if type(list) in [ type([]), type(()) ]:
-				strList = []
-				for x in list:
-					strList.append(str(list))
-				msg  = "   ".join(strList)
-			else:
-				msg = str(list)
+#			if type(list) in [ type([]), type(()) ]:
+#				strList = []
+#				for x in list:
+#					strList.append(str(list))
+#				msg  = "   ".join(strList)
+#			else:
+#				msg = str(list)
 				
-			import gmLog
-			gmLog.gmDefLog.Log(gmLog.lInfo, msg)
-		except:
-			_print(list)
+#			import gmLog
+#			gmLog.gmDefLog.Log(gmLog.lInfo, msg)
+#		except:
+#			_print(list)
 	
 	
 	def validate_not_null( self, values, fields):
@@ -938,16 +917,17 @@ class gmClinicalPart:
 				try:
 					map[fields[i]] = row[i+1]
 				except:
-					_print("ERROR at i = ", i , " len(fields) ", len(fields) , "len(row)", len(row))
+					#_print("ERROR at i = ", i , " len(fields) ", len(fields) , "len(row)", len(row))
+					pass
 			all_map[row[0]]= map	
 
 		return all_map	
 				
 		
 	
-def _print( *kwds, **kargs):
-	list = [ str(x) for x in kwds]
-	_log.Log(gmLog.lInfo, " ".join(list))
+#def _print( *kwds, **kargs):
+#	list = [ str(x) for x in kwds]
+#	_log.Log(gmLog.lInfo, " ".join(list))
 
 			
 # main
@@ -961,13 +941,19 @@ if __name__ == "__main__":
 		keys.sort()
 		for aged_line in keys:
 			for line in dump[aged_line]:
-				_print(line)
+				print line
 	import time
 	time.sleep(3)
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.47  2003-11-17 11:34:22  sjtan
+# Revision 1.48  2003-11-18 14:16:41  ncq
+# - cleanup
+# - intentionally comment out some methods and remove some code that
+#   isn't fit for the main trunk such that it breaks and gets fixed
+#   eventually
+#
+# Revision 1.47  2003/11/17 11:34:22  sjtan
 #
 # no ref to yaml
 #
