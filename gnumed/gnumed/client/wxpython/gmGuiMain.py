@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.75 2003-02-09 09:05:30 michaelb Exp $
-__version__ = "$Revision: 1.75 $"
+# $Id: gmGuiMain.py,v 1.76 2003-02-09 09:47:38 sjtan Exp $
+__version__ = "$Revision: 1.76 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -193,6 +193,7 @@ class MainFrame(wxFrame):
 		self.Fit ()
 		self.Centre(wxBOTH)
 		self.Show(true)
+		import handler_loading_script
 
 	#----------------------------------------------
 	def OnNotebookPopup(self, evt):
@@ -290,6 +291,7 @@ class MainFrame(wxFrame):
 
 			try:
 				p = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
+				_log.Log(gmLog.lInfo,  'got plugin of type %s' % p.__class__.__name__)
 				p.register()
 				#print p
 				#sys.exit(0)
@@ -619,7 +621,11 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.75  2003-02-09 09:05:30  michaelb
+# Revision 1.76  2003-02-09 09:47:38  sjtan
+#
+# handler loading placed here.
+#
+# Revision 1.75  2003/02/09 09:05:30  michaelb
 # renamed 'icon_gui_main' to 'icon_serpent', added icon to loading-plugins-progress-dialog box
 #
 # Revision 1.74  2003/02/07 22:57:59  ncq
