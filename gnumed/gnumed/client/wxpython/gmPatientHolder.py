@@ -12,19 +12,13 @@ class PatientHolder:
 		try:
 			self._updateUI()
 		except:
-			gmLog.gmDefLog.LogException( "updateUI problem", sys.exc_info(), verbose=1)
-
-	def get_demographic_record(self):
-		return self.get_patient().get_demographic_record()
-
-	def get_clinical_record(self):
-		return self.get_patient().get_clinical_record()
+			gmLog.gmDefLog.LogException( "updateUI problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 
 	def get_past_history(self):
-		return self.get_clinical_record().get_past_history()
+		return self.patient.get_clinical_record().get_past_history()
 
 	def get_allergies(self):
-		return self.get_clinical_record().get_allergies_manager()
+		return self.patient.get_clinical_record().get_allergies_manager()
 	
 	def _updateUI(self):
-		gmLog.gmDefLog.Log(gmLog.lWarn, "please override me in %s", self.__class__.__name__)
+		gmLog.gmDefLog.Log(gmLog.lWarn, "please override me in %s" % self.__class__.__name__)
