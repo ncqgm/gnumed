@@ -82,7 +82,7 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 		statement = "select nextval('identity_id_seq')";
 		cursor.execute(statement)
 		[nextid] = cursor.fetchone()
-		while nextid < id:
+		while nextid < id + 1:
 			cursor.execute(statement)
 			[nextid] = cursor.fetchone()
 
@@ -140,6 +140,8 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 			cursor.execute(self.execute_insert_an_id % tp.id)
 			profileUpdate = PersonIdService.ProfileUpdate(tp.id, [], tp.profile)
 			do_profile_update(profileUpdate, self.connector.getConnection() )
+
+		self._get_and_ensure_max_identity_id(cursor)
 		con.commit()
 
 

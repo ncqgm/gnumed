@@ -203,12 +203,15 @@ def calculate_confidence( profile, traitSelectorSeq):
 	full_matches = 0
 	total_data_len = 1
 	total_weight = 0.0
+	debug2 = '-debug2' in sys.argv
 	for  trait in profile:
 		if map.has_key(trait.name):
 			tSelector = map[trait.name]
 			v1, v2 =  tSelector.trait.value.value().strip('^ ') , trait.value.value().strip('^ ')
 			matches =  difflib.get_close_matches(v1,[v2], 1, tSelector.weight)
-			print "Matches for ", trait.name,"weight", tSelector.weight, " are ", matches
+			
+			if debug2:
+				print "Matches for ", trait.name,"weight", tSelector.weight, " are ", matches
 			if matches <> None and matches <> []:
 				if v1 == v2:
 					full_matches += 1
