@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -447,7 +447,6 @@ class cLogTargetEMail(cLogTarget):
 		self.__comment = ""
 
 		import smtplib
-		#print anSMTPServer
 		if anSMTPServer == None:
 			self.__smtpd = smtplib.SMTP("localhost")
 		else:
@@ -463,13 +462,14 @@ class cLogTargetEMail(cLogTarget):
 	def setFrom (self, aFrom):
 		self.__from = str(aFrom)
 	#---------------------------
+	def setTo (self, aTo):
+		self.__to = string.join(aTo, ", ")
+	#---------------------------
 	def setComment (self, aComment):
 		self.__comment = str(aComment)
 	#---------------------------
 	def setSysDump (self, aFlag):
-		"""Whether to include various system info when flush()ing.
-
-		   - PYTHONPATH"""
+		"""Whether to include various system info when flush()ing."""
 		self.__dump_sys_info = aFlag
 	#---------------------------
 	def setMaxBufLen (self, aBufLen):
@@ -503,6 +503,8 @@ class cLogTargetEMail(cLogTarget):
 		self.__msg_buffer.append(aTimeStamp + aPrefix + aLocation + aMsg)
 	#---------------------------
 	def flush(self):
+		# - PYTHONPATH still missing
+
 		# create mail headers
 		msg = ''
 		msg = msg + 'From: %s\n' % self.__from
