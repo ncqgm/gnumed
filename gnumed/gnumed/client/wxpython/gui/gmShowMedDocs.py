@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -86,19 +86,19 @@ class cDocTree(wxTreeCtrl):
 
 		self.root = None
 		self.doc_list = None
+		self.curr_pat = gmTmpPatient.gmCurrentPatient()
 
 		# connect handler
 		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
 	#------------------------------------------------------------------------
-	def update(self, aPatient = None):
-		if aPatient is None:
-			_log.Log(gmLog.lErr, 'need patient object for update')
+	def update(self):
+		if self.curr_pat['ID'] is None:
+			_log.Log(gmLog.lErr, 'need patient for update')
 			self.__show_error(
 				aMessage = _('Cannot load documents.\nYou first need to select a patient.'),
 				aTitle = _('loading document list')
 			)
 			return None
-		self.pat = aPatient
 
 		if self.doc_list is not None:
 			del self.doc_list
@@ -121,9 +121,9 @@ class cDocTree(wxTreeCtrl):
 		self.SetItemHasChildren(self.root, FALSE)
 
 		# read documents from database
-		doc_ids = self.pat['document id list']
+		doc_ids = self.curr_pat['document id list']
 		if doc_ids is None:
-			name = self.pat['active name']
+			name = self.curr_pat['active name']
 			self.__show_error(
 				aMessage = _('Cannot find any documents for the patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
@@ -320,6 +320,8 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
+	# FIXME !! - need to take care of new gmCurrentPatient() stuff
+
 	import gmLoginInfo
 	import gmXdtObjects
 	from gmXdtMappings import xdt_gmgender_map
@@ -489,7 +491,7 @@ else:
 
 		def ReceiveFocus(self):
 			# get patient object
-			if self.panel.tree.update(gmTmpPatient.gmDefPatient) is None:
+			if self.panel.tree.update() is None:
 				_log.Log(gmLog.lErr, "cannot update document tree")
 				return None
 			# FIXME: register interest in patient_changed signal, too
@@ -521,7 +523,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.16  2003-04-01 12:31:53  ncq
+# Revision 1.17  2003-04-04 20:49:22  ncq
+# - make plugin work with gmCurrentPatient
+#
+# Revision 1.16  2003/04/01 12:31:53  ncq
 # - we can't use constant reference self.patient if we don't register interest
 #   in gmSignals.patient_changed, hence, acquire patient when needed
 #
