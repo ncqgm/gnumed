@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -234,7 +234,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		all_leafs = self.__soap_multisash.get_displayed_leafs()
 		for a_leaf in all_leafs:
 			content = a_leaf.get_content()
-			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel) and \
+			if not content is None and \
+			isinstance(content, gmSOAPWidgets.cResizingSoapPanel) and \
 			content.GetProblem()['pk_episode'] == episode_id:
 				a_leaf.Select()
 				return
@@ -525,7 +526,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.23  2005-02-23 19:41:26  ncq
+# Revision 1.24  2005-02-24 20:03:02  cfmoro
+# Fixed bug when focusing and any of the content is None
+#
+# Revision 1.23  2005/02/23 19:41:26  ncq
 # - listen to episodes_modified() signal instead of manual refresh
 # - cleanup, renaming, pretty close to being moved to main trunk
 #
