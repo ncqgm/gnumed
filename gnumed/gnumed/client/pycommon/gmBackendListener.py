@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -17,7 +17,7 @@ import gmDispatcher, gmLog, gmExceptions
 _log = gmLog.gmDefLog
 #=====================================================================
 class BackendListener:
-	def __init__(self, service, database, user, password, host='localhost', port=5432, poll_interval = 3):
+	def __init__(self, service, database, user, password, host, port=5432, poll_interval = 3):
 		# listener thread will regularly try to acquire this
 		# lock, when it succeeds it will quit
 		self._quit_lock = threading.Lock()
@@ -124,8 +124,10 @@ class BackendListener:
 			pass
 		return 1
 	#-------------------------------
-	def __connect(self, database, user, password, host='localhost', port=5432):
+	def __connect(self, database, user, password, host, port=5432):
 		try:
+			if host in ['', 'localhost']:
+				host = '' # use local connexions for localhost as it is more secure
 			auth = "dbname='%s' user='%s' password='%s' host='%s' port=%d" % (database, user, password, host, port)
 			cnx = libpq.PQconnectdb(auth)
 		except libpq.Error, msg:
@@ -277,7 +279,10 @@ if __name__ == "__main__":
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-04-21 14:27:15  ihaywood
+# bug preventing backendlistener working on local socket connections
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.21  2004/01/18 21:45:50  ncq

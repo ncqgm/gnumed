@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.1 2004-02-25 09:30:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmLoginInfo.py,v 1.2 2004-04-21 14:27:15 ihaywood Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -30,14 +30,14 @@ class LoginInfo:
 	__ro_user = 'guest'
 	__rw_user = ''
 	__passwd = ''
-	__host = 'localhost'
+	__host = None
 	__port = 5432
 	__dbname = 'gnumed'
 	__opt = ''
 	__tty = ''
 	__profile = 'default'
 	#------------------------------------------
-	def __init__(self, user, passwd, host='localhost', port=5432, database='gnumed', options='', tty='', profile='default'):
+	def __init__(self, user, passwd, host, port=5432, database='gnumed', options='', tty='', profile='default'):
 		self.SetInfo(user, passwd, host, port, database, options, tty, profile)
 	#------------------------------------------
 	def SetInfo(self, user, passwd, host='localhost', port=5432, dbname='gnumed', opt='', tty='', profile='default'):
@@ -221,7 +221,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-04-21 14:27:15  ihaywood
+# bug preventing backendlistener working on local socket connections
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.17  2003/11/17 10:56:36  sjtan
