@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.69 2004-05-30 20:58:13 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.70 2004-06-01 08:43:21 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -191,6 +191,7 @@ select
 	cri.id_encounter as id_encounter,
 	cri.id_episode as id_episode,
 	vpep.id_health_issue as id_health_issue,
+	cri.soap_cat as soap_cat,
 	cri.narrative as narrative,
 	pgc.relname as src_table
 from
@@ -624,6 +625,7 @@ GRANT SELECT ON
 	clin_physical,
 	_enum_allergy_type
 	, allergy
+	, allergy_state
 	, vaccination
 	, vaccine
 	, vacc_def
@@ -669,11 +671,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	_enum_allergy_type,
 	_enum_allergy_type_id_seq,
 	allergy,
-	allergy_id_seq,
-	vaccination,
-	vaccination_id_seq,
-	vaccine,
-	vaccine_id_seq
+	allergy_id_seq
+	, allergy_state
+	, allergy_state_id_seq
+	, vaccination
+	, vaccination_id_seq
+	, vaccine
+	, vaccine_id_seq
 	, vacc_def
 	, vacc_def_id_seq
 	, vacc_regime
@@ -744,11 +748,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.69 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.70 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.69  2004-05-30 20:58:13  ncq
+-- Revision 1.70  2004-06-01 08:43:21  ncq
+-- - fix grants re allergy_state
+-- - include soap_cat in v_patient_items
+--
+-- Revision 1.69  2004/05/30 20:58:13  ncq
 -- - encounter_type.id -> encounter_type.pk
 --
 -- Revision 1.68  2004/05/22 11:54:23  ncq
