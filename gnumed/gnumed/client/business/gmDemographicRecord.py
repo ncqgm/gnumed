@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.38 2004-04-11 10:15:56 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmDemographicRecord.py,v 1.39 2004-04-15 09:46:56 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -678,7 +678,7 @@ def getCommChannelTypes():
 		return None
 	if len (row_list) == 0:
 		return None
-	return dict (row_list)
+	return dict(row_list)
 
 EMAIL=1
 FAX=2
@@ -865,7 +865,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.38  2004-04-11 10:15:56  ncq
+# Revision 1.39  2004-04-15 09:46:56  ncq
+# - cleanup, get_lab_data -> get_lab_results
+#
+# Revision 1.38  2004/04/11 10:15:56  ncq
 # - load title in get_names() and use it superceding getFullName
 #
 # Revision 1.37  2004/04/10 01:48:31  ihaywood
