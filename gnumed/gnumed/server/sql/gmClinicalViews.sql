@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.1 2003-04-28 20:40:48 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.2 2003-04-28 21:39:49 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -16,10 +16,10 @@
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop view v_allergy;
+drop view v_i18n_allergy;
 \set ON_ERROR_STOP 1
 
-create view v_allergy as
+create view v_i18n_allergy as
 select
 	a.id as id,
 	cn.id_patient as id_patient,
@@ -46,12 +46,24 @@ where
 ;
 
 -- =============================================
+GRANT SELECT ON
+	"v_i18n_allergy"
+TO GROUP "gm-doctors";
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	"v_i18n_allergy"
+TO GROUP "_gm-doctors";
+
+-- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.1  2003-04-28 20:40:48  ncq
+-- Revision 1.2  2003-04-28 21:39:49  ncq
+-- - cleanups and GRANTs
+--
+-- Revision 1.1  2003/04/28 20:40:48  ncq
 -- - this can safely be dropped and recreated even with data in the tables
 --
