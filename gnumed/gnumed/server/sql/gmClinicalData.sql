@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.15 2003-11-02 10:17:02 ihaywood Exp $
+-- $Id: gmClinicalData.sql,v 1.16 2003-11-17 11:14:53 sjtan Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -178,6 +178,11 @@ insert into vacc_route
 	(abbreviation, description)
 values
 	('s.c.', i18n('subcutaneous'));
+
+insert into vacc_route 
+	( abbreviation, description) 
+values 
+	( 'o', i18n('orally'));
 
 -- ===================================================================
 -- vaccination indications
@@ -428,11 +433,15 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.15  2003-11-02 10:17:02  ihaywood
+-- Revision 1.16  2003-11-17 11:14:53  sjtan
+--
+-- (perhaps temporary) extra referencing table for past history.
+--
+-- Revision 1.15  2003/11/02 10:17:02  ihaywood
 -- fixups that crash psql.py
 --
 -- Revision 1.14  2003/10/26 09:41:03  ncq

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.68 $
+-- $Revision: 1.69 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -664,6 +664,27 @@ create table enum_immunities
 comment on table enum_immunities is
 'list of diseases to which patients may have immunity. Same table must exist in gmdrugs';
 
+
+-- =============================================
+create sequence id_clin_history_editarea_seq;
+create table clin_history_editarea(
+                                id integer primary key default nextval('id_clin_history_editarea_seq'),
+                                id_clin_history integer references clin_history on delete cascade,
+                                condition text,
+                                age varchar(20),
+                                "year" varchar(20),
+                                "left" integer,
+                                "right" integer, "both" integer, "none" integer,
+                                active integer,
+                                significant integer,
+                                confidential integer,
+                                operation integer,
+                                notes1 text, notes2 text , progress text);
+
+comment on table clin_history_editarea is 
+'ui specific field storage, to avoid parsing of data when using past history editarea ui for clin_history';
+
+
 -- =============================================
 GRANT SELECT ON
 	"clin_root_item",
@@ -683,10 +704,11 @@ GRANT SELECT ON
 	"allergy",
 	vaccination,
 	vaccine,
-	vacc_def
+	vacc_def,
+	clin_history_editarea
 TO GROUP "gm-doctors";
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON
+GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES, TRIGGER, RULE ON
 	"clin_root_item",
 	"clin_root_item_pk_item_seq",
 	"clin_health_issue",
@@ -722,20 +744,28 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	vaccine,
 	vaccine_id_seq,
 	vacc_def,
-	vacc_def_id_seq
+	vacc_def_id_seq,
+	clin_history_editarea,  
+	id_clin_history_editarea_seq 
 TO GROUP "_gm-doctors";
 
+--grant create on schema public to group "_gm-doctors";
+--grant insert, update on log_allergy to group "_gm-doctors";
 
 --GRANT SELECT, INSERT ON
 --TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.68 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.69 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.68  2003-11-16 19:32:17  ncq
+-- Revision 1.69  2003-11-17 11:14:53  sjtan
+--
+-- (perhaps temporary) extra referencing table for past history.
+--
+-- Revision 1.68  2003/11/16 19:32:17  ncq
 -- - clin_when in clin_root_item
 --
 -- Revision 1.67  2003/11/13 09:45:54  ncq
