@@ -44,7 +44,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -53,6 +53,7 @@ import gmLog, gmCLI
 _log = gmLog.gmDefLog
 
 system_locale = None
+system_locale_level = {}
 #---------------------------------------------------------------------------
 def install_domain():
 	"""Install a text domain suitable for the main script.
@@ -69,6 +70,7 @@ def install_domain():
 
 	# explicitely probe user locale settings
 	global system_locale
+	global system_locale_level
 	env_key = 'LANGUAGE'
 	if os.environ.has_key(env_key):
 		system_locale = os.environ[env_key]
@@ -96,6 +98,14 @@ def install_domain():
 		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
 	else:
 		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+
+	# generate system locale levels
+	system_locale_level['full'] = system_locale
+	# trim '@<variant>' part
+	# FIXME: may be a different deliminator on other systems
+	system_locale_level['country'] = system_locale.split('@', 1)[0]
+	# trim '_<COUNTRY>@<variant>' part
+	system_locale_level['language'] = system_locale.split('_', 1)[0]
 
 	# search for message catalog
 	_log.Log(gmLog.lData, 'Searching message catalog file for system locale [%s].' % system_locale)
@@ -184,6 +194,10 @@ _log.Log(gmLog.lData, __version__)
 
 install_domain()
 
+if __name__ == "__main__":
+	print "system locale: [%s]" % system_locale
+	print "levels:", system_locale_level
+
 # we can now safely set up a bunch of variables
 
 # gmTimeFormat is used to define a standard way of
@@ -197,7 +211,10 @@ _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.24  2003-02-05 21:27:05  ncq
+# Revision 1.25  2003-03-24 16:52:27  ncq
+# - calculate system locale levels at startup
+#
+# Revision 1.24  2003/02/05 21:27:05  ncq
 # - more aptly names a variable
 #
 # Revision 1.23  2003/02/01 02:42:46  ncq
