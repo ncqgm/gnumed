@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -11,25 +11,21 @@ Conf/Doc
 
 scan
 ----
-- internationalize on Windows
 - test consecutive IDs
+- quit button
 
 index
 -----
-- internationalize on Windows
 - quitibus
 
 import
 ------
-- handle date as date not string
-- general fixup
-- quite fixup
+- move/delete after successfull import !!
 
 viewer
 ------
- internationalize on Windows
- > sort objects by sequence index
- move view() to docDocument viewer code
+- sort objects by sequence index and date reverse-chron
+- fail gracefully if no docs available
 
 =====================================================
 post-1.0
@@ -41,7 +37,7 @@ post-1.0
 index
 -----
 - reload phrase wheel after completing a dir
-- quit button
+
 - Funktion Seiten umsortieren fertigstellen
 - wxDateEntry() mit ordentlichem Validator
 
@@ -78,12 +74,7 @@ viewer
  Man kann wohl eigene mailcap-Dateien mit verwenden. Mm, oder
  doch nicht.
 
- > Datum : Schrift dick
- Wie geht das ?
-
  bessere Darstellung der Felder eines Entry
-
- > sort docs by date reverse-chron
 
  > Typen-Filterung einbauen
  > testen ob es vom speed her möglich ist, die Seiten im Tree (Unterpunkte) erst 

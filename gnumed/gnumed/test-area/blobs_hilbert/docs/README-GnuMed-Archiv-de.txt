@@ -1,8 +1,8 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-de.txt,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 #------------------------------------------------------------------------
 
-Sie lesen gerade eine Vorversion des Installationshandbuchs zu GnumedArchiv
+Sie lesen gerade eine Vorversion des Installationshandbuchs zu GNUmedArchiv
 
 Inhalt :
 --------
@@ -18,7 +18,7 @@ Inhalt :
 1.   Installation Voraussetzung
 ##############################
 
-Sie sind dabei, GnumedArchiv zu installieren. GnumedArchiv ist in der Programmiersprache Python geschrieben.
+Sie sind dabei, GNUmedArchiv zu installieren. GNUmedArchiv ist in der Programmiersprache Python geschrieben.
 Daher muss auf dem System Python installiert sein. Zusätzlich müssen noch andere Pakete
 installiert sein. Die folgende Anleitung wurde mit Suse 8.0 getestet.Andere Distributionen
 sollten auch funktionieren.Die Installation umfasst die Installation auf dem Client bzw. Arbeitsplatz
@@ -141,6 +141,9 @@ Server
 	Windows ) Auch für dieses Paket gibt es einen Installer
 			http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.1.win32-py2.2.exe?download
 
+	mx-tools
+	-------------------
+	http://www.egenix.com/files/python/ - muss zur Python-Version passen
 
 
 #############################
@@ -150,17 +153,24 @@ Client
 ------
 	GNU/Linux )
 	Entpacken Sie das Archiv 'gnumed-archive-client.tgz' in ein Verzeichnis Ihrer Wahl.
+	Führen Sie dann in diesem Verzeichnis das Installationsskript 'install-sh' aus.
 
 	Windows )
-	Führen Sie das Installationsprogramm aus indem sie gnumedarchiv.exe ausführen.
-	Wenn Sie GnumedArchiv nicht im Standardpfad installieren, müssen Sie die Datei
-	gnumed.conf entsprechend anpassen. In dieser Datei werden auch die Einstellungen
-	für die Verbindung zur Datenbank vorgenommen.
+	Führen Sie das Installationsprogramm [setup.exe] aus.
 
+	Wenn Sie GNUmedArchive nicht im Standardpfad installieren, müssen Sie die
+	Dateien 'run-scanner.bat' , 'run-indexer.bat' und 'run-viewer.bat' entsprechend anpassen.
+	Diese Dateien befinden sich im Installationsverzeichnis.
 
-	Nicht vergessen, die Datei sample/gnumed.conf auf den Clients anzupassen damit
-	die Datenbank auch erreicht wird.
-	Diese Datei kann an verschiedenen Stellen abgelegt werden.
+	Der Eintrag zur Sprachwahl befindet sich in den Dateien 'run-scanner.bat', 'run-indexer.bat'
+	und 'run-indexer.bat'. Für die deutsche Oberfläche entfernen Sie bitte die Zeichenkette
+	'REM' vor dem Eintrag 'set LANG=de_DE@EURO'.
+
+	Sollte 'python.exe' auf Ihrem System nicht im Standardverzeichnis ' c:\python22' installiert
+	sein, muss der richtige Pfad in die genannten *.bat-Dateien Eingetragen werden.
+
+	Nicht vergessen, die Datei gnumed-archive.conf auf den Clients anzupassen damit
+	die Datenbank auch erreicht wird. Diese Datei kann an verschiedenen Stellen abgelegt werden.
 
 	GNU/Linux )
 	Im Idealfall erzeugt man ein Verzeichnis '.gnumed' im Home-Verzeichnis des ausführenden
@@ -169,10 +179,10 @@ Client
 
 	Windows )
 	In Windows ist es ratsam die Datei 'gnumed-archive.conf' ins selbe Verzeichnis wie die Programm-Dateien
-	zu legen.
+	zu legen. Das ist automatisch der Fall wenn man GNUmedArchive via 'setup.exe' installiert.
 
-	Eine Beispielkonfiguration (gnumed-archive.conf) findet sich im Archiv 'gnumed-archive-client.tgz'.
-
+	Eine Beispielkonfiguration (gnumed-archive.conf) findet sich im Archiv 'gnumed-archive-client.tgz' bzw.
+	'setup.exe'
 Server
 -------
 
@@ -197,6 +207,14 @@ Server
 	INSERT INTO doc_type(id, name) values(103,'Befundtypx');
 	usw.
 
+	Die Zahl vor dem Befundtyp muss einmalig sein. Das bedeutet,
+	das keine Zahl doppelt vergeben werden darf. Daher muss auch
+	sichergestellt werden, dass die Zahl nicht bereits in der Datei
+	'gmBlobs.sql' verwendet wird. Man schaut sich also die Datei 'gmBlobs.sql' an, schaut nach
+	der größten Zahl und addiert dazu '1'. Diese Zahl ist dann die Zahl vor dem ersten Eintrag
+	in der Datei'german-doc_types.sql'. Bei den folgenden Einträgen wird einfach hochgezählt.
+
+
 	Jetzt ist es an der Zeit sich zu überlegen welche Benutzer mit welchen Rechten im
 	Archiv arbeiten dürfen bzw. schreibend und/oder lesend zugreifen dürfen. Will man
 	nur Testbenutzer anlegen muss nichts angepasst werden. Dafür reichen die Voreinstellungen
@@ -213,7 +231,7 @@ Server
 	was noch zu tun ist damit beispielsweise automatisch die angelieferten
 	Befunde in die Datenbank gespeichert werden.
 
-	Passen Sie nun den Abschnitt [import] in der Konfigurationsdatei 'gnumed.conf' an Ihre Bedürfnisse an.
+	Passen Sie nun den Abschnitt [import] in der Konfigurationsdatei 'gnumed-archive.conf' an Ihre Bedürfnisse an.
 #################
 3.Starten
 #################
@@ -354,7 +372,7 @@ ausgewählte Dokumente zurück an das Praxisprogramm zu
 #########################################
 
 GNU/Linux
-	Gnumed - GnumedArchiv ist Bestandteil von Gnumed und wird direkt als Plugin in das Programm integriert.
+	GNUmed - GNUmedArchiv ist Bestandteil von GNUmed und wird direkt als Plugin in das Programm integriert.
 
 DOS
 	Turbomed - Das Programm GNUmed/Archive soll direkt aus Turbomed heraus gestartet werden.
@@ -370,20 +388,20 @@ DOS
 
 	1
 	2
-	Befunde zuordnen #c:\temp\archiv.bdt#c:\Progra~1\gnumedarchiv\client\indexer.bat###
+	Befunde zuordnen #c:\gmtmp\pat_idx.dat#c:\Progra~1\gnumed~1\client\index.bat###
 	3
-	Befunde scannen #c:\temp\archiv.bdt#c:\Progra~2\gnumedarchiv\client\scanner.bat###
-	Befunde zuordnen #c:\temp\archiv.bdt#c:\Progra~2\gnumedarchiv\client\indexer.bat###
+	Befunde scannen #c:\gmtmp\pat_idx.dat#c:\Progra~1\gnumed~1\client\scan.bat###
+	Befunde zuordnen #c:\gmtmp\pat_idx.dat#c:\Progra~1\gnumed~1\client\index.bat###
 	4
-	Befunde zuordnen #d:\temp\archiv.bdt#d:\Progra~2\gnumedarchiv\client\indexer.bat###
-	Befunde anschauen #c:\temp\archiv.bdt#c:\Progra~2\gnumedarchiv\client\viewer.bat###
+	Befunde zuordnen #d:\gmtmp\pat_idx.dat#d:\Progra~1\gnumed~1\client\index.bat###
+	Befunde anschauen #c:\gmtmp\pat_idx.dat#c:\Progra~1\gnumed~1\client\view.bat###
 
 	Dadurch können die Arbeitsstationen 2,3 und 4 das Zuordnungsprogramm aus der Karteikarte heraus aufrufen.
-	An Station 3 kann zusätzlich das Scanprogramm aufgerufen werden. Der Eintrag ist nur da sinnvoll wo
+	An Station 3 kann zusätzlich das Scanprogramm aufgerufen werden. Der Scan-Eintrag ist nur da sinnvoll wo
 	auch ein Scanner oder eine Kamera angeschlossen ist.
 	An Station 4 können dann die Befunde auch wieder angeschaut werden.
 
-	Der Anteil "c:\temp\archiv.bdt ist variabel. Der Eintrag "patient file" im Abschnitt [index] und [viewer]
+	Der Anteil "c:\gmtmp\pat_idx.dat" ist variabel. Der Eintrag "patient file" im Abschnitt [index] und [viewer]
 	der Konfigurationsdatei gnumed-archive.conf muss auf diese Stelle zeigen. Unter MSDOS (auch im DOS-Fenster) darf
 	diese Zeichenkette maximal 8+3 Zeichen lang sein. Sonst müssen die entsprechend verkürzten Namen
 	angegebenen werden. Das funktioniert aber nicht immer und sollte vermieden werden.
@@ -400,7 +418,10 @@ DOS
 
 #------------------------------------------------------------------------
 $Log: README-GnuMed-Archiv-de.txt,v $
-Revision 1.2  2002-12-03 10:16:59  ncq
+Revision 1.3  2002-12-22 22:25:04  ncq
+- Windows install: setup.exe
+
+Revision 1.2  2002/12/03 10:16:59  ncq
 - lots of changes by Basti according to current state of affairs
 
 Revision 1.1  2002/09/17 09:16:57  ncq
