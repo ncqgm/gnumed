@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.32 2003-11-16 19:34:29 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.33 2003-11-18 17:52:37 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -135,7 +135,7 @@ select
 	extract(epoch from cri.clin_when) as age,
 	cri.modified_when as modified_when,
 	cri.modified_by as modified_by,
-	cri.clin_when as clin_date,
+	cri.clin_when as clin_when,
 	case cri.row_version
 		when 0 then false
 		else true
@@ -460,11 +460,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.32  2003-11-16 19:34:29  ncq
+-- Revision 1.33  2003-11-18 17:52:37  ncq
+-- - clin_date -> clin_when in v_patient_items
+--
+-- Revision 1.32  2003/11/16 19:34:29  ncq
 -- - make partial index on __default__ encounters optional, fails on 7.1
 --
 -- Revision 1.31  2003/11/16 19:32:17  ncq
