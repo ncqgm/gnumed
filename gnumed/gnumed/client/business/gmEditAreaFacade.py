@@ -2,6 +2,7 @@ import gmDispatcher, gmSignals, gmLog
 _log = gmLog.gmDefLog 
 import time, sys, traceback
 
+to_stdout = 0 # flag for info logs to go to standard out.
 
 class gmEditAreaFacade:
 
@@ -55,7 +56,7 @@ class gmEditAreaFacade:
 				print list
 				return
 		except:
-			self._traceback()
+			_log.LogException(str(self), sys.exc_info(), verbose = 1)
 
 		if type(list) == type(""):
 			gmLog.gmDefLog.Log(gmLog.lInfo, list)
@@ -188,7 +189,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 					
 		except:
 			conn.rollback()
-			self._traceback()
+			_log.LogException(str(self), sys.exc_info(), verbose = 1)
 
 	def getRefName(self):
 		return "id_clin_history"
@@ -202,7 +203,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 		conn.commit()
 	    except:
 		   conn.rollback()
-		   self._traceback()
+		   _log.LogException(str(self), sys.exc_info(), verbose = 1)
 	    return id	   
 
 		
@@ -216,7 +217,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 		    self.impl.update_local_history(ix, values)
 	    except:
 		   conn.rollback()
-		   self._traceback()
+		   _log.LogException(str(self), sys.exc_info(), verbose = 1)
 
 	def delete_history( self, ix):
    	    conn = self._backend.GetConnection('historica', readonly = 0)
@@ -228,7 +229,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 		    self.impl.delete_local_history( ix)
 	    except:
 		   conn.rollback()
-		   self._traceback()
+		   _log.LogException(str(self), sys.exc_info(), verbose = 1)
 
 
 		
@@ -281,7 +282,7 @@ class gmAllergyEditAreaDecorator(gmEditAreaFacade):
 			conn.commit()
 		except:
 			conn.rollback()
-			self._traceback()
+			_log.LogException(str(self), sys.exc_info(), verbose = 1)
 
 	def getRefName(self):
 		return "id_allergy"
@@ -303,7 +304,7 @@ class gmAllergyEditAreaDecorator(gmEditAreaFacade):
 			self._create_allergy( conn, ( fields, formatting, values) )
 		except:
 			conn.rollback()
-			self._traceback()
+			_log.LogException(str(self), sys.exc_info(), verbose = 1)
 		
 		
 	def _create_allergy( self,conn, ( fields, formatting, values) ):
