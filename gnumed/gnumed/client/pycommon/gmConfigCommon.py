@@ -15,23 +15,20 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "H.Berger,K.Hilbert"
 
-import sys, os, string,types, pickle
-import gmLog, gmPG, gmCfg
+import sys, os, string, types, pickle
+
+from Gnumed.pycommon import gmLog, gmPG, gmCfg
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x
 
 _log.Log(gmLog.lData, __version__)
-
-if __name__ == "__main__":
-	import gmI18N
-
 _cfg = gmCfg.gmDefCfgFile
-
 _defaultDefSourceTable = {
 	'DB:CURRENT_USER_CURRENT_MACHINE': 'config-definitions/DBDefault.definitions',
 	'DB:CURRENT_USER_DEFAULT_MACHINE' : 'config-definitions/DBDefault.definitions',
@@ -888,7 +885,10 @@ def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.4  2004-03-09 07:34:51  ihaywood
+# Revision 1.5  2004-03-09 08:37:54  ncq
+# - tiny cleanup
+#
+# Revision 1.4  2004/03/09 07:34:51  ihaywood
 # reactivating plugins
 #
 # Revision 1.3  2004/03/04 01:38:49  ihaywood
