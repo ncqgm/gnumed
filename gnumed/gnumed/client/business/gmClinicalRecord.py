@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.24 2003-06-24 12:55:08 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmClinicalRecord.py,v 1.25 2003-06-26 02:29:20 ihaywood Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -316,7 +316,7 @@ class gmClinicalRecord:
 	#------------------------------------------------------------------
 	def _create_health_issue(self, health_issue_name = '__default__'):
 		curs = self._defconn_ro.cursor()
-		cmd = "select id from clin_health_issue where id_patient=%s and description=%s;"
+		cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient, health_issue_name):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot check if health issue [%s] exists for patient [%s]' % (health_issue_name, self.id_patient))
@@ -718,7 +718,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.24  2003-06-24 12:55:08  ncq
+# Revision 1.25  2003-06-26 02:29:20  ihaywood
+# Bugfix for searching for pre-existing health issue records
+#
+# Revision 1.24  2003/06/24 12:55:08  ncq
 # - eventually make create_clinical_note() functional
 #
 # Revision 1.23  2003/06/23 22:28:22  ncq
