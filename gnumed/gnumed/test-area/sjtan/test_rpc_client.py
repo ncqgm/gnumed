@@ -21,17 +21,20 @@ def usage():
 
 			url-string: sets the url to the given url string including port.
 
+			r : number of updates a child process makes
+
 			"""
 
 	sys.exit(0)
 
 from getopt import *
 
-optlist, remaining_args = getopt(sys.argv[1:], 'hc:s:p:')
+optlist, remaining_args = getopt(sys.argv[1:], 'hc:r:s:p:')
 
 if len(optlist) == 0:
 	usage()
 
+repeats = 1
 for opt, value in optlist:
 	if opt == '-h':
 		usage()
@@ -45,6 +48,10 @@ for opt, value in optlist:
 		
 	if opt == '-c':
 		count = int(value)
+
+	if opt == '-r':
+		repeats = int(value)
+
 		
 		
 s = Server( url)
@@ -80,9 +87,12 @@ if f  > 0:
 r = s.describe_fields_enum_confidentiality_level()
 print "\n\nfields are ************", r , "\n\n"
 print " adding a tuple **********"
-s.create_enum_confidentiality_level("mid level" + time.strftime('%T'))
+for x in range(0, repeats):
+	print "repeat ", x
+	s.create_enum_confidentiality_level("mid level" + time.strftime('%T'))
 r = s.select_all_enum_confidentiality_level()
-print "select all returns *************"
+
+print "select all returns *************  " 
 print r
 
 
