@@ -179,7 +179,7 @@ There is a Mac port of Python, and one of wxWindows is in progress.
 to run Postgres on these systems. It is possible to run the GNUMed client, but
 you need another computer to run the database.</para>
 
-   <para>GNUMed requires the following packages:
+   <para>GNUMed requires the following packages. Each link points to a .EXE file. Download them and run each in turn.
 
 <table frame=all><title>Requirements</title>
 <tgroup cols=3 align=left colsep=1 rowsep=1>
@@ -193,82 +193,34 @@ you need another computer to run the database.</para>
 <tbody>
 <row>
   <entry>Python Scripting Language</entry>
-  <entry><ulink url="http://www.python.org/">
+  <entry><ulink url="ftp://ftp.python.org/pub/python/2.2.1/Python-2.2.1c2.exe">
 <citetitle>python.org</citetitle></ulink>
 </entry>
 <entry>2.1</entry>
 </row>
 <row>
   <entry>wxWindows windowing library</entry>
-  <entry><ulink url="http://www.wxwindows.org/">
-<citetitle>wxwindows web site</citetitle></ulink>,
-<ulink url="http://www.wxpython.org/">
-<citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink>
-</entry>
-<entry>2.3.1</entry>
-</row>
+  <entry>
+<ulink url="http://prdownloads.sourceforge.net/wxpython/wxPython-2.3.2.1-Py22.exe">
+<citetitle>wxWindows for Python bindings</citetitle></ul
 <row>
   <entry>mx extension libraries</entry>
-  <entry><ulink url="http://www.lemburg.com/files/python/eGenix-mx-Extensions.html">
+  <entry><ulink url="http://www.egenix.com/files/python/egenix-mx-base-2.0.3.win32-py2.2.exe">
 <citetitle>mx</citetitle></ulink>
 </entry>
 </row>
 <row>
  <entry>PyGresQL -- Python libraries for SQL</entry>
- <entry><ulink url="http://www.druid.net/pygresql/"><citetitle>PyGresQL</citetitle></ulink></entry><entry>3.2</entry>
+ <entry><ulink url="http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.0.win32-py2.2.exe"><citetitle>PyGresQL</citetitle></ulink></entry><entry>3.2</entry>
 </row>
-<row>
- <entry>PostgreSQL source code</entry>
- <entry><ulink url="http://www.postgresql.org"><citetitle>Postgesql.org</citetitle></ulink></entry><entry>7.0</entry></row>
 </tbody>
 </tgroup>
 </table>
 </para>
-
 <para>
-Quoting installation from Steven Duffy:</para>
-<blockquote><para>
-The install is straight forward and done with wizards for Python and wxPython. The only problematic area is the installation of PyGreSQL so the pg module works. Here are the steps for compiling and installing PyGreSQL on Windows with MS Visual C++:</para>
-<procedure>
-<title>Compiling postgres interface library</title>
-<step>
-<para>download the main and base source code for PostgreSQL (I used version 7.0.2)</para></step>
-<step><para>extract both of these into the same directory using 
-<ulink url="http://www.winzip.com"><citetitle>winzip</citetitle></ulink>
-</para></step>
-<step><para>using the command prompt enter the <filename>src</filename> subdirectory from where you extracted the source.</para></step>
-<step><para>
-from the command prompt type: 
-<screen>
-nmake /f win32.mak
-</screen></para></step>
-<step><para>extract PyGreSQL from zip file.</para></step>
-<step><para>from the PostgreSQL subdirectory, 
-<filename>interfaces\libpq\release</filename>, copy 
-<filename>libpq.dll</filename></para></step>
-<step><para>paste <filename>libpq.dll</filename> 
-into the directory in which you have extracted PyGreSQL.</para></step>
-<step><para>also paste 
-<filename>libpq.dll</filename> 
-into <filename>winnt/system32</filename> 
-(or <filename>windows/system32</filename>) to install</para></step>
-<step><para>in the PyGreSQL directory open 
-<filename>system.py</filename> in a text editor</para></step>
-<step><para>adjust the value of <command>win_pg_build_root</command> 
-to be the directory in which you extracted PostgreSQL</para></step>
-<step><para>enter the PyGreSQL directory with the command prompt</para>
-<para>Then type:
-<screen>
-<prompt>&gt;</prompt> python setup.py build
-<prompt>&gt;</prompt> python setup.py install
-</screen>
+Once you have done this, you can run the Python interpreter, load 
+gnumed.py and run gnumed.main ().
 </para>
-</step>
-</procedure>
-
-<para>
-If you don't have MS Visual C++ or you just don't feel like doing all of this. Contact me, Steven Duffy, and I'll send you the binaries.</para>
-</blockquote>
 </sect3>
 
 <sect3><title>Windows NT/2000/XP</title>
