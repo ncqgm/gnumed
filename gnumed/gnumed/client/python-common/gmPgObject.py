@@ -16,7 +16,7 @@
 # - automatic child object creation for foreign keys
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.12 $"                                               
+__version__ = "$Revision: 1.13 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 
 import string
@@ -31,7 +31,6 @@ WHERE
 	indrelid =
 	(SELECT oid FROM pg_class WHERE relname = '%s');
 """
-
 
 QTableForeignKeys = """
 SELECT
@@ -64,7 +63,7 @@ def listForeignKeys(con, table):
 	except ValueError:
 		return {}
 	d = cursor.description
-	tgargs=0
+	tgargs = 0
 	#get the index of the column we are interested in, since we are fetching a list
 	#and don't know anything about the order of columns in this table
 	for row in d:
@@ -120,10 +119,10 @@ def cache_table_info(con, table, cursor=None):
 #==============================================================
 class pgobject:
 	
-	def __init__(self, db, table, primarykey=None):
+	def __init__(self, db, table, pkey = None):
 		"""db = gmPG.ConnectionPool object
 		table = service and table as string in the format 'service.table'
-		primarykey: if stated, the object will be initialized from the backend 
+		pkey: if stated, the object will be initialized from the backend 
 		            using this primary key value"""
 		
 		#index of columns by column names
@@ -151,42 +150,62 @@ class pgobject:
 		#'dirty' flags: list of columns (colum names) that have been modified
 		self._modified = []
 		#value of the primary key
-		self._primarykey = None
+		self._pkey = None
 		#column(s) holding the primary key
 		self._pkcolumn = None
 		#the primary key of the last row that has been fetched
 		self._fetched = None
-		if primarykey is not None:
-			self.fetch(primarykey)
-	
+		if pkey is not None:
+			self.fetch(pkey)
+	#---------------------------------------------
 	def new_primary_key(self):
 		"""returns a new primary key safely created via the appropriate backend sequence"""
 		cursor.execute("select nextval('%s_%s_seq')" % (self._tablename, self._pkcolumn))
 		pk, = cursor.fetchone()
 		return pk
-			
-		
-	def __getitem__(self, key):
-		"return the column as determined by either column name or column index"
-		assert(self._primarykey is not None)
-		if self._fetched is None or self._fetched != self._primarykey:
-			self._fetch(self._primarykey)
+	#---------------------------------------------
+	def __getitem__(self, aCol = None):
+		"""Any class[x] is turned into class.__getitem__(self, x).
+
+		returns a column by name or index
+		"""
+		# sanity checks
+		if self._primarykey is None:
+			return None
+		if aCol is None:
+			return None
+			# FIXME: or rather return all columns ?
+
+		# lazy access: did we fetch the data yet ?
+		if self._fetched is None:
+			# actually retrieve the row now
+			self._fetch()
+
 		if self._row is None:
 			return None
+
 		#are we indexing the column by ordinal number or by column name?
-		if type(key) == int:
-			return self._row[key]
+		if type(aCol) == int:
+			return self._row[aCol]
 		else:
-			if self._foreignkeys.has_key(key):
-				if not self._referenced.has_key(key):
-					ref = pgobject(self._dbbroker, self._service +"."+self._foreignkeys[key][0], self._row[self._index[key]])
-					self._referenced[key] = ref
-				print "-> reference:", self._foreignkeys[key][0], self._foreignkeys[key][1]
-				return self._referenced[key]
+			# does the given column name reference another table
+			# (i.e. is it a foreign key) ?
+			if self._foreignkeys.has_key(aCol):
+				# yep, but not retrieved yet
+				if not self._referenced.has_key(aCol):
+					# so get it
+					ref = pgobject(
+						db = self._dbbroker,
+						table = "%s.%s" % (self._service, self._foreignkeys[aCol][0]),
+						pkey = self._row[self._index[aCol]]
+					)
+					# and keep a reference
+					self._referenced[aCol] = ref
+				#print "-> reference:", self._foreignkeys[aCol][0], self._foreignkeys[aCol][1]
+				return self._referenced[aCol]
 			else:
-				return self._row[self._index[key]]
-		
-		
+				return self._row[self._index[aCol]]
+	#---------------------------------------------
 	def __setitem__(self, key, value):
 		"set the value of the column as determined by either column name or index"
 		newflag = 0
@@ -270,7 +289,7 @@ class pgobject:
 				#through default constraints
 				print "refreshing table ..."
 				self._fetch()
-			
+	#---------------------------------------------
 	def _quote(self, arg):
 		"postgres specific quoting: strings in '', single ' escaped by another '"
 		if type(arg) is str:
@@ -278,11 +297,13 @@ class pgobject:
 		else:
 			q = str(arg)
 		return q
-			
-	
-	def _fetch(self, primarykey=None):
-		"""fetch a row from the table as determined by the primary key
-		If primarykey is not stated, th ecurrent object is refreshed from the backend"""
+	#---------------------------------------------
+	def _fetch(self, primarykey = None):
+		"""Actually fetch the row from the table determined by the primary key.
+
+		if primarykey is not stated, the current object is
+		refreshed from the backend
+		"""
 		#self._save()
 		if primarykey is not None:
 			self._primarykey = primarykey
@@ -290,7 +311,7 @@ class pgobject:
 			self._update_metadata()
 		cursor = self._db.cursor()
 		query = "select * from %s where %s = %s" % (self._tablename, self._pkcolumn, self._primarykey)
-		cursor.execute(query )
+		cursor.execute(query)
 		self._row = cursor.fetchone()
 		#did the query return a row?
 		if (self._row is None) or (len(self._row) <=0):
@@ -299,8 +320,8 @@ class pgobject:
 			self._fetched = self._primarykey
 		#data that has been just fetched cannot be modified yet
 		self._modified = []
-		
-
+		cursor.close()
+	#---------------------------------------------
 	def _update_metadata(self, cursor=None):
 		"cache the table's meta data"
 		global _column_indices
@@ -312,20 +333,21 @@ class pgobject:
 		self._index = _column_indices[self._tablename]
 		self._pkcolumn = self._metadata[_primarykeys[self._tablename]][0]
 		self._foreignkeys = _foreignkeys[self._tablename]
-	
-				
+	#---------------------------------------------
 	def fetch(self, primarykey):
-		"""fetch the row as determined by the primary key attribute
+		"""Fetch the row determined by the primary key attribute.
+
 		lazy data access: data will not really be fetched before it is accessed"""
 		#if we have data in cache, save it first; 'save()' will check for modifications first
 		if self._fetched:
 			self._save()
+		self._fetched = None
 		self._primarykey = primarykey
-		
+	#---------------------------------------------
 	def save(self):
 		"""force the current data to be written to the backend manually"""
 		self._save()
-		
+	#---------------------------------------------
 	def undo(self):
 		"""reset the state ofthe row to the state it has on the backend"""
 		if self._fetched:
@@ -341,33 +363,28 @@ if __name__ == "__main__":
 	login = gmLoginInfo.LoginInfo(user="hherb", passwd='')
 	db = gmPG.ConnectionPool(login)
 	db.SetFetchReturnsList(1)
+
 	#request a writeable connection and create test tables
-	con = db.GetConnection('default', 0)
+	con = db.GetConnection('default', readonly = 0)
+	cursor = con.cursor()
+
 	try:
-		cursor = con.cursor()
-		try:
-			cursor.execute("drop sequence test_pgo_id_seq")
-			con.commit()
-		except:
-			pass
-		cursor.execute("drop table test_pgo");
+		cursor.execute("drop sequence test_pgo_id_seq;")
+		con.commit()
+		cursor.execute("drop table test_pgo;");
 		con.commit()
 	except:
 		pass
+
 	try:
-		cursor = con.cursor()
-		try:
-			cursor.execute("drop sequence test_pgofk_id_seq")
-			con.commit()
-		except:
-			print "sequence test_pgofk_id_seq did not exist"
+		cursor.execute("drop sequence test_pgofk_id_seq")
+		con.commit()
 		cursor.execute("drop table test_pgofk");
 		con.commit()
 	except:
-		print "test_pgofk did not exist"
+		print "table test_pgofk or sequence test_pgofk_id_seq did not exist"
 		
 	try:
-		cursor = con.cursor()
 		cursor.execute("create table test_pgofk (id serial primary key, text text, ts timestamp default now())")
 		cursor.execute("create table test_pgo (id serial primary key, id_fk integer references test_pgofk, text text, ts timestamp default now())")
 		con.commit()
@@ -376,7 +393,6 @@ if __name__ == "__main__":
 		sys.exit(-1)
 	
 	try:
-		cursor = con.cursor()
 		cursor.execute("insert into test_pgofk(text) values('this is the text in the referenced table')")
 		cursor.execute("insert into test_pgo(id_fk, text) values(1, 'this is the text in the referencing table 1')")
 		cursor.execute("insert into test_pgo(id_fk, text) values(1, 'this is the text in the referencing table 2')")
@@ -407,7 +423,10 @@ if __name__ == "__main__":
 	
 #==============================================================
 # $Log: gmPgObject.py,v $
-# Revision 1.12  2003-02-03 16:25:56  ncq
+# Revision 1.13  2003-02-07 14:26:28  ncq
+# - code commenting, basically
+#
+# Revision 1.12  2003/02/03 16:25:56  ncq
 # - coding style
 #
 # Revision 1.11  2003/01/16 14:45:04  ncq
