@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -168,7 +168,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	# internal helpers
 	#-------------------------------------------------------
 	def __load_consultation_types(self):
-		cmd = "SELECT description from v_i18n_enum_encounter_type"
+		cmd = "SELECT _(description) from encounter_type"
 		result = gmPG.run_ro_query('historica', cmd, None)
 		if (result is None) or (len(result) == 0):
 			_log.Log(gmLog.lWarn, 'cannot load consultation types from backend')
@@ -339,7 +339,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.34  2004-04-20 00:17:55  ncq
+# Revision 1.35  2004-05-08 17:34:15  ncq
+# - v_i18n_enum_encounter_type is gone, use _(encounter_type)
+#
+# Revision 1.34  2004/04/20 00:17:55  ncq
 # - allergies API revamped, kudos to Carlos
 #
 # Revision 1.33  2004/03/25 11:03:23  ncq
