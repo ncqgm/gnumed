@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -133,6 +133,7 @@ class cLabDataGrid(wxGrid):
 	def __populate_grid(self):
 		# FIXME: check if patient changed at all
 		emr = self.curr_pat.get_clinical_record()
+		# FIXME: there might be too many results to handle in memory
 		lab = emr.get_lab_results()
 
 		if lab is None or len(lab)==0:
@@ -144,41 +145,61 @@ class cLabDataGrid(wxGrid):
 			return None
 			
 		else:
-			# parse record for dates and tests  
-			dates = []
-			test_names = []
-			for instance in lab:
-				if instance['val_when'].date in dates: # '3' is the date element position in the list
-					'1' == '1'
-				else:
-					dates.append(instance['val_when'].date)
-				if instance['unified_name'] in test_names:
-					'1'== '1'
-				else:
-					test_names.append(instance['unified_name'])
-			dates.sort()
-			print dates
-			print test_names
+			dates, test_names = self.__compile_stats(lab)
+			# sort tests before pushing onto the grid 
+			"""	
+				1) check user's preferred way of sorting
+					none defaults to smart sorting
+				2) check if user defined lab profiles
+					- add a notebook tab for each profile
+					- postpone profile dependent stats until tab is selected
+				sort modes :
+					1: no profiles -> smart sorting only
+					2: profile -> smart sorting first
+					3: profile -> user defined profile order
 			
-			# sort tests 
 			"""
-			1) look at the the most recent date a test was performed on
-				move these tests to the top
-			2) sort by runs starting with most recent date
-				a run is a series of consecutive dates a particular test was done on
-				sort by length of the runs
-				longest run will move to the top
-			"""
-			#test_count = {}
-			#test_types = self.__get_test_types(lab_ids)
-			#for id in test_types:
-			#	if test_types[id] in test_count.keys():
-			#		test_count[test_types[id]] = test_count[test_types[id]]+1
-			#	else:
-			#		test_count[test_types[id]] = 1
-			# try to be smart, sort tests by usage
-			#sorted = self.sort_by_value(test_count)
-			#sorted.reverse()
+			#sort_mode = gmPatient.getsort_mode() # yet to be written
+			sort_mode = 1 # get real here :-)
+			
+			if sort_mode == 1:
+				"""
+				2) look at the the most recent date a test was performed on
+					move these tests to the top
+			
+				3) sort by runs starting with most recent date
+					a run is a series of consecutive dates a particular test was done on
+					sort by length of the runs
+					longest run will move to the top
+				"""
+				#test_count = {}
+				#test_types = self.__get_test_types(lab_ids)
+				#for id in test_types:
+				#	if test_types[id] in test_count.keys():
+				#		test_count[test_types[id]] = test_count[test_types[id]]+1
+				#	else:
+				#		test_count[test_types[id]] = 1
+				# try to be smart, sort tests by usage
+				#sorted = self.sort_by_value(test_count)
+				#sorted.reverse()
+				pass
+			else :
+				"""
+				set up notebook tab
+				"""
+				pass
+			
+			if sort_mode == 2:
+				"""
+				start with smart sorting tab
+				"""
+				pass
+			
+			if sort_mode == 3:
+				"""
+				get first user defined tab
+				"""
+				pass
 			
 			# create new grid
 			self.CreateGrid(0, 0, wxGrid.wxGridSelectCells )
@@ -240,6 +261,26 @@ class cLabDataGrid(wxGrid):
 				self.AutoSize() 
 			return 1
 	
+	#------------------------------------------------------------------------		
+	def __compile_stats(self, lab=None):
+		# parse record for dates and tests
+		dates = []
+		test_names = []
+		for instance in lab:
+			if instance['val_when'].date in dates:
+				'1' == '1'
+			else:
+				dates.append(instance['val_when'].date)
+			if instance['unified_name'] in test_names:
+				'1'== '1'
+			else:
+				test_names.append(instance['unified_name'])
+		dates.sort()
+		print dates
+		print test_names
+		
+		return dates, test_names 
+	
 	#------------------------------------------------------------------------
 	def __GetDataCell(self, item=None, xorder=None, yorder=None):
 		#fixme: get real for x
@@ -253,6 +294,7 @@ class cLabDataGrid(wxGrid):
 	#    backitems=[ [v[1],v[0]] for v in items]
 	#    backitems.sort()
 	#    return [ backitems[i][1] for i in range(0,len(backitems))]
+	
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 		pass
@@ -545,7 +587,11 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.4  2004-04-16 00:27:13  ncq
+# Revision 1.5  2004-04-16 22:28:07  shilbert
+# - code cleanups , make use of 'def __compile_stats():'
+# - framework for user defined lab profiles
+#
+# Revision 1.4  2004/04/16 00:27:13  ncq
 # - PyCompat
 #
 # Revision 1.3  2004/04/15 20:14:14  shilbert
