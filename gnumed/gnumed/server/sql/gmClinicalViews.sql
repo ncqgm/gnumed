@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.116 2004-11-26 13:51:18 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.117 2004-11-28 14:37:00 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -94,7 +94,6 @@ create index idx_narr_a on clin_narrative(soap_cat) where soap_cat='a';
 create index idx_narr_p on clin_narrative(soap_cat) where soap_cat='p';
 create index idx_narr_rfe on clin_narrative(is_rfe) where is_rfe is true;
 create index idx_narr_aoe on clin_narrative(is_aoe) where is_aoe is true;
-create index idx_narr_epi on clin_narrative(is_episode_name) where is_episode_name is true;
 
 \set ON_ERROR_STOP 1
 
@@ -192,34 +191,34 @@ create index idx_episode_issue on clin_episode(fk_health_issue);
 
 
 -- auto-create clin_narrative row on insert into clin_episode
-\unset ON_ERROR_STOP
-drop trigger tr_name_new_episode on clin_episode;
-drop function trf_name_new_episode();
-\set ON_ERROR_STOP 1
+--\unset ON_ERROR_STOP
+--drop trigger tr_name_new_episode on clin_episode;
+--drop function trf_name_new_episode();
+--\set ON_ERROR_STOP 1
 
-create function trf_name_new_episode() returns opaque as '
-declare
-	clin_narr_insert text;
-begin
+--create function trf_name_new_episode() returns opaque as '
+--declare
+--	clin_narr_insert text;
+--begin
 	-- generate insert query
-	clin_narr_insert := ''insert into clin_narrative (soap_cat, narrative, is_episode_name, fk_episode) values (''
-					 || '' ''''s'''',''
-					 || '' ''''by_trigger_on_insert'''',''
-					 || '' ''''true''''::boolean, ''
-					 || NEW.pk || '')'' ;
+--	clin_narr_insert := ''insert into clin_narrative (soap_cat, narrative, is_episode_name, fk_episode) values (''
+--	                 || '' ''''s'''',''
+--	                 || '' ''''by_trigger_on_insert'''',''
+--	                 || '' ''''true''''::boolean, ''
+--	                 || NEW.pk || '')'' ;
 --	raise notice ''%'', clin_narr_insert;
 	-- execute insert query
-	EXECUTE clin_narr_insert;
-	return NULL;
-end;
-' language 'plpgsql';
+--	EXECUTE clin_narr_insert;
+--	return NULL;
+--end;
+--' language 'plpgsql';
 
-create trigger tr_name_new_episode
-	after insert
-	on clin_episode
-	for each row
-		execute procedure trf_name_new_episode()
-;
+--create trigger tr_name_new_episode
+--	after insert
+--	on clin_episode
+--	for each row
+--		execute procedure trf_name_new_episode()
+--;
 
 
 -- pull in episode names from clin_narrative
@@ -247,9 +246,7 @@ from
 	clin_episode cep,
 	clin_narrative cn
 where
-	cep.pk = cn.fk_episode
-		and
-	cn.is_episode_name is True
+	cn.pk = cep.fk_clin_narrative
 ;
 
 
@@ -1235,12 +1232,12 @@ where
 -- types of narrative
 
 -- allow only one name per episode
-\unset ON_ERROR_STOP
-drop index idx_uniq_epi_name;
-create unique index idx_single_epi_name on clin_narrative(fk_episode) where is_episode_name is true;
-comment on index idx_single_epi_name is
-	'per fk_episode only one clin_narrative row can be marked is_episode_name = TRUE';
-\set ON_ERROR_STOP 1
+--\unset ON_ERROR_STOP
+--drop index idx_uniq_epi_name;
+--create unique index idx_single_epi_name on clin_narrative(fk_episode) where is_episode_name is true;
+--comment on index idx_single_epi_name is
+--	'per fk_episode only one clin_narrative row can be marked is_episode_name = TRUE';
+--\set ON_ERROR_STOP 1
 
 
 \unset ON_ERROR_STOP
@@ -1254,7 +1251,6 @@ select
 	cn.clin_when as clin_when,
 	cn.soap_cat as soap_cat,
 	cn.narrative as rfe,
-	cn.is_episode_name as is_episode_name,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	cn.pk_item as pk_item,
@@ -1280,7 +1276,6 @@ select
 	cn.clin_when as clin_when,
 	cn.soap_cat as soap_cat,
 	cn.narrative as aoe,
-	cn.is_episode_name as is_episode_name,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	cn.pk_item as pk_item,
@@ -1307,7 +1302,6 @@ select
 	cn.narrative as narrative,
 	cn.is_aoe as is_aoe,
 	cn.is_rfe as is_rfe,
-	cn.is_episode_name as is_episode_name,
 	cn.pk_item as pk_item,
 	cn.pk as pk_narrative,
 	vpi.pk_health_issue as pk_health_issue,
@@ -1566,11 +1560,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.116 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.117 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.116  2004-11-26 13:51:18  ncq
+-- Revision 1.117  2004-11-28 14:37:00  ncq
+-- - adjust to clin_episode.fk_clin_narrative instead of clin_narrative.is_episode_name
+--
+-- Revision 1.116  2004/11/26 13:51:18  ncq
 -- - always hard to get quoting right for dynamic pl/pgsql
 --
 -- Revision 1.115  2004/11/26 12:18:04  ncq
