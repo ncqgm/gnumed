@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -18,9 +18,12 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmI18N, gmLoginInfo, gmExceptions, gmBackendListener
+import gmI18N, gmLoginInfo, gmExceptions
 
 #3rd party dependencies
+
+# FIXME: this needs a better way of specifying which library to
+# load, add SQL-relay, too
 # first, do we have the preferred postgres-python library available ?
 try:
 	import pyPgSQL.PgSQL # try preferred backend library
@@ -51,6 +54,8 @@ _log.Log(gmLog.lInfo, 'DBMS "%s" via DB-API module "%s": API level %s, thread sa
 assert(float(dbapi.apilevel) >= 2.0)
 assert(dbapi.threadsafety > 0)
 assert(dbapi.paramstyle == 'pyformat')
+
+listener_api = None
 #======================================================================
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -177,9 +182,17 @@ class ConnectionPool:
 	#-----------------------------
 	def Listen(self, service, signal, callback):
 		"""Listen to 'signal' from backend in an asynchronous thread.
+
 		If 'signal' is received from database 'service', activate
 		the 'callback' function"""
 		# FIXME: error handling
+
+		# lazy import of gmBackendListener
+		if listener_api is None:
+			if not _import_listener_engine():
+				_log.Log(gmLog.lErr, 'cannot load backend listener code')
+				return None
+
 		# get physical database for service
 		try:
 			backend = ConnectionPool.__service2db_map[service]
@@ -190,7 +203,7 @@ class ConnectionPool:
 		# but only one per physical database
 		if backend not in ConnectionPool.__listeners.keys():
 			auth = self.GetLoginInfoFor(service)
-			listener = gmBackendListener.BackendListener(
+			listener = listener_api.BackendListener(
 				service,
 				auth.GetDatabase(),
 				auth.GetUser(readonly=1),
@@ -530,6 +543,16 @@ def quickROQuery(query, service='default'):
 	return cur.fetchall(), cur.description
 #---------------------------------------------------
 #---------------------------------------------------
+def _import_listener_engine():
+	try:
+		import gmBackendListener
+	except ImportError:
+		_log.LogException('cannot import gmBackendListener')
+		return None
+	global listener_api
+	listener_api = gmBackendListener
+	return 1
+#---------------------------------------------------
 def run_query(aCursor = None, aCmd = None):
 	# FIXME: adapt to pyPgSQL style of %s
 
@@ -751,7 +774,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.53  2003-06-03 13:59:20  ncq
+# Revision 1.54  2003-06-10 08:48:12  ncq
+# - on-demand import of gmBackendListener so we can use gmPG generically
+#   without having to have pyPgSQL available (as long as we don't use
+#   notifications)
+#
+# Revision 1.53  2003/06/03 13:59:20  ncq
 # - rewrite the lifeness check to look much cleaner
 #
 # Revision 1.52  2003/06/03 13:46:52  ncq
