@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.16 $
+$Revision: 1.17 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -8,4 +8,141 @@ Rules:
 - leave behind an email address
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
+--------------------------------------------------------------
+Mon 05 Mai 2003 14:52:08 CEST   Karsten.Hilbert@gmx.net
+
+The GnuMed EMR
+==============
+
+Required reading
+----------------
+Weed: the problem-oriented medical record (SOAP, POMR)
+ use Google
+
+Slee: loss-free entity coding in medicine
+ http://www.tringa.com/index.php?submit=HCCC
+
+Dutch model: Episodes of Care
+ http://www.phcsg.org.uk/conferences/cambridge1998/westerhof.htm
+
+-------------------------
+Structural considerations
+-------------------------
+Health Issue
+------------
+A Health Issue is a longer ranging medical condition associated with
+a patient. There may be several episodes related with one health
+issue and there must be at least one. At times a health issue will
+first be appreciated by considering underlying similarities between
+several medically related episodes. A health issue may have a finite
+duration if the underlying medical condition is eventually fully
+resolved. It may also span the entire life of the patient such as
+in chronic or genetic ailments.
+
+Clinical Episode
+----------------
+A Clinical Episode denotes a period of time during which the patient
+was under care for one particular Health Issue (medical condition).
+Several episodes (eg. progression, bouts, etc.) may be associated
+with a particular health issue. There can be several encounters per
+episode, there must be at least one. The start and end of an episode
+isn't directly recorded but rather one can deduce that data from the
+associated clinical items of which there will usually be several
+(but at least one). Often, several providers will contribute to an
+episode of care (via several encounters and items). One would think
+that episodes can be deduced from clusters of closely related dates
+of clinical encounters. While this is true it cannot be used reliably
+in a programmatic way.
+
+Clinical Encounter
+------------------
+A one-off contact between patient and health care system (or on behalf
+of the patient) is called a "Clinical Encounter". An encounter is often
+restricted to a given date but may span midnight and will thus refer to
+two dates. The date itself is not directly stored in the encounter
+table clin_encounter but must be determined from the commit timestamps
+of the clinical items belonging to it. The encounter table records the
+location, provider and subject of care as well as the type of encounter.
+It really is more of an administrative than a purely clinical concept.
+Note that it also does not fit hospital stays particularly well where
+it is harder to define clean boundaries between encounters. One
+encounter will often relate to more than one episode/health issue.
+
+Clinical Item
+-------------
+In GnuMed a medically meaningful piece of information is called "Clinical
+Item". Such items are typically elements of the SOAP structure such as a
+diagnosis, a history item, an assessment, a plan, etc. Several tables,
+both specific and generic store such items. They all inherit from the
+table clin_item which records when and by whom an item was committed,
+as well as to which Clinical Encounter and Clinical Episode this item
+belongs. Virtue of inheriting from clin_item all Clinical Item tables
+also have a generic "narrative" field for comments and clinical narrative.
+
+Partial Contact
+---------------
+This concept of the Dutch Episode Model is not directly
+represented in the GnuMed clinical table structure. It is
+easily derived from the existing data by aggregating all
+Clinical Items that belong to the same Clinical Encounter
+and the same Clinical Episode.
+
+-----------------------------
+Implementation considerations
+-----------------------------
+Clinical narrative
+------------------
+Due to the fact that clinical items are stored in several different
+specific and non-specific tables it is difficult to do a full-text
+search across the medical record of a patient. For this reason all
+clinical narrative is aggregated in the clin_narrative table. All
+tables providing clinical narrative are supposed to inherit from
+this table. If more than one field for free text is needed in a
+table links to additional entries in clin_narrative can be used
+additionally to the inherited clin_narrative.narrative field.
+
+The view v_patient_items provides an aggregation of clinical
+items per patient. From this one can derive the item ID and source
+table of individual items. It also provides the full text of the
+clinical narrative for all tables that inherit from clinical item.
+Only very few clinically relevant narrative strings are not stored
+in such tables, namely comments on clin_episode, clin_encounter
+and clin_health_issue rows.
+
+View v_patient_episodes
+-----------------------
+This view links episodes to patients.
+
+View v_i18n_patient_encounters
+------------------------------
+This view links encounters to patients and provides a translated
+encounter type (if a translation is available).
+
+Predefined data
+---------------
+Wherever fixed strings are predefined for certain fields (such
+as descriptions of encounter types or history item types) provisions
+for translation of those strings via gmI18N.sql must be made. An
+ID range for user-supplied additional strings must be defined. The
+default language is English, other languages are handled via
+translations. In appropriate cases views may facilitate easier
+access to translated strings. Names of such views are to be
+prepended by "v_i18n_".
+
+Clinical items
+--------------
+All tables holding clinical items must inherit from clin_item. The
+clin_item table itself can be used as a generic clinical narrative
+item table.
+
+=========================================
+medically:
+
+health issue
+
+-> several episodes
+   -> several encounters
+      -> several partial contacts
+         -> several items
+--------------------------------------------------------------
 --------------------------------------------------------------
