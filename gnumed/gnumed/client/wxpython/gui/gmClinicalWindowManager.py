@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.21 2004-08-04 17:16:02 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.22 2004-09-13 19:20:37 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ =	"I.Haywood"
 
 import sys
@@ -208,8 +208,9 @@ class gmClinicalWindowManager (gmPlugin.cNotebookPluginOld):
 		menu = self.gb['main.viewmenu']
 		self.menu_id = wxNewId ()
 		menu.AppendMenu (self.menu_id, _('&Clinical'), ourmenu, self.name ())
-		# "patient" needs fixing
-		plugin_list = gmPlugin.GetPluginLoadList('patient')
+		# FIXME: "patient" needs fixing
+#		plugin_list = gmPlugin.GetPluginLoadList('patient')
+		plugin_list = []
 		# "patient" needs fixing
 		for plugin in plugin_list:
 			p = gmPlugin.instantiate_plugin(
@@ -241,7 +242,10 @@ class gmClinicalWindowManager (gmPlugin.cNotebookPluginOld):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.21  2004-08-04 17:16:02  ncq
+# Revision 1.22  2004-09-13 19:20:37  ncq
+# - prepare to use a separate GetPluginLoadList()
+#
+# Revision 1.21  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
