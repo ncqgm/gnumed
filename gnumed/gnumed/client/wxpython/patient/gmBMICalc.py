@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #############################################################################
 #
 # gmBMICalc.py  Feedback: anything which is incorrect or ambiguous please
@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -68,7 +68,7 @@ class BMI_Colour_Scale(wxWindow):
 		dc.SetPen(wxPen(wxColor(194,197,194), 1))
 		dc.DrawRectangle(0, 0, 324, 30)
 		#----------------------------------------------------------
-		#draw the coloured elipses for each of the weight divisions
+		#draw the coloured elipses for each of the mass divisions
 		#ie underweight, normal, overweight and obese
 		#first yellow underweight
 		#Pen = outside border = black (rgb 0 0 0 )
@@ -83,7 +83,7 @@ class BMI_Colour_Scale(wxWindow):
 		te = dc.GetTextExtent(_("Underweight"))
 		dc.DrawText(_("Underweight"), 20,9)
 		#------------------------------------------
-		#add the green elipse = normal weight range
+		#add the green elipse = normal mass range
 		#------------------------------------------
 		dc.SetBrush(wxBrush(wxColour(0,194,0), wxSOLID)) #green
 		dc.DrawEllipse(87, 5, 80,15)
@@ -116,10 +116,17 @@ class BMI_Colour_Scale(wxWindow):
 	def SetColor(self, color):
 		self.color = color
 		self.Draw(wxClientDC(self))
-#===========================================================================		
+#===========================================================================
 class BMICalc_Panel(wxPanel):
 	def __init__(self, parent, id):
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )	
+
+		# initializations
+		self.height=''
+		self.mass=''
+		self.low_norm_mass=''	# mass for given height if BMI=20
+		self.upp_norm_mass=''	# mass for given height if BMI=25
+
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )
 		sizer = wxBoxSizer(wxVERTICAL)
 		#------------------------------
 		#sizer with heading label
@@ -127,7 +134,7 @@ class BMICalc_Panel(wxPanel):
 		lblheading = wxStaticText(
 			self,
 			-1,
-			_("Current height/weight"),
+			_("Current height/mass"),
 			wxDefaultPosition,
 			wxDefaultSize,
 			style = wxALIGN_CENTRE
@@ -145,22 +152,24 @@ class BMICalc_Panel(wxPanel):
 		label1.SetForegroundColour(wxColour(0,0,131))
 		self.txtHeight = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtHeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		EVT_TEXT(self, self.txtHeight.GetId(), self.EvtText_Height)
 		szr_left2.Add(10,1,0,0)
 		szr_left2.Add(label1,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left2.Add(self.txtHeight,1,wxALIGN_CENTRE_VERTICAL|0)
 		#------------------------------
-		#sizer holding the weight stuff
+		#sizer holding the mass stuff
 		#------------------------------
 		szr_left3 = wxBoxSizer(wxHORIZONTAL)
-		label2 = wxStaticText(self,-1,_("Weight (kg)"),size = (20,20))
+		label2 = wxStaticText(self,-1,_("Mass (kg)"),size = (20,20))
 		label2.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label2.SetForegroundColour(wxColour(0,0,131))
 
-		txtWeight = wxTextCtrl(self,-1,"",size=(100,20))
-		txtWeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtmass = wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtmass.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
 		szr_left3.Add(10,1,0,0)
 		szr_left3.Add(label2,1,wxALIGN_CENTRE_VERTICAL|0)
-		szr_left3.Add(txtWeight,1,wxALIGN_CENTRE_VERTICAL|0)
+		szr_left3.Add(self.txtmass,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left3.Add(5,5,1,0)
 		#------------------------------
 		#sizer holding the BMI stuff
@@ -170,14 +179,14 @@ class BMICalc_Panel(wxPanel):
 		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label3.SetForegroundColour(wxColour(0,0,131))
 
-		txtbmi = wxTextCtrl(self,-1,"",size=(100,20))
-		txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtbmi = wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_left4.Add(10,1,0,0)
 		szr_left4.Add(label3,1,wxALIGN_CENTRE_VERTICAL|0)
-		szr_left4.Add(txtbmi,1,wxALIGN_CENTRE_VERTICAL|0)
+		szr_left4.Add(self.txtbmi,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left4.Add(5,5,1,0)
 		#--------------------------------------------------
-		#the color elipses to show where on scale of weight
+		#the color elipses to show where on scale of mass
 		#--------------------------------------------------
 		bmi_colour_scale = BMI_Colour_Scale(self)
 		szr_left5 = wxBoxSizer(wxHORIZONTAL)
@@ -201,9 +210,9 @@ class BMICalc_Panel(wxPanel):
 		label4.SetForegroundColour(wxColour(0,0,131))
 		szr_left7.Add(label4,1,wxEXPAND)
 		#-----------------------
-		#Put in the goal weight
+		#Put in the goal mass
 		#----------------------
-		lblgoal = wxStaticText(self,-1,_("Goal weight"),size = (30,20))
+		lblgoal = wxStaticText(self,-1,_("Goal mass"),size = (30,20))
 		lblgoal.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		lblgoal.SetForegroundColour(wxColour(0,0,131))
 		txtgoal= wxTextCtrl(self,-1,"",size=(100,20))
@@ -221,7 +230,7 @@ class BMICalc_Panel(wxPanel):
 		txtloss= wxTextCtrl(self,-1,"",size=(100,20))
 		txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_left9 = wxBoxSizer(wxHORIZONTAL)
-		szr_left9.Add(10,1,0,0)	
+		szr_left9.Add(10,1,0,0)
 		szr_left9.Add(lblloss,1,0)
 		szr_left9.Add(txtloss,1,0)
 		#-----------------------------------------------------------------
@@ -251,6 +260,38 @@ class BMICalc_Panel(wxPanel):
 		sizer.Fit(self)
 		self.SetAutoLayout(true)
 		self.Show(true)
+
+	def EvtText_Height(self, event):
+		self.height=event.GetString()
+		self.calc_ideal_range()
+		self.CalcBMI()
+
+	def EvtText_mass(self, event):
+		self.mass=event.GetString()
+		self.CalcBMI()
+
+	def CalcBMI(self):
+		if(self.height=='' or self.mass==''):
+			self.txtbmi.SetValue('')
+		else:
+			try:
+				self.BMI=round(eval(self.mass)/((eval(self.height)/100.)**2),1)
+				self.txtbmi.SetValue(str(self.BMI))
+			except:
+				pass	# error handling - TODO
+
+	def calc_ideal_range(self):
+		try:
+			self.low_norm_mass=20.*((eval(self.height)/100.)**2)
+			self.upp_norm_mass=25.*((eval(self.height)/100.)**2)
+			print self.low_norm_mass, self.upp_norm_mass	# test
+
+			#bmi_colour_scale = BMI_Colour_Scale(self)	<-- FIX ME - display upp_norm_mass & low_norm_mass
+			#szr_left5 = wxBoxSizer(wxHORIZONTAL)
+			#szr_left5.Add(bmi_colour_scale,1,wxEXPAND)
+		except:
+			pass 	# error handling - TODO
+
 #-------------------------------------------------------------------
 #Creates all the sizers necessary to hold the top two menu's, picture
 #from for patients picture, the main two left and right panels, with shadows
@@ -284,8 +325,8 @@ class BMI_Frame(wxFrame):
 			"Can someone tell me how to remove the maximizing button...\n\n"
 			"Can someone tell me how to centre this frame on the screen...\n\n"
 			"This text box needs to be replaced by a graph class....\n"
-			"which amongst other things could show this patients weight trends!!!!\n\n"
-			"The weight range on the green epilpse would be calculated for each patient...\n\n"
+			"which amongst other things could show this patients mass trends!!!!\n\n"
+			"The mass range on the green epilpse would be calculated for each patient...\n\n"
 		 	"Bye for now...\n\n",
 			size=(200, 100),
 			style=wxTE_MULTILINE
@@ -345,7 +386,7 @@ if __name__ == '__main__':
 	except KeyError:
 		icon_xpm_data = cPickle.loads(zlib.decompress(_icons["""icon_BMI_calc"""]))
 	icon = wxEmptyIcon()
-	icon.CopyFromBitmap(wxBitmapFromXPMData(icon_xpm_data))
+	icon.CopyFromBitmap(wxBitmapFromXPMData(icon_xpm_data))	# this causes a segmentation fault on my machine (michaelb)
 
 	# set up dummy app
 	class TestApp (wxApp):
@@ -410,7 +451,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.13  2003-04-05 00:39:23  ncq
+# Revision 1.14  2003-04-14 04:04:41  michaelb
+# changed 'weight' to 'mass' in most places, calculation now partially functional
+#
+# Revision 1.13  2003/04/05 00:39:23  ncq
 # - "patient" is now "clinical", changed all the references
 #
 # Revision 1.12  2003/01/14 20:18:57  ncq
