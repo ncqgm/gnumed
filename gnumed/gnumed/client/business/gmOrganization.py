@@ -5,21 +5,20 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 
-from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
-
+from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
+from Gnumed.business import gmDemographicRecord, gmPatient
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmDemographicRecord
-from Gnumed.business import gmPatient 
+
 import inspect
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-from Gnumed.pycommon import gmPG
-
-	
 
 attrNames = [ 'name', 'office', 'subtype', 'memo','category', 'phone', 'fax', 'email', 'mobile' ]
 addressNames = [ 'number', 'street', 'urb', 'postcode', 'state', 'country']
@@ -2023,7 +2022,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.29  2004-06-21 15:08:45  sjtan
+# Revision 1.30  2004-06-21 16:01:55  ncq
+# - cleanup, trying to make epydoc fix do the right thing
+#
+# Revision 1.29  2004/06/21 15:08:45  sjtan
 #
 # fixup for epydoc, remove global module scope database access.
 #

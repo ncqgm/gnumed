@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.50 2004-06-21 14:48:25 sjtan Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmDemographicRecord.py,v 1.51 2004-06-21 16:02:08 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -21,7 +21,6 @@ from Gnumed.pycommon.gmPyCompat import *
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-	_ = lambda x:x	# ugly hack to please epydoc
 	from Gnumed.pycommon import gmI18N
 _log.Log(gmLog.lData, __version__)
 
@@ -913,7 +912,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.50  2004-06-21 14:48:25  sjtan
+# Revision 1.51  2004-06-21 16:02:08  ncq
+# - cleanup, trying to make epydoc fix do the right thing
+#
+# Revision 1.50  2004/06/21 14:48:25  sjtan
 #
 # restored some methods that gmContacts depends on, after they were booted
 # out from gmDemographicRecord with no home to go , works again ;
