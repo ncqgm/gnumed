@@ -19,7 +19,7 @@ from wxPython.wx import *
 import gettext
 _ = gettext.gettext
 
-import gmPersonDetails, gmPlugin, gmCachedPerson
+import gmPersonDetails, gmPlugin, gmCachedPerson, gmCachedAddress
 
 ID_BUTTON_SAVE = wxNewId()
 ID_BUTTON_ADD = wxNewId()
@@ -39,6 +39,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		gmPersonDetails.PnlPersonDetails.__init__(self, parent, id)
 		gmPlugin.wxGuiPlugin.__init__(self, name, guibroker, callbackbroker, dbbroker)
 		self.__person = gmCachedPerson.CachedPerson()
+		self.__address = gmCachedAddress.CachedAddress()
 		self.__person.notify_me("PersonDetailsDlg", self.OnDataUpdate)
 		#add a button container to the bottom of the dialog
 		line = wxStaticLine( self, -1, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL )
@@ -75,14 +76,96 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 	def SetPersonId(self, id):
 		pass
 
-	def OnDataUpdate(self, updater, id):
-		print "On data update, Person ID =", id
-		p = self.__person.dictresult()
-		if p is None:
+	def ClearPersonData(self):
+		self.comboTitle.SetSelection(0)
+		self.tcGivenNames.Clear()
+		self.tcSurnames.Clear()
+		self.tcAka.Clear()
+		self.chPreferredName.SetSelection(0)
+		self.chGender.Clear()
+		self.tcDob.Clear()
+		self.cbCob.SetSelection(0)
+
+
+	def ClearAddressData(self):
+		self.cbAddressAt.SetSelection(0)
+		self.tcAddress1.Clear()
+		self.tcStreetNo.Clear()
+		self.tcStreet.Clear()
+		self.tcCity.Clear()
+		self.chCountry.SetSelection(0)
+		self.cbPhoneFor.SetSelection(0)
+		self.tcAreacode.Clear()
+		self.tcPhonenumber.Clear()
+		self.tcPhoneComment.Clear()
+		self.cbUrlCategory.SetSelection(0)
+		self.tcURL.Clear()
+
+
+	def SetPersonData(self, person=None):
+		if person is None:
+			self.ClearPersonData()
 			return
+		p=person	#less typing ...
 		self.comboTitle.SetValue(p["title"])
 		self.tcGivenNames.SetValue(p["firstnames"])
 		self.tcSurnames.SetValue(p["lastnames"])
+		#self.chPreferredName.SetStringSelection(p["preferred"])
+		#self.tcAka.SetValue(p[])
+		self.chGender.SetStringSelection(p["gender"])
+		self.tcDob.SetValue(p["dob"])
+		self.cbCob.SetSelection(0)
+
+
+	def SetAddressData(self, address=None):
+		if address is None:
+			self.ClearAddressData()
+			return
+		a=address	#less typing ...
+		self.cbAddressAt.SetSelection(a["adr_at"])
+		self.tcAddress1.SetValue(a["street2"])
+		self.tcStreetNo.SetValue(a["number"])
+		self.tcStreet.SetValue(a["street"])
+		self.tcCity.SetValue(a["city"])
+		self.chCountry.SetStringSelection(a["country"])
+		#self.cbPhoneFor.SetSelection()
+		#self.tcAreacode.SetValue()
+		#self.tcPhonenumber.SetValue()
+		#self.tcPhoneComment.SetValue()
+		#self.cbUrlCategory.SetSelection(0)
+		#self.tcURL.SetValue()
+
+	def ClearData(self):
+		self.ClearPersonData()
+		self.ClearAddressData()
+
+
+	def OnDataUpdate(self, updater, id):
+		#<DEBUG>
+		#print "On data update, Person ID =", id
+		#</DEBUG>
+		self.SetPersonData(self.__person.dictresult(id))
+		addresslist = self.__person.addresses(id)
+		if len(addresslist) > 0:
+			print addresslist
+			homeaddress = addresslist[0]
+			self.SetAddressData(self.__address.dictresult(homeaddress[0]))
+
+	def OnSaveData(self, updateflag=0):
+		if updateflag:
+			pass
+			#person attribute changed?
+			#address attribute changed?
+		else:
+			pass
+			#save person
+			#save address
+
+
+
+
+
+
 
 
 ##########################################################################
