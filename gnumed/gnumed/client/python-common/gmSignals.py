@@ -23,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -47,8 +47,12 @@ def allergy_updated():
 	return 'allergy_updated'
 #-------------------------------------------------------------
 def patient_selected():
-	"the current active patient displayed by the client has been selected"
+	"the currently active patient displayed by the client has been selected"
 	return 'patient_selected'
+
+def activating_patient():
+	"""the currently active patient is about to be changed"""
+	return 'activating_patient'
 
 def patient_modified():
 	"the current patients demographic data has been modified"
@@ -104,7 +108,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.7  2003-05-01 15:01:42  ncq
+# Revision 1.8  2003-06-22 16:19:09  ncq
+# - add pre-selection signal
+#
+# Revision 1.7  2003/05/01 15:01:42  ncq
 # - add allergy signals
 #
 # Revision 1.6  2003/02/12 23:39:12  sjtan
