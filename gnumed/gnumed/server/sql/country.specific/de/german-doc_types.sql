@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 
 -- part of GnuMed
 -- GPL
@@ -20,8 +20,8 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summ
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary psychiatric', 'Entlassung Psychiatrie');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary neurological', 'Entlassung Neuro');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary orthopaedic', 'Entlassung Ortho');
-INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary other', 'Entlassung ');
---INSERT into _doc_type(name) values(103, 'Entlassung Reha');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary other', 'Entlassung sonstige');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary rehabilitation', 'Entlassung Reha');
 
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report internal', 'Arztbrief Innere');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report surgical', 'Arztbrief Chirurgie');
@@ -40,11 +40,14 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral repor
 
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.6  2003-01-05 13:05:53  ncq
+-- Revision 1.7  2003-01-20 20:05:41  ncq
+-- - a few more doc types
+--
+-- Revision 1.6  2003/01/05 13:05:53  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.5  2003/01/01 17:42:59  ncq
