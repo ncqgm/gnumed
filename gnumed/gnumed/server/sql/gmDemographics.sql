@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -412,22 +412,63 @@ create table lnk_org2address (
 GRANT SELECT ON
 	names,
 	identity,
-	identity_id_seq
+	identity_id_seq,
+	urb,
+	country,
+	street,
+	address,
+	address_type,
+	state,
+	address_external_ref,
+	enum_comm_types,
+	comm_channel,
+	mapbook,
+	coordinate,
+	address_info,
+	lnk_person2address,
+	lnk_person2comm_channel,
+	relation_types,
+	lnk_person2relative,
+	occupation,
+	lnk_job2person,
+	org_address,
+	org_category,
+	org,
+	lnk_org2address
+	
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	names,
 	names_id_seq,
-	identity_id_seq
+	identity_id_seq,
+	urb,
+	country,
+	street,
+	address,
+	address_external_ref,
+	comm_channel,
+	coordinate,
+	address_info,
+	lnk_person2address,
+	lnk_person2comm_channel,
+	lnk_person2relative,
+	lnk_job2person,
+	org_address,
+	org,
+	lnk_org2address
 TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.6  2003-08-17 00:23:22  ncq
+-- Revision 1.7  2003-09-21 06:10:06  ihaywood
+-- sane permissions for gmDemographics
+--
+-- Revision 1.6  2003/08/17 00:23:22  ncq
 -- - add occupation tables
 -- - remove log_ tables, they are now auto-created
 --
