@@ -1,34 +1,28 @@
 #!/usr/bin/python
-#############################################################################
 #
-# gnumed - launcher for the main gnumed GUI client module
-# ---------------------------------------------------------------------------
-#
-# @author: Dr. Horst Herb
-# @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: nil
-# @change log:
-#	01.03.2002 hherb first draft, untested
-#
-# @TODO: Almost everything
-############################################################################
+# Copyright: Horst Herb, Karsten Hilbert
+# This source code is protected by the GPL licensing scheme.
+# Details regarding the GPL are available at http://www.gnu.org
+# You may use and share it as long as you don't deny this right
+# to anybody else.
 """
 gnumed - launcher for the main gnumed GUI client module
-Use as standalone program.
+Use as basis for a 'standalone' program.
 """
 
-__version__ = "$Revision: 1.7 $"
-__author__ = "Horst Herb <hherb@malleenet.net.au>"
+__version__ = "$Revision: 1.8 $"
+__author__ = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
 import sys, os
 # GNUmed modules
 import gmLog
 
-if __name__ == "__main__":
-	"""Launch the gnumed wx GUI client."""
-	appPath = os.path.split(sys.argv[0])[0]
+def main(argv):
+	"""Launch the gnumed wx GUI client.
+	arguments: should be sys.argv"""
+
+	appPath = os.path.split(argv[0])[0]
 
 	# console is Good(tm)
 	aLogTarget = gmLog.LogTargetConsole(gmLog.lInfo)
@@ -45,11 +39,12 @@ if __name__ == "__main__":
 
 	try:
 		#change into our working directory
-		#this does NOT affect the cdw in the shell from where gnumed is started!
+		#this does NOT affect the cwd in the shell from where gnumed is started!
 		os.chdir(appPath)
 	except:
-		print "Cannot change into application directory [%s]" % appPath
-
+		exc = sys.exc_info()
+		gmLog.gmDefLog.LogException ("Exception: \
+			Cannot change into application directory [%s]" % appPath, exc)
 
 	try:
 		import gmGuiMain
@@ -71,3 +66,7 @@ if __name__ == "__main__":
 #<DEBUG>
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
 #</DEBUG>
+
+
+if __name__ == "__main__":
+	main(sys.argv)
