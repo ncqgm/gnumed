@@ -1,9 +1,11 @@
 """GnuMed XDT data handling library.
 
-This lib provides fuctions for working with XDT-files.
+This lib provides functions for working with XDT-files.
+
+MERGE INTO business/gmXdtObjects.py !!
 """
 #==============================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -12,63 +14,58 @@ import gmLog, gmCfg
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
 
-#get export-dir
-pat_dir=_cfg.get("xdt-viewer", "export-dir")
-pat_lst_fname=_cfg.get("xdt-viewer", "patient-list")
+# get export-dir
+pat_dir = _cfg.get("xdt-viewer", "export-dir")
+pat_lst_fname = _cfg.get("xdt-viewer", "patient-list")
 # is there a patient list already ?
 _patlst = gmCfg.cCfgFile(aPath = pat_dir ,aFile = pat_lst_fname, flags = 2)
 #==============================================================
-
-def getXdtStats(aFile):
-	xDTFile = fileinput.input(aFile)
-	patientIDList = []
-	patientNameList = []
-	patientIdentity = {}
-	# read patient data
-	patients_found = 0
+def xdt_get_pats(aFile):
+	pat_ids = []
+	pat_names = []
+	pats = {}
 	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
-	for line in xDTFile:
+	# read patient dat
+	for line in fileinput.input(aFile):
 		# remove trailing CR and/or LF
 		line = string.replace(line,'\015','')
 		line = string.replace(line,'\012','')
-		
 		# do we care about this line ?
 		field = line[3:7]
-		# extract patient id
+		# yes, if type = patient id
 		if field == '3000':
-			apatientID = line[7:]
-			if apatientID not in patientIDList:
-				patientIDList.append(apatientID)
-				patients_found = patients_found + 1
-		# extract patient name
-		elif field == '3101':
-			apatientName = line [7:]
-			if apatientName not in patientNameList:
-				patientNameList.append(apatientName)
-				patientIdentity[apatientID]=apatientName					
-	_log.Log(gmLog.lData, "patients found: %s" % patients_found)
-	return patientIdentity
-	# cleanup
+			pat_id = line[7:]
+			if pat_id not in pat_ids:
+				pat_ids.append(pat_id)
+			continue
+		# yes, if type = patient name
+		if field == '3101':
+			pat_name = line [7:]
+			if pat_name not in pat_names:
+				pat_names.append(pat_name)
+				pats[pat_id] = pat_name
+			continue
 	fileinput.close()
 
+	_log.Log(gmLog.lData, "patients found: %s" % len(pat_ids))
+	return pats
 #=================================================================
 def getPatientContent(aFile,anIdentity):
 	_log.Log(gmLog.lData, "looking for patient: %s" % anIdentity)
 	split2singleRecords(aFile,anIdentity)
 	_patlst.store()
-#==================================================================	
+#=================================================================
 def split2singleRecords(aFile,anIdentity):
 	idflag=''
 	nameflag=''
-	content=[]	
+	content=[]
 	Identity=string.split(anIdentity,':')
 	anID=Identity[0]
 	aName=Identity[1]
-	xDTFile = fileinput.input(aFile)
-	#patientIDList = []
-	#patientNameList = []
+	#pat_ids = []
+	#pat_names = []
 	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
-	for line in xDTFile:
+	for line in fileinput.input(aFile):
 		# remove trailing CR and/or LF
 		strippedline = string.replace(line,'\015','')
 		strippedline = string.replace(strippedline,'\012','')
@@ -85,7 +82,7 @@ def split2singleRecords(aFile,anIdentity):
 				else:
 					idflag = 'false'
 					#_log.Log(gmLog.lData, "id flags false")	
-					#patientIDList.append(apatientID)
+					#pat_ids.append(apatientID)
 					#patients_found = patients_found + 1
 					# extract patient name
 			else:
@@ -95,8 +92,8 @@ def split2singleRecords(aFile,anIdentity):
 				# now we need to empty it before next record starts
 				content=[]
 		if field == '3101' and idflag == 'true':
-			apatientName = strippedline [7:]
-			if apatientName == aName:
+			pat_name = strippedline [7:]
+			if pat_name == aName:
 				nameflag = 'true'
 				_log.Log(gmLog.lData, "both flags true")
 			else: 
@@ -107,10 +104,10 @@ def split2singleRecords(aFile,anIdentity):
 			content.append(line)		
 			
 	
-			#if apatientName not in patientNameList:
-			#	patientNameList.append(apatientName)					
+			#if pat_name not in pat_names:
+			#	pat_names.append(pat_name)					
 	#_log.Log(gmLog.lData, "patients found: %s" % patients_found)
-	#return patientNameList
+	#return pat_names
 	# cleanup
 	fileinput.close()
 #====================================================================
@@ -186,6 +183,9 @@ def __show_error(aMessage = None, aTitle = ''):
 	return 1
 #==============================================================
 # $Log: gmXdtToolsLib.py,v $
-# Revision 1.1  2003-08-18 20:34:57  shilbert
+# Revision 1.2  2003-08-18 23:34:28  ncq
+# - cleanup, somewhat restructured to show better way of going about things
+#
+# Revision 1.1  2003/08/18 20:34:57  shilbert
 # - provides fuctions for splitting xdt-files into individual records
 #.
