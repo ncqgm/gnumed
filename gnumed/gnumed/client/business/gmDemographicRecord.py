@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.8 2003-11-20 07:45:45 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmDemographicRecord.py,v 1.9 2003-11-22 12:53:48 sjtan Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -161,8 +161,11 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		}
 	#--------------------------------------------------------
 	def setActiveName (self, firstnames, lastnames):
-		cmd = "update names set active = true, firstnames = %s, lastnames = %s where id_identity = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID])])
+		#empirically works.
+		#do an insert to change the name, the old name becomes inactive anyway with the trigger.
+		cmd = "insert into  names ( firstnames , lastnames , title,  id_identity ) values( %s , %s ,'',  %s)"
+		gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID]) ])
+
 	#---------------------------------------------------------	
 	def getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
@@ -171,11 +174,15 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 			return ''
 		if len(data) == 0:
 			return ''
+		if data[0][0] == None:
+			return ''
 		return data[0][0]
 	#--------------------------------------------------------
 	def setTitle (self, title):
-		cmd = "update names set title = %s where id_identity = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
+		# empirically, this works; updating the name twice, then setting it active. 
+		cmd = "update names set title = %s  where id = (select max(id) from names where id_identity = %s)"
+		cmd2 = "update names set active = true where id = (select max(id) from names where id_identity = %s)"
+		gmPG.run_commit ('personalia', [(cmd, [title, self.ID]), (cmd, [title, self.ID]),  (cmd2, [self.ID])])
 	#--------------------------------------------------------
 	def getID(self):
 		return self.ID
@@ -545,7 +552,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.8  2003-11-20 07:45:45  ncq
+# Revision 1.9  2003-11-22 12:53:48  sjtan
+#
+# modified the setActiveName and setTitle so it works as intended in the face of insurmountable triggers ;)
+#
+# Revision 1.8  2003/11/20 07:45:45  ncq
 # - update names/identity, not v_basic_person in setTitle et al
 #
 # Revision 1.7  2003/11/20 02:10:50  sjtan
