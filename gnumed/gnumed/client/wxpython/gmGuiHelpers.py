@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.14 2004-09-25 13:10:40 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmGuiHelpers.py,v 1.15 2004-12-21 19:40:56 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -142,14 +142,17 @@ def gm_beep_statustext(aMessage=None, aLogLevel=None):
 		try:
 			_set_status_text = gmGuiBroker.GuiBroker()['main.statustext']
 		except KeyError:
-			_log.LogException('called too early, cannot set status text')
+			_log.LogException('called too early, cannot set status text', sys.exc_info())
 			raise
 
 	_set_status_text(aMessage)
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.14  2004-09-25 13:10:40  ncq
+# Revision 1.15  2004-12-21 19:40:56  ncq
+# - fix faulty LogException() usage
+#
+# Revision 1.14  2004/09/25 13:10:40  ncq
 # - in gm_beep_statustext() make aMessage a defaulted keyword argument
 #
 # Revision 1.13  2004/08/19 13:56:51  ncq
