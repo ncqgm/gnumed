@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.78 2004-07-18 20:30:53 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmEditArea.py,v 1.79 2004-10-11 19:54:38 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -12,14 +12,11 @@ __author__ = "R.Terry, K.Hilbert"
 
 import sys, traceback, time
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI
-from Gnumed.business import gmPatient, gmDemographicRecord, gmForms
-from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
-
 from wxPython.wx import *
 
-if __name__ == '__main__':
-	_ = lambda x:x
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI, gmI18N
+from Gnumed.business import gmPatient, gmDemographicRecord, gmForms
+from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 _log = gmLog.gmDefLog
 _gb = gmGuiBroker.GuiBroker()
@@ -2016,7 +2013,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.78  2004-07-18 20:30:53  ncq
+# Revision 1.79  2004-10-11 19:54:38  ncq
+# - cleanup
+#
+# Revision 1.78  2004/07/18 20:30:53  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.77  2004/07/17 21:16:39  ncq
