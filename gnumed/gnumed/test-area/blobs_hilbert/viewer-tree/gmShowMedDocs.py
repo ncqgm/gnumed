@@ -10,8 +10,8 @@ hand it over to an appropriate viewer.
 
 For that it relies on proper mime type handling at the OS level.
 """
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.14 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/gmShowMedDocs.py,v $
+__version__ = "$Revision: 1.1 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -326,8 +326,11 @@ else:
 		def MenuInfo (self):
 			return ('tools', _('&Show Documents'))
 #================================================================
-# $Log: show-med_docs.py,v $
-# Revision 1.14  2002-12-24 14:18:40  ncq
+# $Log: gmShowMedDocs.py,v $
+# Revision 1.1  2002-12-25 13:17:45  ncq
+# - renamed to gmShowMedDocs
+#
+# Revision 1.14  2002/12/24 14:18:40  ncq
 # - handle more exceptions gracefully
 #
 # Revision 1.13  2002/12/23 08:51:29  ncq
