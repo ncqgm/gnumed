@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -130,6 +130,10 @@ class cEncounter(gmClinItem.cClinItem):
 	]
 	#--------------------------------------------------------
 	def set_active(self, staff_id=None):
+		"""Set the enconter as the active one.
+
+		staff_id - Provider's primary key
+		"""
 		cmd = """update clin_encounter set
 					fk_provider=%s,
 					last_affirmed=now()
@@ -140,6 +144,20 @@ class cEncounter(gmClinItem.cClinItem):
 			_log.Log(gmLog.lErr, str(msg))
 			return False
 		return True
+	#--------------------------------------------------------
+	def set_attached_to(self, staff_id=None):
+#		"""Attach staff/provider to the encounter.
+#
+#		staff_id - Staff/provider's primary key
+#		"""
+#		cmd = """update clin_encounter set fk_provider=%s where id=%s"""
+#		success, msg = gmPG.run_commit('historica', [(cmd, [staff_id, self.pk_obj])], True)
+#		if not success:
+#			_log.Log(gmLog.lErr, 'cannot attach to encounter [%s]' % self.pk_obj)
+#			_log.Log(gmLog.lErr, str(msg))
+#			return False
+#		return True
+		pass
 #============================================================
 # convenience functions
 #------------------------------------------------------------	
@@ -181,7 +199,7 @@ def create_episode(id_patient = None, id_health_issue = None, episode_name='xxxD
 	"""
 	# already there ?
 	try:
-		episode = cEpisode(id_patient=id_patient, episode_name=episode_name)
+		episode = cEpisode(id_patient=id_patient, name=episode_name)
 		return (True, episode)
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
@@ -288,7 +306,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.8  2004-05-22 12:42:54  ncq
+# Revision 1.9  2004-05-30 20:10:31  ncq
+# - cleanup
+#
+# Revision 1.8  2004/05/22 12:42:54  ncq
 # - add create_episode()
 # - cleanup add_episode()
 #
