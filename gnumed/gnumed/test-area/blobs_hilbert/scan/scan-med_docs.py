@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -422,6 +422,7 @@ class scanFrame(wxFrame):
 		self.__reload_LBOX_doc_pages()
 
 		# finally show doc ID for copying down on paper
+		self.__show_doc_ID()
 
 		return 1
 	#-----------------------------------
@@ -681,7 +682,7 @@ class scanFrame(wxFrame):
 		while doc_id < 0:
 			dlg = wxTextEntryDialog(
 				parent = self,
-				message = _('The most recently used document ID was "%s".\nWe would use the ID "%s" for the current document.\nPlease confirm the ID or type in a new numeric ID.\n\nYou should also write down this ID on the documents themselves.') % (last_ID, new_ID),
+				message = _('The most recently used document ID was <%s>.\nWe would use the ID <%s> for the current document.\nPlease confirm the ID or type in a new numeric ID.') % (last_ID, new_ID),
 				caption = _('document ID'),
 				defaultValue = new_ID,
 				style = wxOK | wxCentre
@@ -716,6 +717,9 @@ class scanFrame(wxFrame):
 		# extract name for dir
 		path, doc_ID = os.path.split(dirname)
 
+		return doc_ID
+	#-----------------------------------
+	def __show_doc_ID(self, anID):
 		show_ID = _cfg.get('scanning', 'show document ID')
 		if show_ID == None:
 			_log.Log(gmLog.lWarn, 'Cannot get option from config file.')
@@ -724,14 +728,12 @@ class scanFrame(wxFrame):
 		if show_ID != "no":
 			dlg = wxMessageDialog(
 				self,
-				_("This is the reference ID for the current document:\n<%s>\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file.") % doc_ID,
+				_("This is the reference ID for the current document:\n<%s>\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file.") % anID,
 				_('document ID'),
 				wxOK | wxICON_INFORMATION
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
-
-		return doc_ID
 	#-----------------------------------
 	def __dump_metadata_to_xml(self, aDir):
 		# FIMXE: error handling
@@ -819,7 +821,7 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def __unlock_for_indexing(self, aDir):
 		"""Write checkpoint file so indexing can start."""
-		can_index_file = _cfg.get('index', 'can index')
+		can_index_file = _cfg.get('index', 'checkpoint file')
 		if not can_index_file:
 			dlg = wxMessageDialog(
 				self,
@@ -874,7 +876,10 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.30  2002-09-29 16:06:26  ncq
+# Revision 1.31  2002-09-30 08:13:36  ncq
+# - unify show_doc_ID
+#
+# Revision 1.30  2002/09/29 16:06:26  ncq
 # - cleaned up config file
 #
 # Revision 1.29  2002/09/16 23:20:58  ncq
