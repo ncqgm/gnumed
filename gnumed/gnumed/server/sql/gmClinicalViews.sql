@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.122 2005-01-31 19:12:26 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.123 2005-01-31 19:42:53 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -209,6 +209,7 @@ begin
 				where pk = OLD.fk_health_issue;
 		else
 			patient_id := OLD.fk_patient;
+		end if;
 	else
 		-- if no patient in episode
 		if NEW.fk_patient is null then
@@ -218,6 +219,7 @@ begin
 				where pk = NEW.fk_health_issue;
 		else
 			patient_id := NEW.id_patient;
+		end if;
 	end if;
 	-- now, execute() the NOTIFY
 	execute ''notify "episode_change_db:'' || patient_id || ''"'';
@@ -1642,11 +1644,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.122 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.123 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.122  2005-01-31 19:12:26  ncq
+-- Revision 1.123  2005-01-31 19:42:53  ncq
+-- - add 2 missing "end if;"
+--
+-- Revision 1.122  2005/01/31 19:12:26  ncq
 -- - add trigger to announce episode changes
 --
 -- Revision 1.121  2005/01/24 17:57:43  ncq
