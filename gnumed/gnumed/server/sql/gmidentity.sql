@@ -230,7 +230,7 @@ select
 from
 	identity i, names n
 where
-	i.deceased = NULL and n.id_identity=i.id and n.active=true;
+	i.deceased is NULL and n.id_identity=i.id and n.active=true;
 
 -- IH 9/3/02 Add some rules
 
