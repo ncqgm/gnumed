@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -9,11 +9,15 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+-- do not allow anyone other the gm-dbo to DELETE on identity ...
+grant select, insert, update on
+	identity,
+	identity_pk_seq
+to group "gm-doctors";
+
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	names,
 	names_id_seq,
-	identity,
-	identity_pk_seq,
 	urb,
 	urb_id_seq,
 	country,
@@ -53,7 +57,10 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.9  2005-02-12 13:49:14  ncq
+-- Revision 1.10  2005-02-13 14:39:31  ncq
+-- - do not grant DELETE on identity to gm-doctors
+--
+-- Revision 1.9  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes
