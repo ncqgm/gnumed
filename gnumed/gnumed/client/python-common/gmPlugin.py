@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -288,7 +288,7 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 
 	return 1
 #------------------------------------------------------------------
-# (TODO: get plugin list from gmconfiguration for this user).
+# (FIXME: get plugin list from gmconfiguration for this user).
 def GetAllPlugins (set):
 	"""
 	Searches the directory for all plugins
@@ -304,7 +304,7 @@ def GetAllPlugins (set):
 		if re.compile ('.+\.py$').match (f) and f != '__init__.py':
 			ret.append (f[:-3])
 	return ret
-#------------------------------------------------------------------	
+#------------------------------------------------------------------
 def UnloadPlugin (set, name):
 	"""
 	Unloads the named plugin
@@ -314,9 +314,16 @@ def UnloadPlugin (set, name):
 	plugin.unregister ()
 	del gb['modules.%s' % set][name]
 	log (gmLog.lInfo, "unloaded plugin %s/%s" % (set, name))
-
+#==================================================================
+# Main
+#------------------------------------------------------------------
+log(__version__)
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.22  2002-09-09 00:50:28  ncq
+# Revision 1.23  2002-09-26 13:08:51  ncq
+# - log version on import
+# - TODO -> FIXME
+#
+# Revision 1.22  2002/09/09 00:50:28  ncq
 # - return success or failure on LoadPlugin()
 #
