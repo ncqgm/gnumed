@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.3 2004-08-06 09:03:35 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmBMIWidgets.py,v 1.4 2004-08-09 00:02:20 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -493,7 +493,7 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 
 		# get icon
 		if __name__ == '__main__':
-			png_fname = os.path.join('..', '..', 'bitmaps', 'bmi_calculator.png')
+			png_fname = os.path.join('..', 'bitmaps', 'bmi_calculator.png')
 		else:
 			from Gnumed.pycommon import gmGuiBroker
 			gb = gmGuiBroker.GuiBroker()
@@ -543,7 +543,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.3  2004-08-06 09:03:35  ncq
+# Revision 1.4  2004-08-09 00:02:20  ncq
+# - fix bitmap path when standalone
+#
+# Revision 1.3  2004/08/06 09:03:35  ncq
 # - look for bmi_calculator.png in bitmaps/
 #
 # Revision 1.2  2004/08/06 08:56:04  ncq
