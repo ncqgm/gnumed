@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.41 2003-02-09 11:52:28 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPlugin.py,v 1.42 2003-02-09 20:00:06 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -53,7 +53,6 @@ class gmPlugin:
 		return ''
 #------------------------------------------------------------------
 class wxBasePlugin (gmPlugin):
-	
 	"""
 	base class for all plugins providing wxPython widgets.
 	Plugins must have a class descending of this class in their file, which MUST HAVE THE SAME NAME AS THE FILE.
@@ -129,8 +128,8 @@ class wxBasePlugin (gmPlugin):
 		"""
 		raise gmExceptions.PureVirtualFunction ()
 	#-----------------------------------------------------
-	def Shown (self):
-		"""Called whenever this module is shown onscreen.
+	def ReceiveFocus(self):
+		"""Called whenever this module receives focus and is thus shown onscreen.
 		"""
 		pass
 	#-----------------------------------------------------
@@ -181,8 +180,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		widget.Show (1)
 
 		# place ourselves in the main toolbar
-		# FIXED: this should be optional
-		# IH: No. Pages that don't want a toolbar must install a blank one
+		# Pages that don't want a toolbar must install a blank one
 		# otherwise the previous page's toolbar would be visible
 		self.tbm = self.gb['main.toolbar']
 		tb = self.tbm.AddBar (self.name ())
@@ -198,7 +196,7 @@ class wxNotebookPlugin (wxBasePlugin):
 			menu.Append (self.menu_id, menuname, self.name ())
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 		# so notebook can find this widget
-		self.gb['main.notebook.numbers'].append (self)
+		self.gb['main.notebook.plugins'].append (self)
 
 		# so event handlers can get at this widget
 		self.set_widget_reference(widget)
@@ -213,7 +211,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		# delete toolbar
 		self.tbm.DeleteBar (self.name ())
 		# correct the number-plugin dictionary
-		nbns = self.gb['main.notebook.numbers']
+		nbns = self.gb['main.notebook.plugins']
 		nb_no = nbns.index (self)
 		del nbns[nb_no]
 		# delete notebook page
@@ -223,7 +221,7 @@ class wxNotebookPlugin (wxBasePlugin):
 	#-----------------------------------------------------	
 	def Raise (self):
 		print "self.nb.SetSelection (nb_no)"
-		nbns = self.gb['main.notebook.numbers']
+		nbns = self.gb['main.notebook.plugins']
 		nb_no = nbns.index (self)
 		self.nb.SetSelection (nb_no)
 		self.tbm.ShowBar (self.name ())
@@ -249,8 +247,6 @@ class wxNotebookPlugin (wxBasePlugin):
 	# =----------------------------------------------------
 	def OnShow (self, evt):
 		self.register () # register without changing configuration
-
-	
 		
 #------------------------------------------------------------------
 class wxPatientPlugin (wxBasePlugin):
@@ -287,7 +283,7 @@ class wxPatientPlugin (wxBasePlugin):
 		self.set_widget_reference(widget)
 	#-----------------------------------------------------        
 	def OnTool (self, event):
-		self.Shown ()
+		self.ReceiveFocus()
 		self.mwm.Display (self.name ())
 		# reduntant as cannot access toolbar unless mwm raised
 		#self.gb['modules.gui']['Patient'].Raise ()
@@ -306,7 +302,12 @@ class wxPatientPlugin (wxBasePlugin):
 			tb2.DeleteTool (self.tool_id)
 		del self.gb['modules.patient'][self.name ()]
 	#-----------------------------------------------------
-
+	def Shown(self):
+		"""Called whenever this module receives focus and is thus shown onscreen.
+		"""
+		pass
+#		_log.Log(gmLog.lWarn, 'forgot to change Shown() -> ReceiveFocus() in some plugin ...')
+#		self.ReceiveFocus()
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	"""Instantiates a plugin object from a package directory, returning the object.
@@ -512,7 +513,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.41  2003-02-09 11:52:28  ncq
+# Revision 1.42  2003-02-09 20:00:06  ncq
+# - on notebook plugins rename Shown() to ReceiveFocus() as that's what this does, not only display itself
+#
+# Revision 1.41  2003/02/09 11:52:28  ncq
 # - just one more silly cvs keyword
 #
 # Revision 1.40  2003/02/09 09:41:57  sjtan
