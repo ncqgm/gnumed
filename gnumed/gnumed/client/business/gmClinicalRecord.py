@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.91 2004-05-12 14:33:42 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmClinicalRecord.py,v 1.92 2004-05-14 13:16:34 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -932,7 +932,7 @@ class cClinicalRecord:
 						filtered_shots.append(shot)	
 				return (filtered_shots)
 		return (self.__db_cache['vaccinations'])
-	#--------------------------------------------------------		
+	#--------------------------------------------------------
 	def get_missing_vaccinations(self, indication_list = None):
 		try:
 			self.__db_cache['missing vaccinations']
@@ -945,7 +945,7 @@ class cClinicalRecord:
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading (indication, seq_no) for due/overdue vaccinations for patient [%s]' % self.id_patient)
-				return False
+				return None
 			pk_args = {'pat_id': self.id_patient}
 			if rows is not None:
 				for row in rows:
@@ -962,7 +962,7 @@ class cClinicalRecord:
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading indications for missing boosters for patient [%s]' % self.id_patient)
-				return False
+				return None
 			pk_args = {'pat_id': self.id_patient}
 			if rows is not None:
 				for row in rows:
@@ -1220,11 +1220,11 @@ class cClinicalRecord:
 			return self.__db_cache['lab results']
 		except KeyError:
 			pass
-
 		self.__db_cache['lab results'] = []
 		# get list of IDs
 		# FIXME: date range, episode, encounter, issue, test filter
-		cmd = "select pk_result from v_results4lab_req where pk_patient=%s"
+		# FIXME: hardcoded limit on # of test results
+		cmd = "select pk_result from v_results4lab_req where pk_patient=%s limit 500"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if rows is None:
 			return False
@@ -1281,49 +1281,6 @@ insert into allergy (
 			self.past_history = gmPHxEditAreaDecorator(phx)
 		return self.past_history
 #============================================================
-class gmClinicalPart:
-	def __init__(self, backend, patient):
-		self._backend = backend
-		self.patient = patient
-		
-	def id_patient(self):
-		return self.patient.id_patient
-
-	def id_encounter(self):
-		return self.patient.id_encounter
-
-	def id_episode(self):
-		return self.patient.id_episode
-
-
-        def escape_str_quote(self, s):
-               if type(s) == type(""):
-			s = s.replace("'", "\\\'" )
-               return s
-
-
-	def _print(self, *kargs):
-		return
-
-	def validate_not_null( self, values, fields):
-		for f in fields:
-			if values.has_key(f):
-				assert  type(values[f]) == type('')
-				assert  values[f].strip() <> ''
-
-	def to_keyed_map(self, list_with_id , fields):
-		all_map = {}
-		for row in list_with_id:
-			map = {}
-			for i in xrange(0, len(fields)):
-				try:
-					map[fields[i]] = row[i+1]
-				except:
-					pass
-			all_map[row[0]]= map	
-
-		return all_map
-#============================================================
 # convenience functions
 #------------------------------------------------------------
 def get_vacc_regimes():
@@ -1357,7 +1314,7 @@ if __name__ == "__main__":
 	_ = lambda x:x
 	gmPG.set_default_client_encoding('latin1')
 	record = cClinicalRecord(aPKey = 12)
-	lab = record.get_lab_data()
+	lab = record.get_lab_results()
 	idx = lab['idx']
 	by_date = {}
 	i = 1
@@ -1400,7 +1357,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.91  2004-05-12 14:33:42  ncq
+# Revision 1.92  2004-05-14 13:16:34  ncq
+# - cleanup, remove dead code
+#
+# Revision 1.91  2004/05/12 14:33:42  ncq
 # - get_due_vaccinations -> get_missing_vaccinations + rewrite
 #   thereof for value object use
 # - __activate_fairly_recent_encounter now fails right away if it
