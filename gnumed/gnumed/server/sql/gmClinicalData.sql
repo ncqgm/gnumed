@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.20 2004-01-22 23:44:39 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.21 2004-02-18 14:08:29 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -29,6 +29,7 @@ INSERT INTO _enum_encounter_type (description) values (i18n('hospital visit'));
 INSERT INTO _enum_encounter_type (description) values (i18n('video conference'));
 INSERT INTO _enum_encounter_type (description) values (i18n('proxy encounter'));
 INSERT INTO _enum_encounter_type (description) values (i18n('emergency encounter'));
+INSERT INTO _enum_encounter_type (description) values (i18n('chart review'));
 INSERT INTO _enum_encounter_type (description) values (i18n('other encounter'));
 
 -- ===================================================================
@@ -518,11 +519,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.20  2004-01-22 23:44:39  ncq
+-- Revision 1.21  2004-02-18 14:08:29  ncq
+-- - add "chart review" encounter type
+--
+-- Revision 1.20  2004/01/22 23:44:39  ncq
 -- - add FSME
 --
 -- Revision 1.19  2004/01/10 01:29:25  ncq
