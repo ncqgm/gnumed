@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.13 2003-04-04 20:40:51 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmTmpPatient.py,v 1.14 2003-04-09 16:15:44 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -233,6 +233,23 @@ class gmPerson:
 		else:
 			return data[0]
 	#--------------------------------------------------------
+	def _get_medical_age(self):
+		curs = self._defconn_ro.cursor()
+		# FIXME: we need to be way more smart here !!
+		cmd = "select age(dob) from identity where id = %s;"
+		try:
+			curs.execute(cmd, self.ID)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return None
+		data = curs.fetchone()
+		curs.close()
+		if data is None:
+			return '??'
+		else:
+			return data[0]
+	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
 	_get_handler['active name'] = _getActiveName
@@ -240,6 +257,7 @@ class gmPerson:
 	_get_handler['title'] = _getTitle
 	_get_handler['ID'] = _getID
 	_get_handler['dob'] = _getDOB
+	_get_handler['medical age'] = _get_medical_age
 #============================================================
 from gmBorg import cBorg
 
@@ -523,7 +541,10 @@ if __name__ == "__main__":
 		print "fails  ", myPatient['missing handler']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.13  2003-04-04 20:40:51  ncq
+# Revision 1.14  2003-04-09 16:15:44  ncq
+# - get handler for age
+#
+# Revision 1.13  2003/04/04 20:40:51  ncq
 # - handle connection errors gracefully
 # - let gmCurrentPatient be a borg but let the person object be an attribute thereof
 #   instead of an ancestor, this way we can safely do __init__(aPKey) where aPKey may or
