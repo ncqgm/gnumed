@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.30 2004-07-19 16:17:55 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmPlugin.py,v 1.31 2004-07-24 17:21:49 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -35,7 +35,7 @@ class wxNotebookPlugin:
 	"""
 	def __init__(self, set=None):
 		self.gb = gmGuiBroker.GuiBroker()
-		self.db = gmPG.ConnectionPool()
+#		self.__db = gmPG.ConnectionPool()
 		self._set = 'gui'
 		# make sure there's a raised_plugin entry
 		try:
@@ -47,15 +47,14 @@ class wxNotebookPlugin:
 	def register (self):
 		"""Register ourselves with the main notebook widget."""
 
-		self.gb['modules.%s' % self._set][self.__class__.__name__] = self
 		_log.Log(gmLog.lInfo, "set: [%s] class: [%s] name: [%s]" % (self._set, self.__class__.__name__, self.name()))
 
 		# add ourselves to the main notebook
-		nb = self.gb['main.notebook']
+		nb = self.gb['horstspace.notebook']
 		widget = self.GetWidget(nb)
 		nb.AddPage(widget, self.name())
 		# FIXME: really use Show() here ?
-		widget.Show(1)
+		widget.Show(True)
 
 		# place ourselves in the top panel,
 		# pages that don't want a toolbar must install a
@@ -78,13 +77,14 @@ class wxNotebookPlugin:
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 
 		# so *notebook* can find this widget
-		self.gb['main.notebook.plugins'].append(self)
+		self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__] = self
+		self.gb['horstspace.notebook.pages'].append(self)
 
 		return 1
 	#-----------------------------------------------------
 	def unregister(self):
 		"""Remove ourselves."""
-		del self.gb['modules.%s' % self._set][self.__class__.__name__]
+		del self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__]
 		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self._set))
 
 		# delete menu item
@@ -97,13 +97,13 @@ class wxNotebookPlugin:
 		top_panel = self.gb['main.top_panel']
 		top_panel.DeleteBar(self.__class__.__name__)
 
-		# correct the plugin dictionary
-		nb_plugins = self.gb['main.notebook.plugins']
-		nb_page_num = nb_plugins.index(self)
-		del nb_plugins[nb_page_num]
+		# correct the notebook page list
+		nb_pages = self.gb['horstspace.notebook.pages']
+		nb_page_num = nb_pages.index(self)
+		del nb_pages[nb_page_num]
 
 		# delete notebook page
-		nb = self.gb['main.notebook']
+		nb = self.gb['horstspace.notebook']
 		nb.DeletePage(nb_page_num)
 	#-----------------------------------------------------
 	def name(self):
@@ -158,10 +158,10 @@ class wxNotebookPlugin:
 		# already raised ?
 		if self.gb['main.notebook.raised_plugin'] == self.__class__.__name__:
 			return 1
-		plugin_list = self.gb['main.notebook.plugins']
-		plugin_idx = plugin_list.index(self)
-		nb = self.gb['main.notebook']
-		nb.SetSelection(plugin_idx)
+		nb_pages = self.gb['horstspace.notebook.pages']
+		plugin_page = nb_pages.index(self)
+		nb = self.gb['horstspace.notebook']
+		nb.SetSelection(plugin_page)
 		return 1
 	#-----------------------------------------------------
 	def OnMenu (self, event):
@@ -190,7 +190,7 @@ def raise_notebook_plugin(plugin_name = None):
 	"""plugin_name is a plugin internal name"""
 	gb = gmGuiBroker.GuiBroker()
 	try:
-		plugin = gb['modules.gui'][plugin_name]
+		plugin = gb['horstspace.plugins'][plugin_name]
 	except KeyError:
 		_log.LogException("cannot raise [%s], plugin not available" % plugin_name, sys.exc_info(), verbose=0)
 		return None
@@ -199,7 +199,7 @@ def raise_notebook_plugin(plugin_name = None):
 		return 1
 	return 0
 #------------------------------------------------------------------
-def instantiate_plugin(aPackage='--??--', plugin_name='--??--'):
+def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	"""Instantiates a plugin object from a package directory, returning the object.
 
 	NOTE: it does NOT call register() for you !!!!
@@ -219,8 +219,10 @@ def instantiate_plugin(aPackage='--??--', plugin_name='--??--'):
 	gb = gmGuiBroker.GuiBroker()
 
 	# bean counting ! -> loaded plugins
-	if not ('modules.%s' % aPackage) in gb.keylist():
-		gb['modules.%s' % aPackage] = {}
+	if not ('horstspace.notebook.%s' % aPackage) in gb.keylist():
+		gb['horstspace.notebook.%s' % aPackage] = {}
+	if not 'horstspace.notebook.pages' in gb.keylist():
+		gb['horstspace.notebook.pages'] = []
 
 	try:
 		# use __import__() so we can dynamically calculate the module name
@@ -309,9 +311,9 @@ def UnloadPlugin (set, name):
 	"""
 	Unloads the named plugin
 	"""
-	gb = gmGuiBroker.GuiBroker ()
-	plugin = gb['modules.%s' % set][name]
-	plugin.unregister ()
+	gb = gmGuiBroker.GuiBroker()
+	plugin = gb['horstspace.notebook.%s' % set][name]
+	plugin.unregister()
 #==================================================================
 # Main
 #------------------------------------------------------------------
@@ -320,7 +322,16 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.30  2004-07-19 16:17:55  ncq
+# Revision 1.31  2004-07-24 17:21:49  ncq
+# - some cleanup, also re from wxPython import wx
+# - factored out Horst space layout manager into it's own
+#   wxPanel child class
+# - subsequently renamed
+# 	'main.notebook.plugins' -> 'horstspace.notebook.pages'
+# 	'modules.gui' -> 'horstspace.notebook.gui' (to be renamed horstspace.notebook.plugins later)
+# - adapt to said changes
+#
+# Revision 1.30  2004/07/19 16:17:55  ncq
 # - missing GuiBroker reference added
 #
 # Revision 1.29  2004/07/19 13:54:25  ncq

@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.1 2004-06-25 13:28:00 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPlugin_Patient.py,v 1.2 2004-07-24 17:21:49 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -111,11 +111,11 @@ class wxBasePlugin:
 		# register ANY type of plugin, regardless of where plugged in
 		# we may be able to do away with this once we don't do
 		# several types of plugins anymore, as we should
-		self.gb['modules.%s' % self.set][self.__class__.__name__] = self
+		self.gb['modules.%s' % self.set][self.__class__.__name__] = self		# split/renamed 'horstspace.notebook.%s'
 		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
 	#-----------------------------------------------------
 	def unregister(self):
-		del self.gb['modules.%s' % self.set][self.__class__.__name__]
+		del self.gb['modules.%s' % self.set][self.__class__.__name__]			# split/renamed 'horstspace.notebook.%s'
 		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
 	#-----------------------------------------------------
 	def name(self):
@@ -157,10 +157,10 @@ class wxPatientPlugin (wxBasePlugin):
 		self.ReceiveFocus()
 		self.mwm.Display (self.__class__.__name__)
 		# redundant as cannot access toolbar unless mwm raised
-		#self.gb['modules.gui']['Patient'].Raise ()
+		#self.gb['modules.gui']['Patient'].Raise ()		# split/renamed 'horstspace.notebook.%s'
 	#-----------------------------------------------------
 	def Raise (self):
-		self.gb['modules.gui']['Patient'].Raise()
+		self.gb['modules.gui']['Patient'].Raise()		# split/renamed 'horstspace.notebook.%s'
 		self.mwm.Display (self.__class__.__name__)
 	#-----------------------------------------------------
 	def unregister (self):
@@ -181,6 +181,15 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.1  2004-06-25 13:28:00  ncq
+# Revision 1.2  2004-07-24 17:21:49  ncq
+# - some cleanup, also re from wxPython import wx
+# - factored out Horst space layout manager into it's own
+#   wxPanel child class
+# - subsequently renamed
+# 	'main.notebook.plugins' -> 'horstspace.notebook.pages'
+# 	'modules.gui' -> 'horstspace.notebook.gui' (to be renamed horstspace.notebook.plugins later)
+# - adapt to said changes
+#
+# Revision 1.1  2004/06/25 13:28:00  ncq
 # - logically separate notebook and clinical window plugins completely
 #

@@ -2,32 +2,34 @@
 #############################################################################
 # gmGuiMain - The application framework and main window of the
 #             all signing all dancing GNUMed reference client.
-#             (WORK IN PROGRESS)
 # ---------------------------------------------------------------------------
-# @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-############################################################################
-# This source code is protected by the GPL licensing scheme.
-# Details regarding the GPL are available at http://www.gnu.org
-# You may use and share it as long as you don't deny this right
-# to anybody else.
 
+############################################################################
 """GNUMed GUI client
 
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
+
+This source code is protected by the GPL licensing scheme.
+Details regarding the GPL are available at http://www.gnu.org
+You may use and share it as long as you don't deny this right
+to anybody else.
+
+copyright: authors
 """
-############################################################################
+#==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.164 2004-07-24 10:26:35 ncq Exp $
-__version__ = "$Revision: 1.164 $"
+# $Id: gmGuiMain.py,v 1.165 2004-07-24 17:21:49 ncq Exp $
+__version__ = "$Revision: 1.165 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time, os, cPickle, zlib
 
 from wxPython.wx import *
+from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
@@ -39,7 +41,7 @@ _whoami = gmWhoAmI.cWhoAmI()
 
 email_logger = None
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
 encoding = _cfg.get('backend', 'client encoding')
 gmPG.set_default_client_encoding(encoding)
@@ -49,12 +51,12 @@ if encoding is None:
 	_log.Log(gmLog.lWarn, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
 
 # widget IDs
-ID_ABOUT = wxNewId ()
-ID_EXIT = wxNewId ()
-ID_HELP = wxNewId ()
-ID_NOTEBOOK = wxNewId ()
-ID_LEFTBOX = wxNewId ()
-#==================================================
+ID_ABOUT = wx.wxNewId ()
+ID_EXIT = wx.wxNewId ()
+ID_HELP = wx.wxNewId ()
+ID_NOTEBOOK = wx.wxNewId ()
+ID_LEFTBOX = wx.wxNewId ()
+#==============================================================================
 
 icon_serpent = \
 """x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
@@ -65,24 +67,232 @@ icon_serpent = \
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec"""
 
-#==================================================
-class gmPluginLoadProgressBar (wxProgressDialog):
+#==============================================================================
+class gmPluginLoadProgressBar (wx.wxProgressDialog):
 	def __init__(self, nr_plugins):
-		wxProgressDialog.__init__(
+		wx.wxProgressDialog.__init__(
 			self,
-			title = _("GnuMed: loading %s plugins") % nr_plugins,
-			message = _("loading list of plugins                    "),
+			title = _("GnuMed: configuring [%s] (%s plugins)") % (_whoami.get_workplace(), nr_plugins),
+			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
-			parent=None,
-			style = wxPD_ELAPSED_TIME
+			parent = None,
+			style = wx.wxPD_ELAPSED_TIME
 			)
 		# set window icon
-		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
-		icon = wxEmptyIcon()
+		icon_bmp_data = wx.wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
+		icon = wx.wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
-#==================================================
-class gmTopLevelFrame(wxFrame):
+#==============================================================================
+class cHorstSpaceLayoutMgr(wx.wxPanel):
+	"""GnuMed inner-frame layout manager.
+
+	This implements a Horst-space notebook-only
+	"inner-frame" layout manager.
+	"""
+	def __init__(self, parent, id):
+		# main panel
+		wx.wxPanel.__init__(
+			self,
+			parent = parent,
+			id = id,
+			pos = wx.wxPyDefaultPosition,
+			size = wx.wxPyDefaultSize,
+			style = wx.wxNO_BORDER,
+			name = 'HorstSpace.LayoutMgrPnl'
+		)
+		# notebook
+		self.ID_NOTEBOOK = wx.wxNewId()
+		self.nb = wx.wxNotebook (
+			parent=self,
+			id = self.ID_NOTEBOOK,
+			size = wx.wxSize(320,240),
+			style = wx.wxNB_BOTTOM
+		)
+		nb_szr = wx.wxNotebookSizer(self.nb)
+
+		# plugins
+		self.__gb = gmGuiBroker.GuiBroker()
+		self.__gb['horstspace.notebook'] = self.nb			# FIXME: remove per Ian's API suggestion
+		self.__load_plugins()
+
+		# layout handling
+		self.main_szr = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		self.main_szr.Add(nb_szr, 1, wx.wxEXPAND)
+		self.SetSizer(self.main_szr)
+#		self.SetSizerAndFit(self.main_szr)
+#		self.Layout()
+#		self.Show(True)
+
+		self.__register_events()
+	#----------------------------------------------
+	# internal API
+	#----------------------------------------------
+	def __register_events(self):
+		# - notebook page is about to change
+		wx.EVT_NOTEBOOK_PAGE_CHANGING (self.nb, self.ID_NOTEBOOK, self._on_notebook_page_changing)
+		# - notebook page has been changed
+		wx.EVT_NOTEBOOK_PAGE_CHANGED (self.nb, self.ID_NOTEBOOK, self._on_notebook_page_changed)
+		# - popup menu on right click in notebook
+		wx.EVT_RIGHT_UP(self.nb, self._on_right_click)
+	#----------------------------------------------
+	def __load_plugins(self):
+		# get plugin list
+		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		if plugin_list is None:
+			_log.Log(gmLog.lWarn, "no plugins to load")
+			return 1
+		nr_plugins = len(plugin_list)
+
+		#  set up a progress bar
+		progress_bar = gmPluginLoadProgressBar(nr_plugins)
+
+		#  and load them
+		prev_plugin = ""
+		result = ""
+		for idx in range(len(plugin_list)):
+			curr_plugin = plugin_list[idx]
+
+			progress_bar.Update(
+				idx,
+				_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
+					prev_plugin,
+					result,
+					(idx+1),
+					nr_plugins,
+					curr_plugin)
+			)
+
+			try:
+				plugin = gmPlugin.instantiate_plugin('gui', curr_plugin)
+				if plugin:
+					plugin.register()
+					result = _("success")
+				else:
+					_log.Log (gmLog.lErr, "plugin [%s] not loaded, see errors above" % curr_plugin)
+					result = _("failed")
+			except:
+				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info(), verbose = 0)
+				result = _("failed")
+
+			prev_plugin = curr_plugin
+
+		progress_bar.Destroy()
+	#----------------------------------------------
+	# external callbacks
+	#----------------------------------------------
+	def _on_notebook_page_changing(self, event):
+		"""Called before notebook page change is processed.
+		"""
+		self.__new_page_is_checked = False
+		# FIXME: this is the place to tell the old page to
+		# make it's state permanent somehow, in general, call
+		# any "validators" for the old page here
+		self.__id_prev_page = event.GetOldSelection()
+		id_new_page = event.GetSelection()
+		_log.Log(gmLog.lData, 'about to switch notebook tabs: %s -> %s' % (self.__id_prev_page, id_new_page))
+		if id_new_page == self.__id_prev_page:
+			# the docs say that on Windows GetSelection() returns the
+			# old page ID, eg. the same value that GetOldSelection()
+			# returns, hence we don't have any way of knowing which
+			# page is going to be it
+			_log.Log(gmLog.lInfo, 'cannot check whether page change needs to be veto()ed')
+			event.Skip()
+			return
+		# check new page
+		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
+		if not new_page.can_receive_focus():
+			_log.Log(gmLog.lData, 'veto()ing page change')
+			event.Veto()
+			return
+		self.__new_page_is_checked = True
+		event.Skip()
+	#----------------------------------------------
+	def _on_notebook_page_changed(self, event):
+		"""Called when notebook changes.
+
+		FIXME: we can maybe change title bar information here
+		"""
+		id_new_page = event.GetSelection()
+		id_old_page = event.GetOldSelection()
+		_log.Log(gmLog.lData, 'switching notebook tabs: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
+		# get access to selected page
+		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
+		# do we need to check the new page ?
+		if self.__new_page_is_checked or new_page.can_receive_focus():
+			new_page.ReceiveFocus()
+			# activate toolbar of new page
+			self.__gb['main.top_panel'].ShowBar(new_page.__class__.__name__)
+			event.Skip()
+			return
+
+		_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
+		# let's try a trick
+		if id_old_page != id_new_page:
+			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(id_old_page)')
+			event.SetSelection(id_old_page)
+		# or two
+		elif self.__id_prev_page != id_new_page:
+			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(self.__id_prev_page)')
+			event.SetSelection(self.__id_prev_page)
+		else:
+			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
+		event.Skip()
+	#----------------------------------------------
+	def _on_right_click(self, evt):
+		load_menu = wxMenu()
+		any_loadable = 0
+		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		plugin = None
+		for plugin_name in plugin_list:
+			try:
+				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
+			except StandardError:
+				continue
+			# not a plugin
+			if not isinstance(plugin, gmPlugin.wxNotebookPlugin):
+				plugin = None
+				continue
+			# already loaded ?
+			if plugin.__class__.__name__ in self.guibroker['horstspace.plugins'].keys():
+				plugin = None
+				continue
+			# add to load menu
+			nid = wxNewId()
+			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.name()))
+			EVT_MENU(load_menu, nid, plugin.on_load)
+			any_loadable = 1
+		# make menus
+		menu = wxMenu()
+		ID_LOAD = wxNewId()
+		ID_DROP = wxNewId()
+		if any_loadable:
+			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
+		plugins = self.guibroker['horstspace.notebook.gui']
+		raised_plugin = plugins[self.nb.GetSelection()].name()
+		menu.AppendItem(wxMenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
+		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
+		self.PopupMenu(menu, evt.GetPosition())
+		menu.Destroy()
+#		evt.Skip()
+	#----------------------------------------------		
+	def _on_drop_plugin(self, evt):
+		"""Unload plugin and drop from load list."""
+		pages = self.guibroker['horstspace.notebook.pages']
+		page = pages[self.nb.GetSelection()]
+		page.unregister()
+		self.nb.AdvanceSelection()
+		# FIXME:"dropping" means talking to configurator so not reloaded
+	#----------------------------------------------
+	def _on_hide_plugin (self, evt):
+		"""Unload plugin but don't touch configuration."""
+		# this dictionary links notebook page numbers to plugin objects
+		pages = self.guibroker['horstspace.notebook.pages']
+		page = pages[self.nb.GetSelection()]
+		page.unregister()
+
+#==============================================================================
+class gmTopLevelFrame(wx.wxFrame):
 	"""GNUmed client's main windows frame.
 
 	This is where it all happens. Avoid popping up any other windows.
@@ -99,7 +309,7 @@ class gmTopLevelFrame(wxFrame):
 			id,
 			title,
 			size,
-			style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE
+			style = wxDEFAULT_FRAME_STYLE
 		)
 
 		#initialize the gui broker
@@ -119,6 +329,7 @@ class gmTopLevelFrame(wxFrame):
 				option = 'main.window.layout_style',
 				value = self.layout_style
 			)
+
 		# get Terry style horizontal ratio
 		self.bar_width, set1 = gmCfg.getFirstMatchingDBSet(
 			workplace = _whoami.get_workplace (),
@@ -150,67 +361,73 @@ class gmTopLevelFrame(wxFrame):
 		self.__setup_main_menu()
 		self.acctbl = []
 		self.guibroker['main.accelerators'] = self.acctbl
-		# a vertical box sizer for the main window
-		self.vbox = wxBoxSizer(wxVERTICAL)
-		#self.vbox.SetMinSize(wxSize(320,240))
-		self.guibroker['main.vbox'] = self.vbox
 
+		#---------------------
 		# create the "top row"
-		# important patient data is always there
+		#---------------------
+		# important patient data is always displayed there
 		# - top panel with toolbars
 		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
 		self.guibroker['main.top_panel'] = self.top_panel
-		# add to main windows sizer
-		# problem:
-		# - we want this to NOT grow vertically, hence proportion = 0
-		# - but then proportion 10 for the notebook does not mean anything
-		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
 
-		################################################################
-		# one should try to factor out the parts between the #==========
-		# into their own container (?frame, ?sizer, ?panel) and then
-		# do generic interaction with that container only
-		# layout specific interaction should be done inside that
-		# container IMO
-		################################################################
-
+		#----------------------
+		# create layout manager
+		#----------------------
 		if self.layout_style == 'status_quo':
-			#==========
-			# now set up the main notebook
-			self.nb = wxNotebook (self, ID_NOTEBOOK, size = wxSize(320,240), style = wxNB_BOTTOM)
-			#==========
-			self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
+			_log.Log(gmLog.lInfo, 'loading Horst space layout manager')
+			self.LayoutMgr = cHorstSpaceLayoutMgr(self, -1)
 		elif self.layout_style == 'terry':
+			# one should try to factor out the parts between the #==========
+			# into their own container (?frame, ?sizer, ?panel) and then
+			# do generic interaction with that container only
+			# layout specific interaction should be done inside that
+			# container IMO
 			#==========
 			# set up the Terry-style split screen
-			self.mainpanel = wxPanel (self, -1)
+			self.LayoutMgr = wxPanel (self, -1)
 			self.imagelist = wxImageList (16, 16)
-			self.nb = wxNotebook (self.mainpanel, ID_NOTEBOOK, size = wxSize(320,240))
+			self.nb = wxNotebook (self.LayoutMgr, ID_NOTEBOOK, size = wxSize(320,240))
+			self.guibroker['main.notebook'] = self.nb
 			self.nb.SetImageList (self.imagelist)
-			self.leftbox = wxSashLayoutWindow(self.mainpanel, ID_LEFTBOX, wxDefaultPosition,
-							  wxSize(200, 30), wxNO_BORDER|wxSW_3D)
+			self.leftbox = wxSashLayoutWindow (
+				self.LayoutMgr,
+				ID_LEFTBOX,
+				wxDefaultPosition,
+				wxSize(200, 30),
+				wxNO_BORDER|wxSW_3D
+			)
 			self.leftbox.SetDefaultSize(wxSize(self.bar_width, 1000))
 			self.leftbox.SetOrientation(wxLAYOUT_VERTICAL)
 			self.leftbox.SetAlignment(wxLAYOUT_RIGHT)
 			self.leftbox.SetSashVisible(wxSASH_LEFT, True)
-			EVT_SIZE (self.mainpanel, self.OnPanelSize)
+			EVT_SIZE (self.LayoutMgr, self.OnPanelSize)
 			EVT_SASH_DRAGGED (self.leftbox, ID_LEFTBOX, self.OnSashDrag)
 			#==========
-			self.vbox.Add (self.mainpanel, 10, wxEXPAND | wxALL, 1)
 
 		# this list relates plugins to the notebook
 		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
-		self.guibroker['main.notebook'] = self.nb
 
 		self.__register_events()
 		# this flag prevents pointless repaeated reloading of accelerator table during startup
 		self.dont_touch_accels = 1
 		self.plugins = {}				# relates plugins to the notebook
-		self.__load_plugins()
+#		self.__load_plugins()			# do in Terry layout manager
 		self.__setup_accelerators()
 		self.dont_touch_accels = 0
-		# size, position and show ourselves
-		self.top_panel.ReFit()
+
+		#-------------------------------
+		# stack panels in vertical sizer
+		#-------------------------------
+		self.vbox = wxBoxSizer(wxVERTICAL)
+		#self.vbox.SetMinSize(wxSize(320,240))
+		self.guibroker['main.vbox'] = self.vbox
+		# position in main sizer but:
+		# - we want this to NOT grow vertically, hence proportion = 0
+		# - but then proportion 10 for the layout manager does
+		#   not mean anything according to the docs
+		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
+		self.vbox.Add(self.LayoutMgr, 10, wxEXPAND | wxALL, 1)
+
 		self.SetAutoLayout(True)
 		self.SetSizer(self.vbox)
 		self.vbox.Fit(self)
@@ -219,7 +436,6 @@ class gmTopLevelFrame(wxFrame):
 		# setsizehints only allows minimum size, therefore window can't become small enough
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
-
 		self.__set_GUI_size()
 
 		self.Centre(wxBOTH)
@@ -238,9 +454,7 @@ class gmTopLevelFrame(wxFrame):
  			workplace = _whoami.get_workplace(),
  			option = 'main.window.height'
  		)
- 		# FIXME: Why does gmCfg return an instance type for numeric types ??
- 		# i.e. which is the object it returns ??
-		if not set1 is None:
+		if set1 is not None:
 			desired_width = int(prev_width)
 		else:
 			desired_width = def_width
@@ -251,7 +465,7 @@ class gmTopLevelFrame(wxFrame):
 				value = desired_width
 			)
 
-		if not set2 is None:
+		if set2 is not None:
 			desired_height = int(prev_height)
 		else:
  			desired_height = def_height
@@ -262,6 +476,7 @@ class gmTopLevelFrame(wxFrame):
 				value = desired_height
 			)
 
+		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (desired_width, desired_height))
  		self.SetClientSize(wxSize(desired_width, desired_height))
 	#----------------------------------------------
 	def __setup_platform(self):
@@ -325,47 +540,7 @@ class gmTopLevelFrame(wxFrame):
 		self.SetMenuBar(self.mainmenu)
 	#----------------------------------------------
 	def __load_plugins(self):
-		# get plugin list
-		plugin_list = gmPlugin.GetPluginLoadList('gui')
-		if plugin_list is None:
-			_log.Log(gmLog.lWarn, "no plugins to load")
-			return 1
-		nr_plugins = len(plugin_list)
-
-		#  set up a progress bar
-		progress_bar = gmPluginLoadProgressBar(nr_plugins)
-
-		#  and load them
-		prev_plugin = ""
-		result = ""
-		for idx in range(len(plugin_list)):
-			curr_plugin = plugin_list[idx]
-
-			progress_bar.Update(
-				idx,
-				_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
-					prev_plugin,
-					result,
-					(idx+1),
-					nr_plugins,
-					curr_plugin)
-			)
-
-			try:
-				plugin = gmPlugin.instantiate_plugin('gui', curr_plugin)
-				if plugin:
-					plugin.register()
-					result = _("success")
-				else:
-					_log.Log (gmLog.lErr, "plugin [%s] not loaded, see errors above" % curr_plugin)
-					result = _("failed")
-			except:
-				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info(), verbose = 0)
-				result = _("failed")
-
-			prev_plugin = curr_plugin
-
-		progress_bar.Destroy()
+		pass
 	#----------------------------------------------
 	# event handling
 	#----------------------------------------------
@@ -376,91 +551,18 @@ class gmTopLevelFrame(wxFrame):
 		EVT_CLOSE(self, self.OnClose)
 		EVT_ICONIZE(self, self.OnIconize)
 		EVT_MAXIMIZE(self, self.OnMaximize)
-		# - notebook page is about to change
-		EVT_NOTEBOOK_PAGE_CHANGING (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanging)
-		# - notebook page has been changed
-		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
-		# - popup menu on right click in notebook
-		EVT_RIGHT_UP(self.nb, self._on_right_click)
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
-		# ?
-		gmDispatcher.connect(self.on_user_error, gmSignals.user_error ())
-		gmDispatcher.connect(self.on_new_notebook, gmSignals.new_notebook ())
-		gmDispatcher.connect(self.on_unload_plugin, gmSignals.unload_plugin ())
-		gmDispatcher.connect(self.SetNotebook, gmSignals.wish_display_plugin ())
-		if self.layout_style == 'terry':
-			gmDispatcher.connect (self.on_new_sidebar, gmSignals.new_sidebar ())
-		# ?
-	#----------------------------------------------
-	def OnNotebookPageChanging(self, event):
-		"""Called before notebook page change is processed.
-		"""
-		self.__new_page_is_checked = False
-		# FIXME: this is the place to tell the old page to
-		# make it's state permanent somehow,
-		# in general, call any "validators" for the
-		# old page here
-		self.__id_prev_page = event.GetOldSelection()
-		id_new_page = event.GetSelection()
-		_log.Log(gmLog.lData, 'about to switch notebook tabs: %s -> %s' % (self.__id_prev_page, id_new_page))
-		if id_new_page == self.__id_prev_page:
-			# the docs say that on Windows GetSelection() returns the
-			# old page ID, eg. the same value that GetOldSelection()
-			# returns, hence we don't have any way of knowing which
-			# page is going to be it
-			_log.Log(gmLog.lInfo, 'cannot check whether page change needs to be veto()ed')
-			event.Skip()
-			return
-		# check new page
-		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
-		if not new_page.can_receive_focus():
-			_log.Log(gmLog.lData, 'veto()ing page change')
-			event.Veto()
-			return
-#		for key, item in self.plugins.items():
-#			if item['n'] == id_new_page:
-#				ret = gmDispatcher.send (gmSignals.display_plugin (), sender=self, name=key)
-#				break
-#		for receiver, response in ret:
-#			if response == 'veto':
-#				event.Veto()
-#				return
-		self.__new_page_is_checked = True
-		event.Skip()
-	#----------------------------------------------
-	def OnNotebookPageChanged(self, event):
-		"""Called when notebook changes.
 
-		FIXME: we can maybe change title bar information here
-		"""
-		id_new_page = event.GetSelection()
-		id_old_page = event.GetOldSelection()
-		_log.Log(gmLog.lData, 'switching notebook tabs: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
-		# get access to selected page
-		new_page = self.guibroker['main.notebook.plugins'][id_new_page]
-		# do we need to check the new page ?
-		if self.__new_page_is_checked or new_page.can_receive_focus():
-			new_page.ReceiveFocus()
-			# activate toolbar of new page
-			self.top_panel.ShowBar(new_page.__class__.__name__)
-			event.Skip()
-			return
-
-		_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
-		# let's try a trick
-		if id_old_page != id_new_page:
-			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(id_old_page)')
-			event.SetSelection(id_old_page)
-		# or two
-		elif self.__id_prev_page != id_new_page:
-			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(self.__id_prev_page)')
-			event.SetSelection(self.__id_prev_page)
-		else:
-			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
-		event.Skip()
-		return
+		# ?
+#		gmDispatcher.connect(self.on_user_error, gmSignals.user_error ())
+#		if self.layout_style == 'terry':
+#			gmDispatcher.connect(self.on_new_notebook, gmSignals.new_notebook ())
+#			gmDispatcher.connect(self.on_unload_plugin, gmSignals.unload_plugin ())
+#			gmDispatcher.connect(self.SetNotebook, gmSignals.wish_display_plugin ())
+#			gmDispatcher.connect (self.on_new_sidebar, gmSignals.new_sidebar ())
+		# ?
 	#----------------------------------------------
 	def SetNotebook (self, id_new_page=-1, name=""):
 		"""Programmatic version of the above.
@@ -559,70 +661,6 @@ class gmTopLevelFrame(wxFrame):
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
 		del gmAbout
-	#----------------------------------------------
-	def _on_right_click(self, evt):
-		load_menu = wxMenu()
-		any_loadable = 0
-		plugin_list = gmPlugin.GetPluginLoadList('gui')
-		plugin = None
-		for plugin_name in plugin_list:
-			try:
-				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
-			except StandardError:
-				continue
-			# not a plugin
-			if not isinstance(plugin, gmPlugin.wxNotebookPlugin):
-				plugin = None
-				continue
-			# already loaded ?
-#			if plugin.__class__.__name__ in self.plugins.keys():
-			if plugin.__class__.__name__ in self.guibroker['modules.gui'].keys():
-				plugin = None
-				continue
-			# add to load menu
-			nid = wxNewId()
-#			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.label or plugin.name()))
-			load_menu.AppendItem(wxMenuItem(load_menu, nid, plugin.name()))
-			EVT_MENU(load_menu, nid, plugin.on_load)
-			any_loadable = 1
-		# make menus
-		menu = wxMenu()
-		ID_LOAD = wxNewId()
-		ID_DROP = wxNewId()
-		if any_loadable:
-			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
-		plugins = self.guibroker['main.notebook.plugins']
-#		n = self.nb.GetSelection ()
-#		for key, item in self.plugins.items ():
-#			if item['type'] == 'notebook' and item['n'] == n:
-#				raised_plugin = key
-#				break
-		raised_plugin = plugins[self.nb.GetSelection()].name()
-		menu.AppendItem(wxMenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
-#		EVT_MENU (menu, ID_DROP, lambda e: self.on_unload_plugin (name=raised_plugin))
-		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
-		self.PopupMenu(menu, evt.GetPosition())
-
-		menu.Destroy()
-		evt.Skip()
-
-#	def loadmenu (self, plugin):
-#		print "asked to load %s" % str (plugin)
-	#----------------------------------------------		
-	def _on_drop_plugin(self, evt):
-		"""Unload plugin and drop from load list."""
-		plugins = self.guibroker['main.notebook.plugins']
-		plugin = plugins[self.nb.GetSelection()]
-		plugin.unregister()
-		# FIXME: set selection to another plugin
-		# FIXME:"dropping" means talking to configurator so not reloaded
-	#----------------------------------------------
-	def OnPluginHide (self, evt):
-		"""Unload plugin but don't touch configuration."""
-		# this dictionary links notebook page numbers to plugin objects
-		plugins = self.guibroker['main.notebook.plugins']
-		plugin = plugins[self.nb.GetSelection()]
-		plugin.unregister()
 	#----------------------------------------------
 	def OnFileExit(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
@@ -743,8 +781,9 @@ class gmTopLevelFrame(wxFrame):
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
 		# FIXME
-		for i in range(1, self.nb.GetPageCount()):
-			self.nb.GetPage(i).Enable(False)
+#		for i in range(1, self.nb.GetPageCount()):
+#			self.nb.GetPage(i).Enable(False)
+		return
 	#----------------------------------------------
 	def Unlock(self):
 		"""Unlock the main notebook widgets
@@ -753,23 +792,24 @@ class gmTopLevelFrame(wxFrame):
 		are locked; i.e. not accessible by the user
 		"""
 		#unlock notebook pages
-		for i in range(1, self.nb.GetPageCount()):
-			self.nb.GetPage(i).Enable(True)
+#		for i in range(1, self.nb.GetPageCount()):
+#			self.nb.GetPage(i).Enable(True)
 		# go straight to patient selection
-		self.nb.AdvanceSelection()
+#		self.nb.AdvanceSelection()
+		return
 	#-----------------------------------------------
 	def OnPanelSize (self, event):
-		wxLayoutAlgorithm ().LayoutWindow (self.mainpanel, self.nb)
+		wxLayoutAlgorithm ().LayoutWindow (self.LayoutMgr, self.nb)
 	#------------------------------------------------
 	def OnSashDrag (self, event):
 		if event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE:
 			return
 		self.leftbox.SetDefaultSize(wxSize(event.GetDragRect().width, 1000))
 		self.bar_width = event.GetDragRect ().width
-		wxLayoutAlgorithm().LayoutWindow(self.mainpanel, self.nb)
+		wxLayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
 		self.nb.Refresh()
 
-#==================================================
+#==============================================================================
 class gmApp(wxApp):
 
 	__backend = None
@@ -967,15 +1007,15 @@ class gmApp(wxApp):
 				_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
 				return 1
 		return None
-#=================================================
+#==============================================================================
 def main():
 	#create an instance of our GNUmed main application
 	app = gmApp(0)
 	#and enter the main event loop
 	app.MainLoop()
-#==================================================
+#==============================================================================
 # Main
-#==================================================
+#==============================================================================
 if __name__ == '__main__':
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
@@ -985,9 +1025,18 @@ if __name__ == '__main__':
 	gb['gnumed_dir'] = os.curdir + "/.."
 	main()
 
-#==================================================
+#==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.164  2004-07-24 10:26:35  ncq
+# Revision 1.165  2004-07-24 17:21:49  ncq
+# - some cleanup, also re from wxPython import wx
+# - factored out Horst space layout manager into it's own
+#   wxPanel child class
+# - subsequently renamed
+# 	'main.notebook.plugins' -> 'horstspace.notebook.pages'
+# 	'modules.gui' -> 'horstspace.notebook.gui' (to be renamed horstspace.notebook.plugins later)
+# - adapt to said changes
+#
+# Revision 1.164  2004/07/24 10:26:35  ncq
 # - two missing event.Skip()s added
 #
 # Revision 1.163  2004/07/19 11:50:42  ncq
