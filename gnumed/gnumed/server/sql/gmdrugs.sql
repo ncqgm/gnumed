@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.24 $ $Date: 2002-11-23 01:41:05 $ $Author: ihaywood $
+-- $Revision: 1.25 $ $Date: 2002-11-23 13:31:41 $ $Author: ncq $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.24  2002-11-23 01:41:05  ihaywood
+-- Revision 1.25  2002-11-23 13:31:41  ncq
+-- - added schema revision tracking
+--
+-- Revision 1.24  2002/11/23 01:41:05  ihaywood
 -- dosage specific indications, denormalised package_size
 --
 -- Revision 1.23  2002/11/17 14:57:27  ncq
@@ -638,6 +641,11 @@ comment on column link_dosage_indication.diseasecode is
 'link to the disease code';
 comment on column link_dosage_indication.line is 
 'the line (first-line, second-line) of this drug for this indication'; 
+
+-- =============================================
+-- do simple schema revision tracking
+\i gmSchemaRevision.sql
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.25 $')
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such
