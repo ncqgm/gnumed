@@ -45,21 +45,6 @@ class DrugView:
 			_log.LogException("Unhandled exception while opening config file", sys.exc_info(), fatal=1)
 			return None
 
-#		try:
-#			defCfg=gmCfg.gmDefCfgFile.getCfg()
-#			dbInfo = defCfg['groups'][aDatabaseName]    
-#			self.dbConfFile=dbInfo['options']['configfile']['value']
-#			self.mDrugInterface = gmDrugObject.Drug(queryCfgSource = self.dbConfFile)
-			# handle all exceptions 
-#		except KeyError:
-#			exc = sys.exc_info()
-#			_log.LogException("No config information on drug database [%s] found." % aDatabaseName, exc, fatal=1)
-#			return None
-#		except:
-#			exc = sys.exc_info()
-#			_log.LogException("Unhandled exception while opening config file", exc, fatal=1)
-#			return None
-
 		self.__mFormatString = {} 	# format strings
 		self.__mGroupPos = {}		# query group on position x
 		self.__mFormatType = {}		# format type
@@ -114,7 +99,17 @@ class DrugView:
 		return result
 
 	def getBrandsForGeneric(self,aId):
-		pass
+		"""
+        Returns a list of drugs for a given generic substance.
+        The substance is specified by aID.
+        """
+		if aId is None:
+			return None
+		# set product Id
+		self.mDrugInterface.mVars['ID']=aId        
+
+		result = self.mDrugInterface.GetData('brandsForGeneric',refresh=1)
+		return result
 
 	def getProductInfo(self,aId):
 		"""
@@ -130,6 +125,7 @@ class DrugView:
 
 		# get product info
 		piText=''
+		headings=[]
 		groupPosList = self.__mGroupPos.keys()
 
 # DEBUG
@@ -140,6 +136,9 @@ class DrugView:
 			textPart = self.__getTextPart(pos)
 			if textPart != '':
 				piText += textPart
+				if self.__mHeading.has_key(pos):
+					headings.append(self.__mHeading[pos])
+                    
 
 		# if no part contained data, no info is available
 		piTotalLen = len(piText)         
@@ -163,7 +162,7 @@ class DrugView:
 		piTextComplete = piTextComplete +  "<A NAME=\"Description\"></A><BR><FONT  SIZE=4 COLOR='" + darkblue + "'><B>Description</B></FONT><BR>"
 		piTextComplete = piTextComplete + piText + "</FONT></BODY></HTML>"
 
-		return piText
+		return (piText,headings)
 
 	#--------------------------------------------------------------------
 	def __getTextPart(self, pos = 0):

@@ -55,13 +55,16 @@ if __name__ == "__main__":
 	sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
+_log = gmLog.gmDefLog
 if __name__ == "__main__":
 	# FIXME: standalone means diagnostics for now,
 	# later on, when AmisBrowser is one foot in the door
 	# to German doctors we'll change this again
-	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+	_log.SetAllLogLevels(gmLog.lData)
 
 import gmPG, gmDrugView
+import gmCfg
+_cfg = gmCfg.gmDefCfgFile
 
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
@@ -110,10 +113,21 @@ class DrugDisplay(wxPanel):
 				 size = wxPyDefaultSize, style = wxTAB_TRAVERSAL):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
-		self.mDrugView=gmDrugView.DrugView('amis')
+		
+		self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
+		if self.dbName is None:
+			_log.Log(gmLog.lPanic,"No drug database specified. Aborting drug browser.")
+			# FIXME: we shouldn't directly call Close() on the parent
+			parent.Close()
+			return None
+                    
+		self.mDrugView=gmDrugView.DrugView(self.dbName)
 
 		self.mode = MODE_BRAND
+		self.previousMode = MODE_BRAND
 		self.printer = wxHtmlEasyPrinting()		#printer object to print html page
+		self.mId = None
+		self.drugProductInfo = None            
 
 		#-------------------------------------------------------------
 		# These things build the physical window that you see when
@@ -224,12 +238,11 @@ class DrugDisplay(wxPanel):
 		self.sizerVInteractionSidebar.AddSizer( self.sizerSearchBy, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
 		self.sizerVInteractionSidebar.AddSpacer( 30, 10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
 		#--------------------------------------------------------------------------
-		# 4) create a listbox and populate with labels to jump to within the
-		#    mimsannual text and add to the vertical side bar
+		# 4) create a listbox that will be populated with labels to jump to within the
+		#    product info text and add to the vertical side bar
 		#--------------------------------------------------------------------------
 		self.listbox_jumpto = wxListBox( self, ID_LISTBOX_JUMPTO, wxDefaultPosition, wxSize(150,100),
-			[_("Actions"), _("Adverse reactions"),_("Composition"),_("Contraindications"),_("Description"),
-			_("Dose & administration"), _("Indications"), _("Interactions"), _("Precautions"), _("Presentation"),  _("Storage")] , wxLB_SINGLE )
+			[] , wxLB_SINGLE )
 		self.sizerVInteractionSidebar.AddWindow( self.listbox_jumpto, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
 		#--------------------------------------------------------------------------
 		# 5) Add another spacer underneath this listbox
@@ -272,9 +285,9 @@ class DrugDisplay(wxPanel):
 	
 	#----------------------------------------------------------------------------------------------------------------------
 	def GetDrugIssue(self):
-		# ?????
-		#self.SetStatusText(insertstring, 1)
-		gmLog.gmDefLog.Log (gmLog.lData, "got the issue date")
+		# diplay some info on what database we are currently using
+		self.SetTitle(self.dbName)
+#		gmLog.gmDefLog.Log (gmLog.lData, "got the issue date")
 		return true
 
 
@@ -304,12 +317,7 @@ class DrugDisplay(wxPanel):
 			if self.html_viewer is not None:
 				self.sizer_left.Remove(self.html_viewer)
 				self.html_viewer = None
-			self.listbox_drugchoice = wxListBox(self, ID_LISTBOX_DRUGCHOICE, wxDefaultPosition, wxSize(400,200), [], wxLB_SINGLE )
-			#self.listbox_drugchoice.SetBackgroundColour("WHITE")
-			#self.listbox_drugchoice.SetForegroundColour("BLACK")
-			
-			#self.listbox_drugchoice = wxListBox( self, ID_listbox_drugchoice, wxDefaultPosition, wxSize(150,100),
-			#	[_("Drug A"), _("DrugB"), _("DrugC")] , wxLB_SINGLE )
+			self.listbox_drugchoice = wxListBox(self, ID_LISTBOX_DRUGCHOICE, wxDefaultPosition, wxSize(400,200), [_('Please enter name of a drug or substance.')], wxLB_SINGLE )
 			self.sizer_left.AddWindow( self.listbox_drugchoice, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
 			self.sizer_left.Layout()
 			self.whichWidget="listbox_drugchoice"
@@ -319,7 +327,7 @@ class DrugDisplay(wxPanel):
 		#--------------------------------------------------------
 		# using text in listbox_drugchoice find any similar drugs
 		#--------------------------------------------------------
-		
+		self.mId = None
 		drugtofind = string.lower(self.comboProduct.GetValue())
 		# tell the DrugView abstraction layer to do an index search 
 		# on brand/generic/indication 
@@ -327,35 +335,38 @@ class DrugDisplay(wxPanel):
 		# type and ID form a unique ID that can be used to access other data in the db
 		type = self.mode
 		result = self.mDrugView.SearchIndex(self.mode,drugtofind)
-
+		
 		# no drug found for this name
-		if result == None:
+		if result == None or len(result['name']) < 1:
+			self.mId = None
+			self.drugProductInfo = None            
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			self.listbox_drugchoice.Clear ()
 			self.listbox_drugchoice.Append(_('No matching drugs found!'))
+			self.listbox_jumpto.Clear()
 
 	   	# found exactly one drug
 		elif len(result['name']) == 1:
 #			type = result['type']
 			name = result['name']
-			id = result['id']
+			seld.mId = result['id']
 			# if we found a brand *product*, show the product info
 			if type == MODE_BRAND:
 				if self.whichWidget == 'listbox_drugchoice':
 					self.ToggleWidget ()
-					self.Display_PI (id)
-				elif self.mId <> id: # don't change unless different drug
-					self.Display_PI (id)
-					self.mId = id
+					self.Display_PI (self.mId)
+				elif self.mId <> self.mLastId: # don't change unless different drug
+					self.Display_PI (self.mId)
+					self.mLastId = self.mId
 			# if we found a generic substance name, show all brands
 			# containing this generic
 			elif type == MODE_GENERIC:
-				self.Display_Generic (id)
+				self.Display_Generic (self.mId)
 			# if we are browsing indications, show all generics + brands
 			# that match. Display Indication 
 			elif type == MODE_INDICATION:
-				self.Display_Indication(id)
+				self.Display_Indication(self.mId)
 
 		# we have more than one result
 		# -> display a list of all matching names
@@ -379,7 +390,13 @@ class DrugDisplay(wxPanel):
 	def Display_Generic (self, aId):
 
 		brandsList=self.mDrugView.getBrandsForGeneric(aId)
-
+		type = MODE_BRAND
+		# no brand - should be an error, but AMIS allows that :(
+		if brandsList is None or len (brandsList['name']) == 0:
+			gmLog.gmDefLog.Log (gmLog.lWarn,  "No brand product available containing generic ID: %s" % str(aId) )
+			self.listbox_drugchoice.Clear ()
+			self.listbox_drugchoice.Append(_('No matching drugs found!'))
+			return None        	
 		# one brand, so display product information
 		if len (brandsList['name']) == 1:
 			if self.whichWidget == 'listbox_drugchoice':
@@ -390,12 +407,12 @@ class DrugDisplay(wxPanel):
 			if self.whichWidget == 'html_viewer':
 				self.ToggleWidget ()
 			row_no = 0
-			self.listbox_drugchoice.Clear ()
-			for row_name in result['name']:
+			self.listbox_drugchoice.Clear()
+			for row_name in brandsList['name']:
 				self.listbox_drugchoice.Append (row_name + '\n')
 				# set data as type and database ID
-				id = result['id'][row_no]
-				type = result['type'][row_no]
+				id = brandsList['id'][row_no]
+#				type = brandsList['type'][row_no]
 				self.listbox_drugchoice.SetClientData (row_no, (type, id)) 
 				row_no += 1
 			return true
@@ -414,10 +431,12 @@ class DrugDisplay(wxPanel):
 
 		self.mId = aId
 		# getProductInfo returns a HTML-formatted page 
-		drugProductInfo=self.mDrugView.getProductInfo(aId)
+		(self.drugProductInfo,self.drugPIHeaders)=self.mDrugView.getProductInfo(aId)
 #		self.comboProduct.SetValue(result[0]['product'])
 		self.inDisplay_PI = 0
-		self.html_viewer.SetPage(drugProductInfo)
+		self.html_viewer.SetPage(self.drugProductInfo)
+		self.listbox_jumpto.Clear()
+		self.listbox_jumpto.InsertItems(self.drugPIHeaders,0)
 		return true
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
@@ -432,20 +451,17 @@ class DrugDisplay(wxPanel):
 	# handler implementations for DrugDisplay
 
 	def OnPrint (self, event):
-		#this code does not work properly
-		self.printer.PrintText(pitext)
-		print "printing frame"
+		if not self.drugProductInfo is None:
+			self.printer.PrintText(self.drugProductInfo)
 		return true
 
-	
 	def OnDisplay(self, event):
 #		self.ToggleWidget()
-
-		self.Display_PI(self.mId)
+		if not self.mId is None:
+			self.Display_PI(self.mId)
 		pass
 
-	def OnPrescribe(self, event):
-		
+	def OnPrescribe(self, event):		
 		pass
 
 	def OnJumpToDblClick(self, event):
@@ -455,21 +471,25 @@ class DrugDisplay(wxPanel):
 		# can't figure out how to get this to work!
 		gmLog.gmDefLog.Log (gmLog.lData, "selection made")
 		tagname = self.listbox_jumpto.GetString(self.listbox_jumpto.GetSelection())
-		print  tagname
+#		print  tagname
 		self.html_viewer.LoadPage('#' + tagname)
 		pass
 
 	def OnSearchByIndication(self, event):
 		self.mode = MODE_INDICATION
-
+		self.ClearInfo()
+        
 	def OnSearchByGeneric(self, event):
 		self.mode = MODE_GENERIC
+		self.ClearInfo()
 
 	def OnSearchByBrand(self, event):
 		self.mode = MODE_BRAND
+		self.ClearInfo()
 
 	def OnSearchByAny(self, event):
 		self.mode = MODE_ANY
+		self.ClearInfo()
 
 	# Rewrote this
 	def OnProductKeyPressed(self, event):
@@ -494,12 +514,22 @@ class DrugDisplay(wxPanel):
 	def OnCancel(self, event):
 		event.Skip(true)
 
-
+	def ClearInfo(self):
+		if self.mode == self.previousMode:
+			return
+		self.previousMode = self.mode
+		if self.listbox_drugchoice is not None:
+			self.listbox_drugchoice.Clear()
+		else:
+			self.ToggleWidget()
+		self.listbox_jumpto.Clear()
+		self.comboProduct.SetValue("")
+        
 #==================================================
 # Shall we just test this module?
 if __name__ == "__main__":
 	_ = lambda x:x
-	app = wxPyWidgetTester(size = (400, 300))
+	app = wxPyWidgetTester(size = (640, 400))
 	app.SetWidget(DrugDisplay, -1)
 	app.MainLoop()
 
@@ -521,3 +551,9 @@ else:
 
 		def GetWidget (self, parent):
 			return DrugDisplay (parent, -1)
+
+
+# $Log: gmDrugDisplay.py,v $
+# Revision 1.4  2002-10-31 23:13:06  hinnef
+# added generic substance support, further improvements
+#
