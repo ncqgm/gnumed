@@ -1,19 +1,21 @@
 #!/usr/bin/python
 #############################################################################
-# gmLoginDialog - This module provides a login dialog to GNUMed
-# It features combo boxes which "remember" any number of previously entered settings
-# @author: Dr. Horst Herb
-# @license: GPL (details at http://www.gnu.org)
 #
-# @dependencies: wxPython
+# gmLoginDialog - This module provides a login dialog to GNUMed
+# ---------------------------------------------------------------------------
+# It features combo boxes which "remember" any number of previously entered settings
+#
+# @author: Dr. Horst Herb
+# @copyright: author
+# @license: GPL (details at http://www.gnu.org)
+# @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	10.10.2001 hherb initial implementation, untested
 #	24.10.2001 hherb comments added
-#	24.10.2001 hherb LoginDialog class added
+#	24.10.2001 hherb LoginDialog class added,
+#	24.10.2001 hherb persistent changes across multiple processes enabled
 #
-# @TODO: if multiple instances are open, saving configuration of the
-#        last panel to save will overwrite previously written configurations
-#	 Thus, we need to implement a routine that appends only changes
+# @TODO:
 ############################################################################
 
 """gmLoginDialog - This module provides a login dialog to GNUMed
@@ -24,8 +26,20 @@ from wxPython.wx import *
 import gettext
 _ = gettext.gettext
 
+
 #############################################################################
 #
+#############################################################################
+
+def StringToList(str, separator='|'):
+	"""converts a character separated string items into a list"""
+
+	return string.split(str, separator)
+
+
+
+#############################################################################
+# converts a list of strings into a character separated string of string items
 #############################################################################
 
 def ListToString(strlist, separator='|'):
@@ -41,18 +55,23 @@ def ListToString(strlist, separator='|'):
 
 
 #############################################################################
-#
+# returns a distinct merger of all items contained in origstr and newstr
 #############################################################################
 
-def StringToList(str, separator='|'):
-	"""converts a character separated string items into a list"""
-
-	return string.split(str, separator)
+def AppendSettings(origstr, newstr, separator='|'):
+	"returns a distinct merger of all items contained in origstr and newstr"
+	origlist = StringToList(origstr, separator)
+	newlist = StringToList(newstr, separator)
+	newlist.reverse()
+	for item in newlist:
+		if item not in origlist:
+			origlist.insert(0,item)
+	return ListToString(origlist)
 
 
 
 #############################################################################
-#
+# returns all items in a combo box as list; the value of the text box as first item.
 #############################################################################
 
 def ComboBoxItems(combobox):
@@ -69,7 +88,7 @@ def ComboBoxItems(combobox):
 
 
 #############################################################################
-#
+# dummy class, to be used as a structure for login parameters
 #############################################################################
 
 class LoginParameters:
@@ -97,11 +116,10 @@ class LoginPanel(wxPanel):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent=parent
+		#file name of configuration file - wxConfig takes care of path, extension etc.
+		self.confname="gnumed"
 		self.cancelled=false
 		self.isDialog=isDialog
-
-		# set the location of the configuration file in a platform independent way
-		self.conf = wxFileConfig("gnumed", style=wxCONFIG_USE_LOCAL_FILE)
 
 		self.loginparams = loginparams or LoginParameters()
 		self.LoadSettings()
@@ -194,26 +212,36 @@ class LoginPanel(wxPanel):
 
 	def LoadSettings(self):
 		"Load parameter settings from standard configuration file"
-		self.loginparams.userlist = StringToList(self.conf.Read("/login/user"))
+		conf = wxFileConfig(self.confname, style=wxCONFIG_USE_LOCAL_FILE)
+		self.loginparams.userlist = StringToList(conf.Read("/login/user"))
 		self.loginparams.password = ''
-		self.loginparams.databaselist = StringToList(self.conf.Read("login/database"))
-		self.loginparams.hostlist = StringToList(self.conf.Read("/login/host"))
-		self.loginparams.portlist = StringToList(self.conf.Read("/login/port"))
-		self.loginparams.backendoptionlist = StringToList(self.conf.Read("/login/backendoption"))
+		self.loginparams.databaselist = StringToList(conf.Read("login/database"))
+		self.loginparams.hostlist = StringToList(conf.Read("/login/host"))
+		self.loginparams.portlist = StringToList(conf.Read("/login/port"))
+		self.loginparams.backendoptionlist = StringToList(conf.Read("/login/backendoption"))
 
 #############################################################################
 # Save all settings to the configuration file
 #############################################################################
 
+	def SaveSettingsFor(self, conf, key, setting):
+		"""Append items not already existing in the configuration file
+		and make sure that changes already committed by other processes
+		using the same configuration file don't get overwritten"""
+
+		conf.Write(key, AppendSettings(conf.Read(key), setting))
+
 	def SaveSettings(self):
 		"Save parameter settings to standard configuration file"
-		print "Saving settings now ..."
-		self.conf.Write("/login/user", ListToString(ComboBoxItems(self.usercombo)))
-		self.conf.Write("/login/database", ListToString(ComboBoxItems(self.dbcombo)))
-		self.conf.Write("/login/host", ListToString(ComboBoxItems(self.hostcombo)))
-		self.conf.Write("/login/port", ListToString(ComboBoxItems(self.portcombo)))
-		self.conf.Write("/login/backendoption", ListToString(ComboBoxItems(self.beoptioncombo)))
-		self.conf.Flush()
+		# set the location of the configuration file in a platform independent way
+		conf = wxFileConfig(self.confname, style=wxCONFIG_USE_LOCAL_FILE)
+		self.SaveSettingsFor(conf, "/login/user", ListToString(ComboBoxItems(self.usercombo)))
+		self.SaveSettingsFor(conf, "/login/database", ListToString(ComboBoxItems(self.dbcombo)))
+		self.SaveSettingsFor(conf, "/login/host", ListToString(ComboBoxItems(self.hostcombo)))
+		self.SaveSettingsFor(conf, "/login/port", ListToString(ComboBoxItems(self.portcombo)))
+		self.SaveSettingsFor(conf, "/login/backendoption", ListToString(ComboBoxItems(self.beoptioncombo)))
+		# make sure changes are written to dosk immediately
+		conf.Flush()
 
 #############################################################################
 # Retrieve current settings from user interface widgets
