@@ -30,6 +30,7 @@ import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headi
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea                              #panel class holding editing
 import gmPlugin
+import gmLog
 
 ID_SCRIPTICON = wxNewId ()
 ID_SCRIPTLIST = wxNewId()
@@ -196,6 +197,7 @@ class PrescriptionPanel (wxPanel):
 	   self.menu.Append(19,"Exit")
 	   ##connect the events to event handler functions
 	   #EVT_MENU(self, 0, self.OnEncrypt)
+	   EVT_MENU(self, 0, gmLog.gmDefLog.Log(gmLog.lErr, "This should display Authority Indications !"))
 	   #EVT_MENU(self, 1, self.OnDecrypt)
 	   #EVT_MENU(self, 2, self.OnSetPassphrase)
 	   #------------
@@ -210,7 +212,7 @@ class PrescriptionPanel (wxPanel):
 	   self.menu.Destroy()
    
 	   #anybody else needs to intercept right click events?
-	   event.Skip()#
+	   event.Skip()
 	
           
 class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
