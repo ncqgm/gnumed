@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -83,7 +83,7 @@ class cCfgSQL:
 	def __del__(self):
 		pass
 	#----------------------------
-	def get(self, machine = None, user = None, cookie = None, option = None):
+	def get(self, machine = '__default__', user = None, cookie = '__default__', option = None):
 		"""Get config value from database.
 
 		- works for
@@ -107,16 +107,10 @@ class cCfgSQL:
 		where_option = "cfg_template.name like '%s'" % option
 
 		# if no machine given: any machine
-		if machine is None:
-			where_machine = " and cfg_item.machine like 'default'"
-		else:
-			where_machine = " and cfg_item.machine like '%s'" % machine
+		where_machine = " and cfg_item.machine like '%s'" % machine
 
 		# if no cookie given: standard cookie
-		if cookie is None:
-			where_cookie = " and cfg_item.cookie like 'default'"
-		else:
-			where_cookie = " and cfg_item.cookie like '%s'" % cookie
+		where_cookie = " and cfg_item.cookie like '%s'" % cookie
 
 		# if no user given: current db user
 		if user is None:
@@ -141,17 +135,17 @@ class cCfgSQL:
 		if self.__run_query(curs, "select value from cfg_%s where id_item=%s limit 1;" % (value_type, item_id)) is None:
 			curs.close()
 			return None
-		result = curs.fetchall()
+		result = curs.fetchone()
 		curs.close()
 
 		if result is None:
 			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
-			return None
 		else:
-			self.cache[cache_key] = result
-			return result
+			self.cache[cache_key] = result[0]
+
+		return result[0]
 	#----------------------------
-	def getID(self, machine = None, user = None, cookie = None, option = None):
+	def getID(self, machine = '__default__', user = None, cookie = '__default__', option = None):
 		# sanity checks
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve the ID for.")
@@ -159,10 +153,7 @@ class cCfgSQL:
 		where_option = "cfg_template.name like '%s'" % option
 
 		# if no machine given: any machine
-		if machine is None:
-			where_machine = " and cfg_item.machine like 'default'"
-		else:
-			where_machine = " and cfg_item.machine like '%s'" % machine
+		where_machine = " and cfg_item.machine like '%s'" % machine
 
 		# if no user given: current db user
 		if user is None:
@@ -171,10 +162,7 @@ class cCfgSQL:
 			where_user = " and cfg_item.owner like '%s'" % user
 
 		# if no cookie given: standard cookie
-		if cookie is None:
-			where_cookie = " and cfg_item.cookie like 'default'"
-		else:
-			where_cookie = " and cfg_item.cookie like '%s'" % cookie
+		where_cookie = " and cfg_item.cookie like '%s'" % cookie
 
 		curs = self.conn.cursor()
 		# retrieve option definition
@@ -183,13 +171,14 @@ class cCfgSQL:
 			return None
 		result = curs.fetchone()
 		if result is None:
+			cache_key = self.__make_key(machine, user, cookie, option)
 			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
 			curs.close()
 			return None
 
 		return result[0]
 	#----------------------------
-	def set(self, machine = None, user = None, cookie = None, option = None, value = None):
+	def set(self, machine = None, user = None, cookie = None, option = None, value = None, aRWConn = None):
 		"""Set the value of a config option.
 
 		- inserts or updates value in the database
@@ -201,6 +190,9 @@ class cCfgSQL:
 			return None
 		if value is None:
 			_log.Log(gmLog.lErr, "Need to know the value to store.")
+			return None
+		if aRWConn is None:
+			_log.Log(gmLog.lErr, "Need rw connection to database to store the value.")
 			return None
 
 		cache_key = self.__make_key(machine, user, cookie, option)
@@ -216,6 +208,9 @@ class cCfgSQL:
 		elif type(value) is ListType:
 			data_type = 'str_array'
 			data_value = self.dbapi.PgArray(value)
+		elif isinstance(value, self.dbapi.PgArray):
+			data_type = 'str_array'
+			data_value = value
 		# FIXME: UnicodeType ?
 		else:
 			_log.Log(gmLog.lErr, 'Cannot store option of type [%s] (%s -> %s).' % (type(value), cache_key, data_value))
@@ -250,7 +245,7 @@ class cCfgSQL:
 			cookie_where = " and cookie='%s'" % cookie
 
 		# get id of option template
-		curs = self.conn.cursor()
+		curs = aRWConn.cursor()
 		if self.__run_query(curs, "select id from cfg_template where name like '%s' and type like '%s' limit 1;" % (option, data_type)) is None:
 			curs.close()
 			return None
@@ -293,7 +288,7 @@ class cCfgSQL:
 				return None
 
 		# actually commit our stuff
-		self.conn.commit()
+		aRWConn.commit()
 		curs.close()
 
 		# don't update the cache BEFORE successfully committing to the
@@ -875,7 +870,7 @@ if __name__ == "__main__":
 		print "======================="
 		from pyPgSQL import PgSQL
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'test', 'postgres', '', '', '')
-		conn = 	PgSQL.connect(dsn)
+		conn = PgSQL.connect(dsn)
 		myDBCfg = cCfgSQL(aConn = conn, aDBAPI=PgSQL)
 
 		font = myDBCfg.get(option = 'font name')
@@ -886,7 +881,7 @@ if __name__ == "__main__":
 			new_font = "Courier"
 		if font == "Courier":
 			new_font = "Times New Roman"
-		myDBCfg.set(option='font name', value=new_font)
+		myDBCfg.set(option='font name', value=new_font, aRWConn=conn)
 
 		font = myDBCfg.get(option = 'font name')
 		print "font is now:", font
@@ -895,7 +890,7 @@ if __name__ == "__main__":
 		random.seed()
 		new_opt = str(random.random())
 		print "setting new option", new_opt
-		myDBCfg.set(option=new_opt, value = "I do not know.")
+		myDBCfg.set(option=new_opt, value = "I do not know.", aRWConn=conn)
 		print "new option is now:", myDBCfg.get(option = new_opt)
 
 		print "setting array option"
@@ -903,11 +898,11 @@ if __name__ == "__main__":
 		aList.append("val 1")
 		aList.append("val 2")
 		new_opt = str(random.random())
-		myDBCfg.set(option=new_opt, value = aList)
+		myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
 		aList = []
 		aList.append("val 2")
 		aList.append("val 1")
-		myDBCfg.set(option=new_opt, value = aList)
+		myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
 
 		conn.close()
 else:
@@ -926,7 +921,12 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.32  2003-01-04 12:19:04  ncq
+# Revision 1.33  2003-01-05 09:56:58  ncq
+# - ironed out some bugs in the array handling
+# - streamlined code
+# - have cfg.set() explicitely use rw conn to DB only when needed
+#
+# Revision 1.32  2003/01/04 12:19:04  ncq
 # - better comment
 #
 # Revision 1.31  2003/01/04 12:17:05  ncq
