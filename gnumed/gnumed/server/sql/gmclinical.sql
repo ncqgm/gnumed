@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.70 $
+-- $Revision: 1.71 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -745,16 +745,19 @@ GRANT SELECT, INSERT, UPDATE, DELETE
 	vacc_def,
 	vacc_def_id_seq,
 	clin_history_editarea,  
-	id_clin_history_editarea_seq 
+	clin_history_editarea_id_seq
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.70 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.71 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.70  2003-11-17 20:14:45  ncq
+-- Revision 1.71  2003-11-22 15:36:47  ncq
+-- - fix name clin history editarea id seq
+--
+-- Revision 1.70  2003/11/17 20:14:45  ncq
 -- - cleanup grants, make primary key serial data type
 --
 -- Revision 1.69  2003/11/17 11:14:53  sjtan
