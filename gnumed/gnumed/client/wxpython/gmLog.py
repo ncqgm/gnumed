@@ -51,7 +51,7 @@ Usage:
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
@@ -215,7 +215,7 @@ class cLogger:
 				for line in tbs:
 					self.__targets[key].writeMsg(lPanic, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
 	#---------------------------
-	def SetAllLogLevels (aLogLevel = None):
+	def SetAllLogLevels (self, aLogLevel = None):
 		"""Set a certain log level on all targets."""
 		if aLogLevel == None:
 			return
