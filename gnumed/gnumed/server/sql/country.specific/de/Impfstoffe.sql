@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -254,14 +254,46 @@ insert into vaccine (
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tick-borne meningoencephalitis'));
 
+-------------
+-- Priorix --
+-------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	max_age
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'PRIORIX',
+	'Priorix',
+	true,
+	'12 months'::interval,
+	'23 months'::interval
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='measles'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='mumps'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='rubella'));
+
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.9  2004-01-26 20:18:37  ncq
+-- Revision 1.10  2004-02-09 23:57:39  ncq
+-- - Priorix (MMR)
+--
+-- Revision 1.9  2004/01/26 20:18:37  ncq
 -- - diphtheria, not diphtherie
 --
 -- Revision 1.8  2004/01/22 23:45:12  ncq
