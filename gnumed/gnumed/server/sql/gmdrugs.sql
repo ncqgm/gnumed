@@ -11,16 +11,12 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.15 $ $Date: 2002-10-07 05:01:09 $ $Author: hherb $
+-- $Revision: 1.16 $ $Date: 2002-10-07 07:23:43 $ $Author: hherb $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.15  2002-10-07 05:01:09  hherb
--- generic_drug normalized further, redundant attributes removed
--- pivot tables for drug class interactions added
--- drug disease interaction pivot tables added
--- dosage information normalized and related tables added
--- sequence of table creation changed (more indepenent tables moved to top)
--- more uniform syntax
+-- Revision 1.16  2002-10-07 07:23:43  hherb
+-- generic_drug further normalized (drug names no separate entities to allow for synonyms and translations)
+-- compound drug components now linked to compound drugs
 --
 -- Revision 1.14  2002/09/29 10:20:14  ncq
 -- - added code_systems.revision
@@ -196,15 +192,42 @@ comment on column drug_information.info is
 create table generic_drug(
 	id serial primary key,
 	is_compound boolean default 'n',
-	name varchar(60),
 	comment text
 );
 comment on table generic_drug is
 'A generic drug, either single substance or compound';
 comment on column generic_drug.is_compound is
 'false if this drug is based on a single substance (like Trimethoprim), true if based on a compound (like Cotrimoxazole)';
-comment on column generic_drug.name is
+
+
+create table generic_drug_name(
+	id serial primary key,
+	id_drug integer references generic_drug,
+	name varchar(60),
+	comment text
+);
+comment on table generic_drug_name is
+'this table allows synonyms / dictionary functionality for generic drug names';
+comment on column generic_drug_name.name is
 'the generic name of this drug';
+
+
+create table link_compound_generics(
+	id_compound integer references generic_drug(id) not null,
+	id_component integer references generic_drug(id) not null
+);
+create index idx_link_compound_generics on link_compound_generics(id_compound, id_component);
+comment on table link_compound_generics is
+'links singular generic drugs to a compound drug (like Trimethoprim and Sulfamethoxazole to Cotrimoxazole)';
+
+
+create table link_country_drug_name(
+	id_drug_name integer references generic_drug_name(id),
+	iso_countrycode char(2)
+);
+create index idx_link_country_drug_name on link_country_drug_name(iso_countrycode, id_drug_name);
+comment on table link_country_drug_name is
+'indicates in which country a specific generic drug name is in use';
 
 
 create table dosage(

@@ -1506,6 +1506,92 @@
         </dia:composite>
         <dia:composite type="umlattribute">
           <dia:attribute name="name">
+            <dia:string>#      comment#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#TEXT#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O13">
+      <dia:attribute name="name">
+        <dia:string>#generic_drug_name#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#PK    id#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#SERIAL#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
             <dia:string>#      name#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
@@ -1553,7 +1639,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O13">
+    <dia:object type="UML - Class" version="0" id="O14">
       <dia:attribute name="name">
         <dia:string>#info_reference#</dia:string>
       </dia:attribute>
@@ -1670,7 +1756,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O14">
+    <dia:object type="UML - Class" version="0" id="O15">
       <dia:attribute name="name">
         <dia:string>#interactions#</dia:string>
       </dia:attribute>
@@ -1776,7 +1862,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O15">
+    <dia:object type="UML - Class" version="0" id="O16">
       <dia:attribute name="name">
         <dia:string>#link_class_interactions#</dia:string>
       </dia:attribute>
@@ -1902,7 +1988,139 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O16">
+    <dia:object type="UML - Class" version="0" id="O17">
+      <dia:attribute name="name">
+        <dia:string>#link_compound_generics#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_compound#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_component#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O18">
+      <dia:attribute name="name">
+        <dia:string>#link_country_drug_name#</dia:string>
+      </dia:attribute>
+      <dia:attribute name="abstract">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_attributes">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="suppress_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="visible_attributes">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="attributes">
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#   FK id_drug_name#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#INTEGER#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite>
+        <dia:composite type="umlattribute">
+          <dia:attribute name="name">
+            <dia:string>#      iso_countrycode#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="type">
+            <dia:string>#CHARACTER(2)#</dia:string>
+          </dia:attribute>
+          <dia:attribute name="value">
+            <dia:string/>
+          </dia:attribute>
+          <dia:attribute name="visibility">
+            <dia:enum val="3"/>
+          </dia:attribute>
+          <dia:attribute name="abstract">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+          <dia:attribute name="class_scope">
+            <dia:boolean val="false"/>
+          </dia:attribute>
+        </dia:composite></dia:attribute>
+      <dia:attribute name="visible_operations">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="operations"/>
+      <dia:attribute name="template">
+        <dia:boolean val="false"/>
+      </dia:attribute>
+      <dia:attribute name="templates"/>
+    </dia:object>
+    <dia:object type="UML - Class" version="0" id="O19">
       <dia:attribute name="name">
         <dia:string>#link_drug_class#</dia:string>
       </dia:attribute>
@@ -1968,7 +2186,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O17">
+    <dia:object type="UML - Class" version="0" id="O20">
       <dia:attribute name="name">
         <dia:string>#link_drug_disease_interactions#</dia:string>
       </dia:attribute>
@@ -2094,7 +2312,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O18">
+    <dia:object type="UML - Class" version="0" id="O21">
       <dia:attribute name="name">
         <dia:string>#link_drug_dosage#</dia:string>
       </dia:attribute>
@@ -2160,7 +2378,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O19">
+    <dia:object type="UML - Class" version="0" id="O22">
       <dia:attribute name="name">
         <dia:string>#link_drug_indication#</dia:string>
       </dia:attribute>
@@ -2286,7 +2504,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O20">
+    <dia:object type="UML - Class" version="0" id="O23">
       <dia:attribute name="name">
         <dia:string>#link_drug_information#</dia:string>
       </dia:attribute>
@@ -2352,7 +2570,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O21">
+    <dia:object type="UML - Class" version="0" id="O24">
       <dia:attribute name="name">
         <dia:string>#link_drug_interactions#</dia:string>
       </dia:attribute>
@@ -2478,7 +2696,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O22">
+    <dia:object type="UML - Class" version="0" id="O25">
       <dia:attribute name="name">
         <dia:string>#link_drug_warning#</dia:string>
       </dia:attribute>
@@ -2544,7 +2762,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O23">
+    <dia:object type="UML - Class" version="0" id="O26">
       <dia:attribute name="name">
         <dia:string>#link_generic_drug_adverse_effec#</dia:string>
       </dia:attribute>
@@ -2681,7 +2899,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O24">
+    <dia:object type="UML - Class" version="0" id="O27">
       <dia:attribute name="name">
         <dia:string>#link_product_manufacturer#</dia:string>
       </dia:attribute>
@@ -2747,7 +2965,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O25">
+    <dia:object type="UML - Class" version="0" id="O28">
       <dia:attribute name="name">
         <dia:string>#manufacturer#</dia:string>
       </dia:attribute>
@@ -2913,7 +3131,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O26">
+    <dia:object type="UML - Class" version="0" id="O29">
       <dia:attribute name="name">
         <dia:string>#product#</dia:string>
       </dia:attribute>
@@ -3119,7 +3337,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O27">
+    <dia:object type="UML - Class" version="0" id="O30">
       <dia:attribute name="name">
         <dia:string>#subsidies#</dia:string>
       </dia:attribute>
@@ -3225,7 +3443,7 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-    <dia:object type="UML - Class" version="0" id="O28">
+    <dia:object type="UML - Class" version="0" id="O31">
       <dia:attribute name="name">
         <dia:string>#subsidized_products#</dia:string>
       </dia:attribute>
@@ -3391,16 +3609,16 @@
       </dia:attribute>
       <dia:attribute name="templates"/>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O29">
+      <dia:object type="UML - Constraint" version="0" id="O32">
       <dia:attribute name="constraint">
         <dia:string>#id_product#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O1" connection="9"/>
-        <dia:connection handle="1" to="O26" connection="8"/>
+        <dia:connection handle="1" to="O29" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O30">
+      <dia:object type="UML - Constraint" version="0" id="O33">
       <dia:attribute name="constraint">
         <dia:string>#id_drug_class#</dia:string>
       </dia:attribute>
@@ -3409,7 +3627,7 @@
         <dia:connection handle="1" to="O5" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O31">
+      <dia:object type="UML - Constraint" version="0" id="O34">
       <dia:attribute name="constraint">
         <dia:string>#id_code_system#</dia:string>
       </dia:attribute>
@@ -3418,25 +3636,25 @@
         <dia:connection handle="1" to="O3" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O32">
+      <dia:object type="UML - Constraint" version="0" id="O35">
       <dia:attribute name="constraint">
         <dia:string>#id_interaction#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O2" connection="15"/>
-        <dia:connection handle="1" to="O14" connection="8"/>
+        <dia:connection handle="1" to="O15" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O33">
+      <dia:object type="UML - Constraint" version="0" id="O36">
       <dia:attribute name="constraint">
         <dia:string>#id_info_reference#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O4" connection="11"/>
-        <dia:connection handle="1" to="O13" connection="8"/>
+        <dia:connection handle="1" to="O14" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O34">
+      <dia:object type="UML - Constraint" version="0" id="O37">
       <dia:attribute name="constraint">
         <dia:string>#id_drug_units#</dia:string>
       </dia:attribute>
@@ -3445,7 +3663,7 @@
         <dia:connection handle="1" to="O9" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O35">
+      <dia:object type="UML - Constraint" version="0" id="O38">
       <dia:attribute name="constraint">
         <dia:string>#id_drug_warning_categories#</dia:string>
       </dia:attribute>
@@ -3454,16 +3672,16 @@
         <dia:connection handle="1" to="O11" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O36">
+      <dia:object type="UML - Constraint" version="0" id="O39">
       <dia:attribute name="constraint">
         <dia:string>#id_info_reference#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O7" connection="11"/>
-        <dia:connection handle="1" to="O13" connection="8"/>
+        <dia:connection handle="1" to="O14" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O37">
+      <dia:object type="UML - Constraint" version="0" id="O40">
       <dia:attribute name="constraint">
         <dia:string>#id_warning#</dia:string>
       </dia:attribute>
@@ -3472,39 +3690,12 @@
         <dia:connection handle="1" to="O11" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O38">
+      <dia:object type="UML - Constraint" version="0" id="O41">
       <dia:attribute name="constraint">
         <dia:string>#id_reference#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O10" connection="13"/>
-        <dia:connection handle="1" to="O13" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O39">
-      <dia:attribute name="constraint">
-        <dia:string>#id_drug_class#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O15" connection="11"/>
-        <dia:connection handle="1" to="O5" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O40">
-      <dia:attribute name="constraint">
-        <dia:string>#id_interacts_with#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O15" connection="13"/>
-        <dia:connection handle="1" to="O5" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O41">
-      <dia:attribute name="constraint">
-        <dia:string>#id_interaction#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O15" connection="15"/>
         <dia:connection handle="1" to="O14" connection="8"/>
       </dia:connections>
     </dia:object>
@@ -3513,13 +3704,13 @@
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O16" connection="9"/>
+        <dia:connection handle="0" to="O13" connection="11"/>
         <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O43">
       <dia:attribute name="constraint">
-        <dia:string>#id_class#</dia:string>
+        <dia:string>#id_drug_class#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O16" connection="11"/>
@@ -3528,47 +3719,47 @@
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O44">
       <dia:attribute name="constraint">
-        <dia:string>#id_drug#</dia:string>
+        <dia:string>#id_interacts_with#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O16" connection="13"/>
+        <dia:connection handle="1" to="O5" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O45">
+      <dia:attribute name="constraint">
+        <dia:string>#id_interaction#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O16" connection="15"/>
+        <dia:connection handle="1" to="O15" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O46">
+      <dia:attribute name="constraint">
+        <dia:string>#id_compound#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O17" connection="9"/>
         <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O45">
+      <dia:object type="UML - Constraint" version="0" id="O47">
       <dia:attribute name="constraint">
-        <dia:string>#id_code_system#</dia:string>
+        <dia:string>#id_component#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O17" connection="11"/>
-        <dia:connection handle="1" to="O3" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O46">
-      <dia:attribute name="constraint">
-        <dia:string>#id_interaction#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O17" connection="15"/>
-        <dia:connection handle="1" to="O14" connection="8"/>
-      </dia:connections>
-    </dia:object>
-      <dia:object type="UML - Constraint" version="0" id="O47">
-      <dia:attribute name="constraint">
-        <dia:string>#id_drug#</dia:string>
-      </dia:attribute>
-      <dia:connections>
-        <dia:connection handle="0" to="O18" connection="9"/>
         <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O48">
       <dia:attribute name="constraint">
-        <dia:string>#id_dosage#</dia:string>
+        <dia:string>#id_drug_name#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O18" connection="11"/>
-        <dia:connection handle="1" to="O4" connection="8"/>
+        <dia:connection handle="0" to="O18" connection="9"/>
+        <dia:connection handle="1" to="O13" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O49">
@@ -3576,17 +3767,17 @@
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O19" connection="11"/>
+        <dia:connection handle="0" to="O19" connection="9"/>
         <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O50">
       <dia:attribute name="constraint">
-        <dia:string>#id_code_system#</dia:string>
+        <dia:string>#id_class#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O19" connection="13"/>
-        <dia:connection handle="1" to="O3" connection="8"/>
+        <dia:connection handle="0" to="O19" connection="11"/>
+        <dia:connection handle="1" to="O5" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O51">
@@ -3600,38 +3791,38 @@
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O52">
       <dia:attribute name="constraint">
-        <dia:string>#id_info#</dia:string>
+        <dia:string>#id_code_system#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O20" connection="11"/>
-        <dia:connection handle="1" to="O7" connection="8"/>
+        <dia:connection handle="1" to="O3" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O53">
       <dia:attribute name="constraint">
-        <dia:string>#id_drug#</dia:string>
+        <dia:string>#id_interaction#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O21" connection="11"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O20" connection="15"/>
+        <dia:connection handle="1" to="O15" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O54">
       <dia:attribute name="constraint">
-        <dia:string>#id_interacts_with#</dia:string>
+        <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O21" connection="13"/>
+        <dia:connection handle="0" to="O21" connection="9"/>
         <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O55">
       <dia:attribute name="constraint">
-        <dia:string>#id_interaction#</dia:string>
+        <dia:string>#id_dosage#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O21" connection="15"/>
-        <dia:connection handle="1" to="O14" connection="8"/>
+        <dia:connection handle="0" to="O21" connection="11"/>
+        <dia:connection handle="1" to="O4" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O56">
@@ -3639,17 +3830,17 @@
         <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O22" connection="9"/>
+        <dia:connection handle="0" to="O22" connection="11"/>
         <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O57">
       <dia:attribute name="constraint">
-        <dia:string>#id_warning#</dia:string>
+        <dia:string>#id_code_system#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O22" connection="11"/>
-        <dia:connection handle="1" to="O10" connection="8"/>
+        <dia:connection handle="0" to="O22" connection="13"/>
+        <dia:connection handle="1" to="O3" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O58">
@@ -3663,83 +3854,146 @@
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O59">
       <dia:attribute name="constraint">
-        <dia:string>#id_adverse_effect#</dia:string>
+        <dia:string>#id_info#</dia:string>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O23" connection="11"/>
-        <dia:connection handle="1" to="O0" connection="8"/>
+        <dia:connection handle="1" to="O7" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O60">
       <dia:attribute name="constraint">
-        <dia:string>#id_product#</dia:string>
+        <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O24" connection="9"/>
-        <dia:connection handle="1" to="O26" connection="8"/>
+        <dia:connection handle="0" to="O24" connection="11"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O61">
       <dia:attribute name="constraint">
-        <dia:string>#id_manufacturer#</dia:string>
+        <dia:string>#id_interacts_with#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O24" connection="11"/>
-        <dia:connection handle="1" to="O25" connection="8"/>
+        <dia:connection handle="0" to="O24" connection="13"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O62">
       <dia:attribute name="constraint">
-        <dia:string>#id_generic_drug#</dia:string>
+        <dia:string>#id_interaction#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O26" connection="11"/>
-        <dia:connection handle="1" to="O12" connection="8"/>
+        <dia:connection handle="0" to="O24" connection="15"/>
+        <dia:connection handle="1" to="O15" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O63">
       <dia:attribute name="constraint">
-        <dia:string>#id_formulation#</dia:string>
+        <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O26" connection="13"/>
-        <dia:connection handle="1" to="O6" connection="8"/>
+        <dia:connection handle="0" to="O25" connection="9"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O64">
       <dia:attribute name="constraint">
-        <dia:string>#id_unit#</dia:string>
+        <dia:string>#id_warning#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O26" connection="17"/>
-        <dia:connection handle="1" to="O9" connection="8"/>
+        <dia:connection handle="0" to="O25" connection="11"/>
+        <dia:connection handle="1" to="O10" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O65">
       <dia:attribute name="constraint">
-        <dia:string>#packing_unit#</dia:string>
+        <dia:string>#id_drug#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O26" connection="21"/>
-        <dia:connection handle="1" to="O9" connection="8"/>
+        <dia:connection handle="0" to="O26" connection="9"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O66">
       <dia:attribute name="constraint">
-        <dia:string>#id_product#</dia:string>
+        <dia:string>#id_adverse_effect#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O28" connection="9"/>
-        <dia:connection handle="1" to="O26" connection="8"/>
+        <dia:connection handle="0" to="O26" connection="11"/>
+        <dia:connection handle="1" to="O0" connection="8"/>
       </dia:connections>
     </dia:object>
       <dia:object type="UML - Constraint" version="0" id="O67">
       <dia:attribute name="constraint">
+        <dia:string>#id_product#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O27" connection="9"/>
+        <dia:connection handle="1" to="O29" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O68">
+      <dia:attribute name="constraint">
+        <dia:string>#id_manufacturer#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O27" connection="11"/>
+        <dia:connection handle="1" to="O28" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O69">
+      <dia:attribute name="constraint">
+        <dia:string>#id_generic_drug#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O29" connection="11"/>
+        <dia:connection handle="1" to="O12" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O70">
+      <dia:attribute name="constraint">
+        <dia:string>#id_formulation#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O29" connection="13"/>
+        <dia:connection handle="1" to="O6" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O71">
+      <dia:attribute name="constraint">
+        <dia:string>#id_unit#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O29" connection="17"/>
+        <dia:connection handle="1" to="O9" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O72">
+      <dia:attribute name="constraint">
+        <dia:string>#packing_unit#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O29" connection="21"/>
+        <dia:connection handle="1" to="O9" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O73">
+      <dia:attribute name="constraint">
+        <dia:string>#id_product#</dia:string>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O31" connection="9"/>
+        <dia:connection handle="1" to="O29" connection="8"/>
+      </dia:connections>
+    </dia:object>
+      <dia:object type="UML - Constraint" version="0" id="O74">
+      <dia:attribute name="constraint">
         <dia:string>#id_subsidy#</dia:string>
       </dia:attribute>
       <dia:connections>
-        <dia:connection handle="0" to="O28" connection="11"/>
-        <dia:connection handle="1" to="O27" connection="8"/>
+        <dia:connection handle="0" to="O31" connection="11"/>
+        <dia:connection handle="1" to="O30" connection="8"/>
       </dia:connections>
     </dia:object>
   </dia:layer>
