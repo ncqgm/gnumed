@@ -11,9 +11,14 @@ package org.gnumed.testweb1.data;
  * @author  sjtan
  */
 public class EntryClinNarrativeImpl1 extends ClinNarrativeImpl1 
-implements EntryClinRootItem, ClinWhenHolder {
+implements EntryClinNarrative, ClinWhenHolder {
     ClinWhenEntryAdapter adapter;
     boolean entered;
+    
+    /**
+     * Holds value of property linkedToPreviousEpisode.
+     */
+    private boolean linkedToPreviousEpisode = false;
     
     /** Creates a new instance of EntryClinNarrativeImpl1 */
     public EntryClinNarrativeImpl1() {
@@ -41,6 +46,22 @@ implements EntryClinRootItem, ClinWhenHolder {
     
     public void setEntered(boolean entered) {
         this.entered = entered;
+    }
+    
+    /**
+     * Getter for property linkedToPreviousEpisode.
+     * @return Value of property linkedToPreviousEpisode.
+     */
+    public boolean isLinkedToPreviousEpisode() {
+        return this.linkedToPreviousEpisode;
+    }
+    
+    /**
+     * Setter for property linkedToPreviousEpisode.
+     * @param linkedToPreviousEpisode New value of property linkedToPreviousEpisode.
+     */
+    public void setLinkedToPreviousEpisode(boolean linkedToPreviousEpisode) {
+        this.linkedToPreviousEpisode = linkedToPreviousEpisode;
     }
     
 }

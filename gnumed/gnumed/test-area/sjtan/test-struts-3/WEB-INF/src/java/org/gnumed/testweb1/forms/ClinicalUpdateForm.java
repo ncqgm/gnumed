@@ -20,6 +20,7 @@ import org.gnumed.testweb1.data.AllergyEntry;
 import org.gnumed.testweb1.data.Allergy;
 import org.gnumed.testweb1.data.ClinRootItem;
 import org.gnumed.testweb1.data.EntryClinRootItem;
+import org.gnumed.testweb1.data.EntryClinNarrative;
 import org.gnumed.testweb1.data.Vitals;
 import java.util.ListIterator;
 /**
@@ -30,7 +31,7 @@ public class ClinicalUpdateForm extends ActionForm {
     static int updateBatch = 5;
     //List vaccinations = new ArrayList();
     Vaccination[] vaccinations ;
-    ClinNarrative[] narratives;
+    EntryClinNarrative[] narratives;
     String test;
     Log log = LogFactory.getLog(this.getClass());
     
@@ -92,8 +93,8 @@ public class ClinicalUpdateForm extends ActionForm {
     }
     
     private void initNarratives() {
-        narratives =  (ClinNarrative[])getEncounter().
-        getNarratives().toArray(new ClinNarrative[0]);
+        narratives =  (EntryClinNarrative[])getEncounter().
+        getNarratives().toArray(new EntryClinNarrative[0]);
         //    narratives = new ClinNarrative[nn.length];
         //    System.arraycopy(nn, 0, narratives, 0, nn.length);
         
@@ -167,7 +168,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * Getter for property narratives.
      * @return Value of property narratives.
      */
-    public ClinNarrative[] getNarratives() {
+    public EntryClinNarrative[] getNarratives() {
         return narratives;
     }
     
@@ -177,7 +178,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * @return Value of the property at <CODE>index</CODE>.
      */
     
-    public ClinNarrative getNarrative(int index) {
+    public EntryClinNarrative getNarrative(int index) {
         return narratives[index];
     }
     
@@ -186,7 +187,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * @param index Index of the property.
      * @param narrative New value of the property at <CODE>index</CODE>.
      */
-    public void setNarrative(int index, ClinNarrative narrative) {
+    public void setNarrative(int index, EntryClinNarrative narrative) {
         //Vaccination vo = (Vaccination) vaccinations.get(index);
         try {
             BeanUtils.copyProperties(narratives[index], narrative);
@@ -218,7 +219,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * @param index Index of the property.
      * @return Value of the property at <CODE>index</CODE>.
      */
-    public boolean getLinkNarrative(int index) {
+    public boolean getLinkedToPreviousEpisode(int index) {
         return this.linkNarrative[index];
     }
     
@@ -227,7 +228,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * @param index Index of the property.
      * @param linkNarrative New value of the property at <CODE>index</CODE>.
      */
-    public void setLinkNarrative(int index, boolean linkNarrative) {
+    public void setLinkedToPreviousEpisode(int index, boolean linkNarrative) {
         this.linkNarrative[index] = linkNarrative;
     }
     
@@ -249,9 +250,9 @@ public class ClinicalUpdateForm extends ActionForm {
                 narratives[i].setHealthIssueName(narratives[i-1].getHealthIssueName());
                 
                 narratives[i].setEpisode(narratives[i-1].getEpisode());
-                log.info(narratives[i] + " WAS LINKED");
+                log.info(narratives[i] +  "#"+i+" WAS LINKED");
             } else {
-                log.info(narratives[i] + " is not Linked");
+                log.info(narratives[i] + "*** #"+i+" is not Linked **");
             }
         }
     }

@@ -120,16 +120,4 @@ public interface ClinRootItem extends ClinWhenHolder {
      */
     public void setNewHealthIssueName(String newHealthIssueName);
     
-    /**
-     * Getter for property isLinkedToPreviousEpisode.
-     * @return Value of property isLinkedToPreviousEpisode.
-     */
-    public boolean isLinkedToPreviousEpisode();
-    
-    /**
-     * Setter for property isLinkedToPreviousEpisode.
-     * @param isLinkedToPreviousEpisode New value of property isLinkedToPreviousEpisode.
-     */
-    public void setLinkedToPreviousEpisode(boolean isLinkedToPreviousEpisode);
-    
 }

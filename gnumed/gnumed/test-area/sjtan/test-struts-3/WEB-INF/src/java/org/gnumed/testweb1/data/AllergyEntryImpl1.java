@@ -11,13 +11,14 @@ package org.gnumed.testweb1.data;
  * @author  sjtan
  */
 public class AllergyEntryImpl1 extends AllergyImpl1 implements AllergyEntry, EntryClinRootItem {
-    private boolean definite, entered;
+    private boolean definite, entered, linked;
     private String substance;
     ClinWhenEntryAdapter adapter = new ClinWhenEntryAdapter(this);
     
     /** Creates a new instance of AllergyInputImpl1 */
     public AllergyEntryImpl1() {
         setEntered(false);
+        setLinkedToPreviousEpisode(false);
     }
     
     public String getSubstance() {
@@ -52,6 +53,14 @@ public class AllergyEntryImpl1 extends AllergyImpl1 implements AllergyEntry, Ent
     
     public void setEntered(boolean entered) {
         this.entered = entered;
+    }
+    
+    public boolean isLinkedToPreviousEpisode() {
+      return   this.linked ;
+    }
+    
+    public void setLinkedToPreviousEpisode(boolean linkedToPreviousEpisode) {
+        this.linked = linkedToPreviousEpisode;
     }
     
 }

@@ -144,15 +144,18 @@ e.g. getNarrative(index) ...  id='narrative'
              
             <div id='links<%=index%>' style='display:<%=((index.intValue()==1 )? "block": "none")%>'>
                 link
-                <html-el:checkbox styleId="linkBox${index}" name="narrative" property="linkedToPreviousEpisode" indexed="true" 
-                onchange="showEntry(this, ${index});
+                <html-el:checkbox 
+                        name="narrative" 
+                        property="linkedToPreviousEpisode" 
+                        indexed="true" 
+                        styleId="linkBox${index}" 
+                onclick="showEntry(this, ${index});
                           if (this.checked) {
                                 document.getElementById('checkIssue${index}').checked=0;
                                 document.getElementById('entryIssue${index}').style.display='none';
                            }     
                           
                 "
-                value="0"
                 />
                 new episode
                 <input type="checkbox"  id="checkIssue<%=index%>"
@@ -292,16 +295,26 @@ e.g. getNarrative(index) ...  id='narrative'
                         }" />
                     
                     </td>
-                    
-                    <td><sub>
+                    </tr>
+                   
+                </table>
+                <sub>
                     <html:link anchor='submitEncounter' action='ClinicalEdit.do' paramId="id" paramName="clinicalUpdateForm"
                     paramProperty="patientId" > to submit </html:link>
-                      
-                    </sub></td>
-                   
-                    </tr>
-                </table>
-                
+                     
+                        <div id="submitEncounter" style="display:block" />
+                            <table >
+                                <tr>
+                                <td>
+                                    <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
+                                </td>
+                                <td>
+                                    <html:reset altKey="reset" />
+                                </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </sub> 
             </div>
          
             <%-- only show the linked checkbox if not the first entry --%>  

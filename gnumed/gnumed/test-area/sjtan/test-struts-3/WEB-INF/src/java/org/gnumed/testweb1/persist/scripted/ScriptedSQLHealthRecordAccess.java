@@ -422,18 +422,21 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     
     /** makes healthissue name non-null, default xxxDEFAULTxxxx */
     private String normalizeHealthIssueName(ClinRootItem item) {
+        
         String healthIssueName = item.getEpisode().getHealthIssue().getDescription();
         String newName = item.getNewHealthIssueName();
+       
+        healthIssueName = healthIssueName == null ? "" : healthIssueName;
+        newName = ( newName == null ? "" : newName);
         
-        if (newName != null && !newName.equals("") &&  (healthIssueName == null || healthIssueName.trim().equals("")) ) {
-            return newName;
+        if (!newName.equals("") && healthIssueName.equals("")) {
+            healthIssueName = newName;
         }
         
-        if (healthIssueName != null)
-            healthIssueName = healthIssueName.trim();
-        if (healthIssueName == null || healthIssueName.equals("")) {
+        if (healthIssueName.equals("")) {
             healthIssueName = Constants.Schema.DEFAULT_HEALTH_ISSUE_LABEL;
         }
+        
         return healthIssueName;
     }
     

@@ -103,13 +103,4 @@ public class ClinRootItemImpl1 implements ClinRootItem {
         this.newHealthIssueName = newHealthIssueName;
     }
     
-    public boolean isLinkedToPreviousEpisode() {
-        return isLinkedToPreviousEpisode;
-    }
-    
-    public void setLinkedToPreviousEpisode(boolean isLinkedToPreviousEpisode) {
-        
-        this.isLinkedToPreviousEpisode = isLinkedToPreviousEpisode;
-    }
-    
 }

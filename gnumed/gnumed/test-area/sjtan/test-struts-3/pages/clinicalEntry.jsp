@@ -6,24 +6,12 @@
 <html>
 <head><title>Clin Entry</title></head>
 <body>
-
-<html:base/>
-<div class='errors'>
-<p><b>
-<html:errors/>
-</b></p>
-</div>
-
-   
+<html:base/>   
     <html:form action="/SaveClinical"> 
-
-
-            
- <%--
- --%>   
-    <a name='submitEncounter' />
+  <a name='submitEncounter' />
     <div id="submitEncounter" style="display:block" />
         <table >
+            <tr>
             <td>
                 <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
             </td>
@@ -34,8 +22,8 @@
         </table>
     </div>
     <table>
-    <tr>
-        <td>
+    <tr valign='top'>
+        <td >
     <jsp:include page="./encounter_2.jsp"/> 
         </td>
     <tr>

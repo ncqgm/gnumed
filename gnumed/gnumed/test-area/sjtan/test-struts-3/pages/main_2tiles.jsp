@@ -40,20 +40,41 @@
      <hr/>
     <jsp:include page="./intraLinksClinicalEdit.jsp"/> 
     <table width='100%'>
-        <tr>
-            <td>
-            <table>
+    <tr>
+        <td valign='top'>
+        <table >
+        <tr valign='top'>
+        <td valign='top'>
+            <input type="button" value='entry'
+                onclick='
+                    var e = document.getElementById("clinicalEntry");
+                    var p = document.getElementById("pastNotes");
+                    e.style.display="block";
+                    p.style.display="none";
+                    '/>
+                    |
+            <input type="button" value='past notes'
+                onclick='
+                    var e = document.getElementById("clinicalEntry");
+                    var p = document.getElementById("pastNotes");
+                    e.style.display="none";
+                    p.style.display="block";
+                    '/>        
+            </td>
+           </tr> 
+        
             <tr>
             <td  valign='top' > 
+            <div id="clinicalEntry">
                 <tiles:insert name="leftTop"/>
+                
+            </div>    
+            <div id="pastNotes" style='display:none'>
+                 <tiles:insert name="leftBottom"/>
+            </div>
             </td>
         </tr>
-            <tr>
-                <td >
-                  <tiles:insert name="leftBottom"/>
-  
-                </td>
-            </tr>
+            
         </table>   
        
         <td valign='top' width='40%'> 

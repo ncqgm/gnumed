@@ -36,4 +36,16 @@ public interface EntryClinRootItem extends ClinRootItem, ClinWhenEntryHolder {
      */
     public void setEntered(boolean entered);
     
+    /**
+     * Getter for property linkedToPreviousEpisode.
+     * @return Value of property linkedToPreviousEpisode.
+     */
+    public boolean isLinkedToPreviousEpisode();
+    
+    /**
+     * Setter for property linkedToPreviousEpisode.
+     * @param linkedToPreviousEpisode New value of property linkedToPreviousEpisode.
+     */
+    public void setLinkedToPreviousEpisode(boolean linkedToPreviousEpisode);
+    
 }
