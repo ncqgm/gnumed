@@ -1,7 +1,7 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.5 $
+$Revision: 1.6 $
 -----------------------------------------------------------------
 This is the temporary roadmap. Please always include the
 URL to this document when discussing items on the list:
@@ -9,6 +9,9 @@ URL to this document when discussing items on the list:
 http://savannah.gnu.org/cgi-bin/viewcvs/gnumed/gnumed/gnumed/client/doc/TODO/temporary-roadmap.txt
 -----------------------------------------------------------------
 
+------------------------
+MUST HAVE first release:
+---------------------------------
 patient input/search/modification
 ---------------------------------
 maintainer:
@@ -18,6 +21,64 @@ hackers: Ian Haywood
  - mediocre attempt at input/modification available
  - input needs considerably more smarts
 
+---------------------
+simple ConfigRegistry
+---------------------
+maintainer: Hilmar Berger
+hackers:
+ - complete default config data
+ - nearly done
+
+------------------
+referrals handling
+------------------
+maintainer:
+hackers:
+ - accompanying referral letter
+   - AbiWord IMHO for letters that need a little writing
+   - quick-pick lists+LaTeX+text editor for "rapid-letter" referrals
+ - referral form (Germany)
+   - uses common forms engine with prescription
+   - optional
+
+------------
+prescription
+------------
+maintainer:
+hackers: Ian Haywood, RMIT
+ - *very* complex to cover all cases
+ - start with simple, most common cases:
+ - print out using common forms engine
+ - 4 fields initially:
+   - drug name, auto-complete from database
+   - strengths, drop-down from list in database
+   - frequency, free-form for now, later recognize formats
+     - German: 4 integers for the 4 times during the day, separated by slashes,
+	   so 4 times a day is "1/1/1/1", one morning , 2 at night is "1/0/2/0"
+     - Latin: m=mane, i=midi n=nocte, b=BD t=TDS, q=QID.
+	   So "2m" is 2 tabs mane, "1q" is 1 tab QID, "2m+2.5i" is 2 mane and 2 & a half midi
+   - directions. Free comment fields, auto-translating to vernacular for
+     standard Latin abbreviations: PP, OU, AU, etc.
+
+ - FUTURE: remembers previous values for a particular drug
+   - should come automatically with XML forms proposal
+
+ - OPTIONAL: a "prescribing diagnosis" field which saves as
+   a Plan row into the SOAP for the currently active encounter
+
+ - Scripts will be lawful in Australia: name, address, Medicare number, prescriber, etc.
+
+------------------------
+drug information browser
+------------------------
+maintainer: ? RMIT ?
+hackers: Hilmar Berger
+ - if data is available locally
+ - PBS via drugref.org via XML-RPC, initially
+ - AMIS (German) to follow
+
+---------
+OPTIONAL:
 --------------------
 progress notes input
 --------------------
@@ -25,7 +86,7 @@ maintainer: Karsten Hilbert
 hackers:
  - simple SOAP structured text input fields
  - clin_note/clin_history/clin_physical rows
- - optional, partially done
+ - partially done
  
 ------------
 notes viewer
@@ -57,69 +118,13 @@ maintainer:
 hackers:
  - allow other apps to connect to a GnuMed instance, lock it
    into a patient and release that lock later on
- - OPTIONAL initially
-
-------------------------
-drug information browser
-------------------------
-maintainer: RMIT
-hackers:
- - if data is available locally
- - PBS via drugref.org via XML-RPC, initially
- - AMIS (German) to follow
 
 ----------------
 document archive
 ----------------
 maintainer: Hilbert
 hackers:
- - OPTIONAL initially
  - nearly done
-
----------------------
-simple ConfigRegistry
----------------------
-maintainer: Hilmar Berger
-hackers:
- - complete default config data
- - nearly done
-
-------------------
-referrals handling
-------------------
-maintainer:
-hackers:
- - referral form (Germany)
-   - uses common forms engine with prescription
- - accompanying referral letter
-   - AbiWord IMHO for letters that need a little writing
-   - quick-pick lists+LaTeX+text editor for "rapid-letter" referrals
-
-------------
-prescription
-------------
-maintainer:
-hackers: Ian Haywood
- - *very* complex to cover all cases
- - start with simple, most common cases:
- - print out using common forms engine
- - 4 fields initially:
-   - drug name, auto-complete from database
-   - strengths, drop-down from list in database
-   - frequency, free-form for now, later recognize formats
-     - German: 4 integers for the 4 times during the day, separated by slashes,
-	   so 4 times a day is "1/1/1/1", one morning , 2 at night is "1/0/2/0"
-     - Latin: m=mane, i=midi n=nocte, b=BD t=TDS, q=QID.
-	   So "2m" is 2 tabs mane, "1q" is 1 tab QID, "2m+2.5i" is 2 mane and 2 & a half midi
-   - directions. Free comment fields, auto-translating to vernacular for
-     standard Latin abbreviations: PP, OU, AU, etc.
-
- - FUTURE: remembers previous values for a particular drug
-   - should come automatically with XML forms proposal
-
- - OPTIONAL: a "prescribing diagnosis" field which saves as an episode.
-
- - Scripts will be lawful in Australia: name, address, Medicare number, prescriber, etc.
 
 ------------
 path results
@@ -142,7 +147,10 @@ Old German first-off roadmap is here:
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.5  2003-07-29 06:07:31  ncq
+Revision 1.6  2003-07-29 07:23:27  ncq
+- reordered, Hilmar claimed items
+
+Revision 1.5  2003/07/29 06:07:31  ncq
 - ian claimed some items
 
 Revision 1.4  2003/07/28 22:49:56  ncq
