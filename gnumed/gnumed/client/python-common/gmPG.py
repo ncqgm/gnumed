@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.86 $"
+__version__ = "$Revision: 1.87 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -168,7 +168,7 @@ class ConnectionPool:
 			conn = self.__pgconnect(logininfo, readonly = 0, encoding = encoding)
 		# or a cached read-only connection
 		else:
-			_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
+#			_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
 			if ConnectionPool.__databases.has_key(service):
 				try:
 					ConnectionPool.__connections_in_use[service] += 1
@@ -176,7 +176,7 @@ class ConnectionPool:
 					ConnectionPool.__connections_in_use[service] = 1
 				conn = ConnectionPool.__databases[service]
 			else:
-				_log.Log(gmLog.lData, 'using service [default] instead of [%s]' % service)
+#				_log.Log(gmLog.lData, 'using service [default] instead of [%s]' % service)
 				try:
 					ConnectionPool.__connections_in_use['default'] += 1
 				except KeyError:
@@ -213,7 +213,7 @@ class ConnectionPool:
 			if dbapi == pyPgSQL.PgSQL:
 				conn.conn.toggleShowQuery
 			else:
-				_log.Log(gmLog.lInfo, 'extra_verbose not supported on DB API adapter [%s]' % dbapi)
+				_log.Log(gmLog.lInfo, 'extra_verbose not supported by DB API adapter [%s]' % dbapi)
 
 		return conn
 	#-----------------------------
@@ -1066,7 +1066,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.86  2003-12-29 16:31:10  uid66147
+# Revision 1.87  2004-01-06 10:03:44  ncq
+# - don't log use of RO conns anymore
+#
+# Revision 1.86  2003/12/29 16:31:10  uid66147
 # - better logging, cleanup, better encoding handling
 # - run_commit/ro_query() now accept either cursor, connection or service name
 # - run_ro_query() now sanity checks if the query returned rows before calling fetchall()
