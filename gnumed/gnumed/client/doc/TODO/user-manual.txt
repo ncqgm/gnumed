@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 ---------------------------------------------------
 Rules:
 ------
@@ -11,12 +11,6 @@ Rules:
 ---------------------------------------------------
 Fre 09 Aug 2002 13:20:04 CEST
 
-> 1.) newer versions of wxPython for GTK  now come packaged including wxGTK =
-> only one library to download and install. Minimum version should be now 2.3.2
->
-> 2.) re Mandrake install and dependency on old libpng:  works nice with the
-> new one, just create a symbolic link from the new version to the old one.
->
 > 3.) as there were no further comments re database adapter, we go for PyPgSQL
 > for the following reasons:
 
@@ -24,9 +18,5 @@ Fre 09 Aug 2002 13:20:04 CEST
 > - Clean install on all Linux versions via setup.py
 > - native support of listen/notify without need for further libraries
 
-> 4.) Python minimum version is now 2.2. Has been stable for quite a while, no
-> point in sticking to older versions as I will use a few of the really nice
-> new features for the database libraries
+Where is this, PyPgSQL??
 
-Horst Herb
-------------------------------------------------------
