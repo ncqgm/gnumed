@@ -47,7 +47,7 @@ if __name__ == "__main__":
 	section_map = {}
 
 	gen = generator()
-	gen.print_imports()
+	gen.print_setup()
 	common_comps = []
 	for l in lines:
 		re_match_obj = prog_def.match(l)
