@@ -7,7 +7,7 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
@@ -146,3 +146,9 @@ else:
 \xdcje\xa8\xa3\x94\xfaS\xeeI\xe4mv\xde\xae\xd9\xd2\x02\xcb[\xf3\x9ar\xf56Q\
 \xb0\x11\xe4\xeec\xfa\xe9\x9c$\xa7`\x03No|\xda\xd3]\xe1|:\xfd\x03\xab\xf8h\
 \xbf' )))
+
+#=====================================================================
+# $Log: gmCalcPreg.py,v $
+# Revision 1.5  2002-09-21 12:44:15  ncq
+# - added changelog keyword
+#
