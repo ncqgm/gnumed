@@ -7,8 +7,15 @@ that view will in most cases, however, originate from
 several normalized tables. One instance of this class
 represents one row of the "main" source (eg. mostly view).
 
-Field values of the row are retrieved during __init__() of
-the object and cached for later access. They can be accessed
+There are two ways to initialize an instance with values.
+One way is to pass a "primary key equivalent" object into
+__init__(). Refetch_payload() will then pull the data from
+the backend. Another way would be to fetch the data outside
+the instance and pass it in via the <row> argument. In that
+case the instance will not initially connect to the databse
+which may offer a great boost to performance.
+
+Field values are cached for later access. They can be accessed
 by a dictionary API, eg:
 
 	old_value = object['field']
@@ -34,8 +41,8 @@ form an object meaningful to *business* logic.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.1 2004-10-11 19:05:41 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmBusinessDBObject.py,v 1.2 2004-10-12 18:37:45 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -50,31 +57,83 @@ class cBusinessDBObject:
 
 	Rules:
 	- instances ARE ASSUMED TO EXIST in the database
-	- DOES verify its existence on instantiation (fetching data fails)
-	- does NOT verify FK targets existence
+	- PK construction (aPK_obj): DOES verify its existence on instantiation
+	                             (fetching data fails)
+	- Row construction (row_data): allowed by using a dict of pairs
+	                               field name: field value (PERFORMANCE improvement)
+	- does NOT verify FK target existence
 	- does NOT create new entries in the database
-	- does NOT lazy-fetch fields
+	- does NOT lazy-fetch fields on access
 	"""
-	_service = None
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj = None):
+	def __init__(self, aPK_obj=None, row=None, debug=False):
+		"""Init from backend.
+
+		Eventually, if debug is true, the class may verify the
+		row data structure and existence.
+		"""
 		self._is_modified = False
 		# check descendants
 		#<DEBUG>
 		self.__class__._cmd_fetch_payload
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
-		if self.__class__._service is None:
-			raise AttributeError, '[%s:%s]: _service must be overriden' % (self.__class__.__name__, self.pk_obj)
+		self.__class__._service
+#		if self.__class__._service is None:
+#			raise AttributeError, '[%s:%s]: _service must be overriden' % (self.__class__.__name__, self.pk_obj)
 		#</DEBUG>
+		if aPK_obj is not None:
+			self.__init_from_pk(aPK_obj=aPK_obj)
+		else:
+			self.__init_from_row_data(row=row)
+	#--------------------------------------------------------
+	def __init_from_pk(self, aPK_obj=None):
+		"""Creates a new clinical item instance by its PK.
+
+		aPK_obj can be:
+			- a simple value
+			  * the primary key WHERE condition must be
+				a simple column
+			- a dictionary of values
+			  * the primary key where condition must be a
+				subselect consuming the dict and producing
+				the single-value primary key
+		"""
 		self.pk_obj = aPK_obj
 		result = self.refetch_payload()
 		if result is True:
-			return
+			return True
 		if result is None:
 			raise gmExceptions.NoSuchBusinessObjectError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk_obj)
 		if result is False:
 			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
+	#--------------------------------------------------------
+	def __init_from_row_data(self, row=None):
+		"""Creates a new clinical item instance given its fields.
+
+		row must be a dict with the fields:
+			- pk_field: the name of the primary key field
+			- idx: a dict mapping field names to position
+			- data: the field values in a list (as returned by
+			  cursor.fetchone() in the DB-API)
+		"""
+		try:
+			self._idx = row['idx']
+			self._payload = row['data']
+			self.pk_obj = self._payload[self._idx[row['pk_field']]]
+		except:
+			_log.LogException('faulty <row> argument structure: %s' % row, sys.exc_info())
+#		self._idx = {}
+#		self._payload = []
+#		if row_data is None or len(row_data) == 0:
+			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
+#		try:
+#			for field_name in row_data.keys():
+#				self._idx[field_name] = len(self._payload)
+#				self._payload.append(row_data[field_name])
+#			self.pk_obj = self._payload[self._idx[self.__class__._pk_field]]
+#		except:
+#			raise gmExceptions.ConstructorError, "[%s:%s]: error loading bulk instance" % (self.__class__.__name__, row_data)
 	#--------------------------------------------------------
 	def __del__(self):
 		if self.__dict__.has_key('_is_modified'):
@@ -171,7 +230,18 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.1  2004-10-11 19:05:41  ncq
+# Revision 1.2  2004-10-12 18:37:45  ncq
+# - Carlos added passing in possibly bulk-fetched row data w/o
+#   touching the database in __init__()
+# - note that some higher level things will be broken until all
+#   affected child classes are fixed
+# - however, note that child classes that don't overload __init__()
+#   are NOT affected and support no-DB init transparently
+# - changed docs accordingly
+# - this is the initial bulk-loader work that is hoped to gain
+#   quite some performance in some areas (think lab results)
+#
+# Revision 1.1  2004/10/11 19:05:41  ncq
 # - business object-in-db root class, used by cClinItem etc.
 #
 # Revision 1.17  2004/06/18 13:31:21  ncq
