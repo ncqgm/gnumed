@@ -1,3 +1,8 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
+# $Version$
+
+locale/
+-------
 All the message catalogs live here.
 
 On a POSIX system file from here should be moved into
@@ -5,3 +10,9 @@ On a POSIX system file from here should be moved into
 
 On Windows they must live right here relative to ../wxpython/
 so that gmI18N can find them regardless.
+
+create_po_file.sh
+-----------------
+This is a convenience UNIX shell script that takes all
+Python source files below gnumed/client/ and aggregates
+them into one "gnumed.po" file.
