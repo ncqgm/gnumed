@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -994,7 +994,7 @@ else:
 			return 1
 		# ---------------------------------------------
 		def DoToolbar (self, tb, widget):
-			self.doc_id_wheel = cDocWheel.__init__(self, tb)
+			self.doc_id_wheel = cDocWheel(tb)
 			self.panel.set_wheel_link(self.doc_id_wheel)
 			tool1 = tb.AddControl(self.doc_id_wheel)
 #			self.doc_id_wheel.on_resize (None)
@@ -1051,7 +1051,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.8  2003-11-19 13:34:29  ncq
+# Revision 1.9  2003-11-19 13:40:51  ncq
+# - fixed doc wheel creation in dotoolbar
+#
+# Revision 1.8  2003/11/19 13:34:29  ncq
 # - moved doc wheel to its own class
 #
 # Revision 1.7  2003/11/19 00:33:53  shilbert
