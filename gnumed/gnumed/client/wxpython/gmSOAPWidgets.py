@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.28 2005-03-17 19:53:13 cfmoro Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmSOAPWidgets.py,v 1.29 2005-03-17 21:23:16 cfmoro Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -732,7 +732,9 @@ class cResizingSoapPanel(wx.wxPanel):
 		# problem -> episode conversion
 		if isinstance(episode, gmEMRStructItems.cProblem):
 			problem = episode
-			episode = problem.get_as_episode()
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_clinical_record()
+			episode = emr.problem2episode(problem)
 			if episode is None:
 				raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(problem)
 		# sanity check
@@ -1175,7 +1177,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.28  2005-03-17 19:53:13  cfmoro
+# Revision 1.29  2005-03-17 21:23:16  cfmoro
+# Using cClinicalRecord.problem2episode to take advantage of episode cache
+#
+# Revision 1.28  2005/03/17 19:53:13  cfmoro
 # Fixes derived from different combination of events. Replaced button state by per action sanity check for 0.1
 #
 # Revision 1.27  2005/03/17 17:48:20  cfmoro
