@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.4 2004-07-28 15:40:53 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmVaccWidgets.py,v 1.5 2004-08-18 08:30:25 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -48,7 +48,7 @@ class cVaccinationEditArea(gmEditArea.gmEditArea):
 #				pk_regime,
 #				regime || ' - ' || _(indication)
 #			from
-#				v_vacc_regimes
+#				v_vacc_defs4reg
 #			where
 #				regime || ' ' || _(indication) %(fragment_condition)s
 #			limit 25"""
@@ -477,7 +477,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.4  2004-07-28 15:40:53  ncq
+# Revision 1.5  2004-08-18 08:30:25  ncq
+# - what used to be v_vacc_regimes now is v_vacc_defs4reg
+#
+# Revision 1.4  2004/07/28 15:40:53  ncq
 # - convert to EVT_PAINT framework
 #
 # Revision 1.3  2004/07/18 20:12:03  ncq
