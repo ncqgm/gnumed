@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.50 2003-11-28 08:08:05 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmClinicalRecord.py,v 1.51 2003-11-28 10:06:18 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -513,50 +513,11 @@ where pk_patient = %s
 				self.__db_cache['vaccination status']['overdue'] = [[]]
 		return self.__db_cache['vaccination status']
 	#--------------------------------------------------------
-	def _get_vaccination_status(self):
-		try:
-			return self.__db_cache['vaccination status']
-		except KeyError:
-			pass
-		self.__db_cache['vaccination status'] = {}
-		tmp = {}
-
-		# need to actually fetch data:
-		curs = self._ro_conn_clin.cursor()
-
-		if not gmPG.run_query(curs, cmd, self.id_patient):
-			curs.close()
-			_log.Log(gmLog.lErr, 'cannot load vaccination indications')
-			del self.__db_cache['vaccination status']
-			return None
-		rows = curs.fetchall()
-		tmp['missing'] = []
-		for row in rows:
-			tmp['missing'].append(row[0])
-
-		# - some will be incomplete but not due currently
-		cmd = """
-select distinct on (vpv.indication) vpv.indication
-from v_patient_vaccinations vpv
-where
-	id_patient=%s
-		and
-	(select age(dob) from v_basic_person where id=%s) not between a and b
-"""
-
-
-		curs.close()
-
-		return self.__db_cache['vaccination status']
-	#--------------------------------------------------------
 	# set up handler map
 #	_get_handler['allergy IDs'] = _get_allergies_list
 	_get_handler['episode names'] = _get_episode_names
 	_get_handler['health issues'] = _get_health_issues
 	_get_handler['health issue names'] = _get_health_issue_names
-	_get_handler['vaccination status'] = _get_vaccination_status
-	_get_handler['immunisation status'] = _get_vaccination_status
-	_get_handler['immunization status'] = _get_vaccination_status
 	#------------------------------------------------------------------
 	# health issue related helpers
 	#------------------------------------------------------------------
@@ -972,7 +933,10 @@ if __name__ == "__main__":
 	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.50  2003-11-28 08:08:05  ncq
+# Revision 1.51  2003-11-28 10:06:18  ncq
+# - remove dead code
+#
+# Revision 1.50  2003/11/28 08:08:05  ncq
 # - improve get_due_vaccinations()
 #
 # Revision 1.49  2003/11/19 23:27:44  sjtan
