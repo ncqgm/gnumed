@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from wxPython.wx import *
+ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
 gmSECTION_CLINICALNOTES = 3
@@ -9,11 +10,35 @@ gmSECTION_PASTHISTORY = 5
 gmSECTION_VACCINATION = 6
 gmSECTION_ALLERGIES = 7
 gmSECTION_SCRIPT = 8
+#--------------------------------------------
 gmSECTION_REQUESTS = 9
+ID_REQUEST_TYPE = wxNewId()
+ID_REQUEST_COMPANY  = wxNewId()
+ID_REQUEST_STREET  = wxNewId()
+ID_REQUEST_SUBURB  = wxNewId()
+ID_REQUEST_PHONE  = wxNewId()
+ID_REQUEST_REQUESTS  = wxNewId()
+ID_REQUEST_FORMNOTES = wxNewId()
+ID_REQUEST_MEDICATIONS = wxNewId()
+ID_REQUEST_INCLUDEALLMEDICATIONS  = wxNewId()
+ID_REQUEST_COPYTO = wxNewId()
+ID_REQUEST_BILL_BB = wxNewId()
+ID_REQUEST_BILL_PRIVATE = wxNewId()
+ID_REQUEST_BILL_wcover = wxNewId()
+ID_REQUEST_BILL_REBATE  = wxNewId()
+#---------------------------------------------
 gmSECTION_MEASUREMENTS = 10
 gmSECTION_REFERRALS = 11
+#----------------------------------------
 gmSECTION_RECALLS = 12
-
+ID_RECALLS_TOSEE  = wxNewId()
+ID_RECALLS_TXT_FOR  = wxNewId()
+ID_RECALLS_TXT_DATEDUE  = wxNewId()
+ID_RECALLS_CONTACTMETHOD = wxNewId()
+ID_RECALLS_APPNTLENGTH = wxNewId()
+ID_RECALLS_TXT_ADDTEXT  = wxNewId()
+ID_RECALLS_TXT_INCLUDEFORMS = wxNewId()
+#----------------------------------------
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
 
@@ -90,9 +115,14 @@ class EditTextBoxes(wxPanel):
 		self.sizer_line6 = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_line7 = wxBoxSizer(wxHORIZONTAL) 
 		self.sizer_line8 = wxBoxSizer(wxHORIZONTAL) 
+		self.sizer_line9 = wxBoxSizer(wxHORIZONTAL) 
+		self.sizer_line10 = wxBoxSizer(wxHORIZONTAL) 
 		self.btnOK = wxButton(self,-1,"Ok")
 		self.btnClear = wxButton(self,-1,"Clear")
-		self.btnOKsizer = wxBoxSizer(wxHORIZONTAL)
+		self.sizer_btnokclear = wxBoxSizer(wxHORIZONTAL)
+		self.sizer_btnokclear.Add(self.btnOK,1,wxEXPAND,wxALL,1)
+		self.sizer_btnokclear.Add(5,0,0)
+		self.sizer_btnokclear.Add(self.btnClear,1,wxEXPAND,wxALL,1)
 		if section == gmSECTION_SUMMARY:
 		      pass
 	        elif section == gmSECTION_DEMOGRAPHICS:
@@ -294,14 +324,99 @@ class EditTextBoxes(wxPanel):
 		      
 		      
 	        elif section == gmSECTION_REQUESTS:
-			
-		      pass
+		      #----------------------------------------------------------------------------- 	
+	              #editing area for general requests e.g pathology, radiology, physiotherapy etc
+		      #create textboxes, radiobuttons etc
+		      #-----------------------------------------------------------------------------
+		      self.txt_request_type = EditAreaTextBox(self,ID_REQUEST_TYPE,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_company = EditAreaTextBox(self,ID_REQUEST_COMPANY,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_street = EditAreaTextBox(self,ID_REQUEST_STREET,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_suburb = EditAreaTextBox(self,ID_REQUEST_SUBURB,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_phone= EditAreaTextBox(self,ID_REQUEST_PHONE,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_requests = EditAreaTextBox(self,ID_REQUEST_REQUESTS,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_notes = EditAreaTextBox(self,ID_REQUEST_FORMNOTES,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_medications = EditAreaTextBox(self,ID_REQUEST_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_copyto = EditAreaTextBox(self,ID_REQUEST_COPYTO,wxDefaultPosition,wxDefaultSize)
+		      self.txt_request_progressnotes = EditAreaTextBox(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+		      self.lbl_companyphone = EditAreaPromptLabel(self,-1,"  Phone  ")
+		      self.cb_includeallmedications = wxCheckBox(self, -1, " Include all medications ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.rb_request_bill_bb = wxRadioButton(self, ID_REQUEST_BILL_BB, "Bulk Bill ", wxDefaultPosition,wxDefaultSize)
+	              self.rb_request_bill_private = wxRadioButton(self, ID_REQUEST_BILL_PRIVATE, "Private", wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
+		      self.rb_request_bill_rebate = wxRadioButton(self, ID_REQUEST_BILL_REBATE, "Rebate", wxDefaultPosition,wxDefaultSize)
+		      self.rb_request_bill_wcover = wxRadioButton(self, ID_REQUEST_BILL_wcover, "w/cover", wxDefaultPosition,wxDefaultSize)
+		      #--------------------------------------------------------------
+                      #add controls to sizers where multiple controls per editor line
+		      #--------------------------------------------------------------
+                      self.sizer_request_optionbuttons = wxBoxSizer(wxHORIZONTAL)
+		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_bb,1,wxEXPAND)
+		      self.sizer_request_optionbuttons.Add(self.rb_request_bill_private ,1,wxEXPAND)
+                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_rebate  ,1,wxEXPAND)
+                      self.sizer_request_optionbuttons.Add(self.rb_request_bill_wcover  ,1,wxEXPAND)
+		      self.sizer_line4.Add(self.txt_request_suburb,4,wxEXPAND)
+		      self.sizer_line4.Add(self.lbl_companyphone,1,wxEXPAND)
+		      self.sizer_line4.Add(self.txt_request_phone,2,wxEXPAND)
+		      self.sizer_line7.Add(self.txt_request_medications, 4,wxEXPAND)
+		      self.sizer_line7.Add(self.cb_includeallmedications,3,wxEXPAND)
+		      self.sizer_line10.AddSizer(self.sizer_request_optionbuttons,3,wxEXPAND)
+		      self.sizer_line10.AddSizer(self.sizer_btnokclear,1,wxEXPAND)
+		      #self.sizer_line10.Add(self.btnOK,1,wxEXPAND|wxALL,1)
+	              #self.sizer_line10.Add(self.btnClear,1,wxEXPAND|wxALL,1)  
+		      #------------------------------------------------------------------
+		      #add either controls or sizers with controls to vertical grid sizer
+		      #------------------------------------------------------------------
+                      self.gs.Add(self.txt_request_type,0,wxEXPAND)                   #e.g Pathology
+		      self.gs.Add(self.txt_request_company,0,wxEXPAND)                #e.g Douglas Hanly Moir
+		      self.gs.Add(self.txt_request_street,0,wxEXPAND)                 #e.g 120 Big Street  
+		      self.gs.AddSizer(self.sizer_line4,0,wxEXPAND)                   #e.g RYDE NSW Phone 02 1800 222 365
+		      self.gs.Add(self.txt_request_requests,0,wxEXPAND)               #e.g FBC;ESR;UEC;LFTS
+		      self.gs.Add(self.txt_request_notes,0,wxEXPAND)                  #e.g generally tired;weight loss;
+		      self.gs.AddSizer(self.sizer_line7,0,wxEXPAND)                   #e.g Lipitor;losec;zyprexa
+		      self.gs.Add(self.txt_request_copyto,0,wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
+		      self.gs.Add(self.txt_request_progressnotes,0,wxEXPAND)          #emphasised to patient must return for results 
+                      self.sizer_line8.Add(5,0,6)
+		      self.sizer_line8.Add(self.btnOK,1,wxEXPAND|wxALL,2)
+	              self.sizer_line8.Add(self.btnClear,1,wxEXPAND|wxALL,2)   
+		      self.gs.Add(self.sizer_line10,0,wxEXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
+		      
 	        elif section == gmSECTION_MEASUREMENTS:
 		      pass
 	        elif section == gmSECTION_REFERRALS:
 		      pass
 		elif section == gmSECTION_RECALLS:
-		      pass
+		       #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
+		      self.combo_tosee = wxComboBox(self, ID_RECALLS_TOSEE, "", wxDefaultPosition,wxDefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wxCB_READONLY ) #wxCB_DROPDOWN)
+		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		      self.combo_tosee.SetForegroundColour(wxColor(255,0,0))
+		      #FIXME defaults need to be loaded from database
+		      self.combo_recall_method = wxComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wxDefaultPosition,wxDefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wxCB_READONLY )
+		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		      self.combo_recall_method.SetForegroundColour(wxColor(255,0,0))
+		      #FIXME defaults need to be loaded from database
+                      self.combo_apptlength = wxComboBox(self, ID_RECALLS_APPNTLENGTH, "", wxDefaultPosition,wxDefaultSize, ['brief','standard','long','prolonged'], wxCB_READONLY )
+		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+		      self.combo_apptlength.SetForegroundColour(wxColor(255,0,0))
+		      self.txt_recall_for = EditAreaTextBox(self,ID_RECALLS_TXT_FOR, wxDefaultPosition,wxDefaultSize)
+		      self.txt_recall_due = EditAreaTextBox(self,ID_RECALLS_TXT_DATEDUE, wxDefaultPosition,wxDefaultSize)
+		      self.txt_recall_addtext = EditAreaTextBox(self,ID_RECALLS_TXT_ADDTEXT,wxDefaultPosition,wxDefaultSize)
+		      self.txt_recall_include = EditAreaTextBox(self,ID_RECALLS_TXT_INCLUDEFORMS,wxDefaultPosition,wxDefaultSize)
+		      self.txt_recall_progressnotes = EditAreaTextBox(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+		      self.lbl_recall_consultlength = EditAreaPromptLabel(self,-1,"  Appointment length  ")
+		      #sizer_lkine1 has the method of recall and the appointment length
+		      self.sizer_line1.Add(self.combo_recall_method,1,wxEXPAND)
+		      self.sizer_line1.Add(self.lbl_recall_consultlength,1,wxEXPAND)
+		      self.sizer_line1.Add(self.combo_apptlength,1,wxEXPAND)
+		      #Now add the controls to the grid sizer
+                      self.gs.Add(self.combo_tosee,1,wxEXPAND)                       #list of personel for patient to see
+		      self.gs.Add(self.txt_recall_for,1,wxEXPAND)                    #the actual recall may be free text or word wheel  
+		      self.gs.Add(self.txt_recall_due,1,wxEXPAND)                    #date of future recall 
+		      self.gs.Add(self.txt_recall_addtext,1,wxEXPAND)                #added explanation e.g 'come fasting' 
+		      self.gs.Add(self.txt_recall_include,1,wxEXPAND)                #any forms to be sent out first eg FBC
+		      self.gs.AddSizer(self.sizer_line1,1,wxEXPAND)                        #the contact method, appointment length
+		      self.gs.Add(self.txt_recall_progressnotes,1,wxEXPAND)          #add any progress notes for consultation
+		      self.sizer_line8.Add(5,0,6)
+		      self.sizer_line8.Add(self.btnOK,1,wxEXPAND|wxALL,2)
+	              self.sizer_line8.Add(self.btnClear,1,wxEXPAND|wxALL,2)    
+		      self.gs.Add(self.sizer_line8,1,wxEXPAND)
 		     
 		else:
 			      gmLog.gmDefLog.Log (gmLog.lData, "not section allergies")
