@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.33 $
+-- $Revision: 1.34 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -115,17 +115,13 @@ COMMENT ON COLUMN config.pwd_hash IS
 COMMENT ON COLUMN config.hash_algo IS
 	'algorithm used for password hashing';
 
---=====================================================================
-CREATE TABLE queries (
-	id SERIAL PRIMARY KEY,
-	name char(40),
-	db INT REFERENCES DB,
-	query text
-);
-
+-- ======================================================
+-- generic program options storage space
 -- ======================================================
 create table cfg_type_enum (
-	name varchar(20) unique
+	name varchar(20)
+		unique
+		not null
 );
 
 comment on table cfg_type_enum is
@@ -134,6 +130,7 @@ comment on table cfg_type_enum is
 INSERT INTO cfg_type_enum VALUES ('string');
 INSERT INTO cfg_type_enum VALUES ('numeric');
 INSERT INTO cfg_type_enum VALUES ('str_array');
+insert into cfg_type_enum values ('data');
 
 -- ======================================================
 create table cfg_template (
@@ -159,7 +156,8 @@ comment on column cfg_template.description is
 create table cfg_item (
 	id SERIAL PRIMARY KEY,
 	id_template INTEGER
-		REFERENCES cfg_template (id),
+		not null
+		references cfg_template (id),
 	owner name
 		not null
 		default CURRENT_USER,
@@ -182,12 +180,13 @@ comment on column cfg_item.owner is
 	 the database; can be "default" at the application
 	 level to indicate that it does not care';
 comment on column cfg_item.workplace is
-	'the logical workplace this option pertains to;
-	 can be a hostname but should be a logical rather
-	 than a physical identifier, machines get moved,
-	 workplaces do not; kind of like a "role" for the
-	 machine; associate this with a physical workplace
-	 through a local config file or environment variable';
+	'- the logical workplace this option pertains to
+	 - can be a hostname but should be a logical rather
+	   than a physical identifier as machines get moved,
+	   workplaces do not, kind of like a "role" for the
+	   machine
+	 - associate this with a physical workplace through
+	   a local config file or environment variable';
 comment on column cfg_item.cookie is
 	'an arbitrary, opaque entity the client code can use
 	 to associate this config item with even finer grained
@@ -196,29 +195,61 @@ comment on column cfg_item.cookie is
 
 -- ======================================================
 create table cfg_string (
-	id_item integer references cfg_item (id),
+	id_item integer
+		not null
+		references cfg_item(id)
+		on update cascade
+		on delete cascade,
 	value text not null
 );
 
 -- ======================================================
 create table cfg_numeric (
-	id_item integer references cfg_item (id),
+	id_item integer
+		not null
+		references cfg_item(id)
+		on update cascade
+		on delete cascade,
 	value numeric not null
 );
 
 -- ======================================================
 create table cfg_str_array (
-	id_item integer references cfg_item (id),
+	id_item integer
+		not null
+		references cfg_item(id)
+		on update cascade
+		on delete cascade,
 	value text[] not null
 );
 
+-- ======================================================
+create table cfg_data (
+	id_item integer
+		not null
+		references cfg_item(id)
+		on update cascade
+		on delete cascade,
+	value bytea
+		not null
+);
+
+comment on table cfg_data is
+	'stores opaque configuration data, either text or binary,
+	 note that it will be difficult to share such options
+	 among different types of clients';
+
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.34 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.33  2004-09-06 22:15:07  ncq
+-- Revision 1.34  2005-01-09 19:51:24  ncq
+-- - cleanup, improved docs
+-- - add cfg_data to store arbitrary binary config data
+--
+-- Revision 1.33  2004/09/06 22:15:07  ncq
 -- - tighten constraints in cfg_item
 --
 -- Revision 1.32  2004/09/02 00:42:33  ncq
