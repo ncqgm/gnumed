@@ -3,6 +3,39 @@
 #
 # gmCachedDBObject : abstraction and performance improvement for simple
 #                     database query result objects
+#
+#
+# CachedDBObject is a base class which should not
+# be used directly.
+# In order to derive a functional class from CachedDBObject, do as follows:
+#
+# class Derived(CachedDBObject):
+#
+#       #first, create the "shared buffer" variable
+#	dbcache = DBcache()
+#       #this static variable MUST have the name "dbcache"
+#       #it must create an instance of DBcache or a subclass thereof
+#
+#       #then, create the appropriate constructor
+#	def __init__(...)
+#		cachedDBObject.__init__(...)
+#               #__init__ MUST call the base class constructor
+#
+# When creating more than one instance from "Derived",
+# the callback system should be used to ensure that any
+# instance using the shared buffer gets notified of buffer changes:
+#
+# myInstance = Derived(...)
+# myInstance.notify_me('identifier of myInstance', callback_function)
+#
+# where 'identifier of myInstance' is an arbitrary string and
+# 'callback function' is a function of the prototype:
+#
+# function('identifier of callback triggering class', 'id')
+#
+# where 'id' typically would be the foreign key causing the
+# current data set in the buffer
+#
 # ---------------------------------------------------------------------------
 #
 # @author: Dr. Horst Herb
@@ -142,7 +175,10 @@ class CachedDBObject:
 		for caller in self.cache.notify.keys():
 			#do not notify me if I triggered the query myself
 			if caller != self.who:
-				self.cache.notify[caller](caller, self.cache.id)
+				#first parameter to callback function is the
+				#identity of the class triggering the callbacks,
+				#second parameter is the buffer id
+				self.cache.notify[caller](self.who, self.cache.id)
 			#<DEBUG>
 			#else:
 			#	print "Callback function skipped for [%s]" % self.who
