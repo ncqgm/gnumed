@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.11 2005-03-09 16:58:09 cfmoro Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmEMRBrowser.py,v 1.12 2005-03-09 18:31:57 cfmoro Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ from wxPython import wx
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmEMRStructWidgets
+from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -42,6 +42,9 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
+		
+		self.__custom_right_widget = None
+		self.__selected_node = None
 
 		self.__do_layout()
 		self.__register_interests()
@@ -96,12 +99,18 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_RIGHT_DOWN(self.__emr_tree, self.__on_right_down)
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self.__on_episodes_modified)
 	#--------------------------------------------------------
 	def _on_patient_selected(self):
 		"""Patient changed."""
 		self.__exporter.set_patient(self.__pat)
 		self._schedule_data_reget()
 		
+	#--------------------------------------------------------
+	def __on_episodes_modified(self):
+		"""Episode changed."""
+		self.refresh_tree()
+				
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		"""
@@ -111,6 +120,12 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# retrieve the selected EMR element
 		sel_item = event.GetItem()
 		sel_item_obj = self.get_EMR_item(sel_item)
+		self.__selected_node = sel_item
+		
+		# restore editor perspective
+		print "%s : %s" % (id(self.__tree_narr_splitter.GetWindow2()), id(self.__narr_TextCtrl))
+		if id(self.__tree_narr_splitter.GetWindow2()) != id(self.__narr_TextCtrl):
+			self.RestoreStdRightViewer()
 
 		# update displayed text
 		if(isinstance(sel_item_obj, gmEMRStructItems.cEncounter)):
@@ -167,6 +182,8 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# clear previous contents
 		self.__emr_tree.DeleteAllItems()
 		
+		# FIXME: auto select the previously self.__selected_node if not None
+		
 		# EMR tree root item
 		ident = self.__pat.get_identity()
 		root_item = self.__emr_tree.AddRoot(_('%s EMR') % ident['description'])
@@ -197,15 +214,34 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		return self.__emr_tree.GetPyData(selected_tree_item)				 
 		
 	#--------------------------------------------------------
-	def get_parent_EMR_item(self, selected_tree_item):
+	def get_selection(self):
 		"""
-		Retrieved the EMR struct item associated with the parent of the given
-		tree node.
-		
-		@param selected_tree_item The tree node to retrieve its parent's data model for.
-		@type selected_tree_item A wxTreeItemId instance
 		"""		
-		return 	self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(selected_tree_item))
+		return self.__selected_node
+
+	#--------------------------------------------------------
+	def get_item_parent(self, tree_item):
+		"""
+		"""		
+		return self.__emr_tree.GetItemParent(tree_item)
+		
+	#--------------------------------------------------------
+	def SetCustomRightWidget(self, widget):
+		"""		
+		@param widget: 
+		@type widget: 
+		"""
+		widget.Reparent(self.__tree_narr_splitter)
+		self.__custom_right_widget = widget
+		self.__tree_narr_splitter.ReplaceWindow(self.__narr_TextCtrl, self.__custom_right_widget)
+
+	#--------------------------------------------------------
+	def RestoreStdRightViewer(self):
+		"""		
+		"""
+		# FIXME: confirmation dialog to avoid loosing the edited notes
+		self.__tree_narr_splitter.ReplaceWindow(self.__custom_right_widget, self.__narr_TextCtrl)
+		self.__custom_right_widget.Destroy()
 		
 	#--------------------------------------------------------
 	# internal API
@@ -284,15 +320,17 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		elif (isinstance(self.__sel_item_obj, gmEMRStructItems.cHealthIssue)):
 			pk_issue = self.__sel_item_obj['id']			
 			
-		episode_selector = gmEMRStructWidgets.cEpisodeEditorDlg (
-			None,
-			-1,
-			_('Create/Edit episode'),
-			pk_health_issue = pk_issue
-		)
-		retval = episode_selector.ShowModal()
+		self.__browser.SetCustomRightWidget(gmEMRStructWidgets.cEpisodeEditor(self.__browser, -1, pk_issue))
+		
+		#episode_selector = gmEMRStructWidgets.cEpisodeEditorDlg (
+		#	None,
+		#	-1,
+		#	_('Create/Edit episode'),
+		#	pk_health_issue = pk_issue
+		#)
+		#retval = episode_selector.ShowModal()
 		# FIXME refresg only if an episode was created/updated
-		self.__browser.refresh_tree()
+		#self.__browser.refresh_tree()
 		#if retval == gmEMRStructWidgets.dialog_OK:
 		#	# FIXME refresh only if episode selector action button was performed
 		#	print "would be refreshing emr tree now"
@@ -302,7 +340,7 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		#	return False
 		#else:
 		#	raise Exception('Invalid dialog return code [%s]' % retval)
-		episode_selector.Destroy() # finally destroy it when finished.
+		#episode_selector.Destroy() # finally destroy it when finished.
 		# FIXME: ensure visible the problem's episodes
 		
 	#--------------------------------------------------------
@@ -318,8 +356,10 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		"""
 		On new edit encounter notes menu item selection: edit encounter's soap notes
 		"""
-		msg = _('We are lacking code to edit the encounter progress notes yet.')
-		gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening soap editor'))
+		emr = gmPerson.gmCurrentPatient().get_clinical_record()
+		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
+		encounter = self.__sel_item_obj
+		self.__browser.SetCustomRightWidget(gmSOAPWidgets.cResizingSoapPanel(self.__browser, problem, encounter))
 				
 	#--------------------------------------------------------
 	# internal API
@@ -371,24 +411,21 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		
 		# append menu items according the EMR struct element selection
 		if(isinstance(self.__sel_item_obj, gmEMRStructItems.cEncounter)):
-			header = _('Encounter\n=========\n\n')			
-			self.__append_new_encounter_menuitem(episode=self.__browser.get_parent_EMR_item(sel_item) )
+			episode = self.__browser.get_EMR_item(self.__browser.get_item_parent(self.__browser.get_selection()))
+			self.__append_new_encounter_menuitem(episode=episode)
 			self.Append(self.ID_EDIT_ENCOUNTER_NOTES, "Progress notes editor (of encounter '%s:%s')" % 
 			(self.__sel_item_obj['l10n_type'], self.__sel_item_obj['started'].Format('%Y-%m-%d')))
 			
 		elif (isinstance(self.__sel_item_obj, gmEMRStructItems.cEpisode)):
-			header = _('Episode\n=======\n\n')						
-			self.__append_new_episode_menuitem(health_issue=self.__browser.get_parent_EMR_item(sel_item))
+			health_issue = self.__browser.get_EMR_item(self.__browser.get_item_parent(self.__browser.get_selection()))
+			self.__append_new_episode_menuitem(health_issue=health_issue)
 			self.__append_new_encounter_menuitem(episode=self.__browser.get_EMR_item(sel_item) )
 			
 		elif (isinstance(self.__sel_item_obj, gmEMRStructItems.cHealthIssue)):
-			header = _('Health Issue\n============\n\n')			
 			self.Append(self.ID_NEW_HEALTH_ISSUE, "Health Issue editor")
 			self.__append_new_episode_menuitem(health_issue=self.__browser.get_EMR_item(sel_item))			
-			
-			
+						
 		else:
-			header = _('Summary\n=======\n\n')
 			self.Append(self.ID_NEW_HEALTH_ISSUE, "New Health Issue")
 
 
@@ -447,7 +484,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.11  2005-03-09 16:58:09  cfmoro
+# Revision 1.12  2005-03-09 18:31:57  cfmoro
+# As proof of concept: episode editor and notes editor are displayed in the right panel. Just an initial draft, needs feeback a lot of coding yet ;)
+#
+# Revision 1.11  2005/03/09 16:58:09  cfmoro
 # Thanks to Syan code, added contextual menu to emr tree. Linked episode edition action with the responsible dialog
 #
 # Revision 1.10  2005/02/03 20:19:16  ncq
