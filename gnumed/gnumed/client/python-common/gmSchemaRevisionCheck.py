@@ -10,8 +10,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSchemaRevisionCheck.py,v $
-# $Id: gmSchemaRevisionCheck.py,v 1.3 2003-11-28 10:31:55 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmSchemaRevisionCheck.py,v 1.4 2003-11-28 16:12:52 hinnef Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Hilmar Berger <ju0815nk@gmx.net>"
 
 # access our modules
@@ -95,26 +95,12 @@ class gmSchemaRevisionChecker:
 		We assume that gm_schema_revision is on service 'default'.
 		Sets the class-wide dictionary '_revisions'.
 		"""
-		# get backend connection
-#		self._backend = gmPG.ConnectionPool()
-#		self._conn = self._backend.GetConnection('default')
-#		if self._conn is None:
-#			raise  gmExceptions.ConstructorError, "cannot connect to backend"
-		
-		# run the query
-#		cursor = self._conn.cursor()
+		# get backend connection and run the query
 		cmd = "select filename, version from gm_schema_revision"
 		result = gmPG.run_ro_query('default', cmd, None)
 		if result is None:
-#		if not gmPG.run_query(cursor, cmd):
-#			cursor.close()
-#			self._backend.ReleaseConnection('default')
 			_log.Log(gmLog.lWarn, 'unable to fetch schema revision information')
 			return None
-		# get result	
-#		result = cursor.fetchall()
-#		cursor.close()
-#		self._backend.ReleaseConnection('default')
 
 		# extract schema and revision from stored strings
 		schemaPattern = re.compile("\$RCSfile: (\S+).sql")
@@ -134,7 +120,7 @@ class gmSchemaRevisionChecker:
 				_log.Log(gmLog.lData, 'malformed schema entry found : %s %s' % (entry[0],entry[1])) 
 			else:
 				gmSchemaRevisionChecker._revisions[schema] = version
-		print 	gmSchemaRevisionChecker._revisions	
+
 		# mark _revisions as initialized
 		gmSchemaRevisionChecker._initialized = 1
 
@@ -150,7 +136,10 @@ if __name__ == "__main__":
 	print a.checkSchemaRevision('gmconfiguration',float(x)+0.1,exact = 1), " should be 0"
 
 # $Log: gmSchemaRevisionCheck.py,v $
-# Revision 1.3  2003-11-28 10:31:55  ncq
+# Revision 1.4  2003-11-28 16:12:52  hinnef
+# - removed dead code
+#
+# Revision 1.3  2003/11/28 10:31:55  ncq
 # - use run_ro_query() in get_schema_revisions
 #
 # Revision 1.2  2003/11/28 07:57:20  hinnef
