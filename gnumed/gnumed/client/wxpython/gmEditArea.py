@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.51 2004-01-12 16:23:29 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmEditArea.py,v 1.52 2004-01-18 21:51:36 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -84,7 +84,6 @@ ID_REFERRAL_ACTIVEPROBLEMS       = wxNewId()
 ID_REFERRAL_HABITS        = wxNewId()
 ID_REFERRAL_INCLUDEALL        = wxNewId()
 ID_BTN_PREVIEW = wxNewId()
-ID_BTN_CLEAR = wxNewId()
 ID_REFERRAL_COPYTO = wxNewId()
 #----------------------------------------
 gmSECTION_RECALLS = 12
@@ -120,8 +119,9 @@ PHX_SIGNIFICANT=wxNewId()
 PHX_PROGRESSNOTES=wxNewId()
 
 wxID_BTN_Save = wxNewId()
-wxID_BTN_Clear = wxNewId()
+wxID_BTN_New = wxNewId()
 wxID_BTN_Delete = wxNewId()
+wxID_BTN_Handout = wxNewId()
 
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
@@ -474,18 +474,22 @@ class gmEditArea(wxPanel):
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
 		self.btn_Save = wxButton(parent, wxID_BTN_Save, _("Save"))
-		self.btn_Save.SetToolTipString(_('save new/modified entry in medical record'))
-		self.btn_Clear = wxButton(parent, wxID_BTN_Clear, _("Clear"))
-		self.btn_Clear.SetToolTipString(_('clear input fields for new entry'))
+		self.btn_Save.SetToolTipString(_('save entry in medical record'))
 		self.btn_Delete = wxButton(parent, wxID_BTN_Delete, _("Delete"))
 		self.btn_Delete.SetToolTipString(_('delete entry from medical record'))
+		self.btn_New = wxButton(parent, wxID_BTN_New, _("New"))
+		self.btn_New.SetToolTipString(_('initialize input fields for new entry'))
+		self.btn_Handout = wxButton(parent, wxID_BTN_Handout, _("Handout"))
+		self.btn_Handout.SetToolTipString(_('print patient information leaflet'))
 
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		szr_buttons.Add(self.btn_Save, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
-		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Delete, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(5, 0, 0)
+		szr_buttons.Add(self.btn_New, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(5, 0, 0)
+		szr_buttons.Add(self.btn_Handout, 1, wxEXPAND | wxALL, 1)
 
 		return szr_buttons
 	#----------------------------------------------------------------
@@ -589,7 +593,7 @@ class gmEditArea(wxPanel):
 	def __register_events(self):
 		# connect standard buttons
 		EVT_BUTTON(self.btn_Save, wxID_BTN_Save, self._on_save_btn_pressed)
-		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
+		EVT_BUTTON(self.btn_New, wxID_BTN_New, self._on_new_btn_pressed)
 		EVT_BUTTON(self.btn_Delete, wxID_BTN_Delete, self._on_delete_btn_pressed)
 		#self._register_dirty_editarea_listener()
 
@@ -612,10 +616,10 @@ class gmEditArea(wxPanel):
 			self._save_modified_entry()
 #		self._pre_save_data()
 	#--------------------------------------------------------
-	def _on_clear_btn_pressed(self, event):
+	def _on_new_btn_pressed(self, event):
 #		self._init_fields()
 		# FIXME: check for unsaved data
-		print "clearing input fields"
+		print "initializing input fields"
 		self.set_data()
 		event.Skip()
 	#--------------------------------------------------------
@@ -1333,6 +1337,16 @@ class gmVaccinationEditArea(gmEditArea):
 			raise
 	#----------------------------------------------------
 	def _define_fields(self, parent):
+#		# regime/disease
+#		query = """
+#			select distinct on (regime)
+#				id_regime,
+#				regime || ' - ' || _(indication)
+#			from
+#				v_vacc_regimes
+#			where
+#				regime || ' ' || _(indication) %(fragment_condition)s
+#			limit 25"""
 
 		# vaccine
 		# FIXME: move to gmClinicalRecord or gmVaccination
@@ -1354,81 +1368,40 @@ class gmVaccinationEditArea(gmEditArea):
 			, style = wxSIMPLE_BORDER
 		)
 		_decorate_editarea_field(self.fld_vaccine)
-#		self.fld_vaccine.on_resize(None)
 		self._add_field(
 			line = 1,
 			pos = 1,
 			widget = self.fld_vaccine,
-			weight = 1
+			weight = 3
 		)
-
-		# regime/disease
-		# FIXME: conceptually unclean !!
-		query = """
-			select distinct on (regime)
-				id_regime,
-				regime || ' - ' || _(indication)
-			from
-				v_vacc_regimes
-			where
-				regime || ' ' || _(indication) %(fragment_condition)s
-			limit 25"""
-		self.fld_disease_sched = cEditAreaField(parent)
+		# Batch No (http://www.fao.org/docrep/003/v9952E12.htm)
+		self.fld_batch_no_lbl = wxStaticText(
+			parent,
+			-1,
+			_("  Serial # "),
+			style = wxALIGN_CENTER_VERTICAL
+		)
 		self._add_field(
-			line = 2,
-			pos = 1,
-			widget = self.fld_disease_sched,
+			line = 1,
+			pos = 2,
+			widget = self.fld_batch_no_lbl,
+			weight = 0
+		)
+		self.fld_batch_no = cEditAreaField(parent)
+		self._add_field(
+			line = 1,
+			pos = 3,
+			widget = self.fld_batch_no,
 			weight = 1
 		)
 
 		# FIXME: gmDateTimeInput
 		self.fld_date_given = cEditAreaField(parent)
 		self._add_field(
-			line = 3,
+			line = 2,
 			pos = 1,
 			widget = self.fld_date_given,
 			weight = 2
-		)
-		self.fld_seq_no_lbl = wxStaticText(
-			parent,
-			-1,
-			_('  Seq # '),
-			style = wxALIGN_CENTER_VERTICAL
-		)
-		self._add_field(
-			line = 3,
-			pos = 2,
-			widget = self.fld_seq_no_lbl,
-			weight = 0
-		)
-		# FIXME: numeric input only
-		self.fld_seq_no = cEditAreaField(parent)
-		self._add_field(
-			line = 3,
-			pos = 3,
-			widget = self.fld_seq_no,
-			weight = 0
-		)
-		self.fld_is_booster = wxCheckBox(
-			parent,
-			-1,
-			_('booster'),
-			style = wxNO_BORDER
-		)
-		self._add_field(
-			line = 3,
-			pos = 4,
-			widget = self.fld_is_booster,
-			weight = 0
-		)
-		# Batch No
-		# http://www.fao.org/docrep/003/v9952E12.htm
-		self.fld_batch_no = cEditAreaField(parent)
-		self._add_field(
-			line = 4,
-			pos = 1,
-			widget = self.fld_batch_no,
-			weight = 1
 		)
 
 		# site given
@@ -1455,7 +1428,7 @@ class gmVaccinationEditArea(gmEditArea):
 		)
 		_decorate_editarea_field(self.fld_site_given)
 		self._add_field(
-			line = 5,
+			line = 3,
 			pos = 1,
 			widget = self.fld_site_given,
 			weight = 1
@@ -1480,14 +1453,14 @@ class gmVaccinationEditArea(gmEditArea):
 		)
 		_decorate_editarea_field(self.fld_progress_note)
 		self._add_field(
-			line = 6,
+			line = 4,
 			pos = 1,
 			widget = self.fld_progress_note,
 			weight = 1
 		)
 
 		self._add_field(
-			line = 7,
+			line = 5,
 			pos = 1,
 			widget = self._make_standard_buttons(parent),
 			weight = 1
@@ -1496,21 +1469,16 @@ class gmVaccinationEditArea(gmEditArea):
 	#----------------------------------------------------
 	def _define_prompts(self):
 		self._add_prompt(line = 1, label = _("Vaccine"))
-		self._add_prompt(line = 2, label = _("Disease/Schedule"))
-		self._add_prompt(line = 3, label = _("Date given"))
-		self._add_prompt(line = 4, label = _("Serial #"))
-		self._add_prompt(line = 5, label = _("Site injected"))
-		self._add_prompt(line = 6, label = _("Progress Note"))
-		self._add_prompt(line = 7, label = '')
+		self._add_prompt(line = 2, label = _("Date given"))
+		self._add_prompt(line = 3, label = _("Site injected"))
+		self._add_prompt(line = 4, label = _("Progress Note"))
+		self._add_prompt(line = 5, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
 		vacc = {}
-		vacc['disease schedule'] = self.fld_disease_sched.GetValue()
 		vacc['vaccine'] = self.fld_vaccine.GetValue()
-		vacc['date given'] = self.fld_date_given.GetValue()
-		vacc['seq no'] = self.fld_seq_no.GetValue()
-		vacc['is booster'] = self.fld_is_booster.GetValue()
 		vacc['batch no'] = self.fld_batch_no.GetValue()
+		vacc['date given'] = self.fld_date_given.GetValue()
 		vacc['site given'] = self.fld_site_given.GetValue()
 		vacc['progress note'] = self.fld_progress_note.GetValue()
 		# FIXME: validation
@@ -1524,16 +1492,31 @@ class gmVaccinationEditArea(gmEditArea):
 		self.data_ID = data
 		return 1
 	#----------------------------------------------------
+	def _save_modified_entry(self):
+		vacc = {}
+		vacc['ID'] = self.data_ID
+		vacc['vaccine'] = self.fld_vaccine.GetValue()
+		vacc['batch no'] = self.fld_batch_no.GetValue()
+		vacc['date given'] = self.fld_date_given.GetValue()
+		vacc['site given'] = self.fld_site_given.GetValue()
+		vacc['progress note'] = self.fld_progress_note.GetValue()
+		# FIXME: validation
+		epr = self.patient.get_clinical_record()
+		status, data = epr.update_vaccination(vacc)
+		if status is None:
+			wxBell()
+			_gb['main.statustext'](_('Cannot update vaccination: %s') % data)
+			return None
+		_gb['main.statustext'](_('Vaccination updated.'))
+		return 1
+	#----------------------------------------------------
 	def set_data(self, aVacc = None):
 		# defaults
 		self.data_ID = None
 		if aVacc is None:
-			self.fld_disease_sched.SetValue('')
 			self.fld_vaccine.SetValue('')
-			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
-			self.fld_seq_no.SetValue('1')
-			self.fld_is_booster.SetValue(0)
 			self.fld_batch_no.SetValue('')
+			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
 			self.fld_site_given.SetValue(_('left/right deltoid'))
 			self.fld_progress_note.SetValue('')
 			return 1
@@ -1542,21 +1525,11 @@ class gmVaccinationEditArea(gmEditArea):
 		except KeyError:
 			_log.LogException('must have ID in aVacc', sys.exc_info(), verbose=0)
 			return None
-		try: self.fld_disease_sched.SetValue(aVacc['disease schedule'])
-		except KeyError: pass
 		try: self.fld_vaccine.SetValue(aVacc['vaccine'])
 		except KeyError: pass
-		try: self.fld_date_given.SetValue(aVacc['date given'])
-		except KeyError: pass
-		try: self.fld_seq_no.SetValue(aVacc['seq no'])
-		except KeyError: pass
-		try:
-			if aVacc['is booster']:
-				self.fld_is_booster.SetValue(1)
-			else:
-				self.fld_is_booster.SetValue(0)
-		except KeyError: pass
 		try: self.fld_batch_no.SetValue(aVacc['batch no'])
+		except KeyError: pass
+		try: self.fld_date_given.SetValue(aVacc['date given'])
 		except KeyError: pass
 		try: self.fld_site_given.SetValue(aVacc['site given'])
 		except KeyError: pass
@@ -2041,11 +2014,11 @@ class EditTextBoxes(wxPanel):
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self):
 		self.btn_Save = wxButton(self, -1, _("Ok"))
-		self.btn_Clear = wxButton(self, -1, _("Clear"))
+		self.btn_New = wxButton(self, -1, _("Clear"))
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		szr_buttons.Add(self.btn_Save, 1, wxEXPAND, wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND, wxALL, 1)
+		szr_buttons.Add(self.btn_New, 1, wxEXPAND, wxALL, 1)
 		return szr_buttons
 #====================================================================
 class EditArea(wxPanel):
@@ -2165,7 +2138,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line8.Add(self.sizer_auth_PI,2,wxEXPAND)
 #		      self.sizer_line8.Add(5,0,2)
 #		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)
 #		      self.gszr.Add(self.text1_prescription_reason,1,wxEXPAND) #prescribe for
 #		      self.gszr.Add(self.text2_drug_class,1,wxEXPAND) #prescribe by class
 #		      self.gszr.Add(self.sizer_line3,1,wxEXPAND) #prescribe by generic, lbl_veterans, cb_veteran
@@ -2214,7 +2187,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line10.AddSizer(self.sizer_request_optionbuttons,3,wxEXPAND)
 #		      self.sizer_line10.AddSizer(self.szr_buttons,1,wxEXPAND)
 		      #self.sizer_line10.Add(self.btn_Save,1,wxEXPAND|wxALL,1)
-	              #self.sizer_line10.Add(self.btn_Clear,1,wxEXPAND|wxALL,1)  
+	              #self.sizer_line10.Add(self.btn_New,1,wxEXPAND|wxALL,1)  
 		      #------------------------------------------------------------------
 		      #add either controls or sizers with controls to vertical grid sizer
 		      #------------------------------------------------------------------
@@ -2229,7 +2202,7 @@ class EditArea(wxPanel):
 #		      self.gszr.Add(self.txt_request_progressnotes,0,wxEXPAND)          #emphasised to patient must return for results 
  #                     self.sizer_line8.Add(5,0,6)
 #		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)   
+#	              self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)   
 #		      self.gszr.Add(self.sizer_line10,0,wxEXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
 
 		      
@@ -2255,7 +2228,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line8.Add(self.sizer_graphnextbtn,2,wxEXPAND)
 #		      self.sizer_line8.Add(5,0,2)
 #		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)
 #		      self.gszr.AddSizer(self.sizer_line8,0,wxEXPAND)
 		      
 
@@ -2322,7 +2295,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line11.Add(self.chkbox_referral_activeproblems  ,1,wxEXPAND)
 #		      self.sizer_line11.Add(self.chkbox_referral_habits  ,1,wxEXPAND)
 #		      self.sizer_btnpreviewok.Add(self.btnpreview,0,wxEXPAND)
-#		      self.szr_buttons.Add(self.btn_Clear,0, wxEXPAND)		      
+#		      self.szr_buttons.Add(self.btn_New,0, wxEXPAND)		      
 		      #------------------------------------------------------------------
 		      #add either controls or sizers with controls to vertical grid sizer
 		      #------------------------------------------------------------------
@@ -2343,7 +2316,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line12.Add(5,0,6)
 		      #self.sizer_line12.Add(self.spacer,6,wxEXPAND)
 #		      self.sizer_line12.Add(self.btnpreview,1,wxEXPAND|wxALL,2)
-#	              self.sizer_line12.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
+#	              self.sizer_line12.Add(self.btn_New,1,wxEXPAND|wxALL,2)    
 #	              self.gszr.Add(self.sizer_line12,0,wxEXPAND)                       #btnpreview and btn clear
 		      
 
@@ -2380,7 +2353,7 @@ class EditArea(wxPanel):
 #		      self.gszr.Add(self.txt_recall_progressnotes,1,wxEXPAND)          #add any progress notes for consultation
 #		      self.sizer_line8.Add(5,0,6)
 #		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
+#	              self.sizer_line8.Add(self.btn_New,1,wxEXPAND|wxALL,2)    
 #		      self.gszr.Add(self.sizer_line8,1,wxEXPAND)
 #		else:
 #		      pass
@@ -2400,7 +2373,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.51  2004-01-12 16:23:29  ncq
+# Revision 1.52  2004-01-18 21:51:36  ncq
+# - better tooltips on standard buttons
+# - simplify vaccination edit area
+# - vaccination - _save_modified_entry()
+#
+# Revision 1.51  2004/01/12 16:23:29  ncq
 # - SetValueStyle() -> _decorate_editarea_field()
 # - add phrase wheels to vaccination edit area
 #
