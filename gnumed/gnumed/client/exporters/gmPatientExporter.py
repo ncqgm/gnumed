@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.34 2004-10-20 11:14:55 sjtan Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmPatientExporter.py,v 1.35 2004-10-20 21:43:45 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -457,7 +457,7 @@ class cEmrExport:
             allergy - Allergy item to dump
             left_margin - Number of spaces on the left margin
         """
-        txt = left_margin*' ' + _('Allergy') + ': ' + allergy['allergene'] + ', ' + \
+        txt = left_margin*' ' + _('Allergy') + ': ' + allergy['descriptor'] + ', ' + \
             allergy['reaction'] + '\n'
         return txt
     #--------------------------------------------------------
@@ -481,7 +481,7 @@ class cEmrExport:
         if self.lab_new_encounter:
             txt += (left_margin+3)*' ' + _('Lab') + ': '  + \
                 lab_result['unified_name'] + '-> ' + lab_result['unified_val'] + \
-                ' ' + lab_result['val_unit']+ '\n' + '(' + lab_result['req_when'] + ')'
+                ' ' + lab_result['val_unit']+ '\n' + '(' + lab_result['req_when'].Format('%Y-%m-%d') + ')'
         return txt
     #--------------------------------------------------------
     def get_item_summary(self, item, left_margin = 0):
@@ -537,10 +537,8 @@ class cEmrExport:
         # variable initialization
         self.__get_filtered_emr_data()
         emr = self.__patient.get_clinical_record()
-	print "*"*100, "filtered issues ", self.__filtered_issues
         h_issues = emr.get_health_issues(id_list = self.__filtered_issues)
         root_node = emr_tree.GetRootItem()
-	print "*"* 100, h_issues
         # build the tree
         for issue in h_issues:
             issue_node =  emr_tree.AppendItem(root_node, issue['description'])
@@ -574,7 +572,7 @@ class cEmrExport:
         """
         # fetch first and last encounters for the issue
         emr = self.__patient.get_clinical_record()
-        print "dump_issue_info() - issue:", issue
+        #print "dump_issue_info() - issue:", issue
         first_encounter = emr.get_first_encounter(issue_id = issue['id'])
         last_encounter = emr.get_last_encounter(issue_id = issue['id'])
         # dump info
@@ -949,7 +947,12 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.34  2004-10-20 11:14:55  sjtan
+# Revision 1.35  2004-10-20 21:43:45  ncq
+# - cleanup
+# - use allergy['descriptor']
+# - Format() dates
+#
+# Revision 1.34  2004/10/20 11:14:55  sjtan
 # restored import for unix. get_historical_tree may of changed, but mainly should
 # be guards in gmClinicalRecord for changing [] to None when functions expecting None, and client
 # functions passing [].
