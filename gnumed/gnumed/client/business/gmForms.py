@@ -9,8 +9,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.9 2004-03-12 13:20:29 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmForms.py,v 1.10 2004-03-12 15:23:36 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -197,8 +197,8 @@ def get_form (id):
         _log.Log (gmLog.lErr, 'no such form engine %s' % result[1])
         return None
 #------------------------------------------------------------
-def test ():
-	f = file ('../../test-area/ian/terry-form.tex')
+def test_au():
+	f = open('../../test-area/ian/terry-form.tex')
 	params = {
 		'RECIPIENT': "Dr. R. Terry\n1 Main St\nNewcastle",
 		'DOCTORSNAME': 'Ian Haywood',
@@ -223,14 +223,35 @@ def test ():
 	form.xdvi ()
 	form.cleanup ()
 
+#------------------------------------------------------------
+def test_de():
+	template = open('../../test-area/ian/Formularkopf-DE.tex')
+	form = LaTeXForm(template.read())
+	params = {
+		'PATIENT LASTNAME': 'Kirk',
+		'PATIENT FIRSTNAME': 'James T.',
+		'PATIENT STREET': 'Hauptstrasse',
+		'PATIENT ZIP': '02999',
+		'PATIENT TOWN': 'Gross Saerchen',
+		'PATIENT DOB': '22.03.1931'
+	}
+	form.process(params)
+	form.xdvi()
+	form.cleanup()
+
 #============================================================
 # main
 #------------------------------------------------------------
-test()
+if __name__ == '__main__':
+	test_au()
+	#test_de()
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.9  2004-03-12 13:20:29  ncq
+# Revision 1.10  2004-03-12 15:23:36  ncq
+# - cleanup, test_de
+#
+# Revision 1.9  2004/03/12 13:20:29  ncq
 # - remove unneeded import
 # - log keyword
 #
