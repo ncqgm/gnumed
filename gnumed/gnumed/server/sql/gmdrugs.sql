@@ -1,5 +1,5 @@
--- structure of drug database for gnumed
--- Copyrigth 2000, 2001 by Dr. Horst Herb
+v-- structure of drug database for gnumed
+-- Copyright 2000, 2001 by Dr. Horst Herb
 -- This is free software in the sense of the General Public License (GPL)
 -- For details regarding GPL licensing see http://gnu.org
 --
@@ -63,7 +63,7 @@ CREATE RULE drug_del AS ON DELETE TO drug
          WHERE id = OLD.id;
 CREATE VIEW class AS SELECT id, name FROM entity WHERE class;
 CREATE RULE insert_class AS ON INSERT TO class
-        DO INSTEAD INSERT INTO entity VALUES (NEW.id, NEW.name, t, f);
+        DO INSTEAD INSERT INTO entity VALUES (NEW.id, NEW.name, 't', 'f');
 CREATE RULE class_upd AS ON UPDATE TO class
         DO INSTEAD
         UPDATE entity SET
@@ -75,9 +75,9 @@ CREATE RULE class_del AS ON DELETE TO class
          WHERE id = OLD.id;
 CREATE VIEW substance AS SELECT id, name FROM entity WHERE not class and not compound;
 CREATE RULE insert_subst AS ON INSERT TO substance
-        DO INSERT INTO entity VALUES (NEW.id, NEW.name, f, f);
+        DO INSERT INTO entity VALUES (NEW.id, NEW.name, 'f', 'f');
 CREATE RULE subst_upd AS ON UPDATE TO substance
-        DO INSTEAD
+        DO INSTEAD 
         UPDATE entity SET
                name = NEW.name
          WHERE id = OLD.id;
@@ -86,8 +86,8 @@ CREATE RULE subst_del AS ON DELETE TO substance
         DELETE FROM entity
          WHERE id = OLD.id;
 CREATE VIEW compound AS SELECT id, name FROM entity WHERE not class and compound;
-CREATE RULE insert_compound AS ON INSERT TO compound
-        DO INSERT INTO entity VALUES (NEW.id, NEW.name, f, t);
+CREATE RULE insertcompound AS ON INSERT TO compound
+        DO INSERT INTO entity VALUES (NEW.id, NEW.name, 'f', 't');
 CREATE RULE compound_upd AS ON UPDATE TO compound
         DO INSTEAD
         UPDATE entity SET
@@ -105,8 +105,8 @@ CREATE TABLE link_class (
        member INTEGER REFERENCES entity (id)
 );
 
-CREATE INDEX idx_link_substance_substclass1 ON link_substance_class(class);
-CREATE INDEX idx_link_substance_substclass2 ON link_substance_class(member);
+CREATE INDEX idx_link_class1 ON link_class(class);
+CREATE INDEX idx_link_class2 ON link_class(member);
 
 -- =============================================
 
@@ -114,31 +114,6 @@ CREATE TABLE link_compound_substance (
        compound_id INTEGER,
        substance_id INTEGER
 );
-
--- =============================================
--- alternative to therapeutic classes, just a thought
-
-
-CREATE TABLE indication (
-       id SERIAL PRIMARY KEY,
-       diseasecode char[8],
-       drug INTEGER REFERENCES generic_drug (id),
-       route INTEGER REFERENCES drug_route (id),
-       unit INTEGER REFERENCES drug_units (id),
-       course INTEGER, -- in days, 1 for stat dose, 0 if continuing
-       paed_dose FLOAT, -- paediatric dose, units/kg
-       min_dose FLOAT, -- adult minimum dose
-       max_dose FLOAT, -- adult maximum dose
-       comment TEXT,
-       line INTEGER -- 1=first-line, 2=second-line, etc.
-);
-
--- with this table, a list of indicated drugs would appear in a sidebox
--- when a diagnosis was entered, with interacting/contraindicated/allergic
--- drugs removed a priori. The prescriber could click on one to these to
--- bring up the prescription dialogue, pre-loaded with the drug.
--- paediatric dosing can be automatically calculated.
--- =============================================
 
 
 CREATE TABLE pregnancy_cat (
@@ -172,11 +147,6 @@ CREATE TABLE amount_units (
 COMMENT ON TABLE amount_units IS
 'Example: ml, each, ..';
 
-COPY "amount_units"  FROM stdin;
-2	mL
-1	each
-3	g
-\.
 
 -- =============================================
 
@@ -192,13 +162,6 @@ COMMENT ON COLUMN drug_units.is_SI IS
 COMMENT ON TABLE drug_units IS
 'true if it is a System International (SI) compliant unit';
 
-COPY "drug_units"  FROM stdin;
-1	t	mg
-2	t	mL
-3	t	g
-4	t	cm
-5	f	unit
-\.
 
 -- =============================================
 
@@ -210,19 +173,7 @@ CREATE TABLE drug_route (
 COMMENT ON table drug_route IS
 'Examples: oral, i.m., i.v., s.c.';
 
-COPY "drug_route"  FROM stdin;
-1	intravenous
-2	intramuscular
-3	subcutaneous
-4	oral
-5	suppository
-6	pessary
-7	opthalmological
-8	otological
-9	dermatological
-10	otological/opthalmological
-11	inhalant
-\.
+
 
 -- =============================================
 
@@ -231,21 +182,6 @@ CREATE TABLE presentation (
 	name varchar (30)
 );
 
-COPY "presentation" FROM stdin;
-1	tablet
-2	chewable tablet
-3	effervescent tablet
-4	capsule
-5	injection
-6	powder
-7	wafer
-8	suspension
-9	lozenge
-10	cream
-11	ointment
-12	paste
-13	solution
-\.    
 
 -- =============================================
 -- This describes the physical form of the drug, distingushing between liquid
@@ -260,87 +196,39 @@ CREATE TABLE drug_form (
 	-- "divisor" of the unit -- "each" for tabs/capsules, most likely
 	-- mL for liquid drugs, and grams for powders
 	presentation INTEGER REFERENCES presentation (id)
-};
-
-
-COPY "drug_form"  FROM stdin;
-7	11	1	2	13
-10	4	3	3	6
-12	4	1	1	2
-15	4	1	1	9
-17	1	5	2	5
-13	4	1	3	6
-9	4	3	3	6
-6	1	1	2	5
-5	4	1	1	7
-4	4	1	2	8
-3	4	1	1	4
-2	4	1	1	3
-1	4	1	1	1
-8	7	1	3	11
-11	4	3	3	6
-14	4	1	3	6
-16	1	3	2	5
-\.
-
--- temporary table to match pbs formandstrength with drug_form
-
-CREATE TABLE pbs_xref (
-	drug_form_id INTEGER,
-	pbs_regex varchar (100), -- RE for PBS field of form description
-	pbs_scanf varchar (100) -- scanf () string to grab dose from PBS field
 );
 
-COPY "pbs_xref"  FROM stdin;
-7	Solution for inhalation [0-9]+ mg.*	Solution for inhalation %d
-10	Infant formula, powder.*	Infant formula, powder %d
-12	Chewable tablet [0-9]+ mg	Chewable tablet %d
-15	Lozenge [0-9]+ mg.*	Lozenge %d
-17	Injection [0-9]+ unit%	Injection %d
-13	Powder for syrup [0-9]+ mg	Powder for syrup %d
-9	Powder [0-9]+ g.*	Powder %d
-6	Injection [0-9]+ mg.*	Injection %d
-5	Wafer [0-9]+ mg.*	Wafer %d
-4	Oral suspension [0-9]+ mg.*	Oral suspension %d
-3	Capsule [0-9]+ mg.*	Capsule %d
-2	Effervescent tablet [0-9]+ mg.*	Effervescent tablet %d
-1	Tablet [0-9]+ mg.*	Tablet %d
-8	Eye ointment [0-9]+ mg.*	Eye ointment %d
-11	Sachet containing oral powder [0-9]+ g	Sachet containing oral powder %d
-14	Powder for paediatric oral drops [0-9]+ mg.*	Powder for paediatric oral drops %d
-16	Injection [0-9]+ g.*	Injection %d
-18	Injection set	Injection set	
-\.
 
---select formandstrength from pbsimport except select pbsimport.formandstrength from pbsimport, drug_form where pbsimport.formandstrength ~ drug_form.pbs_regex;
-
-select drug_route.description, drug_units.description, 
-amount_units.description, presentation.name, pbs_xref.pbs_regex 
-from drug_route, drug_units, amount_units, presentation, drug_form, pbs_xref 
-where drug_route.id = drug_form.route and 
-drug_units.id = drug_form.unit and 
-amount_units.id = drug_form.amount_unit and 
-presentation.id = drug_form.presentation and 
-pbs_xref.drug_form_id = drug_form.id;  
+-- =============================================
+-- alternative to therapeutic classes, just a thought
 
 
+CREATE TABLE indication (
+       id SERIAL PRIMARY KEY,
+       diseasecode char[8],
+       drug INTEGER REFERENCES entity (id),
+       route INTEGER REFERENCES drug_route (id),
+       unit INTEGER REFERENCES drug_units (id),
+       course INTEGER, -- in days, 1 for stat dose, 0 if continuing
+       paed_dose FLOAT, -- paediatric dose, units/kg
+       min_dose FLOAT, -- adult minimum dose
+       max_dose FLOAT, -- adult maximum dose
+       comment TEXT,
+       line INTEGER -- 1=first-line, 2=second-line, etc.
+);
 
-
--- wrapper to the C scanf () function. Returns one integer.
--- arg1 is scanf string, arg 2 is input string
-CREATE FUNCTION sql_scanf (text, text)
-    RETURNS integer
-    AS '/home/ian/my_gnumed/scanf.so'
-    LANGUAGE 'c';
-
-		          
+-- with this table, a list of indicated drugs would appear in a sidebox
+-- when a diagnosis was entered, with interacting/contraindicated/allergic
+-- drugs removed a priori. The prescriber could click on one to these to
+-- bring up the prescription dialogue, pre-loaded with the drug.
+-- paediatric dosing can be automatically calculated.		          
 
 -- =============================================
 -- This table corresponds to each line in the Yellow Book.
 -- The manufacturer is linked to the strengths and pack sizes that they offer.
 CREATE TABLE drug_package (
 	id SERIAL PRIMARY KEY,
-	form_id INTEGER REFERENCES form(id),
+	form_id INTEGER REFERENCES drug_form(id),
 	drug_id INTEGER REFERENCES entity (id),
 	amount INTEGER, -- no. of tabs, capsules, etc. in pack
 	max_rpts INTEGER, -- maximum repeats
@@ -383,7 +271,7 @@ COMMENT ON TABLE drug_flags IS
 -- sugqestion:
 CREATE TABLE link_flag_preparation (
        flag_id INTEGER REFERENCES drug_flags(id),
-       prep_id INTEGER REFERENCES preparation (id)
+       prep_id INTEGER REFERENCES drug_package (id)
 );
 
 -- ==============================================
@@ -440,8 +328,8 @@ CREATE TABLE interaction (
 -- =====================================================
 CREATE TABLE link_drug_interaction (
         id SERIAL PRIMARY KEY,
-	drug_id INTEGER NOT NULL REFERENCES entity(id),
-	drug_id INTEGER NOT NULL REFERENCES entity(id),
+	drug1_id INTEGER NOT NULL REFERENCES entity(id),
+	drug2_id INTEGER NOT NULL REFERENCES entity(id),
 	interaction_id INTEGER NOT NULL REFERENCES interaction (id) ,
         comment text
 );
