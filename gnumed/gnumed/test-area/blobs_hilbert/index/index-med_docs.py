@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -49,9 +49,6 @@ _cfg = gmCfg.gmDefCfgFile
 #====================================
 class indexFrame(wxFrame):
 
-	doc_pages = []
-	selected_pic = ''
-	#---------------------------------------------------------------------------
 	def __init__(self, parent):
 
 		# get valid document types from ini-file
@@ -301,7 +298,15 @@ class indexFrame(wxFrame):
 		)
 		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText4 = wxStaticText(id = -1, label = _('or'), name = 'staticText4', parent = self.PNL_main, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
+		self.staticText4 = wxStaticText(
+			id = -1,
+			label = _('or'),
+			name = 'staticText4',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 192),
+			size = wxSize(49, 29),
+			style = 0
+		)
 		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
 		self.staticText5 = wxStaticText(id = -1, label = _('date (YYYY-MM-DD)'), name = 'staticText5', parent = self.PNL_main, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
@@ -491,8 +496,6 @@ class indexFrame(wxFrame):
 	def on_save_data(self, event):
 		"""Save collected metadata into XML file."""
 
-		#event.Skip()
-
 		if not self.__valid_input():
 			return None
 		else:
@@ -520,7 +523,8 @@ class indexFrame(wxFrame):
 			return None
 
 		# now, which file was that again ?
-		page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+		page_data = self.LBOX_doc_pages.GetClientData(page_idx)
+		page_fname = page_data['file name']
 
 		(result, msg) = docDocument.call_viewer_on_file(page_fname)
 		if not result:
@@ -534,44 +538,6 @@ class indexFrame(wxFrame):
 			dlg.Destroy()
 			return None
 		return 1
-	#-----------------------------------
-
-
-###################################################
-
-
-		if page_idx != -1:
-			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
-			page_fname = page_data['file name']
-
-			if not os.path.exists(page_fname):
-				_log.Log(gmLog.lErr, 'Cannot display page. File [%s] does not exist !' % page_fname)
-				dlg = wxMessageDialog(
-					self,
-					_('Cannot display page %s. The file\n[%s]\ndoes not exist.' % (page_idx+1, page_fname)),
-					_('data error'),
-					wxOK | wxICON_ERROR
-				)
-				dlg.ShowModal()
-				dlg.Destroy()
-				return None
-
-			import docMime
-
-			mime_type = docMime.guess_mimetype(page_fname)
-			viewer_cmd = docMime.get_viewer_cmd(mime_type, page_fname)
-
-			if viewer_cmd == None:
-				_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
-				new_fname = docMime.get_win_fname(mime_type)
-				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
-				shutil.copyfile(page_fname, new_fname)
-				# FIXME: we should only do this on Windows
-				os.startfile(new_fname)
-			else:
-				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
-				os.system(viewer_cmd)
-
 	#----------------------------------------
 	def on_del_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
@@ -580,7 +546,7 @@ class indexFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_('You must select a page before you can delete it.'),
-				_('Attention'),
+				_('deleting page'),
 				wxOK | wxICON_INFORMATION
 			)
 			dlg.ShowModal()
@@ -588,20 +554,32 @@ class indexFrame(wxFrame):
 			return None
 
 		page_data = self.LBOX_doc_pages.GetClientData(page_idx)
-		page_fname = page_data['file name']
 
-		if not os.path.exists(page_fname):
-			_log.Log(gmLog.lErr, 'Cannot delete page. File [%s] does not exist !' % page_fname)
+		# remove page from document
+		page_oid = page_data['oid']
+		if not self.myDoc.removeObject(page_oid):
+			_log.Log(gmLog.lErr, 'Cannot delete page from document.' % page_fname)
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot delete page %s. The file\n[%s]\ndoes not exist.' % (page_idx+1, page_fname)),
-				_('data error'),
+				_('Cannot delete page %s. It does not seem to belong to the document.') % page_idx+1,
+				_('deleting page'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
 			return None
 
+		# remove physical file
+		page_fname = page_data['file name']
+		if not os.path.exists(page_fname):
+			_log.Log(gmLog.lErr, 'Cannot delete page. File [%s] does not exist !' % page_fname)
+		else:
+			os.remove(page_fname)
+
+		_log.Log(gmLog.lInfo, "Deleted file [%s] from document." % page_fname)
+
+		# reload LBOX_doc_pages
+		self.__reload_doc_pages()
 
 		return 1
 	#----------------------------------------
@@ -680,10 +658,16 @@ class indexFrame(wxFrame):
 	#----------------------------------------
 	def __fill_doc_fields(self):
 		self.__clear_doc_fields()
+		self.__reload_doc_pages()
+	#----------------------------------------
+	def __reload_doc_pages(self):
+		self.LBOX_doc_pages.Clear()
 		objLst = self.myDoc.getMetaData()['objects']
-		for obj in objLst.values():
+		# FIXME: sort !
+		for oid, obj in objLst.items():
 			page_num = obj['index']
 			path, name = os.path.split(obj['file name'])
+			obj['oid'] = oid
 			self.LBOX_doc_pages.Append(_('page %s (%s in %s)') % (page_num, name, path), obj)
 	#----------------------------------------
 	def __dump_metadata_to_xml(self, aDir):
@@ -878,50 +862,6 @@ class indexFrame(wxFrame):
 			return None
 
 		return 1
-	#----------------------------------------
-	#----------------------------------------
-	def OnDelpicbuttonButton(self, event):
-		current_selection=self.LBOX_doc_pages.GetSelection()
-		self.BefValue=self.doc_id_wheel.GetLineText(0)
-		if current_selection == -1:
-			dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-			
-		else:
-			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
-			#del page from hdd
-			try:
-				os.remove(_cfg.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg')
-			except OSError:
-				_log.Log (gmLog.lErr, "I was unable to wipe the file " + _cfg.get("source", "repositories") + self.BefValue + '/' + self.selected_pic + '.jpg' + " from disk because it simply was not there ")
-				dlg = wxMessageDialog(self, _('I am afraid I was not able to delete the page from disk because it was not there'),_('Attention'), wxOK | wxICON_INFORMATION)
-				try:
-					dlg.ShowModal()
-				finally:
-					dlg.Destroy()
-			#now rename (decrease index by 1) all pages above the deleted one
-			i = current_selection
-			for i in range(i,len(self.doc_pages)-1):
-				try:
-					os.rename(_cfg.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg',_cfg.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
-				except OSError:
-					_log.Log (gmLog.lErr, "I was unable to rename the file " + _cfg.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg' + " from disk because it simply was not there ")
-				print "I renamed" +str(_cfg.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i+1) + '.jpg') + "into" + str(_cfg.get("source", "repositories") + self.BefValue + '/' + self.LBOX_doc_pages.GetString(i) + '.jpg')
-
-			#print "u want to del:" + self.selected_pic
-			self.LBOX_doc_pages.Delete(current_selection)
-			self.doc_pages.remove(self.selected_pic + '.jpg')
-			#rebuild list to clean the gap
-			i = 0
-			for i in range(len(self.doc_pages)):
-				if i == 0:
-					self.doc_pages = []
-					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_INDEXFRAMELBOXPAGES, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
-				self.UpdatePicList()
-
 #======================================================
 class IndexerApp(wxApp):
 	def OnInit(self):
@@ -931,34 +871,25 @@ class IndexerApp(wxApp):
 		self.main.Show(true)
 		self.SetTopWindow(self.main)
 		return true
-#------------------------------------------------------
-def main():
-	application = IndexerApp(0)
-	application.MainLoop()
 #======================================================
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
 	try:
-		main()
+		application = IndexerApp(0)
+		application.MainLoop()
 	except:
 		exc = sys.exc_info()
 		_log.LogException('Unhandled exception.', exc, fatal=1)
-		# remove pending indexing locks
+		# FIXME: remove pending indexing locks
 		raise
 
 #======================================================
 # this line is a replacement for gmPhraseWhell just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
-
-	#----------------------------------------
-#	def UpdatePicList(self):
-#		if len(self.doc_pages) == 0:
-#			self.LBOX_doc_pages.Append(_('page')+'1')
-#			self.doc_pages.append(_('page')+'1')
-#		else:
-#			lastPageInList=self.doc_pages[len(self.doc_pages)-1]
-#			biggest_number_strg=lastPageInList.replace(_('page'),'')
-#			biggest_number= int(biggest_number_strg) + 1
-#			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
-#			self.doc_pages.append(_('page') + `biggest_number`)
+#======================================================
+# $Log: index-med_docs.py,v $
+# Revision 1.13  2002-09-17 01:14:16  ncq
+# - delete_page seems to work now
+#
+#
