@@ -38,6 +38,12 @@
 
 <revhistory>
       <revision>
+	<revnumber>0.1.5</revnumber>
+	<date>2003-07-29</date>
+	<authorinitials>gea, hb</authorinitials>
+	<revremark>updates on login procedure, configuration etc.</revremark>
+      </revision>
+      <revision>
 	<revnumber>0.1.4.2.1</revnumber>
 	<date>2003-04-02</date>
 	<authorinitials>gea</authorinitials>
@@ -1230,10 +1236,20 @@ warning is logged and things continue.
 	    </listitem>
 	    <listitem>
 	      <para>
-If the language given in the database doesn't match the system
-locale the user is asked whether to update the database setting
-to that. One can influence the system locale setting in
-per-instance wrapper scripts if so desired.
+	      If the language given in the database doesn't match the system
+	      locale the user is asked whether to update the database setting
+	      to that. </para>
+	      <para>
+	      If the user chooses "No" when asked whether the database locale
+	      should be changed to match the system locale this decision will
+	      be remembered in the config file (usually ~/.gnumed/gnumed.conf)
+	      until either the system locale is changed or the option
+	      removed from the config file. This option can also be edited
+	      from within GnuMed courtesy of the ConfigRegistry plugin.	
+	      </para>
+	      <para>
+	      One can influence the system locale setting in
+	      per-instance wrapper scripts if so desired.
 	      </para>
 	    </listitem>
 	    <listitem>
@@ -1264,6 +1280,7 @@ truncation of the system locale are used to find matching
 	<para>
 This allows for a missing Austrian translation to fall back to
 	  a general German (de_AT -> de) one, for example.
+	</para>
       </sect1>
  
 
@@ -1381,15 +1398,28 @@ This allows for a missing Austrian translation to fall back to
 <title>Using GnuMed</title>
 	<chapter id="usage">
       <title>Usage</title>
-<sect1>
+<sect1 id="login">
 	<title>Logging In</title>
 	<sect2>
 	  <title>Setting Up Test Account</title>
 	  <para>Before you can start login you will need to create
-	  test accounts, the developers have provided such a test
+	  test accounts. The developers have provided such a test
 	    account. It is located at
-	  <computeroutput>gnumed/server/sql/gmTestAccounts.sql</computeroutput>.That
-	  is you will need to parse it into your postgresql account</para>
+	  <computeroutput>gnumed/server/sql/gmTestAccounts.sql</computeroutput>.
+	  Usually this account will be installed together with the backend tables
+	  using <filename>bootstrap-gm_db_system.py</filename>.
+	  There are currently three test accounts: </para>
+	  <screen>
+	  test-doc (password: test-doc)
+	  test-nurse (password: test-nurse)
+	  test-secretary (password: test-secretary)
+	  </screen>
+	  <para>
+	  You should use <emphasis>test-doc</emphasis> since this is the least 
+	  restricted one.
+	  </para>
+	  <para>Do *NOT* use these accounts on a production system.</para>
+	  
 	</sect2>
 	<sect2>
 	  <title>Login/Password</title>
@@ -1401,7 +1431,7 @@ This allows for a missing Austrian translation to fall back to
 
       </sect1>
 
-      <sect1>
+      <sect1 id="cupoftea">
 	<title>How do I use GnuMed to make a cup of tea</title>
       <para>Ask Marvin</para>
       </sect1>

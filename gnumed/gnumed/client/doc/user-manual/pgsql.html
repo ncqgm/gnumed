@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML
 ><HEAD
 ><TITLE
@@ -36,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: </TH
+>GNUMed: User's Manual</TH
 ></TR
 ><TR
 ><TD
@@ -73,11 +74,11 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="PGSQL"
-></A
 >3.1. Configuring <SPAN
 CLASS="APPLICATION"
 >PostgreSQL</SPAN
-> for GnuMed</H1
+> for GnuMed</A
+></H1
 ><P
 >This section applies is distribtuion/OS independant.</P
 ><DIV
@@ -85,9 +86,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN573"
-></A
->3.1.1. GnuMed database 101</H2
+NAME="AEN578"
+>3.1.1. GnuMed database 101</A
+></H2
 ><P
 >        GnuMed does not simply store all of it's data in a monolithic database.
         It rather uses the concept of a service. A service is a set of tables
@@ -127,9 +128,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN578"
-></A
->3.1.2. Database setup</H2
+NAME="AEN583"
+>3.1.2. Database setup</A
+></H2
 ><P
 >        The theory roughly goes like this:
         </P
@@ -178,12 +179,12 @@ STYLE="list-style-type: opencircle"
         bootstrapping are supplied in server/utils/. </P
 ><P
 >        Before running the bootstrap script make sure you've installed the symbolic links 
-        to <TT
+        to <VAR
 CLASS="LITERAL"
->modules</TT
-> and <TT
+>modules</VAR
+> and <VAR
 CLASS="LITERAL"
->sql</TT
+>sql</VAR
 >. You can do this
         by typing 
         <TABLE
@@ -275,9 +276,9 @@ $language library dirs$
         </P
 ><P
 >        To set up a straightforward monolithic system on the local machine use
-        the config file <TT
+        the config file <VAR
 CLASS="LITERAL"
->localhost-monolithic.conf.sample</TT
+>localhost-monolithic.conf.sample</VAR
 >.
         </P
 ><P
@@ -287,9 +288,9 @@ CLASS="LITERAL"
 ><P
 >        If you want to tweak things by hand read the config files and the source
         of the bootstrapping scripts. All the config file parameters are documented
-        in <TT
+        in <VAR
 CLASS="LITERAL"
->bootstrap-gm_db_system.conf.sample</TT
+>bootstrap-gm_db_system.conf.sample</VAR
 >.
         </P
 ></DIV

@@ -2,7 +2,7 @@
 <HTML
 ><HEAD
 ><TITLE
->Obtaining Gnumed software</TITLE
+>Logging In</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
@@ -10,14 +10,14 @@ REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
-TITLE="Installation"
-HREF="installation.html"><LINK
+TITLE="Usage"
+HREF="usage.html"><LINK
 REL="PREVIOUS"
-TITLE="Installation"
-HREF="installation.html"><LINK
+TITLE="Usage"
+HREF="usage.html"><LINK
 REL="NEXT"
-TITLE="Linux Installation"
-HREF="linux.html"></HEAD
+TITLE="How do I use GnuMed to make a cup of tea"
+HREF="cupoftea.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="installation.html"
+HREF="usage.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -53,13 +53,13 @@ ACCESSKEY="P"
 WIDTH="80%"
 ALIGN="center"
 VALIGN="bottom"
->Chapter 2. Installation</TD
+>Chapter 4. Usage</TD
 ><TD
 WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="linux.html"
+HREF="cupoftea.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,68 +73,86 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="OPTAINING-GNUMED"
->2.1. Obtaining Gnumed software</A
+NAME="LOGIN"
+>4.1. Logging In</A
 ></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN663"
+>4.1.1. Setting Up Test Account</A
+></H2
 ><P
->The latest sources are available by CVS at 
-<A
-HREF="http://savannah.gnu.org/projects/gnumed/"
-TARGET="_top"
-><I
-CLASS="CITETITLE"
->savannah.gnu.org</I
-></A
+>Before you can start login you will need to create
+	  test accounts. The developers have provided such a test
+	    account. It is located at
+	  <SAMP
+CLASS="COMPUTEROUTPUT"
+>gnumed/server/sql/gmTestAccounts.sql</SAMP
 >.
-If CVS asks for a password, use a blank line. The module name is 
-<EM
->gnumed</EM
+	  Usually this account will be installed together with the backend tables
+	  using <TT
+CLASS="FILENAME"
+>bootstrap-gm_db_system.py</TT
+>.
+	  There are currently three test accounts: </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>	  test-doc (password: test-doc)
+	  test-nurse (password: test-nurse)
+	  test-secretary (password: test-secretary)
+	  </PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	  You should use <EM
+>test-doc</EM
+> since this is the least 
+	  restricted one.
+	  </P
+><P
+>Do *NOT* use these accounts on a production system.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN672"
+>4.1.2. Login/Password</A
+></H2
+><P
+>When you first gnumed, you will see the login
+	screen</P
+><P
+>For <SAMP
+CLASS="COMPUTEROUTPUT"
+>user</SAMP
+> type <SAMP
+CLASS="COMPUTEROUTPUT"
+>test-doc</SAMP
 ></P
 ><P
->Qouting from GnuMed's CVS instruction</P
-><P
->	"This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<EM
->gnumed</EM
->]  you wish to check out must be specified as the modulename. When prompted for a password for anoncvs, simply press the Enter key.
-	    </P
-><P
->You would type:</P
-><TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->Source tree: cvs -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
-	</PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->Remeber to hit enter when it asks for a password. Then type:</P
-><TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
-	</PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->You should then see the cvs directory download into a gnumed directory</P
+>for <SAMP
+CLASS="COMPUTEROUTPUT"
+>password</SAMP
+> type <SAMP
+CLASS="COMPUTEROUTPUT"
+>test-doc</SAMP
+></P
+></DIV
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -152,7 +170,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="installation.html"
+HREF="usage.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -170,7 +188,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="linux.html"
+HREF="cupoftea.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -180,13 +198,13 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Installation</TD
+>Usage</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="installation.html"
+HREF="usage.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -194,7 +212,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Linux Installation</TD
+>How do I use GnuMed to make a cup of tea</TD
 ></TR
 ></TABLE
 ></DIV

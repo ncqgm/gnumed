@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML
 ><HEAD
 ><TITLE
@@ -36,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: </TH
+>GNUMed: User's Manual</TH
 ></TR
 ><TR
 ><TD
@@ -73,18 +74,18 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="MANDRAKE"
-></A
->2.4. Mandrake- GnuMed on Mandrake 9.1</H1
+>2.4. Mandrake- GnuMed on Mandrake 9.1</A
+></H1
 ><P
 >GnuMed Install Instructions for Mandrake Linux 9.1
 by Michael Bonert</P
 ><P
-><TT
+><CODE
 CLASS="EMAIL"
 >&#60;<A
 HREF="mailto:michael.bonert@utoronto.ca"
 >michael.bonert@utoronto.ca</A
->&#62;</TT
+>&#62;</CODE
 ></P
 ><P
 >Wed Apr  2 00:17:07 EST 2003</P
@@ -93,9 +94,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN319"
-></A
->2.4.1. Package Installation</H2
+NAME="AEN324"
+>2.4.1. Package Installation</A
+></H2
 ><P
 ></P
 ><OL
@@ -109,8 +110,8 @@ TYPE="1"
 ><P
 >			Install postgresql (from the Mandrake CDs):
 			<A
-NAME="AEN326"
-HREF="#FTN.AEN326"
+NAME="AEN331"
+HREF="#FTN.AEN331"
 ><SPAN
 CLASS="footnote"
 >[1]</SPAN
@@ -248,8 +249,8 @@ COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >$ tar zxvf pyPgSQL-2.3.tar.gz<A
-NAME="AEN368"
-HREF="#FTN.AEN368"
+NAME="AEN373"
+HREF="#FTN.AEN373"
 ><SPAN
 CLASS="footnote"
 >[2]</SPAN
@@ -276,8 +277,8 @@ CLASS="SCREEN"
 ># Set this to 1 if you need to use your own settings
 USE_CUSTOM = 1
                   <A
-NAME="AEN372"
-HREF="#FTN.AEN372"
+NAME="AEN377"
+HREF="#FTN.AEN377"
 ><SPAN
 CLASS="footnote"
 >[3]</SPAN
@@ -308,8 +309,8 @@ CLASS="SCREEN"
 >$ python setup.py build
 	    $ python setup.py install
         <A
-NAME="AEN376"
-HREF="#FTN.AEN376"
+NAME="AEN381"
+HREF="#FTN.AEN381"
 ><SPAN
 CLASS="footnote"
 >[4]</SPAN
@@ -334,8 +335,8 @@ COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >$ cd test<A
-NAME="AEN380"
-HREF="#FTN.AEN380"
+NAME="AEN385"
+HREF="#FTN.AEN385"
 ><SPAN
 CLASS="footnote"
 >[5]</SPAN
@@ -365,9 +366,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN382"
-></A
->2.4.2. Get GnuMed source</H2
+NAME="AEN387"
+>2.4.2. Get GnuMed source</A
+></H2
 ><P
 >RECOMMENDATION: install gnumed in "/home/your_user_name/"
 	-- where 'your_user_name' is your favourite normal user - e.g. 'michael'
@@ -395,9 +396,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN386"
-></A
->2.4.3. Modify postgresql.conf</H2
+NAME="AEN391"
+>2.4.3. Modify postgresql.conf</A
+></H2
 ><TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
@@ -411,8 +412,8 @@ CLASS="SCREEN"
 >$ su
 # cd /var/lib/pgsql/data
 # vi postgresql.conf<A
-NAME="AEN389"
-HREF="#FTN.AEN389"
+NAME="AEN394"
+HREF="#FTN.AEN394"
 ><SPAN
 CLASS="footnote"
 >[6]</SPAN
@@ -428,10 +429,10 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN391"
-></A
+NAME="AEN396"
 >2.4.4. Modify "pg_hba.conf" found in
-	  "/var/lib/pgsql/data"</H2
+	  "/var/lib/pgsql/data"</A
+></H2
 ><TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
@@ -478,9 +479,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN396"
-></A
->2.4.5. Create db</H2
+NAME="AEN401"
+>2.4.5. Create db</A
+></H2
 ><P
 >(see -- http://mail.gnu.org/archive/html/gnumed-devel/2003-02/msg00079.html)</P
 ><TABLE
@@ -495,8 +496,8 @@ COLOR="#000000"
 CLASS="SCREEN"
 >$ su root
 	    # passwd postgres<A
-NAME="AEN400"
-HREF="#FTN.AEN400"
+NAME="AEN405"
+HREF="#FTN.AEN405"
 ><SPAN
 CLASS="footnote"
 >[7]</SPAN
@@ -631,9 +632,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN424"
-></A
->2.4.6. Set 'GNUMED_DIR' variable</H2
+NAME="AEN429"
+>2.4.6. Set 'GNUMED_DIR' variable</A
+></H2
 ><TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
@@ -675,9 +676,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN429"
-></A
->2.4.7. Running GnuMed:</H2
+NAME="AEN434"
+>2.4.7. Running GnuMed:</A
+></H2
 ><TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
@@ -710,8 +711,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN326"
-HREF="mandrake.html#AEN326"
+NAME="FTN.AEN331"
+HREF="mandrake.html#AEN331"
 ><SPAN
 CLASS="footnote"
 >[1]</SPAN
@@ -733,8 +734,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN368"
-HREF="mandrake.html#AEN368"
+NAME="FTN.AEN373"
+HREF="mandrake.html#AEN373"
 ><SPAN
 CLASS="footnote"
 >[2]</SPAN
@@ -754,8 +755,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN372"
-HREF="mandrake.html#AEN372"
+NAME="FTN.AEN377"
+HREF="mandrake.html#AEN377"
 ><SPAN
 CLASS="footnote"
 >[3]</SPAN
@@ -776,8 +777,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN376"
-HREF="mandrake.html#AEN376"
+NAME="FTN.AEN381"
+HREF="mandrake.html#AEN381"
 ><SPAN
 CLASS="footnote"
 >[4]</SPAN
@@ -799,8 +800,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN380"
-HREF="mandrake.html#AEN380"
+NAME="FTN.AEN385"
+HREF="mandrake.html#AEN385"
 ><SPAN
 CLASS="footnote"
 >[5]</SPAN
@@ -820,8 +821,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN389"
-HREF="mandrake.html#AEN389"
+NAME="FTN.AEN394"
+HREF="mandrake.html#AEN394"
 ><SPAN
 CLASS="footnote"
 >[6]</SPAN
@@ -841,8 +842,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN400"
-HREF="mandrake.html#AEN400"
+NAME="FTN.AEN405"
+HREF="mandrake.html#AEN405"
 ><SPAN
 CLASS="footnote"
 >[7]</SPAN

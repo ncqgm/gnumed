@@ -1,3 +1,4 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML
 ><HEAD
 ><TITLE
@@ -36,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->GNUMed: </TH
+>GNUMed: User's Manual</TH
 ></TR
 ><TR
 ><TD
@@ -73,8 +74,8 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="CONFIGNOTES"
-></A
->3.2. Language configuration</H1
+>3.2. Language configuration</A
+></H1
 ><P
 >Upon startup the client autoconfigures the language used
 in the database.
@@ -100,10 +101,20 @@ warning is logged and things continue.
 ></LI
 ><LI
 ><P
->If the language given in the database doesn't match the system
-locale the user is asked whether to update the database setting
-to that. One can influence the system locale setting in
-per-instance wrapper scripts if so desired.
+>	      If the language given in the database doesn't match the system
+	      locale the user is asked whether to update the database setting
+	      to that. </P
+><P
+>	      If the user chooses "No" when asked whether the database locale
+	      should be changed to match the system locale this decision will
+	      be remembered in the config file (usually ~/.gnumed/gnumed.conf)
+	      until either the system locale is changed or the option
+	      removed from the config file. This option can also be edited
+	      from within GnuMed courtesy of the ConfigRegistry plugin.	
+	      </P
+><P
+>	      One can influence the system locale setting in
+	      per-instance wrapper scripts if so desired.
 	      </P
 ></LI
 ><LI
@@ -138,7 +149,7 @@ truncation of the system locale are used to find matching
 ><P
 >This allows for a missing Austrian translation to fall back to
 	  a general German (de_AT -&#62; de) one, for example.
-      </P
+	</P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
