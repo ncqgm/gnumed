@@ -4,8 +4,8 @@
 # Copyright (C) 2003 GNUMed developers
 # Licence: GPL
 
-import sys, os, string, re
-sys.path.append ('../../client/pycommon')
+import sys, os, string, re, urllib2
+
 import gmLog
 _log = gmLog.gmDefLog
 
@@ -57,11 +57,18 @@ class Psql:
 		"""
 		filename: a file, containg semicolon-separated SQL commands
 		"""
-		if os.access (filename, os.R_OK):
-			self.file = open(filename)
+		if re.match ("http://.*", filename) or re.match ("ftp://.*", filename) or re.match ("gopher://.*", filename):
+			try:
+				self.file = urllib2.urlopen (filename)
+			except URLError:
+				_log.Log (gmLog.lErr, "cannot access %s" % filename)
+				return 1
 		else:
-			_log.Log (gmLog.lErr, "cannot open file [%s]" % filename)
-			return 1
+			if os.access (filename, os.R_OK):
+				self.file = open(filename)
+			else:
+				_log.Log (gmLog.lErr, "cannot open file [%s]" % filename)
+				return 1
 		self.cmd = ''
 		self.lineno = 0
 		self.filename = filename
