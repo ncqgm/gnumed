@@ -40,3 +40,4 @@ def SetConfig (key, value):
     pool.ReleaseConnection ('gmconfiguration')
     
 
+

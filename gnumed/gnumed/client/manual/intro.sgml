@@ -76,9 +76,9 @@ libraries.
 </row>
 <row>
   <entry>wxWindows windowing library</entry>
-  <entry><ulink url="http://www.wxwindows.org/">
+  <entry><ulink url="http://www.wxwindows.org/dl_gtk.htm#dev">
 <citetitle>wxwindows web site</citetitle></ulink>,
-<ulink url="http://www.wxpython.org/">
+<ulink url="http://www.wxpython.org/download.php#binaries">
 <citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink>
 </entry>
 <entry>
@@ -107,6 +107,14 @@ export PYTHONPATH=/usr/lib/python1.5/site-packages:/usr/local/lib/python2.1/site
 </screen>
 </para>
 
+<para>
+NOTE: on some the later distros (Mandrake is where I have seen this), wxGTK does not install 
+as it requires a version of libpng older than what's installed. This old library is vanishing off 
+the web. Here is a  
+<ulink url="http://mail.student.unimelb.edu.au/~ihaywood/libpng-1.0.8-1.i386.rpm"> 
+<citetitle>mirror</citetitle></ulink></para> 
+
+
 <sect2><title>Configuring PostgreSQL (quoting Steven Duffy)</title>
 <para> Some steps are required to get the <application>PostgreSQL</application>
 database system running.</para>
@@ -120,7 +128,7 @@ postmaster -D ~postgres/data >logfile 2>&1 &
 <para>
 One minor issue has been overlooked so far, this is TCP/IP access to the database. In order to do this:</para>
 <procedure>
-<step><para>find and open <filename>postgresql.conf</filename></para></step>
+<step><para>find and open <filename>/etc/postgresql/postgresql.conf</filename></para></step>
 <step><para>change <command>tcpip_socket = false</command> to <command>tcpip_socket = on</command></para></step>
 <step><para>save changes and restart <application>PostgreSQL</application></para></step>
 </procedure>
@@ -137,11 +145,13 @@ options to pg_ctl. Otherwise, find the script from which postmaster is
 executed and simply add <command>-i</command> as an argument.
 </para>
 
+<para>Once PostgreSQL is set up, go to the section on
+setting up the database (<xref linkend="pgsql">.)</para>
+
 </sect2>
 
 <sect1 id="mac"><title>Mac</title>
-<para>I have not heard of this done. It may be possible on OS X.
-There is a Mac port of Python, and one of wxWindows is in progress.
+<para>This has been done, more information is needed.
 </para>
 </sect1>
 
@@ -229,9 +239,10 @@ before and type:
 /usr/bin/postmaster -D /usr/share/postgresql/data &
 </screen>
 </para>
-
 <para>Once PostgreSQL is set up, go to the section on
 setting up the database (<xref linkend="pgsql">.)</para>
+
+
 <sect3><title>Running PostgreSQL as an NT service</title>
 
 <para>On Windows NT, 2000 or XP it is possible to run
@@ -265,6 +276,8 @@ initdb -D /usr/share/postgresql/data
 The database will now run whenever Windows is loaded. 
 You <emphasis>must</emphasis> be user "postgres" to use the database
 on this computer. </para>
+<para>Once PostgreSQL is set up, go to the section on
+setting up the database (<xref linkend="pgsql">.)</para>
 
 </sect3>
 </sect2>
@@ -306,3 +319,5 @@ feed in the ER scripts?</para>
 </sect1>
 
 </chapter>
+
+
