@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.28 2003-05-27 14:04:42 sjtan Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmEditArea.py,v 1.29 2003-05-27 14:08:51 sjtan Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys, traceback
@@ -477,9 +477,6 @@ class gmPastHistoryEditArea(gmEditArea):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'past history')
 		except gmExceptions.ConstructorError:
-			#<DEBUG>
-			traceback.print_exc()
-			#</DEBUG>
 			_log.LogExceptions('cannot instantiate past Hx edit area', sys.exc_info())
 			raise
 	#----------------------------------------------------------------
@@ -1113,7 +1110,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.28  2003-05-27 14:04:42  sjtan
+# Revision 1.29  2003-05-27 14:08:51  sjtan
+#
+# read the gmLog now.
+#
+# Revision 1.28  2003/05/27 14:04:42  sjtan
 #
 # test events mapping field values on ok button press: K + I were right,
 # this is a lot more direct than handler scripting; just needed the additional
