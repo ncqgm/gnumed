@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.25 2003-05-26 15:42:52 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmEditArea.py,v 1.26 2003-05-27 13:00:41 sjtan Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys, traceback
@@ -18,7 +18,7 @@ _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	import gmI18N
 
-import gmExceptions, gmDateTimeInput, PropertySupport, gmTestEvent
+import gmExceptions, gmDateTimeInput, TestEvents
 
 from wxPython.wx import *
 
@@ -168,7 +168,8 @@ class cEditAreaField(wxTextCtrl):
 		self.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 #====================================================================
 #====================================================================
-class gmEditArea(PropertySupport.PropertySupported, wxPanel):
+#class gmEditArea(PropertySupport.PropertySupported, wxPanel):
+class gmEditArea( wxPanel):
 	def __init__(self, parent, id, aType = None):
 		# sanity checks
 		if aType not in _known_edit_area_types:
@@ -188,13 +189,13 @@ class gmEditArea(PropertySupport.PropertySupported, wxPanel):
 #		self.SetBackgroundColour(wxColor(222,222,222))
 
 		# set up links between edit fields and business objects
-		PropertySupport.PropertySupported.__init__(self)
+#		PropertySupport.PropertySupported.__init__(self)
 
-		self.listener = PropertySupport.TestPropertyListener("EDITAREA TEST  listener")
-		self.addPropertyListener( self.listener)
+#		self.listener = PropertySupport.TestPropertyListener("EDITAREA TEST  listener")
+#		self.addPropertyListener( self.listener)
 
-		self.testEventListener = gmTestEvent.TestEventListener()
-		self.addPropertyListener( self.testEventListener)
+#		self.testEventListener = gmTestEvent.TestEventListener()
+#		self.addPropertyListener( self.testEventListener)
 		# refactor: pull-up this to base class
 
 		self.input_fields = {}
@@ -204,6 +205,10 @@ class gmEditArea(PropertySupport.PropertySupported, wxPanel):
 
 		# make editing area
 		self.szr_editing_area = self.__make_editing_area()
+
+		#add the handler
+		self.test_handler = TestEvents.TestEvents()
+		self.test_handler.test_checkbox(self)
 
 		# added this so PropertySupport can notify Listeners of  the component map
 		# temporary hack for testing purposes
@@ -1082,7 +1087,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.25  2003-05-26 15:42:52  ncq
+# Revision 1.26  2003-05-27 13:00:41  sjtan
+#
+# removed redundant property support, read directly from __dict__
+#
+# Revision 1.25  2003/05/26 15:42:52  ncq
 # - some minor coding style cleanup here and there, hopefully don't break Syan's work
 #
 # Revision 1.24  2003/05/26 15:14:36  sjtan

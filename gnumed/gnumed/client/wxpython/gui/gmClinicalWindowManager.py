@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.5 2003-05-26 12:07:12 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.6 2003-05-27 13:00:41 sjtan Exp $
 # license: GPL
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -212,7 +212,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 			try:
 				p.register()
 			except:
-				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info() , fatal=1)
+				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info() , fatal=3)
 		#self.panel.Show (0)
 		self.panel.DisplayDefault()
 		self.gb['toolbar.%s' % self.internal_name()].Realize()
@@ -228,7 +228,11 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.5  2003-05-26 12:07:12  ncq
+# Revision 1.6  2003-05-27 13:00:41  sjtan
+#
+# removed redundant property support, read directly from __dict__
+#
+# Revision 1.5  2003/05/26 12:07:12  ncq
 # - fatal=1 gives full tracebacks, no need for explicity
 #
 # Revision 1.4  2003/05/25 04:43:15  sjtan
