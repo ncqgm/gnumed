@@ -6,12 +6,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: multisash.py,v 1.6 2005-02-17 17:28:14 cfmoro Exp $
+# RCS-ID:		$Id: multisash.py,v 1.7 2005-02-21 10:20:46 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/multisash.py,v $
-# $Id: multisash.py,v 1.6 2005-02-17 17:28:14 cfmoro Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: multisash.py,v 1.7 2005-02-21 10:20:46 cfmoro Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "cfmoro"
 __license__ = "GPL"
 	   
@@ -25,11 +25,14 @@ CR_SIZE = SH_SIZE * 3
 
 #----------------------------------------------------------------------
 
-class wxMultiSash(wxWindow):
+class cMultiSash(wxWindow):
+	"""
+	Main multisash widget. Dynamically displays a stack of child widgets.	
+	"""	
 	def __init__(self, *_args,**_kwargs):
 		apply(wxWindow.__init__,(self,) + _args,_kwargs)
 		self._defChild = EmptyChild
-		self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
+		self.child = cMultiSashSplitter(self,self,wxPoint(0,0),self.GetSize())
 		
 		# Gnumed: focused and bottom leaf
 		self.focussed_leaf = self.child.view1
@@ -114,10 +117,10 @@ class wxMultiSash(wxWindow):
 		print "splitter: %s [%s]" % (splitter.__class__.__name__, id(splitter))
 		print "- leaf 1: %s [%s]" % (splitter.view1.__class__.__name__, id(splitter.view1))
 		print "- leaf 2: %s [%s]" % (splitter.view2.__class__.__name__, id(splitter.view2))
-		if isinstance(splitter.view1, wxMultiSplit):
+		if isinstance(splitter.view1, cMultiSashSplitter):
 			print "leaf 1 is splitter, recurse down"
 			return self.__find_bottom_leaf(splitter.view1)
-		if isinstance(splitter.view2, wxMultiSplit):
+		if isinstance(splitter.view2, cMultiSashSplitter):
 			print "leaf 2 is splitter, recurse down"
 			return self.__find_bottom_leaf(splitter.view2)
 		print "found bottom split: %s [%s]" % (splitter.__class__.__name__, id(splitter))
@@ -148,7 +151,13 @@ class wxMultiSash(wxWindow):
 #		self.child.OnSize(None)
 
 #----------------------------------------------------------------------
-class wxMultiSplit(wxWindow):
+class cMultiSashSplitter(wxWindow):
+	"""
+	Basic split windows container of the multisash widget.
+	Has references to two leafs or splitted windows (typically, first leaf
+	is another cMultiSashSplitter and the second leaf is the displayed content
+	widget.
+	"""	
 	def __init__(self,multiView,parent,pos,size,view1 = None):
 		wxWindow.__init__(self,id = -1,parent = parent,pos = pos,size = size,
 						  style = wxCLIP_CHILDREN)
@@ -159,7 +168,7 @@ class wxMultiSplit(wxWindow):
 			self.view1.Reparent(self)
 			self.view1.MoveXY(0,0)
 		else:
-			self.view1 = wxMultiViewLeaf(self.multiView,self,
+			self.view1 = cMultiSashLeaf(self.multiView,self,
 										 wxPoint(0,0),self.GetSize())
 		self.direction = None
 
@@ -184,14 +193,14 @@ class wxMultiSplit(wxWindow):
 			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))	 
 			if caller == self.view1:
 				print "caller was leaf 1, hence splitting leaf 1"
-				self.view1 = wxMultiSplit(self.multiView,self,
+				self.view1 = cMultiSashSplitter(self.multiView,self,
 										  caller.GetPosition(),
 										  caller.GetSize(),
 										  caller)
 				self.view1.AddLeaf(direction,caller,pos)
 			else:
 				print "caller was leaf 2, hence splitting leaf 2"
-				self.view2 = wxMultiSplit(self.multiView,self,
+				self.view2 = cMultiSashSplitter(self.multiView,self,
 										  caller.GetPosition(),
 										  caller.GetSize(),
 										  caller)
@@ -212,7 +221,7 @@ class wxMultiSplit(wxWindow):
 				x,y = (0,pos)
 				w1,h1 = (w,h-pos)
 				w2,h2 = (w,pos)
-			self.view2 = wxMultiViewLeaf(self.multiView,self,
+			self.view2 = cMultiSashLeaf(self.multiView,self,
 										 wxPoint(x,y),wxSize(w1,h1))									 
 			self.view1.SetSize(wxSize(w2,h2))
 			self.view2.OnSize(None)
@@ -356,11 +365,11 @@ class wxMultiSplit(wxWindow):
 #		saveData = {}
 #		if self.view1:
 #			saveData['view1'] = self.view1.GetSaveData()
-#			if isinstance(self.view1,wxMultiSplit):
+#			if isinstance(self.view1,cMultiSashSplitter):
 #				saveData['view1IsSplit'] = 1
 #		if self.view2:
 #			saveData['view2'] = self.view2.GetSaveData()
-#			if isinstance(self.view2,wxMultiSplit):
+#			if isinstance(self.view2,cMultiSashSplitter):
 #				saveData['view2IsSplit'] = 1
 #		saveData['direction'] = self.direction
 #		v1,v2 = self.GetPositionTuple()
@@ -379,7 +388,7 @@ class wxMultiSplit(wxWindow):
 #			isSplit = data.get('view1IsSplit',None)
 #			old = self.view1
 #			if isSplit:
-#				self.view1 = wxMultiSplit(self.multiView,self,
+#				self.view1 = cMultiSashSplitter(self.multiView,self,
 #										  wxPoint(0,0),self.GetSize())
 #			else:
 #				self.view1 = wxMultiViewLeaf(self.multiView,self,
@@ -392,7 +401,7 @@ class wxMultiSplit(wxWindow):
 #			isSplit = data.get('view2IsSplit',None)
 #			old = self.view2
 #			if isSplit:
-#				self.view2 = wxMultiSplit(self.multiView,self,
+#				self.view2 = cMultiSashSplitter(self.multiView,self,
 #										  wxPoint(0,0),self.GetSize())
 #			else:
 #				self.view2 = wxMultiViewLeaf(self.multiView,self,
@@ -406,19 +415,23 @@ class wxMultiSplit(wxWindow):
 #			self.view2.OnSize(None)
 
 #----------------------------------------------------------------------
-class wxMultiViewLeaf(wxWindow):
+class cMultiSashLeaf(wxWindow):
+	"""
+	A leaf represent a split window, one instance of the displayed content
+	widget.
+	"""	
 	def __init__(self,multiView,parent,pos,size):
 		wxWindow.__init__(self,id = -1,parent = parent,pos = pos,size = size,
 						  style = wxCLIP_CHILDREN)
 		self.multiView = multiView
 
-		self.sizerHor = MultiSizer(self,MV_HOR)
-		self.sizerVer = MultiSizer(self,MV_VER)
+		self.sizerHor = cMultiSizer(self,MV_HOR)
+		self.sizerVer = cMultiSizer(self,MV_VER)
 		# Gnumed: Disable creators until obvious solution
-		#self.creatorHor = MultiCreator(self,MV_HOR)
-		#self.creatorVer = MultiCreator(self,MV_VER)
-		self.detail = MultiClient(self,multiView._defChild)
-		self.closer = MultiCloser(self)
+		#self.creatorHor = cMultiCreator(self,MV_HOR)
+		#self.creatorVer = cMultiCreator(self,MV_VER)
+		self.detail = cMultiSashLeafContent(self,multiView._defChild)
+		self.closer = cMultiCloser(self)
 
 		EVT_SIZE(self,self.OnSize)
 	#-----------------------------------------------------								
@@ -530,7 +543,10 @@ class wxMultiViewLeaf(wxWindow):
 #		self.detail.OnSize(None)
 
 #----------------------------------------------------------------------
-class MultiClient(wxWindow):
+class cMultiSashLeafContent(wxWindow):
+	"""
+	Widget that encapsulate contents of a leaf or split window.
+	"""	
 	def __init__(self,parent,childCls):
 		w,h = self.CalcSize(parent)
 		wxWindow.__init__(self,id = -1,parent = parent,
@@ -615,9 +631,10 @@ class MultiClient(wxWindow):
 
 
 #----------------------------------------------------------------------
-
-
-class MultiSizer(wxWindow):
+class cMultiSizer(wxWindow):
+	"""
+	Leaf's sash bar
+	"""	
 	def __init__(self,parent,side):
 		self.side = side
 		x,y,w,h = self.CalcSizePos(parent)
@@ -702,9 +719,10 @@ class MultiSizer(wxWindow):
 			evt.Skip()
 
 #----------------------------------------------------------------------
-
-
-class MultiCreator(wxWindow):
+class cMultiCreator(wxWindow):
+	"""
+	Sash bar's creator element
+	"""	
 	def __init__(self,parent,side):
 		self.side = side
 		x,y,w,h = self.CalcSizePos(parent)
@@ -808,9 +826,10 @@ class MultiCreator(wxWindow):
 		dc.DrawLine(w-1,2,w-1,h)
 
 #----------------------------------------------------------------------
-
-
-class MultiCloser(wxWindow):
+class cMultiCloser(wxWindow):
+	"""
+	Sash bar's destroyer element
+	"""	
 	def __init__(self,parent):
 		x,y,w,h = self.CalcSizePos(parent)
 		wxWindow.__init__(self,id = -1,parent = parent,
@@ -922,7 +941,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: multisash.py,v $
-# Revision 1.6  2005-02-17 17:28:14  cfmoro
+# Revision 1.7  2005-02-21 10:20:46  cfmoro
+# Class renaming
+#
+# Revision 1.6  2005/02/17 17:28:14  cfmoro
 # Some clean ups. Replace when initial leaf. UI fixes.
 #
 # Revision 1.5  2005/02/17 16:46:20  cfmoro

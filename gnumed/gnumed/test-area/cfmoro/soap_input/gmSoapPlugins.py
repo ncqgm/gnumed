@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -89,7 +89,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# left hand side
 		# - soap inputs panel
 		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
-		self.__soap_multisash = multisash.wxMultiSash(PNL_soap_editors, -1)				
+		self.__soap_multisash = multisash.cMultiSash(PNL_soap_editors, -1)				
 		#self.__soap_multisash.SetController(self)		# what does this do ?
 		# - buttons
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
@@ -547,7 +547,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.17  2005-02-17 16:46:20  cfmoro
+# Revision 1.18  2005-02-21 10:20:46  cfmoro
+# Class renaming
+#
+# Revision 1.17  2005/02/17 16:46:20  cfmoro
 # Adding and removing soap editors. Simplified multisash interface.
 #
 # Revision 1.16  2005/02/16 11:19:12  ncq
