@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -42,7 +42,7 @@ except ImportError:
 			_isPGDB = 1
 		except ImportError:
 			print "Cannot find any Python module for connecting to the database server. Program halted."
-			_log.LogException("No Python database adapter found.", sys.exc_info(), fatal=1)
+			_log.LogException("No Python database adapter found.", sys.exc_info(), verbose=1)
 			raise
 
 # FIXME: DBMS should eventually be configurable
@@ -264,8 +264,8 @@ class ConnectionPool:
 		# is located from config DB
 		cfg_db = ConnectionPool.__databases['config']
 		cursor = cfg_db.cursor()
-		cmd = "select name, host, port, opt, tty from db where id = %d" % srvc_id
-		if not run_query(cursor, cmd):
+		cmd = "select name, host, port, opt, tty from db where id = %s ;"
+		if not run_query(cursor, cmd, srvc_id):
 			_log.Log(gmLog.lPanic, 'cannot get login info for service [%s] with id [%s] from config database' % (service, srvc_id))
 			_log.Log(gmLog.lPanic, 'make sure your service-to-database mappings are properly configured')
 			_log.Log(gmLog.lWarn, 'trying to make do with default login parameters')
@@ -301,7 +301,7 @@ class ConnectionPool:
 			try:
 				login = request_login_params()
 			except:
-				_log.LogException("Exception: Cannot connect to databases without login information !", sys.exc_info(), fatal=1)
+				_log.LogException("Exception: Cannot connect to databases without login information !", sys.exc_info(), verbose=1)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
 		_log.Log(gmLog.lData, login.GetInfoStr())
@@ -330,8 +330,8 @@ class ConnectionPool:
 
 		# establish connections to all servers we need
 		# according to configuration database
-		cmd = "select * from config where profile='%s'" % login.GetProfile()
-		if not run_query(cursor, cmd):
+		cmd = "select * from config where profile=%s ;"
+		if not run_query(cursor, cmd, login.GetProfile()):
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load user profile [%s] from database" % login.GetProfile())
 		databases = cursor.fetchall()
@@ -374,7 +374,7 @@ class ConnectionPool:
 			else:
 				conn = dbapi.connect(dsn)
 		except StandardError:
-			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), fatal = 1)
+			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
 
 		# set the default characteristics of our sessions
@@ -392,9 +392,9 @@ class ConnectionPool:
 		else:
 			access_mode = 'READ WRITE'
 		_log.Log(gmLog.lData, "setting session to [%s] for %s@%s:%s" % (access_mode, login.GetUser(readonly), login.GetHost(), login.GetDatabase()))
-		cmd = 'set session characteristics as transaction %s;' % access_mode
+		cmd = 'set session characteristics as transaction %s ;'
 		# activate when 7.4 is common
-#		if not run_query(curs, cmd):
+#		if not run_query(curs, cmd, access_mode):
 #			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % access_mode)
 			# FIXME: once 7.4 is minimum, close connection and return None here
 
@@ -682,9 +682,9 @@ def run_notifications_debugger():
 			if args[0] == "ignore":
 				dbpool.Unlisten('default', sig_names[0], myCallback)
 			if args[0] == "send":
-				cmd = 'NOTIFY "%s";' % sig_names[0]
-				print "... running >>>%s<<<" % cmd
-				if not run_query(rocurs, cmd):
+				cmd = 'NOTIFY  %s ;'
+				print "... running >>>%s<<<" % (cmd % sig_names[0])
+				if not run_query(rocurs, cmd, sig_names[0]):
 					print "... error sending [%s]" % cmd
 				roconn.commit()
 			continue
@@ -761,7 +761,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.60  2003-06-26 04:18:40  ihaywood
+# Revision 1.61  2003-06-26 21:37:00  ncq
+# - fatal->verbose, curs(cmd, arg) style
+#
+# Revision 1.60  2003/06/26 04:18:40  ihaywood
 # Fixes to gmCfg for commas
 #
 # Revision 1.59  2003/06/25 22:24:55  ncq
