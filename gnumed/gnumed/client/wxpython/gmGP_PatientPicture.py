@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_PatientPicture.py,v $
-# $Id: gmGP_PatientPicture.py,v 1.7 2004-03-04 19:46:54 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmGP_PatientPicture.py,v 1.8 2004-05-28 08:57:08 shilbert Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -32,12 +32,12 @@ class cPatientPicture (wxStaticBitmap):
 			self.default_photo = "../bitmaps/any_body2.png"
 
 		# just in case
-	        wxImage_AddHandler(wxPNGHandler())
+		wxImage_AddHandler(wxPNGHandler())
 		wxImage_AddHandler(wxJPEGHandler ())
 		if not current_photo:
 			current_photo = self.default_photo
 		img_data = wxImage(current_photo, wxBITMAP_TYPE_ANY)
-		bmp_data = wxBitmapFromImage(img = img_data)
+		bmp_data = wxBitmapFromImage(img_data)
 		self.x = bmp_data.GetWidth ()
 		self.y = bmp_data.GetHeight ()
 		del img_data
@@ -100,7 +100,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmGP_PatientPicture.py,v $
-# Revision 1.7  2004-03-04 19:46:54  ncq
+# Revision 1.8  2004-05-28 08:57:08  shilbert
+# - bugfix for wxBitmapFromImage()
+#
+# Revision 1.7  2004/03/04 19:46:54  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.6  2004/03/03 23:53:22  ihaywood
