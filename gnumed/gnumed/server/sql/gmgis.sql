@@ -112,7 +112,7 @@ create table street (
         id serial primary key,
         id_urb integer references urb not null,
         name varchar(60),
-	postcode char (10), -- for UK (or similar) postcodes
+	postcode char (10) -- for UK (or similar) postcodes
 ) inherits (audit_gis);
 
 COMMENT ON TABLE street IS
