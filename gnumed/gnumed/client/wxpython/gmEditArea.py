@@ -1,3 +1,9 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
+# $Id: gmEditArea.py,v 1.17 2003-02-14 01:24:54 ncq Exp $
+__version__ = "$Revision: 1.17 $"
+__author__ = "R.Terry"
+#------------------------------------------------------------
+
 from wxPython.wx import *
 
 ID_PROGRESSNOTES = wxNewId()
@@ -660,3 +666,8 @@ if __name__ == "__main__":
 	app.MainLoop()
 else:
 	import gmLog
+#------------------------------------------------------------
+# $Log: gmEditArea.py,v $
+# Revision 1.17  2003-02-14 01:24:54  ncq
+# - cvs metadata keywords
+#
