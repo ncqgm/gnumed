@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -410,7 +410,10 @@ class cLogTargetFile(cLogTarget):
 		self.__handle.close()
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		self.__handle.write(aTimeStamp + aPrefix + aLocation + aMsg)
+		try:
+			self.__handle.write(aTimeStamp + aPrefix + aLocation + aMsg)
+		except:
+			print "*** cannot write to log file [%s] ***" % self.ID
 #---------------------------------------------------------------
 class cLogTargetConsole(cLogTarget):
 	def __init__ (self, aLogLevel = lErr):
@@ -421,10 +424,16 @@ class cLogTargetConsole(cLogTarget):
 		self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		sys.stdout.write(aPrefix + aLocation + aMsg)
+		try:
+			sys.stdout.write(aPrefix + aLocation + aMsg)
+		except:
+			print "*** cannot write to STDOUT ***"
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		sys.stderr.write(aPrefix + aLocation + aMsg)
+		try:
+			sys.stderr.write(aPrefix + aLocation + aMsg)
+		except:
+			print "*** cannot write to STDERR ***"
 #---------------------------------------------------------------
 class cLogTargetSyslog(cLogTarget):
 	def __init__ (self, aLogLevel = lErr):
@@ -771,7 +780,7 @@ import gmLog
 
 # it is rather convenient to define a shortcut:
 """
-__log__ = gmLog.gmDefLog
+_log = gmLog.gmDefLog
 """
 
 # if you want to add log targets do this:
@@ -779,7 +788,7 @@ __log__ = gmLog.gmDefLog
 # make a _real_ log target
 loghandle = gmLog.cLogTargetFile (gmLog.lData, 'your-log-file.log', "ab")
 # and tell the default logger to also use that
-__log__.AddTarget(loghandle)
+_log.AddTarget(loghandle)
 """
 
 # alternatively if you want to setup your own logger with targets:
@@ -803,7 +812,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.39  2003-09-22 23:19:58  ncq
+# Revision 1.40  2003-09-30 19:02:28  ncq
+# - added try: except: on write errors to log targets ...
+#
+# Revision 1.39  2003/09/22 23:19:58  ncq
 # - raise level of self-name logging for file targets
 #
 # Revision 1.38  2003/07/21 20:54:36  ncq
