@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.13 2003-02-20 02:13:49 michaelb Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmGP_TabbedLists.py,v 1.14 2003-02-25 05:30:46 michaelb Exp $
+__version__ = "$Revision: 1.14 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -50,68 +50,86 @@ scriptdata = {
 
 #=====================================================================
 class Notebook(wxNotebook):
-    """ Sets tool tips for notebook tab images """
-    # FIXME: make 'wxTipWindow' more like 'wxToolTip'
-    #		find window coordinates
-    #		SetBoundingRect is in screen coord
+    """ sets tooltips for notebook tab images """
 
     tip_shown=0
     def __init__(self, parent, id):
         wxNotebook.__init__(self,parent,id)
 
-        self.tip_area1=wxRect(1,1,31,31)
-        self.tip_area2=wxRect(32,1,31,31)
-        self.tip_area3=wxRect(63,1,31,31)
-        self.tip_area4=wxRect(94,1,31,31)
-        self.tip_area5=wxRect(125,1,31,31)
-        self.tip_area6=wxRect(156,1,31,31)
+	# tool tips activated in...
+        self.tip_area1=wxRect(2,2,30,30)
+        self.tip_area2=wxRect(32,2,31,30)
+        self.tip_area3=wxRect(63,2,31,30)
+        self.tip_area4=wxRect(94,2,31,30)
+        self.tip_area5=wxRect(125,2,31,30)
+        self.tip_area6=wxRect(156,2,31,30)
 
-        EVT_MOTION(self, self.OnMouseMotion)
+	EVT_MOTION(self, self.OnMouseMotion)
+        EVT_LEFT_DOWN(self, self.OnLeftDown)
 
     def OnMouseMotion(self, evt):
-	x, y = evt.GetPosition()
+	pt_local = self.GetPosition()
+	#print 'x_local', pt_local.x, 'y_local', pt_local.y		#test
+	pt_global = self.ClientToScreen(pt_local)
+	#print 'x_global', pt_global.x, 'y_global', pt_global.y		#test
+
+	x, y = evt.GetPosition()					# clean-up --- pt_local = x,y (?)
         if(self.tip_area1.Inside(x,y)):
             if(self.tip_shown!=1):
                 tipwin1=wxTipWindow(self, _('Prescriptions'))
-                #print 'inside 1'
-                tipwin1.SetBoundingRect(self.tip_area1)
-                #tipwin1.SetBoundingRect(wxRect(1,1,500,500))
-                self.tip_shown=1
+                tipwin1.SetBoundingRect(wxRect(1+pt_global.x,1+pt_global.y,30,30))
+                pt=wxPoint((1+pt_global.x+4+5), (1+pt_global.y+32+4))
+                tipwin1.Move(pt) # position tool tip
+                self.tip_shown=1 # avoid tool tip flashing
 
         elif(self.tip_area2.Inside(x,y)):
             if(self.tip_shown!=2):
                 tipwin2=wxTipWindow(self, _('Requests'))
-                #tipwin2.SetBoundingRect(self.tip_area2)
-                self.tip_shown=2
+                tipwin2.SetBoundingRect(wxRect(32+pt_global.x,1+pt_global.y,31,30))
+                pt=wxPoint((32+pt_global.x+4+5), (1+pt_global.y+32+4))
+                tipwin2.Move(pt)
+		self.tip_shown=2
 
         elif(self.tip_area3.Inside(x,y)):
             if(self.tip_shown!=3):
                 tipwin3=wxTipWindow(self, _('Measurements'))
-                #tipwin3.SetBoundingRect(self.tip_area3)
+                tipwin3.SetBoundingRect(wxRect(63+pt_global.x,1+pt_global.y,31,30))
+                pt=wxPoint((63+pt_global.x+4+5), (1+pt_global.y+32+4))
+                tipwin3.Move(pt)
                 self.tip_shown=3
 
         elif(self.tip_area4.Inside(x,y)):
             if(self.tip_shown!=4):
                 tipwin4=wxTipWindow(self, _('Referrals'))
-                #tipwin4.SetBoundingRect(self.tip_area4)
+                tipwin4.SetBoundingRect(wxRect(94+pt_global.x,1+pt_global.y,31,30))
+                pt=wxPoint((94+pt_global.x+4+5), (1+pt_global.y+32+4))
+                tipwin4.Move(pt)
                 self.tip_shown=4
 
         elif(self.tip_area5.Inside(x,y)):
             if(self.tip_shown!=5):
                 tipwin5=wxTipWindow(self, _('Recalls and Reviews'))
-                #tipwin5.SetBoundingRect(self.tip_area5)
+                tipwin5.SetBoundingRect(wxRect(125+pt_global.x,1+pt_global.y,31,30))
+                pt=wxPoint((125+pt_global.x+4+5), (1+pt_global.y+32+4))
+                tipwin5.Move(pt)
                 self.tip_shown=5
 
         elif(self.tip_area6.Inside(x,y)):
             if(self.tip_shown!=6):
                 tipwin6=wxTipWindow(self, _('Inbox'))
-                #tipwin6.SetBoundingRect(self.tip_area6)
+                tipwin6.SetBoundingRect(wxRect(156+pt_global.x,1+pt_global.y,31,30))
+                pt=wxPoint((156+pt_global.x+4+5), (1+pt_global.y+32+4))
+                tipwin6.Move(pt)
                 self.tip_shown=6
         else:
             self.tip_shown=0
 
-class TabbedLists(wxPanel): #, wxColumnSorterMixin):
+    def OnLeftDown(self,evt):		# have fix clicking problem - make tab select a single click
+	pass
+	#self.tipwin1.destroy()  	# ???
 
+class TabbedLists(wxPanel): #, wxColumnSorterMixin):
+    """ a panel to hold the tabbed list """
     __icons_script = {"""icon_Rx_symbol""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"c\x05Cu\xae\xc4`u=\x85d\x05e\x03 p\xb3\x00\
 \xf3#@|\x0b\x03\x10\x04\xf3\x15\x80|\xbf\xfc\xbcT(\x07\x15\xe0\x15\xd4\x83\
 \x00t\xc1\x08 \x80\x8a"\t\xc2I\xb2\x04\xc1 "\x82R\x8b\x80\x08UP\x01b,\xdc\
@@ -320,7 +338,10 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.13  2003-02-20 02:13:49  michaelb
+# Revision 1.14  2003-02-25 05:30:46  michaelb
+# improvements on the tooltips 'attached' to the tab images
+#
+# Revision 1.13  2003/02/20 02:13:49  michaelb
 # adding tooltips for the images on the tabs of the wxNotebook
 #
 # Revision 1.12  2003/02/07 21:01:21  sjtan
