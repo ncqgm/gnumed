@@ -1,19 +1,14 @@
-"""GnuMed simple EMR text dump plugin
+"""GnuMed demographics editor plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import sys
-if __name__ == "__main__":
-	sys.path.append('../business')
-	sys.path.append('../pycommon')
-	sys.path.append('patient')
 
-import Gnumed.pycommon.gmLog as gmLog
-import Gnumed.wxpython.gmPlugin as gmPlugin
-import Gnumed.business.gmDemographicRecord as gmDemographicRecord
-import Gnumed.wxpython.gmDemographics as gmDemographics
+from Gnumed.pycommon import gmLog
+from Gnumed.wxpython import gmPlugin, gmDemographics
+from Gnumed.business import gmDemographicRecord
 
 gmLog.gmDefLog.Log(gmLog.lData, __version__)
 
@@ -26,13 +21,11 @@ class gmDemographicsEditor(gmPlugin.wxNotebookPlugin):
 		return gmDemographicsEditor.tab_name
 
 	def GetWidget (self, parent):
-	#	print "((((((((( gmDEMO"
 		try:
 			self.panel = gmDemographics.PatientsPanel( parent, -1)
-
 		except:
-	#		print "UNABLE TO GET gmDemographics instance"
 			gmLog.gmDefLog.LogException("failed to instantiate gmDemographics.PatientsPanel", sys.exc_info(), verbose=1)
+			return None
 		return self.panel
 
 	def MenuInfo (self):
@@ -42,13 +35,14 @@ class gmDemographicsEditor(gmPlugin.wxNotebookPlugin):
 		pass
 
 	def can_receive_focus(self):
-		# need patient
+		# need patient (unless we use this as a first-off patient input widget)
 	#	if not self._verify_patient_avail():
 	#		return None
 		return 1
 
-	def newPatient(self):
-		self.panel.newPatient()
+	# FIXME: I can't see why we'd need this ?
+#	def newPatient(self):
+#		self.panel.newPatient()
 
 #================================================================
 # MAIN
@@ -66,7 +60,10 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.4  2004-03-07 13:19:18  ihaywood
+# Revision 1.5  2004-03-07 22:05:08  ncq
+# - some cleanup
+#
+# Revision 1.4  2004/03/07 13:19:18  ihaywood
 # more work on forms
 #
 # Revision 1.3  2004/02/25 09:46:22  ncq
