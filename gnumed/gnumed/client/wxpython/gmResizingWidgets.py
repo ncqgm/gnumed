@@ -3,12 +3,13 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.8 2004-12-15 21:49:47 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmResizingWidgets.py,v 1.9 2004-12-21 17:20:24 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
 from wxPython import wx
+from wxPython import stc
 
 from Gnumed.pycommon import gmI18N, gmLog
 from Gnumed.wxpython import gmGuiHelpers
@@ -77,8 +78,8 @@ class cPickList (wx.wxListBox):
 		self.alive = 0
 		wx.wxListBox.Destroy (self)
 #====================================================================
-# there isn't really a particular reason why we do
-# not use wxMiniFrame instead of wxFrame
+# according to Ian there isn't really a particular reason
+# why we do not use wxMiniFrame instead of wxFrame or even a wxWindow
 class cPopupFrame(wx.wxFrame):
 #	def __init__ (self, embed_header, widget_class, originator=None, pos=wxDefaultPosition):
 #		wxFrame.__init__(self, None, wxNewId(), widget_class.__name__, pos=pos, style=wxSIMPLE_BORDER)
@@ -245,11 +246,10 @@ class cResizingWindow(wx.wxScrolledWindow):
 		Overridden by descendants, this function uses AddWidget and Newline to form
 		the outline of the widget
 		"""
-		pass
+		_log.Log(gmLog.lPanic, '[%s] forgot to override DoLayout()' % self.__class__.__name__)
 	#------------------------------------------------
 	def ReSize (self, widget, new_height):
-		"""
-		Called when a child widget has a new height, redoes the layout
+		"""Called when a child widget has a new height, redoes the layout.
 		"""
 		if self.__szr_main:
 			self.__szr_main.SetItemMinSize (widget, -1, new_height)
@@ -287,7 +287,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		for widget_list in self.__lines:
 			for widget in line:
 				if values.has_key(widget['ID']):
-					if isinstance(widget['instance'], wx.wxStyledTextCtrl):
+					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
 						widget['instance'].SetText(values[widget['ID']])
 					elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
 						widget['instance'].SetSelection(values[widget['ID']])
@@ -305,7 +305,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		for widget_list in self.__lines:
 			for widget in line:
 				if widget['ID'] is not None:
-					if isinstance(widget['instance'], wx.wxStyledTextCtrl):
+					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
 						vals[widget['ID']] = widget['instance'].GetText()
 					elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
 						vals[widget['ID']] = widget['instance'].GetSelection()
@@ -319,7 +319,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		"""
 		for line in self.__lines:
 			for widget in line:
-				if isinstance (widget['instance'], wx.wxStyledTextCtrl):
+				if isinstance (widget['instance'], stc.wxStyledTextCtrl):
 					widget['instance'].ClearAll()
 				elif isinstance (widget['instance'], wx.wxTextCtrl):
 					widget['instance'].Clear()
@@ -329,18 +329,17 @@ class cResizingWindow(wx.wxScrolledWindow):
 					widget['instance'].SetSelection(0)
 				elif isinstance (widget['instance'], wx.wxSpinCtrl):
 					widget['instance'].SetValue(widget['instance'].GetMin())
-
 	#------------------------------------------------
 	def SetFocus (self):
+		# try to focus on the first line if we can.
 		try:
-			self.lines[0][0]['instance'].SetFocus ()
-			# try to focus on the first line if we can.
+			self.lines[0][0]['instance'].SetFocus()
 		except IndexError:
 			pass
 		except AttributeError:
 			pass
 	#------------------------------------------------
-	def GetPickList (self, callback, x_intended, y):
+	def GetPickList (self, callback, x_intended, y_intended):
 		"""
 		Returns a pick list, destroying a pre-existing pick list for this widget
 
@@ -351,7 +350,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		@param x_intended: the X-position where the list should appear
 		@type x_intended: int
 		@param x: the Y-position where the list should appear
-		@type y: int
+		@type y_intended: int
 
 		@return: PickList
 		"""
@@ -360,29 +359,30 @@ class cResizingWindow(wx.wxScrolledWindow):
 #			self.__list.Destroy()
 		our_width, our_height = self.GetSizeTuple()
 		char_height = self.GetCharHeight()
-		# make list 9 lines high
+		# make list 9 lines of height char_height high
 		list_height = char_height * 9
 		# and find best placement
+		# - height
 		if (list_height + char_height) > our_height:
 			list_height = our_height
-			y = 0
-		elif (y + list_height + char_height) > our_height:
-			y = our_height - list_height
+			y_final = 0
+		elif (y_intended + list_height + char_height) > our_height:
+			y_final = our_height - list_height
 		else:
-			y += char_height
+			y_final = y_intended + char_height
+		# - width
 		list_width = int(list_height / 1.4)
 		if list_width > our_width:
 			list_width = our_width
-			x_intended = 0
+			x_final = 0
 		elif (x_intended + list_width) > our_width:
-			x_intended = our_width - list_width
-#		self.__list = cPickList(self, wx.wxPoint(x_intended, y), wx.wxSize(list_width, list_height), callback=callback)
+			x_final = our_width - list_width
+		else:
+			x_final = x_intended
+#		self.__list = cPickList(self, wx.wxPoint(x_final, y_final), wx.wxSize(list_width, list_height), callback=callback)
 #		return self.__list
-		list = cPickList(self, wx.wxPoint(x_intended, y), wx.wxSize(list_width, list_height), callback=callback)
+		list = cPickList(self, wx.wxPoint(x_final, y_final), wx.wxSize(list_width, list_height), callback=callback)
 		return list
-	#------------------------------------------------
-	def get_best_popup_dimensions(self, x_intended, y_intended):
-		pass 
 	#------------------------------------------------
 	def set_completion_callback(self, callback):
 		self.complete = callback
@@ -405,7 +405,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 #		pass
 
 #==========================================================
-class cResizingSTC (wx.wxStyledTextCtrl):
+class cResizingSTC (stc.wxStyledTextCtrl):
 	"""
 	A StyledTextCrl that monitors the size of its internal text and
 	resizes the parent accordingly.
@@ -415,17 +415,17 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	def __init__ (self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=0):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
-		wx.wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
-		self.SetWrapMode (wx.wxSTC_WRAP_WORD)
+		stc.wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
+		self.SetWrapMode (stc.wxSTC_WRAP_WORD)
 		self.StyleSetSpec (STYLE_ERROR, "fore:#7F11010,bold")
 		self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0")
 		self.StyleSetChangeable (STYLE_EMBED, 0)
 #		self.StyleSetHotSpot (STYLE_EMBED, 1)
-		self.SetEOLMode (wx.wxSTC_EOL_LF)
-		self.SetModEventMask (wx.wxSTC_MOD_INSERTTEXT | wx.wxSTC_MOD_DELETETEXT | wx.wxSTC_PERFORMED_USER)
+		self.SetEOLMode (stc.wxSTC_EOL_LF)
+		self.SetModEventMask (stc.wxSTC_MOD_INSERTTEXT | stc.wxSTC_MOD_DELETETEXT | stc.wxSTC_PERFORMED_USER)
 
-		wx.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
-		wx.EVT_KEY_DOWN (self, self.__OnKeyDown)
+		stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
+		wx.EVT_KEY_DOWN (self, self.__on_key_down)
 		wx.EVT_KEY_UP (self, self.__OnKeyUp)
 
 		self.next_in_tab_order = None
@@ -434,7 +434,8 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		self.__parent = parent
 
 		self.__popup_keywords = {}
-		self.__popup_win = None
+		self.__popup = None
+		self.__popup_visible = False
 
 		self.__show_list = 1
 		self.__embed = {}
@@ -446,7 +447,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	#------------------------------------------------
 	def SetText(self, text):
 		self.__show_list = 0
-		wx.wxStyledTextCtrl.SetText(self, text)
+		stc.wxStyledTextCtrl.SetText(self, text)
 		self.__show_list = 1
 	#------------------------------------------------
 	def ReplaceText (self, start, end, text, style=-1, space=0):
@@ -492,7 +493,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		self.ReplaceTarget ('')
 	#------------------------------------------------
 	def SetFocus (self):
-		wx.wxStyledTextCtrl.SetFocus(self)
+		stc.wxStyledTextCtrl.SetFocus(self)
 		cur = self.PointFromPosition(self.GetCurrentPos())
 		self.__parent.EnsureVisible (self, cur.x, cur.y)
 	#------------------------------------------------
@@ -506,7 +507,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	#------------------------------------------------
 	def __on_STC_modified(self, event):
 		# did the user do anything of note to us ?
-		if not (event.GetModificationType() & (wx.wxSTC_MOD_INSERTTEXT | wx.wxSTC_MOD_DELETETEXT)):
+		if not (event.GetModificationType() & (stc.wxSTC_MOD_INSERTTEXT | stc.wxSTC_MOD_DELETETEXT)):
 			event.Skip()
 			return
 		# do we need to resize ?
@@ -515,7 +516,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		x, visible_height = self.GetSizeTuple()
 		if visible_height != true_txt_height:
 			self.__parent.ReSize(self, true_txt_height)
-		# get current relevant string
+		# get currently relevant term from string
 		curs_pos = self.GetCurrentPos()
 		text = self.GetText()
 		self.fragment_start = text.rfind(';', 0, curs_pos)				# FIXME: ';' hardcoded as separator
@@ -561,111 +562,212 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 			self.list = self.__parent.GetPickList(self.__userlist, x+p.x, y+p.y)
 		self.list.SetItems(matches)
 	#------------------------------------------------
-	def __OnKeyDown (self, event):
+	def __on_key_down(self, event):
+		"""Act on some key presses we want to process ourselves."""
 
-		# FIXME: I think the event.Skip() logic is faulty, no ?
-		# FIXME: after all Skip() means that we DID handle the key
+		if self.__popup is not None:
+			print "proxying keypress to popup"
+			self.__popup.on_key_down(event)
+			if not event.GetSkipped():
+				return
 
-		if (self.list is not None) and not self.list.alive:
-			self.list = None # someone else has destroyed our list!
+#		if (self.list is not None) and not self.list.alive:
+#			self.list = None # someone else has destroyed our list!
 
 		curs_pos = self.GetCurrentPos()
 
-		# tab/shift-tab handling
+		# <DOWN>
+		# - if in list: scroll list
+		# - else standard behaviour
+		# NOTE: we discuss whether to move to next in tab
+		# NOTE: order from last line
+		if event.KeyCode() == wx.WXK_DOWN:
+#			if (self.list is not None) and self.list.alive:
+#				self.list.Down()
+#				return
+			pass
+
+		# <UP>
+		# - if in list: scroll list
+		# - else standard behaviour
+		# NOTE: we discuss whether to move to prev in tab
+		# NOTE: order from first
+		if event.KeyCode() == wx.WXK_UP:
+#			if (self.list is not None) and self.list.alive:
+#				self.list.Up()
+#				return
+			pass
+
+		# <TAB> key
+		# - move to next/prev_in_tab_order
+		# FIXME: what about inside a list ?
 		if event.KeyCode() == wx.WXK_TAB:
 			if event.m_shiftDown:
-				if self.prev_in_tab_order:
+				if self.prev_in_tab_order is not None:
 					self.prev_in_tab_order.SetFocus()
 			else:
-				if self.next_in_tab_order:
+				if self.next_in_tab_order is not None:
 					self.next_in_tab_order.SetFocus()
+			return
 				# FIXME: why ?
-				elif self.__parent.complete:
-					self.__parent.complete()
-		# FIXME: why ?
-		elif event.KeyCode() == wx.WXK_F12 and self.__parent.complete:
-			self.__parent.complete()
-		# ';' pressed
-		elif event.KeyCode() == ord(';'):
-			# cannot "end" empty phrase
+#				elif self.__parent.complete:
+#					self.__parent.complete()
+
+		# <;>
+		# - do not put into empty field
+		# - do not allow consecutive ';'s
+		if event.KeyCode() == ord(';'):
 			if self.GetLength() == 0:
-				wx.wxBell()
-			# cannot enter two ';' in a row
-			# FIXME: why is this ANDed ? should this be getcharat() and getcharat() ?
-			elif self.GetCharAt(curs_pos and curs_pos-1) == ord (';'):
-				wx.wxBell()
-			else:
-				event.Skip()
+				return
+			# FIXME: smartup for whitespace after trailing ';'
+			if self.GetCharAt(curs_pos-1) == ord(';'):
+				return
+
 		# <DEL>
-		elif event.KeyCode() == wx.WXK_DELETE:
+		# - if inside embedded string
+		#	- delete entire string and data dict
+		# - else standard behaviour
+		if event.KeyCode() == wx.WXK_DELETE:
+			# FIXME: perhaps add check for regex, too ?
 			if self.GetStyleAt(curs_pos) == STYLE_EMBED:
 				self.DelPhrase(curs_pos)
-				# FIXME: also delete additional data dict ...
-			else:
-				event.Skip()
+				# FIXME: also delete corresponding "additional data" dict ...
+				return
+
 		# <BACKSPACE>
-		elif event.KeyCode() == wx.WXK_BACK:
-			# FIXME: why is this ANDed ? should this be getcharat() and getcharat() ?
-			if self.GetStyleAt(curs_pos and curs_pos-1) == STYLE_EMBED:
-				self.DelPhrase (curs_pos)
-				# FIXME: also delete additional data dict ...
-			else:
-				event.Skip()
+		# - if inside embedded string
+		#	- delete entire string and data dict
+		# - else standard behaviour
+		if event.KeyCode() == wx.WXK_BACK:
+			# FIXME: perhaps add check for regex, too ?
+			if self.GetStyleAt(curs_pos-1) == STYLE_EMBED:
+				self.DelPhrase (curs_pos-1)
+				# FIXME: also delete corresponding "additional data" dict ...
+				return
+
 		# <ENTER>
-		elif event.KeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
-			# if list open proxy <ENTER> to list
-			if (self.list is not None) and self.list.alive:
-				self.list.Enter ()
-			# if no text in the widget
-			elif self.GetLength() == 0:
-				# go to next widget
-				if self.next_in_tab_order:
+		# - if in list: proxy to list
+		# - in empty widget: go to next in tab order
+		# - after last character in widget:
+		#	- if after ';': go to next in tab order
+		#	- f no ';' there: add one
+		if event.KeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
+#			if (self.list is not None) and self.list.alive:
+#				self.list.Enter()
+#				return
+			if self.GetLength() == 0:
+				if self.next_in_tab_order is not None:
 					self.next_in_tab_order.SetFocus()
-			# if in last line
-			elif curs_pos == self.GetLength():
-				if self.GetCharAt (curs_pos and curs_pos-1) == ord (';'):
+				return
+			if curs_pos == self.GetLength():
+				# FIXME: make this smarter to deal with whitespace after ';'
+				if self.GetCharAt(curs_pos-1) == ord(';'):
 					if self.next_in_tab_order:
-						self.next_in_tab_order.SetFocus ()
-					elif self.__parent.complete:
-						self.__parent.complete ()
+						self.next_in_tab_order.SetFocus()
+					# FIXME: why ?
+#					elif self.__parent.complete:
+#						self.__parent.complete()
 				else:
 					self.AddText (';')
-			else:
-				event.Skip()
-		# <UP>
-		elif event.KeyCode() == wx.WXK_UP:
-			# if list open proxy <UP> to list
-			if (self.list is not None) and self.list.alive:
-				self.list.Up()
-		# <DOWN>
-		elif event.KeyCode() == wx.WXK_DOWN:
-			# if list open proxy <UP> to list
-			if (self.list is not None) and self.list.alive:
-				self.list.Down()
-		# other keys: no action
-		else:
-			event.Skip()
+				return
+
+		# FIXME: why ?
+#		if event.KeyCode() == wx.WXK_F12 and self.__parent.complete:
+#			self.__parent.complete()
+
+		event.Skip()	# skip to next event handler to keep processing
+		print "unhandled key", event.KeyCode()
 	#------------------------------------------------
 	def __OnKeyUp (self, event):
 		if not self.list:
 			curs_pos = self.PointFromPosition(self.GetCurrentPos())
 			self.__parent.EnsureVisible (self, curs_pos.x, curs_pos.y)
 	#------------------------------------------------
+	def _cb_on_popup_completion(self, was_cancelled=False):
+		"""Callback for popup completion.
+
+		- this is called when the user has signalled
+		  being done interacting with the popup
+		- if was_cancelled is True the popup content should
+		  be ignored and no further action taken on it
+		"""
+		print "popup interaction completed"
+		self.__popup_visible = False
+		if self.__popup is None:
+			print "huh ? getting called from non-existing popup ?"
+			return
+		if not was_cancelled:
+			print "getting data from popup and acting on it"
+			print self.__popup.GetValue()
+			# FIXME: embed and store
+		# maybe be a little smarter here
+		self.__popup.Destroy()
+		self.__popup = None
+	#------------------------------------------------
 	# internal API
+	#------------------------------------------------
+	def __get_best_popup_position(self):
+		print "calculating optimal popup geometry"
+		parent_width, parent_height = self.__parent.GetSizeTuple()
+		# FIXME: this should be gotten from ourselves, not the parent, but how ?
+		char_height = self.__parent.GetCharHeight()
+		# make popup 9 lines of height char_height high
+		# FIXME: better detect this, but how ?
+		popup_height = char_height * 9
+		# get current cursor position in pixels
+		curs_pos = self.PointFromPosition(self.GetCurrentPos())
+		# find best placement
+		# - height
+		if (popup_height + char_height) > parent_height:
+			# don't let popup get bigger than parent window
+			popup_height = parent_height
+			y_final = 0
+		elif ((popup_height + char_height) + curs_pos.y) > parent_height:
+			# if would fit inside but forced (partially) outside
+			# by cursor position then move inside
+			y_final = parent_height - popup_height
+		else:
+			y_final = curs_pos.y + char_height
+		# - width
+		popup_width = int(popup_height / 1.4)		# Golden Cut
+		if popup_width > parent_width:
+			# don't let popup get bigger than parent window
+			popup_width = parent_width
+			x_final = 0
+		elif (curs_pos.x + popup_width) > parent_width:
+			# if would fit inside but forced (partially) outside
+			# by cursor position then move inside
+			x_final = parent_width - popup_width
+		else:
+			x_final = curs_pos.x
+		print "optimal placement = [%s:%s]" % (x_final, y_final)
+		return wxSize(x_final, y_final)
 	#------------------------------------------------
 	def __handle_keyword(self, kwd=None):
 		print "detected popup keyword:", kwd
 
-		# create widget to show in popup
 		try:
 			create_widget = self.__popup_keywords[kwd]['widget_factory']
-			self.__widget_to_show = create_widget()
 		except KeyError:
 			gmGuiHelpers.gm_beep_statustext (
 				aMessage = _('No action configured for keyword [%s].') % kwd,
 				aLogLevel = gmLog.lWarn
 			)
 			return False
+
+#		popup_frame = cPopupFrameNew (
+#			widget = self.__widget_to_show,
+#			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
+#		)
+
+		try:
+			self.__popup = create_widget (
+				parent = self,
+				pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
+				size = self.__get_best_popup_position(),
+				style = wx.wxSIMPLE_BORDER,
+				completion_callback = self._cb_on_popup_completion
+			)
 		except StandardError:
 			_log.LogException('cannot call [%s] on keyword [%s] to create widget', sys.exc_info(), verbose=0)
 			gmGuiHelpers.gm_show_error (
@@ -673,25 +775,34 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 				aTitle = _('showing keyword popup')
 			)
 			return False
+
+		print "popup is:", type(self.__popup), str(self.__popup)
+
+		if not isinstance(self.__popup, wx.wxWindow):
+			gmGuiHelpers.gm_beep_statustext (
+				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
+			)
+			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (create_widget, kwd))
+			_log.Log(gmLog.lErr, 'the result (%s) is not a wxWindow subclass instance, however' % str(self.__popup))
+			return False
+
 		# make new popup window to put widget inside
-		self.__popup_win = wx.wxWindow (
-			parent = self.__parent,
-			id = -1,
-			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
-			size = ,
-			style = wx.wxSIMPLE_BORDER,
-			name = self.__class__.__name__
-		)
+#		self.__popup_win = wx.wxWindow (
+#			parent = self.__parent,
+#			id = -1,
+#			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
+#			size = ,
+#			style = wx.wxSIMPLE_BORDER,
+#			name = self.__class__.__name__
+#		)
 
 		# display widget
 		# FIXME: the embed_header business needs to go away, eg. be dealt
 		# FIXME: with later by calling widget_to_show.get_embed_string()
 		# FIXME: same with originator
-		popup_frame = cPopupFrameNew (
-			widget = self.__widget_to_show,
-			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
-		)
-		popup_frame.Show()
+
+		self.__popup_visible = True
+		self.__popup.Show()
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -729,9 +840,118 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		"""
 		#cPopupFrame(text, win, self, cursor_position)).Show()
 		return False
-#====================================================
+#====================================================================
+if __name__ == '__main__':
+
+#	from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
+#	from Gnumed.pycommon import gmI18N
+
+	class cSoapWin (cResizingWindow):
+		def DoLayout(self):
+			self.input1 = cResizingSTC (self, -1)
+			self.input2 = cResizingSTC (self, -1)
+			self.input3 = cResizingSTC (self, -1)
+
+			self.input1.prev_in_tab_order = None
+			self.input1.next_in_tab_order = self.input2
+			self.input2.prev_in_tab_order = self.input1
+			self.input2.next_in_tab_order = self.input3
+			self.input3.prev_in_tab_order = self.input2
+			self.input3.next_in_tab_order = None
+
+			self.AddWidget (widget=self.input1, label="S")
+			self.Newline()
+			self.AddWidget (widget=self.input2, label="O")
+			self.Newline()
+			self.AddWidget (widget=self.input3, label="A+P")
+	#================================================================
+	class cSoapPanel(wx.wxPanel):
+		def __init__ (self, parent, id):
+			wx.wxPanel.__init__(self, parent, id)
+			sizer = wx.wxBoxSizer(wx.wxVERTICAL)
+			self.soap = cSoapWin(self, -1)
+			self.save = wx.wxButton (self, -1, _(" Save "))
+			self.delete = wx.wxButton (self, -1, _(" Delete "))
+			self.new = wx.wxButton (self, -1, _(" New "))
+#			self.list = wx.wxListBox (self, -1, style=wx.wxLB_SINGLE | wx.wxLB_NEEDED_SB)
+			wx.EVT_BUTTON (self.save, self.save.GetId (), self.OnSave)
+			wx.EVT_BUTTON (self.delete, self.delete.GetId (), self.OnDelete)
+			wx.EVT_BUTTON (self.new, self.new.GetId (), self.OnNew)
+#			wx.EVT_LISTBOX (self.list, self.list.GetId (), self.OnList)
+			self.__do_layout()
+
+		def __do_layout (self):
+			sizer_1 = wx.wxBoxSizer(wx.wxVERTICAL)
+			sizer_1.Add(self.soap, 3, wx.wxEXPAND, 0)
+			sizer_2 = wx.wxBoxSizer (wx.wxHORIZONTAL)
+			sizer_2.Add(self.save, 0, 0)
+			sizer_2.Add(self.delete, 0, 0)
+			sizer_2.Add(self.new, 0, 0)
+			sizer_1.Add(sizer_2, 0, wx.wxEXPAND)
+#			sizer_1.Add(self.list, 3, wx.wxEXPAND, 0)
+			self.SetAutoLayout(1)
+			self.SetSizer(sizer_1)
+			sizer_1.Fit(self)
+			sizer_1.SetSizeHints(self)
+			self.Layout()
+
+		def OnDelete (self, event):
+			self.soap.Clear()
+#			sel = self.list.GetSelection ()
+#			if sel >= 0:
+#				self.list.Delete (sel)
+
+		def OnNew (self, event):
+#			sel = self.list.GetSelection ()
+#			if sel >= 0:
+#				self.OnSave (None)
+			self.soap.Clear()
+#			self.list.SetSelection (sel, 0)
+
+		def OnSave (self, event):
+			data = self.soap.GetValue()
+#			title = data['Assessment'] or data['Subjective'] or data['Plan'] or data['Objective']
+			self.soap.Clear()
+#			sel = self.list.GetSelection ()
+#			if sel < 0:
+#				self.list.Append (title, data)
+#			else:
+#				self.list.SetClientData (sel, data)
+#				self.list.SetString (sel, title)
+
+#		def OnList (self, event):
+#			self.soap.SetValues (event.GetClientData ())
+	#================================================================
+	class testFrame(wx.wxFrame):
+		def __init__ (self, title):
+			wx.wxFrame.__init__ (self, None, wx.wxNewId(), "test SOAP", size = wx.wxSize (350, 500)) # this frame will have big fat borders
+			wx.EVT_CLOSE (self, self.OnClose)
+			panel = cSoapPanel(self, -1)
+			sizer = wx.wxBoxSizer(wx.wxVERTICAL)
+			sizer.Add (panel, 1, wx.wxGROW)
+			self.SetSizer(sizer)
+			self.SetAutoLayout(1)
+			sizer.Fit (self)
+			self.Layout ()
+
+		def OnClose (self, event):
+			self.Destroy()
+	#================================================================
+	class testApp(wx.wxApp):
+		def OnInit (self):
+			self.frame = testFrame ("testFrame")
+			self.frame.Show()
+			return 1
+	#================================================================
+	app = testApp(0)
+	app.MainLoop()
+#====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.8  2004-12-15 21:49:47  ncq
+# Revision 1.9  2004-12-21 17:20:24  ncq
+# - we are slowly getting closer to the functionality of the original SOAP2
+# - key handling according to discussion with Richard
+#
+# Revision 1.8  2004/12/15 21:49:47  ncq
 # - just to let Ian know what I'm getting at re keyword/string
 #   match separation
 # - both occur after matches but "keywords"
