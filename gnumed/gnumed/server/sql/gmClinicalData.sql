@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.28 2004-05-08 17:37:08 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.29 2004-07-05 18:52:26 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -37,26 +37,26 @@ insert into _enum_allergy_type (value) values (i18n('allergy'));
 insert into _enum_allergy_type (value) values (i18n('sensitivity'));
 
 -- ===================================================================
-INSERT INTO _enum_hx_type (description) values (i18n('past'));
-INSERT INTO _enum_hx_type (description) values (i18n('presenting complaint'));
-INSERT INTO _enum_hx_type (description) values (i18n('history of present illness'));
-INSERT INTO _enum_hx_type (description) values (i18n('social'));
-INSERT INTO _enum_hx_type (description) values (i18n('family'));
-INSERT INTO _enum_hx_type (description) values (i18n('immunisation'));
-INSERT INTO _enum_hx_type (description) values (i18n('requests'));
-INSERT INTO _enum_hx_type (description) values (i18n('allergies'));
-INSERT INTO _enum_hx_type (description) values (i18n('drug'));
-INSERT INTO _enum_hx_type (description) values (i18n('sexual'));
-INSERT INTO _enum_hx_type (description) values (i18n('psychiatric'));
-INSERT INTO _enum_hx_type (description) values (i18n('other'));
+--INSERT INTO _enum_hx_type (description) values (i18n('past'));
+--INSERT INTO _enum_hx_type (description) values (i18n('presenting complaint'));
+--INSERT INTO _enum_hx_type (description) values (i18n('history of present illness'));
+--INSERT INTO _enum_hx_type (description) values (i18n('social'));
+--INSERT INTO _enum_hx_type (description) values (i18n('family'));
+--INSERT INTO _enum_hx_type (description) values (i18n('immunisation'));
+--INSERT INTO _enum_hx_type (description) values (i18n('requests'));
+--INSERT INTO _enum_hx_type (description) values (i18n('allergies'));
+--INSERT INTO _enum_hx_type (description) values (i18n('drug'));
+--INSERT INTO _enum_hx_type (description) values (i18n('sexual'));
+--INSERT INTO _enum_hx_type (description) values (i18n('psychiatric'));
+--INSERT INTO _enum_hx_type (description) values (i18n('other'));
 
 -- ===================================================================
-insert into _enum_hx_source (description) values (i18n('patient'));
-insert into _enum_hx_source (description) values (i18n('clinician'));
-insert into _enum_hx_source (description) values (i18n('relative'));
-insert into _enum_hx_source (description) values (i18n('carer'));
-insert into _enum_hx_source (description) values (i18n('notes'));
-insert into _enum_hx_source (description) values (i18n('correspondence'));
+--insert into _enum_hx_source (description) values (i18n('patient'));
+--insert into _enum_hx_source (description) values (i18n('clinician'));
+--insert into _enum_hx_source (description) values (i18n('relative'));
+--insert into _enum_hx_source (description) values (i18n('carer'));
+--insert into _enum_hx_source (description) values (i18n('notes'));
+--insert into _enum_hx_source (description) values (i18n('correspondence'));
 
 -- ===================================================================
 --INSERT INTO enum_coding_systems (description) values (i18n('general'));
@@ -477,11 +477,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.28  2004-05-08 17:37:08  ncq
+-- Revision 1.29  2004-07-05 18:52:26  ncq
+-- - no data for _enum_hx_type needed anymore
+--
+-- Revision 1.28  2004/05/08 17:37:08  ncq
 -- - *_encounter_type -> encounter_type
 --
 -- Revision 1.27  2004/05/04 09:10:59  ncq

@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 
 -- part of GnuMed
 -- GPL
@@ -58,45 +58,45 @@ insert into i18n_translations(lang, orig, trans) values
 
 -- =============================================
 -- patient history types
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'presenting complaint', 'jetzige Beschwerden');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'history of present illness', 'Jetzt-Anamnese');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'past', '? Eigenanamnese');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'social', 'Sozialanamnese');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'family', 'Familienanamnese');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'immunisation', 'Impfungen');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'requests', '?? requests');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'allergies', 'Allergien');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'drug', 'Medikamentenanamnese');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'sexual', 'Sexualanamnese');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'psychiatric', 'psychiatrische Anamnese');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'other', 'sonstige Anamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'presenting complaint', 'jetzige Beschwerden');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'history of present illness', 'Jetzt-Anamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'past', '? Eigenanamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'social', 'Sozialanamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'family', 'Familienanamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'immunisation', 'Impfungen');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'requests', '?? requests');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'allergies', 'Allergien');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'drug', 'Medikamentenanamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'sexual', 'Sexualanamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'psychiatric', 'psychiatrische Anamnese');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'other', 'sonstige Anamnese');
 
 -- =============================================
 -- patient history providers
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'patient', 'Patient');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'clinician', 'Mediziner');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'relative', 'Angehörige');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'carer', 'Pflegeperson');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'notes', 'Unterlagen');
-insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'correspondence', 'Korrespondenz');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'patient', 'Patient');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'clinician', 'Mediziner');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'relative', 'Angehörige');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'carer', 'Pflegeperson');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'notes', 'Unterlagen');
+--insert into i18n_translations(lang, orig, trans) values
+--	('de_DE', 'correspondence', 'Korrespondenz');
 
 -- =============================================
 -- allergy types
@@ -168,11 +168,14 @@ insert into i18n_translations(lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmClinical-Data.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmClinical-Data.de.sql,v $
--- Revision 1.7  2004-04-19 12:47:49  ncq
+-- Revision 1.8  2004-07-05 18:52:26  ncq
+-- - no data for _enum_hx_type needed anymore
+--
+-- Revision 1.7  2004/04/19 12:47:49  ncq
 -- - translate request_status
 -- - add housekeeping_todo.reported_to
 --
