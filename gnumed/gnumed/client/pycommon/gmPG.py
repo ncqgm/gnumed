@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -167,7 +167,6 @@ class ConnectionPool:
 	# connection API
 	#-----------------------------
 	def GetConnection(self, service = "default", readonly = 1, encoding = None, extra_verbose = None):
-#	def GetConnection(self, service = "default", readonly = 1, checked = 0, encoding = None, extra_verbose = None):
 		"""Get a connection."""
 		# use default encoding if none given
 		if encoding is None:
@@ -191,32 +190,6 @@ class ConnectionPool:
 				except KeyError:
 					ConnectionPool.__conn_use_count['default'] = 1
 				conn = ConnectionPool.__ro_conns['default']
-
-#		# check whether connection is alive and well
-#		if checked:
-#			try:
-#				cursor = conn.cursor()
-#				cursor.execute("select 1")
-#				cursor.close()
-#			except StandardError:
-#				_log.LogException("connection health check failed", sys.exc_info(), 4)
-#				_log.Data("trying a direct connection via __pgconnect()")
-#				# actually this sort of defies the whole thing since
-#				# GetLoginInfoFor() depends on GetConnection() ...
-#				# however, the condition this check was to catch only
-#				# ever occurred later in the life of a read-only
-#				# connection at which point GetLoginInfoFor() would
-#				# only return cached data and not actually go fetch
-#				# things, hence it should work anyhow
-#				logininfo = self.GetLoginInfoFor(service)
-#				conn = self.__pgconnect(logininfo, readonly, encoding)
-#				try:
-#					cursor = conn.cursor()
-#					cursor.execute("select 1")
-#					cursor.close()
-#				except:
-#					_log.LogException("connection health check failed", sys.exc_info(), 4)
-#					return None
 
 		# or a brand-new read-write connection
 		else:
@@ -277,7 +250,7 @@ class ConnectionPool:
 			listener = _listener_api.BackendListener(
 				service,
 				auth.GetDatabase(),
-				auth.GetUser(readonly=1),
+				auth.GetUser(),
 				auth.GetPassword(),
 				auth.GetHost(),
 				int(auth.GetPort())
@@ -358,7 +331,7 @@ class ConnectionPool:
 		cfg_db = ConnectionPool.__ro_conns['default']
 		cursor = cfg_db.cursor()
 		cmd = "select name, host, port, opt, tty from db where id = %s ;"
-		if not run_query(cursor, cmd, srvc_id):
+		if not run_query(cursor, None, cmd, srvc_id):
 			_log.Log(gmLog.lPanic, 'cannot get login info for service [%s] with id [%s] from config database' % (service, srvc_id))
 			_log.Log(gmLog.lPanic, 'make sure your service-to-database mappings are properly configured')
 			_log.Log(gmLog.lWarn, 'trying to make do with default login parameters')
@@ -412,7 +385,7 @@ class ConnectionPool:
 		_log.Log(gmLog.lInfo, 'service [default/config] running on [%s]' % cursor.fetchone()[0])
 		# preload all services with database id 0 (default)
 		cmd = "select name from distributed_db"
-		if not run_query(cursor, cmd):
+		if not run_query(cursor, None, cmd):
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load service names from configuration database")
 		services = cursor.fetchall()
@@ -422,7 +395,7 @@ class ConnectionPool:
 		# establish connections to all servers we need
 		# according to configuration database
 		cmd = "select * from config where profile=%s"
-		if not run_query(cursor, cmd, login.GetProfile()):
+		if not run_query(cursor, None, cmd, login.GetProfile()):
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load user profile [%s] from database" % login.GetProfile())
 		databases = cursor.fetchall()
@@ -451,14 +424,14 @@ class ConnectionPool:
 		ConnectionPool.__is_connected = 1
 		return ConnectionPool.__is_connected
 	#-----------------------------
-	def __pgconnect(self, login, readonly=2, encoding=None):
+	def __pgconnect(self, login, readonly=1, encoding=None):
 		"""connect to a postgres backend as specified by login object; return a connection object"""
 		dsn = ""
 		hostport = ""
 		if _isPGDB:
-			dsn, hostport = login.GetPGDB_DSN(readonly)
+			dsn, hostport = login.GetPGDB_DSN()
 		else:
-			dsn = login.GetDBAPI_DSN(readonly)
+			dsn = login.GetDBAPI_DSN()
 			hostport = "0"
 
 		try:
@@ -477,13 +450,13 @@ class ConnectionPool:
 			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
 		else:
 			cmd = "set client_encoding to '%s'" % encoding
-			if not run_query(curs, cmd):
+			if not run_query(curs, None, cmd):
 				_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
 				_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
 		# - client time zone
 #		cmd = "set session time zone interval '%s'" % _default_time_zone
 		cmd = "set time zone '%s'" % _default_time_zone
-		if not run_query(curs, cmd):
+		if not run_query(curs, None, cmd):
 			_log.Log(gmLog.lErr, 'cannot set client time zone to [%s]' % _default_time_zone)
 			_log.Log(gmLog.lWarn, 'not setting this will lead to incorrect dates/times')
 		else:
@@ -491,7 +464,7 @@ class ConnectionPool:
 		# - datestyle
 		# FIXME: add DMY/YMD handling
 		cmd = "set datestyle to 'ISO'"
-		if not run_query(curs, cmd):
+		if not run_query(curs, None, cmd):
 			_log.Log(gmLog.lErr, 'cannot set client date style to ISO')
 			_log.Log(gmLog.lWarn, 'you better use other means to make your server delivers valid ISO timestamps with time zone')
 		# - transaction isolation level
@@ -500,23 +473,20 @@ class ConnectionPool:
 		else:
 			isolation_level = 'SERIALIZABLE'
 		cmd = 'set session characteristics as transaction isolation level %s' % isolation_level
-		if not run_query(curs, cmd):
+		if not run_query(curs, None, cmd):
 			curs.close()
 			conn.close()
 			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % isolation_level)
 			return None
 
-		#  this needs >= 7.4
 		if readonly:
 			access_mode = 'READ ONLY'
 		else:
 			access_mode = 'READ WRITE'
-		_log.Log(gmLog.lData, "setting session to [%s] for %s@%s:%s" % (access_mode, login.GetUser(readonly), login.GetHost(), login.GetDatabase()))
+		_log.Log(gmLog.lData, "setting session to [%s] for %s@%s:%s" % (access_mode, login.GetUser(), login.GetHost(), login.GetDatabase()))
 		cmd = 'set session characteristics as transaction %s' % access_mode
-		# activate when 7.4 is common
-		# once it is common abolish user/_user split
-#		if not run_query(curs, cmd):
-#			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % access_mode)
+		if not run_query(curs, 0, cmd):
+			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % access_mode)
 			# FIXME: once 7.4 is minimum, close connection and return None
 
 		conn.commit()
@@ -634,7 +604,7 @@ def __log_PG_settings(curs=None):
 		_log.Log(gmLog.lData, "PG option [%s]: %s" % (setting[0], setting[1]))
 	return 1
 #---------------------------------------------------
-def run_query(aCursor = None, aQuery = None, *args):
+def run_query(aCursor=None, verbosity=None, aQuery=None, *args):
 	# sanity checks
 	if aCursor is None:
 		_log.Log(gmLog.lErr, 'need cursor to run query')
@@ -642,12 +612,14 @@ def run_query(aCursor = None, aQuery = None, *args):
 	if aQuery is None:
 		_log.Log(gmLog.lErr, 'need query to run it')
 		return None
+	if verbosity is None:
+		verbosity = _query_logging_verbosity
 
 #	t1 = time.time()
 	try:
 		aCursor.execute(aQuery, *args)
 	except:
-		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = _query_logging_verbosity)
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = verbosity)
 		return None
 #	t2 = time.time()
 #	print t2-t1, aQuery
@@ -868,7 +840,7 @@ def get_pkey_name(aCursor = None, aTable = None):
 	if aTable is None:
 		_log.Log(gmLog.lErr, 'need table name for which to determine primary key')
 
-	if not run_query(aCursor, query_pkey_name, aTable):
+	if not run_query(aCursor, None, query_pkey_name, aTable):
 		_log.Log(gmLog.lErr, 'cannot determine primary key')
 		return -1
 	result = aCursor.fetchone()
@@ -901,7 +873,7 @@ def get_fkey_defs(source, table):
 			return None
 		curs = conn.cursor()
 
-	if not run_query(curs, query_fkey_names, table):
+	if not run_query(curs, None, query_fkey_names, table):
 		if close_cursor:
 			curs.close()
 		if manage_connection:
@@ -947,7 +919,7 @@ def table_exists(source, table):
 		curs = conn.cursor()
 
 	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
-	if not run_query(curs, cmd, table):
+	if not run_query(curs, None, cmd, table):
 		if close_cursor:
 			curs.close()
 		if manage_connection:
@@ -964,7 +936,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.23 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.24 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1114,7 +1086,7 @@ def __run_notifications_debugger():
 			if args[0] == "send":
 				cmd = 'NOTIFY "%s"' % sig_names[0]
 				print "... running >>>%s<<<" % (cmd)
-				if not run_query(rocurs, cmd):
+				if not run_query(rocurs, None, cmd):
 					print "... error sending [%s]" % cmd
 				roconn.commit()
 			continue
@@ -1192,7 +1164,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.23  2004-06-20 16:54:55  ncq
+# Revision 1.24  2004-07-17 20:54:50  ncq
+# - remove user/_user workaround
+#
+# Revision 1.23  2004/06/20 16:54:55  ncq
 # - restrict length of logged data in run_ro_query and run_commit
 #
 # Revision 1.22  2004/06/09 14:55:44  ncq

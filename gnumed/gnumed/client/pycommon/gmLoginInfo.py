@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.2 2004-04-21 14:27:15 ihaywood Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmLoginInfo.py,v 1.3 2004-07-17 20:54:50 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 import gmLog
@@ -25,10 +25,8 @@ import gmLog
 class LoginInfo:
 	"""a class to encapsulate Postgres login information to default database"""
 
-	#private variables
+	# private variables
 	__user = 'guest'
-	__ro_user = 'guest'
-	__rw_user = ''
 	__passwd = ''
 	__host = None
 	__port = 5432
@@ -55,7 +53,7 @@ class LoginInfo:
 	#------------------------------------------
 	def GetInfo(self):
 		return (
-			self.GetUser(readonly=1),
+			self.GetUser(),
 			self.GetPassword(),
 			self.GetHost(),
 			self.GetPort(),
@@ -71,16 +69,13 @@ class LoginInfo:
 					self.GetHost(),
 					str(self.GetPort()),
 					self.GetDatabase(),
-					self.GetUser(readonly=1),
+					self.GetUser(),
 					self.GetOptions(),
 					self.GetTTY()
 				)
 		return info
 	#------------------------------------------
-	def GetPGDB_DSN(self, readonly=2):
-		if readonly == 2:
-			print "GetPGDB_DSN(): old style call, please convert"
-			_log.Log(gmLog.lWarn, 'old style call, please convert')
+	def GetPGDB_DSN(self):
 		host = self.GetHost()
 		port = str(self.GetPort())
 		# for local UNIX domain sockets connections: leave host/port empty
@@ -91,7 +86,7 @@ class LoginInfo:
 		dsn = "%s:%s:%s:%s:%s:%s" % (
 			host,
 			self.GetDatabase(),
-			self.GetUser(readonly),
+			self.GetUser(),
 			self.GetPassword(),
 			self.GetOptions(),
 			self.GetTTY()
@@ -99,10 +94,7 @@ class LoginInfo:
 		host_port = "%s:%s" % (host, port)
 		return dsn, host_port
 	#------------------------------------------
-	def GetDBAPI_DSN(self, readonly=2):
-		if readonly == 2:
-			print "GetDBAPI_DSN(): old style call, please convert"
-			_log.Log(gmLog.lWarn, 'old style call, please convert')
+	def GetDBAPI_DSN(self):
 		host = self.GetHost()
 		port = str(self.GetPort())
 		# for local UNIX domain sockets connections: leave host/port empty
@@ -113,42 +105,17 @@ class LoginInfo:
 			host,
 			port,
 			self.GetDatabase(),
-			self.GetUser(readonly),
+			self.GetUser(),
 			self.GetPassword(),
 			self.GetOptions(),
 			self.GetTTY())
 		return dsn
 	#------------------------------------------
-	def SetUser(self, user, readonly=2):
-		# FIXME: once all callers are converted move this to readonly=1
-		if readonly == 2:
-			self.__user = user
-			self.__ro_user = user
-			self.__rw_user = '_%s' % user
-			if len(user) > 0:
-				if user[0] == '_':
-					self.__ro_user = user[1:]
-					self.__rw_user = user
-		elif readonly == 1:
-			self.__ro_user = user
-		elif readonly == 0:
-			self.__rw_user = user
-			return self.__rw_user
-		else:
-			self.__ro_user = user
+	def SetUser(self, user):
+		self.__user = user
 	#------------------------------------------
-	def GetUser(self, readonly=2):
-		# FIXME: once all callers are converted move this to readonly=1
-		if readonly == 2:
-			print "GetUser(): old style call, please convert"
-			_log.Log(gmLog.lWarn, 'old style call, please convert')
-			return self.__user
-		elif readonly == 1:
-			return self.__ro_user
-		elif readonly == 0:
-			return self.__rw_user
-		else:
-			return self.__ro_user
+	def GetUser(self):
+		return self.__user
 	#------------------------------------------
 	def SetPassword(self, passwd):
 		self.__passwd = passwd
@@ -204,8 +171,6 @@ class LoginInfo:
 		"clears all connection information regarding user, password etc."
 
 		self.__user = "guest"
-		self.__ro_user = "guest"
-		self.__rw_user = ""
 		self.__passwd = ""
 		self.__host = "localhost"
 		self.__port = 5432
@@ -221,7 +186,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.2  2004-04-21 14:27:15  ihaywood
+# Revision 1.3  2004-07-17 20:54:50  ncq
+# - remove user/_user workaround
+#
+# Revision 1.2  2004/04/21 14:27:15  ihaywood
 # bug preventing backendlistener working on local socket connections
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
