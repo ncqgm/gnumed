@@ -15,6 +15,7 @@
         <td >
     <jsp:include page="./encounter_2.jsp"/> 
         </td>
+    </tr>    
     <tr>
         <td>
         <jsp:include page="./vaccinationEntry.jsp"/>

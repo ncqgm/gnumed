@@ -14,75 +14,90 @@
 </head> 
 <body>
 
-     <jsp:include page="./topMenu.jsp"/>
-     <hr/>
+    <jsp:include page="./topMenu.jsp"/>
+    <hr/>
     <jsp:include page="./intraLinksClinicalEdit.jsp"/> 
-    <table width='100%'>
+    
+    <table>
     <tr>
-        <td valign='top'>
-        <table >
+    <td>	  
+        <input type="button" value='entry'
+        onclick='
+        var e = document.getElementById("clinicalEntry");
+        var p = document.getElementById("pastNotes");
+        e.style.display="block";
+        p.style.display="block";
+        '/>
+        |
+        <input type="button" value='past notes'
+        onclick='
+        var e = document.getElementById("clinicalEntry");
+        var p = document.getElementById("pastNotes");
+        e.style.display="none";
+        p.style.display="block";
+        '/>        
+        |
+        <bean:define id="printToken" value="1"/>
+        <html:link
+            page="/pages/printableHistory.jsp"   
+            paramId="print"
+            paramName="printToken"
+            >show printable notes
+	    >
+            <%-- 
+	    	<bean:message key="show.printable.summary.notes"/> 
+	    --%>
+        </html:link>
+    </td>
+    </tr> 
+    </table>
+        <hr>
+    <table width='100%'>
         <tr valign='top'>
-        <td valign='top'>
-        
-            <input type="button" value='entry'
-                onclick='
-                    var e = document.getElementById("clinicalEntry");
-                    var p = document.getElementById("pastNotes");
-                    e.style.display="block";
-                    p.style.display="block";
-                    '/>
-                    |
-            <input type="button" value='past notes'
-                onclick='
-                    var e = document.getElementById("clinicalEntry");
-                    var p = document.getElementById("pastNotes");
-                    e.style.display="none";
-                    p.style.display="block";
-                    '/>        
-           |
-                <bean:define id="printToken" value="1"/>
-                <html:link
-                    page="/pages/printableHistory.jsp"   
-                    paramId="print"
-                    paramName="printToken"
-                    >
-               <bean:message key="show.printable.summary.notes"/>
-                </html:link>
-            </td>
-           </tr> 
-        
-            <tr>
-            <td  valign='top' > 
-             <a name="encounterTop"/>
-            <div id="clinicalEntry">
-                <tiles:insert name="leftTop"/>
-                 </div>  
-                 
+         <td valign=top width='60%'>
+            <table>
+            <tr valign='top'>
+            <td   > 
+               
+                <div id="clinicalEntry">
+                     <a name="encounterTop"/>
+                    <tiles:insert name="leftTop"/>
+                </div>  
+            </td>     
             </tr>
             <tr>
-             <td>   
+                    <td >   
              
-            <div id="pastNotes" style='display:block'>
-                 <tiles:insert name="leftBottom"/>
-            </div>
-            </td>
-        </tr>
+                        <div id="pastNotes" style='display:block'>
+                            <tiles:insert name="leftBottom"/>
+                        </div>
+                    </td>
+            </tr>
             
-        </table>   
-       
-        <td valign='top' width='40%'> 
-        <table>
-        <tr><td>
-           <tiles:insert name="rightTop"/>
-        </td></tr>
-         <tr><td>
-           <tiles:insert name="rightBottom"/>
-        </td></tr>
-        </table>
+            </table>
+        </td>
+
+        <td valign='top'> 
+            <table  >
+                <tr valign='top' >
+                    <td valign='top'>
+                        <tiles:insert name="rightTop"/>
+                    </td>
+               
+                </tr>
+           
+                 <tr>
+                     <td valign='top'>
+                        <tiles:insert name="rightBottom"/>
+                    </td>
+                </tr>
+                
+            </table>
         </td>
         
         </tr>
     </table> 
+     
       
        
 </body>

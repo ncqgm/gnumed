@@ -108,7 +108,7 @@
                 </div>
             </logic:iterate>
                        
-                <hr>
+                 
             </logic:iterate>
             
         <a name='lastEntry'/>

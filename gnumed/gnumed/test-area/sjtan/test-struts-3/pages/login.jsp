@@ -40,9 +40,9 @@
 </html:form>
 </body>
 
-<html:javascript formName="loginForm" 
+<html:javascript formName="loginForm" scriptLanguage="javascript"
    dynamicJavascript="true" staticJavascript="false"/>
 
-<script language='javascript1.1' src="./staticJavascript.jsp"/>
+<script language='javascript1.1' src="./staticJavascript.jsp" />
 
 </html>

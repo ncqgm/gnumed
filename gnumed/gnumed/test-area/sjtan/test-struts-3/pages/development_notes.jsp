@@ -363,5 +363,13 @@ The extra slash makes the browser reload the page.
     
     </li>
     </ol>
+
+<h5> Miscellaneous Errors</h5>
+
+cause - changing the medical record object from request to session.
+effect - during debugging, pages do not retain enough state to display properly if the servlet is restarted.
+
+
+
 </body>
 </html>

@@ -4,6 +4,16 @@
 <html>
 <head><title>JSP Page</title></head>
 <body>
+
+
+
+Country <%=Locale.getDefault().getDisplayCountry()%>
+Languge <%=Locale.getDefault().getDisplayLanguage()%>
+
+Variant <%=Locale.getDefault().getDisplayVariant()%>
+
+Name <%=Locale.getDefault().getDisplayName()%>
+
 <b>
 <bean:message key="about.stuff"/>
 </b>

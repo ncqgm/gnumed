@@ -85,10 +85,10 @@ method.
 </body>
 
 
-
+<%--
 <html:javascript formName="clinicalUpdateForm"
    dynamicJavascript="true" staticJavascript="false"/> 
-
+--%>
 <script  src="./staticJavascript.jsp"></script>
    
 </html>

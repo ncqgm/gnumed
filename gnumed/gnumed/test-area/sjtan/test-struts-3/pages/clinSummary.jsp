@@ -7,22 +7,19 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-bean-el" prefix="bean-el"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic-el" prefix="logic-el"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-html-el" prefix="html-el"%>
-<html>
-<head>
-    <title>Summary</title>
 
-<body>
     <a name="clinicalSummary" ></a>
     
     <h4>Summary</h4>  
     <%-- <jsp:include page="./patient_detail_block.jsp"/>   
     <jsp:include page="./relative_url_javascript.jsp"/>  
 --%>
+    
     <h5>Problem List</h5>
-    <table  >
+    <table border='1' >
     <logic:iterate   id="healthIssue" 
         name="healthRecord" 
-        property="healthSummary.healthIssues" scope="session"
+        property="healthSummary.healthIssues" 
         indexId="index" >
         <bean:define id="tableCol" value="<%=Integer.toString(index.intValue() % 2) %>" />
         <logic:equal name="tableCol" value="0">
@@ -58,16 +55,18 @@
            The number of allergies = 
            <bean:write name="countAllergies"/>
            --%>
-    <table  border='1'>
-        <%--   <thead><td><b>Substance</b></td> <td><b>is definite</b></td> <td> <b>description</b> </td> </thead>
+   <logic:equal name="countAllergies" value="0">
+            
+                <bean:message  key="allergies.not.listed"/>
+             
+        </logic:equal>  
+        <logic:notEqual name="countAllergies" value="0">
+     <table  border='1'>
+        <%--   <thead><td><b></b></td> <td><b>is definite</b></td> <td> <b>description</b> </td> </thead>
         --%>
          
             
-        <logic:equal name="countAllergies" value="0">
-            <tr><td>
-                <bean:message  key="allergies.not.listed"/>
-            </td></tr>
-        </logic:equal>
+      
            
         <logic:iterate   id="allergy" 
             name="healthRecord" 
@@ -98,19 +97,21 @@
             </tr>
         </logic:iterate>
     </table>
-    
+    </logic:notEqual> 
     <h5>Vaccinations </h5>
     <logic:present name="vaccines" scope="session">
      <bean:size id="countVaccs"    
                 name="healthRecord" property="healthSummary.vaccinations"
            />
-    
-        <table>
-            <logic:equal name="countVaccs" value="0">
-            <tr><td>
+             <logic:equal name="countVaccs" value="0">
+             
                 <bean:message key="vaccinations.not.listed" />
-            </td></tr>
+             
             </logic:equal>
+        
+            
+            <logic:notEqual name="countVaccs" value="0">
+            <table>
             <logic:iterate id="vaccination"
                 name="healthRecord"
                 property="healthSummary.vaccinations"
@@ -131,12 +132,11 @@
     
                 </tr>
     
-            </logic:iterate>    
-        </table>
+            </logic:iterate>  
+             </table>
+             </logic:notEqual>
+       
     
     </logic:present>
     
-     
-</body>
-</html>
-    
+ 

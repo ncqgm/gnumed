@@ -7,6 +7,7 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic-el" prefix="logic-el"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-nested" prefix="nested"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-html-el" prefix='html-el'%>
+<%@taglib uri="http://jakarta.apache.org/struts/tags-bean-el" prefix="bean-el"%>
 <%--  See vaccination regarding indexed properties for <logic:iterate>
  1. need a indexed getter method on the bean.  2. the id attribute of logic:iterate must
 be the name of the property targetted by the getter
@@ -70,7 +71,7 @@ e.g. getNarrative(index) ...  id='narrative'
     <html:base/>
     <div class="errors">
         <html:errors/>
-        
+        <html:messages id="errors"/>
     </div>
    
     <jsp:include page="./patient_detail_block.jsp"/>
@@ -248,17 +249,29 @@ e.g. getNarrative(index) ...  id='narrative'
                         <td  >
                             <bean:message key="allergy"/> 
                             <html-el:checkbox styleId="isAllergy${index}" 
-                            name="clinicalUpdateForm" property="encounter.allergy[${index}].entered"     
+                            name="clinicalUpdateForm" property="encounter.allergy[${index}].marked" value="0"    
                             onchange="if (this.checked) {
                             document.getElementById('allergyInput${index}').style.display='block'; 
                          
                             } else {  
                             document.getElementById('allergyInput${index}').style.display='none'; 
-                            }"  />
+                            }"
+                            onmouseover="
+                             if (this.checked) {
+                            document.getElementById('allergyInput${index}').style.display='block'; 
+                         
+                            } else {  
+                            document.getElementById('allergyInput${index}').style.display='none'; 
+                            }"
+                                />
                         </td>
                         <td  colspan='4' >
-                            <div  id="allergyInput<%=index%>" style='display:none'>
-                                <table><tr>
+                            
+                             <div  id="allergyInput<%=index%>" 
+                                style='display:block' 
+                                
+                                >
+                                   <table><tr>
                                 <td>
                                     <bean:message key="allergy.definite"/>
                                     <html-el:checkbox name="clinicalUpdateForm" property="allergy[${index}].definite"
@@ -267,6 +280,12 @@ e.g. getNarrative(index) ...  id='narrative'
                                 <td>
                                     <bean:message key="allergy.substance"/>
                                     <html-el:text name="clinicalUpdateForm" property="allergy[${index}].substance"
+                                    onmouseover="if (document.getElementById('isAllergy${index}').checked)
+                                    { document.getElementById('allergyInput${index}').style.display='block'; 
+                         
+                                        } else {  
+                                        document.getElementById('allergyInput${index}').style.display='none'; 
+                                        }" 
                                     />
                                </td>
                                </tr></table>
@@ -334,8 +353,8 @@ e.g. getNarrative(index) ...  id='narrative'
         </logic:iterate>
         
         </div>
-        <hr>
-        
-        
+       
+ 
 <html:javascript formName="clinicalUpdateForm"
    dynamicJavascript="true" staticJavascript="false"/> 
+

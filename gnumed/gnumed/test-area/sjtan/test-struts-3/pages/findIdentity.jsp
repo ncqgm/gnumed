@@ -10,7 +10,8 @@
 <h3>
     <b><bean:message key="demo.find.identity"/> </b>
 </h3>
-
+<html:errors/>
+ <html:messages id="messages"/>
 <html:form  action="/FindIdentity" onsubmit="return validateFindIdentity(this);">
 
 
