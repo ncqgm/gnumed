@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.17 $
+version = $Revision: 1.18 $
 
 #----------------------------------
 [installation]
@@ -49,7 +49,9 @@ database alias = gnumed-test
 # later to be used for service version tracking
 version = 0.1
 
-# a common base path for the schema files
+# a common base path for the schema files,
+# to be used anywhere a $schema$ files
+# list is defined
 schema base directory =
 
 # the sql files to be imported for this service
@@ -92,6 +94,10 @@ scoring disable = 0
 scoring table prefix = score_
 # all scoring tables inherit from this table
 scoring fields table = scoring_fields
+
+# setting this to 1 will disable creation
+# of change notification triggers/functions
+notification disable = 0
 
 # here you can import some schema files once per database
 # such as revision tracking, translation, auditing etc.
@@ -259,7 +265,12 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.17  2003-11-28 08:49:40  ncq
+# Revision 1.18  2003-11-28 10:00:41  ncq
+# - add "notification disable" option
+# - update template conf file
+# - use notification schema generator in bootstrapper
+#
+# Revision 1.17  2003/11/28 08:49:40  ncq
 # - add gmNotifications.sql
 #
 # Revision 1.16  2003/11/02 12:48:55  ncq

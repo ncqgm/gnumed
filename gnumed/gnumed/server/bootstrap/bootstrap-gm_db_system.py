@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -48,7 +48,7 @@ if os.path.exists (os.path.expandvars ('$GNUMED_DIR/client/python-common')):
 
 try:
 	import gmLog
-except:
+except ImportError:
 	print """
 Please make sure there's a link 'modules' pointing
 to client/python-common/ so that we can load GnuMed
@@ -56,7 +56,6 @@ Python modules.
 
 Good luck !
 """
-
 _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 
@@ -94,6 +93,9 @@ aud_gen = gmAuditSchemaGenerator
 
 import gmScoringSchemaGenerator
 score_gen = gmScoringSchemaGenerator
+
+import gmNotificationSchemaGenerator
+notify_gen = gmNotificationSchemaGenerator
 
 import Psql
 
@@ -761,10 +763,44 @@ class database:
 			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
 			return None
 		try:
-			pass
 			os.remove('/tmp/scoring-schema.sql')
 		except StandardError:
 			_log.LogException('cannot remove scoring schema file [/tmp/scoring-schema.sql]', sys.exc_info(), verbose = 0)
+		return 1
+	#--------------------------------------------------------------
+	def bootstrap_notifications(self):
+		# get configuration
+		tmp = _cfg.get(self.section, 'notification disable')
+		# if this option is not given, assume we want notification
+		if tmp is not None:
+			# if we don't want notification on these tables, return without error
+			if int(tmp) == 1:
+				return 1
+
+		# create notification schema
+		curs = self.conn.cursor()
+		notification_schema = notify_gen.create_notification_schema(curs)
+		curs.close()
+		if notification_schema is None:
+			_log.Log(gmLog.lErr, 'cannot generate notification schema for GnuMed database [%s]' % self.name)
+			return None
+
+		# write schema to file
+		file = open ('/tmp/notification-schema.sql', 'wb')
+		for line in notification_schema:
+			file.write("%s;\n" % line)
+		file.close()
+
+		# import notification schema
+#		if not _import_schema_file(anSQL_file = '/tmp/notification-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
+		psql = Psql.Psql (self.conn)
+		if psql.run('/tmp/notification-schema.sql') != 0:
+			_log.Log(gmLog.lErr, "cannot import notification schema definition for database [%s]" % (self.name))
+			return None
+		try:
+			os.remove('/tmp/notification-schema.sql')
+		except StandardError:
+			_log.LogException('cannot remove notification schema file [/tmp/notification-schema.sql]', sys.exc_info(), verbose = 0)
 		return 1
 #==================================================================
 class gmService:
@@ -1054,6 +1090,14 @@ def bootstrap_scoring():
 		if not db.bootstrap_scoring():
 			return None
 	return 1
+#--------------------------------------------------------------
+def bootstrap_notifications():
+	"""bootstrap notification in all bootstrapped databases"""
+	for db_key in _bootstrapped_dbs.keys():
+		db = _bootstrapped_dbs[db_key]
+		if not db.bootstrap_notifications():
+			return None
+	return 1
 #------------------------------------------------------------------
 def _run_query(aCurs, aQuery):
 	try:
@@ -1225,6 +1269,9 @@ if __name__ == "__main__":
 	if not bootstrap_scoring():
 		exit_with_msg("Cannot bootstrap scoring tables.")
 
+	if not bootstrap_notifications():
+		exit_with_msg("Cannot bootstrap notification tables.")
+
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We probably succeeded."
 else:
@@ -1257,7 +1304,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.37  2003-11-02 13:29:49  ncq
+# Revision 1.38  2003-11-28 10:00:41  ncq
+# - add "notification disable" option
+# - update template conf file
+# - use notification schema generator in bootstrapper
+#
+# Revision 1.37  2003/11/02 13:29:49  ncq
 # - don't close connections that are gone already in __del__
 #
 # Revision 1.36  2003/11/02 12:48:55  ncq
