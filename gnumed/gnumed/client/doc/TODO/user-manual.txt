@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 ---------------------------------------------------
 Rules:
 ------
@@ -18,4 +18,17 @@ Karsten.Hilbert@gmx.net
 - make sure doc/user-manual/ displays correctly as
   a user manual in the GnuMed manual browser
 - remove doc/gnumed/ from CVS
+---------------------------------------------------
+Sam 07 Sep 2002 19:24:02 CEST
+Karsten.Hilbert@gmx.net
+
+${GNUMED_DIR}
+
+When running from the client/wxpython/ directory of a normal
+CVS tree it shouldn't be necessary at all to set GNUMED_DIR.
+Actually, the combination of _setting_ GNUMED_DIR and a
+subsequent failure on import of GnuMed modules hints towards
+an incorrectly set GNUMED_DIR. If at all it needs to be set to
+the directory where your python-common/ subdir resides in
+the tree.
 ---------------------------------------------------
