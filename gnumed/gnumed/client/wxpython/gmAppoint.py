@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-15 00:37:19 $
-# @version $Revision: 1.2 $ $Date: 2002-03-15 00:37:19 $ $Author: ihaywood $
+# @Date: $Date: 2002-03-24 11:35:19 $
+# @version $Revision: 1.3 $ $Date: 2002-03-24 11:35:19 $ $Author: ihaywood $
 # @change log:
 #	14.03.02 ihaywood inital version.
 #      
@@ -43,8 +43,7 @@ ID_EXIT=200
 
 class MainWindow(wxPanel):
     def __init__(self,parent,id, a):
-        self.dbpool = gmPG.ConnectionPool () 
-        wxPanel.__init__ (parent, id)
+        wxPanel.__init__ (self, parent, id)
         # colour to mark free times. FIXME: set from configuration system.
         self.freecolour = wxGREEN
         self.bookedcolour = wxBLUE
@@ -55,19 +54,26 @@ class MainWindow(wxPanel):
                                        style=wxCAL_MONDAY_FIRST |
                                        wxCAL_SHOW_HOLIDAYS)
         EVT_CALENDAR_DAY (self.calendar, cID, self.OnDayChange)
+
+        # get database connection
+        self.db = gmPG.ConnectionPool ()
+        self.doctors = self.GetDoctors ()
+        
         # setup booking grid
         lID = wxNewId ()
         self.grid = wxGrid (self, lID)
-        EVT_GRID_SELECT_CELL (self.grid, onCellSelected)
-        EVT_GRID_CELL_LEFT_DCLICK (self.grid, onCellDClicked)
-        EVT_GRID_CELL_RIGHT_CLICKED (self.grid, onCellGetFloatMenu)
-        EVT_GRID_LABEL_LEFT_DCLICK (self.grid, onDoctorClicked)
-        self.doctors = self.GetDoctors () 
-        self.grid_num_rows = 10
-        self.grid.CreateGrid (len (self.doctors), self.num_rows)
+        EVT_GRID_SELECT_CELL (self.grid, self.onCellSelected)
+        EVT_GRID_CELL_LEFT_DCLICK (self.grid, self.onCellDClicked)
+        EVT_GRID_CELL_RIGHT_CLICK (self.grid, self.onCellGetFloatMenu)
+        EVT_GRID_LABEL_LEFT_DCLICK (self.grid, self.onDoctorClicked)
+        self.grid.EnableEditing (0)
+        self.grid.CreateGrid (0, len(self.doctors))
+        for i in range (0,len(self.doctors)):
+            self.grid.SetColLabelValue (i, self.doctors[i][1])
+        self.grid.AutoSizeColumns ()
         self.grid.SetDefaultCellBackgroundColour (wxWHITE)
         self.grid.SetDefaultCellTextColour (wxBLACK)
-        self.grid.DisableCellEditControl ()
+
 
         EVT_CHAR (self, self.onChar)
 
@@ -75,37 +81,35 @@ class MainWindow(wxPanel):
         self.namectrl = wxTextCtrl (self, -1, style=wxTE_READONLY)
         buttonid= wxNewId ()
         self.bookbutton = wxButton (self, buttonid, "Book...")
-        EVT_BUTTON (self.bookbutton, self.onBooking)
+        EVT_BUTTON (self.bookbutton, buttonid, self.onBooking)
         buttonid = wxNewId ()
         self.cancelbutton = wxButton (self, buttonid, "Cancel....")
-        EVT_BUTTON (self.cancelbutton, self.onBookCancel)
+        EVT_BUTTON (self.cancelbutton, buttonid, self.onBookCancel)
         buttonid= wxNewId ()
         self.findbutton = wxButton (self, buttonid, "Find...")
-        EVT_BUTTON (self.findbutton, self.onFindPatient) 
+        EVT_BUTTON (self.findbutton, buttonid, self.onFindPatient) 
         buttonid= wxNewId ()
         self.sessionbutton = wxButton (self, buttonid, "Sessions...")
-        EVT_BUTTON (self.sessionbutton, self.onSessionsEdit)
+        EVT_BUTTON (self.sessionbutton, buttonid, self.onSessionsEdit)
 
 
         # button rows
         row1 = wxBoxSizer (wxHORIZONTAL)
-        row1.Add (wxStaticText (self, -1, "Patient: "), 1, wxEXPAND, 0)
+        row1.Add (wxStaticText (self, -1, "Patient: "), 0, wxEXPAND, 0)
         row1.Add (self.namectrl, 1, wxEXPAND, 0)
-        row2 = wxBoxSizer (wxHORIZONTAL)
-        row2.Add (self.bookbutton, 1, wxEXPAND, 0)
-        row2.Add (self.cancelbutton, 1, wxEXPAND, 0)
-        row3 = wxBoxSizer (wxHORIZONTAL)
-        row3.Add (self.findbutton, 1, wxEXPAND, 0)
-        row3.Add (self.sessionbutton, 1, wxEXPAND, 0)
+        buttonbox = wxGridSizer (2)
+        buttonbox.Add (self.bookbutton, 1, wxEXPAND, 0)
+        buttonbox.Add (self.cancelbutton, 1, wxEXPAND, 0)
+        buttonbox.Add (self.findbutton, 1, wxEXPAND, 0)
+        buttonbox.Add (self.sessionbutton, 1, wxEXPAND, 0)
 
         leftsizer = wxBoxSizer (wxVERTICAL)
         leftsizer.Add (self.calendar, 0, wxALL, 0)
         leftsizer.Add (row1, 0, wxALL, 0)
-        leftsizer.Add (row2, 0, wxALL, 0)
-        leftsizer.Add (row3, 0, wxALL, 0)
+        leftsizer.Add (buttonbox, 0, wxALL, 0)
         
         self.sizer = wxBoxSizer(wxHORIZONTAL) 
-        self.sizer.Add (self.calendar, 0, wxALL, 5)
+        self.sizer.Add (leftsizer, 0, wxALL, 5)
         self.sizer.Add (self.grid, 1, wxEXPAND)
          
         #Layout sizers 
@@ -118,85 +122,135 @@ class MainWindow(wxPanel):
         self.SetGrid (time.strftime ("%d %b %Y"))
 
     def OnDayChange (self, event):
-        print event.GetDate ()
-        self.SetGrid (event.GetDate ()[4:14]) # get just the date
+        self.SetGrid (event.GetDate ().Format("%d %b %Y")) # get just the date
 
     def SetGrid (self, date):
         select = ''
         for doc in self.doctors:
-            select += 'is_booked (%d, %s, time),' % (doc[0], date)
-        select = select[0,-1] # delete final comma
-        cursor = self.dbpool.GetConnection ('appoint').cursor ()
+            select += 'is_booked (%d, \'%s\', list.time),' % (doc[0], date)
+        select = select[0:-1] # delete final comma
+        cursor = self.db.GetConnection ('appoint').cursor ()
         cursor.execute ("""
-SELECT time, %s FROM list WHERE float8 (day) = extract (dow from date ''%s'')
+SELECT DISTINCT ON (list.time) list.time, %s FROM list, session WHERE
+float8 (session.day) = extract (dow from date \'%s\')
+AND
+session.id = list.session
 ORDER BY time""" % (select, date))
         result = cursor.fetchall ()
-        self.dbpool.ReleaseConnection ('appoint')
-        self.grid_num_rows = len (result)
-        self.grid.SetNumRows (self.grid_num_rows)
+        self.db.ReleaseConnection ('appoint')
+        # if there's a better way of doinf this I don't know...
+        self.grid.DeleteRows (numRows=self.grid.GetNumberRows ())
+        self.grid.AppendRows (len (result))
         line = 0
         for i in result:
+            self.grid.SetRowLabelValue (line, i[0][:-3])
             col = 0
-            for j in i:
+            for j in i[1:]:
                 if j is not None:
                     if j:
-                        self.grid.SetCellBackgroundColor (self.bookedcolour,
-                                                          line, col)
+                        self.grid.SetCellBackgroundColour (line, col,
+                                                          self.bookedcolour)
                     else:
-                        self.grid.SetCellBackgroundColour (self.freecolour,
-                                                           line, col)
+                        self.grid.SetCellBackgroundColour (line, col, self.freecolour)                      
                 else:
-                    self.grid.SetCellBackgroundColor (self.nobookcolour,
-                                                      line, col)
+                    self.grid.SetCellBackgroundColour (line, col,
+                                                      self.nobookcolour)
                 col += 1
             line += 1
+        # KLUDGE: this prevents the first cell selected from having thw wrong
+        # background colour
+        self.grid.SetGridCursor (1, 1)
+        self.grid.SetGridCursor (0,0)
 
     # return list of doctor_number, doctor_name tuples
     def GetDoctors (self):
-        cursor = self.dbpool.GetConnection ('appoint').cursor ()
+        cursor = self.db.GetConnection ('appoint').cursor ()
         cursor.execute ("SELECT id, name FROM clinician")
-        self.dbpool.ReleaseConnection ('appoint')
+        self.db.ReleaseConnection ('appoint')
         return cursor.fetchall ()
 
+    # callabcks for UI
+    def onCellSelected (self, event):
+        print "Selected:", event.GetCol (), event.GetRow ()
+        event.Skip ()
+
+    def onCellDClicked (self, event):
+        "when a cell is double-clicked"
+        pass
+
+    def onCellGetFloatMenu (self, event):
+        pass
+
+    def onDoctorClicked (self, event):
+        pass
+
+    def onChar (self, event):
+        pass
+
+    # callbacks for buttons
+
+    def onBooking (self, event):
+        pass
+
+    def onSessionsEdit (self, event):
+        pass
+
+    def onBookCancel (self, event):
+        pass
+
+    def onFindPatient (self, event):
+        pass
 
     
 # This is a framework for a Free Bonus standalone application
-# for making bookings
-#
-        
-def OnAbout(self,e):  
-    d= wxMessageDialog( self, " A drug database editor",
-                        "About Drug DB", wxOK)  
-    # Create a message dialog box  
-    d.ShowModal() # Shows it  
-    d.Destroy() # finally destroy it when finished.  
+# for making bookings      
+
+
+class appointapp (wxApp):
     
+    def OnInit (self):  
+        frame = wxFrame(None,-4, "Appointments Book", size=wxSize (900, 400),
+                        style=wxDEFAULT_FRAME_STYLE|  
+                        wxNO_FULL_REPAINT_ON_RESIZE)
+        mainwindow = MainWindow (frame, -1, self)
+        EVT_CLOSE (frame, self.OnCloseWindow)
+        # Setting up the menu.  
+        filemenu= wxMenu()     
+        filemenu.Append(ID_ABOUT, "&About"," Information about this program")  
+        filemenu.AppendSeparator()  
+        filemenu.Append(ID_EXIT,"E&xit"," Terminate the program")
+        # Creating the menubar.  
+        menuBar = wxMenuBar()  
+        menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBa
+        frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.  
+        EVT_MENU(frame, ID_ABOUT, self.OnAbout) 
+        EVT_MENU(frame, ID_EXIT, self.OnCloseWindow) 
+        frame.Show(1)
+        return 1
+
+    def OnAbout(self,e):  
+        d= wxMessageDialog( self, " A drug database editor",
+                            "About Drug DB", wxOK)  
+        # Create a message dialog box  
+        d.ShowModal() # Shows it  
+        d.Destroy() # finally destroy it when finished.  
     
-def OnCloseWindow (self, e):
-    self.app.ExitMainLoop ()        
+    def OnCloseWindow (self, e):
+        self.ExitMainLoop ()  
+
+def run ():
+    import os, sys
+    os.chdir (os.path.split(sys.argv[0])[0])
+    app = appointapp (0)
+    app.MainLoop ()
+
+
+if __name__ == '__main__':
+    import pdb
+    pdb.run ('run ()')
 
 
 
 
-if __name__ = '__main__':        
-    app = wxPySimpleApp()  
-    frame = wxFrame(None,-4, "Appointments Book",
-                    style=wxDEFAULT_FRAME_STYLE|  
-                    wxNO_FULL_REPAINT_ON_RESIZE)
-    mainwindow = MainWindow (frame, -1, app)
-    EVT_CLOSE (frame, OnCloseWindow)
-    # Setting up the menu.  
-    filemenu= wxMenu()     
-    filemenu.Append(ID_ABOUT, "&About"," Information about this program")  
-    filemenu.AppendSeparator()  
-    filemenu.Append(ID_EXIT,"E&xit"," Terminate the program")
-    # Creating the menubar.  
-    menuBar = wxMenuBar()  
-    menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBar  
-    frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.  
-    EVT_MENU(frame, ID_ABOUT, OnAbout) 
-    EVT_MENU(frame, ID_EXIT, OnCloseWindow) 
 
-    frame.Show(1)  
-    app.MainLoop() 
 

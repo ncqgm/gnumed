@@ -351,14 +351,14 @@ def inputTMLoginParams():
 
 def inputWXLoginParams():
 	"""GUI (wx) mode input request of database login parameters.
-	Returns gmLoginINfo.LoginInfo object"""
+	Returns gmLoginInfo.LoginInfo object"""
 
-	import sys
+	import sys, wxPython.wx
 	#the next statement will raise an exception if wxPython is not loaded yet
 	sys.modules['wxPython']
 	#OK, wxPython was already loaded. But has the main Application instance been initialized already?
 	#if not, the exception will kick us out
-	if wxgetApp() is None:
+	if wxPython.wx.wxGetApp() is None:
 		raise gmExceptions.NoGuiError(_("The wx GUI framework hasn't been initialized yet!"))
 
 	#Let's launch the login dialog
@@ -366,7 +366,7 @@ def inputWXLoginParams():
 	import gmLoginDialog
 	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
-	login = dlg.panel.GetLoginParams()
+	login = dlg.panel.GetLoginInfo ()
 	#if user cancelled or something else went wrong, raise an exception
 	if login is None:
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
@@ -377,13 +377,10 @@ def inputWXLoginParams():
 
 def inputLoginParams():
 	"input request for database backend login parameters. Try GUI dialog if available"
-	if 'DISPLAY' in os.environ.keys () or sys.platform in ["win32", "mac"]:
-		try:
-			login = inputWXLoginParams()
-		except:
-			login = inputTMLoginParams()
-	else:
-		login = inputTMLoginParams ()
+	try:
+		login = inputWXLoginParams()
+	except:
+		login = inputTMLoginParams()
 	return login
 
 
