@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -233,23 +233,23 @@ comment on column identity.title IS
 	'yes, a title is an attribute of an identity, not of a name !';
 
 -- ==========================================================
-create table lnk_person2id (
+create table ext_person_id (
 	pk serial primary key,
-	fk_identity_pk integer not null references identity(id),
+	fk_identity integer not null references identity(id),
 	external_id text not null,
 	description text,
-	unique (fk_identity_pk, external_id, description)
+	unique (fk_identity, external_id, description)
 ) inherits (audit_fields);
 
-select add_table_for_audit('lnk_person2id');
+select add_table_for_audit('ext_person_id');
 
-comment on table lnk_person2id is
+comment on table ext_person_id is
 	'link external IDs to GnuMed identities';
-comment on column lnk_person2id.external_id is
+comment on column ext_person_id.external_id is
 	'textual representation of external ID which
 	 may be Social Security Number, patient ID of
 	 another EMR system, you-name-it';
-comment on column lnk_person2id.description is
+comment on column ext_person_id.description is
 	'description of ID, e.g. name, originating system,
 	 scope, expiration, etc.';
 
@@ -507,11 +507,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.17 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.16  2003-11-23 23:34:49  ncq
+-- Revision 1.17  2003-12-01 22:12:41  ncq
+-- - lnk_person2id -> ext_person_id
+--
+-- Revision 1.16  2003/11/23 23:34:49  ncq
 -- - names.title -> identity.title
 --
 -- Revision 1.15  2003/11/22 14:55:15  ncq
