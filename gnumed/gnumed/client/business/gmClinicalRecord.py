@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.25 2003-06-26 02:29:20 ihaywood Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmClinicalRecord.py,v 1.26 2003-06-26 06:05:38 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -127,7 +127,7 @@ class gmClinicalRecord:
 		return result
 
 		# I cannot verify the existence of that bug
-#		cmd = "select id from identity where id = %s" % self.id_patient
+#		cmd = "select id from identity where id = %s ;" % self.id_patient
 #		rows = None
 #		try:
 #			rows = self.execute(cmd, "Unable to check existence of id %s in identity" % self.id_patient)
@@ -164,7 +164,7 @@ class gmClinicalRecord:
 		curs = self._defconn_ro.cursor()
 #		curs = self.getCursor()
 		# did number of allergies change for our patient ?
-		cmd = "select count(id) from v_i18n_patient_allergies where id_patient=%s;"
+		cmd = "select count(id) from v_i18n_patient_allergies where id_patient=%s ;"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lData, 'cannot check for added/deleted allergies, assuming addition/deletion did occurr')
@@ -247,7 +247,7 @@ class gmClinicalRecord:
 		curs = self._defconn_ro.cursor()
 		# the connection can become stale
 #		curs = self.getCursor()
-		cmd = "select * from v_i18n_patient_allergies where id_patient=%s;"
+		cmd = "select * from v_i18n_patient_allergies where id_patient=%s ;"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load allergies for patient [%s]' % self.id_patient)
@@ -287,7 +287,7 @@ class gmClinicalRecord:
 		except KeyError:
 			pass
 		self.__db_cache['allergy IDs'] = []
-		cmd = "select id from v_i18n_patient_allergies where id_patient=%s;"
+		cmd = "select id from v_i18n_patient_allergies where id_patient=%s ;"
 		curs = self._defconn_ro.cursor()
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
@@ -316,7 +316,7 @@ class gmClinicalRecord:
 	#------------------------------------------------------------------
 	def _create_health_issue(self, health_issue_name = '__default__'):
 		curs = self._defconn_ro.cursor()
-		cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
+		cmd = "select id from clin_health_issue where id_patient=%s and description=%s ;"
 		if not gmPG.run_query(curs, cmd, self.id_patient, health_issue_name):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot check if health issue [%s] exists for patient [%s]' % (health_issue_name, self.id_patient))
@@ -402,7 +402,7 @@ class gmClinicalRecord:
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
 		rw_curs = rw_conn.cursor()
 		# delete old entry
-		cmd = "delete from last_act_episode where id_patient=%s;"
+		cmd = "delete from last_act_episode where id_patient=%s ;"
 		if not gmPG.run_query(rw_curs, cmd, self.id_patient):
 			_log.Log(gmLog.lWarn, 'cannot delete last active episode entry for patient [%s]' % (self.id_patient))
 			# try continuing anyways
@@ -549,7 +549,7 @@ class gmClinicalRecord:
 			return None
 		rw_curs = rw_conn.cursor()
 		# delete old entry if any
-		cmd = "delete from curr_encounter where id_patient=%s;"
+		cmd = "delete from curr_encounter where id_patient=%s ;"
 		if not gmPG.run_query(rw_curs, cmd, self.id_patient):
 			_log.Log(gmLog.lErr, 'cannot delete curr_encounter entry for patient [%s]' % self.id_patient)
 		# insert new encounter
@@ -590,7 +590,7 @@ class gmClinicalRecord:
 			_log.Log(gmLog.lWarn, 'cannot connect to service [historica]')
 			return None
 		rw_curs = rw_conn.cursor()
-		cmd = "update curr_encounter set comment=%s where id_patient=%s and id_encounter=%s;"
+		cmd = "update curr_encounter set comment=%s where id_patient=%s and id_encounter=%s ;"
 		if not gmPG.run_query(rw_curs, cmd, aComment, self.id_patient, self.id_encounter):
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter')
 			rw_curs.close()
@@ -718,7 +718,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.25  2003-06-26 02:29:20  ihaywood
+# Revision 1.26  2003-06-26 06:05:38  ncq
+# - always add ; at end of sql queries but have space after %s
+#
+# Revision 1.25  2003/06/26 02:29:20  ihaywood
 # Bugfix for searching for pre-existing health issue records
 #
 # Revision 1.24  2003/06/24 12:55:08  ncq
