@@ -2,7 +2,7 @@
 -- GnuMed first name to gender mappings
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmVornamen.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -12,7 +12,7 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-set client_encoding to 'LATIN9';
+set client_encoding to 'LATIN1';
 -- =============================================
 INSERT INTO name_gender_map(name,gender) VALUES ('AARON', 'm');
 INSERT INTO name_gender_map(name,gender) VALUES ('AASCHOT', 'm');
@@ -3488,11 +3488,14 @@ INSERT INTO name_gender_map(name,gender) VALUES ('ZYHRA', 'f');
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmVornamen.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmVornamen.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmVornamen.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmVornamen.sql,v $
--- Revision 1.1  2005-02-27 18:08:35  ncq
--- - Christoph kindly contributed firstname gender mappings
+-- Revision 1.2  2005-03-01 20:41:49  ncq
+-- - use latin1 not latin9 as older servers do not support that, the only
+--   difference is the EURO symbol which we do not need here
 --
+-- Revision 1.1  2005/02/27 18:08:35  ncq
+-- - Christoph kindly contributed firstname gender mappings
 --
