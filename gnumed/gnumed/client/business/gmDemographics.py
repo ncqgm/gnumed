@@ -1,13 +1,15 @@
-"""GnuMed temporary patient object.
+"""GnuMed demographics object.
 
 This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
 
 license: GPL
 """
-
-__version__ = "$Revision: 1.2 $"
-__author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+#============================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmDemographics.py,v $
+# $Id: gmDemographics.py,v 1.3 2003-10-26 16:35:03 ncq Exp $
+__version__ = "$Revision: 1.3 $"
+__author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
 import sys, os.path, time
@@ -54,10 +56,9 @@ def get_medical_age(dob):
 	if age.minutes > 5:
 		return "%sm" % (age.minutes)
 	return "%sm%ss" % (age.minutes, age.seconds)
-
-
+#============================================================
 # virtual ancestor class, SQL and LDAP descendants
-class gmPerson:
+class gmDemographicRecord:
 	def getActiveName (self):
 		raise gmExceptions.PureVirtualFunction()
 
@@ -82,7 +83,7 @@ class gmPerson:
 	def getAddress (self, type):
 		raise gmExceptions.PureVirtualFunction ()
 
-	def deleteAddress (self, ID):
+	def unlinkAddress (self, ID):
 		raise gmExceptions.PureVirtualFunction ()
 
 	def setAddress (self, type, number, street, urb, postcode, state, country):
@@ -97,36 +98,20 @@ class gmPerson:
 	def getMedicalAge(self):
 		raise gmExceptions.PureVirtualFunction ()
 
-		
 #============================================================
 # may get preloaded by the waiting list
-class gmSQLPerson (gmPerson):
-	"""Represents a patient that DOES EXIST in the database.
-
-	- searching and creation is done OUTSIDE this object
+class gmDemographicRecord_SQL (gmDemographicRecord):
+	"""Represents the demographic data of a patient.
 	"""
-
-	# handlers for __getitem__()
-	_get_handler = {}
-
 	def __init__(self, aPKey = None):
 		"""Fails if
 
 		- no connection to database possible
-		- patient referenced by aPKey does not exist.
-		"""	
-
-		if aPKey is None:
-			# create a new base patient entry
-			cmd = "insert into identity (dob) values (current_time)"
-			gmPG.run_commit ('personalia', [(cmd, [])])
-			cmd = "select currval (identity_id_seq)"
-			data = gmPG.run_ro_query (cmd, None, [])
-			self.ID = data[0][0] 
-		else:
-			self.ID = aPKey	# == identity.id == primary key
-			if not self._pkey_exists():
-				raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
+		- patient referenced by aPKey does not exist
+		"""
+		self.ID = aPKey	# == identity.id == primary key
+		if not self._pkey_exists():
+			raise gmExceptions.ConstructorError, "no patient with ID [%s] in database" % aPKey
 
 		self.PUPIC = ""
 		self.__db_cache = {}
@@ -135,7 +120,7 @@ class gmSQLPerson (gmPerson):
 		#if not self._register_interests():
 			#raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
 
-		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.ID)
+		_log.Log(gmLog.lData, 'instantiated demographic record for patient [%s]' % self.ID)
 	#--------------------------------------------------------
 	def cleanup(self):
 		"""Do cleanups before dying.
@@ -147,6 +132,8 @@ class gmSQLPerson (gmPerson):
 			emr = self.__db_cache['clinical record']
 			emr.cleanup()
 		self._backend.ReleaseConnection('personalia')
+	#--------------------------------------------------------
+	
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -176,7 +163,9 @@ class gmSQLPerson (gmPerson):
 		# <DEBUG>
 		_log.Log(gmLog.lData, "patient_modified signal received from backend")
 		# </DEBUG>
-
+	#--------------------------------------------------------
+	# API
+	#--------------------------------------------------------
 	def getActiveName(self):
 		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s"
 		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
@@ -189,10 +178,8 @@ class gmSQLPerson (gmPerson):
 		return result
 	#--------------------------------------------------------
 	def setActiveName (self, firstnames, lastnames):
-		cmd = """
-update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s
-"""
-		gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID])])
+		cmd = "update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s"
+		return gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID])])
 	#---------------------------------------------------------	
 	def getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
@@ -205,14 +192,13 @@ update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s
 	#--------------------------------------------------------
 	def setTitle (self, title):
 		cmd = "update v_basic_person set title = %s where i_id = %s"
-		gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
+		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
 	#--------------------------------------------------------
 	def getID(self):
 		return self.ID
 	#--------------------------------------------------------
-	def getDOB(self):
-		# FIXME: invent a mechanism to set the desired format
-		cmd = "select to_char(dob, 'DD.MM.YYYY') from identity where id = %s"
+	def getDOB(self, aFormat = 'DD.MM.YYYY'):
+		cmd = "select to_char(dob, '%s') from identity where %s" % (aFormat, "id=%s")
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if data is None:
 			return ''
@@ -222,7 +208,7 @@ update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s
 	#--------------------------------------------------------
 	def setDOB (self, dob):
 		cmd = "update identity set dob = %s where id = %s"
-		gmPG.run_commit ('personalia', [(cmd, [dob, self.ID])])
+		return gmPG.run_commit ('personalia', [(cmd, [dob, self.ID])])
 	#--------------------------------------------------------
 	def getAddress (self, type):
 		cmd = """
@@ -251,21 +237,21 @@ where
 		if len(rows) == 0:
 			return None
 		return [{
-			'ID':r[idx['addr_id']],
-			'number':r[idx['number']],
-			'street':r[idx['street']],
-			'urb':r[idx['city']],
-			'postcode':r[idx['postcode']]
+			'ID': r[idx['addr_id']],
+			'number': r[idx['number']],
+			'street': r[idx['street']],
+			'urb': r[idx['city']],
+			'postcode': r[idx['postcode']]
 		} for r in rows]
 	#--------------------------------------------------------
-	def deleteAddress (self, ID):
+	def unlinkAddress (self, ID):
 		cmd = "delete from lnk_person2address where id_identity = %s and id_address = %s"
-		gmPG.run_commit ('personalia', [(cmd, [self.ID, ID])])
-		return 1
+		return gmPG.run_commit ('personalia', [(cmd, [self.ID, ID])])
 	#--------------------------------------------------------
-	def newAddress (self, type, number, street, urb, postcode, state, country):
+	def linkNewAddress (self, type, number, street, urb, postcode, state, country):
 		"""Adds a new address into this persons list of addresses.
 		"""
+		# address already in database ?
 		cmd = """
 select addr_id
 from v_basic_address
@@ -281,21 +267,27 @@ where
 		if data is None:
 			_log.Log(gmLog.lErr, 'cannot check for address existence')
 			return None
-		# delete any pre-existing link on this identity and address type
+
+		# delete any pre-existing link for this identity and the given address type
 		cmd = """
-delete from lnk_person2address where id_identity = %s and id_type = (select id from address_type where name = %s)
+delete from lnk_person2address
+where
+	id_identity = %s
+		and
+	id_type = (select id from address_type where name = %s)
 """
 		gmPG.run_commit ('personalia', [(cmd, [self.ID, type])]) 
-		# we have a matching address, just add the link
+
+		# yes, address already there, just add the link
 		if len(data) > 0:
 			addr_id = data[0][0]
 			cmd = """
 insert into lnk_person2address (id_identity, id_address, id_type)
 values (%s, %s, (select id from address_type where name = %s))
 """
-			gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, type))])
-			return 1
-		# insert a new address
+			return gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, type))])
+
+		# no, insert new address and link it, too
 		cmd1 = """
 insert into v_basic_address (number, street, city, postcode, state, country)
 values (%s, %s, %s, %s, %s, %s)
@@ -304,7 +296,7 @@ values (%s, %s, %s, %s, %s, %s)
 insert into lnk_person2address (id_identity, id_address, id_type)
 values (%s, currval ('address_id_seq'), (select id from address_type where name = %s))
 """
-		gmPG.run_commit ("personalia", [
+		return gmPG.run_commit ("personalia", [
 			(cmd1, (number, street, urb, postcode, state, country)),
 			(cmd2, (self.ID, type))
 			]
@@ -319,8 +311,10 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 		if len(data) == 0:
 			return '??'
 		return get_medical_age(data[0][0])
-#------------------------------------------------------------
-def getAddressTypes ():
+#================================================================
+# convenience functions
+#================================================================
+def getAddressTypes():
 	"""Gets a simple list of address types."""
 	row_list = gmPG.run_ro_query('personalia', "select name from address_type")
 	if row_list is None:
@@ -328,8 +322,8 @@ def getAddressTypes ():
 	if len(row_list) == 0:
 		return None
 	return [row[0] for row in row_list]
-
-def getCommChannels ():
+#----------------------------------------------------------------
+def getCommChannelTypes():
 	"""Gets the list of comm channels"""
 	row_list = gmPG.run_ro_query ('personalia', "select description from enum_comm_types")
 	if row_list is None:
@@ -337,95 +331,42 @@ def getCommChannels ():
 	if len (row_list) == 0:
 		return None
 	return [row[0] for row in row_list]
-#------------------------------------------------------------
-def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
-	"""Get a list of matching patient IDs.
-
-	None		- no match
-	not None	- list of IDs
-	exception	- failure
+#----------------------------------------------------------------
+def GuessZipFromUrbStreet (urb = None, street = None):
+	"""Returns a list of valid postcodes given urb and street.
 	"""
-	if cooked_search_terms is not None:
-		where_clause = _make_where_from_cooked(cooked_search_terms)
+	if urb is None or len (urb) == 0:
+		return [] # cope with empty urb name
 
-		if where_clause is None:
-			raise ValueError, "Cannot make WHERE clause."
+	if street is None:
+		cmd = "select postcode from urb where name = %s"
+		data = gmPG.run_ro_query('personalia', cmd, None, urb)
+	else:
+		cmd = """
+select street.postcode
+from urb, street
+where
+	street.name = %s and
+	urb.name = %s and
+	street.id_urb = urb.id and
+	street.postcode is not null
+"""
+		data = gmPG.run_ro_query('personalia', cmd, None, street, urb)
+		if data is None or len(data) == 0:
+			# street.postcode full of NULLs (i.e. we are in the wrong jurisdiction
+			# for this type of search, client has called in error
+			cmd = "select postcode from urb where name = %s"
+			data = gmPG.run_ro_query('personalia', cmd, None, urb)
 
-		# get connection
-		backend = gmPG.ConnectionPool()
-		conn = backend.GetConnection('personalia')
-		if conn is None:
-			raise ValueError, "Cannot connect to database."
-
-		# start our transaction (done implicitely by defining a cursor)
-		cursor = conn.cursor()
-		cmd = "SELECT i_id FROM v_basic_person WHERE %s" % where_clause
-		if not gmPG.run_query(cursor, cmd):
-			cursor.close()
-			backend.ReleaseConnection('personalia')
-			raise
-
-		tmp = cursor.fetchall()
-		cursor.close()
-		backend.ReleaseConnection('personalia')
-
-		if tmp is None or len(tmp) == 0:
-			_log.Log(gmLog.lInfo, "No matching patients.")
-			return None
-		pat_ids = []
-		for pat_id in tmp:
-			pat_ids.extend(pat_id)
-
-		return pat_ids
-
-	if raw_search_terms is not None:
-		_log.Log(gmLog.lErr, 'getting patient IDs by raw search terms not implemented yet')
-		raise ValueError, "Making WHERE clause from raw input not implemented."
-
-	_log.Log(gmLog.lErr, 'Cannot get patient IDs with neither raw nor cooked search terms !')
-	return None
-#------------------------------------------------------------
-def _make_where_from_cooked(cooked_search_terms = None):
-	data = cooked_search_terms
-	try:
-		if data['case sensitive'] is None:
-			like = 'ilike'
-		else:
-			like = 'like'
-
-		if data['globbing'] is None:
-			wildcard = ''
-		else:
-			wildcard = '%s'
-
-		# set up query
-		if data['first name'] is None:
-			where_fname = ''
-		else:
-			where_fname = "firstnames %s '%s%s%s'" % (like, wildcard, data['first name'], wildcard)
-
-		if data['last name'] is None:
-			where_lname = ''
-		else:
-			where_lname = "lastnames %s '%s%s%s'" % (like, wildcard, data['last name'], wildcard)
-
-		if data['dob'] is None:
-			where_dob = ''
-		else:
-			#where_dob = "dob = (select to_timestamp('%s', 'YYYYMMDD'))" % data['dob']
-			where_dob = "dob = '%s'" % data['dob']
-
-		if data['gender'] is None:
-			where_gender = ''
-		else:
-			where_gender = "gender = '%s'" % data['gender']
-	except KeyError:
-		_log.Log(gmLog.lErr, data)
-		_log.LogException('invalid argument data structure')
-		return None
-
-	return ' AND '.join((where_fname, where_lname, where_dob, where_gender))
-
+	return data
+#----------------------------------------------------------------
+def GuessStreetFromZip(postcode = None):
+	"""Guess the street name based on the postcode.
+	"""
+	if postcode is None or len (postcode) == 0:
+		return [] # cope with empty postcode name
+	cmd = "select street from v_zip2street where postcode = %s"
+	return gmPG.run_ro_query('personalia', cmd, None, postcode)
 #============================================================
 # callbacks
 #------------------------------------------------------------
@@ -440,7 +381,7 @@ if __name__ == "__main__":
 		if pID == '-1':
 			break
 		try:
-			myPatient = gmSQLPerson(aPKey = pID)
+			myPatient = gmDemographicRecord_SQL(aPKey = pID)
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
@@ -450,17 +391,17 @@ if __name__ == "__main__":
 		print "title    ", myPatient.getTitle ()
 		print "dob      ", myPatient.getDOB ()
 		print "med age  ", myPatient.getMedicalAge ()
-		print "adr types", getAddressTypes()
-		for i in getAddressTypes ():
-			print "adr (%s)" % i, myPatient.getAddress (i)
+		adr_types = getAddressTypes()
+		print "adr types", adr_types
+		for type_name in adr_types:
+			print "adr (%s)" % type_name, myPatient.getAddress (type_name)
 		print "--------------------------------------"
-#		api = myPatient['API']
-#		for call in api:
-#			print "API call: %s (internally %s)" % (call['API call name'], call['internal name'])
-#			print call['description']
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.2  2003-10-26 11:27:10  ihaywood
+# Revision 1.3  2003-10-26 16:35:03  ncq
+# - clean up as discussed with Ian, merge conflict resolution
+#
+# Revision 1.2  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
 # Ergregious breakages are fixed, but needs more work
