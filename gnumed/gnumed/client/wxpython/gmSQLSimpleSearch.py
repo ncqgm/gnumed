@@ -1,0 +1,127 @@
+from wxPython.wx import *
+import gmSQLListControl
+import gettext
+_ = gettext.gettext
+
+
+ID_COMBO_SEARCHEXPR = wxNewId()
+ID_BUTTON_SEARCH = wxNewId()
+ID_CHECKBOX_CASEINSENSITIVE = wxNewId()
+ID_LISTCTRL = wxNewId()
+
+
+class SQLSimpleSearch(wxPanel):
+
+	def __init__(self, parent, id,
+		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
+		style = wxTAB_TRAVERSAL, service = 'default' ):
+
+		#the backend service to connect to
+		self.__service=service
+
+		wxPanel.__init__(self, parent, id, pos, size, style)
+
+		self.sizerTopVertical = wxBoxSizer( wxVERTICAL )
+
+		self.sizerSearchExpr = wxBoxSizer( wxHORIZONTAL )
+
+		self.comboSearchExpr = wxComboBox( self, ID_COMBO_SEARCHEXPR, "", wxDefaultPosition, wxSize(170,-1),
+			[''] , wxCB_DROPDOWN )
+		self.sizerSearchExpr.AddWindow( self.comboSearchExpr, 1, wxALIGN_CENTRE|wxALL, 5 )
+
+		self.buttonSearch = wxButton( self, ID_BUTTON_SEARCH, _("&Search"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.sizerSearchExpr.AddWindow( self.buttonSearch, 0, wxALIGN_CENTRE|wxALL, 5 )
+
+		self.checkboxCaseInsensitive = wxCheckBox( self, ID_CHECKBOX_CASEINSENSITIVE, _("&Case insensitive"), wxDefaultPosition, wxDefaultSize, 0 )
+		self.sizerSearchExpr.AddWindow( self.checkboxCaseInsensitive, 0, wxALIGN_CENTRE|wxALL, 5 )
+
+		self.sizerTopVertical.AddSizer( self.sizerSearchExpr, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
+		self.sizerSearchResults = wxBoxSizer( wxHORIZONTAL )
+
+		self.listctrlSearchResults = gmSQLListControl.SQLListControl( self, ID_LISTCTRL, wxDefaultPosition, wxSize(160,120), wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES|wxLC_HRULES )
+		self.sizerSearchResults.AddWindow( self.listctrlSearchResults, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 5 )
+
+		self.sizerTopVertical.AddSizer( self.sizerSearchResults, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
+		self.SetAutoLayout( true )
+		self.SetSizer( self.sizerTopVertical )
+		#if call_fit == true:
+		#	sizerTopVertical.Fit( self )
+		#	sizerTopVertical.SetSizeHints( self )
+
+		EVT_LIST_KEY_DOWN(self, ID_LISTCTRL, self.OnSearchResultKeyDown)
+		EVT_LIST_ITEM_RIGHT_CLICK(self, ID_LISTCTRL, self.OnSearchResultItemRightClicked)
+		EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL, self.OnSearchResultItemActivated)
+		EVT_LIST_ITEM_DESELECTED(self, ID_LISTCTRL, self.OnSearchResultItemDeselected)
+		EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRL, self.OnSearchResultItemSelected)
+		EVT_CHECKBOX(self, ID_CHECKBOX_CASEINSENSITIVE, self.OnCaseInsensitiveCheckbox)
+		EVT_BUTTON(self, ID_BUTTON_SEARCH, self.OnSearch)
+		EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
+		EVT_CHAR(self, self.OnChar)
+		EVT_IDLE(self, self.OnIdle)
+
+
+	def SetService(self, service):
+		self.__service = service
+
+	def TransferDataToWindow(self):
+		print "TransferDataToWindow(self):"
+		return true
+
+	def TransferDataFromWindow(self):
+		print "def TransferDataFromWindow(self):"
+		return true
+
+
+	def OnSearchResultKeyDown(self, event):
+		print "def OnSearchResultKeyDown(self, event):"
+
+
+	def OnSearchResultItemRightClicked(self, event):
+		print "def OnSearchResultItemRightClicked(self, event):"
+
+
+	def OnSearchResultItemActivated(self, event):
+		print "def OnSearchResultItemActivated(self, event):"
+
+
+	def OnSearchResultItemDeselected(self, event):
+		print "def OnSearchResultItemDeselected(self, event):"
+
+
+	def OnSearchResultItemSelected(self, event):
+		print "def OnSearchResultItemSelected(self, event):"
+		self.ProcessSelection(event.m_itemIndex)
+
+
+
+	def OnCaseInsensitiveCheckbox(self, event):
+		print "def OnCaseInsensitiveCheckbox(self, event):"
+
+
+	def OnSearch(self, event):
+		self.Search()
+		event.Skip(true)
+
+
+	def OnIdle(self, event):
+		event.Skip(true)
+
+	def OnChar(self, event):
+		print "def OnChar(self, event):"
+		event.Skip(true)
+
+	def OnCancel(self, event):
+		print "def OnCancel(self, event):"
+		event.Skip(true)
+
+	def Search(self):
+		querystr = self.comboSearchExpr.GetValue()
+		self.listctrlSearchResults.SetQueryStr(querystr, self.__service)
+		self.listctrlSearchResults.RunQuery()
+
+
+	def ProcessSelection(self, index):
+		data = self.listctrlSearchResults.GetItemData(index)
+		
