@@ -18,7 +18,7 @@
 
 #====================================================================
 class LoginInfo:
-	"""a class to encapsulate Postgres login information"""
+	"""a class to encapsulate Postgres login information to default database"""
 
 	#private variables
 	__user = 'guest'

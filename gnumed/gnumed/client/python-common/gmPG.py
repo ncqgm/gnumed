@@ -30,13 +30,13 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, select, threading
 #gnumed specific modules
-import gmI18N, gmLog, gmLoginInfo, gmExceptions
+import gmI18N, gmLog, gmLoginInfo, gmExceptions, gmBackendListener
 _log = gmLog.gmDefLog
 
 #3rd party dependencies
@@ -149,11 +149,17 @@ class ConnectionPool:
 		the 'callback' function"""
 		
 		### check what physical database the service belongs to
-		id = ConnectionPool.service_mapping[service]
+		try:
+			id = ConnectionPool.__service_mapping[service]
+		except KeyError:
+			id = 0
 		### since we need only one listening thread per database
 		if id not in ConnectionPool.__threads.keys():
-			ConnectionPool.__threads[id] = StartListeningThread(self.__login);
-		signals = ConnectionPool.__listeners[id]
+			ConnectionPool.__threads[id] = self._StartListeningThread(service);
+		try:
+			signals = ConnectionPool.__listeners[id]
+		except KeyError:
+			signals = []
 		### no point in listening more than once per signal
 		### (backend would rejecy the request anyway)
 		if signal not in signals:
@@ -164,13 +170,20 @@ class ConnectionPool:
 	
 	def _ListenTo(self, service, signal, callback):
 		"Tell the backend to notify us asynchronously on 'signal'"
-		id = ConnectionPool.service_mapping[service]
-		ConnectionPool.__threads[id].RegisterCallback(callback, signal)
+		try:
+			id = ConnectionPool.__service_mapping[service]
+		except KeyError:
+			id = 0
+		backendlistener = ConnectionPool.__threads[id]
+		backendlistener.RegisterCallback(callback, signal)
 		
 		
-	def StartListeningThread(self, service):
-		backend = self.__service_mapping[service]
-		l = gmLoginInfo.LoginInfo()
+	def _StartListeningThread(self, service):
+		try:
+			backend = self.__service_mapping[service]
+		except KeyError:
+			backend=0
+		l = self.GetLoginInfoFor(service)
 		if backend not in self.__threads.keys():
 			self.__threads[backend] = gmBackendListener.BackendListener(l.GetDatabase(), \
 			l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
@@ -210,12 +223,14 @@ class ConnectionPool:
 		###create a copy of the default login information, keeping user name and password
 		dblogin = copy.deepcopy(login)
 		try:
-			querystr = "select name, host, port, opt, tty from db where id = %d" \
-				% ConnectionPool.__service_mapping[service]
+			id = ConnectionPool.__service_mapping[service]
+			if id==0:
+				#default service login
+				return dblogin
+			querystr = "select name, host, port, opt, tty from db where id = %d" % id
 		except KeyError:
 			###if the requested service is not mapped, return default login information
 			return dblogin
-			
 		cursor.execute(querystr)
 		database = cursor.fetchone()
 		idx = cursorIndex(cursor)
@@ -273,6 +288,13 @@ class ConnectionPool:
 		#this is the default gnumed server now!
 		ConnectionPool.__databases['config'] = cdb
 		ConnectionPool.__databases['default'] = cdb
+		
+		#preload all services with database id 0 (default)
+		cursor = cdb.cursor()
+		cursor.execute("select name from distributed_db")
+		services = cursor.fetchall()
+		for service in services:
+			ConnectionPool.__service_mapping[service[0]]=0
 
 		#try to establish connections to all servers we need
 		#according to configuration database
@@ -292,6 +314,7 @@ class ConnectionPool:
 			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
 			service = string.strip(cursor.fetchone()[0])
 			#map the id of the real database to the service
+			print "mapping %s to %s" % (service, str(db[dbidx['db']]))
 			ConnectionPool.__service_mapping[service] = db[dbidx['db']]
 
 			###initialize our reference counter
@@ -344,11 +367,14 @@ class ConnectionPool:
 	
 	def __disconnect(self, force_it=0):
 		"safe disconnect (respecting possibly active connections) unless the force flag is set"
-		###are we conected at all?
+		###are we connected at all?
 		if ConnectionPool.__connected is None:
 			###just in case
 			ConnectionPool.__databases.clear()
 			return
+		#stop all background threads
+		for backend in self.__threads.keys():
+			self.__threads[backend].Stop()
 		###disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
 			### check whether this connection might still be in use ...
@@ -571,5 +597,13 @@ if __name__ == "__main__":
 	print "\nResult attributes\n==================\n"
 	n = fieldNames(cursor)
 
+	def TestCallback():
+		print "Backend notification received!"
+		
+	print "\n-------------------------------------"
+	print "Testing asynchronous notification"
+	print "start psql, and type 'notify test;'"
+	dbpool.Listen('config', 'test', TestCallback)
+	sleep(10)	
 	print "Requesting write access connection:"
 	con = dbpool.GetConnection('config', readonly=0)
