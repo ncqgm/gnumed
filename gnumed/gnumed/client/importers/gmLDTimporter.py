@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.14 2004-06-20 17:26:13 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmLDTimporter.py,v 1.15 2004-06-25 12:27:58 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -460,7 +460,6 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	def __get_request_from_8201(self, request_data):
 		request = None
-		pat_ldt = None
 		try:
 			pat_ldt = {
 				'lastnames': request_data['3101'][0],
@@ -468,7 +467,7 @@ class cLDTImporter:
 				'dob': gmXdtMappings.xdt_8date2iso(request_data['3103'][0])
 			}
 		except KeyError, IndexError:
-			pass
+			pat_ldt = None
 		# either get lab request from request id
 		if request_data.has_key('8310'):
 			reqid = request_data['8310'][0]
@@ -480,9 +479,9 @@ class cLDTImporter:
 			if request is not None:
 				if pat_ldt is not None:
 					pat_db = request.get_patient()
-					if ((pat_ldt['lastnames'] != pat_db['lastnames']) or
-					    (pat_ldt['firstnames'] != pat_db['firstnames']) or
-					    (pat_ldt['dob'] != pat_db['dob'].Format('%Y-%m-%d'))):
+					if ((pat_ldt['lastnames'] != pat_db[3]) or
+					    (pat_ldt['firstnames'] != pat_db[2]) or
+					    (pat_ldt['dob'] != pat_db[4].Format('%Y-%m-%d'))):
 						_log.Log(gmLog.lErr, 'patient mismatch LDT-Datei <-> Datenbank')
 						_log.Log(gmLog.lData, 'Datei: %s' % pat_ldt)
 						_log.Log(gmLog.lData, 'DB: %s' % pat_db)
@@ -678,6 +677,14 @@ class cLDTImporter:
 		self.__lab_result['val_normal_range'] = '\n'.join(result_data['8460'])
 		return True
 	#-----------------------------------------------------------
+	def __xform_8461(self, result_data):
+		self.__lab_result['val_normal_min'] = result_data['8461'][0]
+		return True
+	#-----------------------------------------------------------
+	def __xform_8462(self, result_data):
+		self.__lab_result['val_normal_max'] = result_data['8462'][0]
+		return True
+	#-----------------------------------------------------------
 	def __xform_8422(self, result_data):
 		self.__lab_result['abnormal'] = result_data['8422'][0].strip()
 		return True
@@ -713,6 +720,8 @@ class cLDTImporter:
 		'8480': __xform_8480,
 		'8470': __xform_8470,
 		'8460': __xform_8460,
+		'8461': __xform_8461,
+		'8462': __xform_8462,
 		'8422': __xform_8422,
 		'8490': __xform_8490
 	}
@@ -767,7 +776,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.14 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.15 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -922,7 +931,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.14 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.15 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -945,7 +954,8 @@ if __name__ == '__main__':
 	backend = gmPG.ConnectionPool(login = auth_data)
 	# actually run the import
 	try:
-		run_import()
+		import profile
+		profile.run('run_import()', './profile.log')
 	except:
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 		backend.StopListeners()
@@ -955,7 +965,11 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.14  2004-06-20 17:26:13  ncq
+# Revision 1.15  2004-06-25 12:27:58  ncq
+# - correctly cross-check db<->ldt patient
+# - 8461/8462
+#
+# Revision 1.14  2004/06/20 17:26:13  ncq
 # - don't overwrite previous narrative but don't create duplicates either
 # - correctly handle val_num/val_alpha both being NULL
 #
