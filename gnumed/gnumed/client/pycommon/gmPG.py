@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -724,7 +724,7 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 		except:
 			rollback()
 			exc_info = sys.exc_info()
-			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), exc_info, verbose = _query_logging_verbosity)
+			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], link_obj), exc_info, verbose = _query_logging_verbosity)
 			__log_PG_settings(curs)
 			close_cursor()
 			close_conn()
@@ -819,7 +819,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	try:
 		curs.execute(aQuery, *args)
 	except:
-		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery, args, link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery[:250], str(args)[:250], link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
 		__log_PG_settings(curs)
 		close_cursor()
 		close_conn(link_obj)
@@ -964,7 +964,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.22 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.23 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1192,7 +1192,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.22  2004-06-09 14:55:44  ncq
+# Revision 1.23  2004-06-20 16:54:55  ncq
+# - restrict length of logged data in run_ro_query and run_commit
+#
+# Revision 1.22  2004/06/09 14:55:44  ncq
 # - cleanup, typos
 # - commented out connection lifeness check as per Syan's suggestion
 # - adapt StopListener(s)() to gmBackendListener changes
