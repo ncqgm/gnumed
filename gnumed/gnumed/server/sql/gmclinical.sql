@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.48 $
+-- $Revision: 1.49 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -235,7 +235,7 @@ create table allergy (
 	id_type integer not null references _enum_allergy_type(id),
 	reaction text default '',
 	generic_specific boolean default false,
-	definate boolean default false
+	definite boolean default false
 ) inherits (audit_mark, clin_root_item);
 
 -- narrative provided by clin_root_item
@@ -266,8 +266,8 @@ comment on column allergy.generic_specific is
 			  if more than one generic listed in "generics" then
 			  "allergene" *must* contain the generic in question;
 	 2) false: applies to drug class of "substance";';
-comment on column allergy.definate is
-	'true: definate, false: not definate';
+comment on column allergy.definite is
+	'true: definate, false: not definite';
 
 create table log_allergy (
 	id integer not null,
@@ -279,7 +279,7 @@ create table log_allergy (
 	id_type integer not null,
 	reaction text,
 	generic_specific boolean not null,
-	definate boolean not null
+	definite boolean not null
 ) inherits (audit_trail, log_dummy_clin_root_item);
 
 -- ===================================================================
@@ -519,11 +519,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.48 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.49 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.48  2003-06-01 10:07:32  sjtan
+-- Revision 1.49  2003-06-01 11:38:12  ncq
+-- - fix spelling of definate -> definite
+--
+-- Revision 1.48  2003/06/01 10:07:32  sjtan
 --
 -- change?
 --

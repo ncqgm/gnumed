@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.16 2003-05-17 18:40:24 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.17 2003-06-01 11:38:12 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -134,7 +134,7 @@ select
 	a.atc_code as atc_code,
 	a.reaction as reaction,
 	a.generic_specific as generic_specific,
-	a.definate as definate,
+	a.definite as definite,
 	a.id_type as id_type,
 	_(at.value) as type,
 	a.narrative as "comment"
@@ -171,11 +171,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.16  2003-05-17 18:40:24  ncq
+-- Revision 1.17  2003-06-01 11:38:12  ncq
+-- - fix spelling of definate -> definite
+--
+-- Revision 1.16  2003/05/17 18:40:24  ncq
 -- - notify triggers should come last, so make them zz*
 --
 -- Revision 1.15  2003/05/14 22:07:13  ncq
