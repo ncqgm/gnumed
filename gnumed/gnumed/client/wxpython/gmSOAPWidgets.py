@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.22 2005-03-15 08:07:52 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmSOAPWidgets.py,v 1.23 2005-03-16 17:47:30 cfmoro Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -88,7 +88,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		# left hand side
 		# - soap inputs panel
 		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
-		self.__soap_multisash = multisash.cMultiSash(PNL_soap_editors, -1)				
+		self.__soap_multisash = gmMultiSash.cMultiSash(PNL_soap_editors, -1)				
 		#self.__soap_multisash.SetController(self)		# what does this do ?
 		# - buttons
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
@@ -161,7 +161,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		"""						
 		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
 		# if soap stack is empty, disable save, clear and remove buttons		
-		if isinstance(selected_soap, multisash.cEmptyChild) or selected_soap.IsSaved():
+		if isinstance(selected_soap, gmMultiSash.cEmptyChild) or selected_soap.IsSaved():
 			self.__BTN_save.Enable(False)
 			self.__BTN_clear.Enable(False)
 			self.__BTN_remove.Enable(False)
@@ -171,7 +171,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			self.__BTN_remove.Enable(True)
 
 		# disabled save button when soap was dumped to backend
-		if isinstance(selected_soap, gmSOAPWidgets.cResizingSoapPanel) and selected_soap.IsSaved():
+		if isinstance(selected_soap, cResizingSoapPanel) and selected_soap.IsSaved():
 			self.__BTN_remove.Enable(True)
 					
 	#--------------------------------------------------------
@@ -206,7 +206,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		is the temporary parent, as the final one will be the multisash bottom
 		leaf (by reparenting).
 		"""
-		soap_editor = gmSOAPWidgets.cResizingSoapPanel(self, self.__selected_episode)
+		soap_editor = cResizingSoapPanel(self, self.__selected_episode)
 		return soap_editor
 	#--------------------------------------------------------
 	def __get_displayed_episodes(self):
@@ -218,9 +218,9 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		all_leafs = self.__soap_multisash.get_displayed_leafs()
 		for a_leaf in all_leafs:
 			content = a_leaf.get_content()
-			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel):
-				if content.GetEpisode() == gmSOAPWidgets.NOTE_SAVED:
-					displayed_episodes.append(gmSOAPWidgets.NOTE_SAVED)
+			if isinstance(content, cResizingSoapPanel):
+				if content.GetEpisode() == NOTE_SAVED:
+					displayed_episodes.append(NOTE_SAVED)
 				elif content.GetEpisode() is not None:
 					displayed_episodes.append(content.GetEpisode()['description'])
 				elif content.GetEpisode() is None:
@@ -238,7 +238,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		all_leafs = self.__soap_multisash.get_displayed_leafs()
 		for a_leaf in all_leafs:
 			content = a_leaf.get_content()
-			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel) \
+			if isinstance(content, cResizingSoapPanel) \
 			and content.GetEpisode() == episode:
 				return a_leaf
 		return None
@@ -257,8 +257,8 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			target_name = ''
 			
 			if content is not None \
-				and isinstance(content, gmSOAPWidgets.cResizingSoapPanel) \
-				and content.GetEpisode() != gmSOAPWidgets.NOTE_SAVED \
+				and isinstance(content, cResizingSoapPanel) \
+				and content.GetEpisode() != NOTE_SAVED \
 				and content.GetEpisode() is not None:
 					target_name = content.GetEpisode()['description']
 			elif content.GetEpisode() is None:
@@ -360,16 +360,16 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		episode_name = self.__selected_episode['description']
 		if episode_name not in self.__get_displayed_episodes():
 			focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()
-			if isinstance(focused_widget, gmSOAPWidgets.cResizingSoapPanel) and (focused_widget.GetEpisode() is None or focused_widget.GetEpisode() == gmSOAPWidgets.NOTE_SAVED) and focused_widget.GetHeadingTxt().strip() == '':
+			if isinstance(focused_widget, cResizingSoapPanel) and (focused_widget.GetEpisode() is None or focused_widget.GetEpisode() == NOTE_SAVED) and focused_widget.GetHeadingTxt().strip() == '':
 				# configure episode name in unassociated progress note
 				focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()		
 				focused_widget.SetHeadingTxt(self.__selected_episode['description'])
 				return
 			# let's create new note for the selected episode
-			if gmSOAPWidgets.NOTE_SAVED in self.__get_displayed_episodes():
+			if NOTE_SAVED in self.__get_displayed_episodes():
 				# there are some displayed empty notes (after saving)
 				# set the selected problem in first of them
-				leaf = self.__get_leaf_for_episode(episode = gmSOAPWidgets.NOTE_SAVED)
+				leaf = self.__get_leaf_for_episode(episode = NOTE_SAVED)
 				leaf.get_content().SetEpisode(self.__selected_episode)
 			else:
 				# create note in new leaf, always on bottom
@@ -482,7 +482,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		Create and display a new SOAP input widget on the stack for an unassociated
 		progress note.
 		"""
-		successful, errno = self.__soap_multisash.add_content(content = gmSOAPWidgets.cResizingSoapPanel(self))
+		successful, errno = self.__soap_multisash.add_content(content = cResizingSoapPanel(self))
 		# FIXME: actually, one would have to check errno but there is only one error number so far
 		if not successful:
 			msg = _('Cannot open progress note editor for\n\n'
@@ -1083,6 +1083,12 @@ if __name__ == "__main__":
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
 	
+		# multisash soap
+		application = wx.wxPyWidgetTester(size=(800,500))
+		soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
+		application.frame.Show(True)
+		application.MainLoop()
+				
 		# soap widget displaying all narratives for an issue along an encounter
 		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
 		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
@@ -1117,7 +1123,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.22  2005-03-15 08:07:52  ncq
+# Revision 1.23  2005-03-16 17:47:30  cfmoro
+# Minor fixes after moving the file. Restored test harness
+#
+# Revision 1.22  2005/03/15 08:07:52  ncq
 # - incorporated cMultiSashedProgressNoteInputPanel from Carlos' test area
 # - needs fixing/cleanup
 # - test harness needs to be ported
