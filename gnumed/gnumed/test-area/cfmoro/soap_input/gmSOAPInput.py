@@ -13,7 +13,7 @@
         -Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -22,12 +22,12 @@ import os.path, sys
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
-from Gnumed.business import gmEMRStructItems, gmPatient, gmClinNarrative
+from Gnumed.business import gmEMRStructItems, gmPatient
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
-import SOAP2, SOAPMultiSash
+import SOAP2, SOAPMultiSash, gmSOAPimporter
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -370,27 +370,15 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
         if not self._allow_perform_action(self._save_button.GetId()):
             return
     
-        #FIXME support arbitrary narrative categories, not only soap        
-        active_encounter = self._emr.get_active_encounter()
-        active_episode = self._emr.get_active_episode()
-        print "\nSOAP input: %s"%(self._selected_soap.GetSOAP().GetValues())        
-        print "\nActive encounter: %s"%(active_encounter)
-        print "\nActive episode: %s"%(active_episode)
-        
-        #print "\nCreating SOAP narratives: " 
-        #stat, narr = gmClinNarrative.create_clin_narrative(narrative = selected_soap.GetSOAP().GetValues()['Subjective'],
-        #    soap_cat = 's', episode_id= active_episode['pk_episode'], encounter_id=active_encounter['pk_encounter'])
-        #print "\n   .Subjective: %s, %s"%(stat,narr)
-        #stat, narr = gmClinNarrative.create_clin_narrative(narrative = selected_soap.GetSOAP().GetValues()['Objective'],
-        #    soap_cat = 'o', episode_id= active_episode['pk_episode'], encounter_id=active_encounter['pk_encounter'])
-        #print "\n   .Objective: %s, %s"%(stat,narr)
-        #stat, narr = gmClinNarrative.create_clin_narrative(narrative = selected_soap.GetSOAP().GetValues()['Assessment'],
-        #    soap_cat = 'a', episode_id= active_episode['pk_episode'], encounter_id=active_encounter['pk_encounter'])
-        #print "\n   .Assesment: %s, %s"%(stat,narr)
-        #stat, narr = gmClinNarrative.create_clin_narrative(narrative = selected_soap.GetSOAP().GetValues()['Plan'],
-        #    soap_cat = 'p', episode_id= active_episode['pk_episode'], encounter_id=active_encounter['pk_encounter'])
-        #print "\n   .Plan: %s, %s"%(stat,narr)
-        
+        #FIXME initial development implementation. Refactor.
+        bundle = []
+        bundle.append({'soap':'s', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Subjective'], 'data':''})
+        bundle.append({'soap':'o', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Objective'], 'data':''})
+        bundle.append({'soap':'a', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Assessment'], 'data':''})
+        bundle.append({'soap':'p', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Plan'], 'data':''})                        
+        importer = gmSOAPimporter.cSOAPImporter()
+        importer.import_soap(bundle)
+                
         self._selected_soap.SetSaved(True)
         self.check_buttons()
         print "Done!"
