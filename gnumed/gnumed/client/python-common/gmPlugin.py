@@ -14,10 +14,10 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
-import os, sys, re, traceback
+import os, sys, re, traceback, cPickle, zlib
 
 from wxPython.wx import *
 
@@ -76,10 +76,27 @@ class wxBasePlugin (gmPlugin):
 			self.db = gmPG.ConnectionPool ()
 	#-----------------------------------------------------
 	def GetIcon (self):
+		"""Return icon representing page on the toolbar.
+
+		This is the default behaviour. GetIconData should return
+		pickled, compressed and escaped string with the icon data.
+
+		If you want to change the behaviour (because you want to load
+		plugin icons from overseas via a satellite link or something
+		you need to override this function in your plugin (class).
+
+		Using this standard code also allows us to only import cPickle
+		and zlib here and not in each and every plugin module which
+		should speed up plugin load time :-)
 		"""
-		Return icon representing page on the toolbar
-		"""
-		return None
+		icon_data = self.GetIconData()
+		if icon_data == None:
+			return None
+		else:
+			return wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_data)))
+	#-----------------------------------------------------
+	def GetIconData(self):
+		pass
 	#-----------------------------------------------------
 	def GetWidget (self, parent):
 		"""
@@ -302,3 +319,4 @@ def UnloadPlugin (set, name):
 #	    plugin_class.register ()
 
 #This also allows a single source file to define several plugin objects.
+#----------------------------------------------------------------------
