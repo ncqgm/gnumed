@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -57,25 +57,22 @@ comment on column test_org."comment" is
 
 -- ====================================
 create table test_type (
-	id serial primary key,
+	pk serial primary key,
 	fk_test_org integer references test_org(pk),
 	code text not null,
 	coding_system text default null,
 	name text,
 	comment text,
-	basic_unit text not null,
-	unique (fk_test_org, code)
+	conversion_unit text
+		not null,
+	unique (fk_test_org, code, coding_system)
 ) inherits (audit_fields);
 
 select add_table_for_audit('test_type');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
--- column "code" would have to be checked, too, but we don't
--- know against which table in "reference" since that depends
--- on "coding_system" ... unless we invent a mechanism to set
--- a default "coding_system" ...
-select add_x_db_fk_def('test_type', 'basic_unit', 'reference', 'basic_unit', 'name_short');
+select add_x_db_fk_def('test_type', 'conversion_unit', 'reference', 'basic_unit', 'name_short');
 
 comment on table test_type is
 	'measurement type, like a "method" in a lab';
@@ -84,7 +81,10 @@ comment on column test_type.fk_test_org is
 comment on column test_type.code is
 	'short name, acronym or code of this type of measurement,
 	 may conform to some official list or other such as LOINC,
-	 Australian Pathology request codes or German lab-specific ELVs';
+	 Australian Pathology request codes or German lab-specific ELVs,
+	 actually, this column should be checked against the coding system
+	 tables, too, the only problem being that we do not know which
+	 one ... as it depends on the *value* in "coding_system"';
 comment on column test_type.coding_system is
 	'identifier of coding system that the code of this
 	 measurement type is taken from, should be verifiable
@@ -94,32 +94,55 @@ comment on column test_type."name" is
 comment on column test_type."comment" is
 	'arbitrary comment on this type of measurement/test such
 	 as "outdated" or "only reliable when ..."';
-comment on column test_type.basic_unit is
-	'the basic (SI?) unit for this test type, used for
-	 comparing results delivered in differing units';
+comment on column test_type.conversion_unit is
+	'the basic unit for this test type, preferably SI,
+	 used for comparing results delivered in differing
+	 units, this does not relate to what unit the test
+	 provider delivers results in but rather the unit
+	 we think those results need to be converted to in
+	 order to be comparable to OTHER results';
 
 -- ====================================
 create table test_type_local (
 	pk serial primary key,
-	fk_test_type integer
-		not null
-		references test_type(id)
-		on update cascade
-		on delete cascade,
-	local_code text not null,
-	local_name text not null,
-	unique (fk_test_type, local_code),
-	unique (local_code, local_name)
+	code text
+		not null,
+	name text
+		not null,
+	coding_system text
+		default null,
+	comment text,
+	unique (code, name)
 );
 
 comment on table test_type_local is
 	'this table merges test types from various test orgs
-	 into one logical test type (mainly for display)';
+	 which are intended to measure the same value but have
+	 differing names into one logical test type,
+	 this is not intended to be used for aggregating
+	 semantically different test types into "profiles"';
+
+-- ====================================
+create table lnk_ttype2local_type (
+	pk serial primary key,
+	fk_test_type integer
+		not null
+		references test_type(pk)
+		on update cascade
+		on delete cascade,
+	fk_test_type_local integer
+		not null
+		references test_type_local(pk)
+		on update cascade
+		on delete restrict
+);
 
 -- ====================================
 create table lnk_tst2norm (
 	id serial primary key,
-	id_test integer not null references test_type(id),
+	id_test integer
+		not null
+		references test_type(pk),
 	id_norm integer not null,
 	unique (id_test, id_norm)
 ) inherits (audit_fields);
@@ -140,7 +163,7 @@ create table test_result (
 	id serial primary key,
 	fk_type integer
 		not null
-		references test_type(id),
+		references test_type(pk),
 	val_num float
 		default null
 		check (
@@ -151,11 +174,11 @@ create table test_result (
 	val_alpha text
 		default null,
 	val_unit text,
-	val_normal_min float,		-- precision of numeric not really needed
-	val_normal_max float,		-- precision of numeric not really needed
+	val_normal_min numeric,
+	val_normal_max numeric,
 	val_normal_range text,
-	val_target_min float,		-- precision of numeric not really needed
-	val_target_max float,		-- precision of numeric not really needed
+	val_target_min numeric,
+	val_target_max numeric,
 	val_target_range text,
 	technically_abnormal text
 		default null
@@ -354,11 +377,16 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.30  2004-09-28 12:30:22  ncq
+-- Revision 1.31  2004-09-29 10:33:54  ncq
+-- - cleanup
+-- - normalize test_type_local into lnk_table
+-- - basic_unit -> conversion_unit
+--
+-- Revision 1.30  2004/09/28 12:30:22  ncq
 -- - add constraint on test_type_local
 --
 -- Revision 1.29  2004/09/17 20:15:00  ncq
