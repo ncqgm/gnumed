@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-06-16 20:07:03 $
-# @version $Revision: 1.20 $ $Date: 2002-06-16 20:07:03 $ $Author: ncq $
+# @Date: $Date: 2002-06-23 06:59:17 $
+# @version $Revision: 1.21 $ $Date: 2002-06-23 06:59:17 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -215,7 +215,7 @@ class MainFrame(wxFrame):
 			pass
 
 		#GNUMeds online manual
-		pnl = gmmanual.ManualHtmlPanel(nb, self, self.log)
+		pnl = gmmanual.ManualHtmlPanel(nb, self)#, self.log)
 		nb.AddPage(pnl, _("Manual"))
 
 		#a widget for generic SQL queries

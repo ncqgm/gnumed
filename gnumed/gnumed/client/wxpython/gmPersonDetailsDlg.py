@@ -35,7 +35,7 @@ ID_BUTTON_IMPORT = wxNewId()
 
 COUNTRY_COLUMN_MAX = 30 
 
-class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
+class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 	def __init__(self, parent, id, guibroker=None, callbackbroker=None, dbbroker=None, name=_("PersonDetails")):
 		"""Initializes data structure and command buttons. 
@@ -44,7 +44,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		"""
 
 		gmPersonDetails.PnlPersonDetails.__init__(self, parent, id)
-		gmPlugin.wxGuiPlugin.__init__(self, name, guibroker, callbackbroker, dbbroker)
+		#gmPlugin.wxGuiPlugin.__init__(self, name, guibroker, callbackbroker, dbbroker)
 
 		self.__person = gmCachedPerson.CachedPerson()
 		self.__address = gmCachedAddress.CachedAddress()
