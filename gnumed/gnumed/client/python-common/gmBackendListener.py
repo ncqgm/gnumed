@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -33,10 +33,10 @@ class BackendListener:
 		# lock for access to connection object
 		self._conn_lock = threading.Lock()
 	#-------------------------------
-#	def __del__(self):
-#		self._quit = 1
-#		# give the thread time to terminate
-#		time.sleep(self._poll_interval+2)
+	def __del__(self):
+		self._quit = 1
+		# give the thread time to terminate
+		time.sleep(self._poll_interval+2)
 	#-------------------------------
 	# public API
 	#-------------------------------
@@ -236,7 +236,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.10  2003-04-28 21:38:13  ncq
+# Revision 1.11  2003-05-03 00:42:11  ncq
+# - first shot at syncing thread at __del__ time, non-working
+#
+# Revision 1.10  2003/04/28 21:38:13  ncq
 # - properly lock access to self._conn across threads
 # - give others a chance to acquire the lock
 #
