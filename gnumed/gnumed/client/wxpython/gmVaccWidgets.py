@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.7 2004-09-13 19:19:41 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmVaccWidgets.py,v 1.8 2004-09-18 13:55:28 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -329,7 +329,6 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		# behaves just like patient_selected, really
 #		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._on_vaccinations_updated)
-		# test
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
 		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
 	#----------------------------------------------------
@@ -383,7 +382,6 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.LBOX_missing_shots.Clear()
 	#----------------------------------------------------
 	def _populate_with_data(self):
-		print "_populate_with_data() start"
 		# clear lists
 		self.LBOX_vaccinated_indications.Clear()
 		self.LBOX_given_shots.Clear()
@@ -401,7 +399,6 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
 #		self.LBOX_vaccinated_indications.Set(lines)
 #		self.LBOX_vaccinated_indications.SetClientData(data)
-		print "updated indications"
 
 		# populate missing-shots list
 		missing_shots = emr.get_missing_vaccinations()
@@ -475,7 +472,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.7  2004-09-13 19:19:41  ncq
+# Revision 1.8  2004-09-18 13:55:28  ncq
+# - cleanup
+#
+# Revision 1.7  2004/09/13 19:19:41  ncq
 # - improved missing booster string
 #
 # Revision 1.6  2004/09/13 09:28:26  ncq
