@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.30 2004-09-29 10:12:50 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmPatientExporter.py,v 1.31 2004-09-29 19:13:37 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -142,7 +142,7 @@ class cEmrExport:
         
         # patient dob
         patient_dob = mxParser.DateFromString(self.__patient.get_demographic_record().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
-        date_length = len(patient_dob.Format('%Y-%m-%d'))+4 # <(YYYY-mm-dd)>
+        date_length = len(patient_dob.Format('%Y-%m-%d')) + 2 # (YYYY-mm-dd)
         # vaccination regimes
         vacc_regimes = emr.get_scheduled_vaccination_regimes()
         # dictionary of pairs indication : scheduled vaccination
@@ -155,7 +155,8 @@ class cEmrExport:
         # foot headers
         foot_headers = ['last booster', 'next booster']        
         # string for both: ending of vaccinations; non boosters needed
-        ending_str = '###'
+#        ending_str = '###'
+        ending_str = '='
         
         # FIXME multiple tables when so many indications (don't fit in width)
         # chart row count, columns width and vaccination dictionary of pairs indication : given shot
@@ -209,27 +210,28 @@ class cEmrExport:
             prev_displayed_date.append(patient_dob) # initialice with patient dob (useful for due first shot date calculation)
         # iterate data rows
         for row_index in range(0, chart_rows):            
-            row_header = '%s#' %(row_index+1)
+            row_header = '#%s' %(row_index+1)
             txt += row_header + (column_widths[0] - len(row_header)) * ' ' + '|'
                         
             for col_index in range(1, chart_columns+1):
                 indication =vacc_regimes[col_index-1][0] 
                 seq_no = vacc_regimes[col_index-1][2]
                 if row_index == seq_no: # had just ended scheduled vaccinations
-                    txt += ending_str + (column_widths[col_index] - len(ending_str)) * ' ' + '|'
+                     txt += ending_str * column_widths[col_index] + '|'
+#                    txt += ending_str + (column_widths[col_index] - len(ending_str)) * ' ' + '|'
                 elif row_index < seq_no: # vaccination scheduled
                     try:
                         vacc_date = vaccinations[indication][row_index]['date'] # vaccination given                        
                         vacc_date_str = vacc_date.Format('%Y-%m-%d')                        
                         txt +=  vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'                        
                         prev_displayed_date[col_index] = vacc_date                                                
-                    except:                        
+                    except:
                         if row_index == 0: # due first shot
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['age_due_min'] # FIXME 'age_due_min' not properly retrieved
                         else: # due any other than first shot
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['min_interval']
-                        #print 'Due date for vaccination #%s for %s: %s (age_due_min=%s)' %(row_index, indication, due_date.Format('%Y-%m-%d'), vaccinations4regimes[indication][0]['age_due_min'])                        
-                        txt += '('+ due_date.Format('<%Y-%m-%d') + '>)' + (column_widths[col_index] - date_length) * ' ' + '|'
+                        #print 'Due date for vaccination #%s for %s: %s (age_due_min=%s)' %(row_index, indication, due_date.Format('%Y-%m-%d'), vaccinations4regimes[indication][0]['age_due_min'])
+                        txt += '('+ due_date.Format('%Y-%m-%d') + ')' + (column_widths[col_index] - date_length) * ' ' + '|'
                         prev_displayed_date[col_index] = due_date
                 else: # not scheduled vaccination at that position
                     txt += column_widths[col_index] * ' ' + '|'
@@ -915,7 +917,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.30  2004-09-29 10:12:50  ncq
+# Revision 1.31  2004-09-29 19:13:37  ncq
+# - cosmetical fixes as discussed with our office staff
+#
+# Revision 1.30  2004/09/29 10:12:50  ncq
 # - Carlos added intuitive vaccination table - muchos improvos !
 #
 # Revision 1.29  2004/09/10 10:39:01  ncq
