@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->Basic commands</TITLE
+>Developer CVS Access via SSH (Version 1, RSA)</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
@@ -13,11 +13,11 @@ REL="UP"
 TITLE="Checking out, Checking in GnuMed CVS"
 HREF="c30.html"><LINK
 REL="PREVIOUS"
-TITLE="Developer CVS Access via SSH (Version 1, RSA)"
-HREF="x32.html"><LINK
+TITLE="Checking out, Checking in GnuMed CVS"
+HREF="c30.html"><LINK
 REL="NEXT"
-TITLE="Coding Guidelines"
-HREF="c51.html"></HEAD
+TITLE="Basic commands"
+HREF="x40.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x32.html"
+HREF="c30.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c51.html"
+HREF="x40.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,12 +73,10 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="AEN40">2.2. Basic commands</H1
+NAME="AEN32">2.1. Developer CVS Access via SSH (Version 1, RSA)</H1
 ><P
->Again just making it clear</P
-><P
->To Checkout CVS as a developer, you will type:</P
-><TABLE
+>Only project developers can access the CVS tree via this method. SSH1 must be installed on your client machine. If you have SSH version two, add
+	<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -88,16 +86,16 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->cvs -z3 -d<EM
->dude</EM
->@subversions.gnu.org:/cvsroot/gnumed/ co gnumed</PRE
+>Host subversions.gnu.org
+Protocol 1</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
+>
+      </P
 ><P
->To update your tree, you will type:</P
-><TABLE
+>In my case, I simply re-installed ssh, and made sure both Protcol 1 and 2 were allowed and then put in <TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -107,30 +105,17 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->cvs -z3 -ddude@subversions.gnu.org:/cvsroot/gnumed/ update gnumed</PRE
+>Protocol 1,2</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
+> in my <EM
+>~/.ssh/config</EM
+> file.
+      </P
 ><P
->To commit your changes, type:</P
-><TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->cvs -z3 -ddude@subversions.gnu.org:/cvsroot/gnumed/ commit gnumed</PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->Remember that you will be asked for your passphrase. This is different from your password to savannah.gnu.org</P
+>TODO: PUT IN INSTRUCTIONS ON CREATING SSH KEY</P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -148,7 +133,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x32.html"
+HREF="c30.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -166,7 +151,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c51.html"
+HREF="x40.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -176,7 +161,7 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Developer CVS Access via SSH (Version 1, RSA)</TD
+>Checking out, Checking in GnuMed CVS</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
@@ -190,7 +175,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Coding Guidelines</TD
+>Basic commands</TD
 ></TR
 ></TABLE
 ></DIV

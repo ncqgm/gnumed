@@ -8,15 +8,20 @@ CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
 "><LINK
 REL="HOME"
 TITLE="GNUMed"
-HREF="book1.html"><LINK
+HREF="index.html"><LINK
 REL="PREVIOUS"
 TITLE="Basic commands"
 HREF="x40.html"><LINK
 REL="NEXT"
-TITLE="Database Guidelines"
-HREF="x60.html"></HEAD
+TITLE="strings and translation"
+HREF="x53.html"></HEAD
 ><BODY
 CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
 ><DIV
 CLASS="NAVHEADER"
 ><TABLE
@@ -51,7 +56,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x60.html"
+HREF="x53.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,89 +78,50 @@ CLASS="TOC"
 >Table of Contents</B
 ></DT
 ><DT
-><A
-HREF="c51.html#AEN53"
+>3.1. <A
+HREF="x53.html"
 >strings and translation</A
 ></DT
 ><DT
-><A
+>3.2. <A
 HREF="x60.html"
 >Database Guidelines</A
 ></DT
 ><DT
-><A
+>3.3. <A
 HREF="x65.html"
 >Widegets</A
 ></DT
 ><DT
-><A
+>3.4. <A
 HREF="x68.html"
 >Comments. Documenting Code</A
 ></DT
+><DD
+><DL
 ><DT
-><A
+>3.4.1. <A
+HREF="x68.html#AEN70"
+>Docstring documention</A
+></DT
+><DT
+>3.4.2. <A
+HREF="x68.html#AEN73"
+>COMMENTS</A
+></DT
+></DL
+></DD
+><DT
+>3.5. <A
 HREF="x77.html"
 >CVS Guidelines</A
 ></DT
 ><DT
-><A
+>3.6. <A
 HREF="x80.html"
 >DEBUGGING/LOGGING</A
 ></DT
 ></DL
-></DIV
-><DIV
-CLASS="SECT1"
-><H1
-CLASS="SECT1"
-><A
-NAME="AEN53">strings and translation</H1
-><P
->hardcoded error strings meant for developers / debugging are in English.All other strings MUST be translateable, that is called as a gettext 
-function. To achieve this, you do the following:
-      </P
-><P
->If your modules can be called as a standalone script you
-should add this to your main part:
-	<TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><PRE
-CLASS="SCREEN"
->if name == '__main__':
-	import gettext
-	_ = gettext.gettext()
-    # ... now on to other stuff
-	</PRE
-></TD
-></TR
-></TABLE
->
-If your module is invoked from within the GNUmed framework the
-translation function _() is automatically defined for you.
-      </P
-><P
->Now, whenever you use a string, do it like
-	<TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><PRE
-CLASS="SCREEN"
->print _("this will be automatically translated")
-instead of
- print "this can't be translated and should thus not be written this way"
-	</PRE
-></TD
-></TR
-></TABLE
->
-      </P
 ></DIV
 ></DIV
 ><DIV
@@ -183,7 +149,7 @@ WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="book1.html"
+HREF="index.html"
 ACCESSKEY="H"
 >Home</A
 ></TD
@@ -192,7 +158,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x60.html"
+HREF="x53.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -212,7 +178,7 @@ VALIGN="top"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Database Guidelines</TD
+>strings and translation</TD
 ></TR
 ></TABLE
 ></DIV

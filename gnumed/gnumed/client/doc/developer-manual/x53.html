@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->Basic commands</TITLE
+>strings and translation</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
@@ -10,14 +10,14 @@ REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
-TITLE="Checking out, Checking in GnuMed CVS"
-HREF="c30.html"><LINK
-REL="PREVIOUS"
-TITLE="Developer CVS Access via SSH (Version 1, RSA)"
-HREF="x32.html"><LINK
-REL="NEXT"
 TITLE="Coding Guidelines"
-HREF="c51.html"></HEAD
+HREF="c51.html"><LINK
+REL="PREVIOUS"
+TITLE="Coding Guidelines"
+HREF="c51.html"><LINK
+REL="NEXT"
+TITLE="Database Guidelines"
+HREF="x60.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="x32.html"
+HREF="c51.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -53,13 +53,13 @@ ACCESSKEY="P"
 WIDTH="80%"
 ALIGN="center"
 VALIGN="bottom"
->Chapter 2. Checking out, Checking in GnuMed CVS</TD
+>Chapter 3. Coding Guidelines</TD
 ><TD
 WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c51.html"
+HREF="x60.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -73,12 +73,15 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="AEN40">2.2. Basic commands</H1
+NAME="AEN53">3.1. strings and translation</H1
 ><P
->Again just making it clear</P
+>hardcoded error strings meant for developers / debugging are in English.All other strings MUST be translateable, that is called as a gettext 
+function. To achieve this, you do the following:
+      </P
 ><P
->To Checkout CVS as a developer, you will type:</P
-><TABLE
+>If your modules can be called as a standalone script you
+should add this to your main part:
+	<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -88,16 +91,22 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->cvs -z3 -d<EM
->dude</EM
->@subversions.gnu.org:/cvsroot/gnumed/ co gnumed</PRE
+>if name == '__main__':
+	import gettext
+	_ = gettext.gettext()
+    # ... now on to other stuff
+	</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
+>
+If your module is invoked from within the GNUmed framework the
+translation function _() is automatically defined for you.
+      </P
 ><P
->To update your tree, you will type:</P
-><TABLE
+>Now, whenever you use a string, do it like
+	<TABLE
 BORDER="1"
 BGCOLOR="#E0E0E0"
 WIDTH="100%"
@@ -107,30 +116,16 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->cvs -z3 -ddude@subversions.gnu.org:/cvsroot/gnumed/ update gnumed</PRE
+>print _("this will be automatically translated")
+instead of
+ print "this can't be translated and should thus not be written this way"
+	</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
-><P
->To commit your changes, type:</P
-><TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->cvs -z3 -ddude@subversions.gnu.org:/cvsroot/gnumed/ commit gnumed</PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->Remember that you will be asked for your passphrase. This is different from your password to savannah.gnu.org</P
+>
+      </P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -148,7 +143,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="x32.html"
+HREF="c51.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -166,7 +161,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c51.html"
+HREF="x60.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -176,13 +171,13 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Developer CVS Access via SSH (Version 1, RSA)</TD
+>Coding Guidelines</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="c30.html"
+HREF="c51.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -190,7 +185,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Coding Guidelines</TD
+>Database Guidelines</TD
 ></TR
 ></TABLE
 ></DIV
