@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.6 2003-05-02 15:06:19 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.7 2003-05-03 00:44:05 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -81,16 +81,11 @@ select
 	a.reaction as reaction,
 	a.generic_specific as generic_specific,
 	a.definate as definate,
-	a.had_hypo as had_hypo,
 	_(at.value) as type,
 	cn.value as "comment"
 from
-	allergy a, _enum_allergy_type at, clin_narrative cn, v_patient_transactions vpt
+	(allergy a left outer join clin_narrative cn on (a.id_comment=cn.id)), _enum_allergy_type at, v_patient_transactions vpt
 where
---	cn.src_table='allergy'
---		and
---	cn.id=a.id_comment
---		and
 	vpt.id_transaction=a.id_clin_transaction
 		and
 	at.id=a.id_type
@@ -112,11 +107,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.6  2003-05-02 15:06:19  ncq
+-- Revision 1.7  2003-05-03 00:44:05  ncq
+-- - make patient allergies view work
+--
+-- Revision 1.6  2003/05/02 15:06:19  ncq
 -- - make trigger return happy
 -- - tweak v_i18n_patient_allergies - not done yet
 --
