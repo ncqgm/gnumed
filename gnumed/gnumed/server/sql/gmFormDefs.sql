@@ -5,7 +5,7 @@
 -- author: Ian Haywood <>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- Note: this is office related while gmFormData.sql is clinical content
 
@@ -130,7 +130,8 @@ create table form_fields (
 	lines integer,
 	is_used bool,
 	is_visible bool,
-	is_stored bool
+	is_stored bool,
+	is_editable bool
 );
 
 comment on column form_fields.lines is
@@ -141,11 +142,14 @@ comment on column form_fields.is_visible is
 	'whether this field is visible on screen when filling in this form';
 comment on column form_fields.is_stored is
 	'whether values in this field will get stored when creating a form instance';
+comment on column form_fields.is_editable is
+	'whether values in this field can be edited before use of the form;
+	if not they probably do not need to be stored either';
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.1 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- * do we need "form_types.iso_countrycode" ?
@@ -155,6 +159,9 @@ INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql
 
 -- =============================================
 -- $Log: gmFormDefs.sql,v $
--- Revision 1.1  2003-01-01 00:15:06  ncq
+-- Revision 1.2  2003-01-01 00:21:25  ncq
+-- - added flag is_editable to form field definition
+--
+-- Revision 1.1  2003/01/01 00:15:06  ncq
 -- - this imports cleanly for me, please comment
 --
