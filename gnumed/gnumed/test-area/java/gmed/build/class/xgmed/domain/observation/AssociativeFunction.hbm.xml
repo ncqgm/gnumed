@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping.dtd">
+
+<hibernate-mapping>
+
+	<class 
+		name="xgmed.domain.observation.AssociativeFunction"
+		table="associative_function"
+	>
+
+	    <id 
+			name="id"
+			type="long"
+		>
+			<generator class="hilo.long">
+			</generator>
+	    </id>
+
+       <many-to-one
+	       name="product"
+		   class="xgmed.domain.observation.ObservationConcept"
+		   column="product"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+<set role="arguments" table="associative_function_observation_concept_args" lazy="true">
+<key column="associativeFunction"/>
+<many-to-many class="xgmed.domain.observation.ObservationConcept" column="observationConcept"/>
+</set>
+
+	</class>
+
+</hibernate-mapping>

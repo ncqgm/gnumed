@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping.dtd">
+
+<hibernate-mapping>
+
+	<class 
+		name="xgmed.domain.observation.PhenomenonType"
+		table="phenomenon_type"
+	>
+
+	    <id 
+			name="id"
+			type="long"
+		>
+			<generator class="hilo.long">
+			</generator>
+	    </id>
+
+        <one-to-one
+            name="coding"
+			class="xgmed.domain.observation.Coding"
+			cascade="none"
+			outer-join="auto"
+			constrained="false"
+	    />
+
+        <property
+	    	name="description"
+            type="java.lang.String"
+            column="description"
+            not-null="false"
+			unique="false"
+		/>
+
+       <many-to-one
+	       name="unit"
+		   class="xgmed.domain.common.Unit"
+		   column="unit"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+<set role="phenomenons"  readonly="true" lazy="true">
+	<key column="phenomenonType"/>
+	<one-to-many class="xgmed.domain.observation.Phenomenon"/>
+</set>
+
+	</class>
+
+</hibernate-mapping>

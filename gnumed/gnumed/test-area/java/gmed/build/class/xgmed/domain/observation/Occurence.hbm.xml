@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping.dtd">
+
+<hibernate-mapping>
+
+	<class 
+		name="xgmed.domain.observation.Occurence"
+		table="occurence"
+		discriminator-value="o"
+	>
+
+	    <id 
+			name="id"
+			type="long"
+		>
+			<generator class="hilo.long">
+			</generator>
+	    </id>
+
+		<discriminator
+			column="type"
+			type="char"
+			length="2"
+		/>
+
+	    <!--
+			To add non XDoclet properties, create a file named
+			    hibernate-properties-Occurence.xml
+			containing the additional properties and place it in your merge dir.
+	    -->
+
+		<subclass
+			name="xgmed.domain.observation.Absence"
+			discriminator-value="A"
+		>
+
+<!-- JRS:FIXME - why was this self inclusion here? A mistake?		
+
+-->	
+		</subclass>
+		<subclass
+			name="xgmed.domain.observation.Presence"
+			discriminator-value="P"
+		>
+
+<!-- JRS:FIXME - why was this self inclusion here? A mistake?		
+
+-->	
+		</subclass>
+
+	</class>
+
+</hibernate-mapping>
