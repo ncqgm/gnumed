@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -60,6 +60,10 @@ from types import *
 import gmLog, gmCLI
 
 _log = gmLog.gmDefLog
+
+# don't change this without knowing what you do as
+# it will already be in many databases
+cfg_DEFAULT = "__default__"
 #================================
 class cCfgBase:
 	def __init__(self):
@@ -85,7 +89,7 @@ class cCfgSQL:
 	def __del__(self):
 		pass
 	#----------------------------
-	def get(self, machine = '__default__', user = None, cookie = '__default__', option = None):
+	def get(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
 		"""Get config value from database.
 
 		- works for
@@ -150,7 +154,7 @@ class cCfgSQL:
 
 		return result[0]
 	#----------------------------
-	def getID(self, machine = '__default__', user = None, cookie = '__default__', option = None):
+	def getID(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
 		# sanity checks
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve the ID for.")
@@ -928,7 +932,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.42  2003-03-23 10:32:50  ncq
+# Revision 1.43  2003-03-27 21:10:12  ncq
+# - move '__default__' to cfg_DEFAULT constant
+#
+# Revision 1.42  2003/03/23 10:32:50  ncq
 # - improve console messages a bit
 #
 # Revision 1.41  2003/02/21 08:58:51  ncq
