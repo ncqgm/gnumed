@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.conf.sample,v $
-version = $Revision: 1.1 $
+version = $Revision: 1.2 $
 
 #----------------------------------
 [installation]
@@ -170,6 +170,7 @@ $procedural languages$
 # - reorder the list if you want to force a particular
 #   directory to be used for a particular language
 language library dirs = $language library dirs$
+/usr/lib/postgresql/
 /usr/lib/postgresql/lib/
 /usr/lib/pgsql/
 /usr/local/pgsql/lib
@@ -203,7 +204,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-gm_db_system.conf.sample,v $
-# Revision 1.1  2003-02-25 08:26:49  ncq
+# Revision 1.2  2003-03-26 15:47:54  ncq
+# - alas, some distros store procedural language libraries in /usr/lib/postgresql/
+#
+# Revision 1.1  2003/02/25 08:26:49  ncq
 # - moved here from server/utils/
 #
 # Revision 1.5  2003/02/23 19:13:08  ncq
