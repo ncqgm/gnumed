@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -45,6 +45,7 @@ if __name__ == "__main__":
 	from Gnumed.pycommon import gmI18N
 
 from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmWhoAmI, gmExceptions
+from Gnumed.wxpython import gmGuiHelpers
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -77,7 +78,7 @@ MODE_ANY = 3	# search for brand name and generic name
 
 #============================================================
 class DrugDisplay(wxPanel):
-	"displays drug information in a convenience widget"
+	"""displays drug information in a convenience widget"""
 
 	NoDrugFoundMessageHTML	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("No matching drug found.") + "</FONT></BODY></HTML>"
 	WelcomeMessageHTML 	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("Please enter at least three digits of the drug name.") + "</FONT></BODY></HTML>"
@@ -97,12 +98,18 @@ class DrugDisplay(wxPanel):
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
 		else:
-			# 
-			self.dbName, match = gmCfg.getFirstMatchingDBSet(currMachine,
-				option="DrugReferenceBrowser.drugDBName")
-		
+			self.dbName, match = gmCfg.getFirstMatchingDBSet(
+				currMachine,
+				option="DrugReferenceBrowser.drugDBName"
+			)
+
 		if self.dbName is None:
-			_log.Log(gmLog.lPanic,"No drug database specified. Aborting drug browser.")
+			if __name__ == '__main__':
+				title = _('Starting drug data browser')
+				msg = _('Cannot start the drug data browser.\n\n'
+						'There is no drug database specified in the configuration.')
+				gmGuiHelpers.gm_show_error(msg, title)
+			_log.Log(gmLog.lErr, "No drug database specified. Aborting drug browser.")
 			# FIXME: we shouldn't directly call Close() on the parent
 #			parent.Close()
 			raise gmExceptions.ConstructorError, "No drug database specified"
@@ -598,7 +605,6 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (640, 400))
 	app.SetWidget(DrugDisplay, -1)
 	app.MainLoop()
-
 else:
 	#=================================================
 	# make this into GNUMed plugin
@@ -619,7 +625,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.16  2004-03-12 22:42:09  ncq
+# Revision 1.17  2004-03-19 08:25:06  ncq
+# - display message if drug database not specified
+#
+# Revision 1.16  2004/03/12 22:42:09  ncq
 # - I guess I've got obsessive-janitorial dysfunction
 #
 # Revision 1.15  2004/03/12 18:34:44  hinnef
