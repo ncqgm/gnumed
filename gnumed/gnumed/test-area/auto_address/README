@@ -1,0 +1,63 @@
+this is the version which uses an existing postcode city state database such as australia postal db;
+the city state and postcode fields now have autofill, so that a unique combo of city name (can be partial)
+and state will produce autofill of postcode. If a unique city name is chosen, auto fill of state and postcode
+occurs, as well as completion  of the city name. From Postcode autofill, should be relatively easy, and is 
+left as an exercise.
+
+Differences from the current gnumed as of 28-4-02 - identities_addresses is joined in v_basic_address.
+No additional sql statements are added for person and address update, as gmCachedPerson and gmCachedAddress have the 
+statements ( create_person, update_person; create_address, update_address methods).
+No find_or_create for state or urb, as the autofill relies on a complete urb table being present, as derived
+from the australian postal database.
+
+INSTALLATION
+
+to install a blank database, in linux:
+
+go to the sql directory
+edit setup_with_au_gis first line, where it says
+DB=gnumed8 ;  
+	change gnumed8 to the name of the test database to be used
+
+and type 
+source setup_with_au_gis
+
+
+
+alternatively , install a dump:
+
+1. creata a database e.g. gnumed9
+
+createdb gnumed9
+
+then install the dump
+
+psql -f gnumed8.sql
+
+
+once this is done, 
+can go to the wxpython directory
+
+and run
+
+	python gmGuiMain.py
+
+the login screen will need the name of the database just installed
+and any username password if configured already.
+(hopefully , none, as it is a lot easier to type)
+
+when confronted with the person search screen, go to the inner notebook second (Details) page
+to make a person entry ; 
+the suburbs should autofill. Make sure the address type is HOME if not already there.
+save and new should both work in the details page.
+
+Double clicking in the search box will select the person, but not switch the ui to the details
+page; manually switching to the details page, shows the selected person ready for editing.
+
+
+
+
+
+
+
+
