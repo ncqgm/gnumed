@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -72,7 +72,7 @@ WHERE
 		and
 	pgi.indisprimary is true
 		and
-	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s);"""
+	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
 
 
 drop_trigger = "DROP TRIGGER %s ON %s ;"
@@ -81,17 +81,17 @@ drop_function = "DROP FUNCTION %s();"
 template_insert_trigger = """CREATE TRIGGER %s
 	BEFORE INSERT
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s()"""
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
 template_update_trigger = """CREATE TRIGGER %s
 	BEFORE UPDATE
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s()"""
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
 template_delete_trigger = """CREATE TRIGGER %s
 	BEFORE DELETE
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s()"""
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
 template_insert_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -99,7 +99,7 @@ BEGIN
 	NEW.modify_when := CURRENT_TIMESTAMP;
 	NEW.modify_by := CURRENT_USER;
 	return NEW;
-END;' LANGUAGE 'plpgsql'"""
+END;' LANGUAGE 'plpgsql';"""
 
 template_update_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -114,7 +114,7 @@ BEGIN
 		%s
 	);
 	return NEW;
-END;' LANGUAGE 'plpgsql'"""
+END;' LANGUAGE 'plpgsql';"""
 
 template_delete_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -126,7 +126,7 @@ BEGIN
 		%s
 	);
 	return OLD;
-END;' LANGUAGE 'plpgsql'"""
+END;' LANGUAGE 'plpgsql';"""
 
 #------------------------------------------------------------------
 def get_children(aCursor, aTable):
@@ -269,7 +269,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.10  2003-06-29 12:41:34  ncq
+# Revision 1.11  2003-07-05 12:26:01  ncq
+# - need ; at end of chained SQL statements !
+#
+# Revision 1.10  2003/06/29 12:41:34  ncq
 # - remove excessive quoting
 # - check fail of get_children
 # - check for audit_mark/audit_fields split compliance
