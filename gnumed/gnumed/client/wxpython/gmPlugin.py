@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.26 2004-07-15 20:37:56 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPlugin.py,v 1.27 2004-07-18 19:51:42 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -48,7 +48,7 @@ class wxNotebookPlugin:
 		"""Register ourselves with the main notebook widget."""
 
 		self.gb['modules.%s' % self._set][self.__class__.__name__] = self
-		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self._set))
+		_log.Log(gmLog.lInfo, "set: [%s] class: [%s] name: [%s]" % (self._set, self.__class__.__name__, self.name()))
 
 		# add ourselves to the main notebook
 		nb = self.gb['main.notebook']
@@ -355,7 +355,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.26  2004-07-15 20:37:56  ncq
+# Revision 1.27  2004-07-18 19:51:42  ncq
+# - better logging
+#
+# Revision 1.26  2004/07/15 20:37:56  ncq
 # - I really believe we should keep plugin code nicely separated
 # - go back to plain notebook plugins, not super-plugins again
 #
