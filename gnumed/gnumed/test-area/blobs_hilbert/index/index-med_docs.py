@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -29,10 +29,10 @@ _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
 
 [	wxID_INDEXFRAME,
-	wxID_INDEXFRAMEADDITIONCOMMENTBOX,
+	wxID_TBOX_desc_long,
 	wxID_INDEXFRAMEBEFNRBOX,
-	wxID_INDEXFRAMEBEFUNDDATE,
-	wxID_INDEXFRAMEDATEOFBIRTHBOX,
+	wxID_TBOX_doc_date,
+	wxID_TBOX_dob,
 	wxID_BTN_del_page,
 	wxID_BTN_load_fax,
 	wxID_BTN_save_data,
@@ -41,346 +41,242 @@ _cfg = gmCfg.gmDefCfgFile
 	wxID_SelBOX_doc_type,
 	wxID_TBOX_first_name,
 	wxID_TBOX_last_name,
-	wxID_INDEXFRAMELBOXPAGES,
-	wxID_INDEXFRAMEMAINPANEL,
-	wxID_TBOX_desc_short
+	wxID_LBOX_doc_pages,
+	wxID_TBOX_desc_short,
+	wxID_PNL_main
 ] = map(lambda _init_ctrls: wxNewId(), range(16))
 
 #====================================
-class indexFrame(wxFrame):
+class indexFrame(wxPanel):
 
 	def __init__(self, parent):
 
+		wxPanel.__init__(self, parent, -1, wxDefaultPosition, wxDefaultSize)
+
 		# get valid document types from ini-file
 		self.valid_doc_types = _cfg.get("metadata", "doctypes")
+		# repository base
+		self.repository = os.path.abspath(os.path.expanduser(_cfg.get("index", "repository")))
 
-		# init ctrls
+		# set up GUI
 		self._init_ctrls(parent)
+
+		# items for phraseWheel
+		if not self._init_phrase_wheel():
+			return -1
+
+		self.__set_properties()
+		self.__do_layout()
 
 		# we are indexing data from one particular patient
 		# this is a design decision
 		if not self.__load_patient():
 			return -1
 		self.__fill_pat_fields()
-
-		# repository base
-		self.repository = os.path.abspath(os.path.expanduser(_cfg.get("index", "repository")))
-
-		# items for phraseWheel
-		if not self._init_phrase_wheel():
-			return -1
-	#---------------------------------------------------------------------------
-	def _init_utils(self):
-		pass
-	#---------------------------------------------------------------------------
+	#--------------------------------------
 	def _init_ctrls(self, prnt):
 
-		#-- basic frame -------------
-		wxFrame.__init__(
-			self,
-			id = wxID_INDEXFRAME,
-			name = 'indexFrame',
-			parent = prnt,
-			pos = wxPoint(361, 150),
-			size = wxSize(763, 616),
-			style = wxDEFAULT_FRAME_STYLE,
-			title = _('GnuMed/Archiv: Associating documents with patients.')
-		)
-		self._init_utils()
-		self.SetClientSize(wxSize(763, 616))
-
-		#-- main panel -------------
+		# -- main panel -----------------------
 		self.PNL_main = wxPanel(
-			id = wxID_INDEXFRAMEMAINPANEL,
+			id = wxID_PNL_main,
 			name = 'main panel',
 			parent = self,
-			pos = wxPoint(0, 0),
-			size = wxSize(763, 616),
 			style = wxTAB_TRAVERSAL
 		)
-		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
 
-		#-- load pages button -------------
+		#-- left column -----------------------
+		self.staticText1 = wxStaticText(
+			id = -1,
+			name = 'staticText1',
+			parent = self.PNL_main,
+			label = _("1) select")
+		)
+		#--------------------------------------
+		self.staticText7 = wxStaticText(
+			id =  -1,
+			name = 'staticText7',
+			parent = self.PNL_main,
+			label = _("document identifier")
+		)
+		# -- load pages button ----------------
 		self.BTN_load_pages = wxButton(
 			id = wxID_BTN_load_pages,
-			label = _('load pages'),
 			name = 'BTN_load_pages',
 			parent = self.PNL_main,
-			pos = wxPoint(48, 160),
-			size = wxSize(176, 22),
-			style = 0
+			label = _("load pages")
 		)
-		self.BTN_load_pages.SetToolTipString(_('load the pages of this document'))
-		EVT_BUTTON(self.BTN_load_pages, wxID_BTN_load_pages, self.on_load_pages)
-
-		#-- load fax button -------------
+		#--------------------------------------
+		self.staticText4 = wxStaticText(
+			id = -1,
+			name = 'staticText4',
+			parent = self.PNL_main,
+			label = _("or")
+		)
+		# -- load fax button ------------------
 		self.BTN_load_fax = wxButton(
 			id = wxID_BTN_load_fax,
-			label = _('load fax document'),
 			name = 'BTN_load_fax',
 			parent = self.PNL_main,
-			pos = wxPoint(48, 232),
-			size = wxSize(176, 22),
-			style = 0
+			label = _("load fax document")
 		)
-		self.BTN_load_fax.SetToolTipString(_('currently non-functional: load a fax document'))
-
-		#-- list box with pages -------------
+		#--------------------------------------
+		self.staticText8 = wxStaticText(
+			id = -1,
+			name = 'staticText8',
+			parent = self.PNL_main,
+			label = _("document pages")
+		)
+		# -- list box with pages --------------
 		self.LBOX_doc_pages = wxListBox(
-			choices = [],
-			id = wxID_INDEXFRAMELBOXPAGES,
+			id = wxID_LBOX_doc_pages,
 			name = 'LBOX_doc_pages',
 			parent = self.PNL_main,
-			pos = wxPoint(48, 288),
-			size = wxSize(182, 94),
 			style = wxLB_SORT,
-			validator = wxDefaultValidator
+			choices=[]
 		)
-		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
-
-		#-- show page button -------------
+		# -- show page button -----------------
 		self.BTN_show_page = wxButton(
 			id = wxID_BTN_show_page,
-			label = _('show page'),
 			name = 'BTN_show_page',
 			parent = self.PNL_main,
-			pos = wxPoint(48, 400),
-			size = wxSize(95, 22),
-			style = 0
+			label = _("show page")
 		)
-		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
-		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
-
-		#-- delete page button -------------
+		# -- delete page button ---------------
 		self.BTN_del_page = wxButton(
 			id = wxID_BTN_del_page,
-			label = _('delete page'),
 			name = 'BTN_del_page',
 			parent = self.PNL_main,
-			pos = wxPoint(143, 400),
-			size = wxSize(90, 22),
-			style = 0
+			label = _("delete page")
 		)
-		EVT_BUTTON(self.BTN_del_page, wxID_BTN_del_page, self.on_del_page)
 
-		#-- first name text box -------------
+		#-- middle column ---------------------
+		self.staticText2 = wxStaticText(
+			id = -1,
+			name = 'staticText2',
+			parent = self.PNL_main,
+			label = _("2) describe")
+		)
+		#--------------------------------------
+		self.staticText9 = wxStaticText(
+			id = -1,
+			name = 'staticText9',
+			parent = self.PNL_main,
+			label = _("first name")
+		)
+		# -- first name text box --------------
 		self.TBOX_first_name = wxTextCtrl(
 			id = wxID_TBOX_first_name,
 			name = 'TBOX_first_name',
 			parent = self.PNL_main,
-			pos = wxPoint(304, 112),
-			size = wxSize(152, 22),
-			style = wxTE_READONLY,
-			value = 'loading ...'
+			value = _("loading ..."),
+			style=wxTE_READONLY
 		)
-		self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
-		self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
-
-		#-- last name text box -------------
+		#--------------------------------------
+		self.staticText10 = wxStaticText(
+			id = -1,
+			name = 'staticText10',
+			parent = self.PNL_main,
+			label = _("last name")
+		)
+		# -- last name text box ---------------
 		self.TBOX_last_name = wxTextCtrl(
 			id = wxID_TBOX_last_name,
 			name = 'TBOX_last_name',
 			parent = self.PNL_main,
-			pos = wxPoint(304, 160),
-			size = wxSize(152, 22),
-			style = wxTE_READONLY,
-			value = 'loading ...'
+			value = _("loading ..."),
+			style=wxTE_READONLY
 		)
-		self.TBOX_last_name.SetToolTipString(_('not editable, loaded from file'))
-		self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
-
-		#-- dob text box -------------
+		#--------------------------------------
+		self.staticText6 = wxStaticText(
+			id = -1,
+			name = 'staticText6',
+			parent = self.PNL_main,
+			label = _("date of birth")
+		)
+		# -- dob text box ---------------------
 		self.TBOX_dob = wxTextCtrl(
-			id = wxID_INDEXFRAMEDATEOFBIRTHBOX,
+			id = wxID_TBOX_dob,
 			name = 'TBOX_dob',
 			parent = self.PNL_main,
-			pos = wxPoint(304, 232),
-			size = wxSize(152, 22),
-			style = wxTE_READONLY,
-			value = 'loading ...'
+			value = _("loading ..."), 
+			style=wxTE_READONLY
 		)
-		self.TBOX_dob.SetToolTipString(_('not editable, loaded from file'))
-		#self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
-
-		#-- document date text box -------------
+		#--------------------------------------
+		self.staticText5 = wxStaticText(
+			id =  -1,
+			name = 'staticText5',
+			parent = self.PNL_main,
+			label = _("date (YYYY-MM-DD)")
+		)
+		# -- document creation text box -------
 		self.TBOX_doc_date = wxTextCtrl(
-			id = wxID_INDEXFRAMEBEFUNDDATE,
+			id = wxID_TBOX_doc_date,
 			name = 'TBOX_doc_date',
 			parent = self.PNL_main,
-			pos = wxPoint(304, 312),
-			size = wxSize(152, 22),
-			style = 0,
-			value = time.strftime('%Y-%m-%d', time.localtime())
+			# FIXME: default date should be changeable
+			value = time.strftime('%Y-%m-%d',time.localtime())
 		)
-		self.TBOX_doc_date.SetToolTipString(_('date of creation of the document content\nformat: YYYY-MM-DD'))
-
-		#-- short document comment text box -------------
+		#--------------------------------------
+		self.staticText11 = wxStaticText(
+			id = -1,
+			name = 'staticText11',
+			parent = self.PNL_main,
+			label = _("short comment")
+		)
+		# -- short document comment text box --
 		self.TBOX_desc_short = wxTextCtrl(
 			id = wxID_TBOX_desc_short,
 			name = 'TBOX_desc_short',
 			parent = self.PNL_main,
-			pos = wxPoint(304, 368),
-			size = wxSize(152, 22),
-			style = 0,
-			value = _('please fill in')
+			value = _("please fill in")
 		)
-		self.TBOX_desc_short.SetToolTipString(_('a short comment on the document content'))
-
-		#-- document type selection box -------------
+		#--------------------------------------
+		self.staticText12 = wxStaticText(
+			id = -1,
+			name = 'staticText12',
+			parent = self.PNL_main,
+			label = _("document type")
+		)
+		# -- document type selection box ------
 		self.SelBOX_doc_type = wxComboBox(
-			choices = self.valid_doc_types,
 			id = wxID_SelBOX_doc_type,
 			name = 'SelBOX_doc_type',
 			parent = self.PNL_main,
-			pos = wxPoint(304, 416),
-			size = wxSize(152, 22),
-			style = 0,
-			validator = wxDefaultValidator,
-			value = _('choose document type')
+			value = _('choose document type'),
+			choices = self.valid_doc_types,
+			style=wxCB_DROPDOWN
 		)
 		self.SelBOX_doc_type.SetLabel('')
-		self.SelBOX_doc_type.SetToolTipString(_('Document types are determined by the database.\nAsk your database administrator to add more types if needed.'))
 
-		#-- long document comment text box -------------
-		self.TBOX_desc_long = wxTextCtrl(
-			id = wxID_INDEXFRAMEADDITIONCOMMENTBOX,
-			name = 'TBOX_desc_long',
-			parent = self.PNL_main,
-			pos = wxPoint(48, 488),
-			size = wxSize(640, 88),
-			style = wxTE_MULTILINE,
-			value = '')
-		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
-
-		#-- save data button -------------
-		self.BTN_save_data = wxButton(
-			id = wxID_BTN_save_data,
-			label = _('save data'),
-			name = 'BTN_save_data',
-			parent = self.PNL_main,
-			pos = wxPoint(544, 112),
-			size = wxSize(144, 328),
-			style = 0
-		)
-		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
-		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
-
-		self.staticText1 = wxStaticText(
-			id = -1,
-			label = _('1) select'),
-			name = 'staticText1',
-			parent = self.PNL_main,
-			pos = wxPoint(48, 56),
-			size = wxSize(19, 29),
-			style = 0
-		)
-		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText2 = wxStaticText(
-			id = -1,
-			label = _('2) describe'),
-			name = 'staticText2',
-			parent = self.PNL_main,
-			pos = wxPoint(312, 56),
-			size = wxSize(19, 29),
-			style = 0
-		)
-		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
+		#-- right column ----------------------
 		self.staticText3 = wxStaticText(
 			id = -1,
-			label = _('3) save'),
 			name = 'staticText3',
 			parent = self.PNL_main,
-			pos = wxPoint(560, 56),
-			size = wxSize(19, 29),
-			style = 0
+			label = _("3) save")
 		)
-		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText4 = wxStaticText(
-			id = -1,
-			label = _('or'),
-			name = 'staticText4',
+		# -- save data button -----------------
+		self.BTN_save_data = wxButton(
+			id = wxID_BTN_save_data,
+			name = 'BTN_save_data',
 			parent = self.PNL_main,
-			pos = wxPoint(48, 192),
-			size = wxSize(49, 29),
-			style = 0
-		)
-		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-
-		self.staticText5 = wxStaticText(id = -1, label = _('date (YYYY-MM-DD)'), name = 'staticText5', parent = self.PNL_main, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
-
-		self.staticText6 = wxStaticText(id = -1, label = _('date of birth'), name = 'staticText6', parent = self.PNL_main, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
-
-		self.staticText7 = wxStaticText(
-			id = -1,
-			label = _('document identifier'),
-			name = 'staticText7',
-			parent = self.PNL_main,
-			pos = wxPoint(48, 96),
-			size = wxSize(176, 16),
-			style = 0
+			label = _("save data")
 		)
 
-		self.staticText8 = wxStaticText(
-			id = -1,
-			label = _('document pages'),
-			name = 'staticText8',
-			parent = self.PNL_main,
-			pos = wxPoint(48, 264),
-			size = wxSize(152, 16),
-			style = 0
-		)
-
-		self.staticText9 = wxStaticText(
-			id = -1,
-			label = _('first name'),
-			name = 'staticText9',
-			parent = self.PNL_main,
-			pos = wxPoint(304, 96),
-			size = wxSize(152, 16),
-			style = 0
-		)
-
-		self.staticText10 = wxStaticText(
-			id = -1,
-			label = _('last name'),
-			name = 'staticText10',
-			parent = self.PNL_main,
-			pos = wxPoint(304, 144),
-			size = wxSize(152, 16),
-			style = 0
-		)
-
-		self.staticText11 = wxStaticText(
-			id = -1,
-			label = _('short comment'),
-			name = 'staticText11',
-			parent = self.PNL_main,
-			pos = wxPoint(304, 352),
-			size = wxSize(152, 16),
-			style = 0
-		)
-
-		self.staticText12 = wxStaticText(
-			id = -1,
-			label = _('document type'),
-			name = 'staticText12',
-			parent = self.PNL_main,
-			pos = wxPoint(304, 400),
-			size = wxSize(152, 16),
-			style = 0
-		)
-
+		#-- bottom area -----------------------
 		self.staticText13 = wxStaticText(
 			id = -1,
-			label = _('additional comment'),
 			name = 'staticText13',
 			parent = self.PNL_main,
-			pos=wxPoint(48, 464),
-			size = wxSize(143, 16),
-			style = 0
+			label = _("additional comment")
+		)
+		# -- long document comment text box ---
+		self.TBOX_desc_long = wxTextCtrl(
+			id = wxID_TBOX_desc_long,
+			name = 'TBOX_desc_long',
+			parent = self.PNL_main,
+			value = "",
+			style=wxTE_MULTILINE
 		)
 	#--------------------------------
 	def _init_phrase_wheel(self):
@@ -433,15 +329,114 @@ class indexFrame(wxFrame):
 		self.doc_id_wheel = cPhraseWheel(
 			self.PNL_main,
 			self.wheel_callback,
-			pos = (48, 112),
-			size = (176, 22),
 			aMatchProvider = mp,
 			aDelay = 400
 		)
-		self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
 		self.doc_id_wheel.on_resize (None)
 
 		return 1
+	#--------------------------------
+	def __set_properties(self):
+		self.SetTitle(_("GnuMed/Archiv: Associating documents with patients."))
+
+		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
+		self.TBOX_first_name.SetBackgroundColour(wxColour(255, 255, 255))
+		self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
+		self.TBOX_dob.SetBackgroundColour(wxColour(255, 255, 255))
+
+		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		self.BTN_load_pages.SetToolTipString(_('load the pages of this document'))
+		self.BTN_load_fax.SetToolTipString(_('currently non-functional: load a fax document'))
+		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
+		self.BTN_show_page.SetToolTipString(_('display selected part of the document'))
+		self.BTN_del_page.SetToolTipString(_('delete selected part of the document'))
+		self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
+		self.TBOX_last_name.SetToolTipString(_('not editable, loaded from file'))
+		self.TBOX_dob.SetToolTipString(_('not editable, loaded from file'))
+		self.TBOX_doc_date.SetToolTipString(_('date of creation of the document content\nformat: YYYY-MM-DD'))
+		self.TBOX_desc_short.SetToolTipString(_('a short comment on the document content'))
+		self.SelBOX_doc_type.SetToolTipString(_('Document types are determined by the database.\nAsk your database administrator to add more types if needed.'))
+		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
+		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
+		self.doc_id_wheel.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
+
+		EVT_BUTTON(self.BTN_load_pages, wxID_BTN_load_pages, self.on_load_pages)
+		EVT_BUTTON(self.BTN_show_page, wxID_BTN_show_page, self.on_show_page)
+		EVT_BUTTON(self.BTN_del_page, wxID_BTN_del_page, self.on_del_page)
+		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
+		EVT_BUTTON(self.BTN_save_data, wxID_BTN_save_data, self.on_save_data)
+
+		self.LBOX_doc_pages.SetSelection(0)
+		self.SelBOX_doc_type.SetSelection(0)
+	#--------------------------------
+	def __do_layout(self):
+
+		szr_main_outer = wxBoxSizer(wxHORIZONTAL)
+
+		# left vertical column (1/3) in upper half of the screen
+		szr_left = wxBoxSizer(wxVERTICAL)
+		szr_left.Add(self.staticText1, 0, 0, 0)
+		szr_left.Add(self.staticText7, 0, wxLEFT|wxTOP, 5)
+		szr_left.Add(self.doc_id_wheel, 0, wxEXPAND|wxALL, 5)
+		szr_left.Add(self.BTN_load_pages, 1, wxEXPAND|wxALL, 5)
+		szr_left.Add(self.staticText4, 0, wxLEFT, 5)
+		szr_left.Add(self.BTN_load_fax, 1, wxEXPAND|wxALL, 5)
+		szr_left.Add(self.staticText8, 0, wxLEFT, 5)
+		szr_left.Add(self.LBOX_doc_pages, 1, wxEXPAND|wxALL, 5)
+		szr_left_btns = wxBoxSizer(wxHORIZONTAL)
+		szr_left_btns.Add(self.BTN_show_page, 1, wxRIGHT|wxTOP, 5)
+		szr_left_btns.Add(self.BTN_del_page, 1, wxTOP, 5)
+		szr_left.Add(szr_left_btns, 1, wxEXPAND|wxALIGN_BOTTOM, 0)
+
+		# middle vertical column (2/3) in upper half of the screen
+		szr_middle = wxBoxSizer(wxVERTICAL)
+		szr_middle.Add(self.staticText2, 0, 0, 0)
+		szr_middle.Add(self.staticText9, 0, wxLEFT|wxTOP, 5)
+		szr_middle.Add(self.TBOX_first_name, 0, wxEXPAND|wxALL, 5)
+		szr_middle.Add(self.staticText10, 0, wxLEFT, 5)
+		szr_middle.Add(self.TBOX_last_name, 0, wxEXPAND|wxALL, 5)
+		szr_middle.Add(self.staticText6, 0, wxLEFT, 5)
+		szr_middle.Add(self.TBOX_dob, 0, wxEXPAND|wxALL, 5)
+		szr_middle.Add(self.staticText5, 0, wxLEFT, 5)
+		szr_middle.Add(self.TBOX_doc_date, 0, wxEXPAND|wxALL, 5)
+		szr_middle.Add(self.staticText11, 0, wxLEFT, 5)
+		szr_middle.Add(self.TBOX_desc_short, 0, wxEXPAND|wxALL, 5)
+		szr_middle.Add(self.staticText12, 0, wxLEFT, 5)
+		szr_middle.Add(self.SelBOX_doc_type, 0, wxEXPAND|wxALL, 5)
+		
+		# rightmost vertical column (3/3) in upper half of the screen
+		szr_right = wxBoxSizer(wxVERTICAL)
+		szr_right.Add(self.staticText3, 0, wxALIGN_CENTER_HORIZONTAL|wxBOTTOM, 20)
+		szr_right.Add(self.BTN_save_data, 1, wxEXPAND, 0)
+
+		# group columns
+		szr_top_grid = wxGridSizer(1, 3, 0, 0)
+		szr_top_grid.Add(szr_left, 1, wxEXPAND|wxLEFT, 40)
+		szr_top_grid.Add(szr_middle, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxLEFT, 40)
+		szr_top_grid.Add(szr_right, 1, wxALIGN_RIGHT|wxEXPAND|wxLEFT|wxRIGHT, 20)
+
+		# single textbox area in lower half of the screen
+		szr_bottom = wxBoxSizer(wxVERTICAL)
+		szr_bottom.Add(self.staticText13, 0, wxBOTTOM, 5)
+		szr_bottom.Add(self.TBOX_desc_long, 1, wxEXPAND, 0)
+
+		# group top and bottom parts
+		szr_main_inner = wxBoxSizer(wxVERTICAL)
+		szr_main_inner.Add(szr_top_grid, 2, wxEXPAND, 0)
+		szr_main_inner.Add(szr_bottom, 1, wxEXPAND|wxALL, 20)
+
+		self.PNL_main.SetAutoLayout(1)
+		self.PNL_main.SetSizer(szr_main_inner)
+		szr_main_inner.Fit(self.PNL_main)
+		szr_main_outer.Add(self.PNL_main, 1, wxEXPAND, 0)
+		self.SetAutoLayout(1)
+		self.SetSizer(szr_main_outer)
+		szr_main_outer.Fit(self)
+		self.Layout()
 	#----------------------------------------
 	# event handlers
 	#----------------------------------------
@@ -885,34 +880,44 @@ class indexFrame(wxFrame):
 
 		return 1
 #======================================================
-class IndexerApp(wxApp):
-	def OnInit(self):
-		wxInitAllImageHandlers()
-		self.main = indexFrame(None)
-		self.main.Centre(wxBOTH)
-		self.main.Show(true)
-		self.SetTopWindow(self.main)
-		return true
-#======================================================
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
 	try:
-		application = IndexerApp(0)
+		wxInitAllImageHandlers()
+		application = wxPyWidgetTester(size=(800,600))
+		application.SetWidget(indexFrame)
 		application.MainLoop()
 	except:
 		exc = sys.exc_info()
 		_log.LogException('Unhandled exception.', exc, fatal=1)
 		# FIXME: remove pending indexing locks
 		raise
+
 	# FIXME: remove pending indexing locks
+else:
+	import gmPlugin,gmGuiBroker
+
+	class gmIndexMedDocs(gmPlugin.wxNotebookPlugin):
+		def name (self):
+			return "Index"
+
+		def GetWidget (self, parent):
+			return indexFrame (parent)
+
+		def MenuInfo (self):
+			return ('tools', '&Index Documents')
 
 #======================================================
 # this line is a replacement for gmPhraseWhell just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.20  2002-11-30 19:45:46  ncq
+# Revision 1.21  2002-12-02 03:28:16  ncq
+# - converted to sizers
+# - first provisions for plugin()ification
+#
+# Revision 1.20  2002/11/30 19:45:46  ncq
 # - when keeping the patient file: do name.split()[0] and use full old path when copying
 #
 # Revision 1.19  2002/11/23 16:45:21  ncq
