@@ -17,7 +17,10 @@ Name <%=java.util.Locale.getDefault().getDisplayName()%>
 <p>
 Language code   :<%=java.util.Locale.getDefault().getLanguage()%>
 Country code   :<%=java.util.Locale.getDefault().getCountry()%>
+
+<%--
 </p>
+
 <p>
 	Session attribute names : <%=request.getSession().getAttributeNames()%>
 	
@@ -29,7 +32,6 @@ while (en.hasMoreElements()) {
     }
 %>
 
-<%--
 <%java.util.Enumeration ensv =session.getServletContext().getAttributeNames();
 	out.println("<p>ServletContext attribute names are:");
   while (ensv.hasMoreElements()) {

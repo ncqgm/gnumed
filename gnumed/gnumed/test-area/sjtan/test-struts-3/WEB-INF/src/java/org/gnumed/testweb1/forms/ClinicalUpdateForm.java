@@ -24,6 +24,8 @@ import org.gnumed.testweb1.data.EntryClinRootItem;
 import org.gnumed.testweb1.data.EntryVaccination;
 import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.data.Medication;
+
+import sun.security.action.GetBooleanAction;
 /**
  *
  * @author  sjtan
@@ -239,11 +241,14 @@ public class ClinicalUpdateForm extends  /*org.apache.struts.action.ActionForm *
 
 	void copyPreviousEpisodeForLinkedNarrative() {
         for ( int i=1; i < getEncounter().getNarratives().size(); ++i ) {
+            log.info("Checking narrative :healthIssue" 
+                    + getNarrative(i).getHealthIssueName() + " , is linked is "
+                    + getNarrative(i).isLinkedToPreviousEpisode() );
             if ( getNarrative(i).isLinkedToPreviousEpisode() ) {
             	getNarrative(i).setEpisode(getNarrative(i-1).getEpisode());
-                log.info(getNarrative(i) +  "#"+i+" WAS LINKED");
+                log.info(getNarrative(i)+ " :"+ getNarrative(i).getNarrative() +  "#"+i+" WAS LINKED");
             } else {
-                log.info(getNarrative(i) + "*** #"+i+" is not Linked **");
+                log.info(getNarrative(i) +" :"+ getNarrative(i).getNarrative()+ "*** #"+i+" is NOT Linked **");
             }
         }
     }

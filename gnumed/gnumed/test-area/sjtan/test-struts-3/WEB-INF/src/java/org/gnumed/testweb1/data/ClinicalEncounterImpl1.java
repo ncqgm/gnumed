@@ -281,24 +281,45 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
 		episodeMap = new HashMap();
 		healthIssueMap = new HashMap();
 		for (int i = 0; i < items.length; ++i ) {
-			EntryClinRootItem item = items[i];
-			item.normalizeHealthIssueName();
-			if (healthIssueMap.get( item.getHealthIssueName() ) == null) {
-				healthIssueMap.put( item.getHealthIssueName(), item.getEpisode().getHealthIssue());
-			}
-			item.getEpisode().setHealthIssue((HealthIssue) healthIssueMap.get( item.getHealthIssueName()));
+			 mergeHealthIssueReferencesWithSameHealthIssueName(items[i]);
 		}
 		
 		for (int i = 0; i < items.length; ++i ) {
-			EntryClinRootItem item = items[i];
-			if (episodeMap.get(item.getEpisode().getDescription()) ==null) {
-				episodeMap.put(item.getEpisode().getDescription(), item.getEpisode());
-			}
-			item.setEpisode((ClinicalEpisode)episodeMap.get(item.getEpisode().getDescription()));
+			mergeEpisodeIfSameDescriptionAndSameHealthIssueName(items[i]);
 		}
 	}
 	
-	public void  updateItemEpisodeReferences() {
+	/**
+     * @param item
+     */
+    private void mergeHealthIssueReferencesWithSameHealthIssueName(EntryClinRootItem item) {
+        item.normalizeHealthIssueName();
+        String name = item.getHealthIssueName();
+        if (healthIssueMap.get( item.getHealthIssueName() ) == null) {
+        	healthIssueMap.put( item.getHealthIssueName(), item.getEpisode().getHealthIssue());
+        }
+        item.getEpisode().setHealthIssue((HealthIssue) healthIssueMap.get( item.getHealthIssueName()));
+        log.info("item has been set to "  + item.getHealthIssueName() +
+                " from " + name);
+    }
+
+
+    /**
+     * @param item
+     */
+    private void mergeEpisodeIfSameDescriptionAndSameHealthIssueName(EntryClinRootItem item) {
+        if (episodeMap.get(item.getEpisode().getDescription()) ==null) {
+        	episodeMap.put(item.getEpisode().getDescription(), item.getEpisode());
+        }
+        ClinicalEpisode mappedEpisode = (ClinicalEpisode)episodeMap.get(item.getEpisode().getDescription());
+        
+        if (mappedEpisode != null && item.getHealthIssueName().equals(mappedEpisode.getHealthIssue().getDescription())) {
+            item.setEpisode(mappedEpisode);
+        }
+    }
+
+
+    public void  updateItemEpisodeReferences() {
 		EntryClinRootItem[] items = getEntryRootItems();
 		for (int i = 0; i < items.length ; ++i ) {
 			items[i].setEpisode((ClinicalEpisode)episodeMap.get(items[i].getEpisode().getDescription()));

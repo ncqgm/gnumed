@@ -436,7 +436,7 @@
              >
              
              <forward name="clinicalEditAgain" path="clinicalentry"/>
-              <forward name="successClinicalEditAgain" path="index"/> 
+              <forward name="successClinicalEditAgain" path="windowclose"/> 
          </action>
         
         

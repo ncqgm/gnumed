@@ -30,6 +30,7 @@
                 	<put name="content" value="/pages/Welcome.jsp" type="page"/>
           </definition>
           
+          
         
         <definition name="development" page="/pages/common/development_notes.jsp"/>
      	
@@ -108,6 +109,6 @@
         
        <definition name="showcandidatedrugs" page="/pages/drugs/searchDrug.jsp"/>
         
-       
+       <definition name="windowclose" page="/pages/common/windowCloser.jsp"/>
          
 </tiles-definitions>

@@ -49,6 +49,8 @@
 	    	<bean:message key="show.printable.summary.notes"/> 
 	    --%>
         </html:link>
+        | <b> zoom with ctrl- / ctrl= in mozilla  </b>
+        
     </td>
     </tr> 
     </table>
