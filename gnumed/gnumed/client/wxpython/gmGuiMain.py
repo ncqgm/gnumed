@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.180 2005-02-13 15:28:07 ncq Exp $
-__version__ = "$Revision: 1.180 $"
+# $Id: gmGuiMain.py,v 1.181 2005-03-06 14:50:45 ncq Exp $
+__version__ = "$Revision: 1.181 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -264,7 +264,7 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
-     	#-----------------------------------------------
+	#-----------------------------------------------
 	def on_patient_selected(self, **kwargs):
 		wxCallAfter(self.__on_patient_selected, **kwargs)
 	#----------------------------------------------
@@ -272,7 +272,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		pat = gmPerson.gmCurrentPatient()
 		try:
 			pat.get_clinical_record()
-			pat['demographic record']
+			pat.get_identity()
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
@@ -642,7 +642,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.180  2005-02-13 15:28:07  ncq
+# Revision 1.181  2005-03-06 14:50:45  ncq
+# - 'demographic record' -> get_identity()
+#
+# Revision 1.180  2005/02/13 15:28:07  ncq
 # - v_basic_person.i_pk -> pk_identity
 #
 # Revision 1.179  2005/02/12 13:58:20  ncq
