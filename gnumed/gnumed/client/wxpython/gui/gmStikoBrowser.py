@@ -16,7 +16,7 @@
 #
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -139,7 +139,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
         return 'StIKo'
 
     def MenuInfo (self):
-        return ('help', '&StIKo')
+        return ('reference', '&StIKo')
 
     def GetWidget (self, parent):
         return StikoHtmlPanel (parent, self.gb['main.frame'])
@@ -148,7 +148,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 		tool1 = tb.AddTool(
 			ID_STIKOCONTENTS,
 			images_for_gnumed_browser16_16.getcontentsBitmap(),
-			shortHelpString=_("Gnumed STIKO Contents"),
+			shortHelpString=_("Table of Content"),
 			isToggle=true
 		)
 		EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
