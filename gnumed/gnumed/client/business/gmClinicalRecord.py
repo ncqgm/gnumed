@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.129 2004-07-05 22:23:38 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmClinicalRecord.py,v 1.130 2004-07-05 22:30:01 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -513,14 +513,13 @@ class cClinicalRecord:
 				#   are in v_patient_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
-					'pk_item', 'id', 'fk_encounter', 'fk_episode'
+					'pk_item', 'id', 'fk_encounter', 'fk_episode', 'pk'
 				]
 				col_data = []
 				for col_name in table_col_idx.keys():
 					if col_name in cols2ignore:
 						continue
-					emr_data[age].append("=> %s:" % col_name)
-					emr_data[age].append(row[table_col_idx[col_name]])
+					emr_data[age].append("=> %s: %s" % (col_name, row[table_col_idx[col_name]]))
 				emr_data[age].append("----------------------------------------------------")
 				emr_data[age].append("-- %s from table %s" % (
 					view_row[view_col_idx['modified_string']],
@@ -1330,7 +1329,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.129  2004-07-05 22:23:38  ncq
+# Revision 1.130  2004-07-05 22:30:01  ncq
+# - improve get_text_dump()
+#
+# Revision 1.129  2004/07/05 22:23:38  ncq
 # - log some timings to find time sinks
 # - get_clinical_record now takes between 4 and 11 seconds
 # - record active episode at clinical record *cleanup* instead of startup !
