@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.31 2003-09-17 11:08:30 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmTmpPatient.py,v 1.32 2003-09-21 06:53:40 ihaywood Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -246,16 +246,19 @@ class gmPerson:
 		cmd = """
 select
 	vba.addr_id,
-	vba.address_at,
+	at.name,
 	vba.number,
 	vba.street,
 	vba.city,
 	vba.postcode
 from
 	v_basic_address vba,
-	lnk_person2address lp2a
+	lnk_person2address lp2a,
+	address_type at
 where
 	lp2a.id_address = vba.addr_id
+	        and
+	at.id = lp2a.id_type
 		and
 	lp2a.id_identity = %s
 """
@@ -271,6 +274,8 @@ where
 		"""
 		Returns a list of valid postcodes given a urb and street
 		"""
+		if urb is None or len (urb) == 0:
+			return [] # cope with empty urb name
 		curs = self._defconn_ro.cursor ()
 		# FIXME: untangle and roll into gmPG.run_query() ...
 		try:
@@ -285,7 +290,6 @@ where
 					# for this type of search, client has called in error
 					cmd =  "select postcode from urb where name = %s"
 					curs.execute (cmd, urb)
-					curs.execute(cmd, self.ID)
 		except:
 			curs.close()
 			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
@@ -294,6 +298,24 @@ where
 		curs.close ()
 		return data
 	#--------------------------------------------------------
+	def GuessStreet (self, postcode):
+		"""
+		Guess the street name based on the postcode
+		"""
+		if postcode is None or len (postcode) == 0:
+			return [] # cope with empty urb name
+		curs = self._defconn_ro.cursor ()
+		try:
+			cmd = "select street from v_zip2street where postcode = %s"
+			curs.execute (cmd, urb)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return None
+		data = curs.fetchall ()
+		curs.close ()
+		return data
+	
 	def DeleteAddress (self, ID):
 		rwconn = self._backend.GetConnection('personalia', readonly=0)
 		rwcurs = rwconn.cursor()
@@ -719,6 +741,7 @@ if __name__ == "__main__":
 		print "title  ", myPatient['title']
 		print "dob    ", myPatient['dob']
 		print "med age", myPatient['medical age']
+		print "addresses", myPatient['addresses']
 		record = myPatient['clinical record']
 		print "EPR    ", record
 #		print "allergy IDs", record['allergy IDs']
@@ -730,7 +753,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.31  2003-09-17 11:08:30  ncq
+# Revision 1.32  2003-09-21 06:53:40  ihaywood
+# bugfixes
+#
+# Revision 1.31  2003/09/17 11:08:30  ncq
 # - cleanup, fix type "personaliaa"
 #
 # Revision 1.30  2003/09/17 03:00:59  ihaywood
