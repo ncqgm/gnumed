@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.20 2005-02-12 13:56:49 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmVaccination.py,v 1.21 2005-03-20 12:28:50 cfmoro Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -190,7 +190,7 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
-	cmd = """select id_patient from v_pat_episodes where pk_episode=%s 
+	cmd = """select pk_patient from v_pat_episodes where pk_episode=%s 
                  union 
              select pk_patient from v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
@@ -374,7 +374,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.20  2005-02-12 13:56:49  ncq
+# Revision 1.21  2005-03-20 12:28:50  cfmoro
+# On create_vaccination, id_patient -> pk_patient
+#
+# Revision 1.20  2005/02/12 13:56:49  ncq
 # - identity.id -> identity.pk
 #
 # Revision 1.19  2005/01/31 10:37:26  ncq
