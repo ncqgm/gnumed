@@ -268,24 +268,64 @@ public class IdentityManager {
         }
     }
     
+    final static Type[] twoStringTypes =  new Type[] {Hibernate.STRING  , Hibernate.STRING } ;
     public List findProviders( String last, String first, identity_role[] roles) throws Exception {
-        if (last == null)
-            last = "";
-        if (first == null)
-            first = "";
-        
-        String query = "select i from identity i inner join i.roles r where r.identity_role.name  like ?";
-       Set set = new HashSet();
-        if ( roles.length == 0) {
-            set.addAll(getSession().find(query, "%", Hibernate.STRING) );
+        FlushMode oldMode =  getSession().getFlushMode();
+        try {
+//            getSession().setFlushMode(FlushMode.AUTO);
+            if (last == null)
+                last = "";
+            if (first == null)
+                first = "";
+            last = last.trim().toLowerCase();
+            first = first.trim().toLowerCase();
+            
+            String query = "select i from identity i inner join i.roles r "+
+            "where r.identity_role.name  like ? ";
+            
+            String query2 = "select i from identity i inner join i.roles r inner join i.namess n "+
+            "where n.lastnames like ? and n.firstnames like ? ";
+            
+            Set set = new HashSet();
+            if ( roles.length == 0  ) {
+                set.addAll(getSession().find(query2, new Object[] { last+"%", first+"%" },
+                twoStringTypes ) );
+            }
+            
+            
+            for (int i = 0; i < roles.length; ++i) {
+                
+                List l = getSession().find(query,   roles[i].getName()  , Hibernate.STRING  ) ;
+                
+                if (last.length() > 0) {
+                    Collection c = new ArrayList();
+                    Iterator j = l.iterator();
+                  while (j.hasNext()) {
+                      identity id = (identity) j.next();
+                      if (id.findNames(0).getLastnames().toLowerCase().startsWith(last) &&
+                        id.findNames(0).getLastnames().toLowerCase().startsWith(first) )
+                          c.add(id);
+                  }
+                   
+//                    getSession().update(l);
+//                    getSession().connection().commit();
+//                    Collection c = getSession().filter( l, query2, new Object[] { last+"%", first+"%" },
+//                    twoStringTypes ) ;
+                    set.addAll(c);
+                    continue;
+                }
+                set.addAll(l);
+            }
+            
+            
+            // more stuff get a good test string
+            
+            return Arrays.asList(set.toArray());
+        } finally {
+            getSession().connection().rollback();
+            getSession().setFlushMode(oldMode);
+            getSession().disconnect();
         }
-        
-        for (int i = 0; i < roles.length; ++i) {
-            set.addAll(getSession().find(query, roles[i].getName(), Hibernate.STRING) );
-        }
-        // more stuff get a good test string
-        
-        return Arrays.asList(set.toArray());
     }
     
     public void removeRoles( identity id, Collection role_infos) {
@@ -294,14 +334,14 @@ public class IdentityManager {
             getSession().setFlushMode(FlushMode.AUTO);
             for (Iterator j = role_infos.iterator(); j.hasNext() ; ) {
                 identity_role_info info  = ( identity_role_info ) j.next();
-//                info.setIdentity_role(null);
+                //                info.setIdentity_role(null);
                 getSession().delete(info);
-//                getSession().evict(info);
+                //                getSession().evict(info);
             }
             
             getSession().connection().commit();
             
-//            getSession().refresh(id);
+            //            getSession().refresh(id);
             getSession().evict(id);
             getSession().connection().commit();
             getSession().setFlushMode(mode);
@@ -309,7 +349,19 @@ public class IdentityManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-          
+        
         
     }
+    
+    public identity getIdentityById( Long id) {
+        identity iden = null;
+        try {
+            iden = (identity) getSession().load(identity.class, id);
+        } catch (Exception e)  {
+            e.printStackTrace();
+        }
+        return iden;
+        
+    }
+    
 }

@@ -16,7 +16,7 @@ import org.gnumed.gmIdentity.identity;
  * @author  sjtan
  */
 public class Testgnmed1 extends javax.swing.JFrame {
-    
+   
     /** Creates new form Testgnmed1 */
     public Testgnmed1() {
         initComponents();
@@ -51,7 +51,10 @@ public class Testgnmed1 extends javax.swing.JFrame {
         copyMenuItem = new javax.swing.JMenuItem();
         pasteMenuItem = new javax.swing.JMenuItem();
         deleteMenuItem = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        referraljMenuItem2 = new javax.swing.JMenuItem();
         windowMenu = new javax.swing.JMenu();
+        contactsjMenuItem2 = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         contentMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
@@ -118,7 +121,22 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         menuBar.add(editMenu);
 
+        jMenu1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("Documents"));
+        referraljMenuItem2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("referral_letter"));
+        referraljMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                referraljMenuItem2ActionPerformed(evt);
+            }
+        });
+
+        jMenu1.add(referraljMenuItem2);
+
+        menuBar.add(jMenu1);
+
         windowMenu.setText("Window");
+        contactsjMenuItem2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("contacts"));
+        windowMenu.add(contactsjMenuItem2);
+
         menuBar.add(windowMenu);
 
         helpMenu.setText("Help");
@@ -134,19 +152,24 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         pack();
     }//GEN-END:initComponents
+
+    private void referraljMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_referraljMenuItem2ActionPerformed
+        // Add your handling code here:
+        TestReferralInternalFrame frame = new TestReferralInternalFrame();
+        frame.setClient(getFocusedIdentity());
+        desktopPane.add(frame);
+        frame.setVisible(true);
+        addWindowMenuItem(frame);
+    }//GEN-LAST:event_referraljMenuItem2ActionPerformed
     
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // Add your handling code here:
         // creates a new patient inner frame
-        PatientInnerFrame frame = new PatientInnerFrame();
-        identity id = new identity();
-        id.setPersister(new SingleSessionManagerReference());
-        frame.setIdentity(id);
+        PatientInnerFrame frame = createPatientInnerFrame( new identity(), new SingleSessionManagerReference(), false);
         desktopPane.add(frame);
         frame.setVisible(true);
-        
-        
-        
+        addWindowMenuItem(frame);
+         
     }//GEN-LAST:event_jMenuItem1ActionPerformed
     
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
@@ -164,12 +187,8 @@ public class Testgnmed1 extends javax.swing.JFrame {
         
         Object[] selected = idFinder.getSelectedValues();
         for (int i = 0; i < selected.length; ++i) {
-            PatientInnerFrame frame = new PatientInnerFrame();
-            
-            identity id = (identity) selected[i];
-            id.setPersister(idFinder.getManagerRef());
-            frame.setIdentity(id);
-            frame.setDemographicsFrozen(true);
+            PatientInnerFrame frame =createPatientInnerFrame( (identity) selected[i], idFinder.getManagerRef(), true);
+           
             desktopPane.add(frame);
             frame.setVisible(true);
             addWindowMenuItem(frame);
@@ -187,7 +206,20 @@ public class Testgnmed1 extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_exitForm
     
-    
+    protected  PatientInnerFrame createPatientInnerFrame( identity id, Object persister, boolean freezeDemographics) {
+        PatientInnerFrame frame = new PatientInnerFrame();
+        id.setPersister(persister);
+        frame.setIdentity(id);
+        frame.setDemographicsFrozen(freezeDemographics);
+        frame.addInternalFrameListener(  new Testgnmed1.FocusIdentityListener() );
+        return frame;
+    }
+    class FocusIdentityListener extends InternalFrameAdapter {
+        public void internalFrameActivated( InternalFrameEvent event) {
+            PatientInnerFrame frame = (PatientInnerFrame) event.getInternalFrame();
+            setFocusedIdentity( frame.getIdentity());
+        }
+    }
     /** 
      * saves any unsaved edited records by invoking a internalFrameClosing event  on
      * each internal frame
@@ -217,6 +249,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
+    private javax.swing.JMenuItem contactsjMenuItem2;
     private javax.swing.JMenuItem contentMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem cutMenuItem;
@@ -226,10 +259,12 @@ public class Testgnmed1 extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;
     private javax.swing.JMenuItem pasteMenuItem;
+    private javax.swing.JMenuItem referraljMenuItem2;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JMenu windowMenu;
@@ -240,6 +275,9 @@ public class Testgnmed1 extends javax.swing.JFrame {
     java.util.List frameList = new ArrayList();
     
     FindIdentity idFinder;
+    
+    /** Holds value of property focusedIdentity. */
+    private identity focusedIdentity;
     
     /**
      * the action of selecting a window from the window menu.
@@ -290,6 +328,22 @@ public class Testgnmed1 extends javax.swing.JFrame {
         action.setEnabled(true);
         frame.addInternalFrameListener( new Testgnmed1.MenuItemRemovalOnInnerFrameCloseListener( windowMenu.add(action)) );
         
+    }
+    
+    /** Getter for property focusedIdentity.
+     * @return Value of property focusedIdentity.
+     *
+     */
+    public identity getFocusedIdentity() {
+        return this.focusedIdentity;
+    }
+    
+    /** Setter for property focusedIdentity.
+     * @param focusedIdentity New value of property focusedIdentity.
+     *
+     */
+    public void setFocusedIdentity(identity focusedIdentity) {
+        this.focusedIdentity = focusedIdentity;
     }
     
 }

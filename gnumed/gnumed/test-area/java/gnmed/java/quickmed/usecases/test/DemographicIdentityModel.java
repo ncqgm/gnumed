@@ -47,7 +47,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     /** Holds value of property managerReference. */
     private ManagerReference managerReference;
     
-    private AddressVaidator addressValidator;
+    private AddressValidator addressValidator;
     
     
     final static Logger logger = Logger.global;
@@ -55,41 +55,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     final static DateFormat shortestformat = new SimpleDateFormat("MM/yy");
-    // for reference only
-//    final static String lastTestedRegex = "([a-zA-Z\\s]+\\s?[0-9]*?)??[,|\\s]*(\\d+|\\d+\\w?|\\d+\\W+\\d+|\\w+\\s+\\d+\\W*\\d*)?[,|\\s]+([a-zA-Z\\s]++)?[,|\\s]+([a-zA-Z\\s]+)?[,|\\s]+([a-zA-Z\\s]+)?[,|\\s]*(\\d+)?";
    
-    final static String alphaPhraseOnly = "([a-zA-Z\\s]+)?";
-    final static String alphaPhrasePossesive = "([a-zA-Z\\s]++)?";
-    final static String buildingPat = "([a-zA-Z|\\s]+[0-9]*)??"; // relunctant unless sep by comma,
-                                                            // so 'unit' 'flat' phrase captured by number field.
-    final static String numberPat = "(\\d+|\\d+\\w?|\\d+\\W+\\d+|\\w+\\s+\\d+\\W*\\d*)?";
-    final static String streetPat = alphaPhrasePossesive;
-    final static String urbPat = alphaPhraseOnly;
-    final static String statePat= alphaPhraseOnly ;
-    final static String pcodePat = "(\\d+)?";
-    final static String sepPat = "[,|\\s]+";
-    final static String sepPatOpt = "[,|\\s]*";
-    final static String addressParseRegex = new StringBuffer()
-         .append(buildingPat).append(sepPatOpt)
-         .append(numberPat).append(sepPat)
-         .append(streetPat).append(sepPat).
-         append(urbPat).append(sepPat).
-         append(statePat).append(sepPatOpt).
-         append(pcodePat).toString();
-    
-    final static int buildPos = 1; // null if not present
-    final static int noPos = 2; // null if not present
-    final static int streetPos = 3; // if street is not given but urb is, then will shift urb into street
-                                // so if urb is null but street isn't check that street is not an urb.
-    final static int urbPos = 4;
-    final static int statePos = 5;  // null if not present
-    final static int pcodePos = 6;
-    /** this regex Pattern will produce null for any empty indexes; urb and state should
-     * preferably be comma separated
-     */
-    final static Pattern addressPattern = Pattern.compile(addressParseRegex);
-    
-    
     
     /** Holds value of property byteStream. */
     private ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -110,110 +76,6 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     
-    
-//    
-//    
-//    
-//    
-//    
-//    
-//    street createStreet(String street,  urb urb) throws Exception {
-//        Session s=  HibernateInit.openSession();
-//        street st = new street();
-//        st.setName(street);
-//        st.setUrb(urb);
-//        s.save(st);
-//        s.flush();
-//        s.connection().commit();
-//        s.close();
-//        logger.fine("CREATED STREET " + st.getName() + " in urb " + st.getUrb());
-//        logger.fine("urb name ="+ st.getUrb().getName());
-//        return st;
-//    }
-//    //
-//    //    urb findUrb( String urb, String state) throws Exception {
-//    //        urb u = null;
-//    //        Session sess = HibernateInit.openSession();
-//    //        u = (urb) sess.iterate("from org.gnumed.gmGIS.urb as urb"+
-//    //        " where urb.name like ? and "+
-//    //        " (urb.state.code = ? or urb.state.name like ?)",
-//    //        new Object[] { urb.toUpperCase() + "%" , state.toUpperCase() , state.toUpperCase() + "%" },
-//    //        new Type[] { Hibernate.STRING, Hibernate.STRING ,Hibernate.STRING }).next();
-//    //        return u;
-//    //
-//    //    }
-//    
-//    
-//    public  static boolean isStateString(String state) {
-//        try {
-//            Session s = HibernateInit.openSession();
-//            String v = state.toUpperCase().trim() ;
-//            logger.fine("SEEING IF " + v + " is a STATE STRING .");
-//            List l = s.find("select s from state s where upper(s.name) like ? or s.code like ?",
-//            new Object[] {v ,v } , new Type[] { Hibernate.STRING , Hibernate.STRING });
-//            s.connection().commit();
-//            s.disconnect();
-//            
-//            if (l.size() == 1) {
-//                logger.info(v + " is a state string");
-//                return true;
-//            }
-//            logger.info(v + " isn't a state string");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
-//    
-//    /**
-//     * this function will need to search for a match street
-//     */
-//    street findStreet( String street, String urb, String state) {
-//        try {
-//            street = street.trim();
-//            urb = urb.trim();
-//            if ( street.length() == 0 || urb.length() == 0)
-//                return undefinedStreet;
-//            
-//            urb u = findUrb(urb, state);
-//            logger.info("Using urb = "+ u.toString() + " name = " + u.getName() + "state = " + u.getState());
-//            Session sess = HibernateInit.openSession();
-//            Iterator it  = sess.iterate("from s in class org.gnumed.gmGIS.street "+
-//            " where s.name like ? and s.urb.id = ?",
-//            new Object[] { street + "%", u.getId()},
-//            new Type[] { Hibernate.STRING, Hibernate.INTEGER });
-//            if( ! it.hasNext())  {
-//                HibernateInit.closeSession(sess);
-//                return createStreet( street, u);
-//            }
-//            
-//            
-//            street s = (street) it.next() ;
-//            HibernateInit.closeSession(sess);
-//            if (s == null)
-//                return undefinedStreet;
-//            return s;
-//        } catch (Exception e) {
-//            logger.severe( e.toString());
-//            return undefinedStreet;
-//        }
-//        
-//    }
-//    
-//    /**
-//     * searches identity.identities_addresses for address of same type
-//     */
-//    void setAddressAttr(address a , address_type type) {
-//        identities_addresses ia = getIdentity().findIdentityAddressByAddressType(type);
-//        if (ia == null)
-//            ia = new identities_addresses();
-//        ia.setAddress_type(type);
-//        ia.setAddress(a);
-//        getIdentity().addIdentities_addresses(ia);
-//        logger.info("CREATED new identity_address of type " + type + ".  identities_addresses.size = " + Integer.toString(getIdentity().getIdentities_addressess().size()));
-//        setAddressEdited(a);
-//    }
-//    
     public void setTelephone( String telephone, enum_telephone_role role) {
         if (telephone == null || role==null || telephone.trim().equals(""))
             return;
@@ -325,7 +187,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     void configureAddressValidator() {
         
-        addressValidator = new AddressVaidator();
+        addressValidator = new AddressValidator();
         if ( getManagerReference() != null)
         addressValidator.setGisManager(getManagerReference().getGISManager());
     }
@@ -345,7 +207,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public Object getBirthdate() {
-        logger.info("****** identity ****** birthdate = " + getIdentity().getDob());
+//////        logger.info("****** identity ****** birthdate = " + getIdentity().getDob());
         return getIdentity().getDob();
     }
     
@@ -468,149 +330,13 @@ public class DemographicIdentityModel implements  DemographicModel {
         return ia.getAddress();
     }
     
-//    street findStreet( String street, String postcode) {
-//        try {
-//            street s = TestGISManager.instance().findStreetByNameAndUrb(street,
-//            findUrb(postcode) );
-//            return s;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//    
-//    urb findUrb( String postcode) {
-//        try {
-//            return  getManagerReference().getGISManager().findByPostcode(postcode);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//    urb findUrb( String name, String state) {
-//        if (state == null)
-//            state = "%";
-//        logger.info("urb name = " + name + " : state name = " + state);
-//        try {
-//            return  getManagerReference().getGISManager().findUrbByNameAndState(name, state);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//    
-//    address getAddressWithNumber( String number) {
-//        address a = findIdentityAddress( TestGISManager.homeAddress);
-//        if (a == null)
-//            a = new address();
-//        a.setNumber(number);
-//        return a;
-//    }
-//    
-//    street getStreetByName( String street, urb urb) {
-//        try {
-//            street s = getManagerReference().getGISManager().findStreetByNameAndUrb(street, urb );
-//            if ( s == null) {
-//                s = new street();
-//                logger.info("street created");
-//            }
-//            else logger.info("street found ");
-//            s.setUrb( urb );
-//            s.setName(street);
-//            logger.info( "street="  + s.getUrb().getName() + " : " + s.getName());
-//            return s;
-//            
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//    
-//    void setAddressObject( String number, String street, String postcode) {
-//        logger.info("Setting by number, street, postcode ");
-//        setAddressObject(number, getStreetByName( street, findUrb(postcode) ));
-//    }
-//    
-//    void setAddressObject( String number, String street, String urb, String state ) {
-//        setAddressObject( number, getStreetByName( street, findUrb(urb, state)));
-//    }
-//    
-//    void setAddressObject( String number, street street) {
-//        
-//        address a = getAddressWithNumber(number);
-//        a.setStreet(street);
-//        //        getIdentity().setIdentityAddress(homeAddress, a);
-//        getManagerReference().getGISManager().updateAddress(getIdentity(), TestGISManager.homeAddress, a);
-//        //    getUiModel().setAddress(getAddress());
-//    }
-    
+  
     
     
     public void setAddress(String addressStr) {
         getManagerReference().getGISManager().updateAddress(getIdentity(),
         TestGISManager.homeAddress, addressValidator.getAddress(addressStr));
-//        logger.info("trying to parse " + addressStr);
-//        Matcher m = addressPattern.matcher(new StringBuffer( addressStr.trim()));
-//        if(!m.find()) {
-//            logger.info("not parseable = " + addressStr);
-//            return;
-//        }
-//        String building = m.group(buildPos);
-//        String number = m.group(noPos);
-//        String streetS = m.group(streetPos);
-//        String urbS = m.group(urbPos);
-//        String state = m.group(statePos);
-//        String postcode = m.group(pcodePos);
-//        logger.info( " number = " + number + " street = " + streetS + " urbOrState = " + urbS + " postcode = " + postcode);
-//        
-//        street street = null;
-//        urb urb = null;
-//        address address = null;
-//        if (postcode != null)
-//            urb = findUrb(postcode);
-//        
-//        if (urb == null && urbS != null)
-//            urb = findUrb(urbS, state);
-//       
-//        if (urb == null)
-//            urb = getDefaultUrbFor(state);
-//        
-//        if (streetS != null)
-//            street = findStreet(street, urb);
-//        
-//        if ( street == null)
-//            street = getDefaultStreetFor(urb);
-//        
-//        address = getAddressFor( building, number, street);
-//        
-//         getManagerReference().getGISManager().updateAddress(getIdentity(), TestGISManager.homeAddress, address);
-//        //    getUiModel().setAddress(getAddress());    
-                
-                
-//                
-//        
-//        if ( state == null && isStateString(urbS) )
-//            setNoUrbAddress(building,  number, streetS, state, urbS, postcode);
-//        
-//        if ( number == null && streetS ==null && postcode != null)
-//            setNoStreetAddressByPostcode( 
-//        
-//        
-//        if ( number != null && urbOrState != null && streetContainsUrb(streetS) &&
-//        isStateString(urbOrState) ) {
-//            setAddressObject( number,  getStreetPartOnly(streetS), getUrbPartOnly(streetS), urbOrState);
-//            return;
-//        }
-//        if ( number != null && streetContainsUrb( streetS) && urbOrState == null) {
-//            setAddressObject( number, getStreetPartOnly(streetS), getUrbPartOnly(streetS), null);
-//            return;
-//        }
-//        if ( isStateString(getTwoParts(urbOrState)[1]) ) {
-//            setAddressObject( number, streetS, getTwoParts(urbOrState)[0], getTwoParts(urbOrState)[1]);
-//            return;
-//        }
-        
-    }
+   }
     
     public void setBirthdate(Object birthdate) {
         Date d = (Date) birthdate;

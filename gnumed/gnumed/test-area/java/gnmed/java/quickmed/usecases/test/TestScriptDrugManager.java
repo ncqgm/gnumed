@@ -29,7 +29,7 @@ public class TestScriptDrugManager {
     
     private  static TestScriptDrugManager manager;
     
-     
+    
     static {
         manager = new TestScriptDrugManager();
     };
@@ -48,7 +48,7 @@ public class TestScriptDrugManager {
     
     public List findScriptScript( identity id, product p) throws Exception {
         
-        Session sess =  getSession();  
+        Session sess =  getSession();
         List l = sess.find("select sd from script_drug sd inner join sd.identity i "+
         " where sd.product.id = ? and i.id = ?", new Object[] { p.getId(), id.getId() } ,
         new Type[] { Hibernate.INTEGER, Hibernate.INTEGER }      );
@@ -90,7 +90,7 @@ public class TestScriptDrugManager {
         List l = null;
         Session s = null;
         try {
-            s = getSession(); 
+            s = getSession();
             l = s.find("select p from product p inner join p.drug_element.generic_name n"
             + " where n.name like ? ",  name + "%" ,   Hibernate.STRING  );
         } catch (Exception e) {
@@ -105,7 +105,7 @@ public class TestScriptDrugManager {
         return l;
     }
     public List findPackagedProductByDrugName( String name) throws Exception {
-        Session s = getSession();  
+        Session s = getSession();
         List l = s.find("select p from package_size p inner join p.product.drug_element.generic_name n"
         + " where n.name like ? ",  name + "%" ,   Hibernate.STRING  );
         
@@ -114,10 +114,21 @@ public class TestScriptDrugManager {
     }
     
     public List doQuery( String query, String var, boolean closeSession) throws Exception {
-        Session s = getSession(); 
+        return doQuery(query, var, closeSession, true);
+    }
+    
+    public List doQuery( String query, String var, boolean closeSession, boolean newTransaction) throws Exception {
+        Session s = getSession();
+        if (newTransaction ) try {
+            s.connection().commit();
+        } catch (Exception e) {
+            
+            s.connection().rollback();
+            
+        }
         List l = s.find(query, var, Hibernate.STRING);
         if (closeSession)
-           getSession().disconnect();
+            getSession().disconnect();
         return l;
     }
     public static void  main( String[] args) throws Exception {
@@ -132,7 +143,7 @@ public class TestScriptDrugManager {
      *
      */
     public Session getSession() {
-       return getSessionHolder().getSession();
+        return getSessionHolder().getSession();
     }
     
     /** Setter for property session.

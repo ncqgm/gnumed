@@ -11,6 +11,7 @@ import net.sf.hibernate.cfg.Configuration;
 import java.lang.reflect.*;
 import gnmed.test.HibernateInit;
 import java.util.logging.*;
+import java.util.*;
 /**
  *
  * @author  syan
@@ -44,14 +45,16 @@ public class Utilities {
             s.reconnect();
         Object newObject = null;
         try {
-            newObject = s.iterate(query, params, types).next();
+           Iterator j  = s.iterate(query, params, types);
+           if (j.hasNext())
+               newObject = j.next();
             if (newObject != null) {
                 return newObject;
             }
             throw new  Exception("No object found");
         } catch (Exception e) {
             try {
-                logger.fine("Unable to find a " + targetClass.getName() + " with specified parameters . CREATING NEW ONE");
+                logger.info("Unable to find a " + targetClass.getName() + " with specified parameters . CREATING NEW ONE");
                 newObject = targetClass.newInstance();
                 for (int i = 0; i < paramSetters.length; ++i) {
                     paramSetters[i].invoke(newObject, new Object[] { params[i] } );
@@ -63,11 +66,11 @@ public class Utilities {
                 return newObject;
             } catch ( Exception e2) {
                 
-                HibernateInit.closeSession(s);
+               e2.printStackTrace();
                 throw e2;
             }
         } finally {
-            logger.fine("DISCONNECTING   " + s.toString());
+            logger.info("DISCONNECTING   " + s.toString());
             //  s.disconnect();
             s.disconnect();
             

@@ -191,7 +191,11 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
         jPopupMenu1 = new javax.swing.JPopupMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         buttonGroup1 = new javax.swing.ButtonGroup();
+        findProviderByRolePopupMenu = new javax.swing.JPopupMenu();
+        searchRoleMenuItem = new javax.swing.JMenuItem();
+        clearRoleSekectMenuItem = new javax.swing.JMenuItem();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -247,6 +251,33 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jMenuItem1.setMnemonic('a');
         jMenuItem1.setText("add role");
         jPopupMenu1.add(jMenuItem1);
+
+        jMenuItem2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("clear_selection"));
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearRoleTreeSelection(evt);
+            }
+        });
+
+        jPopupMenu1.add(jMenuItem2);
+
+        searchRoleMenuItem.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("search_role"));
+        searchRoleMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchRoleMenuItemActionPerformed(evt);
+            }
+        });
+
+        findProviderByRolePopupMenu.add(searchRoleMenuItem);
+
+        clearRoleSekectMenuItem.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("clear_selection"));
+        clearRoleSekectMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearRoleSekectMenuItemActionPerformed(evt);
+            }
+        });
+
+        findProviderByRolePopupMenu.add(clearRoleSekectMenuItem);
 
         setLayout(new java.awt.BorderLayout());
 
@@ -314,12 +345,18 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jPanel2.add(jButton5, new java.awt.GridBagConstraints());
 
         findjTree2.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("role")));
+        findjTree2.setToggleClickCount(1);
         findjTree2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 findjTree2KeyPressed(evt);
             }
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 findTreeSelectionTransferAction(evt);
+            }
+        });
+        findjTree2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                findByRoleMousePressed(evt);
             }
         });
 
@@ -445,12 +482,16 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jPanel4.add(jScrollPane3);
 
         jTree3.setToolTipText("shift left selects into the list, shift-right deletes from the list");
+        jTree3.setToggleClickCount(1);
         jTree3.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTree3KeyPressed(evt);
             }
         });
         jTree3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                roleTreeClicked(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 checkForPopup(evt);
             }
@@ -529,6 +570,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
         jPanel1.add(jCheckBox1, new java.awt.GridBagConstraints());
 
+        jTree1.setToggleClickCount(1);
         jTree1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 checkForPopup(evt);
@@ -555,6 +597,37 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
+
+    private void findByRoleMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_findByRoleMousePressed
+        // Add your handling code here:
+         if (evt.isPopupTrigger()) {
+            
+            findProviderByRolePopupMenu.show((java.awt.Component)evt.getSource(), evt.getX(), evt.getY());
+        }
+    }//GEN-LAST:event_findByRoleMousePressed
+
+    private void clearRoleSekectMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearRoleSekectMenuItemActionPerformed
+        // Add your handling code here:
+        findjTree2.clearSelection();
+    }//GEN-LAST:event_clearRoleSekectMenuItemActionPerformed
+
+    private void searchRoleMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchRoleMenuItemActionPerformed
+        // Add your handling code here:
+          searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), 1, "search for providers with role"));
+    }//GEN-LAST:event_searchRoleMenuItemActionPerformed
+
+    private void roleTreeClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_roleTreeClicked
+        // Add your handling code here:
+        if (evt.getClickCount() == 2)  
+            addSelectedRoleInTreeToList();
+        
+    }//GEN-LAST:event_roleTreeClicked
+
+    private void clearRoleTreeSelection(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearRoleTreeSelection
+        // Add your handling code here:
+//        findjTree2.clearSelection();
+        jTree3.clearSelection();
+    }//GEN-LAST:event_clearRoleTreeSelection
 
     private void findjTree2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_findjTree2KeyPressed
         // Add your handling code here:
@@ -590,7 +663,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         Object o = resultjList1.getSelectedValue();
         if ( o instanceof identity) {
             getController().setProvider( (identity ) o);
-          
+            getController().modelToUi();
             jTabbedPane1.setSelectedIndex(1);
         }
     }//GEN-LAST:event_editButtonActionPerformed
@@ -613,7 +686,10 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
             }
         }
         try {
+//            resultjList1.setListData( new Object[0]);
+            
             List l =  getController().getManagerReference().getIdentityManager().findProviders( lastName, firstName, (identity_role[])roles.toArray( new identity_role[0] ));
+            
             resultjList1.setListData(l.toArray());
         } catch (Exception e) {
             e.printStackTrace();
@@ -670,9 +746,11 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addressjTextField5;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JMenuItem clearRoleSekectMenuItem;
     private javax.swing.JTextArea commentText;
     private javax.swing.JButton editButton;
     private javax.swing.JTextField faxjTextField7;
+    private javax.swing.JPopupMenu findProviderByRolePopupMenu;
     private javax.swing.JTree findjTree2;
     private javax.swing.JTextField firstNamesjTextField4;
     private javax.swing.JButton jButton1;
@@ -698,6 +776,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JLabel jLabel9;
     private javax.swing.JList jList2;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -721,6 +800,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JTextField pagerjTextField4;
     private javax.swing.JList resultjList1;
     private javax.swing.JTextField searchNamesjTextField2;
+    private javax.swing.JMenuItem searchRoleMenuItem;
     private javax.swing.JTextField telephonejTextField6;
     // End of variables declaration//GEN-END:variables
     
@@ -899,6 +979,18 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jComboBox1.setEditable(true);
         jComboBox1.setSelectedItem(sex);
         jComboBox1.setEditable(false);
+    }
+    
+    /** Getter for property selectedProvider.
+     * @return Value of property selectedProvider.
+     *
+     */
+    public identity getSelectedProvider() {
+        Object o = resultjList1.getSelectedValue();
+        if (o != null && o instanceof identity) {
+            return (identity) o;
+        }
+        return null;
     }
     
 }

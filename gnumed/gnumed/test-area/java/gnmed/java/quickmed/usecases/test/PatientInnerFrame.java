@@ -40,6 +40,11 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setResizable(true);
         setTitle("Medical Record");
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                formFocusGained(evt);
+            }
+        });
         addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
             public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
             }
@@ -63,6 +68,11 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
 
         pack();
     }//GEN-END:initComponents
+
+    private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
+        // Add your handling code here:
+        getPatientRelator().setClient(getIdentity());
+    }//GEN-LAST:event_formFocusGained
     
     private void formInternalFrameClosing(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosing
         // Add your handling code here:
@@ -143,6 +153,22 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
         summaryPanel1.setDemographicsFrozen(demographicsFrozen);
     }
     
+    /** Getter for property patientRelator.
+     * @return Value of property patientRelator.
+     *
+     */
+    public ClientProviderRelatable getPatientRelator() {
+        return this.patientRelator;
+    }
+    
+    /** Setter for property patientRelator.
+     * @param patientRelator New value of property patientRelator.
+     *
+     */
+    public void setPatientRelator(ClientProviderRelatable patientRelator) {
+        this.patientRelator = patientRelator;
+    }
+    
     //
     //    public String getTitle() {
     //        if (getIdentity() != null) {
@@ -154,6 +180,9 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
+
+    /** Holds value of property patientRelator. */
+    private ClientProviderRelatable patientRelator;    
     
     
 }

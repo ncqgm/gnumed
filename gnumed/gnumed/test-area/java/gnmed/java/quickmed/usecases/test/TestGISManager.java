@@ -330,16 +330,53 @@ public class TestGISManager {
         
     }
     
+    public state createOrFindState(String stateStr, String code) {
+         state s = findState(stateStr );
+        if (s == null) {
+            s.setName(stateStr);
+            s.setCode(code);
+            try {
+            getSession().save(s);
+            getSession().flush();
+            getSession().connection().commit();
+            getSession().disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+         return s;
+        
+    }
+    
     /**
      * adds a default address of the type
      */
     public address addDefaultAddress( identity id ,address_type type) {
-        address a = new address();
-        a.setNumber("unknown address");
-        updateAddress(id, type, a);
-        return a;
+       address a = createOrFindDefaultAddress();
+       if (a != null) {
+           identities_addresses ia = new identities_addresses();
+           ia.setAddress(a);
+           ia.setAddress_type(type);
+           ia.setIdentity(id);
+       }
+       return a;
     }
     
+    public address createOrFindDefaultAddress() {
+         address a = null;
+        state s = createOrFindState(Globals.bundle.getString("unknown"), Globals.bundle.getString("unknown"));
+        
+        
+        urb u = createOrFindNamedUrb(Globals.bundle.getString("unknown"),   s);
+        try {
+        street street = createStreet(Globals.bundle.getString("unknown"), u);
+        a = createOrFindAddress("", street);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+     
+        return a;
+    }
     
     /** finds an address by type, or null if no address of that type exists for this identity
      */
