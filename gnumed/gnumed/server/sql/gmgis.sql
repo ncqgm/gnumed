@@ -143,7 +143,7 @@ where
 	and
 	str.id_urb = u.id
 	and
-	u.statecode = s.id
+	u.statecode = s.id;
 
 
 
