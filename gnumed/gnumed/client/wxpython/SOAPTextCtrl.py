@@ -22,7 +22,7 @@ highlighted headings which are protected from user editing.
 A pluggable autocompletion mechanism is provided
 """
 
-import string, re
+import string, re, time
 
 from wxPython.wx import *
 from wxPython.stc import *
@@ -52,8 +52,10 @@ class myTimer (wxTimer):
     def Notify (self):
         self.funct ()
 
+        
+
 class SOAPTextCtrl (wxStyledTextCtrl):
-    def ReplaceText (self, start, length, text, style=-1):
+    def ReplaceText (self, start, length, text, style=-1, space=0):
         """
         Oddly, the otherwise very rich wxSTC API does not provide an
         easy way to replace text, so we provide it here.
@@ -65,11 +67,13 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         """
         self.SetTargetStart (start)
         self.SetTargetEnd (start+length)
-        self.ReplaceTarget (text)
+        if space:
+            self.ReplaceTarget (text + " ")
+        else:
+            self.ReplaceTarget (text)
         if style > -1:
             self.StartStyling (start, 0xFF)
-            self.SetStyling (length, style)
-
+            self.SetStyling (len (text), style)
 
     def __get_word_by_style (self, pos, style):
         oldpos = pos
@@ -78,7 +82,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         while pos < m and self.GetStyleAt (pos) == style:
             s += chr (self.GetCharAt (pos))
             pos += 1
-        oldpos = oldpos-1
+        pos = oldpos-1
         while pos >= 0  and self.GetStyleAt (pos) == style:
             s = chr (self.GetCharAt (pos)) + s
             pos -= 1
@@ -140,7 +144,9 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         self.AutoCompStops ("()<>,.;:'\"[]{}\\|/? !@#$%^&*")
         self.__embeds = {}
         self.autocompstr = ''
-        self.__ids = {}
+        self.__data = {}
+        self.__text = None
+        self.__we_are_new = 1
         self.headers = self.GetHeaders ()
         self.timer = None
         self.__popup = None
@@ -153,11 +159,28 @@ class SOAPTextCtrl (wxStyledTextCtrl):
 
     def GetHeaders (self):
         """
-        Sets the list of headers
-
+        Sets the list of headers, must be overrided by descendants
+        - header: the string labelling the section
+        - type: one of TEXT, NUMBER, DATE, SELECTION
+        SELECTION behaves like text except the match provider result replaces
+        all text in that section
         @return: list of tuple (header, type, match provider, poppers)
         """
         return []
+
+
+    def GetSummary (self, data):
+        """
+        Returns a brief summary string for displaying in embeds
+        """
+        return 'SOAP'
+
+
+    def Process (self, data):
+        """
+        Performs processing: i.e. commits data to the backend
+        """
+        pass
     
     def ClearAll (self):
         """
@@ -178,8 +201,11 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         wxStyledTextCtrl.ClearAll (self)
         self.SetEOLMode (wxSTC_EOL_LF)
         self.__write_headings (data or {})
-        if data and data.has_key ('__ids'):
-            self.__ids = data['__ids']
+        if data and data.has_key ('__data'):
+            self.__we_are_new = 0
+            self.__data = data['__data']
+        if data and data.has_key ('__text'):
+            self.__text = data['__text']
 
     def __write_headings (self, data={}):
         pos = 0
@@ -193,20 +219,99 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             self.SetStyling (len (heading)+1, STYLE_HEADER)
             pos += len (text)
             
-        self.GotoPos (len (self.headers[0][0])+1)
         self.section = 0
         self.section_start = len (self.headers[0][0])+1
         self.section_end = len (self.headers[0][0])+1
         if data.has_key (self.headers[0][0]):
             self.section_end += 1+len (data[self.headers[0][0]])
-
+        self.GotoPos (self.section_end)
+        
     def __validate_number (self):
-        pass
+        s = ''
+        pos = self.section_start
+        while pos < self.GetLength () and self.GetCharAt (pos) != 10: 
+            s += chr (self.GetCharAt (pos))
+            pos += 1
+        s = s.strip ()
+        try:
+            self.__data[self.headers[self.section][0]] = float (s)
+            return 1
+        except:
+            #wxMessageBox ("%s is not a valid number" % s, "Invalid entry", wxICON_ERROR | wxOK)
+            wxBell ()
+            return 0
 
     def __validate_date (self):
-        pass
+        s = ''
+        pos = self.section_start
+        while pos < self.GetLength () and self.GetCharAt (pos) != 10: 
+            s += chr (self.GetCharAt (pos))
+            pos += 1
+        s_len = len (s)
+        s = s.strip ()
+        t = time.localtime (time.time ())
+        year = -1
+        unit = ''
+        day = t[2]
+        month = t[1]
+        year = t[0]
+        m = re.match ("([0-9]+)/([0-9]+)$", s)
+        if m:
+            day = int (m.group (1))
+            month = int (m.group (2))
+            if month < t[1] or (month == t[1] and day < t[2]):
+                year +=1
+            self.display_date (day, month, year, s_len)
+            return 1
+        else:
+            m = re.match ("([0-9]+)([%s])" % _('dwmy'), s)
+            if m:
+                incr = int (m.group (1))
+                unit = m.group (2)
+            else:
+                m = re.match ("-([0-9]+)([%s])" % _('dwmy'), s)
+                if m:
+                    incr = -int (m.group (1))
+                    unit = m.group (2)
+            if unit:
+                incr *= 86400 # day in seconds
+                if unit == _('dwmy')[1]:
+                    incr *= 7 # a week is 7 days
+                elif unit == _('dwmy')[2]:
+                    incr *= 30
+                elif unit == _('dwmy')[3]:
+                    incr *= 365
+                # now we have offset in seconds
+                t = time.time () # UNIX time (seconds since 1970)
+                t += incr # do offset
+                t = time.localtime (t)
+                year = t[0]
+                month = t[1]
+                day = t[2]
+                self.display_date (day, month, year, s_len)
+                return 1
+            else:
+                m = re.match ("([0-9]+)/([0-9]+)/([0-9]+)", s)
+                if m:
+                    day = int (m.group (1))
+                    month = int (m.group (2))
+                    year = int (m.group (3))
+                    self.__data[self.headers[self.section][0]] = (day, month, year)
+                    return 1
+                else:
+                    #wxMessageBox ("%s is not a valid date" % s, "Invalid entry", wxICON_ERROR | wxOK)
+                    wxBell ()
+                    return 0
+        
 
-    def __selectionBad (self):
+    def display_date (self, day, month, year, s_len):
+        self.ReplaceText (self.section_start, s_len, "%d/%d/%d" % (day, month, year))
+        self.__data[self.headers[self.section][0]] = (day, month, year)
+
+    def __selectionBad (self, start, end):
+        for i in range (start, end):
+            if self.GetStyleAt (i) in [STYLE_HEADER, STYLE_EMBED]:
+                return 1
         return 0
     
     def Embed (self, text, clas, state):
@@ -215,9 +320,13 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         while self.__embeds.has_key (text + ending):
             n += 1
             ending = '#%d' % n
+        state['__text'] = text+ending
         self.__embeds[text+ ending] = {'class':clas, 'state':state}
-        self.ReplaceText (self.GetCurrentPos ()-self.replace_len, self.replace_len, text+ending, STYLE_EMBED)
-        
+        self.ReplaceText (self.GetCurrentPos ()-self.replace_len, self.replace_len, text+ending, STYLE_EMBED, 1)
+        self.GotoPos (self.GetCurrentPos ()+len (text+ending)+1)
+
+    def Reembed (self, state):
+        self.__embeds[state['__text']]['state'] = state
 
     def get_data (self):
         """
@@ -225,6 +334,16 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         If parsing fails (ie. the user has edited the headers
         despite my best efforts to prevent that) the whole
         widget text is returned under the key 'text'
+
+        Extra fields used:
+        __text: the label for this widget used in an embed
+        __data: a dictionary by header label, for SELECTION types
+        the backend ID returned by the match provider,
+        None or not present if the user has made no selection
+        (there still may be text under this heading, which
+        should be used as a new value) For DATE a value as
+        (day, month, year) triple may be present, for NUMBER
+        a Python numeric object may be present
 
         @rtype: dictionary of strings
         @return: dictionary keyed by header name
@@ -238,9 +357,11 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             ret = {}
             i = 1
             for hdr, type, matcher, poppers in self.headers:
-                ret[hdr] = mo.group (i)
+                ret[hdr] = string.strip (mo.group (i))
                 i += 1
-            ret['__ids'] = self.__ids
+            ret['__data'] = self.__data
+            if self.__text:
+                ret['__text'] = self.__text
             return ret
 
         
@@ -257,17 +378,22 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             return
         hdr, typ, matcher, poppers = self.headers[self.section]
         if event.KeyCode () == WXK_RETURN:
-            if self.GetCharAt (pos) == 10 and not event.ControlDown ():
+            if self.GetCharAt (pos) == 10 and not event.AltDown ():
                 # we are at the end of a line
                 self.__cursorMoved (pos + 1)
             elif self.GetStyleAt (pos) in  [STYLE_HEADER, STYLE_EMBED]:
                 self.__cursorMoved (pos)
             else:
                 if typ == TEXT:
-                    event.Skip ()
+                    self.InsertText (self.GetCurrentPos (), chr (10))
+                    self.GotoPos (self.GetCurrentPos ()+1)
         elif event.KeyCode () == WXK_F12:
             if self.popup:
-                self.parent.Embed (self.GetSummary (), self.get_data ())
+                data = self.get_data ()
+                if self.__we_are_new:
+                    self.parent.Embed (self.GetSummary (data), self.__class__, data)
+                else:
+                    self.parent.Reembed (data)
                 self.parent.SetFocus ()
                 self.Destroy ()
             else:
@@ -305,9 +431,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             if event.KeyCode () == WXK_BACK and pos > 0:
                 pos -= 1
             style = self.GetStyleAt (pos)
-            if self.__selectionBad ():
-                return
-            elif style == STYLE_HEADER:
+            if style == STYLE_HEADER:
                 # this should never happen
                 self.__cursorMoved (pos)
             elif style == STYLE_EMBED:
@@ -322,11 +446,11 @@ class SOAPTextCtrl (wxStyledTextCtrl):
                     if chr(event.KeyCode ()) in '0123456789.,-+E\x08\x7F':
                         event.Skip ()
                 elif typ == DATE:
-                    if chr (event.KeyCode ()) in '0123456789/.-DWMY\x08\x7F':
+                    if chr (event.KeyCode ()) in '0123456789/.-%s\x08\x7F' % _('dwmy').upper ():
                         event.Skip ()
                 elif typ == SELECTION:
-                    if self.__ids.has_key (hdr):
-                        del self.__ids[hdr]
+                    if self.__data.has_key (hdr):
+                        del self.__data[hdr]
                     event.Skip ()
                 else:
                     event.Skip ()
@@ -349,7 +473,18 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             pass
 
     def __cursorMoved (self, pos):
+        oldpos = self.GetCurrentPos ()
         m = self.GetLength ()
+        moved_section = pos < self.section_start or pos-oldpos > 1 or pos >= m
+        hdr, typ, matcher, poppers = self.headers[self.section]
+        if moved_section and typ == NUMBER:
+            if not self.__validate_number ():
+                self.GotoPos (oldpos)
+                return
+        if moved_section and typ == DATE:
+            if not self.__validate_date ():
+                self.GotoPos (oldpos)
+                return
         if pos < m:
             style = self.GetStyleAt (pos)
             if style == STYLE_HEADER:
@@ -359,16 +494,9 @@ class SOAPTextCtrl (wxStyledTextCtrl):
                 if pos < start+len (word)-1:
                     self.GotoPos (start+len (word))
                 else:
-                    self.GotoPos (start-1)
+                    self.GotoPos (start)
                 self.__pop (self.__embeds[word]['class'], self.__embeds[word]['state'])
             else:
-                oldpos = self.GetCurrentPos ()
-                moved_section = pos < self.section_start or pos-oldpos > 1
-                hdr, typ, matcher, poppers = self.headers[self.section]
-                if moved_section and typ == NUMBER:
-                    self.__validate_number ()
-                if moved_section and typ == DATE:
-                    self.__validate_date ()
                 self.__calc_section (pos)
                 hdr, typ, matcher, poppers = self.headers[self.section]
                 self.GotoPos (pos)
@@ -381,7 +509,11 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         else:
             if self.popup:
                 self.parent.SetFocus ()
-                self.parent.Embed (self.GetSummary (), self.get_data ())
+                data = self.get_data ()
+                if self.__we_are_new:
+                    self.parent.Embed (self.GetSummary (data), self.__class__, data)
+                else:
+                    self.parent.Reembed (data)
                 self.Destroy ()
                 
     def __userlist (self, event):
@@ -393,7 +525,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         else:
             start = self.section_start
             pos = self.section_end
-            self.__ids[hdr] = self.__map_text_to_id[text]
+            self.__data[hdr] = self.__map_text_to_id[text]
         self.SetTargetEnd (pos)
         self.SetTargetStart (start)
         self.ReplaceTarget (text)
@@ -443,13 +575,13 @@ class SOAPTextCtrl (wxStyledTextCtrl):
 ### For testing only
 
 
-class RxCtrl (SOAPTextCtrl):
+class RecallCtrl (SOAPTextCtrl):
     def GetHeaders (self):
-        return [('Drug', TEXT, None, {}),
-                ('Dose', TEXT, None, {}),
-                ('Frequency', NUMBER, None, {}),
+        return [('Reason', TEXT, None, {}),
                 ('Date', DATE, None, {})]
 
+    def GetSummary (self, data):
+        return 'recall -- %s' % data['Reason']
         
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
@@ -471,7 +603,7 @@ class MySOAPCtrl (SOAPTextCtrl):
             (_('Subjective'), TEXT, cMatchProvider_FixedList (Subjlist), {}),
             (_('Objective'), TEXT, None, {}),
             (_('Assessment'), SELECTION, cMatchProvider_FixedList (AOElist), {}),
-            (_('Plan'), TEXT, cMatchProvider_FixedList (Planlist), {'prescribe':RxCtrl})
+            (_('Plan'), TEXT, cMatchProvider_FixedList (Planlist), {'recall':RecallCtrl})
             ]
 
 
