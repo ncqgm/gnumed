@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.2 2003-04-05 00:39:23 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.3 2003-04-28 12:08:35 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -39,7 +39,7 @@ class gmClinicalPanel (wxPanel):
 		self.__gb = gmGuiBroker.GuiBroker ()
 		self.wholescreen = {}
 		self.lefthalf = {}
-		self.visible = '' # plugin currectly visible in left or whole screen
+		self.visible_plugin = '' # plugin currently visible in left or whole screen
 		self.default = '' # set by one plugin!
 		self.righthalf = {}
 		self.sizer = wxBoxSizer (wxHORIZONTAL)
@@ -69,16 +69,16 @@ class gmClinicalPanel (wxPanel):
 		"""
 		self.wholescreen[name] = panel
 		panel.Show (0)
-		_log.Log(gmLog.lData, "******* Registering %s as whole screen widget" % name)
+		_log.Log(gmLog.lData, "registering whole screen [%s]" % name)
 	#----------------------------------------------
 	def RegisterLeftSide (self, name, panel):
 		"""Register for left side.
 		"""
 		panel.Show (0)
 		self.lefthalf[name] = panel
-		_log.Log(gmLog.lData, "******* Registering %s as left side widget" % name)
+		_log.Log(gmLog.lData, "registering left side [%s]" % name)
 	#----------------------------------------------
-	def RegisterRightSide (self, name, panel, position =1):
+	def RegisterRightSide (self, name, panel, position = 1):
 		"""Register for right column.
 
 		Panel must be self.righthalfpanel
@@ -86,20 +86,20 @@ class gmClinicalPanel (wxPanel):
 		automatically displayed when a left-column plugin is displayed
 		"""
 		self.righthalf[name] = (panel, position)
-		panel.Show (0)
-		_log.Log(gmLog.lData, "******* Registering %s as right side widget" % name)
+		panel.Show(0)
+		_log.Log(gmLog.lData, "registering right side [%s]" % name)
 	#----------------------------------------------
 	# FIXME: Someone please document what is happening here !!!
 	def Unregister (self, name):
 		if name == self.default:
-			_log.Log(gmLog.lErr, 'Cannot unregister [%s] - it is the default plugin.' % name)
+			_log.Log(gmLog.lErr, 'cannot unregister default plugin [%s]' % name)
 		else:
-			if self.visible == name:
+			if self.visible_plugin == name:
 				self.Display (self.default)
-			_log.Log(gmLog.lInfo, 'Unregistering widget %s' % name)
+			_log.Log(gmLog.lInfo, 'Unregistering plugin [%s]' % name)
 			if self.righthalf.has_key (name):
-				# self.visible is the name of the whole screen widget if any
-				if self.lefthalf.has_key (self.visible):
+				# self.visible_plugin is the name of the whole screen widget if any
+				if self.lefthalf.has_key (self.visible_plugin):
 					self.vbox.Remove (self.righthalf[name][0])
 					self.vbox.Layout ()
 				del self.righthalf[name]
@@ -118,44 +118,44 @@ class gmClinicalPanel (wxPanel):
 		elif self.lefthalf.has_key (name):
 			self.DisplayLeft (name)
 		else:
-			_log.Log(gmLog.lErr, 'Widget %s not registered' % name)
+			_log.Log(gmLog.lErr, 'no plugin [%s] registered' % name)
 	#----------------------------------------------
 	def DisplayWhole (self, name):
-		_log.Log(gmLog.lData, 'displaying whole screen widget %s' % name)
-		if self.wholescreen.has_key (self.visible):
+		_log.Log(gmLog.lData, 'displaying whole screen plugin [%s]' % name)
+		if self.wholescreen.has_key (self.visible_plugin):
 			# already in full-screen mode
-			self.wholescreen[self.visible].Show (0)
+			self.wholescreen[self.visible_plugin].Show (0)
 			self.sizer.Remove (0)
 			self.sizer.Add (self.wholescreen[name])
 			self.wholescreen[name].Show (1)
 			self.sizer.Layout ()
-			self.visible = name
+			self.visible_plugin = name
 		else:
-			if self.lefthalf.has_key (self.visible):
+			if self.lefthalf.has_key (self.visible_plugin):
 				# remove left half and right column
 				self.sizer.Remove (0)
-				self.lefthalf[self.visible].Show (0)
+				self.lefthalf[self.visible_plugin].Show (0)
 				self.righthalfshadow.Show (0)
 				self.sizer.Remove (self.righthalfshadow)
 			# now put whole screen in
 			self.wholescreen[name].Show (1)
 			self.sizer.Add (self.wholescreen[name], 1, wxEXPAND, 0)
-			self.visible = name
+			self.visible_plugin = name
 			self.sizer.Layout ()
 	#----------------------------------------------
 	def DisplayLeft (self, name):
-		_log.Log(gmLog.lData, 'displaying left screen widget %s' % name)
-		if self.lefthalf.has_key (self.visible):
-			self.sizer.Remove (self.lefthalf[self.visible])
-			self.lefthalf[self.visible].Show (0)
+		_log.Log(gmLog.lData, 'displaying left screen plugin [%s]' % name)
+		if self.lefthalf.has_key (self.visible_plugin):
+			self.sizer.Remove (self.lefthalf[self.visible_plugin])
+			self.lefthalf[self.visible_plugin].Show (0)
 			self.lefthalf[name].Show (1)
 			self.sizer.Prepend (self.lefthalf[name], 2, wxEXPAND, 0)
 			self.sizer.Layout ()
-			self.visible = name
+			self.visible_plugin = name
 		else:
-			if self.wholescreen.has_key (self.visible):
-				self.sizer.Remove (self.wholescreen[self.visible])
-				self.wholescreen[self.visible].Show (0)
+			if self.wholescreen.has_key (self.visible_plugin):
+				self.sizer.Remove (self.wholescreen[self.visible_plugin])
+				self.wholescreen[self.visible_plugin].Show (0)
 			self.lefthalf[name].Show (1)
 			self.sizer.Add (self.lefthalf[name], 2, wxEXPAND, 0)
 			self.vbox = wxBoxSizer (wxVERTICAL)
@@ -173,15 +173,17 @@ class gmClinicalPanel (wxPanel):
 			self.righthalfshadow.Show (1)
 			self.sizer.Add (self.righthalfshadow, 1, wxEXPAND, 0) 
 			self.sizer.Layout ()
-			self.visible = name
+			self.visible_plugin = name
 	#----------------------------------------------
-	def GetVisible (self):
-		return self.visible
+	def GetVisiblePlugin(self):
+		return self.visible_plugin
 #==================================================
 class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 
+	tab_name = _("Clinical")
+
 	def name (self):
-		return _("Clinical")
+		return gmClinicalWindowManager.tab_name
 	#----------------------------------------------
 	def MenuInfo (self):
 		return None # we add our own submenu
@@ -198,7 +200,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		self.gb['clinical.submenu'] = ourmenu
 		menu = self.gb['main.viewmenu']
 		self.menu_id = wxNewId ()
-		menu.AppendMenu (self.menu_id, '&Clinical', ourmenu, self.name ())
+		menu.AppendMenu (self.menu_id, _('&Clinical'), ourmenu, self.name ())
 		# "patient" needs fixing
 		plugin_list = gmPlugin.GetPluginLoadList('patient')
 		# "patient" needs fixing
@@ -214,7 +216,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 				_log.LogException("file [%s] doesn't seem to be a plugin" % plugin, sys.exc_info(), fatal=0)
 		#self.panel.Show (0)
 		self.panel.DisplayDefault()
-		self.gb['toolbar.%s' % self.name()].Realize()
+		self.gb['toolbar.%s' % self.internal_name()].Realize()
 	#----------------------------------------------
 	def unregister (self):
 		# tidy up after ourselves
@@ -224,10 +226,15 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		# FIXME: should we unregister () each of our sub-modules?
 	#----------------------------------------------
 	def ReceiveFocus(self):
-		self.gb['modules.patient'][self.panel.GetVisible()].Shown()
+		self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.2  2003-04-05 00:39:23  ncq
+# Revision 1.3  2003-04-28 12:08:35  ncq
+# - more intuitive internal variable names
+# - use plugin.internal_name()
+# - leaner logging
+#
+# Revision 1.2  2003/04/05 00:39:23  ncq
 # - "patient" is now "clinical", changed all the references
 #
 # Revision 1.1  2003/04/04 23:15:46  ncq
