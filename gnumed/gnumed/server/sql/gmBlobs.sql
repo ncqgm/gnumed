@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.23 $ $Date: 2003-01-17 00:23:09 $ $Author: ncq $
+-- $Revision: 1.24 $ $Date: 2003-01-20 19:55:31 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -19,48 +19,55 @@ CREATE TABLE "doc_type" (
 	"name" character varying(40) unique
 );
 
--- English
-INSERT into doc_type(name) values(_('discharge summary internal'));
-INSERT into doc_type(name) values(_('discharge summary surgical'));
-INSERT into doc_type(name) values(_('discharge summary psychiatric'));
-INSERT into doc_type(name) values(_('discharge summary neurological'));
-INSERT into doc_type(name) values(_('discharge summary orthopaedic'));
-INSERT into doc_type(name) values(_('discharge summary other'));
+INSERT into doc_type(name) values(i18n('discharge summary internal'));
+INSERT into doc_type(name) values(i18n('discharge summary surgical'));
+INSERT into doc_type(name) values(i18n('discharge summary psychiatric'));
+INSERT into doc_type(name) values(i18n('discharge summary neurological'));
+INSERT into doc_type(name) values(i18n('discharge summary orthopaedic'));
+INSERT into doc_type(name) values(i18n('discharge summary other'));
 
-INSERT into doc_type(name) values(_('referral report internal'));
-INSERT into doc_type(name) values(_('referral report surgical'));
-INSERT into doc_type(name) values(_('referral report ENT'));
-INSERT into doc_type(name) values(_('referral report eye'));
-INSERT into doc_type(name) values(_('referral report urology'));
-INSERT into doc_type(name) values(_('referral report orthopaedic'));
-INSERT into doc_type(name) values(_('referral report neuro'));
-INSERT into doc_type(name) values(_('referral report radiology'));
-INSERT into doc_type(name) values(_('referral report other'));
-INSERT into doc_type(name) values(_('referral report cardiology'));
-INSERT into doc_type(name) values(_('referral report psychotherapy'));
+INSERT into doc_type(name) values(i18n('referral report internal'));
+INSERT into doc_type(name) values(i18n('referral report surgical'));
+INSERT into doc_type(name) values(i18n('referral report ENT'));
+INSERT into doc_type(name) values(i18n('referral report eye'));
+INSERT into doc_type(name) values(i18n('referral report urology'));
+INSERT into doc_type(name) values(i18n('referral report orthopaedic'));
+INSERT into doc_type(name) values(i18n('referral report neuro'));
+INSERT into doc_type(name) values(i18n('referral report radiology'));
+INSERT into doc_type(name) values(i18n('referral report other'));
+INSERT into doc_type(name) values(i18n('referral report cardiology'));
+INSERT into doc_type(name) values(i18n('referral report psychotherapy'));
 
 -- add any number of types here, this is just to give you an idea
 
 -- =============================================
+--create view v_i18n_doc_type as
+--	select
+--		doc_type.id,
+--		i18n_translations.trans as name
+--	from
+--		doc_type,
+--		i18n_translations
+--	where (
+--		i18n_translations.lang = (select lang from i18n_curr_lang where owner = CURRENT_USER::varchar)
+--	) and (
+--		doc_type.name = i18n_translations.orig
+--	)
+--	;
+
 create view v_i18n_doc_type as
 	select
 		doc_type.id,
-		i18n_translations.trans as name
+		_(doc_type.name)
 	from
-		doc_type,
-		i18n_translations
-	where (
-		i18n_translations.lang = (select lang from i18n_curr_lang where owner = CURRENT_USER::varchar)
-	) and (
-		doc_type.name = i18n_translations.orig
-	)
+		doc_type
 	;
 
 -- =============================================
 CREATE TABLE "doc_med" (
 	"id" serial primary key,
 	"patient_id" integer references identity not null,
-	"type" integer references doc_type(id) not null,
+	"type" integer references v_i18n_doc_type(id) not null,
 	"comment" character varying(60) not null,
 	"date" character varying(20) not null,
 	"ext_ref" character varying (40) not null
@@ -122,14 +129,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"doc_med",
 	"doc_med_id_seq",
 	"doc_type",
-	"v_i18n_doc_type",
 	"doc_med_external_ref"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- questions:
