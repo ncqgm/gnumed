@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.28 2004-07-19 11:50:43 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPlugin.py,v 1.29 2004-07-19 13:54:25 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -250,94 +250,58 @@ def instantiate_plugin(aPackage='--??--', plugin_name='--??--'):
 def GetPluginLoadList(set):
 	"""Get a list of plugins to load.
 
-	1) look in database
-	2) look into source directory
-	 a) check for plugins.conf
-	 b) scan directly
-	 c) store in database
+	1) from database
+	2) from source directory (store in database)
 	"""
 	curr_workplace = _whoami.get_workplace()
 
-	p_list, match = gmCfg.getFirstMatchingDBSet(
+	p_list, match = gmCfg.getFirstMatchingDBSet (
 		workplace = curr_workplace,
-		cookie = str(set),
-		option = 'plugin load order'
-	)
-
-	# get connection for possible later use
-	gb = gmGuiBroker.GuiBroker()
-	db = gmPG.ConnectionPool()
-	conn = db.GetConnection(service = "default")
-	dbcfg = gmCfg.cCfgSQL(
-		aConn = conn,
-		aDBAPI = gmPG.dbapi
+		option = 'plugin load order',
+		cookie = str(set)
 	)
 
 	if p_list is not None:
 		# found plugin load list for this user/this workplace
 		if match == 'CURRENT_USER_CURRENT_WORKPLACE':
-			db.ReleaseConnection(service = "default")
 			return p_list
-		# all other cases of user/workplace pairing:
+		# all other user/workplace pairings:
 		# store plugin list for the current user/current workplace
-		rwconn = db.GetConnection(service = "default", readonly = 0)
-		dbcfg.set(
+		gmCfg.setDBParam(
 			workplace = curr_workplace,
+			user = _whoami.get_db_account(),
 			option = 'plugin load order',
 			value = p_list,
-			cookie = str(set),
-			aRWConn = rwconn
+			cookie = str(set)
 		)
-		rwconn.close()
-		db.ReleaseConnection(service = "default")
 		return p_list
 
-	_log.Log(gmLog.lInfo, "No plugin load order stored in database. Trying local config file.")
+	_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
 
-	# search in plugin directory
-	plugin_conf_name = os.path.join(gb['gnumed_dir'], 'wxpython', set, 'plugins.conf')
-	try:
-		fCfg = gmCfg.cCfgFile(aFile = plugin_conf_name)
-	except:
-		_log.LogException('cannot open plugin load order config file [%s]' % plugin_conf_name, sys.exc_info(), verbose=0)
-		fCfg = None
+	# parse plugin directory
+	search_path = os.path.join(gb['gnumed_dir'], 'wxpython', set)
+	files = os.listdir(search_path)
+	_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (set, gb['gnumed_dir']))
+	_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
+	_log.Log(gmLog.lData, "files found: %s" % str(files))
+	p_list = []
+	for file in files:
+		if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
+			p_list.append(file[:-3])
+	if (len(p_list) == 0):
+		_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
+		return None
 
-	# load from file
-	if fCfg is not None:
-		p_list = fCfg.get("plugins", "load order")
-
-	# parse directory directly
-	if p_list is None:
-		_log.Log(gmLog.lInfo, "[%s] does not contain plugin load order" % plugin_conf_name)
-		search_path = os.path.join(gb['gnumed_dir'], 'wxpython', set)
-		files = os.listdir(search_path)
-		_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (set, gb['gnumed_dir']))
-		_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
-		_log.Log(gmLog.lData, "files found: %s" % str(files))
-		p_list = []
-		for file in files:
-			if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
-				p_list.append(file[:-3])
-		if (len(p_list) == 0):
-			_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
-			db.ReleaseConnection(service = "default")
-			return None
-
-	# set for default user on this workplace
-	_log.Log(gmLog.lInfo, "Storing default plugin load order in database.")
-	rwconn = db.GetConnection(service = "default", readonly = 0)
-	dbcfg.set(
+	# store for current user/current workplace
+	gmCfg.setDBParam(
 		workplace = curr_workplace,
-		user = 'xxxDEFAULTxxx',
+		user = _whoami.get_db_account(),
 		option = 'plugin load order',
 		value = p_list,
-		cookie = str(set),
-		aRWConn = rwconn
+		cookie = str(set)
 	)
-	rwconn.close()
 
 	_log.Log(gmLog.lData, "plugin load list: %s" % str(p_list))
-	db.ReleaseConnection(service = "default")
 	return p_list
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
@@ -355,7 +319,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.28  2004-07-19 11:50:43  ncq
+# Revision 1.29  2004-07-19 13:54:25  ncq
+# - simplify getPluginLoadList()
+#
+# Revision 1.28  2004/07/19 11:50:43  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.27  2004/07/18 19:51:42  ncq
