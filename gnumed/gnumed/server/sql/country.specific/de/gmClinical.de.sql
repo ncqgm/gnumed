@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -21,7 +21,7 @@ CREATE TABLE lab_test_GNR (
 select add_table_for_audit('lab_test_gnr');
 
 COMMENT ON TABLE lab_test_GNR is
-	'specific for Germany, GNR = GebührenordnungsNummeR = billing
+	'specific for Germany, GNR = GebuehrenordnungsNummeR = billing
 	 item, build index before lab import and drop afterwards, check
 	 against this table when importing, build table during import';
 COMMENT ON COLUMN lab_test_GNR.id_test IS
@@ -42,11 +42,14 @@ COMMENT ON COLUMN lab_test_GNR.id_test IS
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.7  2003-11-02 12:49:41  ncq
+-- Revision 1.8  2003-11-05 23:00:37  hinnef
+-- moved AMIS installation scripts to bootstrap dir
+--
+-- Revision 1.7  2003/11/02 12:49:41  ncq
 -- - fix psql.py lossage
 --
 -- Revision 1.6  2003/10/26 16:10:59  hinnef
