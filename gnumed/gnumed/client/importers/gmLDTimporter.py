@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.19 2005-01-31 09:53:25 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmLDTimporter.py,v 1.20 2005-02-15 18:31:35 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -299,7 +299,7 @@ class cLDTImporter:
 				select 1
 				from v_patient_items vpi, lab_request lr, identity i
 				where
-					vpi.id_patient=i.id
+					vpi.id_patient=i.pk
 						and
 					vpi.pk_item=%s
 						and
@@ -364,7 +364,7 @@ class cLDTImporter:
 					end as is_child
 				from v_patient_items vpi, lab_request lr, identity i
 				where
-					vpi.id_patient=i.id
+					vpi.id_patient=i.pk
 						and
 					vpi.pk_item=%s"""
 		data = gmPG.run_ro_query('personalia', cmd, None, self.__request['pk_item'])
@@ -776,7 +776,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.19 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.20 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -931,7 +931,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.19 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.20 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -965,7 +965,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.19  2005-01-31 09:53:25  ncq
+# Revision 1.20  2005-02-15 18:31:35  ncq
+# - identity.id -> identity.pk
+#
+# Revision 1.19  2005/01/31 09:53:25  ncq
 # - gmPatient -> gmPerson
 #
 # Revision 1.18  2004/10/01 11:48:53  ncq
