@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -77,6 +77,7 @@ def get_base_dir():
 		  - this is the no-brainer for DOS/Windows
 		  - it also allows running from a local CVS copy
 	"""
+	print "Determining GnuMed base directory ..."
 	# environment variable
 	if os.environ.has_key('GNUMED_DIR'):
 		tmp = os.environ['GNUMED_DIR']
@@ -85,26 +86,24 @@ def get_base_dir():
 		# - note that it may still be the wrong directory
 		if os.path.exists(tmp):
 			return os.path.abspath(tmp)
-		print 'Environment variable GNUMED_DIR contains [%s].' % tmp
-		print 'This is not a valid path, however.'
+		print '- environment variable GNUMED_DIR contains [%s]' % tmp
+		print '  (this is not a valid path, however)'
 	else:
-		print 'Environment variable GNUMED_DIR is not set.'
-
-	print 'Trying to use system defaults.'
+		print '- environment variable GNUMED_DIR not set'
+		print '  (only necessary if nothing else works, though)'
 
 	# standard path
 	# - normalize and convert slashes to local filesystem convention
 	tmp = os.path.normcase('/usr/share/gnumed/')
-	# sanity check
+	# - sanity check
 	if os.path.exists(tmp):
 		return os.path.abspath(tmp)
 
-	print 'Standard path [%s] does not exist.' % tmp
-	print 'This may be an indicator we are running on Windows,'
-	print 'from a CVS tree or something similar.'
-	print 'Trying to fall back to last resort measures.'
+	print '- standard path [%s] not accessible' % tmp
+	print '- seems like we are running from an arbitrary'
+	print '  directory (like a CVS tree or on Windows)'
 
-	# one level below path to binary
+	# get path to binary
 	tmp = os.path.abspath(os.path.dirname(sys.argv[0]))
 	# strip one directory level
 	# this is a rather neat trick :-)
@@ -113,8 +112,12 @@ def get_base_dir():
 	if os.path.exists(tmp):
 		return os.path.abspath(tmp)
 
-	print 'Cannot verify path one level below path to binary (%s).' % tmp
-	print 'Something is really rotten here. We better fail gracefully.'
+	print '- application installation path [%s] not accessible' % tmp
+	print ''
+	print 'Something is really rotten here. We better'
+	print 'fail gracefully ! This may be one of those'
+	print 'cases where setting GNUMED_DIR might help.'
+
 	return None
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -256,7 +259,11 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.50  2003-02-08 00:37:49  ncq
+# Revision 1.51  2003-03-30 00:24:00  ncq
+# - typos
+# - (hopefully) less confusing printk()s at startup
+#
+# Revision 1.50  2003/02/08 00:37:49  ncq
 # - cleanup, one more module dir
 #
 # Revision 1.49  2003/02/07 21:06:02  sjtan

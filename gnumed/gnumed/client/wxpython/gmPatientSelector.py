@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.2 2003-03-28 15:56:04 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPatientSelector.py,v 1.3 2003-03-30 00:24:00 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -526,7 +526,7 @@ class cPatientSelector(wxTextCtrl):
 		kwargs = {
 			'ID': anID,
 			'signal': gmSignals.patient_selected(),
-			'sender': 'patient.selector'
+			'sender': str(id(self))
 		}
 		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
 		name = gmTmpPatient.gmDefPatient['active name']
@@ -832,6 +832,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.2  2003-03-28 15:56:04  ncq
+# Revision 1.3  2003-03-30 00:24:00  ncq
+# - typos
+# - (hopefully) less confusing printk()s at startup
+#
+# Revision 1.2  2003/03/28 15:56:04  ncq
 # - adapted to GnuMed CVS structure
 #

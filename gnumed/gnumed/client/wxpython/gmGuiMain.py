@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.88 2003-03-29 14:12:35 ncq Exp $
-__version__ = "$Revision: 1.88 $"
+# $Id: gmGuiMain.py,v 1.89 2003-03-30 00:24:00 ncq Exp $
+__version__ = "$Revision: 1.89 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -282,7 +282,7 @@ class MainFrame(wxFrame):
 
 			progress_bar.Update(
 				idx,
-				_("previous: %s - %s\ncurrent (%s/%s): %s") % (
+				_("previous: %s (%s)\ncurrent (%s/%s): %s") % (
 					last_plugin,
 					result,
 					(idx+1),
@@ -616,7 +616,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.88  2003-03-29 14:12:35  ncq
+# Revision 1.89  2003-03-30 00:24:00  ncq
+# - typos
+# - (hopefully) less confusing printk()s at startup
+#
+# Revision 1.88  2003/03/29 14:12:35  ncq
 # - set minimum size to 320x240
 #
 # Revision 1.87  2003/03/29 13:48:42  ncq
