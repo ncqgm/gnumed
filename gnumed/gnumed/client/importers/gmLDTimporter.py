@@ -23,8 +23,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.3 2004-04-20 00:16:27 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmLDTimporter.py,v 1.4 2004-04-21 15:33:05 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -36,10 +36,10 @@ _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
-from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions
+from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmPathLab
-from Gnumed.business.gmXdtMappings import map_Befundstatus_xdt2gm, xdt_Befundstatus_map
+from Gnumed.business.gmXdtMappings import map_Befundstatus_xdt2gm, xdt_Befundstatus_map, map_8407_2str
 
 _cfg = gmCfg.gmDefCfgFile
 
@@ -156,6 +156,22 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------
+	def __import_result(self, request=None, result=None):
+		print "importing result"
+		# verify all the fields
+		# map_8407_2str[self.__ref_group]
+		print result
+		# sanity checks
+#		request, result -> None
+#		data['reviewed_by_clinician'] = False
+
+				# - verify/create test type
+#				try:
+#					ttype = gmPathLab.cTestType(lab=self.__lab_name, code=data['code'], name=data['name'])
+#				except ConstructorError, err:
+#					_log.LogException(err, sys.exc_info(), verbose=0)
+		return True
+	#-----------------------------------------------------------
 	def __import_request_result(self, filename):
 		request = self.__import_request_header(filename)
 		if request is False:
@@ -165,28 +181,61 @@ class cLDTImporter:
 			line_type = line[3:7]
 			line_data = line[7:-2]
 			# start of new record
-			if line_type == '8401':
-				# first record
-				if data == {}:
-					data['code'] = line_data
-					continue
-				# save old record
-				# - verify/create test type
-				try:
-					ttype = gmPathLab.cTestType(lab=self.__lab_name, code=data['code'], name=data['name'])
-				except ConstructorError, err:
-					_log.LogException(err, sys.exc_info(), verbose=0)
-					
-				# handle test result
-				# and start new one
-				data = {}
-				data['code'] = line_data
+			if line_type == '8410':
+				# already have data ?
+				if data != {}:
+					# save that record
+					if not self.__import_result(request, data):
+						fileinput.close()
+						return False
+				# start new record
+				data = {'code': line_data}
+				if self.__ref_group is not None:
+					data['ref_group'] = self.__ref_group
 				continue
+			elif line_type == '8411':
+				data['name'] = line_data
+				continue
+			elif line_type == '8412':
+				# GnuMed does not support KV-Abrechnung yet
+				continue
+			elif line_type == '8428':
+				# GnuMed does not support Material-Ident
+				continue
+			elif line_type == '8430':
+				data['material'] = line_data
+				continue
+			elif line_type == '8420':
+				data['val_num'] = line_data
+				continue
+			elif line_type == '8421':
+				data['val_unit'] = line_data
+				continue
+			elif line_type == '8460':
+				data['val_normal_range'] = line_data
+				continue
+			elif line_type == '8480':
+				data['val_alpha'] = line_data
+				continue
+			elif line_type == '8422':
+				data['technically_abnormal'] = line_data
+				continue
+			# skip request header
+			elif line_type in ['8000', '8100', '8310', '8311', '8301', '8302', '8401', '8405', '8407']:
+				continue
+#			elif line_type == '':
+#				data[''] = line_data
+#				continue
+			else:
+				_log.Log(gmLog.lErr, 'unbekannter LDT-Zeilentyp [%s], Inhalt: [%s], breche ab' % (line_type, line_data))
+				fileinput.close()
+				return False
 		return True
 	#-----------------------------------------------------------
 	def __import_request_header(self, filename):
 		header = {}
 		request = None
+		self.__ref_group = None
 		for line in fileinput.input(filename):
 			line_type = line[3:7]
 			line_data = line[7:-2]
@@ -225,6 +274,7 @@ class cLDTImporter:
 					try:
 						request = gmPathLab.cLabRequest(req_id=line_data, lab=self.__lab_name)
 					except gmExceptions.ConstructorError:
+						# FIXME: housekeeping todo item !!
 						_log.LogException('cannot get lab request', sys.exc_info(), verbose=0)
 						fileinput.close()
 						return False
@@ -249,8 +299,8 @@ class cLDTImporter:
 				continue
 			# or gender
 			elif line_type == '8407':
-				# FIXME: map and validate
-				self.__gender = line_data
+				# keep this so test results can store it
+				self.__ref_group = line_data
 			# or other data
 			elif line_type == '8311':
 				header['lab_request_id'] = line_data
@@ -270,6 +320,10 @@ class cLDTImporter:
 				_log.Log(gmLog.lErr, "don't know how to import [%s] line" % line_type)
 				fileinput.close()
 				return False
+		# no data, just header, so that's an error
+		_log.Log(gmLog.lErr, 'LDT file [%s] contains nothing but a request header' % filename)
+		fileinput.close()
+		return False
 	#-----------------------------------------------------------
 	def __verify_file_header(self, filename):
 		"""Verify that header is suitable for import.
@@ -361,7 +415,7 @@ class cLDTImporter:
 		}
 #===============================================================
 def insert_housekeeping_todo(problem=None, solution='', recipient='DEFAULT'):
-	reporter = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.3 $'
+	reporter = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.4 $'
 	if problem is None:
 		problem = 'lazy programmer'
 	cmd = "insert into housekeeping_todo (reported_by, reported_to, problem, solution) values (%s, %s, %s, %s)"
@@ -434,7 +488,11 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.3  2004-04-20 00:16:27  ncq
+# Revision 1.4  2004-04-21 15:33:05  ncq
+# - start on __import_result()
+# - parse result lines in __import_request_results
+#
+# Revision 1.3  2004/04/20 00:16:27  ncq
 # - try harder to become useful
 #
 # Revision 1.2  2004/04/16 00:34:53  ncq
