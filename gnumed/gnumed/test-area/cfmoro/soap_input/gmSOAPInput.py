@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -178,7 +178,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# ui contruction and event interests
 		self.do_layout()
 		self.register_interests()
-		self.reset_ui_content()
+		self._populate_with_data()
 
 	#--------------------------------------------------------
 	def do_layout(self):
@@ -198,9 +198,14 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#self.soap_multisash.GetSelectedLeaf().UnSelect()
 		# SOAP action buttons
 		self.save_button = wx.wxButton(self.soap_panel, -1, "&Save")
+		self.save_button.Disable()
 		self.clear_button = wx.wxButton(self.soap_panel, -1, "&Clear")
+		self.clear_button.Disable()
 		self.new_button = wx.wxButton(self.soap_panel, -1, "&New")
+		self.new_button.Disable()
 		self.remove_button = wx.wxButton(self.soap_panel, -1, "&Remove")
+		self.remove_button.Disable()
+
 
 		# EMR tree
 		self.emr_panel = wx.wxPanel(self.soap_emr_splitter,-1)
@@ -283,11 +288,13 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
 			selected_soap_panel.ClearSOAP()
 		
+
 	#--------------------------------------------------------
 	def on_new(self, event):
 		"""
 		Creates and displays a new SOAP input editor
 		"""
+
 		if self.soap_multisash.GetSelectedLeaf() is None:
 			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
 		elif self.selected_issue is None or len(self.selected_issue) == 0:
@@ -302,6 +309,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
 				selected_leaf.GetSOAPPanel().Show()
 				selected_leaf.detail.Select()
+				selected_leaf.creatorHor.Show(True)
+				selected_leaf.closer.Show(True)
 				self.issues_with_soap.append(self.selected_issue[1])
 				
 			else:
@@ -313,6 +322,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 					selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
 
 			print "Issues with soap: %s"%(self.issues_with_soap)
+			self.check_buttons()	
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):
@@ -327,6 +337,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			selected_leaf.DestroyLeaf()
 
 			print "Issues with soap: %s"%(self.issues_with_soap)
+			self.check_buttons()	
 	#--------------------------------------------------------	
 	def on_patient_selected(self):
 		"""
@@ -340,7 +351,28 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""		
 		self.selected_issue = [self.health_issues_list.GetSelection(), self.health_issues_list.GetClientData(self.health_issues_list.GetSelection())]
 		print 'Selected: %s'%(self.selected_issue)
+		if not self.new_button.IsEnabled():
+			self.new_button.Enable(True)
 
+	#--------------------------------------------------------	
+	def check_buttons(self):
+		"""
+		Check and configure adecuate buttons enable state
+		"""
+		enable = True
+		if not self.soap_multisash.GetSelectedLeaf() is  None and len(self.issues_with_soap) > 0:
+			enable = True
+		else:
+			enable = False
+		self.save_button.Enable(enable)
+		self.clear_button.Enable(enable)
+		self.remove_button.Enable(enable)
+
+		if self.soap_multisash.GetSelectedLeaf() is  None:
+			self.new_button.Enable(False)
+		else:
+			self.new_button.Enable(True)
+		
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -348,6 +380,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Fills UI with data.
 		"""
+		print "Populate with data!!"
 		self.reset_ui_content()
 		if self.refresh_tree():
 			return True
@@ -377,6 +410,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#demographic_record = self.patient.get_demographic_record()
 		#names = demographic_record.get_names()
 		#root_item = self.health_issues_list.AddRoot(_('%s %s EMR') % (names['first'], names['last']))
+		if self.health_issues_list.GetCount() > 0:
+			return False
 		cont = 0
 		for a_health_issue in self.emr.get_health_issues():			
 			cont = cont+1
@@ -386,8 +421,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# Set sash position
 		self.soap_emr_splitter.SetSashPosition(self.soap_emr_splitter.GetSizeTuple()[0]/2, True)
 
-		# FIXME: error handling
 		return True
+
 
 	#--------------------------------------------------------
 	# internal API
@@ -396,7 +431,11 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Clear all information displayed in browser (tree and details area)
 		"""
-		#self.health_issues_list.DeleteAllItems()
+		self.selected_issue = None
+		self.issues_with_soap = []
+		self.health_issues_list.Clear()
+		self.soap_multisash.Clear()
+		self.soap_multisash.SetDefaultChildClassAndControllerObject(cSOAPControl,self)
 		
 
 #== Module convenience functions (for standalone use) =======================
@@ -466,7 +505,7 @@ if __name__ == '__main__':
 		# display standalone browser
 		application = wx.wxPyWidgetTester(size=(800,600))
 		soap_input = cSOAPInputPanel(application.frame, -1)
-		soap_input.refresh_tree()
+		#soap_input.refresh_tree()
 		
 		application.frame.Show(True)
 		application.MainLoop()

@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.9 2004-11-27 18:25:12 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.10 2004-11-27 20:42:48 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -41,8 +41,8 @@ class cSOAPMultiSash(wxWindow):
         self._childController = childController
         self.child.DefaultChildChanged()	
 
-    def GetDefaultChildClass(self):
-        return self._defChild
+    def GetController(self):
+        return self._childController
 
     def OnMultiSize(self,evt):
         self.child.SetSize(self.GetSize())
@@ -52,6 +52,7 @@ class cSOAPMultiSash(wxWindow):
 	        self.child.UnSelect()
 
     def Clear(self):
+	self.SetDefaultChildClassAndControllerObject(None,None)
         old = self.child
         self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
         old.Destroy()
@@ -100,6 +101,10 @@ class wxMultiSplit(wxWindow):
     def AddLeaf(self,direction,caller,pos):
         print "Adding leaf %s %s %s"%(direction, caller, pos)
 	    
+	if self.view1.detail.childController.get_selected_issue()[1] in self.view1.detail.childController.get_issues_with_soap():
+		print "Issue has already soap"
+		wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+		return
 	if self.view2:
 	    print "view2"
 	    if caller == self.view1:
@@ -116,6 +121,8 @@ class wxMultiSplit(wxWindow):
                 self.view2.AddLeaf(direction,caller,pos)
         else:
             print "not view2"
+	    if len(self.view1.detail.childController.get_issues_with_soap()) == 0:
+	    	return
 	    self.direction = direction
             w,h = self.GetSizeTuple()
             if direction == MV_HOR:
@@ -131,6 +138,9 @@ class wxMultiSplit(wxWindow):
             self.view1.SetSize(wxSize(w2,h2))
             self.view2.OnSize(None)
 
+	    if not self.view1.detail.childController is None:
+	    	    self.view1.detail.childController.check_buttons()
+
     def DestroyLeaf(self,caller):
         if not self.view2:              # We will only have 2 windows if
             print "Removing first leaf"
@@ -140,6 +150,10 @@ class wxMultiSplit(wxWindow):
 	    self.view1.detail.child.HideContents()
 	    if len(self.view1.detail.childController.get_issues_with_soap()) > 0:
 		    self.view1.detail.childController.get_issues_with_soap().remove(soap_issue[1])
+	    self.view1.creatorHor.Hide()
+	    self.view1.closer.Hide()
+	    if not self.view1.detail.childController is None:
+	    	    self.view1.detail.childController.check_buttons()
 	    return                      # we need to destroy any
         parent = self.GetParent()       # Another splitview
         if parent == self.multiView:    # We'r at the root
@@ -184,6 +198,9 @@ class wxMultiSplit(wxWindow):
             self.view2 = None
 	    
             self.Destroy()
+
+	if not self.view1.detail.childController is None:
+		self.view1.detail.childController.check_buttons()
 
     def CanSize(self,side,view):
         if self.SizeTarget(side,view):
@@ -261,10 +278,13 @@ class wxMultiViewLeaf(wxWindow):
 
         self.sizerHor = MultiSizer(self,MV_HOR)
         #GnuMed1 self.sizerVer = MultiSizer(self,MV_VER)
-        self.creatorHor = MultiCreator(self,MV_HOR)
         #GnuMed1 self.creatorVer = MultiCreator(self,MV_VER)
         self.detail = MultiClient(self,multiView._defChild, multiView._childController)
+        self.creatorHor = MultiCreator(self,MV_HOR)
         self.closer = MultiCloser(self)
+	if multiView._childController is None or len(multiView._childController.get_issues_with_soap()) == 0:
+		self.creatorHor.Hide()
+		self.closer.Hide()
 
         EVT_SIZE(self,self.OnSize)
 
@@ -350,6 +370,8 @@ class MultiClient(wxWindow):
         self.selected = True
         self.SetBackgroundColour(wxColour(255,255,0)) # Yellow
         self.Refresh()
+	if not self.childController is None:
+		self.childController.check_buttons()
 
     def CalcSize(self,parent):
         w,h = parent.GetSizeTuple()
