@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.11 2003-05-05 00:31:28 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.12 2003-05-05 11:59:50 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -18,18 +18,16 @@
 \unset ON_ERROR_STOP
 drop index idx_item_encounter;
 drop index idx_item_episode;
-drop index idx_narrative_patient;
-drop index idx_narrative_src_table;
+--drop index idx_narrative_value;
 drop index idx_episode_h_issue;
 drop index idx_allergy_comment;
 \set ON_ERROR_STOP 1
 
 create index idx_item_encounter on clin_item(id_encounter);
 create index idx_item_episode on clin_item(id_episode);
-create index idx_narrative_patient on clin_narrative(id_patient);
-create index idx_narrative_src_table on clin_narrative(src_table);
+-- this is dangerous as it will NOT index child tables:
+--create index idx_narrative_value on clin_narrative(value);
 create index idx_episode_h_issue on clin_episode(id_health_issue);
-create index idx_allergy_comment on allergy(id_comment);
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -51,14 +49,14 @@ drop view v_patient_episodes;
 
 create view v_patient_episodes as
 select
-	chi.id_patient as id_patient,
 	cep.id as id_episode,
+	chi.id_patient as id_patient,
 	chi.id as id_health_issue,
 	cep.description as episode,
-	cn.value as episode_comment,
-	chi.description as health_issue
+	chi.description as health_issue,
+	cep.narrative as "comment"
 from
-	(clin_episode cep left outer join clin_narrative cn on (cep.id_comment=cn.id)), clin_health_issue chi
+	clin_episode cep, clin_health_issue chi
 where
 	cep.id_health_issue=chi.id
 ;
@@ -70,18 +68,19 @@ drop view v_patient_items;
 
 create view v_patient_items as
 select
-	ci.item_pkey as item_pkey,
+	ci.pkey_item as id_item,
 	ci.id_encounter as id_encounter,
 	ci.id_episode as id_episode,
 	vpep.id_patient as id_patient,
 	vpep.id_health_issue as id_health_issue,
-	pgc.relname as src_table
+	ci.narrative as narrative,
+	sys.relname as src_table
 from
-	clin_item ci, v_patient_episodes vpep, pg_class pgc
+	clin_item ci, v_patient_episodes vpep, pg_class sys
 where
 	vpep.id_episode=ci.id_episode
 		and
-	ci.tableoid=pgc.oid
+	ci.tableoid=sys.oid
 ;
 
 -- =============================================
@@ -96,14 +95,11 @@ select distinct on (vpi.id_encounter)
 	ce.id_provider as id_provider,
 	vpi.id_patient as id_patient,
 	_(et.description) as type,
-	cn.value as "comment"
+	ce.narrative as "comment"
 from
-	(clin_encounter ce left outer join clin_narrative cn on (ce.id_comment=cn.id)),
-	(clin_encounter inner join v_patient_items vpi on (clin_encounter.id=vpi.id_encounter)),
+	(clin_encounter ce inner join v_patient_items vpi on (ce.id=vpi.id_encounter)),
 	_enum_encounter_type et
 where
---	vpi.id_encounter=ce.id
---		and
 	et.id=ce.id_type
 ;
 
@@ -134,7 +130,7 @@ drop view v_i18n_patient_allergies;
 create view v_i18n_patient_allergies as
 select
 	a.id as id,
-	a.item_pkey as item_pkey,
+	a.pkey_item as id_item,
 	vpep.id_patient as id_patient,
 	vpep.id_health_issue as id_health_issue,
 	a.id_episode as id_episode,
@@ -149,9 +145,11 @@ select
 	a.definate as definate,
 	a.id_type as id_type,
 	_(at.value) as type,
-	cn.value as "comment"
+	a.narrative as "comment"
 from
-	(allergy a left outer join clin_narrative cn on (a.id_comment=cn.id)), _enum_allergy_type at, v_patient_episodes vpep
+	allergy a,
+	_enum_allergy_type at,
+	v_patient_episodes vpep
 where
 	vpep.id_episode=a.id_episode
 		and
@@ -183,11 +181,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.11  2003-05-05 00:31:28  ncq
+-- Revision 1.12  2003-05-05 11:59:50  ncq
+-- - adapt to clin_narrative being an ancestor table
+--
+-- Revision 1.11  2003/05/05 00:31:28  ncq
 -- - add grants
 --
 -- Revision 1.10  2003/05/05 00:27:34  ncq
