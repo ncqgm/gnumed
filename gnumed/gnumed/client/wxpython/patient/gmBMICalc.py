@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -186,7 +186,8 @@ class BMICalc_Panel(wxPanel):
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
-		self.txtbmi = wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtbmi = wxTextCtrl(self,-1,"",size=(100,20), style = wxTE_READONLY)
+		self.txtbmi.Enable(false)
 		self.txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 
 		szr_bmi = wxBoxSizer(wxHORIZONTAL)
@@ -195,11 +196,10 @@ class BMICalc_Panel(wxPanel):
 		szr_bmi.Add(self.txtbmi,1,wxALIGN_CENTRE_VERTICAL | wxEXPAND,0)
 		szr_bmi.Add(5,5,1,0)
 		#--------------------------------------------------
-		#the color elipses to show where on scale of mass
+		#the color ellipses to show where on scale of mass
 		#--------------------------------------------------
-		# FIXME: this should not be able to receive focus, e.g
-		# it should be skipped during tabbing
 		bmi_colour_scale = BMI_Colour_Scale(self)
+		bmi_colour_scale.Enable(false)
 		szr_col_scale = wxBoxSizer(wxHORIZONTAL)
 		szr_col_scale.Add(bmi_colour_scale,1,wxEXPAND)
 		#-----------------------------------------------------
@@ -548,7 +548,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.17  2003-04-20 12:26:56  ncq
+# Revision 1.18  2003-04-20 22:47:06  ncq
+# - skip color scale and bmi text field on tab order
+#
+# Revision 1.17  2003/04/20 12:26:56  ncq
 # - clean up, sizer streamlining
 #
 # Revision 1.16  2003/04/20 02:40:52  michaelb
