@@ -21,7 +21,7 @@
 gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -44,6 +44,8 @@ if __name__ == "__main__":
 		appPath = os.path.abspath (os.path.split (sys.argv[0])[0])
 		# problem: we are in gnumed/client/wxpython, but the base
 		# directory is ALWAYS gnumed/client
+		# therefor remove "wxpython" from the end of the path
+		# FIXME: this is rather ugly in technique
 		appPath = appPath[:-9]
 		# manually extend our module search path
 		sys.path.append(os.path.join(appPath, 'wxpython'))
@@ -57,15 +59,16 @@ if __name__ == "__main__":
 		exc = sys.exc_info()
 		gmLog.gmDefLog.LogException ("Exception: Cannot load gmGuiMain", exc)
 		sys.exit("CRITICAL ERROR: Can't find module gmGuiMain! - Program halted\n \
-		           Please check whether your PYTHONPATH environment variable\n \
-			   is set correctly")
+				Please check whether your PYTHONPATH environment variable\n \
+				is set correctly")
+
 	gb = gmGuiBroker.GuiBroker ()
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
 #<DEBUG>
 # console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
-        gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
+    gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
 	gmLog.gmDefLog.Log(gmLog.lInfo, _("set resource path to: ") + appPath)
 #</DEBUG>
 	try:
@@ -86,4 +89,3 @@ if __name__ == "__main__":
 #<DEBUG>
 #	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
 #</DEBUG>
-
