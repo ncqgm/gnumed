@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -116,15 +116,20 @@ if __name__ == "__main__":
 				Please check whether your PYTHONPATH and GNUMED_DIR environment variables\n \
 				are set correctly")
 
-	gb = gmGuiBroker.GuiBroker ()
-	gb['gnumed_dir'] = appPath # EVERYONE must use this!
 	#<DEBUG>
+	# know everything in debugging versions
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
-	gmLog.gmDefLog.Log(gmLog.lInfo, "set resource path to: " + appPath)
 	#</DEBUG>
+
+	gmLog.gmDefLog.Log(gmLog.lData, "set resource path to: " + appPath)
+	gmLog.gmDefLog.Log(gmLog.lData, "module search path is now: " + sys.path)
+
+	gb = gmGuiBroker.GuiBroker ()
+	gb['gnumed_dir'] = appPath # EVERYONE must use this!
 	try:
 		#change into our working directory
 		#this does NOT affect the cdw in the shell from where gnumed is started!
@@ -140,9 +145,9 @@ if __name__ == "__main__":
 	    gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc)
 	    raise
 
-#<DEBUG>
-#	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
-#</DEBUG>
+	#<DEBUG>
+	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
+	#</DEBUG>
 
 else:
 	print "Nothing useful here."
