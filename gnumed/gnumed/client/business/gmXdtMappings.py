@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.15 2003-11-19 12:30:22 shilbert Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmXdtMappings.py,v 1.16 2004-03-20 19:45:49 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -707,7 +707,7 @@ name_xdtID_map = {
 #    'street': '3107',\
 
 # sort of GnuMed compatible
-xdt_gmgender_map = {
+map_gender_xdt2gm = {
 	'1': 'm',
 	'2': 'f',
 	'm': 'm',
@@ -1261,7 +1261,7 @@ xdt_map_of_content_maps = {
 	'2781': kvdt_Histologie_map,
 	'2782': kvdt_stationaere_Weiterbehandlung_map,
 	'3108': xdt_Versichertenart_map,
-	'3110': xdt_gmgender_map,
+	'3110': map_gender_xdt2gm,
 	'3116': kvdt_KV_Bereich_map,
 	'3674': kvdt_Diagnosensicherheit_map,
 	'3675': kvdt_Seitenlokalisation_map,
@@ -1314,7 +1314,10 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.15  2003-11-19 12:30:22  shilbert
+# Revision 1.16  2004-03-20 19:45:49  ncq
+# - rename gender map
+#
+# Revision 1.15  2003/11/19 12:30:22  shilbert
 # - corrected typos
 #
 # Revision 1.14  2003/11/17 10:56:34  sjtan

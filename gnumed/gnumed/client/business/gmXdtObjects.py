@@ -5,8 +5,8 @@ objects for easy access.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtObjects.py,v $
-# $Id: gmXdtObjects.py,v 1.8 2004-03-18 11:05:00 shilbert Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmXdtObjects.py,v 1.9 2004-03-20 19:45:49 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
@@ -106,7 +106,7 @@ class xdtPatient:
             return None
         else:
             tmp = self.__data['gender']
-            self.__data['gender'] = gmXdtMappings.xdt_gmgender_map[tmp]
+            self.__data['gender'] = gmXdtMappings.map_gender_xdt2gm[tmp]
 
         _log.Log(gmLog.lData, self.__data)
 
@@ -286,7 +286,10 @@ if __name__ == "__main__":
 
 #==============================================================
 # $Log: gmXdtObjects.py,v $
-# Revision 1.8  2004-03-18 11:05:00  shilbert
+# Revision 1.9  2004-03-20 19:45:49  ncq
+# - rename gender map
+#
+# Revision 1.8  2004/03/18 11:05:00  shilbert
 # - fixed xDT-parsing in standalone mode
 #
 # Revision 1.7  2004/02/25 09:46:20  ncq
