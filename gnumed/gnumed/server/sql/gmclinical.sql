@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- author: 
 
@@ -55,7 +55,7 @@ COMMENT ON TABLE enum_clinical_encounters is
 create table clinical_transaction(
 	id SERIAL primary key,
 	stamp timestamp with time zone,
-	length duration,
+	duration interval,
 	id_location int,
 	id_doctor int,  
 	id_patient int, 
@@ -376,7 +376,7 @@ comment on column script_drug.fluid_amount is 'if a fluid, the amount in each bo
 comment on column script_drug.amount is 'for solid object (tablets, capsules) the number of objects, for fluids, the number of separate containers';
 comment on column script_drug.prn is 'true if "pro re nata" (= as required)';
 comment on column script_drug.time is
-'if frequency is 1, suggested time: m = mane, n= nocte, ? = don't care';
+'if frequency is 1, suggested time: m = mane, n= nocte, ? = don''t care';
 
 	
 create table constituents
@@ -405,8 +405,8 @@ and multiple scripts in a transaction';
 
 create table link_script_drug
 (
-	id_drug references script_drug (id),
-	id_script references script (id)
+	id_drug integer references script_drug (id),
+	id_script integer references script (id)
 );
 
 comment on table link_script_drug is
@@ -417,11 +417,14 @@ comment on table link_script_drug is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.9 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.9  2002-12-14 08:12:22  ihaywood
+-- Revision 1.10  2002-12-14 08:55:17  ihaywood
+-- new prescription tables -- fixed typos
+--
+-- Revision 1.9  2002/12/14 08:12:22  ihaywood
 -- New prescription tables in gmclinical.sql
 --
 -- Revision 1.8  2002/12/06 08:50:51  ihaywood
