@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.29 2003-11-19 23:42:00 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPhraseWheel.py,v 1.30 2004-01-06 10:06:02 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -512,7 +512,7 @@ if __name__ == '__main__':
 					'table': 'score_gmpw_sql_test',
 					'column': 'fk_gmpw_sql_test'
 				}
-				mp2 = cMatchProvider_SQL([src], score)
+				mp2 = gmMatchProvider.cMatchProvider_SQL([src], score)
 				ww2 = cPhraseWheel(
 					parent = frame,
 					id = -1,
@@ -530,7 +530,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.29  2003-11-19 23:42:00  ncq
+# Revision 1.30  2004-01-06 10:06:02  ncq
+# - make SQL based phrase wheel test work again
+#
+# Revision 1.29  2003/11/19 23:42:00  ncq
 # - cleanup, comment out snap()
 #
 # Revision 1.28  2003/11/18 23:17:47  ncq
