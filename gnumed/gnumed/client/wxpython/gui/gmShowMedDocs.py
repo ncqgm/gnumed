@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -162,86 +162,63 @@ if __name__ == '__main__':
 			app.ExitMainLoop()
 #== classes for plugin use ======================================
 else:
+	from Gnumed.wxpython import gmPlugin, gmRegetMixin, images_Archive_plugin, images_Archive_plugin1
+	from Gnumed.pycommon import gmDispatcher, gmSignals
+
 	wxID_TB_BTN_show_page = wxNewId()
 
-	class cPluginTreePanel(wxPanel):
+	class cPluginTreePanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		def __init__(self, parent, id):
 			# set up widgets
 			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
-
+			gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+			self.__do_layout()
+			self.Layout()
+			self.__register_interests()
+		#--------------------------------------------------------
+		def __do_layout(self):
 			# make document tree
-			self.tree = gmMedDocWidgets.cDocTree(self, -1)
+			self.__doc_tree = gmMedDocWidgets.cDocTree(self, -1)
 
 			# just one vertical sizer
 			sizer = wxBoxSizer(wxVERTICAL)
-			sizer.Add(self.tree, 1, wxEXPAND, 0)
+			sizer.Add(self.__doc_tree, 1, wxEXPAND, 0)
+
 			self.SetAutoLayout(1)
 			self.SetSizer(sizer)
 			sizer.Fit(self)
-			self.Layout()
 		#--------------------------------------------------------
-		def __del__(self):
-			# FIXME: return service handle
-			#self.DB.disconnect()
-			pass
-
-	#------------------------------------------------------------
-	from Gnumed.wxpython import gmPlugin, images_Archive_plugin, images_Archive_plugin1
-
-	class gmShowMedDocs(gmPlugin.cNotebookPluginOld):
+		def __register_interests(self):
+			gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
+			#gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
+		#--------------------------------------------------------
+		def _populate_with_data(self):
+			if self.__doc_tree.update() is None:
+				_log.Log(gmLog.lErr, "cannot update document tree")
+				return None
+			self.__doc_tree.SelectItem(self.__doc_tree.root)
+			return True
+	#============================================================
+	class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 		tab_name = _("Documents")
 
 		def name (self):
 			return gmShowMedDocs.tab_name
-
+		#--------------------------------------------------------
 		def GetWidget (self, parent):
 			self._widget = cPluginTreePanel(parent, -1)
 			return self._widget
-
+		#--------------------------------------------------------
 		def MenuInfo (self):
 			return ('tools', _('Show &archived documents'))
-
-		def populate_with_data(self):
-			# no use reloading if invisible
-			if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-				return 1
-			if self._widget.tree.update() is None:
-				_log.Log(gmLog.lErr, "cannot update document tree")
-				return None
-			self._widget.tree.SelectItem(self._widget.tree.root)
-			return 1
-
+		#--------------------------------------------------------
 		def can_receive_focus(self):
 			# need patient
 			if not self._verify_patient_avail():
 				return None
 			return 1
-
+		#--------------------------------------------------------
 		def populate_toolbar (self, tb, widget):
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_load_pages,
-			#	images_Archive_plugin.getcontentsBitmap(),
-			#	shortHelpString=_("load pages"),
-			#	isToggle=False
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
-
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_save_data,
-			#	images_Archive_plugin.getsaveBitmap(),
-			#	shortHelpString=_("save document"),
-			#	isToggle=False
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
-			
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_del_page,
-			#	images_Archive_plugin.getcontentsBitmap(),
-			#	shortHelpString=_("delete page"),
-			#	isToggle=False
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
-			
 			tool1 = tb.AddTool(
 				wxID_TB_BTN_show_page,
 				images_Archive_plugin.getreportsBitmap(),
@@ -250,14 +227,6 @@ else:
 			)
 			EVT_TOOL (tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree.OnActivate)
 	
-			#tool1 = tb.AddTool(
-			#	wxID_PNL_BTN_select_files,
-			#	images_Archive_plugin1.getfoldersearchBitmap(),
-			#	shortHelpString=_("select files"),
-			#	isToggle=False
-			#)
-			#EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
-		
 			tb.AddControl(wxStaticBitmap(
 				tb,
 				-1,
@@ -288,7 +257,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.53  2004-08-04 17:16:02  ncq
+# Revision 1.54  2004-09-13 21:12:36  ncq
+# - convert to use cRegetMixin so it plays really nice with xdt connector
+#
+# Revision 1.53  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
