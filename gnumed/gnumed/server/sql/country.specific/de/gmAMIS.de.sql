@@ -4,9 +4,11 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmAMIS.de.sql,v $
 -- author: Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.3 $
+-- version: $Revision: 1.4 $
 -- license: GPL
 -- TODO: further processing of the data (normalizing)
+-- =====================================================================================
+reset client_encoding;
 
 -- =====================================================================================
 -- amis_praeparate : table of preparations
@@ -425,7 +427,7 @@ TO GROUP "gm-public";
 
 -- =============================================                                
 -- do simple schema revision tracking                                           
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAMIS.de.sql,v $', '$Revision: 1.3 $'); 
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAMIS.de.sql,v $', '$Revision: 1.4 $'); 
 
 -- ==========================================================
 -- == changelog =============================================
@@ -433,7 +435,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAMIS.de.s
 --	30.11.2001: \set & \unset applied correctly
 --
 -- $Log: gmAMIS.de.sql,v $
--- Revision 1.3  2003-10-26 18:10:06  ncq
+-- Revision 1.4  2004-01-09 03:11:45  ncq
+-- - reset client encoding
+--
+-- Revision 1.3  2003/10/26 18:10:06  ncq
 -- - separate schema and data better
 --
 -- Revision 1.2  2003/10/26 16:07:07  hinnef
