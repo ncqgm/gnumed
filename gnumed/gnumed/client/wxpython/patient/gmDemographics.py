@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.19 2003-02-09 23:42:50 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmDemographics.py,v 1.20 2003-03-28 16:43:12 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -73,7 +73,17 @@ ID_TXTPATIENTFIND = wxNewId()
 ID_TXTPATIENTAGE = wxNewId()
 ID_TXTPATIENTALLERGIES  = wxNewId()
 ID_COMBOCONSULTTYPE =wxNewId()
-consulttypelist = ['Surgery', 'Home Visit', 'Telephone', 'Specialist', 'Patient Absent', 'Email', 'Other']
+
+# Richard, can you please add some comments here ?
+consultation_types = [
+	_('in surgery'),
+	_('home visit'),
+	_('by phone'),
+	_('at specialist'),
+	_('patient absent'),
+	_('by email'),
+	_('other consultation')
+]
 
 #------------------------------------
 #Dummy data to simulate allergy items
@@ -107,7 +117,7 @@ class TextBox_BlackNormal(wxTextCtrl):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
 		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-
+#------------------------------------------------------------
 class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 	def __init__(self, parent, plugin, id=wxNewId ()):
 		wxPanel.__init__(self, parent, id ,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
@@ -387,44 +397,102 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.patientslist.SetQueryStr (gmPatientNameQuery.MakeQuery (name), service='personalia')
 		self.patientslist.RunQuery ()
 
-
+#============================================================
 class gmDemographics(gmPlugin.wxBasePlugin):
-	"""
-	A plugin for searching the patient database by name.
-	Required the gmPatientWindowPlgin to be loaded.
+	"""A plugin for searching the patient database by name.
+
+	Required the gmPatientWindowPlugin to be loaded.
 	CANNOT BE UNLOADED
 	"""
-
 	def name (self):
 		return 'Patient Search'
-
+	#--------------------------------------------------------
 	def register (self):
 		# first, set up the widgets on the top line of the toolbar
 		tb = self.gb['main.toolbar']
-		self.tb_patient_search = wxToolBar(tb,-1,wxDefaultPosition,wxDefaultSize,wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
-	        self.tool_patient_search = self.tb_patient_search.AddTool(ID_BUTTONFINDPATIENT, getToolbar_FindPatientBitmap(),shortHelpString="Find Patient")
+
+		self.tb_patient_search = wxToolBar (
+			tb,
+			-1,
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT
+		)
+		self.tool_patient_search = self.tb_patient_search.AddTool (
+			ID_BUTTONFINDPATIENT,
+			getToolbar_FindPatientBitmap(),
+			shortHelpString = "Find Patient"
+		)
 		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
-		self.txt_findpatient = wxComboBox(tb, ID_TXTPATIENTFIND, "", wxDefaultPosition,wxDefaultSize,[], wxCB_DROPDOWN)
+
+		self.txt_findpatient = wxComboBox (
+			tb,
+			ID_TXTPATIENTFIND,
+			"",
+			wxDefaultPosition,
+			wxDefaultSize,
+			[],
+			wxCB_DROPDOWN
+		)
+		self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		EVT_COMBOBOX (self.txt_findpatient, ID_TXTPATIENTFIND, self.OnTool)
-	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-	      	self.lbl_age =wxStaticText(tb,-1,_("Age"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL)
-	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
-	      	self.lbl_age.SetForegroundColour(wxColour(0,0,131))
-	      	self.txt_age = wxTextCtrl(tb,ID_TXTPATIENTAGE,"",size = (40,-1))
-	      	self.txt_age.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-	      	self.lbl_allergies =wxStaticText(tb,-1,_("Allergies"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL)
-	      	self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
-	      	self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
-	      	self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"")
-	      	self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-	      	self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
-	      	self.combo_consultation_type = wxComboBox(tb, ID_COMBOCONSULTTYPE, "Surgery", wxDefaultPosition,wxDefaultSize,consulttypelist, wxCB_DROPDOWN)
+
+		# age field
+		self.lbl_age = wxStaticText (
+			tb,
+			-1,
+			_("Age"),
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxALIGN_CENTER_VERTICAL
+		)
+		self.lbl_age.SetFont (wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.lbl_age.SetForegroundColour (wxColour(0,0,131))
+		# FIXME: fixed size ?!?, non-editable
+		self.txt_age = wxTextCtrl (
+			tb,
+			ID_TXTPATIENTAGE,
+			"",
+			size = (40,-1)
+		)
+		self.txt_age.SetFont (wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+
+		# allergies field
+		self.lbl_allergies = wxStaticText (
+			tb,
+			-1,
+			_("Allergies"),
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxALIGN_CENTER_VERTICAL
+		)
+		self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
+
+		self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"")
+		self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
+
+		# consultation type selector
+		self.combo_consultation_type = wxComboBox (
+			tb,
+			ID_COMBOCONSULTTYPE,
+			_("Surgery"),
+			wxDefaultPosition,
+			wxDefaultSize,
+			consultation_types,
+			wxCB_DROPDOWN
+		)
+
+		# place them on the top toolbar
 		tb.toplinesizer.Add(self.tb_patient_search,0,wxEXPAND)
-	      	tb.toplinesizer.Add(self.txt_findpatient,5,wxEXPAND|wxALL,3)
-	      	tb.toplinesizer.Add(self.lbl_age,1,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
-	      	tb.toplinesizer.Add(self.txt_age,0,wxEXPAND|wxALL,3)
-	      	tb.toplinesizer.Add(self.lbl_allergies,0,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
-	      	tb.toplinesizer.Add(self.txt_allergies,6,wxEXPAND|wxALL,3)
+		tb.toplinesizer.Add(self.txt_findpatient,5,wxEXPAND|wxALL,3)
+		tb.toplinesizer.Add(self.lbl_age,1,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
+		tb.toplinesizer.Add(self.txt_age,0,wxEXPAND|wxALL,3)
+		tb.toplinesizer.Add(self.lbl_allergies,0,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
+		tb.toplinesizer.Add(self.txt_allergies,6,wxEXPAND|wxALL,3)
+
+		# and register ourselves as a widget
 		self.gb['modules.patient'][self.name ()] = self
 		tb.AddWidgetRightBottom (self.combo_consultation_type)
 		self.mwm = self.gb['patient.manager']
@@ -432,11 +500,11 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
 		self.RegisterInterests ()
 		self.set_widget_reference(self.widget)
-		
+	#--------------------------------------------------------		
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
 		print "OnTool"
-		self.gb['modules.gui']['Patient'].Raise ()
+		self.gb['modules.gui']['Patient'].Raise()
 		self.widget.FindPatient (self.txt_findpatient.GetValue ())
 
 	def RegisterInterests(self):
@@ -485,7 +553,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.19  2003-02-09 23:42:50  ncq
+# Revision 1.20  2003-03-28 16:43:12  ncq
+# - some cleanup in preparation of inserting the patient searcher
+#
+# Revision 1.19  2003/02/09 23:42:50  ncq
 # - date time conversion to age string does not work, set to 20 for now, fix soon
 #
 # Revision 1.18  2003/02/09 12:05:02  sjtan
