@@ -50,7 +50,7 @@ import org.gnumed.testweb1.global.Util;
  * @author  sjtan
  */
 public class DemographicSaveAction extends Action {
-    
+    ActionUtil util= new ActionUtil();
     /** Creates a new instance of DemographicEntryAction */
     public DemographicSaveAction() {
     }
@@ -139,7 +139,7 @@ public class DemographicSaveAction extends Action {
         saveErrors(request, errors);
         //   return  mapping.getInputForward();
         
-        Util.setScopedMappingAttribute(request, mapping, form);
+        util.setScopedMappingAttribute(request, mapping, form);
         
         return mapping.getInputForward();
     }

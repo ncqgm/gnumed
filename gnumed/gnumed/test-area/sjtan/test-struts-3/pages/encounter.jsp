@@ -104,16 +104,22 @@ e.g. getNarrative(index) ...  id='narrative'
                     <el:checkbox  name="narrative" property="linkedToPreviousEpisode" indexed="true" 
                      onchange="if (this.checked) { 
                             document.getElementById('healthIssueInput${index}').style.display='none';
-                           document.getElementById('clinNarrative${index}').style.display='block'; 
+                            
+                            document.getElementById('clinNarrative${index}').style.display='block';
+                            document.getElementById('episodeEntry${index}').style.display='none';
+                            
                         
                             } else {
-                           document.getElementById('healthIssueInput${index}').style.display='block';
-                           }
+                                document.getElementById('healthIssueInput${index}').style.display='block';
+                                document.getElementById('episodeEntry${index}').style.display='block';
+                            
+                            }
                            return true;
                           "/>
                  </logic:greaterThan>
                 </td>
                 <td>
+                
                 <table id='healthIssueInput<%=index%>' >
                 <tr>
                 <td>
@@ -159,6 +165,8 @@ onchange=""
                 
                 </td>
                 </tr>
+                <tr>
+                </tr>
                 </table>
                  
                  </td>
@@ -182,9 +190,10 @@ onchange=""
                 
             <div id='clinNarrative<%=index%>' style='display:<%=(String)((index.intValue() == 0)? "block":"none")%>'  >   
               
-                <table> 
+                <table > 
+                
                         <tr>
-                        <td colspan='3' > <bean:message key="main.complaint" />
+                        <td colspan='3' id='episodeEntry<%=index%>'> <bean:message key="main.complaint" />
                            <html:text  name="narrative" property="episode.description" indexed="true" size="40"  />
                         
                         </td>

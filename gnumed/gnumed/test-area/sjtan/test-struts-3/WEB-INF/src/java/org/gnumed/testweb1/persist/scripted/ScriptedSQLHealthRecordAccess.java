@@ -72,6 +72,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             vaccinationsRS, medicationsRS, allergyRS, narrativeRS,
             lab_requestRS, test_resultRS, referralRS;
             
+            ensureXLinkIdentityExists(conn, patientId);
             healthIssuesRS = getHealthIssueRS(conn, patientId);
             
             episodesRS = getClinEpisodesRS(conn, getIdsFromResultSet(healthIssuesRS, "id"));
@@ -510,4 +511,23 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         
     }
     
+    
+    private void ensureXLinkIdentityExists(Connection conn,long patientId) throws SQLException {
+        String s8 = "select xfk_identity from xlnk_identity where xfk_identity=  ?";
+        PreparedStatement stmt = conn.prepareStatement(s8);
+        stmt.setLong(1, patientId);
+        stmt.execute();
+        ResultSet rs = stmt.getResultSet();
+        if (rs.next()) {
+            stmt.close();
+            return;
+        }
+        String s9= "insert into xlnk_identity( xfk_identity, pupic) values( ? , ?)";
+        PreparedStatement stmt2 = conn.prepareStatement(s9);
+        stmt2.setLong(1, patientId);
+        stmt2.setLong(2, patientId);
+        stmt2.execute();
+       
+        stmt2.close();
+    }
 }

@@ -51,7 +51,7 @@ import org.apache.struts.action.DynaActionFormClass;
  * @author  sjtan
  */
 public class DemographicEditAction extends Action {
-    
+    ActionUtil util= new ActionUtil();
     /** Creates a new instance of DemographicEditAction */
     public DemographicEditAction() {
     }
@@ -99,7 +99,7 @@ public class DemographicEditAction extends Action {
                 
             }
             
-            Util.setScopedMappingAttribute(request, mapping, form);
+            util.setScopedMappingAttribute(request, mapping, form);
             
             //            if ("session".equals(mapping.getScope())) {
             //                request.getSession().setAttribute(mapping.getAttribute(), form);
@@ -109,7 +109,7 @@ public class DemographicEditAction extends Action {
             //            }
             //
         } catch (Exception e) {
-            Util.setScopedMappingAttribute(request, mapping, form);
+           util.setScopedMappingAttribute(request, mapping, form);
             log.info(e);
             ActionError error = new ActionError(e.toString(), e);
             errors.add("failure in EditDemographics", error);

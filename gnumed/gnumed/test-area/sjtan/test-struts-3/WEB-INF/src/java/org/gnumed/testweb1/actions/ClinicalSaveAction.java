@@ -61,7 +61,7 @@ import java.util.List;
  * @author  sjtan
  */
 public class ClinicalSaveAction extends Action {
-    
+    ClinicalActionUtil util = new ClinicalActionUtil();
     /** Creates a new instance of DemographicEntryAction */
     public ClinicalSaveAction() {
     }
@@ -152,7 +152,7 @@ public class ClinicalSaveAction extends Action {
               
             
             e.printStackTrace();
-            Util.setScopedMappingAttribute(request, mapping, form);
+            util.setScopedMappingAttribute(request, mapping, form);
             log.info(e);
             ActionError error = new ActionError(e.toString(), e);
             errors.add("failure in EditClinical", error);

@@ -117,16 +117,6 @@ public class Util {
         throw pe;
     }
     
-    public static  void setScopedMappingAttribute(HttpServletRequest request, ActionMapping mapping,   Object form) {
-         if ( "session".equals(mapping.getScope() )) {
-            request.getSession().setAttribute(mapping.getAttribute(), form);
-            log.info("SESSION FORM ATTRIBUTE KEY"+ mapping.getAttribute());
-        } else {
-            request.setAttribute(mapping.getAttribute(), form);
-             log.info("REQUEST FORM ATTRIBUTE KEY"+ mapping.getAttribute());
-       
-        }
-    }
     
     public static String getStaceTraceN(final java.lang.Throwable exception, final int n) {
         Throwable e = ExceptionUtils.getRootCause(exception);

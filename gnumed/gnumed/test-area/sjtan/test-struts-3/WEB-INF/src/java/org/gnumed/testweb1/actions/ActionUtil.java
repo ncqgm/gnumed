@@ -1,10 +1,10 @@
 /*
- * ClinicalEditAction.java
+ * ActionUtil.java
  *
- * Created on July 5, 2004, 11:58 PM
+ * Created on September 24, 2004, 5:56 PM
  */
 
-package org.gnumed.testweb1.actions;
+package org.gnumed.testweb1.actions; 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -57,7 +57,7 @@ import org.apache.struts.config.FormPropertyConfig;
 
 import org.apache.struts.action.ActionFormBeans;
 import org.apache.struts.action.ActionFormBean;
-import org.apache.struts.action.DynaActionFormClass;
+import org.apache.struts.action.DynaActionForm;
 
 import org.gnumed.testweb1.forms.ClinicalUpdateForm;
 
@@ -66,41 +66,21 @@ import java.util.List;
  *
  * @author  sjtan
  */
-public class ClinicalEditAction extends Action {
-    ClinicalActionUtil clinicalActionUtil = new ClinicalActionUtil();
-    /** Creates a new instance of ClinicalEditAction */
-    public ClinicalEditAction() {
+public class ActionUtil {
+    Log log = LogFactory.getFactory().getLog( ActionUtil.class);
+    /** Creates a new instance of ActionUtil */
+    public ActionUtil() {
     }
-    Log log = LogFactory.getLog(this.getClass());
     
-    public ActionForward execute(ActionMapping mapping,
-    ActionForm form,
-    HttpServletRequest request,
-    HttpServletResponse response) {
-        
-        ActionErrors errors = new ActionErrors();
-        
-        try {
-               clinicalActionUtil.setRequestAttributes( servlet,  request,   form,  mapping ) ;
-         } catch (Exception e) {
-            e.printStackTrace();
-            clinicalActionUtil.setScopedMappingAttribute(request, mapping, form);
-            log.info(e);
-            ActionError error = new ActionError(e.toString(), e);
-            errors.add("failure in EditClinical", error);
-            saveErrors( request, errors);
-            return mapping.getInputForward();
+    
+    public   void setScopedMappingAttribute(HttpServletRequest request, ActionMapping mapping,   Object form) {
+        if ( "session".equals(mapping.getScope() )) {
+            request.getSession().setAttribute(mapping.getAttribute(), form);
+            log.info("SESSION FORM ATTRIBUTE KEY"+ mapping.getAttribute());
+        } else {
+            request.setAttribute(mapping.getAttribute(), form);
+            log.info("REQUEST FORM ATTRIBUTE KEY"+ mapping.getAttribute());
+            
         }
-        
-        return mapping.findForward("successLoadClinical");
-    }
-    
-   
-    
-    private void logHealthIssues(   HealthRecord01 healthRecord) {
-        List l = healthRecord.getHealthSummary().getHealthIssues();
-        log.info("got health issues " + l + " size = " + ( (l == null)? "null" : Integer.toString(l.size())));
-        
-        
     }
 }

@@ -4,7 +4,7 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-bean" prefix="bean"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-nested" prefix="nested"%>
-
+<%@taglib uri="http://jakarta.apache.org/struts/tags-bean-el" prefix="bean-el"%>
 <html>
 <head>
     <title>Summary</title>
@@ -15,17 +15,27 @@
   <jsp:include page="./patient_detail_block.jsp"/>   
   <jsp:include page="./relative_url_javascript.jsp"/>  
     <h3>Problem List</h3>
-    <table>
+    <table border='1' cellpadding='2'e>
     <logic:iterate   id="healthIssue" 
             name="healthRecord" 
             property="healthSummary.healthIssues"
-             >
+            indexId="index" >
+            <bean:define id="tableCol" value="<%=Integer.toString(index.intValue() % 3) %>" />
+            <logic:equal name="tableCol" value="0">
             <tr>
+            </logic:equal>
             <td>
             <bean:write name="healthIssue" property="description" />
             </td>
+           <logic:equal name="tableCol" value="2">
             </tr>
+            </logic:equal>
+            
     </logic:iterate>
+    <logic:notEqual name='tableCol' value='2'>
+    </tr>
+    </logic:notEqual>
+    
     </table>
      
     
@@ -82,11 +92,11 @@
     
 
     <h3>Clinical Episode</h3>
-    
-    <bean:define id="identityId" name="healthRecord" property="healthSummary.identityId" />
+        <bean:define id="identityId" name="healthRecord" property="healthSummary.identityId" />
     <%String contextPath=org.apache.struts.util.RequestUtils.serverURL(request)+"/"
         +request.getContextPath()+"/"+"ClinicalEdit.do?id="+identityId.toString();
         request.setAttribute("contextPath", contextPath); %>
+    
   
     <a   href="<%=request.getAttribute("contextPath")%>#pastNotes"> past notes </a>
          

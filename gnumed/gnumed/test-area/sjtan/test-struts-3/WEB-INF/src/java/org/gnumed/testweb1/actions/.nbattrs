@@ -10,9 +10,6 @@
     <fileobject name="DemographicEditAction.java">
         <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="DemographicEditAction"/>
     </fileobject>
-    <fileobject name="DemographicSaveAction.java">
-        <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="DemographicSaveAction"/>
-    </fileobject>
     <fileobject name="FindIdentityAction.java">
         <attr name="class_dependency_org.apache.struts.action.Action" stringvalue="FindIdentityAction"/>
     </fileobject>
