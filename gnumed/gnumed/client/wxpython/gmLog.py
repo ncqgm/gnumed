@@ -41,10 +41,10 @@ Usage:
 @copyright: GPL
 """
 
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, time, traceback, os.path, atexit, os
+import sys, time, traceback, os.path, atexit, os, string
 
 # safely import SYSLOG, currently POSIX only
 try:
@@ -234,7 +234,7 @@ class cLogTarget:
     #---------------------------
     def close(self):
 	self.writeMsg (lPanic, "SECURITY: closing log target (ID = " + str(self.ID) + ")")
-	self.flush()
+	#self.flush()
     #---------------------------
     def getID (self):
 	return self.ID
@@ -259,9 +259,10 @@ class cLogTarget:
 		self.dump2stdout (timestamp, severity, caller, aMsg + "\n")
 	    else:
 		self.dump2stderr (timestamp, severity, caller, aMsg + "\n")
-	    # lPanic immediately flush()es
+	    # FIXME: lPanic immediately flush()es ?
 	    if aLogLevel == lPanic:
-		self.flush()
+		#self.flush()
+		pass
     #---------------------------
     def writeDelimiter (self):
 	self.dump2stdout (self.__timestamp(), '', '', '------------------------------------------------------------\n')
@@ -377,58 +378,106 @@ class cLogTargetEMail(cLogTarget):
     - sends log messages to the specified e-mail address upon flush() or close()
     - holds unsent log messages in a ring buffer
     """
-    def __init__ (self, aLogLevel = lErr, aReceiverList = None, aBufferLength = 150, aSysDump = None):
+    def __init__ (self, aLogLevel = lErr, aFrom = None, aTo = None, anSMTPServer = None):
 	"""Instantiate.
-    
-	- aReceiver must hold a sequence of addresses (unsually a singleton)
-	- aBufferlength = maximum number of log messages in ring buffer
-	- if aSysDump != None: include various system info when flush()ing such as PYTHONPATH
+
+	- aTo must hold a sequence of addresses (usually a singleton)
+	- anSMTPServer is the URL of a valid SMTP server, will use "localhost" if == None
 	"""
 	# sanity check
-	if aReceiverList == None:
-	    raise ValueError, "cLogTargetEMail.__init__(): aReceiverList must contain values !"
+	if aTo == None:
+	    raise ValueError, "cLogTargetEMail.__init__(): aTo must contain values !"
+
+	if aFrom == None:
+	    # FIXME
+	    raise ValueError, "cLogTargetEMail.__init__(): aFrom must contain a value !"
+
+	self.__dump_sys_info = (1==1)
+	self.__max_buf_len = 100
+	self.__max_line_size = 150
+	self.__msg_buffer = []
 
 	# call inherited
 	cLogTarget.__init__(self, aLogLevel)
 
 	# do our extra work
-	self.__receiver_list = string.join(aReceiverList, ", ")
-	self.ID = "email: " + self.__receiver_list
-	if aSysDump == None:
-	    self.__dump_sys_info = (1==0)
+	self.__from = str(aFrom)
+	self.__to = string.join(aTo, ", ")
+	print self.__to
+
+	import smtplib
+	if anSMTPServer == None:
+	    self.__smtpd = smtplib.SMTP("localhost")
 	else:
-	    self.__dump_sys_info = (1==1)
-	self.__max_buf_len = aBufferLength
-	# FIXME: this is pseudo-hardcoded but shouldn't be, really
-	# please suggest some smart algorithm !
-	# you can change it if you really want by accessing
-	# cLogTargetEMail.max_line_size directly
-	# 200 characters max per line (hardcoded)
-	self.max_line_size = 200
-	self.__msg_buffer = []
+	    self.__smtpd = smtplib.SMTP(anSMTPServer)
+
+	self.ID = "email: " + self.__to
 	self.writeMsg (lInfo, "instantiated e-mail logging with ID " + str(self.ID))
+    #---------------------------
+    def close(self):
+	cLogTarget.close(self)
+	self.__smtpd.close()
+    #---------------------------
+    def setSysDump (self, aFlag):
+	"""Whether to include various system info when flush()ing.
+
+	   - PYTHONPATH"""
+	self.__dump_sys_info = aFlag
+    #---------------------------
+    def setMaxBufLen (self, aBufLen):
+	"""Set maximum number of log messages in ring buffer."""
+	if aBufLen < 5:
+	    return (1==1)
+	if aBufLen > 250:
+	    return (1==1)
+	self.__max_buf_len = aBufLen
+    #---------------------------
+    def setMaxLineSize (self, aLineSize):
+	"""Set maximum line size in byte."""
+	if aLineSize < 30:
+	    return (1==1)
+	if aLineSize > 300:
+	    return (1==1)
+	self.__max_line_size = aLineSize
     #---------------------------
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	# any messages containing "CONFIDENTIAL" get dropped
 	if string.find(aMsg, "CONFIDENTIAL") != -1:
 	    return (1==1)
 	# any message larger than max_line_size is truncated
-	if len(aMsg) > self.max_line_size:
-	    aMsg[self.max_line_size:] = " [...]\n"
+	if len(aMsg) > self.__max_line_size:
+	    aMsg[self.__max_line_size:] = " [...]\n"
 	# drop oldest msg from buffer if buffer full
 	if len(self.__msg_buffer) >= self.__max_buf_len:
 	    self.__msg_buffer.pop(0)
 	# now finally store the current log message
 	self.__msg_buffer.append(aTimeStamp + aPrefix + aLocation + aMsg)
     #---------------------------
-    def flush():
-	pass
-	# FIXME here is the meat !
-	# import mail modules
+    def flush(self):
 	# create mail header
+	msg = ''
+	msg = msg + 'From: %s\n' % self.__from
+	msg = msg + 'To: %s\n' % self.__to
+	msg = msg + 'Date: %s\n' % time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.localtime(time.time()))
+	msg = msg + 'Subject: GNUmed error log demon\n'
+	msg = msg + '\n'
 	# create mail body
+	# - dump system info
+	if self.__dump_sys_info:
+	    msg = msg + 'sys.version : %s\n' % sys.version
+	    msg = msg + 'sys.platform: %s\n' % sys.platform
+	    msg = msg + 'sys.path    : %s\n' % sys.path
+	    msg = msg + 'sys.modules : %s\n' % sys.modules
+
+	# - dump actual message buffer
+	msg = msg + string.join(self.__msg_buffer, '')
+
 	# send mail
-	# initialize msg buffer
+	self.__smtpd.sendmail(self.__from, self.__to, msg)
+
+	# reinitialize msg buffer
+	del self.__msg_buffer
+	self.__msg_buffer = []
 #---------------------------------------------------------------
 def myExitFunc():
     pass
@@ -448,6 +497,13 @@ if __name__ == "__main__":
 
     # and use that to populate the logger
     log = cLogger(loghandle)
+
+    # set up an email target
+    print "please type sender and receiver of log messages"
+    aFrom = raw_input("From: ").strip()
+    aTo = raw_input("To: ").strip().split()
+    mailhandle = cLogTargetEMail(lData, aFrom, aTo)
+    log.AddTarget(mailhandle)
 
     # should log a security warning
     loghandle.SetLogLevel (lWarn)
@@ -511,5 +567,4 @@ else:
 # callable()
 # type()
 # __del__
-# __is_sublclass__
-#
+# __is_subclass__
