@@ -161,7 +161,7 @@ class wxPatientPlugin (wxBasePlugin):
 			self.mwm.RegisterLeftSide (self.name (), self.GetWidget (self.mwm))
 		icon = self.GetIcon ()
 		if icon is not None:
-			tb2 = self.gb['toolbar.Patient Window']
+			tb2 = self.gb['toolbar.Patient']
 			tb2.AddSeparator()
 			self.tool_id = wxNewId ()
 			tool1 = tb2.AddTool(self.tool_id, icon,

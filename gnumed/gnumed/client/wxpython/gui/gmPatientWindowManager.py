@@ -165,7 +165,7 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
 
 
     def name (self):
-        return "Patient Window"
+        return "Patient"
 
     def MenuInfo (self):
         return ('view', '&Patient')
@@ -181,7 +181,7 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
             gmPlugin.LoadPlugin ('patient', plugin,
                                  guibroker = self.gb)
         self.pw.DisplayDefault ()
-        self.gb['toolbar.Patient Window'].Realize ()
+        self.gb['toolbar.%s' % self.name ()].Realize ()
 
     def Shown (self):
         self.gb['modules.patient'][self.pw.GetVisible ()].Shown ()

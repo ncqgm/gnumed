@@ -1,7 +1,9 @@
-DB=gnumed7
+#!/bin/sh
+DB=gnumed
 #do manually, may not want to drop it
 #dropdb $DB
-createdb $DB 
+createdb $DB
+cd /usr/share/gnumed/server/sql/ 
 psql -f gnumed.sql $DB 
 psql -f gmconfiguration.sql $DB 
 psql -f gmidentity.sql $DB 

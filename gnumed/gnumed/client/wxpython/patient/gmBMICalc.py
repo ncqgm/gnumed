@@ -311,7 +311,7 @@ class gmBMICalc (gmPlugin.wxBasePlugin):
 	EVT_TOOL (tb, ID_BMITOOL, self.OnBMITool)
 
     def unregister (self):
-        tb2 = self.gb['toolbar.Patient Window']
+        tb2 = self.gb['toolbar.Patient']
         tb2.DeleteTool (ID_BMITOOL)
         menu = self.gb['main.toolsmenu']
         menu.Delete (ID_BMIMENU)

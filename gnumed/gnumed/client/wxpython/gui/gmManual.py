@@ -24,7 +24,6 @@ from   wxPython.html       import *
 import wxPython.lib.wxpTag
 import gmGuiBroker
 import gmPlugin
-import images_gnuMedGP_Toolbar
 import gmLog
 
 manual_path = 'doc/gnumed/book1.html'

@@ -55,7 +55,7 @@ class gmPatientSearch (gmPlugin.wxBasePlugin):
         """
         name = split (lower(self.pt_name_ctrl.GetValue ()))
         self.mwm.Display ('Patient Search')
-        self.gb['modules.gui']['Patient Window'].Raise ()
+        self.gb['modules.gui']['Patient'].Raise ()
         if len (name) == 0: # list everyone! (temporary, for small database)
             query = """
 select id, firstnames, lastnames, dob, gender from v_basic_person

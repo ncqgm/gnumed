@@ -30,6 +30,8 @@ COMMENT ON COLUMN db.port IS
 COMMENT ON COLUMN db.host IS
 'host name or IP number of the server hosting this database';
 
+GRANT SELECT ON db TO PUBLIC;
+
 --=====================================================================
 
 CREATE TABLE distributed_db (
@@ -79,6 +81,9 @@ INSERT INTO distributed_db(name) values('office');
 -- this service allows to manage gnumed client modules
 INSERT INTO distributed_db(name) values('modules');
 
+GRANT SELECT ON distributed_db TO PUBLIC;
+
+--=====================================================
 
 CREATE TABLE config (
     id SERIAL PRIMARY KEY,
