@@ -26,7 +26,7 @@ from Gnumed.pycommon.gmPyCompat import *
 
 # 3rd party
 from wxPython.wx import *
-#from wxPython.grid import * 
+from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -39,17 +39,6 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_BTN_submit_Lab_ID
 ] = map(lambda _init_ctrls: wxNewId(), range(6))
 
-wxEVT_ITEM_SELECTED = wxNewEventType()
-#============================================================
-def EVT_ITEM_SELECTED(win, func):
-    win.Connect(-1, -1, wxEVT_ITEM_SELECTED, func)
-#============================================================
-class ItemSelectedEvent(wxPyCommandEvent):
-    def __init__(self):
-        wxPyEvent.__init__(self)
-        self.SetEventType(wxEVT_ITEM_SELECTED)
-#================================================================
-
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
@@ -61,17 +50,27 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			"""
 		self.mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
 		self.mp.setThresholds(aWord=2, aSubstring=4)
-
+		
 		gmPhraseWheel.cPhraseWheel.__init__(
 			self,
 			parent = parent,
 			id = -1,
 			aMatchProvider = self.mp,
 			size = wxDefaultSize,
-			pos = wxDefaultPosition
-			#self.wheel_callback
+			pos = wxDefaultPosition,
+			id_callback = self.wheel_callback
 		)
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
+	
+	def wheel_callback(self, data):
+		#self.lab = 'Enterprise Main Lab'
+		print data
+#====================================
+class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
+    def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
+        wxListCtrl.__init__(self, parent, ID, pos, size, style)
+        wxListCtrlAutoWidthMixin.__init__(self)
+
 #====================================
 class cLabJournalNB(wxNotebook):
 	"""This wxNotebook derivative displays 'records still due' and lab-import related errors.
@@ -124,7 +123,7 @@ class cLabJournalNB(wxNotebook):
 			#wxSize(80,-1),
 			#0
 			#)
-		EVT_ITEM_SELECTED(self.PNL_due_tab,self.__on_lab_selected)
+		#EVT_ITEM_SELECTED(self.PNL_due_tab,self.__on_lab_selected)
 		
 		vbszr_main.AddWindow(lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
 
@@ -152,18 +151,35 @@ class cLabJournalNB(wxNotebook):
 		vbszr_main.AddWindow( self.BTN_submit_Lab_ID, 0, wxALIGN_CENTER|wxALL, 5 )
 
 		# maybe have a look at MultiColumnList
-		lbox_pending = wxListBox( 
+		# our actual list
+		tID = wxNewId()
+		lbox_pending = gmLabIDListCtrl(
 			self.PNL_due_tab,
-			wxID_LBOX_pending_results,
-			wxDefaultPosition,
-			wxSize(80,100), 
-			["ListItem"] ,
-			wxLB_SINGLE 
-			)
+			tID,
+			size=(400,100),
+			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
+		)#|wxLC_HRULES)
+
+		lbox_pending.InsertColumn(0, _("XDT field"))
+		lbox_pending.InsertColumn(1, _("XDT field content"))
+		idx = lbox_pending.InsertItem(info=wxListItem())
+		lbox_pending.SetStringItem(index=idx, col=0, label='idx')
+		lbox_pending.SetStringItem(index=idx, col=1, label='idx')
+		
+		#lbox_pending = wxListBox( 
+		#	self.PNL_due_tab,
+		#	wxID_LBOX_pending_results,
+		#	wxDefaultPosition,
+		#	wxSize(80,100), 
+		#	["ListItem"] ,
+		#	wxLB_SINGLE 
+		#	)
 
 		vbszr_main.AddWindow( lbox_pending, 0, wxALIGN_CENTER|wxALL, 5 )
 		return vbszr_main
 
+	def __init_SZR_import_errors (self, call_fit = True, set_sizer = True ):
+		pass
 	#------------------------------------------------------------------------
 	def OnLeftDClick(self, evt):
 		pass
@@ -192,7 +208,6 @@ class cLabJournalNB(wxNotebook):
 		for lab in labs:
 			if not self.__get_last_used_ID(lab[1]) == []:
 				self.last_id[lab[1]] = self.__get_last_used_ID(lab[1])[0][0]
-				print self.last_id
 		# FIXME: check if patient changed at all
 		# emr = self.curr_pat.get_clinical_record()
 		# FIXME: there might be too many results to handle in memory
@@ -244,9 +259,8 @@ class cLabJournalNB(wxNotebook):
 		#pass
 		evt.Skip()
 	#-------------------------------------------------------
-	def __on_lab_selected(self,evt):
-		#item2.SetValue(self.last_id[self.item1.GetValue()])
-		print ' it works'
+	def __on_lab_selected(self,aLab):
+		item2.SetValue(self.last_id[aLab])
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -481,7 +495,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.3  2004-04-29 21:05:19  shilbert
+# Revision 1.4  2004-05-01 10:29:46  shilbert
+# - custom event handlig code removed, pending lab ids input almost completed
+#
+# Revision 1.3  2004/04/29 21:05:19  shilbert
 # - some more work on auto update of id field
 #
 # Revision 1.2  2004/04/28 16:12:02  ncq
