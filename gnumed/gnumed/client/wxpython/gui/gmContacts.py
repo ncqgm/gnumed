@@ -8,14 +8,15 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
 
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
-
+from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
+from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
@@ -95,21 +96,21 @@ class TextBox_BlackNormal(wxTextCtrl):
 
 class ContactsPanel(wxPanel):
        def __init__(self, parent,id):
-	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxNO_BORDER|wxTAB_TRAVERSAL)                     
+	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxNO_BORDER|wxTAB_TRAVERSAL)
           #-----------------------------------------------------------------
           #create top list box which will show organisations, employees, etc
 	  #-----------------------------------------------------------------
 	  self.list_organisations = wxListCtrl(self, ID_ORGANISATIONSLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
           self.list_organisations.SetForegroundColour(wxColor(74,76,74))
 	  self.list_organisations.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-          #----------------------------------------	  
+          #----------------------------------------
           # add some dummy data to the allergy list
 	  self.list_organisations.InsertColumn(0,_( "Organisation"))
 	  self.list_organisations.InsertColumn(1,_( "Employees"))
 	  self.list_organisations.InsertColumn(2,_( "Address"))
 	  self.list_organisations.InsertColumn(3,_( "Category/Email"))
 	  self.list_organisations.InsertColumn(4,_( "Phone"))
-     
+
 	  #-------------------------------------------------------------
 	  #loop through the scriptdata array and add to the list control
 	  #note the different syntax for the first coloum of each row
@@ -141,7 +142,7 @@ class ContactsPanel(wxPanel):
 	  self.lbl_org_street = BlueLabel(self,-1,("Street"))
 	  self.lbl_org_suburb = BlueLabel(self,-1,_("Suburb"))
 	  self.lbl_org_state = BlueLabel(self,-1,_("State"))                   #eg NSW
-	  self.lbl_org_zip = wxStaticText(self,id,_("Zip"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTRE) 
+	  self.lbl_org_zip = wxStaticText(self,id,_("Zip"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTRE)
 	  self.lbl_org_zip.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 	  self.lbl_org_zip.SetForegroundColour(wxColour(0,0,131))
 	  #self.lbl_org_zip = BlueLabel(self,-1,"Zip")
@@ -152,21 +153,28 @@ class ContactsPanel(wxPanel):
 	  self.lbl_org_user3 = BlueLabel(self,-1,_("User3"))
 	  self.lbl_org_phone = BlueLabel(self,-1,_("Phone"))
 	  self.lbl_org_fax = BlueLabel(self,-1,_("Fax"))
-          self.lbl_org_email = BlueLabel(self,-1,_("Email"))	 
+          self.lbl_org_email = BlueLabel(self,-1,_("Email"))
           self.lbl_org_internet = BlueLabel(self,-1,_("Internet"))
 	  self.lbl_org_mobile = BlueLabel(self,-1,_("Mobile"))
           self.lbl_org_memo = BlueLabel(self,-1,_("Memo"))
-          	  
+
           #--------------------
 	  #create the textboxes
           #--------------------
 	  self.txt_org_name = TextBox_RedBold(self,-1)
-	  self.txt_org_type = TextBox_RedBold(self,-1)          #head office, branch or department
-	  self.txt_org_street = wxTextCtrl(self, 30,"",wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
-	  self.txt_org_street.SetForegroundColour(wxColor(255,0,0))
-	  self.txt_org_street.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
-	  self.txt_org_suburb = TextBox_RedBold(self,-1)
-	  self.txt_org_zip = TextBox_RedBold(self,-1)
+	  self.txt_org_type = TextBox_RedBold(self,-1)       #head office, branch or department
+	  #self.txt_org_number = TextBox_RedBold(self, -1)
+	  self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
+	  self.txt_org_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+	  self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
+	  self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize , id_callback =self.__postcode_selected)
+
+	  #self.txt_org_street = wxTextCtrl(self, 30,"",wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
+
+	  #self.txt_org_street.SetForegroundColour(wxColor(255,0,0))
+	  #self.txt_org_street.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+	  #self.txt_org_suburb = TextBox_RedBold(self,-1)
+	  #self.txt_org_zip = TextBox_RedBold(self,-1)
 	  self.txt_org_state = TextBox_RedBold(self,-1) #for user defined fields later
 	  self.txt_org_user1 = TextBox_BlackNormal(self,-1)
 	  self.txt_org_user2 = TextBox_BlackNormal(self,-1)
@@ -225,12 +233,12 @@ class ContactsPanel(wxPanel):
 	  #--------------------------------------------------------------
 	  #line onea:type of organisation:headoffice,branch of department
 	  #--------------------------------------------------------------
-	  
+
 	  #self.sizer_line1a.Add(0,0,4)
 	  self.sizer_line1a.Add(self.lbl_Type,4, wxALIGN_LEFT,5)
 	  self.sizer_line1a.Add(self.combo_type,20,wxEXPAND)
 	  self.sizer_line1a.Add(self.txt_org_type,20,wxEXPAND)
-	  
+
 	  self.sizer_line1a.Add(0,0,4)
 	  if DISPLAYPERSON == 1:
 		  self.sizer_line1a.Add(self.lbl_pers_occupation,8,wxALIGN_CENTER_VERTICAL, 5)
@@ -239,7 +247,7 @@ class ContactsPanel(wxPanel):
 	          self.sizer_line1a.Add(0,0,44)
 		  #self.lbl_pers_occupation.Hide
 		  #self.txt_pers_occupation.Hide
-		  
+
 	  #--------------------------------------------
 	  #line two:street, + blank line under category
 	  #design of sizer_line2_forphone: (Horizontal box sizer)
@@ -248,7 +256,7 @@ class ContactsPanel(wxPanel):
 	  #this is then added to:
 	  #design of sizer_line2_rightside (verticalbox sizer)
 	  #                           |blank line                      |
-	  #                           |sizer_line2_forphone            |   
+	  #                           |sizer_line2_forphone            |
 	  #
 	  #sizer_line2_rightside is then added to sizerline2:
 	  # -----------------------------------------------------------
@@ -268,7 +276,7 @@ class ContactsPanel(wxPanel):
 	  self.sizer_line2.Add(0,0,4)
 	  self.sizer_line2.AddSizer(self.sizer_line2_rightside,44,wxEXPAND)
 	  #----------------------------------------------------
-	  #line three:suburb, state, zip code, organisation fax 
+	  #line three:suburb, state, zip code, organisation fax
 	  #----------------------------------------------------
           self.sizer_line3.Add(self.lbl_org_suburb,4,wxEXPAND|wxALIGN_CENTER_VERTICAL)
 	  self.sizer_line3.Add(self.txt_org_suburb,40,wxEXPAND)
@@ -310,11 +318,11 @@ class ContactsPanel(wxPanel):
           self.sizer_line7_user3.Add(self.lbl_org_user3,4,wxGROW|wxALIGN_CENTER_VERTICAL,5)
           self.sizer_line7_user3.Add(self.txt_org_user3,18,wxEXPAND)
 	  self.sizer_line7_right = wxBoxSizer(wxVERTICAL)
-	  self.sizer_line7_right.AddSizer(self.sizer_line7_user1,0,wxEXPAND) 
-	  self.sizer_line7_right.AddSizer(self.sizer_line7_user2,0,wxEXPAND) 
-	  self.sizer_line7_right.AddSizer(self.sizer_line7_user3,0,wxEXPAND) 
-          
-	  
+	  self.sizer_line7_right.AddSizer(self.sizer_line7_user1,0,wxEXPAND)
+	  self.sizer_line7_right.AddSizer(self.sizer_line7_user2,0,wxEXPAND)
+	  self.sizer_line7_right.AddSizer(self.sizer_line7_user3,0,wxEXPAND)
+
+
 	  self.sizer_line7.Add(self.lbl_org_memo,4,wxEXPAND|wxALIGN_CENTER_VERTICAL,5)
 	  self.sizer_line7.Add(self.txt_org_memo,40,wxEXPAND)
 	  self.sizer_line7.Add(0,0,4)
@@ -337,7 +345,14 @@ class ContactsPanel(wxPanel):
           self.mainsizer.Fit
           self.SetAutoLayout(true)
           self.Show(true)
-      
+	  
+       def __urb_selected(self, urb_id):
+          print "urb_id", urb_id
+      	  pass
+       def __postcode_selected(self, postcode):
+       	  print "postcode", postcode
+      	  pass
+
 class gmContacts (gmPlugin.wxNotebookPlugin):
 	tab_name = _("Contacts")
 
@@ -400,7 +415,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.14  2004-03-18 09:43:02  ncq
+# Revision 1.15  2004-05-25 14:51:23  sjtan
+#
+# savepoint, enable urb and postcode phrasewheels.
+#
+# Revision 1.14  2004/03/18 09:43:02  ncq
 # - import gmI18N if standalone
 #
 # Revision 1.13  2004/03/09 07:58:26  ncq
