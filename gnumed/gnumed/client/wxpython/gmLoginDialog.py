@@ -427,8 +427,9 @@ class OptionPanel(wxPanel):
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 
-		#rterry commented out 07.09.02 duplication of title self.paramsbox = wxStaticBox( self, -1, _("Advanced Login Parameters"))
-		self.paramsbox = wxStaticBox( self, -1, _(""))
+		# FIXME: either no title as in "" or a title with i18n as in _("a title")
+		# BUT NOT no title with i18n as in _("")
+		self.paramsbox = wxStaticBox( self, -1, "")
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
 
 		self.pboxgrid = wxFlexGridSizer( 4, 2, 5, 0 )
@@ -573,3 +574,10 @@ if __name__ == '__main__':
 		wxMessageBox(_("You tried to log in as [%s] with password [%s].") % (lp.userlist[0], lp.password))
 	dlg.Destroy()
 	app.MainLoop()
+
+#############################################################################
+# $Log: gmLoginDialog.py,v $
+# Revision 1.23  2002-09-09 01:05:16  ncq
+# - fixed i18n glitch
+# - added note that _("") is invalid !!
+#
