@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -40,8 +40,6 @@ doc_med.date -> date !!!
 
 index
 -----
-- reload phrase wheel after completing a dir
-
 - Funktion Seiten umsortieren fertigstellen
 - wxDateEntry() mit ordentlichem Validator
 
