@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.11 $
+version = $Revision: 1.12 $
 
 #----------------------------------
 [installation]
@@ -86,6 +86,9 @@ name = gnumed
 server alias = local host
 
 # audit trail related options:
+# setting this to 1 will disable creation of any
+# auditing related tables, triggers, and functions
+audit disable = 0
 # name of table that all audited table inherit from, this
 # is used as a marker for audit trail schema generation
 audit marker table = audit_mark
@@ -244,7 +247,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.11  2003-08-17 18:06:36  ncq
+# Revision 1.12  2003-08-26 13:05:04  ncq
+# - add "audit disable" flag
+#
+# Revision 1.11  2003/08/17 18:06:36  ncq
 # - add x_db_fk views
 #
 # Revision 1.10  2003/08/17 00:06:37  ncq
