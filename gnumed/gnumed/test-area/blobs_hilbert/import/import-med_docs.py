@@ -14,7 +14,7 @@ search for FIXME to find places to fix
 #######################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/import/Attic/import-med_docs.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 
 # modules
 import os, fileinput, string, time, sys, os.path
@@ -116,7 +116,7 @@ def import_from_dir(aDir):
 
 	# FIXME: pass file name to document
 	# and load corresponding metadata
-	if not aDoc.loadMetaDataFromXML(aDir, _cfg, "metadata"):
+	if not aDoc.loadMetaDataFromXML(aBaseDir = aDir, aSection = "metadata"):
 		_log.Log(gmLog.lErr, "cannot load document meta data")
 		unlock(aDir)
 		return None
@@ -178,7 +178,10 @@ sys.exit(0)
 
 #=========================================================
 # $Log: import-med_docs.py,v $
-# Revision 1.11  2003-01-30 23:32:07  ncq
+# Revision 1.12  2003-01-30 23:47:41  ncq
+# - more fallout
+#
+# Revision 1.11  2003/01/30 23:32:07  ncq
 # - missing _cfg in doc = cDocument()
 #
 # Revision 1.10  2003/01/24 09:22:17  ncq
