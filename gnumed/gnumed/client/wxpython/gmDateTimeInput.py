@@ -7,8 +7,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.6 2003-11-04 10:35:23 ihaywood Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmDateTimeInput.py,v 1.7 2003-11-05 22:21:06 sjtan Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, re, string
@@ -29,12 +29,12 @@ _false = not true
 #============================================================
 class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	def __init__(self):
-		self.__allow_past = None
+		self.__allow_past = 1 
 		self.__shifting_base = None
 		self.__expanders = []
 		self.__expanders.append(self.__single_number)
 		self.__expanders.append(self.__explicit_offset)
-		gmPhraseWheel.cMatchProvider.__init__(self)
+		gmMatchProvider.cMatchProvider.__init__(self)
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -119,7 +119,7 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 		# allow past ?
 		is_future = 1
 		if string.find(aFragment, '-') > -1:
-			is_future = None
+			is_future = 0 
 			if not self.__allow_past:
 				return None
 
@@ -197,7 +197,8 @@ Date input field
 		self.SetValue(data.strftime(self.__display_format))
 
 		if self.notify_caller is not None:
-			self.notify_caller (data)
+			for f in self.notify_caller:
+				f(data)
 	#----------------------------------------------
 	# event handlers
 	#----------------------------------------------
@@ -321,7 +322,11 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.6  2003-11-04 10:35:23  ihaywood
+# Revision 1.7  2003-11-05 22:21:06  sjtan
+#
+# let's gmDateInput specify id_callback in constructor list.
+#
+# Revision 1.6  2003/11/04 10:35:23  ihaywood
 # match providers in gmDemographicRecord
 #
 # Revision 1.5  2003/10/06 17:49:40  ncq

@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.22 2003-11-04 10:35:23 ihaywood Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmPhraseWheel.py,v 1.23 2003-11-05 22:21:06 sjtan Exp $
+__version__ = "$Revision: 1.23 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -83,6 +83,14 @@ class cPhraseWheel (wxTextCtrl):
 		self.allow_multiple_phrases()
 		self.relevant_input = ''
 
+		self.notify_caller = []
+		self.data = None
+		self.have_called = 0
+
+		if kwargs.has_key('id_callback'):
+			self.addCallback(kwargs['id_callback'])
+			del kwargs['id_callback']
+
 		wxTextCtrl.__init__ (self, *args, **kwargs)
 		# unnecessary as we are using styles
 		#self.SetBackgroundColour (wxColour (200, 100, 100))
@@ -97,9 +105,6 @@ class cPhraseWheel (wxTextCtrl):
 		# 3) evil user wants to resize widget
 		EVT_SIZE (self, self.on_resize)
 		# parent notification callback
-		self.notify_caller = []
-		self.data = None
-		self.have_called = 0
 
 		tmp = kwargs.copy()
 		width, height = kwargs['size']
@@ -481,7 +486,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.22  2003-11-04 10:35:23  ihaywood
+# Revision 1.23  2003-11-05 22:21:06  sjtan
+#
+# let's gmDateInput specify id_callback in constructor list.
+#
+# Revision 1.22  2003/11/04 10:35:23  ihaywood
 # match providers in gmDemographicRecord
 #
 # Revision 1.21  2003/11/04 01:40:27  ihaywood
