@@ -15,14 +15,14 @@ TODO
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.14 2004-06-28 16:15:56 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPatientExporter.py,v 1.15 2004-06-29 08:16:35 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
-from Gnumed.pycommon import gmLog, gmPG, gmI18N
+from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -43,13 +43,13 @@ def prompted_input(prompt, default=None):
 	return usr_input
 #--------------------------------------------------------
 class gmEmrExport:
-	#--------------------------------------------------------
-	"""
-	Default constructor
-	"""
-	def __init__(self):
-		self.outFile = None
+	def __init__(self, outfilename=None):
+		"""Default constructor."""
+		self.outFile = open(outfilename, 'wb')
 		self.lab_new_encounter = True
+	#--------------------------------------------------------
+	def cleanup(self):
+		self.outFile.close()
 	#--------------------------------------------------------
 	def get_vaccination_for_cell(self, vaccs, date, field, text = None):
 		"""
@@ -386,7 +386,7 @@ class gmEmrExport:
 
 		txt = '\nDemographics'
 		txt += '\n------------\n'
-		txt += '   Id: ' + dump['id'] + '\n'
+		txt += '   Id: ' + str(dump['id']) + '\n'
 		for name in dump['names']:
 			if dump['names'].index(name) == 0:
 				txt += '   Name (Active): ' + name['first'] + ', ' + name['last'] + '\n'
@@ -406,22 +406,46 @@ class gmEmrExport:
 #============================================================
 # main
 #------------------------------------------------------------
-def run(export_tool):
+def usage():
+	print 'usage: python gmPatientExporter [--fileout=<outputfilename>] [--conf-file=<file>]'
+	sys.exit(0)
+
+def process_cli(export_tool):
+	"""Processes command line arguments
+	"""
+	for arg in gmCLI.arg.keys():
+		if arg == '--fileout' and len(gmCLI.arg['--fileout']) > 0:
+			export_tool.outFile = open(gmCLI.arg['--fileout'], 'w')
+		else:
+			print 'Unrecognized option: ' + arg + '\npython gmPatientExporter --help for supported options'
+			if export_tool.outFile is not None and not export_tool.outFile.closed:
+				export_tool.outFile.close()
+			sys.exit(0)
+#------------------------------------------------------------
+def run():
+	if gmCLI.has_arg('--fileout'):
+		fname = gmGLI.arg['--fileout']
+	else:
+		usage()
+	export_tool = gmEmrExport(fname)
 	patient = None
 	patient_id = None
+	patient_term = None
+	pat_searcher = gmPatient.cPatientSearcher_SQL()
 
-	while patient_id != 'bye':
-		# FIXME: ask for patient search string
-		# FIXME: if none/more than one found: warn, restart loop
-		# FIXME: if only one found: proceed with dump
-		patient_id = prompted_input("Patient ID (or 'bye' to exit) (eg. 12): ")
-		if patient_id is None or len(patient_id) == 0:
-		    break
-		if patient_id == 'bye':
+	while patient_term != 'bye':
+		patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
+		if patient_term == 'bye':
 			break
-		file_name = prompted_input("Output file: (just press intro for display dump): ")
-		if file_name is not None and len(file_name) > 0:
-		    export_tool.outFile = open(file_name, 'w')
+		search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
+		if search_ids is None or len(search_ids) == 0:
+			prompted_input("No patient matches the query term. Press any key to continue.")
+			continue
+		elif len(search_ids) > 1:
+			prompted_input("Various patients match the query term. Press any key to continue.")
+			continue
+		patient_id = search_ids[0]
+		# FIXME retrieve options from cfg file
 		since = prompted_input("Since (eg. 2001-03-16): ")
 		until = prompted_input("Until (eg. 2003-03-16): ")
 		encounters = prompted_input("Encounters (eg. 1,2): ")
@@ -452,9 +476,8 @@ def run(export_tool):
 		chunk = export_tool.dump_med_docs(patient)
 		if export_tool.outFile is not None:
 		    export_tool.outFile.write(chunk)
-		
-	if export_tool.outFile is not None:
-	    export_tool.outFile.close()
+
+	export_tool.cleanup()
 	if patient is not None:
 		try:
 			patient.cleanup()
@@ -465,25 +488,31 @@ if __name__ == "__main__":
 	print "\n\nGnumed Simple EMR ASCII Export Tool"
 	print "==================================="
 
+	if gmCLI.has_arg('--help'):
+		usage()
+
 	gmPG.set_default_client_encoding('latin1')
 	# make sure we have a connection
 	pool = gmPG.ConnectionPool()
-	export_tool = gmEmrExport()
 	# run main loop
 	try:
-		run(export_tool)
+		run()
 	except StandardError:
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-	if export_tool.outFile is not None and not export_tool.outFile.closed:
-	    export_tool.outFile.close()
+		#traceback.print_exc(file=sys.stdout)
 	try:
 		pool.StopListeners()
 	except:
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+		#traceback.print_exc(file=sys.stdout)
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.14  2004-06-28 16:15:56  ncq
+# Revision 1.15  2004-06-29 08:16:35  ncq
+# - take output file from command line
+# - *search* for patients, don't require knowledge of their ID
+#
+# Revision 1.14  2004/06/28 16:15:56  ncq
 # - still more faulty id_ found
 #
 # Revision 1.13  2004/06/28 15:52:00  ncq
