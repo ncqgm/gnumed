@@ -1,6 +1,4 @@
-#!/usr/bin/python
 #############################################################################
-#
 # gmDemographics
 # ----------------------------------
 #
@@ -8,18 +6,18 @@
 #
 # If you don't like it - change this code see @TODO!
 #
-# @author Dr. Richard Terry
 # @copyright: authorcd
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	    10.06.2002 rterry initial implementation, untested
 #           30.07.2002 rterry images put in file
-#
 # @TODO:
-#
-#
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
+# $Id: gmDemographics.py,v 1.17 2003-02-09 11:57:42 ncq Exp $
+__version__ = "$Revision: 1.17 $"
+__author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
 from mx import DateTime
@@ -485,3 +483,8 @@ if __name__ == "__main__":
 	#gmGuiBroker.GuiBroker ()['gnumed_dir'] = '/home/ian/gnumed/gnumed/client'
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
+#----------------------------------------------------------------------
+# $Log: gmDemographics.py,v $
+# Revision 1.17  2003-02-09 11:57:42  ncq
+# - cleanup, cvs keywords
+#
