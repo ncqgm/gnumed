@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.2 2004-06-14 07:51:59 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmClinicalRecordTest.py,v 1.3 2004-06-17 21:28:35 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -13,6 +13,7 @@ from Gnumed.pycommon import gmPG, gmExceptions, gmLog
 from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab
 from Gnumed.pycommon.gmPyCompat import *
 
+gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 #============================================================
 class EMR_StructureTests(unittest.TestCase):
 	#--------------------------------------------------------
@@ -181,7 +182,7 @@ class VaccinationTests(unittest.TestCase):
 	def testGetVaccinationsByIndication(self):
 		"""Check that patient vaccinations can be obtained filtered by indication"""
 		status, vacc_indications = self.emr.get_vaccinated_indications()
-		vaccinations = self.emr.get_vaccinations(indication_list=['tetanus'])
+		vaccinations = self.emr.get_vaccinations(indications=['tetanus'])
 		for a_vacc in vaccinations:
 			self.assertEqual(isinstance(a_vacc, gmVaccination.cVaccination), True)
 			self.assertEqual(a_vacc['indication'], 'tetanus')
@@ -197,8 +198,8 @@ class VaccinationTests(unittest.TestCase):
 
 	def testGetMissingVaccinationsByIndication(self):
 		"""Check that patient missing vaccinations can be obtained filtered by indication"""
-		missing_vacc = self.emr.get_missing_vaccinations(indication_list=['diphteria'])['due']
-		missing_boost = self.emr.get_missing_vaccinations(indication_list=['influenza'])['boosters']
+		missing_vacc = self.emr.get_missing_vaccinations(indications=['diphteria'])['due']
+		missing_boost = self.emr.get_missing_vaccinations(indications=['influenza'])['boosters']
 		for a_vacc in missing_vacc:
 			self.assertEqual(isinstance(a_vacc, gmVaccination.cMissingVaccination), True)
 			self.assertEqual(a_vacc['indication'], 'diphteria')
@@ -299,7 +300,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.2  2004-06-14 07:51:59  ncq
+# Revision 1.3  2004-06-17 21:28:35  ncq
+# - indication_list -> indications
+#
+# Revision 1.2  2004/06/14 07:51:59  ncq
 # - activate all the unit tests
 #
 # Revision 1.1  2004/06/14 07:37:43  ncq
