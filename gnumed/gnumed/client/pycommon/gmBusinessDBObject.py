@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.9 2005-01-19 06:52:24 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmBusinessDBObject.py,v 1.10 2005-01-31 06:25:35 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -117,6 +117,7 @@ class cBusinessDBObject:
 		- must return xmin of all rows that _cmds_store_payload
 		  will be updating
 	"""
+	_conn_pool = gmPG.ConnectionPool()			# once for ALL descendants :-)
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		"""Init business object.
@@ -306,7 +307,8 @@ class cBusinessDBObject:
 		for field in self._idx.keys():
 			params[field] = self._payload[self._idx[field]]
 
-		conn = gmPG.GetConnection(self.__class__._service, readonly=0)
+		conn = self.__class__._conn_pool.GetConnection(self.__class__._service, readonly=0)
+#		gmPG.ConnectionPool().GetConnection(self.__class__._service, readonly=0)
 		if conn is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			return (False, (1, _('Cannot connect to database.')))
@@ -408,7 +410,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.9  2005-01-19 06:52:24  ncq
+# Revision 1.10  2005-01-31 06:25:35  ncq
+# - brown paper bag bug, I wonder how it ever worked:
+#   connections are gotten from an instance of the pool
+#
+# Revision 1.9  2005/01/19 06:52:24  ncq
 # - improved docstring
 #
 # Revision 1.8  2005/01/02 19:58:02  ncq
