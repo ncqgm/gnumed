@@ -11,7 +11,7 @@
 
 #----------------------------------
 [revision control]
-file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/bootstrap-ng/Attic/bootstrap-archive.conf,v $
+file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/bootstrap-ng/Attic/bootstrap-archive.conf.sample,v $
 version = $Revision: 1.1 $
 
 #----------------------------------
@@ -129,7 +129,10 @@ CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql' HANDLER plpgsql_call_handler LANCOM
 $language activation$
 
 #----------------------------------
-# $Log: bootstrap-archive.conf,v $
-# Revision 1.1  2003-01-22 23:17:45  ncq
+# $Log: bootstrap-archive.conf.sample,v $
+# Revision 1.1  2003-01-24 13:40:02  ncq
+# - renamed bootstrap-archive.conf to bootstrap-archive.conf.sample
+#
+# Revision 1.1  2003/01/22 23:17:45  ncq
 # - example for setting up a GnuMed/Archive database
 #
