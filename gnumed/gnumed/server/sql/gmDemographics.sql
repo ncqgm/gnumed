@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.35 $
+-- $Revision: 1.36 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -329,7 +329,10 @@ comment on column lnk_identity2ext_id.fk_origin is
 
 create table names (
 	id serial primary key,
-	id_identity integer references identity,
+	id_identity integer
+		references identity(id)
+		on update cascade
+		on delete cascade,
 	active boolean default false,
 	lastnames text not null,
 	firstnames text not null,
@@ -575,11 +578,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.35 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.36 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.35  2004-09-17 20:16:35  ncq
+-- Revision 1.36  2004-11-28 14:30:55  ncq
+-- - make delete/update on identity cascade to names table
+--
+-- Revision 1.35  2004/09/17 20:16:35  ncq
 -- - cleanup, improve comments
 -- - tighten identity constraints
 --
