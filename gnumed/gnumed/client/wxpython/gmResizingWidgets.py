@@ -3,10 +3,12 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.9 2004-12-21 17:20:24 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmResizingWidgets.py,v 1.10 2004-12-21 18:22:26 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
+
+import sys
 
 from wxPython import wx
 from wxPython import stc
@@ -676,7 +678,6 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 #			self.__parent.complete()
 
 		event.Skip()	# skip to next event handler to keep processing
-		print "unhandled key", event.KeyCode()
 	#------------------------------------------------
 	def __OnKeyUp (self, event):
 		if not self.list:
@@ -741,7 +742,7 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		else:
 			x_final = curs_pos.x
 		print "optimal placement = [%s:%s]" % (x_final, y_final)
-		return wxSize(x_final, y_final)
+		return (wx.wxPoint(x_final, y_final), wx.wxSize(popup_width, popup_height))
 	#------------------------------------------------
 	def __handle_keyword(self, kwd=None):
 		print "detected popup keyword:", kwd
@@ -759,12 +760,13 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 #			widget = self.__widget_to_show,
 #			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
 #		)
-
+		best_pos, best_size = self.__get_best_popup_position()
 		try:
 			self.__popup = create_widget (
 				parent = self,
-				pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
-				size = self.__get_best_popup_position(),
+				pos = self.ClientToScreen(best_pos),
+#				pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
+				size = best_size,
 				style = wx.wxSIMPLE_BORDER,
 				completion_callback = self._cb_on_popup_completion
 			)
@@ -846,11 +848,19 @@ if __name__ == '__main__':
 #	from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 #	from Gnumed.pycommon import gmI18N
 
+	def create_widget_on_test_kwd(*args, **kwargs):
+		print "test keyword must have been typed..."
+		print "actually this would have to return a suitable wxWindow subclass instance"
+		print "args:", args
+		print "kwd args:"
+		for key in kwargs.keys():
+			print key, "->", kwargs[key]
+	#================================================================
 	class cSoapWin (cResizingWindow):
 		def DoLayout(self):
-			self.input1 = cResizingSTC (self, -1)
-			self.input2 = cResizingSTC (self, -1)
-			self.input3 = cResizingSTC (self, -1)
+			self.input1 = cResizingSTC(self, -1)
+			self.input2 = cResizingSTC(self, -1)
+			self.input3 = cResizingSTC(self, -1)
 
 			self.input1.prev_in_tab_order = None
 			self.input1.next_in_tab_order = self.input2
@@ -864,6 +874,10 @@ if __name__ == '__main__':
 			self.AddWidget (widget=self.input2, label="O")
 			self.Newline()
 			self.AddWidget (widget=self.input3, label="A+P")
+
+			kwds = {}
+			kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd}
+			self.input2.set_keywords(popup_keywords=kwds)
 	#================================================================
 	class cSoapPanel(wx.wxPanel):
 		def __init__ (self, parent, id):
@@ -947,7 +961,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.9  2004-12-21 17:20:24  ncq
+# Revision 1.10  2004-12-21 18:22:26  ncq
+# - add test code and start handling a test keyword
+#
+# Revision 1.9  2004/12/21 17:20:24  ncq
 # - we are slowly getting closer to the functionality of the original SOAP2
 # - key handling according to discussion with Richard
 #
