@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.134 2005-03-20 18:07:47 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.135 2005-03-21 20:10:20 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -508,10 +508,10 @@ create rule clin_ritem_no_del as
 
 -- ---------------------------------------------
 \unset ON_ERROR_STOP
-drop view v_patient_items;
+drop view v_pat_items;
 \set ON_ERROR_STOP 1
 
-create view v_patient_items as
+create view v_pat_items as
 select
 	extract(epoch from cri.clin_when) as age,
 	cri.modified_when as modified_when,
@@ -1261,7 +1261,7 @@ select
 from
 	clin_diag cd,
 	clin_narrative as cn,
-	v_patient_items vpi
+	v_pat_items vpi
 where
 	cn.soap_cat='a'
 		and
@@ -1332,7 +1332,7 @@ select
 	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
-	v_patient_items vpi
+	v_pat_items vpi
 where
 	cn.is_rfe is true
 		and
@@ -1357,7 +1357,7 @@ select
 	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
-	v_patient_items vpi
+	v_pat_items vpi
 where
 	cn.is_aoe is true
 		and
@@ -1386,7 +1386,7 @@ select
 	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
-	v_patient_items vpi,
+	v_pat_items vpi,
 	v_pat_encounters vpe
 where
 	cn.pk_item = vpi.pk_item
@@ -1396,71 +1396,6 @@ where
 
 comment on view v_pat_narrative is
 	'patient SOAP narrative';
-
-
--- *complete* narrative for searching
-\unset ON_ERROR_STOP
-drop view v_compl_narrative;
-\set ON_ERROR_STOP 1
-
-create view v_compl_narrative as
--- soap items
-select
-	vpi.pk_patient as pk_patient,
-	cn.soap_cat as soap_cat,
-	cn.narrative as narrative,
-	cn.pk as src_pk,
-	vpi.src_table as src_table
-from
-	clin_narrative cn,
-	v_patient_items vpi
-where
-	cn.pk_item = vpi.pk_item
-		and
-	trim(coalesce(cn.narrative, '')) != ''
-
-		union
--- health issues
-select
-	chi.id_patient as pk_patient,
-	'a' as soap_cat,
-	chi.description as narrative,
-	chi.id as src_pk,
-	'clin_health_issue' as src_table
-from
-	clin_health_issue chi
-where
-	trim(coalesce(chi.description, '')) != ''
-
-		union
--- encounters
-select
-	cenc.fk_patient as pk_patient,
-	's' as soap_cat,
-	cenc.description as narrative,
-	cenc.id as src_pk,
-	'clin_encounter' as src_table
-from
-	clin_encounter cenc
-where
-	trim(coalesce(cenc.description, '')) != ''
-
-	union
--- episodes
-select
-	vpep.pk_patient as pk_patient,
-	's' as soap_cat,
-	vpep.description as narrative,
-	vpep.pk_episode as src_pk,
-	'clin_episode' as src_table
-from
-	v_pat_episodes vpep
-;
-
-comment on view v_compl_narrative is
-	'*complete* narrative for patients including
-	 health issue/episode/encounter descriptions,
-	 mainly for searching the narrative';
 
 -- =============================================
 -- types of clin_root_item
@@ -1523,7 +1458,7 @@ select
 	items.narrative as narrative,
 	items.type as type
 from
-	((v_patient_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
+	((v_pat_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
 		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
 ;
 
@@ -1540,7 +1475,7 @@ select distinct on (narrative, code, type, src_table)
 	items.soap_cat as soap_cat,
 	items.src_table as src_table
 from
-	((v_patient_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
+	((v_pat_items vpi inner join lnk_type2item lt2i on (vpi.pk_item=lt2i.fk_item)) lnkd_items
 		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
 ;
 
@@ -1606,36 +1541,117 @@ from
 drop view v_hx_family;
 \set ON_ERROR_STOP 1
 
---create view v_hx_family as
---select
---	vbp.pk_identity as pk_patient,
---	vpn.soap_cat as soap_cat,
---	vpn.narrative as condition,
---	hxf.relationship as relationship,
---	_(hxf.relationship) as l10n_relationship,
---	case when hxf.fk_relative is null
---		then hxf.name_relative
---		else coalesce(vbp.lastnames, '') || ', ' || coalesce(vbp.firstnames, '')
---	end as name_relative,
---	case when hxf.fk_relative is null
---		then hxf.dob_relative
---		else vbp.dob
---	end as dob_relative,
---	hxf.age_noted as age_noted,
---	hxf.is_cause_of_death as is_cause_of_death,
---	hxf.age_of_death as age_of_death,
---	hxf.pk as pk_hx_family,
---	hxf.fk_narrative as pk_narrative,
---	hxf.fk_relative as pk_relative
---from
---	clin_hx_family hxf,
---	v_basic_person vbp,
---	v_pat_narrative vpn
---where
---	hxf.fk_narrative = vpn.pk_narrative
---		and
---	vpn.pk_patient = vbp.pk_identity
---;
+create view v_hx_family as
+-- those not linked to another patient as relative
+select
+	vpi.pk_patient as pk_patient,
+	vpi.pk_health_issue as pk_health_issue,
+
+	chxf.clin_when as clin_when,
+	chxf.fk_encounter as pk_encounter,
+	chxf.fk_episode as pk_episode,
+	chxf.narrative as relationship,
+	chxf.soap_cat as soap_cat,
+	chxf.pk as pk_clin_hx_family,
+	chxf.fk_hx_family_item as pk_hx_family_item,
+
+	null::integer as pk_narrative_condition,
+	null::integer as pk_relative_identity,
+	hxfi.name_relative as name_relative,
+	hxfi.dob_relative as dob_relative,
+	hxfi.condition as condition,
+	hxfi.age_noted as age_noted,
+	hxfi.age_of_death as age_of_death,
+	hxfi.is_cause_of_death as is_cause_of_death
+from
+	v_pat_items vpi,
+	clin_hx_family chxf,
+	hx_family_item hxfi,
+	v_basic_person vbp
+where
+	vpi.pk_item = chxf.pk_item
+		and
+	hxfi.pk = chxf.fk_hx_family_item
+		and
+	hxfi.fk_narrative_condition is null
+		and
+	hxfi.fk_relative is null
+
+UNION
+
+-- those linked to another patient as relative
+select
+	vpi.pk_patient as pk_patient,
+	vpi.pk_health_issue as pk_health_issue,
+
+	chxf.clin_when as clin_when,
+	chxf.fk_encounter as pk_encounter,
+	chxf.fk_episode as pk_episode,
+	chxf.narrative as relationship,
+	chxf.soap_cat as soap_cat,
+	chxf.pk as pk_clin_hx_family,
+	chxf.fk_hx_family_item as pk_hx_family_item,
+
+	null::integer as pk_narrative_condition,
+	hxfi.fk_relative as pk_relative_identity,
+	vbp.firstnames || ' ' || vbp.lastnames as name_relative,
+	vbp.dob as dob_relative,
+	hxfi.condition as condition,
+	hxfi.age_noted as age_noted,
+	hxfi.age_of_death as age_of_death,
+	hxfi.is_cause_of_death as is_cause_of_death
+from
+	v_pat_items vpi,
+	clin_hx_family chxf,
+	hx_family_item hxfi,
+	v_basic_person vbp
+where
+	vpi.pk_item = chxf.pk_item
+		and
+	hxfi.pk = chxf.fk_hx_family_item
+		and
+	hxfi.fk_narrative_condition is null
+		and
+	hxfi.fk_relative = v_basic_person.pk_identity
+
+UNION
+
+-- those linked to a condition of another patient being a relative
+select
+	vpn.pk_patient as pk_patient,
+	vpn.pk_health_issue as pk_health_issue,
+
+	chxf.clin_when as clin_when,
+	chxf.fk_encounter as pk_encounter,
+	chxf.fk_episode as pk_episode,
+	chxf.narrative as relationship,
+	chxf.soap_cat as soap_cat,
+	chxf.pk as pk_clin_hx_family,
+	chxf.fk_hx_family_item as pk_hx_family_item,
+
+	hxfi.fk_narrative_condition as pk_narrative_condition,
+	vpn.pk_patient as pk_relative_identity,
+	vbp.firstnames || ' ' || vbp.lastnames as name_relative,
+	vbp.dob as dob_relative,
+	vpn.narrative as condition,
+	hxfi.age_noted as age_noted,
+	hxfi.age_of_death as age_of_death,
+	hxfi.is_cause_of_death as is_cause_of_death
+from
+	clin_hx_family chxf,
+	hx_family_item hxfi,
+	v_basic_person vbp,
+	v_pat_narrative vpn
+where
+	hxfi.pk = chxf.fk_hx_family_item
+		and
+	hxfi.fk_narrative_condition = vpn.pk_narrative
+		and
+	hxfi.fk_relative is null
+		and
+	v_basic_person.pk_identity = vpn.pk_patient
+;
+
 
 -- =============================================
 -- problem list
@@ -1669,6 +1685,88 @@ select	-- all the issues
 from
 	clin_health_issue chi
 ;
+
+-- =============================================
+-- *complete* narrative for searching
+\unset ON_ERROR_STOP
+drop view v_compl_narrative;
+\set ON_ERROR_STOP 1
+
+create view v_compl_narrative as
+-- soap items
+select
+	vpi.pk_patient as pk_patient,
+	cn.soap_cat as soap_cat,
+	cn.narrative as narrative,
+	cn.pk as src_pk,
+	vpi.src_table as src_table
+from
+	clin_narrative cn,
+	v_pat_items vpi
+where
+	cn.pk_item = vpi.pk_item
+		and
+	trim(coalesce(cn.narrative, '')) != ''
+
+		union
+-- health issues
+select
+	chi.id_patient as pk_patient,
+	'a' as soap_cat,
+	chi.description as narrative,
+	chi.id as src_pk,
+	'clin_health_issue' as src_table
+from
+	clin_health_issue chi
+where
+	trim(coalesce(chi.description, '')) != ''
+
+		union
+-- encounters
+select
+	cenc.fk_patient as pk_patient,
+	's' as soap_cat,
+	cenc.description as narrative,
+	cenc.id as src_pk,
+	'clin_encounter' as src_table
+from
+	clin_encounter cenc
+where
+	trim(coalesce(cenc.description, '')) != ''
+
+	union
+-- episodes
+select
+	vpep.pk_patient as pk_patient,
+	's' as soap_cat,
+	vpep.description as narrative,
+	vpep.pk_episode as src_pk,
+	'clin_episode' as src_table
+from
+	v_pat_episodes vpep
+
+union
+-- family history
+select
+	vhxf.pk_patient as pk_patient,
+	vhxf.soap_cat as soap_cat,
+	vhxf.relationship || ' ('
+		|| vhxf.name_relative || ') / '
+		|| vhxf.age_noted || ': '
+		|| vhxf.condition
+	as narrative,
+	vhxf.pk_hx_family_item as src_pk,
+	'hx_family_item' as src_table
+from
+	v_hx_family vhxf
+
+;
+
+comment on view v_compl_narrative is
+	'*complete* narrative for patients including
+	 health issue/episode/encounter descriptions,
+	 mainly for searching the narrative';
+
 
 -- =============================================
 -- tables
@@ -1755,7 +1853,7 @@ grant select on
 	v_pat_encounters
 	, v_pat_episodes
 	, v_pat_narrative
-	, v_patient_items
+	, v_pat_items
 	, v_pat_allergies
 	, v_vacc_regimes
 	, v_vacc_defs4reg
@@ -1787,11 +1885,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.134 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.135 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.134  2005-03-20 18:07:47  ncq
+-- Revision 1.135  2005-03-21 20:10:20  ncq
+-- - v_patient_items -> v_pat_items for consistency
+-- - add v_hx_family and include in v_compl_narrative
+--
+-- Revision 1.134  2005/03/20 18:07:47  ncq
 -- - properly protect clin_root_item and be verbose about it
 -- - v_hx_family needs to be rewritten
 --
