@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.35 2003-11-28 01:03:48 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.36 2003-11-28 10:07:52 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -405,22 +405,28 @@ select
 	identity.id as pk_patient,
 	vdef.id as pk_vacc_def,
 	vdef.fk_regime as pk_regime,
+	vreg.description as regime,
 	vdef.is_booster,
 	case when vdef.is_booster
 		then null
 		else vdef.seq_no
 	end as seq_no,
+	(identity.dob + vdef.max_age_due) as latest_due,
+	age((identity.dob + vdef.max_age_due), now()) as time_left,
 	vdef.min_age_due,
 	vdef.max_age_due,
 	vdef.min_interval,
 	vdef.comment
 from
 	identity,
-	vacc_def vdef
+	vacc_def vdef,
+	vacc_regime vreg
 where
 	age(identity.dob) between vdef.min_age_due and coalesce(vdef.max_age_due, '115 years'::interval)
 		and
 	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from vaccination where fk_patient = identity.id)
+		and
+	vdef.fk_regime = vreg.id
 order by
 	vdef.max_age_due
 ;
@@ -430,22 +436,27 @@ select
 	identity.id as pk_patient,
 	vdef.id as pk_vacc_def,
 	vdef.fk_regime as pk_regime,
+	vreg.description as regime,
 	vdef.is_booster,
 	case when vdef.is_booster
 		then null
 		else vdef.seq_no
 	end as seq_no,
+	age(identity.dob + vdef.max_age_due) as amount_overdue,
 	vdef.min_age_due,
 	vdef.max_age_due,
 	vdef.min_interval,
 	vdef.comment
 from
 	identity,
-	vacc_def vdef
+	vacc_def vdef,
+	vacc_regime vreg
 where
 	age(identity.dob) > coalesce(vdef.max_age_due, '115 years'::interval)
 		and
 	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from vaccination where fk_patient = identity.id)
+		and
+	vdef.fk_regime = vreg.id
 order by
 	vdef.max_age_due
 ;
@@ -497,7 +508,9 @@ GRANT SELECT ON
 	"v_i18n_curr_encounters",
 	"v_i18n_patient_allergies",
 	"v_vacc_regimes",
-	v_patient_vaccinations
+	v_patient_vaccinations,
+	v_pat_due_vaccs,
+	v_pat_overdue_vaccs
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -507,7 +520,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"v_i18n_curr_encounters",
 	"v_i18n_patient_allergies",
 	"v_vacc_regimes",
-	v_patient_vaccinations
+	v_patient_vaccinations,
+	v_pat_due_vaccs,
+	v_pat_overdue_vaccs
 TO GROUP "_gm-doctors";
 
 -- =============================================
@@ -516,11 +531,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.36 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.35  2003-11-28 01:03:48  ncq
+-- Revision 1.36  2003-11-28 10:07:52  ncq
+-- - improve vaccination views
+--
+-- Revision 1.35  2003/11/28 01:03:48  ncq
 -- - add views *_overdue_vaccs and *_due_vaccs
 --
 -- Revision 1.34  2003/11/26 23:54:51  ncq
