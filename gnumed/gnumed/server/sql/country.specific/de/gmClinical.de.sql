@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -26,29 +26,30 @@ COMMENT ON TABLE lab_test_GNR is
 	 against this table when importing, build table during import';
 COMMENT ON COLUMN lab_test_GNR.id_test IS
 	'link to test in our practice';
-/*
-COMMENT ON COLUMN lab_test_GNR.EBM is
-	'GNR according to EBM (Einheitlicher BewertungsMaßstab)
-	 for Kassenpatienten (gov''t insured patients)';
-COMMENT ON COLUMN lab_test_GNR.GOA_88 is
-	'GNR according to GOAe 88 (GebuehrenOrdnung für Aerzte)
-	 for Privatpatienten (privately insured patients)';
-COMMENT ON COLUMN lab_test_GNR.GOA_96 is
-	'GNR according to GOAe 96 (GebuehrenOrdnung für Aerzte)
-	 for Privatpatienten (privately insured patients)';
-COMMENT ON COLUMN lab_test_GNR.BG_GOA is
-	'GNR according to GOAe (GebuehrenOrdnung für Aerzte) for
-	 Berufsgenossenschaften (sector specific job related
-	 health insurance)';
-*/
+--COMMENT ON COLUMN lab_test_GNR.EBM is
+--	'GNR according to EBM (Einheitlicher BewertungsMaßstab)
+--	 for Kassenpatienten (gov''t insured patients)';
+--COMMENT ON COLUMN lab_test_GNR.GOA_88 is
+--	'GNR according to GOAe 88 (GebuehrenOrdnung für Aerzte)
+--	 for Privatpatienten (privately insured patients)';
+--COMMENT ON COLUMN lab_test_GNR.GOA_96 is
+--	'GNR according to GOAe 96 (GebuehrenOrdnung für Aerzte)
+--	 for Privatpatienten (privately insured patients)';
+--COMMENT ON COLUMN lab_test_GNR.BG_GOA is
+--	'GNR according to GOAe (GebuehrenOrdnung für Aerzte) for
+--	 Berufsgenossenschaften (sector specific job related
+--	 health insurance)';
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.6  2003-10-26 16:10:59  hinnef
+-- Revision 1.7  2003-11-02 12:49:41  ncq
+-- - fix psql.py lossage
+--
+-- Revision 1.6  2003/10/26 16:10:59  hinnef
 -- rollback
 --
 -- Revision 1.5  2003/10/26 16:07:07  hinnef
