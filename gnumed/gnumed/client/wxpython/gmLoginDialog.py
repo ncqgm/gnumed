@@ -1,20 +1,28 @@
+#!/usr/bin/python
+#############################################################################
+# gmLoginDialog - This module provides a login dialog to GNUMed
+# It features combo boxes which "remember" any number of previously entered settings
+# @author: Dr. Horst Herb
+# @license: GPL (details at http://www.gnu.org)
+#
+# @dependencies: wxPython
+# @change log:
+#	10.10.2001 hherb initial implementation, untested
+#	24.10.2001 hherb comments added
+#
+############################################################################
+
 """gmLoginDialog - This module provides a login dialog to GNUMed
-
 It features combo boxes which "remember" any number of previously entered settings
-
-author: Dr. Horst Herb
-license: GPL (details at http://www.gnu.org)
-
-dependencies: wxPython
-
-change log:
-	10.10.2001 initial implementation, untested
 """
 
 from wxPython.wx import *
 import gettext
 _ = gettext.gettext
 
+#############################################################################
+#
+#############################################################################
 
 def ListToString(strlist, separator='|'):
 	"""converts a list of strings into a character separated string of string items"""
@@ -28,11 +36,20 @@ def ListToString(strlist, separator='|'):
 	return str
 
 
+#############################################################################
+#
+#############################################################################
+
 def StringToList(str, separator='|'):
 	"""converts a character separated string items into a list"""
 
 	return string.split(str, separator)
 
+
+
+#############################################################################
+#
+#############################################################################
 
 def ComboBoxItems(combobox):
 	"""returns all items in a combo box as list; the value of the text box as first item."""
@@ -47,6 +64,10 @@ def ComboBoxItems(combobox):
 	return li
 
 
+#############################################################################
+#
+#############################################################################
+
 class LoginParameters:
 	"""dummy class, to be used as a structure for login parameters"""
 
@@ -59,8 +80,12 @@ class LoginParameters:
 		self.backendoptionlist = ['']
 
 
+#############################################################################
+# GUI panel class that gets interactively Postgres login parameters
+#############################################################################
 
 class LoginPanel(wxPanel):
+	"GUI panel class that gets interactively Postgres login parameters"
 
 	def __init__(self, parent, id,
                   pos = wxPyDefaultPosition, size = wxPyDefaultSize,
@@ -70,6 +95,7 @@ class LoginPanel(wxPanel):
 		self.parent=parent
 		self.cancelled=false
 
+		# set the location of the configuration file in a platform independent way
 		self.conf = wxFileConfig("gnumed", style=wxCONFIG_USE_LOCAL_FILE)
 
 		self.loginparams = loginparams or LoginParameters()
@@ -156,7 +182,12 @@ class LoginPanel(wxPanel):
 		EVT_BUTTON(self, ID_BUTTON_CANCEL, self.OnCancel)
 
 
+#############################################################################
+# Initialize dialog widget settings from configuration file
+#############################################################################
+
 	def LoadSettings(self):
+	"Load parameter settings from standard configuration file"
 		self.loginparams.userlist = StringToList(self.conf.Read("/login/user"))
 		self.loginparams.password = ''
 		self.loginparams.databaselist = StringToList(self.conf.Read("login/database"))
@@ -164,7 +195,12 @@ class LoginPanel(wxPanel):
 		self.loginparams.portlist = StringToList(self.conf.Read("/login/port"))
 		self.loginparams.backendoptionlist = StringToList(self.conf.Read("/login/backendoption"))
 
+#############################################################################
+# Save all settings to the configuration file
+#############################################################################
+
 	def SaveSettings(self):
+	"Save parameter settings to standard configuration file"
 		print ListToString(self.loginparams.userlist)
 		self.conf.Write("/login/user", ListToString(ComboBoxItems(self.usercombo)))
 		self.conf.Write("/login/database", ListToString(ComboBoxItems(self.dbcombo)))
@@ -172,8 +208,12 @@ class LoginPanel(wxPanel):
 		self.conf.Write("/login/port", ListToString(ComboBoxItems(self.portcombo)))
 		self.conf.Write("/login/backendoption", ListToString(ComboBoxItems(self.beoptioncombo)))
 
+#############################################################################
+# Retrieve current settings from user interface widgets
+#############################################################################
 
 	def GetLoginParams(self):
+	"Fetch login parameters from dialog widgets"
 		if not self.cancelled:
 			self.loginparams.userlist = ComboBoxItems(self.usercombo)
 			self.loginparams.password = self.GetPassword()
@@ -183,10 +223,16 @@ class LoginPanel(wxPanel):
 			self.loginparams.backendoptionlist = ComboBoxItems(self.beoptioncombo)
 		return self.loginparams
 
+#############################################################################
+# Functions to get and set values in user interface widgets
+#############################################################################
+
 	def GetUser(self):
+	"Get the selected user name from the text entry section of the user combo box"
 		return self.usercombo.GetValue()
 
 	def SetUser(self, user):
+	"Set the selected user name from the text entry section of the user combo box"
 		self.usercombo.SetValue(user)
 
 	def GetPassword(self):
@@ -219,7 +265,9 @@ class LoginPanel(wxPanel):
 	def SetPort(self, port):
 		self.portcombo.SetValue(port)
 
-
+#############################################################################
+# GUI action functions from here on
+#############################################################################
 
 	def OnHelp(self, event):
 		wxMessageBox("Sorry, not implemented yet!")
@@ -238,6 +286,10 @@ class LoginPanel(wxPanel):
 		self.parent.Close()
 
 
+
+#############################################################################
+# test function for this module: simply run the module as "main"
+#############################################################################
 
 if __name__ == '__main__':
 	app = wxPyWidgetTester(size = (400, 400))
