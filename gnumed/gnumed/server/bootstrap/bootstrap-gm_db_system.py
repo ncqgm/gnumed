@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""GnuMed user/group installation.
+"""GnuMed schema installation.
 
 This script bootstraps a GnuMed database system. All the
 infrastructure is in place to support distributed
@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -349,7 +349,8 @@ class db_server:
 
 		# get owner
 		if _dbowner is None:
-			print "We are about to create the database user who owns all GnuMed database objects."
+			print "We are about to check whether we need to create the"
+			print "database user who owns all GnuMed database objects."
 			print ""
 			print "Unless the password for this user is given in the"
 			print "config file you will be asked to provide it."
@@ -1001,6 +1002,7 @@ def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None
 
 	os.chdir(old_path)
 
+	# this seems to make trouble under pure Win2k (not CygWin, that is)
 	if os.WIFEXITED(result):
 		exitcode = os.WEXITSTATUS(result)
 		_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
@@ -1128,7 +1130,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.19  2003-07-05 12:53:29  ncq
+# Revision 1.20  2003-07-05 15:10:20  ncq
+# - added comment on Win2k quirk (os.WIFEXITED), thanks to Manfred
+# - slightly betterified comments on gm-dbowner creation
+#
+# Revision 1.19  2003/07/05 12:53:29  ncq
 # - actually use ";"s correctly (verified)
 #
 # Revision 1.18  2003/06/27 08:52:14  ncq
