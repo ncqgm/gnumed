@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmVaccinationsPlugin.py,v $
-# $Id: gmVaccinationsPlugin.py,v 1.1 2004-07-15 23:16:21 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmVaccinationsPlugin.py,v 1.2 2004-07-15 23:27:04 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 from wxPython.wx import *
@@ -22,7 +22,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
-class gmVaccinationsPlugin(gmPlugin..wxNotebookPlugin):
+class gmVaccinationsPlugin(gmPlugin.wxNotebookPlugin):
 	"""Plugin to encapsulate the immunisation window."""
 
 	__icons = {
@@ -67,7 +67,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccinationsPlugin.py,v $
-# Revision 1.1  2004-07-15 23:16:21  ncq
+# Revision 1.2  2004-07-15 23:27:04  ncq
+# - typo fix
+#
+# Revision 1.1  2004/07/15 23:16:21  ncq
 # - refactor vaccinations GUI code into
 #   - gmVaccWidgets.py: layout manager independant widgets
 #   - gui/gmVaccinationsPlugins.py: Horst space notebook plugin
