@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.12 2004-10-12 11:16:22 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmVaccination.py,v 1.13 2004-10-18 11:35:42 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -347,7 +347,6 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_vaccination_regime():
 		vacc_regime = cVaccinationRegime(aPK_obj=7)
-		vacc_regime.set_max_seq(6)
 		print "\nVaccination regime:"		
 		print vacc_regime
 		fields = vacc_regime.get_fields()
@@ -369,7 +368,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.12  2004-10-12 11:16:22  ncq
+# Revision 1.13  2004-10-18 11:35:42  ncq
+# - cleanup
+#
+# Revision 1.12  2004/10/12 11:16:22  ncq
 # - robustify cVaccination.set_seq_no/set_booster_status
 # - Carlos added cVaccinationRegime/put_patient_on_schedule
 # - some test code
