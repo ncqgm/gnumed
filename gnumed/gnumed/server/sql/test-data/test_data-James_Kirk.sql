@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -170,43 +170,39 @@ insert into clin_narrative (
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
 	'dirty knive cut',
-	's',
+	'a',
 	'true'::boolean
 );
 
 
 -- diagnoses
-insert into clin_aux_note (
-	fk_encounter,
-	fk_episode,
-	narrative
-) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
-	'contam. w/ ext.terrest.soil'
-);
-
-insert into clin_working_diag (
-	fk_encounter,
-	fk_episode,
-	narrative,
-	fk_progress_note,
+insert into clin_diag (
+	fk_narrative,
 	laterality,
 	is_chronic,
 	is_active,
 	is_definite,
 	is_significant
 ) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
-	'cut L forearm',
-	currval('clin_aux_note_pk_seq'),
+	currval('clin_narrative_pk_seq'),
 	'l',
 	false,
 	true,
 	true,
 	true
 );
+
+-- codes
+insert into lnk_code2diag (
+	fk_diag,
+	code,
+	xfk_coding_system
+) values (
+	currval('clin_diag_pk_seq'),
+	'T11.1',
+	'ICD-10-GM 2004'
+);
+
 
 -- given Td booster shot
 insert into vaccination (
@@ -393,34 +389,70 @@ insert into clin_encounter (
 	fk_location,
 	fk_provider,
 	fk_type,
-	description
+	started,
+	last_affirmed
 ) values (
 	currval('identity_id_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
-	'second for this RFE'
+	'2000-9-18 17:13',
+	'2000-9-18 19:33'
 );
 
--- diagnoses
-insert into clin_working_diag (
+-- AOE
+insert into clin_narrative (
+	clin_when,
 	fk_encounter,
 	fk_episode,
 	narrative,
+	soap_cat,
+	is_aoe
+) values (
+	'2000-9-18 17:14:32',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'wound infection L forearm',
+	'a',
+	'true'::boolean
+);
+
+-- diagnoses
+insert into clin_diag (
+	fk_narrative,
 	laterality,
 	is_chronic,
 	is_active,
 	is_definite,
 	is_significant
 ) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_id_seq'),
-	'wound infection L forearm',
+	currval('clin_narrative_pk_seq'),
 	'l',
 	false,
 	true,
 	true,
 	true
+);
+
+-- codes
+insert into lnk_code2diag (
+	fk_diag,
+	code,
+	xfk_coding_system
+) values (
+	currval('clin_diag_pk_seq'),
+	'T79.3',
+	'ICD-10-GM 2004'
+);
+
+insert into lnk_code2diag (
+	fk_diag,
+	code,
+	xfk_coding_system
+) values (
+	currval('clin_diag_pk_seq'),
+	'B97.8!',
+	'ICD-10-GM 2004'
 );
 
 -- wound infected, penicillin had been prescribed, developed urticaria
@@ -528,11 +560,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.28  2004-07-02 00:28:54  ncq
+-- Revision 1.29  2004-07-02 15:00:10  ncq
+-- - bring rfe/aoe/diag/coded_diag tables/views up to snuff and use them
+--
+-- Revision 1.28  2004/07/02 00:28:54  ncq
 -- - clin_working_diag -> clin_coded_diag + index fixes therof
 -- - v_pat_diag rewritten for clin_coded_diag, more useful now
 -- - v_patient_items.id_item -> pk_item

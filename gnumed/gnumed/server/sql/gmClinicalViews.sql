@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.79 2004-07-02 00:28:52 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.80 2004-07-02 15:00:10 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -76,9 +76,6 @@ create index idx_allg_episode on allergy(fk_episode);
 
 create index idx_formi_encounter on form_instances(fk_encounter);
 create index idx_formi_episode on form_instances(fk_episode);
-
---create index idx_ccdiag_encounter on clin_coded_diag(fk_encounter);
---create index idx_ccdiag_episode on clin_coded_diag(fk_episode);
 
 create index idx_cmeds_encounter on curr_medication(fk_encounter);
 create index idx_cmeds_episode on curr_medication(fk_episode);
@@ -668,6 +665,7 @@ create trigger at_curr_encounter_upd
 -- should really be "for each statement" but that isn't supported yet by PostgreSQL
 
 -- =============================================
+-- diagnosis views
 \unset ON_ERROR_STOP
 drop view v_pat_diag;
 \set ON_ERROR_STOP 1
@@ -675,29 +673,44 @@ drop view v_pat_diag;
 create view v_pat_diag as
 select
 	vpi.id_patient as pk_patient,
-	ccd.pk as pk_coded_diag,
-	ccd.fk_aoe as pk_diagnosis,
+	cd.pk as pk_diag,
+	cd.fk_narrative as pk_diagnosis,
 	cn.clin_when as diagnosed_when,
 	cn.narrative as diagnosis,
-	ccd.code as code,
-	ccd.xfk_coding_system as pk_coding_system,
-	ccd.laterality as laterality,
-	ccd.is_chronic as is_chronic,
-	ccd.is_active as is_active,
-	ccd.is_definite as is_definite,
-	ccd.is_significant as is_significant,
+	cd.laterality as laterality,
+	cd.is_chronic as is_chronic,
+	cd.is_active as is_active,
+	cd.is_definite as is_definite,
+	cd.is_significant as is_significant,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode
 from
-	clin_coded_diag ccd,
+	clin_diag cd,
 	clin_narrative as cn,
 	v_patient_items vpi
 where
-	cn.is_aoe is true
+	cn.soap_cat='a'
 		and
-	ccd.fk_aoe = cn.pk
+	cd.fk_narrative = cn.pk
 		and
 	cn.pk_item = vpi.pk_item
+;
+
+
+\unset ON_ERROR_STOP
+drop view v_coded_diags;
+\set ON_ERROR_STOP 1
+
+create view v_coded_diags as
+select
+	vpd.diagnosis as diagnosis,
+	lc2d.code as code,
+	lc2d.xfk_coding_system as coding_system
+from
+	v_pat_diag vpd,
+	lnk_code2diag lc2d
+where
+	lc2d.pk = vpd.pk_diag
 ;
 
 -- =============================================
@@ -726,7 +739,7 @@ GRANT SELECT ON
 	, xlnk_identity
 	, form_instances
 	, form_data
-	, clin_coded_diag
+	, clin_diag
 	, constituent
 	, curr_medication
 	, referral
@@ -781,8 +794,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, form_instances_pk_seq
 	, form_data
 	, form_data_pk_seq
-	, clin_coded_diag
-	, clin_coded_diag_pk_seq
+	, clin_diag
+	, clin_diag_pk_seq
 	, referral
 	, referral_id_seq
 	, curr_medication
@@ -832,17 +845,21 @@ GRANT SELECT ON
 	, v_results4lab_req
 	, v_test_org_profile
 	, v_pat_diag
+	, v_coded_diags
 TO GROUP "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.79 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.80 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.79  2004-07-02 00:28:52  ncq
+-- Revision 1.80  2004-07-02 15:00:10  ncq
+-- - bring rfe/aoe/diag/coded_diag tables/views up to snuff and use them
+--
+-- Revision 1.79  2004/07/02 00:28:52  ncq
 -- - clin_working_diag -> clin_coded_diag + index fixes therof
 -- - v_pat_diag rewritten for clin_coded_diag, more useful now
 -- - v_patient_items.id_item -> pk_item

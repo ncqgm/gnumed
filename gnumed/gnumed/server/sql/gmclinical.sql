@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.113 $
+-- $Revision: 1.114 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -244,7 +244,7 @@ create table clin_narrative (
 	is_aoe boolean
 		not null
 		default false,
-	unique(fk_encounter, narrative)
+	unique(fk_encounter, narrative, soap_cat)
 ) inherits (clin_root_item);
 
 alter table clin_narrative add constraint aoe_xor_rfe
@@ -723,10 +723,11 @@ comment on column form_data.value is
 -- ============================================
 -- diagnosis tables
 -- --------------------------------------------
--- patient attached diagnosis
-create table clin_coded_diag (
+-- patient attached diagnoses
+create table clin_diag (
 	pk serial primary key,
-	fk_aoe integer
+	fk_narrative integer
+		unique
 		not null
 		references clin_narrative(pk)
 		on update cascade
@@ -755,60 +756,41 @@ create table clin_coded_diag (
 			(is_active = false)
 				or
 			((is_active = true) and (is_significant = true))
-		),
-	code text
-		not null,
-	xfk_coding_system text
-		not null
+		)
 ) inherits (audit_fields);
 
---alter table clin_coded_diag alter column soap_cat set default 'a';
+select add_table_for_audit('clin_diag');
 
-select add_table_for_audit('clin_coded_diag');
-select add_x_db_fk_def('clin_coded_diag', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
-
-comment on table clin_coded_diag is
-	'stores additional detail on those AOEs (eg
-	 clin_narrative where is_aoe=true) that are
-	 true diagnoses, true diagnoses DO have a
-	 code from one of the coding systems';
-
-
---create table clin_working_diag (
---	pk serial primary key,
---	fk_progress_note integer
---		default null
---		references clin_aux_note(pk)
---		on update cascade
---		on delete restrict,
---) inherits (clin_root_item);
-
--- FIXME: trigger to insert/update/delete clin_aux_note fields on description update
-
---comment on column clin_working_diag.narrative is
---	'name of diagnosis';
---comment on column clin_working_diag.fk_progress_note is
---	'some additional clinical narrative such as approximate start';
+comment on table clin_diag is
+	'stores additional detail on those clin_narrative
+	 rows where soap_cat=a that are true diagnoses,
+	 true diagnoses DO have a code from one of the coding systems';
 
 
 -- "working set" of coded diagnoses
---create table lnk_diag2code (
---	pk serial primary key,
---	description text
---		not null,
---	unique (description, code, xfk_coding_system)
---) inherits (audit_fields);
+create table lnk_code2diag (
+	pk serial primary key,
+	fk_diag integer
+		not null
+		references clin_diag(pk)
+		on update cascade
+		on delete cascade,
+	code text
+		not null,
+	xfk_coding_system text
+		not null,
+	unique (fk_diag, code, xfk_coding_system)
+) inherits (audit_fields);
 
---select add_table_for_audit('lnk_diag2code');
+select add_table_for_audit('lnk_code2diag');
+select add_x_db_fk_def('lnk_code2diag', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
 
---comment on TABLE lnk_diag2code is
---	'diagnoses as used clinically in patient charts linked to codes';
---comment on column lnk_diag2code.description is
---	'free text description of diagnosis';
---comment on column lnk_diag2code.code is
---	'the code in the coding system';
---comment on column lnk_diag2code.xfk_coding_system is
---	'the coding system used to code the diagnosis';
+comment on TABLE lnk_code2diag is
+	'diagnoses as used clinically in patient charts linked to codes';
+comment on column lnk_code2diag.code is
+	'the code in the coding system';
+comment on column lnk_code2diag.xfk_coding_system is
+	'the coding system used to code the diagnosis';
 
 
 -- ===================================================================
@@ -935,11 +917,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.113 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.114 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.113  2004-07-02 00:28:53  ncq
+-- Revision 1.114  2004-07-02 15:00:10  ncq
+-- - bring rfe/aoe/diag/coded_diag tables/views up to snuff and use them
+--
+-- Revision 1.113  2004/07/02 00:28:53  ncq
 -- - clin_working_diag -> clin_coded_diag + index fixes therof
 -- - v_pat_diag rewritten for clin_coded_diag, more useful now
 -- - v_patient_items.id_item -> pk_item
