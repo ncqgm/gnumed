@@ -4,7 +4,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/amis-create_tables.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.3 $
+-- version: $Revision: 1.4 $
 -- license: GPL
 -- TODO: further processing of the data (normalizing)
 
@@ -78,7 +78,7 @@ drop table amis_substances;
 
 create table amis_substances (
 	connection_id char(10),
-	id char(9),
+	id char(8),
 	dose varchar(20),
 	unit varchar(8),
 	suffix varchar(100),  -- this is should be different if the same substance appears more
@@ -101,7 +101,7 @@ create table amis_substances_extended (
 	suffix varchar(100),  -- this is should be different if the same substance appears more
 	    	    	    	    -- than once within the same drug
 	additive_flag char(2), -- 'j' if this is an additive
-	primary_substance_info_key char(9) -- the substance the extended information refers to
+	primary_substance_info_key char(8) -- the substance the extended information refers to
 );
 
 -- =====================================================================================
@@ -112,7 +112,7 @@ drop table amis_substances_names;
 \set ON_ERROR_STOP 1
 
 create table amis_substances_names (
-	substance_id char(7),
+	substance_id char(8),
 	substance_name varchar(160),
 	substance_sort_name varchar(160), -- same as name but lowercase and without spaces
 	substance_text_key char(4),
@@ -435,7 +435,10 @@ TO "gm-public";
 --	30.11.2001: \set & \unset applied correctly
 --
 -- $Log: amis-create_tables.sql,v $
--- Revision 1.3  2002-10-29 23:18:11  ncq
+-- Revision 1.4  2002-11-04 16:00:17  hinnef
+-- bugfixes in amis_substances etc.
+--
+-- Revision 1.3  2002/10/29 23:18:11  ncq
 -- - ha! remove creation of indices - this only makes sense after importing the data
 --
 -- Revision 1.2  2002/10/29 23:15:29  ncq
