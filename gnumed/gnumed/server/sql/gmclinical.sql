@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.92 $
+-- $Revision: 1.93 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -335,8 +335,12 @@ create table vaccine (
 	trade_name text unique not null,
 	short_name text not null,
 	is_live boolean not null default false,
-	min_age interval not null,
-	max_age interval default null,
+	min_age interval
+		not null
+		check(min_age > interval '0 seconds'),
+	max_age interval
+		default null
+		check((max_age is null) or (max_age > min_age)),
 	last_batch_no text default null,
 	comment text,
 	unique (trade_name, short_name)
@@ -427,10 +431,20 @@ create table vacc_def (
 		default null
 		check (((is_booster=true) and (seq_no is null)) or ((is_booster=false) and (seq_no > 0))),
 	min_age_due interval
-		not null,
+		not null
+		check (min_age_due > '0 seconds'::interval),
 	max_age_due interval
-		default null,
-	min_interval interval not null,
+		default null
+		check ((max_age_due is null) or (max_age_due > min_age_due)),
+	min_interval interval
+		default null
+		check (
+			((is_booster=true) and (min_interval is not null) and (min_interval > '0 seconds'::interval))
+				or
+			((seq_no = 1) and (min_interval is null))
+				or
+			((seq_no > 1) and (min_interval is not null) and (min_interval > '0 seconds'::interval))
+		),
 	comment text,
 	unique(fk_regime, seq_no)
 ) inherits (audit_fields);
@@ -446,7 +460,7 @@ comment on column vacc_def.is_booster is
 comment on column vacc_def.seq_no is
 	'sequence number for this vaccination event
 	 within a particular schedule/regime,
-	 meaningless if (is_booster == true)';
+	 NULL if (is_booster == true)';
 comment on column vacc_def.min_age_due is
 	'minimum age at which this shot is due';
 comment on column vacc_def.max_age_due is
@@ -457,7 +471,7 @@ comment on column vacc_def.min_interval is
 		recommended interval for boostering
 	 id (is_booster == false):
 	 	minimum interval after previous vaccination,
-		meaningless if seq_no == 1';
+		NULL if seq_no == 1';
 
 -- --------------------------------------------
 create table vaccination (
@@ -819,11 +833,14 @@ comment on table clin_history_editarea is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.92 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.93 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.92  2004-04-07 18:16:06  ncq
+-- Revision 1.93  2004-04-11 10:08:36  ncq
+-- - tighten check constraints on intervals
+--
+-- Revision 1.92  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --
