@@ -43,6 +43,7 @@ class CachedPerson(gmDBCache.CachedDBObject):
 		cursor = self.cache.db.cursor()
 		cursor.execute("select id_address from identities_addresses where id_identity = %d" % id)
 		addresses = cursor.fetchall()
+		print "from identities_addresses: address  id s= ", addresses
 		return addresses
 
 	def dictresult(self, id=None):

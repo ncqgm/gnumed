@@ -293,6 +293,7 @@ class CachedDBObject:
 
 	def dictresult(self):
 		if self.cache.buffer is None:
+			print self, "self.cache.buffer == None"
 			return None
 		dictres = []
 		index=0

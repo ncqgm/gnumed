@@ -3,7 +3,10 @@
 #
 # gmConnectionPool - Broker for Postgres distributed backend connections
 # ---------------------------------------------------------------------------
+#
+# @author: Dr. Horst Herb
 # @copyright: author
+# @license: GPL (details at http://www.gnu.org)
 # @dependencies: pg, gmLoginInfo
 # @change log:
 #	25.10.2001 hherb first draft, untested
@@ -16,44 +19,29 @@
 #
 # @TODO: Almost everything
 ############################################################################
-# Copyright: Horst Herb, Karsten Hilbert
-# This source code is protected by the GPL licensing scheme.
-# Details regarding the GPL are available at http://www.gnu.org
-# You may use and share it as long as you don't deny this right
-# to anybody else.
 
-"""gmPG.py - Database access abstraction class.
-
-gmConnectionPool provides an abstraction layer for connecting
-to and disconnecting from databases. It also serves as a wrapper
-for the various possible DB-API 2.0 compliant postgres modules.
-"""
-__version__ = "$Revision: 1.26 $"
-__author__ = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>"
-#-------------------------------------------------------------------
-# python standard modules
+#python standard modules
 import string, gettext, copy, os, sys
+#3rd party dependencies
+import pgdb
+#create an alias for our DB API adapter module to make code independend of the adapter used
+dbapi = pgdb
 
-# 3rd party dependencies
-# if available import psycopg
-try:
-    import psycopg as dbapi
-# or else us the stock pgdb
-except:
-    import pgdb as dpapi
-
-#GNUmed specific modules
+#gnumed specific modules
 import gmLoginInfo, gmLog, gmExceptions
-#-------------------------------------------------------------------
+
 #take care of translating strings
 _ = gettext.gettext
+
 
 __backend = 'Postgres'
 #check whether this adapter module suits our needs
 assert(float(dbapi.apilevel) >= 2.0)
 assert(dbapi.threadsafety > 0)
 assert(dbapi.paramstyle == 'pyformat')
-#-------------------------------------------------------------------
+
+
+
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
 
@@ -162,7 +150,7 @@ class ConnectionPool:
 		
 		dsn, hostport = login.GetPGDB_DSN()
 		try:
-		    db = dbapi.connect(dsn, host=hostport)
+		    db = pgdb.connect(dsn, host=hostport)
 		    return db
 		except: 
 		    exc = sys.exc_info()
@@ -443,7 +431,3 @@ if __name__ == "__main__":
 	print "\nResult attributes\n==================\n"
 	n = fieldNames(cursor)
 	print n
-
-# FIXME:
-#  set up default log here
-#  log name of dbapi module

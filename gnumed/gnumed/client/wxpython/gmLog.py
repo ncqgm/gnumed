@@ -10,7 +10,7 @@ Theory of operation:
 A logger object is a unifying wrapper for an arbitrary number
 of log targets. A log target may be a file, syslog, the console,
 or an email address, or, in fact, any object derived from the
-class cLogTarget. Log targets will only log messages with at least
+class LogTarget. Log targets will only log messages with at least
 their own message priority level (log level). Each log target
 may have it's own log level.
 
@@ -38,13 +38,10 @@ Usage:
 2.) if neccessary, redirect your output to your output device/widget
 3.) call the Logger.Log() function
 
+@author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 @copyright: GPL
 """
 
-__version__ = "$Revision: 1.12 $"
-__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-
-# standard modules
 import sys, time, traceback, os.path, atexit, os
 
 # safely import SYSLOG, currently POSIX only
@@ -58,6 +55,7 @@ except ImportError:
 	print "You should download and install this module !"
 
 #-------------------------------------------
+
 # log levels:
 # lPanic - try to log this before we die
 # lErr   - some error occured, may be recoverable
@@ -113,7 +111,7 @@ AsciiName = ['<#0-0x00-nul>',
 
 class Logger:
     # file(s)/pipes, stdout/stderr = console, email, syslog, widget, you-name-it
-    # can be any arbitrary object derived from cLogTarget (see below)
+    # can be any arbitrary object derived from LogTarget (see below)
     __targets = {}
 
     def __init__(self, aTarget=None):
@@ -135,18 +133,16 @@ class Logger:
     def AddTarget (self, aTarget):
 	"""Add another log target.
 
-	- targets must be objects derived from cLogTarget
+	- targets must be objects derived from LogTarget
 	- ignores identical targets
 	- the number of concurrent targets is potentially unlimited
 	"""
 
 	# log security warning
 	# (additional log targets are potential sources of inadvertant disclosure)
-	self.Log(lWarn, 'SECURITY: adding log target "' + str(aTarget.getID()) + '"')
+	self.Log(lInfo, 'SECURITY: adding log target "' + str(aTarget.getID()) + '"')
 
-	# sanity check: only derivatives of cLogTarget are valid LogTargets
-	if not isinstance(aTarget, cLogTarget):
-	    self.Log(lWarn, 'SECURITY: trying to add an invalid log target (not an instance of a subclass of cLogTarget): ' + str(aTarget))
+	# FIXME - we need some assertions about the new target here !
 
 	# no duplicate targets
 	if not self.__targets.has_key(aTarget.getID()):
@@ -213,7 +209,7 @@ class Logger:
 	else:
 	    return aChar
 #---------------------------------------------------------------
-class cLogTarget:
+class LogTarget:
     """Base class for actual log target implementations.
 
     - derive your targets from this class
@@ -276,7 +272,7 @@ class cLogTarget:
 
     # stderr equivalent for lPanic, lErr
     def dump2stderr (self, aTimestamp, aSeverity, aCaller, aMsg):
-	print "cLogTarget: You forgot to override dump2stderr() !\n"
+	print "LogTarget: You forgot to override dump2stderr() !\n"
 
     def __timestamp(self):
 	"""return a nicely formatted time stamp
@@ -298,7 +294,7 @@ class cLogTarget:
             self.__functionname = "Main"
 
 #---------------------------------------------------------------
-class LogTargetFile(cLogTarget):
+class LogTargetFile(LogTarget):
     # the actual file handle
     __handle = None
 
@@ -309,23 +305,23 @@ class LogTargetFile(cLogTarget):
 	    return None
 	else:
 	    # call inherited
-	    cLogTarget.__init__(self, aLogLevel)
+	    LogTarget.__init__(self, aLogLevel)
 	    self.ID = os.path.abspath (aFileName) # the file name canonicalized
 
 	self.writeMsg (lData, "instantiated log file " + aFileName + " with ID " + str(self.ID))
 
     def close(self):
-	cLogTarget.close(self)
+	LogTarget.close(self)
 	self.__handle.close()
 
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	self.__handle.write(aTimeStamp + aPrefix + aLocation + aMsg)
 
 #---------------------------------------------------------------
-class LogTargetConsole(cLogTarget):
+class LogTargetConsole(LogTarget):
     def __init__ (self, aLogLevel = lErr):
 	# call inherited
-	cLogTarget.__init__(self, aLogLevel)
+	LogTarget.__init__(self, aLogLevel)
 	# do our extra work
 	self.ID = "stdout/stderr"
 	self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
@@ -337,12 +333,12 @@ class LogTargetConsole(cLogTarget):
 	sys.stderr.write(aTimeStamp + aPrefix + aLocation + aMsg)
 
 #---------------------------------------------------------------
-class LogTargetSyslog(cLogTarget):
+class LogTargetSyslog(LogTarget):
     def __init__ (self, aLogLevel = lErr):
 	# is syslog available ?
     	if _use_syslog:
 	    # call inherited
-	    cLogTarget.__init__(self, aLogLevel)
+	    LogTarget.__init__(self, aLogLevel)
 	    # do our extra work
 	    syslog.openlog(os.path.basename(sys.argv[0]))
 	    syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
@@ -352,7 +348,7 @@ class LogTargetSyslog(cLogTarget):
 	    raise NotImplementedError, "No SYSLOG module available on this platform (" + str(os.name) + ") !"
 
     def close(self):
-	cLogTarget.close(self)
+	LogTarget.close(self)
 	syslog.closelog()
 
     def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
@@ -361,10 +357,10 @@ class LogTargetSyslog(cLogTarget):
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	syslog.syslog ((syslog.LOG_USER | syslog.LOG_ERR), aPrefix + aLocation + aMsg)
 #---------------------------------------------------------------
-class LogTargetDummy(cLogTarget):
+class LogTargetDummy(LogTarget):
     def __init__ (self):
 	# call inherited
-	cLogTarget.__init__(self, lPanic)
+	LogTarget.__init__(self, lPanic)
 	self.ID = "dummy"
 
     def dump2stderr (self, aTimestamp, aSeverity, aCaller, aMsg):
@@ -451,4 +447,5 @@ else:
 # callable()
 # type()
 # __del__
+# __is_sublclass__
 #

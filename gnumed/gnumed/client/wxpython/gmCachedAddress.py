@@ -42,10 +42,11 @@ class CachedAddress(gmDBCache.CachedDBObject):
 	def dictresult(self, id=None):
 		if id is not None:
 			self.get(id, refresh_only=1)
-		try:
+		#try:
 			return gmDBCache.CachedDBObject.dictresult(self)[0]
-		except:
-			return None
+		#except Exception, errorStr:
+		#		print "error in dictresult", errorStr
+		#		return None
 
 
 

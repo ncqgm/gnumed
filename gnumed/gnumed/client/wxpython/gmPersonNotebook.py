@@ -55,19 +55,24 @@ class PersonNotebook(wxPanel):
 		#tell the parent window about our size
 		self.__sizer.Fit( parent )
 		self.__sizer.SetSizeHints( parent )
-
+		
 
 	def RegisterEvents(self):
 		EVT_BUTTON(self, gmSelectPerson.ID_BUTTON_SELECT, self.OnPersonSelected)
-		EVT_LIST_ITEM_ACTIVATED(self, gmSQLSimpleSearch.ID_LISTCTRL, self.OnPersonSelected)
+		EVT_LIST_ITEM_SELECTED(self, gmSQLSimpleSearch.ID_LISTCTRL, self.OnPersonSelected)
 
 	def OnPersonSelected(self, evt):
 		personId = self.SearchPersonDlg.GetSelectedPersonId()
 		print "Person selected!", personId
 		self.__person.setId(personId)
 		p = self.__person.dictresult()
+		print "info retrieved ", p
 		if p is not None:
 			self.__guibroker["main.SetWindowTitle"]("GNUMed: %s %s" % (p["firstnames"], p["lastnames"]) )
+
+		
+
+		self.PersonDetailsDlg.OnDataUpdate(self, p['id'])	
 
 
 

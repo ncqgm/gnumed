@@ -78,7 +78,7 @@ def PersonDetailsFunc( parent, call_fit = true, set_sizer = true ):
 	#title
 	szr = CaptionSizer(parent, _("title"))
 	parent.comboTitle = wxComboBox( parent, ID_COMBO_TITLE, "", wxDefaultPosition, wxSize(70,-1),
-		[_("Ms."),_("Mrs."),_("Mr."),_("Dr."),_("Prof.")] , wxCB_DROPDOWN )
+		[_("Ms."),_("Mrs."),_("Mr."),_("Mstr."), _("Miss"), _("Dr."),_("Prof.")] , wxCB_DROPDOWN )
 	szr.AddWindow( parent.comboTitle, 0, wxALIGN_CENTER_VERTICAL, 5 )
 	parent.szrHBoxNames.AddSizer( szr, 0, wxALIGN_CENTRE|wxLEFT|wxRIGHT, 5 )
 
@@ -114,8 +114,13 @@ def PersonDetailsFunc( parent, call_fit = true, set_sizer = true ):
 
 	#gender
 	szr = CaptionSizer(parent,_("gender"))
-	parent.chGender = wxChoice( parent, ID_CHOICE_GENDER, wxDefaultPosition, wxSize(70,-1),
-		[_("?"),_("male"),_("female"),_("hermaphr."),_("pmgf"),_("pfgm")] , 0 )
+#	parent.chGender = wxRadioBox( parent, ID_CHOICE_GENDER,"female", wxDefaultPosition, wxSize(70,-1),
+#		[_("female"), _("male"),_("?"),_("hermaphr."),_("pmgf"),_("pfgm")], wxCB_DROPDOWN   )
+
+
+	parent.chGender = wxRadioBox( parent, ID_CHOICE_GENDER, label="Sex",  size=wxSize(70,-1),choices=["f", "m"] )
+
+
 	szr.AddWindow( parent.chGender, 0, wxALIGN_CENTER_VERTICAL, 5 )
 	parent.szrHBoxDates.AddSizer( szr, 0, wxALIGN_CENTRE|wxALL, 5 )
 
@@ -197,6 +202,12 @@ def PersonDetailsFunc( parent, call_fit = true, set_sizer = true ):
 	parent.tcCity = wxTextCtrl( parent, ID_TEXTCTRL_CITY, "", wxDefaultPosition, wxSize(80,-1), 0 )
 	szr.AddWindow( parent.tcCity, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
 	parent.szrCity.AddSizer( szr, 1, wxALIGN_CENTRE, 5 )
+
+	#state so find_street pgsql function works
+	szr = CaptionSizer(parent,_("state"))
+	parent.tcState = wxTextCtrl( parent, wxNewId(), "", wxDefaultPosition, wxSize(40,-1), 0 )
+	szr.AddWindow( parent.tcState, 0, wxALIGN_CENTRE, 5)
+	parent.szrCity.AddSizer(szr, 1, wxALIGN_CENTRE, 5)	
 
 	#then the postcode
 	szr = CaptionSizer(parent,_("postcode"))
