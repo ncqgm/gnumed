@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -19,6 +19,7 @@ ID_COMBO_STAFF = wxNewId()
 doctorquery = "select title, givennames, surnames, id from v_doctors_only"
 preferred_interval_query = "select duration from v_duration_standard where id_staff = %d"
 doc_available_query = "select is_available(%d, %s)"    #id_doctor, date, time
+days_off_query = "select day_of_week from days_off where id_staff = %d"
 
 class DoctorsSchedulePnl(wxPanel):
 	def __init__(self, parent, doctor = None):
@@ -55,7 +56,10 @@ class DoctorsSchedulePnl(wxPanel):
 
 		self.FillComboStaff(self.doctors)
 		if self.doctor is not None:
+			print "Setting Doctor", self.doctor
 			self.SetDoctor(self.doctor)
+			print "Blocking days for ", self.doctor
+			self.BlockDays(self.doctor)
 
 		self.SetSizer(self.szrMain)
 		self.SetAutoLayout(true)
@@ -75,6 +79,7 @@ class DoctorsSchedulePnl(wxPanel):
 
 
 	def SelectDoctor(self, doctor_id):
+		self.doctor = doctor_id
 		cur = self.db.cursor()
 		cur.execute(preferred_interval_query % doctor_id)
 		try:
@@ -84,27 +89,39 @@ class DoctorsSchedulePnl(wxPanel):
 		except:
 			self.interval=15
 		self.schedule.SetInterval(interval=self.interval)
+		print "Recreating schedule"
+		self.schedule.Recreate()
+		print "Blocking days", doctor_id
+		self.BlockDays(doctor_id)
+
+
+	def BlockDays(self, doctor_id):
+		cur = self.db.cursor()
+		cur.execute(days_off_query % doctor_id)
+		days_off = cur.fetchall()
+		for day in days_off:
+			self.schedule.BlockDay(day[0])
 
 
 	def SetDoctor(self, doctor_id):
-		print "Trying to select Doctor id=", doctor_id
 		cbindex = -1
 		for key in self.doctorindex.keys():
-			print "key, index:", key, self.doctorindex[key]
 			if self.doctorindex[key] == doctor_id:
 				cbindex = key
-				print "found: ", cbindex
 				break
 		if cbindex > -1:
 			self.cbStaffSelection.SetSelection(cbindex)
 			self.SelectDoctor(doctor_id)
 
 
+
 	def OnStaffSelected(self, evt):
 		idx = evt.GetSelection()
 		id = self.doctorindex[idx]
 		if id is not None:
+			print "Selecting doctor", id
 			self.SelectDoctor(id)
+
 
 
 	def SetDate(self, date):

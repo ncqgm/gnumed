@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -96,14 +96,26 @@ def TimeLabels(start=9, end=18, interval=15, exclude=None):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def DayOfWeekLabels(include_sunday=1):
+def DayOfWeekLabels(date=None, days=7):
 	"""Return a list of day names starting with Monday,
 	optionally including Sunday if 'include_sunday' is not 0"""
 
-	if include_sunday:
-		return days_of_week
-	else:
-		return days_of_week[:6]
+	if date is None:
+		date = time.localtime()
+	dow = DayOfWeek(date)
+	one_day = 86400 #seconds
+	start_day = time.mktime(date)
+	labels = []
+	index = dow
+	for day in range(days):
+		lbl = "%s\n%s" % (days_of_week[index], 
+			time.strftime("%d/%m/%y", time.localtime(start_day)) )
+		labels.append(lbl)
+		index+=1
+		start_day+=one_day
+		if index>6:
+			index=0
+	return labels
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -119,55 +131,75 @@ def DayOfWeek(date=None):
 
 
 class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
-	def __init__(self, parent, hour_start=9, hour_end=18, session_interval=15, exclude=None, log=sys.stdout):
+	def __init__(self, parent, hour_start=9, hour_end=18, session_interval=15, exclude=None, date=None, days=7, log=sys.stdout):
 		wxGrid.__init__(self, parent, -1)
 		##wxGridAutoEditMixin.__init__(self)
 		self.log = log
+		self.days=days
+		self.hour_start = hour_start
+		self.hour_end = hour_end
+		self.session_interval = session_interval
+		self.exclude = exclude
 		self.moveTo = None
-		self.Date = time.localtime()
+		if date is None:
+			self.Date = time.localtime()
+		else:
+			self.Date = date
 
 		self.clr_appointed = wxColour(240,220,140)
 		self.clr_not_available = wxLIGHT_GREY
 		self.clr_today = wxColour(255,255,125)
 		self.clr_selected_day = wxColour(190,225,255)
 
+		self.MakeGrid()
+
 		#EVT_IDLE(self, self.OnIdle)
-		self.weekdaylabels = DayOfWeekLabels(include_sunday=1)
-		self.timelabels = TimeLabels(hour_start, hour_end, session_interval, exclude)
+
+
+		# test all the events
+		#EVT_GRID_CELL_LEFT_CLICK(self, self.OnCellLeftClick)
+		EVT_GRID_CELL_RIGHT_CLICK(self, self.OnCellRightClick)
+		#EVT_GRID_CELL_LEFT_DCLICK(self, self.OnCellLeftDClick)
+		#EVT_GRID_CELL_RIGHT_DCLICK(self, self.OnCellRightDClick)
+
+		#EVT_GRID_LABEL_LEFT_CLICK(self, self.OnLabelLeftClick)
+		#EVT_GRID_LABEL_RIGHT_CLICK(self, self.OnLabelRightClick)
+		#EVT_GRID_LABEL_LEFT_DCLICK(self, self.OnLabelLeftDClick)
+		#EVT_GRID_LABEL_RIGHT_DCLICK(self, self.OnLabelRightDClick)
+		#EVT_GRID_ROW_SIZE(self, self.OnRowSize)
+		#EVT_GRID_COL_SIZE(self, self.OnColSize)
+
+		#EVT_GRID_RANGE_SELECT(self, self.OnRangeSelect)
+		EVT_GRID_CELL_CHANGE(self, self.OnCellChange)
+		#EVT_GRID_SELECT_CELL(self, self.OnSelectCell)
+
+		#EVT_GRID_EDITOR_SHOWN(self, self.OnEditorShown)
+		#EVT_GRID_EDITOR_HIDDEN(self, self.OnEditorHidden)
+		#EVT_GRID_EDITOR_CREATED(self, self.OnEditorCreated)
+
+
+	def MakeGrid(self):
+		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
+		self.timelabels = TimeLabels(self.hour_start, self.hour_end, self.session_interval, self.exclude)
 		self.CreateGrid(len(self.timelabels), len(self.weekdaylabels))
 
 		#label the rows with default values
 		self.SetInterval()
 		#label the columns with default values
-		labels =  self.weekdaylabels
-		index=0
-		for index in range(len(labels)):
-			self.SetColLabelValue(index, labels[index])
+		self.SetDate(self.Date)
 
-		self.SetColLabelAlignment(wxALIGN_LEFT, wxALIGN_BOTTOM)
+
+	def Recreate(self):
+		print "called recreate"
+		self.DeleteCols(0, self.GetNumberCols())
+		self.AppendCols(self.days)
+		self.DeleteRows(0, self.GetNumberRows())
+		self.AppendRows(len(self.timelabels))
+		#label the rows with default values
+		self.SetInterval()
+		#label the columns with default values
+		self.SetDate(self.Date)
 		self.SetColumnColours()
-
-		# test all the events
-		EVT_GRID_CELL_LEFT_CLICK(self, self.OnCellLeftClick)
-		EVT_GRID_CELL_RIGHT_CLICK(self, self.OnCellRightClick)
-		EVT_GRID_CELL_LEFT_DCLICK(self, self.OnCellLeftDClick)
-		EVT_GRID_CELL_RIGHT_DCLICK(self, self.OnCellRightDClick)
-
-		EVT_GRID_LABEL_LEFT_CLICK(self, self.OnLabelLeftClick)
-		EVT_GRID_LABEL_RIGHT_CLICK(self, self.OnLabelRightClick)
-		EVT_GRID_LABEL_LEFT_DCLICK(self, self.OnLabelLeftDClick)
-		EVT_GRID_LABEL_RIGHT_DCLICK(self, self.OnLabelRightDClick)
-
-		EVT_GRID_ROW_SIZE(self, self.OnRowSize)
-		EVT_GRID_COL_SIZE(self, self.OnColSize)
-
-		EVT_GRID_RANGE_SELECT(self, self.OnRangeSelect)
-		EVT_GRID_CELL_CHANGE(self, self.OnCellChange)
-		EVT_GRID_SELECT_CELL(self, self.OnSelectCell)
-
-		EVT_GRID_EDITOR_SHOWN(self, self.OnEditorShown)
-		EVT_GRID_EDITOR_HIDDEN(self, self.OnEditorHidden)
-		EVT_GRID_EDITOR_CREATED(self, self.OnEditorCreated)
 
 
 	def SetInterval(self, start=9, end=18, interval=15, exclude="13:00-14:00"):
@@ -180,31 +212,62 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 	def SetColumnColours(self):
 		#mark today in special colours
-		current_week = time.strftime('%W')
-		displayed_week = time.strftime('%W', self.Date)
-		if current_week == displayed_week:
+		print "Setting column colours"
+		normal_attr = wxGridCellAttr()
+		normal_attr.SetBackgroundColour(wxWHITE)
+		today_attr = wxGridCellAttr()
+		today_attr.SetBackgroundColour(self.clr_today)
+		selected_day_attr = wxGridCellAttr()
+		selected_day_attr.SetBackgroundColour(self.clr_selected_day)
+		now = time.time()
+		start = time.mktime(self.Date)
+		delta = now-start
+		is_current=0
+		print "delta", delta
+		if delta > 0 and delta < self.days:
+			#we are displaying the current week
+			self.SetColAttr(0, today_attr)
+			is_current=1
+		#for column in range (0,self.days):
+		#	self.SetColAttr(column, selected_day_attr)
+
+
+
+	def BlockDate(self, blocked_date):
+		start = time.mktime(self.Date)
+		blocked = time.mktime(blocked_date)
+		delta = (blocked-start)/86400
+		if delta>0 and delta <self.days:
 			attr = wxGridCellAttr()
-			attr.SetBackgroundColour(self.clr_today)
-			attr.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD))
-			current_day=DayOfWeek()
-			self.SetColAttr(current_day, attr)
-		#mark day selected in Calendar in special colours
-		attr = wxGridCellAttr()
-		attr.SetBackgroundColour(self.clr_selected_day)
-		attr.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD))
-		#make Monday first day of the week
-		selected_day = int(time.strftime('%w', self.Date))-1
-		if selected_day == -1:
-			selected_day=6
-		self.SetColAttr(selected_day, attr)
+			attr.SetBackgroundColour(wxLIGHT_GREY)
+			self.SetColAttr(delta, attr)
+
+
+
+	def BlockDay(self, weekday):
+		start = DayOfWeek(self.Date)
+		dow = start
+		for index in range(self.days):
+			if dow>6:
+				dow=0
+			if weekday == dow:
+				date = time.localtime(time.mktime(self.Date)+index*86400)
+				self.BlockDate(date)
+			dow+=1
 
 
 	def SetDate(self,date):
 		self.Date=date
+		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
+		labels =  self.weekdaylabels
+		index=0
+		for index in range(len(labels)):
+			self.SetColLabelValue(index, labels[index])
 		self.SetColumnColours()
-		dow = DayOfWeek(self.Date)
+
+		#dow = DayOfWeek(self.Date)
 		#scroll if neccessary so that the selected dat is visible
-		self.MakeCellVisible(dow, 1)
+		#self.MakeCellVisible(dow, 1)
 
 
 	def AppointmentSelected(self, row, col):

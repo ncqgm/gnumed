@@ -126,6 +126,13 @@ CREATE TABLE preferred_app_length (
 	duration integer  -- in minutes
 );
 
+create table days_off(
+	id serial primary key, 
+	id_staff integer references staff, 
+	day_of_week integer default 6 -- day of week, Monday=0, Sunday=6
+);
+
+
 CREATE VIEW v_doctors_only AS
 	select * from staff where id =
 	(select id_staff from m2m_staff_type where id_enum_stafftype=

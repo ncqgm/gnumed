@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -19,7 +19,7 @@ ID_BTN_CALENDAR = wxNewId()
 ID_TEXTCTRL_WEEKSELECTION = wxNewId()
 
 class ScheduleAllDoctorsPnl(wxPanel):
-	def __init__(self, parent, doctors=["Dr. Herb", "Dr. Eburn"]):
+	def __init__(self, parent, doctors=2):
 		wxPanel.__init__(self, parent, -1)
 		self.szrMain = wxBoxSizer(wxVERTICAL)
 		self.szrDateSelection = wxBoxSizer(wxHORIZONTAL)
@@ -27,14 +27,12 @@ class ScheduleAllDoctorsPnl(wxPanel):
 		self.szrMain.AddSizer(self.szrDateSelection, 0, wxGROW|wxALIGN_TOP|wxLEFT|wxRIGHT|wxTOP|wxBOTTOM, 15 )
 		self.szrSchedules = wxBoxSizer(wxHORIZONTAL)
 		self.schedules = []
-		index=0
-		for doctor in doctors:
+		for index in range(doctors):
 			#pnl =
 			self.schedules.append(gmDoctorsSchedulePnl.DoctorsSchedulePnl(self, doctor=None))
 			self.szrSchedules.AddWindow(self.schedules[index], 1, wxGROW|wxALIGN_CENTER_VERTICAL, 3 )
+			self.schedules[index].SetDoctor(index+1)  #database ids start with 1 not 0
 			index+=1
-		self.schedules[0].SetDoctor(1)
-		self.schedules[1].SetDoctor(3)
 		self.szrMain.AddSizer(self.szrSchedules, 1, wxGROW|wxALIGN_TOP|wxLEFT|wxRIGHT, 5 )
 
 		self.SetSizer(self.szrMain)
