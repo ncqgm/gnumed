@@ -5,7 +5,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/amis-import_data.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.1 $
+-- version: $Revision: 1.2 $
 -- license: GPL
 
 -- =====================================================================================
@@ -52,7 +52,7 @@
 \copy amis_price from './amis_orig/basis/taxe.ami' using delimiters '$'
 
 -- amis_price_manufacturer
-\copy amis_price_manufacturer from './amis_orig/basis/taxe_her.ami' using delimiters '$'
+\copy amis_price_manufacturer from './amis_orig/basis/neu/taxe_her.ami' using delimiters '$'
 
 -- amis_presentation
 \copy amis_presentation from './amis_orig/basis/darreich.ami' using delimiters '$'
@@ -91,7 +91,10 @@ create index amis_drug_descripition_index on amis_drug_description (text_key);
 
 -- ===============================================
 -- $Log: amis-import_data.sql,v $
--- Revision 1.1  2002-10-24 12:56:38  ncq
+-- Revision 1.2  2002-11-10 14:13:25  ncq
+-- - source dir for taxe_her.ami was wrong
+--
+-- Revision 1.1  2002/10/24 12:56:38  ncq
 -- - initial checkin
 -- - split into creation of tables and import of data so people
 --   without the data can still import the structure
