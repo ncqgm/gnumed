@@ -4,16 +4,18 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.16 2005-03-13 09:05:06 cfmoro Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmSOAPWidgets.py,v 1.17 2005-03-14 14:39:18 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
+
+import types
 
 # 3rd party
 from wxPython import wx
 
 # GnuMed
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
@@ -21,8 +23,7 @@ from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-PROBLEM_UNDEFINED = -1
-PROBLEM_SAVED = -2
+NOTE_SAVED = -2
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
@@ -83,38 +84,39 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
 #============================================================
 class cResizingSoapPanel(wx.wxPanel):
-	"""
-	Basic note panel. It provides gmResizingWindows based editor
-	and a staticText that displays which health problem its current note is related to.
+	"""Basic progress note panel.
+
+	It provides a gmResizingWindow based progress note editor
+	with a header line. The header either displays the episode
+	this progress note is associated with or it allows for
+	entering an episode name. The episode name either names
+	an existing episode or is the name for a new episode.
+
+	Can work as:
+		a) Progress note creation: displays an empty set of soap entries to
+		create a new soap note for the given episode (or unassociated)
+		b) Progress note editor: displays the narrative entries (format and
+		narrative text) encapsulated in each element of input_defs.
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent, problem=None, input_defs=None):
+	def __init__(self, parent, episode=None, input_defs=None):
 		"""
 		Construct a new SOAP input widget.
-		Can work as:
-			a) Progress note creation: displays an empty set of soap entries to
-			create a new soap note for the given problem (or unassociated)
-			b) Progress note editor: displays the narrative entries (format and
-			narrative text) encapsulated in each element of input_defs.
 
 		@param parent: the parent widget
 
-		@param problem: the problem to create the SOAP editor for.
-		For clarity let's assume there cannot be a SOAP editor w/o
-		a health problem.
-		@type problem gmEMRStructItems.cProblem instance or None (to create an
+		@param episode: the episode to create the SOAP editor for.
+		@type episode gmEMRStructItems.cEpisode instance or None (to create an
 		unassociated progress note).
 
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 
 		"""
-		# sanity check		
-		if not isinstance(problem, gmEMRStructItems.cProblem) and problem != PROBLEM_UNDEFINED:
-			raise gmExceptions.ConstructorError, 'cannot make progress note editor for health problem [%s]' % str(problem)
-			
-		self.__problem = problem
-
+		# sanity check
+		if not isinstance(episode, (gmEMRStructItems.cEpisode, types.NoneType)):
+			raise gmExceptions.ConstructorError, 'cannot make progress note editor for episode [%s]' % str(episode)
+		self.__episode = episode
 		# do layout
 		wx.wxPanel.__init__ (self,
 			parent,
@@ -124,10 +126,21 @@ class cResizingSoapPanel(wx.wxPanel):
 			wx.wxNO_BORDER
 		)
 		# - heading
-		if problem == PROBLEM_UNDEFINED:
-			self.__soap_heading = gmPhraseWheel.cPhraseWheel(self, -1)
+		if episode is None:
+			mp = gmMatchProvider.cMatchProvider_Func (
+				get_candidates = self.get_episode_list
+			)
+			self.__soap_heading = gmPhraseWheel.cPhraseWheel (
+				self,
+				-1,
+				aMatchProvider = mp
+			)
 		else:
-			self.__soap_heading = wx.wxStaticText(self, -1, 'error: no problem given')
+			self.__soap_heading = wx.wxStaticText (
+				self,
+				-1,
+				_('episode: %s') % self.__episode['description']
+			)
 		# - editor
 		if input_defs is None:
 			soap_lines = []
@@ -169,61 +182,69 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.__szr_main.Add(self.__soap_text_editor, 0, wx.wxSHAPED)
 		self.SetSizerAndFit(self.__szr_main)
 
-		self.SetProblem(problem) # display health problem
+		self.__is_saved = False
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def SetProblem(self, problem):
+	def SetEpisode(self, episode):
 		"""
-		Set the related problem for this SOAP input widget.
+		Set the related episode for this SOAP input widget.
 		Update heading label with episode descriptive text.
 		
-		@param problem: SOAP input widget's related episode
-		@type problem: gmEMRStructItems.cEpisode		
+		@param episode: SOAP input widget's related episode
+		@type episode: gmEMRStructItems.cEpisode		
 		"""
-		self.__problem = problem
-		if problem == PROBLEM_UNDEFINED:
-			# FIXME: load phrasewheel with data
-			pass
-		else:
-			# display health problem
-			txt = 'problem: %s' % self.__problem['problem']
-			self.__set_heading(txt)
+		if episode is None:
+			# FIXME: need handling when unsetting episode
+			return False
+		self.__episode = episode
+		# display episode
+		txt = _('episode: %s') % self.__episode['description']
+		self.__set_heading(txt)
 		# flag indicating saved state
-		self.__is_saved = False		
+		self.__is_saved = False
 	#--------------------------------------------------------
-	def GetProblem(self):
+	def GetEpisode(self):
 		"""
-		Retrieve the related health problem for this SOAP input widget.
+		Retrieve the related episode for this SOAP input widget.
 		"""
-		return self.__problem
+		return self.__episode
+	#--------------------------------------------------------
+	def get_episode_list(self):
+		# match provider helper
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_clinical_record()
+		episodes = emr.get_episodes()
+		epi_list = []
+		for epi in episodes:
+			epi_list.append({'label': epi['description'], 'data': epi['description']})
+		print epi_list
+		return epi_list
 	#--------------------------------------------------------
 	def GetHeadingTxt(self):
 		"""
 		Retrieve the header displayed text. Typically useful to obtain
-		the entered problem text in an unassociated progress note.
+		the entered episode text in an unassociated progress note.
 		"""
 		txt = ''
-		if self.__problem == PROBLEM_UNDEFINED:
+		if self.__episode is None:
 			txt = self.__soap_heading.GetValue()
 		else:
 			txt = self.__soap_heading.GetLabel()
 		return txt
-		
 	#--------------------------------------------------------
-	def SetHeadingTxt(self,txt):
+	def SetHeadingTxt(self, txt):
 		"""
 		Set the header displayed text. Typically useful to configure
-		the entered problem text in an unassociated progress note.
-		
+		the entered episode text in an unassociated progress note.
+
 		@param txt: The heading text to set (episode name)
 		@param txt: string
 		"""
-		if self.__problem == PROBLEM_UNDEFINED:
+		if self.__episode is None:
 			self.__soap_heading.SetValue(txt)
 		else:
 			self.__soap_heading.SetLabel(txt)
-		
 	#--------------------------------------------------------
 	def get_editor(self):
 		"""
@@ -247,14 +268,13 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.__is_saved = is_saved
 		self.__set_heading('')
 		self.Clear()
-		self.__problem = PROBLEM_SAVED
+		self.__episode = NOTE_SAVED
 	#--------------------------------------------------------
 	def IsSaved(self):
 		"""
 		Check  SOAP input widget saved (dumped to backend) state
 		"""
 		return self.__is_saved
-		
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -408,7 +428,7 @@ if __name__ == "__main__":
 		soap_lines = []
 		# for each soap cat
 		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:
-			# retrieve narrative for given problem/encounter
+			# retrieve narrative for given encounter
 			narr_items =  emr.get_clin_narrative (
 				encounters = [pk_encounter],
 				issues = [pk_health_issue],
@@ -458,18 +478,18 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-		
-		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
+
+		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
 		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
-		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = problem['pk_health_issue'])
+		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
 		default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
 		app = wx.wxPyWidgetTester(size=(300,500))		
-		app.SetWidget(cResizingSoapPanel, problem, narrative)
+		app.SetWidget(cResizingSoapPanel, episode, narrative)
 		app.MainLoop()
 		del app		
 		
 		app = wx.wxPyWidgetTester(size=(300,300))
-		app.SetWidget(cResizingSoapPanel, problem)
+		app.SetWidget(cResizingSoapPanel, episode)
 		app.MainLoop()
 		del app
 
@@ -483,7 +503,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.16  2005-03-13 09:05:06  cfmoro
+# Revision 1.17  2005-03-14 14:39:18  ncq
+# - somewhat improve Carlos' support for unassociated progress notes
+#
+# Revision 1.16  2005/03/13 09:05:06  cfmoro
 # Added intial support for unassociated progress notes
 #
 # Revision 1.15  2005/03/09 19:41:18  cfmoro
