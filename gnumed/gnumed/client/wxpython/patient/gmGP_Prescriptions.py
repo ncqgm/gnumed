@@ -59,162 +59,164 @@ scriptprompts = {
 
 
 class PrescriptionPanel (wxPanel):
-     def __init__(self,parent, id):
-          #wxPanel.__init__(self,parent, id)
-	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
-          #--------------------
-          #add the main heading
-          #--------------------
-          self.scriptpanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  SCRIPTS  ")
-          #--------------------------------------------
-          #sizer to hold either just date, or the
-	  #authority details, aia, authority number
-          #--------------------------------------------
-	  self.sizer_authority  = wxGridSizer(2,0,1,1)
-	  self.sizer1 = wxBoxSizer(wxHORIZONTAL)
-	  self.txt_scriptDate = wxTextCtrl(self,-1,"12/06/2002",wxDefaultPosition,wxDefaultSize)
-	  self.spacer = wxWindow(self,-1, wxDefaultPosition,wxDefaultSize,0) 
-	  self.spacer.SetBackgroundColour(wxColor(222,222,222))
-	  #self.lbl_authorityindication = gmEditArea.EditAreaPromptLabel(self,-1,"Indication")
-          #self.lbl_authoritynumber = gmEditArea.EditAreaPromptLabel(self,-1,"Auth No.")
-	  #self.txt_authorityindication =  wxTextCtrl(self,-1,"",wxDefaultPosition,wxDefaultSize)
-	  #self.txt_authorityindication.Hide()
-	  self.sizer_authority.Add(self.spacer,1,wxEXPAND)
-	  self.sizer1.Add(1,0,20)
-	  self.sizer1.Add(self.txt_scriptDate,3,wxEXPAND|wxALL,3)
-	  self.sizer1.Add(1,0,1)
-	  self.sizer_authority.Add(self.sizer1,0,wxEXPAND)
-	  #-------------------------------------------------
-	  #now create the editarea specific for prescribing
-	  #-------------------------------------------------
-          self.editarea = gmEditArea.EditArea(self,-1,scriptprompts,gmSECTION_SCRIPT)
-          #---------------------------------------------------------------------
-          #add the divider headings below the editing area for drug interactions
-	  #and add text control to show mini-drug interactions
-          #---------------------------------------------------------------------
-	  self.interactiontext_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Drug Interactions")
-	  self.sizer_divider_interaction_text = wxBoxSizer(wxHORIZONTAL) 
-          self.sizer_divider_interaction_text.Add(self.interactiontext_subheading,1, wxEXPAND)
-	  self.interactiontxt = wxTextCtrl(self,-1,
-	              "Mini-Drug interaction text goes here (click this for full description)\n \n"
-		      "Also, try clicking on the list below with the right mouse button to see a pop up menu",		    
-				    style=wxTE_MULTILINE)
-	  self.interactiontxt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
-	  #------------------------------------------------------------------------------------
-          #add the divider headings below the drug interactions as heading for items prescribed
-          #------------------------------------------------------------------------------------
-          self.itemsprescribedheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Items prescribed this consultation")
-          self.sizer_itemsprescribed = wxBoxSizer(wxHORIZONTAL) 
-          self.sizer_itemsprescribed.Add(self.itemsprescribedheading,1, wxEXPAND)
-          #--------------------------------------------------------------------------------------                                                                               
-          #add the list to contain the drugs person is allergic to
-          #
-          # c++ Default Constructor:
-          # wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-          # const wxSize& size = wxDefaultSize, long style = wxLC_ICON, 
-          # const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
-	  #
-          #--------------------------------------------------------------------------------------
-       	  self.list_script = wxListCtrl(self, ID_SCRIPTLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-          self.list_script.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-	  EVT_RIGHT_UP(self.list_script, self.OnRightMouseUp)
-          #----------------------------------------	  
-          # add some dummy data to the allergy list
-	  self.list_script.InsertColumn(0, "Drug")
-	  self.list_script.InsertColumn(1, "Strength")
-	  self.list_script.InsertColumn(2, "Directions")
-	  self.list_script.InsertColumn(3, "For")
-	  #-------------------------------------------------------------
-	  #loop through the scriptdata array and add to the list control
-	  #note the different syntax for the first coloum of each row
-	  #i.e. here > self.list_script.InsertStringItem(x, data[0])!!
-	  #-------------------------------------------------------------
-	  items = scriptdata.items()
-	  for x in range(len(items)):
-	      key, data = items[x]
-	      self.list_script.InsertStringItem(x, data[0])
-	      self.list_script.SetStringItem(x, 1, data[1])
-	      self.list_script.SetStringItem(x, 2, data[2])
-	      self.list_script.SetStringItem(x, 3, data[3])
-	      self.list_script.SetItemData(x, key)
-	  self.list_script.SetColumnWidth(0, wxLIST_AUTOSIZE)
-          self.list_script.SetColumnWidth(1, wxLIST_AUTOSIZE)
-	  self.list_script.SetColumnWidth(2, wxLIST_AUTOSIZE)
-	  self.list_script.SetColumnWidth(3, wxLIST_AUTOSIZE)
-	  #----------------------------------------
-          #add an alert caption panel to the bottom
-          #----------------------------------------
-          self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,"  Alerts  ")
-          #---------------------------------------------                                                                               
-          #add all elements to the main background sizer
-          #---------------------------------------------
-          self.mainsizer = wxBoxSizer(wxVERTICAL)
-          self.mainsizer.Add(self.scriptpanelheading,0,wxEXPAND)
-          self.mainsizer.Add(self.sizer_authority,2,wxEXPAND)
-          self.mainsizer.Add(self.editarea,10,wxEXPAND)
-          self.mainsizer.Add(self.sizer_divider_interaction_text,0,wxEXPAND)
-       	  self.mainsizer.Add(self.interactiontxt,4,wxEXPAND)
-          self.mainsizer.Add(self.itemsprescribedheading,0,wxEXPAND)
-	  self.mainsizer.Add(self.list_script,4,wxEXPAND)
-          self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
-          self.SetSizer(self.mainsizer)
-          self.SetAutoLayout(true)
-          self.Show(true)
+	def __init__(self,parent, id):
+		#wxPanel.__init__(self,parent, id)
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		#--------------------
+		#add the main heading
+		#--------------------
+		self.scriptpanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  SCRIPTS  ")
+		#--------------------------------------------
+		#sizer to hold either just date, or the
+		#authority details, aia, authority number
+		#--------------------------------------------
+		self.sizer_authority  = wxGridSizer(2,0,1,1)
+		self.sizer1 = wxBoxSizer(wxHORIZONTAL)
+		self.txt_scriptDate = wxTextCtrl(self,-1,"12/06/2002",wxDefaultPosition,wxDefaultSize)
+		self.spacer = wxWindow(self,-1, wxDefaultPosition,wxDefaultSize,0) 
+		self.spacer.SetBackgroundColour(wxColor(222,222,222))
+		#self.lbl_authorityindication = gmEditArea.EditAreaPromptLabel(self,-1,"Indication")
+		#self.lbl_authoritynumber = gmEditArea.EditAreaPromptLabel(self,-1,"Auth No.")
+		#self.txt_authorityindication =  wxTextCtrl(self,-1,"",wxDefaultPosition,wxDefaultSize)
+		#self.txt_authorityindication.Hide()
+		self.sizer_authority.Add(self.spacer,1,wxEXPAND)
+		self.sizer1.Add(1,0,20)
+		self.sizer1.Add(self.txt_scriptDate,3,wxEXPAND|wxALL,3)
+		self.sizer1.Add(1,0,1)
+		self.sizer_authority.Add(self.sizer1,0,wxEXPAND)
+		#-------------------------------------------------
+		#now create the editarea specific for prescribing
+		#-------------------------------------------------
+		self.editarea = gmEditArea.EditArea(self,-1,scriptprompts,gmSECTION_SCRIPT)
+		#---------------------------------------------------------------------
+		#add the divider headings below the editing area for drug interactions
+		#and add text control to show mini-drug interactions
+		#---------------------------------------------------------------------
+		self.interactiontext_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Drug Interactions")
+		self.sizer_divider_interaction_text = wxBoxSizer(wxHORIZONTAL) 
+		self.sizer_divider_interaction_text.Add(self.interactiontext_subheading,1, wxEXPAND)
+		self.interactiontxt = wxTextCtrl(self,-1,
+			"Mini-Drug interaction text goes here (click this for full description)\n \n"
+			"Also, try clicking on the list below with the right mouse button to see a pop up menu",		    
+			style=wxTE_MULTILINE)
+		self.interactiontxt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+		#------------------------------------------------------------------------------------
+		#add the divider headings below the drug interactions as heading for items prescribed
+		#------------------------------------------------------------------------------------
+		self.itemsprescribedheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Items prescribed this consultation")
+		self.sizer_itemsprescribed = wxBoxSizer(wxHORIZONTAL) 
+		self.sizer_itemsprescribed.Add(self.itemsprescribedheading,1, wxEXPAND)
+		#--------------------------------------------------------------------------------------                                                                               
+		#add the list to contain the drugs person is allergic to
+		#
+		# c++ Default Constructor:
+		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
+		# const wxSize& size = wxDefaultSize, long style = wxLC_ICON, 
+		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
+		#
+		#--------------------------------------------------------------------------------------
+		self.list_script = wxListCtrl(self, ID_SCRIPTLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.list_script.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		EVT_RIGHT_UP(self.list_script, self.OnRightClickUp)
+		#----------------------------------------
+		# add some dummy data to the allergy list
+		self.list_script.InsertColumn(0, "Drug")
+		self.list_script.InsertColumn(1, "Strength")
+		self.list_script.InsertColumn(2, "Directions")
+		self.list_script.InsertColumn(3, "For")
+		#-------------------------------------------------------------
+		#loop through the scriptdata array and add to the list control
+		#note the different syntax for the first coloum of each row
+		#i.e. here > self.list_script.InsertStringItem(x, data[0])!!
+		#-------------------------------------------------------------
+		items = scriptdata.items()
+		for x in range(len(items)):
+			key, data = items[x]
+			self.list_script.InsertStringItem(x, data[0])
+			self.list_script.SetStringItem(x, 1, data[1])
+			self.list_script.SetStringItem(x, 2, data[2])
+			self.list_script.SetStringItem(x, 3, data[3])
+			self.list_script.SetItemData(x, key)
+
+		self.list_script.SetColumnWidth(0, wxLIST_AUTOSIZE)
+		self.list_script.SetColumnWidth(1, wxLIST_AUTOSIZE)
+		self.list_script.SetColumnWidth(2, wxLIST_AUTOSIZE)
+		self.list_script.SetColumnWidth(3, wxLIST_AUTOSIZE)
+		#----------------------------------------
+		#add an alert caption panel to the bottom
+		#----------------------------------------
+		self.alertpanel = gmGuiElement_AlertCaptionPanel.AlertCaptionPanel(self,-1,"  Alerts  ")
+		#---------------------------------------------                                                                               
+		#add all elements to the main background sizer
+		#---------------------------------------------
+		self.mainsizer = wxBoxSizer(wxVERTICAL)
+		self.mainsizer.Add(self.scriptpanelheading,0,wxEXPAND)
+		self.mainsizer.Add(self.sizer_authority,2,wxEXPAND)
+		self.mainsizer.Add(self.editarea,10,wxEXPAND)
+		self.mainsizer.Add(self.sizer_divider_interaction_text,0,wxEXPAND)
+		self.mainsizer.Add(self.interactiontxt,4,wxEXPAND)
+		self.mainsizer.Add(self.itemsprescribedheading,0,wxEXPAND)
+		self.mainsizer.Add(self.list_script,4,wxEXPAND)
+		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
+		self.SetSizer(self.mainsizer)
+		self.SetAutoLayout(true)
+		self.Show(true)
 	  
-     def OnRightMouseUp(self, event):
-	   "A right mouse click triggers a popup menu for the list script"
-	   #-------------------
-	   #create a popup menu
-	   #-------------------
-	   self.menu = wxMenu()
-	   self.menu.Append(0,"Authority Indications")
-	   self.menu.Append(1,"Interactions")
-	   self.menu.Append(2, "Pregnancy Information")
-	   self.menu.Append(3,"Resticted use Information")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(4, "Edit Item")
-	   self.menu.Append(5,"Delete Item")
-	   self.menu.Append(6, "Delete all Items")
-	   self.menu.Append(7,"Make Item Reg 24")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(8, "Brief Product Information")
-	   self.menu.Append(9,"Full Product Information")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(10, "Print Single Item")
-	   self.menu.Append(11,"Print All Items")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(12,"Reprint Item")
-	   self.menu.Append(13,"Reprint All Items")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(14,"Save Item no print")
-	   self.menu.Append(15,"Save All Items no printt")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(16,"Change Font")
-	   self.menu.Append(17,"Save list layout")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(18,"Help")
-	   self.menu.AppendSeparator()
-	   self.menu.Append(19,"Exit")
-	   ##connect the events to event handler functions
-	   #EVT_MENU(self, 0, self.OnEncrypt)
-	   EVT_MENU(self, 0, gmLog.gmDefLog.Log(gmLog.lErr, "This should display Authority Indications !"))
-	   #EVT_MENU(self, 1, self.OnDecrypt)
-	   #EVT_MENU(self, 2, self.OnSetPassphrase)
-	   #------------
-	   #show the menu 
-	   #-------------
-	   popup = self.list_script.PopupMenu(self.menu,event.GetPosition()) 
-	   # whatever the user selected in the menu will have
-	   # been handled already virtue of the MENU events
-	   # created above
-   
-	   #free resources
-	   self.menu.Destroy()
-   
-	   #anybody else needs to intercept right click events?
-	   event.Skip()
-	
-          
+	def OnRightClickUp(self, event):
+		"""A right mouse click triggers a popup menu for the list script"""
+		#-------------------
+		#create a popup menu
+		#-------------------
+		self.menu = wxMenu()
+		self.menu.Append(0,"Authority Indications")
+		self.menu.Append(1,"Interactions")
+		self.menu.Append(2, "Pregnancy Information")
+		self.menu.Append(3,"Resticted use Information")
+		self.menu.AppendSeparator()
+		self.menu.Append(4, "Edit Item")
+		self.menu.Append(5,"Delete Item")
+		self.menu.Append(6, "Delete all Items")
+		self.menu.Append(7,"Make Item Reg 24")
+		self.menu.AppendSeparator()
+		self.menu.Append(8, "Brief Product Information")
+		self.menu.Append(9,"Full Product Information")
+		self.menu.AppendSeparator()
+		self.menu.Append(10, "Print Single Item")
+		self.menu.Append(11,"Print All Items")
+		self.menu.AppendSeparator()
+		self.menu.Append(12,"Reprint Item")
+		self.menu.Append(13,"Reprint All Items")
+		self.menu.AppendSeparator()
+		self.menu.Append(14,"Save Item no print")
+		self.menu.Append(15,"Save All Items no printt")
+		self.menu.AppendSeparator()
+		self.menu.Append(16,"Change Font")
+		self.menu.Append(17,"Save list layout")
+		self.menu.AppendSeparator()
+		self.menu.Append(18,"Help")
+		self.menu.AppendSeparator()
+		self.menu.Append(19,"Exit")
+
+		##connect the events to event handler functions
+		#EVT_MENU(self, 0, self.OnEncrypt)
+		EVT_MENU(self, 2, gmLog.gmDefLog.Log(gmLog.lErr, "This should display Pregnancy Information !"))
+		#EVT_MENU(self, 1, self.OnDecrypt)
+		#EVT_MENU(self, 2, self.OnSetPassphrase)
+
+		#------------
+		#show the menu 
+		#-------------
+		popup = self.list_script.PopupMenu(self.menu,event.GetPosition()) 
+		# whatever the user selected in the menu will have
+		# been handled already virtue of the MENU events
+		# created above
+
+		#free resources
+		self.menu.Destroy()
+
+		#anybody else needs to intercept right click events?
+		event.Skip()
+
 class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the prescriptions window
