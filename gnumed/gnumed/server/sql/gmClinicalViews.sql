@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.107 2004-09-29 19:17:24 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.108 2004-10-11 19:32:19 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -718,9 +718,8 @@ drop view v_pat_allergies;
 
 create view v_pat_allergies as
 select
-	a.id as id,
-	a.pk_item as pk_item,
-	vpep.id_patient as id_patient,
+	a.id as pk_allergy,
+	vpep.id_patient as pk_patient,
 	case when coalesce(trim(both from a.allergene), '') = ''
 		then a.substance
 		else a.allergene
@@ -735,7 +734,8 @@ select
 	_(at.value) as l10n_type,
 	a.definite as definite,
 	a.narrative as reaction,
-	a.id_type as id_type,
+	a.id_type as pk_type,
+	a.pk_item as pk_item,
 	a.clin_when as date,
 	vpep.pk_health_issue as pk_health_issue,
 	a.fk_episode as pk_episode,
@@ -1474,11 +1474,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.107 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.108 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.107  2004-09-29 19:17:24  ncq
+-- Revision 1.108  2004-10-11 19:32:19  ncq
+-- - clean up v_pat_allergies
+--
+-- Revision 1.107  2004/09/29 19:17:24  ncq
 -- - fix typos and grants
 --
 -- Revision 1.106  2004/09/29 10:38:22  ncq
