@@ -6,7 +6,7 @@ This device is made by Bayer Diagnostics.
 """
 #========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/device-drivers/Clinitek50.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # stock python
@@ -30,13 +30,17 @@ import serial, mx.DateTime as mxDT
 class cClinitek50:
 
 	# constant declarations
-	cmd_req_ID = chr(5)
-	cmd_NAK_packet = chr(21)
 	ETX = chr(3)
+	ENQ = cmd_req_ID = chr(5)
+	ACK = cmd_ACK_packet = chr(6)
+	DC1 = XON = chr(17)
+	DC2 = cmd_req_data = chr(18)
+	DC3 = XOFF = chr(19)
+	NAK = cmd_NAK_packet = chr(21)
+	EOL = CRLF = '\r\n'
 	timeout = 3000
 	max_packet_size = 1024
 	packet_header = '\2\r\n'		# STX CR LF
-	EOL = '\r\n'
 	dev_id = '6510'
 	known_good_dev_revs = ('  ', 'A ')
 	known_good_sw_versions = ('01.00', '01.02')
@@ -75,16 +79,42 @@ class cClinitek50:
 		if not self.__detect_device():
 			raise gmExceptions.ConstructorError, 'cannot detect and verify Clinitek 50 device'
 	#----------------------------------------------------
+	# API
+	#----------------------------------------------------
+	def get_record(self):
+		# enable data transfer
+		self.__drv.write(cClinitek50.XON)
+		# request data
+		self.__drv.write(cClinitek50.cmd_req_data)
+		packet = self.__receive_packet()
+		if packet is None:
+			return None
+		if packet == -1:
+			return -1
+		if not self.__verify_data_packet(packet):
+			# NAK packet
+			self.__drv.write(cClinitek50.cmd_NAK_packet)
+			return None
+		self.__drv.write(cClinitek50.cmd_ACK_packet)
+		return packet
+	#----------------------------------------------------
+	# internal helpers
+	#----------------------------------------------------
 	def __detect_device(self):
 		self.__drv.write(cClinitek50.cmd_req_ID)
-		packet = self.__get_packet()
+		packet = self.__receive_packet()
 		if packet is None:
 			return None
 		if not self.__verify_detect_packet(packet):
 			return None
 		return 1
-	#----------------------------------------------------
-	def __get_packet(self):
+	#----------------------------------------------------		
+	def __receive_packet(self):
+		"""
+		-1		: no more data in device
+		None	: error
+		other	: packet
+		"""
 		# wait for ETX which is supposed to terminate all packets
 		successful, packet = gmSerialTools.wait_for_str (
 			self.__drv,
@@ -93,8 +123,12 @@ class cClinitek50:
 			cClinitek50.max_packet_size
 		)
 		if not successful:
-			_log.Log(gmLog.lErr, 'receiving packet from device failed')
-			return None
+			if packet == cClinitek50.NAK:
+				_log.Log(gmLog.lErr, 'no more data in device')
+				return -1
+			else:
+				_log.Log(gmLog.lErr, 'receiving packet from device failed')
+				return None
 		if not self.__verify_generic_packet_structure(packet):
 			# NAK packet
 			self.__drv.write(cClinitek50.cmd_NAK_packet)
@@ -158,13 +192,26 @@ class cClinitek50:
 			return None
 		# seems valid
 		return 1
+	#----------------------------------------------------
+	def __verify_data_packet(self, packet):
+		print "skipping verification of data packet"
+		# seems valid
+		return 1
 #========================================================
 # main
 #========================================================
 if __name__ == '__main__':
 	# try to init device
-	dev = cClinitek50(2)
-
+	try:
+		dev = cClinitek50(0)
+	except:
+		print "cannot init device"
+		sys.exit()
+	while 1:
+		packet = dev.get_record()
+		if packet == -1:
+			break
+		print packet
 #========================================================
 # docs
 #========================================================
@@ -205,7 +252,10 @@ if __name__ == '__main__':
 
 #========================================================
 # $Log: Clinitek50.py,v $
-# Revision 1.2  2003-11-19 18:11:39  ncq
+# Revision 1.3  2003-11-20 01:37:41  ncq
+# - should be able to read data records albeit no verification
+#
+# Revision 1.2  2003/11/19 18:11:39  ncq
 # - should be able to detect devices
 #
 # Revision 1.1  2003/11/17 01:34:55  ncq
