@@ -3,10 +3,8 @@
 # gnumed - launcher for the main gnumed GUI client module
 # ---------------------------------------------------------------------------
 #
-# @author: Dr. Horst Herb
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: nil
+# @dependencies:
 # @change log:
 #	01.03.2002 hherb first draft, untested
 #
@@ -16,12 +14,39 @@
 # Details regarding the GPL are available at http://www.gnu.org
 # You may use and share it as long as you don't deny this right
 # to anybody else.
-"""
-gnumed - launcher for the main gnumed GUI client module
-Use as standalone program.
+
+"""GNUmed
+======
+This is the launcher for the main GNUmed GUI client. It is
+intended to be used as a standalone program.
+
+Command line arguments:
+
+--quiet
+ Be extra quiet and show only _real_ errors in the log.
+--debug
+ Be extra verbose and report nearly everything that's going
+ on. Useful for, well, debugging :-)
+--talkback
+ Run the client and upon exiting run a talkback client where
+ you can enter a comment and send the log off to the bug hunters.
+ Very useful when used in conjunction with --debug.
+--text-domain=<a_text_domain>
+ Set this to change the name of the language file to be loaded.
+ Note, this does not change the directory the file is searched in,
+ only the name of the file where messages are loaded from. The
+ standard textdomain is, of course, "gnumed.mo".
+--log-file=<a_log_file>
+ Use this to change the name of the log file.
+ See gmLog.py to find out where the standard log file would
+ end up.
+--help
+ Well, show this help.
+
+License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -68,7 +93,7 @@ def get_base_dir():
 	print 'Trying to fall back to system defaults.'
 
 	# standard path
-	# - normalize and convert slahes to fs local convention
+	# - normalize and convert slahes to local filesystem convention
 	tmp = os.path.normcase('/usr/share/gnumed/')
 	# sanity check
 	if os.path.exists(tmp):
@@ -118,10 +143,16 @@ if __name__ == "__main__":
 				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
 				  variables are set correctly.")
 
-	#<DEBUG>
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lErr)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
+
+	if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
+		print "help requested"
+		print "--------------"
+		print __doc__
+		sys.exit(0)
+
 	if gmCLI.has_arg("--debug"):
 		print "Activating verbose output for debugging."
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
@@ -129,9 +160,8 @@ if __name__ == "__main__":
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lErr)
 	else:
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
-	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
-	#</DEBUG>
 
+	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 	gmLog.gmDefLog.Log(gmLog.lData, "resource path: " + appPath)
 	gmLog.gmDefLog.Log(gmLog.lData, "module search path: " + str(sys.path))
 
@@ -168,4 +198,6 @@ if __name__ == "__main__":
 	#</DEBUG>
 
 else:
-	print "Nothing useful here."
+	print "This shouldn't be used as a module !"
+	print "------------------------------------"
+	print __doc__
