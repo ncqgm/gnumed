@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -40,15 +40,6 @@ comment on column ref_source.description is
 comment on column ref_source.source is
 	'non-ambigous description of source; with this info in hand
 	 it must be possible to locate a copy of the external reference';
-
-create table log_ref_source (
-	id integer not null,
-	name_short text not null,
-	name_long text,
-	version text not null,
-	description text,
-	source text not null
-) inherits (audit_trail);
 
 -- ====================================
 create table lnk_tbl2src (
@@ -128,11 +119,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.3  2003-08-13 21:12:24  ncq
+-- Revision 1.4  2003-08-17 00:25:38  ncq
+-- - remove log_ tables, they are now auto-created
+--
+-- Revision 1.3  2003/08/13 21:12:24  ncq
 -- - auditing tables
 -- - add test_norm table
 --

@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 
 -- this belongs into the service clinical (historica)
 
@@ -43,14 +43,6 @@ comment on column test_org."comment" is
 -- there need to be two pseudo org records
 --  1) your own practice
 --  2) "non-medical person" (exactly *who* may be in *_result)
-
-create table log_test_org (
-	id integer not null,
-	id_org integer not null,
-	id_adm_contact integer,
-	id_med_contact integer,
-	"comment" text
-) inherits (audit_trail);
 
 -- ====================================
 create table test_type (
@@ -93,16 +85,6 @@ comment on column test_type.basic_unit is
 	'the basic (SI?) unit for this test type, used for comparing
 	 results delivered in differing units';
 
-create table log_test_type (
-	id integer not null,
-	id_provider integer not null,
-	code text not null,
-	coding_system text,
-	"name" text,
-	"comment" text,
-	basic_unit text not null
-) inherits (audit_trail);
-
 -- ====================================
 create table lnk_tst2norm (
 	id serial primary key,
@@ -119,12 +101,6 @@ comment on column lnk_tst2norm.id_test is
 	'which test does the linked norm apply to';
 comment on column lnk_tst2norm.id_norm is
 	'the norm to apply to the linked test';
-
-create table log_lnk_tst2norm (
-	id integer not null,
-	id_test integer not null,
-	id_norm integer not null
-) inherits (audit_trail);
 
 -- ====================================
 create table test_result (
@@ -195,25 +171,6 @@ comment on column test_result.clinically_relevant is
 	 since abnormal values may be irrelevant while normal
 	 ones can be of significance';
 
-create table log_test_result (
-	id integer not null,
-	id_type integer not null,
-
-	val_when timestamp with time zone not null,
-	val_num float,
-	val_alpha text,
-	val_unit text,
-	val_normal_min float,
-	val_normal_max float,
-	val_normal_range text,
-	technically_abnormal bool not null,
-	note_provider text,
-
-	reviewed_by_clinician bool,
-	id_clinician integer,
-	clinically_relevant bool
-) inherits (audit_trail, log_dummy_clin_root_item);
-
 -- ====================================
 create table lab_result (
 	id serial primary key,
@@ -236,14 +193,6 @@ comment on column lab_result.id_sampler IS
 	'who took the sample';
 comment on column lab_result.abnormal_tag IS
 	'tag attached by the lab whether value is considered pathological';
-
-create table log_lab_result (
-	id integer not null,
-	id_result integer not null,
-	id_sampler integer,
-	sample_id text not null,
-	abnormal_tag character(5)
-) inherits (audit_trail, log_dummy_clin_root_item);
 
 -- ====================================
 -- ====================================
@@ -276,11 +225,14 @@ create table log_lab_result (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.8  2003-08-13 21:10:21  ncq
+-- Revision 1.9  2003-08-17 00:25:38  ncq
+-- - remove log_ tables, they are now auto-created
+--
+-- Revision 1.8  2003/08/13 21:10:21  ncq
 -- - add lnk_tst2norm table
 --
 -- Revision 1.7  2003/08/10 01:01:01  ncq

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.57 $
+-- $Revision: 1.58 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -27,13 +27,6 @@ comment on column clin_health_issue.id_patient is
 comment on column clin_health_issue.description is
 	'descriptive name of this health issue, may change over time';
 
-
-create table log_clin_health_issue (
-	id integer not null,
-	id_patient integer not null,
-	description varchar(128)
-) inherits (audit_trail);
-
 -- -------------------------------------------------------------------
 -- episode related tables
 -- -------------------------------------------------------------------
@@ -58,13 +51,6 @@ comment on column clin_episode.description is
 -- as to allow arbitrary names for episodes, another reason is that explicit
 -- recording of episodes removes the ambiguity that results from basing them
 -- on start/end dates of bouts of care,
-
-create table log_clin_episode (
-	id integer not null,
-	id_health_issue integer not null,
-	description varchar(128)
-) inherits (audit_trail);
-
 
 create table last_act_episode (
 	id serial primary key,
@@ -166,19 +152,6 @@ comment on COLUMN clin_root_item.id_episode is
 comment on column clin_root_item.narrative is
 	'each clinical item by default inherits a free text field for clinical narrative';
 
-
-create table log_dummy_clin_root_item (
-	pk_item integer not null,
-	id_encounter integer not null,
-	id_episode integer not null,
-	narrative text
-);
-
-comment on table log_dummy_clin_root_item is
-	'dummy audit trail table to make it easier to create
-	 real audit trail tables by inheritance, not actually
-	 used for auditing as clin_root_item is not audited';
-
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
@@ -189,10 +162,6 @@ create table clin_note (
 comment on TABLE clin_note is
 	'Used to store clinical free text.';
 
-create table log_clin_note (
-	id integer not null
-) inherits (audit_trail, log_dummy_clin_root_item);
-
 -- --------------------------------------------
 create table clin_aux_note (
 	id serial primary key
@@ -200,10 +169,6 @@ create table clin_aux_note (
 
 comment on TABLE clin_aux_note is
 	'Other tables link here if they need more free text fields.';
-
-create table log_clin_aux_note (
-	id integer not null
-) inherits (audit_trail, log_dummy_clin_root_item);
 
 -- --------------------------------------------
 create table _enum_hx_type (
@@ -299,19 +264,6 @@ comment on column allergy.generic_specific is
 	 2) false: applies to drug class of "substance";';
 comment on column allergy.definite is
 	'true: definate, false: not definite';
-
-create table log_allergy (
-	id integer not null,
-	substance varchar(128) not null,
-	substance_code varchar(256),
-	generics varchar(256),
-	allergene varchar(256),
-	atc_code varchar(32),
-	id_type integer not null,
-	reaction text,
-	generic_specific boolean not null,
-	definite boolean not null
-) inherits (audit_trail, log_dummy_clin_root_item);
 
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
@@ -480,26 +432,20 @@ comment on table enum_immunities is
 -- =============================================
 GRANT SELECT ON
 	"clin_root_item",
-	"log_dummy_clin_root_item",
 	"clin_health_issue",
-	"log_clin_health_issue",
 	"clin_episode",
-	"log_clin_episode",
 	"last_act_episode",
 	"_enum_encounter_type",
 	"clin_encounter",
 	"curr_encounter",
 	"clin_note",
-	"log_clin_note",
 	"clin_aux_note",
-	"log_clin_aux_note",
 	"_enum_hx_type",
 	"_enum_hx_source",
 	"clin_history",
 	"clin_physical",
 	"_enum_allergy_type",
-	"allergy",
-	"log_allergy"
+	"allergy"
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -535,21 +481,20 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"allergy_id_seq"
 TO GROUP "_gm-doctors";
 
-GRANT SELECT, INSERT ON
-	"log_dummy_clin_root_item",
-	"log_clin_health_issue",
-	"log_clin_episode",
-	"log_clin_note",
-	"log_allergy"
-TO GROUP "_gm-doctors";
+
+--GRANT SELECT, INSERT ON
+--TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.57 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.58 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.57  2003-08-13 14:30:29  ncq
+-- Revision 1.58  2003-08-17 00:25:38  ncq
+-- - remove log_ tables, they are now auto-created
+--
+-- Revision 1.57  2003/08/13 14:30:29  ncq
 -- - drugchart -> curr_medication
 -- - cleanup
 --
