@@ -10,10 +10,10 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.26 2003-11-22 00:26:10 ihaywood Exp $
+# $Id: gmPatientSelector.py,v 1.27 2003-11-22 14:49:32 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.26 2003-11-22 00:26:10 ihaywood Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPatientSelector.py,v 1.27 2003-11-22 14:49:32 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -40,7 +40,7 @@ def _sensitize(aName = None):
 
 	- "beckert"  -> "Beckert"
 	- "mcburney" -> "Mcburney" (probably wrong but hard to be smart about it)
-	- "mcBurney" -> "McBurney" (try to preserver effort put in by the user)
+	- "mcBurney" -> "McBurney" (try to preserve effort put in by the user)
 	- "McBurney" -> "McBurney"
 	"""
 	if aName is None:
@@ -994,7 +994,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.26  2003-11-22 00:26:10  ihaywood
+# Revision 1.27  2003-11-22 14:49:32  ncq
+# - fix typo
+#
+# Revision 1.26  2003/11/22 00:26:10  ihaywood
 # Set coding to latin-1 to please python 2.3
 #
 # Revision 1.25  2003/11/18 23:34:02  ncq
