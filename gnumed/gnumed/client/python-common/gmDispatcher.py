@@ -33,7 +33,30 @@ def connect(receiver, signal=Any, sender=Any, weak=1):
         signal from anonymous.
     If signal is Any and sender is Any, receiver will receive any 
         signal from any sender.
-    If weak is true, weak references will be used."""
+    If weak is true, weak references will be used.
+    
+    ADDITIONAL gnumed specific documentation:
+	    this dispatcher is not designed with a gui single threaded event
+	    loop in mind.
+	    when connecting to a receiver that may eventually make calls to 	    gui objects  such as wxWindows objects, it is highly recommended that any
+    such calls be wrapped in wxCallAfter() e.g.
+    	def receiveSignal(self, **args):
+		self._callsThatDoNotTriggerGuiUpdates()
+		self.data = processArgs(args)
+		wxCallAfter( self._callsThatTriggerGuiUpdates() )
+	
+	since it is likely data change occurs before the signalling,
+	it would probably look more simply like:
+	
+	def receiveSignal(self, **args):
+		wxCallAfter(self._updateUI() )
+	
+	def _updateUI(self):
+		# your code that reads data
+	
+	Especially if the widget can get a reference to updated data through
+	a global reference, such as via gmCurrentPatient.
+"""
     if signal is None:
         raise DispatcherError, 'signal cannot be None'
     if signal is not Any:
