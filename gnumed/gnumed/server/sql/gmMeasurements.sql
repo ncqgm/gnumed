@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -241,27 +241,36 @@ create table lab_request (
 	fk_test_org integer
 		not null
 		references test_org(pk),
-	request_id text not null,
+	request_id text
+		not null,
 	-- FIXME: references staff(pk)
 	fk_requestor integer
 		default null
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	lab_request_id text default null,
-	lab_rxd_when timestamp with time zone not null,
-	results_reported_when timestamp with time zone not null,
+	lab_request_id text
+		default null,
+	lab_rxd_when timestamp with time zone
+		default null,
+	results_reported_when timestamp with time zone
+		default null,
 	request_status text
+		default null
+		check (
+			(request_status in ('preliminary', 'partial', 'final'))
+				or
+			((request_status is null) and (is_pending is true))
+		),
+	is_pending boolean
 		not null
-		default 'preliminary'
-		check (request_status in ('preliminary', 'partial', 'final')),
-	is_pending boolean not null default true,
+		default true,
 	unique (fk_test_org, request_id)
 	-- FIXME: there really should be a constraint like that
 --	unique (fk_patient, request_id)
 ) inherits (clin_root_item);
 
--- those are fixed strings, so we can translate them
+-- those are fixed strings, so we can translate them on the way out ...
 select i18n('preliminary');
 select i18n('partial');
 select i18n('final');
@@ -336,11 +345,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.21  2004-04-21 15:31:09  ncq
+-- Revision 1.22  2004-05-02 22:52:47  ncq
+-- - fix check constraints in lab_request
+--
+-- Revision 1.21  2004/04/21 15:31:09  ncq
 -- - tighten constraints on test_result.val_num/alpha to require one or the other
 --
 -- Revision 1.20  2004/04/19 12:47:49  ncq
