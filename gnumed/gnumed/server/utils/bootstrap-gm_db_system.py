@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -65,13 +65,19 @@ def connect_to_db():
 		from pyPgSQL import PgSQL
 		dbapi = PgSQL
 	except ImportError:
+		_log.Log(gmLog.lErr, "Cannot load pyPgSQL.PgSQL database adapter module.")
 		try:
-			import psycopg # try Zope library
+			import psycopg
 			dbapi = psycopg
 		except ImportError:
-			print "Cannot find Python module for connecting to the database server. Program halted."
-			_log.LogException("Cannot load database adapter module.", sys.exc_info(), fatal=1)
-			return None
+			_log.Log(gmLog.lErr, "Cannot load psycopg database adapter module.")
+			try:
+				import pgdb
+				dbapi = pgdb
+			except ImportError:
+				print "Cannot find Python module for connecting to the database server. Program halted."
+				_log.Log(gmLog.lErr, "Cannot load pgdb database adapter module.")
+				return None
 
 	# load authentication information
 	global core_server
@@ -572,7 +578,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.9  2002-11-18 22:41:21  ncq
+# Revision 1.10  2002-11-29 13:02:53  ncq
+# - re-added psycopg support (hopefully)
+#
+# Revision 1.9  2002/11/18 22:41:21  ncq
 # - don't really know what changed
 #
 # Revision 1.8  2002/11/18 12:23:31  ncq
