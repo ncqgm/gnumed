@@ -1,0 +1,46 @@
+Forms backend
+-------------
+
+A forms backend is required for prescription, as well as referrals.
+
+Proposed XML definition:
+
+<form>
+<name>Example form</form>
+<type>SCRIPT</type> -- currently "SCRIPT" or "REFERRAL"
+<date>6/8/2003</date> -- date form comes into use
+  <page>
+    <field>
+      <x>320</x><y>568</y> -- position from top left-hand, in 1/72 inch ("Postscript units"
+      <width>400</width> -- maximum width of this field
+      <font>SWISS</font> -- fonts, after the standard fonts defined in wxWindows
+      <size>12</size> -- font size, in points
+      <name>PATIENT_NAME</name> -- the actual field
+    </field>
+    -.... any number of field sections
+  </page> -- multiple pages are allowed
+
+<value> -- do not exist for "template" form files, hold data when saved in backend
+  <field>PATIENT_NAME</field>
+  <data>Ian Haywood</data>
+</value>
+</form>
+
+Forms can define positions for a pre-defined list of fields, depending on their type (script or referral (request))
+
+Common to both: PATIENT_NAME, PATIENT_NUMBER, PATIENT_ADDRESS, DOCTOR_NAME, DOCTOR_NUMBER
+
+For scripts: DRUGS (forms engine must honour \n in a sensible way)
+
+For referrals: INVESTIGATION, CLINICAL_NOTES
+
+Future
+------
+
+Forms can define their own variables in a separate <new_field> section which gives clues 
+to how fields are presented in the GUI (text box, spin control, pick list, &c)
+True/false variables, on GUI as a tick box, can draw actual tick symbol on paper maybe
+
+"Fixed_text" elements under "page" for fixed-text printed on every form (for Richard's "super-form")
+
+
