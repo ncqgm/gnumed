@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -18,13 +18,6 @@ scan
 - cancel-quit button
 - dumb-nurse-barrier option
 
-index
------
-- cancel-quit button
-
-import
-------
-
 viewer
 ------
 - quit button
@@ -37,16 +30,6 @@ post-1.0
 
 schema
 ------
-doc_med.date -> date !!!
-
-index
------
-- Funktion Seiten umsortieren fertigstellen
-- wxDateEntry() mit ordentlichem Validator
-
-- load external file(s) (fax, digicam etc.)
-
-- phrasewheel on Kurzkommentar !!
 
 import
 ------
@@ -87,11 +70,7 @@ viewer
  doch nicht.
  - eigene mime type -> viewer mappings
 
- bessere Darstellung der Felder eines Entry
-
  - Typen-Filterung einbauen
-
- - Gunmed-Plugin
 
  mehrere Versionen (Funktionalität)
 
@@ -118,8 +97,6 @@ viewer
 
  - wenn kein BDT/... übergeben
    -> Liste aller Patienten bzw. Suchwidget (PhraseWheel)
-
- - octet_length(doc_obj.data)
 
 Conf/Doc
 --------
