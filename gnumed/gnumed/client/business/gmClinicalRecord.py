@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.4 2003-05-03 14:11:22 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmClinicalRecord.py,v 1.5 2003-05-05 00:06:32 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -157,7 +157,7 @@ class gmClinicalRecord:
 		return self.id_patient
 	#--------------------------------------------------------
 	def _get_allergies(self):
-		"""Return rows in v_i18n_allergy for this patient"""
+		"""Return rows in v_i18n_allergies for this patient"""
 		try:
 			return self.__db_cache['allergies']
 		except:
@@ -184,11 +184,11 @@ class gmClinicalRecord:
 			tmp = {}
 			tmp['id'] = allergy[0]
 			# do we know the allergene ?
-			if allergy[6] not in [None, '']:
-				tmp['name'] = allergy[6]
+			if allergy[10] not in [None, '']:
+				tmp['name'] = allergy[10]
 			# not but the substance
 			else:
-				tmp['name'] = allergy[3]
+				tmp['name'] = allergy[7]
 			data.append(tmp)
 		return data
 	#--------------------------------------------------------
@@ -246,7 +246,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.4  2003-05-03 14:11:22  ncq
+# Revision 1.5  2003-05-05 00:06:32  ncq
+# - make allergies work again after EMR rework
+#
+# Revision 1.4  2003/05/03 14:11:22  ncq
 # - make allergy change signalling work properly
 #
 # Revision 1.3  2003/05/03 00:41:14  ncq
