@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.46 2004-10-19 21:29:25 sjtan Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmDemographics.py,v 1.47 2004-10-19 21:34:25 sjtan Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -281,7 +281,12 @@ class PatientsPanel(wx.wxPanel):
 		
 		
 		diff = targetPos - self.main_splitWindow.GetSashPosition()
-		
+		if diff != 0:
+			dir = diff/abs(diff)
+		else:
+			dir = 0	
+
+	
 		if self.lastDir and dir <> self.lastDir:
 			self.lastDir = dir
 			self.timer.Start(self.delay) 
@@ -289,7 +294,6 @@ class PatientsPanel(wx.wxPanel):
 				
 		if abs(diff) > self.thresholdSashChange:
 			self.timer.Start(self.timerInterval)
-			dir = diff / abs(diff)
 			self.main_splitWindow.SetSashPosition(self.main_splitWindow.GetSashPosition() + self.sashChangeAmount * dir, True)
 		else:
 			self.timer.Start(self.delay)
@@ -1277,7 +1281,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.46  2004-10-19 21:29:25  sjtan
+# Revision 1.47  2004-10-19 21:34:25  sjtan
+# dir is direction, and this is checked
+#
+# Revision 1.46  2004/10/19 21:29:25  sjtan
 # remove division by zero problem, statement occurs later after check for non-zero.
 #
 # Revision 1.45  2004/10/17 23:49:21  sjtan
