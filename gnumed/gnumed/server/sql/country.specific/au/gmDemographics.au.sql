@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -18,7 +18,7 @@ create table org_AU (
 	ACN text
 ) inherits (audit_fields);
 
-select add_table_for_audit('org_AU');
+select add_table_for_audit('org_au');
 
 comment on table org_AU is
 	'organisation information specific to Australia';
@@ -29,11 +29,14 @@ comment on column org_AU.ACN is
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.3  2003-10-01 15:45:20  ncq
+-- Revision 1.4  2003-10-01 16:12:01  ncq
+-- - AU -> au
+--
+-- Revision 1.3  2003/10/01 15:45:20  ncq
 -- - use add_table_for_audit() instead of inheriting from audit_mark
 --
 -- Revision 1.2  2003/08/17 00:27:33  ncq
