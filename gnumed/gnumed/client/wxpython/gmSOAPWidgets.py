@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.11 2005-02-21 19:07:42 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmSOAPWidgets.py,v 1.12 2005-02-23 03:20:44 cfmoro Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -85,7 +85,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		"""
 		if not isinstance(problem, gmEMRStructItems.cProblem):
 			raise gmExceptions.ConstructorError, 'cannot make progress note editor for health problem [%s]' % str(problem)
-		self.__problem = problem
+		self.__problem = None
 		# do layout
 		wx.wxPanel.__init__ (self,
 			parent,
@@ -119,31 +119,25 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.__szr_main.Add(self.__soap_text_editor)
 		self.SetSizerAndFit(self.__szr_main)
 
-		# display health problem
-		txt = 'problem: %s' % self.__problem['problem']
-		self.__set_heading(txt)
-
-		# flag indicating saved state
-		self.__is_saved = False
+		self.SetProblem(problem) # display health problem
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-#	def SetHealthIssue(self, selected_issue):
-#		"""
-#		Set the related health issue for this SOAP input widget.
-#		Update heading label with health issue data.
-#		
-#		@type selected_issue: gmEMRStructItems.cHealthIssue
-#		@param selected_issue: SOAP input widget's related health issue
-#		"""
-#		self.__problem = selected_issue
-#		if self.__problem is None or len(self.__problem) == 0:
-#			self.__soap_heading.SetLabel("Select issue and press 'New'")
-#		else:
-#			txt = '%s# %s'%(self.__problem[0]+1,self.__problem[1]['problem'])
-#			# update staticText content and recalculate sizer internal values
-#			self.__set_heading(txt)
-#		self.ShowContents()
+	def SetProblem(self, problem):
+		"""
+		Set the related problem for this SOAP input widget.
+		Update heading label with episode descriptive text.
+		
+		@param problem: SOAP input widget's related episode
+		@type problem: gmEMRStructItems.cEpisode		
+		"""
+		self.__problem = problem
+		# display health problem
+		txt = 'problem: %s' % self.__problem['problem']
+		self.__set_heading(txt)
+		self.Clear()
+		# flag indicating saved state
+		self.__is_saved = False		
 	#--------------------------------------------------------
 	def GetProblem(self):
 		"""
@@ -162,27 +156,6 @@ class cResizingSoapPanel(wx.wxPanel):
 		"""
 		self.__soap_text_editor.Clear()
 	#--------------------------------------------------------
-	# FIXME: what is this used for ?
-	def HideContents(self):
-		"""
-		Hide widget's components (health problem heading and SOAP text editor)
-		"""
-		self.__soap_heading.Hide()
-		self.__soap_text_editor.Hide()
-	#--------------------------------------------------------
-	def ShowContents(self):
-		"""
-		Show widget's components (health problem heading and SOAP text editor)
-		"""
-		self.__soap_heading.Show(True)
-		self.__soap_text_editor.Show(True)
-	#--------------------------------------------------------
-	def IsContentShown(self):
-		"""
-		Check if contents are being shown
-		"""
-		return self.__soap_heading.IsShown()
-	#--------------------------------------------------------
 	def SetSaved(self, is_saved):
 		"""
 		Set SOAP input widget saved (dumped to backend) state
@@ -192,24 +165,15 @@ class cResizingSoapPanel(wx.wxPanel):
 		@type is_saved: boolean
 		"""
 		self.__is_saved = is_saved
-		if is_saved:
-			self.__set_heading(self.__soap_heading.GetLabel() + '. SAVED')
+		self.__set_heading('')
+		self.Clear()
+		self.__problem = None
 	#--------------------------------------------------------
 	def IsSaved(self):
 		"""
 		Check  SOAP input widget saved (dumped to backend) state
 		"""
 		return self.__is_saved
-	#--------------------------------------------------------
-	# FIXME: what is this used for ?
-	def ResetAndHide(self):
-		"""
-		Reset all data and hide contents
-		"""
-#		self.SetHealthIssue(None)
-		self.SetSaved(False)
-		self.ClearSOAP()		
-		self.HideContents()
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -367,7 +331,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.11  2005-02-21 19:07:42  ncq
+# Revision 1.12  2005-02-23 03:20:44  cfmoro
+# Restores SetProblem function. Clean ups
+#
+# Revision 1.11  2005/02/21 19:07:42  ncq
 # - some cleanup
 #
 # Revision 1.10  2005/01/31 10:37:26  ncq
