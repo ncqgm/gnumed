@@ -15,7 +15,7 @@
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/gmDrugObject.py,v $      
-__version__ = "$Revision: 1.6 $"                                               
+__version__ = "$Revision: 1.7 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types, os.path
@@ -255,10 +255,12 @@ class QueryGroupHandler:
 #			print "QUERY ", self.__mQueries.mQueryStrings[queryName] % tuple(allVars)
 			# set query string
 			if len(allVars) > 0:
-				self.__mDBObject.SetSelectQuery(self.__mQueries.mQueryStrings[queryName] % tuple(allVars))
+				querystring = self.__mQueries.mQueryStrings[queryName] % tuple(allVars)
 			else:
-				self.__mDBObject.SetSelectQuery(self.__mQueries.mQueryStrings[queryName])
+				querystring = self.__mQueries.mQueryStrings[queryName]
 
+			_log.Log(gmLog.lInfo, "Running query: %s" % querystring)
+			self.__mDBObject.SetSelectQuery(querystring)
 			# do the query
 			result = self.__mDBObject.Select(listonly=0)
 
@@ -327,7 +329,10 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.6  2002-10-29 15:40:48  ncq
+# Revision 1.7  2002-11-17 16:44:23  hinnef
+# fixed some bugs regarding display of non-string items and list entries in PI
+#
+# Revision 1.6  2002/10/29 15:40:48  ncq
 # - first try at making this runnable standalone
 #
 # Revision 1.5  2002/10/28 23:26:02  hinnef

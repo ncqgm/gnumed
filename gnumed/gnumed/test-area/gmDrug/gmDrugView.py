@@ -98,7 +98,7 @@ class DrugView:
 
 		result = self.mDrugInterface.GetData(index + suffix,refresh=1)
 		return result
-        	
+
 	def getBrandsForGeneric(self,aId):
 		"""
         Returns a list of drugs for a given generic substance.
@@ -186,9 +186,9 @@ class DrugView:
         used via entry 'usedvars' in config file.
         """
 
-		# query group and format type of current position
+		# query group and format format_type of current position
 		group = self.__mGroupPos[pos]
-		type = self.__mFormatType[pos]
+		format_type = self.__mFormatType[pos]
 
         # if the drug ID has not changed for this query group, use cached data
 		refresh=0
@@ -199,21 +199,21 @@ class DrugView:
 			self.mLastId[group] = self.mCurrId
             
 # DEBUG
-#		print "TextPart: ",group, " ", type
+#		print "TextPart: ",group, " ", format_type
 
 		# do the query
 		queryResult = self.mDrugInterface.GetData(group,refresh)
 		
 		# check result for empty fields in UsedVarsList
 		resultTotalLen = 0
-		if type != 'heading':
+		if format_type != 'heading':
 			usedVars = self.__mUsedVars[pos]
 			if not queryResult is None:
 				for item in usedVars:
 					if not queryResult.has_key(item):
 						_log.Log(gmLog.lWarn, "Variable name invalid: %s" % item)
 					else:
-						resultTotalLen += len(queryResult[item])
+						resultTotalLen += len(str(queryResult[item]))
 # DEBUG
 #					print "ITEM",item, "LEN: ", len(queryResult[item])
 		else:
@@ -224,19 +224,19 @@ class DrugView:
 			return ''
 
 		# if no heading is desired, just print the format string
-		if type == 'noheading':
+		if format_type == 'noheading':
 			formattedInfo = self.__mFormatString[pos] % queryResult
 			text = translateASCII2HTML(formattedInfo)        	
 			return text
         
 		# handle all cases using a heading
 		heading = self.__mHeading[pos]
-		if type == 'heading':
+		if format_type == 'heading':
 			if heading != '':
 				text = "<A NAME=\"" + heading + "\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>" + heading + "</B></FONT><BR>"
 			else:
 				text = ''
-		elif type == 'single':
+		elif format_type == 'single':
 			if heading != '':
 				text = "<A NAME=\"" + heading + "\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>" + heading + "</B></FONT><BR>"
 			else:
@@ -244,21 +244,26 @@ class DrugView:
 
 			formattedInfo = self.__mFormatString[pos] % queryResult
 			text = text + translateASCII2HTML(formattedInfo)
-		elif type == 'list':
+		elif format_type == 'list':
 			if heading != '':
 				text = "<A NAME=\"" + heading + "\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>" + heading + "</B></FONT><BR>"
 			else:
 				text = ''
 			resultTotalLen = 0
 
-			# the query result should contain all available indications.
+			# the variable in question should contain a list of entries.
 			# we format them as an itemized list
-		
+			# currently we only support one variable per entry
+			itemList = queryResult[usedVars[0]]
+			# if only one entry, cast to list 
+			if not type(itemList) is types.ListType:
+				itemList = [itemList]
+
 			tmpText=''
 			# loop through all items
-			for ind in queryResult.keys():
+			for item_raw in itemList:
 				# get item and it's length
-				item = queryResult[ind]
+				item=str(item_raw)
 				itemLen = len(item)
 				# if item is not an empty string, format it as HTML
 				if itemLen > 0:
@@ -267,7 +272,7 @@ class DrugView:
 
 			# if at least one item contained data, return result as HTML list
 			if resultTotalLen > 0:
-				text = '<ul>' + tmpText + '</ul>'				
+				text += '<ul>' + tmpText + '</ul>'				
 			else:
 				text = ''
 		else:
@@ -374,6 +379,9 @@ if __name__ == "__main__":
 	pass
 
 # $Log: gmDrugView.py,v $
-# Revision 1.5  2002-11-09 15:10:47  hinnef
+# Revision 1.6  2002-11-17 16:44:23  hinnef
+# fixed some bugs regarding display of non-string items and list entries in PI
+#
+# Revision 1.5  2002/11/09 15:10:47  hinnef
 # detect ID changes for every query group in GetTextPart
 #

@@ -324,13 +324,17 @@ class DrugDisplay(wxPanel):
 		#--------------------------------------------------------
 		self.mId = None
 		drugtofind = string.lower(self.comboProduct.GetValue())
-		# tell the DrugView abstraction layer to do an index search 
+		# if we entered *, show all entries found in index (that might take time)
+		searchmode = 'exact'
+		if drugtofind == '***':
+			searchmode = 'complete'
+        # tell the DrugView abstraction layer to do an index search 
 		# on brand/generic/indication 
 		# expect a dictionary containing at least name & ID 
         # type will be set by radiobuttons
 		# type and ID form (virtually) a unique ID that can be used to access other data in the db
 		type = self.mode
-		result = self.mDrugView.SearchIndex(self.mode,drugtofind)
+		result = self.mDrugView.SearchIndex(self.mode,drugtofind,searchmode)
 		numOfRows = len(result['id'])		
 		# no drug found for this name
 		if result == None or  numOfRows < 1:
@@ -436,7 +440,7 @@ class DrugDisplay(wxPanel):
         # code taken from gmSQLListCtrl.py
 			for col in columns:
 				# item text
-				item_text = aDataDict[col][row]
+				item_text = str(aDataDict[col][row])
 				# if first column, insert new column and
 				# and store pointer to item data (type,id)
 				if col_no == 0:
@@ -610,7 +614,10 @@ else:
 #	05.09.2002 hherb DB-API 2.0 compliance
 
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.5  2002-11-09 15:09:03  hinnef
+# Revision 1.6  2002-11-17 16:44:23  hinnef
+# fixed some bugs regarding display of non-string items and list entries in PI
+#
+# Revision 1.5  2002/11/09 15:09:03  hinnef
 # new items in product list, ListCtrl instead of ListBox
 #
 # Revision 1.4  2002/10/31 23:13:06  hinnef
