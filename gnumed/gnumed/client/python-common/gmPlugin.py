@@ -13,7 +13,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -272,7 +272,7 @@ class wxPatientPlugin (wxBasePlugin):
 			tb2 = self.gb['toolbar.Patient Window']
 			tb2.DeleteTool (self.tool_id)
 		del self.gb['modules.patient'][self.name ()]
-
+	#-----------------------------------------------------
 	def __my_dirty_hook(self, widget):
 		print "\n\n\n\*********** WIDGET IS ***************%s"%widget
 		print " ***** class = %s \n" %widget.__class__.__name__
@@ -284,7 +284,6 @@ class wxPatientPlugin (wxBasePlugin):
 			exec("self.%s_handler = EditAreaHandler.%s_handler(widget.editarea.rightside)"% ( EditAreaHandler.section_num_map[section],EditAreaHandler.section_num_map[section]) )
 			print "**** HANDLER IS IN ! (but it does nothing)"
 
-		pass
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	"""Instantiates a plugin object from a package directory, returning the object.
@@ -444,13 +443,13 @@ def GetPluginLoadList(set):
 	# parse directory directly
 	if p_list is None:
 		_log.Log(gmLog.lWarn, "Config file [%s] does not contain the plugin load order !" % plugin_conf_name)
-		_log.Log(gmLog.lInfo, "*** Scanning plugin directory directly.")
+		_log.Log(gmLog.lData, "*** Scanning plugin directory directly.")
 
 		files = os.listdir(os.path.join(gb['gnumed_dir'], 'wxpython', set))
 
-		_log.Log(gmLog.lInfo, "the Path from set=%s parameter gnumed_dir=%s is %s"% ( set, gb['gnumed_dir'], os.path.join(gb['gnumed_dir'], 'wxpython', set) ) )
+		_log.Log(gmLog.lData, "the Path from set=%s parameter gnumed_dir=%s is %s"% ( set, gb['gnumed_dir'], os.path.join(gb['gnumed_dir'], 'wxpython', set) ) )
 
-		_log.Log(gmLog.lInfo, "returned this file list %s" % ("\n".join(files)))
+		_log.Log(gmLog.lData, "returned this file list %s" % ("\n".join(files)))
 		p_list = []
 		for file in files:
 			if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
@@ -472,8 +471,8 @@ def GetPluginLoadList(set):
 	else:
 		p_list = None
 
-	_log.Log(gmLog.lInfo, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
-	_log.Log(gmLog.lInfo, "%s" % "\n *** ".join(p_list))
+	_log.Log(gmLog.lData, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
+	_log.Log(gmLog.lData, "%s" % "\n *** ".join(p_list))
 	return p_list
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
@@ -490,7 +489,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.37  2003-02-07 05:08:08  sjtan
+# Revision 1.38  2003-02-07 08:16:16  ncq
+# - some cosmetics
+#
+# Revision 1.37  2003/02/07 05:08:08  sjtan
 #
 # added few lines to hook in the handler classes from EditAreaHandler.
 # EditAreaHandler was generated with editarea_gen_listener in wxPython directory.
