@@ -18,9 +18,12 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
+__author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
+# standard modules
 import sys, os
+# GNUmed modules
 import gmLog
 
 if __name__ == "__main__":
@@ -33,7 +36,7 @@ if __name__ == "__main__":
 
 #<DEBUG>
 	# log file
-	aFile = gmLog.LogTargetFile (os.path.basename(sys.argv[0]) + ".log", "a", gmLog.lInfo)
+	aFile = gmLog.cLogTargetFile (gmLog.lInfo, os.path.basename(sys.argv[0]) + ".log", "a")
 	gmLog.gmDefLog.AddTarget(aFile)
 
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
