@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -55,39 +55,43 @@ COMMENT ON TABLE distributed_db IS
 -- this service contains at least the basic GnuMed configuration
 INSERT INTO distributed_db(name) values('default');
 
--- this service may be used for external audit trails and replication issues
-INSERT INTO distributed_db(name) values('transactions');
-
--- this service contains all persoon and address related tables
+-- this service contains all person and address related tables
+-- eg. demographic and identity data
 INSERT INTO distributed_db(name) values('personalia');
 
 -- this service contains patient's medical histories
 INSERT INTO distributed_db(name) values('historica');
 
 -- this service stores external downloadable results such as pathology
-INSERT INTO distributed_db(name) values('extresults');
+--INSERT INTO distributed_db(name) values('extresults');
 
 -- this service contains all correspondence (letters, emails)
-INSERT INTO distributed_db(name) values('correspondence');
+--INSERT INTO distributed_db(name) values('correspondence');
 
 -- this service provides all pharmaceutical information
+-- eg. drugref.org, mainly
 INSERT INTO distributed_db(name) values('pharmaceutica');
 
--- this service provides "external" reead only information such as coding (ICD)
--- and patient education material
+-- this service provides "external" reead only information such
+-- as coding (ICD) and patient education material
 INSERT INTO distributed_db(name) values('reference');
 
 -- this service takes care of large (>= 2MB )binary objects
 INSERT INTO distributed_db(name) values('blobs');
 
+-- this service holds all the administrative data
+-- for the practice
+insert into distributed_db(name) values('administrivia');
+
 -- this services provides all tables for accounting purposes
-INSERT INTO distributed_db(name) values('accounting');
+--INSERT INTO distributed_db(name) values('accounting');
 
 -- this servicecontains office related tables such as rosters and waiting room
-INSERT INTO distributed_db(name) values('office');
+--INSERT INTO distributed_db(name) values('office');
 
 -- this service allows to manage GnuMed client modules
-INSERT INTO distributed_db(name) values('modules');
+-- either in "config" or "administrivia"
+--INSERT INTO distributed_db(name) values('modules');
 
 --=====================================================
 CREATE TABLE config (
@@ -232,11 +236,14 @@ GRANT select, insert, update, delete on
 to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.25 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.24  2003-05-12 12:43:39  ncq
+-- Revision 1.25  2003-07-27 22:01:48  ncq
+-- - comment out unused service names
+--
+-- Revision 1.24  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
