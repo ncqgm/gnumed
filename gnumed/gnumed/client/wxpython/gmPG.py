@@ -61,14 +61,13 @@ class ConnectionPool:
 		"initialize connection to all neccessary servers"
 
 		if login==None and ConnectionPool.__connected is None:
-			self.LogError(_("FATAL ERROR: can't connect to configuration database"))
-			return None
+		    raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 
 		#first, connect to the configuration server
 		try:
 		    cdb = self.__pgconnect(login)
 		except:
-		    return None
+		    raise gmExceptions.ConnectionError(_("Could not connect to configuration database  backend!"))
 		    
 		ConnectionPool.__connected = 1
 
@@ -277,42 +276,24 @@ def fieldNames(cursor):
     
 def listDatabases(service='default'):
     assert(__backend == 'Postgres')
-    dbp = ConnectionPool()
-    con = dbp.GetConnection(service)
-    cur=con.cursor()
-    cur.execute("select * from pg_database")
-    return cur.fetchall(), cur.description
-    
+    return quickROQuery("select * from pg_database")
     
 def listUserTables(service='default'):
     assert(__backend == 'Postgres')
-    dbp = ConnectionPool()
-    con = dbp.GetConnection(service)
-    cur=con.cursor()
-    cur.execute("select * from pg_tables where tablename not like 'pg_%'")
-    return cur.fetchall(), cur.description
+    return quickROQuery("select * from pg_tables where tablename not like 'pg_%'", service)
     
     
 def listSystemTables(service='default'):
     assert(__backend == 'Postgres')
-    dbp = ConnectionPool()
-    con = dbp.GetConnection(service)
-    cur=con.cursor()
-    cur.execute("select * from pg_tables where tablename like 'pg_%'")
-    return cur.fetchall(), cur.description    
+    return quickROQuery("select * from pg_tables where tablename like 'pg_%'", service)
     
     
-def listAllTables(service='default'):
-    assert(__backend == 'Postgres')
-    dbp = ConnectionPool()
-    con = dbp.GetConnection(service)
-    cur=con.cursor()
-    cur.execute("select * from pg_tables")
-    return cur.fetchall(), cur.description    
+def listTables(service='default'):
+    return quickROQuery("select * from pg_tables", service)
     
 
 def quickROQuery(query, service='default'):
-    "a quick read only query"
+    "a quick read-only query that fetches all possible results at once"
     dbp = ConnectionPool()
     con = dbp.GetConnection(service)
     cur=con.cursor()
@@ -372,3 +353,11 @@ if __name__ == "__main__":
 	cursor.execute("select name from distributed_db")
 	for service in  cursor.fetchall():
 		print service[0]
+		
+	print "\nTesting convenience funtions:\n============================\n"
+	print "Databases:\n============\n"
+	res, descr = listDatabases()
+	for r in res: print r
+	print "\nTables:\n========\n"
+	res, descr = listTables()
+	for r in res: print r
