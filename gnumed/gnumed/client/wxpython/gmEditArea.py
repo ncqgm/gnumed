@@ -1,6 +1,6 @@
+#!/usr/bin/env python
 
 from wxPython.wx import *
-import gmLog
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
 gmSECTION_CLINICALNOTES = 3
@@ -14,6 +14,8 @@ gmSECTION_MEASUREMENTS = 10
 gmSECTION_REFERRALS = 11
 gmSECTION_RECALLS = 12
 
+richards_blue = wxColour(0,0,131)
+richards_aqua = wxColour(0,194,197)
 
 #------------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
@@ -29,19 +31,19 @@ class  EditAreaTextBox(wxTextCtrl):
 #Class which shows a blue bold label left justified
 #--------------------------------------------------
 class EditAreaPromptLabel(wxStaticText):
-	def __init__(self, parent, id, prompt):
+	def __init__(self, parent, id, prompt, aColor = richards_blue):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
 		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
-		self.SetForegroundColour(wxColour(0,0,131))
+		self.SetForegroundColour(aColor)
 #------------------------------------------------------------
 #temporary Class which shoes a aqua bold label left justified
 #until I pass the rgb colours down to the routine above
 #------------------------------------------------------------
-class EditAreaPromptLabelAqua(wxStaticText):
-	def __init__(self, parent, id, prompt):
-		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
-		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
-		self.SetForegroundColour(wxColour(0,194,197))
+#class EditAreaPromptLabelAqua(wxStaticText):
+#	def __init__(self, parent, id, prompt):
+#		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
+#		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
+#		self.SetForegroundColour()
 
 #--------------------------------------------------------------------------------
 #create the editorprompts class which expects a dictionary of labels passed to it
@@ -55,9 +57,9 @@ class EditAreaPrompts(wxPanel):
 		self.sizer = wxGridSizer (len(prompt_array),1,2,2)                              #add grid sizer with n columns
 		for key in prompt_array.keys():
 			if key == 1:
-				self.sizer.Add(EditAreaPromptLabelAqua(self,-1, " " + prompt_array[key]),0,wxEXPAND)
-			else: 
-			        self.sizer.Add(EditAreaPromptLabel(self,-1, " " + prompt_array[key]),0,wxEXPAND)
+				self.sizer.Add(EditAreaPromptLabel(self,-1, " " + prompt_array[key],aColor=richards_aqua),0,wxEXPAND)
+			else:
+				self.sizer.Add(EditAreaPromptLabel(self,-1, " " + prompt_array[key]),0,wxEXPAND)
 				
 		self.SetSizer(self.sizer)  
 		self.sizer.Fit(self)            
@@ -91,7 +93,6 @@ class EditTextBoxes(wxPanel):
 		self.btnOK = wxButton(self,-1,"Ok")
 		self.btnClear = wxButton(self,-1,"Clear")
 		self.btnOKsizer = wxBoxSizer(wxHORIZONTAL)
-		gmLog.gmDefLog.Log ( "before if statements")
 		if section == gmSECTION_SUMMARY:
 		      pass
 	        elif section == gmSECTION_DEMOGRAPHICS:
@@ -359,9 +360,11 @@ class EditArea(wxPanel):
 		#-------------------------------------------------------------------------
 		pass
 if __name__ == "__main__":
+	import sys
+	sys.path.append ("../python-common/")
+	import gmLog
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(EditArea, -1)
 	app.MainLoop()
-
- 
-
+else:
+	import gmLog
