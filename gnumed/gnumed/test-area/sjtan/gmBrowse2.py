@@ -55,7 +55,7 @@ class BrowseListCtrl( TestListCtrl):
 		for x in columnList:
 			print "_setColumn with ", x
 			item = wxListItem()
-			item.SetText(x['name'])
+			item.SetText(x.get('title', x.get('name', 'no title') ))
 			item.SetWidth(x['width'])
 			item.SetColumn(col)
 			#item.SetMask( wxLIST_MASK_TEXT | wxLIST_MASK_FORMAT | wxLIST_MASK_STATE | wxLIST_MASK_DATA) 
@@ -114,8 +114,14 @@ class BrowseListCtrl( TestListCtrl):
 			
 	def convertColList(self, list):
 		list2 = []
-		for ( name, width ) in list:
-			list2.append( { 'name': name.split('.')[-1], 'width': width } )
+		for l in list:
+			field = l[0].split('.')[-1]
+			width = l[1]
+			if len(l) > 2:
+				title = l[2]	
+			else:
+				title = field
+			list2.append( { 'name': field, 'title': title, 'width': width } )
 		return list2	
 
 

@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/Attic/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.3 2003-10-06 13:43:55 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPhraseWheel.py,v 1.4 2003-10-09 23:50:09 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -511,6 +511,10 @@ class cPhraseWheel (wxTextCtrl):
 		tmp['pos'] = (x, y + height)
 		tmp['size'] = (width, height*6)
 		tmp['id'] = -1
+		w = tmp['parent']
+		while not w.IsTopLevel():
+			w = w.GetParent()
+		tmp['parent'] = w	
 		self.__picklist_win = wxWindow(*args, **tmp)
 		self.panel = wxPanel(self.__picklist_win, -1)
 		self._picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
@@ -597,7 +601,7 @@ class cPhraseWheel (wxTextCtrl):
 		# FiXME: check for number of entries - shrink list windows
 		(x,y) = self.ClientToScreenXY (0,0)
 		w = self
-		while not w.IsTopLevel() :
+		while not w.GetParent()  == None:
 			w = w.GetParent()
 		(px,py) = w.ClientToScreenXY(0,0)
 		
@@ -838,7 +842,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.3  2003-10-06 13:43:55  sjtan
+# Revision 1.4  2003-10-09 23:50:09  sjtan
+#
+# gmEditAreaFactory uses gmEditAreaTemplate as a layout manager  to produce a traditional editarea
+# Look for the editarea. Some documentation. Lots of re-organizing needed.
+#
+# Revision 1.3  2003/10/06 13:43:55  sjtan
 #
 # more positioning.
 #
