@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -133,7 +133,7 @@ class cDocTree(wxTreeCtrl):
 		self.SetItemHasChildren(self.root, TRUE)
 
 		# add our documents as first level nodes
-		self.doc_list = []
+		self.doc_list = {}
 		for doc_id in doc_ids:
 			try:
 				doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
@@ -143,7 +143,7 @@ class cDocTree(wxTreeCtrl):
 			self.doc_list[doc_id] = doc
 
 			mdata = doc['metadata']
-			date = '%s' % mdata['date'] + " " * 10
+			date = '%10s' % mdata['date'] + " " * 10
 			typ = '%s' % mdata['type'] + " " * 25
 			cmt = '"%s"' % mdata['comment'] + " " * 25
 			ref = mdata['reference'] + " " * 15
@@ -270,7 +270,7 @@ class cDocTree(wxTreeCtrl):
 			return None
 
 		fname = obj['filename']
-		(result, msg) = docDocument.call_viewer_on_file(fname)
+		(result, msg) = gmMedDoc.call_viewer_on_file(fname)
 		if not result:
 			dlg = wxMessageDialog(
 				self,
@@ -451,7 +451,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.4  2003-02-15 14:21:49  ncq
+# Revision 1.5  2003-02-17 16:10:50  ncq
+# - plugin mode seems to be fully working, actually calls viewers on files
+#
+# Revision 1.4  2003/02/15 14:21:49  ncq
 # - on demand loading of Manual
 # - further pluginization of showmeddocs
 #
