@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -67,8 +67,8 @@ class indexFrame(wxFrame):
 
 		print "__init__() before phrase wheel"
 		# items for phraseWheel
-#		if not self._init_phrase_wheel():
-#			raise ValueError
+		if not self._init_phrase_wheel():
+			raise ValueError
 		print "__init__() done"
 	#---------------------------------------------------------------------------
 	def _init_utils(self):
