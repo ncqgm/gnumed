@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -179,7 +179,7 @@ comment on table form_types is
 create table form_defs (
 	pk serial primary key,
 	fk_type integer references form_types(pk),
-	country varchar (3),
+	country varchar(3),
 	locale text,
 	name_short text not null,
 	name_long text not null,
@@ -306,11 +306,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.16 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.17 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.16  2005-01-27 17:24:50  ncq
+-- Revision 1.17  2005-01-29 18:38:08  ncq
+-- - silly cleanup
+--
+-- Revision 1.16  2005/01/27 17:24:50  ncq
 -- - form_fields.internal_name -> template_placeholder
 --
 -- Revision 1.15  2005/01/24 17:57:43  ncq
