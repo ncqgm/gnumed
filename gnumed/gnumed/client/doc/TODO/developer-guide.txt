@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.17 $
+$Revision: 1.18 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -37,7 +37,9 @@ first be appreciated by considering underlying similarities between
 several medically related episodes. A health issue may have a finite
 duration if the underlying medical condition is eventually fully
 resolved. It may also span the entire life of the patient such as
-in chronic or genetic ailments.
+in chronic or genetic ailments. Start and end are not directly
+recorded but must be derived from the start of the earliest and
+the end of the most recent associated episode.
 
 Clinical Episode
 ----------------
@@ -74,10 +76,10 @@ In GnuMed a medically meaningful piece of information is called "Clinical
 Item". Such items are typically elements of the SOAP structure such as a
 diagnosis, a history item, an assessment, a plan, etc. Several tables,
 both specific and generic store such items. They all inherit from the
-table clin_item which records when and by whom an item was committed,
-as well as to which Clinical Encounter and Clinical Episode this item
-belongs. Virtue of inheriting from clin_item all Clinical Item tables
-also have a generic "narrative" field for comments and clinical narrative.
+table clin_root_item which records the Clinical Encounter and Clinical
+Episode this item belongs to. Virtue of inheriting from clin_root_item all
+Clinical Item tables also have a generic "narrative" field for comments
+and clinical narrative.
 
 Partial Contact
 ---------------
@@ -95,11 +97,11 @@ Clinical narrative
 Due to the fact that clinical items are stored in several different
 specific and non-specific tables it is difficult to do a full-text
 search across the medical record of a patient. For this reason all
-clinical narrative is aggregated in the clin_narrative table. All
+clinical narrative is aggregated in the clin_root_item table. All
 tables providing clinical narrative are supposed to inherit from
 this table. If more than one field for free text is needed in a
-table links to additional entries in clin_narrative can be used
-additionally to the inherited clin_narrative.narrative field.
+table links to entries in clin_note must be used additionally
+to the inherited clin_root_item.narrative field.
 
 The view v_patient_items provides an aggregation of clinical
 items per patient. From this one can derive the item ID and source
@@ -131,9 +133,7 @@ prepended by "v_i18n_".
 
 Clinical items
 --------------
-All tables holding clinical items must inherit from clin_item. The
-clin_item table itself can be used as a generic clinical narrative
-item table.
+All tables holding clinical items must inherit from clin_root_item.
 
 =========================================
 medically:
