@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.37 2005-01-31 10:19:11 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPatientExporter.py,v 1.38 2005-01-31 13:01:23 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -28,20 +28,8 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _cfg = gmCfg.gmDefCfgFile
 #============================================================
-def prompted_input(prompt, default=None):
-    """
-    Obtains entry from standard input
-    
-    prompt - Prompt text to display in standard output
-    default - Default value (for user to press only intro)
-    """    
-    usr_input = raw_input(prompt)
-    if usr_input == '':
-        return default
-    return usr_input
-#--------------------------------------------------------
 class cEmrExport:
-    
+
     #--------------------------------------------------------                
     def __init__(self, constraints = None, fileout = None, patient = None):
         """
@@ -848,22 +836,10 @@ def run():
 
     # App execution loop
     while patient_term != 'bye':
-        
-        # Ask patient to dump and set in exporter object
-        patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
-        if patient_term == 'bye':
-            break
-        search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
-        if search_ids is None or len(search_ids) == 0:
-            prompted_input("No patient matches the query term. Press any key to continue.")
-            continue
-        elif len(search_ids) > 1:
-            prompted_input("Various patients match the query term. Press any key to continue.")
-            continue
-        patient_id = search_ids[0]
-        patient = gmPerson.gmCurrentPatient(patient_id)
+        patient = gmPerson.ask_for_patient()
+		if patient is None:
+			break
         export_tool.set_patient(patient)
-        
         # Dump patient EMR sections
         export_tool.dump_constraints()
         export_tool.dump_demographic_record(True)
@@ -906,7 +882,10 @@ if __name__ == "__main__":
         
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.37  2005-01-31 10:19:11  ncq
+# Revision 1.38  2005-01-31 13:01:23  ncq
+# - use ask_for_patient() in gmPerson
+#
+# Revision 1.37  2005/01/31 10:19:11  ncq
 # - gmPatient -> gmPerson
 #
 # Revision 1.36  2004/10/26 12:52:56  ncq

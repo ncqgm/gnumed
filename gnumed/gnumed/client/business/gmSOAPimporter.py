@@ -45,8 +45,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.4 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmSOAPimporter.py,v 1.5 2005-01-31 13:00:40 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -291,42 +291,7 @@ class cSOAPImporter:
 #----------------------------------------------------------------
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmCfg
-	#------------------------------------------------------------
-	def prompted_input(prompt, default=None):
-		"""Obtains entry from standard input.
 
-		prompt - Promt text to display in standard output
-		default - Default value (for user to press only intro)
-		"""
-		usr_input = raw_input(prompt)
-		if usr_input == '':
-			return default
-		return usr_input
-	#------------------------------------------------------------
-	def askForPatient():
-		"""Main module application patient selection function.
-		"""
-
-		# Variable initializations
-		pat_searcher = gmPerson.cPatientSearcher_SQL()
-
-		# Ask patient
-		patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
-
-		if patient_term == 'bye':
-			return None
-		search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
-		if search_ids is None or len(search_ids) == 0:
-			prompted_input("No patient matches the query term. Press any key to continue.")
-			return None
-		elif len(search_ids) > 1:
-			prompted_input("Various patients match the query term. Press any key to continue.")
-			return None
-		patient_id = search_ids[0]
-		patient = gmPerson.gmCurrentPatient(patient_id)
-
-		return patient
-	#------------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 	_log.Log (gmLog.lInfo, "starting SOAP importer...")
 
@@ -341,7 +306,7 @@ if __name__ == '__main__':
 		pool = gmPG.ConnectionPool()
 		
 		# obtain patient
-		patient = askForPatient()
+		patient = gmPerson.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
@@ -409,7 +374,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.4  2005-01-31 10:37:26  ncq
+# Revision 1.5  2005-01-31 13:00:40  ncq
+# - use ask_for_patient() in gmPerson
+#
+# Revision 1.4  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.3  2004/12/20 09:51:28  ncq
