@@ -8,14 +8,15 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmTestAccounts.sql,v $
--- $Id: gmTestAccounts.sql,v 1.6 2003-06-10 08:56:59 ncq Exp $
+-- $Id: gmTestAccounts.sql,v 1.7 2003-06-11 12:51:07 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
--- force terminate + exit(3) on errors if non-interactive
+-- must ignore errors so we don't fail on
+-- accounts that exist already
 \unset ON_ERROR_STOP
 
--- Someone know a way of telling VALID UNTIL that the
+-- Anyone know a way of telling VALID UNTIL that the
 -- value is CURRENT_DATE + interval '4 months' ?
 
 -- ===================================================
@@ -55,14 +56,21 @@ CREATE USER "_test-secretary"
 ;
 
 -- ===================================================
+-- cannot do revision tracking here since this script is (for now)
+-- imported at the server level whereas revision tracking is
+-- instantiated at the database level or IOW *after* this script
+
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmTestAccounts.sql,v $', '$Revision: 1.6 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmTestAccounts.sql,v $', '$Revision: 1.7 $');
 
 \set ON_ERROR_STOP 1
 
 -- ===================================================
 -- $Log: gmTestAccounts.sql,v $
--- Revision 1.6  2003-06-10 08:56:59  ncq
+-- Revision 1.7  2003-06-11 12:51:07  ncq
+-- - Andreas is right, we *cannot* do revision tracking here ...
+--
+-- Revision 1.6  2003/06/10 08:56:59  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.5  2003/02/07 14:33:21  ncq
