@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.14 2005-03-06 08:17:02 ihaywood Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmBusinessDBObject.py,v 1.15 2005-03-06 14:44:02 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -140,8 +140,9 @@ class cBusinessDBObject:
 		self.__class__._service
 			# the service in which our source relation is found,
 			# this is used for establishing connections
-	        self.__class__._subtables
-		        # a dictionary of subtables by name, values are dictionaries
+		# FIXME: if you want this check to be done please update all the child classes, too
+#		self.__class__._subtables
+			# a dictionary of subtables by name, values are dictionaries
 			# of 3 queries keyed 'select', 'insert' and 'delete'
 		#</DEBUG>
 		self._payload = []		# the cache for backend object values (mainly table fields)
@@ -224,18 +225,13 @@ class cBusinessDBObject:
 			pass
 		# 3) sub-table
 		try:
-			s = self._subtables[attribute]['select']
-			data, idx = gmPG.run_ro_query (
-			self.__class__._service,
-			s,
-			True,
-			self.pk_obj
-			)
-			if data is None:
-				_log.Log(gmLog.lErr, '[%s:%s]: error retrieving instance' % (self.__class__.__name__, self.pk_obj))
-				return None
-			self._ext_cache[attribute] = [dict ([(name, j[i]) for name, i in idx.items ()]) for j in data]
-			return self._ext_cache[attribute]
+			# FIXME: there is no collision detection on <attribute>
+			query = self._subtables[attribute]['select']
+			rows, idx = gmPG.run_ro_query(self.__class__._service, query, True, self.pk_obj)
+			if rows is not None:
+				self._ext_cache[attribute] = [dict([(name, row[i]) for name, i in idx.items()]) for row in rows]
+				return self._ext_cache[attribute]
+			_log.Log(gmLog.lErr, '[%s:%s]: error getting subtable attribute [%s]' % (self.__class__.__name__, self.pk_obj, attribute))
 		except KeyError:
 			pass
 		# 4) getters providing extensions
@@ -401,7 +397,7 @@ class cBusinessDBObject:
 				return (False, data)
 		# execute cached changes to subtables
 		if self._subtable_changes:
-			successful, result = gmPG.run_commit2 (link_obj = conn, queries= self._subtable_changes)
+			successful, result = gmPG.run_commit2(link_obj = conn, queries=self._subtable_changes)
 			if not successful:
 				conn.rollback()
 				conn.close()
@@ -411,7 +407,7 @@ class cBusinessDBObject:
 			conn.commit()
 			conn.close()
 		except:
-			typ, val, tb = sys.exc_info () 
+			typ, val, tb = sys.exc_info() 
 			return (False, (1, val))
 		self._is_modified = False
 		return (True, None)
@@ -423,9 +419,9 @@ class cBusinessDBObject:
 				del self[table][i]
 	#-----------------------------------------------------
 	def add_subtable (self, table, item):
-		self[table].append (item)
+		self[table].append(item)
 		item['pk_master'] = self.pk_obj
-		self._subtable_changes.append ((self._subtables[table]['insert'], [item]))
+		self._subtable_changes.append((self._subtables[table]['insert'], [item]))
 	#----------------------------------------------------
 	def sync_subtable (self, table, items):
 		"""
@@ -436,19 +432,18 @@ class cBusinessDBObject:
 		for i in range (len(t)):
 			for j in range (items):
 				eqn = 1
-				for k in items[j].keys ():
+				for k in items[j].keys():
 					if items[j][k] != self[table][i][k]:
 						eqn = 0
 				if eqn: # these dicts are considered equal
 					items[j]['__same'] = 1
 					table2[i]['__same'] = 1
 		for i in items:
-			if not i.has_key ('__same'):
+			if not i.has_key('__same'):
 				self.add_subtable (table, i)
 		for i in table2:
-			if not i.has_key ('__same'):
+			if not i.has_key('__same'):
 				self.del_subtable (table, i)
-		
 #============================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -477,7 +472,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.14  2005-03-06 08:17:02  ihaywood
+# Revision 1.15  2005-03-06 14:44:02  ncq
+# - cleanup
+#
+# Revision 1.14  2005/03/06 08:17:02  ihaywood
 # forms: back to the old way, with support for LaTeX tables
 #
 # business objects now support generic linked tables, demographics
