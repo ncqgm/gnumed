@@ -123,7 +123,7 @@ class Psql:
 					Psql(self.conn).run (os.path.join (os.path.dirname (self.filename), self.groups[0]))
 				elif self.match (r"^\\encoding.*"):
 					_log.Log (gmLog.lErr, self.fmt_msg("\\encoding not yet supported"))
-				elif self.match (r"^\\(.*)"):
+				elif self.match (r"^\\(.*)") and not instring:
 					# most other \ commands are for controlling output formats, don't make
 					# much sense in an installation script, so we gently ignore them
 					_log.Log (gmLog.lWarn, self.fmt_msg("psql command \"\\%s\" being ignored " % self.groups[0]))
