@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.12 2003-10-19 12:58:58 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.13 2003-10-21 15:04:48 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -169,6 +169,8 @@ insert into test_type (
 */
 -- ===================================================================
 -- vaccination routes
+truncate vacc_route;
+
 insert into vacc_route
 	(abbreviation, description)
 values
@@ -180,12 +182,262 @@ values
 	('s.c.', i18n('subcutaneous'));
 
 -- ===================================================================
+-- vaccination indications
+truncate vacc_indication;
+
+insert into vacc_indication (description) values (i18n('measles'));
+insert into vacc_indication (description) values (i18n('mumps'));
+insert into vacc_indication (description) values (i18n('rubella'));
+insert into vacc_indication (description) values (i18n('tetanus'));
+insert into vacc_indication (description) values (i18n('diphtheria'));
+insert into vacc_indication (description) values (i18n('influenza'));
+insert into vacc_indication (description) values (i18n('pneumococcus'));
+insert into vacc_indication (description) values (i18n('pertussis'));
+
+-- ===================================================================
+-- vaccination indication to disease code links
+truncate lnk_vacc_ind2code;
+
+-- ICD 10 GM (German Modification)
+
+-- Measles
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05.0+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05.1+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05.2+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05.3+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05.4+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05.8+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='measles'), 'B05.9+', 'ICD-10-GM');
+
+-- Mumps
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='mumps'), 'B26', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='mumps'), 'B26.0+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='mumps'), 'B26.1+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='mumps'), 'B26.2+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='mumps'), 'B26.3+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='mumps'), 'B26.8', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='mumps'), 'B26.9', 'ICD-10-GM');
+
+-- Rubella
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='rubella'), 'B06', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='rubella'), 'B06.0+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='rubella'), 'B06.8', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='rubella'), 'B06.9', 'ICD-10-GM');
+
+-- Tetanus
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='tetanus'), 'A33', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='tetanus'), 'A34', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='tetanus'), 'A35', 'ICD-10-GM');
+
+-- Diptheria
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='diphtheria'), 'A36', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='diphtheria'), 'A36.0', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='diphtheria'), 'A36.1', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='diphtheria'), 'A36.2', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='diphtheria'), 'A36.3', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='diphtheria'), 'A36.8', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='diphtheria'), 'A36.9', 'ICD-10-GM');
+
+-- Influenza
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='influenza'), 'J11', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='influenza'), 'J11.0', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='influenza'), 'J11.1', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='influenza'), 'J11.8', 'ICD-10-GM');
+
+-- Pneumococcus
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pneumococcus'), 'G00.1', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pneumococcus'), 'I30.1', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pneumococcus'), 'M00.1', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pneumococcus'), 'A40.3', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pneumococcus'), 'J13', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pneumococcus'), 'P23.6', 'ICD-10-GM');
+
+-- Pertussis
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pertussis'), 'A37', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pertussis'), 'A37.0', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pertussis'), 'A37.1', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pertussis'), 'A37.8', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='pertussis'), 'A37.9', 'ICD-10-GM');
+
+-- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.12  2003-10-19 12:58:58  ncq
+-- Revision 1.13  2003-10-21 15:04:48  ncq
+-- - update vaccination schedules for Germany
+--
+-- Revision 1.12  2003/10/19 12:58:58  ncq
 -- - add vacc route data
 --
 -- Revision 1.11  2003/08/13 14:31:29  ncq
