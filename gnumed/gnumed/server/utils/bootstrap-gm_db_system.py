@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -727,7 +727,7 @@ def bootstrap_services():
 			return None
 	return 1
 #--------------------------------------------------------------
-def _import_schema(self, aSection, anAlias, aDB):
+def _import_schema(aSection, anAlias, aDB):
 	# load schema
 	schema_files = _cfg.get(aSection, "schema")
 	if schema_files is None:
@@ -878,7 +878,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.13  2003-01-28 13:39:14  ncq
+# Revision 1.14  2003-01-30 07:52:02  ncq
+# - spurious self from refactoring removed
+#
+# Revision 1.13  2003/01/28 13:39:14  ncq
 # - implemented schema import at the server level (= template database)
 # - this is mainly useful for importing users
 #
