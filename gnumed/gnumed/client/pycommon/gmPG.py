@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -724,22 +724,34 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 		return (status, '')
 	return status
 #---------------------------------------------------
+def noop(*args, **kargs):
+	pass
+#---------------------------------------------------
 def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
+	"""Runs a read-only query.
+
+	- link_obj can be a service name, connection or cursor object
+	- get_col_idx
+		- None  : return data
+		- ! None: return (data, idx)
+	- if query fails: data is None
+	- if query is not a row-returning SQL statement: data is None
+	"""
 	# sanity checks
 	if link_obj is None:
 		raise TypeError, 'gmPG.run_ro_query(): link_obj must be of type service name, connection or cursor'
 	if aQuery is None:
 		raise TypeError, 'gmPG.run_ro_query(): forgot to pass in aQuery'
 
-	close_cursor = 0
-	close_conn = 0
+	close_cursor = noop
+	close_conn = noop
 	# is it a cursor ?
 	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
 		curs = link_obj
 	# is it a connection ?
 	elif (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
 		curs = link_obj.cursor()
-		close_cursor = 1
+		close_cursor = curs.close
 	# take it to be a service name then
 	else:
 		pool = ConnectionPool()
@@ -751,17 +763,15 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 			else:
 				return None, None
 		curs = conn.cursor()
-		close_cursor = 1
-		close_conn = 1
+		close_cursor = curs.close
+		close_conn = pool.ReleaseConnection
 #	t1 = time.time()
 	# run the query
 	try:
 		curs.execute(aQuery, *args)
 	except:
-		if close_cursor:
-			curs.close()
-		if close_conn:
-			pool.ReleaseConnection(link_obj)
+		close_cursor()
+		close_conn(link_obj)
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery, args, link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
 		if get_col_idx is None:
 			return None
@@ -775,16 +785,13 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 		_log.Log(gmLog.lErr, 'query did not return rows !')
 	else:
 		data = curs.fetchall()
-	if close_conn:
-		pool.ReleaseConnection (link_obj)
+	close_conn(link_obj)
 	if get_col_idx:
 		col_idx = get_col_indices(curs)
-		if close_cursor:
-			curs.close ()
+		close_cursor()
 		return data, col_idx
 	else:
-		if close_cursor:
-			curs.close ()
+		close_cursor()
 		return data
 #---------------------------------------------------
 def get_col_indices(aCursor = None):
@@ -916,13 +923,13 @@ def set_default_client_encoding(encoding = None):
 		return 1
 	return None
 #===================================================
-def prompted_input(prompt, default=None):
+def __prompted_input(prompt, default=None):
 	usr_input = raw_input(prompt)
 	if usr_input == '':
 		return default
 	return usr_input
 #---------------------------------------------------
-def request_login_params_tui():
+def __request_login_params_tui():
 	"""text mode request of database login parameters
 	"""
 	import getpass
@@ -930,11 +937,11 @@ def request_login_params_tui():
 
 	print "\nPlease enter the required login parameters:"
 	try:
-		database = prompted_input("database [gnumed]: ", 'gnumed')
-		user = prompted_input("user name: ", '')
+		database = __prompted_input("database [gnumed]: ", 'gnumed')
+		user = __prompted_input("user name: ", '')
 		password = getpass.getpass("password (not shown): ")
-		host = prompted_input("host [localhost]: ", 'localhost')
-		port = prompted_input("port [5432]: ", 5432)
+		host = __prompted_input("host [localhost]: ", 'localhost')
+		port = __prompted_input("port [5432]: ", 5432)
 	except KeyboardInterrupt:
 		_log.Log(gmLog.lWarn, "user cancelled text mode login dialog")
 		print "user cancelled text mode login dialog"
@@ -943,7 +950,7 @@ def request_login_params_tui():
 	login.SetInfo(user, password, dbname=database, host=host, port=port)
 	return login
 #---------------------------------------------------
-def request_login_params_gui_wx():
+def __request_login_params_gui_wx():
 	"""GUI (wx) input request for database login parameters.
 
 	Returns gmLoginInfo.LoginInfo object
@@ -980,18 +987,16 @@ def request_login_params():
 	if os.environ.has_key('DISPLAY'):
 		# try GUI
 		try:
-			login = request_login_params_gui_wx()
+			login = __request_login_params_gui_wx()
 			return login
 		except:
 			pass
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
-	login = request_login_params_tui()
+	login = __request_login_params_tui()
 	return login
 #==================================================================
-# Main
-#==================================================================
-def run_notifications_debugger():
+def __run_notifications_debugger():
 	#-------------------------------
 	def myCallback(**kwds):
 		sys.stdout.flush()
@@ -1050,6 +1055,8 @@ def run_notifications_debugger():
 	rocurs.close()
 	roconn.close()
 	dbpool.ReleaseConnection('default')
+#==================================================================
+# Main - unit testing
 #------------------------------------------------------------------
 if __name__ == "__main__":
 	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
@@ -1057,7 +1064,7 @@ if __name__ == "__main__":
 	print "Do you want to test the backend notification code ?"
 	yes_no = raw_input('y/n: ')
 	if yes_no == 'y':
-		run_notifications_debugger()
+		__run_notifications_debugger()
 		sys.exit()
 
 	dbpool = ConnectionPool()
@@ -1114,7 +1121,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.5  2004-04-08 23:42:13  ncq
+# Revision 1.6  2004-04-11 10:13:32  ncq
+# - document run_ro_query API
+# - streamline run_ro_query link_obj handling via noop()
+# - __-ize prompted_input, req*tui, req*gui, run_not*debugger
+#
+# Revision 1.5  2004/04/08 23:42:13  ncq
 # - set time zone during connect
 #
 # Revision 1.4  2004/03/27 21:40:01  ncq
