@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.12 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmBusinessDBObject.py,v 1.13 2005-02-03 20:20:14 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -117,6 +117,7 @@ class cBusinessDBObject:
 		- must return xmin of all rows that _cmds_store_payload
 		  will be updating
 	"""
+	_conn_pool = None
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		"""Init business object.
@@ -143,7 +144,9 @@ class cBusinessDBObject:
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
-		self._conn_pool = gmPG.ConnectionPool()# once for ALL descendants :-)
+		if cBusinessDBObject._conn_pool is None:
+			# once for ALL descendants :-)
+			cBusinessDBObject._conn_pool = gmPG.ConnectionPool()
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
 		else:
@@ -408,7 +411,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.12  2005-02-01 10:16:07  ihaywood
+# Revision 1.13  2005-02-03 20:20:14  ncq
+# - really use class level static connection pool
+#
+# Revision 1.12  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
