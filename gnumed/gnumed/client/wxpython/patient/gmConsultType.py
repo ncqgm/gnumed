@@ -1,9 +1,6 @@
 # a plugin for the consultation type
 from wxPython.wx import *
-import gmPlugin
-import gmLog
-import gettext
-_ = gettext.gettext
+import gmPlugin, gmLog
 
 ID_TYPE = wxNewId ()
 
