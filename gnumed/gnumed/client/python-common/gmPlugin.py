@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -288,7 +288,10 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 
 	return 1
 #------------------------------------------------------------------
-# (FIXME: get plugin list from gmconfiguration for this user).
+# FIXME: get plugin list from gmconfiguration for this user
+# FIXME: step 1: use gmCfg.cCfgFile instead of arbitrary file
+# FIXME:         this would allow for "profiles"
+# FIXME: step 2: use database config store
 def GetAllPlugins (set):
 	"""
 	Searches the directory for all plugins
@@ -331,7 +334,10 @@ def UnloadPlugin (set, name):
 log(gmLog.lData, __version__)
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.26  2002-11-12 23:03:25  hherb
+# Revision 1.27  2002-11-13 09:14:17  ncq
+# - document a few more todo's but don't do them before OSHCA
+#
+# Revision 1.26  2002/11/12 23:03:25  hherb
 # further changes towards customization of plugin loading order
 #
 # Revision 1.25  2002/11/12 20:30:10  hherb
