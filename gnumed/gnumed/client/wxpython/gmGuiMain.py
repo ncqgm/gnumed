@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-03 11:39:07 $
-# @version $Revision: 1.23 $ $Date: 2002-07-03 11:39:07 $ $Author: ihaywood $
+# @Date: $Date: 2002-07-03 12:15:16 $
+# @version $Revision: 1.24 $ $Date: 2002-07-03 12:15:16 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -29,7 +29,7 @@
 The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # text translation function for localization purposes
@@ -371,9 +371,45 @@ def mainWithTalkback ():
 	myLog.AddTarget (emailLogger)
 	main ()
 	if emailLogger.hasLogged ():
-		box = wxMessageBox (None, "An error has occurred. Would to like to mail an automatic report to bug-gnumed@gnu.org?", style = wxYES_NO | wxICON_ERROR)
-		if box.ShowModal () == wxID_YES:
-			emailLogger.flush ()
+		dialog = wxDialog (None, "GNUMed Bug Report")
+		vbox = wxBoxSizer (wxVERTICAL)
+		text = wxStaticText (dialog, -1 , _("GNUMed had an error. You can make a bug report to the developers here via e-mail"))
+		vbox.Add (text, 0, wxALL, 5)
+		pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
+		pboxgrid.AddGrowableCol( 1 )
+
+		label = wxStaticText( self, -1, _("e-mail"), wxDefaultPosition, wxDefaultSize, 0 )
+		pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		email = wxTextCtrl( dialog, -1, "", size = wxSize (100, -1))
+		pboxgrid.AddWindow( email, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
+		label = wxStaticText( dialog, -1, _("comment"))
+		pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		comment = wxTextCtrl( dialog, -1, "", size = wxSize (100, -1))
+		pboxgrid.AddWindow( email, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
+		buttonsizer = wxBoxSizer( wxHORIZONTAL )
+
+		button = wxButton( dialog, wxID_OK, _("OK"))
+		button.SetDefault()
+		buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
+
+		button = wxButton( dialog, wxID_CANCEL, _("Cancel"))
+		buttonsizer.AddWindow( button, 0, wxALIGN_CENTRE|wxALL, 5 )
+
+
+		vbox.AddSizer(self.pboxgrid, 1, wxGROW|wxALL, 10)
+		dialog.SetAutoLayout( true )
+		dialog.SetSizer( vbox)
+		vbox.Fit( dialog )
+		vbox.SetSizeHints( dialog )
+
+		EVT_BUTTON(self, wxID_OK, self.OnOK)
+		EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
+		if dialog.ShowModal () == wxID_OK:
+			emailLogger.setComment (comment.GetValue ())
+			emailLogger.setFrom (email.GetValue ())
+			emailLogger.send ()
 
 
 #==================================================
