@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-
+"""gmLoginDialog - This module provides a login dialog to GNUMed
+It features combo boxes which "remember" any number of previously entered settings
+"""
 #############################################################################
 #
 # gmLoginDialog - This module provides a login dialog to GNUMed
@@ -32,10 +33,9 @@
 #
 # @TODO:
 ############################################################################
-
-"""gmLoginDialog - This module provides a login dialog to GNUMed
-It features combo boxes which "remember" any number of previously entered settings
-"""
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
+# $Id: gmLoginDialog.py,v 1.31 2003-02-08 00:15:17 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 
 from wxPython.wx import *
 import os.path, time
@@ -608,7 +608,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.30  2003-02-07 21:06:02  sjtan
+# Revision 1.31  2003-02-08 00:15:17  ncq
+# - cvs metadata keywords
+#
+# Revision 1.30  2003/02/07 21:06:02  sjtan
 #
 # refactored edit_area_gen_handler to handler_generator and handler_gen_editarea. New handler for gmSelectPerson
 #
