@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -571,6 +571,37 @@ def run_query(aCursor = None, aQuery = None, *args):
 		return None
 	return 1
 #---------------------------------------------------
+def run_ro_query(aService = None, aQuery = None, *args):
+	# sanity checks
+	if aService is None:
+		_log.Log(gmLog.lErr, 'need service name to run query')
+		return None
+	if aQuery is None:
+		_log.Log(gmLog.lErr, 'need query to run it')
+		return None
+
+	# connect read only
+	conn = ConnectionPool().GetConnection(aService, readonly = 1)
+	if conn is None:
+		_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' aService)
+		return None
+	curs = conn.cursor()
+
+	# run the query
+	try:
+		curs.execute(aQuery, *args)
+	except:
+		curs.close()
+		conn.ReleaseConnection()
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on service [%s]" % (aQuery, args, aService), sys.exc_info(), verbose = _query_logging_verbosity)
+		return None
+
+	# and return the data
+	data = curs.fetchall()
+	curs.close
+	conn.ReleaseConnection()
+	return data
+#---------------------------------------------------
 def get_col_indices(aCursor = None):
 	# sanity checks
 	if aCursor is None:
@@ -822,7 +853,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.69  2003-09-16 22:41:11  ncq
+# Revision 1.70  2003-09-21 11:23:10  ncq
+# - add run_ro_query() helper as suggested by Ian
+#
+# Revision 1.69  2003/09/16 22:41:11  ncq
 # - get_pkey -> get_pkey_name
 #
 # Revision 1.68  2003/08/17 18:02:33  ncq
