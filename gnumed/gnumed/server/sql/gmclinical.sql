@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.46 $
+-- $Revision: 1.47 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -32,8 +32,10 @@ create table log_clin_health_issue (
 	id integer not null,
 	id_patient integer not null,
 	description varchar(128)
-) inherits (audit_log);
+) inherits (audit_trail);
 
+-- -------------------------------------------------------------------
+-- episode related tables
 -- -------------------------------------------------------------------
 create table clin_episode (
 	id serial primary key,
@@ -61,8 +63,28 @@ create table log_clin_episode (
 	id integer not null,
 	id_health_issue integer not null,
 	description varchar(128)
-) inherits (audit_log);
+) inherits (audit_trail);
 
+
+create table last_active_episode (
+	id serial primary key,
+	id_episode integer not null references clin_episode(id),
+	id_patient integer not null,
+	unique (id_episode, id_patient)
+);
+
+comment on table last_active_episode is
+	'records the most recently active episode per patient,
+	 upon instantiation of a patient object it should read
+	 the most recently active episode from this table,
+	 upon deletion of the object, the last active episode
+	 should be recorded here,
+	 do *not* rely on the content of this table *during*
+	 the life time of a patient object as the value can
+	 change from under us';
+
+-- -------------------------------------------------------------------
+-- encounter related tables
 -- -------------------------------------------------------------------
 create table _enum_encounter_type (
 	id serial primary key,
@@ -150,7 +172,7 @@ comment on TABLE clin_note is
 
 create table log_clin_note (
 	id integer not null
-) inherits (audit_log, log_dummy_clin_root_item);
+) inherits (audit_trail, log_dummy_clin_root_item);
 
 -- --------------------------------------------
 create table _enum_hx_type (
@@ -239,7 +261,11 @@ comment on column allergy.id_type is
 comment on column allergy.reaction is
 	'description of reaction such as "difficulty breathing, "skin rash", "diarrhea" etc.';
 comment on column allergy.generic_specific is
-	'true: only applies to the generic named in allergene, false: applies to class the substance in allergene belongs to; if substance in allergene is not found in generics (eg. it is something else), then generic_specific has no meaning)';
+	'only meaningful for *drug*/*generic* reactions:
+	 1) true: applies to one in "generics" forming "substance",
+			  if more than one generic listed in "generics" then
+			  "allergene" *must* contain the generic in question;
+	 2) false: applies to drug class of "substance";';
 comment on column allergy.definate is
 	'true: definate, false: not definate';
 
@@ -254,7 +280,7 @@ create table log_allergy (
 	reaction text,
 	generic_specific boolean not null,
 	definate boolean not null
-) inherits (audit_log, log_dummy_clin_root_item);
+) inherits (audit_trail, log_dummy_clin_root_item);
 
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
@@ -493,11 +519,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.46 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.47 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.46  2003-05-14 22:06:27  ncq
+-- Revision 1.47  2003-05-22 12:56:12  ncq
+-- - add "last_active_episode"
+-- - adapt to audit_log -> audit_trail
+--
+-- Revision 1.46  2003/05/14 22:06:27  ncq
 -- - merge clin_narrative and clin_item
 -- - clin_item -> clin_root_item, general cleanup
 -- - set up a few more audits
