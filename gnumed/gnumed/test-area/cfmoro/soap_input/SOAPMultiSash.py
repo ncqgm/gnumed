@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.18 2005-01-15 20:37:17 cfmoro Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.19 2005-01-16 20:30:54 ncq Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -408,22 +408,28 @@ class cMultiSashLeafContent(wxWindow):
 	We have one SOAP input widget and a reference to the controller
 	"""
 	def __init__(self, parent, childController):
-		w,h = self.CalcSize(parent)
-		wxWindow.__init__(self,id = -1,parent = parent,
-						  pos = wxPoint(0,0),
-						  size = wxSize(w,h),
-						  style = wxCLIP_CHILDREN | wxSUNKEN_BORDER)
-
+		w, h = self.CalcSize(parent)
+		wxWindow.__init__(
+			self,
+			id = -1,
+			parent = parent,
+			pos = wxPoint(0,0),
+			size = wxSize(w,h),
+			style = wxCLIP_CHILDREN | wxSUNKEN_BORDER
+		)
 		print "Creating soap input widget, controller (%s)" % childController
 		# ui initialized and some issue selection, create SOAP input for the issue
 		episode = childController.get_selected_episode()
 		if episode is None:
 			self.soap_panel = EmptyChild(self)
-		else:			
-			self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(parent=self,
-			problem=childController.get_selected_episode())
+		else:
+			self.soap_panel = gmSOAPWidgets.cResizingSoapPanel (
+				parent = self,
+				problem = episode
+			)
 			# FIXME: should this really happen here ?
-			childController.get_managed_episodes().append(childController.get_selected_episode()['pk_episode'])
+			childController.get_managed_episodes().append(episode['pk_episode'])
+
 #		if childController is not None:
 #			self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, problem = childController.get_selected_episode())
 #			self.soap_panel.SetHealthIssue(childController.get_selected_issue())
