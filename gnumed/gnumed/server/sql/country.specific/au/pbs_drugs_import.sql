@@ -8,10 +8,11 @@
 -- version: 0.1
 -- changelog:
 --	21.10.2001: first implementation
+--	30.11.2001: \set & \unset applied correctly
 -- TODO: further processing of the data (normalizing)
 -- ===============================================
 
-\set ON_ERROR_STOP 0
+\unset ON_ERROR_STOP
 drop table pbsimport;
 \set ON_ERROR_STOP 1
 create table pbsimport (
@@ -50,9 +51,10 @@ create table pbsimport (
 -- ===============================================
 -- do the same thing with the ATC codes
 -- ===============================================
-\set ON_ERROR_STOP 0
+\unset ON_ERROR_STOP
 drop table atc;
 \set ON_ERROR_STOP 1
+
 create table atc (
 	code char(7) primary key,
 	text text
@@ -65,7 +67,7 @@ create table atc (
 -- ===============================================
 -- do the same thing with the manufacturer details
 -- ===============================================
-\set ON_ERROR_STOP 0
+\unset ON_ERROR_STOP
 drop table manufacturer;
 \set ON_ERROR_STOP 1
 create table manufacturer (
