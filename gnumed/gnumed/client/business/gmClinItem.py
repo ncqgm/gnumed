@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.12 2004-05-12 14:28:53 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmClinItem.py,v 1.13 2004-05-21 15:36:51 sjtan Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -30,6 +30,7 @@ class cClinItem:
 	- does NOT lazy-fetch fields
 	"""
 	#--------------------------------------------------------
+	SERVICE="historica"
 	def __init__(self, aPK_obj = None):
 		self._is_modified = False
 		# check descendants
@@ -95,7 +96,7 @@ class cClinItem:
 			return False
 		self._payload = None
 		data, self._idx = gmPG.run_ro_query(
-			'historica',
+			self.__class__.SERVICE,
 			self.__class__._cmd_fetch_payload,
 			True,
 			self.pk_obj)
@@ -117,7 +118,7 @@ class cClinItem:
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append((query, [params]))
-		status, err = gmPG.run_commit('historica', queries, True)
+		status, err = gmPG.run_commit(self.__class__.SERVICE, queries, True)
 		if status is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lData, params)
@@ -126,7 +127,12 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.12  2004-05-12 14:28:53  ncq
+# Revision 1.13  2004-05-21 15:36:51  sjtan
+#
+# moved 'historica' into the class attribute SERVICE , in case gmClinItem can
+# be reused in other services.
+#
+# Revision 1.12  2004/05/12 14:28:53  ncq
 # - allow dict style pk definition in __init__ for multicolum primary keys (think views)
 # - self.pk -> self.pk_obj
 # - __init__(aPKey) -> __init__(aPK_obj)
