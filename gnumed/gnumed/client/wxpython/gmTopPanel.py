@@ -1,26 +1,34 @@
 # GnuMed
-# GPL
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.47 $"
-__author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
-import sys, os.path, cPickle, zlib, string
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
+# $Id: gmTopPanel.py,v 1.48 2004-08-09 00:05:15 ncq Exp $
+__version__ = "$Revision: 1.48 $"
+__author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL"
 
-from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
-from Gnumed.business import gmPatient
-from Gnumed.wxpython import gmGP_PatientPicture, gmPatientSelector, gmGuiHelpers, gmBMIWidgets
-from Gnumed.pycommon.gmPyCompat import *
+import sys, os.path
+#cPickle, zlib, string
 
 from wxPython.wx import *
 
+from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
+from Gnumed.business import gmPatient
+from Gnumed.wxpython import gmGP_PatientPicture, gmPatientSelector, gmGuiHelpers, gmBMIWidgets, gmPregWidgets
+from Gnumed.pycommon.gmPyCompat import *
+
 _log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
 
 ID_BTN_pat_demographics = wxNewId()
 ID_CBOX_consult_type = wxNewId()
 ID_CBOX_episode = wxNewId()
 ID_BMITOOL = wxNewId()
 ID_BMIMENU = wxNewId()
+ID_PREGTOOL = wxNewId()
+ID_PREGMENU = wxNewId()
+ID_LOCKBUTTON = wxNewId()
+ID_LOCKMENU = wxNewId()
 
 # FIXME: need a better name here !
 bg_col = wxColour(214,214,214)
@@ -28,16 +36,6 @@ fg_col = wxColour(0,0,131)
 col_brightred = wxColour(255,0,0)
 #===========================================================
 class cMainTopPanel(wxPanel):
-
-	__icons = {
-"""icon_binoculars_form""": 'x\xdam\x8e\xb1\n\xc4 \x0c\x86\xf7>\x85p\x83\x07\x01\xb9.\xa7\xb3\x16W\x87.]\
-K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
-\xaaA\x1d\xca\x9f\xfb\xf1!RH\x8f\x17\x96u\xc4\xa9\xb0u6\x08\x9b\xc2\x8b[\xc2\
-\xc2\x9c\x0bG\x17Cd\xde\n{\xe7\x83wr\xef*\x83\xc5\xe1\xa6Z_\xe1_3\xb7\xea\
-\xc3\x94\xa4\x07\x13\x00h\xdcL\xc8\x90\x12\x8e\xd1\xa4\xeaM\xa0\x94\xf7\x9bI\
-\x92\xa8\xf5\x9f$\x19\xd69\xc43rp\x08\xb3\xac\xe7!4\xf5\xed\xd7M}kx+\x0c\xcd\
-\x0fE\x94aS'
-}
 
 	def __init__(self, parent, id):
 
@@ -75,10 +73,13 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		# | details | patient  | age | allergies |
 		# | button  | selector |     |           |
 		# `--------------------------------------'
-		self.szr_top_row = wxBoxSizer (wxHORIZONTAL)
+		self.szr_top_row = wxBoxSizer(wxHORIZONTAL)
 
 		#  - details button
-		bmp = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.__icons[_("icon_binoculars_form")])))
+		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'binoculars_form.png')
+		img = wxImage(fname, wxBITMAP_TYPE_ANY)
+		bmp = wxBitmapFromImage(img)
+
 		self.btn_pat_demographics = wxBitmapButton (
 			parent = self,
 			id = ID_BTN_pat_demographics,
@@ -115,14 +116,21 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.szr_top_row.Add (self.txt_allergies, 6, wxEXPAND | wxBOTTOM, 3)
 
 		# - bottom row
+		# .----------------------------------------------------------.
+		# | plugin toolbar | bmi | edc | episode  | encounter | lock |
+		# |                |     |     | selector | type sel  |      |
+		# `----------------------------------------------------------'
+		#self.tb_lock.AddControl(wxStaticBitmap(self.tb_lock, -1, getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+
 		# (holds most of the buttons)
-		self.szr_bottom_row = wxBoxSizer (wxHORIZONTAL)
+		self.szr_bottom_row = wxBoxSizer(wxHORIZONTAL)
 		self.pnl_bottom_row = wxPanel(self, -1)
 		self.szr_bottom_row.Add(self.pnl_bottom_row, 6, wxGROW, 0)
 
 		# BMI calculator button
-		png_fname = os.path.join(self.__gb['gnumed_dir'], 'icons', 'bmi.png')
-		bmp = wxBitmap(png_fname, wxBITMAP_TYPE_PNG)
+		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'bmi_calculator.png')
+		img = wxImage(fname, wxBITMAP_TYPE_ANY)
+		bmp = wxBitmapFromImage(img)
 		self.btn_bmi = wxBitmapButton (
 			parent = self,
 			id = ID_BMITOOL,
@@ -139,6 +147,19 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 #			shortHelpString = _("BMI Calculator")
 #		)
 #		self.szr_bottom_row.Add(tb, 0, wxRIGHT, 0)
+
+		# pregnancy calculator button
+		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'preg_calculator.png')
+		img = wxImage(fname, wxBITMAP_TYPE_ANY)
+		bmp = wxBitmapFromImage(img)
+		self.btn_preg = wxBitmapButton (
+			parent = self,
+			id = ID_PREGTOOL,
+			bitmap = bmp,
+			style = wxBU_EXACTFIT | wxNO_BORDER
+		)
+		self.btn_preg.SetToolTip(wxToolTip(_("Pregnancy Calculator")))
+		self.szr_bottom_row.Add(self.btn_preg, 0, wxEXPAND | wxBOTTOM, 3)
 
 		# episode selector
 		# FIXME: handle input -> new episode
@@ -167,6 +188,19 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		)
 		self.combo_consultation_type.SetToolTip(wxToolTip(_('choose consultation type')))
 		self.szr_bottom_row.Add(self.combo_consultation_type, 2, wxEXPAND, 0)
+
+		# padlock button - Dare I say HIPAA ?
+		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'padlock_closed.png')
+		img = wxImage(fname, wxBITMAP_TYPE_ANY)
+		bmp = wxBitmapFromImage(img)
+		self.btn_lock = wxBitmapButton (
+			parent = self,
+			id = ID_LOCKBUTTON,
+			bitmap = bmp,
+			style = wxBU_EXACTFIT | wxNO_BORDER
+		)
+		self.btn_lock.SetToolTip(wxToolTip(_('lock client')))
+		self.szr_bottom_row.Add(self.btn_lock, 0, wxEXPAND | wxBOTTOM, 3)
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
@@ -224,23 +258,47 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		# events
 		EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
 
+		tools_menu = self.__gb['main.toolsmenu']
+		main_frame = self.__gb['main.frame']
+
 		# - BMI calculator
 		EVT_BUTTON(self, ID_BMITOOL, self._on_show_BMI)
-		self.__gb['main.toolsmenu'].Append(ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
-		EVT_MENU(self.__gb['main.frame'], ID_BMIMENU, self._on_show_BMI)
+		tools_menu.Append(ID_BMIMENU, _("BMI"), _("Body Mass Index Calculator"))
+		EVT_MENU(main_frame, ID_BMIMENU, self._on_show_BMI)
+
+		# - pregnancy calculator
+		EVT_BUTTON(self, ID_PREGTOOL, self._on_show_Preg_Calc)
+		tools_menu.Append(ID_PREGMENU, _("EDC"), _("Pregnancy Calculator"))
+		EVT_MENU(main_frame, ID_PREGMENU, self._on_show_Preg_Calc)
 
 		# - episode selector
 		EVT_COMBOBOX(self, ID_CBOX_episode, self._on_episode_selected)
 
+		# - lock button
+		EVT_BUTTON(self, ID_LOCKBUTTON, self._on_lock)
+		tools_menu.Append(ID_LOCKMENU, _("lock client"), _("locks client and hides data"))
+		EVT_MENU(main_frame, ID_LOCKMENU, self._on_lock)
+
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
+	#----------------------------------------------
+	def _on_lock(self, evt):
+		print "should be locking client now by obscuring data"
+		print "and popping up a modal dialog box asking for a"
+		print "password to reactivate"
 	#----------------------------------------------
 	def _on_show_BMI(self, evt):
 		# FIXME: update patient ID ?
 		bmi = gmBMIWidgets.BMI_Frame(self)
 		bmi.Centre(wxBOTH)
 		bmi.Show(1)
+	#----------------------------------------------
+	def _on_show_Preg_Calc(self, evt):
+		# FIXME: update patient ID ?
+		pc = gmPregWidgets.cPregCalcFrame(self)
+		pc.Centre(wxBOTH)
+		pc.Show(1)
 	#----------------------------------------------
 	def _on_episode_selected(self, evt):
 		epr = self.curr_pat.get_clinical_record()
@@ -389,7 +447,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.47  2004-08-06 09:25:36  ncq
+# Revision 1.48  2004-08-09 00:05:15  ncq
+# - cleanup
+# - hardcode loading depluginized preg calculator/lock button
+# - load icons from png files
+#
+# Revision 1.47  2004/08/06 09:25:36  ncq
 # - always load BMI calculator
 #
 # Revision 1.46  2004/07/18 20:30:54  ncq
