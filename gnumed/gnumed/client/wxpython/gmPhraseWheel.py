@@ -6,9 +6,7 @@
 # - see spincontrol for list box handling
 #------------------------------------------------------------
 from wxPython.wx import *
-import gettext, string, types, time
-#_ = gettext.gettext
-_ = lambda x: x
+import string, types, time
 
 import gmLog
 
@@ -20,7 +18,7 @@ interface of Richard Terry's Visual Basic client
 This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 __log__ = gmLog.gmDefLog
 
@@ -497,6 +495,7 @@ class cPhraseWheel (wxTextCtrl):
 # MAIN
 #--------------------------------------------------------
 if __name__ == '__main__':
+	import gmI18N
 	def clicked (data):
 		print "Selected :%s" % data
 	#--------------------------------------------------------

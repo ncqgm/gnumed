@@ -18,8 +18,6 @@
 
 from wxPython.wx import *
 from gmSQLSimpleSearch import SQLSimpleSearch
-import gettext
-_ = gettext.gettext
 
 ID_BUTTON_SELECT = wxNewId()
 ID_BUTTON_ADD = wxNewId()
@@ -94,6 +92,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		return self.__SelectedPersonId
 
 if __name__ == "__main__":
+	_ = lambda x:x
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(DlgSelectPerson, -1)
 	app.MainLoop()

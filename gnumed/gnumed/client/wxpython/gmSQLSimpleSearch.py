@@ -20,8 +20,6 @@
 
 from wxPython.wx import *
 import gmSQLListControl
-import gettext
-_ = gettext.gettext
 
 
 ID_COMBO_SEARCHEXPR = wxNewId()

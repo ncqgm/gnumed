@@ -19,8 +19,6 @@
 
 from wxPython.wx import *
 import gmSelectPerson, gmPersonDetailsDlg, gmCachedPerson, gmSQLSimpleSearch, gmGuiBroker
-import gettext
-_ = gettext.gettext
 
 ID_NOTEBOOK=wxNewId()
 
@@ -89,6 +87,7 @@ class PersonNotebook(wxPanel):
 
 
 if __name__ == "__main__":
+	import gmI18N
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(PersonNotebook, -1)
 	app.MainLoop()

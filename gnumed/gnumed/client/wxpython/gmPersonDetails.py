@@ -15,10 +15,7 @@
 ############################################################################
 
 from wxPython.wx import *
-import gmSmartTextCtrl
-import gettext
-_ = gettext.gettext
-
+#import gmSmartTextCtrl
 
 
 ID_COMBO_TITLE = wxNewId()
@@ -311,7 +308,7 @@ class PnlPersonDetails(wxPanel):
 #################################################################################
 
 if __name__ == "__main__":
+	import gmI18N
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(PnlPersonDetails, -1)
 	app.MainLoop()
-

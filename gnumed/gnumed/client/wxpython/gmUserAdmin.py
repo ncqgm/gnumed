@@ -8,7 +8,10 @@
 # @dependencies: wxPython
 # @change log:
 #     $Log: gmUserAdmin.py,v $
-#     Revision 1.2  2001-12-05 13:57:02  sduffy
+#     Revision 1.3  2002-07-10 19:43:36  ncq
+#     - new i18n
+#
+#     Revision 1.2  2001/12/05 13:57:02  sduffy
 #     Not all text was processed through gettext.  Changed this.
 #
 #     Revision 1.1  2001/12/04 20:35:57  sduffy
@@ -24,9 +27,6 @@
 
 from wxPython.wx import *
 from wxPython.grid import *
-import gettext
-
-_=gettext.gettext
 
 class MyFrame(wxFrame):
 	def __init__(self, parent, ID, title):
@@ -135,6 +135,7 @@ class MyApp(wxApp):
 		return true
 
 if __name__ == '__main__':
+	_ = lambda x:x
 	app = MyApp(0)
 	app.MainLoop()
 

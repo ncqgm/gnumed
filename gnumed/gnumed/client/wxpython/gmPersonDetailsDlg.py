@@ -16,8 +16,6 @@
 ############################################################################
 
 from wxPython.wx import *
-import gettext
-_ = gettext.gettext
 
 import gmPersonDetails, gmPlugin, gmCachedPerson, gmCachedAddress
 #from PopupListChoiceWindow import *
@@ -240,7 +238,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 		self.chCountry.SetStringSelection("AUSTRALIA")
 
-# completely changed to just rotating the entries in the choice
+	# completely changed to just rotating the entries in the choice
 	def checkForMore(self, event):
 		""" rotates the country list to the next part if MORE selected """
 		if (self.chCountry.GetStringSelection() == "MORE"):
@@ -349,7 +347,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 
 		else:
-
 			queries.append("""update v_basic_person set title='%(Title)s',  lastnames='%(Surnames)s', firstnames='%(Given Names)s',
 						gender= '%(Gender)s',  dob='%(Dob)s', cob ='%(Cob)s' where id=%(id)d""" %personMap )
 
@@ -358,8 +355,6 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 			 street2='%(Address 1)s',  city=upper('%(City)s'),state=upper('%(State)s'), country='%(Country)s',
 			postcode='%(Postcode)s' where  id=%(id)d"""%addressMap)
 			self.updateStreet(addressMap["Street"])
-
-
 
 
 			#self.execute2("""select urb.id from urb, state, country c where urb.name=upper('%(City)s')
@@ -384,25 +379,21 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 					
 
 			try:
-                                        db.commit()
-                                        setup = self.getSqlSettings()
-                                        cursor = db.cursor()
-                                        for x in setup:
-                                                print x
-                                                cursor.execute(x)
+				db.commit()
+				setup = self.getSqlSettings()
+				cursor = db.cursor()
+				for x in setup:
+					print x
+					cursor.execute(x)
 
-					self.__person.update_person( personMap, db)
-					self.__address.update_address_link(addressMap, db)
-					# possible deadlock.
-                                        db.commit()
+				self.__person.update_person( personMap, db)
+				self.__address.update_address_link(addressMap, db)
+				# possible deadlock.
+				db.commit()
 
-                        except Exception, errorStr:
-                                        db.rollback()
-                                        print "error in updating queries, ", errorStr
-
-
-
-
+			except Exception, errorStr:
+				db.rollback()
+				print "error in updating queries, ", errorStr
 
 
 	def execute2(self, query):
@@ -583,26 +574,26 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 
 	def SetViaMapping( self, data, mapping):
-		 """sets a control either through default SetValue, or via a supplied operation in x['op']
-		 """
+		"""sets a control either through default SetValue, or via a supplied operation in x['op']
+		"""
 
-		 print "trying to set with data = ", data, " *** mapping = ", mapping
-		 for x in mapping:
-                        try:
-                                ctrl = x['control']
-                                if x.has_key('name2'):
-                                        name = x['name2']
-                                else:
-                                        name = x['name'].lower()
+		print "trying to set with data = ", data, " *** mapping = ", mapping
+		for x in mapping:
+			try:
+				ctrl = x['control']
+				if x.has_key('name2'):
+					name = x['name2']
+				else:
+					name = x['name'].lower()
 
 				print "key for data  = ", name
-                                  
-                                if x.has_key('op'):
-                                        x['op']( ctrl, data[name])
-                                else:
-                                        ctrl.SetValue( data[name].strip())
-                        except Exception, errorStr:
-                                print "error in setting  ", x ,errorStr
+
+				if x.has_key('op'):
+					x['op']( ctrl, data[name])
+				else:
+					ctrl.SetValue( data[name].strip())
+			except Exception, errorStr:
+				print "error in setting  ", x ,errorStr
 				t =  sys.exc_traceback
 				print t.tb_lineno , t.tb_lasti
 
@@ -696,6 +687,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 ##########################################################################
 
 if __name__ == "__main__":
+	import gmI18N
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(PersonDetailsDlg, -1)
 	app.MainLoop()
