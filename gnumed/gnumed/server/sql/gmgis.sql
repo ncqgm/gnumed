@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.35 $
+-- $Revision: 1.36 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -50,8 +50,8 @@ COMMENT ON COLUMN country.deprecated IS
 	'date when this country ceased officially to exist (if applicable)';
 
 -- ===================================================================
--- state codes. Any need for more than 3 characters?
--- yes, at least in Germany we have up to 6
+-- state codes: any need for more than 3 characters?
+-- yes, in Germany we have up to 6
 
 create table state (
         id serial primary key,
@@ -59,7 +59,7 @@ create table state (
         country char(2) references country(code),
         name varchar(60),
         deprecated date,
-        constraint nodupes UNIQUE (code, country)
+        unique (code, country)
 ) inherits (audit_gis);
 
 COMMENT ON TABLE state IS
@@ -74,14 +74,14 @@ COMMENT ON COLUMN country.deprecated IS
 -- ===================================================================
 create table urb (
 	id serial primary key,
-	statecode int references state(id),
-	postcode char(8),
-	name varchar(60),
-	unique (statecode, postcode, name)
+	id_state integer references state(id),
+	postcode varchar(12),
+	name varchar(60) not null,
+	unique (id_state, postcode, name)
 ) inherits (audit_gis);
 
--- this does not work in the UK! Seperate postcodes for each street
--- same in Germany: postcodes can be valid for:
+-- this does not work in the UK! Seperate postcodes for each street,
+-- Same in Germany ! Postcodes can be valid for:
 -- - several smaller urbs
 -- - one urb
 -- - several streets in one urb
@@ -91,7 +91,7 @@ create table urb (
 
 COMMENT ON TABLE urb IS
 	'cities, towns, dwellings ...';
-COMMENT ON COLUMN urb.statecode IS
+COMMENT ON COLUMN urb.id_state IS
 	'reference to information about country and state';
 COMMENT ON COLUMN urb.postcode IS
 	'the postcode (if applicable';
@@ -101,11 +101,11 @@ COMMENT ON COLUMN urb.name IS
 -- ===================================================================
 create table street (
 	id serial primary key,
-	id_urb integer references urb not null,
-	name varchar(60),
-	postcode char (10)
+	id_urb integer not null references urb(id),
+	name varchar(128),
+	postcode varchar(12),
+	unique(id_urb, name)
 ) inherits (audit_gis);
- -- for UK (or similar) postcodes
 
 COMMENT ON TABLE street IS
 	'street names, specific for distinct "urbs"';
@@ -186,7 +186,7 @@ where
 		and
 	str.id_urb = u.id
 		and
-	u.statecode = s.id;
+	u.id_state = s.id;
 
 -- added IH 8/3/02
 -- insert, delete, and update rules on this table
@@ -214,7 +214,7 @@ where
 		and
 	str.id_urb = u.id
 		and
-	u.statecode = s.id
+	u.id_state = s.id
 		and
 	ia.id_address = a.id
 		and
@@ -235,7 +235,7 @@ DECLARE
 	retval text := NULL;
 BEGIN
 	SELECT INTO s * FROM state WHERE
-		id = (SELECT statecode from urb where postcode like pcode||''%'' limit 1)
+		id = (SELECT id_state from urb where postcode like pcode||''%'' limit 1)
 			AND
 		country=ccode;
 	IF FOUND THEN
@@ -306,14 +306,14 @@ DECLARE
 BEGIN
 	state_code = find_or_create_state(u_state, u_country);
 	SELECT INTO u * FROM urb
-	WHERE statecode = statecode
+	WHERE id_state = state_code
 	AND postcode = u_postcode
 	AND name = u_name;
 
         IF FOUND THEN
            RETURN u.id;
         ELSE
-           INSERT INTO urb (statecode, postcode, name)
+           INSERT INTO urb (id_state, postcode, name)
 	   VALUES (state_code, u_postcode, u_name);
            RETURN currval (''urb_id_seq'');
         END IF;
@@ -354,7 +354,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
 			(SELECT urb.id FROM urb, state WHERE
 				urb.name = NEW.city AND
 				urb.postcode = NEW.postcode AND
-				urb.statecode = state.id AND
+				urb.id_state = state.id AND
 				state.code = NEW.state AND
 				state.country = NEW.country
 			)
@@ -413,4 +413,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.36 $');
