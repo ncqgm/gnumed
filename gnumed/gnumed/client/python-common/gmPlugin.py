@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.58 2003-10-26 01:38:06 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmPlugin.py,v 1.59 2003-11-08 10:48:36 shilbert Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -180,7 +180,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		self.gb['toolbar.%s' % self.internal_name ()] = tb
 		self.DoToolbar (tb, widget)
 		tb.Realize()
-
+		
 		# and put ourselves into the menu structure if so
 		if self.MenuInfo() is not None:
 			name_of_menu, menu_item_name = self.MenuInfo()
@@ -235,6 +235,13 @@ class wxNotebookPlugin (wxBasePlugin):
 			set_statustext(_('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
 		return 1
+	#-----------------------------------------------------
+	def _set_status_txt(self, txt):
+
+		set_statustext = self.gb['main.statustext']
+		set_statustext(txt)
+		return 1
+	
 	#-----------------------------------------------------
 	def Raise (self):
 		nbns = self.gb['main.notebook.plugins']
@@ -489,7 +496,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.58  2003-10-26 01:38:06  ncq
+# Revision 1.59  2003-11-08 10:48:36  shilbert
+# - added convenience function _set_status_txt()
+#
+# Revision 1.58  2003/10/26 01:38:06  ncq
 # - gmTmpPatient -> gmPatient, cleanup
 #
 # Revision 1.57  2003/09/24 10:32:54  ncq
