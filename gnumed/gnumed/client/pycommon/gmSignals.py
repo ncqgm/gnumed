@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -27,9 +27,9 @@ def popup_alert():
 # clinical signals
 #-------------------------------------------------------------
 # allergies
-def allergy_add_del_db():
-	"""Announce insertion/deletion of allergy row into/from backend."""
-	return 'allergy_add_del_db'
+def allg_mod_db():
+	"""Announce modification of allergy row into/from backend."""
+	return 'allg_mod_db'
 
 def allergy_updated():
 	"""Announce allergy cache update to interested parties."""
@@ -37,13 +37,13 @@ def allergy_updated():
 
 
 # vaccinations
-def vaccinations_updated():
-	"""Announce vaccination cache update to interested parties."""
-	return 'vaccinations_updated'
-
 def vacc_mod_db():
 	"""table vaccination"""
 	return 'vacc_mod_db'
+
+def vaccinations_updated():
+	"""Announce vaccination cache update to interested parties."""
+	return 'vaccinations_updated'
 
 
 def health_issue_change_db():
@@ -142,7 +142,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.3  2004-03-28 11:50:16  ncq
+# Revision 1.4  2004-05-22 11:48:16  ncq
+# - allergy signal handling cleanup
+#
+# Revision 1.3  2004/03/28 11:50:16  ncq
 # - cleanup
 #
 # Revision 1.2  2004/03/03 23:53:22  ihaywood
