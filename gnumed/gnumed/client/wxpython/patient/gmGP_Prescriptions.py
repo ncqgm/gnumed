@@ -95,8 +95,10 @@ class PrescriptionPanel (wxPanel):
 	  self.sizer_divider_interaction_text = wxBoxSizer(wxHORIZONTAL) 
           self.sizer_divider_interaction_text.Add(self.interactiontext_subheading,1, wxEXPAND)
 	  self.interactiontxt = wxTextCtrl(self,-1,
-                   "Mini-Drug interaction text goes here (click this for full description)", style=wxTE_MULTILINE)
-	  self.interactiontxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
+	              "Mini-Drug interaction text goes here (click this for full description)\n \n"
+		      "Also, try clicking on the list below with the right mouse button to see a pop up menu",		    
+				    style=wxTE_MULTILINE)
+	  self.interactiontxt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,'xselfont'))
 	  #------------------------------------------------------------------------------------
           #add the divider headings below the drug interactions as heading for items prescribed
           #------------------------------------------------------------------------------------
