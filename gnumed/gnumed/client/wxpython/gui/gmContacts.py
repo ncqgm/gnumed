@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -402,14 +402,19 @@ class ContactsPanel(wxPanel):
 	  x = self.list_organisations.GetItemCount()
 	  self._insert_org_data( x, key, data)
 	  if showPersons:
-		  m = org.getPersonMap(reload=True)
+		  m = org.getPersonMap(reload=False)
 		  for id, demRecord in m.items():
-			  person = self._helper.createOrgPerson()
-			  person.setDemographicRecord(demRecord)
+			  if self._tmpPerson.has_key(demRecord.getID()):
+				  person = self._tmpPerson[demRecord.getID()]
+			  else:  
+			  	person = self._helper.createOrgPerson()
+			  	person.setDemographicRecord(demRecord)
+			  	
 			  key, data = self.getOrgKeyData(person)
 			  ix = self.list_organisations.GetItemCount()
 			  self._insert_org_data(ix, key, data)
 			  self._isPersonIndex[ix] = (org, person )
+
 			  
 			  
 
@@ -492,7 +497,11 @@ class ContactsPanel(wxPanel):
        	def load_all_orgs(self):
 	  self.list_organisations.DeleteAllItems()
 	  self._insert_example_data()
-	  self._isPersonIndex = {}
+	  if self._isPersonIndex <> {}:
+		  self._tmpPerson = {}
+		  for person, org  in self._isPersonIndex.values():
+			  self._tmpPerson[person.getId()] = person
+		  self._isPersonIndex = {}
 	  
 	  orgs = self.getOrgHelper().findAllOrganizations()
 	  for org in orgs:
@@ -510,6 +519,7 @@ class ContactsPanel(wxPanel):
 	  self._current = None
 
 	  self._isPersonIndex = {}
+	  self._tmpPerson = {}
 	  self._currentPerson = None
 		  
        	def _connect_list(self):
@@ -620,23 +630,17 @@ class ContactsPanel(wxPanel):
 	   if not self._currentPerson is None:
 		   self.lbl_Type.SetLabel(_('occupation'))
 		   self._loadOccupations()
+		   parent = self.getCurrent()
 	   else:
 		   self.lbl_Type.SetLabel(_('subdivision'))
 		   self._loadDivisionTypes()
-	
-	   if not self._currentPerson is None:
-		   parent = self._currentPerson.getParent()
-	   else:	   
 		   parent = self.getCurrent().getParent()
+	
 
 	   dependent = not parent is None
 	   if dependent:
 		   self.input_fields['category'].SetValue(parent['category'])
 	   self.input_fields['category'].Enable(not dependent)
-
-
-	  
-	   
 	  
 	def _loadOccupations(self):
 		f = self.input_fields['subtype']
@@ -822,7 +826,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.25  2004-05-30 03:50:41  sjtan
+# Revision 1.26  2004-05-30 09:06:28  sjtan
+#
+# avoiding object reload if possible.
+#
+# Revision 1.25  2004/05/30 03:50:41  sjtan
 #
 # gmContacts can create/update org, one level of sub-org, org persons, sub-org persons.
 # pre-alpha or alpha ? Needs cache tune-up .
