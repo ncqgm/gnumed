@@ -54,9 +54,14 @@ import os.path
 if __name__ == "__main__":
 	sys.path.append(os.path.join('.', 'modules'))
 
-import gmPG
 import gmLog
-import gmDrugView,gmCfg
+if __name__ == "__main__":
+	# FIXME: standalone means diagnostics for now,
+	# later on, when AmisBrowser is one foot in the door
+	# to German doctors we'll change this again
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+
+import gmPG, gmDrugView
 
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
