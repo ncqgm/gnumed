@@ -15,7 +15,7 @@ Usage:
 @copyright: GPL
 """
 
-import sys, time, traceback, os.path
+import sys, time, traceback, os.path, syslog
 #---------------------------
 
 # log levels:
@@ -25,7 +25,7 @@ import sys, time, traceback, os.path
 # lInfo  - user info like program flow
 # lData  - raw data processed by program
 
-lPanic, lErr, lWarn,lInfo, lData = range(5)
+lPanic, lErr, lWarn, lInfo, lData = range(5)
 
 lUncooked = 0
 lCooked = 1
@@ -247,6 +247,27 @@ class LogTargetConsole(LogTarget):
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	sys.stderr.write(aTimeStamp + aPrefix + aLocation + aMsg)
 
+#---------------------------------------------------------------
+class LogTargetSyslog(LogTarget):
+    def __init__ (self, aLogLevel = lErr):
+	# call inherited
+	LogTarget.__init__(self, aLogLevel)
+	# do our extra work
+	syslog.openlog(os.path.basename(sys.argv[0]))
+	syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
+	self.ID = "syslog"
+	self.write (lData, "instantiated syslog logging with ID " + str(self.ID))
+
+    def close(self):
+	LogTarget.close(self)
+	syslog.closelog()
+
+    def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
+	syslog.syslog ((syslog.LOG_USER | syslog.LOG_INFO), aPrefix + aLocation + aMsg)
+
+    def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
+	syslog.syslog ((syslog.LOG_USER | syslog.LOG_ERR), aPrefix + aLocation + aMsg)
+
 #------- MAIN -------------------------------------------------------
 if __name__ == "__main__":
     print "\nTesting module gmLog\n=========================="
@@ -283,9 +304,15 @@ if __name__ == "__main__":
     log.Log (lData, "this should only show up in the log file")
     log.Log (lInfo, "this should show up both on console and in the log file")
 
+    # syslog is cool, too
+    print "adding syslog logging"
+    sysloghandle = LogTargetSyslog (lWarn)
+    log.AddTarget (sysloghandle)
+
     log.Log (lData, "the logger object uncooked: " + str(log))
     log.Log (lInfo, "and now cooked with some non-printables appended:")
     log.Log (lData, str(log) + "\001\002\003\004\005\012\013\015", lCooked)
+    log.Log (lErr, "an error occurred ...")
 
     print "Now, try an exception (divison / zero)"
     try:
