@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.18 2004-02-17 10:30:14 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmDemographicRecord.py,v 1.19 2004-02-18 06:36:04 ihaywood Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -291,8 +291,7 @@ where
 		else:
 			addr_where = 'and at.name = %(addr_type)s'
 			vals['addr_type'] = addr_type
-		cmd = """
-			select
+		cmd = """select
 				vba.addr_id,
 				vba.number,
 				vba.street,
@@ -305,47 +304,10 @@ where
 				address_type at
 			where
 				lp2a.id_address = vba.addr_id
-				and	lp2a.id_type = at.id
-				and	lp2a.id_identity = %(pat_id)s
+				and lp2a.id_type = at.id
+				and lp2a.id_identity = %%(pat_id)s
 				%s""" % addr_where
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, vals)
-		if rows is None:
-			return None
-		if len(rows) == 0:
-			return None
-		return [{
-			'ID': r[idx['addr_id']],
-			'number': r[idx['number']],
-			'street': r[idx['street']],
-			'urb': r[idx['city']],
-			'postcode': r[idx['postcode']],
-			'type': r[idx['name']]
-		} for r in rows]
-	#---------------------------------------------------------
-	def getAllAddresses(self):
-		"""
-		Returns all addresses of all types
-		"""
-		cmd = """
-select
-	vba.addr_id,
-	vba.number,
-	vba.street,
-	vba.city,
-	vba.postcode,
-	at.name
-from
-	v_basic_address vba,
-	lnk_person2address lp2a,
-	address_type at
-where
-	lp2a.id_address = vba.addr_id
-	        and
-	lp2a.id_type = at.id
-		and
-	lp2a.id_identity = %s
-"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
 		if rows is None:
 			return None
 		if len(rows) == 0:
@@ -638,7 +600,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.18  2004-02-17 10:30:14  ncq
+# Revision 1.19  2004-02-18 06:36:04  ihaywood
+# bugfixes
+#
+# Revision 1.18  2004/02/17 10:30:14  ncq
 # - enhance GetAddresses() to return all types if addr_type is None
 #
 # Revision 1.17  2004/02/17 04:04:34  ihaywood
