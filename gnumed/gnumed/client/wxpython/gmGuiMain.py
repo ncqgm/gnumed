@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.107 2003-06-24 12:55:40 ncq Exp $
-__version__ = "$Revision: 1.107 $"
+# $Id: gmGuiMain.py,v 1.108 2003-06-25 22:50:30 ncq Exp $
+__version__ = "$Revision: 1.108 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -68,7 +68,7 @@ icon_serpent = \
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec"""
 
 #==================================================
-class ProgressDialog (wxProgressDialog):
+class gmPluginLoadProgressBar (wxProgressDialog):
 	def __init__(self, nr_plugins):
 		wxProgressDialog.__init__(
 			self,
@@ -84,7 +84,7 @@ class ProgressDialog (wxProgressDialog):
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 #==================================================
-class MainFrame(wxFrame):
+class gmTopLevelFrame(wxFrame):
 	"""GNUmed client's main windows frame.
 
 	This is where it all happens. Avoid popping up any other windows.
@@ -108,37 +108,33 @@ class MainFrame(wxFrame):
 		#initialize the gui broker
 		self.guibroker = gmGuiBroker.GuiBroker()
 		#allow access to a safe exit function for all modules in case of "emergencies"
-		self.guibroker['EmergencyExit'] = self.CleanExit
+		self.guibroker['EmergencyExit'] = self._clean_exit
 		self.guibroker['main.frame'] = self
 		self.SetupStatusBar()
 		# allow all modules to access our status bar
 		self.guibroker['main.statustext'] = self.SetStatusText
 
 		# set window title via template
-		#  get user
+		#  get user from database
 		backend = gmPG.ConnectionPool()
 		db = backend.GetConnection('default')
 		curs = db.cursor()
 		curs.execute('select CURRENT_USER;')
 		(user,) = curs.fetchone()
 		curs.close()
+		backend.ReleaseConnection('default')
+		#  remember it
 		self.guibroker['currentUser'] = user
 		#  set it
 		self.updateTitle(anActivity = _("idle"), aPatient = _("no patient"), aUser = user)
 		#  let others have access, too
 		self.guibroker['main.SetWindowTitle'] = self.updateTitle
 
-		self.SetupPlatformDependent()
-		self.CreateMenu()
-		self.SetupAccelerators()
-		self.RegisterEvents()
+		self.__setup_platform()
+		self.__setup_main_menu()
+		self.__setup_accelerators()
+		self.__register_events()
 
-        ###--------------------------------------------------------------------
-		###now create the  the main sizer to contain all the others on the form
-		###this is same as Horst's vbox
-		###--------------------------------------------------------------------
-		##self.szr_main_container = wxBoxSizer(wxVERTICAL)
-                ##self.guibroker['main.szr_main_container']=self.szr_main_container
 		# a vertical box sizer for the main window
 		self.vbox = wxBoxSizer(wxVERTICAL)
 		#self.vbox.SetMinSize(wxSize(320,240))
@@ -152,7 +148,7 @@ class MainFrame(wxFrame):
 		# add to main windows sizer
 		# problem:
 		# - we want this to NOT grow vertically, hence proportion = 0
-		# - but then proprotion 10 for the notebook does not mean anything
+		# - but then proportion 10 for the notebook does not mean anything
 		self.vbox.Add (self.top_panel, 0, wxEXPAND, 1)
 
 		# now set up the main notebook
@@ -161,18 +157,10 @@ class MainFrame(wxFrame):
 		# add to main windows sizer
 		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
 
-		# set event handlers
-		# - notebook page is about to change
-		EVT_NOTEBOOK_PAGE_CHANGING (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanging)
-		# - notebook page has been changed
-		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
-		# - popup menu on right click in notebook
-		EVT_RIGHT_UP(self.nb, self.OnNotebookPopup)
-
-		# now load the plugins
 		# this list relates plugins to the notebook
 		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
-		self.LoadPlugins(backend)
+		# now load the plugins
+		self.__load_plugins(backend)
 
 		# signal any other modules requireing init.
 		#gmDispatcher.send( gmSignals.application_init())
@@ -192,60 +180,7 @@ class MainFrame(wxFrame):
 		self.Centre(wxBOTH)
 		self.Show(true)
 	#----------------------------------------------
-	# event handlers
-	#----------------------------------------------
-	def OnNotebookPopup(self, evt):
-		load_menu = wxMenu()
-		show_menu = wxMenu()
-		any_loadable = 0
-		any_showable = 0
-		plugin_list = gmPlugin.GetPluginLoadList('gui')
-		_log.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
-		for plugin_name in plugin_list:
-			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
-			if isinstance (plugin, gmPlugin.wxNotebookPlugin): 
-				if not (plugin.internal_name() in self.guibroker['modules.gui'].keys()):
-					# if not installed
-					id = wxNewId ()
-					load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
-					EVT_MENU (load_menu, id, plugin.OnLoad)
-					any_loadable = 1
-					# else
-				        #show_menu.AppendItem(wxMenuItem (show_menu, id, plugin.name ()))
-				        #EVT_MENU (show_menu, id, plugin.OnShow)
-				        #any_showable = 1
-
-		menu = wxMenu()
-		ID_LOAD = wxNewId ()
-		ID_SHOW = wxNewId ()
-		ID_DROP = wxNewId ()
-		ID_HIDE = wxNewId ()
-		if any_loadable:
-			menu.AppendMenu(ID_LOAD, _("Load New"), load_menu)
-		if any_showable:
-			menu.AppendMenu (ID_SHOW, _("Show"), show_menu)
-		menu.AppendItem(wxMenuItem(menu, ID_DROP, "Drop Window ..."))
-		menu.AppendItem(wxMenuItem(menu, ID_HIDE, "Hide Window ..."))
-		EVT_MENU (menu, ID_DROP, self.OnPluginDrop)
-		EVT_MENU (menu, ID_HIDE, self.OnPluginHide)
-		self.PopupMenu(menu, evt.GetPosition())
-		menu.Destroy()
-		evt.Skip()
-	#----------------------------------------------		
-	def OnPluginDrop (self, evt):
-		# this dictionary links notebook page numbers to plugin objects
-		nbns = self.guibroker['main.notebook.plugins']
-		# get the widget of the currently selected window
-		nbns[self.nb.GetSelection ()].unregister ()
-		# FIXME:"dropping" means talking to configurator so not reloaded
-	#----------------------------------------------
-	def OnPluginHide (self, evt):
-		# this dictionary links notebook page numbers to plugin objects
-		nbns = self.guibroker['main.notebook.plugins']
-		# get the widget of the currently selected window
-		nbns[self.nb.GetSelection ()].unregister ()
-	#----------------------------------------------
-	def SetupPlatformDependent(self):
+	def __setup_platform(self):
 		#do the platform dependent stuff
 		if wxPlatform == '__WXMSW__':
 			#windoze specific stuff here
@@ -259,7 +194,55 @@ class MainFrame(wxFrame):
 		else:
 			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wxPlatform)
 	#----------------------------------------------
-	def LoadPlugins(self, backend):
+	def __setup_accelerators(self):
+		acctbl = wxAcceleratorTable([
+			(wxACCEL_ALT | wxACCEL_CTRL, ord('X'), ID_EXIT),
+			(wxACCEL_CTRL, ord('H'), ID_HELP)
+		])
+		self.SetAcceleratorTable(acctbl)
+	#----------------------------------------------
+	def __setup_main_menu(self):
+		"""Create the main menu entries.
+
+		Individual entries are farmed out to the modules.
+		"""
+		# create main menu
+		self.mainmenu = wxMenuBar()
+		self.guibroker['main.mainmenu'] = self.mainmenu
+		# menu "File"
+		self.menu_file = wxMenu()
+		self.menu_file.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
+		EVT_MENU(self, ID_EXIT, self.OnFileExit)
+		self.guibroker['main.filemenu'] = self.menu_file
+		# FIXME: this isn't really appropriate
+		self.mainmenu.Append(self.menu_file, _("&File"));
+		# menu "View"
+		self.menu_view = wxMenu()
+		self.guibroker['main.viewmenu'] = self.menu_view
+		self.mainmenu.Append(self.menu_view, _("&View"));
+
+		# menu "Tools"
+		self.menu_tools = wxMenu()
+		self.guibroker['main.toolsmenu'] = self.menu_tools
+		self.mainmenu.Append(self.menu_tools, _("&Tools"));
+
+		# menu "Reference"
+		self.menu_reference = wxMenu()
+		self.guibroker['main.referencemenu'] = self.menu_reference
+		self.mainmenu.Append(self.menu_reference, _("&Reference"));
+
+		# menu "Help"
+		self.menu_help = wxMenu()
+		self.menu_help.Append(ID_ABOUT, _("About GnuMed"), "")
+		EVT_MENU (self, ID_ABOUT, self.OnAbout)
+		self.menu_help.AppendSeparator()
+		self.guibroker['main.helpmenu'] = self.menu_help
+		self.mainmenu.Append(self.menu_help, "&Help");
+
+		# and activate menu structure
+		self.SetMenuBar(self.mainmenu)
+	#----------------------------------------------
+	def __load_plugins(self, backend):
 		# get plugin list
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
 		if plugin_list is None:
@@ -268,7 +251,7 @@ class MainFrame(wxFrame):
 		nr_plugins = len(plugin_list)
 
 		#  set up a progress bar
-		progress_bar = ProgressDialog(nr_plugins)
+		progress_bar = gmPluginLoadProgressBar(nr_plugins)
 
 		#  and load them
 		last_plugin = ""
@@ -298,6 +281,25 @@ class MainFrame(wxFrame):
 			last_plugin = curr_plugin
 
 		progress_bar.Destroy()
+	#----------------------------------------------
+	# event handling
+	#----------------------------------------------
+	def __register_events(self):
+		"""register events we want to react to"""
+		# wxPython events
+#		EVT_IDLE(self, self.OnIdle)
+		EVT_CLOSE(self, self.OnClose)
+		EVT_ICONIZE(self, self.OnIconize)
+		EVT_MAXIMIZE(self, self.OnMaximize)
+		# - notebook page is about to change
+		EVT_NOTEBOOK_PAGE_CHANGING (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanging)
+		# - notebook page has been changed
+		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
+		# - popup menu on right click in notebook
+		EVT_RIGHT_UP(self.nb, self.OnNotebookPopup)
+
+		# intra-client signals
+		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
 	#----------------------------------------------
 	def OnNotebookPageChanging(self, event):
 		"""Called before notebook page change is processed.
@@ -334,17 +336,6 @@ class MainFrame(wxFrame):
 		# activate toolbar of new page
 		self.top_panel.ShowBar(new_page.internal_name())
 		event.Skip() # required for MSW
-	#----------------------------------------------
-	def RegisterEvents(self):
-		"""register events we want to react to"""
-		# wxPython events
-#		EVT_IDLE(self, self.OnIdle)
-		EVT_CLOSE(self, self.OnClose)
-		EVT_ICONIZE(self, self.OnIconize)
-		EVT_MAXIMIZE(self, self.OnMaximize)
-
-		# intra-client signals
-		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
 	#----------------------------------------------
 	def on_patient_selected(self, **kwargs):
 		pat = gmTmpPatient.gmCurrentPatient()
@@ -409,105 +400,89 @@ class MainFrame(wxFrame):
 		import gmAbout
 		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
 		gmAbout.Centre(wxBOTH)
-		MainFrame.otherWin = gmAbout
+		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(true)
+		del gmAbout
 	#----------------------------------------------
-	def SetupAccelerators(self):
-		acctbl = wxAcceleratorTable([
-			(wxACCEL_ALT | wxACCEL_CTRL, ord('X'), ID_EXIT),
-			(wxACCEL_CTRL, ord('H'), ID_HELP)
-		])
-		self.SetAcceleratorTable(acctbl)
-	#----------------------------------------------
-	def SetupStatusBar(self):
-		self.CreateStatusBar(2, wxST_SIZEGRIP)
-		#add time and date display to the right corner of the status bar
-		self.timer = wxPyTimer(self.Callback_UpdateTime)
-		self.Callback_UpdateTime()
-		#update every second
-		self.timer.Start(1000)
-	#----------------------------------------------
-	def Callback_UpdateTime(self):
-		"""Displays date and local time in the second slot of the status bar"""
-		t = time.localtime(time.time())
-		st = time.strftime(gmTimeformat, t)
-		self.SetStatusText(st,1)
-	#----------------------------------------------
-	def CreateMenu(self):
-		"""Create the main menu entries.
+	def OnNotebookPopup(self, evt):
+		load_menu = wxMenu()
+		show_menu = wxMenu()
+		any_loadable = 0
+		any_showable = 0
+		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		_log.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
+		for plugin_name in plugin_list:
+			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
+			if isinstance (plugin, gmPlugin.wxNotebookPlugin): 
+				if not (plugin.internal_name() in self.guibroker['modules.gui'].keys()):
+					# if not installed
+					id = wxNewId ()
+					load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
+					EVT_MENU (load_menu, id, plugin.OnLoad)
+					any_loadable = 1
+					# else
+				        #show_menu.AppendItem(wxMenuItem (show_menu, id, plugin.name ()))
+				        #EVT_MENU (show_menu, id, plugin.OnShow)
+				        #any_showable = 1
 
-		Individual entries are farmed out to the modules.
-		"""
-		# create main menu
-		self.mainmenu = wxMenuBar()
-		self.guibroker['main.mainmenu'] = self.mainmenu
-		# menu "File"
-		self.menu_file = wxMenu()
-		self.menu_file.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
-		EVT_MENU(self, ID_EXIT, self.OnFileExit)
-		self.guibroker['main.filemenu'] = self.menu_file
-		# FIXME: this isn't really appropriate
-		self.mainmenu.Append(self.menu_file, _("&File"));
-		# menu "View"
-		self.menu_view = wxMenu()
-		self.guibroker['main.viewmenu'] = self.menu_view
-		self.mainmenu.Append(self.menu_view, _("&View"));
-
-		# menu "Tools"
-		self.menu_tools = wxMenu()
-		self.guibroker['main.toolsmenu'] = self.menu_tools
-		self.mainmenu.Append(self.menu_tools, _("&Tools"));
-
-		# menu "Reference"
-		self.menu_reference = wxMenu()
-		self.guibroker['main.referencemenu'] = self.menu_reference
-		self.mainmenu.Append(self.menu_reference, _("&Reference"));
-
-		# menu "Help"
-		self.menu_help = wxMenu()
-		self.menu_help.Append(ID_ABOUT, _("About GnuMed"), "")
-		EVT_MENU (self, ID_ABOUT, self.OnAbout)
-		self.menu_help.AppendSeparator()
-		self.guibroker['main.helpmenu'] = self.menu_help
-		self.mainmenu.Append(self.menu_help, "&Help");
-
-		# and activate menu structure
-		self.SetMenuBar(self.mainmenu)
+		menu = wxMenu()
+		ID_LOAD = wxNewId ()
+		ID_SHOW = wxNewId ()
+		ID_DROP = wxNewId ()
+		ID_HIDE = wxNewId ()
+		if any_loadable:
+			menu.AppendMenu(ID_LOAD, _("Load New"), load_menu)
+		if any_showable:
+			menu.AppendMenu (ID_SHOW, _("Show"), show_menu)
+		menu.AppendItem(wxMenuItem(menu, ID_DROP, "Drop Window ..."))
+		menu.AppendItem(wxMenuItem(menu, ID_HIDE, "Hide Window ..."))
+		EVT_MENU (menu, ID_DROP, self.OnPluginDrop)
+		EVT_MENU (menu, ID_HIDE, self.OnPluginHide)
+		self.PopupMenu(menu, evt.GetPosition())
+		menu.Destroy()
+		evt.Skip()
+	#----------------------------------------------		
+	def OnPluginDrop (self, evt):
+		# this dictionary links notebook page numbers to plugin objects
+		nbns = self.guibroker['main.notebook.plugins']
+		# get the widget of the currently selected window
+		nbns[self.nb.GetSelection ()].unregister ()
+		# FIXME:"dropping" means talking to configurator so not reloaded
 	#----------------------------------------------
-	def Lock(self):
-		"""Lock GNUmed client against unauthorized access"""
-		# FIXME
-		for i in range(1, self.nb.GetPageCount()):
-			self.nb.GetPage(i).Enable(false)
-	#----------------------------------------------
-	def Unlock(self):
-		"""Unlock the main notebook widgets
-		As long as we are not logged into the database backend,
-		all pages but the 'login' page of the main notebook widget
-		are locked; i.e. not accessible by the user
-		"""
-		#unlock notebook pages
-		for i in range(1, self.nb.GetPageCount()):
-			self.nb.GetPage(i).Enable(true)
-		# go straight to patient selection
-		self.nb.AdvanceSelection()
+	def OnPluginHide (self, evt):
+		# this dictionary links notebook page numbers to plugin objects
+		nbns = self.guibroker['main.notebook.plugins']
+		# get the widget of the currently selected window
+		nbns[self.nb.GetSelection ()].unregister ()
 	#----------------------------------------------
 	def OnFileExit(self, event):
+		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
+		# calls EVT_CLOSE handler
 		self.Close()
 	#----------------------------------------------
-	def CleanExit(self):
-		"""This function should ALWAYS be called when this
-		program is to be terminated.
-		ANY code that should be executed before a regular shutdown
-		should go in here
+	def OnClose(self, event):
+		"""EVT_CLOSE handler.
+
+		- framework still functional
 		"""
+		# call cleanup helper
+		self._clean_exit()
+	#----------------------------------------------
+	def _clean_exit(self):
+		"""Cleanup helper.
+
+		- should ALWAYS be called when this program is
+		  to be terminated
+		- ANY code that should be executed before a
+		  regular shutdown should go in here
+		- framework still functional
+		"""
+		# signal imminent demise to plugins
+		gmDispatcher.send(gmSignals.application_closing())
+		# handle our own stuff
 		self.timer.Stop()
 		self.mainmenu = None
-		self.window = None
 		self.Destroy()
-	#----------------------------------------------
-	def OnClose(self,event):
-		self.CleanExit()
 	#----------------------------------------------
 #	def OnIdle(self, event):
 #		"""Here we can process any background tasks
@@ -523,6 +498,7 @@ class MainFrame(wxFrame):
 		# FIXME: we should change the amount of title bar information here
 		pass
 		#_log.Log(gmLog.lInfo,'OnMaximize')
+	#----------------------------------------------
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None, aPatient = None, aUser = None):
 		"""Update title of main window based on template.
@@ -553,6 +529,38 @@ class MainFrame(wxFrame):
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
+	#----------------------------------------------
+	def SetupStatusBar(self):
+		self.CreateStatusBar(2, wxST_SIZEGRIP)
+		#add time and date display to the right corner of the status bar
+		self.timer = wxPyTimer(self.Callback_UpdateTime)
+		self.Callback_UpdateTime()
+		#update every second
+		self.timer.Start(1000)
+	#----------------------------------------------
+	def Callback_UpdateTime(self):
+		"""Displays date and local time in the second slot of the status bar"""
+		t = time.localtime(time.time())
+		st = time.strftime(gmTimeformat, t)
+		self.SetStatusText(st,1)
+	#----------------------------------------------
+	def Lock(self):
+		"""Lock GNUmed client against unauthorized access"""
+		# FIXME
+		for i in range(1, self.nb.GetPageCount()):
+			self.nb.GetPage(i).Enable(false)
+	#----------------------------------------------
+	def Unlock(self):
+		"""Unlock the main notebook widgets
+		As long as we are not logged into the database backend,
+		all pages but the 'login' page of the main notebook widget
+		are locked; i.e. not accessible by the user
+		"""
+		#unlock notebook pages
+		for i in range(1, self.nb.GetPageCount()):
+			self.nb.GetPage(i).Enable(true)
+		# go straight to patient selection
+		self.nb.AdvanceSelection()
 	#----------------------------------------------
 	# internal helpers
 	#----------------------------------------------
@@ -595,25 +603,28 @@ class gmApp(wxApp):
 	__guibroker = None
 	#----------------------------------------------
 	def OnInit(self):
-		#do platform dependent stuff
-		if wxPlatform == '__WXMSW__':
-			# windoze specific stuff here
-			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
-			# need to explicitely init image handlers on windows
-			wxInitAllImageHandlers()
+		self.__setup_platform()
 
-		# create a static GUI element dictionary;
+		# create a static GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
+
+		# connect to backend (implicitely runs login dialog)
 		import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend is None:
 			_log.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
 			return false
+
+		EVT_QUERY_END_SESSION(self, self._on_query_end_session)
+		EVT_END_SESSION(self, self._on_end_session)
+
 		# set up language in database
 		self.__set_db_lang()
-		#create the main window
-		frame = MainFrame(None, -1, _('GnuMed client'), size=(600,440))
+
+		# create the main window
+		frame = gmTopLevelFrame(None, -1, _('GnuMed client'), size=(600,440))
+		# and tell the app to use it
 		self.SetTopWindow(frame)
 		#frame.Unlock()
 		# NOTE: the following only works under Windows according
@@ -622,6 +633,32 @@ class gmApp(wxApp):
 		frame.CentreOnScreen(wxBOTH)
 		frame.Show(true)
 		return true
+	#----------------------------------------------
+	def OnExit(self):
+		"""Called:
+
+		- after destroying all application windows and controls
+		- before wxWindows internal cleanup
+		"""
+		pass
+	#----------------------------------------------
+	def _on_query_end_session(self):
+		print "unhandled event detected: QUERY_END_SESSION"
+		_log.Log(gmLog.lWarn, 'unhandled event detected: QUERY_END_SESSION')
+		_log.Log(gmLog.lInfo, 'we should be saving ourselves from here')
+	#----------------------------------------------
+	def _on_end_session(self):
+		print "unhandled event detected: END_SESSION"
+		_log.Log(gmLog.lWarn, 'unhandled event detected: END_SESSION')
+	#----------------------------------------------
+	# internal helpers
+	#----------------------------------------------
+	def __setup_platform(self):
+		if wxPlatform == '__WXMSW__':
+			# windoze specific stuff here
+			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
+			# need to explicitely init image handlers on windows
+			wxInitAllImageHandlers()
 	#----------------------------------------------
 	def __set_db_lang(self):
 		if system_locale is None:
@@ -710,12 +747,23 @@ class gmApp(wxApp):
 		rwcurs.close()
 		rwconn.close()
 		return None
+	#----------------------------------------------
+	def __show_question(self, aMessage = None, aTitle = ''):
+		# sanity checks
+		tmp = aMessage
+		if aMessage is None:
+			tmp = _('programmer forgot to specify question')
+		dlg = wxMessageDialog(
+			NULL,
+			tmp,
+			aTitle,
+			wxYES_NO | wxICON_QUESTION
+		)
+		result = dlg.ShowModal()
+		dlg.Destroy()
+		return result
 #=================================================
 def main():
-	"""GNUmed client written in Python.
-
-	to run this application simply call main() or run the module as "main"
-	"""
 	#create an instance of our GNUmed main application
 	app = gmApp(0)
 	#and enter the main event loop
@@ -734,7 +782,14 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.107  2003-06-24 12:55:40  ncq
+# Revision 1.108  2003-06-25 22:50:30  ncq
+# - large cleanup
+# - lots of comments re method call order on application closing
+# - send application_closing() from _clean_exit()
+# - add OnExit() handler, catch/log session management events
+# - add helper __show_question()
+#
+# Revision 1.107  2003/06/24 12:55:40  ncq
 # - typo: it's qUestion, not qestion
 #
 # Revision 1.106  2003/06/23 22:29:59  ncq
