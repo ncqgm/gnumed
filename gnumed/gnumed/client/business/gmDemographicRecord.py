@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.7 2003-11-20 02:10:50 sjtan Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmDemographicRecord.py,v 1.8 2003-11-20 07:45:45 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -161,7 +161,7 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		}
 	#--------------------------------------------------------
 	def setActiveName (self, firstnames, lastnames):
-		cmd = "update v_basic_person set firstnames = %s, lastnames = %s where i_id = %s"
+		cmd = "update names set active = true, firstnames = %s, lastnames = %s where id_identity = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID])])
 	#---------------------------------------------------------	
 	def getTitle(self):
@@ -174,7 +174,7 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		return data[0][0]
 	#--------------------------------------------------------
 	def setTitle (self, title):
-		cmd = "update v_basic_person set title = %s where i_id = %s"
+		cmd = "update names set title = %s where id_identity = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
 	#--------------------------------------------------------
 	def getID(self):
@@ -545,7 +545,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.7  2003-11-20 02:10:50  sjtan
+# Revision 1.8  2003-11-20 07:45:45  ncq
+# - update names/identity, not v_basic_person in setTitle et al
+#
+# Revision 1.7  2003/11/20 02:10:50  sjtan
 #
 # remove 'self' parameter from functions moved into global module namespace.
 #
