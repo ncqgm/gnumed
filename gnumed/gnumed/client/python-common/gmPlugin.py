@@ -14,17 +14,17 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback
 
 from wxPython.wx import *
 
-from gmLog import *
-log = gmDefLog.Log
+#from gmLog import *
 
-import gmExceptions, gmGuiBroker, gmPG, gmConf, gmShadow
+import gmExceptions, gmGuiBroker, gmPG, gmConf, gmShadow, gmLog
+log = gmLog.gmDefLog.Log
 #------------------------------------------------------------------
 class gmPlugin:
 	"""base class for all gnumed plugins"""
@@ -234,20 +234,20 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		plugin_class = plugin_module_name.__dict__[plugin_name]
 	except Exception, err:
 		exc = sys.exc_info()
-		gmDefLog.LogException ('Cannot import module "%s.%s": %s' % (aPackage, plugin_name, err), exc)
+		gmLog.gmDefLog.LogException ('Cannot import module "%s.%s": %s' % (aPackage, plugin_name, err), exc)
 		return None
 
 	if not issubclass (plugin_class, wxBasePlugin):
-		log (lErr, "class %s is not a subclass of wxBasePlugin" % plugin_name)
+		log (gmLog.lErr, "class %s is not a subclass of wxBasePlugin" % plugin_name)
 		return None
 
-	log (lInfo, "registering plugin %s" % plugin_name)
+	log (gmLog.lInfo, "registering plugin %s" % plugin_name)
 	try:
 		plugin = plugin_class(guibroker = guibroker, dbbroker = dbbroker)
 		plugin.register ()
 	except Exception, err:
 		exc = sys.exc_info()
-		gmDefLog.LogException ('Cannot register module "%s.%s": %s' % (aPackage, plugin_name, err), exc)
+		gmLog.gmDefLog.LogException ('Cannot register module "%s.%s": %s' % (aPackage, plugin_name, err), exc)
 		return None
 
 	guibroker['modules.%s' % aPackage][plugin.name()] = plugin
@@ -277,7 +277,7 @@ def UnloadPlugin (set, name):
 	plugin = gb['modules.%s' % set][name]
 	plugin.unregister ()
 	del gb['modules.%s' % set][name]
-	log (lInfo, "unloaded plugin %s/%s" % (set, name))
+	log (gmLog.lInfo, "unloaded plugin %s/%s" % (set, name))
 #####################################################################
 # here is sample code of how to use gmPlugin.py:
 #import inspect
