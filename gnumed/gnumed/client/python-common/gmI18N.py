@@ -44,7 +44,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -52,7 +52,7 @@ import gettext, sys, os.path, string, os
 import gmLog, gmCLI
 _log = gmLog.gmDefLog
 
-curr_locale = None
+system_locale = None
 #---------------------------------------------------------------------------
 def install_domain():
 	"""Install a text domain suitable for the main script.
@@ -68,37 +68,37 @@ def install_domain():
 	_log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
 
 	# explicitely probe user locale settings
-	global curr_locale
+	global system_locale
 	env_key = 'LANGUAGE'
 	if os.environ.has_key(env_key):
-		curr_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		system_locale = os.environ[env_key]
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
 	else:
 		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LC_ALL'
 	if os.environ.has_key(env_key):
-		curr_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		system_locale = os.environ[env_key]
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
 	else:
 		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LC_MESSAGES'
 	if os.environ.has_key(env_key):
-		curr_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		system_locale = os.environ[env_key]
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
 	else:
 		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	env_key = 'LANG'
 	if os.environ.has_key(env_key):
-		curr_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, curr_locale))
+		system_locale = os.environ[env_key]
+		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
 	else:
 		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
 
 	# search for message catalog
-	_log.Log(gmLog.lData, 'Searching message catalog file for locale [%s].' % curr_locale)
+	_log.Log(gmLog.lData, 'Searching message catalog file for system locale [%s].' % system_locale)
 
 	# now we can install this text domain
 	# 1) try standard places first
@@ -197,7 +197,10 @@ _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.23  2003-02-01 02:42:46  ncq
+# Revision 1.24  2003-02-05 21:27:05  ncq
+# - more aptly names a variable
+#
+# Revision 1.23  2003/02/01 02:42:46  ncq
 # - log -> _log to prevent namespace pollution on import
 #
 # Revision 1.22  2003/02/01 02:39:53  ncq
