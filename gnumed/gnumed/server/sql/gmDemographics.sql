@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -83,7 +83,7 @@ create table street (
 	id_urb integer not null references urb(id),
 	name text not null,
 	postcode varchar(12),
-	unique(id_urb, name)
+	unique(id_urb, name, postcode)
 ) inherits (audit_fields);
 
 select add_table_for_audit('street');
@@ -394,6 +394,52 @@ comment on column lnk_job2person.comment is
 	'if you think you need non-unique id_identity/id_occupation
 	 combinations, think again, you may be missing the point
 	 of the comment field';
+-- ==========================================================
+create table staff_role (
+	pk serial primary key,
+	name text unique not null,
+	comment text
+) inherits (audit_fields);
+
+select add_table_for_audit('staff_role');
+
+comment on table staff_role is
+	'work roles a staff member can have';
+
+-- ==========================================================
+create table staff (
+	pk serial primary key,
+	-- should actually point to identity(PUPIC)
+	fk_identity integer
+		not null
+		references identity(id)
+		on update cascade
+		on delete cascade,
+	fk_role integer
+		not null
+		references staff_role(pk)
+		on update cascade
+		on delete cascade,
+	db_user name
+		unique
+		not null
+		default CURRENT_USER,
+	sign varchar(5) unique not null,
+	comment text,
+	unique(fk_role, db_user)
+	-- link to practice
+) inherits (audit_fields);
+
+select add_table_for_audit('staff');
+select add_x_db_fk_def('staff', 'db_user', 'personalia', 'pg_user', 'usename');
+
+comment on table staff is
+	'one-to-one mapping of database user accounts
+	 (db_user) to staff identities (fk_identity)';
+comment on column staff.sign is
+	'a short signature unique to this staff member
+	 to be used in the GUI, actually this is somewhat
+	 redundant with ext_person_id...';
 
 -- ===================================================================
 -- organisation related tables
@@ -441,9 +487,6 @@ create table lnk_org2address (
 -- ===================================================================
 -- permissions
 -- ===================================================================
--- FIXME: until proper permissions system is developed,
--- otherwise new users  can spend hours wrestling with
--- postgres permissions
 GRANT SELECT ON
 	names,
 	identity,
@@ -468,7 +511,9 @@ GRANT SELECT ON
 	org_address,
 	org_category,
 	org,
-	lnk_org2address
+	lnk_org2address,
+	staff_role,
+	staff
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -507,11 +552,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.18 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.17  2003-12-01 22:12:41  ncq
+-- Revision 1.18  2003-12-29 15:36:50  uid66147
+-- - add staff tables
+--
+-- Revision 1.17  2003/12/01 22:12:41  ncq
 -- - lnk_person2id -> ext_person_id
 --
 -- Revision 1.16  2003/11/23 23:34:49  ncq
