@@ -494,6 +494,93 @@ insert into config VALUES ('','','username', &lt;distributed_db_id&gt; , &lt;db_
 	</sect2>
 
 	<sect2>
+	<title>Backend I18N for fixed strings (non-dynamic)</title>
+	<para>
+
+	Include the file gnumed/server/gmI18N.sql at the top of your psql script
+	schema definition files. For your convenience, just copy/paste the following
+	two lines:
+	</para>
+	<screen>
+-- do fixed string i18n()ing
+\i gmI18N.sql
+	</screen>
+    <para>
+	This will allow for transparent translation of 'fixed'
+	strings in the database. Simply switching the language in
+	i18n_curr_lang will enable the user to see another language.
+	</para>
+    <para>
+	For your database tables to take advantage of this you need to
+	create views that pull translations from i18n_translations based
+	on the original (English) string as the key, eg.
+	</para>
+    <para>
+	Your table is:
+	</para>
+    
+    <screen>
+create table relations (
+	id serial primary key,
+	name varchar(10) unique
+);
+	</screen>
+	
+    <para>
+	You would need to create a view like:
+	</para>
+    
+    <screen>
+create view v_i18n_relations as
+	select
+		rel.id, tr.trans as name
+	from
+		relations as rel,
+		i18n_translations as tr,
+		i18n_curr_lang as lcurr
+	where
+		lcurr.owner = CURRENT_USER::varchar
+			and
+		tr.lang = lcurr.lang
+	;
+	</screen>
+	
+    <para>    
+	Now, if you want to support i18n()ed 'sisters':
+	</para>
+	<screen>
+	insert into relations (name) values (_('sister'));
+    </screen>
+    <para>
+	This will insert the original string into i18n_keys so translators
+	know about all the strings to translate, it will also insert the
+	original as it's own default translation into i18n_translations
+	for the language setting en_GB. Which also means that original
+    strings should be English. Sorry. (But they do not have too.)
+	</para>
+	<para>
+    Thus you also need to insert a translation for, say, German:
+    </para>
+	<screen>
+	insert into i18n_translations (lang, orig, trans) values ('de_DE', 'sister', 'Schwester');
+	</screen>
+    <para>
+	Of course, the clients need to be aware of this fact and
+	access the views instead of the actual tables.
+	</para>
+	<para>
+	This i18n technique does not take care of strings that are inserted
+    into the database dynamically (at runtime). It only makes sense for
+	strings that are inserted once. Such strings are often used for
+	enumerations.
+	</para>
+    <para>
+	All this crap isn't necessary anymore once PostgreSQL supports
+	native internationalization of 'fixed' strings.
+	</para>
+	</sect2>
+    
+	<sect2>
 	<title>GUI text localization</title>
 	<para>
 	The GNU gettext system is used to provide a user interface

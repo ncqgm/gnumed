@@ -140,7 +140,160 @@ CLASS="SECT2"
 ><A
 NAME="AEN200"
 ></A
->3.6.3. GUI text localization</H2
+>3.6.3. Backend I18N for fixed strings (non-dynamic)</H2
+><P
+>&#13;	Include the file gnumed/server/gmI18N.sql at the top of your psql script
+	schema definition files. For your convenience, just copy/paste the following
+	two lines:
+	</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>-- do fixed string i18n()ing
+\i gmI18N.sql
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	This will allow for transparent translation of 'fixed'
+	strings in the database. Simply switching the language in
+	i18n_curr_lang will enable the user to see another language.
+	</P
+><P
+>	For your database tables to take advantage of this you need to
+	create views that pull translations from i18n_translations based
+	on the original (English) string as the key, eg.
+	</P
+><P
+>	Your table is:
+	</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>create table relations (
+	id serial primary key,
+	name varchar(10) unique
+);
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	You would need to create a view like:
+	</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>create view v_i18n_relations as
+	select
+		rel.id, tr.trans as name
+	from
+		relations as rel,
+		i18n_translations as tr,
+		i18n_curr_lang as lcurr
+	where
+		lcurr.owner = CURRENT_USER::varchar
+			and
+		tr.lang = lcurr.lang
+	;
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>    
+	Now, if you want to support i18n()ed 'sisters':
+	</P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>	insert into relations (name) values (_('sister'));
+    </PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	This will insert the original string into i18n_keys so translators
+	know about all the strings to translate, it will also insert the
+	original as it's own default translation into i18n_translations
+	for the language setting en_GB. Which also means that original
+    strings should be English. Sorry. (But they do not have too.)
+	</P
+><P
+>    Thus you also need to insert a translation for, say, German:
+    </P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="SCREEN"
+>	insert into i18n_translations (lang, orig, trans) values ('de_DE', 'sister', 'Schwester');
+	</PRE
+></FONT
+></TD
+></TR
+></TABLE
+><P
+>	Of course, the clients need to be aware of this fact and
+	access the views instead of the actual tables.
+	</P
+><P
+>	This i18n technique does not take care of strings that are inserted
+    into the database dynamically (at runtime). It only makes sense for
+	strings that are inserted once. Such strings are often used for
+	enumerations.
+	</P
+><P
+>	All this crap isn't necessary anymore once PostgreSQL supports
+	native internationalization of 'fixed' strings.
+	</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN218"
+></A
+>3.6.4. GUI text localization</H2
 ><P
 >	The GNU gettext system is used to provide a user interface
 	translated into the local language. Currently only the
@@ -158,9 +311,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN203"
+NAME="AEN221"
 ></A
->3.6.4. How to translate the GnuMed UI</H2
+>3.6.5. How to translate the GnuMed UI</H2
 ><P
 >	Those are the rough steps to get GnuMed translated
 	into your language:
@@ -180,9 +333,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN206"
+NAME="AEN224"
 ></A
->3.6.5. Creating a *.po file</H2
+>3.6.6. Creating a *.po file</H2
 ><P
 >	With
 <TABLE
@@ -236,9 +389,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN210"
+NAME="AEN228"
 ></A
->3.6.6. Creating a *.mo file</H2
+>3.6.7. Creating a *.mo file</H2
 ><P
 >	With 
 <TABLE
@@ -266,9 +419,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN214"
+NAME="AEN232"
 ></A
->3.6.7. Installation of translated messages</H2
+>3.6.8. Installation of translated messages</H2
 ><P
 >	On a POSIX system (Linux, BSD, MacOSX, CygWin) the
 	$LANG-gnumed.mo file should be moved into
@@ -296,9 +449,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN217"
+NAME="AEN235"
 ></A
->3.6.8. Coding I18N</H2
+>3.6.9. Coding I18N</H2
 ><P
 >Hardcoded error strings meant for developers / debugging are in English. All other 
 	      strings MUST be translateable, that is called as a gettext function. To achieve this, 
