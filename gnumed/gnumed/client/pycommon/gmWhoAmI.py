@@ -1,17 +1,14 @@
 #===================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
-import gmLog
-_log = gmLog.gmDefLog
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lData, __version__)
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmPG, gmBorg, gmExceptions, gmCfg
 
-import gmGuiBroker, gmPG, gmBorg, gmExceptions, gmCfg
+_log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
 
+_log.Log(gmLog.lInfo, __version__)
 #===================================================
 class cWhoAmI(gmBorg.cBorg):
 	"""Who we are and which workplace we are on.
@@ -117,6 +114,7 @@ class cWhoAmI(gmBorg.cBorg):
 #===================================================
 if __name__ == '__main__':
 	_ = lambda x:x
+	_log.SetAllLogLevels(gmLog.lData)
 	whoami = cWhoAmI()
 	print "workplace :", whoami.get_workplace()
 	print "db account:", whoami.get_db_account()
@@ -124,7 +122,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.4  2004-08-11 16:56:04  hinnef
+# Revision 1.5  2004-08-13 08:54:24  ncq
+# - overdue import cleanup
+#
+# Revision 1.4  2004/08/11 16:56:04  hinnef
 # - fixed workplace bug when specifying a list in gnumed.conf
 #
 # Revision 1.3  2004/07/19 11:50:42  ncq
