@@ -4,7 +4,7 @@
 -- identity related data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-data.sql,v $
--- $Id: gmDemographics-Person-data.sql,v 1.2 2004-03-02 10:22:30 ihaywood Exp $
+-- $Id: gmDemographics-Person-data.sql,v 1.3 2004-12-15 09:25:53 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -23,22 +23,25 @@ insert into relation_types(biological, description) values(false, i18n('separate
 insert into relation_types(biological, description) values(false, i18n('legal guardian'));
 
 
-insert into marital_status(id, name) values (1, i18n ('unknown'));
-insert into marital_status(id, name) values (2, i18n ('single'));
-insert into marital_status(id, name) values (3, i18n ('de facto'));
-insert into marital_status(id, name) values (4, i18n ('married'));
-insert into marital_status(id, name) values (5, i18n ('divorced'));
-insert into marital_status(id, name) values (6, i18n ('separated'));
-insert into marital_status(id, name) values (7, i18n ('widowed'));
+insert into marital_status(name) values (i18n ('unknown'));
+insert into marital_status(name) values (i18n ('single'));
+insert into marital_status(name) values (i18n ('de facto'));
+insert into marital_status(name) values (i18n ('married'));
+insert into marital_status(name) values (i18n ('divorced'));
+insert into marital_status(name) values (i18n ('separated'));
+insert into marital_status(name) values (i18n ('widowed'));
 
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-data.sql,v $
--- Revision 1.2  2004-03-02 10:22:30  ihaywood
+-- Revision 1.3  2004-12-15 09:25:53  ncq
+-- - don't hardcode primary key of marital status
+--
+-- Revision 1.2  2004/03/02 10:22:30  ihaywood
 -- support for martial status and occupations
 -- .conf files now use host autoprobing
 --
