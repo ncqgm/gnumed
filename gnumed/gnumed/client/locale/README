@@ -1,46 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
-# $Revision: 1.9 $
-
-GnuMed internationalization
-===========================
-
-At this point in time GnuMed is only prepared for being translated
-into foreign languages. This also only holds true for languages
-that can be written left-to-right with "latin" characters. Very
-little has been done to make GnuMed compatible with other aspects
-of localization such as date/time/monetary/magnitude formatting
-or icon meaning.
-
-date/time localization
-----------------------
-In gmI18N.py there's a string called gmTimeFormat which holds
-the standard way of formatting a date as a string. The string
-itself is marked for translation by gettext. Translators should
-provide a translation that displays the parts of the date in
-the order and with filling characters appropriate for their
-language. This way gmTimeFormat can serve as a crude tool
-for date/time display localization. Whenever programmers want
-to display a complete date they should use gmTimeFormat as
-the formatting string instead of hardcoding their own idea
-of how a date should be displayed.
-
-icon localization
------------------
-Icon image data for plugins is located in the corresponding
-plugin source file. The icon a user wants to load is referenced
-by a string which acts as a key into the directory for the
-icon data. If no key is given to the GetIconData() method
-a hardcoded default key is used. This default key shall be
-wrapped in _() to facilitate using an appropriate default
-key per language. The key name should be of the form
-"icon_XXXX_YYYY" where XXXX_YYYY give some indication of
-the image shown on the icon (like ALT tags in HTML image
-descriptions). This key will then show up in per-language
-message catalogs and can be translated to suitable per-language
-keys. The translation must, of course, name another existing
-key/icon pair. If no translation is provided the gettext
-system will fall back to the english key and thus load
-the default icon.
+# $Revision: 1.10 $
 
 GUI text localization
 =====================
