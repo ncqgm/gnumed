@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.169 2005-03-30 22:07:35 ncq Exp $
-__version__ = "$Revision: 1.169 $"
+# $Id: gmClinicalRecord.py,v 1.170 2005-04-03 09:26:48 ncq Exp $
+__version__ = "$Revision: 1.170 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -919,7 +919,6 @@ where
 			filtered_problems = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_problems)
 		if episodes is not None:
 			filtered_problems = filter(lambda epi: epi['pk_episode'] in episodes, filtered_problems)
-		print filtered_problems
 		return filtered_problems
 	#--------------------------------------------------------
 	def problem2episode(self, problem):
@@ -1722,7 +1721,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.169  2005-03-30 22:07:35  ncq
+# Revision 1.170  2005-04-03 09:26:48  ncq
+# - cleanup
+#
+# Revision 1.169  2005/03/30 22:07:35  ncq
 # - guard against several "latest episodes"
 # - maybe do away with the *explicit* "latest episode" stuff ?
 #
