@@ -41,12 +41,34 @@ public class HibernateInit {
         }
     };
     
+    static boolean preserveSession = false;
+    
     public static Session openSession() throws Exception {
         if (sessions == null)
             initAll();
+        
+        if (preserveSession && getOneSession() != null) {
+            getOneSession().reconnect();
+            return getOneSession();
+        }
+        
+        
+        
         Session s =  sessions.openSession();
+        
+        
+        
         oldSessions.put(s, new Integer(1) );
         return s;
+    }
+    
+    public static void closeSession(Session s) throws Exception {
+        if (preserveSession) {
+            setOneSession(s);
+            s.disconnect();
+            return;
+        }
+        s.close();
     }
     
     public static  boolean cleanSessions() throws Exception {
@@ -78,6 +100,14 @@ public class HibernateInit {
         
         ds = new Configuration();
         
+        
+        setPreserveSession();
+        
+    }
+    
+    static void setPreserveSession() {
+      preserveSession = TestProperties.properties.getProperty("session.preserved", "false").equals("true");
+        
     }
     
     public static void initGmIdentity() throws Exception {
@@ -98,35 +128,36 @@ public class HibernateInit {
         
         ds.addClass(enum_telephone_role.class);
         
+        ds.addClass(identity_role.class);
+         ds.addClass(identity_role_info.class);
         
         
     }
     
     public static void initGmClinical() throws Exception {
-        ds.
-        addClass(clin_health_issue.class).
-        addClass(enum_coding_systems.class).
-        addClass(code_ref.class).
-        addClass(coding_systems.class).
-        addClass(clin_issue_component.class) .
-        addClass(clin_encounter.class).
-        addClass(clin_root_item.class).
-        addClass(enum_encounter_type.class).
-        addClass(curr_encounter.class).
+        ds.        addClass(clin_health_issue.class);
+        ds. addClass(enum_coding_systems.class);
+        ds.   addClass(code_ref.class);
+        ds.  addClass(coding_systems.class);
+        ds.  addClass(clin_issue_component.class);
+        ds.  addClass(clin_encounter.class);
+        ds. addClass(clin_root_item.class);
+        ds. addClass(enum_encounter_type.class);
+        ds. addClass(curr_encounter.class);
         //      addClass(script.class).
         
-        addClass(enum_allergy_type.class).
-        addClass(enum_hx_source.class).
-        addClass(enum_hx_type.class).
-        addClass(clin_episode.class).
+        ds.  addClass(enum_allergy_type.class);
+        ds. addClass(enum_hx_source.class);
+        ds. addClass(enum_hx_type.class);
+        ds.  addClass(clin_episode.class);
         
-        addClass(script_drug.class).
-        addClass(link_script_drug.class).
-        addClass(script.class);
+        ds.  addClass(script_drug.class);
+        ds.  addClass(link_script_drug.class);
+        ds.  addClass(script.class);
         
-        ds.addClass(clin_attribute.class).
-        addClass(category_type.class).
-        addClass(category.class)
+        ds.addClass(clin_attribute.class);
+        ds. addClass(category_type.class);
+        ds. addClass(category.class);
         
         
         ;
@@ -143,6 +174,9 @@ public class HibernateInit {
         ds.addClass(package_size.class);
         ds.addClass(generic_drug_name.class);
         
+        
+        ds.addClass(subsidized_products.class);
+        ds.addClass(subsidies.class);
     }
     //
     
@@ -174,6 +208,10 @@ public class HibernateInit {
     }
     
     static int checkCount = 0;
+    
+    /** Holds value of property oneSession. */
+    private static Session oneSession;
+    
     private static void checkAccess() throws Exception {
         int result = javax.swing.JOptionPane.showConfirmDialog( new javax.swing.JFrame(), "ARE YOU SURE YOU WISH TO RE_INIT THE DATABASE (AND LOSE ALL CURRENT DATA) ?" , "WARNING", javax.swing.JOptionPane.YES_NO_OPTION);
         if (result == javax.swing.JOptionPane.YES_OPTION) {
@@ -194,6 +232,19 @@ public class HibernateInit {
         System.out.println("****    TestProperties.exported="+exported);
         if ( exported == null ||  !exported.toLowerCase().equals("true") ) {
             checkAccess();
+            
+            
+            // additional setup for name space problem
+            
+            try {
+                java.sql.Connection c = sessions.openSession().connection();
+                c.createStatement().execute("set session search_path = public, pg_catalog");
+                c.commit();
+                // c.close();
+            } catch ( Exception e) {
+                e.printStackTrace();
+            }
+            
             new net.sf.hibernate.tool.hbm2ddl.SchemaExport(ds).create(true, true);
             
             // additional setup to fit drugref database in.
@@ -236,11 +287,38 @@ public class HibernateInit {
         
     }
     
+    
+    
     public static void initLogger() throws Exception {
-        if (TestProperties.properties.getProperty("logger").equals("on"))
-            Logger.global.setLevel(Level.ALL);
-        else
-            Logger.global.setLevel(Level.OFF);
+        Map logLevels = new HashMap();
+        
+        logLevels.put("fine", Level.FINE);
+        logLevels.put("finer", Level.FINER);
+        logLevels.put("finest", Level.FINEST);
+        logLevels.put("warning", Level.WARNING);
+        logLevels.put("info", Level.INFO);
+        logLevels.put("all", Level.ALL);
+        logLevels.put("off", Level.OFF);
+        if (TestProperties.properties.getProperty("logger").equals("on")) {
+            System.out.println(TestProperties.properties.getProperty("logger.level"));
+            System.out.println("levelMap = " + logLevels);
+            Level level = (Level) logLevels.get(TestProperties.properties.getProperty("logger.level").toLowerCase());
+            if (level == null)
+                level = Level.ALL;
+            
+            Logger.global.setLevel(level);
+            Handler[] h = Logger.global.getHandlers();
+            
+            for (int i = 0 ; i < h.length; ++i) {
+                if (h[i] instanceof ConsoleHandler) {
+                    System.out.println("FOUND A CONSOLE HANDLER SETTING TO LEVEL=" + level.getName());
+                    h[i].setLevel(level);
+                }
+            }
+            
+            System.out.println("LOGGING SET TO " + level.getName());
+            
+        }    else           Logger.global.setLevel(Level.OFF);
     }
     
     
@@ -248,6 +326,22 @@ public class HibernateInit {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+    }
+ 
+    /** Getter for property oneSession.
+     * @return Value of property oneSession.
+     *
+     */
+   static Session getOneSession() {
+        return oneSession;
+    }
+    
+    /** Setter for property oneSession.
+     * @param oneSession New value of property oneSession.
+     *
+     */
+    static void setOneSession(Session _oneSession) {
+       oneSession = _oneSession;
     }
     
 }

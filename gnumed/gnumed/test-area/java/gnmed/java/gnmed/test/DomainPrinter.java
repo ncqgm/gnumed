@@ -61,11 +61,14 @@ public class DomainPrinter {
         ps.print("sex: ");
         ps.print( males.contains(id.getKaryotype().toUpperCase()) ? "male": "female");
         }
-        ps.print("\nAddresses:\n");
+        ps.println();
+        ps.print("\tAddresses:");
+        ps.println();
         Iterator ai = id.getIdentities_addressess().iterator();
         while (ai.hasNext()) {
             ps.print("\t");
             printIdentityAddresses(ps,  (identities_addresses) ai.next());
+            ps.println();
             
         }
         ps.println();
@@ -83,9 +86,15 @@ public class DomainPrinter {
             ps.println("*******clinical encounters************");
             Iterator ei = id.getClin_encounters().iterator();
             while(ei.hasNext()) {
+                try {
                 clin_encounter encounter = (clin_encounter) ei.next();
+                
                 printClinEncounter( ps, encounter);
                 ps.println();
+                } catch (Exception e)  {
+                    e.printStackTrace();
+                }
+               
             }
         }
         
@@ -94,13 +103,18 @@ public class DomainPrinter {
             Iterator sdi = id.getScript_drugs().iterator();
             while ( sdi.hasNext()) {
                 script_drug sd = (script_drug) sdi.next();
+                try {
                 printScriptDrug( ps, sd);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 ps.println();
             }
         }
     }
     
-    public static void printScriptDrug( java.io.PrintStream ps, script_drug sd) {
+    public static void printScriptDrug( java.io.PrintStream ps, script_drug sd) throws Exception {
+        
         product  p = sd.getPackage_size().getProduct();
         drug_element de = p.getDrug_element();
         generic_drug_name name = (de.getGeneric_name().size() > 0) ?(generic_drug_name) de.getGeneric_name().iterator().next(): null;
@@ -115,27 +129,35 @@ public class DomainPrinter {
             }
         
         ps.print("\t");
-        ps.print(sd.getDose_amount());
+        if (sd.getDose_amount() != null)
+             ps.print(sd.getDose_amount());
         drug_units units = p.getDrug_units();
         if ( units != null && !units.getUnit().equals("each"))
             ps.print(p.getDrug_units().getUnit());
         ps.print(" ");
         ps.print(sd.getPackage_size().getProduct().getDrug_formulations().getDescription());
         if (p.getDrug_routes() != null) {
-            ps.print(" taken ");
+            ps.print(", ");
             ps.print(sd.getPackage_size().getProduct().getDrug_routes().getDescription());
         }
         ps.print(" ");
+        if (sd.getFrequency() != 0)
         ps.print(sd.getFrequency());
         ps.print(" ");
         ps.print(sd.getDirections());
-        ps.print("\t");
+        
+        
 //        if ( sd.getProduct().getPackage_sizes().size() > 0) {
 //            package_size sz = (package_size)sd.getProduct().getPackage_sizes().iterator().next();
 //            ps.print(  sz.getSize().intValue() );
 //            ps.print(" x ");
 //        }
-        ps.print(sd.getPackage_size().getProduct().getComment());
+        if ( sd.getPackage_size().getProduct().getComment() != null) {
+            ps.println();
+            ps.print("  ");
+            ps.print(sd.getPackage_size().getProduct().getComment());
+            ps.println();
+        }
     }
     
     static class ClinRootItemComparator implements  Comparator {
@@ -172,7 +194,11 @@ public class DomainPrinter {
         //        e.addClin_root_item(dummy);
         //        e.removeClin_root_item(dummy);
         ps.print("Seen by ");
+        try {
         printNames(ps, (Names)e.getProvider().getNamess().iterator().next());
+        } catch (Exception er) {
+           System.err.print(er.getStackTrace()[0].toString() + er.getStackTrace()[1].toString());
+        }
         ps.print(" at ");
         printAddress(ps, e.getLocation());
         ps.print("PROBLEM: ");
@@ -192,18 +218,25 @@ public class DomainPrinter {
         ps.println();
     }
     
-    public  void printAddress(java.io.PrintStream ps, address a) {
+     public  void printAddress(java.io.PrintStream ps, address a) {
+         printAddress(ps, a, false);
+     }
+    
+    public  void printAddress(java.io.PrintStream ps, address a, boolean isBrief) {
    
         street s = a.getStreet();
+        if (s == null)
+            return;
+            
         urb u = s.getUrb();
-        u.getName();
-        s.getName();
-        a.getNumber();
+        
         //     System.out.println("urb = " + u.getName() + " state = " + u.getState());
         state sta = u.getState();
         sta.getName();
         ps.println(a.getNumber() + ", "+s.getName() + ", "+u.getName()+", "+sta.getName() + ", "+u.getPostcode());
         
+        if (isBrief)
+            return;
         
         Iterator i = a.getTelephones().iterator();
         

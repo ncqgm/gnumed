@@ -73,7 +73,7 @@ public class TestGmGIS extends TestCase {
             s.save(a);
             s.flush();
             s.connection().commit();
-            s.close();
+            HibernateInit.closeSession(s);
         }
         
         Session s = HibernateInit.openSession();
@@ -82,7 +82,7 @@ public class TestGmGIS extends TestCase {
            DomainPrinter.getInstance().printAddress(System.out,  (address)l.get(j));
         }
         s.connection().rollback();
-        s.close();
+        HibernateInit.closeSession(s);
     }
     
     public static void main(String[] args) throws Exception {

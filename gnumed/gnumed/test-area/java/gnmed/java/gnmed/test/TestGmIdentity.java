@@ -41,7 +41,7 @@ public class TestGmIdentity  extends TestCase {
         s.save(id);
         s.flush();
         s.connection().commit();
-        s.close();
+         HibernateInit.closeSession(s);
     }
     
     public void testIdentity() throws Exception {

@@ -173,7 +173,7 @@ public class PostcodeCSVToGISLoader {
         List l = s .find("from u in class org.gnumed.gmGIS.urb where u.name = ? and u.postcode = ?",
         new String[] { urb, pcode }, new Type[] { Hibernate.STRING,Hibernate.STRING }) ;
         s.connection().commit();
-        s.close();
+        HibernateInit.closeSession(s);
         if (l.size() == 1) {
             suburbCache.put(pcode+urb, l.get(0));
             return (urb) l.get(0);
@@ -193,7 +193,7 @@ public class PostcodeCSVToGISLoader {
         s .save(country);
         s.flush();
         s.connection().commit();
-        s.close();
+        HibernateInit.closeSession(s);
     }
     
     state findState( String code) throws Exception {
@@ -203,7 +203,7 @@ public class PostcodeCSVToGISLoader {
         Session s = HibernateInit.openSession();
         List l  = s .find("from s in class org.gnumed.gmGIS.state where s.code = ?", code, Hibernate.STRING);
         s.connection().commit();
-        s.close();
+       HibernateInit.closeSession(s);
         state = l.size() > 0 ? (state) l.get(0) : null;
         stateCache.put( code, state);
         return state;
@@ -225,7 +225,7 @@ public class PostcodeCSVToGISLoader {
     void endSession() throws Exception {
         session.flush();
         session.connection().commit();
-        session.close();
+        HibernateInit.closeSession(session);
     }
     
     void loadOrCreateStates() throws Exception {
@@ -244,7 +244,7 @@ public class PostcodeCSVToGISLoader {
         
         session.flush();
         session.connection().commit();
-        session.close();
+        HibernateInit.closeSession(session);
     }
     
     /**

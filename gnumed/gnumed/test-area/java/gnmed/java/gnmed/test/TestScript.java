@@ -49,7 +49,7 @@ public class TestScript extends TestCase {
         Session s = HibernateInit.openSession();
         String query = "select p.id from  org.drugref.product p";
         idProducts = s.find(query);
-        s.close();
+        HibernateInit.closeSession(s);
     }
     
     product getRandomProduct(Session s) throws Exception {
@@ -89,7 +89,7 @@ public class TestScript extends TestCase {
             
             s.evict(p);
         }
-        s.close();
+        HibernateInit.closeSession(s);
     }
     
     public script_drug createRandomScriptDrug(Session s) throws Exception {
@@ -153,13 +153,13 @@ public class TestScript extends TestCase {
             idList.add( id.getId());
         }
         
-        s.close();
+        HibernateInit.closeSession(s);
         
         Session s2 = HibernateInit.openSession();
         List idenList = new ArrayList();
         for (int j = 0; j < idList.size(); ++j) {
-            Integer id = (Integer) idList.get(j);
-            identity iden = (identity) s2.load(identity.class, id);
+          
+            identity iden = (identity) s2.load(identity.class,(Long) idList.get(j));
             idenList.add(iden);
         }
         
@@ -168,7 +168,7 @@ public class TestScript extends TestCase {
             System.out.println("\n\n************** RECOVERED **************\n******************\n**********\n");
             DomainPrinter.getInstance().printIdentity(System.out, id2);
         }
-        s2.close();
+       HibernateInit.closeSession(s2);
     }
         
         

@@ -23,6 +23,9 @@ import java.util.logging.*;
  * @author  sjtan
  */
 public class TestClinEncounter extends TestCase {
+   static  private int PROVIDER_N = 6;
+   static private int PROVIDER_LOCUM_FREQ = 100;
+    private List providers = new ArrayList();
     static TestClinHealthIssue testIssues  = new TestClinHealthIssue();
     static TestGmGIS testGIS = new TestGmGIS();
     Random r = new Random();
@@ -145,17 +148,25 @@ public class TestClinEncounter extends TestCase {
         return encounter;
         
     }
-    
     identity createTestProvider() throws Exception {
-        identity id = TestGmIdentity.createTestIdentity();
-        Names n = (Names) id.getNamess().iterator().next();
-        n.setFirstnames("Dr."+n.getFirstnames());
-        return id;
+        return createTestProvider(false);
+    }
+    
+    identity createTestProvider(boolean isMainlyFromSet) throws Exception {
+        if (!isMainlyFromSet || providers.size() < PROVIDER_N || r.nextInt(PROVIDER_LOCUM_FREQ)==1) {
+            identity id = TestGmIdentity.createTestIdentity();
+            Names n = (Names) id.getNamess().iterator().next();
+            n.setFirstnames("Dr."+n.getFirstnames());
+            providers.add(id);
+            return id;
+        }
+        return (identity) providers.get( r.nextInt(providers.size()) );
+        
     }
     
     clin_encounter createEncounterWithRandomScenario() throws Exception {
         TestClinEncounter.ClinScenario scene =  scenarios[r.nextInt(scenarios.length)];
-        clin_encounter encounter = createClinEncounter(scene.getDescription(),  createTestProvider(),  testGIS.createRandomAddress());
+        clin_encounter encounter = createClinEncounter(scene.getDescription(),  createTestProvider(true),  testGIS.createRandomAddress());
         encounter = addScenarioTo(encounter, scene);
         return encounter;
     }
@@ -213,7 +224,7 @@ public class TestClinEncounter extends TestCase {
             count =  rs.getInt(1);
         c.rollback();
         
-        sess0.close();
+        HibernateInit.closeSession(sess0);
         return count;
         //
         //          int precount = ((Integer)sess0.iterate("select count(distinct(c.identity)) from org.gnumed.gmClinical.clin_encounter c" ).next()).intValue();
@@ -233,7 +244,7 @@ public class TestClinEncounter extends TestCase {
         sess.save(id);
         sess.flush();
         sess.connection().commit();
-        sess.evict(sess);
+        
     }
     
     public void atestStoreRandomIdentityWithClinEncounter() throws Exception {
@@ -254,7 +265,7 @@ public class TestClinEncounter extends TestCase {
             DomainPrinter.getInstance().printIdentity(System.out, (identity) l.get(i));
         }
         
-        sess.close();
+        HibernateInit.closeSession(sess);
         
         
         System.out.println("Fetching postcount");
@@ -298,6 +309,8 @@ public class TestClinEncounter extends TestCase {
             saveIdentityWithEncounterProviders(s,id);
             s.flush();
             s.connection().commit();
+            s.evict(id);
+            
             //            for( Iterator j = id.getClin_encounters().iterator(); j.hasNext(); ) {
             //                s.update(j.next());
             //            }
@@ -312,7 +325,7 @@ public class TestClinEncounter extends TestCase {
             System.out.println("*************************************\n***************************\n");
             DomainPrinter.getInstance().printIdentity(System.out, id);
         }
-        s.close();
+        HibernateInit.closeSession(s);
         System.out.println("Saved " + nId + " identities");
         Date d1 = new Date();
         System.out.println("RETRIEVING SAMPLE OF " + sampleIds.size() +" from recently stored identities.");
@@ -320,18 +333,16 @@ public class TestClinEncounter extends TestCase {
         Session sess = HibernateInit.getSessions().openSession();
         for (int i = 0; i < sampleIds.size(); ++i) {
             identity id = (identity)sess.load(identity.class, (java.io.Serializable) sampleIds.get(i) );
-            id.getClin_encounters().addAll(sess.find("select e from org.gnumed.gmClinical.clin_encounter  e "
-            +"  where  e.identity.id= ?", id.getId(), Hibernate.INTEGER) );
-            sess.flush();
+            
             found.add(id);
         }
         Date d2 = new Date();
-          System.out.println("*************************************\n***************************\n");
-          System.out.println("Testing RETRIEVE identities with clin encounters");
-          System.out.println("*************************************\n***************************\n");
-           
+        System.out.println("*************************************\n***************************\n");
+        System.out.println("Testing RETRIEVE identities with clin encounters");
+        System.out.println("*************************************\n***************************\n");
+        
         printIdentites(found);
-        sess.close();
+        HibernateInit.closeSession(sess);
         
         System.out.println("Time to retrieve " + sampleIds.size() + " identites = " + (d2.getTime() - d1.getTime()));
         

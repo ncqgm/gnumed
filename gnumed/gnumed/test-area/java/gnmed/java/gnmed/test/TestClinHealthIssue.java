@@ -52,7 +52,7 @@ public class TestClinHealthIssue  extends TestCase {
         substr, Hibernate.STRING);
         assertTrue(l.size() > 0);
         disease_code code = (disease_code)l.get(r.nextInt((int)l.size()));
-        sess.close();
+        HibernateInit.closeSession(sess);
         return code;
     }
     
@@ -121,7 +121,7 @@ public class TestClinHealthIssue  extends TestCase {
         int count = 0;
         if (rs.next())
             count = rs.getInt(1);
-        sess.close();
+        HibernateInit.closeSession(sess);
         return count;
     }
     
@@ -159,7 +159,7 @@ public class TestClinHealthIssue  extends TestCase {
             identity id2 = (identity) sess3.load( identity.class , (java.io.Serializable) retrieveList.get(i) );
             DomainPrinter.getInstance().printIdentity(System.out, id2);
         }
-        sess3.close();
+        HibernateInit.closeSession(sess3);
     }
     
     

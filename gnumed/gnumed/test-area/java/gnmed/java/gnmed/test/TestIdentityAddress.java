@@ -40,14 +40,14 @@ public class TestIdentityAddress extends TestCase {
         }
         sess.flush();
         sess.connection().commit();
-        sess.close();
+         HibernateInit.closeSession(sess);
     }
     
     List getAddressTypes() throws Exception {
         Session sess = HibernateInit.openSession();
         List l = sess.find("from addrType in class org.gnumed.gmGIS.address_type");
         sess.flush();
-        sess.close();
+         HibernateInit.closeSession(sess);
         return l;
     }
     identities_addresses create_identities_addresses( address address, address_type t) {
@@ -79,7 +79,7 @@ public class TestIdentityAddress extends TestCase {
         }
         sess.flush();
         sess.connection().commit();
-        sess.close();
+         HibernateInit.closeSession(sess);
     }
     
     public List findPersonsWithMultipleAddresses() throws Exception {
