@@ -26,7 +26,7 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -34,18 +34,18 @@ import string, gettext, copy, os, sys
 #3rd party dependencies
 # first, do we have the best-of-breed POSIX psycopg library available ?
 try:
-    import psycopg # try Zope library
-    dbapi = psycopg
+	import psycopg # try Zope library
+	dbapi = psycopg
 # nope
 except ImportError:
-    # ah, maybe we are on Windows and it just has another name ?
-    try:
-	import pyPgSQL.PgSQL # try Windows bindings
-	dbapi = pyPgSQL.PgSQL
-    # well, well, no such luck - fall back to stock pgdb library
-    except ImportError:
-	import pgdb # try standard Postgres binding
-	dbapi = pgdb
+	# ah, maybe we are on Windows and it just has another name ?
+	try:
+		import pyPgSQL.PgSQL # try Windows bindings
+		dbapi = pyPgSQL.PgSQL
+	# well, well, no such luck - fall back to stock pgdb library
+	except ImportError:
+		import pgdb # try standard Postgres binding
+		dbapi = pgdb
 
 #gnumed specific modules
 import gmLoginInfo, gmLog, gmExceptions
@@ -109,8 +109,7 @@ class ConnectionPool:
 		#try to establish connections to all servers we need
 		#according to configuration database
 		cursor = cdb.cursor()
-		cursor.execute("select * from config where profile='%s'" %
-		            login.GetProfile())
+		cursor.execute("select * from config where profile='%s'" % login.GetProfile())
 		databases = cursor.fetchall()
 		dbidx = cursorIndex(cursor)
 
@@ -156,9 +155,9 @@ class ConnectionPool:
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
 		try:
-		    cursor.close()
+			cursor.close()
 		except:
-		    pass
+			pass
 
 		return ConnectionPool.__connected
 
@@ -179,9 +178,9 @@ class ConnectionPool:
 				db = dbapi.connect(dsn)
 			return db
 		except: 
-		    exc = sys.exc_info()
-		    gmLog.gmDefLog.LogException("Exception: Connection to database failed. DSN was [" + dsn + "], host:port was [" + hostport + "]", exc)
-		    raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
+			exc = sys.exc_info()
+			gmLog.gmDefLog.LogException("Exception: Connection to database failed. DSN was [" + dsn + "], host:port was [" + hostport + "]", exc)
+			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
 
 
 
@@ -267,24 +266,23 @@ class ConnectionPool:
 ### database helper functions
 
 def cursorIndex(cursor):
-    "returns a dictionary of row atribute names and their row indices"
-    i=0
-    dict={}
-    for d in cursor.description:
-	dict[d[0]] = i
-	i+=1
-    return dict
+	"""returns a dictionary of row atribute names and their row indices"""
+	i=0
+	dict={}
+	for d in cursor.description:
+		dict[d[0]] = i
+		i+=1
+	return dict
 
 
 def descriptionIndex(cursordescription):
-    "returns a dictionary of row atribute names and their row indices"
-    i=0
-    dict={}
-    for d in cursordescription:
-	dict[d[0]] = i
-	i+=1
-    return dict
-
+	"""returns a dictionary of row atribute names and their row indices"""
+	i=0
+	dict={}
+	for d in cursordescription:
+		dict[d[0]] = i
+		i+=1
+	return dict
 
 
 def dictResult(cursor, fetched=None):
@@ -369,7 +367,7 @@ def inputTMLoginParams():
 		print "\nPlease enter the required login parameters:"
 		database = raw_input("database [gnumed] : ")
 		if database == '':
-		    database = 'gnumed'
+			database = 'gnumed'
 		user = prompted_input("user name : ", '')
 		password = prompted_input("password : ",'')
 		host = prompted_input("host [localhost] : ", 'localhost')
