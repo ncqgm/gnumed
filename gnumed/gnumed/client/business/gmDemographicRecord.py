@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.41 2004-05-25 16:00:34 sjtan Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmDemographicRecord.py,v 1.42 2004-05-25 16:18:13 sjtan Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -854,7 +854,37 @@ def setPostcodeWidgetFromUrbId(postcodeWidget , id):
 		gmLog.gmDefLog.LogException ('failed on set postcode', sys.exc_info (), verbose=0)
 		return False
 
+#------------------------------------------------------------
+def setUrbPhraseWheelFromPostcode( pwheel, postcode):
+	"""convenience method for common postcode to urb phrasewheel collaboration"""
+	try:
+		#this checks for "clearing the postcode"
+		# as the gesture that unsets the urb widget's postcode
+		# context.
+		if postcode == "":
+			print "unset urb context"
+			pwheel.setContext("postcode", "%")
+			return
+		urbs = getUrbsForPostcode(postcode)
+		if urbs <> None and len(urbs)  > 0:
+			pwheel.SetValue( urbs[0])
+			pwheel.input_was_selected = 1
+		#FIXME: once the postcode context is set,
+		# the urb phrasewheel will only return urbs with
+		# the same postcode. These can be viewed by clearing
+		# the urb widget. ?How to unset the postcode context,
+		# some gui gesture ? clearing the postcode
+		#(To view all the urbs for a set context,
+		# put a "*" in the urb box and activate the picklist.
+		# THE PROBLEM WITH THIS IS IF THE USER CLEARS THE BOX AND SET CONTEXT IS RESET,
+		# then the "*" will try to pull all thousands of urb names, freezing the app.
+		# so needs a fixup (? have SQL select ... LIMIT n in Phrasewheel )
 
+		pwheel.setContext("postcode", postcode)
+		return True
+	except:
+		gmLog.gmDefLog.LogException ('failed on set urb', sys.exc_info (), verbose=0)
+		return False
 #------------------------------------------------------------
 
 # FIXME: do we REALLY need this ?
@@ -904,7 +934,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.41  2004-05-25 16:00:34  sjtan
+# Revision 1.42  2004-05-25 16:18:13  sjtan
+#
+# move methods for postcode -> urb interaction to gmDemographics so gmContacts can use it.
+#
+# Revision 1.41  2004/05/25 16:00:34  sjtan
 #
 # move common urb/postcode collaboration  to business class.
 #

@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.22 2004-05-25 16:00:34 sjtan Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmDemographics.py,v 1.23 2004-05-25 16:18:12 sjtan Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -337,7 +337,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		# create address editing
 		#-------------------------
 		sizer_line8b_left = wxBoxSizer(wxHORIZONTAL)
-		label_addr_type = BlueLabel( self, -1, _('address type') ) 
+		label_addr_type = BlueLabel( self, -1, _('address type') )
 		self.combo_address_type = wxComboBox(self, -1, choices=gmDemographicRecord.getAddressTypes (), style=wxCB_READONLY)
 		sizer_line8b_left.Add(label_addr_type, 0, wxALIGN_CENTER_VERTICAL, 5)
 		sizer_line8b_left.Add(self.combo_address_type, 2, wxEXPAND)
@@ -474,7 +474,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.__connect_commands()
 
 
-	
+
 	def __connect_commands(self):
 		b = self.btn_add_address
 		EVT_BUTTON(b, b.GetId() , self._add_address_pressed)
@@ -495,41 +495,16 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 	def __urb_selected(self, id):
 		gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], id)
 		#	print "failed to set postcode widget from urb_id"
-	
 
 
-	def __postcode_selected(self, pk):
-		postcode = pk
-		try:
-			pwheel = self.input_fields['urb']
-			#this checks for "clearing the postcode"
-			# as the gesture that unsets the urb widget's postcode
-			# context. 
-			if postcode == "":
-				print "unset urb context"
-				pwheel.setContext("postcode", "%")
-				return
-			urbs = gmDemographicRecord.getUrbsForPostcode(postcode)	
-			if urbs <> None and len(urbs)  > 0:
-				pwheel.SetValue( urbs[0])
-				pwheel.input_was_selected = 1
-			#FIXME: once the postcode context is set, 
-			# the urb phrasewheel will only return urbs with
-			# the same postcode. These can be viewed by clearing
-			# the urb widget. ?How to unset the postcode context,
-			# some gui gesture ? clearing the postcode
-			#(To view all the urbs for a set context, 
-			# put a "*" in the urb box and activate the picklist.)
-				
-			pwheel.setContext("postcode", postcode)
-		except:
-			_log.LogException ('failed on set urb', sys.exc_info (), verbose=0)
-			
+
+	def __postcode_selected(self, postcode):
+		gmDemographicRecord.setUrbPhraseWheelFromPostcode( self.input_fields['urb'], postcode)
 
 	def _address_selected( self, event):
 		self._update_address_fields_on_selection()
 
-	def _update_address_fields_on_selection(self):	
+	def _update_address_fields_on_selection(self):
 		i = self.addresslist.GetSelection()
 		data = self.addr_cache[i]
 		m = self.input_fields
@@ -545,7 +520,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 				myPatient.linkNewAddress( data['type'], data['number'], data['street'], data['urb'], data['postcode'] )
 		for ID in self.to_delete:
 			myPatient.unlinkAddress (ID)
-				
+
 	def _save_btn_pressed(self, event):
 		try:
 			self._save_data()
@@ -681,7 +656,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 				if k[:len(prefix)] == prefix:
 					#print k," is a widget"
 					map[ k[len(prefix):] ] = v
-		
+
 		#print "INPUT MAP FOR ", self, " = " , map
 
 		self.input_fields = map
@@ -823,7 +798,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.22  2004-05-25 16:00:34  sjtan
+# Revision 1.23  2004-05-25 16:18:12  sjtan
+#
+# move methods for postcode -> urb interaction to gmDemographics so gmContacts can use it.
+#
+# Revision 1.22  2004/05/25 16:00:34  sjtan
 #
 # move common urb/postcode collaboration  to business class.
 #

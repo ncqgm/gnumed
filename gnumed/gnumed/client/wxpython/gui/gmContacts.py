@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -16,6 +16,7 @@ __license__ = "GPL"  # (details at http://www.gnu.org)
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
+from Gnumed.business import gmDemographicRecord
 from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
@@ -363,10 +364,11 @@ class ContactsPanel(wxPanel):
 
        def __urb_selected(self, urb_id):
           print "urb_id", urb_id
-	  setPostcodeWidgetFromUrbId( self.input_fields['postcode'], urb_id)
+	  gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], urb_id)
       	  pass
        def __postcode_selected(self, postcode):
        	  print "postcode", postcode
+	  gmDemographicRecord.setUrbPhraseWheelFromPostcode( self.input_fields['urb'], postcode)
       	  pass
 
        def get_address_values(self):
@@ -458,7 +460,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.16  2004-05-25 16:00:34  sjtan
+# Revision 1.17  2004-05-25 16:18:13  sjtan
+#
+# move methods for postcode -> urb interaction to gmDemographics so gmContacts can use it.
+#
+# Revision 1.16  2004/05/25 16:00:34  sjtan
 #
 # move common urb/postcode collaboration  to business class.
 #
