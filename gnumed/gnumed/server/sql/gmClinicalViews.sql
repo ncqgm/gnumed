@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.43 2004-02-02 16:17:42 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.44 2004-02-18 15:29:05 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -63,14 +63,47 @@ where
 ;
 
 \unset ON_ERROR_STOP
-drop index idx_uniq_def_encounter;
-
--- seems to fail on 7.1 so make it optional
-create unique index idx_uniq_def_encounter
-                 on clin_encounter(fk_patient)
-              where description = 'xxxDEFAULTxxx';
+drop view v_most_recent_encounters;
 \set ON_ERROR_STOP 1
 
+create view v_most_recent_encounters as
+select distinct on (last_affirmed)
+	ce1.id as pk_encounter,
+	ce1.fk_patient as pk_patient,
+	ce1.description as description,
+	et.description as type,
+	_(et.description) as l10n_type,
+	ce1.started as started,
+	ce1.last_affirmed as last_affirmed,
+	ce1.fk_type as pk_type,
+	ce1.fk_location as pk_location,
+	ce1.fk_provider as pk_provider
+from
+	clin_encounter ce1,
+	_enum_encounter_type et
+where
+	ce1.fk_type = et.id
+		and
+	ce1.id = (
+		select max(id)
+		from clin_encounter ce2
+		where
+			ce2.fk_patient = ce1.fk_patient
+				and
+			ce2.started = (
+				select max(started)
+				from clin_encounter ce3
+				where
+					ce3.fk_patient = ce2.fk_patient
+						and
+					ce3.last_affirmed = (
+						select max(last_affirmed)
+						from clin_encounter ce4
+						where ce4.fk_patient = ce3.fk_patient
+					)
+			)
+	)
+;
 -- =============================================
 \unset ON_ERROR_STOP
 drop view v_patient_episodes;
@@ -491,12 +524,12 @@ GRANT SELECT ON
 	v_i18n_enum_encounter_type,
 	v_patient_episodes,
 	v_patient_items,
-	v_i18n_curr_encounters,
 	v_i18n_patient_allergies,
 	v_vacc_regimes
 	, v_pat_vacc4ind
 	, v_pat_missing_vaccs
 	, v_pat_missing_boosters
+	, v_most_recent_encounters
 TO GROUP "gm-doctors";
 
 --GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -515,11 +548,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.43 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.44 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.43  2004-02-02 16:17:42  ncq
+-- Revision 1.44  2004-02-18 15:29:05  ncq
+-- - add v_most_recent_encounters
+--
+-- Revision 1.43  2004/02/02 16:17:42  ncq
 -- - remove v_patient_vaccinations, v_pat_due_vaccs, v_pat_overdue_vaccs
 -- - add v_pat_missing_vaccs, v_pat_missing_boosters
 --
