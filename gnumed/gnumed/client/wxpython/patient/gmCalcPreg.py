@@ -7,12 +7,12 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
 from wxPython.calendar import *
-import math
+import math, zlib, cPickle
 import random
 
 import gmI18N
@@ -126,10 +126,10 @@ else:
 			menu.Append (ID_MENU, "Preg. Calc", "Pregnancy Calculator")
 			EVT_MENU (self.gb['main.frame'], ID_MENU, self.OnTool)
 			self.tb = self.gb['main.toolbar']
-			self.tool = wxBitmapButton (self.tb, ID_BUTTON, bitmap= images_gnuMedGP_Toolbar.getToolbar_PregcalcBitmap(), style=0)
-			self.tool.SetToolTip (wxToolTip('Pregnancy Calculator'))
+			self.tool = wxToolBar (self.tb, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+			self.tool.AddTool (ID_BUTTON, self.getBitmap (), shortHelpString = "Pregnancy caclulator")
 			self.tb.AddWidgetRightBottom (self.tool)
-			EVT_BUTTON (self.tool, ID_BUTTON, self.OnTool)
+			EVT_TOOL (self.tool, ID_BUTTON, self.OnTool)
 		#---------------------
 		def unregister (self):
 			menu = self.gb['main.toolsmenu']
@@ -139,3 +139,12 @@ else:
 			frame = PregnancyDialogue (self.gb['main.frame'])
 			frame.Show (1)
 		#---------------------
+		def getBitmap (self):
+			return wxBitmapFromXPMData(cPickle.loads(zlib.decompress('x\xdaMP1\x0e\x830\x0c\xdcy\x85\xa5\x0et\xb2`h\x95\xb9H\xac\x0c,^\x11c\x91\
+\xdc\xffO\xbd\xb3C\xc0\xb1\x02w\xf1]\xec<\x8f\xdf\xd8\xad\xfd\xf8\x16\xe4K\
+\xc6\xbe\xdb\xd6\xded\x97\xcf\xb1\xed\xdf@\x0e\xf4\x98\x06\xae\xc0J\\\x06\
+\xae\xc0B<\x97y\x9aK\xe0%\xf1\x80\xc8sU5\xb5H\x84T\x13A:"~\xb4\x92\x0e\x8aE\
+\xa0],I%\'\xac\x03\xab\xad\x92%u\xabr\xa3\x15\x85Hx\xa6\xdc<]%X\xafr\xcf\xd0\
+\xdcje\xa8\xa3\x94\xfaS\xeeI\xe4mv\xde\xae\xd9\xd2\x02\xcb[\xf3\x9ar\xf56Q\
+\xb0\x11\xe4\xeec\xfa\xe9\x9c$\xa7`\x03No|\xda\xd3]\xe1|:\xfd\x03\xab\xf8h\
+\xbf' )))

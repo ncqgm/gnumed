@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -100,7 +100,7 @@ def install_domain():
 	except IOError:
 		# most likely we didn't have a .mo file
 		exc = sys.exc_info()
-		log.LogException('Cannot install textdomain from standard locations.', exc, 0)
+		log.LogException('Cannot install textdomain from standard locations.', exc, fatal=0)
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
@@ -113,9 +113,9 @@ def install_domain():
 			except IOError:
 				# most likely we didn't have a .mo file
 				exc = sys.exc_info()
-				log.LogException('Cannot install textdomain from custom location "%s=%s".' % (env_key, loc_dir), exc, 0)
+				log.LogException('Cannot install textdomain from custom location "%s=%s".' % (env_key, loc_dir), exc)
 		else:
-			log.Log(gmLog.lErr, 'Custom location "%s=%s" does not exist. Cannot install textdomain from there.' % (loc_dir, env_key))
+			log.Log(gmLog.lWarn, 'Custom location "%s=%s" does not exist. Cannot install textdomain from there.' % (loc_dir, env_key))
 	else:
 		log.Log(gmLog.lInfo, "Environment variable %s is not set." % env_key)
 

@@ -25,7 +25,7 @@
 ############################################################################
 
 from wxPython.wx import *
-import gmPlugin
+import gmPlugin, zlib, cPickle
 import images_gnuMedGP_Toolbar
 #from wxPython.lib.wxPlotCanvas import *
 #from wxPython.lib              import wxPlotCanvas  #insert these modules once graph active
@@ -296,7 +296,7 @@ class TestFrame(wxFrame):
 		self.Destroy()
 
 ID_BMIMENU = wxNewId ()
-ID_BMIBUTTON = wxNewId ()
+ID_BMITOOL = wxNewId ()
 
 class gmBMICalc (gmPlugin.wxBasePlugin):
     def name (self):
@@ -307,10 +307,10 @@ class gmBMICalc (gmPlugin.wxBasePlugin):
         menu.Append (ID_BMIMENU, "BMI", "Body Mass Index Calculator")
         EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
 	self.tb = self.gb['main.toolbar']
-	self.tool = wxBitmapButton (self.tb, ID_BMIBUTTON, bitmap= images_gnuMedGP_Toolbar.getToolbar_BMICalcBitmap(), style=0)
-	self.tool.SetToolTip (wxToolTip('BMI Calculator'))
+	self.tool = wxToolBar (self.tb, -1, style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+	self.tool.AddTool (ID_BMITOOL, self.getBitmap (), shortHelpString = _("BMI Calculator"))
 	self.tb.AddWidgetRightBottom (self.tool)
-	EVT_BUTTON (self.tool, ID_BMIBUTTON, self.OnBMITool)
+	EVT_TOOL (self.tool, ID_BMITOOL, self.OnBMITool)
 
     def unregister (self):
         #tb2 = self.gb['toolbar.Patient']
@@ -322,6 +322,16 @@ class gmBMICalc (gmPlugin.wxBasePlugin):
 	    frame = TestFrame(NULL, "BMI Calculator", wxDEFAULT_FRAME_STYLE)
 	    wxGetApp ().SetTopWindow(frame)
 
+    def getBitmap (self):
+	    return wxBitmapFromXPMData (cPickle.loads(zlib.decompress('x\xda]\x90\xbd\n\x83P\x0c\x85\xf7>E ^,\x08\xe1\xbaT\xc7P\xc55\x83\xcb]\xc5\
+\xb1\x82}\xff\xa9\x89\xf7Gm\x0c\xc2\xf9r\x92\x18\x9f\xdb\xb7}\xccu\xfb\x02K\
+\x0fm\xfdX\xe6\x9a`\x85\xf7\xb6\xac\x9fC\x05U\xd8\xf5\xdd\xe0\xfd\xa1%\xeb\
+\xae?4\x98\x1e\xfbq\x18\xa3nb\xdd\xfb\xe4\xdfMO\xfd\x94\xfb+\xd3\xde\x17\xcd\
+Q\x97\xf9.\xd7\xa78\x0fs=\xef\xa3[@\x84a\xbfD(0h\xe6W\x82r\x8b\x04\xa9\x11\
+\xb8D\x82A\x84\x99\xad\x82X\x16\x05\xe1\x8a\xb9\x12 w\x85BL"\xe8\xf49!\x08\
+\x93\xf6*\xa4+\xac\x88\x9cC\xf9w:D\x10\xbc9\xd9\xc6\xc1\xddi\xbd`\xf0\xbc\
+\xdd\xf6\xb2\x9dC\xc5\xa9\x1f\xaf\x8bc\x94\x99\x12\xf4\xef\xe9-1\r\xd2\x0fX\
+\x95oP' )))
 
 class App(wxApp):
 	def OnInit(self):

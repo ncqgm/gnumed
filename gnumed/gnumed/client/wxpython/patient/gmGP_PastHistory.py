@@ -109,7 +109,7 @@ class PastHistoryPanel(wxPanel):
 		items = significanthistorydata.items()
 		for x in range(len(items)):
 			key, data = items[x]
-			print items[x]
+			gmLog.gmDefLog.Log (gmLog.lData, items[x])
 			self.significant_problem_list.InsertStringItem(x, data[0])
 			self.significant_problem_list.SetStringItem(x, 1, data[1])
 			self.significant_problem_list.SetItemData(x, key)
@@ -128,7 +128,7 @@ class PastHistoryPanel(wxPanel):
 		items = activehistorydata.items()
 		for x in range(len(items)):
 			key, data = items[x]
-			print items[x]
+			gmLog.gmDefLog.Log (gmLog.lData, items[x])
 			self.active_problem_list.InsertStringItem(x, data[0])
 			self.active_problem_list.SetStringItem(x, 1, data[1])
 			self.active_problem_list.SetItemData(x, key)

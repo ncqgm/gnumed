@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -264,7 +264,8 @@ class cLogTarget:
 	#---------------------------
 	def __init__(self, aLogLevel = lErr):
 		self.__activeLogLevel = aLogLevel
-		self.writeDelimiter()
+		if aLogLevel == lInfo or aLogLevel== lData:
+			self.writeDelimiter()
 		self.writeMsg (lInfo, "SECURITY: initial log level is " + self.__LogLevelPrefix[self.__activeLogLevel])
 		self.__has_ever_logged = 0 # true if ever logged anuthing interesting
 	#---------------------------
@@ -446,7 +447,7 @@ class cLogTargetEMail(cLogTarget):
 		self.__comment = ""
 
 		import smtplib
-		print anSMTPServer
+		#print anSMTPServer
 		if anSMTPServer == None:
 			self.__smtpd = smtplib.SMTP("localhost")
 		else:
