@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -607,6 +607,7 @@ def run_notifications_debugger():
 				print "... running >>>%s<<<" % cmd
 				if not run_query(rocurs, cmd):
 					print "... error sending [%s]" % cmd
+				roconn.commit()
 			continue
 		print 'unknown command [%s]' % typed
 
@@ -681,7 +682,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.40  2003-04-27 11:52:26  ncq
+# Revision 1.41  2003-04-28 13:23:53  ncq
+# - make backend listener shell work by committing after notifying
+#
+# Revision 1.40  2003/04/27 11:52:26  ncq
 # - added notifications debugger shell in test environment
 #
 # Revision 1.39  2003/04/27 11:37:46  ncq
