@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -12,17 +12,24 @@
 -- =============================================
 -- identity
 -- name
-delete from names where
-	firstnames = 'Laborata'
-		and
-	lastnames = 'Testwoman';
+--delete from names where
+--	firstnames = 'Laborata'
+--		and
+--	lastnames = 'Testwoman';
 
+-- this should cascade to the names table
 delete from identity where
 	gender = 'f'
 		and
 	cob = 'CA'
 		and
-	id in (select i_id from v_basic_person where firstnames='Laborata' and lastnames='Testwoman' and dob='1931-3-22+2:00');
+	id in (
+		select i_id
+		from v_basic_person
+		where firstnames='Laborata'
+				and lastnames='Testwoman'
+				and dob='1931-3-22+2:00'
+	);
 
 insert into identity (gender, dob, cob, title)
 values ('f', '1931-3-22+2:00', 'CA', '');
@@ -30,30 +37,12 @@ values ('f', '1931-3-22+2:00', 'CA', '');
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'Testwoman', 'Laborata');
 
+
+delete from xlnk_identity where xfk_identity = currval('identity_id_seq');
+
 insert into xlnk_identity (xfk_identity, pupic)
 values (currval('identity_id_seq'), currval('identity_id_seq'));
 
--- default health issue
-delete from clin_health_issue where
-	id_patient = currval('identity_id_seq');
-
-insert into clin_health_issue (id_patient, description)
-values (
-	currval('identity_id_seq'),
-	'lab data regression test'
-);
-
--- episode
-delete from clin_episode where pk in (
-	select pk_episode
-	from v_pat_episodes
-	where id_patient = currval('identity_id_seq')
-);
-
-insert into clin_episode (fk_health_issue)
-values (
-	currval('clin_health_issue_id_seq')
-);
 
 -- encounter
 insert into clin_encounter (
@@ -69,6 +58,39 @@ insert into clin_encounter (
 	(select pk from encounter_type where description='chart review'),
 	'first for this RFE'
 );
+
+
+-- episode
+delete from clin_episode where pk in (
+	select pk_episode
+	from v_pat_episodes
+	where id_patient = currval('identity_id_seq')
+);
+
+
+insert into clin_episode (
+	fk_patient,
+	is_open
+) values (
+	currval('identity_id_seq'),
+	true
+);
+
+insert into clin_narrative (
+	fk_encounter,
+	fk_episode,
+	soap_cat,
+	narrative
+) values (
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_pk_seq'),
+	'a',
+	'lab import regression test'
+);
+
+update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
+where pk = currval('clin_episode_pk_seq');
+
 
 -- lab request
 insert into lab_request (
@@ -91,12 +113,17 @@ insert into lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.9 $');
+delete from gm_schema_revision where filename like '%test_data-lab_regression.sql%';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.9  2004-11-16 18:59:57  ncq
+-- Revision 1.10  2004-11-28 14:38:18  ncq
+-- - some more deletes
+-- - use new method of episode naming
+-- - this actually bootstraps again
+--
+-- Revision 1.9  2004/11/16 18:59:57  ncq
 -- - adjust to episode naming changes
 --
 -- Revision 1.8  2004/09/17 21:00:18  ncq

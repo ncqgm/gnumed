@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.42 $
+-- $Revision: 1.43 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -83,7 +83,7 @@ insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
 	(select pk_regime from v_vacc_regimes where regime='HiB (STIKO)')
 );
 
--- default health issue
+-- health issue
 delete from clin_health_issue where
 	id_patient = currval('identity_id_seq');
 
@@ -217,18 +217,18 @@ insert into clin_narrative (
 	fk_episode,
 	narrative,
 	soap_cat,
-	is_aoe,
-	is_episode_name
+	is_aoe
 ) values (
 	'2000-9-17 17:14:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
 	'?contaminated laceration L forearm',
 	'a',
-	'true'::boolean,
 	'true'::boolean
 );
 
+update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
+where pk = currval('clin_episode_pk_seq');
 
 -- diagnoses
 insert into clin_diag (
@@ -459,10 +459,6 @@ insert into clin_narrative (
 	'true'::boolean
 );
 
-update clin_narrative
-set is_episode_name = false
-where fk_episode = currval('clin_episode_pk_seq');
-
 -- AOE
 insert into clin_narrative (
 	clin_when,
@@ -470,17 +466,19 @@ insert into clin_narrative (
 	fk_episode,
 	narrative,
 	soap_cat,
-	is_aoe,
-	is_episode_name
+	is_aoe
 ) values (
 	'2000-9-18 8:17:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
 	'postop infected laceration L forearm',
 	'a',
-	'true'::boolean,
 	'true'::boolean
 );
+
+update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
+where pk = currval('clin_episode_pk_seq');
+
 
 -- diagnoses
 insert into clin_diag (
@@ -625,11 +623,16 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.42 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.43 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.42  2004-11-24 15:42:00  ncq
+-- Revision 1.43  2004-11-28 14:38:18  ncq
+-- - some more deletes
+-- - use new method of episode naming
+-- - this actually bootstraps again
+--
+-- Revision 1.42  2004/11/24 15:42:00  ncq
 -- - need clin_narrative with is_episode_name *before* inserting clin_root_items
 --   which signal changes since the trigger crawls v_pat_episodes for the
 --   patient PK and unnamed episodes don't show up there

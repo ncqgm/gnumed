@@ -4,20 +4,37 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
+delete from identity where
+	gender = 'm'
+		and
+	cob = 'US'
+		and
+	id in (
+		select i_id
+		from v_basic_person
+		where firstnames='Leonard'
+				and lastnames='McCoy'
+				and dob='1920-1-20+2:00'
+	);
+
 insert into identity (gender, dob, cob, title)
 values ('m', '1920-1-20+2:00', 'US', 'Dr.');
 
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'McCoy', 'Leonard');
 
+
+delete from xlnk_identity where xfk_identity = currval('identity_id_seq');
+
 insert into xlnk_identity (xfk_identity, pupic)
 values (currval('identity_id_seq'), currval('identity_id_seq'));
+
 
 insert into staff (fk_identity, fk_role, db_user, sign, comment)
 values (
@@ -31,11 +48,16 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Leonard_McCoy.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.10  2004-06-02 13:46:46  ncq
+-- Revision 1.11  2004-11-28 14:38:18  ncq
+-- - some more deletes
+-- - use new method of episode naming
+-- - this actually bootstraps again
+--
+-- Revision 1.10  2004/06/02 13:46:46  ncq
 -- - setting default session timezone has incompatible syntax
 --   across version range 7.1-7.4, henceforth specify timezone
 --   directly in timestamp values, which works
