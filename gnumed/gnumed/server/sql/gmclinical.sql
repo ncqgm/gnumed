@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.126 $
+-- $Revision: 1.127 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -716,40 +716,40 @@ create table vaccination (
 		default 'not recorded',
 	unique (fk_patient, fk_vaccine, clin_when)
 ) inherits (clin_root_item);
-
 -- Richard tells us that "refused" should go into progress note
+
+alter table vaccination alter column soap_cat set default 'p';
 
 select add_table_for_audit('vaccination');
 select add_table_for_notifies('vaccination', 'vacc');
 
 select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
 
-alter table vaccination alter column soap_cat set default 'p';
-
 comment on table vaccination is
 	'holds vaccinations actually given';
 
 -- --------------------------------------------
 -- this table will be even larger than vaccination ...
-create table lnk_vacc2vacc_def (
-	pk serial primary key,
-	fk_vaccination integer
-		not null
-		references vaccination(id)
-		on delete cascade
-		on update cascade,
-	fk_vacc_def integer
-		not null
-		references vacc_def(id)
-		on delete restrict
-		on update cascade,
-	unique (fk_vaccination, fk_vacc_def)
-) inherits (audit_fields);
+--create table lnk_vacc2vacc_def (
+--	pk serial primary key,
+--	fk_vaccination integer
+--		not null
+--		references vaccination(id)
+--		on delete cascade
+--		on update cascade,
+--	fk_vacc_def integer
+--		not null
+--		references vacc_def(id)
+--		on delete restrict
+--		on update cascade,
+--	unique (fk_vaccination, fk_vacc_def)
+--) inherits (audit_fields);
 
-comment on column lnk_vacc2vacc_def.fk_vacc_def is
-	'the vaccination event a particular
-	 vaccination is supposed to cover, allows to
-	 link out-of-band vaccinations into regimes';
+--comment on column lnk_vacc2vacc_def.fk_vacc_def is
+--	'the vaccination event a particular
+--	 vaccination is supposed to cover, allows to
+--	 link out-of-band vaccinations into regimes,
+--	 not currently used';
 
 -- ============================================
 -- allergies tables
@@ -1051,11 +1051,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.126 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.127 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.126  2004-09-19 17:16:28  ncq
+-- Revision 1.127  2004-09-20 21:14:11  ncq
+-- - remove cruft, fix grants
+-- - retire lnk_vacc2vacc_def for now as we seem to not need it
+--
+-- Revision 1.126  2004/09/19 17:16:28  ncq
 -- - alter table <> add constraint <> needs table name
 --
 -- Revision 1.125  2004/09/19 11:25:34  ncq

@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.101 2004-09-18 13:49:32 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.102 2004-09-20 21:14:11 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -540,10 +540,6 @@ select
 	vreg.name as regime,
 	coalesce(vreg.comment, '') as reg_comment,
 	vdef.is_booster as is_booster,
---	case when vdef.is_booster
---		then 999
---		else vdef.seq_no
---	end as vacc_seq_no,
 	vdef.seq_no as vacc_seq_no,
 	vdef.min_age_due as age_due_min,
 	vdef.max_age_due as age_due_max,
@@ -1153,8 +1149,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, vacc_regime_id_seq
 	, lnk_pat2vacc_reg
 	, lnk_pat2vacc_reg_pk_seq
-	, lnk_vacc2vacc_def
-	, lnk_vacc2vacc_def_pk_seq
+--	, lnk_vacc2vacc_def
+--	, lnk_vacc2vacc_def_pk_seq
 	, xlnk_identity
 	, xlnk_identity_pk_seq
 	, form_instances
@@ -1219,11 +1215,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.101 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.102 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.101  2004-09-18 13:49:32  ncq
+-- Revision 1.102  2004-09-20 21:14:11  ncq
+-- - remove cruft, fix grants
+-- - retire lnk_vacc2vacc_def for now as we seem to not need it
+--
+-- Revision 1.101  2004/09/18 13:49:32  ncq
 -- - fix missing patient pk in v_compl_narrative
 --
 -- Revision 1.100  2004/09/18 00:19:24  ncq
