@@ -8,6 +8,8 @@ self.__metadata		{}
  |
  >- 'id'			""
  |
+ >- 'type ID'		""
+ |
  >- 'type'			""
  |
  >- 'comment'		""
@@ -33,7 +35,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -162,10 +164,15 @@ class cDocument:
 		cursor.execute(cmd)
 		result = cursor.fetchone()
 		self.__metadata['patient id'] = result[0]
-		self.__metadata['type'] = result[1]
+		self.__metadata['type ID'] = result[1]
 		self.__metadata['comment'] = result[2]
 		self.__metadata['date'] = result[3]
 		self.__metadata['reference'] = result[4]
+		# translate type ID to localized verbose name
+		cmd = "select name from v_i18n_doc_type where id = '%s';" % self.__metadata['type ID']
+		cursor.execute(cmd)
+		result = cursor.fetchone()
+		self.__metadata['type'] = result[0]
 
 		# get object level metadata for all objects of this document
 		cmd = "SELECT oid, comment, seq_idx FROM doc_obj WHERE doc_id='%s'" % (self.__metadata['id'])
@@ -701,7 +708,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.27  2003-01-24 12:29:33  ncq
+# Revision 1.28  2003-01-24 13:16:08  ncq
+# - verbosify doc_type on getMetadataFromGnumed()
+#
+# Revision 1.27  2003/01/24 12:29:33  ncq
 # - make aware of v_i18n_doc_type
 #
 # Revision 1.26  2003/01/12 13:26:24  ncq
