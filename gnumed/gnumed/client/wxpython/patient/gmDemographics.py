@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #############################################################################
 #
-# gmPatietnts
+# gmPatients
 # ----------------------------------
 #
 # This panel will hold all the patients details
