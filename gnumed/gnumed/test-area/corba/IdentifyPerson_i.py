@@ -194,16 +194,16 @@ def calculate_confidence( profile, traitSelectorSeq):
 			v1, v2 =  tSelector.trait.value.value().strip('^ ') , trait.value.value().strip('^ ')
 			if (v2.lower().find(v1.lower()) >= 0):
 				if len(v2) == 0:
-					ratios.append(0.0)
+					weightings.append(0.0)
 				else:
 					if v1 == v2:
 						full_matches += 1
 					weightings.append(tSelector.weight * len(v2)  * len(v1) )
 					total_data_len += len(v2)
-	if len(weightings) < 0.05: return 0.1
+	if len(weightings) == 0: return 0.1
 	def sum(x,y): return x + y
-	tot = reduce( sum, ratios)
-	confidence = tot    *  full_matches  / total_data_len / len(ratios) #* full_matches
+	tot = reduce( sum, weightings)
+	confidence = tot    *  full_matches  / total_data_len / len(weightings) #* full_matches
 	if show_confidence:
 		print "\n***********\nconfidence for :"
 		print "\tSelector=", brief_selector(traitSelectorSeq)
