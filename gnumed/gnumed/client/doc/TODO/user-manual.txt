@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.23 $
+# $Revision: 1.24 $
 ---------------------------------------------------
 Rules:
 ------
@@ -75,3 +75,145 @@ _______________________________________________
 Gnumed-devel mailing list
 Gnumed-devel@gnu.org
 http://mail.gnu.org/mailman/listinfo/gnumed-devel
+
+
+---------------------------------------------------
+michael.bonert@utoronto.ca	Wed Apr  2 00:17:07 EST 2003
+ICQ ID: 97418709
+
+GnuMed Install Instructions for Mandrake Linux 9.1
+by Michael Bonert
+
+1. Install CVS (from the Mandrake CDs):
+	cvs-1.11.5-1mdk
+
+2. Install postgresql (from the Mandrake CDs):
+	postgresql-7.3.2-5mdk
+	postgresql-devel-7.3.2-5mdk
+	postgresql-python-7.3.2-5mdk
+	postgresql-server-7.3.2-5mdk
+	postgresql-pl-7.3.2-5mdk
+
+	pgaccess-0.98.8.20030117-2mdk		# nice to have
+	postgresql-docs-7.3.2-5mdk		# nice to have
+
+	NOTE: If the packages all show up when you do a
+	'remove software packages' (in 'mcc') they are all
+	installed.
+
+3. Install wxPython -- (version used: wxPythonGTK-py2.2-2.4.0.1-1.i386.rpm)
+
+4. Install mx extenstion libraries -- (egenix-mx-base-2.0.4-py2.2_1.i386.rpm)
+
+5. Install pyPgSQL -- (pyPgSQL-2.3-1.src.rpm)
+
+Before building and installing pyPgSQL make sure you have the following
+(from the Mandrake CDs):
+	libpython2.2-devel-2.2.2-6mdk
+
+$ tar zxvf pyPgSQL-2.3.tar.gz 		# gunzip + untar 'pyPgSQL-2.3.tar.gz'
+$ cd pypgsql
+
+Set include and library directories in "setup.py" with your favourite editor:
+---
+    # Set this to 1 if you need to use your own settings
+    	USE_CUSTOM = 1				# Don't forget to change this line!!!
+
+    ...
+
+    if USE_CUSTOM:
+    	include_dirs = ["/usr/include/pgsql"]
+        library_dirs = ["/usr/lib/pgsql"]
+---
+$ python setup.py build
+$ python setup.py install
+
+NOTE: If the directory settings in 'setup.py' are wrong you get a misleading error about 'gcc'
+
+Testing pyPgSQL:
+$ cd test			# install directory: ../pypgsql/test
+$ python PgSQLTestCases.py
+
+OUTPUT:
+	..................................................................
+	----------------------------------------------------------------------
+	Ran 66 tests in 1.090s
+
+	OK
+
+
+6. Get GnuMed source
+RECOMMENDATION: install gnumed in "/home/your_user_name/"
+	-- where 'your_user_name' is your favourite normal user - e.g. 'michael'
+
+$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+
+7. Modify postgresql.conf
+$ su
+# cd /var/lib/pgsql/data
+# vi postgresql.conf
+	change '#tcpip_socket=false' to 'tcpip_socket=on'
+
+8. Modify "pg_hba.conf" found in "/var/lib/pgsql/data"
+# vi pg_hba.conf
+
+last part of our "pg_hba.conf" should look like this:
+---
+# Using sockets credentials for improved security. Not available everywhere,
+# but works on Linux, *BSD (and probably some others)
+
+#local  all     all     ident   sameuser
+local   all         all                                             trust
+host    all         all         127.0.0.1         255.255.255.255   trust
+---
+
+9. Create db
+(see -- http://mail.gnu.org/archive/html/gnumed-devel/2003-02/msg00079.html)
+$ su root
+# passwd postgres		# change password (I don't know what the default is--
+				# you'll need this password later so remember it.)
+# su postgres
+$ createuser your_user_name	# in my case: "createuser michael"	(answer 'y' to both questions)
+$ createuser _your_user_name	# in my case: "createuser _michael"	(answer 'y' to both questions)
+
+
+(as normal user)
+$ cd /home/your_user_name/gnumed/gnumed/server/bootstrap
+$ cp bootstrap-standard-AU.conf.sample your_user_name-db.conf
+$ ln -s /home/your_user_name/gnumed/gnumed/client/python-common modules
+$ ln -s /home/your_user_name/gnumed/gnumed/server/sql/ sql
+
+	At this point you may want to confirm that postgresql is running:
+	$ mcc
+	click on 'System'
+	click on 'DrakXServices...'
+	'postgresql' should say 'running'
+
+$ python bootstrap-gm_db_system.py --conf-file=your_user_name-db.conf
+When prompted:
+- yes
+- give password
+- give another password
+
+NOTE: If you have problems the log file is in: "/home/your_user_name/.bootstrap-gm_db_system"
+
+10. set 'GNUMED_DIR' variable
+$ cd 			# cd to home
+$ vi .bash_profile	# or your favourite text editor
+
+Add the following:
+---
+GNUMED_DIR=$GNUMED_DIR/home/your_user_name/gnumed/gnumed/client
+---
+
+
+
+Running GnuMed:
+$ cd /home/your_user_name/gnumed/gnumed/client/wxpython
+$ python gnumed.py --debug
+
+Find something you don't like and fix it... ;O)
+
+---------------------------------------------------
+
