@@ -10,14 +10,14 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.18 2004-07-02 00:54:04 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPatientExporter.py,v 1.19 2004-07-03 17:15:59 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
-from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg
+from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -38,13 +38,71 @@ def prompted_input(prompt, default=None):
 	return usr_input
 #--------------------------------------------------------
 class cEmrExport:
-	def __init__(self, outfilename=None):
-		"""Default constructor."""
-		self.outFile = open(outfilename, 'wb')
+	def __init__(self, constraints = None):
+		"""Default constructor.
+
+		constraints - Exporter constraints for filtering clinical items
+		"""
+		if constraints is None:
+		    # default constraints to None for complete emr dump
+			self.__constraints = {
+				'since': None,
+				'until': None,
+				'encounters': None,
+				'episodes': None,
+				'issues': None
+			}
+		else:
+			self.__constraints = constraints
+		self.__patient = None
 		self.lab_new_encounter = True
 	#--------------------------------------------------------
+	def set_constraints(self, constraints = None):
+		"""Sets exporter constraints.
+
+		constraints - Exporter constraints for filtering clinical items
+		"""
+		if constraints is None:
+		    # default constraints to None for complete emr dump
+			self.__constraints = {
+				'since': None,
+				'until': None,
+				'encounters': None,
+				'episodes': None,
+				'issues': None
+			}
+		else:
+			self.__constraints = constraints
+		return True
+	#--------------------------------------------------------
+	def get_constraints(self):
+	    """
+        Retrieve exporter constraints
+	    """
+	    return self.__constraints
+	#--------------------------------------------------------
+	def set_patient(self, patient=None):
+	    """
+            Sets exporter patient
+            
+            patient - Patient whose data are to be dumped
+	    """
+	    if patient is None:
+	        _log.Log(gmLog.lErr, "can't set None patient for exporter")
+	        return
+	    self.__patient = patient
+	#--------------------------------------------------------
+	def get_patient():
+	    """
+            Retrieves patient whose data are to be dumped
+	    """
+	    return self.__patient
+	#--------------------------------------------------------
 	def cleanup(self):
-		self.outFile.close()
+		"""
+            Exporter class cleanup code
+		"""
+		pass
 	#--------------------------------------------------------
 	def get_vaccination_for_cell(self, vaccs, date, field, text = None):
 		"""
@@ -222,21 +280,32 @@ class cEmrExport:
 	        self.lab_new_encounter = False
 	    return txt
 	#--------------------------------------------------------
-	def get_filtered_items(self, emr = None, constraints = None):
-	    """
+	def get_filtered_items(self, emr = None):
+		"""
             Retrieve patient clinical items filtered by multiple constraints
             
             emr - patient's electronic medical record
-            constraints - Exporter clinical items filtering constraints
-	    """
-	    filtered_items = []
-	    filtered_items.extend(emr.get_allergies(since=constraints['since'], until=constraints['until'],
-            encounters=constraints['encounters'], episodes=constraints['episodes'], issues=constraints['issues']))
-	    filtered_items.extend(emr.get_vaccinations(since=constraints['since'], until=constraints['until'],
-            encounters=constraints['encounters'], episodes=constraints['episodes'], issues=constraints['issues']))
-	    filtered_items.extend(emr.get_lab_results(since=constraints['since'], until=constraints['until'],
-            encounters=constraints['encounters'], episodes=constraints['episodes'], issues=constraints['issues']))
-	    return filtered_items
+		"""
+		filtered_items = []
+		filtered_items.extend(emr.get_allergies(
+			since=self.__constraints['since'],
+			until=self.__constraints['until'],
+			encounters=self.__constraints['encounters'],
+			episodes=self.__constraints['episodes'],
+			issues=self.__constraints['issues']))
+		filtered_items.extend(emr.get_vaccinations(
+			since=self.__constraints['since'],
+			until=self.__constraints['until'],
+			encounters=self.__constraints['encounters'],
+			episodes=self.__constraints['episodes'],
+			issues=self.__constraints['issues']))
+		filtered_items.extend(emr.get_lab_results(
+			since=self.__constraints['since'],
+			until=self.__constraints['until'],
+            encounters=self.__constraints['encounters'],
+			episodes=self.__constraints['episodes'],
+			issues=self.__constraints['issues']))
+		return filtered_items
 	#--------------------------------------------------------
 	def get_set_for_field(self, list_values, field):
 	    """
@@ -251,7 +320,7 @@ class cEmrExport:
 	            set_values.append(a_value[field])
 	    return set_values
 	#--------------------------------------------------------
-	def get_historical_tree(self, emr = None, constraints = None):
+	def get_historical_tree(self, emr = None):
 	    """
 	    Dumps patient's historical in form of a tree of health issues
 	                                                    -> episodes
@@ -259,11 +328,10 @@ class cEmrExport:
 	                                                          -> clinical items
 	                                                          
 	    emr - patient's electronic medical record
-	    constraints - Exporter clinical items filtering constraints
 	    """
 	    
 	    # Let's fetch all items compliant with constraints
-	    filtered_items = self.get_filtered_items(emr, constraints)
+	    filtered_items = self.get_filtered_items(emr)
 	    # Extract from considered items related health issues
 	    filtered_issues = self.get_set_for_field(filtered_items, 'pk_health_issue')
 	    # Extract from considered items related episodes
@@ -290,14 +358,12 @@ class cEmrExport:
                             txt += self.get_item_output(an_item)
 	    return txt
 	#--------------------------------------------------------
-	def dump_clinical_record(self, patient, constraints = None):
+	def dump_clinical_record(self):
 		"""
 		Dumps in ASCII format patient's clinical record
 		
-		patient - patient to dump data
-		constraints - Exporter clinical items filtering constraints
 		"""
-		emr = patient.get_clinical_record()
+		emr = self.__patient.get_clinical_record()
 		if emr is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
 			print(_(
@@ -319,22 +385,21 @@ class cEmrExport:
 		txt += self.get_vacc_table(emr)
 		
 		txt += "\n3) Historical:\n\n"
-		txt += self.get_historical_tree(emr, constraints)
-		print txt
+		txt += self.get_historical_tree(emr)
 
 		try:
 			emr.cleanup()
 		except:
 			print "error cleaning up EMR"
-		return txt	
+			
+		return txt	    
 	#--------------------------------------------------------
-	def dump_med_docs(self, patient = None):
+	def dump_med_docs(self):
 	    """
             Dumps patient stored medical documents
-            
-            patient - Patient whose documentes are to be dumped
+
 	    """
-	    doc_folder = patient.get_document_folder()
+	    doc_folder = self.__patient.get_document_folder()
 	    doc_ids = doc_folder.get_doc_list()
 	    txt = '\n'
 	    txt += '4) Medical documents: (date) reference - type "comment"\n'
@@ -349,14 +414,14 @@ class cEmrExport:
 	            txt += '\n' + 6*' ' + str(doc_metadata['objects'][objKey]['index']) + '-' +\
 	            doc_metadata['objects'][objKey]['comment']
 	    txt += '\n\n'
-	    print txt
 	    return txt
 	#--------------------------------------------------------    
-	def dump_demographic_record(self, all = False, patient = None):
+	def dump_demographic_record(self, all = False):
 		"""
-		Dumps in ASCII format some basic patient's demographic data
+            Dumps in ASCII format some basic patient's demographic data
+            
 		"""
-		demo = patient.get_demographic_record()
+		demo = self.__patient.get_demographic_record()
 		dump = demo.export_demographics(all)
 		if demo is None:
 			_log.Log(gmLog.lErr, 'cannot get Demographic export')
@@ -383,88 +448,122 @@ class cEmrExport:
 			addr_lst = dump['addresses'][addr_t]
 			for address in addr_lst:
 				txt += '   Address (' + addr_t + '): ' + address + '\n'
-		print(txt)
 		return txt
+	#--------------------------------------------------------    
+	def dump_constraints(self):
+	    """
+            Dumps exporter filtering constraints
+	    """
+	    txt = ''
+	    self.__first_constraint = True
+	    
+	    if not self.__constraints['since'] is None:
+	        txt += self.dump_constraints_header()
+	        txt += '\nSince: %s' % self.__constraints['since'].Format('%Y-%m-%d')
+	    
+	    if not self.__constraints['until'] is None:
+	        txt += self.dump_constraints_header()
+	        txt += '\nUntil: %s' % self.__constraints['until'].Format('%Y-%m-%d')
+	    
+	    if not self.__constraints['encounters'] is None:
+	        txt += self.dump_constraints_header()
+	        txt += '\nEncounters: '
+	        for enc in self.__constraints['encounters']:
+	            txt += str(enc) + ' '
+	    
+	    if not self.__constraints['episodes'] is None:
+	        txt += self.dump_constraints_header()
+	        txt += '\nEpisodes: '
+	        for epi in self.__constraints['episodes']:
+	            txt += str(epi) + ' '
+	    
+	    if not self.__constraints['issues'] is None:
+	        txt += self.dump_constraints_header()
+	        txt += '\nIssues: '
+	        for iss in self.__constraints['issues']:
+	            txt += str(iss) + ' '
+	    
+	    return txt
+	#--------------------------------------------------------    
+	def dump_constraints_header(self):
+	    """
+            Dumps constraints header
+	    """
+	    head_txt = ''
+	    if self.__first_constraint == True:
+	        head_txt = '\nClinical items dump constraints\n'
+	        head_txt += '-'*(len(head_txt)-2)
+	        self.__first_constraint = False
+	    return head_txt
 #============================================================
 # main
 #------------------------------------------------------------
 def usage():
-	"""Prints application usage options to stdout.
+	"""
+        Prints application usage options to stdout.
 	"""
 	print 'usage: python gmPatientExporter [--fileout=<outputfilename>] [--conf-file=<file>]'
 	sys.exit(0)
 #------------------------------------------------------------
-def dump_constraint(first_constraint, export_tool, txt):
+def parse_constraints():
     """
-        Dumps constraints info and header
-        
-        first_constraint - Flag indicating if we are dumping first constraint
-        export_tool - Main exporter object
-        txt - Constraint and value
+        Obtains, parses and normalizes config file options
     """
-    if first_constraint:
-        head_txt = '\nDump constraints\n'
-        head_txt += '-'*(len(head_txt)-2)
-        print head_txt
-        export_tool.outFile.write(head_txt + '\n')
-    print txt
-    export_tool.outFile.write(txt)
-    return False
-#------------------------------------------------------------
-def get_constraints(export_tool):
-    """Obtains, dumps and normalizes config file options
-
-        export_tool - Main exporter object
-    """
+    
+    # Check conf file was defined
     if not gmCLI.has_arg('--conf-file'):
         usage()
+        
     # Retrieve options
     cfg_group = 'constraints'
     constraints = {
-        'since': _cfg.get(cfg_group, 'since'),		# can't use strip() since may return None
+        'since': _cfg.get(cfg_group, 'since'),
         'until': _cfg.get(cfg_group, 'until'),
         'encounters': _cfg.get(cfg_group, 'encounters'),
         'episodes': _cfg.get(cfg_group, 'episodes'),
         'issues': _cfg.get(cfg_group, 'issues')
     }
-    separator = ','
-    first_constraint = True
-    # dump them
-    if len(constraints['since']) > 0:
-        txt = 'Since: ' + constraints['since']
-        first_constraint = dump_constraint(first_constraint, export_tool, txt)
-    if len(constraints['until']) > 0:
-        txt = 'Until: ' + constraints['until']
-        first_constraint = dump_constraint(first_constraint, export_tool, txt)
-    if len(constraints['encounters']) > 0:
-        txt = 'Encounters: ' + separator.join(constraints['encounters'])
-        first_constraint = dump_constraint(first_constraint, export_tool, txt)
-    if len(constraints['episodes']) > 0:
-        txt = 'Episodes: ' + separator.join(constraints['episodes'])
-        first_constraint = dump_constraint(first_constraint, export_tool, txt)
-    if len(constraints['issues']) > 0:
-        txt = 'Issues: ' + separator.join(constraints['issues'])
-        first_constraint = dump_constraint(first_constraint, export_tool, txt)
+
+    # Normalice null constraints (None is interpreted as non existing constraint along all methods)
+    for a_constraint in constraints.keys():
+        if len(constraints[a_constraint]) == 0:
+            constraints[a_constraint] = None
+    
+    # Cast existing constraints to correct type
+    if not constraints['since'] is None:
+        constraints['since'] = mxParser.DateFromString(constraints['since'], formats= ['iso'])
+    if not constraints['until'] is None:
+        constraints['until'] = mxParser.DateFromString(constraints['until'], formats= ['iso'])
+    if not constraints['encounters'] is None:
+        constraints['encounters'] = map(lambda encounter: int(encounter), constraints['encounters'])
+    if not constraints['episodes'] is None:
+        constraints['episodes'] = map(lambda episode: int(episode), constraints['episodes'])
+    if not constraints['issues'] is None:
+        constraints['issues'] = map(lambda issue: int(issue), constraints['issues'])
+    
     return constraints
 #------------------------------------------------------------		        
 def run():
-	"""Main module application execution loop.
 	"""
+        Main module application execution loop.
+	"""
+	# Check that output file name is defined and create an instance of exporter
 	if gmCLI.has_arg('--fileout'):
-		fname = gmCLI.arg['--fileout']
+		outFile = open(gmCLI.arg['--fileout'], 'wb')
 	else:
 		usage()
-	export_tool = cEmrExport(fname)
-
-	# Obtain exporter constraints
-	constraints = get_constraints(constraints, export_tool)
-
+	export_tool = cEmrExport(parse_constraints())
+	
+	# More variable initializations
 	patient = None
 	patient_id = None
 	patient_term = None
 	pat_searcher = gmPatient.cPatientSearcher_SQL()
 
+	# App execution loop
 	while patient_term != 'bye':
+	    
+		# Ask patient to dump and set in exporter object
 		patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
 		if patient_term == 'bye':
 			break
@@ -476,37 +575,39 @@ def run():
 			prompted_input("Various patients match the query term. Press any key to continue.")
 			continue
 		patient_id = search_ids[0]
-		if not constraints['since'] is None:
-		    constraints['since'] = mxParser.DateFromString(constraints['since'], formats= ['iso'])
-		if not constraints['until'] is None:
-		    constraints['until'] = mxParser.DateFromString(constraints['until'], formats= ['iso'])
-		if not constraints['encounters'] is None:
-			constraints['encounters'] = map(lambda encounter: int(encounter), constraints['encounters'])
-		if not constraints['episodes'] is None:
-			constraints['episodes'] = map(lambda episode: int(episode), constraints['episodes'])
-		if not constraints['issues'] is None:
-			constraints['issues'] = map(lambda issue: int(issue), constraints['issues'])
-
 		patient = gmPatient.gmCurrentPatient(patient_id)
+		export_tool.set_patient(patient)
+		
+		# Dump patient EMR sections
 		chunk = ''
-		chunk = export_tool.dump_demographic_record(True, patient)
-		if export_tool.outFile is not None:
-		    export_tool.outFile.write('\n' + chunk)
-		chunk = export_tool.dump_clinical_record(patient, constraints)
-		if export_tool.outFile is not None:
-		    export_tool.outFile.write('\n' + chunk)
-		chunk = export_tool.dump_med_docs(patient)
-		if export_tool.outFile is not None:
-		    export_tool.outFile.write('\n' + chunk)
+		chunk = export_tool.dump_constraints()
+		print chunk
+		outFile.write('\n' + chunk)
+		
+		chunk = export_tool.dump_demographic_record(True)
+		print chunk
+		outFile.write('\n' + chunk)
+		
+		chunk = export_tool.dump_clinical_record()
+		print chunk
+		outFile.write('\n' + chunk)
+		
+		chunk = export_tool.dump_med_docs()
+		print chunk
+		outFile.write('\n' + chunk)
 
+	# Clean ups
+	outFile.close()
 	export_tool.cleanup()
 	if patient is not None:
 		try:
 			patient.cleanup()
 		except:
 			print "error cleaning up patient"
+			
 #------------------------------------------------------------
 if __name__ == "__main__":
+    
 	print "\n\nGnumed Simple EMR ASCII Export Tool"
 	print "==================================="
 
@@ -525,10 +626,12 @@ if __name__ == "__main__":
 		pool.StopListeners()
 	except:
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
-
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.18  2004-07-02 00:54:04  ncq
+# Revision 1.19  2004-07-03 17:15:59  ncq
+# - decouple contraint/patient/outfile handling
+#
+# Revision 1.18  2004/07/02 00:54:04  ncq
 # - constraints passing cleanup by Carlos
 #
 # Revision 1.17  2004/06/30 12:52:36  ncq
