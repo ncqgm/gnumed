@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -116,14 +116,6 @@ def get_base_dir():
 	print 'Something is really rotten here. We better fail gracefully.'
 	return None
 # ---------------------------------------------------------------------------
-def call_main():
-	"""Call the appropriate main().
-	"""
-	if gmCLI.has_arg("--talkback"):
-		gmGuiMain.main_with_talkback()
-	else:
-		gmGuiMain.main()
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
 
@@ -146,6 +138,11 @@ if __name__ == "__main__":
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lErr)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
+
+	if gmCLI.has_arg('--talkback'):
+		# email logger as a loop device
+		email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GNUmed client", aTo = ("ncq@localhost",), anSMTPServer = "localhost")
+		gmLog.gmDefLog.AddTarget (email_logger)
 
 	if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 		print "help requested"
@@ -187,15 +184,22 @@ if __name__ == "__main__":
 
 	# run gnumed and intercept _all_ exceptions (but reraise them ...)
 	try:
-		call_main()
+		gmGuiMain.main()
 	except:
 		exc = sys.exc_info()
 		gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc, fatal=0)
+		if gmCLI.has_arg('--talkback'):
+			import gmTalkback
+			gmTalkback.run(email_logger)
 		raise
 
 	#<DEBUG>
-	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
+	gmLog.gmDefLog.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 	#</DEBUG>
+
+	if gmCLI.has_arg('--talkback'):
+		import gmTalkback
+		gmTalkback.run(email_logger)
 
 else:
 	print "This shouldn't be used as a module !"
