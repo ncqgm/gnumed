@@ -27,3 +27,11 @@ description = list of port numbers used to connect to backend on the chosen host
 [backend.databases]
 type = str_array
 description = list of gnumed core database names (as shown in Login Dialog/Options)
+
+[backend.client encoding]
+type = string
+description = Reflects the encoding used by the client. on Linux you can determine a likely candidate for the encoding by running "locale charmap".
+
+[backend.ignored mismatching system locale]
+type = string
+description = If the system locale matches this value a mismatch with the database locale will be ignored. Remove this option if you want to stop ignoring mismatches.
