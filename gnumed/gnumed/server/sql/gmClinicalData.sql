@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.32 2004-09-29 10:26:40 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.33 2005-03-31 17:42:43 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -35,6 +35,13 @@ INSERT INTO encounter_type (description) values (i18n('other encounter'));
 -- ===================================================================
 insert into _enum_allergy_type (value) values (i18n('allergy'));
 insert into _enum_allergy_type (value) values (i18n('sensitivity'));
+
+-- ===================================================================
+-- soap cat ranking for sorting
+insert into soap_cat_ranks (rank, soap_cat) values (1, 's');
+insert into soap_cat_ranks (rank, soap_cat) values (1, 'o');
+insert into soap_cat_ranks (rank, soap_cat) values (1, 'a');
+insert into soap_cat_ranks (rank, soap_cat) values (1, 'p');
 
 -- ===================================================================
 -- clinical narrative types
@@ -137,6 +144,13 @@ INSERT INTO enum_confidentiality_level (description) values (i18n('treating doct
 
 -- ===================================================================
 -- measurements stuff
+
+-- request status strings
+select i18n('pending');
+select i18n('preliminary');
+select i18n('partial');
+select i18n('final');
+
 
 delete from test_org;
 
@@ -584,11 +598,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.32  2004-09-29 10:26:40  ncq
+-- Revision 1.33  2005-03-31 17:42:43  ncq
+-- - soap_cat_ranks, request_status strings
+--
+-- Revision 1.32  2004/09/29 10:26:40  ncq
 -- - basic_unit -> conversion_unit
 --
 -- Revision 1.31  2004/09/25 13:23:32  ncq
