@@ -2,17 +2,20 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
-import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmPatient, gmPG, gmGuiHelpers
-_log = gmLog.gmDefLog
+import gmGuiBroker, gmGP_PatientPicture, gmPatientSelector
+import gmDispatcher, gmSignals, gmPatient, gmPG, gmGuiHelpers
+import gmLog, gmCLI
 
 from wxPython.wx import *
+
+_log = gmLog.gmDefLog
 
 ID_BTN_pat_demographics = wxNewId()
 ID_CBOX_consult_type = wxNewId()
@@ -81,9 +84,11 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		)
 		self.btn_pat_demographics.SetToolTip(wxToolTip(_("display patient demographics")))
 		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND)
-
 		#  - patient selector
 		self.patient_selector = gmPatientSelector.cPatientSelector(self, -1)
+		if gmCLI.has_arg('--slave'):
+			self.patient_selector.SetEditable(0)
+			self.patient_selector.SetToolTip(None)
 		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 		self.szr_top_row.Add (self.patient_selector, 5, wxEXPAND, 3)
 		#  - age
@@ -339,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.28  2004-02-05 23:49:52  ncq
+# Revision 1.29  2004-02-12 23:58:17  ncq
+# - disable editing of patient selector when --slave()d
+#
+# Revision 1.28  2004/02/05 23:49:52  ncq
 # - use wxCallAfter()
 #
 # Revision 1.27  2004/01/15 14:58:31  ncq
