@@ -41,11 +41,12 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 	 * @throws DataSourceException
 	 * @throws SQLException
 	 */
+ 
 	protected void setStatement(EntryMedication med,
 			ClinRootInsert rootItemInserter, PreparedStatement stmt)
 			throws DataSourceException, SQLException {
+ 
 		int j = 1;
-		ensureClinWhenBeforeLastPrescribed(med);
 		stmt.setString(++j, med.getBrandName());
 		stmt.setString(++j, med.getATC_code());
 		stmt.setString(++j, med.getDB_origin());
@@ -60,6 +61,7 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 		stmt.setString(++j, String.valueOf(med.getPeriod()) + INTERVAL_HOURS);
 		stmt.setString(++j, med.getForm());
 		stmt.setString(++j, med.getDirections());
+ 
 		stmt.setBoolean(++j, med.isPRN());
 		//	stmt.setDate(++j, new java.sql.Date(med.getStart().getTime()));
 		// //deprecated
@@ -68,6 +70,7 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 				: new java.sql.Timestamp(med.getDiscontinued().getTime()));
 		rootItemInserter.setClinRootItemStatement(stmt, med, ++j);
 		j = 15;
+ 
 		stmt.setString(++j, "p");
 		//		stmt.setBoolean(++j, med.isSR());
 		j = 18;
