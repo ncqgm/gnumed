@@ -1,5 +1,5 @@
 """
-	GnuMed multisash based SOAP input panel
+	GnuMed multisash notes input panel
 	
 	Health issues are selected in a list.
 	The user can split new soap windows, which are disposed
@@ -13,7 +13,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.1 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -27,7 +27,7 @@ from Gnumed.wxpython import gmRegetMixin, gmResizingWidgets
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
-import SOAPMultiSash
+import SOAPMultiSash, gmSoapWidgets
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -35,209 +35,11 @@ _log.Log(gmLog.lInfo, __version__)
 
 # FIXME attribute encapsulation and private methods
 # FIXME i18n
-
-	
-def create_widget_on_test_kwd1(*args, **kwargs):
-	print "test keyword must have been typed..."
-	print "actually this would have to return a suitable wxWindow subclass instance"
-	print "args:", args
-	print "kwd args:"
-	for key in kwargs.keys():
-		print key, "->", kwargs[key]
-#================================================================
-def create_widget_on_test_kwd2(*args, **kwargs):
-	msg = (
-		"test keyword must have been typed...\n"
-		"actually this would have to return a suitable wxWindow subclass instance\n"
-	)
-	for arg in args:
-		msg = msg + "\narg ==> %s" % arg
-	for key in kwargs.keys():
-		msg = msg + "\n%s ==> %s" % (key, kwargs[key])
-	gmGuiHelpers.gm_show_info (
-		aMessage = msg,
-		aTitle = 'msg box on create_widget from test_keyword'
-	)
-#================================================================
-class cSoapWin (gmResizingWidgets.cResizingWindow):
-	def DoLayout(self):
-		self.input1 = gmResizingWidgets.cResizingSTC(self, -1)
-		self.input2 = gmResizingWidgets.cResizingSTC(self, -1)
-		self.input3 = gmResizingWidgets.cResizingSTC(self, -1)
-
-		self.input1.prev_in_tab_order = None
-		self.input1.next_in_tab_order = self.input2
-		self.input2.prev_in_tab_order = self.input1
-		self.input2.next_in_tab_order = self.input3
-		self.input3.prev_in_tab_order = self.input2
-		self.input3.next_in_tab_order = None
-
-		self.AddWidget (widget=self.input1, label="S")
-		self.Newline()
-		self.AddWidget (widget=self.input2, label="O")
-		self.Newline()
-		self.AddWidget (widget=self.input3, label="A+P")
-
-		kwds = {}
-		kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd2}
-		self.input2.set_keywords(popup_keywords=kwds)		
-			
-#============================================================
-class cSOAPControl(wx.wxPanel):
-	"""
-	Basic SOAP input widget. It provides gmResizingWindows based SOAP editor
-	and a staticText that displays the which issue is current SOAP related to.
-	"""
-	
-	#--------------------------------------------------------
-	def __init__(self, parent):
-		"""
-		Construct a new SOAP input widget
-		
-		@param parent: the parent widget		
-		"""
-		
-		# panel initialization
-		wx.wxPanel.__init__ (self,
-			parent,
-			-1,
-			wx.wxPyDefaultPosition,
-			wx.wxPyDefaultSize,
-			wx.wxNO_BORDER
-		)
-		
-		# soap's health issue staticText heading
-		self.__soap_label = wx.wxStaticText(self, -1, "Select issue and press 'New'")
-		# related health issue
-		self.__health_issue = None
-		print "...creating new soap input widget"
-		# flag indicating saved state
-		self.is_saved = False
-				
-		# soap rich and smart text editor
-		# FIXME currently copied form SOAP2.py
-		self.__soap_text_editor = cSoapWin (self, -1, size = wx.wxSize (300, 150))
-
-		# sizers for widgets
-		self.__soap_control_sizer = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__soap_control_sizer.Add(self.__soap_label)		   
-		self.__soap_control_sizer.Add(self.__soap_text_editor)
-		
-		# do layout
-		self.SetSizerAndFit(self.__soap_control_sizer)				
-		
-	#--------------------------------------------------------
-	def SetHealthIssue(self, selected_issue):
-		"""
-		Set the related health issue for this SOAP input widget.
-		Update heading label with health issue data.
-		
-		@type selected_issue: gmEMRStructItems.cHealthIssue
-		@param selected_issue: SOAP input widget's related health issue
-		"""
-		self.__health_issue = selected_issue
-		if self.__health_issue is None or len(self.__health_issue) == 0:
-			self.__soap_label.SetLabel("Select issue and press 'New'")
-		else:
-			txt = '%s# %s'%(self.__health_issue[0]+1,self.__health_issue[1]['description'])
-			# update staticText content and recalculate sizer internal values
-			self.__SetHeading(txt)
-		self.ShowContents()
-			
-	#--------------------------------------------------------
-	def GetHealthIssue(self):
-		"""
-		Retrieve the related health issue for this SOAP input widget.
-		"""
-		return self.__health_issue
-	
-	#--------------------------------------------------------
-	def GetSOAP(self):
-		"""
-		Retrieves widget's SOAP text editor
-		"""
-		return self.__soap_text_editor
-	
-	#--------------------------------------------------------
-	def ClearSOAP(self):
-		"""
-		Clear any entries in widget's SOAP text editor
-		"""
-		self.__soap_text_editor.Clear()
-
-	#--------------------------------------------------------
-	def HideContents(self):
-		"""
-		Hide widget's components (health issue heading and SOAP text editor)
-		"""
-		self.__soap_label.Hide()
-		self.__soap_text_editor.Hide()
-	
-	#--------------------------------------------------------	
-	def ShowContents(self):
-		"""
-		Show widget's components (health issue heading and SOAP text editor)
-		"""
-		self.__soap_label.Show(True)
-		self.__soap_text_editor.Show(True)
-
-	#--------------------------------------------------------
-	def IsContentShown(self):
-		"""
-		Check if contents are being shown
-		"""
-		return self.__soap_label.IsShown()
-		
-	#--------------------------------------------------------	
-	def SetSaved(self, is_saved):
-		"""
-		Set SOAP input widget saved (dumped to backend) state
-		
-		@param is_saved: Flag indicating wether the SOAP has been dumped to
-						 persistent backend
-		@type is_saved: boolean
-		"""
-		self.is_saved = is_saved
-		if is_saved:
-			self.__SetHeading(self.__soap_label.GetLabel() + '. SAVED')
-
-	#--------------------------------------------------------	
-	def IsSaved(self):
-		"""
-		Check  SOAP input widget saved (dumped to backend) state
-		
-		"""
-		return self.is_saved
-			
-	#--------------------------------------------------------	
-	def __SetHeading(self, txt):
-		"""
-		Configure SOAP widget's heading title
-		
-		@param txt: New widget's heading title to set
-		@type txt: string
-		"""
-		self.__soap_label.SetLabel(txt)
-		size = self.__soap_label.GetBestSize()
-		self.__soap_control_sizer.SetItemMinSize(self.__soap_label, size.width, size.height)
-		self.Layout()
-		
-	#--------------------------------------------------------	
-	def ResetAndHide(self):
-		"""
-		Reset all data and hide contents
-		
-		"""		
-		self.SetHealthIssue(None)			
-		self.SetSaved(False)
-		self.ClearSOAP()		
-		self.HideContents()
-					
 #============================================================					  
-class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
-	Basic multi-sash based SOAP input panel.
-	Currently, displays a dynamic stack of SOAP input widgets on the left
+	Basic multi-sash based note input panel.
+	Currently, displays a dynamic stack of note input widgets on the left
 	and the helth issues list on the right.
 	"""
 	
@@ -494,7 +296,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Check and configure adecuate buttons enabling state
 		"""
-		print "cSOAPInput.check_buttons" 
+		print "cMultiSashedSoapPanel.check_buttons" 
 		
 		if self.__selected_leaf is None:
 			print "Selected leaf NONE"
@@ -591,9 +393,9 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		@type selected_leaf: SOAPMultiSash.wxMultiViewLeaf
 		
 		@param selected_soap: multisash's currently selected soap
-		@type selected_soap: gmSOAPInput.cSOAPControl
+		@type selected_soap: gmSOAPInput.cSoapPanel
 		"""
-		print "cSOAPInput.set_selected_leaf"
+		print "cMultiSashedSoapPanel.set_selected_leaf"
 		self.__selected_leaf = selected_leaf		
 		self.__selected_soap = selected_soap		
 		print "\nSelected leaf: %s"%(self.__selected_leaf)		
@@ -680,7 +482,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmCfg
 
 	_log.SetAllLogLevels(gmLog.lData)
-	_log.Log (gmLog.lInfo, "starting SOAP input panel...")
+	_log.Log (gmLog.lInfo, "starting notes input panel...")
 
 	_cfg = gmCfg.gmDefCfgFile	 
 	if _cfg is None:
@@ -700,7 +502,7 @@ if __name__ == '__main__':
 
 		# display standalone browser
 		application = wx.wxPyWidgetTester(size=(800,600))
-		soap_input = cSOAPInputPanel(application.frame, -1)
+		soap_input = cMultiSashedSoapPanel(application.frame, -1)
 		#soap_input.refresh_tree()
 		
 		application.frame.Show(True)
@@ -722,4 +524,4 @@ if __name__ == '__main__':
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 		raise
 
-	_log.Log (gmLog.lInfo, "closing SOAP input...")
+	_log.Log (gmLog.lInfo, "closing notes input...")

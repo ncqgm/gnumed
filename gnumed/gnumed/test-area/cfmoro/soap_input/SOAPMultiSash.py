@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.15 2004-12-16 17:59:38 cfmoro Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.16 2004-12-31 16:44:21 cfmoro Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -23,7 +23,7 @@ MV_VER = not MV_HOR
 SH_SIZE = 5 
 CR_SIZE = SH_SIZE * 3
 
-import gmSOAPInput
+import gmSoapWidgets
 
 #============================================================
 class cSOAPMultiSash(wxWindow):
@@ -379,12 +379,12 @@ class MultiClient(wxWindow):
 		print "Creating soap input widget, controller (%s)"%(childController)
 		# ui initialized and some issue selection, create SOAP input for the issue
 		if not childController is None:
-			self.child = gmSOAPInput.cSOAPControl(self)
+			self.child = gmSoapWidgets.cSoapPanel(self)
 			self.child.SetHealthIssue(childController.get_selected_issue())
 			childController.get_issues_with_soap().append(childController.get_selected_issue()[1])
 		else:
 			# empty issue selection 
-			self.child = gmSOAPInput.cSOAPControl(self)
+			self.child = gmSoapWidgets.cSoapPanel(self)
 		
 		self.childController = childController
 		self.child.MoveXY(2,2)
