@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.54 2005-02-20 09:46:08 ihaywood Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmDemographics.py,v 1.55 2005-02-20 10:15:16 ihaywood Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -115,7 +115,7 @@ class TextBox_RedBold(wx.TextCtrl):
 class BlueLabel_Normal(wx.StaticText):
 	def __init__(self, parent, id, prompt, text_alignment):
 		wx.StaticText.__init__(self,parent, id,prompt,wx.DefaultPosition,wx.DefaultSize,text_alignment)
-		self.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
+		self.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		self.SetForegroundColour(wx.Colour(0,0,131))
 
 class BlueLabel_Bold(wx.StaticText):
@@ -615,7 +615,7 @@ class DemographicDetailWindow(wx.Panel):
 		#Add surname, firstname, title, sex, salutation
 		#-------------------------------------------------------------------
 		lbl_surname = BlueLabel_Normal(self,-1, _("Surname"), wx.LEFT)
-		lbl_title = BlueLabel_Normal(self,-1, _("Title"), wx.LEFT)
+		lbl_title = BlueLabel_Normal(self,-1, _("Title"), wx.ALIGN_CENTRE)
 		self.lastnames = TextBox_RedBold(self,-1)
 		self.title = TextBox_RedBold (self, -1)
 		sizer_line1 = wx.BoxSizer(wx.HORIZONTAL)  		 #holds surname label + textbox, title label and combobox
@@ -708,6 +708,7 @@ class DemographicDetailWindow(wx.Panel):
 				sizer_leftside.Add(sizer_contacts_line, 0, wx.EXPAND)
 			toggle = not toggle
 		if not toggle:
+			sizer_contacts_line.Add ((0,0), 8)
 			sizer_leftside.Add(sizer_contacts_line, 0, wx.EXPAND)
 		#-----------------------------------------------------------
 		#   right-hand size of bottom half:
@@ -829,6 +830,7 @@ class DemographicDetailWindow(wx.Panel):
 				sizer_rightside.Add(sizer_ext_id_line, 0, wx.EXPAND)
 			toggle = not toggle
 		if not toggle:
+			sizer_ext_id_line.Add((0,0), 8)
 			sizer_rightside.Add(sizer_ext_id_line, 0, wx.EXPAND)
 		#-----------------------------------------------------------
 		#   bottom half of screen:
@@ -1039,7 +1041,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.54  2005-02-20 09:46:08  ihaywood
+# Revision 1.55  2005-02-20 10:15:16  ihaywood
+# some tidying up
+#
+# Revision 1.54  2005/02/20 09:46:08  ihaywood
 # demographics module with load a patient with no exceptions
 #
 # Revision 1.53  2005/02/18 11:16:41  ihaywood
