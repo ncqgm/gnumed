@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.173 2004-09-13 09:36:43 ncq Exp $
-__version__ = "$Revision: 1.173 $"
+# $Id: gmGuiMain.py,v 1.174 2004-10-01 11:49:59 ncq Exp $
+__version__ = "$Revision: 1.174 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -698,14 +698,14 @@ class gmApp(wxApp):
 			return None
 		if len(result) == 0:
 			msg = _(
-				"There is no language selected in the database.\n"
+				"There is no language selected in the database for user [%s].\n"
 				"Your system language is currently set to [%s].\n\n"
 				"Do you want to set the database language to '%s' ?\n\n"
 				"Answering <NO> will remember that decision until\n"
 				"the system language is changed. You can also reactivate\n"
 				"this inquiry by removing the appropriate ignore option\n"
 				"from the configuration file."
-			)  % (gmI18N.system_locale, gmI18N.system_locale)
+			)  % (_whoami.get_db_account(), gmI18N.system_locale, gmI18N.system_locale)
 			_log.Log(gmLog.lData, "database locale currently not set")
 		else:
 			db_lang = result[0][0]
@@ -793,7 +793,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.173  2004-09-13 09:36:43  ncq
+# Revision 1.174  2004-10-01 11:49:59  ncq
+# - improve message on unset database language
+#
+# Revision 1.173  2004/09/13 09:36:43  ncq
 # - cleanup
 # - --slave -> 'main.slave_mode'
 #
