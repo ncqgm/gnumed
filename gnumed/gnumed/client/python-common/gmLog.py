@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -257,11 +257,11 @@ class cLogger:
 				self.__targets[key].writeMsg(level1, aMsg)
 				self.__targets[key].writeMsg(level1, "exception type : %s" % exc_type)
 				self.__targets[key].writeMsg(level1, "exception value: %s" % exc_val)
-				
 				for line in traceback_stack:
 					self.__targets[key].writeMsg(level2, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
-				self.__targets[key].writeMsg(lData, "locals by frame, innermost frame last")
-				for frame in stack_of_frames:
+				if verbose:
+					self.__targets[key].writeMsg(lData, "locals by frame, innermost frame last")
+					for frame in stack_of_frames:
 						self.__targets[key].writeMsg(lData, ">>> execution frame [%s] in [%s] at line %s <<<" % (
 							frame.f_code.co_name,
 							frame.f_code.co_filename,
