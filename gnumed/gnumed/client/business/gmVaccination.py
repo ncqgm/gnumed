@@ -4,22 +4,28 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.5 2004-05-14 13:17:27 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmVaccination.py,v 1.6 2004-06-08 00:48:05 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+
+import types
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG
 from Gnumed.business import gmClinItem
 from Gnumed.pycommon.gmPyCompat import *
 
-gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
+_log = gmLog.gmDefLog
+if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+_log.Log(gmLog.lInfo, __version__)
 #============================================================
 class cVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination event.
 	"""
 	_cmd_fetch_payload = """
 		select * from v_pat_vacc4ind
-		where pk_vaccination=%s"""
+		where pk_vaccination=%s
+		order by date desc"""
 
 	_cmds_store_payload = [
 		"""select 1 from vaccination where id=%(pk_vaccination)s for update""",
@@ -30,8 +36,7 @@ class cVaccination(gmClinItem.cClinItem):
 				fk_vaccine=(select id from vaccine where trade_name=%(vaccine)s),
 				site=%(site)s,
 				batch_no=%(batch_no)s
-			where id=%(pk_vaccination)s
-			order by date desc"""
+			where id=%(pk_vaccination)s"""
 		]
 
 	_updatable_fields = [
@@ -104,26 +109,30 @@ class cMissingBooster(gmClinItem.cClinItem):
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, vaccine=None):
+def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staff_id = None, vaccine=None):
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
-	cmd = "select exists(select 1 from v_patient_items where id_patient=%s and id_episode=%s and id_encounter=%s)"
-	valid = gmPG.run_ro_query('historica', cmd, None, patient_id, episode_id, encounter_id)
-	if valid is None:
-		_log.Log(gmLog.lErr, 'error checking patient [%s] <-> episode [%s] <-> encounter [%s] consistency' % (patient_id, episode_id, encounter_id))
+	cmd = """select id_patient from v_pat_episodes where id_episode=%s 
+                 union 
+             select pk_patient from v_pat_encounters where pk_encounter=%s"""
+	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
+	if (rows is None) or (len(rows) == 0):
+		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
 		return (None, _('internal error, check log'))
-	if not valid[0]:
-		_log(gmLog.lErr, 'episode [%s] and/or encounter [%s] apparently do not belong to patient [%s]' % (episode_id, encounter_id, patient_id))
+	if len(rows) > 1:
+		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
 		return (None, _('consistency error, check log'))
 	# insert new vaccination
 	queries = []
 	if type(vaccine) == types.IntType:
-		cmd = "insert into vaccination (id_encounter, id_episode, fk_patient, fk_provider, fk_vaccine) values (%s, %s, %s, %s, %s)"
+		cmd = """insert into vaccination (id_encounter, id_episode, fk_patient, fk_provider, fk_vaccine)
+				 values (%s, %s, %s, %s, %s)"""
 	else:
-		cmd = "insert into vaccination (id_encounter, id_episode, fk_patient, fk_provider, fk_vaccine) values (%s, %s, %s, %s, (select id from vaccine where trade_name=%s))"
+		cmd = """insert into vaccination (id_encounter, id_episode, fk_patient, fk_provider, fk_vaccine)
+				 values (%s, %s, %s, %s, (select id from vaccine where trade_name=%s))"""
 		vaccine = str(vaccine)
-	queries.append((cmd, [encounter_id, episode_id, patient_id, vaccine]))
+	queries.append((cmd, [encounter_id, episode_id, patient_id, staff_id, vaccine]))
 	# get PK of inserted row
 	cmd = "select currval('vaccination_id_seq')"
 	queries.append((cmd, []))
@@ -205,7 +214,10 @@ if __name__ == '__main__':
 	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.5  2004-05-14 13:17:27  ncq
+# Revision 1.6  2004-06-08 00:48:05  ncq
+# - cleanup
+#
+# Revision 1.5  2004/05/14 13:17:27  ncq
 # - less useless verbosity
 # - cleanup
 #
