@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -251,7 +251,7 @@ class cAllergyPanel(wxPanel):
 			wxPyDefaultSize,
 			wxLC_REPORT | wxLC_NO_HEADER | wxSUNKEN_BORDER
 		)
-		self.list_allergy.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.list_allergy.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		# add some dummy data to the allergy list
 		self._constructListColumns()
 		#-------------------------------------------------------------
@@ -271,7 +271,7 @@ class cAllergyPanel(wxPanel):
 			size = (200, 100),
 			style = wxTE_MULTILINE
 		)
-		self.classtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.classtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		# add elements to main background sizer
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		self.mainsizer.Add(self.allergypanelheading,0,wxEXPAND)
@@ -282,8 +282,8 @@ class cAllergyPanel(wxPanel):
 		self.mainsizer.Add(self.classtxt,4,wxEXPAND)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 
 		self.__pat = gmPatient.gmCurrentPatient()
 		self.__register_interests()
@@ -376,7 +376,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.1  2004-07-17 21:16:38  ncq
+# Revision 1.2  2004-07-18 20:30:53  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.1  2004/07/17 21:16:38  ncq
 # - cleanup/refactor allergy widgets:
 #   - Horst space plugin added
 #   - Richard space plugin separated out

@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -72,7 +72,7 @@ divisionTypes = [_('Head Office'),_('Branch'),_('Department')]
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
 		self.SetForegroundColour(wxColour(0,0,131))
 
 class DarkBlueHeading(wxStaticText):
@@ -83,7 +83,7 @@ class DarkBlueHeading(wxStaticText):
 			family = wxSWISS,
 			style = wxNORMAL,
 			weight = wxBOLD,
-			underline = false
+			underline = False
 			)
 		)
 		self.SetForegroundColour(wxColour(0,0,255))
@@ -94,12 +94,12 @@ class TextBox_RedBold(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(255,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
 class TextBox_BlackNormal(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 
 class ContactsPanel(wxPanel):
 	def __init__(self, parent,id):
@@ -109,7 +109,7 @@ class ContactsPanel(wxPanel):
 		#-----------------------------------------------------------------
 		self.list_organisations = wxListCtrl(self, ID_ORGANISATIONSLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.list_organisations.SetForegroundColour(wxColor(74,76,74))
-		self.list_organisations.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.list_organisations.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		#----------------------------------------
 		# add some dummy data to the allergy list
 		self.list_organisations.InsertColumn(0,_( "Organisation"))
@@ -150,7 +150,7 @@ class ContactsPanel(wxPanel):
 		self.lbl_org_suburb = BlueLabel(self,-1,_("Suburb"))
 		self.lbl_org_state = BlueLabel(self,-1,_("State"))                   #eg NSW
 		self.lbl_org_zip = wxStaticText(self,id,_("Zip"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTRE)
-		self.lbl_org_zip.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.lbl_org_zip.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
 		self.lbl_org_zip.SetForegroundColour(wxColour(0,0,131))
 		#self.lbl_org_zip = BlueLabel(self,-1,"Zip")
 		self.lbl_org_category = BlueLabel(self,-1,_("Category"))
@@ -172,7 +172,7 @@ class ContactsPanel(wxPanel):
 		self.txt_org_type = TextBox_RedBold(self,-1)       #head office, branch or department
 		#self.txt_org_number = TextBox_RedBold(self, -1)
 		self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
-		self.txt_org_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_org_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize)
 		self.txt_org_zip.setDependent (self.txt_org_suburb, 'postcode')
@@ -180,7 +180,7 @@ class ContactsPanel(wxPanel):
 		#self.txt_org_street = wxTextCtrl(self, 30,"",wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 	
 		#self.txt_org_street.SetForegroundColour(wxColor(255,0,0))
-		#self.txt_org_street.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		#self.txt_org_street.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 		#self.txt_org_suburb = TextBox_RedBold(self,-1)
 		#self.txt_org_zip = TextBox_RedBold(self,-1)
 		self.txt_org_state = TextBox_RedBold(self,-1) #for user defined fields later
@@ -199,10 +199,10 @@ class ContactsPanel(wxPanel):
 				"Insist on pre-payment before sending report",
 				wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 		self.txt_org_memo.SetInsertionPoint(0)
-		self.txt_org_memo.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_org_memo.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.combo_type = wxComboBox(self, ID_COMBOTYPE, "", wxDefaultPosition,wxDefaultSize,  divisionTypes , wxCB_READONLY ) #wxCB_DROPDOWN)
 		self.combo_type.SetForegroundColour(wxColor(255,0,0))
-		self.combo_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.combo_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 		#----------------------
 		#create the check boxes
 		#----------------------
@@ -404,8 +404,8 @@ class ContactsPanel(wxPanel):
 		self.mainsizer.AddSizer(self.nextsizer,1,wxEXPAND|wxALL,10)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 
 	def _set_controller(self, helper = cOrgHelperImpl3() ):
 		"""Initialises the controller for this widget.
@@ -930,7 +930,7 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 
 	def populate_toolbar (self, tb, widget):
 		tool1 = tb.AddTool(ID_SEARCHGLOBAL, images_contacts_toolbar16_16.getfind_globalBitmap(),
-					shortHelpString=_("Global Search Of Contacts Database"), isToggle=false)
+					shortHelpString=_("Global Search Of Contacts Database"), isToggle=False)
 		tb.AddControl(wxTextCtrl(tb, ID_SEARCHGLOBAL, name =_("txtGlobalSearch"),size =(100,-1),style = 0, value = ''))
 		tool1 = tb.AddTool(ID_ORGANISATIONDISPLAY, images_contacts_toolbar16_16.getorganisationBitmap(),
 					shortHelpString=_("Display Organisations"),)
@@ -939,7 +939,7 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		tool1 = tb.AddTool(ID_DOCTORSDISPLAY, images_contacts_toolbar16_16.getdoctorBitmap(),
 					shortHelpString=_("Display Doctors"),)
 		tool1 = tb.AddTool(ID_PERSONSDISPLAY, images_contacts_toolbar16_16.getpersonBitmap(),
-					shortHelpString=_("Display Persons"), isToggle=false)
+					shortHelpString=_("Display Persons"), isToggle=False)
 		tool1 = tb.AddTool(ID_ORGANISATIONADD, images_contacts_toolbar16_16.getorganisation_addBitmap(),
 					shortHelpString=_("Add an Organisation"),)
 	
@@ -1037,7 +1037,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.36  2004-06-30 16:06:43  shilbert
+# Revision 1.37  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.36  2004/06/30 16:06:43  shilbert
 # - u guessed it - more wxMAC fixes
 #
 # Revision 1.35  2004/06/29 22:41:53  shilbert

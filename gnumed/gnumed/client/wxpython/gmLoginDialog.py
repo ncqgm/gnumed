@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.50 2004-07-18 18:44:27 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmLoginDialog.py,v 1.51 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib, types
@@ -59,18 +59,18 @@ class LoginPanel(wxPanel):
 						see class "LoginParameters" in this module
 		isDialog:	if this panel is the main panel of a dialog, the panel will
 					resize the dialog automatically to display everything neatly
-					if isDialog is set to true
+					if isDialog is set to True
 		"""
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
 
 		self.gb = gmGuiBroker.GuiBroker()
 
-		#true if dialog was cancelled by user 
+		#True if dialog was cancelled by user 
 		#if the dialog is closed manually, login should be cancelled
 		self.cancelled = True
 
-		# true if this panel is displayed within a dialog (will resize the dialog automatically then)
+		# True if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
 
 		# if no login params supplied get default ones or from config file
@@ -419,7 +419,7 @@ class OptionPanel(wxPanel):
 	#	             see class "LoginParameters" in this module
 	#	isDialog: if this panel is the main panel of a dialog, the panel will
 	#	          resize the dialog automatically to display everything neatly
-	#	          if isDialog is set to true
+	#	          if isDialog is set to True
 	"""
 	def __init__(self, parent, id, pos = wxPyDefaultPosition, size = wxPyDefaultSize, style = wxTAB_TRAVERSAL,
 		loginparams = None,
@@ -429,10 +429,10 @@ class OptionPanel(wxPanel):
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
 
-		#true if dialog was cancelled by user
+		#True if dialog was cancelled by user
 		self.cancelled = False
 
-		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
+		#True if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
 
 		#login parameter settings should have been initialized by the parent window
@@ -589,7 +589,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.50  2004-07-18 18:44:27  ncq
+# Revision 1.51  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.50  2004/07/18 18:44:27  ncq
 # - use Python True, not wxPython true
 #
 # Revision 1.49  2004/06/20 16:01:05  ncq

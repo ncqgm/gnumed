@@ -35,8 +35,8 @@ class HabitsRiskFactors(wxPanel):
 	text_sizer.Add(txt_riskfactors,1,wxEXPAND)
 	self.SetSizer(text_sizer)  #set the sizer 
 	text_sizer.Fit(self)             #set
-	self.SetAutoLayout(true)                 #tell frame to use the sizer
-        #self.Show(true)
+	self.SetAutoLayout(True)                 #tell frame to use the sizer
+        #self.Show(True)
 	
 	self.lists = { 'habit': txt_habits, 'risk': txt_riskfactors }
 

@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.11 2004-06-25 13:28:00 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmGP_Referrals.py,v 1.12 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "R.Terry, I.Haywood"
 
 from wxPython.wx import *
@@ -49,8 +49,8 @@ class ReferralsPanel (wxPanel, PatientHolder):
 		self.szr_main.Add(szr_top, 0, wxEXPAND)
 		self.szr_main.Add(self.editarea, 10, wxEXPAND)
 		self.SetSizer(self.szr_main)
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 
 #==============================================================
 class gmGP_Referrals (gmPlugin_Patient.wxPatientPlugin):
@@ -98,7 +98,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #==============================================================
 # $Log: gmGP_Referrals.py,v $
-# Revision 1.11  2004-06-25 13:28:00  ncq
+# Revision 1.12  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.11  2004/06/25 13:28:00  ncq
 # - logically separate notebook and clinical window plugins completely
 #
 # Revision 1.10  2004/03/10 14:16:47  ncq

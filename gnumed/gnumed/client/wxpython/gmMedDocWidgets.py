@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -101,7 +101,7 @@ class cDocTree(wxTreeCtrl):
 		# init new tree
 		self.root = self.AddRoot(_("available documents (most recent on top)"), -1, -1)
 		self.SetPyData(self.root, None)
-		self.SetItemHasChildren(self.root, FALSE)
+		self.SetItemHasChildren(self.root, False)
 
 		# read documents from database
 		docs_folder = self.curr_pat.get_document_folder()
@@ -115,7 +115,7 @@ class cDocTree(wxTreeCtrl):
 			return None
 
 		# fill new tree from document list
-		self.SetItemHasChildren(self.root, TRUE)
+		self.SetItemHasChildren(self.root, True)
 
 		# add our documents as first level nodes
 		self.doc_list = {}
@@ -136,7 +136,7 @@ class cDocTree(wxTreeCtrl):
 			# FIXME: handle date correctly
 			label =	 tmp % (date[:10], typ[:25], cmt[:25], page_num, ref[:15])
 			doc_node = self.AppendItem(self.root, label)
-			self.SetItemBold(doc_node, bold=TRUE)
+			self.SetItemBold(doc_node, bold=True)
 			# id: doc_med.id for access
 			# date: for sorting
 			data = {
@@ -145,7 +145,7 @@ class cDocTree(wxTreeCtrl):
 				'date': mdata['date']
 			}
 			self.SetPyData(doc_node, data)
-			self.SetItemHasChildren(doc_node, TRUE)
+			self.SetItemHasChildren(doc_node, True)
 
 			# now add objects as child nodes
 			i = 1
@@ -344,6 +344,9 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.1  2004-06-26 23:39:34  ncq
+# Revision 1.2  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.1  2004/06/26 23:39:34  ncq
 # - factored out widgets for re-use
 #

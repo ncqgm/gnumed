@@ -3,8 +3,8 @@
 
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_ScratchPadRecalls.py,v $
-# $Id: gmGP_ScratchPadRecalls.py,v 1.14 2003-11-17 10:56:42 sjtan Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmGP_ScratchPadRecalls.py,v 1.15 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 
 from wxPython.wx import *
 import gmPlugin, gmShadow, gmLog, gmDispatcher, gmSignals, gmPG
@@ -32,7 +32,7 @@ class ScratchPadRecalls(wxPanel, PatientHolder):
 	def create_widgets(self):
 		self.lbl_fgcolour = wxColor(0,0,131)
 		self.list_fgcolour = wxColor(255,0,0)
-		self.lbl_font = wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,'')
+		self.lbl_font = wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,'')
 		#add a label which is the heading for the text data entry 'Scratchpad'
 		self.scratchpad_lbl = wxStaticText(self,-1, _("Scratch Pad"),style = wxALIGN_CENTRE) #add static text control for the capion
 		self.scratchpad_lbl.SetForegroundColour(self.lbl_fgcolour)               #set caption text colour
@@ -71,8 +71,8 @@ class ScratchPadRecalls(wxPanel, PatientHolder):
 		self.sizer.Add(self.list_recalls,70,wxEXPAND)
 		self.SetSizer(self.sizer)  #set the sizer
 		self.sizer.Fit(self)             #set to minimum size as calculated by sizer
-		self.SetAutoLayout(true)                 #tell frame to use the sizer
-		self.Show(true)
+		self.SetAutoLayout(True)                 #tell frame to use the sizer
+		self.Show(True)
 
 	def register_interests(self):
 		#gmDispatcher.connect(self.OnPatientID, gmSignals.patient_selected())
@@ -159,7 +159,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===============================================================
 # $Log: gmGP_ScratchPadRecalls.py,v $
-# Revision 1.14  2003-11-17 10:56:42  sjtan
+# Revision 1.15  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.14  2003/11/17 10:56:42  sjtan
 #
 # synced and commiting.
 #

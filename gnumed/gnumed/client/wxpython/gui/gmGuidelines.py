@@ -89,7 +89,7 @@ class GuidelinesHtmlPanel(wxPanel):
         self.box.Add(subbox, 0, wxGROW)
 
         self.SetSizer(self.box)
-        self.SetAutoLayout(true)
+        self.SetAutoLayout(True)
 
         self.OnShowDefault(None)
 

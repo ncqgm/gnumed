@@ -95,7 +95,7 @@ class RequestsPanel (wxPanel, PatientHolder):
 		#
 		#--------------------------------------------------------------------------------------
 		self.list_requests = wxListCtrl(self, ID_REQUESTSLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.list_requests.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.list_requests.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		#----------------------------------------	  
 		# add some dummy data to the allergy list
 		self.list_requests.InsertColumn(0, _("Request summary"))
@@ -130,8 +130,8 @@ class RequestsPanel (wxPanel, PatientHolder):
 		self.mainsizer.Add(self.list_requests,7,wxEXPAND)
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 	
 		
 class gmGP_Requests (gmPlugin_Patient.wxPatientPlugin):

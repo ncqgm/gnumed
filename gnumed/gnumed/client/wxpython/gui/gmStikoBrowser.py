@@ -14,7 +14,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -81,7 +81,7 @@ class StikoHtmlPanel(wxPanel):
         self.box.Add(self.html, 1, wxGROW)
 
         self.SetSizer(self.box)
-        self.SetAutoLayout(true)
+        self.SetAutoLayout(True)
 
         self.OnShowDefault(None)
 
@@ -150,7 +150,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOCONTENTS,
             images_for_gnumed_browser16_16.getcontentsBitmap(),
             shortHelpString=_("Table of Content"),
-            isToggle=true
+            isToggle=True
         )
         EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
 
@@ -158,7 +158,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOOPENFILE, 
             images_for_gnumed_browser16_16.getfileopenBitmap(),
             shortHelpString=_("Open File"),
-            isToggle=true
+            isToggle=True
         )
         EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
 
@@ -166,7 +166,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOBACK, 
             images_for_gnumed_browser16_16.get1leftarrowBitmap(),
             shortHelpString=_("Back"),
-            isToggle=false
+            isToggle=False
         )
         EVT_TOOL (tb, ID_STIKOBACK, widget.OnBack)
 
@@ -174,7 +174,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOFORWARD, 
             images_for_gnumed_browser16_16.get1rightarrowBitmap(),
             shortHelpString=_("Forward"),
-            isToggle=true
+            isToggle=True
         )
         EVT_TOOL (tb, ID_STIKOFORWARD, widget.OnForward)
 
@@ -182,7 +182,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKORELOAD, 
             images_for_gnumed_browser16_16.getreloadBitmap(),   
             shortHelpString=_("Reload"),
-            isToggle=true
+            isToggle=True
         )
 
         tb.AddSeparator()
@@ -191,7 +191,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOHOME,
             images_for_gnumed_browser16_16.getgohomeBitmap(),   
             shortHelpString=_("Home"),
-            isToggle=true
+            isToggle=True
         )
         EVT_TOOL (tb, ID_STIKOHOME, widget.OnShowDefault)
 
@@ -201,7 +201,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOBABELFISH, 
             images_for_gnumed_browser16_16.getbabelfishBitmap(),
             shortHelpString=_("Translate text"), 
-            isToggle=false
+            isToggle=False
         )
         #EVT_TOOL (tb, ID_STIKOBABELFISH, widget.OnBabelFish )
         
@@ -211,7 +211,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOBOOKMARKS, 
             images_for_gnumed_browser16_16.getbookmarkBitmap(),
             shortHelpString=_("Bookmarks"), 
-            isToggle=true
+            isToggle=True
         )
         #EVT_TOOL (tb, ID_STIKOBOOKMARKS, widget.OnBookmarks)
 
@@ -219,7 +219,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOADDBOOKMARK, 
             images_for_gnumed_browser16_16.getbookmark_addBitmap(),
             shortHelpString=_("Add Bookmark"), 
-            isToggle=true
+            isToggle=True
         )
         #EVT_TOOL (tb, ID_STIKOADDBOOKMARK, widget.OnAddBookmark)
 
@@ -227,7 +227,7 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_VIEWSOURCE, 
             images_for_gnumed_browser16_16.getviewsourceBitmap(),
             shortHelpString=_("View Source"), 
-            isToggle=true
+            isToggle=True
         )
         EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
 
@@ -235,13 +235,16 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
             ID_STIKOPRINTER, 
             images_for_gnumed_browser16_16.getprinterBitmap(),
             shortHelpString=_("Print Page"), 
-            isToggle=true
+            isToggle=True
         )
         EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.13  2004-06-26 23:45:50  ncq
+# Revision 1.14  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.13  2004/06/26 23:45:50  ncq
 # - cleanup, id_* -> fk/pk_*
 #
 # Revision 1.12  2004/06/25 12:37:21  ncq

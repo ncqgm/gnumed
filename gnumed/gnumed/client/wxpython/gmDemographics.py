@@ -12,8 +12,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.31 2004-06-30 15:09:47 shilbert Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmDemographics.py,v 1.32 2004-07-18 20:30:53 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -82,7 +82,7 @@ ID_TXTPATIENTALLERGIES  = wxNewId()
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
 		self.SetForegroundColour(wxColour(0,0,131))
 #------------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
@@ -91,12 +91,12 @@ class TextBox_RedBold(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(255,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 class TextBox_BlackNormal(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPosition, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 #--------------------------------------------------------------------------------
 
 
@@ -201,7 +201,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.comm_channel_names = gmDemographicRecord.getCommChannelTypes ()
 		self.marital_status_types = gmDemographicRecord.getMaritalStatusTypes ()
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,[],wxLB_SINGLE)
-		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.addresslist.SetForegroundColour(wxColor(180,182,180))
 		self.lbl_surname = BlueLabel(self,-1,"Surname")
 		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
@@ -237,12 +237,12 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#self.txt_address = wxTextCtrl(self, 30, "",
 		#			      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 		#self.txt_address.SetInsertionPoint(0)
-		#self.txt_address.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		#self.txt_address.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		
 		self.txt_number= wxTextCtrl( self, 30, "")
-		self.txt_number.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_number.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.txt_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
-		self.txt_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 
 		self.txt_urb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 
@@ -516,8 +516,8 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 			self.mainsizer.Add(1,0,1)
 		self.mainsizer.AddSizer(self.rightside,10,wxEXPAND|wxALL,5)
 		self.SetSizer(self.mainsizer)
-		self.SetAutoLayout(true)
-		#self.Show(false)
+		self.SetAutoLayout(True)
+		#self.Show(False)
 
 		self.__create_input_field_map()
 
@@ -784,7 +784,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.31  2004-06-30 15:09:47  shilbert
+# Revision 1.32  2004-07-18 20:30:53  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.31  2004/06/30 15:09:47  shilbert
 # - more wxMAC fixes
 #
 # Revision 1.30  2004/06/29 22:48:47  shilbert

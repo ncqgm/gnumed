@@ -33,13 +33,13 @@ class SQLListControl(wxListCtrl):
 	__saved_stderr = None
 	__stdout = None
 	__stderr = None
-	__feedback = true
+	__feedback = True
 	__labels = []
 	__maxfetch = 0
 
 
 
-	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=true, hideid=false):
+	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=True, hideid=False):
 		wxListCtrl.__init__(self, parent, id, pos, size, style)
 		self.__feedback = feedback
 		self.__hide_id=hideid # first column is assumed to be id field
@@ -78,7 +78,7 @@ class SQLListControl(wxListCtrl):
 		self.__saved_stderr = sys.stderr
 		self.__stderr = stderr
 		if stdout is not None:
-			self.__feedback = true
+			self.__feedback = True
 			self.__stdout = stdout
 
 

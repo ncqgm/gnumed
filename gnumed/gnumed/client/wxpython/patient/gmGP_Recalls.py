@@ -84,7 +84,7 @@ class RecallsPanel(wxPanel , PatientHolder):
 		#--------------------------------------------------------------------------------------
 		self.list_recalls = wxListCtrl(self, ID_RECALL_LIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		#self.list_recalls.SetForegroundColour(wxColor(131,129,131))	
-		self.list_recalls.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.list_recalls.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		#----------------------------------------	  
 		# add some dummy data to the allergy list
 		self.list_recalls.InsertColumn(0, _("Recall Details"))
@@ -119,8 +119,8 @@ class RecallsPanel(wxPanel , PatientHolder):
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 #----------------------------------------------------------------------
 class gmGP_Recalls(gmPlugin_Patient.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""

@@ -18,7 +18,7 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_FamilyHistory.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
 from wxPython.wx import *
@@ -77,9 +77,9 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 		#
 		#--------------------------------------------------------------------------------------
 		self.family_members_list = wxListCtrl(self, ID_FAMILYMEMBERSLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.family_members_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.family_members_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.member_conditions_list = wxListCtrl(self,ID_MEMBERCONDITIONSLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.member_conditions_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.member_conditions_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.sizer_members_conditions = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_members_conditions.Add(self.family_members_list,4,wxEXPAND)
 		self.sizer_members_conditions.Add(self.member_conditions_list,6, wxEXPAND)
@@ -132,7 +132,7 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 					"Peter b1980 and Rachaelb1981. Retired in 1990 due to receiving a fortune.",
 					wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 		self.txt_social_history.SetInsertionPoint(0)
-		self.txt_social_history.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))		
+		self.txt_social_history.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))		
 		#----------------------------------------
 		#add an alert caption panel to the bottom
 		#----------------------------------------
@@ -151,7 +151,7 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit (self)
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
 		EVT_SIZE (self, self.OnSize)
 
 	def OnSize (self, event):
@@ -199,7 +199,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================# 
 # $Log: gmGP_FamilyHistory.py,v $
-# Revision 1.8  2004-06-25 13:28:00  ncq
+# Revision 1.9  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.8  2004/06/25 13:28:00  ncq
 # - logically separate notebook and clinical window plugins completely
 #
 # Revision 1.7  2003/11/17 10:56:41  sjtan

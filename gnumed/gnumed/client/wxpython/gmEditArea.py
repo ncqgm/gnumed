@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.77 2004-07-17 21:16:39 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmEditArea.py,v 1.78 2004-07-18 20:30:53 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -260,7 +260,7 @@ _known_edit_area_types.extend(_prompt_defs.keys())
 
 def _decorate_editarea_field(widget):
 	widget.SetForegroundColour(wxColor(255, 0, 0))
-	widget.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+	widget.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
@@ -304,7 +304,7 @@ class gmEditArea(wxPanel):
 
 #		self.SetSizer(self.szr_central_container)
 #		self.szr_central_container.Fit(self)
-#		self.SetAutoLayout(true)
+#		self.SetAutoLayout(True)
 
 		self._postInit()
 		self.old_data = {} 
@@ -312,7 +312,7 @@ class gmEditArea(wxPanel):
 		self.data = None
 		self.patient = gmPatient.gmCurrentPatient()
 		self.__register_events()
-		self.Show(true)
+		self.Show(True)
 	#----------------------------------------------------------------
 	# internal helpers
 	#----------------------------------------------------------------
@@ -339,7 +339,7 @@ class gmEditArea(wxPanel):
 		# and do the layouting
 		self.SetSizer(self.szr_central_container)
 		self.szr_central_container.Fit(self)
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
 	#----------------------------------------------------------------
 	def __generate_prompts(self):
 		if len(self.fields) != len(self.prompts):
@@ -445,7 +445,7 @@ class gmEditArea(wxPanel):
 			aLabel,
 			style = wxALIGN_RIGHT
 		)
-		prompt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+		prompt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		prompt.SetForegroundColour(aColor)
 		return prompt
 	#----------------------------------------------------------------
@@ -504,7 +504,7 @@ class gmEditArea(wxPanel):
 		# put sizer on panel
 		prompt_pnl.SetSizer(gszr)
 		gszr.Fit(prompt_pnl)
-		prompt_pnl.SetAutoLayout(true)
+		prompt_pnl.SetAutoLayout(True)
 
 		# make shadow below prompts in gray
 		shadow_below_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
@@ -555,7 +555,7 @@ class gmEditArea(wxPanel):
 		# put them on the panel
 		fields_pnl.SetSizer(gszr)
 		gszr.Fit(fields_pnl)
-		fields_pnl.SetAutoLayout(true)
+		fields_pnl.SetAutoLayout(True)
 
 		# make shadow below edit fields in gray
 		shadow_below_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
@@ -1535,7 +1535,7 @@ class gmRequestEditArea(gmEditArea):
 class cPrompt_edit_area(wxStaticText):
 	def __init__(self, parent, id, prompt, aColor = richards_blue):
 		wxStaticText.__init__(self, parent, id, prompt, wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT)
-		self.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+		self.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.SetForegroundColour(aColor)
 #====================================================================
 # create the editorprompts class which expects a dictionary of labels
@@ -1554,7 +1554,7 @@ class gmPnlEditAreaPrompts(wxPanel):
 			color = richards_blue
 		self.SetSizer(gszr)
 		gszr.Fit(self)
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
 #====================================================================
 #Class central to gnumed data input
 #allows data entry of multiple different types.e.g scripts,
@@ -1651,8 +1651,8 @@ class EditTextBoxes(wxPanel):
 		self.SetSizer(self.gszr)
 		self.gszr.Fit(self)
 
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self):
 		self.btn_OK = wxButton(self, -1, _("Ok"))
@@ -1726,8 +1726,8 @@ class EditArea(wxPanel):
 		self.szr_central_container.Add(self.szr_main_panels, 1, wxEXPAND | wxALL, 5)
 		self.SetSizer(self.szr_central_container)
 		self.szr_central_container.Fit(self)
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 
 
 #====================================================================
@@ -1851,7 +1851,7 @@ class EditArea(wxPanel):
 		      
 #	        elif section == gmSECTION_MEASUREMENTS:
 #		      self.combo_measurement_type = wxComboBox(self, ID_MEASUREMENT_TYPE, "", wxDefaultPosition,wxDefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wxCB_DROPDOWN)
-#		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 #		      self.combo_measurement_type.SetForegroundColour(wxColor(255,0,0))
 #		      self.txt_measurement_value = cEditAreaField(self,ID_MEASUREMENT_VALUE,wxDefaultPosition,wxDefaultSize)
 #		      self.txt_txt_measurement_date = cEditAreaField(self,ID_MEASUREMENT_DATE,wxDefaultPosition,wxDefaultSize)
@@ -1966,15 +1966,15 @@ class EditArea(wxPanel):
 #		elif section == gmSECTION_RECALLS:
 		      #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
 #		      self.combo_tosee = wxComboBox(self, ID_RECALLS_TOSEE, "", wxDefaultPosition,wxDefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wxCB_READONLY ) #wxCB_DROPDOWN)
-#		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_tosee.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 #		      self.combo_tosee.SetForegroundColour(wxColor(255,0,0))
 		      #FIXME defaults need to be loaded from database
 #		      self.combo_recall_method = wxComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wxDefaultPosition,wxDefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wxCB_READONLY )
-#		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_recall_method.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 #		      self.combo_recall_method.SetForegroundColour(wxColor(255,0,0))
 		      #FIXME defaults need to be loaded from database
  #                     self.combo_apptlength = wxComboBox(self, ID_RECALLS_APPNTLENGTH, "", wxDefaultPosition,wxDefaultSize, ['brief','standard','long','prolonged'], wxCB_READONLY )
-#		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+#		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 #		      self.combo_apptlength.SetForegroundColour(wxColor(255,0,0))
 #		      self.txt_recall_for = cEditAreaField(self,ID_RECALLS_TXT_FOR, wxDefaultPosition,wxDefaultSize)
 #		      self.txt_recall_due = cEditAreaField(self,ID_RECALLS_TXT_DATEDUE, wxDefaultPosition,wxDefaultSize)
@@ -2016,7 +2016,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.77  2004-07-17 21:16:39  ncq
+# Revision 1.78  2004-07-18 20:30:53  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.77  2004/07/17 21:16:39  ncq
 # - cleanup/refactor allergy widgets:
 #   - Horst space plugin added
 #   - Richard space plugin separated out

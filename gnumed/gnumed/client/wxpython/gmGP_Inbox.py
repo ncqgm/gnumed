@@ -35,8 +35,8 @@ class Inbox(wxPanel):
 	sizer.Add(list_inbox,100,wxEXPAND)
         self.SetSizer(sizer)  #set the sizer 
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
-        self.SetAutoLayout(true)                 #tell frame to use the sizer
-        #self.Show(true) 
+        self.SetAutoLayout(True)                 #tell frame to use the sizer
+        #self.Show(True) 
 
 	print self.GetData() 
 
@@ -53,6 +53,9 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGP_Inbox.py,v $
-# Revision 1.6  2004-06-20 16:01:05  ncq
+# Revision 1.7  2004-07-18 20:30:53  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.6  2004/06/20 16:01:05  ncq
 # - please epydoc more carefully
 #

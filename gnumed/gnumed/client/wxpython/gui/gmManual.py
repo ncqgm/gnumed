@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.21 2004-06-25 12:37:21 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmManual.py,v 1.22 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -77,7 +77,7 @@ class ManualHtmlPanel(wxPanel):
 		self.box.Add(self.html, 1, wxGROW)
 
 		self.SetSizer(self.box)
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
 
 		self.already_loaded = None
 
@@ -155,7 +155,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALCONTENTS,
 			images_for_gnumed_browser16_16.getcontentsBitmap(),
 			shortHelpString="Gnumed Manual Contents",
-			isToggle=true
+			isToggle=True
 		)
 		EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
 
@@ -163,7 +163,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 #			ID_MANUALOPENFILE,
 #			images_for_gnumed_browser16_16.getfileopenBitmap(),
 #			shortHelpString="Open File",
-#			isToggle=true
+#			isToggle=True
 #		)
 #		EVT_TOOL (tb, ID_MANUALOPENFILE, widget.OnLoadFile)
 
@@ -171,7 +171,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALBACK,
 			images_for_gnumed_browser16_16.get1leftarrowBitmap(),
 			shortHelpString="Back",
-			isToggle=false
+			isToggle=False
 		)
 		EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
 
@@ -179,7 +179,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALFORWARD,
 			images_for_gnumed_browser16_16.get1rightarrowBitmap(),
 			shortHelpString="Forward",
-			isToggle=true
+			isToggle=True
 		)
 		EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
 
@@ -187,7 +187,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALRELOAD,
 			images_for_gnumed_browser16_16.getreloadBitmap(),
 			shortHelpString="Reload",
-			isToggle=true
+			isToggle=True
 		)
 
 		tb.AddSeparator()
@@ -196,7 +196,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALHOME,
 			images_for_gnumed_browser16_16.getgohomeBitmap(),
 			shortHelpString="Home",
-			isToggle=true
+			isToggle=True
 		)
 		EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
 
@@ -206,7 +206,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALBABELFISH,
 			images_for_gnumed_browser16_16.getbabelfishBitmap(),
 			shortHelpString="Translate text",
-			isToggle=false
+			isToggle=False
 		)
 		#EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
 
@@ -216,7 +216,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALBOOKMARKS,
 			images_for_gnumed_browser16_16.getbookmarkBitmap(),
 			shortHelpString="Bookmarks",
-			isToggle=true
+			isToggle=True
 		)
 		#EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
 
@@ -224,7 +224,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALADDBOOKMARK,
 			images_for_gnumed_browser16_16.getbookmark_addBitmap(),
 			shortHelpString="Add Bookmark",
-			isToggle=true
+			isToggle=True
 		)
 		#EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
 
@@ -232,7 +232,7 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 #			ID_VIEWSOURCE,
 #			images_for_gnumed_browser16_16.getviewsourceBitmap(),
 #			shortHelpString="View Source",
-#			isToggle=true
+#			isToggle=True
 #		)
 #		EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
 
@@ -240,12 +240,15 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 			ID_MANUALPRINTER,
 			images_for_gnumed_browser16_16.getprinterBitmap(),
 			shortHelpString = _("Print Manual Page"),
-			isToggle=true
+			isToggle=True
 		)
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.21  2004-06-25 12:37:21  ncq
+# Revision 1.22  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.21  2004/06/25 12:37:21  ncq
 # - eventually fix the import gmI18N issue
 #
 # Revision 1.20  2004/06/20 16:50:51  ncq

@@ -112,10 +112,10 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#--------------------------------------------------------------------------------------
 		#self.significant_problem_list = wxListCtrl(self, ID_SIGNIFICANTPASTHISTORYLIST,  wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.significant_problem_list = gmMultiColumnList.MultiColumnList(self, -1)
-		self.significant_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.significant_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		#self.active_problem_list = wxListCtrl(self, ID_ACTIVEPROBLEMLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.active_problem_list = gmMultiColumnList.MultiColumnList(self, -1)
-		self.active_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.active_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		#---------------------------------------------------------	  
 		# add some dummy data to the significant past problem list
 		#---------------------------------------------------------
@@ -187,8 +187,8 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 
 		gmDispatcher.connect(self._updateUI,  gmSignals.clin_history_updated())
 	

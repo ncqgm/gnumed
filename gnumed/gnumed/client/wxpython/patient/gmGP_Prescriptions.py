@@ -127,7 +127,7 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 			"Mini-Drug interaction text goes here (click this for full description)\n \n"
 			"Also, try clicking on the list below with the right mouse button to see a pop up menu",		    
 			style=wxTE_MULTILINE)
-		self.interactiontxt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.interactiontxt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		#------------------------------------------------------------------------------------
 		#add the divider headings below the drug interactions as heading for items prescribed
 		#------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		#
 		#--------------------------------------------------------------------------------------
 		self.list_script = wxListCtrl(self, -1,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.list_script.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.list_script.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		EVT_RIGHT_UP(self.list_script, self.OnRightClickUp)
 		#----------------------------------------
 		# add some dummy data to the allergy list
@@ -187,8 +187,8 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		self.mainsizer.Add(self.list_script,4,wxEXPAND)
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 
 	def OnRightClickUp(self, event):
 		"""A right mouse click triggers a popup menu for the list script"""

@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -99,21 +99,21 @@ class cTalkbackFrame(wxFrame):
 		self.szr_main.Fit(self)
 	#-----------------------------------------------	
 	def onNoSend(self,event):
-		self.Close(true)
+		self.Close(True)
 	#-----------------------------------------------
 	def onSend(self, event):
 		self.mail_logger.setFrom (self.field_from.GetValue())
 		self.mail_logger.setTo ([self.field_to.GetValue(),])
 		self.mail_logger.setComment (self.field_desc.GetValue())
 		self.mail_logger.flush()
-		self.Close(true)
+		self.Close(True)
 #=========================================================================
 class cTalkbackApp(wxApp):
 	def OnInit(self):
 		self.frame = cTalkbackFrame(NULL, -1, "GNUmed Talks Back", wxDefaultPosition, size=wxSize(-1,-1), style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
-		self.frame.Show (true)
+		self.frame.Show (True)
 		self.SetTopWindow(self.frame)
-		return true
+		return True
     #-----------------------------------------------
 	def setLogger(self, aLogger):
 		self.frame.setLogger(aLogger)
@@ -135,7 +135,10 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.6  2004-02-25 09:46:22  ncq
+# Revision 1.7  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.6  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.5  2003/11/17 10:56:39  sjtan

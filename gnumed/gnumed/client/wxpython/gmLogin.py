@@ -6,19 +6,16 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.20 2004-06-20 16:01:05 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmLogin.py,v 1.21 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "H.Herb"
 
 import os.path
 
 from wxPython.wx import *
 
-from Gnumed.pycommon import gmPG, gmGuiBroker, gmLog, gmExceptions
+from Gnumed.pycommon import gmPG, gmGuiBroker, gmLog, gmExceptions, gmI18N
 from Gnumed.wxpython import gmLoginDialog
-
-if __name__ == '__main__':
-	_ = lambda x:x
 
 _log = gmLog.gmDefLog
 #==============================================================
@@ -29,7 +26,7 @@ def Login(max_attempts=3):
 	- returns either a valid backend broker object if connection
 	  was succesful, or None.
 	"""
-	logged_in = false
+	logged_in = False
 	attempt = 0
 	backend = None
 	#display the login dialog
@@ -49,7 +46,7 @@ def Login(max_attempts=3):
 		#now try to connect to the backend
 		try:
 			backend = gmPG.ConnectionPool(login)
-			logged_in = true
+			logged_in = True
 			# save the login settings for next login
 			dlg.panel.save_settings()
 			_log.Log(gmLog.lInfo, "backend connection successfully established")
@@ -68,12 +65,13 @@ def Login(max_attempts=3):
 # main
 #==============================================================
 if __name__ == "__main__":
-	_ = lambda x:x
-	_log.Log (gmLog.lWarn, "This module needs a test function!  please write it")
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.20  2004-06-20 16:01:05  ncq
+# Revision 1.21  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.20  2004/06/20 16:01:05  ncq
 # - please epydoc more carefully
 #
 # Revision 1.19  2004/06/20 06:49:21  ihaywood

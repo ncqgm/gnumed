@@ -21,7 +21,7 @@
 # - patient related "normal" range
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -132,7 +132,7 @@ class BMICalc_Panel(wxPanel):
 			wxDefaultSize,
 			style = wxALIGN_CENTRE
 		)
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 		szr_upper_heading = wxBoxSizer(wxHORIZONTAL)
 		szr_upper_heading.Add(label,1,0)
@@ -140,11 +140,11 @@ class BMICalc_Panel(wxPanel):
 		#sizer holding the height stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("Height (cm)"),size = (1,20))
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
 		self.txtheight = wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtheight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtheight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 
 		EVT_TEXT(self, self.txtheight.GetId(), self.EvtText_height)
 		EVT_SET_FOCUS(self.txtheight, self.OnSetFocus_height)
@@ -158,11 +158,11 @@ class BMICalc_Panel(wxPanel):
 		#sizer holding the mass stuff -- some people incorrectly call this stuff "weight"
 		#------------------------------
 		label = wxStaticText(self,-1,_("Mass (kg)"),size = (20,20))
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
 		self.txtmass = wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtmass.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtmass.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 
 		EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
 		EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
@@ -177,12 +177,12 @@ class BMICalc_Panel(wxPanel):
 		#sizer holding the BMI stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("BMI"),size = (100,20))
-		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
   		self.txtbmi = wxTextCtrl(self,-1,"",size=(100,20), style = wxTE_READONLY)
-		self.txtbmi.Enable(false)
-		self.txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtbmi.Enable(False)
+		self.txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 
 		szr_bmi = wxBoxSizer(wxHORIZONTAL)
 		szr_bmi.Add(10,1,0,0)
@@ -193,7 +193,7 @@ class BMICalc_Panel(wxPanel):
 		#the color ellipses to show where on scale of mass
 		#--------------------------------------------------
 		bmi_colour_scale = BMI_Colour_Scale(self)
-		bmi_colour_scale.Enable(false)
+		bmi_colour_scale.Enable(False)
 		szr_col_scale = wxBoxSizer(wxHORIZONTAL)
 		szr_col_scale.Add(bmi_colour_scale,1,wxEXPAND)
 		#-----------------------------------------------------
@@ -220,7 +220,7 @@ class BMICalc_Panel(wxPanel):
 			wxDefaultSize,
 			style = wxALIGN_CENTRE
 		)  #add underline
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
 		szr_lower_heading = wxBoxSizer(wxHORIZONTAL)
@@ -229,11 +229,11 @@ class BMICalc_Panel(wxPanel):
 		#Put in the goal mass
 		#----------------------
 		label = wxStaticText(self,-1,_("Goal mass"),size = (30,20))
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
 		self.txtgoal= wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 
 		EVT_TEXT(self, self.txtgoal.GetId(), self.EvtText_goal)
 		EVT_SET_FOCUS(self.txtgoal, self.OnSetFocus_goal)
@@ -247,11 +247,11 @@ class BMICalc_Panel(wxPanel):
 		#and the amount to loose in Kg
 		#-----------------------------
 		label = wxStaticText(self,-1,_("kg to loose"),size = (30,20))
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
 		self.txtloss= wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 
 		EVT_TEXT(self, self.txtloss.GetId(), self.EvtText_loss)
 		EVT_SET_FOCUS(self.txtloss, self.OnSetFocus_loss)
@@ -287,8 +287,8 @@ class BMICalc_Panel(wxPanel):
 		#---------------------------------------
 		self.SetSizer(szr_main)
 		szr_main.Fit(self)
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 	#-----------------------------------------
 	# event handlers
 	#-----------------------------------------
@@ -503,8 +503,8 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 
 		self.SetSizer(szr_main)
 		szr_main.Fit(self)
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 
 	#-----------------------------------------
 	def EvtReset(self, event):
@@ -552,7 +552,7 @@ if __name__ == '__main__':
 			icon.CopyFromBitmap(icon_bmp_data)
 			frame.SetIcon(icon)
 			frame.Show(1)
-			return true
+			return True
 	#---------------------
 	app = TestApp()
 	app.MainLoop()
@@ -607,7 +607,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.29  2004-06-13 22:31:49  ncq
+# Revision 1.30  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.29  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

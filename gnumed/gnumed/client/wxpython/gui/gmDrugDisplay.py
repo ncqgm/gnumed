@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -264,7 +264,7 @@ class DrugDisplay(wxPanel):
 		self.sizermain = wxBoxSizer(wxHORIZONTAL)
 		self.sizermain.AddSizer(self.sizer_left, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 7)
 		self.sizermain.AddSizer(self.sizerVInteractionSidebar, 0, wxGROW|wxALIGN_LEFT|wxALL, 8)
-		self.SetAutoLayout( true )
+		self.SetAutoLayout( True )
 		self.SetSizer( self.sizermain )
 		self.sizermain.Fit( self )
 		self.sizermain.SetSizeHints( self )
@@ -298,7 +298,7 @@ class DrugDisplay(wxPanel):
 		# diplay some info on what database we are currently using
 		self.SetTitle(self.dbName)
 #		gmLog.gmDefLog.Log (gmLog.lData, "got the issue date")
-		return true
+		return True
 
 
 	#----------------------------------------------------------------------------------------------------------------------
@@ -419,7 +419,7 @@ class DrugDisplay(wxPanel):
 			# show list
 			self.BuildListCtrl(brandsList,type)
 
-			return true
+			return True
 
 	#-----------------------------------------------------------------
 	def BuildListCtrl(self, aDataDict=None, type=None):
@@ -500,15 +500,15 @@ class DrugDisplay(wxPanel):
 		# set jumpbox items
 		self.listbox_jumpto.Clear()
 		self.listbox_jumpto.InsertItems(self.drugPIHeaders,0)
-		return true
+		return True
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 	def TransferDataToWindow(self):
 		gmLog.gmDefLog.Log (gmLog.lData,  "Transfer data to Window")
-		return true
+		return True
 
 	def TransferDataFromWindow(self):
-		return true
+		return True
 
 	# handler implementations for DrugDisplay
 
@@ -518,7 +518,7 @@ class DrugDisplay(wxPanel):
 		"""
 		if not self.drugProductInfo is None:
 			self.printer.PrintText(self.drugProductInfo)
-		return true
+		return True
 
 	def OnDisplay(self, event):
 		"""
@@ -578,10 +578,10 @@ class DrugDisplay(wxPanel):
 		pass
 
 	def OnOk(self, event):
-		event.Skip(true)
+		event.Skip(True)
 
 	def OnCancel(self, event):
-		event.Skip(true)
+		event.Skip(True)
 
 	def ClearInfo(self):
 		"""clears the search result list and jumpbox when query mode changed."""		
@@ -626,7 +626,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.19  2004-06-20 16:50:51  ncq
+# Revision 1.20  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.19  2004/06/20 16:50:51  ncq
 # - carefully fool epydoc
 #
 # Revision 1.18  2004/06/20 06:49:21  ihaywood

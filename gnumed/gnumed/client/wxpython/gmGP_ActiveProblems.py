@@ -36,11 +36,11 @@ class ActiveProblems(wxPanel):
 
 		sizer.Add(activeproblems_listbox,100,wxEXPAND)
 		activeproblems_listbox.SetBackgroundColour(wxColor(255,255,197))
-		activeproblems_listbox.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		activeproblems_listbox.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.SetSizer(sizer)  #set the sizer 
 		sizer.Fit(self)             #set to minimum size as calculated by sizer
-		self.SetAutoLayout(true)                 #tell frame to use the sizer
-        #self.Show(true) 
+		self.SetAutoLayout(True)                 #tell frame to use the sizer
+        #self.Show(True) 
 		self.list = activeproblems_listbox
 		self.data = None
 

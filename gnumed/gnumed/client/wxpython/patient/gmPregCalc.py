@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.8 2004-06-13 22:31:50 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPregCalc.py,v 1.9 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -89,11 +89,11 @@ class PregnancyFrame (wxFrame):
 		# sizer holding the 'LMP' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("LMP"),size = (50,20))	#label Lmp
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
 		self.txt_lmp = wxTextCtrl(self,-1,"",size=(100,20))  	# text for lmp
-		self.txt_lmp.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txt_lmp.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		self.txt_lmp.SetToolTip(wxToolTip(_("Click on calendar to enter the last menstrual period date")))
 		tiplmp=self.txt_lmp.GetToolTip()
 
@@ -110,12 +110,12 @@ class PregnancyFrame (wxFrame):
 		# sizer holding the 'Gest.' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("Gest."),size = (50,20))
-		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
 		self.txtgest = wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtgest.Enable(false)
-		self.txtgest.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtgest.Enable(False)
+		self.txtgest.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		self.txtgest_szr  = wxBoxSizer(wxHORIZONTAL)
 		self.txtgest_szr.Add(self.txtgest,1,wxEXPAND|wxALL,2)
 
@@ -129,12 +129,12 @@ class PregnancyFrame (wxFrame):
 		# sizer holding the 'EDC' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("EDC"),size = (50,20))
-		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtedc = wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtedc.Enable(false)
-		self.txtedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtedc.Enable(False)
+		self.txtedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		szr_txtedc = wxBoxSizer(wxHORIZONTAL)
 		szr_txtedc.Add(self.txtedc,1,wxEXPAND|wxALL,2)
 		szr_edc = wxBoxSizer(wxHORIZONTAL)
@@ -147,7 +147,7 @@ class PregnancyFrame (wxFrame):
 		# "Ultrasound Scan" label
 		#------------------------------
 		us_label = wxStaticText(self,-1,_("18 Week Ultrasound Scan"),size = (20,20))
-		us_label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		us_label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
 		us_label.SetForegroundColour(wxColour(50,50,204))
 		szr_backgrnd_18WkScanDue = wxBoxSizer(wxVERTICAL)
 		szr_backgrnd_18WkScanDue.Add(1,3, 0)
@@ -157,12 +157,12 @@ class PregnancyFrame (wxFrame):
 		# sizer holding the 'Due' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("Due"),size = (100,20))
-		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtdue = wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtdue.Enable(false)
-		self.txtdue.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtdue.Enable(False)
+		self.txtdue.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		self.szr_txtdue  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtdue.Add(self.txtdue,1,wxEXPAND|wxALL,2)
 		szr_due = wxBoxSizer(wxHORIZONTAL)
@@ -175,7 +175,7 @@ class PregnancyFrame (wxFrame):
 		# "Ultrasound Scan - Revised EDC" label
 		#------------------------------
 		rev_edc_label = wxStaticText(self,-1,_("Ultrasound Scan - Revised EDC"),size = (100,20))
-		rev_edc_label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		rev_edc_label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
 		rev_edc_label.SetForegroundColour(wxColour(50,50,204))
 		szr_backgrnd_RevEDCLabel = wxBoxSizer(wxVERTICAL)
 		szr_backgrnd_RevEDCLabel.Add(1,3, 0)
@@ -186,10 +186,10 @@ class PregnancyFrame (wxFrame):
 		# sizer holding the 'newedc' stuff
 		#------------------------------
 		label1 = wxStaticText(self,-1,_("Scan Date"),size = (25,20))
-		label1.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label1.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label1.SetForegroundColour(wxColour(0,0,0))
   		self.txtdate = wxTextCtrl(self,-1,"",size=(25,20))
-		self.txtdate.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtdate.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		self.txtdate.SetToolTip(wxToolTip(_("Click on this field and then the ultrasound scan date on the calendar")))
 		tipdue=self.txtdate.GetToolTip()
 		wxToolTip_Enable(1)
@@ -206,20 +206,20 @@ class PregnancyFrame (wxFrame):
 		#------------------------------
 
 		label2 = wxStaticText(self,-1,_("Weeks"),size = (25,20))
-		label2.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label2.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label2.SetForegroundColour(wxColour(0,0,0))
 		self.txtweeks = wxSpinCtrl (self, -1, value = "0", min = 0, max = 42)
 		EVT_SPINCTRL (self.txtweeks ,self.txtweeks.GetId(), self.EvtText_calcnewedc)
-		self.txtweeks.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtweeks.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		self.szr_txtweeks  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtweeks.Add(self.txtweeks,1,wxEXPAND|wxALL,2)
 
 		label3 = wxStaticText(self,-1,_("Days"),size = (25,20))
-		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label3.SetForegroundColour(wxColour(0,0,0))
 		self.txtdays = wxSpinCtrl (self, -1, value = "0", min = 0, max = 6)
 		EVT_SPINCTRL (self.txtdays ,self.txtdays.GetId(), self.EvtText_calcnewedc)
-		self.txtdays.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtdays.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		self.szr_txtdays  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtdays.Add(self.txtdays,1,wxEXPAND|wxALL,2)
 
@@ -239,12 +239,12 @@ class PregnancyFrame (wxFrame):
 		# sizer holding the new (or revised) 'EDC' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("Rev EDC"),size = (100,20))
-		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtnewedc = wxTextCtrl(self,-1,"",size=(100,20))
-		self.txtnewedc.Enable(false)
-		self.txtnewedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtnewedc.Enable(False)
+		self.txtnewedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		self.szr_txtnewedc  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtnewedc.Add(self.txtnewedc,1,wxEXPAND|wxALL,2)
 		szr_label=wxBoxSizer(wxHORIZONTAL)
@@ -475,7 +475,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.8  2004-06-13 22:31:50  ncq
+# Revision 1.9  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.8  2004/06/13 22:31:50  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

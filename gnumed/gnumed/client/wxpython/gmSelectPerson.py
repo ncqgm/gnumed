@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 
 import string
 from wxPython.wx import *
@@ -47,7 +47,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		#add a bottom row sizer to hold a few buttons
 		self.__selectedPersonId=None
 
-		self.checkboxCaseInsensitive.SetValue(true)
+		self.checkboxCaseInsensitive.SetValue(True)
 		self.sizerButtons = wxBoxSizer( wxHORIZONTAL )
 		#add a "select patient" button
 		self.buttonSelect = wxButton( self, ID_BUTTON_SELECT, _("&Select"), wxDefaultPosition, wxDefaultSize, 0 )

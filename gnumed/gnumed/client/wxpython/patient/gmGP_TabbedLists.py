@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.18 2003-11-17 10:56:42 sjtan Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmGP_TabbedLists.py,v 1.19 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -180,7 +180,7 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 
     def __init__(self, parent,id):
 	wxPanel.__init__(self, parent, id)
-	self.SetAutoLayout(true)
+	self.SetAutoLayout(True)
 	sizer = wxBoxSizer(wxHORIZONTAL)
 	self.SetBackgroundColour(wxColour(222,222,222))
        	#-----------------------------------------------------
@@ -223,13 +223,13 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	self.List_Recalls = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 	self.List_Inbox = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
 
-	self.notebook1.AddPage(self.List_Script, '', true, tabimage_Script)
-	#self.notebook1.AddPage(true, tabimage_Inbox, szr_script_page, '')
-	self.notebook1.AddPage(self.List_Requests, '', true, tabimage_Requests)
-	self.notebook1.AddPage(self.List_Measurements, '', true, tabimage_Measurements)
-	self.notebook1.AddPage(self.List_Referrals, '', true, tabimage_Referrals)
-	self.notebook1.AddPage(self.List_Recalls, '', true, tabimage_Recalls)
-	self.notebook1.AddPage(self.List_Inbox, '', true, tabimage_Inbox)
+	self.notebook1.AddPage(self.List_Script, '', True, tabimage_Script)
+	#self.notebook1.AddPage(True, tabimage_Inbox, szr_script_page, '')
+	self.notebook1.AddPage(self.List_Requests, '', True, tabimage_Requests)
+	self.notebook1.AddPage(self.List_Measurements, '', True, tabimage_Measurements)
+	self.notebook1.AddPage(self.List_Referrals, '', True, tabimage_Referrals)
+	self.notebook1.AddPage(self.List_Recalls, '', True, tabimage_Recalls)
+	self.notebook1.AddPage(self.List_Inbox, '', True, tabimage_Inbox)
         self.notebook1.SetSelection(0)                               #start on scriptpage
 #--------------------------------------
 	#Now lets do things to the script list:
@@ -308,8 +308,8 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	sizer.AddSizer(szr_notebook,40,wxEXPAND)
 	self.SetSizer(sizer)  #set the sizer
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
-        self.SetAutoLayout(true)                 #tell frame to use the sizer
-        self.Show(true)
+        self.SetAutoLayout(True)                 #tell frame to use the sizer
+        self.Show(True)
 
     def getBitmap (self,__icon):
         # returns the images on the tabs
@@ -338,7 +338,10 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.18  2003-11-17 10:56:42  sjtan
+# Revision 1.19  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.18  2003/11/17 10:56:42  sjtan
 #
 # synced and commiting.
 #

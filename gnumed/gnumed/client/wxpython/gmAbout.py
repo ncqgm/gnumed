@@ -7,7 +7,7 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -93,7 +93,7 @@ class AboutFrame (wxFrame):
 		else:
 			box.Add(0,0, 2)
 		intro_txt=wxStaticText(self, -1, _("Monty the Serpent && the FSF Present"))
-		intro_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		intro_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		box.Add(intro_txt, 0, wxALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 3)
@@ -104,7 +104,7 @@ class AboutFrame (wxFrame):
 		box.Add(gm_txt, 0, wxALIGN_CENTRE)
 
 		motto_txt=wxStaticText(self, -1, _("Free eMedicine"))
-		motto_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		motto_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		box.Add(motto_txt, 0, wxALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 4)
@@ -139,7 +139,7 @@ class AboutFrame (wxFrame):
 			box.Add(0,0, 1)
 		EVT_BUTTON(btn, ID_MENU, self.OnClose)
 
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
  		self.SetSizer(box)
  		self.Layout()
 
@@ -167,7 +167,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.8  2004-06-30 15:56:14  shilbert
+# Revision 1.9  2004-07-18 20:30:53  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.8  2004/06/30 15:56:14  shilbert
 # - more wxMAC fixes -they don't stop surfacing :-)
 #
 # Revision 1.7  2003/11/17 10:56:37  sjtan

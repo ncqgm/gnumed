@@ -70,9 +70,9 @@ class SQLSimpleSearch(wxPanel):
 
 		self.sizerTopVertical.AddSizer( self.sizerSearchResults, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
 
-		self.SetAutoLayout( true )
+		self.SetAutoLayout( True )
 		self.SetSizer( self.sizerTopVertical )
-		#if call_fit == true:
+		#if call_fit == True:
 		#	sizerTopVertical.Fit( self )
 		#	sizerTopVertical.SetSizeHints( self )
 
@@ -94,11 +94,11 @@ class SQLSimpleSearch(wxPanel):
 
 	def TransferDataToWindow(self):
 		print "TransferDataToWindow(self):"
-		return true
+		return True
 
 	def TransferDataFromWindow(self):
 		print "def TransferDataFromWindow(self):"
-		return true
+		return True
 
 
 	def OnSearchResultKeyDown(self, event):
@@ -133,19 +133,19 @@ class SQLSimpleSearch(wxPanel):
 
 	def OnSearch(self, event):
 		self.Search()
-		event.Skip(true)
+		event.Skip(True)
 
 
 	def OnIdle(self, event):
-		event.Skip(true)
+		event.Skip(True)
 
 	def OnChar(self, event):
 		print "def OnChar(self, event):"
-		event.Skip(true)
+		event.Skip(True)
 
 	def OnCancel(self, event):
 		print "def OnCancel(self, event):"
-		event.Skip(true)
+		event.Skip(True)
 
 	def Search(self):
 		searchexpr = self.comboSearchExpr.GetValue()

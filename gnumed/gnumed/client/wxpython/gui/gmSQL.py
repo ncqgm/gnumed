@@ -54,7 +54,7 @@ to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSQL.py,v $
 
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -123,7 +123,7 @@ class SQLWindow(wxPanel):
         self.staticFeedbackBox = wxStaticBox( self, -1, _("Tables in database  /  Feedback") )
         self.feedbackHsizer = wxStaticBoxSizer( self.staticFeedbackBox, wxHORIZONTAL )
         self.textQueryResults = wxTextCtrl( self, ID_TEXTCTRL_QUERYRESULTS, "", wxDefaultPosition, wxSize(-1,30), wxTE_MULTILINE|wxTE_READONLY )
-        self.listTables = gmSQLListControl.SQLListControl( self, -1, wxDefaultPosition, wxSize(-1,80), wxLC_REPORT|wxSUNKEN_BORDER, hideid=false)
+        self.listTables = gmSQLListControl.SQLListControl( self, -1, wxDefaultPosition, wxSize(-1,80), wxLC_REPORT|wxSUNKEN_BORDER, hideid=False)
         self.stdout = RedirectToTextctrl(self.textQueryResults)
         self.stderr = self.stdout
 
@@ -146,7 +146,7 @@ class SQLWindow(wxPanel):
         self.ListTables()
 
         #resize the panel depending on it's widgets
-        self.SetAutoLayout( true )
+        self.SetAutoLayout( True )
         self.SetSizer( self.topsizer )
         #tell the parent window about our size
         self.topsizer.Fit( parent )

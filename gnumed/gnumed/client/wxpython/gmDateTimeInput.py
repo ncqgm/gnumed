@@ -7,14 +7,15 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.9 2004-03-05 11:22:35 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmDateTimeInput.py,v 1.10 2004-07-18 20:30:53 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import re, string
 
 from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions
 from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 
@@ -22,8 +23,6 @@ import mx.DateTime as mxDT
 
 from wxPython.wx import *
 
-_true = (1==1)
-_false = not true
 #============================================================
 class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	def __init__(self):
@@ -50,9 +49,9 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 			if items is not None:
 				matches.extend(items)
 		if len(matches) > 0:
-			return (_true, matches)
+			return (True, matches)
 		else:
-			return (_false, [])
+			return (False, [])
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -207,26 +206,26 @@ Date input field
 			if keycode in [ord('h'), ord('H')]:
 				date = mxDT.now()
 				self.SetValue(date.strftime(self.__display_format))
-				return true
+				return True
 			if keycode in [ord('m'), ord('M')]:
 				date = mxDT.now() + mxDT.RelativeDateTime(days = 1)
 				self.SetValue(date.strftime(self.__display_format))
-				return true
+				return True
 			if keycode in [ord('g'), ord('G')]:
 				date = mxDT.now() - mxDT.RelativeDateTime(days = 1)
 				self.SetValue(date.strftime(self.__display_format))
-				return true
+				return True
 			if keycode in [ord('ü'), ord('Ü')]:
 				date = mxDT.now() + mxDT.RelativeDateTime(days = 2)
 				self.SetValue(date.strftime(self.__display_format))
-				return true
+				return True
 			if keycode in [ord('v'), ord('V')]:
 				date = mxDT.now() - mxDT.RelativeDateTime(days = 2)
 				self.SetValue(date.strftime(self.__display_format))
-				return true
+				return True
 			if keycode in [ord('k'), ord('K')]:
 				print "Kalender noch nicht implementiert"
-				return true
+				return True
 
 		evt.Skip()
 	#----------------------------------------------
@@ -320,7 +319,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.9  2004-03-05 11:22:35  ncq
+# Revision 1.10  2004-07-18 20:30:53  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.9  2004/03/05 11:22:35  ncq
 # - import from Gnumed.<pkg>
 #
 # Revision 1.8  2004/02/25 09:46:21  ncq

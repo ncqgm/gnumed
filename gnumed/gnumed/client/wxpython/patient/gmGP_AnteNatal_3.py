@@ -97,9 +97,9 @@ class CustomDataTable(wxPyGridTableBase):
     def CanGetValueAs(self, row, col, typeName):
         colType = string.split(self.dataTypes[col], ':')[0]
         if typeName == colType:
-            return true
+            return True
         else:
-            return false
+            return False
 
     def CanSetValueAs(self, row, col, typeName):
         return self.CanGetValueAs(row, col, typeName)
@@ -121,11 +121,11 @@ class CustTableGrid(wxGrid):
         # The second parameter means that the grid is to take ownership of the
         # table and will destroy it when done.  Otherwise you would need to keep
         # a reference to it and call it's Destroy method later.
-        self.SetTable(table, true)
+        self.SetTable(table, True)
 
         self.SetRowLabelSize(0)
         self.SetMargins(0,0)
-        self.AutoSizeColumns(true)
+        self.AutoSizeColumns(True)
 
         EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
 
@@ -160,8 +160,8 @@ class AntenatalPanel (wxPanel , PatientHolder):
 	  self.sizer.AddSizer(self.szr_notebook,1,wxEXPAND)
 	  self.SetSizer(self.sizer)
 	  self.sizer.Fit(self) 
-          self.SetAutoLayout(true)
-          self.Show(true)
+          self.SetAutoLayout(True)
+          self.Show(True)
     
 
 class gmGP_AnteNatal_3 (gmPlugin_Patient.wxPatientPlugin):

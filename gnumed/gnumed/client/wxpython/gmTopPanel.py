@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -51,8 +51,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# and actually display ourselves
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 	#-------------------------------------------------------
 	def __do_layout(self):
 		"""Create the layout.
@@ -88,23 +88,23 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		if gmCLI.has_arg('--slave'):
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
-		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.szr_top_row.Add (self.patient_selector, 5, wxEXPAND | wxBOTTOM, 3)
 		#  - age
 #		self.lbl_age = wxStaticText (self, -1, _("Age"), style = wxALIGN_CENTER_VERTICAL)
-#		self.lbl_age.SetFont (wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+#		self.lbl_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.txt_age = wxTextCtrl (self, -1, "", size = (50,-1), style = wxTE_READONLY)
-		self.txt_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+		self.txt_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
 #		self.szr_top_row.Add (self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
 		self.szr_top_row.Add (self.txt_age, 0, wxEXPAND | wxBOTTOM | wxLEFT | wxRIGHT, 3)
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
 		self.lbl_allergies = wxStaticText (self, -1, _("Allergies"), style = wxALIGN_CENTER_VERTICAL)
-		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
 		self.lbl_allergies.SetForegroundColour(col_brightred)
 		self.txt_allergies = wxTextCtrl (self, -1, "", style = wxTE_READONLY)
-		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
 		self.szr_top_row.Add (self.lbl_allergies, 0, wxEXPAND | wxBOTTOM, 3)
@@ -350,7 +350,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.45  2004-07-15 20:39:51  ncq
+# Revision 1.46  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.45  2004/07/15 20:39:51  ncq
 # - normalize/cleanup layout, I'm sure Richard will have a
 #   say on this but it does look cleaner to me
 #

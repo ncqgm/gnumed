@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -222,7 +222,7 @@ else:
 			#	wxID_PNL_BTN_load_pages,
 			#	images_Archive_plugin.getcontentsBitmap(),
 			#	shortHelpString=_("load pages"),
-			#	isToggle=false
+			#	isToggle=False
 			#)
 			#EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
 
@@ -230,7 +230,7 @@ else:
 			#	wxID_PNL_BTN_save_data,
 			#	images_Archive_plugin.getsaveBitmap(),
 			#	shortHelpString=_("save document"),
-			#	isToggle=false
+			#	isToggle=False
 			#)
 			#EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
 			
@@ -238,7 +238,7 @@ else:
 			#	wxID_PNL_BTN_del_page,
 			#	images_Archive_plugin.getcontentsBitmap(),
 			#	shortHelpString=_("delete page"),
-			#	isToggle=false
+			#	isToggle=False
 			#)
 			#EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
 			
@@ -246,7 +246,7 @@ else:
 				wxID_TB_BTN_show_page,
 				images_Archive_plugin.getreportsBitmap(),
 				shortHelpString=_("show document"),
-				isToggle=false
+				isToggle=False
 			)
 			EVT_TOOL (tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree.OnActivate)
 	
@@ -254,7 +254,7 @@ else:
 			#	wxID_PNL_BTN_select_files,
 			#	images_Archive_plugin1.getfoldersearchBitmap(),
 			#	shortHelpString=_("select files"),
-			#	isToggle=false
+			#	isToggle=False
 			#)
 			#EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
 		
@@ -288,7 +288,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.51  2004-07-15 20:42:18  ncq
+# Revision 1.52  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.51  2004/07/15 20:42:18  ncq
 # - support if-needed updates again
 #
 # Revision 1.50  2004/07/15 07:57:21  ihaywood

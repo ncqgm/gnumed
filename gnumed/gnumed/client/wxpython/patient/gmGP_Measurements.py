@@ -127,9 +127,9 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		#
 		#--------------------------------------------------------------------------------------
 		self.measurement_types_list = wxListCtrl(self, ID_MEASURMENTTYPESLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.measurement_types_list.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.measurement_types_list.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.measurements_values_list = wxListCtrl(self, ID_MEASUREMENTVALUESLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.measurements_values_list.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.measurements_values_list.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.sizer_measurementtypes_values = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_measurementtypes_values.Add(self.measurement_types_list,4,wxEXPAND)
 		self.sizer_measurementtypes_values.Add(self.measurements_values_list,6, wxEXPAND)
@@ -191,8 +191,8 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit
-		self.SetAutoLayout(true)
-		self.Show(true)
+		self.SetAutoLayout(True)
+		self.Show(True)
 	
 		
 #--------------------------------------------------------------------

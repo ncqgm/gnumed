@@ -17,13 +17,13 @@ class SocialHistory(wxPanel):
                         #"previously unknown great aunt. Interests include surfing, fishing, carpentry",                       ,
                        wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
         txt_social_history.SetInsertionPoint(0)
-	txt_social_history.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, 'xselfont'))
-	#self.textCtrl1.SetFont(wxFont(14, wxSWISS, wxNORMAL, wxBOLD, false, 'verdana'))
+	txt_social_history.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, 'xselfont'))
+	#self.textCtrl1.SetFont(wxFont(14, wxSWISS, wxNORMAL, wxBOLD, False, 'verdana'))
         sizer.Add(txt_social_history,100,wxEXPAND)
         self.SetSizer(sizer)  #set the sizer 
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
-        self.SetAutoLayout(true)                 #tell frame to use the sizer
-        #self.Show(true)
+        self.SetAutoLayout(True)                 #tell frame to use the sizer
+        #self.Show(True)
 	self.text = txt_social_history
 
 	print self.GetValue()

@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.30 2004-06-25 12:33:18 ncq Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmDemographics.py,v 1.31 2004-07-18 20:30:54 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -93,7 +93,7 @@ addressdata = ['129 Afred Street WARNERS BAY 2280', '99 Wolfe Street NEWCASTLE 2
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,False,''))
 		self.SetForegroundColour(wxColour(0,0,131))
 #------------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
@@ -102,12 +102,12 @@ class TextBox_RedBold(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(255,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 class TextBox_BlackNormal(wxTextCtrl):
 	def __init__ (self, parent, id): #, wxDefaultPostion, wxDefaultSize):
 		wxTextCtrl.__init__(self,parent,id,"",wxDefaultPosition, wxDefaultSize,wxSIMPLE_BORDER)
 		self.SetForegroundColour(wxColor(0,0,0))
-		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,False,''))
 #------------------------------------------------------------
 class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 	def __init__(self, parent, plugin, id=wxNewId ()):
@@ -118,11 +118,11 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.plugin = plugin
 		# controls on the top toolbar are available via plugin.foo
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,addressdata,wxLB_SINGLE)
-		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
+		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, '')) #first list with patient names
 		self.addresslist.SetForegroundColour(wxColor(180,182,180))
 		# code to link up SQLListControl
-		self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=true, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
+		self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=True, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, '')) #first list with patient names
 		EVT_LIST_ITEM_SELECTED (self.patientslist, ID_PATIENTSLIST, self.OnPatient)
 		self.lbl_surname = BlueLabel(self,-1,"Surname")
 		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
@@ -159,7 +159,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.txt_address = wxTextCtrl(self, 30, "",
 					      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 		self.txt_address.SetInsertionPoint(0)
-		self.txt_address.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_address.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.txt_suburb = TextBox_BlackNormal(self,-1)
 		self.txt_zip = TextBox_BlackNormal(self,-1)
 		self.txt_birthdate = TextBox_BlackNormal(self,-1)
@@ -174,7 +174,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 					      "Valentine 2280",
 					      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 		self.txt_nameNOK.SetInsertionPoint(0)
-		self.txt_nameNOK.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.txt_nameNOK.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		self.txt_homephone = TextBox_BlackNormal(self,-1)
 		self.txt_workphone = TextBox_BlackNormal(self,-1)
 		self.txt_fax = TextBox_BlackNormal(self,-1)
@@ -367,8 +367,8 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.mainsizer.Add(self.patientslist,3,wxEXPAND)
 		self.mainsizer.Add(self.sizerunder,0,wxEXPAND|wxALL,10)
 		self.SetSizer(self.mainsizer)
-		self.SetAutoLayout(true)
-		self.Show(false)
+		self.SetAutoLayout(True)
+		self.Show(False)
 
 
 	def OnPatient (self, event):
@@ -430,7 +430,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.30  2004-06-25 12:33:18  ncq
+# Revision 1.31  2004-07-18 20:30:54  ncq
+# - wxPython.true/false -> Python.True/False as Python tells us to do
+#
+# Revision 1.30  2004/06/25 12:33:18  ncq
 # - cleanup
 #
 # Revision 1.29  2004/06/13 22:31:50  ncq
