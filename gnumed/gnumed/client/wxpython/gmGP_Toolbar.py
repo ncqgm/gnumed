@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_Toolbar.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path
@@ -73,10 +73,10 @@ class cMainTopPanel(wxPanel):
 		"""
 		self.szr_bottom_tb.Prepend(widget, 0, wxALL, 0)
 	#-------------------------------------------------------
-	def AddWidgetTopLine (self, widget):
+	def AddWidgetTopLine (self, widget, proportion = 0, flag = wxEXPAND, border = 0):
 		"""Inserts a widget onto the top line.
 		"""
-		self.szr_top_tb.Add (widget, 0, wxEXPAND)
+		self.szr_top_tb.Add(widget, proportion, flag, border)
 	#-------------------------------------------------------
 	def AddBar (self, key):
 		"""Creates and returns a new empty toolbar, referenced by key.
@@ -153,7 +153,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmGP_Toolbar.py,v $
-# Revision 1.11  2003-03-29 13:46:44  ncq
+# Revision 1.12  2003-03-29 18:26:04  ncq
+# - allow proportion/flag/border in AddWidgetTopLine()
+#
+# Revision 1.11  2003/03/29 13:46:44  ncq
 # - make standalone work, cure sizerom
 # - general cleanup, comment, clarify
 #
