@@ -19,15 +19,15 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.138 2004-02-05 23:54:11 ncq Exp $
-__version__ = "$Revision: 1.138 $"
+# $Id: gmGuiMain.py,v 1.139 2004-02-12 23:55:34 ncq Exp $
+__version__ = "$Revision: 1.139 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 from wxPython.wx import *
-from wxPython.html import *
+#from wxPython.html import *
 
 import sys, time, os, cPickle, zlib
 
@@ -121,6 +121,10 @@ class gmTopLevelFrame(wxFrame):
 		self.guibroker['main.statustext'] = self.SetStatusText
 
 		# set window title via template
+		if gmCLI.has_arg('--slave'):
+			self.__title_template = _('Slave GnuMed [%s@%s] %s: %s')
+		else:
+			self.__title_template = 'GnuMed [%s@%s] %s: %s'
 		self.updateTitle(anActivity = _("idle"))
 		#  let others have access, too
 		self.guibroker['main.SetWindowTitle'] = self.updateTitle
@@ -562,13 +566,7 @@ class gmTopLevelFrame(wxFrame):
 		else:
 			pat_str = _('no patient')
 
-		# generate title from template
-		# yes, we are fine crashing on getting an exception
-		# from get_staff_name() as that would mean something
-		# is badly broken, also we should've checked earlier
-		title = "GnuMed [%s@%s] %s: %s" % (_whoami.get_staff_name(), _whoami.get_workplace(), self.title_activity, pat_str)
-
-		# set it
+		title = self.__title_template % (_whoami.get_staff_name(), _whoami.get_workplace(), self.title_activity, pat_str)
 		self.SetTitle(title)
 	#----------------------------------------------
 	def SetupStatusBar(self):
@@ -819,7 +817,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.138  2004-02-05 23:54:11  ncq
+# Revision 1.139  2004-02-12 23:55:34  ncq
+# - different title bar on --slave
+#
+# Revision 1.138  2004/02/05 23:54:11  ncq
 # - wxCallAfter()
 # - start/stop scripting listener
 #
