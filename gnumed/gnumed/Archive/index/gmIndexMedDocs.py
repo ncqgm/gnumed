@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -52,18 +52,20 @@ from gmGuiHelpers import gm_show_error
 	wxID_BTN_save_data,
 	wxID_BTN_show_page,
 	wxID_BTN_load_pages,
-	wxID_PNL_BTN_del_page,
-	wxID_PNL_BTN_select_files,
-	wxID_PNL_BTN_save_data,
-	wxID_PNL_BTN_show_page,
-	wxID_PNL_BTN_load_pages,
+	wxID_TB_BTN_del_page,
+	wxID_TB_BTN_select_files,
+	wxID_TB_BTN_save_data,
+	wxID_TB_BTN_show_page,
+	wxID_TB_BTN_load_pages,
+	wxID_TB_BTN_aquire_docs,
+	wxID_TB_BTN_show_dirs_in_repository,
 	wxID_SelBOX_doc_type,
 	wxID_TBOX_first_name,
 	wxID_TBOX_last_name,
 	wxID_LBOX_doc_pages,
 	wxID_TBOX_desc_short,
 	wxID_PNL_main
-] = map(lambda _init_ctrls: wxNewId(), range(21))
+] = map(lambda _init_ctrls: wxNewId(), range(23))
 #====================================
 class cDocWheel(cPhraseWheel):
 	def __init__(self, parent):
@@ -78,16 +80,16 @@ class cDocWheel(cPhraseWheel):
 			aMatchProvider = self.mp,
 			size = wxDefaultSize,
 			pos = wxDefaultPosition
-			#self.wheel_callback,
+			#self.wheel_callback
 		)
 		self.SetToolTipString(_('the document identifier is usually written or stamped onto the physical pages of the document'))
 	#--------------------------------
 	def update_choices(self, aRepository):
-		doc_dirs = self.__get_choices(aRepository)
+		doc_dirs = self.get_choices(aRepository)
 		self.mp.setItems(doc_dirs)
 		self.Clear()
 	#--------------------------------
-	def __get_choices(self, aRepository = None):
+	def get_choices(self, aRepository = None):
 		"""Return a list of dirs that can be indexed.
 
 		- directory names in self.repository correspond to
@@ -129,7 +131,7 @@ class cDocWheel(cPhraseWheel):
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
-
+			
 		return phrase_wheel_choices
 	#----------------------------------------
 	def __could_be_locked(self, aDir):
@@ -388,7 +390,7 @@ class indexPnl(wxPanel):
 			style=wxCB_DROPDOWN
 		)
 		self.SelBOX_doc_type.SetLabel('')
-
+		
 		#-- right column ----------------------
 		self.lbl_right_header = wxStaticText(
 			id = -1,
@@ -511,6 +513,7 @@ class indexPnl(wxPanel):
 		self.SetSizer(szr_main_outer)
 		szr_main_outer.Fit(self)
 		self.Layout()
+	
 	#--------------------------------
 	def __get_valid_doc_types(self):
 		# running standalone ? -> configfile
@@ -623,6 +626,24 @@ class indexPnl(wxPanel):
 			)
 			return None
 		return 1
+        #----------------------------------------
+	def on_show_doc_dirs(self, event):
+                choices = []
+                doc_dirs = self.doc_id_wheel.get_choices( aRepository = self.repository)
+		for i in doc_dirs:
+                        choices.append(i['label'])
+                dlg = wxSingleChoiceDialog(
+			self,
+			_('You must select a directory before you can index its documents.'),
+			_('showing indexable document directories'),
+			choices,
+			wxOK | wxICON_INFORMATION
+			)
+		dlg.ShowModal()
+		dlg.Destroy()
+		return None
+	
+	
 	#----------------------------------------
 	def on_del_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
@@ -974,6 +995,7 @@ else:
 	import gmPlugin, gmGuiBroker ,gmPG, images_Archive_plugin, images_Archive_plugin1
 	
 	class gmIndexMedDocs(gmPlugin.wxNotebookPlugin):
+		
 		def name (self):
 			return _("Index")
 		# ---------------------------------------------
@@ -999,50 +1021,68 @@ else:
 			return 1
 		# ---------------------------------------------
 		def DoToolbar (self, tb, widget):
-			self.doc_id_wheel = cDocWheel(tb)
-			self.panel.set_wheel_link(self.doc_id_wheel)
-			tool1 = tb.AddControl(self.doc_id_wheel)
-#			self.doc_id_wheel.on_resize (None)
-
-			tool1 = tb.AddTool(
-				wxID_PNL_BTN_load_pages,
-				images_Archive_plugin.getcontentsBitmap(),
-				shortHelpString=_("load pages"),
-				isToggle=false
-			)
-			EVT_TOOL (tb, wxID_PNL_BTN_load_pages, widget.on_load_pages)
-
-			tool1 = tb.AddTool(
-				wxID_PNL_BTN_save_data,
-				images_Archive_plugin.getsaveBitmap(),
-				shortHelpString=_("save document"),
-				isToggle=false
-			)
-			EVT_TOOL (tb, wxID_PNL_BTN_save_data, widget.on_save_data)
-			
-			tool1 = tb.AddTool(
-				wxID_PNL_BTN_del_page,
-				images_Archive_plugin.getcontentsBitmap(),
-				shortHelpString=_("delete page"),
-				isToggle=false
-			)
-			EVT_TOOL (tb, wxID_PNL_BTN_del_page, widget.on_del_page)
-			
-			tool1 = tb.AddTool(
-				wxID_PNL_BTN_show_page,
-				images_Archive_plugin.getreportsBitmap(),
-				shortHelpString=_("show page"),
-				isToggle=false
-			)
-			EVT_TOOL (tb, wxID_PNL_BTN_show_page, widget.on_show_page)
-	
-			tool1 = tb.AddTool(
-				wxID_PNL_BTN_select_files,
+                        tool1 = tb.AddTool(
+				wxID_TB_BTN_select_files,
 				images_Archive_plugin1.getfoldersearchBitmap(),
 				shortHelpString=_("select files"),
 				isToggle=false
 			)
-			EVT_TOOL (tb, wxID_PNL_BTN_select_files, widget.on_select_files)
+			EVT_TOOL (tb, wxID_TB_BTN_select_files, widget.on_select_files)
+                        
+                        tb.AddControl(wxStaticBitmap(
+				tb,
+				-1,
+				images_Archive_plugin.getvertical_separator_thinBitmap(),
+				wxDefaultPosition,
+				wxDefaultSize
+			))
+                        
+                        self.doc_id_wheel = cDocWheel(tb)
+			self.panel.set_wheel_link(self.doc_id_wheel)
+                        tool1 = tb.AddControl(
+                                self.doc_id_wheel
+                        )
+			self.doc_id_wheel.on_resize (None)
+
+			tool1 = tb.AddTool(
+				wxID_TB_BTN_load_pages,
+				images_Archive_plugin.getcontentsBitmap(),
+				shortHelpString=_("load pages"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_TB_BTN_load_pages, widget.on_load_pages)
+                        
+                        tb.AddControl(wxStaticBitmap(
+				tb,
+				-1,
+				images_Archive_plugin.getvertical_separator_thinBitmap(),
+				wxDefaultPosition,
+				wxDefaultSize
+			))
+                        
+                        tool1 = tb.AddTool(
+				wxID_TB_BTN_show_page,
+				images_Archive_plugin.getreportsBitmap(),
+				shortHelpString=_("show page"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_TB_BTN_show_page, widget.on_show_page)
+			
+			tool1 = tb.AddTool(
+				wxID_TB_BTN_del_page,
+				images_Archive_plugin.getcontentsBitmap(),
+				shortHelpString=_("delete page"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_TB_BTN_del_page, widget.on_del_page)
+                        
+                        tool1 = tb.AddTool(
+				wxID_TB_BTN_save_data,
+				images_Archive_plugin.getsaveBitmap(),
+				shortHelpString=_("save document"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_TB_BTN_save_data, widget.on_save_data)
 		
 			tb.AddControl(wxStaticBitmap(
 				tb,
@@ -1051,12 +1091,36 @@ else:
 				wxDefaultPosition,
 				wxDefaultSize
 			))
+			
+			tool1 = tb.AddTool(
+				wxID_TB_BTN_aquire_docs,
+				images_Archive_plugin1.getfoldersearchBitmap(),
+				shortHelpString=_("aquire documents"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_TB_BTN_aquire_docs, self.SetScanWidget)
+			
+			tool1 = tb.AddTool(
+				wxID_TB_BTN_show_dirs_in_repository,
+				images_Archive_plugin1.getfoldersearchBitmap(),
+				shortHelpString=_("show directories in repository"),
+				isToggle=false
+			)
+			EVT_TOOL (tb, wxID_TB_BTN_show_dirs_in_repository, widget.on_show_doc_dirs)#(doc_dirs = self.panel.repository))
+		# ---------------------------------------------
+		def SetScanWidget (self,parent):
+                        self.RaiseAPlugin(aPlugin = 'gmScanMedDocs')
 #======================================================
 # this line is a replacement for gmPhraseWheel just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.12  2003-11-29 23:57:51  shilbert
+# Revision 1.13  2004-01-17 00:46:27  shilbert
+# - two new features implemented
+#   on_show_doc_dirs()
+#   setScanWidget()
+#
+# Revision 1.12  2003/11/29 23:57:51  shilbert
 # - GUI cleanup
 #
 # Revision 1.11  2003/11/19 22:25:00  ncq
