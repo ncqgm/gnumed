@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -215,47 +215,84 @@ class scanFrame(wxFrame):
 		self.acquire_handler[scan_drv]()
 	#-----------------------------------
 	def on_show_page(self, event):
+		# did user select a page ?
 		page_idx = self.LBOX_doc_pages.GetSelection()
-
-		if page_idx != -1:
-			page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
-
-			if not os.path.exists(page_fname):
-				_log.Log(gmLog.lErr, 'Cannot display page. File [%s] does not exist !' % page_fname)
-				dlg = wxMessageDialog(
-					self,
-					_('Cannot display page %s. The file\n[%s]\ndoes not exist.' % (page_idx+1, page_fname)),
-					_('data error'),
-					wxOK | wxICON_ERROR
-				)
-				dlg.ShowModal()
-				dlg.Destroy()
-				return None
-
-			import docMime
-
-			mime_type = docMime.guess_mimetype(page_fname)
-			viewer_cmd = docMime.get_viewer_cmd(mime_type, page_fname)
-
-			if viewer_cmd == None:
-				_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
-				new_fname = docMime.get_win_fname(mime_type)
-				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, new_fname))
-				shutil.copyfile(page_fname, new_fname)
-				# FIXME: we should only do this on Windows !
-				os.startfile(new_fname)
-			else:
-				_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
-				os.system(viewer_cmd)
-		else:
+		if page_idx == -1:
 			dlg = wxMessageDialog(
 				self,
 				_('You must select a page before you can view it.'),
-				_('Attention'),
+				_('displaying page'),
 				wxOK | wxICON_INFORMATION
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
+			return None
+
+		# now, which file was that again ?
+		page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+		# does this file exist, actually
+		if not os.path.exists(page_fname):
+			_log.Log(gmLog.lErr, 'Cannot display page. File [%s] does not exist !' % page_fname)
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot display page %s. The file\n[%s]\ndoes not exist.' % (page_idx+1, page_fname)),
+				_('displaying page'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		# sigh ! let's be off to work
+		import docMime
+		# FIXME: what about "not found" ?
+		mime_type = docMime.guess_mimetype(page_fname)
+		viewer_cmd = docMime.get_viewer_cmd(mime_type, page_fname)
+
+		if viewer_cmd != None:
+			_log.Log(gmLog.lData, "%s -> %s -> %s" % (page_fname, mime_type, viewer_cmd))
+			os.system(viewer_cmd)
+			return 1
+
+		_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
+		# does the file already have an extension ?
+		(path_name, f_ext) = os.path.splitext(page_fname)
+		# no
+		if f_ext == "":
+			# try to guess one
+			f_ext = docMime.guess_ext_by_mimetype(mime_type)
+			if not f_ext:
+				_log.Log(gmLog.lErr, "I am completely unable to guess the viewer. Trying our luck.")
+				file_to_display = page_fname
+				f_ext = ""
+			else:
+				file_to_display = page_fname + f_ext						
+				shutil.copyfile(page_fname, file_to_display)
+		else:
+			file_to_display = page_fname
+
+		_log.Log(gmLog.lData, "%s -> %s (%s) -> %s" % (page_fname, mime_type, f_ext, file_to_display))
+		# FIXME: we should only do this on Windows !
+		try:
+			os.startfile(file_to_display)
+		except:
+			exc = sys.exc_info()
+			_log.LogException("Unable to start file viewer.", exc, fatal=0)
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot display page %s. No viewer found.\n[%s]') % (page_idx+1, file_to_display),
+				_('displaying page'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		# clean up if necessary
+		if file_to_display != page_fname:
+			os.remove(file_to_display)
+
+		return 1
 	#-----------------------------------
 	def on_del_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
@@ -263,7 +300,7 @@ class scanFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_('You must select a page before you can delete it.'),
-				_('Attention'),
+				_('deleting page'),
 				wxOK | wxICON_INFORMATION
 			)
 			dlg.ShowModal()
@@ -291,7 +328,7 @@ class scanFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_('You must select a page before you can move it around.'),
-				_('Attention'),
+				_('moving page'),
 				wxOK | wxICON_INFORMATION
 			)
 			dlg.ShowModal()
@@ -306,8 +343,8 @@ class scanFrame(wxFrame):
 		while new_page_idx == -1:
 			dlg = wxTextEntryDialog(
 				parent = self,
-				message = _('Moving page %s.\n(file %s in %s)\n\nPlease enter the new position for the page !' % ((page_idx+1), name, path)),
-				caption = _('new page number'),
+				message = _('Moving original page %s.\n(file %s in %s)\n\nPlease enter the new position for the page !') % ((page_idx+1), name, path),
+				caption = _('moving page'),
 				defaultValue = str(page_idx+1)
 			)
 			btn = dlg.ShowModal()
@@ -342,11 +379,11 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def on_save_doc(self, event):
 		# anything to do ?
-		if self.acquired_images == []:
+		if self.acquired_pages == []:
 			dlg = wxMessageDialog(
 				self,
 				_('You must acquire some images before\nyou can save them as a document !'),
-				_('missing images'),
+				_('saving document'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
@@ -386,7 +423,7 @@ class scanFrame(wxFrame):
 				_log.LogException("Can't move file [%s] into target repository [%s]." % (old_name, new_name), exc, fatal = 1)
 				dlg = wxMessageDialog(
 					self,
-					_('Cannot move pages into target directory.'),
+					_('Cannot copy page to target directory\n(%s -> %s).') % (old_name, new_name),
 					_('saving document'),
 					wxOK | wxICON_ERROR
 				)
@@ -407,8 +444,8 @@ class scanFrame(wxFrame):
 				exc = sys.exc_info()
 				_log.LogException("Cannot remove source file [%s]." % old_name, exc, fatal = 0)
 
-		# clean up gui/acquired_images
-		self.acquired_images = []
+		# clean up gui/acquired_pages
+		self.acquired_pages = []
 		self.__reload_LBOX_doc_pages()
 
 		# finally show doc ID for copying down on paper
@@ -433,7 +470,7 @@ class scanFrame(wxFrame):
 				dlg = wxMessageDialog(
 					self,
 					_('Cannot connect to TWAIN source (scanner or camera).'),
-					_('TWAIN source error'),
+					_('acquiring page'),
 					wxOK | wxICON_ERROR
 				)
 				dlg.ShowModal()
@@ -531,7 +568,7 @@ class scanFrame(wxFrame):
 				dlg = wxMessageDialog(
 					self,
 					_('Cannot connect to SANE source (scanner or camera).'),
-					_('SANE source error'),
+					_('acquiring page'),
 					wxOK | wxICON_ERROR
 				)
 				dlg.ShowModal()
@@ -595,7 +632,7 @@ class scanFrame(wxFrame):
 				dlg = wxMessageDialog(
 					self,
 					_('Cannot find any SANE connected devices.'),
-					_('SANE device error'),
+					_('opening scanner'),
 					wxOK | wxICON_ERROR
 				)
 				dlg.ShowModal()
@@ -699,7 +736,7 @@ class scanFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_("This is the reference ID for the current document:\n%s\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file." % doc_ID),
-				_('random document ID'),
+				_('document ID'),
 				wxOK | wxICON_INFORMATION
 			)
 			dlg.ShowModal()
@@ -737,7 +774,7 @@ class scanFrame(wxFrame):
 			dlg = wxMessageDialog(
 				self,
 				_('Cannot get target repository from config file.'),
-				_('missing config file option'),
+				_('invalid configuration'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
@@ -750,8 +787,8 @@ class scanFrame(wxFrame):
 			_log.Log(gmLog.lErr, 'Target repository [%s] not accessible.' % tmp)
 			dlg = wxMessageDialog(
 				self,
-				_('The configured target repository is not accessible.\n[%s]' % tmp),
-				_('invalid config value'),
+				_('The configured target repository is not accessible.\n[%s]') % tmp,
+				_('invalid configuration'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
@@ -767,8 +804,8 @@ class scanFrame(wxFrame):
 			_log.Log(gmLog.lErr, 'The subdirectory [%s] already exists in the repository [%s]. Cannot save current document there.' % (doc_dir, repository))
 			dlg = wxMessageDialog(
 				self,
-				_('The subdirectory [%s] already exists in the repository [%s]. Cannot save current document there.') % (doc_dir, repository),
-				_('document directory'),
+				_('The subdirectory [%s] already exists in the repository [%s].\nCannot save current document there.') % (doc_dir, repository),
+				_('saving document'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
@@ -782,8 +819,8 @@ class scanFrame(wxFrame):
 			_log.LogException('Cannot create target repository subdirectory [%s]' % dirname, exc, fatal=1)
 			dlg = wxMessageDialog(
 				self,
-				_("Cannot create the target repository subdirectory.\n(%s)" % dirname),
-				_('document directory'),
+				_("Cannot create the target repository subdirectory.\n(%s)") % dirname,
+				_('saving document'),
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
@@ -849,6 +886,9 @@ if __name__ == '__main__':
 
 #======================================================
 # $Log: scan-med_docs.py,v $
-# Revision 1.23  2002-09-10 17:50:26  ncq
+# Revision 1.24  2002-09-10 21:18:12  ncq
+# - saving/displaying now works
+#
+# Revision 1.23  2002/09/10 17:50:26  ncq
 # - try this
 #
