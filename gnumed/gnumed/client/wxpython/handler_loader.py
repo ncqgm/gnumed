@@ -80,6 +80,8 @@ def init_handlers():
 	load_handlers()	
 
 def main():
+	import handler_all_gen
+	handler_all_gen.main()
 	init_handlers()
 
 gmDispatcher.connect(init_handlers,  gmSignals.application_init())
