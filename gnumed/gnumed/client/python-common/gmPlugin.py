@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -206,7 +206,7 @@ class wxPatientPlugin (wxBasePlugin):
 		icon = self.GetIcon ()
 		if icon is not None:
 			tb2 = self.gb['toolbar.Patient']
-			tb2.AddSeparator()
+			#tb2.AddSeparator()
 			self.tool_id = wxNewId ()
 			tool1 = tb2.AddTool(self.tool_id, icon,
 					    shortHelpString=self.name ())
