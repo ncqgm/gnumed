@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.85 2004-07-04 16:14:41 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.86 2004-07-04 16:31:09 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -733,7 +733,7 @@ from
 	v_pat_diag vpd,
 	lnk_code2diag lc2d
 where
-	lc2d.pk = vpd.pk_diag
+	lc2d.fk_diag = vpd.pk_diag
 ;
 
 -- =============================================
@@ -917,11 +917,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.85 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.86 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.85  2004-07-04 16:14:41  ncq
+-- Revision 1.86  2004-07-04 16:31:09  ncq
+-- - fix v_coded_diags: fk_diag=pk_diag
+--
+-- Revision 1.85  2004/07/04 16:14:41  ncq
 -- - add grants
 -- - I'm getting old
 --
