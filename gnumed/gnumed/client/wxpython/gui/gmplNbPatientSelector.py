@@ -3,7 +3,8 @@ from wxPython.wx import *
 import gmPlugin
 import gmSelectPerson
 
-_description = """This panel allows to select the active patient.
+"""This panel allows to select the active patient.
+
 The user can enter any number of letters of the surname only or
 of the first name and the surname (in that order). Depending on the 
 'case sensitive' switch on the search panel, the search will be
@@ -19,26 +20,30 @@ patient's ID, but also all fields of the view v_basic_person,
 accessible via the field names"""
 
 class gmplNbPatientSelector(gmPlugin.wxNotebookPlugin):
-    """
-    Plugin to encapsulate a patient selection panel
-    """
+	"""
+	Plugin to encapsulate a patient selection panel
+	"""
+	def name (self):
+		return 'Patient Selector'
 
-    def name (self):
-        return 'Patient Selector'
+	def description(self):
+		return __doc__
 
-    def description(self):
-        return _description
+	def MenuInfo (self):
+		return ('file', '&Select Patient')
 
-    def MenuInfo (self):
-        return ('file', '&Select Patient')
+	def GetWidget (self, parent):
+		try:
+			pnl = gmSelectPerson.DlgSelectPerson(parent)
+		except:
+			print "Failed to load patient selection panel"
+			return None
+		return pnl
 
-    def GetWidget (self, parent):
-        try:
-            pnl = gmSelectPerson.DlgSelectPerson(parent)
-        except:
-            print "Failed to load patient selection panel"
-	    return None
-        return pnl
-
-
-
+#======================================================
+# TODO
+# - gmPhraseWheel
+# - merge with gmSelectPerson
+# - allow for d.o.b., PUPIC and patient ID input, too
+# - search case sensitive by default, switch to insensitive if not found
+#   (handled automatically by phrase wheel)
