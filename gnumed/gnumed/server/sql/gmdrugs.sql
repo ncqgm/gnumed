@@ -37,84 +37,19 @@ CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
     LANCOMPILER 'PL/pgSQL';
 
 
+CREATE TABLE class (
+       id SERIAL PRIMARY KEY,
+       name varchar (60),
+       superclass INTEGER REFERENCES class (id)
+);
 
-CREATE TABLE entity (
+CREATE TABLE substance (
 	id SERIAL PRIMARY KEY,
 	name  varchar(60),
-	class BOOL, -- true for a class of substances
-	compound BOOL -- true for compound. No significance if class is true
+	class INTEGER REFERENCES class (id)
 );
 
--- dump file in gmdrugs.entity.sql
-
-COMMENT ON TABLE entity IS
-'Pharmacologic entity: class, compound or substance.';
-
-CREATE VIEW drug AS SELECT id, name FROM entity WHERE not class;
--- cannot insert, as uncetain compound or sunstance
-CREATE RULE drug_upd AS ON UPDATE TO drug
-        DO INSTEAD
-        UPDATE entity SET
-               name = NEW.name
-         WHERE id = OLD.id;
-CREATE RULE drug_del AS ON DELETE TO drug
-        DO INSTEAD
-        DELETE FROM entity
-         WHERE id = OLD.id;
-CREATE VIEW class AS SELECT id, name FROM entity WHERE class;
-CREATE RULE insert_class AS ON INSERT TO class
-        DO INSTEAD INSERT INTO entity VALUES (NEW.id, NEW.name, 't', 'f');
-CREATE RULE class_upd AS ON UPDATE TO class
-        DO INSTEAD
-        UPDATE entity SET
-               name = NEW.name
-         WHERE id = OLD.id;
-CREATE RULE class_del AS ON DELETE TO class
-        DO INSTEAD
-        DELETE FROM entity
-         WHERE id = OLD.id;
-CREATE VIEW substance AS SELECT id, name FROM entity WHERE not class and not compound;
-CREATE RULE insert_subst AS ON INSERT TO substance
-        DO INSERT INTO entity VALUES (NEW.id, NEW.name, 'f', 'f');
-CREATE RULE subst_upd AS ON UPDATE TO substance
-        DO INSTEAD 
-        UPDATE entity SET
-               name = NEW.name
-         WHERE id = OLD.id;
-CREATE RULE subst_del AS ON DELETE TO substance
-        DO INSTEAD
-        DELETE FROM entity
-         WHERE id = OLD.id;
-CREATE VIEW compound AS SELECT id, name FROM entity WHERE not class and compound;
-CREATE RULE insertcompound AS ON INSERT TO compound
-        DO INSERT INTO entity VALUES (NEW.id, NEW.name, 'f', 't');
-CREATE RULE compound_upd AS ON UPDATE TO compound
-        DO INSTEAD
-        UPDATE entity SET
-               name = NEW.name
-         WHERE id = OLD.id;
-CREATE RULE compound_del AS ON DELETE TO compound
-        DO INSTEAD
-        DELETE FROM entity
-         WHERE id = OLD.id;
-
--- =============================================
-
-CREATE TABLE link_class (
-       class INTEGER REFERENCES entity (id),
-       member INTEGER REFERENCES entity (id)
-);
-
-CREATE INDEX idx_link_class1 ON link_class(class);
-CREATE INDEX idx_link_class2 ON link_class(member);
-
--- =============================================
-
-CREATE TABLE link_compound_substance (
-       compound_id INTEGER,
-       substance_id INTEGER
-);
-
+--========================================
 
 CREATE TABLE pregnancy_cat (
 	id SERIAL PRIMARY KEY,
@@ -132,34 +67,34 @@ CREATE TABLE breastfeeding_cat (
 );
 
 CREATE TABLE obstetric_codes (
-       drug_id INTEGER,
+       drug_id INTEGER REFERENCES substance (id),
        preg_code INTEGER REFERENCES pregnancy_cat (id),
        brst_code INTEGER REFERENCES breastfeeding_cat (id)
 );
 
 -- =============================================
 
-CREATE TABLE amount_units (
+CREATE TABLE amount_unit (
         id SERIAL PRIMARY KEY,
         description varchar(20)
 );
 
-COMMENT ON TABLE amount_units IS
+COMMENT ON TABLE amount_unit IS
 'Example: ml, each, ..';
 
 
 -- =============================================
 
-CREATE TABLE drug_units (
+CREATE TABLE drug_unit (
 	id SERIAL PRIMARY KEY,
 	is_SI boolean default 'y',
 	description varchar(20)
 );
 
-COMMENT ON COLUMN drug_units.is_SI IS
+COMMENT ON COLUMN drug_unit.is_SI IS
 'Example: mg, mcg, ml, U, IU, ...';
 
-COMMENT ON TABLE drug_units IS
+COMMENT ON TABLE drug_unit IS
 'true if it is a System International (SI) compliant unit';
 
 
@@ -176,26 +111,14 @@ COMMENT ON table drug_route IS
 
 
 -- =============================================
+-- each 'type' of drug, like 'tablet', or 'capsule'
 
-CREATE TABLE presentation (
+
+CREATE TABLE drug_presentation (
 	id SERIAL PRIMARY KEY,
-	name varchar (30)
-);
-
-
--- =============================================
--- This describes the physical form of the drug, distingushing between liquid
--- and tablet types. 
--- contains special fields to extract form data from the freeform PBS field
--- 'formandstrength'
-CREATE TABLE drug_form (
-	id SERIAL PRIMARY KEY,
-	route INTEGER REFERENCES drug_route(id),
-	unit INTEGER REFERENCES drug_units(id), -- measure of active substances
-	amount_unit INTEGER REFERENCES amount_units(id), 
-	-- "divisor" of the unit -- "each" for tabs/capsules, most likely
-	-- mL for liquid drugs, and grams for powders
-	presentation INTEGER REFERENCES presentation (id)
+	name varchar (30),
+	route INTEGER REFERENCES drug_route (id),
+	amount_unit INTEGER REFERENCES amount_unit (id)
 );
 
 
@@ -206,7 +129,7 @@ CREATE TABLE drug_form (
 CREATE TABLE indication (
        id SERIAL PRIMARY KEY,
        diseasecode char[8],
-       drug INTEGER REFERENCES entity (id),
+       --drug INTEGER REFERENCES drug_package (id),
        route INTEGER REFERENCES drug_route (id),
        unit INTEGER REFERENCES drug_units (id),
        course INTEGER, -- in days, 1 for stat dose, 0 if continuing
@@ -226,14 +149,24 @@ CREATE TABLE indication (
 -- =============================================
 -- This table corresponds to each line in the Yellow Book.
 -- The manufacturer is linked to the strengths and pack sizes that they offer.
+
 CREATE TABLE drug_package (
 	id SERIAL PRIMARY KEY,
-	form_id INTEGER REFERENCES drug_form(id),
-	drug_id INTEGER REFERENCES entity (id),
-	amount INTEGER, -- no. of tabs, capsules, etc. in pack
+	presentation INTEGER REFERENCES drug_presentation (id),
+	packsize INTEGER, -- no. of tabs, capsules, etc. in pack
+	amount FLOAT, -- actual 'amount' of drug, so 100 for 100mL bottle
 	max_rpts INTEGER, -- maximum repeats
-	strength FLOAT, -- amount of active in each tab, capsule
 	description VARCHAR (100) -- extra description in source data
+);
+
+
+-- Here's the money. Links substances to packages. Obvious package can
+-- have several drugs (hence compounds)
+CREATE TABLE link_subst_package (
+       package INTEGER REFERENCES drug_package (id),
+       substance INTEGER REFERENCES substance (id),
+       unit INTEGER REFERENCES drug_unit (id),
+       amount FLOAT -- amount of drug
 );
 
 -- =============================================
@@ -258,6 +191,7 @@ CREATE TABLE link_brand_drug (
        drug_id INTEGER REFERENCES drug_package (id),
        price MONEY	       
 );
+
 -- =============================================
 -- where does this link in?
 CREATE TABLE drug_flags (
@@ -270,38 +204,29 @@ COMMENT ON TABLE drug_flags IS
 'important searchable information relating to a drug such as sugar free, gluten free, ...';
 
 -- sugqestion:
-CREATE TABLE link_flag_preparation (
+CREATE TABLE link_flag_package (
        flag_id INTEGER REFERENCES drug_flags(id),
-       prep_id INTEGER REFERENCES drug_package (id)
+       pack_id INTEGER REFERENCES drug_package (id)
 );
 
 -- ==============================================
+-- This is for formulary restriction imposed on the prescriber by a payor.
 
-CREATE TABLE pbs_authority (
-       drug_id INTEGER REFERENCES entity (id),
-       indication text
+--- The payor, i.e PBS, NHS, private insurance collective, etc.
+CREATE TABLE payor (
+       id SERIAL,
+       country CHAR (2), -- Internet two-letter code
+       name VARCHAR (50),
+       state BOOL -- true if State-owned
 );
 
--- =============================================
-
-CREATE TABLE drug_warning_categories (
-	id SERIAL PRIMARY KEY,
-        description text
+-- restirction on a substance imposed by a payor
+CREATE TABLE restriction (
+       drug_id INTEGER REFERENCES substance (id),
+       payor_id INTEGER REFERENCES payor (id),
+       indication text,
+       authority BOOL -- must contact for permission to prescribe
 );
-
-COMMENT ON TABLE drug_warning_categories IS
-'e.g. (potentially life threatening complication) (drug-disease interaction check neccessary) ...';
-
--- =============================================
-
-CREATE TABLE drug_warning (
-	drug_id INTEGER NOT NULL REFERENCES entity (id) ,
-	drug_warning_categories_id INTEGER NOT NULL REFERENCES drug_warning_categories(id) ,
-	warning text
-);
-
-COMMENT ON TABLE drug_warning IS
-'allows to link searchable categories of warning messages to any drug component';
 
 -- =============================================
 
@@ -317,7 +242,7 @@ COMMENT ON TABLE severity_code IS
 
 -- =============================================
 
--- interaction between any substance or class of substances
+-- interaction between any substance or class of substances, or disease
 
 CREATE TABLE interaction (
        id SERIAL PRIMARY KEY,
@@ -327,20 +252,35 @@ CREATE TABLE interaction (
 
 
 -- =====================================================
+-- interactions involving drugs or classes of drugs
+-- if the interaction is only known for a compound, link both substances in
+
 CREATE TABLE link_drug_interaction (
-        id SERIAL PRIMARY KEY,
-	drug1_id INTEGER NOT NULL REFERENCES entity(id),
-	drug2_id INTEGER NOT NULL REFERENCES entity(id),
+	drug_id INTEGER NOT NULL,
+	class BOOL, -- 'true' for class, false for drug
 	interaction_id INTEGER NOT NULL REFERENCES interaction (id) ,
         comment text
 );
 
 
--- =============================================
+--=================================================
+-- Diseases.
+-- A number of false "diseases" can be linked in here, such 
+-- as "childhood", "old age", "pregnancy", to add the appropriate
+-- caution data
+CREATE TABLE disease (
+       id SERIAL,
+       name varchar (100),
+       ICD10 char[8]
+);
+
+COMMENT ON COLUMN disease.ICD10 IS 'ICD-10 code, if applicable';
+
+--=============================================
+-- link diseases to interactions -- i.e contraindications
+-- if the complication is only known for a compounds, link both substances 
 CREATE TABLE link_disease_interaction (
-        id SERIAL PRIMARY KEY,
-	drug_id INTEGER NOT NULL REFERENCES entity (id) ,
-	diseasecode char[8],
+	disease_id INTEGER NOT NULL REFERENCES disease (id),
 	interaction_id INTEGER NOT NULL REFERENCES interaction (id),
         comment text
 );
@@ -349,5 +289,17 @@ CREATE TABLE link_disease_interaction (
 COMMENT ON TABLE link_disease_interaction IS
 'allows any number of drug-disease interactions for any given drug';
 
-COMMENT ON COLUMN link_disease_interaction.diseasecode IS
-'preferrably ICD10 codes here.';
+
+--===============================================
+
+-- side-effects: diseases *caused* by a substances
+
+CREATE TABLE side_effect (
+       id SERIAL,
+       drug_id INTEGER NOT NULL,
+       class BOOL,
+       disease INTEGER REFERENCES disease (id),
+       comment TEXT,
+       frequency INTEGER, -- rough % of patients
+       severity INTEGER REFERENCES severity_code (id)
+);
