@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.15 2005-03-06 14:44:02 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmBusinessDBObject.py,v 1.16 2005-03-06 21:15:13 ihaywood Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -144,6 +144,17 @@ class cBusinessDBObject:
 #		self.__class__._subtables
 			# a dictionary of subtables by name, values are dictionaries
 			# of 3 queries keyed 'select', 'insert' and 'delete'
+			# 'select' accepts one parameter (this objects primary key) and
+			# returns some rows. One column must be 'pk'. This rows, as
+			# dictionaries, are avaiable as an attribute of this object, by
+			# the name of the key in _subtables
+			# 'insert' is called by add_subtable, it must have labelled
+			# parameters for the columns to insert into from the dictionary
+			# passed to add_subtable. 'pk_master' is also available in this
+			# dictionary, being the primary key of the 'master' table
+			# 'delete' is called from del_subtable. Two parameters in order
+			# the pk for the master object, and the pk of the subtable row
+			# to be deleted.
 		#</DEBUG>
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
@@ -310,9 +321,9 @@ class cBusinessDBObject:
 		self._payload = data[0]
 		return True
 	#--------------------------------------------------------
-	def save_payload(self):
+	def save_payload(self, conn=None):
 		"""Store updated values (if any) in database.
-
+		Optionally accepts a pre-existing connection
 		- returns a tuple (<True|False>, <data>)
 		- True: success
 		- False: an error occurred
@@ -324,8 +335,8 @@ class cBusinessDBObject:
 		params = {}
 		for field in self._idx.keys():
 			params[field] = self._payload[self._idx[field]]
-
-		conn = self.__class__._conn_pool.GetConnection(self.__class__._service, readonly=0)
+		if conn is None:
+			conn = self.__class__._conn_pool.GetConnection(self.__class__._service, readonly=0)
 		if conn is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			return (False, (1, _('Cannot connect to database.')))
@@ -472,7 +483,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.15  2005-03-06 14:44:02  ncq
+# Revision 1.16  2005-03-06 21:15:13  ihaywood
+# coment expanded on _subtables
+#
+# Revision 1.15  2005/03/06 14:44:02  ncq
 # - cleanup
 #
 # Revision 1.14  2005/03/06 08:17:02  ihaywood
