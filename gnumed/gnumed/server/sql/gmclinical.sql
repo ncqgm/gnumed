@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.101 $
+-- $Revision: 1.102 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -660,13 +660,16 @@ comment on column form_data.value is
 -- diagnosis tables
 -- --------------------------------------------
 -- patient attached diagnosis
-create table clin_diag (
+create table clin_working_diag (
 	pk serial primary key,
 	fk_aux_note integer
 		default null
 		references clin_aux_note(pk)
 		on update cascade
 		on delete restrict,
+	laterality char
+		default null
+		check ((laterality in ('l', 'r', '?')) or (laterality is null)),
 	is_chronic boolean
 		not null
 		default false,
@@ -686,9 +689,9 @@ create table clin_diag (
 	unique (narrative, id_encounter)
 ) inherits (clin_root_item);
 
-select add_table_for_audit('clin_diag');
+select add_table_for_audit('clin_working_diag');
 
--- diagnosis name stored in clin_diag(clin_root_item).narrative
+-- diagnosis name stored in clin_working_diag(clin_root_item).narrative
 
 
 -- "working set" of coded diagnoses
@@ -869,11 +872,15 @@ comment on column referral.narrative is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.101 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.102 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.101  2004-04-27 15:18:38  ncq
+-- Revision 1.102  2004-04-29 13:17:48  ncq
+-- - clin_diag -> clin_working_diag
+-- - add laterality as per Ian's suggestion
+--
+-- Revision 1.101  2004/04/27 15:18:38  ncq
 -- - rework diagnosis tables + grants for them
 --
 -- Revision 1.100  2004/04/24 12:59:17  ncq
