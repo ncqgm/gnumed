@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.3 2003-08-20 22:52:12 shilbert Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmXdtViewer.py,v 1.4 2003-08-20 22:59:53 shilbert Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -139,12 +139,6 @@ class gmXdtViewerPanel(wxPanel):
 
 		pat_selected = dlg.GetStringSelection()
 		_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
-		#anIdentity=string.split(pat_selected,':')
-		#anIdentity = pat_selected
-		#pat_id=anIdentity[0]
-		#aName=anIdentity[1]
-		# patient -- data ripping
-#	 	data = gmXdtToolsLib.getPatientContent(self.filename, anIdentity)
 		ID,name = string.split(pat_selected,':')
 		data = gmXdtToolsLib.get_pat_data(self.filename, ID, name)
 		# how many records were obtained for this patient ?
@@ -392,7 +386,6 @@ if __name__ == '__main__':
 			)
 			viewer = gmXdtViewerPanel(frame, fname)
 			viewer.populate_list()
-			#pnl.Prepare(fname)
 			frame.Show(1)
 			return 1
 	#---------------------
@@ -466,7 +459,10 @@ def __show_error(aMessage = None, aTitle = ''):
 	return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.3  2003-08-20 22:52:12  shilbert
+# Revision 1.4  2003-08-20 22:59:53  shilbert
+# - just code cleanup
+#
+# Revision 1.3  2003/08/20 22:52:12  shilbert
 # - squashed some of the obvious bugs
 # - initial testing for correct xdt structure
 #
