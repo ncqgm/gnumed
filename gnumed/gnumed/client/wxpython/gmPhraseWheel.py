@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.9 2003-09-17 05:46:37 ihaywood Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPhraseWheel.py,v 1.10 2003-09-17 05:54:32 ihaywood Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -451,7 +451,7 @@ class cPhraseWheel (wxTextCtrl):
 
 		x, y = pos
 		width, height = size
-		self.__picklist_win = wxWindow (parent, -1, pos = (x, y+height), size = (width, width))
+		self.__picklist_win = wxWindow (parent, -1, pos = (x, y+height), size = (width, height*6))
 		self.panel = wxPanel(self.__picklist_win, -1)
 		self.__picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self.__picklist.Clear()
@@ -625,7 +625,12 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def on_resize (self, event):
 		sz = self.GetSize()
-		self.__picklist.SetSize ((sz.width, sz.height*6))
+		rows = len (self.__currMatches)
+		if rows == 0:
+			rows = 1
+		if rows > 10:
+			rows = 10
+		self.__picklist.SetSize ((sz.width, sz.height*rows))
 		# as wide as the textctrl, and 6 times the height
 		self.panel.SetSize (self.__picklist.GetSize ())
 		self.__picklist_win.SetSize (self.panel.GetSize())
@@ -648,6 +653,7 @@ class cPhraseWheel (wxTextCtrl):
 		# display list - but only if we have any matches
 		if len(self.__currMatches) > 0:
 			# show it
+			self.on_resize (None)
 			self.__show_picklist()
 		else:
 			# we may have had a pick list window so we need to
@@ -703,8 +709,8 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.9  2003-09-17 05:46:37  ihaywood
-# auto-repeat enabled for scrolling
+# Revision 1.10  2003-09-17 05:54:32  ihaywood
+# phrasewheel box size now approximate to length of search results
 #
 # Revision 1.8  2003/09/16 22:25:45  ncq
 # - cleanup
