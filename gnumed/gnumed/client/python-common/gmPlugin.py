@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.56 2003-09-03 17:31:05 hinnef Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmPlugin.py,v 1.57 2003-09-24 10:32:54 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -383,31 +383,31 @@ def GetPluginLoadList(set):
 	 b) scan directly
 	 c) store in database
 	"""
-	
+
 	currentMachine = _whoami.getMachine()
 
 	p_list,match = gmCfg.getFirstMatchingDBSet(
-				machine = currentMachine,
-				cookie = str(set),
-				option = 'plugin load order' )
-						
+		machine = currentMachine,
+		cookie = str(set),
+		option = 'plugin load order'
+	)
 
 	# get connection for possible later use
 	gb=gmGuiBroker.GuiBroker()
-        db = gmPG.ConnectionPool()
-        conn = db.GetConnection(service = "default")
-        dbcfg = gmCfg.cCfgSQL(
-                aConn = conn,
-                aDBAPI = gmPG.dbapi
-        )
+	db = gmPG.ConnectionPool()
+	conn = db.GetConnection(service = "default")
+	dbcfg = gmCfg.cCfgSQL(
+		aConn = conn,
+		aDBAPI = gmPG.dbapi
+	)
 
-	#check result
+	# check result
 	if p_list is not None:
-		#  if found for this user on this machine	
+		# if found for this user on this machine
 		if match == 'CURRENT_USER_CURRENT_MACHINE':
-			# we have already a plugin list stored for this 
+			# we have already a plugin list stored for this
 			# user/machine combination
-		        db.ReleaseConnection(service = "default")
+			db.ReleaseConnection(service = "default")
 			return p_list
 		else: # all other cases of user/machine pairing
 			# store the plugin list found for the current user
@@ -421,14 +421,13 @@ def GetPluginLoadList(set):
 				aRWConn = rwconn
 			)
 			rwconn.close()
-		        db.ReleaseConnection(service = "default")
+			db.ReleaseConnection(service = "default")
 			return p_list
 
 	_log.Log(gmLog.lWarn, "No plugin load order stored in database. Trying local config file.")
 
-
 	# search in plugin directory
-	#  FIXME: in the future we might ask the backend where plugins are
+	# FIXME: in the future we might ask the backend where plugins are
 	plugin_conf_name = os.path.join(gb['gnumed_dir'], 'wxpython', set, 'plugins.conf')
 	fCfg = None
 	try:
@@ -447,7 +446,7 @@ def GetPluginLoadList(set):
 
 		files = os.listdir(os.path.join(gb['gnumed_dir'], 'wxpython', set))
 
-		_log.Log(gmLog.lData, "the Path from set=%s parameter gnumed_dir=%s is %s"% ( set, gb['gnumed_dir'], os.path.join(gb['gnumed_dir'], 'wxpython', set) ) )
+		_log.Log(gmLog.lData, "the path from set=%s parameter gnumed_dir=%s is %s"% ( set, gb['gnumed_dir'], os.path.join(gb['gnumed_dir'], 'wxpython', set) ) )
 
 		_log.Log(gmLog.lData, "returned this file list %s" % ("\n".join(files)))
 		p_list = []
@@ -490,7 +489,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.56  2003-09-03 17:31:05  hinnef
+# Revision 1.57  2003-09-24 10:32:54  ncq
+# - whitespace cleanup
+#
+# Revision 1.56  2003/09/03 17:31:05  hinnef
 # cleanup in GetPluginLoadList, make use of gmWhoAmI
 #
 # Revision 1.55  2003/07/21 20:57:42  ncq
