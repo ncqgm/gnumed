@@ -1,25 +1,24 @@
 """Broker for Postgres distributed backend connections.
 
 @copyright: author
-@license: GPL (details at http://www.gnu.org)
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
-#python standard modules
+# python standard modules
 import string, copy, os, sys, time
 
-#gnumed specific modules
+# gnumed specific modules
 import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-	_ = lambda x:x
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
-import gmLoginInfo, gmExceptions
+import gmLoginInfo, gmExceptions, gmI18N
 from gmPyCompat import *
 
 import gmCLI
@@ -29,7 +28,7 @@ else:
 	_query_logging_verbosity = 0
 del gmCLI
 
-#3rd party dependencies
+# 3rd party dependencies
 
 # FIXME: this needs a better way of specifying which library to load
 # add SQL-relay, too
@@ -108,19 +107,6 @@ WHERE
 		and
 	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
 
-
-#query_fkey_names = """
-#SELECT
-#	pg_trigger.*, pg_proc.proname, pg_class.relname, pg_type.typname
-#FROM
-#	pg_proc
-#		INNER JOIN pg_trigger ON pg_proc.oid = pg_trigger.tgfoid
-#		INNER JOIN pg_class ON pg_trigger.tgrelid = pg_class.oid
-#		INNER JOIN pg_type ON pg_trigger.tgtype = pg_type.oid
-#WHERE
-#	pg_class.relname = %s
-#"""
-
 query_fkey_names = """
 select tgargs from pg_trigger where
 	tgname like 'RI%%'
@@ -129,7 +115,6 @@ select tgargs from pg_trigger where
 		select oid from pg_class where relname=%s
 	)
 """
-
 #======================================================================
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
@@ -140,7 +125,7 @@ class ConnectionPool:
 	__service2db_map = {}
 	# connections in use per service (for reference counting)
 	__conn_use_count = {}
-	#variable used to check whether a first connection has been initialized yet or not
+	# variable used to check whether a first connection has been initialized yet or not
 	__is_connected = None
 	# maps backend listening threads to database ids
 	__listeners = {}
@@ -728,7 +713,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 							conn.conn.toggleShowQuery
 					return (False, (2, _('Cannot save data. Database row locked by another user.')))
 				# FIXME: handle more types of errors
-				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], service), exc_info)
+				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], service), exc_info)
 				if extra_verbose:
 					__log_PG_settings(curs)
 				curs.close()
@@ -806,7 +791,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 						conn.conn.toggleShowQuery
 				return (False, (2, _('Cannot save data. Database row locked by another user.')))
 			# FIXME: handle more types of errors
-			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], conn), exc_info)
+			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], conn), exc_info)
 			if extra_verbose:
 				__log_PG_settings(curs)
 			curs.close()
@@ -869,7 +854,7 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 				_log.Log(gmLog.lData, 'concurrency conflict detected')
 				return (False, (2, _('Cannot save data. Database row locked by another user.')))
 			# FIXME: handle more types of errors
-			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], cursor), exc_info)
+			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], cursor), exc_info)
 			if extra_verbose:
 				__log_PG_settings(curs)
 			tmp = str(val).replace('ERROR:', '')
@@ -904,7 +889,7 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 		idx = get_col_indices(curs)
 	return (True, (data, idx))
 #---------------------------------------------------
-def run_commit (link_obj = None, queries = None, return_err_msg = None):
+def run_commit(link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
 	   that is supposed to get committed.
 
@@ -1224,7 +1209,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.40 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.41 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1442,7 +1427,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.40  2005-01-29 17:56:13  ncq
+# Revision 1.41  2005-01-31 06:26:38  ncq
+# - several tidy-ups
+#
+# Revision 1.40  2005/01/29 17:56:13  ncq
 # - fix silly off-by-one bug in commit2service() with # of attempts,
 #   this fixes the bug Carlos noted when creating episodes
 # - improve debug logging in commit2()
