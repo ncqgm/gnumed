@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.31 2004-09-29 19:13:37 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmPatientExporter.py,v 1.32 2004-10-11 19:53:41 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -707,19 +707,24 @@ class cEmrExport:
 
         """
         doc_folder = self.__patient.get_document_folder()
-        doc_ids = doc_folder.get_doc_list()
-        
+
         self.__target.write('\n4) Medical documents: (date) reference - type "comment"\n')
         self.__target.write('                         object - comment')
-        for doc_id in doc_ids:
-            med_doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
-            doc_metadata = med_doc.get_metadata()
-            self.__target.write('\n\n' + 3*' ' + '(%s) %s - %s "%s"' \
-                %(doc_metadata['date'].Format('%Y-%m-%d'),doc_metadata['reference'],\
-                  doc_metadata['type'],doc_metadata['comment'] ))
-            for objKey in doc_metadata['objects'].keys():
-                self.__target.write('\n' + 6*' ' + str(doc_metadata['objects'][objKey]['index']) + '-' +\
-                doc_metadata['objects'][objKey]['comment'])
+
+        docs = doc_folder.get_documents()
+        for doc in docs:
+            self.__target.write('\n\n   (%s) %s - %s "%s"' % (
+                doc['date'].Format('%Y-%m-%d'),
+                doc['ext_ref'],
+                doc['l10n_type'],
+                doc['comment'])
+            )
+            parts = doc.get_parts()
+            for part in parts:
+                self.__target.write('\n      %s - ' % (
+                    obj['seq_idx'],
+                    obj['obj_comment'])
+                )
         self.__target.write('\n\n')
     #--------------------------------------------------------    
     def dump_demographic_record(self, all = False):
@@ -917,7 +922,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.31  2004-09-29 19:13:37  ncq
+# Revision 1.32  2004-10-11 19:53:41  ncq
+# - document classes are now VOs
+#
+# Revision 1.31  2004/09/29 19:13:37  ncq
 # - cosmetical fixes as discussed with our office staff
 #
 # Revision 1.30  2004/09/29 10:12:50  ncq
