@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -13,7 +13,6 @@ from Gnumed.business import gmPatient, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
-_cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
 
 if __name__ == '__main__':
@@ -23,17 +22,37 @@ else:
 
 _log.Log(gmLog.lInfo, __version__)
 
-[	wxID_PNL_main,
-	wxID_TB_BTN_show_page
-] = map(lambda _init_ctrls: wxNewId(), range(2))
+wxID_PNL_main = wxNewId()
+wxID_TB_BTN_show_page = wxNewId()
 
-#		 self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
-#								wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
-#								, self.log)
 
 		# NOTE:	 For some reason tree items have to have a data object in
 		#		 order to be sorted.  Since our compare just uses the labels
 		#		 we don't need any real data, so we'll just use None.
+
+#============================================================
+class cDocTree(wxTreeCtrl):
+	"""This wxTreeCtrl derivative displays a tree view of stored medical documents.
+	"""
+	def __init__(self, parent, id):
+		"""Set up our specialised tree.
+		"""
+		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
+		self.root = None
+		self.__doc_list = None
+		self.__pat = gmPatient.gmCurrentPatient()
+
+		self.__register_events()
+
+#		self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
+#								wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
+#								, self.log)
+
+	#--------------------------------------------------------
+	def __register_events(self):
+		# connect handlers
+		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
+		EVT_TREE_ITEM_RIGHT_CLICK(self, self.GetId(), self.__on_right_click)
 
 #		 EVT_TREE_ITEM_EXPANDED	 (self, tID, self.OnItemExpanded)
 #		 EVT_TREE_ITEM_COLLAPSED (self, tID, self.OnItemCollapsed)
@@ -43,54 +62,23 @@ _log.Log(gmLog.lInfo, __version__)
 #		 EVT_TREE_ITEM_ACTIVATED (self, tID, self.OnActivate)
 
 #		 EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
-
-#============================================================
-class cDocTree(wxTreeCtrl):
-	"""This wxTreeCtrl derivative displays a tree view of stored medical documents.
-	"""
-	def __init__(self, parent, id):
-		"""Set up our specialised tree.
-		"""
-		# get connection
-		self.__backend = gmPG.ConnectionPool()
-		self.__defconn = self.__backend.GetConnection('blobs')
-		if self.__defconn is None:
-			_log.Log(gmLog.lErr, "Cannot retrieve documents without database connection !")
-			raise gmExceptions.ConstructorError, "cDocTree.__init__(): need db conn"
-
-		# connect to config database
-		self.__dbcfg = gmCfg.cCfgSQL(
-			aConn = self.__backend.GetConnection('default'),
-			aDBAPI = gmPG.dbapi
-		)
-
-		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
-
-		self.root = None
-		self.doc_list = None
-		self.curr_pat = gmPatient.gmCurrentPatient()
-		_log.Log(gmLog.lData, self.curr_pat)
-		# connect handlers
-		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
-		EVT_TREE_ITEM_RIGHT_CLICK(self, self.GetId(), self.__on_right_click)
-	#------------------------------------------------------------------------
-	def update(self):
-		if self.curr_pat['ID'] is None:
-			_log.Log(gmLog.lErr, 'need patient for update')
-			gmGuiHelpers.gm_show_error(
-				aMessage = _('Cannot load documents.\nYou first need to select a patient.'),
-				aTitle = _('loading document list')
+	#--------------------------------------------------------
+	def refresh(self):
+		if not self.__pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(
+				_('Cannot load documents. No active patient.'),
+				gmLog.lErr
 			)
-			return None
+			return False
 
-		if self.doc_list is not None:
-			del self.doc_list
+		if self.__doc_list is not None:
+			del self.__doc_list
 
-		if self.__populate_tree() is None:
-			return None
+		if not self.__populate_tree():
+			return False
 
-		return 1
-	#------------------------------------------------------------------------
+		return True
+	#--------------------------------------------------------
 	def __populate_tree(self):
 		# FIXME: check if patient changed at all
 
@@ -104,28 +92,28 @@ class cDocTree(wxTreeCtrl):
 		self.SetItemHasChildren(self.root, False)
 
 		# read documents from database
-		docs_folder = self.curr_pat.get_document_folder()
+		docs_folder = self.__pat.get_document_folder()
 		doc_ids = docs_folder.get_doc_list()
 		if doc_ids is None:
-			name = self.curr_pat['demographic record'].get_names()
+			name = self.__pat['demographic record'].get_names()
 			gmGuiHelpers.gm_show_error(
 				aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
 			)
-			return None
+			return False
 
 		# fill new tree from document list
 		self.SetItemHasChildren(self.root, True)
 
 		# add our documents as first level nodes
-		self.doc_list = {}
+		self.__doc_list = {}
 		for doc_id in doc_ids:
 			try:
 				doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
 			except:
 				continue
 
-			self.doc_list[doc_id] = doc
+			self.__doc_list[doc_id] = doc
 			mdata = doc.get_metadata()
 			date = '%10s' % mdata['date'] + " " * 10
 			typ = '%s' % mdata['type'] + " " * 25
@@ -148,7 +136,6 @@ class cDocTree(wxTreeCtrl):
 			self.SetItemHasChildren(doc_node, True)
 
 			# now add objects as child nodes
-			i = 1
 			for obj_id in mdata['objects'].keys():
 				obj = mdata['objects'][obj_id]
 				p = str(obj['index']) +	 " "
@@ -164,17 +151,14 @@ class cDocTree(wxTreeCtrl):
 				data = {
 					'type': 'object',
 					'id': obj_id,
-					'seq_idx'	: obj['index']
+					'seq_idx': obj['index']
 				}
 				self.SetPyData(obj_node, data)
-				i += 1
-			# and expand
-			#self.Expand(doc_node)
 
 		# and uncollapse
 		self.Expand(self.root)
 
-		return 1
+		return True
 	#------------------------------------------------------------------------
 	def OnCompareItems (self, item1, item2):
 		"""Used in sorting items.
@@ -195,8 +179,8 @@ class cDocTree(wxTreeCtrl):
 				return 0
 			return 1
 		# object node
-		else:
-			# compare sequence IDs (= "page number")
+		elif data1['type'] == 'object':
+			# compare sequence IDs (= "page" numbers)
 			if data1['seq_idx'] < data2['seq_idx']:
 				return -1
 			elif data1['seq_idx'] == data2['seq_idx']:
@@ -224,7 +208,7 @@ class cDocTree(wxTreeCtrl):
 		else:
 			tmp = _whoami.get_workplace()
 
-		exp_base = self.__dbcfg.get(
+		exp_base, set = gmCfg.setDBParam (
 			workplace = tmp,
 			option = "doc export dir"
 		)
@@ -252,7 +236,7 @@ class cDocTree(wxTreeCtrl):
 			chunksize = None
 		else:
 			gb = gmGuiBroker.GuiBroker()
-			chunksize = self.__dbcfg.get(
+			chunksize, set = gmCfg.setDBParam (
 				workplace = _whoami.get_workplace(),
 				option = "doc export chunk size"
 			)
@@ -344,7 +328,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.3  2004-07-19 11:50:43  ncq
+# Revision 1.4  2004-09-19 15:10:44  ncq
+# - lots of cleanup
+# - use status message instead of error box on missing patient
+#   so that we don't get an endless loop
+#   -> paint_event -> update_gui -> no-patient message -> paint_event -> ...
+#
+# Revision 1.3  2004/07/19 11:50:43  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.2  2004/07/18 20:30:54  ncq
