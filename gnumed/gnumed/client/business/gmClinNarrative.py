@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -37,8 +37,6 @@ class cDiag(gmClinItem.cClinItem):
 			where pk=%(pk_diag)s""",
 		"""select xmin_clin_diag, xmin_clin_narrative from v_pat_diag where pk_diag=%s(pk_diag)s"""
 		]
-
-	_xmins_refetch_col_pos = {0: 'xmin_clin_diag', 1: 'xmin_clin_narrative'}
 
 	_updatable_fields = [
 		'diagnosis',
@@ -108,8 +106,6 @@ class cNarrative(gmClinItem.cClinItem):
 		"""select xmin_clin_narrative from v_pat_narrative where pk_narrative=%(pk_narrative)s"""
 		]
 
-	_xmins_refetch_col_pos = {0: 'xmin_clin_narrative'}
-
 	_updatable_fields = [
 		'narrative',
 		'date',
@@ -160,7 +156,6 @@ class cRFE(gmClinItem.cClinItem):
 			where pk=%(pk_narrative)s""",
 		"""select xmin_clin_narrative from v_pat_rfe where pk_narrative=%(pk_narrative)s"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin_clin_narrative'}
 	_updatable_fields = [
 		'narrative',
 		'clin_when'
@@ -182,7 +177,6 @@ class cAOE(gmClinItem.cClinItem):
 			where pk=%(pk_narrative)s""",
 		"""select xmin_clin_narrative from v_pat_aoe where pk_narrative=%(pk_narrative)s"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin_clin_narrative'}
 	_updatable_fields = [
 		'narrative',
 		'clin_when'
@@ -327,7 +321,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.10  2004-12-20 16:45:49  ncq
+# Revision 1.11  2005-01-02 19:55:30  ncq
+# - don't need _xmins_refetch_col_pos anymore
+#
+# Revision 1.10  2004/12/20 16:45:49  ncq
 # - gmBusinessDBObject now requires refetching of XMIN after save_payload
 #
 # Revision 1.9  2004/11/03 22:32:34  ncq

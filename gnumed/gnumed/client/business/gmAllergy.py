@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.17 2004-12-20 16:45:49 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmAllergy.py,v 1.18 2005-01-02 19:55:30 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -41,7 +41,6 @@ class cAllergy(gmClinItem.cClinItem):
 			where id=%(pk_allergy)s""",
 		"""select xmin_allergy from v_pat_allergies where pk_allergy=%(pk_allergy)s"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin_allergy'}
 	_updatable_fields = [
 		'date',
 		'substance',
@@ -138,7 +137,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.17  2004-12-20 16:45:49  ncq
+# Revision 1.18  2005-01-02 19:55:30  ncq
+# - don't need _xmins_refetch_col_pos anymore
+#
+# Revision 1.17  2004/12/20 16:45:49  ncq
 # - gmBusinessDBObject now requires refetching of XMIN after save_payload
 #
 # Revision 1.16  2004/12/15 21:52:05  ncq

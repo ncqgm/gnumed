@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.26 2004-12-20 16:45:49 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmMedDoc.py,v 1.27 2005-01-02 19:55:30 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -197,7 +197,6 @@ class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
 			where pk=%(pk_doc)s""",
 		"""select xmin_doc_obj from v_obj4doc where pk_obj = %(pk_doc)s"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin_doc_obj'}
 	_updatable_fields = [
 		'seq_idx',
 		'obj_comment'
@@ -398,8 +397,6 @@ class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
 		"""select xmin_doc_med from v_doc_med where pk_doc=%(pk_doc)s"""
 		]
 
-	_xmins_refetch_col_pos = {0: 'xmin_doc_med'}
-
 	_updatable_fields = [
 		'pk_type',
 		'comment',
@@ -543,7 +540,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.26  2004-12-20 16:45:49  ncq
+# Revision 1.27  2005-01-02 19:55:30  ncq
+# - don't need _xmins_refetch_col_pos anymore
+#
+# Revision 1.26  2004/12/20 16:45:49  ncq
 # - gmBusinessDBObject now requires refetching of XMIN after save_payload
 #
 # Revision 1.25  2004/11/03 22:32:34  ncq

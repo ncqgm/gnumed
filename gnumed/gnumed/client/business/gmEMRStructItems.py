@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -30,7 +30,6 @@ class cHealthIssue(gmClinItem.cClinItem):
 			where id=%(id)s""",
 		"""select xmin from clin_health_issue where id=%(id)s"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin'}
 	_updatable_fields = [
 		'description'
 	]
@@ -67,7 +66,6 @@ class cEpisode(gmClinItem.cClinItem):
 			where pk=%(pk_episode)s""",
 		"""select xmin_clin_episode from v_pat_episode where pk_episode=%(pk_episode)"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin_clin_episode'}
 	_updatable_fields = [
 		'pk_health_issue',
 		'pk_patient',
@@ -128,7 +126,6 @@ class cEncounter(gmClinItem.cClinItem):
 			where id=%(pk_encounter)s""",
 		"""select xmin_clin_encounter from v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin_clin_encounter'}
 	_updatable_fields = [
 		'description',
 		'started',
@@ -294,8 +291,10 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 		err, msg = data
 		return (False, msg)
 	# now there ?
+	rows, idx = data
+	row = rows[0]
 	try:
-		episode = cEpisode(aPK_obj = data[0][0])
+		episode = cEpisode(aPK_obj = row[0])
 	except gmExceptions.ConstructorError:
 		_log.LogException('cannot instantiate episode [%s]' % (result[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
@@ -407,7 +406,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.27  2004-12-20 16:45:49  ncq
+# Revision 1.28  2005-01-02 19:55:30  ncq
+# - don't need _xmins_refetch_col_pos anymore
+#
+# Revision 1.27  2004/12/20 16:45:49  ncq
 # - gmBusinessDBObject now requires refetching of XMIN after save_payload
 #
 # Revision 1.26  2004/12/15 10:42:09  ncq

@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.45 2004-12-27 16:48:11 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPathLab.py,v 1.46 2005-01-02 19:55:30 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -56,8 +56,6 @@ class cLabResult(gmClinItem.cClinItem):
 			where id=%(pk_result)s""",
 		"""select xmin_test_result from v_results4lab_req where pk_result=%(pk_result)s"""
 		]
-
-	_xmins_refetch_col_pos = {0: 'xmin_test_result'}
 
 	_updatable_fields = [
 		'val_when',
@@ -163,7 +161,6 @@ class cLabRequest(gmClinItem.cClinItem):
 			where pk=%(pk_request)s""",
 		"""select xmin_lab_request from v_lab_requests where pk_request=%(pk_request)s"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin_lab_request'}
 	_updatable_fields = [
 		'request_id',
 		'lab_request_id',
@@ -250,7 +247,6 @@ class cTestType(gmClinItem.cClinItem):
 			where pk=%(pk)s""",
 		"""select xmin from test_type where pk=%(pk)"""
 	]
-	_xmins_refetch_col_pos = {0: 'xmin'}
 	_updatable_fields = [
 		'fk_test_org',
 		'code',
@@ -354,7 +350,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.45 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.46 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -441,7 +437,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.45 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.46 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -697,7 +693,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.45  2004-12-27 16:48:11  ncq
+# Revision 1.46  2005-01-02 19:55:30  ncq
+# - don't need _xmins_refetch_col_pos anymore
+#
+# Revision 1.45  2004/12/27 16:48:11  ncq
 # - fix create_lab_request() to use proper aPK_obj syntax
 #
 # Revision 1.44  2004/12/20 16:45:49  ncq
