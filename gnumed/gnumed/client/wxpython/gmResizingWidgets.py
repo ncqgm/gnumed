@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.16 2004-12-30 12:39:10 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmResizingWidgets.py,v 1.17 2005-01-05 21:52:24 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -390,7 +390,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		"""Gets a terse summary string for the data in the widget"""
 		return ""
 #====================================================================
-class cResizingSTC (stc.wxStyledTextCtrl):
+class cResizingSTC(stc.wxStyledTextCtrl):
 	"""
 	A StyledTextCrl that monitors the size of its internal text and
 	resizes the parent accordingly.
@@ -500,11 +500,14 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 			return
 		# goto last line ?
 		if line == -1:
+			_log.Log(gmLog.lData, 'going to last line in STC')
 			last_char_pos = self.GetLength()
 			if x is None:
 				self.GotoPos(last_char_pos)
+				_log.Log(gmLog.lData, 'no X given, use X=%s' % last_char_pos.x)
 				return
 			y = self.PointFromPosition(last_char_pos).y
+			_log.Log(gmLog.lData, 'going to given X=%s' % x)
 			self.GotoPos(self.PositionFromPoint(wx.wxPoint(x,y)))
 			return
 		# goto last current position
@@ -582,14 +585,21 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		# - if in first line: goto last line, same character, in prev_in_tab_order
 		# - else standard behaviour
 		if event.KeyCode() == wx.WXK_UP:
+			_log.Log(gmLog.lData, '<UP-ARROW> key press detected')
 #			if (self.list is not None) and self.list.alive:
 #				self.list.Up()
 #				return
+			_log.Log(gmLog.lData, 'pos %s = line %s' % (curs_pos, self.LineFromPosition(curs_pos)))
 			if self.LineFromPosition(curs_pos) == 0:
+				_log.Log(gmLog.lData, 'first line of STC - special handling')
 				if self.prev_in_tab_order is not None:
+					_log.Log(gmLog.lData, 'prev_in_tab_order = %s' % str(self.prev_in_tab_order))
 					curs_coords = self.PointFromPosition(curs_pos)
+					_log.Log(gmLog.lData, 'cursor coordinates in current STC: %s:%s' % (curs_coords.x, curs_coords.y))
 					self.prev_in_tab_order.SetFocus(x=curs_coords.x, line=-1)
 					return
+			else:
+				_log.Log(gmLog.lData, 'not first line of STC - standard handling')
 
 		# <TAB> key
 		# - move to next/prev_in_tab_order
@@ -891,6 +901,8 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 #====================================================================
 if __name__ == '__main__':
 
+	_log.SetAllLogLevels(gmLog.lData)
+
 #	from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 #	from Gnumed.pycommon import gmI18N
 
@@ -1080,7 +1092,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.16  2004-12-30 12:39:10  ncq
+# Revision 1.17  2005-01-05 21:52:24  ncq
+# - add logging on UP-ARROW for debugging
+#
+# Revision 1.16  2004/12/30 12:39:10  ncq
 # - real popup sample added demonstrating the (yet unclean) API
 #
 # Revision 1.15  2004/12/25 18:52:44  cfmoro
