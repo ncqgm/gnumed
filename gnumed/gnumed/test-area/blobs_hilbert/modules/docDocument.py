@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -683,7 +683,7 @@ def call_viewer_on_file(aFile = None):
 			os.startfile(file_to_display)
 		except:
 			msg = _("Unable to start viewer on file [%s].") % file_to_display		
-			_log.LogException(msg, exc = sys.exc_info(), fatal=0)
+			_log.LogException(msg, sys.exc_info(), fatal=0)
 			return None, msg
 
 	# clean up if necessary
@@ -702,7 +702,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.25  2003-01-05 13:42:52  ncq
+# Revision 1.26  2003-01-12 13:26:24  ncq
+# - don't use exc = sys.exc_info() when inlined
+#
+# Revision 1.25  2003/01/05 13:42:52  ncq
 # - only use startfile() on windows, not on POSIX
 #
 # Revision 1.24  2002/12/27 14:40:47  ncq
