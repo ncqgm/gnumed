@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-11-30 11:09:55 $
-# @version $Revision: 1.51 $ $Date: 2002-11-30 11:09:55 $ $Author: ncq $
+# @Date: $Date: 2002-12-26 15:50:39 $
+# @version $Revision: 1.52 $ $Date: 2002-12-26 15:50:39 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -324,20 +324,29 @@ class MainFrame(wxFrame):
 		pass
 	#----------------------------------------------
 	def OnIconize(self, event):
+		# FIXME: we should maximize the amount of title bar information here
 		pass
 		#myLog.Log(gmLog.lInfo, 'OnIconify')
 	#----------------------------------------------
 	def OnMaximize(self, event):
+		# FIXME: we should change the amount of title bar information here
 		pass
 		#myLog.Log(gmLog.lInfo,'OnMaximize')
 	#----------------------------------------------
 	def OnPageChanged(self, event):
+		# FIXME: we can maybe change title bar information here
 		myLog.Log(gmLog.lInfo, "Notebook page changed - need code here!")
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None, aPatient = None, aUser = None):
 		"""Update title of main window based on template.
 
 		This gives nice tooltips on iconified GnuMed instances.
+		User research indicates that in the title bar people want
+		the date of birth, not the age, so please stick to this
+		convention.
+
+		FIXME: we should go through the global patient cache object
+		       to get at the data we need
 		"""
 		if not anActivity is None:
 			self.title_activity = str(anActivity)
@@ -405,7 +414,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.51  2002-11-30 11:09:55  ncq
+# Revision 1.52  2002-12-26 15:50:39  ncq
+# - title bar fine-tuning
+#
+# Revision 1.51  2002/11/30 11:09:55  ncq
 # - refined title bar
 # - comments
 #
