@@ -7,8 +7,8 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.5 2003-06-26 22:26:04 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmSingleBoxSOAP.py,v 1.6 2003-07-05 12:57:23 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -103,6 +103,9 @@ class gmSingleBoxSOAPPanel(wxPanel):
 			return 1
 		# now save note
 		emr = self.__pat['clinical record']
+		if emr is None:
+			_log.Log(gmLog.lErr, 'cannot access clinical record of patient')
+			return None
 		if not emr.create_clinical_note(note):
 			_log.Log(gmLog.lErr, 'error saving clinical note')
 			return None
@@ -120,7 +123,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.5  2003-06-26 22:26:04  ncq
+# Revision 1.6  2003-07-05 12:57:23  ncq
+# - catch one more error on saving note
+#
+# Revision 1.5  2003/06/26 22:26:04  ncq
 # - streamlined _save_note()
 #
 # Revision 1.4  2003/06/25 22:51:24  ncq
