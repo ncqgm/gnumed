@@ -90,7 +90,7 @@ class TextBox_BlackNormal(wxTextCtrl):
 
 class ContactsPanel(wxPanel):
        def __init__(self, parent,id):
-	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)                     
+	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxNO_BORDER|wxTAB_TRAVERSAL)                     
           #-----------------------------------------------------------------
           #create top list box which will show organisations, employees, etc
 	  #-----------------------------------------------------------------
@@ -185,10 +185,8 @@ class ContactsPanel(wxPanel):
 	  #----------------------
 	  #create the check boxes
 	  #----------------------
-	  #self.chbx_headoffice = wxCheckBox(self, -1, " Head Office ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 	  self.chbx_postaladdress = wxCheckBox(self, -1, " Postal Address ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-	  #self.chbx_branch_department = wxCheckBox(self, -1, " Branch/Department ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-          #-------------------------------------------
+	  #-------------------------------------------
 	  #create the sizers for each line of controls
 	  #-------------------------------------------
 	  self.sizer_line0 = wxBoxSizer(wxHORIZONTAL)
@@ -272,9 +270,6 @@ class ContactsPanel(wxPanel):
 	  self.sizer_line3.Add(0,0,4)
 	  self.sizer_line3.Add(self.lbl_org_email,8,wxGROW|wxALIGN_CENTER_VERTICAL)
 	  self.sizer_line3.Add(self.txt_org_email,36,wxEXPAND)
-	  
-	 
-
 	  #-----------------------------------------------
 	  #line four: head office checkbox, email text box
 	  #-----------------------------------------------
@@ -331,7 +326,6 @@ class ContactsPanel(wxPanel):
 	  self.nextsizer.Add(self.sizer_line5,0,wxEXPAND)
 	  self.nextsizer.Add(self.sizer_line6,0,wxEXPAND)
 	  self.nextsizer.Add(self.sizer_line7,0,wxEXPAND)
-
 	  self.mainsizer = wxBoxSizer(wxVERTICAL)
 	  self.mainsizer.AddSizer(self.nextsizer,1,wxEXPAND|wxALL,10)
 	  self.SetSizer(self.mainsizer)
@@ -354,43 +348,42 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 				shortHelpString="Global Search Of Contacts Database", isToggle=false)
 	      tb.AddControl(wxTextCtrl(tb, ID_SEARCHGLOBAL, name ="txtGlobalSearch",size =(100,-1),style = 0, value = ''))
 	      tool1 = tb.AddTool(ID_ORGANISATIONDISPLAY, images_contacts_toolbar16_16.getorganisationBitmap(),
-				shortHelpString="Display Organisations", isToggle=true)
+				shortHelpString="Display Organisations",)
 	      tool1 = tb.AddTool(ID_GENERALPRACTICESDISPLAY, images_contacts_toolbar16_16.getgeneralpracticesBitmap(),
-				shortHelpString="Display General Practices", isToggle=true)
+				shortHelpString="Display General Practices",)
 	      tool1 = tb.AddTool(ID_DOCTORSDISPLAY, images_contacts_toolbar16_16.getdoctorBitmap(),
-				shortHelpString="Display Doctors", isToggle=true)
+				shortHelpString="Display Doctors",)
 	      tool1 = tb.AddTool(ID_PERSONSDISPLAY, images_contacts_toolbar16_16.getpersonBitmap(),
 				shortHelpString="Display Persons", isToggle=false)
-	      #tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 	      tool1 = tb.AddTool(ID_ORGANISATIONADD, images_contacts_toolbar16_16.getorganisation_addBitmap(),
-				shortHelpString="Add an Organisation", isToggle=true)
+				shortHelpString="Add an Organisation",)
 	      tool1 = tb.AddTool(ID_BRANCHDEPTADD, images_contacts_toolbar16_16.getbranch_addBitmap(),
-				shortHelpString="Add Branch or Department", isToggle=true)
+				shortHelpString="Add Branch or Department",)
 	      tool1 = tb.AddTool(ID_EMPLOYEEADD, images_contacts_toolbar16_16.getemployeesBitmap(),
-				shortHelpString="Add an Employee", isToggle=true)
+				shortHelpString="Add an Employee",)
 	      tool1 = tb.AddTool(ID_PERSONADD, images_contacts_toolbar16_16.getperson_addBitmap(),
-				shortHelpString="Add Person", isToggle=true)
+				shortHelpString="Add Person",)
               tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
               tool1 = tb.AddTool(ID_RELOAD, images_contacts_toolbar16_16.getreloadBitmap(),
-				shortHelpString="Refresh Display", isToggle=true)
+				shortHelpString="Refresh Display",)
               tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
               tool1 = tb.AddTool(ID_SEARCHSPECIFIC, images_contacts_toolbar16_16.getfind_specificBitmap(),
-				shortHelpString="Find Specific Records in Contacts Database", isToggle=true)
+				shortHelpString="Find Specific Records in Contacts Database",)
               tool1 = tb.AddTool(ID_SORTA_Z, images_contacts_toolbar16_16.getsort_A_ZBitmap(),
-				shortHelpString="Sort A to Z", isToggle=true)
+				shortHelpString="Sort A to Z",)
               tool1 = tb.AddTool(ID_SORTZ_A, images_contacts_toolbar16_16.getsort_Z_ABitmap(),
-				shortHelpString="Sort Z to A", isToggle=true)
+				shortHelpString="Sort Z to A",)
 	      tool1 = tb.AddTool(ID_SENDEMAIL, images_contacts_toolbar16_16.getsendemailBitmap(),
-				shortHelpString="Send Email", isToggle=true)
+				shortHelpString="Send Email",)
 	      tool1 = tb.AddTool(ID_LINKINTERNET, images_contacts_toolbar16_16.getearthBitmap(),
-				shortHelpString="Load Web Address", isToggle=true)
+				shortHelpString="Load Web Address",)
 	      tool1 = tb.AddTool(ID_INSTANTREPORT, images_contacts_toolbar16_16.getlighteningBitmap(),
-				shortHelpString="Instant Report from Grid", isToggle=true)
+				shortHelpString="Instant Report from Grid",)
 	      tool1 = tb.AddTool(ID_REPORTS, images_contacts_toolbar16_16.getreportsBitmap(),
-				shortHelpString="Pre-formatted reports", isToggle=true)
+				shortHelpString="Pre-formatted reports",)
 	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
-				shortHelpString="Save Record", isToggle=true)		
+				shortHelpString="Save Record",)		
           
 
 if __name__ == "__main__":
