@@ -3,10 +3,26 @@
 import gmGuiBroker 
 import EditAreaHandler
 from handler_gmSelectPersonImpl import *
+from handler_patient import *
+import anydbm
 
 def configure_handlers():
 	gb = gmGuiBroker.GuiBroker()
 	gb['DlgSelectPerson_handler'] = gmSelectPerson_handler_impl()
+	handler = gmDemographics_handler(None)
+	handler.set_model( anydbm.open('gmDemographics', 'c'))
+	gb['PatientsPanel_handler'] = handler
+	
+
+def load_widget(widget, model):
+	if model <> None:
+		wkeys = widget.__dict__.keys()
+		for k in model.keys():
+			if model[k] <> None:
+				pass
+				# code to compare the widget names
+				
+	
 
 def load_handlers():
 	gb = gmGuiBroker.GuiBroker()
@@ -34,6 +50,7 @@ def load_handlers():
 			if gb.has_key( handler_name ):
 				handler = gb[handler_name]
 				handler.create_handler(widget)
+				load_widget(widget, handler.model)
 			continue
 
 configure_handlers()

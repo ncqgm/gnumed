@@ -38,20 +38,20 @@ class generator:
 		self.control_definition_str = None
 		self.gen_func_params_map = {
 		#'EditAreaTextBox': [("EVT_TEXT", "text_entered")],
-		'wxTextCtrl': [("EVT_TEXT", "text_entered")],
-		'wxComboBox': [("EVT_TEXT", "text_entered")] ,
-		'wxRadioButton': [("EVT_RADIOBUTTON", "radiobutton_clicked")],
-		'wxCheckBox': [("EVT_CHECKBOX", "checkbox_clicked")],
-		'wxButton' : [("EVT_BUTTON", "button_clicked" )],
-		'wxListBox': [("EVT_LISTBOX", "list_box_single_clicked"), ("EVT_LISTBOX_DCLICK", "list_box_double_clicked")]
+		'wxTextCtrl': [("EVT_TEXT", "text_entered", "GetValue")],
+		'wxComboBox': [("EVT_TEXT", "text_entered", "GetValue")] ,
+		'wxRadioButton': [("EVT_RADIOBUTTON", "radiobutton_clicked", "GetValue")],
+		'wxCheckBox': [("EVT_CHECKBOX", "checkbox_clicked", "GetValue")],
+		'wxButton' : [("EVT_BUTTON", "button_clicked" , None )],
+		'wxListBox': [("EVT_LISTBOX", "list_box_single_clicked", "GetStringSelection"), ("EVT_LISTBOX_DCLICK", "list_box_double_clicked", "GetStringSelection" )]
 		}
-		self.components = [ 'EditAreaTextBox','wxTextCtrl', 'wxComboBox', 'wxButton', 'wxRadioButton', 'wxCheckBox', 'wxListBox' ]
+		self.components = [ 'wxTextCtrl', 'wxComboBox', 'wxButton', 'wxRadioButton', 'wxCheckBox', 'wxListBox' ]
 	
 
 	
 	def get_prog(self, component):
 		if self.control_definition_str == None:
-			self.control_definition_str = '\s+self\s*.\s*(?P<component>\w+)\s*=\s*%s'
+			self.control_definition_str = '\s+(self|parent)\s*.\s*(?P<component>\w+)\s*=\s*%s'
 		return re.compile(self.control_definition_str % component, re.I)
 		
 	def get_prog_map(self):
@@ -103,17 +103,19 @@ class generator:
 
 	def gen_id_set(self, component):
 		return """
-		id = self.panel.%s.GetId()
-		if id  <= 0:
-			id = wxNewId()
-			self.panel.%s.SetId(id)
-		self.id_map['%s'] = id
-		""" % ( component, component, component)
+		if self.panel.__dict__.has_key('%s'):
+			id = self.panel.%s.GetId()
+			if id  <= 0:
+				id = wxNewId()
+				self.panel.%s.SetId(id)
+			self.id_map['%s'] = id
+			""" % (component,  component, component, component)
 		
 		
-	def gen_command(self,  macro, func, comp):
-		self.evts.append("%s(self.panel.%s,\\\n\t\t\tself.id_map['%s'],\\\n\t\t\tself.%s_%s)" % ( macro, comp, comp,  comp , func) )
-		self.funcs.append("%s_%s"%(comp, func) )
+	def gen_command(self,  macro, function_suffix,accessor,    component):
+		self.evts.append("""if self.panel.__dict__.has_key('%s'):
+			%s(self.panel.%s,\\\n\t\t\tself.id_map['%s'],\\\n\t\t\tself.%s_%s)""" % ( component, macro, component, component,  component , function_suffix) )
+		self.funcs.append((component, function_suffix, accessor) )
 
 	def process_comp_type_pair(self,  comp, type):
 
@@ -123,7 +125,8 @@ class generator:
 		params = self.gen_func_params_map[type]
 		self.ids.append(self.gen_id_set(comp))
 		for cmd_func in params:
-			self.gen_command( cmd_func[0], cmd_func[1], comp) 	
+			self.gen_command( macro = cmd_func[0], function_suffix = cmd_func[1] , accessor = cmd_func[2], component =  comp) 	
+	
 
 	def process_map( self, map):
 		self.process_list(self, map['components'])
@@ -193,16 +196,25 @@ from wxPython.wx import * """
 
 class %s_handler:
 
-	def create_handler(self, panel):
-		return self.__init__(panel)
+	def create_handler(self, panel, model = None):
+		if model == None and self.model <> None:
+			model = self.model
+			
+		return self.__init__(panel, model)
 
-	def __init__(self, panel):
+	def __init__(self, panel, model = None):
 		self.panel = panel
+		self.model = model
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
 			self.impl = None
-	
+			if model == None:
+				self.model = {}  # change this to a persistence/business object later
+
+	def set_model(self,  model):
+		self.model = model
+		
 	def set_impl(self, impl):
 		self.impl = impl
 
@@ -227,14 +239,30 @@ class %s_handler:
 
 		for i in self.funcs:
 			print """
-	def %s( self, event):
-		pass
+	def %s_%s( self, event): 
 		if self.impl <> None:
-			self.impl.%s(self, event) 
-			""" % (i,i )
+			self.impl.%s_%s(self, event) 
+			""" % (i[0], i[1] ,i[0],i[1])
+						
 			print """
-		print "%s received ", event
-			""" % i
+		print "%s_%s received ", event
+			""" % (i[0], i[1])
+			
+			if i[2] == None:	# no accessor
+				continue
+			
+			name = i[0]
+			parts = string.split( name, '_')
+			if len(parts) > 1:
+				name = '_'.join( parts[1:])
+				
+			print """	
+		if event <> None:
+			obj = event.GetEventObject()
+			self.model['%s']= obj.%s()
+			print self.model['%s']
+		"""  	% (name, i[2], name)
+			#    comp, func_suffix, comp, accessor, comp
 
 
 
