@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.41 2004-05-18 22:38:19 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPatient.py,v 1.42 2004-06-01 07:50:56 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -382,7 +382,9 @@ class cPatientSearcher_SQL:
 
 		- either search term or search dict
 		- search dict contains structured data that doesn't need to be parsed
-		- search_dict takes precedence of search_term
+		- search_dict takes precedence over search_term
+
+		- returns flat list of patient PKs
 		"""
 		do_parsing = (search_dict is None)
 		if not do_parsing:
@@ -908,7 +910,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.41  2004-05-18 22:38:19  ncq
+# Revision 1.42  2004-06-01 07:50:56  ncq
+# - typo fix
+#
+# Revision 1.41  2004/05/18 22:38:19  ncq
 # - __patient -> _patient
 #
 # Revision 1.40  2004/05/18 20:40:11  ncq
