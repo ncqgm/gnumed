@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -71,6 +71,13 @@ _listener_api = None
 
 # default encoding for connections
 _default_client_encoding = None
+
+# default time zone for connections
+# OR: mxDT.now().gmtoffset()
+if time.daylight:
+	_default_time_zone = time.altzone * -1
+else:
+	_default_time_zone = time.timezone * -1
 
 #======================================================================
 # a bunch of useful queries
@@ -455,7 +462,7 @@ class ConnectionPool:
 
 		# set the default characteristics of our sessions
 		curs = conn.cursor()
-		# - client encoding
+		# 1) client encoding
 		if encoding in (None, ''):
 			_log.Log(gmLog.lWarn, 'client encoding not specified, this may lead to data corruption in some cases')
 		else:
@@ -463,7 +470,13 @@ class ConnectionPool:
 			if not run_query(curs, cmd):
 				_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
 				_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
-		# - transaction isolation level
+		# 2) client time zone
+#		cmd = "set session time zone interval '%s'" % _default_time_zone
+		cmd = "set time zone '%s'" % _default_time_zone
+		if not run_query(curs, cmd):
+			_log.Log(gmLog.lErr, 'cannot set client time zone to [%s]' % _default_time_zone)
+			_log.Log(gmLog.lWarn, 'not setting this will lead to incorrect dates/times')
+		# 3) transaction isolation level
 		if readonly:
 			isolation_level = 'READ COMMITTED'
 		else:
@@ -749,7 +762,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 			curs.close()
 		if close_conn:
 			pool.ReleaseConnection(link_obj)
-		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on service [%s]" % (aQuery, args, link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (aQuery, args, link_obj), sys.exc_info(), verbose = _query_logging_verbosity)
 		if get_col_idx is None:
 			return None
 		else:
@@ -1101,7 +1114,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.4  2004-03-27 21:40:01  ncq
+# Revision 1.5  2004-04-08 23:42:13  ncq
+# - set time zone during connect
+#
+# Revision 1.4  2004/03/27 21:40:01  ncq
 # - upon first connect log PG version services run on
 #
 # Revision 1.3  2004/03/03 14:49:22  ncq
