@@ -4,16 +4,13 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
 -- identity
-
-begin;
-
 delete from identity where
 	gender = 'f'
 		and
@@ -60,36 +57,18 @@ insert into clin_encounter (
 delete from clin_episode where pk in (
 	select pk_episode
 	from v_pat_episodes
-	where id_patient = currval('identity_pk_seq')
+	where pk_patient = currval('identity_pk_seq')
 );
 
-commit;
-begin;
-
 insert into clin_episode (
+	description,
 	fk_patient,
 	is_open
 ) values (
+	'lab import regression test',
 	currval('identity_pk_seq'),
 	true
 );
-
-insert into clin_narrative (
-	fk_encounter,
-	fk_episode,
-	soap_cat,
-	narrative
-) values (
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
-	'a',
-	'lab import regression test'
-);
-
-update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
-where pk = currval('clin_episode_pk_seq');
-
-commit;
 
 -- lab request
 insert into lab_request (
@@ -112,12 +91,16 @@ insert into lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename like '%test_data-lab_regression.sql%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.14 $');
+delete from gm_schema_revision where filename like '$RCSfile: test_data-lab_regression.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.14  2005-02-13 15:08:23  ncq
+-- Revision 1.15  2005-03-14 14:47:37  ncq
+-- - adjust to id_patient -> pk_patient
+-- - add family history on Kirk's brother
+--
+-- Revision 1.14  2005/02/13 15:08:23  ncq
 -- - add names of actors and some comments
 --
 -- Revision 1.13  2005/02/12 13:49:14  ncq

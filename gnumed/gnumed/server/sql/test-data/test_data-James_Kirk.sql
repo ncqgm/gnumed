@@ -4,14 +4,10 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.49 $
+-- $Revision: 1.50 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
-
--- =============================================
-
-begin;
 
 -- =============================================
 -- service personalia
@@ -65,11 +61,6 @@ insert into doc_obj (doc_id, seq_idx, comment, data) VALUES (
 );
 
 -- =============================================
-
-commit;
-begin;
-
--- =============================================
 -- service historica
 -- ---------------------------------------------
 -- EMR data
@@ -106,13 +97,15 @@ values (
 delete from clin_episode where pk in (
 	select pk_episode
 	from v_pat_episodes
-	where id_patient = currval('identity_pk_seq')
+	where pk_patient = currval('identity_pk_seq')
 );
 
 insert into clin_episode (
+	description,
 	fk_health_issue,
 	is_open
 ) values (
+	'postop infected laceration L forearm',
 	currval('clin_health_issue_id_seq'),
 	'false'::boolean
 );
@@ -234,9 +227,6 @@ insert into clin_narrative (
 	'a',
 	'true'::boolean
 );
-
-update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
-where pk = currval('clin_episode_pk_seq');
 
 -- diagnoses
 insert into clin_diag (
@@ -484,10 +474,6 @@ insert into clin_narrative (
 	'true'::boolean
 );
 
-update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
-where pk = currval('clin_episode_pk_seq');
-
-
 -- diagnoses
 insert into clin_diag (
 	fk_narrative,
@@ -551,9 +537,45 @@ insert into allergy_state (
 	1
 );
 
+-- =============================================
+-- family history
+insert into clin_narrative (
+	fk_encounter,
+	fk_episode,
+	soap_cat,
+	narrative
+) values (
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_pk_seq'),
+	's',
+	'Denevan neural parasite infection'
+);
 
+insert into lnk_type2item (fk_type, fk_item) values (
+	(select pk from clin_item_type where code = 'fHx'),
+	currval('clin_root_item_pk_item_seq')
+--	(select pk_item from clin_root_item where narrative = 'brother: Denevan neural parasite infection')
+);
 
+insert into clin_hx_family (
+	fk_narrative,
+	relationship,
+	name_relative,
+	dob_relative,
+	age_noted,
+	age_of_death,
+	is_cause_of_death
+) values (
+	currval('clin_narrative_pk_seq'),
+	'brother',
+	'George Samuel Kirk',
+	'1928-7-19+2:00',
+	'37 years (2267, Stardate 3287)',
+	'37 years',
+	true
+);
 
+-- =============================================
 -- went to Vietnam for holidays
 insert into doc_med (
 	patient_id,
@@ -629,17 +651,17 @@ insert into doc_obj (
 );
 
 -- =============================================
-
-commit;
-
--- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.49 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.50 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.49  2005-03-01 20:42:21  ncq
+-- Revision 1.50  2005-03-14 14:47:37  ncq
+-- - adjust to id_patient -> pk_patient
+-- - add family history on Kirk's brother
+--
+-- Revision 1.49  2005/03/01 20:42:21  ncq
 -- - cleanup, basically
 --
 -- Revision 1.48  2005/02/20 09:46:08  ihaywood
