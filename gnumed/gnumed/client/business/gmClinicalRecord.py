@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.18 2003-06-02 20:58:32 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmClinicalRecord.py,v 1.19 2003-06-03 13:17:32 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -63,6 +63,7 @@ class gmClinicalRecord:
 		self.id_default_health_issue = None
 		if not self.__load_default_health_issue():
 			raise gmExceptions.ConstructorError, "cannot activate default health issue for patient [%s]" % aPKey
+		self.id_curr_health_issue = self.id_default_health_issue
 
 		# what episode did we work on last time we saw this patient ?
 		self.id_episode = None
@@ -70,13 +71,12 @@ class gmClinicalRecord:
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
 
 #		self.ensure_current_clinical_encounter()
-#		self.init_issue_episodes()
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
 	def __del__(self):
-		self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 		if self.__dict__.has_key('_backend'):
+			self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 			self._backend.ReleaseConnection('historica')
 	#--------------------------------------------------------
 	# FIXME: temporary hack for dropping connections (?)
@@ -109,32 +109,40 @@ class gmClinicalRecord:
 
 		- true/false/None
 		"""
-		#curs = self._defconn_ro.cursor()
-		#cmd = "select exists(select id from identity where id = %s)" % self.id_patient
-		cmd = "select id from identity where id = %s" % self.id_patient
-		rows = None
-		try:
-			rows = self.execute(cmd, "Unable to check existence of id %s in identity" % self.id_patient)
-		except:
-			_log.LogException("Failed select id from identity", sys.exc_info(), 4)
-			pass
+		curs = self._defconn_ro.cursor()
+		cmd = "select exists(select id from identity where id = %s)" % self.id_patient
+		if not gmPG.run_query(curs, cmd):
+			curs.close()
+			_log.Log(gmLog.lData, 'unable to check for patient [%s] existence' % self.id_patient)
+			return None
+		result = curs.fetchone()[0]
+		curs.close()
+		return result
+
+#		cmd = "select id from identity where id = %s" % self.id_patient
+#		rows = None
+#		try:
+#			rows = self.execute(cmd, "Unable to check existence of id %s in identity" % self.id_patient)
+#		except:
+#			_log.LogException("Failed select id from identity", sys.exc_info(), 4)
+#			pass
 		#------------------------------------	
 		# still has bug about portal closed.
 		# REMOVE when bug sorted out
-		if (rows is None or len(rows) == 0):		
-			try:
-				rows, description = gmPG.quickROQuery( cmd)
-			except:
-				_log.LogException('>>>%s<<< failed' % cmd , sys.exc_info(), 4)
+#		if (rows is None or len(rows) == 0):		
+#			try:
+#				rows, description = gmPG.quickROQuery( cmd)
+#			except:
+#				_log.LogException('>>>%s<<< failed' % cmd , sys.exc_info(), 4)
 			#curs.close()
-			return None
+#			return None
 		#row = curs.fetchone()
 		#<DEBUG>
-		_log.Data("result of id check = " + str(rows) )
+#		_log.Data("result of id check = " + str(rows) )
 		#</DEBUG>
-		res = rows[0][0]
+#		res = rows[0][0]
 		#curs.close()
-		return res
+#		return res
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------
@@ -308,7 +316,7 @@ class gmClinicalRecord:
 	def __load_most_recent_episode(self):
 		# check if there's an active episode
 		curs = self._defconn_ro.cursor()
-		cmd = "select id_episode from last_active_episode where id_patient='%s' limit 1;" % self.id_patient
+		cmd = "select id_episode from last_act_episode where id_patient='%s' limit 1;" % self.id_patient
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
@@ -356,11 +364,11 @@ class gmClinicalRecord:
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
 		rw_curs = rw_conn.cursor()
 		# delete old entry
-		cmd = "delete from last_active_episode where id_patient='%s';" % self.id_patient
+		cmd = "delete from last_act_episode where id_patient='%s';" % self.id_patient
 		if not gmPG.run_query(rw_curs, cmd):
 			_log.Log(gmLog.lWarn, 'cannot delete last active episode entry for patient [%s]' % (self.id_patient))
 			# try continuing anyways
-		cmd = "insert into last_active_episode (id_episode, id_patient) values (%d, %d);" % (id_episode, self.id_patient)
+		cmd = "insert into last_act_episode (id_episode, id_patient) values (%d, %d);" % (id_episode, self.id_patient)
 		if not gmPG.run_query(rw_curs, cmd):
 			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
 			rw_curs.close()
@@ -388,130 +396,104 @@ class gmClinicalRecord:
 			return row[0]
 		# episode does not exist yet so create it
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
+		if rw_conn is None:
+			return None
 		rw_curs = rw_conn.cursor()
 		# by default new episodes belong to the __default__ health issue
-		# FIXME: finish
-#		cmd = "insert into "
+		cmd = "insert into clin_episode (self.id_health_issueue, description) values (%d, '%s');" % (self.id_default_health_issue, episode_name)
+		if not gmPG.run_query(rw_curs, cmd):
+			rw_curs.close()
+			rw_conn.close()
+			_log.Log(gmLog.lErr, 'cannot insert episode [%s] for patient [%s]' % (episode_name, self.id_patient))
+			return None
+		# get id for it
+		cmd = "select currval('clin_episode_id_seq');"
+		if not gmPG.run_query(rw_curs, cmd):
+			rw_curs.close()
+			rw_conn.close()
+			_log.Log(gmLog.lErr, 'cannot obtain id of last episode insertion')
+			return None
+		id_episode = rw_curs.fetchone()[0]
+		# and commit our work
+		rw_conn.commit()
+		rw_curs.close()
+		rw_conn.close()
+		return id_episode
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	# trial 
 	def create_allergy(self, map):
-		"""tries to add allergy to database : Currently id_type is not reading checkbox states (allergy or sensitivity)."""
+		"""tries to add allergy to database."""
 
 		self.beginTransaction()
-		
-		issue_id = self.ensure_health_issue_exists("allergy")
-		episode_id = self.get_or_create_episode_for_issue(issue_id)
-		
-		if episode_id == 0:
-			self.execute("rollback", "rolling back because of invalid episode_id = 0")
-			return 0
+
+		# one would use the "currently selected" health
+		# issue and episode here, the clinician must decide
+		# upon the content thereof
+#		self.id_curr_health_issue = self.ensure_health_issue_exists("allergy")
+#		episode_id = self.get_or_create_episode_for_issue(self.id_health_issue)
 
 		encounter_id = self.ensure_current_clinical_encounter()
 		if encounter_id == 0:
 			self.execute("rollback", "rolling back because of invalid encounter_id = 0")
 			return 0
 
+		# definite misspelled in older SQL scripts so try both
+		cmd_part = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, %s)"
 
-
-		# **** NB DEFINATE IS MISPELLED IN SQL SCRIPT : CHANGE IF THE WRONG SPELLING LATER 
-		# try both , depending on which sql script
-		
-		cmd_part = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, %s )"
-
-		value_part = " values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
-		cmd = cmd_part % "definite"  + value_part
-		if self.execute( cmd, "insert allergy failed with definAte ", rollback = 0 ) is None:
+		# FIXME: id_type hardcoded, not reading checkbox states (allergy or sensitivity)
+		value_part = " values (%d, %d, %d, '%s', '%s', '%s' )" % (1, encounter_id, self.id_episode, map["substance"], map["reaction"], map["definite"])
+		cmd1 = cmd_part % "definite"  + value_part
+		cmd2 = cmd_part % "definate"  + value_part
+		if self.execute(cmd1, "insert allergy failed with defin*I*te ", rollback = 0 ) is None:
 			# remove this if really upto date
-			cmd = cmd_part % "definate"  + value_part
-			self.execute( cmd, "insert allergy failed with definIte as definite", rollback = 1 )
-				
-			
-
-		#cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definite ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
-		#self.execute( cmd, "unable to create allergy entry ", rollback = 1)
+			self.execute(cmd2, "insert allergy failed with defin*A*te", rollback = 1)
 
 		#idiosyncratic bug.
 		#seems like calling commit by sql doesn't commit the
 		#the connection properly, prematurely closing it?
-
 		# this may well be true but why not using the conn.commit()
 		# provided by the DB-API ?
-
 		#self.execute("commit", "unable to commit ", rollback = 1)
-
-		#_log.Data("after commit")
 
 		self.endTransaction()
 		#<DEBUG>
 		_log.Data("after end Transaction")
 		#</DEBUG>
 		
-
-
 		#need to invalidate cache or add to it.
+		# KH: no, a trigger on the allergies table ensures that a
+		# notification is sent via the backend to all interested clients
+		# which will make them do the right cache invalidation thing
 		#del self.__db_cache("allergies")	
-		self._allergy_added_deleted()
+#		self._allergy_added_deleted()
 		# send signal to update listeners
+		# KH; not necessary either as gmClinicalRecord will
+		# notify all listeners in this frontend after being
+		# notified of the change by the backend
 		#gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 		return 1
 
 
-	def ensure_health_issue_exists(self, issue):
-		"""ensure that the  health issue exists for this patient_id"""
+#	def ensure_health_issue_exists(self, issue):
+#		"""ensure that the  health issue exists for this patient_id"""
 		
-		cmd = "select id from clin_health_issue where id_patient=%s and description='%s'" % (self.id_patient, issue)
-
-		rows = self.execute(cmd, "Unable to select for %s health issue for id_patient=%s " % (issue, self.id_patient ))
-
-		if (rows <> None and len(rows) == 0):
-			cmd2 = "insert into clin_health_issue ( id_patient, description) values ( %s, '%s')" %( self.id_patient, issue)
-			self.execute(cmd2, "can't insert issue %s" % issue)
-			rows = self.execute(cmd, "not finding clin_issue %s" % issue )
+#		cmd = "select id from clin_health_issue where id_patient=%s and description='%s'" % (self.id_patient, issue)
+#		rows = self.execute(cmd, "Unable to select %s health issue for id_patient=%s " % (issue, self.id_patient ))
+#		if (rows <> None and len(rows) == 0):
+#			cmd2 = "insert into clin_health_issue ( id_patient, description) values ( %s, '%s')" %( self.id_patient, issue)
+#			self.execute(cmd2, "can't insert issue %s" % issue)
+#			rows = self.execute(cmd, "not finding clin_issue %s" % issue )
 		
-		if (rows <> None and len(rows) == 1):
-			return rows[0][0]
-		
-		return 0
+#		if (rows <> None and len(rows) == 1):
+#			return rows[0][0]
 
-#------------ deal with clin episodes for health issues ------------------------	
-	def init_issue_episodes(self):
-		self.issue_episodes={}
-	
-	def has_episode_for_issue(self, issue_id):
-		return  self.issue_episodes.has_key(issue_id)
-
-	def get_episode_for_issue(self, issue_id):
-		if self.has_episode_for_issue(issue_id):
-			return self.issue_episodes[issue_id]
-		return 0
-
-	def create_episode_for_issue(self, issue_id):
-		marker  = time.asctime()
-		cmd = "insert into clin_episode( id_health_issue, description ) values ( %d , '%s')" % (issue_id, marker)
-		if self.execute(cmd, "unable to create issue") is None:
-			return 0
-		cmd = "select id from clin_episode where id_health_issue=%d  and description='%s'" %(issue_id, marker)
-		rows = self.execute(cmd, "unable to find most recent episode insertion")
-		if rows is None or len(rows) > 1:
-			_log.Log(gmLog.lErr, "rows not valid. Should be only one row : rows="+str(rows) )
-			return 0
-		
-		episode_id = rows[0][0]
-		self.issue_episodes[issue_id]= episode_id
-		return episode_id
-
-
-	def get_or_create_episode_for_issue(self, issue_id):
-		if self.has_episode_for_issue(issue_id):
-			return self.get_episode_for_issue(issue_id)
-		return self.create_episode_for_issue(issue_id)
-
-#---------------------------------------------------------------------------------
-
-
+#		return 0
 #------------ deal with clinical encounter id ---------------------------------
 	def ensure_current_clinical_encounter(self):
+		# FIXME: this needs considerably more smarts
+		# FIXME: this should run during __init__
+
 		if self.__dict__.has_key('clin_encounter'):
 			return self.clin_encounter
 
@@ -599,21 +581,17 @@ class gmClinicalRecord:
 #------------------------------------------------------------
 if __name__ == "__main__":
 	record = gmClinicalRecord(aPKey = 1)
-#	print "clinical transaction IDs:", record['clinical transaction IDs']
-#	print "allergy IDs:", record['allergy IDs']
-#	while 1:
-#		pass
 	import time
 	time.sleep(5)
 	del record
-	dbpool = gmPG.ConnectionPool()
-	conn = dbpool.GetConnection('default', readonly = 0)
-	if conn is not None:
-		_log.Log(gmLog.lInfo, 'getting RW connection succeeded')
-	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.18  2003-06-02 20:58:32  ncq
+# Revision 1.19  2003-06-03 13:17:32  ncq
+# - finish default clinical episode/health issue handling, simple tests work
+# - clinical encounter handling still insufficient
+# - add some more comments to Syan's code
+#
+# Revision 1.18  2003/06/02 20:58:32  ncq
 # - nearly finished with default episode/health issue stuff
 #
 # Revision 1.17  2003/06/01 16:25:51  ncq
