@@ -15,7 +15,7 @@ echo "-------------------------"
 echo "adding data for locale AU"
 echo "generating AU post code SQL script"
 cd ../sql/country.specific/au/
-python postcode_import.py postcodes.au.csv > postcodes.au.sql 2> postcodes.au.log
+python postcode_import.py postcodes.au.csv | uniq > postcodes.au.sql 2> postcodes.au.log
 cd -
 rm -rf redo-max-au.log
 ./bootstrap-gm_db_system.py --log-file=redo-max-au.log --conf-file=bootstrap-au.conf
@@ -27,7 +27,7 @@ echo "--------------------"
 echo "importing some blobs"
 cd ~/Bilder/Vietnam/archive
 python import-test-blobs.py
+cd -
 echo "-------------------"
 echo "importing AMIS data"
-cd -
-install_AMIS_data.sh
+./install_AMIS_data.sh
