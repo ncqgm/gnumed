@@ -1,18 +1,12 @@
+"""Broker for Postgres distributed backend connections.
 
-"""gmConnectionPool - Broker for Postgres distributed backend connections."""
-
-#=======================================================================
-# @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-#
-# This source code is protected by the GPL licensing scheme.
-# Details regarding the GPL are available at http://www.gnu.org
-# You may use and share it as long as you don't deny this right
-# to anybody else.
-#=======================================================================
+@copyright: author
+@license: GPL (details at http://www.gnu.org)
+"""
+# =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.38 $"
-__author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
+__version__ = "$Revision: 1.39 $"
+__author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, time
@@ -63,19 +57,14 @@ class ConnectionPool:
 
 	#a dictionary with lists of databases; dictionary key is the name of the service
 	__databases = {}
-	
 	#a dictionary mapping the physical databases to the services; key is service name
-	__service_mapping = {}
-	
+	__service2db_map = {}
 	#number of connections in use for each service (for reference counting purposes)
 	__connections_in_use = {}
-	
 	#variable used to check whether a first connection has been initialized yet or not
 	__connected = None
-	
 	#a dictionary mapping all backend listening threads to database id
 	__listeners = {}
-	
 	#gmLoginInfo.LoginInfo instance
 	__login = None
 	#-----------------------------
@@ -86,6 +75,8 @@ class ConnectionPool:
 		if ConnectionPool.__connected is None:
 			self.SetFetchReturnsList()
 			ConnectionPool.__connected = self.__connect(login)
+	#-----------------------------
+	# connection API
 	#-----------------------------
 	def GetConnection(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
@@ -145,43 +136,54 @@ class ConnectionPool:
 			except:
 				ConnectionPool.__connections_in_use['default'] = 0
 	#-----------------------------
+	def Connected(self):
+		return ConnectionPool.__connected	
+	#-----------------------------
+	# notification API
+	#-----------------------------
 	def Listen(self, service, signal, callback):
 		"""Listen to 'signal' from backend in an asynchronous thread.
 		If 'signal' is received from database 'service', activate
 		the 'callback' function"""
 		
-		### check what physical database the service belongs to
+		# get physical database for service
 		try:
-			id = ConnectionPool.__service_mapping[service]
+			backend = ConnectionPool.__service2db_map[service]
 		except KeyError:
-			id = 0
-		### since we need only one listening thread per database
-		if id not in ConnectionPool.__listeners.keys():
-			ConnectionPool.__listeners[id] = self._StartListeningThread(service);
-		self._ListenTo(service, signal, callback)
-	#-----------------------------
-	def _ListenTo(self, service, signal, callback):
-		"Tell the backend to notify us asynchronously on 'signal'"
-		try:
-			id = ConnectionPool.__service_mapping[service]
-		except KeyError:
-			id = 0
-		listener = ConnectionPool.__listeners[id]
+			backend = 0
+		_log.Log(gmLog.lData, "connecting notification [%s] from service [%s] (id %s) with callback %s" % (signal, service, backend, callback))
+		# start thread if not listening yet,
+		# but only one per physical database
+		if backend not in ConnectionPool.__listeners.keys():
+			auth = self.GetLoginInfoFor(service)
+			listener = gmBackendListener.BackendListener(
+				service,
+				auth.GetDatabase(),
+				auth.GetUser(),
+				auth.GetPassword(),
+				auth.GetHost(),
+				auth.GetPort()
+			)
+			ConnectionPool.__listeners[backend] = listener
+		# actually start listening
+		listener = ConnectionPool.__listeners[backend]
 		listener.register_callback(signal, callback)
 	#-----------------------------
-	def _StartListeningThread(self, service):
+	def Unlisten(self, service, signal, callback):
+		# get physical database for service
 		try:
-			backend = self.__service_mapping[service]
+			backend = ConnectionPool.__service2db_map[service]
 		except KeyError:
-			backend=0
-		l = self.GetLoginInfoFor(service)
-		if backend not in self.__listeners.keys():
-			listener = gmBackendListener.BackendListener(service, l.GetDatabase(), l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
-			return listener
+			backend = 0
+		print "... disconnecting %s from %s on %s (%s)" % (signal, callback, service, backend)
+		if backend not in ConnectionPool.__listeners.keys():
+			return 1
+		listener = ConnectionPool.__listeners[backend]
+		listener.unregister_callback(signal, callback)
 	#-----------------------------
 	def StopListeningThread(self, service):
 		try:
-			backend = self.__service_mapping[service]	
+			backend = self.__service2db_map[service]	
 		except KeyError:
 			backend = 0
 		try:
@@ -189,13 +191,12 @@ class ConnectionPool:
 		except:
 			pass
 	#-----------------------------
+	# misc API
+	#-----------------------------
 	def GetAvailableServices(self):
 		"""list all distributed services available on this system
 		(according to configuration database)"""
 		return ConnectionPool.__databases.keys()
-	#-----------------------------
-	def Connected(self):
-		return ConnectionPool.__connected	
 	#-----------------------------	
 	def LogError(self, msg):
 		"This function must be overridden by GUI applications"
@@ -206,59 +207,59 @@ class ConnectionPool:
 		CAREFUL: this affects the whole connection!!!"""
 		if dbapi is pyPgSQL.PgSQL:
 			dbapi.fetchReturnsList = on
+		else:
+			_log.Log(gmLog.lWarn, 'not supported with DB-API [%s], please supply a patch' % dbapi)
 	#-----------------------------		
 	def GetLoginInfoFor(self, service, login = None):
 		"""return login information for a particular service"""
-
 		if login is None:
 			dblogin = ConnectionPool.__login
 		else:
 			dblogin = copy.deepcopy(login)
-
-		# if requested service is not mapped, return default login information
-		if not ConnectionPool.__service_mapping.has_key(service):
+		# if service not mapped, return default login information
+		try:
+			srvc_id = ConnectionPool.__service2db_map[service]
+		except KeyError:
 			return dblogin
-
-		srvc_id = ConnectionPool.__service_mapping[service]
+		# a service in the default database
 		if srvc_id == 0:
 			return dblogin
-
-		# get connection to database "config" and create cursor (HB)
-		cdb = ConnectionPool.__databases['config']
-		cursor = cdb.cursor()
-
-		# actually fetch login parameters for the database
-		querystr = "select name, host, port, opt, tty from db where id = %d" % srvc_id
-		cursor.execute(querystr)
-		database = cursor.fetchone()
+		# actually fetch parameters for db where service
+		# is located from config DB
+		cfg_db = ConnectionPool.__databases['config']
+		cursor = cfg_db.cursor()
+		cmd = "select name, host, port, opt, tty from db where id = %d" % srvc_id
+		if not run_query(cursor, cmd):
+			_log.Log(gmLog.lPanic, 'cannot get login info for service [%s] with id [%s] from config database' % (service, srvc_id))
+			_log.Log(gmLog.lPanic, 'make sure your service-to-database mappings are properly configured')
+			_log.Log(gmLog.lWarn, 'trying to make do with default login parameters')
+			return dblogin
+		auth_data = cursor.fetchone()
+		cursor.close()
+		# substitute values into default login data
 		idx = cursorIndex(cursor)
-
-		###get the name of the distributed datbase service
-		try:
-			dblogin.SetDatabase(string.strip(database[idx['name']]))
+		try: # db name
+			dblogin.SetDatabase(string.strip(auth_data[idx['name']]))
 		except: pass
-		###hostname of the distributed service
-		try:
-			dblogin.SetHost(string.strip(database[idx['host']]))
+		try: # host name
+			dblogin.SetHost(string.strip(auth_data[idx['host']]))
 		except: pass
-		###port of the distributed service
-		try:
-			dblogin.SetPort(database[idx['port']])
+		try: # port
+			dblogin.SetPort(auth_data[idx['port']])
 		except: pass
-		###backend options of the distributed service
-		try:
-			dblogin.SetOptions(string.strip(database[idx['opt']]))
+		try: # backend options (not that I have any idea what we'd need them for, but hey :-)
+			dblogin.SetOptions(string.strip(auth_data[idx['opt']]))
 		except: pass
-		###TTY option of the distributed service
-		try:
-			dblogin.SetTTY(string.strip(database[idx['tty']]))
+		try: # tty option (what's that, actually ?)
+			dblogin.SetTTY(string.strip(auth_data[idx['tty']]))
 		except:pass
+		# and return what we thus got - which may very well be identical to the default login ...
 		return dblogin			
 	#-----------------------------
 	# private methods
 	#-----------------------------
 	def __connect(self, login):
-		"initialize connection to all neccessary servers"
+		"""Initialize connections to all servers."""
 
 		if login is None and ConnectionPool.__connected is None:
 			try:
@@ -270,64 +271,56 @@ class ConnectionPool:
 		_log.Log(gmLog.lData,login.GetInfoStr())
 		ConnectionPool.__login = login
 
-		#first, connect to the configuration server
+		# connect to the configuration server
 		try:
-			cdb = self.__pgconnect(login)
-		except:
-			_log.LogException("Exception: Cannot connect to configuration database !", sys.exc_info(), fatal=1)
-			raise gmExceptions.ConnectionError("Could not connect to configuration database  backend!")
+			cfg_db = self.__pgconnect(login)
+		except StandardError:
+			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
 		ConnectionPool.__connected = 1
 
-		#this is the default gnumed server now!
-		ConnectionPool.__databases['config'] = cdb
-		ConnectionPool.__databases['default'] = cdb
+		# this is the default gnumed server now
+		ConnectionPool.__databases['config'] = cfg_db
+		ConnectionPool.__databases['default'] = cfg_db
 		
-		#preload all services with database id 0 (default)
-		cursor = cdb.cursor()
-		cursor.execute("select name from distributed_db")
+		# preload all services with database id 0 (default)
+		cursor = cfg_db.cursor()
+		cmd = "select name from distributed_db;"
+		if not run_query(cursor, cmd):
+			cursor.close()
+			raise gmExceptions.ConnectionError("cannot load service names from configuration database")
 		services = cursor.fetchall()
 		for service in services:
-			ConnectionPool.__service_mapping[service[0]] = 0
+			ConnectionPool.__service2db_map[service[0]] = 0
 
-		#try to establish connections to all servers we need
-		#according to configuration database
-		cursor = cdb.cursor()
-		query = "select * from config where profile='%s'" % login.GetProfile()
-		try:
-			cursor.execute(query)
-		except:
-			_log.Log(gmLog.lErr, ">>>[%s]<<< failed" % query)
-			_log.LogException("Cannot select user profile from database !", sys.exc_info(), fatal=1)
-			raise
+		# establish connections to all servers we need
+		# according to configuration database
+		cmd = "select * from config where profile='%s'" % login.GetProfile()
+		if not run_query(cursor, cmd):
+			cursor.close()
+			raise gmExceptions.ConnectionError("cannot load user profile [%s] from database" % login.GetProfile())
 		databases = cursor.fetchall()
 		dbidx = cursorIndex(cursor)
 
 		#for all configuration entries that match given user and profile
 		for db in databases:
-
 			###get the symbolic name of the distributed service
 			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
 			service = string.strip(cursor.fetchone()[0])
-			_log.Log(gmLog.lData, "mapping %s to %s" % (service, db[dbidx['db']]))
-			#map the id of the real database to the service
-			ConnectionPool.__service_mapping[service] = db[dbidx['db']]
+			# map service name to id of real database
+			_log.Log(gmLog.lData, "mapping service [%s] to DB ID [%s]" % (service, db[dbidx['db']]))
+			ConnectionPool.__service2db_map[service] = db[dbidx['db']]
 
-			###initialize our reference counter
+			# init ref counter
 			ConnectionPool.__connections_in_use[service] = 0
 			dblogin = self.GetLoginInfoFor(service,login)
-			#update 'Database Broker' dictionary
+			# update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
-		try:
-			cursor.close()
-		except:
-			pass
+		cursor.close()
 		return ConnectionPool.__connected
-	
 	#-----------------------------	
 	def __pgconnect(self, login):
-		"connect to a postgres backend as specified by login object; return a connection object"
-
+		"""connect to a postgres backend as specified by login object; return a connection object"""
 		dsn = ""
 		hostport = ""
 
@@ -337,18 +330,15 @@ class ConnectionPool:
 			dsn = login.GetDBAPI_DSN()
 			hostport = "0"
 
-		_log.Log(gmLog.lData, 'connecting with parameters: %s' % login.GetInfoStr())
-
 		try:
 			if _isPGDB:
 				db = dbapi.connect(dsn, host=hostport)
 			else:
 				db = dbapi.connect(dsn)
 			return db
-		except:
-			_log.LogException("Exception: Connection to database failed. DSN was [%s]" % dsn, sys.exc_info())
-			raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
-	
+		except StandardError:
+			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), fatal = 1)
+			raise
 	#-----------------------------
 	def __decrypt(self, crypt_pwd, crypt_algo, pwd):
 		"""decrypt the encrypted password crypt_pwd using the stated algorithm
@@ -382,7 +372,6 @@ class ConnectionPool:
 		#clear the dictionary (would close all connections anyway)
 		ConnectionPool.__databases.clear()
 		ConnectionPool.__connected = None
-
 #---------------------------------------------------
 # database helper functions
 #---------------------------------------------------
@@ -627,7 +616,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.38  2003-04-25 13:02:10  ncq
+# Revision 1.39  2003-04-27 11:37:46  ncq
+# - heaps of cleanup, __service_mapping -> __service2db_map, cdb -> cfg_db
+# - merge _ListenTo and _StartListeningThread into Listen()
+# - add Unlisten()
+#
+# Revision 1.38  2003/04/25 13:02:10  ncq
 # - cleanup and adaptation to cleaned up backend listener code
 #
 # Revision 1.37  2003/04/08 08:58:00  ncq
