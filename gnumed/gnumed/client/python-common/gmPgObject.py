@@ -19,10 +19,13 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.7 $"                                               
+__version__ = "$Revision: 1.8 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.7  2002-10-26 02:47:08  hherb
+# Revision 1.8  2002-10-26 04:14:24  hherb
+# when a newly created object (row) is first modified, it is saved to the backend and refreshed from the backend in order to load default values
+#
+# Revision 1.7  2002/10/26 02:47:08  hherb
 # object changes now saved to backend. Foreign key references now transparently dereferenced (write access untested)
 #
 # Revision 1.6  2002/10/25 13:04:15  hherb
@@ -179,6 +182,15 @@ class pgobject:
 				return 1
 		else:
 			return 0
+		
+				
+	def new_primary_key(self):
+		querystr = "select nextval('%s_%s_seq')" % (self._tablename, self._pkcolumn)
+		con = self._dbbroker.GetConnection(self._service, 0)
+		cursor = con.cursor()
+		cursor.execute(querystr)
+		pk = cursor.fetchone()
+		return pk[0]
 			
 		
 	def __getitem__(self, key):
@@ -204,12 +216,14 @@ class pgobject:
 		
 	def __setitem__(self, key, value):
 		"set the value of the column as determined by either column name or index"
+		newflag = 0
 		#is table metadata already cached?
 		if self._index is None:
 			self._update_metadata()
 		# are we dealing with a fetched row or with a new record?
 		if self._row is None:
 			#create an empty record if neccessary
+			newflag=1
 			self._row = []
 			for idx in range(len(self._metadata)):
 				self._row.append(None)
@@ -224,6 +238,11 @@ class pgobject:
 			if key not in self._modified:
 				self._modified.append(key)
 		self._row[idx] = value
+		if newflag:
+			#if a new record is accessed, we must refresh it from the backend
+			#in order to fill the columns with the default values
+			self._save()
+
 
 		
 		
@@ -233,6 +252,7 @@ class pgobject:
 			
 	def _save(self):
 		#only save if there is data
+		is_new=0
 		if self._row is None:
 			#nothing to save
 			return
@@ -246,8 +266,13 @@ class pgobject:
 				query = "update %s set %s where %s = %s" % (self._tablename, colvals, self._pkcolumn, self._primarykey)
 			else:
 				#a new row has to be inserted
+				is_new=1
 				columns = ""
 				count = 0
+				self._primarykey = self.new_primary_key()
+				self._row[self._index[self._pkcolumn]] = self._primarykey
+				if self._pkcolumn not in self._modified:
+					self._modified.append(self._pkcolumn)
 				for column in self._modified:
 					value = self._row[self._index[column]]
 					if value is not None:
@@ -265,6 +290,12 @@ class pgobject:
 			cursor = db.cursor()
 			cursor.execute(query)
 			db.commit()
+			self._modified = []
+			if is_new:
+				#reload row from backend, since columns may have changed 
+				#through default constraints
+				print "refreshing table ..."
+				self._fetch()
 			
 	def _quote(self, arg):
 		"postgres specific quoting: strings in '', single ' escaped by another '"
@@ -275,10 +306,12 @@ class pgobject:
 		return q
 			
 	
-	def _fetch(self, primarykey):
-		"fetch a row from the table as determined by the primary key"
+	def _fetch(self, primarykey=None):
+		"""fetch a row from the table as determined by the primary key
+		If primarykey is not stated, th ecurrent object is refreshed from the backend"""
 		#self._save()
-		self._primarykey = primarykey
+		if primarykey is not None:
+			self._primarykey = primarykey
 		if self._pkcolumn is None:
 			self._update_metadata()
 		cursor = self._db.cursor()
@@ -381,5 +414,6 @@ if __name__ == "__main__":
 	dbo['text'] = "this wasn't there before"
 	dbo = pgobject(db, 'test_pgo', 1)
 	print dbo['id_fk']['text'] 
+	dbo['id_fk']['text'] = "this is a new foreign key for table 1!"
 	
 	
