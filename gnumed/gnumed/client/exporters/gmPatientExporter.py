@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.19 2004-07-03 17:15:59 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmPatientExporter.py,v 1.20 2004-07-06 00:26:06 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -509,11 +509,9 @@ def parse_constraints():
     """
         Obtains, parses and normalizes config file options
     """
-    
-    # Check conf file was defined
-    if not gmCLI.has_arg('--conf-file'):
-        usage()
-        
+	if isinstance(_cfg, gmNull.cNull):
+		usage()
+
     # Retrieve options
     cfg_group = 'constraints'
     constraints = {
@@ -628,7 +626,10 @@ if __name__ == "__main__":
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.19  2004-07-03 17:15:59  ncq
+# Revision 1.20  2004-07-06 00:26:06  ncq
+# - fail on _cfg is_instance of cNull(), not on missing conf-file option
+#
+# Revision 1.19  2004/07/03 17:15:59  ncq
 # - decouple contraint/patient/outfile handling
 #
 # Revision 1.18  2004/07/02 00:54:04  ncq
