@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -140,7 +140,98 @@ insert into lab_request (
 );
 
 -- results reported by lab
+-- FIXME: link them
+-- leukos
+insert into test_result (
+	clin_when,
+	id_encounter,
+	id_episode,
+	fk_type,
+	val_num,
+	val_unit,
+	val_normal_range,
+	technically_abnormal,
+	material
+) values (
+	'2000-9-17',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	(select id from test_type where code='WBC'),
+	'9.5',
+	'Gpt/l',
+	'4.4-11.3',
+	false,
+	'EDTA blood'
+);
 
+-- erys
+insert into test_result (
+	clin_when,
+	id_encounter,
+	id_episode,
+	fk_type,
+	val_num,
+	val_unit,
+	val_normal_range,
+	technically_abnormal,
+	material
+) values (
+	'2000-9-17',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	(select id from test_type where code='RBC'),
+	'4.40',
+	'Tpt/l',
+	'4.1-5.1',
+	false,
+	'EDTA blood'
+);
+
+-- platelets
+insert into test_result (
+	clin_when,
+	id_encounter,
+	id_episode,
+	fk_type,
+	val_num,
+	val_unit,
+	val_normal_range,
+	technically_abnormal,
+	material
+) values (
+	'2000-9-17',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	(select id from test_type where code='PLT'),
+	'282',
+	'Gpt/l',
+	'150-450',
+	false,
+	'EDTA blood'
+);
+
+-- CRP
+insert into test_result (
+	clin_when,
+	id_encounter,
+	id_episode,
+	fk_type,
+	val_num,
+	val_unit,
+	val_normal_range,
+	technically_abnormal,
+	material
+) values (
+	'2000-9-17',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	(select id from test_type where code='CRP'),
+	'17.3',
+	'mg/l',
+	'0.07-8',
+	true,
+	'Serum'
+);
 
 -- encounter, second for knive cut ------------------------------------------
 insert into clin_encounter (
@@ -262,11 +353,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.12  2004-03-18 11:07:56  ncq
+-- Revision 1.13  2004-03-18 18:33:05  ncq
+-- - added some lab results
+--
+-- Revision 1.12  2004/03/18 11:07:56  ncq
 -- - fix integrity violations
 --
 -- Revision 1.11  2004/03/18 10:57:20  ncq
