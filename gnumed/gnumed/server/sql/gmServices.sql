@@ -1,7 +1,7 @@
 -- =============================================
 -- GnuMed service discovery tables
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmServices.sql,v $
--- $Id: gmServices.sql,v 1.2 2003-01-22 16:12:09 ncq Exp $
+-- $Id: gmServices.sql,v 1.3 2003-01-22 23:09:47 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ---------------------------------------------
@@ -12,8 +12,8 @@
 -- live production databases.
 
 -- =============================================
--- force terminate + exit(3) on errors if non-interactive
-\set ON_ERROR_STOP 1
+-- simply skip if it exists
+\unset ON_ERROR_STOP
 
 -- ---------------------------------------------
 create table gm_services (
@@ -27,11 +27,18 @@ comment on table gm_services is
 	'this table lists all the services provided by this database';
 comment on column gm_services.version is
 	'not really used yet but will become useful in change management,
-	might take the form of a CVS release tag one day';
+	 might take the form of a CVS release tag one day';
+
+-- ---------------------------------------------
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
 
 -- =============================================
 -- $Log: gmServices.sql,v $
--- Revision 1.2  2003-01-22 16:12:09  ncq
+-- Revision 1.3  2003-01-22 23:09:47  ncq
+-- - enable this to be imported more than once
+--
+-- Revision 1.2  2003/01/22 16:12:09  ncq
 -- - gm_services.service_name -> gm_services.name
 --
 -- Revision 1.1  2003/01/02 01:20:31  ncq
