@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.10 $
+version = $Revision: 1.11 $
 
 #----------------------------------
 [installation]
@@ -104,6 +104,7 @@ sql/gmServices.sql
 sql/gmI18N.sql
 sql/gmAudit.sql
 sql/gmCrossDB_FKs.sql
+sql/gmCrossDB_FK-views.sql
 $schema$
 
 
@@ -243,7 +244,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.10  2003-08-17 00:06:37  ncq
+# Revision 1.11  2003-08-17 18:06:36  ncq
+# - add x_db_fk views
+#
+# Revision 1.10  2003/08/17 00:06:37  ncq
 # - add def for audit fields table
 #
 # Revision 1.9  2003/08/02 14:33:48  ncq
