@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.29 2003-11-09 22:45:45 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.30 2003-11-13 09:47:29 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -24,8 +24,10 @@ create index idx_item_episode on clin_root_item(id_episode);
 create index idx_episode_h_issue on clin_episode(id_health_issue);
 
 -- =============================================
+-- encounters
 \unset ON_ERROR_STOP
 drop view v_i18n_enum_encounter_type;
+drop index idx_uniq_def_encounter;
 \set ON_ERROR_STOP 1
 
 create view v_i18n_enum_encounter_type as
@@ -35,6 +37,53 @@ select
 from
 	_enum_encounter_type
 ;
+-- ---------------------------------------------
+\unset ON_ERROR_STOP
+drop view v_i18n_curr_encounters;
+\set ON_ERROR_STOP 1
+
+create view v_i18n_curr_encounters as
+select
+	cu_e.id_encounter as pk_encounter,
+	cu_e.started as started,
+	cu_e.last_affirmed as last_affirmed,
+	cu_e.comment as status,
+	cl_e.fk_patient as pk_patient,
+	cl_e.fk_location as pk_location,
+	cl_e.fk_provider as pk_provider,
+	_(et.description) as type,
+	cl_e.description as description
+from
+	clin_encounter cl_e,
+	_enum_encounter_type et,
+	curr_encounter cu_e
+where
+	et.id = cl_e.fk_type
+		and
+	cu_e.id_encounter = cl_e.id
+;
+
+--\unset ON_ERROR_STOP
+--drop view v_i18n_patient_encounters;
+--\set ON_ERROR_STOP 1
+
+--create view v_i18n_patient_encounters as
+--select distinct on (vpi.id_encounter)
+--	ce.id as id_encounter,
+--	ce.id_location as id_location,
+--	ce.id_provider as id_provider,
+--	vpi.id_patient as id_patient,
+--	_(et.description) as type
+--from
+--	(clin_encounter ce inner join v_patient_items vpi on (ce.id=vpi.id_encounter)),
+--	_enum_encounter_type et
+--where
+--	et.id=ce.id_type
+--;
+-- ---------------------------------------------
+create index idx_uniq_def_encounter
+   on clin_encounter(fk_patient)
+where description = '__default__';
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -119,50 +168,6 @@ where
 order by
 	age
 ;
-
--- =============================================
-\unset ON_ERROR_STOP
-drop view v_i18n_curr_encounters;
-\set ON_ERROR_STOP 1
-
-create view v_i18n_curr_encounters as
-select
-	cu_e.id_encounter as pk_encounter,
-	cu_e.started as started,
-	cu_e.last_affirmed as last_affirmed,
-	cu_e.comment as status,
-	cl_e.fk_patient as pk_patient,
-	cl_e.fk_location as pk_location,
-	cl_e.fk_provider as pk_provider,
-	_(et.description) as type,
-	cl_e.description as description
-from
-	clin_encounter cl_e,
-	_enum_encounter_type et,
-	curr_encounter cu_e
-where
-	et.id = cl_e.fk_type
-		and
-	cu_e.id_encounter = cl_e.id
-;
-
---\unset ON_ERROR_STOP
---drop view v_i18n_patient_encounters;
---\set ON_ERROR_STOP 1
-
---create view v_i18n_patient_encounters as
---select distinct on (vpi.id_encounter)
---	ce.id as id_encounter,
---	ce.id_location as id_location,
---	ce.id_provider as id_provider,
---	vpi.id_patient as id_patient,
---	_(et.description) as type
---from
---	(clin_encounter ce inner join v_patient_items vpi on (ce.id=vpi.id_encounter)),
---	_enum_encounter_type et
---where
---	et.id=ce.id_type
---;
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -369,7 +374,7 @@ create view v_patient_vaccinations as
 select
 	v.id as pk_vaccination,
 	v.fk_patient as pk_patient,
-	v.date_given as date,
+	v.clin_date as date,
 	vcine.trade_name as vaccine,
 	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
@@ -467,11 +472,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.29  2003-11-09 22:45:45  ncq
+-- Revision 1.30  2003-11-13 09:47:29  ncq
+-- - use clin_date instead of date_given in vaccination
+--
+-- Revision 1.29  2003/11/09 22:45:45  ncq
 -- - curr_encounter doesn't have id_patient anymore, fix trigger funcs
 --
 -- Revision 1.28  2003/11/09 14:54:56  ncq
