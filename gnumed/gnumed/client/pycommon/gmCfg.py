@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -57,7 +57,7 @@ import os.path, fileinput, string, sys, shutil
 from types import *
 
 # gnumed modules
-from Gnumed.pycommon import gmLog, gmNull
+import gmLog, gmNull
 _log = gmLog.gmDefLog
 
 _gmPG = None
@@ -1227,7 +1227,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.8  2004-07-12 02:44:12  ihaywood
+# Revision 1.9  2004-07-12 02:48:40  ihaywood
+# same again
+#
+# Revision 1.8  2004/07/12 02:44:12  ihaywood
 # it should not be neccessary to specify the full path when
 # importing from the same package.
 # It makes the file gratutiously dependent on being in the gnumed
