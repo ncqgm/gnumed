@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.74 2004-02-25 09:46:19 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmClinicalRecord.py,v 1.75 2004-03-04 19:35:01 ncq Exp $
+__version__ = "$Revision: 1.75 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -21,19 +21,19 @@ if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'pycommon'))
 
 # start logging
-import gmLog
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI
 _whoami = gmWhoAmI.cWhoAmI()
 
 import mx.DateTime as mxDT
 
-_encounter_soft_ttl = mxDT.TimeDelta(hours=2)
-_encounter_hard_ttl = mxDT.TimeDelta(hours=5)
+# in AU the soft timeout better be 4 hours as of 2004
+_encounter_soft_ttl = mxDT.TimeDelta(hours=4)
+_encounter_hard_ttl = mxDT.TimeDelta(hours=6)
 
 _func_ask_user = None
 #============================================================
@@ -1421,7 +1421,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.74  2004-02-25 09:46:19  ncq
+# Revision 1.75  2004-03-04 19:35:01  ncq
+# - AU has rules on encounter timeout, so use them
+#
+# Revision 1.74  2004/02/25 09:46:19  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.73  2004/02/18 15:25:20  ncq
