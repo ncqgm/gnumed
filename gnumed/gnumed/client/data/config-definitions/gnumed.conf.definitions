@@ -1,0 +1,29 @@
+# gnumed config definition file
+# definitions for gnumed.conf
+
+[_config_version_]
+version=0.01
+
+[workplace.name]
+type = string
+description = Identifies the workplace.
+
+[backend.logins]
+type = str_array
+description = List of login names as shown in Login Dialog.
+
+[backend.hosts]
+type = str_array
+description = List of hosts running a gnumed backend as shown in Login Dialog/Options.
+
+[backend.options]
+type = str_array
+description = list of option strings that should be passed to the backend on login (as shown in Login Dialog/Options).
+
+[backend.ports]
+type = str_array
+description = list of port numbers used to connect to backend on the chosen host (as shown in Login Dialog/Options)
+
+[backend.databases]
+type = str_array
+description = list of gnumed core database names (as shown in Login Dialog/Options)
