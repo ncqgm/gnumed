@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -42,7 +42,7 @@ values (currval('identity_id_seq'));
 
 -- episode
 delete from clin_episode where id in (
-	select id_episode
+	select pk_episode
 	from v_pat_episodes
 	where id_patient = currval('identity_id_seq')
 );
@@ -71,7 +71,7 @@ insert into clin_encounter (
 -- lab request
 insert into lab_request (
 	id_encounter,
-	id_episode,
+	fk_episode,
 	narrative,
 	fk_test_org,
 	request_id,
@@ -90,11 +90,14 @@ insert into lab_request (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.4  2004-06-02 13:46:46  ncq
+-- Revision 1.5  2004-06-26 07:33:55  ncq
+-- - id_episode -> fk/pk_episode
+--
+-- Revision 1.4  2004/06/02 13:46:46  ncq
 -- - setting default session timezone has incompatible syntax
 --   across version range 7.1-7.4, henceforth specify timezone
 --   directly in timestamp values, which works

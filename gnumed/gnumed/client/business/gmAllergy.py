@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.11 2004-06-14 08:22:10 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmAllergy.py,v 1.12 2004-06-26 07:33:54 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -67,7 +67,7 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the same patient ?
 	cmd = """
-		select id_patient from v_pat_episodes where id_episode=%s
+		select id_patient from v_pat_episodes where pk_episode=%s
 			union
 		select pk_patient from v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
@@ -82,11 +82,11 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	queries = []
 	if type(allg_type) == types.IntType:
 		cmd = """
-			insert into allergy (id_type, id_encounter, id_episode, substance)
+			insert into allergy (id_type, id_encounter, fk_episode, substance)
 			values (%s, %s, %s, %s)"""
 	else:
 		cmd = """
-			insert into allergy (id_type, id_encounter, id_episode,  substance)
+			insert into allergy (id_type, id_encounter, fk_episode,  substance)
 			values ((select id from _enum_allergy_type where value=%s), %s, %s, %s)"""
 		allg_type = str(allg_type)
 	queries.append((cmd, [allg_type, encounter_id, episode_id, substance]))
@@ -124,7 +124,7 @@ if __name__ == '__main__':
 		print field, ':', allg[field]
 	print "updatable:", allg.get_updatable_fields()
 	enc_id = allg['id_encounter']
-	epi_id = allg['id_episode']
+	epi_id = allg['pk_episode']
 	status, allg = create_allergy (
 		substance = 'test substance',
 		allg_type=1,
@@ -137,7 +137,10 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.11  2004-06-14 08:22:10  ncq
+# Revision 1.12  2004-06-26 07:33:54  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.11  2004/06/14 08:22:10  ncq
 # - cast to boolean in save payload
 #
 # Revision 1.10  2004/06/09 14:32:24  ncq

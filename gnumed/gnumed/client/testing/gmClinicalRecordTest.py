@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.4 2004-06-17 22:49:22 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmClinicalRecordTest.py,v 1.5 2004-06-26 07:33:55 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -80,9 +80,9 @@ class EMR_StructureTests(unittest.TestCase):
 		# delete test episode
 		queries = []
 		cmd = "select id from clin_episode where id=%s and id_health_issue=%s and description=%s"
-		queries.append((cmd, [ new_episode['id_episode'], h_issue['id'], 'TEST Episode']))
+		queries.append((cmd, [ new_episode['pk_episode'], h_issue['id'], 'TEST Episode']))
 		result, msg = gmPG.run_commit('historica', queries, True)
-		self.assertEqual(result[0][0], new_episode['id_episode'])
+		self.assertEqual(result[0][0], new_episode['pk_episode'])
 		queries = []
 		cmd = "delete from clin_episode where id=%s"
 		queries.append((cmd, [result[0][0]]))
@@ -90,7 +90,7 @@ class EMR_StructureTests(unittest.TestCase):
 		self.assertEqual(result, True)
 		# check deletion was successfull
 		cmd = """select id from clin_episode where id=%s"""
-		rows = gmPG.run_ro_query('historica', cmd, None, new_episode['id_episode'])
+		rows = gmPG.run_ro_query('historica', cmd, None, new_episode['pk_episode'])
 		self.assertEqual(len(rows), 0)
 	#--------------------------------------------------------
 	# encounters API
@@ -134,12 +134,12 @@ class AllergyTests(unittest.TestCase):
 		gmLog.gmDefLog.flush()
 		# create new allergy
 		id_encounter = self.emr.get_active_encounter()['pk_encounter']
-		id_episode = self.emr.get_active_episode()['id_episode']
+		pk_episode = self.emr.get_active_episode()['pk_episode']
 		new_allergy = self.emr.add_allergy (
 			substance='Test substance',
 			allg_type = 1,
 			encounter_id = id_encounter,
-			episode_id = id_episode
+			episode_id = pk_episode
 		)
 		self.assertEqual(isinstance(new_allergy, gmAllergy.cAllergy), True, 'add_allergy() failed')
 		new_allergy['reaction'] = 'Test narrative'
@@ -301,7 +301,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.4  2004-06-17 22:49:22  ncq
+# Revision 1.5  2004-06-26 07:33:55  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.4  2004/06/17 22:49:22  ncq
 # - testGetAllergies() needs to [0] the return of get_allergies
 #
 # Revision 1.3  2004/06/17 21:28:35  ncq

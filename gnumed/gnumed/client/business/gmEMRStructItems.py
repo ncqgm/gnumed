@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -52,7 +52,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
 	"""
-	_cmd_fetch_payload = """select * from v_pat_episodes where id_episode=%s"""
+	_cmd_fetch_payload = """select * from v_pat_episodes where pk_episode=%s"""
 	_cmds_store_payload = [
 		"""select 1 from clin_episode where id=%(id)s for update""",
 		"""update clin_episode set
@@ -68,7 +68,7 @@ class cEpisode(gmClinItem.cClinItem):
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
 		pk = aPK_obj
 		if pk is None:
-			cmd = "select id_episode from v_pat_episodes where id_patient=%s and description=%s limit 1"
+			cmd = "select pk_episode from v_pat_episodes where id_patient=%s and description=%s limit 1"
 			rows = gmPG.run_ro_query('historica', cmd, None, id_patient, name)
 			if rows is None:
 				raise gmExceptions.ConstructorError, 'error getting episode for [%s:%s]' % (id_patient, name)
@@ -86,7 +86,7 @@ class cEpisode(gmClinItem.cClinItem):
 			delete from last_act_episode
 			where id_patient=(select id_patient from clin_health_issue where id=%s)"""
 		cmd2 = """
-			insert into last_act_episode(id_episode, id_patient)
+			insert into last_act_episode(fk_episode, id_patient)
 			values (%s,	(select id_patient from clin_health_issue where id=%s))"""
 		success, msg = gmPG.run_commit('historica', [
 			(cmd1, [self._payload[self._idx['id_health_issue']]]),
@@ -303,7 +303,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.16  2004-06-08 00:44:41  ncq
+# Revision 1.17  2004-06-26 07:33:55  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.16  2004/06/08 00:44:41  ncq
 # - v_pat_episodes now has description, not episode for name of episode
 #
 # Revision 1.15  2004/06/02 22:12:48  ncq

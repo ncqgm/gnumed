@@ -8,8 +8,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/ldt-anonymizer/make-anon-lab_reqs.py,v $
-# $Id: make-anon-lab_reqs.py,v 1.2 2004-06-23 21:12:43 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: make-anon-lab_reqs.py,v 1.3 2004-06-26 07:33:55 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -67,7 +67,7 @@ pat = gmPatient.gmCurrentPatient(aPKey=patid)
 emr = pat.get_clinical_record()
 enc_id = emr.get_active_encounter()['pk_encounter']
 print "encounter", enc_id
-epi_id = emr.get_active_episode()['id_episode']
+epi_id = emr.get_active_episode()['pk_episode']
 print "episode", epi_id
 
 infilename = sys.argv[1]
@@ -98,7 +98,10 @@ print "done"
 
 #===============================================================
 # $Log: make-anon-lab_reqs.py,v $
-# Revision 1.2  2004-06-23 21:12:43  ncq
+# Revision 1.3  2004-06-26 07:33:55  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.2  2004/06/23 21:12:43  ncq
 # - cleanup
 # - use emr.add_lab_request()
 # - properly use emr.cleanup()/patient.cleanup()

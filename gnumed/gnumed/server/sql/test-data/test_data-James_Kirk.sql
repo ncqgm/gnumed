@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -42,7 +42,7 @@ values (currval('identity_id_seq'));
 
 -- episode "knive cut"
 delete from clin_episode where id in (
-	select id_episode
+	select pk_episode
 	from v_pat_episodes
 	where id_patient = currval('identity_id_seq')
 );
@@ -71,7 +71,7 @@ insert into clin_encounter (
 -- diagnoses
 insert into clin_aux_note (
 	id_encounter,
-	id_episode,
+	fk_episode,
 	narrative
 ) values (
 	currval('clin_encounter_id_seq'),
@@ -81,7 +81,7 @@ insert into clin_aux_note (
 
 insert into clin_working_diag (
 	id_encounter,
-	id_episode,
+	fk_episode,
 	narrative,
 	fk_progress_note,
 	laterality,
@@ -104,7 +104,7 @@ insert into clin_working_diag (
 -- given Td booster shot
 insert into vaccination (
 	id_encounter,
-	id_episode,
+	fk_episode,
 	narrative,
 	fk_patient,
 	fk_provider,
@@ -142,7 +142,7 @@ insert into lnk_vacc2vacc_def (
 insert into lab_request (
 	clin_when,
 	id_encounter,
-	id_episode,
+	fk_episode,
 	narrative,
 	fk_test_org,
 	request_id,
@@ -172,7 +172,7 @@ insert into lab_request (
 insert into test_result (
 	clin_when,
 	id_encounter,
-	id_episode,
+	fk_episode,
 	fk_type,
 	val_num,
 	val_unit,
@@ -200,7 +200,7 @@ insert into lnk_result2lab_req(fk_result, fk_request) values (
 insert into test_result (
 	clin_when,
 	id_encounter,
-	id_episode,
+	fk_episode,
 	fk_type,
 	val_num,
 	val_unit,
@@ -228,7 +228,7 @@ insert into lnk_result2lab_req(fk_result, fk_request) values (
 insert into test_result (
 	clin_when,
 	id_encounter,
-	id_episode,
+	fk_episode,
 	fk_type,
 	val_num,
 	val_unit,
@@ -256,7 +256,7 @@ insert into lnk_result2lab_req(fk_result, fk_request) values (
 insert into test_result (
 	clin_when,
 	id_encounter,
-	id_episode,
+	fk_episode,
 	fk_type,
 	val_num,
 	val_unit,
@@ -298,7 +298,7 @@ insert into clin_encounter (
 -- diagnoses
 insert into clin_working_diag (
 	id_encounter,
-	id_episode,
+	fk_episode,
 	narrative,
 	laterality,
 	is_chronic,
@@ -319,7 +319,7 @@ insert into clin_working_diag (
 -- wound infected, penicillin had been prescribed, developed urticaria
 insert into allergy (
 	id_encounter,
-	id_episode,
+	fk_episode,
 	substance,
 	allergene,
 	id_type,
@@ -421,11 +421,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.25  2004-06-02 13:46:46  ncq
+-- Revision 1.26  2004-06-26 07:33:55  ncq
+-- - id_episode -> fk/pk_episode
+--
+-- Revision 1.25  2004/06/02 13:46:46  ncq
 -- - setting default session timezone has incompatible syntax
 --   across version range 7.1-7.4, henceforth specify timezone
 --   directly in timestamp values, which works

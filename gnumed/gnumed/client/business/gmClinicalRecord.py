@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.121 2004-06-20 18:39:30 ncq Exp $
-__version__ = "$Revision: 1.121 $"
+# $Id: gmClinicalRecord.py,v 1.122 2004-06-26 07:33:55 ncq Exp $
+__version__ = "$Revision: 1.122 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -209,8 +209,8 @@ class cClinicalRecord:
 		if note is None:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
-		cmd = "insert into clin_note(id_encounter, id_episode, narrative) values (%s, %s, %s)"
-		return gmPG.run_commit('historica', [(cmd, [self.__encounter['pk_encounter'], self.__episode['id_episode'], note])])
+		cmd = "insert into clin_note(id_encounter, fk_episode, narrative) values (%s, %s, %s)"
+		return gmPG.run_commit('historica', [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], note])])
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -243,7 +243,7 @@ class cClinicalRecord:
 			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
 			'id_item',
 			'id_encounter',
-			'id_episode',
+			'pk_episode',
 			'id_health_issue',
 			'src_table'
 		]
@@ -274,7 +274,7 @@ class cClinicalRecord:
 		episodes = self.get_episodes()
 		episode_map = {}
 		for episode in episodes:
-			episode_map[episode['id_episode']] = episode['description']
+			episode_map[episode['pk_episode']] = episode['description']
 		emr_data = {}
 		# get item data from all source tables
 		for src_table in items_by_table.keys():
@@ -306,9 +306,9 @@ class cClinicalRecord:
 				age = view_row[view_col_idx['age']]
 				# format metadata
 				try:
-					episode_name = episode_map[view_row[view_col_idx['id_episode']]]
+					episode_name = episode_map[view_row[view_col_idx['pk_episode']]]
 				except:
-					episode_name = view_row[view_col_idx['id_episode']]
+					episode_name = view_row[view_col_idx['pk_episode']]
 				try:
 					issue_name = issue_map[view_row[view_col_idx['id_health_issue']]]
 				except:
@@ -330,7 +330,7 @@ class cClinicalRecord:
 				#   are in v_patient_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
-					'pk_item', 'id', 'id_encounter', 'id_episode'
+					'pk_item', 'id', 'id_encounter', 'fk_episode'
 				]
 				col_data = []
 				for col_name in table_col_idx.keys():
@@ -373,7 +373,7 @@ class cClinicalRecord:
 			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
 			'id_item',
 			'id_encounter',
-			'id_episode',
+			'pk_episode',
 			'id_health_issue',
 			'src_table'
 		]
@@ -402,9 +402,9 @@ class cClinicalRecord:
 		if not episodes is None and len(episodes) > 0:
 			params['epi'] = episodes
 			if len(episodes) > 1:
-				where_snippets.append('id_episode in %(epi)s')
+				where_snippets.append('fk_episode in %(epi)s')
 			else:
-				where_snippets.append('id_episode=%(epi)s')
+				where_snippets.append('fk_episode=%(epi)s')
 		# health issues
 		if not issues is None and len(issues) > 0:
 			params['issue'] = issues
@@ -442,7 +442,7 @@ class cClinicalRecord:
 		episodes = self.get_episodes()
 		episode_map = {}
 		for episode in episodes:
-			episode_map[episode['id_episode']] = episode['description']
+			episode_map[episode['pk_episode']] = episode['description']
 		emr_data = {}
 		# get item data from all source tables
 		ro_conn = self._conn_pool.GetConnection('historica')
@@ -476,9 +476,9 @@ class cClinicalRecord:
 				age = view_row[view_col_idx['age']]
 				# format metadata
 				try:
-					episode_name = episode_map[view_row[view_col_idx['id_episode']]]
+					episode_name = episode_map[view_row[view_col_idx['pk_episode']]]
 				except:
-					episode_name = view_row[view_col_idx['id_episode']]
+					episode_name = view_row[view_col_idx['pk_episode']]
 				try:
 					issue_name = issue_map[view_row[view_col_idx['id_health_issue']]]
 				except:
@@ -500,7 +500,7 @@ class cClinicalRecord:
 				#   are in v_patient_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
-					'pk_item', 'id', 'id_encounter', 'id_episode'
+					'pk_item', 'id', 'id_encounter', 'fk_episode'
 				]
 				col_data = []
 				for col_name in table_col_idx.keys():
@@ -583,7 +583,7 @@ class cClinicalRecord:
 		if issues is not None:
 			filtered_allergies = filter(lambda allg: allg['id_health_issue'] in issues, filtered_allergies)
 		if episodes is not None:
-			filtered_allergies = filter(lambda allg: allg['id_episode'] in episodes, filtered_allergies)
+			filtered_allergies = filter(lambda allg: allg['pk_episode'] in episodes, filtered_allergies)
 		if encounters is not None:
 			filtered_allergies = filter(lambda allg: allg['id_encounter'] in encounters, filtered_allergies)
 
@@ -593,7 +593,7 @@ class cClinicalRecord:
 		if encounter_id is None:
 			encounter_id = self.__encounter['pk_encounter']
 		if episode_id is None:
-			episode_id = self.__episode['id_episode']
+			episode_id = self.__episode['pk_episode']
 		status, data = gmAllergy.create_allergy(
 			substance=substance,
 			allg_type=allg_type,
@@ -624,7 +624,7 @@ class cClinicalRecord:
 		except KeyError:
 			self.__db_cache['episodes'] = []
 
-			cmd = "select id_episode from v_pat_episodes where id_patient=%s"
+			cmd = "select pk_episode from v_pat_episodes where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading episodes for patient [%s]' % self.id_patient)
@@ -681,7 +681,7 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	def __load_last_active_episode(self):
 		# check if there's an active episode
-		cmd = "select id_episode from last_act_episode where id_patient=%s limit 1"
+		cmd = "select fk_episode from last_act_episode where id_patient=%s limit 1"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
@@ -700,7 +700,7 @@ class cClinicalRecord:
 				select id
 				from clin_episode
 				where id=(
-					select distinct on(id_episode) id_episode
+					select distinct on(pk_episode) pk_episode
 					from v_patient_items
 					where
 						id_patient=%s
@@ -913,7 +913,7 @@ class cClinicalRecord:
 		if issues is not None:
 			filtered_shots = filter(lambda shot: shot['id_health_issue'] in issues, filtered_shots)
 		if episodes is not None:
-			filtered_shots = filter(lambda shot: shot['id_episode'] in episodes, filtered_shots)
+			filtered_shots = filter(lambda shot: shot['pk_episode'] in episodes, filtered_shots)
  		if encounters is not None:
 			filtered_shots = filter(lambda shot: shot['id_encounter'] in encounters, filtered_shots)
 		if indications is not None:
@@ -980,7 +980,7 @@ class cClinicalRecord:
 		"""Creates a new vaccination entry in backend."""
 		return gmVaccination.create_vaccination(
 			patient_id = self.id_patient,
-			episode_id = self.__episode['id_episode'],
+			episode_id = self.__episode['pk_episode'],
 			encounter_id = self.__encounter['pk_encounter'],
 			staff_id = _whoami.get_staff_ID(),
 			vaccine = vaccine
@@ -1228,7 +1228,7 @@ class cClinicalRecord:
 		if encounter_id is None:
 			encounter_id = self.__encounter['pk_encounter']
 		if episode_id is None:
-			episode_id = self.__episode['id_episode']
+			episode_id = self.__episode['pk_episode']
 		status, data = gmPathLab.create_lab_request(
 			lab=lab,
 			req_id=req_id,
@@ -1249,12 +1249,12 @@ class cClinicalRecord:
 		"""
 		cmd = """
 		insert into referral (
-		id_encounter, id_episode,  narrative, fk_form
+		id_encounter, fk_episode, narrative, fk_form
 		) values (
 		%s, %s, %s, %s
 		)
 		"""
-		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['pk_encounter'], self.__episode['id_episode'], text, form_id])])
+		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], text, form_id])])
 
 #============================================================
 # convenience functions
@@ -1318,7 +1318,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.121  2004-06-20 18:39:30  ncq
+# Revision 1.122  2004-06-26 07:33:55  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.121  2004/06/20 18:39:30  ncq
 # - get_encounters() added by Carlos
 #
 # Revision 1.120  2004/06/17 21:30:53  ncq

@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -559,7 +559,7 @@ class cLabJournalNB(wxNotebook):
 				req_id = req_id,
 				pat_id = self.curr_pat['ID'],
 				encounter_id = emr.get_active_encounter()['pk_encounter'],
-				episode_id = emr.get_active_episode()['id_episode']
+				episode_id = emr.get_active_episode()['pk_episode']
 			)
 			# FIXME : react on succes or failure of save_request
 			
@@ -739,7 +739,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.29  2004-06-20 16:50:51  ncq
+# Revision 1.30  2004-06-26 07:33:55  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.29  2004/06/20 16:50:51  ncq
 # - carefully fool epydoc
 #
 # Revision 1.28  2004/06/20 13:48:02  shilbert

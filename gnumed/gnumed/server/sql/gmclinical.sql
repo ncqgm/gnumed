@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.109 $
+-- $Revision: 1.110 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -80,7 +80,7 @@ comment on column clin_episode.description is
 
 create table last_act_episode (
 	id serial primary key,
-	id_episode integer
+	fk_episode integer
 		unique
 		not null
 		references clin_episode(id),
@@ -193,7 +193,7 @@ create table clin_root_item (
 	id_encounter integer
 		not null
 		references clin_encounter(id),
-	id_episode integer
+	fk_episode integer
 		not null
 		references clin_episode(id),
 	narrative text,
@@ -217,7 +217,7 @@ comment on column clin_root_item.clin_when is
 	 when it was entered into the system (= audit_fields.modified_when)';
 comment on COLUMN clin_root_item.id_encounter is
 	'the encounter this item belongs to';
-comment on COLUMN clin_root_item.id_episode is
+comment on COLUMN clin_root_item.fk_episode is
 	'the episode this item belongs to';
 comment on column clin_root_item.narrative is
 	'each clinical item by default inherits a free text field for clinical narrative';
@@ -720,7 +720,7 @@ create table clin_working_diag (
 				or
 			((is_active = true) and (is_significant = true))
 		),
-	unique (narrative, id_episode),
+	unique (narrative, fk_episode),
 	unique (narrative, id_encounter)
 ) inherits (clin_root_item);
 
@@ -888,11 +888,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.109 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.110 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.109  2004-05-30 21:02:14  ncq
+-- Revision 1.110  2004-06-26 07:33:55  ncq
+-- - id_episode -> fk/pk_episode
+--
+-- Revision 1.109  2004/05/30 21:02:14  ncq
 -- - some soap_cat defaults
 -- - encounter_type.id -> encounter_type.pk
 --

@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.22 2004-06-18 13:32:37 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmForms.py,v 1.23 2004-06-26 07:33:55 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -94,7 +94,7 @@ class gmFormEngine:
 			params = {}
 		patient_clinical = self.patient.get_clinical_record ()
 		encounter = patient_clinical.get_active_encounter()['pk_encounter']
-		episode = patient_clinical.get_active_episode()['id_episode']
+		episode = patient_clinical.get_active_episode()['pk_episode']
 		# generate "forever unique" name
 		cmd = "select name_short || ': <' || name_long || '::' || revision || '>' from form_defs where pk=%s";
 		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
@@ -111,7 +111,7 @@ class gmFormEngine:
 		# in one transaction
 		queries = []
 		# - store form instance in form_instance
-		cmd = "insert into form_instances(fk_form_def, form_name, id_episode, id_encounter) values (%s, %s, %s, %s)"
+		cmd = "insert into form_instances(fk_form_def, form_name, fk_episode, id_encounter) values (%s, %s, %s, %s)"
 		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
 		# - store params in form_data
 		for key in params.keys():
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.22  2004-06-18 13:32:37  ncq
+# Revision 1.23  2004-06-26 07:33:55  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.22  2004/06/18 13:32:37  ncq
 # - just some whitespace cleanup
 #
 # Revision 1.21  2004/06/17 11:36:13  ihaywood

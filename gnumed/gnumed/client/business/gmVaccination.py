@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.7 2004-06-13 08:03:07 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmVaccination.py,v 1.8 2004-06-26 07:33:55 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -113,7 +113,7 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
-	cmd = """select id_patient from v_pat_episodes where id_episode=%s 
+	cmd = """select id_patient from v_pat_episodes where pk_episode=%s 
                  union 
              select pk_patient from v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
@@ -126,10 +126,10 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	# insert new vaccination
 	queries = []
 	if type(vaccine) == types.IntType:
-		cmd = """insert into vaccination (id_encounter, id_episode, fk_patient, fk_provider, fk_vaccine)
+		cmd = """insert into vaccination (id_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
 				 values (%s, %s, %s, %s, %s)"""
 	else:
-		cmd = """insert into vaccination (id_encounter, id_episode, fk_patient, fk_provider, fk_vaccine)
+		cmd = """insert into vaccination (id_encounter, fk_episode, fk_patient, fk_provider, fk_vaccine)
 				 values (%s, %s, %s, %s, (select id from vaccine where trade_name=%s))"""
 		vaccine = str(vaccine)
 	queries.append((cmd, [encounter_id, episode_id, patient_id, staff_id, vaccine]))
@@ -255,7 +255,10 @@ if __name__ == '__main__':
 	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.7  2004-06-13 08:03:07  ncq
+# Revision 1.8  2004-06-26 07:33:55  ncq
+# - id_episode -> fk/pk_episode
+#
+# Revision 1.7  2004/06/13 08:03:07  ncq
 # - cleanup, better separate vaccination code from general EMR code
 #
 # Revision 1.6  2004/06/08 00:48:05  ncq
