@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.185 2005-04-02 20:45:12 cfmoro Exp $
-__version__ = "$Revision: 1.185 $"
+# $Id: gmGuiMain.py,v 1.186 2005-04-03 20:12:12 ncq Exp $
+__version__ = "$Revision: 1.186 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -24,12 +24,9 @@ from wxPython.wx import *
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
-from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers
-from Gnumed.wxpython import gmHorstSpace
-from Gnumed.wxpython import gmRichardSpace
+from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser
 from Gnumed.business import gmPerson
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.exporters import gmPatientExporter
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -97,7 +94,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
 		self.__setup_main_menu()
 		self.SetupStatusBar()
-		self.SetStatusText(_("You are logged in as [%s].") % _whoami.get_db_account())
+		self.SetStatusText(_('You are logged in as %s (%s). DB account <%s>.') % (_whoami.get_staff_name(), _whoami.get_staff_sign(), _whoami.get_db_account()))
 		self.__gb['main.statustext'] = self.SetStatusText
 
 		# set window title via template
@@ -230,7 +227,15 @@ class gmTopLevelFrame(wx.wxFrame):
 		EVT_MENU(self, ID_EXIT, self.OnFileExit)
 		self.__gb['main.filemenu'] = self.menu_file
 		# FIXME: this isn't really appropriate
-		self.mainmenu.Append(self.menu_file, _("&File"));
+		self.mainmenu.Append(self.menu_file, _("&File"))
+
+		# menu "EMR"
+		menu_emr = wxMenu()
+		#self.__gb['main.toolsmenu'] = self.menu_tools
+		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export this patient's EMR as a text file"))
+		EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
+		self.mainmenu.Append(menu_emr, _("&EMR"))
+
 		# menu "View"
 		self.menu_view = wxMenu()
 		self.__gb['main.viewmenu'] = self.menu_view
@@ -239,14 +244,12 @@ class gmTopLevelFrame(wx.wxFrame):
 		# menu "Tools"
 		self.menu_tools = wxMenu()
 		self.__gb['main.toolsmenu'] = self.menu_tools
-		self.menu_tools.Append(ID_EXPORT_EMR, _('E&xport EMR\tAlt-X'), _('Export selected patient\'s EMR to file'))
-		EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
-		self.mainmenu.Append(self.menu_tools, _("&Tools"));
+		self.mainmenu.Append(self.menu_tools, _("&Tools"))
 
 		# menu "Reference"
 		self.menu_reference = wxMenu()
 		self.__gb['main.referencemenu'] = self.menu_reference
-		self.mainmenu.Append(self.menu_reference, _("&Reference"));
+		self.mainmenu.Append(self.menu_reference, _("&Reference"))
 
 		# menu "Help"
 		self.menu_help = wxMenu()
@@ -254,7 +257,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		EVT_MENU (self, ID_ABOUT, self.OnAbout)
 		self.menu_help.AppendSeparator()
 		self.__gb['main.helpmenu'] = self.menu_help
-		self.mainmenu.Append(self.menu_help, "&Help");
+		self.mainmenu.Append(self.menu_help, "&Help")
 
 		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
@@ -313,13 +316,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		"""
 		Export selected patient EMR to a file
 		"""
-		sel_pat = gmPerson.gmCurrentPatient()
-		if not sel_pat.is_connected():
-			gmGuiHelpers.gm_show_error('A patient must be selected to dump the EMR for.', _('emr_dump'), gmLog.lErr)
-			return
-		# instantiate exporter
-		exporter = gmPatientExporter.cEmrExport(patient = sel_pat)
-		exporter.dump_emr_gui(parent = self)
+		gmEMRBrowser.export_emr_to_ascii(parent=self)
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -394,7 +391,6 @@ class gmTopLevelFrame(wx.wxFrame):
 		if pat.is_connected():
 			ident = pat.get_identity()
 			title = ident['title']
-			print type(title), title
 			if title is None:
 				title = ''
 			else:
@@ -671,7 +667,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.185  2005-04-02 20:45:12  cfmoro
+# Revision 1.186  2005-04-03 20:12:12  ncq
+# - better wording in status line
+# - add menu "EMR" with "export" item and use gmEMRBrowser.export_emr_to_ascii()
+#
+# Revision 1.185  2005/04/02 20:45:12  cfmoro
 # Implementated  exporting emr from gui client
 #
 # Revision 1.184  2005/03/29 07:27:54  ncq
