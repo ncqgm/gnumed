@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -67,6 +67,32 @@ comment on COLUMN audit_fields.modified_when is
 comment on COLUMN audit_fields.modified_by is
 	'by whom has this row been committed (created/modified)';
 
+-- ---------------------------------------------
+-- protect from direct inserts/updates/deletes which the
+-- inheritance system can't handle properly
+\unset ON_ERROR_STOP
+drop rule audit_fields_no_ins on audit_fields cascade;
+drop rule audit_fields_no_ins;
+drop rule audit_fields_no_upd on audit_fields cascade;
+drop rule audit_fields_no_upd;
+drop rule audit_fields_no_del on audit_fields cascade;
+drop rule audit_fields_no_del;
+\set ON_ERROR_STOP 1
+
+-- FIXME: those should actually use PL/pgSQL and raise
+--        an exception...
+create rule audit_fields_no_ins as
+	on insert to audit_fields
+	do instead nothing;
+
+create rule audit_fields_no_upd as
+	on update to audit_fields
+	do instead nothing;
+
+create rule audit_fields_no_del as
+	on delete to audit_fields
+	do instead nothing;
+
 -- ===================================================================
 create table audit_trail (
 	pk_audit serial primary key,
@@ -98,6 +124,32 @@ comment on column audit_trail.audit_when is
 comment on column audit_trail.audit_by is
 	'committed to this table for auditing by whom';
 
+-- ---------------------------------------------
+-- protect from direct inserts/updates/deletes which the
+-- inheritance system can't handle properly
+\unset ON_ERROR_STOP
+drop rule audit_trail_no_ins on audit_trail cascade;
+drop rule audit_trail_no_ins;
+drop rule audit_trail_no_upd on audit_trail cascade;
+drop rule audit_trail_no_upd;
+drop rule audit_trail_no_del on audit_trail cascade;
+drop rule audit_trail_no_del;
+\set ON_ERROR_STOP 1
+
+-- FIXME: those should actually use PL/pgSQL and raise
+--        an exception...
+create rule audit_trail_no_ins as
+	on insert to audit_trail
+	do instead nothing;
+
+create rule audit_trail_no_upd as
+	on update to audit_trail
+	do instead nothing;
+
+create rule audit_trail_no_del as
+	on delete to audit_trail
+	do instead nothing;
+
 -- ===================================================================
 -- FIXME: actually this should be done by giving "creator"
 -- rights to the audit trigger functions
@@ -110,11 +162,16 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.7  2004-07-17 20:57:53  ncq
+-- Revision 1.8  2004-09-22 14:10:38  ncq
+-- - add RULEs to protect audit_trail/audit_fields parent
+--   tables from direct insert/update/delete to preserve
+--   referential integrity
+--
+-- Revision 1.7  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --
