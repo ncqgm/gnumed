@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.38 2004-10-12 18:32:52 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPathLab.py,v 1.39 2004-10-15 09:05:08 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -35,7 +35,7 @@ class cLabResult(gmClinItem.cClinItem):
 				clin_when=%(val_when)s,
 				narrative=%(progress_note_result)s,
 				fk_type=%(pk_test_type)s,
-				val_num=%(val_num)s,
+				val_num=%(val_num)s::numeric,
 				val_alpha=%(val_alpha)s,
 				val_unit=%(val_unit)s,
 				val_normal_min=%(val_normal_min)s,
@@ -77,41 +77,49 @@ class cLabResult(gmClinItem.cClinItem):
 		'relevant'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None):
+	def __init__(self, aPK_obj=None, row=None):
+		"""Instantiate.
+
+		aPK_obj as dict:
+			- patient_id
+			- when_field (see view definition)
+			- when
+			- test_type
+			- val_num
+			- val_alpha
+			- unit
+		"""
+		# instantiate from row data ?
+		if aPK_obj is None:
+			gmClinItem.cClinItem.__init__(self, row=row)
+			return
 		pk = aPK_obj
-		if pk is None:
+		# find PK from row data ?
+		if type(aPK_obj) == types.DictType:
 			# sanity checks
-			if None in [patient_id, when, when_field, test_type, unit]:
-				raise gmExceptions.ConstructorError, 'parameter error: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
-			if (val_num is None) and (val_alpha is None):
+			if None in [aPK_obj['patient_id'], aPK_obj['when'], aPK_obj['when_field'], aPK_obj['test_type'], aPK_obj['unit']]:
+				raise gmExceptions.ConstructorError, 'parameter error: %s' % aPK_obj
+			if (aPK_obj['val_num'] is None) and (aPK_obj['val_alpha'] is None):
 				raise gmExceptions.ConstructorError, 'parameter error: val_num and val_alpha cannot both be None'
 			# get PK
-			params = {
-				'pat_id': patient_id,
-				'type': test_type,
-				'when': when,
-				'unit': unit
-			}
 			where_snippets = [
-				'pk_patient=%(pat_id)s',
-				'pk_test_type=%(type)s',
-				'%s=%%(when)s' % when_field,
+				'pk_patient=%(patient_id)s',
+				'pk_test_type=%(test_type)s',
+				'%s=%%(when)s' % aPK_obj['when_field'],
 				'val_unit=%(unit)s'
 			]
-			if val_num is not None:
-				params['valn'] = val_num
-				where_snippets.append('val_num=%(valn)s::float')
-			if val_alpha is not None:
-				params['vala'] = val_alpha
-				where_snippets.append('val_alpha=%(vala)s')
+			if aPK_obj['val_num'] is not None:
+				where_snippets.append('val_num=%(val_num)s::numeric')
+			if aPK_obj['val_alpha'] is not None:
+				where_snippets.append('val_alpha=%(val_alpha)s')
 
 			where_clause = ' and '.join(where_snippets)
 			cmd = "select pk_result from v_results4lab_req where %s" % where_clause
-			data = gmPG.run_ro_query('historica', cmd, None, params)
+			data = gmPG.run_ro_query('historica', cmd, None, aPK_obj)
 			if data is None:
-				raise gmExceptions.ConstructorError, 'error getting lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
+				raise gmExceptions.ConstructorError, 'error getting lab result for: %s' % aPK_obj
 			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError, 'no lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
+				raise gmExceptions.NoSuchClinItemError, 'no lab result for: %s' % aPK_obj
 			pk = data[0][0]
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
@@ -338,7 +346,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.38 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.39 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -421,7 +429,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.38 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.39 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -605,7 +613,18 @@ if __name__ == '__main__':
 	import time
 
 	def test_result():
-		lab_result = cLabResult(aPK_obj=29)
+		print "test_result()"
+#		lab_result = cLabResult(aPK_obj=4)
+		data = {
+			'patient_id': 12,
+			'when_field': 'val_when',
+			'when': '2000-09-17 18:23:00+02',
+			'test_type': 9,
+			'val_num': 17.3,
+			'val_alpha': None,
+			'unit': 'mg/l'
+		}
+		lab_result = cLabResult(aPK_obj=data)
 		print lab_result
 		fields = lab_result.get_fields()
 		for field in fields:
@@ -616,10 +635,15 @@ if __name__ == '__main__':
 		print time.time()
 	#--------------------------------------------------------
 	def test_request():
+		print "test_request()"
 		try:
 #			lab_req = cLabRequest(aPK_obj=1)
 #			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab=2)
-			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab='Enterprise Main Lab')
+			data = {
+				'req_id': 'EML#SC937-0176-CEC#11',
+				'lab': 'Enterprise Main Lab'
+			}
+			lab_req = cLabRequest(aPK_obj=data)
 		except gmExceptions.ConstructorError, msg:
 			print "no such lab request:", msg
 			return
@@ -651,7 +675,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
-#	test_result()
+	test_result()
 	test_request()
 #	test_create_result()
 	test_unreviewed()
@@ -660,7 +684,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.38  2004-10-12 18:32:52  ncq
+# Revision 1.39  2004-10-15 09:05:08  ncq
+# - converted cLabResult to allow use of row __init__()
+#
+# Revision 1.38  2004/10/12 18:32:52  ncq
 # - allow cLabRequest and cTestType to be filled from bulk fetch row data
 # - cLabResult not adapted yet
 #
