@@ -1,7 +1,7 @@
 #!/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/check-prerequisites.py,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 import sys
 
@@ -38,6 +38,7 @@ else:
 		print "ERROR: wxPython not installed"
 		print "ERROR: this is needed to show the GnuMed GUI"
 		print "ERROR: wxPython is available from http://www.wxpython.org"
+		print "INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'"
 		sys.exit(-1)
 	print "=> found"
 
@@ -45,6 +46,9 @@ sys.exit(0)
 
 #=================================================================
 # $Log: check-prerequisites.py,v $
-# Revision 1.1  2004-02-19 16:51:08  ncq
+# Revision 1.2  2004-05-29 22:39:14  ncq
+# - warn on export DISPLAY on Mac OSX
+#
+# Revision 1.1  2004/02/19 16:51:08  ncq
 # - first version
 #
