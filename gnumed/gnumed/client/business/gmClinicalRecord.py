@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.140 2004-09-28 12:19:15 ncq Exp $
-__version__ = "$Revision: 1.140 $"
+# $Id: gmClinicalRecord.py,v 1.141 2004-10-11 19:50:15 ncq Exp $
+__version__ = "$Revision: 1.141 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -602,7 +602,7 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# allergy API
 	#--------------------------------------------------------
- 	def get_allergies(self, remove_sensitivities=None, since=None, until=None, encounters=None, episodes=None, issues=None):
+ 	def get_allergies(self, remove_sensitivities=None, since=None, until=None, encounters=None, episodes=None, issues=None, ID_list=None):
 		"""Retrieves patient allergy items.
 
 			remove_sensitivities
@@ -623,7 +623,7 @@ class cClinicalRecord:
 		except KeyError:
 			# FIXME: check allergy_state first, then cross-check with select exists(... from allergy)
 			self.__db_cache['allergies'] = []
-			cmd = "select id from v_pat_allergies where id_patient=%s"
+			cmd = "select pk_allergy from v_pat_allergies where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load allergies for patient [%s]' % self.id_patient)
@@ -639,16 +639,16 @@ class cClinicalRecord:
 					del self.__db_cache['allergies']
 					return None
 
-		if remove_sensitivities is None \
-				and since is None \
-				and until is None \
-				and issues is None \
-				and episodes is None \
-				and encounters is None:
-			return self.__db_cache['allergies']
 		# ok, lets's constrain our list
 		filtered_allergies = []
 		filtered_allergies.extend(self.__db_cache['allergies'])
+		if ID_list is not None:
+			filtered_allergies = filter(lambda allg: allg['pk_allergy'] in ID_list, filtered_allergies)
+			if len(filtered_allergies) == 0:
+				_log.Log(gmLog.lErr, 'no allergies [%s] found for patient [%s]' % (str(ID_list), self.id_patient))
+				return None
+			else:
+				return filtered_allergies
 		if remove_sensitivities is not None:
 			filtered_allergies = filter(lambda allg: allg['type'] == 'allergy', filtered_allergies)
 		if since is not None:
@@ -680,7 +680,7 @@ class cClinicalRecord:
 			return None
 		return data
 	#--------------------------------------------------------
-	def set_allergenic_state(self, status=None):
+	def set_allergic_state(self, status=None):
 		pass
 	#--------------------------------------------------------
 	# episodes API
@@ -958,7 +958,7 @@ where
 		"""Retrieves list of vaccinations the patient has received.
 
 		optional:
-		* ID - PK of the vaccinated indication
+		* ID - PK of a vaccination
 		* indications - indications we want to retrieve vaccination
 			items for, must be primary language, not l10n_indication
         * since - initial date for allergy items
@@ -1568,7 +1568,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.140  2004-09-28 12:19:15  ncq
+# Revision 1.141  2004-10-11 19:50:15  ncq
+# - improve get_allergies()
+#
+# Revision 1.140  2004/09/28 12:19:15  ncq
 # - any vaccination related data now cached under 'vaccinations' so
 #   all of it is flushed when any change to vaccinations occurs
 # - rewrite get_scheduled_vaccination_regimes() (Carlos)
