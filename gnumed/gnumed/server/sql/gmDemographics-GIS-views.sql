@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -229,7 +229,7 @@ drop view v_zip2street;
 
 create view v_zip2street as
 	select
-		coalesce (str.postcode, urb.postcode) as zip_street,
+		coalesce (str.postcode, urb.postcode) as postcode,
 		str.name as street,
 		stt.name as state,
 		stt.code as code_state,
@@ -261,22 +261,22 @@ drop view v_zip2urb;
 
 create view v_zip2urb as
 	select
-		urb.postcode as zip_urb,
+		urb.postcode as postcode,
 		urb.name as urb,
-		s.name as state,
-		s.code as code_state,
+		stt.name as state,
+		stt.code as code_state,
 		c.name as country,
-		s.country as code_country
+		stt.country as code_country
 	from
 		urb,
-		state s,
+		state stt,
 		country c
 	where
 		urb.postcode is not null
 			and
-		urb.id_state = s.id
+		urb.id_state = stt.id
 			and
-		s.country = c.code
+		stt.country = c.code
 ;
 
 comment on view v_zip2urb is
@@ -288,24 +288,35 @@ drop view v_uniq_zipped_urbs;
 \set ON_ERROR_STOP 1
 
 create view v_uniq_zipped_urbs as
+	-- all the cities that
 	select
-		urb.postcode as zip_urb,
-		urb.name as name
+		urb.postcode as postcode,
+		urb.name as name,
+		stt.name as state,
+		stt.code as code_state,
+		c.name as country,
+		stt.country as code_country
 	from
 		urb,
-		street
+		state stt,
+		country c
 	where
-		-- only those urbs with a ZIP
+		-- have a zip code
 		urb.postcode is not null
 			and
-		-- but ZIP not listed in street yet
-		(urb.postcode <> street.postcode
-			or
-		-- at least not for the same urb name
-		 urb.id <> street.id_urb)
-		-- FIXME: do we need to include those
-		-- urbs that ARE referenced from street
-		-- but DON'T have a ZIP code there ?
+		-- are not found in street with this zip code
+		not exists(
+			select 1 from
+				v_zip2street vz2str,
+				urb
+			where
+				vz2str.postcode = urb.postcode
+					and
+				vz2str.urb = urb.name
+			) and
+		urb.id_state = stt.id
+			and
+		stt.country = c.code
 ;
 
 comment on view v_uniq_zipped_urbs is
@@ -320,19 +331,25 @@ drop view v_zip2data;
 
 create view v_zip2data as
 	select
-		coalesce(zrows.zip_street, zrows.zip_urb) as zip,
-		zrows.street,
-		coalesce(zrows.urb, zrows.name) as urb,
-		zrows.state,
-		zrows.code_state,
-		zrows.country,
-		zrows.code_country
+		vz2s.postcode as zip,
+		vz2s.street,
+		vz2s.urb,
+		vz2s.state,
+		vz2s.code_state,
+		vz2s.country,
+		vz2s.code_country
+	from v_zip2street vz2s
+		union
+	select
+		vuzu.postcode as zip,
+		null as street,
+		vuzu.name as urb,
+		vuzu.state,
+		vuzu.code_state,
+		vuzu.country,
+		vuzu.code_country
 	from
-		(v_zip2street
-			full outer join
-		v_uniq_zipped_urbs
-			on
-		v_zip2street.zip_street=v_uniq_zipped_urbs.zip_urb) as zrows
+		v_uniq_zipped_urbs vuzu
 ;
 
 comment on view v_zip2data is
@@ -340,11 +357,14 @@ comment on view v_zip2data is
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.4  2003-08-10 01:26:50  ncq
+-- Revision 1.5  2003-08-10 15:18:22  ncq
+-- - eventually make the zip2data view work with help from Mike Mascari (pgsql-general)
+--
+-- Revision 1.4  2003/08/10 01:26:50  ncq
 -- - make v_zip2data compile again
 --
 -- Revision 1.3  2003/08/10 01:07:46  ncq
