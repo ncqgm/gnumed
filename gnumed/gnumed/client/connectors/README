@@ -1,6 +1,6 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/README,v $
-# $Id: README,v 1.1 2004-09-13 09:49:06 ncq Exp $
-# $Revision: 1.1 $
+# $Id: README,v 1.2 2004-09-19 11:02:28 ncq Exp $
+# $Revision: 1.2 $
 
 This directory stores connectors specific to this client.
 
@@ -20,3 +20,9 @@ The calls you can use on the controlled GnuMed instance are
 the methods provided by client/wxpython/gmMacro.py.
 
 Karsten
+
+-----------------------------------------------------------
+MDW current patient ID:
+
+ \HKEY_LOCAL_MACHINE\SOFTWARE\Medical Director for Windows\General\CurrentPatient
+
