@@ -23,8 +23,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.1 2004-04-13 14:24:07 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmLDTimporter.py,v 1.2 2004-04-16 00:34:53 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -35,6 +35,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions
 from Gnumed.pycommon.gmPyCompat import *
+from Gnumed.business import gmPathLab
 
 import glob, os.path, sys, tempfile, fileinput
 
@@ -108,7 +109,7 @@ class cLDTImporter:
 		self.ldt_filename = filename
 
 		# verify header of LDT file
-		if not self.__verify_file_header():
+		if not self.__verify_file_header(self.ldt_filename):
 			return False
 
 		# verify base working directory
@@ -126,27 +127,23 @@ class cLDTImporter:
 		os.mkdir(self.work_dir, 0700)
 
 		# split into parts
-		part_list = self.__split_file()
-		if part_list is None:
+		file_list = self.__split_file(self.ldt_filename)
+		if file_list is None:
 			_log.Log(gmLog.lErr, 'cannot split LDT file [%s]' % self.ldt_filename)
 			return False
 
-		print part_list
-
-		for part in part_list:
-			if self.import_request_results(part):
-				# delete part file
-				# remove from part_list
+		# import request results
+		for request_file in file_list['data']:
+			if self.__import_request_result(request_file):
+				# remove from file_list
+				print "succeeded, removing request from import list"
 				pass
 			else:
-				_log.Log(gmLog.lErr, 'cannot import LDT request results from [%s]' % part)
+				_log.Log(gmLog.lErr, 'cannot import LDT request result from [%s]' % request_file)
 
 		# reassemble file if anything left
-		if len(part_list) > 0:
+		if len(file_list['data']) > 0:
 			pass
-
-#		self.bak_filename = tempfile.mktemp()
-#		self.bak_file = open(self.bak_filename, 'wb')
 
 		# clean up
 
@@ -154,14 +151,94 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------
-	def __verify_file_header(self):
+	def __import_request_result(self, filename):
+		request = self.__import_request_header(filename)
+		if request is False:
+			return False
+		return True
+	#-----------------------------------------------------------
+	def __import_request_header(self, filename):
+		header = {}
+		request = None
+		for line in fileinput.input(filename):
+			line_type = line[3:7]
+			line_data = line[7:-2]
+			# found header
+			if line_type == '8000':
+				if line_data not in ['8202']:
+					_log.Log(gmLog.lErr, "don't know how to handle [%s] results" % line_data)
+					fileinput.close()
+					return False
+				self.__result_type = line_data
+				continue
+			# or start of following record
+			elif line_type in ['8410']:
+				if request is None:
+					_log.Log(gmLog.lErr, 'no request header found !')
+					fileinput.close()
+					return False
+				# update request record from header dict
+				for field in header.keys():
+					request[field] = header[field]
+				request.save_payload()
+				fileinput.close()
+				return request
+			# or request ID
+			elif line_type == '8310':
+				# if it's an LG-Bericht we know we have a request id
+				if self.__result_type == '8202':
+					try:
+						request = gmPathLab.cLabRequest(req_id=line_data, lab=self.__lab_name)
+					except gmExceptions.ConstructorError:
+						_log.LogException('cannot get lab request', sys.exc_info(), verbose=0)
+						fileinput.close()
+						return False
+				else:
+					_log.Log(gmLog.lErr, "don't know how to handle [%s] results" % self.__result_type)
+					fileinput.close()
+					return False
+				continue
+			# or request status
+			elif line_type == '8401':
+				if line_data == 'E':
+					header['request_status'] = 'final'
+					header['is_pending'] = False
+				else:
+					# FIXME
+					raise ValueError, "FIXME"
+				continue
+			# or gender
+			elif line_type == '8407':
+				# FIXME: map and validate
+				self.__gender = line_data
+			# or other data
+			elif line_type == '8311':
+				header['lab_request_id'] = line_data
+				continue
+			elif line_type == '8301':
+				header['lab_rxd_when'] = line_data
+				continue
+			elif line_type == '8302':
+				header['results_reported_when'] = line_data
+				continue
+			elif line_type == '8405':
+				header['narrative'] = line_data
+				continue
+			elif line_type == '8100':
+				continue
+			else:
+				_log.Log(gmLog.lErr, "don't know how to import [%s] line" % line_type)
+				fileinput.close()
+				return False
+	#-----------------------------------------------------------
+	def __verify_file_header(self, filename):
 		"""Verify that header is suitable for import.
 
 		This does not verify whether the header is conforming
 		to the LDT specs but rather that it is fit for import.
 		"""
 		verified_lines = 0
-		for line in fileinput.input(self.ldt_filename):
+		for line in fileinput.input(filename):
 			line_type = line[3:7]
 			line_data = line[7:-2]
 			# found start of record following header
@@ -177,19 +254,19 @@ class cLDTImporter:
 				if verify_line(self, line, line_data):
 					verified_lines += 1
 				else:
-					_log.Log(gmLog.lErr, 'cannot handle LDT file [%s]' % self.ldt_filename)
+					_log.Log(gmLog.lErr, 'cannot handle LDT file [%s]' % filename)
 					fileinput.close()
 					return False
 
-		_log.Log(gmLog.lErr, 'LDT file [%s] contains nothing but a header' % self.ldt_filename)
+		_log.Log(gmLog.lErr, 'LDT file [%s] contains nothing but a header' % filename)
 		fileinput.close()
 		return False
 	#-----------------------------------------------------------
-	def __split_file(self):
+	def __split_file(self, filename):
 		tempfile.tempdir = self.work_dir
 		file_list = {}
 		file_list['data'] = []
-		for line in fileinput.input(self.ldt_filename):
+		for line in fileinput.input(filename):
 			line_type = line[3:7]
 			line_data = line[7:-2]
 			if line_type == '8000':
@@ -226,7 +303,7 @@ class cLDTImporter:
 			return False
 		if not status[0][0]:
 			_log.Log(gmLog.lErr, 'Unbekanntes Labor [%s]' % field_data)
-			reporter = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.1 $'
+			reporter = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.2 $'
 			problem = 'Labor [%s] unbekannt. Import von [%s] abgebrochen.' % (field_data, self.ldt_filename)
 			solution = 'Labor ergänzen oder vorhandenes Labor anpassen (test_org.internal_name).'
 			cmd = "insert into housekeeping_todo (reported_by, problem, solution) values (%s, %s, %s)"
@@ -309,6 +386,9 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.1  2004-04-13 14:24:07  ncq
+# Revision 1.2  2004-04-16 00:34:53  ncq
+# - now tries to import requests
+#
+# Revision 1.1  2004/04/13 14:24:07  ncq
 # - first version here
 #
