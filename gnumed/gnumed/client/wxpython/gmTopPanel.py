@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -10,6 +10,7 @@ if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
 import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient, gmPG
+_log = gmLog.gmDefLog
 
 from wxPython.wx import *
 
@@ -318,7 +319,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.9  2003-05-05 00:00:21  ncq
+# Revision 1.10  2003-05-05 00:21:00  ncq
+# - make work with encounter types translation
+#
+# Revision 1.9  2003/05/05 00:00:21  ncq
 # - do load encounter types again
 #
 # Revision 1.8  2003/05/04 23:33:56  ncq
