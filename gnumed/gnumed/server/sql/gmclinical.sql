@@ -1,13 +1,9 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.42 $
+-- $Revision: 1.43 $
 -- license: GPL
--- author: Ian Haywood, Horst Herb
-
--- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
+-- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -456,12 +452,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.42 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.43 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.42  2003-05-06 13:06:25  ncq
+-- Revision 1.43  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.42  2003/05/06 13:06:25  ncq
 -- - pkey_ -> pk_
 --
 -- Revision 1.41  2003/05/05 12:40:03  ncq

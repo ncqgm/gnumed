@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 
 -- part of GnuMed
 -- GPL
@@ -17,10 +17,6 @@
 -- insert into i18n_translations(lang, orig, trans) values('de_DE', 'my doc type', 'mein Dokumententyp');
 
 -- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
-
--- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -51,12 +47,15 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral repor
 --INSERT into _doc_type(name) values('Labor');
 
 -- do simple revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.9  2003-04-18 13:30:35  ncq
+-- Revision 1.10  2003-05-12 12:43:40  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.9  2003/04/18 13:30:35  ncq
 -- - add doc types
 -- - update comment on allergy.id_substance
 --

@@ -5,12 +5,9 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.13 2003-05-06 13:06:25 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.14 2003-05-12 12:43:39 ncq Exp $
 
 -- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
-
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -175,17 +172,19 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.13  2003-05-06 13:06:25  ncq
+-- Revision 1.14  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.13  2003/05/06 13:06:25  ncq
 -- - pkey_ -> pk_
 --
 -- Revision 1.12  2003/05/05 11:59:50  ncq

@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -232,12 +232,15 @@ GRANT select, insert, update, delete on
 to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.24 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.23  2003-02-04 12:22:53  ncq
+-- Revision 1.24  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.23  2003/02/04 12:22:53  ncq
 -- - valid until in create user cannot do a sub-query :-(
 -- - columns "owner" should really be of type "name" if defaulting to "CURRENT_USER"
 -- - new functions set_curr_lang(*)

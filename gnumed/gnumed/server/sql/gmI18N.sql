@@ -2,14 +2,11 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.12 2003-05-02 15:06:44 ncq Exp $
+-- $Id: gmI18N.sql,v 1.13 2003-05-12 12:43:39 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
--- Include this file at the top of your psql script schema definition files.
--- For your convenience, just copy/paste the following two lines:
--- do fixed string i18n()ing
---\i gmI18N.sql
+-- Import this script into any GnuMed database you create.
 
 -- This will allow for transparent translation of 'fixed'
 -- strings in the database. Simply switching the language in
@@ -17,7 +14,9 @@
 
 -- For details please see the Developer's Guide.
 -- =============================================
-\unset ON_ERROR_STOP
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+-- =============================================
 
 create table i18n_curr_lang (
 	id serial primary key,
@@ -151,9 +150,6 @@ comment on function set_curr_lang(text, name) is
 	 the second argument if translations are available';
 
 -- =============================================
-\set ON_ERROR_STOP 1
-
--- =============================================
 -- there's most likely no harm in granting select to all
 GRANT SELECT on
 	i18n_curr_lang,
@@ -170,12 +166,15 @@ TO group "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.12  2003-05-02 15:06:44  ncq
+-- Revision 1.13  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.12  2003/05/02 15:06:44  ncq
 -- - fix comment
 --
 -- Revision 1.11  2003/04/23 08:36:00  michaelb

@@ -1,29 +1,31 @@
 -- project: GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevision.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
 -- =============================================
--- include this file in your psql script schema definition files,
--- after that add the revision of your file into the revision table,
+-- import this file into any database you create and
+-- add the revision of your schema files into the revision table,
 -- this will allow for a simplistic manual database schema revision control,
 -- that may come in handy when debugging live production databases,
 
--- for your convenience, just copy/paste the following three lines:
+-- for your convenience, just copy/paste the following lines:
 -- (don't worry about the filename/revision that's in there, it will
---  automagically be replaced with the proper data by "cvs commit")
+--  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- \i gmSchemaRevision.sql
--- INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.9 $');
+-- INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
-\unset ON_ERROR_STOP
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+-- ---------------------------------------------
 create table gm_schema_revision(
 	filename VARCHAR(100),
 	version VARCHAR(30),
-	imported TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	imported timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
 	unique (filename, version)
 );
 
@@ -32,11 +34,13 @@ GRANT SELECT on
 	gm_schema_revision
 TO group "gm-public";
 
-\set ON_ERROR_STOP 1
-
 -- =============================================
 -- $Log: gmSchemaRevision.sql,v $
--- Revision 1.9  2003-01-20 09:15:30  ncq
+-- Revision 1.10  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.9  2003/01/20 09:15:30  ncq
 -- - unique (file, version)
 --
 -- Revision 1.8  2003/01/17 00:41:33  ncq

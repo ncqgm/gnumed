@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-gmclinical.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 
 -- part of GnuMed
 -- GPL
@@ -7,10 +7,6 @@
 
 -- various clinical enumerations translated into German
 -- run this _after_ gmclinical.sql !
--- =============================================
--- do fixed string i18n()ing
-\i ../../gmI18N.sql
-
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -121,12 +117,15 @@ insert into i18n_translations(lang, orig, trans) values
 
 -- =============================================
 -- do simple revision tracking
-\i ../../gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: german-gmclinical.sql,v $
--- Revision 1.5  2003-04-28 20:56:16  ncq
+-- Revision 1.6  2003-05-12 12:43:40  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.5  2003/04/28 20:56:16  ncq
 -- - unclash "allergy" in hx type and type of allergic reaction + translations
 -- - some useful indices
 --

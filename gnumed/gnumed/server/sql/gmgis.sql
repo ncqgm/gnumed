@@ -5,17 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.37 $
--- changelog:
--- 17.11.2001:  (hherb) first useable version
--- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
--- 04.03.2002:  (hherb) table state constraint added
--- 08.03.2002:  (ihaywood) rules for v_basic_address, address_info altered
--- 30.03.2002:  (hherb) view basic_address renamed to v_basic_address
---               bugfix in rule update_address
---               bugfix in rule insert_address
--- 31.03.2002:  rules for v_basic_address rewritten, using id now
---               and supporting external reference counting
+-- $Revision: 1.38 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -412,5 +402,22 @@ create table address_info (
 
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.37 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.38 $');
+
+-- =============================================
+-- $Log: gmgis.sql,v $
+-- Revision 1.38  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+--
+-- changelog:
+-- 17.11.2001:  (hherb) first useable version
+-- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
+-- 04.03.2002:  (hherb) table state constraint added
+-- 08.03.2002:  (ihaywood) rules for v_basic_address, address_info altered
+-- 30.03.2002:  (hherb) view basic_address renamed to v_basic_address
+--               bugfix in rule update_address
+--               bugfix in rule insert_address
+-- 31.03.2002:  rules for v_basic_address rewritten, using id now
+--               and supporting external reference counting

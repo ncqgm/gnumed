@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-chipcard.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- part of GnuMed
 -- license: GPL
@@ -7,10 +7,6 @@
 -- tables related to the German Krankenversichtenkarte KVK
 -- belongs into service personalia
 -- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
-
--- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -91,11 +87,14 @@ create table de_zuzahlungsbefreiung (
 
 -- =============================================
 -- do simple revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-chipcard.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-chipcard.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: german-chipcard.sql,v $
--- Revision 1.1  2003-02-03 16:16:51  ncq
+-- Revision 1.2  2003-05-12 12:43:40  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.1  2003/02/03 16:16:51  ncq
 -- - first shot at KVK tables
 --

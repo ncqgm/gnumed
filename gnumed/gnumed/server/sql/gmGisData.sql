@@ -6,9 +6,6 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmGisData.sql,v $
 -- $Id $
 -- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
-
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -253,12 +250,15 @@ COMMIT WORK;
 
 -- ===================================================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmGisData.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmGisData.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmGisData.sql,v $
--- Revision 1.3  2003-03-24 10:45:12  ncq
+-- Revision 1.4  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.3  2003/03/24 10:45:12  ncq
 -- - country codes moved to GisData
 -- - added constraint on table urb
 --

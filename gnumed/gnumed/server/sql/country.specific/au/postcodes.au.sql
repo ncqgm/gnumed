@@ -6,7 +6,6 @@ INSERT INTO state(id, code, country, name) VALUES (5, 'TAS', 'AU', 'Tasmania');
 INSERT INTO state(id, code, country, name) VALUES (6, 'QLD', 'AU', 'Queensland');
 INSERT INTO state(id, code, country, name) VALUES (7, 'VIC', 'AU', 'Victoria');
 INSERT INTO state(id, code, country, name) VALUES (8, 'WA', 'AU', 'West Australia');
-COMMIT WORK;
 BEGIN WORK;
 INSERT INTO urb(id_state, postcode, name) values (1, 0200, 'AUSTRALIAN NATIONAL UNIVERSITY');
 INSERT INTO urb(id_state, postcode, name) values (3, 0800, 'DARWIN');

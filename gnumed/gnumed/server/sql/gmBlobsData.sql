@@ -4,12 +4,9 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.2 $ $Date: 2003-04-18 13:30:35 $ $Author: ncq $
+-- $Revision: 1.3 $ $Date: 2003-05-12 12:43:39 $ $Author: ncq $
 
 -- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
-
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -39,12 +36,15 @@ INSERT into doc_type(id, name) values(20, i18n('referral report oncology'));
 
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.2  2003-04-18 13:30:35  ncq
+-- Revision 1.3  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.2  2003/04/18 13:30:35  ncq
 -- - add doc types
 -- - update comment on allergy.id_substance
 --

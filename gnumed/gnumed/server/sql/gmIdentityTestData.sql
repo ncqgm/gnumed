@@ -4,11 +4,8 @@
 -- identity related test data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmIdentityTestData.sql,v $
--- $Id: gmIdentityTestData.sql,v 1.1 2003-02-14 10:36:37 ncq Exp $
+-- $Id: gmIdentityTestData.sql,v 1.2 2003-05-12 12:43:39 ncq Exp $
 -- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
-
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -24,11 +21,14 @@ insert into v_basic_person (title, firstnames, lastnames, dob, cob, gender) valu
 
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmIdentityTestData.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmIdentityTestData.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmIdentityTestData.sql,v $
--- Revision 1.1  2003-02-14 10:36:37  ncq
+-- Revision 1.2  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.1  2003/02/14 10:36:37  ncq
 -- - break out default and test data into their own files, needed for dump/restore of dbs
 --

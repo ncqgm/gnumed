@@ -5,12 +5,9 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmIdentityViews.sql,v $
--- $Id: gmIdentityViews.sql,v 1.1 2003-04-18 13:17:38 ncq Exp $
+-- $Id: gmIdentityViews.sql,v 1.2 2003-05-12 12:43:39 ncq Exp $
 
 -- ===================================================================
--- do fixed string i18n()ing
-\i gmI18N.sql
-
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
@@ -72,11 +69,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmIdentityViews.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmIdentityViews.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmIdentityViews.sql,v $
--- Revision 1.1  2003-04-18 13:17:38  ncq
+-- Revision 1.2  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.1  2003/04/18 13:17:38  ncq
 -- - collect views for Identity DB here
 --

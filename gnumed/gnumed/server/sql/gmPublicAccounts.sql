@@ -10,11 +10,11 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPublicAccounts.sql,v $
--- $Id: gmPublicAccounts.sql,v 1.2 2003-04-29 12:35:39 ncq Exp $
+-- $Id: gmPublicAccounts.sql,v 1.3 2003-05-12 12:43:39 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
--- force terminate + exit(3) on errors if non-interactive
+-- don't fail if user already exists
 \unset ON_ERROR_STOP
 
 -- Someone know a way of telling VALID UNTIL that the
@@ -32,14 +32,15 @@ CREATE USER "_any-doc"
 
 -- ===================================================
 -- do simple schema revision tracking
---\i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.2 $');
-
-\set ON_ERROR_STOP 1
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================
 -- $Log: gmPublicAccounts.sql,v $
--- Revision 1.2  2003-04-29 12:35:39  ncq
+-- Revision 1.3  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.2  2003/04/29 12:35:39  ncq
 -- - uncomment schema revision insertion
 --
 -- Revision 1.1  2003/04/01 13:03:55  ncq

@@ -1,15 +1,9 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.8 2003-05-05 12:44:33 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.9 2003-05-12 12:43:39 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
-
--- ===================================================================
--- This database is internationalised!
-
--- do fixed string i18n()ing
-\i gmI18N.sql
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -128,12 +122,15 @@ insert into enum_immunities (name) values ('tetanus');
 
 -- ===================================================================
 -- do simple schema revision tracking
-\i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.8  2003-05-05 12:44:33  ncq
+-- Revision 1.9  2003-05-12 12:43:39  ncq
+-- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
+--   database level now, don't include them in individual schema file anymore
+--
+-- Revision 1.8  2003/05/05 12:44:33  ncq
 -- - table databases does not exist anymore
 --
 -- Revision 1.7  2003/05/04 23:59:35  ncq
