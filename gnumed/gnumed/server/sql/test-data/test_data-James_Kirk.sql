@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -193,12 +193,12 @@ insert into clin_diag (
 );
 
 -- codes
-insert into lnk_code2diag (
-	fk_diag,
+insert into lnk_code2narr (
+	fk_narrative,
 	code,
 	xfk_coding_system
 ) values (
-	currval('clin_diag_pk_seq'),
+	currval('clin_narrative_pk_seq'),
 	'T11.1',
 	'ICD-10-GM 2004'
 );
@@ -435,22 +435,22 @@ insert into clin_diag (
 );
 
 -- codes
-insert into lnk_code2diag (
-	fk_diag,
+insert into lnk_code2narr (
+	fk_narrative,
 	code,
 	xfk_coding_system
 ) values (
-	currval('clin_diag_pk_seq'),
+	currval('clin_narrative_pk_seq'),
 	'T79.3',
 	'ICD-10-GM 2004'
 );
 
-insert into lnk_code2diag (
-	fk_diag,
+insert into lnk_code2narr (
+	fk_narrative,
 	code,
 	xfk_coding_system
 ) values (
-	currval('clin_diag_pk_seq'),
+	currval('clin_narrative_pk_seq'),
 	'B97.8!',
 	'ICD-10-GM 2004'
 );
@@ -560,11 +560,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.29  2004-07-02 15:00:10  ncq
+-- Revision 1.30  2004-07-12 17:24:02  ncq
+-- - code diagnoses with new structure now
+--
+-- Revision 1.29  2004/07/02 15:00:10  ncq
 -- - bring rfe/aoe/diag/coded_diag tables/views up to snuff and use them
 --
 -- Revision 1.28  2004/07/02 00:28:54  ncq
