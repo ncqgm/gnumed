@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -52,8 +52,6 @@ class indexFrame(wxFrame):
 		self.repository = os.path.expanduser(__cfg__.get("repositories", "to_index"))
 		# name of document description XML file
 		self.desc_file_name = __cfg__.get("metadata", "description")
-		# checkpoint file whether indexing can start
-		self.can_index_file = __cfg__.get("metadata", "can_index")
 
 		# items for phraseWheel
 		if not self._init_phrase_wheel():
@@ -122,7 +120,7 @@ class indexFrame(wxFrame):
 			parent = self.PNL_main,
 			pos = wxPoint(48, 288),
 			size = wxSize(182, 94),
-			style = 0,
+			style = wxLB_SORT,
 			validator = wxDefaultValidator
 		)
 		self.LBOX_doc_pages.SetToolTipString(_('these pages make up the current document'))
@@ -157,7 +155,7 @@ class indexFrame(wxFrame):
 			style = wxTE_READONLY,
 			value = 'loading ...'
 		)
-		self.TBOX_first_name.SetToolTipString(_('not editable, loaded from file'))
+		self.TBOX_last_name.SetToolTipString(_('not editable, loaded from file'))
 		self.TBOX_last_name.SetBackgroundColour(wxColour(255, 255, 255))
 
 		#-- dob text box -------------
@@ -183,6 +181,7 @@ class indexFrame(wxFrame):
 			style = 0,
 			value = _('please fill in')
 		)
+		self.TBOX_doc_date.SetToolTipString(_('date of creation of the document content\nformat: YYYY-MM-DD'))
 
 		#-- short document comment text box -------------
 		self.TBOX_desc_short = wxTextCtrl(
@@ -194,6 +193,7 @@ class indexFrame(wxFrame):
 			style = 0,
 			value = _('please fill in')
 		)
+		self.TBOX_desc_short.SetToolTipString(_('a short comment on the document content'))
 
 		#-- document type selection box -------------
 		self.SelBOX_doc_type = wxComboBox(
@@ -208,6 +208,18 @@ class indexFrame(wxFrame):
 			value = _('choose document type')
 		)
 		self.SelBOX_doc_type.SetLabel('')
+		self.SelBOX_doc_type.SetToolTipString(_('Document types are determined by the database.\nAsk your database administrator to add more types if needed.'))
+
+		#-- long document comment text box -------------
+		self.TBOX_desc_long = wxTextCtrl(
+			id = wxID_INDEXFRAMEADDITIONCOMMENTBOX,
+			name = 'TBOX_desc_long',
+			parent = self.PNL_main,
+			pos = wxPoint(48, 488),
+			size = wxSize(640, 88),
+			style = wxTE_MULTILINE,
+			value = '')
+		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
 
 		#-- save data button -------------
 		self.BTN_save_data = wxButton(
@@ -222,30 +234,43 @@ class indexFrame(wxFrame):
 		self.BTN_save_data.SetToolTipString(_('save entered metadata with document'))
 		EVT_BUTTON(self.BTN_save_data, wxID_INDEXFRAMESAVEBUTTON, self.on_save_data)
 
-		#-- long document comment text box -------------
-		self.TBOX_desc_long = wxTextCtrl(
-			id = wxID_INDEXFRAMEADDITIONCOMMENTBOX,
-			name = 'TBOX_desc_long',
+		self.staticText1 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT1,
+			label = _('1) select'),
+			name = 'staticText1',
 			parent = self.PNL_main,
-			pos = wxPoint(48, 488),
-			size = wxSize(640, 88),
-			style = wxTE_MULTILINE,
-			value = '')
-		self.TBOX_desc_long.SetToolTipString(_('a summary or longer comment for this document'))
-
-		self.staticText1 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT1, label = '1.', name = 'staticText1', parent = self.PNL_main, pos = wxPoint(48, 56), size = wxSize(19, 29), style = 0)
+			pos = wxPoint(48, 56),
+			size = wxSize(19, 29),
+			style = 0
+		)
 		self.staticText1.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText2 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT2, label = '2.', name = 'staticText2', parent = self.PNL_main, pos = wxPoint(312, 56), size = wxSize(19, 29), style = 0)
+		self.staticText2 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT2,
+			label = _('2) describe'),
+			name = 'staticText2',
+			parent = self.PNL_main,
+			pos = wxPoint(312, 56),
+			size = wxSize(19, 29),
+			style = 0
+		)
 		self.staticText2.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText3 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT3, label = '3.', name = 'staticText3', parent = self.PNL_main, pos = wxPoint(560, 56), size = wxSize(19, 29), style = 0)
+		self.staticText3 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT3,
+			label = _('3) save'),
+			name = 'staticText3',
+			parent = self.PNL_main,
+			pos = wxPoint(560, 56),
+			size = wxSize(19, 29),
+			style = 0
+		)
 		self.staticText3.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
 		self.staticText4 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT4, label = _('or'), name = 'staticText4', parent = self.PNL_main, pos = wxPoint(48, 192), size = wxSize(49, 29), style = 0)
 		self.staticText4.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.staticText5 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT5, label = _('document date (YYYY-MM-DD)'), name = 'staticText5', parent = self.PNL_main, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
+		self.staticText5 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT5, label = _('date (YYYY-MM-DD)'), name = 'staticText5', parent = self.PNL_main, pos = wxPoint(304, 288), size = wxSize(158, 16), style = 0)
 
 		self.staticText6 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT6, label = _('date of birth'), name = 'staticText6', parent = self.PNL_main, pos = wxPoint(304, 208), size = wxSize(152, 16), style = 0)
 
@@ -269,9 +294,25 @@ class indexFrame(wxFrame):
 			style = 0
 		)
 
-		self.staticText9 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT9, label = _('firstname'), name = 'staticText9', parent = self.PNL_main, pos = wxPoint(304, 96), size = wxSize(152, 16), style = 0)
+		self.staticText9 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT9,
+			label = _('first name'),
+			name = 'staticText9',
+			parent = self.PNL_main,
+			pos = wxPoint(304, 96),
+			size = wxSize(152, 16),
+			style = 0
+		)
 
-		self.staticText10 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT10, label = _('lastname'), name = 'staticText10', parent = self.PNL_main, pos = wxPoint(304, 144), size = wxSize(152, 16), style = 0)
+		self.staticText10 = wxStaticText(
+			id = wxID_INDEXFRAMESTATICTEXT10,
+			label = _('last name'),
+			name = 'staticText10',
+			parent = self.PNL_main,
+			pos = wxPoint(304, 144),
+			size = wxSize(152, 16),
+			style = 0
+		)
 
 		self.staticText11 = wxStaticText(id = wxID_INDEXFRAMESTATICTEXT11, label = _('short comment'), name = 'staticText11', parent = self.PNL_main, pos = wxPoint(304, 352), size = wxSize(152, 16), style = 0)
 
@@ -317,10 +358,8 @@ class indexFrame(wxFrame):
 				_log.Log(gmLog.lData, "ignoring stray file [%s]" % doc_dirs[i])
 				continue
 
-			# DON'T fail on missing checkpoint files here yet
-			# in order to facilitate maximum parallelity
-			if not os.path.exists(os.path.join(full_dir, self.can_index_file)):
-				_log.Log(gmLog.lInfo, "Document directory [%s] not yet checkpointed with [%s] for indexing. Skipping." % (full_dir, self.can_index_file))
+			if not self.__could_be_locked(full_dir):
+				_log.Log(gmLog.lInfo, "Document directory [%s] not yet checkpointed for indexing. Skipping." % full_dir)
 				continue
 
 			# same weight for all of them
@@ -361,6 +400,23 @@ class indexFrame(wxFrame):
 	#----------------------------------------
 	def on_get_pages(self, event):
 		_log.Log(gmLog.lData, "Trying to load document.")
+
+		full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
+
+		# lock this directory now
+		if not self.__lock_for_indexing(full_dir):
+			_log.Log(gmLog.lErr, "Cannot lock directory [%s] for indexing." % full_dir)
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot lock document directory for indexing.\n(%s)\n\nPlease consult the error log for details.' % full_dir),
+				_('Error'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		# actually try loading pages
 		if not self.__load_doc():
 			_log.Log(gmLog.lErr, "Cannot load document object file list.")
 			dlg = wxMessageDialog(
@@ -381,32 +437,15 @@ class indexFrame(wxFrame):
 		event.Skip()
 
 		if not self.__valid_input():
-			_log.Log(gmLog.lErr, 'Cannot save collected metadata. It is not fully valid.')
-			dlg = wxMessageDialog(
-				self,
-				_('The data you entered about the current document\nis not complete. Please enter the missing information.'),
-			 	_('Error'),
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 		else:
 			self.__dump_metadata_to_xml()
-
-
-			# copy XDT-file ( not the XML-file ) into self.repository directory
-			pat_file = __cfg__.get("metadata", "patient")
-			shutil.copy(os.path.expanduser(os.path.join(__cfg__.get("metadata", "location"), pat_file)),__cfg__.get("source", "repositories") + self.BefValue + '/')
-			# generate a file to tell import script that we are done here
-			out_file = open(__cfg__.get("source", "repositories") + self.BefValue + '/' + self.can_index_file,"w")
-
-			#refresh everything
+			full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
+			self.__unlock_for_import(full_dir)
 			self.__clear_doc_fields()
-			# empty doc_id_wheel as well
 			self.doc_id_wheel.Clear()
-			# items for phraseWheel
-			self.initgmPhraseWheel()
+			# FIXME: this needs to be reloaded !
+			#self.initgmPhraseWheel()
 
 	#---------------------------------------------------------------------------
 	def wheel_callback (self, data):
@@ -515,7 +554,7 @@ class indexFrame(wxFrame):
 		for page_num, fname in pageLst.items():
 			self.LBOX_doc_pages.Append(_('page %s (%s)') % (page_num, fname['file name']), {'number': page_num, 'file': fname})
 	#----------------------------------------
-	def __dump_metadata_to_xml():
+	def __dump_metadata_to_xml(self):
 
 		# make sure to get the first line only :-)
 		curr_doc_dir = self.doc_id_wheel.GetLineText(0)
@@ -526,34 +565,35 @@ class indexFrame(wxFrame):
 		content.append('<%s>\n' % tag)
 
 		tag = __cfg__.get("metadata", "name_tag")
-		content.append('<%s>%s</%s>\n' (tag, self.myPatient.lastnames, tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.lastnames, tag))
 
 		tag = __cfg__.get("metadata", "firstname_tag")
-		content.append('<%s>%s</%s>\n' (tag, self.myPatient.firstnames, tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.firstnames, tag))
 
 		tag = __cfg__.get("metadata", "birth_tag")
-		content.append('<%s>%s</%s>\n' (tag, self.myPatient.dob, tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.dob, tag))
 
 		tag = __cfg__.get("metadata", "date_tag")
-		content.append('<%s>%s</%s>\n' (tag, self.TBOX_doc_date.GetLineText(0), tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_doc_date.GetLineText(0), tag))
 
 		tag = __cfg__.get("metadata", "type_tag")
-		content.append('<%s>%s</%s>\n' (tag, self.SelBOX_doc_type.GetStringSelection(), tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.SelBOX_doc_type.GetStringSelection(), tag))
 
 		tag = __cfg__.get("metadata", "comment_tag")
-		content.append('<%s>%s</%s>\n' (tag, self.TBOX_desc_short.GetLineText(0), tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_desc_short.GetLineText(0), tag))
 
 		tag = __cfg__.get("metadata", "aux_comment_tag")
-		content.append('<%s>%s</%s>\n' (tag, self.TBOX_desc_long.GetValue(), tag))
+		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_desc_long.GetValue(), tag))
 
 		tag = __cfg__.get("metadata", "ref_tag")
-		content.append('<%s>%s</%s>\n' (tag, curr_doc_dir, tag))
+		content.append('<%s>%s</%s>\n' % (tag, curr_doc_dir, tag))
 
 		# FIXME: take reordering into account
 		tag = __cfg__.get("metadata", "obj_tag")
-		pageLst = self.myDoc.getMetaData()['objects']
-		for page_num, fname in pageLst.items():
-			content.append('<%s>%s</%s>\n' (tag, fname, tag))
+		objLst = self.myDoc.getMetaData()['objects']
+		for object in objLst.values():
+			dirname, fname = os.path.split(object['file name'])
+			content.append('<%s>%s</%s>\n' % (tag, fname, tag))
 
 		content.append('</%s>\n' % __cfg__.get("metadata", "document_tag"))
 
@@ -594,23 +634,112 @@ class indexFrame(wxFrame):
 		elif int(datechecklist[2]) not in range(1, 32):
 			msg = _('document date: day must be 1 to 31')
 		elif shortDescription == _('please fill in') or shortDescription == '':
-			msg = _('You must type a short document comment.')
+			msg = _('You must type in a short document comment.')
 		elif docType == -1 or docType == 'please choose':
 			msg = _('You must select a document type.')
 		else:
 			return 1
 
-		dlg = wxMessageDialog(self, msg, _('data input error'), wxOK | wxICON_ERROR)
+		_log.Log(gmLog.lErr, 'Cannot save collected metadata. It is not fully valid.')
+		_log.Log(gmLog.lData, msg)
+
+		dlg = wxMessageDialog(
+			self,
+			_('The data you entered about the current document\nis not complete. Please enter the missing information.\n\n%s' % msg),
+			_('data input error'),
+			wxOK | wxICON_ERROR
+		)
 		dlg.ShowModal()
 		dlg.Destroy()
 
 		return 0
 	#----------------------------------------
+	def __unlock_for_import(self, aDir):
+		"""three-stage locking"""
+
+		indexing_file = os.path.join(aDir, __cfg__.get("metadata", "now_indexing"))
+		can_index_file = os.path.join(aDir, __cfg__.get("metadata", "can_index"))
+		can_import_file = os.path.join(aDir, __cfg__.get("metadata", "can_import"))
+
+		# 1) set ready-for-import checkpoint
+		try:
+			tag_file = open(can_import_file, "w")
+			tag_file.close()
+		except IOError:
+			exc = sys.exc_info()
+			_log.LogException('Cannot write import checkpoint file [%s]. Leaving locked for indexing.' % can_import_file, exc, fatal=0)
+			return None
+
+		# 2) remove ready-for-indexing checkpoint
+		os.remove(can_index_file)
+
+		# 3) remove indexing lock
+		os.remove(indexing_file)
+
+		return 1
+	#----------------------------------------
+	def __could_be_locked(self, aDir):
+		"""check whether we _could_ acquire the lock for indexing
+
+		i.e., whether we should worry about this directory at all
+		"""
+		indexing_file = os.path.join(aDir, __cfg__.get("metadata", "now_indexing"))
+		can_index_file = os.path.join(aDir, __cfg__.get("metadata", "can_index"))
+
+		# 1) anyone indexing already ?
+		if os.path.exists(indexing_file):
+			_log.Log(gmLog.lInfo, 'Someone seems to be indexing this directory already. Indexing lock [%s] exists.' % indexing_file)
+			return None
+
+		# 2) check for ready-for-indexing checkpoint
+		if not os.path.exists(can_index_file):
+			# unlock again
+			_log.Log(gmLog.lInfo, 'Not ready for indexing yet. Checkpoint [%s] does not exist.' % can_index_file)
+			return None
+
+		return 1
+	#----------------------------------------
+	def __lock_for_indexing(self, aDir):
+		"""three-stage locking
+
+		- there still is the possibility for a race between
+		  1) and 2) by two clients attempting to start indexing
+		  at the same time
+		"""
+		indexing_file = os.path.join(aDir, __cfg__.get("metadata", "now_indexing"))
+		can_index_file = os.path.join(aDir, __cfg__.get("metadata", "can_index"))
+
+		# 1) anyone indexing already ?
+		if os.path.exists(indexing_file):
+			_log.Log(gmLog.lInfo, 'Someone seems to be indexing this directory already. Indexing lock [%s] exists.' % indexing_file)
+			return None
+
+		# 2) lock for indexing by us
+		try:
+			tag_file = open(indexing_file, 'w')
+			tag_file.close()
+		except IOError:
+			# this shouldn't happen
+			exc = sys.exc_info()
+			_log.LogException('Exception: Cannot acquire indexing lock [%s].' % indexing_file, exc, fatal = 0)
+			return None
+
+		# 3) check for ready-for-indexing checkpoint
+		# this should not happen, really, since we check on _init_phrasewheel() already
+		if not os.path.exists(can_index_file):
+			# unlock again
+			_log.Log(gmLog.lInfo, 'Not ready for indexing yet. Releasing indexing lock [%s] again.' % indexing_file)
+			os.remove(indexing_file)
+			return None
+
+		return 1
+	#----------------------------------------
+	#----------------------------------------
 	def OnShowpicbuttonButton(self, event):
-		self.BefValue=self.doc_id_wheel.GetLineText(0)
-		current_selection=self.LBOX_doc_pages.GetSelection()
+		self.BefValue = self.doc_id_wheel.GetLineText(0)
+		current_selection = self.LBOX_doc_pages.GetSelection()
 		if not current_selection == -1:
-			pic_selection=current_selection+1
+			pic_selection = current_selection+1
 			self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
 			#for debugging only
 			print "I show u:" + self.selected_pic
@@ -667,7 +796,6 @@ class indexFrame(wxFrame):
 					self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_INDEXFRAMELBOXPAGES, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(48, 288), size = wxSize(182, 94), style = 0, validator = wxDefaultValidator)
 				self.UpdatePicList()
 
-
 #======================================================
 class IndexerApp(wxApp):
 	def OnInit(self):
@@ -685,111 +813,17 @@ def main():
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
-	main()
+	try:
+		main()
+	except:
+		exc = sys.exc_info()
+		_log.LogException('Unhandled exception.', exc, fatal=1)
+		# remove pending indexing locks
+		raise
 
+#======================================================
 # this line is a replacement for gmPhraseWhell just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
-
-#				try:
-#					#read self.desc_file_name
-#					desc_filee = 
-#					xml_content = desc_filee.read()
-#					desc_filee.close()
-#
-#					xml_contentlist = string.split(xml_content,'\n')
-#					runs=len(xml_contentlist)
-#					x=0
-#					while x < runs:
-#						value = xml_contentlist[x]
-#						_log.Log (gmLog.lInfo, "teste " + value)
-#						try :
-#							# find all occurences of <image>
-#							string.index(value,'<image>')
-#							stripped_value = value[7:-8]
-#							# append occurence to list in gui
-#							if os.name == 'posix':
-#								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.jpg',''))
-#							else:
-#								self.LBOX_doc_pages.Append(string.replace(stripped_value,'.bmp',''))
-#							self.doc_pages.append(stripped_value)
-#							_log.Log (gmLog.lInfo, "added" + stripped_value + "to GUI-list")
-#							# increase and start over with next line
-#							x=x+1
-#						except ValueError:
-#							x=x+1
-#					x=0
-#					while x < runs:
-#						value = xml_contentlist[x]
-#						_log.Log (gmLog.lInfo, "once again" + value)
-#						try :
-#							# find all occurences of <ref_tag>
-#							string.index(value,'<'+__cfg__.get("metadata", "ref_tag")+'>')
-#							_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "ref_tag"))
-#							self.Obj_Referenz_value = value[int(len(__cfg__.get("metadata", "ref_tag")))+2:-(int(len(__cfg__.get("metadata", "ref_tag")))+3)]
-#							x=x+1
-#						except ValueError:
-#							x=x+1
-#
-#					# has there been a prior index session with this data ?
-#					if os.path.isfile(__cfg__.get("source", "repositories") + curr_doc_id + '/' + self.can_index_file):
-#						x=0
-#						while x < runs:
-#							value = xml_contentlist[x]
-#							_log.Log (gmLog.lInfo, "once again" + value)
-#							try :
-#								# find all occurences of <date_tag>
-#								string.index(value,'<'+__cfg__.get("metadata", "date_tag")+'>')
-#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "date_tag"))
-#								self.Obj_Datum_value = value[int(len(__cfg__.get("metadata", "date_tag")))+2:-(int(len(__cfg__.get("metadata", "date_tag")))+3)]
-#								x=x+1
-#							except ValueError:
-#								x=x+1
-#						x=0
-#						while x < runs:
-#							value = xml_contentlist[x]
-#							_log.Log (gmLog.lInfo, "test again" + value)
-#							try :
-#								# find all occurences of <type_tag>
-#								string.index(value,'<'+__cfg__.get("metadata", "type_tag")+'>')
-#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "type_tag"))
-#								self.Obj_Typ_value = value[int(len(__cfg__.get("metadata", "type_tag")))+2:-(int(len(__cfg__.get("metadata", "type_tag")))+3)]
-#								x=x+1
-#							except ValueError:
-#								x=x+1
-#						x=0
-#						while x < runs:
-#							value = xml_contentlist[x]
-#							_log.Log (gmLog.lInfo, "test again" + value)
-#							try :
-#								# find all occurences of <comment_tag>
-#								string.index(value,'<'+__cfg__.get("metadata", "comment_tag")+'>')
-#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "comment_tag"))
-#								self.Obj_Name_value = value[int(len(__cfg__.get("metadata", "comment_tag")))+2:-(int(len(__cfg__.get("metadata", "comment_tag")))+3)]
-#								x=x+1
-#							except ValueError:
-#								x=x+1
-#						x=0
-#						while x < runs:
-#							value = xml_contentlist[x]
-#							_log.Log (gmLog.lInfo, "test again" + value)
-#							try :
-#							   # find all occurences of <add_comment_tag>
-#								string.index(value,'<'+__cfg__.get("metadata", "add_comment_tag")+'>')
-#								_log.Log (gmLog.lInfo, "tested" + value + "for string : " + __cfg__.get("metadata", "add_comment_tag"))
-#								self.Obj_Beschreibung_value = value[int(len(__cfg__.get("metadata", "add_comment_tag")))+2:-(int(len(__cfg__.get("metadata", "add_comment_tag")))+3)]
-#								x=x+1
-#							except ValueError:
-#								x=x+1
-#					else :
-#						return
-#					
-#			else:
-#				dlg = wxMessageDialog(self, _('Could not fine any documents relating to this document#'),_('Attention'), wxOK | wxICON_INFORMATION)
-#				try:
-#					dlg.ShowModal()
-#				finally:
-#					dlg.Destroy()
-
 
 	#----------------------------------------
 #	def UpdatePicList(self):
@@ -802,15 +836,3 @@ if __name__ == '__main__':
 #			biggest_number= int(biggest_number_strg) + 1
 #			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
 #			self.doc_pages.append(_('page') + `biggest_number`)
-	#--------------------------------
-#	def updateGUIonLoadRecords(self):
-#		self.TBOX_dob.AppendText(self.Geburtsdatum)
-#		#if not self.Obj_Datum_value == _('please fill in'):
-#		self.TBOX_doc_date.AppendText(self.Obj_Datum_value)
-#		#if not self.Obj_Name_value == _('please fill in'):
-#		self.TBOX_desc_short.AppendText(self.Obj_Name_value)
-#		#if not self.Obj_Typ_value =='':
-#		index = self.SelBOX_doc_type.FindString(self.Obj_Typ_value)
-#		self.SelBOX_doc_type.SetSelection(index)
-#		#if not self.Obj_Beschreibung_value =='':
-#		self.TBOX_desc_long.AppendText(self.Obj_Beschreibung_value)
