@@ -108,8 +108,8 @@ class SQLSimpleSearch(wxPanel):
 
 	def OnSearchResultItemActivated(self, event):
 		print "def OnSearchResultItemActivated(self, event):"
-		event.Skip()
 		#self.selected = event.m_ItemIndex
+		event.Skip()
 
 	def OnSearchResultItemDeselected(self, event):
 		print "def OnSearchResultItemDeselected(self, event):"
@@ -118,6 +118,7 @@ class SQLSimpleSearch(wxPanel):
 	def OnSearchResultItemSelected(self, event):
 		print "def OnSearchResultItemSelected(self, event):"
 		self.ProcessSelection(event.m_itemIndex)
+		event.Skip()
 
 
 

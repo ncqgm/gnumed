@@ -59,7 +59,11 @@ class PersonNotebook(wxPanel):
 
 	def RegisterEvents(self):
 		EVT_BUTTON(self, gmSelectPerson.ID_BUTTON_SELECT, self.OnPersonSelected)
-		EVT_LIST_ITEM_SELECTED(self, gmSQLSimpleSearch.ID_LISTCTRL, self.OnPersonSelected)
+		EVT_LIST_ITEM_ACTIVATED(self, gmSQLSimpleSearch.ID_LISTCTRL, self.OnPersonSelected)
+		EVT_BUTTON(self, gmSelectPerson.ID_BUTTON_EDIT, self.OnPersonEdit)
+
+	def OnPersonEdit( self, evt):
+		self.__nb.SetSelection(1)
 
 	def OnPersonSelected(self, evt):
 		personId = self.SearchPersonDlg.GetSelectedPersonId()
