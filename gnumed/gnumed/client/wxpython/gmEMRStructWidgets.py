@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.2 2005-01-31 18:51:08 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmEMRStructWidgets.py,v 1.3 2005-03-14 14:36:31 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -147,16 +147,10 @@ class cEpisodePicker(wx.wxPanel):
 		self.__STT_description = wx.wxStaticText(self, -1, _('Description'))
 		# FIXME: configure, attach matcher (Karsten)
 		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-		self.__STT_soap_cat = wx.wxStaticText(self, -1, _('Category'))
-		soap_choices = [_('--Select category--')]
-		soap_choices.extend(gmSOAPimporter.soap_bundle_SOAP_CATS)
-		self.__CHC_soap_cat = wx.wxChoice(self, -1, choices=soap_choices)
 		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
 		szr_input.AddGrowableCol(1)
 		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
 		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
-		szr_input.Add(self.__STT_soap_cat, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
-		szr_input.Add(self.__CHC_soap_cat, 0, wx.wxSHAPED)
 
 		# - buttons
 		self.__BTN_add = wx.wxButton(self, -1, action_txt)
@@ -275,23 +269,18 @@ class cEpisodePicker(wx.wxPanel):
 		Add a new episode to backend and return OK
 		"""
 		description = self.__PRW_description.GetValue()
-		soap_cat = self.__CHC_soap_cat.GetStringSelection()
 
-		if (description is None or description.strip() == '' or
-			self.__CHC_soap_cat.GetSelection() == 0):
+		if (description is None or description.strip() == ''):
 			msg = _('Cannot create episode.\nAll required fields must be filled.')
 			gmGuiHelpers.gm_show_error(msg, _('episode picker'), gmLog.lErr)
-			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s:%s]' % (description, soap_cat))
+			_log.Log(gmLog.lErr, 'invalid description [%s]' % description)
 			return False
-		
-		print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(), self.__CHC_soap_cat.GetStringSelection())		
-		# FIXME 
+
+		print 'Creating episode: %s' % self.__PRW_description.GetValue()
 		self.__selected_episode = self.__pat.get_clinical_record().add_episode (
 			episode_name = self.__PRW_description.GetValue(),
-			pk_health_issue = self.__pk_health_issue,
-			soap_cat = self.__CHC_soap_cat.GetStringSelection()
+			pk_health_issue = self.__pk_health_issue
 		)
-#		self.__selected_episode = 'FIXME: create new episode'
 		print self.__selected_episode
 		self.GetParent().EndModal(dialog_OK)
 		event.Skip()
@@ -404,17 +393,11 @@ class cEpisodeEditor(wx.wxPanel):
 		self.__STT_description = wx.wxStaticText(self, -1, _('Description'))
 		# FIXME: configure, attach matcher (Karsten)
 		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-		self.__STT_soap_cat = wx.wxStaticText(self, -1, _('Category'))
-		soap_choices = [_('--Select category--')]
-		soap_choices.extend(gmSOAPimporter.soap_bundle_SOAP_CATS)
-		self.__CHC_soap_cat = wx.wxChoice(self, -1, choices=soap_choices)
 		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
 		szr_input.AddGrowableCol(1)
 		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
 		# FIXME: avoid phrasewheel to grow vertically
 		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
-		szr_input.Add(self.__STT_soap_cat, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
-		szr_input.Add(self.__CHC_soap_cat, 0, wx.wxSHAPED)
 
 		# - buttons		
 		self.__BTN_add = wx.wxButton(self, -1, _('Add episode'))
@@ -480,9 +463,7 @@ class cEpisodeEditor(wx.wxPanel):
 			self.__LST_episodes.InsertStringItem(idx,  str(epi['episode_modified_when']))
 #			self.__LST_episodes.SetStringItem(idx, 0, str(epi['episode_modified_when']))
 			self.__LST_episodes.SetStringItem(idx, 1, epi['description'])
-#			self.__LST_episodes.SetStringItem(idx, 2, epi['soap_cat'])
 			self.__LST_episodes.SetStringItem(idx, 2, str(epi['episode_open']))
-#			self.__LST_episodes.SetStringItem(idx, 3, str(epi['episode_open']))
 			self.__episodes[idx] = epi
 			self.__LST_episodes.SetItemData(idx, idx)
 
@@ -520,7 +501,6 @@ class cEpisodeEditor(wx.wxPanel):
 		self.__selected_episode = self.__episodes[sel_idx]
 		print 'Selected episode: ', self.__selected_episode
 		self.__PRW_description.SetValue(self.__selected_episode['description'])
-		self.__CHC_soap_cat.SetStringSelection(self.__selected_episode['soap_cat'])
 		self.__BTN_add.SetLabel(_('Update'))
 		self.__BTN_clear.SetLabel(_('Cancel'))
 		event.Skip()
@@ -533,7 +513,6 @@ class cEpisodeEditor(wx.wxPanel):
 		buttons for a new episode.
 		"""
 		self.__PRW_description.Clear()
-		self.__CHC_soap_cat.SetSelection(0)
 		if not self.__selected_episode is None:
 			# on episode edition
 			self.__BTN_add.SetLabel(_('Add episode'))
@@ -549,30 +528,26 @@ class cEpisodeEditor(wx.wxPanel):
 		restore buttons for a new episode, refresh list
 		"""
 		description = self.__PRW_description.GetValue()
-		soap_cat = self.__CHC_soap_cat.GetStringSelection()
 
 		# sanity check
 		if self.__selected_episode is None:
 			action = 'create'
 		else:
 			action = 'update'
-		if (description is None or
-		 description.strip() == '' or
-		 self.__CHC_soap_cat.GetSelection() == 0):
+		if (description is None or description.strip() == ''):
 			msg = _('Cannot %s episode.\nAll required fields must be filled.') % action
 			gmGuiHelpers.gm_show_error(msg, _('episode editor'), gmLog.lErr)
-			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s:%s]' % (description, soap_cat))
+			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s]' % description)
 			return False
 
 		if self.__selected_episode is None:
 			# on new episode
-			#self.__pat.get_clinical_record().add_episode(episode_name= , pk_health_issue=self.__pk_health_issue, soap_cat= self.__CHC_soap_cat.GetStringSelection())
-			print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(),self.__CHC_soap_cat.GetStringSelection())
+			#self.__pat.get_clinical_record().add_episode(episode_name= , pk_health_issue=self.__pk_health_issue)
+			print 'Creating episode: %s' % self.__PRW_description.GetValue()
 			# FIXME 
 			self.__selected_episode = self.__pat.get_clinical_record().add_episode (
 				episode_name = self.__PRW_description.GetValue(),
-				pk_health_issue = self.__pk_health_issue,
-				soap_cat = self.__CHC_soap_cat.GetStringSelection()
+				pk_health_issue = self.__pk_health_issue
 			)			
 		else:
 			# on episode edition
@@ -732,7 +707,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.2  2005-01-31 18:51:08  ncq
+# Revision 1.3  2005-03-14 14:36:31  ncq
+# - use simplified episode naming
+#
+# Revision 1.2  2005/01/31 18:51:08  ncq
 # - caching emr = patient.get_clinical_record() locally is unsafe
 #   because patient can change but emr will stay the same (it's a
 #   local "pointer", after all, and not a singleton)
