@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.4 2003-11-17 10:56:36 sjtan Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmMatchProvider.py,v 1.5 2003-11-19 22:22:20 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -278,6 +278,9 @@ class cMatchProvider_FixedList(cMatchProvider):
 
 		matches.sort(self.__cmp_items)
 		return (_true, matches)
+	#--------------------------------------------------------
+	def setItems(self, items):
+		self.__items = items
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""Compare items based on weight."""
