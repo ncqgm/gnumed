@@ -15,20 +15,42 @@
         <bean:define id="medIx" 
             value="<%=String.valueOf((Integer.parseInt(request.getAttribute("ix").toString()) * Integer.parseInt(medsPerPlan)))%>"
         />
-<table>      
+<table width='60%'>      
      <logic-el:iterate id="med"  name="clinicalUpdateForm" property="medications" 
             indexId="i" offset="${medIx}" length="${medsPerPlan}">
+    <tr>        
+    <td>
+       <table border='1'>     
          <tr>
    <td>
         drug #<bean:write name="i"/>    
+        
+        
    </td>
    <td>
-        generic name :
-             <html:text name="med" property="brandName" indexed="true"/>
+           name :
+             <html-el:text styleId="brandName${i}" name="med" 
+                    property="brandName" indexed="true"/>
+         
+          <a href="javascript: void('');" 
+onclick="
+
+var prefix=document.getElementById('brandName<%=i%>').value;
+var popup=open(
+'<%=request.getRequestURL().toString().substring(0, request.getRequestURL().lastIndexOf("/")+1)%>SearchDrug.do?<%=org.gnumed.testweb1.global.Constants.Request.MEDICATION_ENTRY_INDEX%>=<%=i%>&amp;<%=org.gnumed.testweb1.global.Constants.Request.DRUG_NAME_PREFIX%>='
++prefix, '', 'width=600, height=400');
+">find Drug </a>
+
+<%--
+          <html-el:link styleId="searchDrug${i}" action="/SearchDrug" name="med"  property="searchParams"
+           onfocus="this.href=this.href.substr(0, this.href.lastIndexOf('=')+1) + document.getElementById('brandName${i}').value;"     
+            >
+       Find Drug</html-el:link>
+--%>
    </td>
    <td>
              form:
-             <html:text name="med" property="form"  indexed="true"/>
+             <html-el:text name="med" property="form" styleId="formulation${i}" indexed="true"/>
    </td>
    <td>
              dose:
@@ -36,12 +58,27 @@
    </td>
    </tr>
    <tr >
-   <td    colspan='6'  >
-             direction:
-             <html:text name="med" property="directions"  indexed="true" size='50'  />
+   <td    colspan='4'  >
+             presentation:
+             <html-el:text name="med" property="presentation"  styleId="presentation${i}" indexed="true" size='50'  />
    </td>
    </tr>
-   
+   <tr  >
+   <td    colspan='2' >
+             direction:
+             <html:text name="med" property="directions"  indexed="true" size='40'  />
+   </td>
+   <td>
+        qty
+        <html-el:text name="med" property="qty" styleId="qty${i}" indexed="true" size='3'/>
+        
+        rpts
+        <html-el:text name="med" property="repeats" styleId="repeats${i}" indexed="true" size='3'/>
+   </td>     
+   </tr>
+   </table>
+   </td>
+   </tr>
    
     </logic-el:iterate>
 </table>

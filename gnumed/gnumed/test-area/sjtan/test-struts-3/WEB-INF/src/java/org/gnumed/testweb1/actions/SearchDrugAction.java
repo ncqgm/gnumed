@@ -34,25 +34,36 @@ public class SearchDrugAction extends Action {
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
-
+                
 		ActionMessages messages = new ActionMessages();
 		DataObjectFactory factory;
+                try {
+                log.info("Got parameters " + request.getParameter(Constants.Request.MEDICATION_ENTRY_INDEX) + " , "+
+                    request.getParameter(Constants.Request.DRUG_NAME_PREFIX));
 		if (form instanceof ClinicalUpdateForm) {
-    		request.getSession().setAttribute( Constants.Session.CURRENT_CLINICAL_FORM, form);
-    		request.getSession().
-						setAttribute(Constants.Session.TARGET_MEDICATION_ENTRY_INDEX, 
+                    request.getSession().setAttribute( Constants.Session.CURRENT_CLINICAL_FORM, form);
+                } else {
+                    log.info("No form found from action method parameter");
+                    if (request.getSession().getAttribute( mapping.getAttribute()) != null)
+                        log.info("BUT FOUND A form on session as attribute "+ mapping.getAttribute() );
+			log.info(" : form was " + request.getSession().getAttribute( mapping.getAttribute()) );
+                }
+    		request.getSession().setAttribute(Constants.Session.TARGET_MEDICATION_ENTRY_INDEX, 
 							request.getParameter(Constants.Request.MEDICATION_ENTRY_INDEX));
-    	}
+    	
 		
 		DrugRefAccess access  = 
 				(DrugRefAccess) servlet.getServletContext().
 						getAttribute(Constants.Servlet.DRUGREF_ACCESS);
-		try {
-					request.setAttribute(Constants.Request.DRUG_REF_CANDIDATES, access.findDrugRef((String)request.getAttribute(Constants.Request.DRUG_NAME_PREFIX)));
+		
+					request.getSession().setAttribute(Constants.Session.DRUG_REF_CANDIDATES, access.findDrugRef((String)request.getParameter(Constants.Request.DRUG_NAME_PREFIX)));
 					
 		} catch (Exception e) {
 			
+                        log.error(e,e);
 		}
+                
+                log.info("GOING TO FORWARD showCandidateDrugs");
 		return mapping.findForward("showCandidateDrugs");
 	}
 }

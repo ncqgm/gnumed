@@ -20,7 +20,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
     
     public static int nEntry =4;
-     
+    
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy", "vital" };
     public final static String[] factoryMethods = new String[]
     { "createEntryClinNarrative", "createEntryMedication",
@@ -29,12 +29,22 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     };
     public final static int[] counts = { nEntry, nEntry * MEDS_PER_ITEM, 0, 0, 0 };
     
+    /** this index allows entry objects to inform where 
+     *  they are inside a collection attribute of encounter e.g. for a web Action to change
+     *  state in an item e.g. searchDrugAction can change the state of an entryMedication 
+     *  within encounter.medications.
+     */
+    int entryIndex = 0;
+    
+    
+    
     private  ClinicalEncounter loadEntryObjects( ClinicalEncounter ce) {
         log.info( ce + "BEING LOADED");
         for (int i = 0; i < itemTypes.length ; ++i) {
             try {
                 int  n = counts[i] != 0 ? counts[i] : nEntry;
             	for (int j = 0; j < n ; ++j) {
+                     
                 	log.info("Setting property *" + itemTypes[i] + "* index " + j + " method " + factoryMethods[i]);
                     PropertyUtils.setIndexedProperty( ce, itemTypes[i], j,
                     getClass().getMethod( factoryMethods[i], new Class[0] ).invoke( this, new Object[0] ) );
@@ -48,7 +58,19 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         }
         return ce;
     }
-    
+   
+    /** the index property is needed for doing a drug find and returning the result to the
+     * right entryMedication object within the list of entryMedications.
+     */
+    private void setIndexOnEncounterEntryMedications(ClinicalEncounter encounter) {
+        java.util.List l = encounter.getMedications();
+        java.util.Iterator i = l.iterator();
+        int j=0;
+        while (i.hasNext()) {
+            EntryMedication m = (EntryMedication) i.next();
+            m.setIndex(j++);
+        }
+    }
     /**
      * Holds value of property bundle.
      */
@@ -108,8 +130,12 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     
     public ClinicalEncounter createEntryClinicalEncounter() {
-        return loadEntryObjects( createClinicalEncounter() );
         
+        ClinicalEncounter e = loadEntryObjects( createClinicalEncounter() );
+        
+        setIndexOnEncounterEntryMedications(e);
+       
+        return e;
         
     }
     
@@ -207,7 +233,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
 	public EntryMedication createEntryMedication() {
 		EntryMedication m = new EntryMedicationImpl1();
 		configureEntryItem(m, "prescription", "script", "medication done"	);
-		return m;
+                return m;
 	}
 
 	/* (non-Javadoc)

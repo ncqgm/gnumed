@@ -17,14 +17,14 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
     
     private String brand, generic, shortDescription;
     private java.util.Date last, start, discontinued;
-    private int period;
+    private int period, qty, repeats, max_repeats;
     private double dose;
-    private boolean prn, sr;
+    private boolean prn, sr ,subsidized;
     private String DB_drug_id, DB_origin;
     private String directions;
-    private String ATC;
+    private String ATC, subsidyScheme;
 
-    private String amountUnit, form;
+    private String amountUnit, form, presentation;
     
     /** Creates a new instance of MedicationImpl1 */
     public MedicationImpl1() {
@@ -190,39 +190,34 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
 	 * @see org.gnumed.testweb1.data.Medication#getDiscontinued()
 	 */
 	public Date getDiscontinued() {
-		// TODO Auto-generated method stub
-		return discontinued;
+		 return discontinued;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.Medication#setDiscontinued(java.util.Date)
 	 */
 	public void setDiscontinued(Date d) {
-		// TODO Auto-generated method stub
-		this.discontinued = d;
+		 this.discontinued = d;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.Medication#getForm()
 	 */
 	public String getForm() {
-		// TODO Auto-generated method stub
-		return form;
+		 return form;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.Medication#setForm(java.lang.String)
 	 */
 	public void setForm(String form) {
-		// TODO Auto-generated method stub
-		this.form = form;
+		 this.form = form;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.Medication#getAmountUnit()
 	 */
 	public String getAmountUnit() {
-		// TODO Auto-generated method stub
 		return amountUnit;
 	}
 
@@ -230,8 +225,94 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
 	 * @see org.gnumed.testweb1.data.Medication#setAmountUnit(java.lang.String)
 	 */
 	public void setAmountUnit(String unit) {
-		// TODO Auto-generated method stub
-		this.amountUnit = unit;
+		 this.amountUnit = unit;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getQty()
+	 */
+	public int getQty() {
+		return qty;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setQty(int)
+	 */
+	public void setQty(int qty) {
+		this.qty = qty;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getRepeats()
+	 */
+	public int getRepeats() {
+		 
+		return  repeats;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setRepeats(int)
+	 */
+	public void setRepeats(int repeats) {
+		this.repeats = repeats;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#isSubsidized()
+	 */
+	public boolean isSubsidized() {
+		 return subsidized;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setSubsidized(boolean)
+	 */
+	public void setSubsidized(boolean subsidized) {
+		this.subsidized = subsidized;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getSubsidyScheme()
+	 */
+	public String getSubsidyScheme() {
+		 return subsidyScheme;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setSubsidyScheme(java.lang.String)
+	 */
+	public void setSubsidyScheme(String scheme) {
+		subsidyScheme = scheme;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getMaxSubsidyRepeats()
+	 */
+	public int getMaxSubsidyRepeats() {
+		 return max_repeats;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setMaxSubsidyRepeats(int)
+	 */
+	public void setMaxSubsidyRepeats(int repeats) {
+		 max_repeats=repeats;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#setPresentation(java.lang.String)
+	 */
+	public void setPresentation(String presentation) {
+		 this.presentation = presentation;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.Medication#getPresentation()
+	 */
+	public String getPresentation() {
+		 return presentation;
+	}
+	
     
 }

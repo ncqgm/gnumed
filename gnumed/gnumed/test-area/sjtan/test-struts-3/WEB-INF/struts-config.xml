@@ -411,7 +411,7 @@
             path="/ClinicalEdit"
             type="org.gnumed.testweb1.actions.ClinicalEditAction"
             attribute="clinicalUpdateForm"
-            scope="request"
+            scope="session"
             >
             <!-- <forward name="successLoadClinical" path="clinicalentry"/>
             -->
@@ -423,7 +423,7 @@
              path="/SaveClinical"
              type="org.gnumed.testweb1.actions.ClinicalSaveAction"
              name="clinicalUpdateForm"
-             scope="request"
+             scope="session"
              input="clinicalEditAgain"
              >
              
@@ -434,11 +434,23 @@
          <action
          	path="/SearchDrug"
 		type = "org.gnumed.testweb1.actions.SearchDrugAction"
+                attribute="clinicalUpdateForm"
+                scope="session"
 		input="clinicalEditAgain"
 		>
          	<forward name="showCandidateDrugs" path="showcandidatedrugs"/>
          </action>
-        
+         <action
+            path="/SelectDrug"
+            type="org.gnumed.testweb1.actions.ReturnDrugSelectedAction"
+            attribute="clinicalUpdateForm"
+            scope="session"
+            input="clinicalEditAgain"
+            >
+            <!-- <forward name="successLoadClinical" path="clinicalentry"/>
+            -->
+            <forward name="editClinical" path="clinicalentry"/>
+        </action>
             
     <!-- sample input and input submit actions 
 
@@ -585,7 +597,7 @@
     value = "org.gnumed.testweb1.persist.scripted.ScriptedSQLHealthRecordAccess"
     />
     <set-property property="drugRefAccessProvider"
-    value = "org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccessImpl"
+    value = "org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccessImpl1"
     />
 
   </plug-in>

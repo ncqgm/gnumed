@@ -3,7 +3,8 @@
  *
  */
 package org.gnumed.testweb1.data;
-
+import java.util.HashMap;
+import org.gnumed.testweb1.global.Constants;
 /**
  * @author sjtan
  *
@@ -11,6 +12,9 @@ package org.gnumed.testweb1.data;
  */
 public class EntryMedicationImpl1 extends MedicationImpl1 implements
 	EntryMedication {
+            
+        private int index;    
+            
 	EntryClinRootItem item = new EntryClinRootItemImpl1();
 	
 	/* (non-Javadoc)
@@ -57,4 +61,19 @@ public class EntryMedicationImpl1 extends MedicationImpl1 implements
 		item.setLinkedToPreviousEpisode(linkedToPreviousEpisode);
 	}
 
+        public int getIndex() {
+            return index;
+        }
+        
+        public void setIndex(int i) {
+            this.index = i;
+        }
+        
+        public java.util.Map getSearchParams() {
+            HashMap map = new HashMap();
+            map.put(Constants.Request.MEDICATION_ENTRY_INDEX, new Integer(getIndex()));
+            map.put(Constants.Request.DRUG_NAME_PREFIX, getBrandName());
+            return map;
+        }
+        
 }

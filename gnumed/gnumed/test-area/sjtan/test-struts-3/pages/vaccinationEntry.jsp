@@ -38,7 +38,7 @@ method.
                 </td>
                 </tr>
                 
-                <logic:iterate id="vaccination" name="clinicalUpdateForm" property="vaccinations" scope="request" >
+                <logic:iterate id="vaccination" name="clinicalUpdateForm" property="vaccinations">
            
                     <tr>
                     

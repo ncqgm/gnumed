@@ -87,6 +87,8 @@
             <put name="clinEntry" value="encounterEntry"/>
         </definition>
         
+       <definition name="showcandidatedrugs" page="/pages/searchDrug.jsp"/>
+        
        
           
 <!--

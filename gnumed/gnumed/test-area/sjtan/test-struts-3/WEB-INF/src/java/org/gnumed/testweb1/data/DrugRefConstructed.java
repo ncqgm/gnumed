@@ -13,5 +13,5 @@ package org.gnumed.testweb1.data;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface DrugRefConstructed {
-		public void setAttributes( Integer id, String brandName, String atc, String atc_code, String description, int qty, int rpts, int pkg_size, String scheme);
+		public void setAttributes( Integer id, String brandName, String atc, String atc_code, String description, int qty, int rpts, int pkg_size, String scheme, String form);
 }

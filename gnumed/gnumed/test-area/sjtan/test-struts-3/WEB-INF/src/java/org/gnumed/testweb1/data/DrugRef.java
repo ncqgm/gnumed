@@ -25,4 +25,11 @@ public interface DrugRef {
 	public Integer getId();
 	public String getRouteAbbrev();
 	public String getScheme();
+        
+        /**
+         * Getter for property form.
+         * @return Value of property form.
+         */
+        public String getForm();
+        
 }

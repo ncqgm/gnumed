@@ -9,12 +9,13 @@ import java.sql.ResultSet;
  *
  */
 public class DrugRefImpl1 implements DrugRef, DrugRefConstructed {
-	String brandName, atc_code, atc_name;
+    
+    	String brandName, atc_code, atc_name;
 	String description;
 	int subsidizedRepeats, subsidizedQty, packageSize;
 	Integer id;
 	String routeAbbrev;
-	String scheme;
+	String scheme, form;
 	 
 	/* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.DrugRef#getBrandName()
@@ -97,10 +98,16 @@ public class DrugRefImpl1 implements DrugRef, DrugRefConstructed {
 	public String getScheme() {
 		return scheme;
 	}
-	/* (non-Javadoc)
+	
+
+        public String getForm() {
+            return form;
+        }
+        
+        /* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.DrugRefConstructed#setAttributes(java.lang.Integer, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, int, int)
 	 */
-	public void setAttributes(Integer id, String brandName, String atc, String atc_code, String description, int qty, int rpts, int pkg_size, String scheme) {
+	public void setAttributes(Integer id, String brandName, String atc, String atc_code, String description, int qty, int rpts, int pkg_size, String scheme, String form) {
 		this.id = id;
 		this.brandName = brandName;
 		this.atc_code = atc_code;
@@ -109,6 +116,7 @@ public class DrugRefImpl1 implements DrugRef, DrugRefConstructed {
 		this.subsidizedQty= qty;
 		this.subsidizedRepeats = rpts;
 		this.scheme = scheme;
+                this.form = form;
 	}
-
+        
 }

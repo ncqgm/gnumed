@@ -3,8 +3,8 @@
 <!-- change the path below to the correct docBase for the installation e.g /home/myhome/testweb/test-struts-3 -->
 <Context crossContext="true" debug="5" docBase="/home/sjtan/projects/gnumed3/gnumed/gnumed/test-area/sjtan/test-struts-3" path="/gnumed-test-war" reloadable="true" scope="session">
   <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_DBTest_log." suffix=".txt" timestamp="true"/>
+
   <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource"/>
-  
   <ResourceParams name="jdbc/gnumed">
     <parameter>
       <name>factory</name>
@@ -56,9 +56,7 @@
       <value>true</value>
     </parameter>
   </ResourceParams>
-   
-   <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource"/>
-  
+  <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource"/>
   <ResourceParams name="jdbc/drugref">
     <parameter>
       <name>factory</name>
@@ -84,11 +82,11 @@
     </parameter>
     <parameter>
       <name>maxActive</name>
-      <value>10</value>
+      <value>20</value>
     </parameter>
     <parameter>
       <name>maxIdle</name>
-      <value>5</value>
+      <value>10</value>
     </parameter>
     <parameter>
       <name>maxWait</name>
@@ -110,4 +108,6 @@
       <value>true</value>
     </parameter>
   </ResourceParams>
+
+   
 </Context>

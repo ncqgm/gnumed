@@ -7,7 +7,7 @@
  <html:base />
 
 <html>
-<head><title>JSP Page</title>
+<head><title>Clinical Entry</title>
 
     <LINK   TYPE="text/css" REL="stylesheet" href="./style.css" title="Style"/>    
  

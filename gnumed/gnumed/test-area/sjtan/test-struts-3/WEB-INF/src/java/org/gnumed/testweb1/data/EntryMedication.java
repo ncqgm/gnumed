@@ -5,7 +5,7 @@
  * Window - Preferences - Java - Code Style - Code Templates
  */
 package org.gnumed.testweb1.data;
-
+import java.util.Map;
 /**
  * @author sjtan
  *
@@ -13,5 +13,8 @@ package org.gnumed.testweb1.data;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface EntryMedication extends EntryClinRootItem, Medication {
-
+    public int getIndex();
+    public void setIndex(int i);
+    
+    public Map getSearchParams();
 }

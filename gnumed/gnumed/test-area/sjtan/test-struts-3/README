@@ -1,7 +1,35 @@
 Aknowledgements:
 - java and java related trademarks are registered trademarks of Sun in US and other countries.
 - work from drugref by Ian Heywood and Horst Herb.
-- work from gnumed postgres schema by Karsten Hilbert , Ian Heywood and Horst Herb. ( see gnumed.org for contacts).
+- work from gnumed/ and postgres schema  by Karsten Hilbert , Ian Heywood , Hilmar Berger, Horst Herb, Sebastian Hilbert,
+					Richard Terry, Robert Mello, Carlos Moro  ( see gnumed.org for contacts).
+
+- inspiration from openemed, oscar-mcmaster, febrl, the main struts tutorial, ex-programming buddies from the course i did
+( Wing Yam Tsoi, Gunal Kanna, Ming Chan ) , 
+
+Brief steps:
+1. DOWNLOAD -  download and install dependencies - postgres (with jdbc.jar java driver package) , gnumed, drugref, jdk1.4+ , ant, jakarta tomcat.
+
+2. DOWNLOAD -  the app package , tar -zxvf to gunzip and untar
+
+3. CONFIGURE- check configuration in ./war-context.xml and ./META-INF/context.xmll have the correct database names and user names
+for gnumed and drug-ref. Ensure the users' have access permissions. The first time the app is run, v_drugref1 will
+be created as a view in drugref, and if the user is not the owner, than permissions to this view need to be set manually
+using psql (at the moment). 
+
+4. CONFIGURE , COMPILE - run *copy_lib.sh* , after editing it and ensuring it's paths are correct,
+ then run *ant* in ./WEB-INF/src to compile and to create a gnumes-test-war.war in ./dist .
+
+*Also ensure jakarta-tomcat common/lib  has a jdbc.jar file in it from postgres. (e.g. copy a jar file  found in /usr/share/pgsql/ )
+
+5. RUN SERVER - run jakarta tomcat  "catalina.sh debug"
+	      - start postgres , 
+			- psql gnumed   -check user access
+			- psql drugref  -check user access and perms (see note in 3)
+
+
+6. DEPLOY - *Copy* the gnumes-test-war.war to the webapps directory of jakarta-tomcat, 
+
 
 
 

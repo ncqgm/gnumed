@@ -136,7 +136,7 @@ e.g. getNarrative(index) ...  id='narrative'
             id="narrative" 
             name="clinicalUpdateForm" 
             property="encounter.narratives"   
-            scope="request" indexId="index"
+              indexId="index"
             >
         
              

@@ -78,11 +78,14 @@ public class ClinicalSaveAction extends Action {
 			List l = cform.getVaccinations();
 
 			Iterator i = l.iterator();
+                        // logging exceptional event : no vaccinations
 			if (!i.hasNext()) {
 				log.info("****");
 				log.info("No Vaccinations found.");
 				log.info("****");
 			}
+                        
+                        // logging which vaccinations present
 			while (i.hasNext()) {
 				Vaccination v = (Vaccination) i.next();
 				if (v.getVaccineGiven() == null

@@ -5,7 +5,7 @@
  
  
 <html:base/>   
-    <html:form action="/SaveClinical"> 
+    <html:form action="/SaveClinical" > 
   <a name='submitEncounter' />
    
     <jsp:include page="./encounter_2.jsp"/> 
