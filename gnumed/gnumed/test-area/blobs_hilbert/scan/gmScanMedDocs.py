@@ -4,17 +4,19 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #==================================================
-import sys, os.path
+import sys, os.path, os
 
+# location of our modules
 if __name__ == "__main__":
-	# location of our modules
+	# standalone from within GnuMed once integrated
 	#sys.path.append(os.path.join('..', '..', 'python-common'))
+	# standalone from test_area CVS tree
 	sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
@@ -44,7 +46,7 @@ except ImportError:
 from wxPython.wx import *
 import string, time, shutil, os, tempfile
 
-import gmCfg, gmBarcode
+import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
 import docDocument
@@ -385,15 +387,14 @@ class scanFrame(wxPanel):
 		else:
 			doc_id = self.__get_random_ID(target_repository)
 
-		# get document barcode generation mode
-		barcodemode = self.__get_Barcode_mode()
-		
-		# create barcode
-		if barcodemode == "on":
-			self.__create_Barcode(doc_id)
+		# create barcode ?
+		if self.__do_barcode():
+			barcode = self.__generate_barcode(doc_id)
+			if not barcode:
+				return None
 		else:
-			return None
-		
+			barcode = None
+
 		# create new directory in target repository
 		doc_dir = self.__make_doc_dir(target_repository, doc_id)
 		if not doc_dir:
@@ -660,28 +661,48 @@ class scanFrame(wxPanel):
 
 			_log.Log(gmLog.lData, 'opened SANE device: %s' % str(scanner))
 			_log.Log(gmLog.lData, 'SANE device config: %s' % scanner.get_parameters())
-			_log.Log(gmLog.lData, 'SANE device opts:' % scanner.optlist())
+			_log.Log(gmLog.lData, 'SANE device opts  : %s' % scanner.optlist())
 
 		return 1
 	#-----------------------------------
 	# internal helper methods
 	#-----------------------------------
-	def __get_Barcode_mode(self):
-		tmp = _cfg.get("barcode","document_barcode_mode")
-		if not tmp in ['on','off']:
-			_log.Log(gmLog.lErr, '"%s" is not a valid document barcode generation mode. Falling back to "off".' % tmp)
-			return "off"
-			
-		_log.Log(gmLog.lData, 'document barcode generation mode is "%s"' % tmp)
-		return tmp
+	def __do_barcode(self):
+		tmp = _cfg.get("scan", "generate barcode")
+		_log.Log(gmLog.lData, 'document barcode generation mode: <%s>' % tmp)
+		if tmp in ['on', 'yes']:
+			return 1
+		else:
+			return None
 	#-----------------------------------
-	def __create_Barcode(self,doc_id):
-		flags = []
-		flags = _cfg.get("barcode","flags")
-		#flags misses the doc_is dtring; so we have to add it
-		options = _cfg.get("barcode","str_flag")+" "+str(doc_id)+" "+string.join(flags)
-		_log.Log(gmLog.lInfo, 'document barcode generation flag(s) are/is "%s"' % options)
-		gmBarcode._create_Barcode(options)
+	def __generate_barcode(self, doc_id):
+		tmp = _cfg.get("scan", "barcode generation command")
+		if not tmp:
+			_log.Log(gmLog.lErr, 'Cannot get barcode generation command from config file.')
+			return None
+
+		if tmp.count("%s") == 1:
+			barcode_cmd = tmp % doc_id
+		else:
+			barcode_cmd = tmp
+
+		aPipe = os.popen(barcode_cmd, "w")
+		if aPipe == None:
+			_log.Log(gmLog.lData, "Cannot open pipe to [%s]." % barcode_cmd)
+			return None
+
+		if tmp.count("%s") != 1:
+			aPipe.write('"%s"\n' % doc_id)
+
+		barcode = aPipe.readline()
+		ret_code = aPipe.close()
+
+		if ret_code == None and barcode != "":
+			return barcode
+		else:
+			_log.Log(gmLog.lErr, "Something went awry while calling `%s`." % barcode_cmd)
+			_log.Log(gmLog.lErr, '%s (%s): exit(%s) -> <%s>' % (os.name, sys.platform, ret_code, barcode), gmLog.lCooked)
+			return None
 	#-----------------------------------
 	def __get_ID_mode(self):
 		tmp = _cfg.get("scanning", "document ID mode")
@@ -885,19 +906,27 @@ class scanFrame(wxPanel):
 			return None
 		f.close()
 		return 1
+
 #======================================================
-if __name__ != '__main__':
-	import gmPlugin
+def _create_Barcode(options):
+	_log.Log(gmLog.lInfo, 'I tried to generate a barcode with these flags :'+"'" +options+"'")
+	os.system ("barcode" + " " + options)
 
-	class gmScanMedDocs(gmPlugin.wxNotebookPlugin):
-		def name (self):
-			return _("Scan")
-
-		def GetWidget (self, parent):
-			return scanFrame (parent, -1)
-
-		def MenuInfo (self):
-			return (_('Tools'), _('&scan documents'))
+#def _print_Barcode():
+#	_create_Barcode()	
+######################################################################
+# Main
+#=====================================================================
+if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x
+	cmdline = sys.argv[1:]
+	print "testing gmBarcode"
+	print "============="
+	print "You gave me the following arguments on the command line:"
+	print cmdline
+	options = string.replace(string.replace(string.join(cmdline),'=',' '),'--','-')
+	print options
 #======================================================
 # main
 #------------------------------------------------------
@@ -911,10 +940,25 @@ if __name__ == '__main__':
 		exc = sys.exc_info()
 		_log.LogException('Unhandled exception.', exc, fatal=1)
 		raise
+else:
+	import gmPlugin
 
+	class gmScanMedDocs(gmPlugin.wxNotebookPlugin):
+		def name (self):
+			return _("Scan")
+
+		def GetWidget (self, parent):
+			return scanFrame (parent, -1)
+
+		def MenuInfo (self):
+			return (_('Tools'), _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.1  2002-10-06 23:25:49  ncq
+# Revision 1.2  2002-10-08 20:54:26  ncq
+# - clean up
+# - use GNU barcode via pipe
+#
+# Revision 1.1  2002/10/06 23:25:49  ncq
 # - scan-med_docs converted to using sizers
 # - prepared for becoming a GnuMed plugin
 #
