@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.17 $ $Date: 2002-10-26 12:38:20 $ $Author: ihaywood $
+-- $Revision: 1.18 $ $Date: 2002-10-28 04:39:07 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.17  2002-10-26 12:38:20  ihaywood
+-- Revision 1.18  2002-10-28 04:39:07  ihaywood
+-- added drug_flags and minor changes
+--
+-- Revision 1.17  2002/10/26 12:38:20  ihaywood
 -- Changes to gmdrugs.sql please review
 --
 -- Revision 1.17 2002/10/20 ihaywood 
@@ -44,39 +47,8 @@ comment on column info_reference.source_category is
 comment on column info_reference.description is
 'URL or address or similar informtion allowing to reproduce the source of information';
 
-
---###############################
-
--- tables for auditing. This is a parallel auditing system just for the 
--- drug databases. The users are the creators of the database, 
--- and may have no overlap with the users on deployed databases.
-
-create table audit
-(
-	id serial primary key,
-	table_name name,
-	table_row integer,
-	stamp datetime default current_timestamp,
-	who name default current_user,
-	why text, -- general comment on the change
-	what text, -- pickled contents of the row
-	-- (this is of course a ridiculously inefficient means of storage.)
-	action char check (action in ('i', 'u', 'd', 'v')),
-	-- i=insert, u=update, d=delete, v=validate
-	version integer,
-	source integer references info_reference (id),
-	signature text 
-);
-
-comment on table audit is 'this is a master table of all changes to the database.'; 
-
-comment on column audit.what is 'pickled contents of the row after change made.';
-
-comment on column audit.action is 'action performed on row';
-comment on column audit.source is 'source of information for this change';
-comment on column audit.signature is 'GPG signature of the what field';
-comment on column audit.why is 'explanation of the change';
-
+-- couple to examples
+insert into info_reference (source_category, description) values ('i', 'Rang, Dale, and Ritter <i>Pharmacology</i>, 1999'); 
 
 create table audited_table
 (
@@ -85,41 +57,6 @@ create table audited_table
 
 comment on table audited_table is 'ancestor table, inherited by all tables that need to be audited.';
 
-
---A Note on Signatures
---SQL rows cannot be signed, only 'documents': i.e ASCII strings, can be.
---So PL/Python is used to form a pickled dictionary of the row, and 
---this is signed.
-
---PL/Python trigger to update audit table.
-create function audit_func () returns opaque as '
-import pickle
-import string
-if TD["event"] == "INSERT":
- action = "i"
- what = pickle.dumps (TD["new"])
- table_row = TD["new"]["id"]
-elif TD["event"] == "UPDATE":
- action = "u"
- what = pickle.dumps (TD["new"])
- table_row = TD["new"]["id"]
-elif TD["event"] == "DELETE":
- action = "d"
- table_row = TD["old"]["id"]
- what = pickle.dumps (TD["old"])
-else:
- plpy.fatal ("unknown action")
-what = string.replace (what, "''", "''''")
-table_name = plpy.execute ("select relname from pg_class where oid = %s" % TD["relid"])[0]["relname"]
-plpy.execute ("insert into audit (action, what, table_row, table_name, version) values (''%(action)s'', ''%(what)s'', %(table_row)s, ''%(table_name)s'', (select count (*)+1 from audit where table_name = ''%(table_name)s'' and table_row = %(table_row)s))" % vars ())
-' language 'plpython';
-
-comment on function audit_func () is 'Python trigger function to create audit entries';
-
-create trigger audit_trig after insert or update or delete on audited_table 
-for each row execute procedure audit_func ();
-
--- ######################################
 
 create table code_systems(
 	id serial primary key,
@@ -260,18 +197,36 @@ comment on column drug_warning.code is
 comment on column drug_warning.code is
 'could have been implemented as foreign key to a table of severity codes, but was considered uneccessary';
 
+create table information_topic
+(
+	id serial,
+	title varchar (60),
+	target char check (target in ('h', 'p'))
+);
+
+comment on table information_topic is 'topics for drug information, such as pharmaco-kinetics, indications, etc.';
+
+comment on column information_topic.target is
+'the target of this information: h=health professional, p=patient';
+
+insert into information_topic (title, target) values ('general', 'h');
+insert into information_topic (title, target) values ('pharmaco-kinetics', 'h');
+insert into information_topic (title, target) values ('indications', 'h');
+insert into information_topic (title, target) values ('action', 'h');
+insert into information_topic (title, target) values ('chemical structure', 'h'); -- perhaps in ChemML or similar.
+insert into information_topic (title, target) values ('side-effects', 'p');
+insert into information_topic (title, target) values ('general', 'p');
+
 
 create table drug_information(
 	id serial primary key,
 	id_info_reference integer references info_reference(id),
-	target char check (target in ('h', 'p')),
 	info text,
+	id_topic integer references information_topic (id),
 	comment text
 );
 comment on table drug_information is
 'any product information about a specific drug in HTML format';
-comment on column drug_information.target is
-'the target of this information: h=health professional, p=patient';
 comment on column drug_information.info is
 'the drug product information in HTML format';
 
@@ -295,6 +250,30 @@ comment on table generic_drug_name is
 comment on column generic_drug_name.name is
 'the generic name of this drug';
 
+drop function get_drug_name (integer);
+
+create function get_drug_name (integer) returns text as '
+r = plpy.execute ("select category = ''p'' or category = ''t'' as is_drug, description from drug_element where id = %s" % args[0])
+if r[0]["is_drug"] == "t":
+ return r[0]["description"]
+else:
+ # drug name linked to country "**"
+ r = plpy.execute ("select name from generic_drug_name, link_country_drug_name where iso_countrycode = ''**'' and id_drug_name = generic_drug_name.id and id_drug = %s" % args[0])
+ if len (r) > 0:
+  return r[0]["name"]
+ # drug name linked to no country
+ r = plpy.execute ("select name from generic_drug_name where id_drug = %s and not exists (select * from link_country_drug_name where id_drug_name = generic_drug_name.id)" % args[0])
+ if len (r) > 0:
+  return r[0]["name"]
+ # in desperation, ANY drug name
+ r = plpy.execute ("select name from generic_drug_name where id_drug = %s" % args[0])
+ if len (r) > 0:
+  return r[0]["name"]
+ else:
+  return "NONAME"
+' language 'plpython';
+
+comment on function get_drug_name (integer) is 'guaranteed returns a name for a drug/class';
 
 create table link_compound_generics(
 	id_compound integer references drug_element(id) not null,
@@ -323,7 +302,7 @@ create table drug_dosage(
 );
 
 comment on table drug_dosage is
-'A table linking drugs to dosage recommendations';
+'A table linking drugs to dosage recommendations. This is the old link_drug_dosage. Refers to drugs, both compounds and single-substances.';
 comment on column drug_dosage.id_drug_warning_categories is
 'indicates whether this dosage is targeted for specific patients, like paediatric or renal impairment';
 comment on column drug_dosage.dosage_hints is
@@ -339,7 +318,7 @@ create table substance_dosage(
 	dosage_max float
 );
 comment on table substance_dosage is
-'Dosage suggestion for a particular /substance/ (not compound)';
+'Dosage suggestion for a particular /substance/ (not compound). This the old dosage.';
 comment on column substance_dosage.dosage_type is
 '*=absolute, w=weight based (per kg body weight), s=surface based (per m2 body surface), a=age based (in months)';
 comment on column substance_dosage.id_component is 'the component of a compound referred to by this row';
@@ -388,6 +367,14 @@ comment on column adverse_effects.severity is
 comment on column adverse_effects.description is
 'the type of adverse effect like "pruritus", "hypotension", ...';
 
+-- some examples
+insert into adverse_effects (severity, description) values (1, 'pruritis');
+insert into adverse_effects (severity, description) values (1, 'nausea');
+insert into adverse_effects (severity, description) values (1, 'postural hypotension');
+insert into adverse_effects (severity, description) values (2, 'hepatitis');
+insert into adverse_effects (severity, description) values (2, 'renal failure');
+insert into adverse_effects (severity, description) values (2, 'ototoxicity');
+
 
 create table link_drug_adverse_effects(
 	id_drug integer references drug_element(id),
@@ -415,6 +402,12 @@ comment on column interactions.severity is
 'severity/significance of a potential interaction: the scale has yet to be agreed upon';
 comment on column interactions.description is
 'the type of interaction (like: "increases half life")';
+
+insert into interactions (severity, description) values (1, 'increases half-life');
+insert into interactions (severity, description) values (1, 'decreases half-life');
+insert into interactions (severity, description) values (1, 'worsens disease');
+insert into interactions (severity, description) values (1, 'unknown');
+insert into interactions (severity, description) values (1, 'blocks receptor');
 
 
 create table link_drug_interactions(
@@ -513,7 +506,8 @@ create table manufacturer(
 	address text,
 	phone text,
 	fax text,
-	comment text
+	comment text,
+	code char (2)
 );
 comment on table manufacturer is
 'list of pharmaceutical manufacturers';
@@ -527,6 +521,8 @@ comment on column manufacturer.phone is
 'phone number of company';
 comment on column manufacturer.fax is
 'fax number of company';
+comment on column manufacturer.code is
+'two-letter symbol of manufacturer';
 
 
 create table link_product_manufacturer(
@@ -591,6 +587,7 @@ create table link_drug_indication(
 	comment text,
 	line integer
 );
+
 create index idx_drug_indication on link_drug_indication(id_drug);
 create index idx_indication_drug on link_drug_indication(indication_code);
 comment on table link_drug_indication is
