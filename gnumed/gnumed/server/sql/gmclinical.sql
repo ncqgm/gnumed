@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.130 $
+-- $Revision: 1.131 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -916,8 +916,7 @@ create table clin_medication (
 	dosage numeric[]
 		not null,
 	period interval
-		not null
-		default '24 hours'::interval,
+		not null,
 	dosage_unit text
 		not null
 		check (dosage_unit in ('g', 'each', 'ml')),
@@ -935,7 +934,7 @@ alter table clin_medication add constraint medication_is_plan
 alter table clin_medication add constraint brand_or_generic_required
 	check ((brandname is not null) or (generic is not null));
 alter table clin_medication add constraint prescribed_after_started
-	check (last_prescribed >= clin_when);
+	check (last_prescribed >= clin_when::date);
 alter table clin_medication add constraint discontinued_after_prescribed
 	check (discontinued >= last_prescribed);
 
@@ -993,9 +992,9 @@ comment on column clin_medication.atc_code is
 comment on column clin_medication.dosage is
 	'an array of doses describing how the drug is taken
 	 over the dosing cycle, for example:
-	  - 2 mane 2.5 nocte would be [2, 2.5], period=24
-	  - 2 one and 2.5 the next would be [2, 2.5], period=48
-	  - once a week would be [1] with period=168';
+	  - 2 mane 2.5 nocte would be [2, 2.5], period="24 hours"
+	  - 2 one and 2.5 the next would be [2, 2.5], period="2 days"
+	  - once a week would be [1] with period="1 week"';
 comment on column clin_medication.period is
 	'the length of the dosing cycle, in hours';
 comment on column clin_medication.dosage_unit is
@@ -1071,11 +1070,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.130 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.131 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.130  2004-10-14 14:56:43  ncq
+-- Revision 1.131  2004-10-17 16:27:15  ncq
+-- - val_num: float -> numeric + fix views
+-- - clin_when::date in prescribed_after_started constraint
+--
+-- Revision 1.130  2004/10/14 14:56:43  ncq
 -- - work on clin_medication to reflect recent discussion
 --
 -- Revision 1.129  2004/09/25 13:25:56  ncq

@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.32 $
+-- $Revision: 1.33 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -165,7 +165,7 @@ create table test_result (
 	fk_type integer
 		not null
 		references test_type(pk),
-	val_num float
+	val_num numeric
 		default null
 		check (
 			((val_num is not null) or (val_alpha is not null))
@@ -380,11 +380,15 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.32  2004-10-10 06:34:13  ihaywood
+-- Revision 1.33  2004-10-17 16:27:15  ncq
+-- - val_num: float -> numeric + fix views
+-- - clin_when::date in prescribed_after_started constraint
+--
+-- Revision 1.32  2004/10/10 06:34:13  ihaywood
 -- Extended blobs to support basic document management:
 -- keeping track of whose reviewed what, etc.
 --
