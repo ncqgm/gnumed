@@ -12,8 +12,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.27 2004-06-20 17:28:34 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmDemographics.py,v 1.28 2004-06-23 21:26:28 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -285,14 +285,20 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.sizer_line1_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line1_left.Add(self.lbl_surname,3, wxGROW|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line1_left.Add(self.txt_surname,7,wxEXPAND)
-		self.sizer_line1_left.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line1_left.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line1_left.Add(0,0, 1)
 		self.sizer_line1_left.Add(self.lbl_title,2,wxALIGN_CENTER_VERTICAL, 5)
 		self.sizer_line1_left.Add(self.combo_title,4,wxEXPAND)
 		#line two:firstname, sex
 		self.sizer_line2_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line2_left.Add(self.lbl_firstname,3,wxGROW|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line2_left.Add(self.txt_firstname,7,wxEXPAND)
-		self.sizer_line2_left.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line2_left.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line2_left.Add(0,0, 1)
 		self.sizer_line2_left.Add(self.lbl_sex,2,wxGROW|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line2_left.Add(self.combo_sex,4,wxEXPAND)
 		#line three:preferred salutation
@@ -319,7 +325,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.sizer_line7_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line7_left.Add(self.lbl_street,3,wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7_left.Add(self.txt_number,2,wxEXPAND)
-		self.sizer_line7_left.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line7_left.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line7_left.Add(0,0, 1)
 		self.sizer_line7_left.Add(self.txt_street,4,wxEXPAND)
 		self.sizer_line7_left.Add(sizer_respostal,6,wxEXPAND)
 		#--------------------------
@@ -328,7 +337,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.sizer_line8_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line8_left.Add(self.lbl_urb,3,wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line8_left.Add(self.txt_urb,7,wxEXPAND)
-		self.sizer_line8_left.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line8_left.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line8_left.Add(0,0, 1)
 		self.sizer_line8_left.Add(self.lbl_postcode,3,wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line8_left.Add(self.txt_postcode,3,wxEXPAND)
 
@@ -392,7 +404,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		#line 4 - next of kin + browse for next of kin
 		self.sizer_line4_right.Add(self.lbl_nextofkin, 2,wxALIGN_CENTER_VERTICAL,0)
 		self.sizer_line4_right.Add(self.btn_browseNOK,2, wxALIGN_CENTER_VERTICAL)
-		#self.sizer_line4_right.Add(0,0,1)
+#		if wxPlatform == '__WXMAC__':
+#			self.sizer_line4_right.Add(wxSize(0,0), 1)
+#		else:
+#			self.sizer_line4_right.Add(0,0, 1)
 		self.sizer_line4_right.Add(self.lbl_relationship,2, wxALIGN_CENTER_VERTICAL,0)
 		self.sizer_line4_right.Add(self.combo_relationship,2,wxEXPAND)
 		#name of next of kin
@@ -408,27 +423,45 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.sizer_contacts = wxBoxSizer(wxVERTICAL)
 		self.sizer_line6_right.Add(self.lbl_homephone, 3,wxALIGN_CENTRE,0)
 		self.sizer_line6_right.Add(self.txt_homephone, 5,wxEXPAND)
-		self.sizer_line6_right.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line6_right.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line6_right.Add(0,0, 1)
 		self.sizer_contacts.Add(self.sizer_line6_right,0,wxEXPAND)
 		self.sizer_line7_right.Add(self.lbl_workphone,3,wxALIGN_CENTRE,0)
 		self.sizer_line7_right.Add(self.txt_workphone, 5,wxEXPAND)
-		self.sizer_line7_right.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line7_right.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line7_right.Add(0,0, 1)
 		self.sizer_contacts.Add(self.sizer_line7_right,0,wxEXPAND)
 		self.sizer_line8_right.Add(self.lbl_fax,3,wxALIGN_CENTRE,0)
 		self.sizer_line8_right.Add(self.txt_fax, 5,wxEXPAND)
-		self.sizer_line8_right.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line8_right.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line8_right.Add(0,0, 1)
 		self.sizer_contacts.Add(self.sizer_line8_right,0,wxEXPAND)
 		self.sizer_line9_right.Add(self.lbl_email,3,wxALIGN_CENTRE,0)
 		self.sizer_line9_right.Add(self.txt_email, 5,wxEXPAND)
-		self.sizer_line9_right.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line9_right.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line9_right.Add(0,0, 1)
 		self.sizer_contacts.Add(self.sizer_line9_right,0,wxEXPAND)
 		self.sizer_line10_right.Add(self.lbl_web,3,wxALIGN_CENTRE,0)
 		self.sizer_line10_right.Add(self.txt_web, 5,wxEXPAND)
-		self.sizer_line10_right.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line10_right.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line10_right.Add(0,0, 1)
 		self.sizer_contacts.Add(self.sizer_line10_right,0,wxEXPAND)
 		self.sizer_line11_right.Add(self.lbl_mobile,3,wxALIGN_CENTRE,0)
 		self.sizer_line11_right.Add(self.txt_mobile, 5,wxEXPAND)
-		self.sizer_line11_right.Add(0,0,1)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line11_right.Add(wxSize(0,0), 1)
+		else:
+			self.sizer_line11_right.Add(0,0, 1)
 		self.sizer_contacts.Add(self.sizer_line11_right,0,wxEXPAND)
 		self.sizer_photo = wxBoxSizer(wxVERTICAL)
 		self.patientpicture = gmGP_PatientPicture.cPatientPicture(self, -1)
@@ -727,13 +760,16 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 
 #============================================================
 if __name__ == "__main__":
-	import gmGuiBroker
+	from Gnumed.pycommon import gmGuiBroker
 	app = wxPyWidgetTester(size = (800, 600))
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.27  2004-06-20 17:28:34  ncq
+# Revision 1.28  2004-06-23 21:26:28  ncq
+# - kill dead code, fixup for Mac
+#
+# Revision 1.27  2004/06/20 17:28:34  ncq
 # - The Great Butchering begins
 # - remove dead plugin code
 # - rescue binoculars xpm to artworks/
