@@ -4,8 +4,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.27 2005-01-02 19:55:30 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmMedDoc.py,v 1.28 2005-02-12 13:56:49 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -26,9 +26,9 @@ class cDocumentFolder:
 
 		- patient referenced by aPKey does not exist
 		"""
-		self.id_patient = aPKey			# == identity.id == primary key
+		self.id_patient = aPKey			# == identity.pk == primary key
 		if not self._pkey_exists():
-			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
+			raise gmExceptions.ConstructorError, "No patient with PK [%s] in database." % aPKey
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -46,7 +46,7 @@ class cDocumentFolder:
 		- true/false/None
 		"""
 		# patient in demographic database ?
-		cmd = "select exists(select id from identity where id = %s)"
+		cmd = "select exists(select pk from identity where pk = %s)"
 		result = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in demographic database' % self.id_patient)
@@ -540,7 +540,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.27  2005-01-02 19:55:30  ncq
+# Revision 1.28  2005-02-12 13:56:49  ncq
+# - identity.id -> identity.pk
+#
+# Revision 1.27  2005/01/02 19:55:30  ncq
 # - don't need _xmins_refetch_col_pos anymore
 #
 # Revision 1.26  2004/12/20 16:45:49  ncq

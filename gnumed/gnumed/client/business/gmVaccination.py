@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.19 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmVaccination.py,v 1.20 2005-02-12 13:56:49 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -102,7 +102,7 @@ class cMissingVaccination(gmClinItem.cClinItem):
 			where
 				pk_patient=%(pat_id)s
 					and
-				age((select dob from identity where id=%(pat_id)s)) between age_due_min and coalesce(age_due_max, '115 years'::interval)
+				age((select dob from identity where pk=%(pat_id)s)) between age_due_min and coalesce(age_due_max, '115 years'::interval)
 					and
 				indication=%(indication)s
 					and
@@ -116,7 +116,7 @@ class cMissingVaccination(gmClinItem.cClinItem):
 			where
 				pk_patient=%(pat_id)s
 					and
-				now() - ((select dob from identity where id=%(pat_id)s)) >  coalesce(age_due_max, '115 years'::interval)
+				now() - ((select dob from identity where pk=%(pat_id)s)) >  coalesce(age_due_max, '115 years'::interval)
 					and
 				indication=%(indication)s
 					and
@@ -374,7 +374,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.19  2005-01-31 10:37:26  ncq
+# Revision 1.20  2005-02-12 13:56:49  ncq
+# - identity.id -> identity.pk
+#
+# Revision 1.19  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.18  2005/01/02 19:55:30  ncq
