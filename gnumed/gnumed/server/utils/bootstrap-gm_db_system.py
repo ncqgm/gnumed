@@ -27,7 +27,7 @@ further details.
 # TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -721,7 +721,6 @@ class gmService:
 	def register(self):
 		# FIXME - register service
 		# a) in its own database - TODO
-		# b) in the distributed database - DONE
 		# FIXME : We don't check for invalid service entries here 
 		# (e.g. multiple service aliases linking to the same internal gnumed service)
 		_log.Log(gmLog.lInfo, "Registering service [%s] (GnuMed internal name: [%s])." % (self.alias, self.name))
@@ -803,7 +802,7 @@ class gmService:
 					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
 					curs.close()
 					return None
-				# this should return None anymore
+				# this should not return None anymore
 				dbID = curs.fetchone()[0]
 			else:
 				dbID = result[0]
@@ -813,6 +812,13 @@ class gmService:
 			_log.Log(gmLog.lInfo, "Linking service [%s] to database [%s]." % (self.name,self.db.name))
 
 			# FIXME: check if username='' is correct
+			# in fact, no: this is configuration and thus user dependant,
+			# bootstrapping, however, is done by gm-dbowner,
+			# so, actually, this should not be done here but rather moved
+			# over to the generic configuration tables and be done for the
+			# __default__ user, upon client startup if not "user" config exists
+			# the __default__ config will be read, confirmed by the current user
+			# and stored for her ...
 			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s');" % ('',dbID,ddbID)
 			try:
 				curs.execute(cmd)
@@ -999,7 +1005,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.22  2003-02-11 17:11:41  hinnef
+# Revision 1.23  2003-02-11 18:16:05  ncq
+# - updated comments, added explanation about table config (db, ...)
+#
+# Revision 1.22  2003/02/11 17:11:41  hinnef
 # fixed some bugs in service.register()
 #
 # Revision 1.21  2003/02/09 11:46:11  ncq
