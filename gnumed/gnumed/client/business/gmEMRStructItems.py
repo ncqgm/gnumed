@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
@@ -63,6 +63,21 @@ class cEpisode(gmClinItem.cClinItem):
 		'description',
 		'id_health_issue'
 	]
+	#--------------------------------------------------------
+	def set_active(self):
+		cmd1 = "delete from last_act_episode where id_patient=%s"
+		cmd2 = """
+			insert into last_act_episode(id_episode, id_patient)
+			values (%s,	(select id_patient from clin_health_issue where id=%s))"""
+		success, msg = gmPG.run_commit('historica', [
+			(cmd1, [self._payload[self._idx['id_health_issue']]]),
+			(cmd2, [self.pk_obj, self._payload[self._idx['id_health_issue']]])
+		], True)
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot record episode [%s] as most recently used one for health issue [%s]' % (self.pk_obj, self._payload[self._idx['id_health_issue']]))
+			_log.Log(gmLog.lErr, str(msg))
+			return False
+		return True
 #============================================================
 class cEncounter(gmClinItem.cClinItem):
 	"""Represents one encounter.
@@ -206,7 +221,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.3  2004-05-16 14:31:27  ncq
+# Revision 1.4  2004-05-16 15:47:51  ncq
+# - add episode.set_active()
+#
+# Revision 1.3  2004/05/16 14:31:27  ncq
 # - cleanup
 # - allow health issue to be instantiated by name/patient
 # - create_health_issue()/create_encounter
