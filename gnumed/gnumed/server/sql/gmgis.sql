@@ -9,9 +9,11 @@
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
 -- 04.03.2002:  (hherb) table state constraint added
--- 08.03.2002:  (ihaywood) rules for basic_address, address_info altered
+-- 08.03.2002:  (ihaywood) rules for v_basic_address, address_info altered
+-- 30.03.2002:  (hherb) view basic_address renamed to v_basic_address
+--               bugfix in rule update_address
+--               bugfix in rule insert_address
 
--- =============================================
 
 
 -- any table that needs auditing MUST inherit audit_gis
@@ -20,7 +22,7 @@
 -- these tables
 
 create table audit_gis (
-	audit_id serial primary key
+        audit_id serial primary key
 );
 
 COMMENT ON TABLE audit_gis IS
@@ -31,9 +33,9 @@ COMMENT ON TABLE audit_gis IS
 -- only uses original ISO data (= reference verifiable any time)
 
 create table country (
-	code char(2) unique primary key,
-	name varchar(80),
-	deprecated date default NULL
+        code char(2) unique primary key,
+        name varchar(80),
+        deprecated date default NULL
 );
 
 COMMENT ON TABLE country IS
@@ -51,12 +53,12 @@ COMMENT ON COLUMN country.deprecated IS
 -- yes, at least in Germany we have up to 6
 
 create table state (
-	id serial primary key,
-	code char(10),
-	country char(2) references country(code),
-	name varchar(60),
-	deprecated date,
-	constraint nodupes UNIQUE (code, country)
+        id serial primary key,
+        code char(10),
+        country char(2) references country(code),
+        name varchar(60),
+        deprecated date,
+        constraint nodupes UNIQUE (code, country)
 ) inherits (audit_gis);
 
 COMMENT ON TABLE state IS
@@ -74,10 +76,10 @@ COMMENT ON COLUMN country.deprecated IS
 -- =============================================
 
 create table urb (
-	id serial primary key,
-	statecode int references state(id),
-	postcode char(8),
-	name varchar(60)
+        id serial primary key,
+        statecode int references state(id),
+        postcode char(8),
+        name varchar(60)
 ) inherits (audit_gis);
 
 COMMENT ON TABLE urb IS
@@ -95,9 +97,9 @@ COMMENT ON COLUMN urb.name IS
 -- =============================================
 
 create table street (
-	id serial primary key,
-	id_urb integer references urb not null,
-	name varchar(60)
+        id serial primary key,
+        id_urb integer references urb not null,
+        name varchar(60)
 ) inherits (audit_gis);
 
 COMMENT ON TABLE street IS
@@ -112,8 +114,8 @@ COMMENT ON COLUMN street.name IS
 -- =============================================
 
 create table address_type (
-	id serial primary key,
-	name char(10) NOT NULL
+        id serial primary key,
+        name char(10) NOT NULL
 ) inherits (audit_gis);
 
 
@@ -127,47 +129,47 @@ INSERT INTO address_type(id, name) values(5,'temporary');
 -- =============================================
 
 create table address (
-	id serial primary key,
-	addrtype int references address_type(id) default 1,
-	street int references street(id),
-	number char(10),
-	addendum text
+        id serial primary key,
+        addrtype int references address_type(id) default 1,
+        street int references street(id),
+        number char(10),
+        addendum text
 ) inherits (audit_gis);
 
 
 create table address_external_ref (
-	id int references address primary key,
-	refcounter int default 0
+        id int references address primary key,
+        refcounter int default 0
 );
 
 
-create view basic_address
+create view v_basic_address
 -- if you suffer from performance problems when selecting from this view,
 -- implement it as a real table and create rules / triggers for insert,
 -- update and delete that will update the underlying tables accordingly
 as
 select
-	s.country as country,
-	s.code as state,
-	u.postcode as postcode,
-	u.name as city,
-	a.number as number,
-	str.name as street,
-	a.addendum as street2
+        s.country as country,
+        s.code as state,
+        u.postcode as postcode,
+        u.name as city,
+        a.number as number,
+        str.name as street,
+        a.addendum as street2
 
 from
-	address a,
-	state s,
-	urb u,
-	street str
+        address a,
+        state s,
+        urb u,
+        street str
 where
-	a.street = str.id
-	and
-	a.addrtype = 1	-- home address
-	and
-	str.id_urb = u.id
-	and
-	u.statecode = s.id;
+        a.street = str.id
+        and
+        a.addrtype = 1        -- home address
+        and
+        str.id_urb = u.id
+        and
+        u.statecode = s.id;
 
 -- added IH 8/3/02
 -- insert, delete, and update rules on this table
@@ -179,69 +181,67 @@ where
 -- exist, it is created.
 CREATE FUNCTION find_street (text, integer) RETURNS integer AS '
 DECLARE
-	s_name ALIAS FOR $1;
-	s_id_urb ALIAS FOR $2;
-	s RECORD;
+        s_name ALIAS FOR $1;
+        s_id_urb ALIAS FOR $2;
+        s RECORD;
 BEGIN
-	SELECT INTO s * FROM street WHERE name = s_name AND
-	       id_urb = s_id_urb;
-	IF FOUND THEN
-	   RETURN s.id;
-	ELSE
-	   INSERT INTO street (id_urb, name) VALUES (s_id_urb, s_name);
-	   RETURN currval (''street_id_seq'');
-	END IF;
+        SELECT INTO s * FROM street WHERE name = s_name AND
+               id_urb = s_id_urb;
+        IF FOUND THEN
+           RETURN s.id;
+        ELSE
+           INSERT INTO street (id_urb, name) VALUES (s_id_urb, s_name);
+           RETURN currval (''street_id_seq'');
+        END IF;
 END;' LANGUAGE 'plpgsql';
 
-CREATE RULE insert_address AS ON INSERT TO basic_address DO INSTEAD
-	INSERT INTO address (addrtype, street, number, addendum) 
-	VALUES (
-	       1,
-	       find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE 
-			   urb.name = NEW.city AND  
-			   urb.postcode = NEW.postcode AND
-			   urb.statecode = state.id AND
-			   state.code = NEW.state AND
-			   state.country = NEW.country)),
-	       NEW.number,
-	       NEW.street2
-	       );	
+CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
+        INSERT INTO address (addrtype, street, number, addendum)
+        VALUES (
+               1,
+               find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE
+                           (urb.name = NEW.city) AND
+                           (urb.postcode = NEW.postcode) AND
+                           (urb.statecode = state.id) AND
+                           state.code = NEW.state AND
+                           state.country = NEW.country)),
+               NEW.number,
+               NEW.street2
+               );
 
 
-CREATE RULE delete_address AS ON DELETE TO basic_address DO INSTEAD
-       DELETE FROM address WHERE addrtype = 1 AND 
+CREATE RULE delete_address AS ON DELETE TO v_basic_address DO INSTEAD
+       DELETE FROM address WHERE addrtype = 1 AND
        number = OLD.number AND addendum = OLD.street2 AND
-       street = (SELECT street.id FROM street, urb, state WHERE 
-	       street.name = OLD.street AND 
-	       street.id_urb = urb.id AND
-	       urb.name = OLD.city AND  
-	       urb.postcode = OLD.postcode AND
-	       urb.statecode = state.id AND
-	       state.code = OLD.state AND
-	       state.country = OLD.country);
+       street = (SELECT street.id FROM street, urb, state WHERE
+               street.name = OLD.street AND
+               street.id_urb = urb.id AND
+               urb.name = OLD.city AND
+               urb.postcode = OLD.postcode AND
+               urb.statecode = state.id AND
+               state.code = OLD.state AND
+               state.country = OLD.country);
 
-CREATE RULE update_address AS ON UPDATE TO basic_address DO INSTEAD
+CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
        UPDATE address SET number = NEW.number, addendum = NEW.street2,
-       street = find_street (NEW.name, (SELECT urb.id FROM urb, state WHERE
-		   urb.name = NEW.city AND  
-		   urb.postcode = NEW.postcode AND
-		   urb.statecode = state.id AND
-		   state.code = NEW.state AND
-		   state.country = NEW.country),
-	       NEW.number,
-	       NEW.street2
-	       )
-	WHERE 
-	       addrtype = 1 AND 
-	       number = OLD.number AND addendum = OLD.street2 AND
-	       street = (SELECT street.id FROM street, urb, state  WHERE 
-	       street.name = OLD.street AND 
-	       street.id_urb = urb.id AND
-	       urb.name = OLD.city AND  
-	       urb.postcode = OLD.postcode AND
-	       urb.statecode = state.id AND
-	       state.code = OLD.state AND
-	       state.country = OLD.country);
+       street = find_street (NEW.street,
+                  (SELECT urb.id FROM urb, state WHERE
+                   urb.name = NEW.city AND
+                   urb.postcode = NEW.postcode AND
+                   urb.statecode = state.id AND
+                   state.code = NEW.state AND
+                   state.country = NEW.country))
+        WHERE
+               addrtype = 1 AND
+               number = OLD.number AND addendum = OLD.street2 AND
+               street = (SELECT street.id FROM street, urb, state  WHERE
+               street.name = OLD.street AND
+               street.id_urb = urb.id AND
+               urb.name = OLD.city AND
+               urb.postcode = OLD.postcode AND
+               urb.statecode = state.id AND
+               state.code = OLD.state AND
+               state.country = OLD.country);
 
 -- =============================================
 
@@ -263,30 +263,30 @@ create table coordinate (
       id serial,
       name varchar (30),
       scale float
-      -- NOTE: this converts distances from the co-ordinate units to 
+      -- NOTE: this converts distances from the co-ordinate units to
       -- kilometres.
-      -- theoretically this may be problematic with some systems due to the 
+      -- theoretically this may be problematic with some systems due to the
       -- ellipsoid nature of the Earth, but in reality it is unlikely to matter
 );
 
 create table address_info (
-	address_id int references address(id),
-	location point,
--- this refers to a SQL point type. This would allow us to do 
+        address_id int references address(id),
+        location point,
+-- this refers to a SQL point type. This would allow us to do
 -- interesting queries, like, how many patients live within
 -- 10kms of the clinic.
-	id_coord integer references coordinate (id),
-	mapref char(30),
-	id_map integer references mapbook (id),
-	howto_get_there text,
-	comments text
+        id_coord integer references coordinate (id),
+        mapref char(30),
+        id_map integer references mapbook (id),
+        howto_get_there text,
+        comments text
 ) inherits (audit_gis);
 
 -- =============================================
 
 -- =============================================
 -- Here come the ISO country codes ...
-COPY "country"  FROM stdin;
+COPY country FROM stdin;
 AF	AFGHANISTAN	\N
 AL	ALBANIA	\N
 DZ	ALGERIA	\N
@@ -399,11 +399,11 @@ JO	JORDAN	\N
 KZ	KAZAKSTAN	\N
 KE	KENYA	\N
 KI	KIRIBATI	\N
-KP	KOREA, DEMOCRATIC PEOPLE'S REPUBLIC	\N
+KP	KOREA, DEMOCRATIC PEOPLE'S REP	\N
 KR	KOREA, REPUBLIC OF	\N
 KW	KUWAIT	\N
 KG	KYRGYZSTAN	\N
-LA	LAO PEOPLE'S DEMOCRATIC REPUBLIC	\N
+LA	LAO PEOPLE'S DEMOCRATIC REPUBL	\N
 LV	LATVIA	\N
 LB	LEBANON	\N
 LS	LESOTHO	\N
@@ -426,7 +426,7 @@ MR	MAURITANIA	\N
 MU	MAURITIUS	\N
 YT	MAYOTTE	\N
 MX	MEXICO	\N
-FM	MICRONESIA, FEDERATED STATES OF	\N
+FM	MICRONESIA, FEDERATED STATES O	\N
 MD	MOLDOVA, REPUBLIC OF	\N
 MC	MONACO	\N
 MN	MONGOLIA	\N
@@ -451,7 +451,7 @@ NO	NORWAY	\N
 OM	OMAN	\N
 PK	PAKISTAN	\N
 PW	PALAU	\N
-PS	PALESTINIAN TERRITORY, OCCUPIED	\N
+PS	PALESTINIAN TERRITORY, OCCUPIE	\N
 PA	PANAMA	\N
 PG	PAPUA NEW GUINEA	\N
 PY	PARAGUAY	\N
@@ -470,7 +470,7 @@ SH	SAINT HELENA	\N
 KN	SAINT KITTS AND NEVIS	\N
 LC	SAINT LUCIA	\N
 PM	SAINT PIERRE AND MIQUELON	\N
-VC	SAINT VINCENT AND THE GRENADINES	\N
+VC	SAINT VINCENT AND THE GRENADIN	\N
 WS	SAMOA	\N
 SM	SAN MARINO	\N
 ST	SAO TOME AND PRINCIPE	\N
@@ -512,20 +512,6 @@ UA	UKRAINE	\N
 AE	UNITED ARAB EMIRATES	\N
 GB	UNITED KINGDOM	\N
 US	UNITED STATES	\N
-UM	UNITED STATES MINOR OUTLYING I	\N
-UY	URUGUAY	\N
-UZ	UZBEKISTAN	\N
-VU	VANUATU	\N
-VE	VENEZUELA	\N
-VN	VIET NAM	\N
-VG	VIRGIN ISLANDS, BRITISH	\N
-VI	VIRGIN ISLANDS, U.S.	\N
-WF	WALLIS AND FUTUNA	\N
-EH	WESTERN SAHARA	\N
-YE	YEMEN	\N
-YU	YUGOSLAVIA	\N
-ZM	ZAMBIA	\N
-ZW	ZIMBABWE	\N
 \.
 
 
