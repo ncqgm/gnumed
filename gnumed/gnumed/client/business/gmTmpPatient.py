@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.24 2003-06-19 15:24:23 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmTmpPatient.py,v 1.25 2003-06-22 16:18:34 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -340,7 +340,7 @@ class gmCurrentPatient(cBorg):
 			if self.patient is None:
 				try:
 					self.patient = gmPerson(aPKey)
-					# if init()ed initial state is unlocked, remote app must lock explicitly
+					# remote app must lock explicitly
 					self.unlock()
 					self.__send_selection_notification()
 				except:
@@ -354,6 +354,7 @@ class gmCurrentPatient(cBorg):
 						try:
 							tmp = gmPerson(aPKey)
 							# clean up after ourselves
+							self.__send_pre_selection_notification()
 							self.patient.commit()
 							# FIXME: is this needed ?
 							del self.patient
@@ -403,6 +404,15 @@ class gmCurrentPatient(cBorg):
 			'sender': id(self.__class__)
 		}
 		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+	#--------------------------------------------------------
+	def __send_pre_selection_notification(self):
+		"""Sends signal when another patient is about to become active."""
+		kwargs = {
+			'ID': self.patient['ID'],
+			'signal': gmSignals.activating_patient(),
+			'sender': id(self.__class__)
+		}
+		gmDispatcher.send(gmSignals.activating_patient(), kwds=kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
 		if self.patient is None:
@@ -678,7 +688,10 @@ if __name__ == "__main__":
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.24  2003-06-19 15:24:23  ncq
+# Revision 1.25  2003-06-22 16:18:34  ncq
+# - cleanup, send signal prior to changing the active patient, too
+#
+# Revision 1.24  2003/06/19 15:24:23  ncq
 # - add is_connected check to gmCurrentPatient to find
 #   out whether there's a live patient record attached
 # - typo fix
