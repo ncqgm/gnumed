@@ -17,14 +17,24 @@ may have it's own log level.
 There's also a dummy log target that just drops messages to the floor.
 
 By importing gmLog into your code you'll immediately have
-access to a default logger: gmDefLog. Initially, the only log
-target is a dummy which is formally fully functional but does
-nothing. To turn on real logging you need to instantiate another
-log target such as a file and add that target to gmDefLog.
+access to a default logger: gmDefLog. Initially, the logger has
+a log file as it's default target. The name of the file is
+automatically derived from the name of the main application.
+The log file will be found in one of the following standard
+locations:
+
+1) given on the command line as "--log-file=<log file>"
+2) ~/.<base_name>/<base_name>.log
+3) /var/log/<base_name>/<base_name>.log
+4) /var/log/<base_name>.log
+5) /dir/of/binary/<base_name>.log	- mainly for DOS/Windows
+
+where <base_name> is derived from the name
+of the main application.
 
 By importing gmLog and logging to the default log your modules
 never need to worry about the real message destination or whether
-at any given instant there's a valid logger available. Your MAIN
+at any given time there's a valid logger available. Your MAIN
 module simply adds real log targets to the default logger and
 all other modules will merrily and automagically start logging
 there.
@@ -41,10 +51,10 @@ Usage:
 @copyright: GPL
 """
 
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, time, traceback, os.path, atexit, os, string
+import sys, time, traceback, os.path, atexit, os, string, getopt
 
 # safely import SYSLOG, currently POSIX only
 try:
@@ -479,6 +489,78 @@ class cLogTargetEMail(cLogTarget):
 	del self.__msg_buffer
 	self.__msg_buffer = []
 #---------------------------------------------------------------
+def __open_default_logfile():
+    """Try to open log file in a standard location.
+
+    - we don't have a logger available yet
+    """
+    cmd_line = ''
+    loghandle = None
+    # long options only !
+    try:
+	cmd_line = getopt.getopt(sys.argv[1:], '', ['log-file=',])
+    except getopt.GetoptError:
+	print "1"
+	pass
+
+    # config file given on command line ?
+    # 1) tuple(cmd_line) -> (known options, junk)
+    known_opts = cmd_line[0]
+    if len(known_opts) > 0:
+	# 2) sequence(known_opt) -> (opt 1, opt 2, ..., opt n)
+	first_opt = known_opts[0]
+	# 3) tuple(first_opt) -> (option name, option value)
+	logName = os.path.abspath(first_opt[1])
+	print logName
+	try:
+	    loghandle = cLogTargetFile (lData, logName, "wb")
+	    return loghandle
+	except:
+	    return None
+
+    # else look in standard locations
+    else:
+	# get base dir from name of script
+	base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+	# get base name from name of script
+	base_name = base_dir + ".log"
+
+	# ~/.base_dir/base_name.log
+	logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
+	try:
+	    loghandle = cLogTargetFile (lData, logName, "wb")
+	    return loghandle
+	except:
+	    pass
+
+	# /var/log/base_dir/base_name.log
+	logName = os.path.join('/var/log', base_dir, base_name)
+	try:
+	    loghandle = cLogTargetFile (lData, logName, "ab")
+	    return loghandle
+	except:
+	    pass
+
+	# /var/log/base_name.log
+	logName = os.path.join('/var/log', base_name)
+	try:
+	    loghandle = cLogTargetFile (lData, logName, "ab")
+	    return loghandle
+	except:
+	    pass
+
+	# ./base_name.log
+	# last resort for inferior operating systems such as DOS/Windows
+	logName = os.path.abspath(os.path.join(os.path.split(sys.argv[0])[0], base_name))
+	try:
+	    loghandle = cLogTargetFile (lData, logName, "wb")
+	    return loghandle
+	except:
+	    pass
+
+    print "Cannot open any log file. Aborting."
+    return None
+#---------------------------------------------------------------
 def myExitFunc():
     pass
     # FIXME - do something useful
@@ -550,31 +632,35 @@ if __name__ == "__main__":
 
     print "Done."
 else:
-    gmDefLog = cLogger()
+    # register application specific default log file
+    gmDefLog = cLogger(__open_default_logfile())
     # this needs Python 2.x
     atexit.register(myExitFunc)
 #---------------------------------------------------------------
 # sample code for inclusion in your project
 #---------------------------------------------------------------
-# near the top do this:
-# (this is all you need if you write a module)
-
+# by just importing this module you will usually get a default
+# log file in a fairly standard location:
 """
 import gmLog
-__log__ = gmLog.gmDefLog
-
 """
 
-# then, somewhere in your __main__ do this:
-# (this you would need if you write the main part of the program)
+# it is rather convenient to define a shortcut:
+"""
+__log__ = gmLog.gmDefLog
+"""
 
+# if you want to add log targets do this:
 """
 # make a _real_ log target
-loghandle = gmLog.cLogTargetFile (gmLog.lData, 'XX-log-import.log', "a")
+loghandle = gmLog.cLogTargetFile (gmLog.lData, 'your-log-file.log', "ab")
 # and tell the default logger to also use that
 __log__.AddTarget(loghandle)
-__log__.Log (gmLog.lInfo, "starting up")
+"""
 
+# alternatively if you want to setup your own logger with targets:
+"""
+myLogger = gmLog.cLogger(aTarget = your-log-target)
 """
 #---------------------------------------------------------------
 # random ideas and TODO
