@@ -1,27 +1,17 @@
-#!/usr/local/bin/python
+#========================================================
+import sys, string, re, types
 
-import sys, string, re, types, os.path
+from Gnumed.pycommon import gmLog, gmCfg, gmPG, gmWhoAmI, gmDrugObject, gmExceptions
 
-# location of our modules
-if __name__ == "__main__":
-	sys.path.append(os.path.join('.', 'modules'))
-
-import gmLog
 _log = gmLog.gmDefLog
-
-import gmCfg
 _cfg = gmCfg.gmDefCfgFile
-
-import gmPG, gmDrugObject, gmWhoAmI
 _whoami = gmWhoAmI.cWhoAmI()
-
-from gmExceptions import *
 
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
 darkbrown = '#841310'
 
-
+#========================================================
 class DrugView:
 	"""handles a given Interface to a drug database via the Drug object"""
 
@@ -33,7 +23,7 @@ class DrugView:
 		"""
 
 		if aDatabaseName == None:
-			raise ConstructorError,"No database name specified."
+			raise gmExceptions.ConstructorError,"No database name specified."
 
 		# open configuration source
 		# if we are not inside gnumed we won't get a definite answer on
@@ -55,13 +45,13 @@ class DrugView:
 			
 		if self.dbConfFile is None:
 			_log.Log(gmLog.lErr, "No config information on drug database [%s] found." % aDatabaseName)
-			raise ConstructorError,"No DrugDB config file specified."
+			raise gmExceptions.ConstructorError,"No DrugDB config file specified."
 
 		try:
 			self.mDrugInterface = gmDrugObject.Drug(queryCfgSource = self.dbConfFile)
 		except:
 			_log.LogException("Unhandled exception while opening config file", sys.exc_info(), verbose = 0)
-			raise ConstructorError,"Couldn't initialize drug object for DB %s" % aDatabaseName
+			raise gmExceptions.ConstructorError,"Couldn't initialize drug object for DB %s" % aDatabaseName
 
 		self.__mFormatString = {} 	# format strings
 		self.__mGroupPos = {}		# query group on position x
@@ -385,7 +375,7 @@ class DrugView:
 
 
 
-
+#========================================================
 def translateASCII2HTML(aString = None):
 	subst = aString
 	subst=re.sub('<',"&lt;",subst)
@@ -394,10 +384,14 @@ def translateASCII2HTML(aString = None):
 	return subst
  
 if __name__ == "__main__":
-	pass
+	print "please write unit test code"
 
+#========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-03-10 00:14:04  ncq
+# - fix imports
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.4  2003/12/29 16:26:14  uid66147

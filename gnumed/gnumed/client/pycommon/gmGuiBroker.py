@@ -9,14 +9,15 @@ variables needed for a gnumed GUI client interface
 """
 #-----------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmGuiBroker.py,v $
-# $Id: gmGuiBroker.py,v 1.1 2004-02-25 09:30:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmGuiBroker.py,v 1.2 2004-03-10 00:14:04 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "H.Herb <hherb@gnumed.net>, H.Berger <Hilmar.Berger@gmx.de>"
 #===========================================================
 
 # FIXME !!! hack moved here from gmConf. This definitely must be replaced by some 
 # structure getting data from the backend
-config = {'main.use_notebook':1, 'main.shadow':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
+# FIXME: hardcoded color/width !?! move to DB (?)
+config = {'main.use_notebook':1, 'main.shadow.colour':(131, 129, 131), 'main.shadow.width':10}
 
 #===========================================================
 class GuiBroker:
@@ -157,7 +158,10 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGuiBroker.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-03-10 00:14:04  ncq
+# - fix imports
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.8  2003/11/17 10:56:36  sjtan

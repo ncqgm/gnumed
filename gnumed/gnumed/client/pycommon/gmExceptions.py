@@ -56,16 +56,19 @@ class PureVirtualFunction(Exception):
 class ConstructorError(Exception):
 	"""Raised when a constructor fails."""
 	def __init__(self, errmsg = None):
-		if errmsg is not None:
-			self.errmsg = errmsg
+		if errmsg is None:
+			self.errmsg = "%s.__init__() failed" % self.__class__.__name__
 		else:
-			self.errmsg = "__init__() failed !"
+			self.errmsg = errmsg
 
 	def __str__(self):
 		return self.errmsg
 
 #=====================================================================
 # $Log: gmExceptions.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-03-10 00:14:04  ncq
+# - fix imports
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
