@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.27 2004-09-01 21:59:01 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmPatientExporter.py,v 1.28 2004-09-06 18:55:09 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -418,29 +418,28 @@ class cEmrExport:
                                                                                            -> encounters
         Encounter object is associated with item to allow displaying its information
         """
-        
         # variable initialization
         self.__get_filtered_emr_data()
         emr = self.__patient.get_clinical_record()
         h_issues = emr.get_health_issues(id_list = self.__filtered_issues)
-                
-        # build the tree
         root_node = emr_tree.GetRootItem()
-        for h_issue in h_issues:
-            parent_issue =  emr_tree.AppendItem(root_node, h_issue['description'])
-            for an_episode in emr.get_episodes(id_list=self.__filtered_episodes, issues = [h_issue['id']]):
-               parent_episode =  emr_tree.AppendItem(parent_issue, an_episode['description'])
-               items =  filter(lambda item: item['pk_episode'] in [an_episode['pk_episode']], self.__filtered_items)
+
+        # build the tree
+        for issue in h_issues:
+            issue_node =  emr_tree.AppendItem(root_node, issue['description'])
+            emr_tree.SetPyData(issue_node, issue)
+            for epi in emr.get_episodes(id_list=self.__filtered_episodes, issues = [issue['id']]):
+               episode_node =  emr_tree.AppendItem(issue_node, epi['description'])
+               emr_tree.SetPyData(episode_node, epi)
+
+               items =  filter(lambda item: item['pk_episode'] = epi['pk_episode'], self.__filtered_items)
                encounters = self.get_encounters_for_items(items)
-               for an_encounter in encounters:
-                    parent_encounter =  emr_tree.AppendItem(parent_episode, an_encounter['l10n_type'] + ': ' + \
-                    an_encounter['started'].Format('%Y-%m-%d'))
-                    emr_tree.SetPyData(parent_encounter, an_encounter)
-               emr_tree.SetPyData(parent_episode, an_episode)
-            emr_tree.SetPyData(parent_issue, h_issue) 
-            
+               for enc in encounters:
+                    label = '%s:%s' % (enc['l10n_type'], enc['started'].Format('%Y-%m-%d'))
+                    encounter_node = emr_tree.AppendItem(episode_node, label)
+                    emr_tree.SetPyData(encounter_node, enc)
     #--------------------------------------------------------  
-    def dump_summary_info(self, issue, left_margin = 0):
+    def dump_summary_info(self, left_margin = 0):
         """
         Dumps patient EMR summary
                                                               
@@ -451,15 +450,16 @@ class cEmrExport:
         return txt                    
         
     #--------------------------------------------------------  
-    def dump_issue_info(self, issue, left_margin = 0):
+    def dump_issue_info(self, issue=None, left_margin=0):
         """
         Dumps health specific data
                                                               
         """
         # fetch first and last encounters for the issue
         emr = self.__patient.get_clinical_record()
-        first_encounter = emr.get_first_encounter(issue = issue['id'])
-        last_encounter = emr.get_last_encounter(issue = issue['id'])
+        print "dump_issue_info() - issue:", issue
+        first_encounter = emr.get_first_encounter(issue_id = issue['id'])
+        last_encounter = emr.get_last_encounter(issue_id = issue['id'])
         # dump info
         txt = ''
         txt += left_margin *' ' + 'Started: ' + first_encounter['started'].Format('%Y-%m-%d %H:%M') + '\n'
@@ -476,8 +476,8 @@ class cEmrExport:
         """
         # fetch first and last encounters for the issue
         emr = self.__patient.get_clinical_record()
-        first_encounter = emr.get_first_encounter(episode = episode['pk_episode'])
-        last_encounter = emr.get_last_encounter(episode = episode['pk_episode'])
+        first_encounter = emr.get_first_encounter(episode_id = episode['pk_episode'])
+        last_encounter = emr.get_last_encounter(episode_id = episode['pk_episode'])
         # dump info
         txt = ''
         txt += left_margin *' ' + 'Started: ' + first_encounter['started'].Format('%Y-%m-%d %H:%M') + '\n'
@@ -826,7 +826,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.27  2004-09-01 21:59:01  ncq
+# Revision 1.28  2004-09-06 18:55:09  ncq
+# - a bunch of cleanups re get_historical_tree()
+#
+# Revision 1.27  2004/09/01 21:59:01  ncq
 # - python classes can only have one single __init__
 # - add in Carlos' code for displaying episode/issue summaries
 #
