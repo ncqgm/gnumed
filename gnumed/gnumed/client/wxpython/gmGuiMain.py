@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-01-14 19:36:04 $
-# @version $Revision: 1.60 $ $Date: 2003-01-14 19:36:04 $ $Author: ncq $
+# @Date: $Date: 2003-01-29 04:26:37 $
+# @version $Revision: 1.61 $ $Date: 2003-01-29 04:26:37 $ $Author: michaelb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -45,7 +45,6 @@ import sys, time, os, cPickle, zlib
 import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmLog, gmPlugin, gmCfg
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
-import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
@@ -511,7 +510,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.60  2003-01-14 19:36:04  ncq
+# Revision 1.61  2003-01-29 04:26:37  michaelb
+# removed import images_gnuMedGP_TabbedLists.py
+#
+# Revision 1.60  2003/01/14 19:36:04  ncq
 # - frame.Maximize() works on Windows ONLY
 #
 # Revision 1.59  2003/01/14 09:10:19  ncq
