@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.8 2004-04-26 21:56:19 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPathLab.py,v 1.9 2004-05-02 22:56:36 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -235,7 +235,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		if name is not None:
 			if name != rows[0][1]:
 				_log.Log(gmLog.lWarn, 'test type [%s:%s] found but long name is different (DB: %s, expected: %s)' % (lab, code, rows[0][1], name))
-				me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.8 $'
+				me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.9 $'
 				to = 'user'
 				prob = _('The test type already exists but the long name is different. '
 						'The test facility may have changed the descriptive name of this test.')
@@ -248,7 +248,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	# found but ambigous
 	if len(rows) > 1:
 		_log.Log(gmLog.lErr, 'several test types found for [%s:%s]: %s, this should not be possible' % (lab, code, rows))
-		me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.8 $'
+		me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.9 $'
 		to = 'user'
 		prob = _('More than one matching test type. This should be impossible.')
 		sol = _('Please check the test type definitions and possibly remove duplicates.')
@@ -295,6 +295,50 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	if result is None:
 		return (False, err)
 	return (True, result[0][0])
+#------------------------------------------------------------
+def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, episode_id=None):
+	req = None
+	try:
+		req = cLabRequest(lab=lab, req_id=req_id)
+	except ConstructorError, msg:
+		# either not found or operational error
+		_log.LogException(msg, sys.exc_info(), verbose=0)
+		if msg.startswith('error getting lab request'):
+			return (False, msg)
+	# found
+	if req is not None:
+		db_pat = req.get_patient()
+		# but ambigous
+		if pat_id != db_pat[0]:
+			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.9 $'
+			to = 'user'
+			prob = _('The lab request already exists but belongs to a different patient.')
+			sol = _('Verify which patient this lab request really belongs to.')
+			ctxt = _('lab [%s], request ID [%s], expected link with patient [%s], currently linked to patient [%s]') % (lab, req_id, pat_id, db_pat)
+			cat = 'lab'
+			status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
+			return (None, data)
+		return (True, req)
+	# not found
+	queries = []
+	if type(lab) is types.IntType:
+		cmd = "insert into lab_request (id_encounter, id_episode, fk_test_org, request_id) values (%s, %s, %s, %s)"
+	else:
+		cmd = "insert into lab_request (id_encounter, id_episode, fk_test_org, request_id) values (%s, %s, (select pk from test_org where internal_name=%s), %s)"
+	queries.append((cmd, [encounter_id, episode_id, str(lab), req_id]))
+	cmd = "select currval('lab_request_pk_seq')"
+	queries.appen((cmd, []))
+	# insert new
+	result, err = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, err)
+	try:
+		req = cLabRequest(aPKey=result[0][0])
+	except ConstructorError, msg:
+		_log.LogException(msg, sys.exc_info(), verbose=0)
+		return (False, msg)
+	return (True, req)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -327,7 +371,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.8  2004-04-26 21:56:19  ncq
+# Revision 1.9  2004-05-02 22:56:36  ncq
+# - add create_lab_request()
+#
+# Revision 1.8  2004/04/26 21:56:19  ncq
 # - add cLabRequest.get_patient()
 # - add create_test_type()
 #
