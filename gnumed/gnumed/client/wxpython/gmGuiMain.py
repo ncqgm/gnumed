@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.182 2005-03-08 16:45:55 ncq Exp $
-__version__ = "$Revision: 1.182 $"
+# $Id: gmGuiMain.py,v 1.183 2005-03-14 14:37:19 ncq Exp $
+__version__ = "$Revision: 1.183 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -36,6 +36,12 @@ email_logger = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.wxVERSION_STRING)
+
+try:
+	vm = wx.VideoMode()
+	_log.Log(gmLog.lInfo, 'display: %s:%s@%s' % (vm.v, vm.h, vm.bpp))
+except AttributeError:
+	pass
 
 encoding = _cfg.get('backend', 'client encoding')
 if encoding is None:
@@ -648,7 +654,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.182  2005-03-08 16:45:55  ncq
+# Revision 1.183  2005-03-14 14:37:19  ncq
+# - attempt to log display settings
+#
+# Revision 1.182  2005/03/08 16:45:55  ncq
 # - properly handle title
 #
 # Revision 1.181  2005/03/06 14:50:45  ncq
