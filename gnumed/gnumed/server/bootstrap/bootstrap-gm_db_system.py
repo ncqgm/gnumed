@@ -11,7 +11,7 @@ are not well supported yet.
 This will set up databases, services, database tables,
 groups, permissions and possibly users.
 
-There's a special user called "gmdb-owner" who owns all the
+There's a special user called "gm-dbowner" who owns all the
 database objects.
 
 For all this to work you must be able to access the database
@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1068,12 +1068,12 @@ def bootstrap_services():
 		exit_with_msg("Service list empty. Nothing to do here.")
 	# run through services
 	for service_alias in services:
+		print "bootstrapping service [%s] (= %s) ..." % (_cfg.get('service %s' % service_alias, 'name'), service_alias)
 		service = gmService(service_alias)
 		if not service.bootstrap():
 			return None
 		if not service.register():
 			return None
-		print "bootstrapped service [%s] (= %s) ..." % (_cfg.get(service_alias, 'name'), service_alias)
 	return 1
 #--------------------------------------------------------------
 def bootstrap_auditing():
@@ -1305,7 +1305,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.41  2003-12-29 15:20:42  uid66147
+# Revision 1.42  2004-01-05 00:56:12  ncq
+# - fixed typo, better feedback on console
+#
+# Revision 1.41  2003/12/29 15:20:42  uid66147
 # - mini cleanup
 #
 # Revision 1.40  2003/12/02 00:20:37  ncq
