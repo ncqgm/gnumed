@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.48 2004-08-09 00:05:15 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmTopPanel.py,v 1.49 2004-08-18 10:16:03 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ from wxPython.wx import *
 
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
 from Gnumed.business import gmPatient
-from Gnumed.wxpython import gmGP_PatientPicture, gmPatientSelector, gmGuiHelpers, gmBMIWidgets, gmPregWidgets
+from Gnumed.wxpython import gmPatientSelector, gmGuiHelpers, gmBMIWidgets, gmPregWidgets, gmPatPicWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -214,8 +214,8 @@ class cMainTopPanel(wxPanel):
 		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND | wxALL, 2)
 
 		# create patient picture
-		self.patient_picture = gmGP_PatientPicture.cPatientPicture(self, -1)
-		self.__gb['main.patient_picture'] = self.patient_picture
+		self.patient_picture = gmPatPicWidgets.cPatientPicture(self, -1)
+#		self.__gb['main.patient_picture'] = self.patient_picture
 
 		# create main sizer
 		self.szr_main = wxBoxSizer(wxHORIZONTAL)
@@ -447,7 +447,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.48  2004-08-09 00:05:15  ncq
+# Revision 1.49  2004-08-18 10:16:03  ncq
+# - import patient picture code from Richard's improved gmPatPicWidgets
+#
+# Revision 1.48  2004/08/09 00:05:15  ncq
 # - cleanup
 # - hardcode loading depluginized preg calculator/lock button
 # - load icons from png files
