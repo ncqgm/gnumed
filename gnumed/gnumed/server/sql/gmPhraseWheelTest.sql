@@ -1,7 +1,7 @@
 -- Project: GnuMed - public database table for phrase wheel SQL test
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPhraseWheelTest.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -14,6 +14,7 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+--set client_encoding to 'latin1';
 -- ===================================================================
 \unset ON_ERROR_STOP
 drop table gmpw_sql_test;
@@ -29,11 +30,11 @@ select add_table_for_scoring('gmpw_sql_test');
 
 GRANT all on
 	gmpw_sql_test
-to "any-doc";
+to group "gm-doctors";
 
 GRANT all on
 	gmpw_sql_test
-to "_any-doc";
+to group "_gm-doctors";
 
 -- ===================================================================
 insert into gmpw_sql_test(phrase) values ('Sepsis acutissima hyperergica fulminans');
@@ -236,11 +237,14 @@ insert into gmpw_sql_test(phrase) values ('Nervenhyperregeneration [Narbenneurom
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmPhraseWheelTest.sql,v $';
-insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.4 $');
+insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmPhraseWheelTest.sql,v $
--- Revision 1.4  2003-10-19 13:05:25  ncq
+-- Revision 1.5  2003-12-29 15:41:15  uid66147
+-- - cleanup
+--
+-- Revision 1.4  2003/10/19 13:05:25  ncq
 -- - use scoring implementation
 --
 -- Revision 1.3  2003/10/09 15:22:14  ncq
