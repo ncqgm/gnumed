@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.20 2003-06-29 15:24:22 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.21 2003-07-09 16:23:21 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -102,6 +102,25 @@ from
 	_enum_encounter_type et
 where
 	et.id=ce.id_type
+;
+
+-- ==========================================================
+-- health issues stuff
+\unset ON_ERROR_STOP
+drop trigger zzt_h_issues_modified on clin_health_issue;
+drop function f_announce_h_issue_mod();
+\set ON_ERROR_STOP 1
+
+create function f_announce_h_issue_mod() returns opaque as '
+begin
+	notify "health_issue_change_db";
+	return NEW;
+end;
+' language 'plpgsql';
+
+create trigger zzt_h_issues_modified
+	after insert or delete or update on clin_health_issue
+	for each row execute procedure f_announce_h_issue_mod()
 ;
 
 -- ==========================================================
@@ -220,11 +239,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.20  2003-06-29 15:24:22  ncq
+-- Revision 1.21  2003-07-09 16:23:21  ncq
+-- - add clin_health_issue triggers and functions
+--
+-- Revision 1.20  2003/06/29 15:24:22  ncq
 -- - now clin_root_item inherits from audit_fields we can add
 --    extract(epoch from modified_when) as age
 --   to v_patient_items and order by that :-)
