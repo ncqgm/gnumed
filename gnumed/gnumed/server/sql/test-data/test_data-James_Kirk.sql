@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -33,14 +33,14 @@ values (currval('identity_id_seq'), true, 'Kirk', 'James T.');
 insert into xlnk_identity (xfk_identity, pupic)
 values (currval('identity_id_seq'), currval('identity_id_seq'));
 
--- health issue
+-- default health issue
 delete from clin_health_issue where
 	id_patient = currval('identity_id_seq');
 
 insert into clin_health_issue (id_patient)
 values (currval('identity_id_seq'));
 
--- episode
+-- episode "knive cut"
 delete from clin_episode where id in (
 	select id_episode
 	from v_patient_episodes
@@ -58,7 +58,7 @@ values (
 	'knive cut left arm 9/2000'
 );
 
--- encounter: first, for knive cut
+-- encounter: first, for knive cut ------------------------------------------------
 insert into clin_encounter (
 	fk_patient,
 	fk_location,
@@ -110,7 +110,39 @@ insert into lnk_vacc2vacc_def (
 	)
 );
 
--- encounter
+-- blood sample drawn for screen/CRP
+insert into lab_request (
+	clin_when,
+	id_encounter,
+	id_episode,
+	narrative,
+	fk_test_org,
+	request_id,
+	fk_requestor,
+	lab_request_id,
+	lab_rxd_when,
+	results_reported_when,
+	request_status,
+	is_pending
+) values (
+	'2000-9-17',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'inflammation screen, possibly extraterrestrial contamination',
+	(select pk from test_org where internal_name='Enterprise Main Lab'),
+	'EML#SC937-0176-CEC#11',
+	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
+	'SC937-0176-CEC#15034',
+	'2000-9-17',
+	'2000-9-17',
+	'final',
+	false
+);
+
+-- results reported by lab
+
+
+-- encounter, second for knive cut ------------------------------------------
 insert into clin_encounter (
 	fk_patient,
 	fk_location,
@@ -149,6 +181,9 @@ insert into allergy_state (
 	currval('identity_id_seq'),
 	1
 );
+
+
+
 
 -- went to Vietnam for holidays
 insert into doc_med (
@@ -227,11 +262,15 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.10  2004-01-15 14:52:10  ncq
+-- Revision 1.11  2004-03-18 10:57:20  ncq
+-- - several fixes to the data
+-- - better constraints on vacc.seq_no/is_booster
+--
+-- Revision 1.10  2004/01/15 14:52:10  ncq
 -- - fix id_patient breakage
 --
 -- Revision 1.9  2004/01/14 10:42:05  ncq

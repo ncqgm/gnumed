@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.22 2004-03-12 23:15:04 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.23 2004-03-18 10:57:20 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -124,44 +124,44 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- measurements stuff
 -- your own practice as a test-providing org
-insert into test_org (pk, fk_org, comment) values (
-	1, -1, 'your own practice'
+insert into test_org (fk_org, comment) values (
+	-1, 'your own practice'
 );
 
 -- measurement definitions
 -- weight
 insert into test_type (
-	id, id_provider, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	1, 1, i18n('wght'), null, i18n('weight (body mass)'), i18n('the patient''s weight (body mass to be accurate)'), 'kg'
+	1, i18n('wght'), null, i18n('weight (body mass)'), i18n('the patient''s weight (body mass to be accurate)'), 'kg'
 );
 -- template
 insert into test_type (
-	id, id_provider, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	2, 1, i18n('hght'), null, i18n('height'), i18n('lying in infants, else standing, see result notes'), 'm'
+	1, i18n('hght'), null, i18n('height'), i18n('lying in infants, else standing, see result notes'), 'm'
 );
 -- blood pressure
 -- manually/by device, sitting/lying/standing, Riva-Rocci vs. other methods handled in result specifics
 insert into test_type (
-	id, id_provider, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	3, 1, i18n('RR'), null, i18n('blood pressure'), i18n('specifics attached to result record'), 'Pa'
+	1, i18n('RR'), null, i18n('blood pressure'), i18n('specifics attached to result record'), 'Pa'
 );
 -- pulse
 insert into test_type (
-	id, id_provider, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	4, 1, i18n('pulse'), null, i18n('pulse, periph.art.'), i18n('peripheral arterial pulse'), 'Hz'
+	1, i18n('pulse'), null, i18n('pulse, periph.art.'), i18n('peripheral arterial pulse'), 'Hz'
 );
 -- peripheral arterial oxygenation
 insert into test_type (
-	id, id_provider, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, basic_unit
 ) values (
-	5, 1, i18n('SpO2'), null, i18n('blood oxygen saturation'), i18n('peripheral arterial blood oxygenization level, transduced'), '%'
+	1, i18n('SpO2'), null, i18n('blood oxygen saturation'), i18n('peripheral arterial blood oxygenization level, transduced'), '%'
 );
 --insert into test_type (
---	id, id_provider, code, coding_system, name, comment, basic_unit
+--	fk_test_org, code, coding_system, name, comment, basic_unit
 --) values (
 --	'missing', 1, i18n(''), null, i18n(''), i18n(''), ''
 --);
@@ -519,11 +519,15 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.22  2004-03-12 23:15:04  ncq
+-- Revision 1.23  2004-03-18 10:57:20  ncq
+-- - several fixes to the data
+-- - better constraints on vacc.seq_no/is_booster
+--
+-- Revision 1.22  2004/03/12 23:15:04  ncq
 -- - adjust to id_ -> fk_/pk_
 --
 -- Revision 1.21  2004/02/18 14:08:29  ncq

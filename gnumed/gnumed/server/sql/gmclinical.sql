@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.89 $
+-- $Revision: 1.90 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -420,11 +420,16 @@ create table vacc_def (
 		references vacc_regime(id)
 		on delete cascade
 		on update cascade,
-	-- FIXME: specific constraint: null if (is_booster == true) else > 0
-	is_booster boolean not null default false,
-	seq_no integer not null,
-	min_age_due interval not null,
-	max_age_due interval default null,
+	is_booster boolean
+		default false
+		check (((is_booster=true) and (seq_no is null)) or ((is_booster=false) and (seq_no > 0))),
+	seq_no integer
+		default null
+		check (((is_booster=true) and (seq_no is null)) or ((is_booster=false) and (seq_no > 0))),
+	min_age_due interval
+		not null,
+	max_age_due interval
+		default null,
 	min_interval interval not null,
 	comment text,
 	unique(fk_regime, seq_no)
@@ -896,11 +901,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.89 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.90 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.89  2004-03-10 15:45:12  ncq
+-- Revision 1.90  2004-03-18 10:57:20  ncq
+-- - several fixes to the data
+-- - better constraints on vacc.seq_no/is_booster
+--
+-- Revision 1.89  2004/03/10 15:45:12  ncq
 -- - grants on form tables
 --
 -- Revision 1.88  2004/03/10 00:05:31  ncq
