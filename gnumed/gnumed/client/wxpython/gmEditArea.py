@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.20 2003-05-21 15:09:18 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmEditArea.py,v 1.21 2003-05-23 14:39:35 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
 import sys
@@ -18,7 +18,7 @@ _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	import gmI18N
 
-import gmExceptions
+import gmExceptions, gmDateTimeInput
 
 from wxPython.wx import *
 
@@ -29,7 +29,6 @@ gmSECTION_CLINICALNOTES = 3
 gmSECTION_FAMILYHISTORY = 4
 gmSECTION_PASTHISTORY = 5
 gmSECTION_VACCINATION = 6
-gmSECTION_ALLERGIES = 7
 gmSECTION_SCRIPT = 8
 #--------------------------------------------
 gmSECTION_REQUESTS = 9
@@ -127,10 +126,6 @@ _prompt_defs = {
 		_("Progress Notes"),
 		""
 	]
-}
-
-familyhistoryprompts = {
-
 }
 
 #====================================================================
@@ -309,27 +304,27 @@ class gmAllergyEditArea(gmEditArea):
 	def _make_edit_lines(self, parent):
 		_log.Log(gmLog.lData, "making allergy lines")
 		lines = []
-		self.TBOX_list = {}
+		self.input_fields = {}
 		# line 1
-		self.TBOX_list['date recorded'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['date recorded'])
+		self.input_fields['date recorded'] = gmDateTimeInput.gmDateInput(parent, -1, style = wxSIMPLE_BORDER)
+		lines.append(self.input_fields['date recorded'])
 		# line 2
-		self.TBOX_list['substance'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['substance'])
+		self.input_fields['substance'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['substance'])
 		# FIXME: add substance_code
 		# line 3
-		self.TBOX_list['generic'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['generic'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		self.ChBOX_generic_specific = wxCheckBox(parent, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.TBOX_list['generic'], 6, wxEXPAND)
+		szr.Add(self.input_fields['generic'], 6, wxEXPAND)
 		szr.Add(self.ChBOX_generic_specific, 0, wxEXPAND)
 		lines.append(szr)
 		# line 4
-		self.TBOX_list['allergy class'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['allergy class'])
+		self.input_fields['allergy class'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['allergy class'])
 		# line 5
-		self.TBOX_list['reaction'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['reaction'])
+		self.input_fields['reaction'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['reaction'])
 		# FIXME: add allergene, atc_code
 		# line 6
 		self.RBtn_is_allergy = wxRadioButton(parent, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
@@ -356,55 +351,55 @@ class gmFamilyHxEditArea(gmEditArea):
 	def _make_edit_lines(self, parent):
 		_log.Log(gmLog.lData, "making family Hx lines")
 		lines = []
-		self.TBOX_list = {}
+		self.input_fields = {}
 		# line 1
 		# FIXME: put patient search widget here, too ...
 		# add button "make active patient"
-		self.TBOX_list['name'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		self.TBOX_list['DOB'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['name'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['DOB'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		lbl_dob = self._make_prompt(parent, _(" Date of Birth "), richards_blue)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.TBOX_list['name'], 4, wxEXPAND)
+		szr.Add(self.input_fields['name'], 4, wxEXPAND)
 		szr.Add(lbl_dob, 2, wxEXPAND)
-		szr.Add(self.TBOX_list['DOB'], 4, wxEXPAND)
+		szr.Add(self.input_fields['DOB'], 4, wxEXPAND)
 		lines.append(szr)
 		# line 2
 		# FIXME: keep relationship attachments permamently ! (may need to make new patient ...)
 		# FIXME: learning phrasewheel attached to list loaded from backend
-		self.TBOX_list['relationship'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['relationship'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.TBOX_list['relationship'], 4, wxEXPAND)
+		szr.Add(self.input_fields['relationship'], 4, wxEXPAND)
 		lines.append(szr)
 		# line 3
-		self.TBOX_list['condition'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['condition'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		self.ChBOX_condition_confidential = wxCheckBox(parent, -1, _("confidental"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.TBOX_list['condition'], 6, wxEXPAND)
+		szr.Add(self.input_fields['condition'], 6, wxEXPAND)
 		szr.Add(self.ChBOX_condition_confidential, 0, wxEXPAND)
 		lines.append(szr)
 		# line 4
-		self.TBOX_list['comment'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['comment'])
+		self.input_fields['comment'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['comment'])
 		# line 5
 		lbl_onset = self._make_prompt(parent, _(" age onset "), richards_blue)
-		self.TBOX_list['age onset'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['age onset'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		#    FIXME: combo box ...
 		lbl_caused_death = self._make_prompt(parent, _(" caused death "), richards_blue)
-		self.TBOX_list['caused death'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['caused death'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		lbl_aod = self._make_prompt(parent, _(" age died "), richards_blue)
-		self.TBOX_list['AOD'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['AOD'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
 		szr = wxBoxSizer(wxHORIZONTAL)
 		szr.Add(lbl_onset, 0, wxEXPAND)
-		szr.Add(self.TBOX_list['age onset'], 1,wxEXPAND)
+		szr.Add(self.input_fields['age onset'], 1,wxEXPAND)
 		szr.Add(lbl_caused_death, 0, wxEXPAND)
-		szr.Add(self.TBOX_list['caused death'], 2,wxEXPAND)
+		szr.Add(self.input_fields['caused death'], 2,wxEXPAND)
 		szr.Add(lbl_aod, 0, wxEXPAND)
-		szr.Add(self.TBOX_list['AOD'], 1, wxEXPAND)
+		szr.Add(self.input_fields['AOD'], 1, wxEXPAND)
 		szr.Add(2, 2, 8)
 		lines.append(szr)
 		# line 6
-		self.TBOX_list['progress notes'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['progress notes'])
+		self.input_fields['progress notes'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['progress notes'])
 		# line 8
 		self.Btn_next_condition = wxButton(parent, -1, _("Next Condition"))
 		szr = wxBoxSizer(wxHORIZONTAL)
@@ -465,7 +460,62 @@ class EditTextBoxes(wxPanel):
 		elif section == gmSECTION_FAMILYHISTORY:
 			pass
 		elif section == gmSECTION_PASTHISTORY:
-			pass
+			# line 1
+			self.txt_condition = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			self.rb_sideleft = wxRadioButton(self, 32, _(" (L) "), wxDefaultPosition,wxDefaultSize)
+			self.rb_sideright = wxRadioButton(self, 33, _("(R)"), wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
+			self.rb_sideboth = wxRadioButton(self, 33, _("Both"), wxDefaultPosition,wxDefaultSize)
+			rbsizer = wxBoxSizer(wxHORIZONTAL)
+			rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
+			rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
+			rbsizer.Add(self.rb_sideboth,1,wxEXPAND)
+			szr1 = wxBoxSizer(wxHORIZONTAL)
+			szr1.Add(self.txt_condition, 4, wxEXPAND)
+			szr1.Add(rbsizer, 3, wxEXPAND)
+#			self.sizer_line1.Add(self.rb_sideleft,1,wxEXPAND|wxALL,2)
+#			self.sizer_line1.Add(self.rb_sideright,1,wxEXPAND|wxALL,2)
+#			self.sizer_line1.Add(self.rb_sideboth,1,wxEXPAND|wxALL,2)
+			# line 2
+			self.txt_notes1 = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			# line 3
+			self.txt_notes2= cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			# line 4
+			self.txt_agenoted = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+			szr4 = wxBoxSizer(wxHORIZONTAL)
+			szr4.Add(self.txt_agenoted, 1, wxEXPAND)
+			szr4.Add(5, 0, 5)
+			# line 5
+			self.txt_yearnoted  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			szr5 = wxBoxSizer(wxHORIZONTAL)
+			szr5.Add(self.txt_yearnoted, 1, wxEXPAND)
+			szr5.Add(5, 0, 5)
+			# line 6
+			self.cb_active = wxCheckBox(self, -1, _("Active"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			self.cb_operation = wxCheckBox(self, -1, _("Operation"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			self.cb_confidential = wxCheckBox(self, -1, _("Confidential"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			self.cb_significant = wxCheckBox(self, -1, _("Significant"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+			szr6 = wxBoxSizer(wxHORIZONTAL)
+			szr6.Add(self.cb_active, 1, wxEXPAND)
+			szr6.Add(self.cb_operation, 1, wxEXPAND)
+			szr6.Add(self.cb_confidential, 1, wxEXPAND)
+			szr6.Add(self.cb_significant, 1, wxEXPAND)
+			# line 7
+			self.txt_progressnotes  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+			# line 8
+			szr8 = wxBoxSizer(wxHORIZONTAL)
+			szr8.Add(5, 0, 6)
+			szr8.Add(self._make_standard_buttons(), 0, wxEXPAND)
+
+			self.gszr.Add(szr1,0,wxEXPAND)
+			self.gszr.Add(self.txt_notes1,0,wxEXPAND)
+			self.gszr.Add(self.txt_notes2,0,wxEXPAND)
+			self.gszr.Add(szr4,0,wxEXPAND)
+			self.gszr.Add(szr5,0,wxEXPAND)
+			self.gszr.Add(szr6,0,wxEXPAND)
+			self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
+			self.gszr.Add(szr8,0,wxEXPAND)
+			#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
+
 		elif section == gmSECTION_VACCINATION:
 			pass
 		elif section == gmSECTION_SCRIPT:
@@ -478,10 +528,6 @@ class EditTextBoxes(wxPanel):
 			pass
 		elif section == gmSECTION_RECALLS:
 			pass
-		elif section == gmSECTION_ALLERGIES:
-			lines = self.__make_allergy_lines()
-			for line in lines:
-				self.gszr.Add(line, 0, wxEXPAND | wxALIGN_RIGHT)
 		else:
 			pass
 
@@ -491,7 +537,7 @@ class EditTextBoxes(wxPanel):
 		self.SetAutoLayout(true)
 		self.Show(true)
 	#----------------------------------------------------------------
-	def _make_standard_buttons():
+	def _make_standard_buttons(self):
 		self.btn_OK = wxButton(self, -1, _("Ok"))
 		self.btn_Clear = wxButton(self, -1, _("Clear"))
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
@@ -500,29 +546,29 @@ class EditTextBoxes(wxPanel):
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND, wxALL, 1)
 		return szr_buttons
 	#----------------------------------------------------------------
-	def __make_allergy_lines():
+	def __make_allergy_lines(self):
 		lines = []
-		self.TBOX_list = {}
+		self.input_fields = {}
 		# line 1
-		self.TBOX_list['date recorded'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['date recorded'])
+		self.input_fields['date recorded'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['date recorded'])
 		# line 2
-		self.TBOX_list['substance'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['substance'])
+		self.input_fields['substance'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['substance'])
 		# FIXME: add substance_code
 		# line 3
-		self.TBOX_list['generic'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+		self.input_fields['generic'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
 		self.ChBOX_generic_specific = wxCheckBox(self, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
 		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.TBOX_list['generic'], 6, wxEXPAND)
+		szr.Add(self.input_fields['generic'], 6, wxEXPAND)
 		szr.Add(self.ChBOX_generic_specific, 0, wxEXPAND)
 		lines.append(szr)
 		# line 4
-		self.TBOX_list['allergy class'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['allergy class'])
+		self.input_fields['allergy class'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['allergy class'])
 		# line 5
-		self.TBOX_list['reaction'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.TBOX_list['reaction'])
+		self.input_fields['reaction'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
+		lines.append(self.input_fields['reaction'])
 		# FIXME: add allergene, atc_code
 		# line 6
 		self.RBtn_is_allergy = wxRadioButton(self, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
@@ -606,57 +652,15 @@ class EditArea(wxPanel):
 #====================================================================
 # old stuff still needed for conversion
 #--------------------------------------------------------------------
-#		elif section == gmSECTION_PASTHISTORY:
-#			self.txt_condition = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#			self.rb_sideleft = wxRadioButton(self, 32, " (L) ", wxDefaultPosition,wxDefaultSize)
-#			self.rb_sideright = wxRadioButton(self, 33, "(R)", wxDefaultPosition,wxDefaultSize,wxSUNKEN_BORDER)
-#			self.rb_sideboth = wxRadioButton(self, 33, "Both", wxDefaultPosition,wxDefaultSize)
-#			self.rbsizer = wxBoxSizer(wxHORIZONTAL)
-#			self.rbsizer.Add(self.rb_sideleft,1,wxEXPAND)
-#			self.rbsizer.Add(self.rb_sideright,1,wxEXPAND) 
-#			self.rbsizer.Add(self.rb_sideboth,1,wxEXPAND)
-#			self.sizer_line1.Add(self.txt_condition,4,wxEXPAND)
-#			self.sizer_line1.Add(self.rb_sideleft,1,wxEXPAND|wxALL,2)
-#			self.sizer_line1.Add(self.rb_sideright,1,wxEXPAND|wxALL,2) 
-#			self.sizer_line1.Add(self.rb_sideboth,1,wxEXPAND|wxALL,2)
-#			self.txt_notes1 = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#			self.txt_notes2= cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#			self.txt_agenoted = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#			self.sizer_line4.Add(self.txt_agenoted,1,wxEXPAND)
-#			self.sizer_line4.Add(5,0,5)
-#			self.txt_yearnoted  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#			self.sizer_line5.Add(self.txt_yearnoted,1,wxEXPAND)
-#			self.sizer_line5.Add(5,0,5)
-#			self.cb_active = wxCheckBox(self, -1, " Active ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-#			self.cb_operation = wxCheckBox(self, -1, " Operation ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-#			self.cb_confidential = wxCheckBox(self, -1, " Confidential ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-#			self.cb_significant = wxCheckBox(self, -1, " Significant ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-#			self.txt_progressnotes  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#			self.sizer_line6.Add(self.cb_active,1,wxEXPAND)
-#			self.sizer_line6.Add(self.cb_operation,1,wxEXPAND)
-#			self.sizer_line6.Add(self.cb_confidential,1,wxEXPAND)
-#			self.sizer_line6.Add(self.cb_significant,1,wxEXPAND)
-#			self.gszr.Add(self.sizer_line1,0,wxEXPAND)
-#			self.gszr.Add(self.txt_notes1,0,wxEXPAND)
-#			self.gszr.Add(self.txt_notes2,0,wxEXPAND)
-#			self.gszr.Add(self.sizer_line4,0,wxEXPAND)
-#			self.gszr.Add(self.sizer_line5,0,wxEXPAND)
-#			self.gszr.Add(self.sizer_line6,0,wxEXPAND)
-#			self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
-#			self.sizer_line7.Add(5,0,6)
-#			self.sizer_line7.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
-#			self.sizer_line7.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)   
-#			self.gszr.Add(self.sizer_line7,0,wxEXPAND)
-			#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
 
 
 #		elif section == gmSECTION_VACCINATION:
-#		      self.txt_targetdisease = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_vaccine = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_dategiven= cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_serialno = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_sitegiven  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#	              self.txt_progressnotes  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_targetdisease = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_vaccine = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_dategiven= cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_serialno = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_sitegiven  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#	              self.txt_progressnotes  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
 #	              self.gszr.Add(self.txt_targetdisease,0,wxEXPAND)
 #		      self.gszr.Add(self.txt_vaccine,0,wxEXPAND)
 #		      self.gszr.Add(self.txt_dategiven,0,wxEXPAND)
@@ -671,15 +675,15 @@ class EditArea(wxPanel):
 
 #		elif section == gmSECTION_SCRIPT:
 #		      gmLog.gmDefLog.Log (gmLog.lData, "in script section now")
-#		      self.text1_prescription_reason = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text2_drug_class = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text3_generic_drug = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text4_brand_drug = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text5_strength = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text6_directions = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text7_for_duration = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text8_prescription_progress_notes = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
-#		      self.text9_quantity = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text1_prescription_reason = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text2_drug_class = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text3_generic_drug = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text4_brand_drug = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text5_strength = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text6_directions = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text7_for_duration = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text8_prescription_progress_notes = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text9_quantity = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
 #		      lbl_veterans = cPrompt_edit_area(self,-1,"  Veteran  ")
 #		      lbl_reg24 = cPrompt_edit_area(self,-1,"  Reg 24  ")
 #		      lbl_quantity = cPrompt_edit_area(self,-1,"  Quantity  ")
@@ -693,7 +697,7 @@ class EditArea(wxPanel):
 #		      self.btn_briefPI   = wxButton(self,-1,"Brief PI")       #show brief drug product information
 #		      self.sizer_auth_PI.Add(self.btn_authority,1,wxEXPAND|wxALL,2)  #put authority button and PI button
 #		      self.sizer_auth_PI.Add(self.btn_briefPI,1,wxEXPAND|wxALL,2)    #on same sizer
-#		      self.text10_repeats  = cTBOX_edit_area(self,-1,wxDefaultPosition,wxDefaultSize)
+#		      self.text10_repeats  = cEditAreaField(self,-1,wxDefaultPosition,wxDefaultSize)
 #		      self.sizer_line3.Add(self.text3_generic_drug,5,wxEXPAND)
 #		      self.sizer_line3.Add(lbl_veterans,1,wxEXPAND)
  #       	      self.sizer_line3.Add(self.cb_veteran,1,wxEXPAND)
@@ -730,16 +734,16 @@ class EditArea(wxPanel):
 	              #editing area for general requests e.g pathology, radiology, physiotherapy etc
 		      #create textboxes, radiobuttons etc
 		      #-----------------------------------------------------------------------------
-#		      self.txt_request_type = cTBOX_edit_area(self,ID_REQUEST_TYPE,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_company = cTBOX_edit_area(self,ID_REQUEST_COMPANY,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_street = cTBOX_edit_area(self,ID_REQUEST_STREET,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_suburb = cTBOX_edit_area(self,ID_REQUEST_SUBURB,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_phone= cTBOX_edit_area(self,ID_REQUEST_PHONE,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_requests = cTBOX_edit_area(self,ID_REQUEST_REQUESTS,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_notes = cTBOX_edit_area(self,ID_REQUEST_FORMNOTES,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_medications = cTBOX_edit_area(self,ID_REQUEST_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_copyto = cTBOX_edit_area(self,ID_REQUEST_COPYTO,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_request_progressnotes = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_type = cEditAreaField(self,ID_REQUEST_TYPE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_company = cEditAreaField(self,ID_REQUEST_COMPANY,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_street = cEditAreaField(self,ID_REQUEST_STREET,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_suburb = cEditAreaField(self,ID_REQUEST_SUBURB,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_phone= cEditAreaField(self,ID_REQUEST_PHONE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_requests = cEditAreaField(self,ID_REQUEST_REQUESTS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_notes = cEditAreaField(self,ID_REQUEST_FORMNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_medications = cEditAreaField(self,ID_REQUEST_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_copyto = cEditAreaField(self,ID_REQUEST_COPYTO,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_request_progressnotes = cEditAreaField(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
 #		      self.lbl_companyphone = cPrompt_edit_area(self,-1,"  Phone  ")
 #		      self.cb_includeallmedications = wxCheckBox(self, -1, " Include all medications ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 #		      self.rb_request_bill_bb = wxRadioButton(self, ID_REQUEST_BILL_BB, "Bulk Bill ", wxDefaultPosition,wxDefaultSize)
@@ -785,10 +789,10 @@ class EditArea(wxPanel):
 #		      self.combo_measurement_type = wxComboBox(self, ID_MEASUREMENT_TYPE, "", wxDefaultPosition,wxDefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wxCB_DROPDOWN)
 #		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 #		      self.combo_measurement_type.SetForegroundColour(wxColor(255,0,0))
-#		      self.txt_measurement_value = cTBOX_edit_area(self,ID_MEASUREMENT_VALUE,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_txt_measurement_date = cTBOX_edit_area(self,ID_MEASUREMENT_DATE,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_txt_measurement_comment = cTBOX_edit_area(self,ID_MEASUREMENT_COMMENT,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_txt_measurement_progressnote = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_measurement_value = cEditAreaField(self,ID_MEASUREMENT_VALUE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_txt_measurement_date = cEditAreaField(self,ID_MEASUREMENT_DATE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_txt_measurement_comment = cEditAreaField(self,ID_MEASUREMENT_COMMENT,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_txt_measurement_progressnote = cEditAreaField(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
 #		      self.sizer_graphnextbtn = wxBoxSizer(wxHORIZONTAL)
 #		      self.btn_nextvalue = wxButton(self,ID_MEASUREMENT_NEXTVALUE,"   Next Value   ")                 #clear fields except type
 #		      self.btn_graph   = wxButton(self,ID_MEASUREMENT_GRAPH," Graph ")                        #graph all values of this type
@@ -814,23 +818,23 @@ class EditArea(wxPanel):
 	              #editing area for referral letters, insurance letters etc
 		      #create textboxes, checkboxes etc
 		      #--------------------------------------------------------
-#		      self.txt_referralcategory = cTBOX_edit_area(self,ID_REFERRAL_CATEGORY,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralname = cTBOX_edit_area(self,ID_REFERRAL_NAME,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralorganisation = cTBOX_edit_area(self,ID_REFERRAL_ORGANISATION,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralstreet1 = cTBOX_edit_area(self,ID_REFERRAL_STREET1,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralstreet2 = cTBOX_edit_area(self,ID_REFERRAL_STREET2,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralstreet3 = cTBOX_edit_area(self,ID_REFERRAL_STREET3,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralsuburb = cTBOX_edit_area(self,ID_REFERRAL_SUBURB,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralpostcode = cTBOX_edit_area(self,ID_REFERRAL_POSTCODE,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralfor = cTBOX_edit_area(self,ID_REFERRAL_FOR,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralwphone= cTBOX_edit_area(self,ID_REFERRAL_WPHONE,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralwfax= cTBOX_edit_area(self,ID_REFERRAL_WFAX,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralwemail= cTBOX_edit_area(self,ID_REFERRAL_WEMAIL,wxDefaultPosition,wxDefaultSize)
-		      #self.txt_referralrequests = cTBOX_edit_area(self,ID_REFERRAL_REQUESTS,wxDefaultPosition,wxDefaultSize)
-		      #self.txt_referralnotes = cTBOX_edit_area(self,ID_REFERRAL_FORMNOTES,wxDefaultPosition,wxDefaultSize)
-		      #self.txt_referralmedications = cTBOX_edit_area(self,ID_REFERRAL_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralcopyto = cTBOX_edit_area(self,ID_REFERRAL_COPYTO,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_referralprogressnotes = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralcategory = cEditAreaField(self,ID_REFERRAL_CATEGORY,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralname = cEditAreaField(self,ID_REFERRAL_NAME,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralorganisation = cEditAreaField(self,ID_REFERRAL_ORGANISATION,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralstreet1 = cEditAreaField(self,ID_REFERRAL_STREET1,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralstreet2 = cEditAreaField(self,ID_REFERRAL_STREET2,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralstreet3 = cEditAreaField(self,ID_REFERRAL_STREET3,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralsuburb = cEditAreaField(self,ID_REFERRAL_SUBURB,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralpostcode = cEditAreaField(self,ID_REFERRAL_POSTCODE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralfor = cEditAreaField(self,ID_REFERRAL_FOR,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralwphone= cEditAreaField(self,ID_REFERRAL_WPHONE,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralwfax= cEditAreaField(self,ID_REFERRAL_WFAX,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralwemail= cEditAreaField(self,ID_REFERRAL_WEMAIL,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralrequests = cEditAreaField(self,ID_REFERRAL_REQUESTS,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralnotes = cEditAreaField(self,ID_REFERRAL_FORMNOTES,wxDefaultPosition,wxDefaultSize)
+		      #self.txt_referralmedications = cEditAreaField(self,ID_REFERRAL_MEDICATIONS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralcopyto = cEditAreaField(self,ID_REFERRAL_COPYTO,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_referralprogressnotes = cEditAreaField(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
 #		      self.lbl_referralwphone = cPrompt_edit_area(self,-1,"  W Phone  ")
 #		      self.lbl_referralwfax = cPrompt_edit_area(self,-1,"  W Fax  ")
 #		      self.lbl_referralwemail = cPrompt_edit_area(self,-1,"  W Email  ")
@@ -908,11 +912,11 @@ class EditArea(wxPanel):
  #                     self.combo_apptlength = wxComboBox(self, ID_RECALLS_APPNTLENGTH, "", wxDefaultPosition,wxDefaultSize, ['brief','standard','long','prolonged'], wxCB_READONLY )
 #		      self.combo_apptlength.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 #		      self.combo_apptlength.SetForegroundColour(wxColor(255,0,0))
-#		      self.txt_recall_for = cTBOX_edit_area(self,ID_RECALLS_TXT_FOR, wxDefaultPosition,wxDefaultSize)
-#		      self.txt_recall_due = cTBOX_edit_area(self,ID_RECALLS_TXT_DATEDUE, wxDefaultPosition,wxDefaultSize)
-#		      self.txt_recall_addtext = cTBOX_edit_area(self,ID_RECALLS_TXT_ADDTEXT,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_recall_include = cTBOX_edit_area(self,ID_RECALLS_TXT_INCLUDEFORMS,wxDefaultPosition,wxDefaultSize)
-#		      self.txt_recall_progressnotes = cTBOX_edit_area(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_for = cEditAreaField(self,ID_RECALLS_TXT_FOR, wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_due = cEditAreaField(self,ID_RECALLS_TXT_DATEDUE, wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_addtext = cEditAreaField(self,ID_RECALLS_TXT_ADDTEXT,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_include = cEditAreaField(self,ID_RECALLS_TXT_INCLUDEFORMS,wxDefaultPosition,wxDefaultSize)
+#		      self.txt_recall_progressnotes = cEditAreaField(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
 #		      self.lbl_recall_consultlength = cPrompt_edit_area(self,-1,"  Appointment length  ")
 		      #sizer_lkine1 has the method of recall and the appointment length
 #		      self.sizer_line1.Add(self.combo_recall_method,1,wxEXPAND)
@@ -945,7 +949,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.20  2003-05-21 15:09:18  ncq
+# Revision 1.21  2003-05-23 14:39:35  ncq
+# - use gmDateInput widget in gmAllergyEditArea
+#
+# Revision 1.20  2003/05/21 15:09:18  ncq
 # - log warning on use of old style edit area
 #
 # Revision 1.19  2003/05/21 14:24:29  ncq
