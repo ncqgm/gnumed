@@ -139,20 +139,31 @@ class gmGP_Requests (gmPlugin.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the requests window
 	"""
-	def name (self):
-		return 'Requests'
-
-	def MenuInfo (self):
-		return ('view', '&Requests') #FIXME fix the ampersand to a logical place in relationship to other buttons
-	def GetIconData(self):
-		return "x\xda}\x90=\x0b\xc3 \x10\x86\xf7\xfc\n\xc1\xc4\x14\x02r.\xd51\x18p\xacC\x96\
+	__icons = {
+0: "x\xda}\x90=\x0b\xc3 \x10\x86\xf7\xfc\n\xc1\xc4\x14\x02r.\xd51\x18p\xacC\x96\
 [K\xe9Vj\xff\xff\xd4\x9e\x1f\xa5g!\xea\xf2<\xbe/'\x9e\x1e/3\xec\xb39\x0b:F\
 \x98y\xb8\xee\xf3*nBZg7\x80\xcc\x9a88\x80\xe02c\xbb\xb7\x85\xc7\xc2\x005\xbf\
 \x94|h\xfd\x89\xd8\x01\xed\xcc\xaa\xf07/>|I\xcf{\x86\xd8\xcau\x98l\xc3k8\x11\
 {\xe77\xefj\x99\xafNj\xfd/\xb5\xce\x96KL\xd92\x89)\xc6^\x92\xc3\xae\x8ei\x89\
 \xd8M'\xb7vOB)\xe5\xd8\xbd\xf3\xd75\xc9\\\x95\x13sU*\xe6\x9aT\xea\xe0C\x8e\
 \xa5~\x03\xa2\x9e`\x0c"
-		
+}
+
+	def name (self):
+		return 'Requests'
+
+	def MenuInfo (self):
+		return ('view', '&Requests') #FIXME fix the ampersand to a logical place in relationship to other buttons
+
+	def GetIconData(self, anIconID = None):
+		if anIconID == None:
+			return self.__icons[0]
+		else:
+			if self.__icons.has_key(anIconID):
+				return self.__icons[anIconID]
+			else:
+				return self.__icons[0]
+
 	def GetWidget (self, parent):
 		return  RequestsPanel (parent, -1)
 
@@ -161,4 +172,3 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(RequestsPanel, -1)
 	app.MainLoop()
-		

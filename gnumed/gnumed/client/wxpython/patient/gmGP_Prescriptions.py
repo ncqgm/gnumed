@@ -164,26 +164,37 @@ class PrescriptionPanel (wxPanel):
       
           
 class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
-    """
-    Plugin to encapsulate the prescriptions window
-    """
-    def name (self):
-         return 'Prescription writer'
+	"""
+	Plugin to encapsulate the prescriptions window
+	"""
 
-    def MenuInfo (self):
-         return ('view', '&Script')
-    def GetIconData(self):
-		return 'x\xda\xd3\xc8)0\xe4\nV74S\x00"c\x05Cu\xae\xc4`u=\x85d\x05e\x03 p\xb3\x00\
+	__icons = {
+"""Rx symbol""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"c\x05Cu\xae\xc4`u=\x85d\x05e\x03 p\xb3\x00\
 \xf3#@|\x0b\x03\x10\x04\xf3\x15\x80|\xbf\xfc\xbcT(\x07\x15\xe0\x15\xd4\x83\
 \x00t\xc1\x08 \x80\x8a"\t\xc2I\xb2\x04\xc1 "\x82R\x8b\x80\x08UP\x01b,\xdc\
 \x9b\x10+\x14\xc0\xa6\xa2\xf9\x1d\xa8\x0eI;\x02DD\xe0\x0c%=\x00D|Hk'
+}
+
+	def name (self):
+		return 'Prescription writer'
+
+	def MenuInfo (self):
+		return ('view', '&Script')
+
+	def GetIconData(self, anIconID = None):
+		if anIconID == None:
+			return self.__icons["""Rx symbol"""]
+		else:
+			if self.__icons.has_key(anIconID):
+				return self.__icons[anIconID]
+			else:
+				return self.__icons["""Rx symbol"""]
 	   
-    def GetWidget (self, parent):
-         return  PrescriptionPanel (parent, -1)
+	def GetWidget (self, parent):
+		return  PrescriptionPanel (parent, -1)
 
 
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(ImmunisationPanel, -1)
 	app.MainLoop()
-               

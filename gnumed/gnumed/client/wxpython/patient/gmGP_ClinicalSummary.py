@@ -1,10 +1,7 @@
 from wxPython.wx import *
 #from wxPython.stc import *
-import keyword
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
-from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
-import cPickle, zlib                                             
 import gmPlugin
 #--------------------------------------------------------------------
 # A class for displaying a summary of patients clinical data in the
@@ -86,7 +83,7 @@ class ClinicalSummary(wxPanel):
 	sizer.Add(heading2,0,wxEXPAND)  
 	sizer.Add(habitsriskfactors,5,wxEXPAND)
 	sizer.Add(heading3,0,wxEXPAND)  
-	sizer.Add(inbox,5,wxEXPAND)
+#	sizer.Add(inbox,5,wxEXPAND)
 	sizer.Add(alertpanel,0,wxEXPAND)
         self.SetSizer(sizer)                         #set the sizer 
 	sizer.Fit(self)                              #set to minimum size as calculated by sizer
@@ -94,44 +91,43 @@ class ClinicalSummary(wxPanel):
         self.Show(true) 
 
 class gmGP_ClinicalSummary (gmPlugin.wxPatientPlugin):
-    """
-    Plugin to encapsulate the clinical summary
-    """
-    def name (self):
-        return 'Clinical Summary'
+	"""
+	Plugin to encapsulate the clinical summary
+	"""
 
-    def MenuInfo (self):
-        return ('view', '&Summary')
-
-    def GetIcon (self):
-        return getpatient_clinicalsummaryBitmap()
-
-    def GetWidget (self, parent):
-        return ClinicalSummary (parent, -1)
-
-    def register (self):
-        gmPlugin.wxPatientPlugin.register (self)
-        self.gb['patient.manager'].SetDefault ('Clinical Summary')
-
-if __name__ == "__main__":
-	app = wxPyWidgetTester(size = (400, 500))
-	app.SetWidget(ClinicalSummary, -1)
-	app.MainLoop()
- 
-#----------------------------------------------------------------------
-def getpatient_clinicalsummaryData():
-    return cPickle.loads(zlib.decompress(
-'x\xda\xa5\x8c\xb1\n\xc3 \x10\x86\xf7<\xc5\x81\x06\x0b\xc2\xa1\x04JGI!c\x1c\
+	__icons = {
+0: 'x\xda\xa5\x8c\xb1\n\xc3 \x10\x86\xf7<\xc5\x81\x06\x0b\xc2\xa1\x04JGI!c\x1c\
 \xb2\xb8\x86\xd0\xa9\xa1\xf6\xfd\xa7zgQK;\xb4\xf4\xff]\xbe\xef\xbc;\xecw\xdb\
 -\xca\x1e\x81\x9e\x01\xab\xbauQ\x08\x1b\x8c\xfb\xba]\x99B"1\x18*\xb3&\x9e8\
 \xcc=\xf1\xc9P\x99#\xb11e.\xf3\x9c\xc2\xec\x88\xcf\x03\x95Y\xe4{e\x0e\x89\
 \xe7x\xbb0\xf8|\xac\x1c\x07l\x12\x00\x9e2\xfa\xd2*\xab\xf3U\xea\x12\xd7J\xfc\
  \x11\xb5\x90\xbd\x94\xaf?\x7f[\x97\xe2\x8f\xf5\xb4\xfc\xd5\xfa\xbb\x0c\xae\
-\xa6\xfe\x0cMX\xe2\x03\x87\xf0k1' ))
+\xa6\xfe\x0cMX\xe2\x03\x87\xf0k1'
+}
 
-def getpatient_clinicalsummaryBitmap():
-    return wxBitmapFromXPMData(getpatient_clinicalsummaryData())
+	def name (self):
+		return 'Clinical Summary'
 
-def getpatient_clinicalsummaryImage():
-    return wxImageFromBitmap(getpatient_clinicalsummaryBitmap())
+	def MenuInfo (self):
+		return ('view', '&Summary')
+
+	def GetIconData(self, anIconID = None):
+		if anIconID == None:
+			return self.__icons[0]
+		else:
+			if self.__icons.has_key(anIconID):
+				return self.__icons[anIconID]
+			else:
+				return self.__icons[0]
+
+	def GetWidget (self, parent):
+		return ClinicalSummary (parent, -1)
+
+	def register (self):
+		gmPlugin.wxPatientPlugin.register (self)
+		self.gb['patient.manager'].SetDefault ('Clinical Summary')
 #----------------------------------------------------------------------
+if __name__ == "__main__":
+	app = wxPyWidgetTester(size = (400, 500))
+	app.SetWidget(ClinicalSummary, -1)
+	app.MainLoop()

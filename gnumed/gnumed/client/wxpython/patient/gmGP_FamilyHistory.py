@@ -175,14 +175,8 @@ class FamilyHistoryPanel(wxPanel):
 class gmGP_FamilyHistory(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the family history window."""
 
-	def name (self):
-		return 'Family History Window'
-	#FIXME - put ampersand in correct position
-	def MenuInfo (self):
-		return ('view', '&Family History')
-
-	def GetIconData(self):
-		return 'x\xda\x9d\x90\xb1\x0e\x83 \x10\x86w\x9f\xe2\x12@\x9b\x98\x10X\xaa#\x81\xc4\
+	__icons = {
+0: 'x\xda\x9d\x90\xb1\x0e\x83 \x10\x86w\x9f\xe2\x12@\x9b\x98\x10X\xaa#\x81\xc4\
 \xb1\x0c.\xae\xc6t\xaa)}\xff\xa9w\x07\xd8\xb4n\x05\xf5\xf2}w?$^\xf6\x97m\xe6\
 \xce^\x81\x1e\x0b\xb6k\xd6\xb9\x93\xb0\x81\xdf\xd7\xed\xc1\xd4"\x89a\x1c\x82\
 1\xcc\x82x\x1a\x8d\x99F\xe6\x85\xd8\xe0\n\xb9\x1f+\x97\xbe\xcey2\xcc)\xe7C\
@@ -190,6 +184,23 @@ class gmGP_FamilyHistory(gmPlugin.wxPatientPlugin):
 \xd4Z3\xe6\x9a\xa5^p\x93[\x12\xd52\x99R\xe2A\xac\x1f\t\xa9\x1c\x97\x8e3c\x8c\
 =\xbe\xe0\x9c\x13\xc2\xb9C\xba\x08(A:\tU\x82\x94\x92%H\xa8R\xb0\x14\xb8\x95R\
 \xf8-\x17I\x1a\x01rh\x7f$\'N\xb2\xc5}\xc8\x0c\x7f\xcb\xd3\xaf\xd3o\x85>c\\'
+}
+
+	def name (self):
+		return 'Family History Window'
+
+	#FIXME - put ampersand in correct position
+	def MenuInfo (self):
+		return ('view', '&Family History')
+
+	def GetIconData(self, anIconID = None):
+		if anIconID == None:
+			return self.__icons[0]
+		else:
+			if self.__icons.has_key(anIconID):
+				return self.__icons[anIconID]
+			else:
+				return self.__icons[0]
 
 	def GetWidget (self, parent):
 		return FamilyHistoryPanel (parent, -1)
