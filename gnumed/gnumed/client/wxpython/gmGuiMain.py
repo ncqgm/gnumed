@@ -6,13 +6,6 @@
 # ---------------------------------------------------------------------------
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @dependencies: wxPython (>= version 2.3.1)
-# @change log:
-#	10.06.2001 hherb initial implementation, untested
-#	01.11.2001 hherb comments added, modified for distributed servers
-#                  make no mistake: this module is still completely useless!
-#
-# @TODO: all testing, most of the implementation
 ############################################################################
 # This source code is protected by the GPL licensing scheme.
 # Details regarding the GPL are available at http://www.gnu.org
@@ -26,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.100 2003-06-01 01:47:33 sjtan Exp $
-__version__ = "$Revision: 1.100 $"
+# $Id: gmGuiMain.py,v 1.101 2003-06-01 12:36:40 ncq Exp $
+__version__ = "$Revision: 1.101 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -333,10 +326,14 @@ class MainFrame(wxFrame):
 	#----------------------------------------------
 	def OnPatientChanged(self, **kwargs):
 		pat = gmTmpPatient.gmCurrentPatient()
-		_log.Info("Patient changed to "+str(pat) +"\n"+str(pat.__dict__) )
+
+		#<DEBUG>
+		_log.Log(gmLog.lData, "patient changed to [%s]" % pat)
+		_log.Log(gmLog.lData, pat.__dict__)
+		#</DEBUG>
 
 		names = pat['active name']
-		patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], int(pat['ID'])) 
+		patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], int(pat['ID']))
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -646,7 +643,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.100  2003-06-01 01:47:33  sjtan
+# Revision 1.101  2003-06-01 12:36:40  ncq
+# - no way cluttering INFO level log files with arbitrary patient data
+#
+# Revision 1.100  2003/06/01 01:47:33  sjtan
 #
 # starting allergy connections.
 #
@@ -846,3 +846,7 @@ if __name__ == '__main__':
 # Revision 1.39  2002/09/08 23:17:37  ncq
 # - removed obsolete reference to gmLogFrame.py
 #
+# @change log:
+#	10.06.2001 hherb initial implementation, untested
+#	01.11.2001 hherb comments added, modified for distributed servers
+#                  make no mistake: this module is still completely useless!
