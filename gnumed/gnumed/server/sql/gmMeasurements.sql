@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -128,7 +128,7 @@ create table test_result (
 	val_normal_max float,
 	val_normal_range text,
 	technically_abnormal bool not null,
-	norm_ref_group text
+	norm_ref_group text,
 	note_provider text,
 	material text,
 	material_detail text,
@@ -275,11 +275,14 @@ comment on column lab_request.result_status is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.12  2004-03-12 23:15:42  ncq
+-- Revision 1.13  2004-03-12 23:43:34  ncq
+-- - did forget a , in test_result
+--
+-- Revision 1.12  2004/03/12 23:15:42  ncq
 -- - more fixes for getting things in line with LDT
 --
 -- Revision 1.11  2004/01/15 15:15:41  ncq
