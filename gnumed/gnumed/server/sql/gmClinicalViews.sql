@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.31 2003-11-16 19:32:17 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.32 2003-11-16 19:34:29 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -37,7 +37,7 @@ select
 from
 	_enum_encounter_type
 ;
--- ---------------------------------------------
+
 \unset ON_ERROR_STOP
 drop view v_i18n_curr_encounters;
 \set ON_ERROR_STOP 1
@@ -63,10 +63,14 @@ where
 	cu_e.id_encounter = cl_e.id
 ;
 
--- ---------------------------------------------
---create index idx_uniq_def_encounter
---   on clin_encounter(fk_patient)
---where description = '__default__';
+\unset ON_ERROR_STOP
+drop index idx_uniq_def_encounter;
+
+-- seems to fail on 7.1 so make it optional
+create index idx_uniq_def_encounter
+    on clin_encounter(fk_patient)
+ where description = '__default__';
+\set ON_ERROR_STOP 1
 
 -- =============================================
 \unset ON_ERROR_STOP
@@ -456,11 +460,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.31  2003-11-16 19:32:17  ncq
+-- Revision 1.32  2003-11-16 19:34:29  ncq
+-- - make partial index on __default__ encounters optional, fails on 7.1
+--
+-- Revision 1.31  2003/11/16 19:32:17  ncq
 -- - clin_when in clin_root_item
 --
 -- Revision 1.30  2003/11/13 09:47:29  ncq
