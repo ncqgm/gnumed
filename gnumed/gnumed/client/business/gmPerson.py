@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.14 2005-03-18 07:44:10 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPerson.py,v 1.15 2005-03-20 16:49:07 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -370,14 +370,14 @@ class cPatientSearcher_SQL:
 		- search dict contains structured data that doesn't need to be parsed
 		- search_dict takes precedence over search_term
 		"""
-		do_parsing = (search_dict is None)
-		if not do_parsing:
+		parse_search_term = (search_dict is None)
+		if not parse_search_term:
 			query_lists = self.__generate_queries_generic(search_dict)
 			if query_lists is None:
-				do_parsing = True
+				parse_search_term = True
 			if len(query_lists) == 0:
-				do_parsing = True
-		if do_parsing:
+				parse_search_term = True
+		if parse_search_term:
 			# temporary change of locale for selecting query generator
 			if a_locale is not None:
 				print "temporary change of locale on patient search not implemented"
@@ -396,7 +396,7 @@ class cPatientSearcher_SQL:
 
 		# collect IDs here
 		pat_ids = []
-		# cycle through query levels
+		# cycle through query list
 		for query_list in query_lists:
 			_log.Log(gmLog.lData, "running %s" % query_list)
 			# try all queries at this query level
@@ -407,8 +407,9 @@ class cPatientSearcher_SQL:
 				else:
 					rows, idx = gmPG.run_ro_query(self.curs, cmd, True, search_dict)
 				if rows is None:
-					_log.Log(gmLog.lErr, 'cannot fetch patient IDs')
-				else:
+					_log.Log(gmLog.lErr, 'error fetching patient IDs')
+					continue
+				if len(rows) != 0:
 					pat_ids.append((rows, idx))
 			# if we got patients don't try more query levels
 			if len(pat_ids) > 0:
@@ -432,7 +433,7 @@ class cPatientSearcher_SQL:
 		- this mostly applies to names
 		- it will be correct in "most" cases
 
-		- "beckert"  -> "Beckert"
+		- "burney"  -> "Burney"
 		- "mcburney" -> "Mcburney" (probably wrong but hard to be smart about it)
 		- "mcBurney" -> "McBurney" (try to preserve effort put in by the user)
 		- "McBurney" -> "McBurney"
@@ -498,6 +499,8 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	def __make_simple_query(self, raw):
 		"""Compose queries if search term seems unambigous."""
+		_log.Log(gmLog.lData, '__make_simple_query("%s")' % raw)
+
 		queries = []
 
 		# "<digits>" - GnuMed patient PK or DOB
@@ -581,6 +584,8 @@ class cPatientSearcher_SQL:
 		- not locale dependant
 		- data -> firstnames, lastnames, dob, gender
 		"""
+		_log.Log(gmLog.lData, '__generate_queries_generic("%s")' % data)
+
 		if data is None:
 			return []
 
@@ -624,6 +629,8 @@ class cPatientSearcher_SQL:
 	# queries for DE
 	#--------------------------------------------------------
 	def __generate_queries_de(self, a_search_term = None):
+		_log.Log(gmLog.lData, '__generate_queries_de("%s")' % a_search_term)
+
 		if a_search_term is None:
 			return []
 
@@ -631,6 +638,8 @@ class cPatientSearcher_SQL:
 		queries = self.__make_simple_query(a_search_term)
 		if queries is not None:
 			return queries
+
+		_log.Log(gmLog.lData, '__generate_queries_de() again')
 
 		# no we don't
 		queries = []
@@ -964,7 +973,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.14  2005-03-18 07:44:10  ncq
+# Revision 1.15  2005-03-20 16:49:07  ncq
+# - fix SQL syntax and do run all queries until identities found
+# - we now find Richard
+# - cleanup
+#
+# Revision 1.14  2005/03/18 07:44:10  ncq
 # - queries fixed but logic needs more work !
 #
 # Revision 1.13  2005/03/16 12:57:26  sjtan
