@@ -6,7 +6,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #=======================================================================================
@@ -77,7 +77,24 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 	mailcaps = mailcap.getcaps()
 	(cmd, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = "\'%s\'" % aFileName)
 	# FIXME: actually we should check for "x-token" flags such as x-docsys
+
+	if (cmd == None) and ()
 	return cmd
+#-----------------------------------------------------------------------------------
+def get_win_fname(aMimeType = None):
+	"""Return file name suitable for a given file type in Windows and other inferior OS."""
+
+	# sanity checks
+	if aMimeType == None:
+		__log__.Log(gmLog.lErr, "Cannot determine file name if I don't have a mime type.")
+		return None
+
+	import mimetypes
+	f_ext = mimetypes.guess_extension(aMimeType)
+
+	import tempfile
+	tempfile.template = "obj-"
+	return os.path.normpath(tempfile.mktemp(f_ext))
 #-----------------------------------------------------------------------------------
 if __name__ == "__main__":
 	import sys

@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -251,7 +251,12 @@ class cDocument:
 			obj['file name'] = tempfile.mktemp()
 			aFile = open(obj['file name'], 'wb+')
 			# it would be a fatal error to see more than one result as oids are supposed to be unique
-			aFile.write(self.__unescapeByteA(cursor.fetchone()[0]))
+			img_data = cursor.fetchone()[0]
+			# FIXME: PyGreSQL on Windows delivers PgByteA instance which is auto-unescaped
+			# FIXME: pgdb, however, delivers type string which needs unescaping
+			# FIXME: a temporary workaround is to convert things to string and unescape anyways
+			# FIXME: this is, however, inefficient
+			aFile.write(self.__unescapeByteA(str(img_data)))
 			aFile.close()
 
 		cursor.close()
@@ -439,18 +444,18 @@ class cDocument:
 		__log__.Log(gmLog.lData, "done: %d total, %d escaped" % (len(aString), c))
 		return tmp
 	#-----------------------------------
-	def __unescapeByteA(self, aString):
+	def __unescapeByteA(self, aByteA):
 		__log__.Log(gmLog.lInfo, "starting")
 		c = 0
+		tmp = str(aByteA)
 		# first replace all """\ooo""""
 		# this will not catch any """\\"""
-		tmp = aString
 		for i in range(256):
-			old = "\\" + "%03o" % i
-			new = chr(i)
-			if string.count(tmp, old) > 0:
-				c += string.count(tmp, old)
-			tmp = string.replace(tmp, old, new)
+			esc_code = "\\" + "%03o" % i
+			real_char = chr(i)
+			if string.count(tmp, esc_code) > 0:
+				c += string.count(tmp, esc_code)
+			tmp = string.replace(tmp, esc_code, real_char)
 
 		# now replace all """\\"""
 		tmp1 = ""
@@ -467,7 +472,7 @@ class cDocument:
 						c += 1
 					else:
 						__log__.Log(gmLog.lErr, "Escape logic ambiguity detected. Aborting unescaping.")
-						return aString
+						return aByteA
 				else:
 					__log__.Log(gmLog.lErr, "Trailing single backslash detected. Returning last character unchanged.")
 					tmp1 = tmp1 + tmp[self.__i]
