@@ -6,7 +6,7 @@
 ** init() function in place of a constructor, and a destroy() function in
 ** place of a destructor.
 *****************************************************************************/
-
+#include <qtimer.h>
 /**
   Note on dataBrowser update()  findPatientDataTable.refresh() connection.
   if the dataset in findPatientDataTable changes , findPatientDataTable.currentChanged() might be called , and the 
@@ -14,21 +14,32 @@
   This looks like a lost update . Easiest thing is to not signal findPatientDataTable.
   
   */
-void Form1::init() {
-    lastPatientId =  QVariant("none");
-    
-    clearLinkedUI();
-    QValueList<int> vList;
-    vList.append( splitter2->height()/2);
-    vList.append(splitter2->height()/2);
 
-    splitter2->setSizes( vList);
-    splitter2->repaint();
+void Form1::saveLastNotes() {
+	lastPatientId = getPatientId();
+	saveAndLoadCurrentProgressNotes();
+
 }
+
+
+void Form1::init() {   
+    clearLinkedUI();
+    adjustUIAppearance();
+    startProgressNoteTimer();
+    connect( this, SIGNAL(close()), this, SLOT(saveLastNotes()) ); 
+}
+
+void Form1::startProgressNoteTimer() {
+    QTimer*  notesTimer = new  QTimer(this);
+    connect( notesTimer, SIGNAL(timeout()), SLOT(timeoutSaveNotes()) ); 
+    notesTimer->start(5000); // update every 5 seconds
+}
+
 void Form1::Form1_usesTextLabelChanged(bool) {
 
 }
 void Form1::patientDataView_destroyed(QObject*) {
+	qDebug("Destroyed patient data view");
 }
 
 void Form1::fileNew()
@@ -134,8 +145,7 @@ void Form1::selectPatientForEdit()
 void Form1::setPatientIdInRecord( QSqlRecord * record )
 {
     record->setValue("id_patient", QVariant( getPatientId() ) ); 
-    changePatientId(record);
-}	
+ }	
 
 
 void Form1::changePatientId(const QSqlRecord * record )	
@@ -283,11 +293,26 @@ void Form1::updateOldProgressNotes( )
   */
 bool Form1::insertProgressNote( const QString & note, uint patient_id) {
     QSqlQuery query;
-    return query.exec( 
-	QString("insert into progress_note( id_patient, notes, date_entered) values ( %1, '%2', now() )").
-	arg( patient_id) .arg( note)
+    if (lastNoteId == 0) {
+	query.exec("select nextval('id_progress_note_sequence')");
+	query.first();	
+	QVariant id_note = query.value(0);
+	QSqlQuery query2;
+	bool result =  query2.exec( 
+QString("insert into progress_note( id_patient,id_progress_note,  notes, date_entered) values ( %1, %2,  '%3', now() )").
+	arg( patient_id) .arg(id_note.toUInt()).arg( note)
 	);
+	lastNoteId = id_note.toUInt();
+	return result;
+    }
+    
+    return query.exec(
+	    QString("update progress_note set notes = '%1' where id_progress_note = %2").
+	    arg(note).arg(lastNoteId) );
+    
 }
+
+
 void Form1::saveAndLoadCurrentProgressNotes( )
 {
     QSqlQuery query;
@@ -328,10 +353,18 @@ void Form1::saveAndLoadCurrentProgressNotes( )
      currentProgressTextEdit->setText( query.value(2).toString() );
      authorAndTimeLabel->setText( getAuthorAndTimeString( &query, buffer) );
      currentProgressTextEdit->setModified(false);
-     
+     lastNoteId = 0;
      
 }
 
+void Form1::timeoutSaveNotes() {
+    qDebug("SAVING NOTES if modified");
+    QString note;
+    if (currentProgressTextEdit->isModified() ) {
+	note = currentProgressTextEdit->text().stripWhiteSpace();
+	insertProgressNote( note, getPatientId());
+    }
+}
 
 /** for debugging of the query values.
   */
@@ -469,5 +502,17 @@ void Form1::togglePrintOnClickPrescription( int row, int col, int button , const
 }
 
 void Form1::printSelectedPrescriptions() {
+
+}
+
+
+void Form1::adjustUIAppearance()
+{
+    QValueList<int> vList;
+    vList.append( splitter2->height()/2);
+    vList.append(splitter2->height()/2);
+
+    splitter2->setSizes( vList);
+    splitter2->repaint();
 
 }

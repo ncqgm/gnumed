@@ -2036,8 +2036,12 @@
     <variable access="private">QString findPatientFilter;</variable>
     <variable access="private">int statePrescriptionEdit;</variable>
     <variable access="private">int preInsertUpdateFlag;</variable>
+    <variable access="private">uint lastNoteId;</variable>
 </variables>
 <slots>
+    <slot>saveLastNotes()</slot>
+    <slot>init()</slot>
+    <slot>startProgressNoteTimer()</slot>
     <slot>Form1_usesTextLabelChanged( bool )</slot>
     <slot>patientDataView_destroyed( QObject * )</slot>
     <slot>fileNew()</slot>
@@ -2068,6 +2072,7 @@
     <slot>setVaccinationId( QSqlRecord * record )</slot>
     <slot>updateOldProgressNotes()</slot>
     <slot>saveAndLoadCurrentProgressNotes()</slot>
+    <slot>timeoutSaveNotes()</slot>
     <slot>setPatientNameFilter()</slot>
     <slot>clearLinkedUI()</slot>
     <slot>setInvestigationDefaultDate( QSqlRecord * record )</slot>
@@ -2076,9 +2081,9 @@
     <slot>setAllergyDefaultDate( QSqlRecord * )</slot>
     <slot>togglePrintOnClickPrescription( int row, int col, int button, const QPoint &amp; p )</slot>
     <slot>printSelectedPrescriptions()</slot>
+    <slot>adjustUIAppearance()</slot>
 </slots>
 <functions>
-    <function access="private" specifier="non virtual">init()</function>
     <function>setPatientId( uint id )</function>
     <function returnType="uint">getPatientId()</function>
     <function>setSequenceField( QSqlRecord * record, const QString &amp; fieldName, const QString &amp; sequenceName )</function>
