@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.32 2003-07-07 08:34:31 ihaywood Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmClinicalRecord.py,v 1.33 2003-07-09 16:20:18 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -40,15 +40,11 @@ class gmClinicalRecord:
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
-		self.transactionCursor = None
-
 		self._backend = gmPG.ConnectionPool()
 
-		# this connection may drop , so need to get fresh one
-		# from backend at each usage , IMHO
-		self._defconn_ro = self._backend.GetConnection('historica')
-		if self._defconn_ro is None:
-			raise gmExceptions.ConstructorError, "Cannot connect to database." % aPKey
+		self._ro_conn_clin = self._backend.GetConnection('historica')
+		if self._ro_conn_clin is None:
+			raise gmExceptions.ConstructorError, "cannot connect EMR of patient [%s] to service 'historica'" % aPKey
 
 		self.id_patient = aPKey			# == identity.id == primary key
 		if not self._pkey_exists():
@@ -82,16 +78,11 @@ class gmClinicalRecord:
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
 	def __del__(self):
-		if self._defconn_ro is not None:
+		if _log is not None:
+			_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.id_patient)
+		if self._ro_conn_clin is not None:
 			self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 			self._backend.ReleaseConnection('historica')
-	#--------------------------------------------------------
-	# FIXME: temporary hack for dropping connections (?)
-	def getConnection(self):
-		return self._backend().GetConnection("historica")
-	#--------------------------------------------------------
-	def getCursor(self):
-		return self.getConnection().cursor()
 	#--------------------------------------------------------
 	# cache handling
 	#--------------------------------------------------------
@@ -116,41 +107,21 @@ class gmClinicalRecord:
 
 		- true/false/None
 		"""
-		curs = self._defconn_ro.cursor()
+		ro_conn_demo = self._backend.GetConnection('personalia')
+		if ro_conn_demo is None:
+			_log.Log(gmLog.lErr, "cannot connect to service 'personalia' to check for patient [%s] existence" % self.id_patient)
+			return None
+		curs = ro_conn_demo.cursor()
 		cmd = "select exists(select id from identity where id = %s)"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
+			self._backend.ReleaseConnection('personalia')
 			_log.Log(gmLog.lData, 'unable to check for patient [%s] existence' % self.id_patient)
 			return None
 		result = curs.fetchone()[0]
 		curs.close()
+		self._backend.ReleaseConnection('personalia')
 		return result
-
-		# I cannot verify the existence of that bug
-#		cmd = "select id from identity where id = %s" % self.id_patient
-#		rows = None
-#		try:
-#			rows = self.execute(cmd, "Unable to check existence of id %s in identity" % self.id_patient)
-#		except:
-#			_log.LogException("Failed select id from identity", sys.exc_info(), 4)
-#			pass
-		#------------------------------------	
-		# still has bug about portal closed.
-		# REMOVE when bug sorted out
-#		if (rows is None or len(rows) == 0):		
-#			try:
-#				rows, description = gmPG.quickROQuery( cmd)
-#			except:
-#				_log.LogException('>>>%s<<< failed' % cmd , sys.exc_info(), 4)
-			#curs.close()
-#			return None
-		#row = curs.fetchone()
-		#<DEBUG>
-#		_log.Data("result of id check = " + str(rows) )
-		#</DEBUG>
-#		res = rows[0][0]
-		#curs.close()
-#		return res
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------
@@ -158,11 +129,12 @@ class gmClinicalRecord:
 		# backend
 		if not self._backend.Listen(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted):
 			return None
+		if not self._backend.Listen(service = 'historica', signal = gmSignals.health_issue_change_db(), callback = self._health_issues_modified):
+			return None
 		return 1
 	#--------------------------------------------------------
 	def _allergy_added_deleted(self):
-		curs = self._defconn_ro.cursor()
-#		curs = self.getCursor()
+		curs = self._ro_conn_clin.cursor()
 		# did number of allergies change for our patient ?
 		cmd = "select count(id) from v_i18n_patient_allergies where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
@@ -187,6 +159,15 @@ class gmClinicalRecord:
 		# else invalidate cache
 		del self.__db_cache['allergies']
 		gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
+		return 1
+	#--------------------------------------------------------
+	def _health_issues_modified(self):
+		_log.Log(gmLog.lData, 'DB signals modification of health issues table')
+		try:
+			del self.__db_cache['health issues']
+		except KeyError:
+			pass
+		gmDispatcher.send(signal = gmSignals.health_issue_updated(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
 #	def _patient_modified(self):
@@ -236,6 +217,12 @@ class gmClinicalRecord:
 			return None
 	#--------------------------------------------------------
 	def _get_text_dump(self):
+		# don't know how to invalidate this by means of
+		# a notify without catching notifies from *all*
+		# child tables, the best solution would be if
+		# inserts in child tables would also fire triggers
+		# of ancestor tables, but oh well,
+		# until then the text dump will not be cached ...
 		try:
 			return self.__db_cache['text dump']
 		except KeyError:
@@ -253,7 +240,7 @@ class gmClinicalRecord:
 			'src_table'
 		]
 		cmd = "select %s from v_patient_items where id_patient=%%s order by src_table, age" % string.join(fields, ', ')
-		curs = self._defconn_ro.cursor()
+		curs = self._ro_conn_clin.cursor()
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
@@ -279,8 +266,8 @@ class gmClinicalRecord:
 		# get item data from all source tables
 		for table_name in items_by_table.keys():
 			item_ids = tuple(items_by_table[table_name].keys())
-			# we don't know the columns of the source
-			# tables but this is a dump
+			# we don't know anything about the columns of
+			# the source tables but, hey, this is a dump
 			cmd = "select * from %s where id in (%%s) order by modified_when" % table_name
 			if not gmPG.run_query(curs, cmd, item_ids):
 				_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % table_name)
@@ -338,13 +325,13 @@ class gmClinicalRecord:
 		return self.id_patient
 	#--------------------------------------------------------
 	def _get_allergies(self):
-		"""Return rows in v_i18n_patient_allergies."""
+		"""Return our rows from v_i18n_patient_allergies."""
 		try:
 			return self.__db_cache['allergies']
 		except:
 			pass
 		self.__db_cache['allergies'] = []
-		curs = self._defconn_ro.cursor()
+		curs = self._ro_conn_clin.cursor()
 		cmd = "select * from v_i18n_patient_allergies where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
@@ -372,6 +359,7 @@ class gmClinicalRecord:
 				return data
 		for allergy in self.__db_cache['allergies']:
 			tmp = {}
+			# FIXME: this should be accessible by col name, not position
 			tmp['id'] = allergy[0]
 			# do we know the allergene ?
 			if allergy[10] not in [None, '']:
@@ -389,7 +377,7 @@ class gmClinicalRecord:
 		except KeyError:
 			pass
 		self.__db_cache['allergy IDs'] = []
-		curs = self._defconn_ro.cursor()
+		curs = self._ro_conn_clin.cursor()
 		cmd = "select id from v_i18n_patient_allergies where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
@@ -408,7 +396,7 @@ class gmClinicalRecord:
 		except KeyError:
 			pass
 		self.__db_cache['episode names'] = {}
-		curs = self._defconn_ro.cursor()
+		curs = self._ro_conn_clin.cursor()
 		cmd = "select id_episode, episode from v_patient_episodes where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
@@ -424,13 +412,35 @@ class gmClinicalRecord:
 			self.__db_cache['episode names'][row[idx_id]] = row[idx_name]
 		return self.__db_cache['episode names']
 	#--------------------------------------------------------
+	def _get_health_issues(self):
+		try:
+			return self.__db_cache['health issues']
+		except KeyError:
+			pass
+		self.__db_cache['health issues'] = {}
+		curs = self._ro_conn_clin.cursor()
+		cmd = "select id, description from clin_health_issue where id_patient=%s"
+		if not gmPG.run_query(curs, cmd, self.id_patient):
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot load health issues for patient [%s]' % self.id_patient)
+			del self.__db_cache['health issues']
+			return None
+		rows = curs.fetchall()
+		col_idx = gmPG.get_col_indices(curs)
+		curs.close()
+		idx_id = col_idx['id']
+		idx_name = col_idx['description']
+		for row in rows:
+			self.__db_cache['health issues'][row[idx_id]] = row[idx_name]
+		return self.__db_cache['health issues']
+	#--------------------------------------------------------
 	def _get_health_issue_names(self):
 		try:
 			return self.__db_cache['health issue names']
 		except KeyError:
 			pass
 		self.__db_cache['health issue names'] = {}
-		curs = self._defconn_ro.cursor()
+		curs = self._ro_conn_clin.cursor()
 		cmd = "select id, description from clin_health_issue where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
@@ -453,6 +463,7 @@ class gmClinicalRecord:
 	_get_handler['allergies'] = _get_allergies
 	_get_handler['text dump'] = _get_text_dump
 	_get_handler['episode names'] = _get_episode_names
+	_get_handler['health issues'] = _get_health_issues
 	_get_handler['health issue names'] = _get_health_issue_names
 	#------------------------------------------------------------------
 	# health issue related helpers
@@ -465,7 +476,7 @@ class gmClinicalRecord:
 		return 1
 	#------------------------------------------------------------------
 	def _create_health_issue(self, health_issue_name = '__default__'):
-		curs = self._defconn_ro.cursor()
+		curs = self._ro_conn_clin.cursor()
 		cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient, health_issue_name):
 			curs.close()
@@ -477,33 +488,35 @@ class gmClinicalRecord:
 		if row is not None:
 			return row[0]
 		# issue does not exist yet so create it
+		_log.Log(gmLog.lData, "health issue [%s] does not exist for patient [%s]" % (health_issue_name, self.id_patient))
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
-		curs = rw_conn.cursor()
+		rw_curs = rw_conn.cursor()
 		cmd = "insert into clin_health_issue (id_patient, description) values (%s, %s)"
-		if not gmPG.run_query(curs, cmd, self.id_patient, health_issue_name):
-			curs.close()
+		if not gmPG.run_query(rw_curs, cmd, self.id_patient, health_issue_name):
+			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
 			return None
-		# get id for it
+		# get ID of insertion
 		cmd = "select currval('clin_health_issue_id_seq')"
-		if not gmPG.run_query(curs, cmd):
-			curs.close()
+		if not gmPG.run_query(rw_curs, cmd):
+			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
 			return None
-		id_issue = curs.fetchone()[0]
+		id_issue = rw_curs.fetchone()[0]
 		# and commit our work
 		rw_conn.commit()
-		curs.close()
+		rw_curs.close()
 		rw_conn.close()
+		_log.Log(gmLog.lData, 'inserted [%s] issue with ID [%s] for patient [%s]' % (health_issue_name, id_issue, self.id_patient))
 		return id_issue
 	#------------------------------------------------------------------
 	# episode related helpers
 	#------------------------------------------------------------------
 	def __load_most_recent_episode(self):
 		# check if there's an active episode
-		curs = self._defconn_ro.cursor()
+		curs = self._ro_conn_clin.cursor()
 		cmd = "select id_episode from last_act_episode where id_patient=%s limit 1"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
@@ -522,7 +535,7 @@ class gmClinicalRecord:
 		return 1
 	#------------------------------------------------------------------
 	def _set_active_episode(self, episode_name = '__default__'):
-		ro_curs = self._defconn_ro.cursor()
+		ro_curs = self._ro_conn_clin.cursor()
 		# does this episode exist at all ?
 		# (else we can't activate it in the first place)
 		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
@@ -570,7 +583,7 @@ class gmClinicalRecord:
 		return 1
 	#------------------------------------------------------------------
 	def _create_episode(self, episode_name = '__default__'):
-		ro_curs = self._defconn_ro.cursor()
+		ro_curs = self._ro_conn_clin.cursor()
 		# anything to do ?
 		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
 		if not gmPG.run_query(ro_curs, cmd, self.id_patient, episode_name):
@@ -587,7 +600,7 @@ class gmClinicalRecord:
 		if rw_conn is None:
 			return None
 		rw_curs = rw_conn.cursor()
-		# by default new episodes belong to the __default__ health issue
+		# for now new episodes belong to the __default__ health issue
 		cmd = "insert into clin_episode (id_health_issue, description) values (%s, %s)"
 		if not gmPG.run_query(rw_curs, cmd, self.id_default_health_issue, episode_name):
 			rw_curs.close()
@@ -638,7 +651,7 @@ class gmClinicalRecord:
 					return 1, ''
 
 		# else auto-search for encounter and attach if necessary
-		ro_curs = self._defconn_ro.cursor()
+		ro_curs = self._ro_conn_clin.cursor()
 		if anID is None:
 			print "auto-search for previous encounters ..."
 			# 1) very recent encounter recorded (that we always consider current) ?
@@ -692,7 +705,6 @@ class gmClinicalRecord:
 	def __insert_encounter(self, aComment = 'created'):
 		"""Insert a new encounter.
 		"""
-		print "inserting new encounter"
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
 		if rw_conn is None:
 			_log.Log(gmLog.lErr, 'cannot connect to service [historica]')
@@ -734,7 +746,6 @@ class gmClinicalRecord:
 	def __affirm_current_encounter(self, aComment = 'affirmed'):
 		"""Update internal comment and time stamp on curr_encounter row.
 		"""
-		print "affirming previous encounter"
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
 		if rw_conn is None:
 			_log.Log(gmLog.lWarn, 'cannot connect to service [historica]')
@@ -756,18 +767,12 @@ class gmClinicalRecord:
 	def create_allergy(self, map):
 		"""tries to add allergy to database."""
 
-		#self.beginTransaction()
-
-		# IH: we need to use a read-write connection for this
 		rw_conn = self._backend.GetConnection('historica', readonly = 0)
 		if rw_conn is None:
 			_log.Log(gmLog.lErr, 'cannot connect to service [historica]')
 			return None
 		rw_curs = rw_conn.cursor()
-		# definite misspelled in older SQL scripts so try both
 		# FIXME: id_type hardcoded, not reading checkbox states (allergy or sensitivity)
-		# the definate/definite confusion is ended:
-		# users should be using the latest database!!!
 		cmd = """
 insert into
 allergy(id_type, id_encounter, id_episode,  substance, reaction, definite)
@@ -779,10 +784,6 @@ values
 		rw_curs.close ()
 		rw_conn.commit ()
 
-		#self.endTransaction()
-		#<DEBUG>
-		_log.Data("after end Transaction")
-		#</DEBUG>
 		return 1
 	#------------------------------------------------------------------
 	# convenience sql call interface
@@ -819,25 +820,6 @@ values
 		
 		return rows
 
-	def beginTransaction(self):
-		"""I think the semantics is one connection is one
-		transaction context.  Save a connection for 
-		the transaction commit by calling connection.commit() """
-		self.transactionConnection = self.getConnection()
-		self.transactionCursor = self.transactionConnection.cursor()
-	
-	def endTransaction(self):
-		if self.transactionCursor <> None:
-			#self.transactionCursor.close()
-			self.transactionCursor.close()
-			self.transactionConnection.commit()
-			self.transactionConnection = None
-			self.transactionCursor = None
-
-	def getTransactionCursor(self):
-		return self.transactionCursor
-
-
 	def is_update_command(self, cmd):
 		if 	string.find(string.lower(cmd), "insert") >= 0 or \
 			string.find(string.lower(cmd), "update") >= 0 or \
@@ -862,7 +844,14 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.32  2003-07-07 08:34:31  ihaywood
+# Revision 1.33  2003-07-09 16:20:18  ncq
+# - remove dead code
+# - def_conn_ro -> ro_conn_clin
+# - check for patient existence in personalia, not historica
+# - listen to health issue changes, too
+# - add _get_health_issues
+#
+# Revision 1.32  2003/07/07 08:34:31  ihaywood
 # bugfixes on gmdrugs.sql for postgres 7.3
 #
 # Revision 1.31  2003/07/05 13:44:12  ncq
