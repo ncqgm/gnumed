@@ -276,42 +276,42 @@ class EditTextBoxes(wxPanel):
 		      gmLog.gmDefLog.Log (gmLog.lData, "section allergies")
 		      #self.sizer = wxGridSizer (len(prompt_array),1,2,2)    
 		      #gmLog.gmDefLog.Log (gmLog.lData, len(editareaprompts))
-		      self.text1 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text2 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text3 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text4 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text5 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.cb1 = wxCheckBox(self, -1, " generic specific", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)	
-		      self.rb1 = wxRadioButton(self, 32, " Allergy ", wxDefaultPosition,wxDefaultSize)
-		      self.rb2 = wxRadioButton(self, 33, "Sensitivity", wxDefaultPosition,wxDefaultSize)
-		      self.cb2 = wxCheckBox(self, -1, " Definate", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		      self.text1_date_recorded = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text2_allergy_drug  = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text3_generic_drug = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text4_allergy_class = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text5_drug_reaction = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.cb1_generic_specific = wxCheckBox(self, -1, " generic specific", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)	
+		      self.rb1_is_allergy = wxRadioButton(self, 32, " Allergy ", wxDefaultPosition,wxDefaultSize)
+		      self.rb2_is_sensitivity = wxRadioButton(self, 33, "Sensitivity", wxDefaultPosition,wxDefaultSize)
+		      self.cb2_is_definite_allergy = wxCheckBox(self, -1, " Definate", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		      
 		      
-		      self.sizer_line3.Add(self.text3,6,wxEXPAND)           #the generic compound text plus
-		      self.sizer_line3.Add(self.cb1,3,wxEXPAND)             #check box saying 'generic specific' 
+		      self.sizer_line3.Add(self.text3_generic_drug,6,wxEXPAND)           #the generic compound text plus
+		      self.sizer_line3.Add(self.cb1_generic_specific,3,wxEXPAND)             #check box saying 'generic specific' 
 		      self.sizer_line6.Add(5,0,0)                           #space to push the first radio button off the edge
-		      self.sizer_line6.Add(self.rb1,2,wxEXPAND)             #radiobutton for allergy
-		      self.sizer_line6.Add(self.rb2,2,wxEXPAND)             #radiobutton for sensitivity
-		      self.sizer_line6.Add(self.cb2,2,wxEXPAND)             #check box to say if it is definate (default = is - set this)
+		      self.sizer_line6.Add(self.rb1_is_allergy,2,wxEXPAND)             #radiobutton for allergy
+		      self.sizer_line6.Add(self.rb2_is_sensitivity,2,wxEXPAND)             #radiobutton for sensitivity
+		      self.sizer_line6.Add(self.cb2_is_definite_allergy,2,wxEXPAND)             #check box to say if it is definate (default = is - set this)
 		      self.sizer_line6.Add(self.btnOK,1,wxEXPAND|wxALL,4)   #the ok button with a gap around it (4)
 		      self.sizer_line6.Add(self.btnClear,1,wxEXPAND|wxALL,4)#the clear button with a gap around it(4) 
-		      self.gs.Add(self.text1,0,wxEXPAND)
-		      self.gs.Add(self.text2,0,wxEXPAND)
+		      self.gs.Add(self.text1_date_recorded,0,wxEXPAND)
+		      self.gs.Add(self.text2_allergy_drug,0,wxEXPAND)
 		      self.gs.Add(self.sizer_line3,0,wxEXPAND)
-		      self.gs.Add(self.text4,0,wxEXPAND)
-		      self.gs.Add(self.text5,0,wxEXPAND)
+		      self.gs.Add(self.text4_allergy_class,0,wxEXPAND)
+		      self.gs.Add(self.text5_drug_reaction,0,wxEXPAND)
 		      self.gs.Add(self.sizer_line6,0,wxEXPAND)				
 		elif section == gmSECTION_SCRIPT:
 		      gmLog.gmDefLog.Log (gmLog.lData, "in script section now")
-		      self.text1 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text2 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text3 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text4 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text5 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text6 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text7 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text8 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.text9 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text1_prescription_reason = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text2_drug_class = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text3_generic_drug = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text4_brand_drug = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text5_strength = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text6_directions = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text7_for_duration = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text8_prescription_progress_notes = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.text9_quantity = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      lbl_veterans = EditAreaPromptLabel(self,-1,"  Veteran  ")
 		      lbl_reg24 = EditAreaPromptLabel(self,-1,"  Reg 24  ")
 		      lbl_quantity = EditAreaPromptLabel(self,-1,"  Quantity  ")
@@ -326,20 +326,20 @@ class EditTextBoxes(wxPanel):
 		      self.sizer_auth_PI.Add(self.btn_authority,1,wxEXPAND|wxALL,2)  #put authority button and PI button
 		      self.sizer_auth_PI.Add(self.btn_briefPI,1,wxEXPAND|wxALL,2)    #on same sizer
 		      
-		      self.text10 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
-		      self.sizer_line3.Add(self.text3,5,wxEXPAND)
+		      self.text10_repeats  = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.sizer_line3.Add(self.text3_generic_drug,5,wxEXPAND)
 		      self.sizer_line3.Add(lbl_veterans,1,wxEXPAND)
         	      self.sizer_line3.Add(self.cb_veteran,1,wxEXPAND)
-		      self.sizer_line4.Add(self.text4,5,wxEXPAND)
+		      self.sizer_line4.Add(self.text4_brand_drug,5,wxEXPAND)
 		      self.sizer_line4.Add(lbl_reg24,1,wxEXPAND)
         	      self.sizer_line4.Add(self.cb_reg24,1,wxEXPAND)
-		      self.sizer_line5.Add(self.text5,5,wxEXPAND)
+		      self.sizer_line5.Add(self.text5_strength,5,wxEXPAND)
 		      self.sizer_line5.Add(lbl_quantity,1,wxEXPAND)
-        	      self.sizer_line5.Add(self.text9,1,wxEXPAND)
-		      self.sizer_line6.Add(self.text6,5,wxEXPAND)
+        	      self.sizer_line5.Add(self.text9_quantity,1,wxEXPAND)
+		      self.sizer_line6.Add(self.text6_directions,5,wxEXPAND)
 		      self.sizer_line6.Add(lbl_repeats,1,wxEXPAND)
-        	      self.sizer_line6.Add(self.text10,1,wxEXPAND)
-		      self.sizer_line7.Add(self.text7,5,wxEXPAND)
+        	      self.sizer_line6.Add(self.text10_repeats,1,wxEXPAND)
+		      self.sizer_line7.Add(self.text7_for_duration,5,wxEXPAND)
 		      self.sizer_line7.Add(lbl_usualmed,1,wxEXPAND)
         	      self.sizer_line7.Add(self.cb_usualmed,1,wxEXPAND)
 		      self.sizer_line8.Add(5,0,0)
@@ -347,14 +347,14 @@ class EditTextBoxes(wxPanel):
 		      self.sizer_line8.Add(5,0,2)
 		      self.sizer_line8.Add(self.btnOK,1,wxEXPAND|wxALL,2)
 		      self.sizer_line8.Add(self.btnClear,1,wxEXPAND|wxALL,2)
-		      self.gs.Add(self.text1,1,wxEXPAND) #prescribe for
-		      self.gs.Add(self.text2,1,wxEXPAND) #prescribe by class
+		      self.gs.Add(self.text1_prescription_reason,1,wxEXPAND) #prescribe for
+		      self.gs.Add(self.text2_drug_class,1,wxEXPAND) #prescribe by class
 		      self.gs.Add(self.sizer_line3,1,wxEXPAND) #prescribe by generic, lbl_veterans, cb_veteran
 		      self.gs.Add(self.sizer_line4,1,wxEXPAND) #prescribe by brand, lbl_reg24, cb_reg24
 		      self.gs.Add(self.sizer_line5,1,wxEXPAND) #drug strength, lbl_quantity, text_quantity 
 		      self.gs.Add(self.sizer_line6,1,wxEXPAND) #txt_directions, lbl_repeats, text_repeats 
 		      self.gs.Add(self.sizer_line7,1,wxEXPAND) #text_for,lbl_usual,chk_usual
-		      self.gs.Add(self.text8,1,wxEXPAND)            #text_progressNotes
+		      self.gs.Add(self.text8_prescription_progress_notes,1,wxEXPAND)            #text_progressNotes
 		      self.gs.Add(self.sizer_line8,1,wxEXPAND)
 		      
 		      
