@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.56 2005-02-20 10:45:49 sjtan Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmDemographics.py,v 1.57 2005-02-22 10:21:33 ihaywood Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -93,6 +93,8 @@ ID_TXTPATIENTALLERGIES  = wx.NewId()
 ID_TXTNOK =wx.NewId()
 ID_TOOLBAR = wx.NewId ()
 ID_TOOL_FIND = wx.NewId ()
+ID_TOOL_NEW = wx.NewId ()
+ID_TOOL_SAVE = wx.NewId ()
 ID_CHECK_SPLIT=wx.NewId()
 ID_TOOL_TEXT = wx.NewId ()
 ID_LIST = wx.NewId ()
@@ -249,7 +251,7 @@ class Demographics(wx.Panel):
 		#  --------------------------------------
 		self.main_splitWindow = wx.SplitterWindow( self, -1, point = wx.DefaultPosition,  size = wx.DefaultSize, style=wx.SP_3DSASH)
 		self.patientDetailWin = DemographicDetailWindow(self.main_splitWindow)
-		self.patientListWin = PatientListWindow(self.main_splitWindow, ID_LIST, on_click=self.patientDetailWin.load_identity)
+		self.patientListWin = PatientListWindow(self.main_splitWindow, self, ID_LIST, on_click=self.patientDetailWin.load_identity)
 
 		self.main_splitWindow.SplitHorizontally( self.patientListWin, self.patientDetailWin)
 		# toolbar
@@ -262,6 +264,8 @@ class Demographics(wx.Panel):
 		search_bitmap = wx.BitmapFromImage(img)
 		self.toolbar.AddLabelTool (ID_TOOL_FIND, _("Find"), search_bitmap, shortHelp = _("Find a person in the database"))
 		self.toolbar.AddSeparator ()
+		self.toolbar.AddLabelTool (ID_TOOL_NEW, _("New"), search_bitmap, shortHelp = _("Create a new patient"))
+		self.toolbar.AddLabelTool (ID_TOOL_SAVE, _("Save"), search_bitmap, shortHelp = _("Save the current patient"))
 		# FIXME: add other toolbar items here
 		self.sizer_main = wx.BoxSizer(wx.VERTICAL)
 		self.sizer_main.Add (self.toolbar, 0, wx.EXPAND)
@@ -280,6 +284,8 @@ class Demographics(wx.Panel):
 	def __connect (self):	
 		wx.EVT_TOOL (self.toolbar, ID_TOOL_FIND, self._on_search)
 		wx.EVT_TEXT_ENTER (self.id_search, ID_TOOL_TEXT, self._on_search)
+		wx.EVT_TOOL (self.toolbar, ID_TOOL_SAVE, self.patientDetailWin.on_save )
+		wx.EVT_TOOL (self.toolbar, ID_TOOL_NEW, self.on_new )
 		
 	def _on_search (self, event):
 		try:
@@ -293,13 +299,20 @@ class Demographics(wx.Panel):
 		except:
 			_log.LogException ("patient search", sys.exc_info (), verbose=0)
 	#-----------------------------------------------------------
-
+	def on_new (self, event):
+		try:
+			self.patientListWin.ClearAll ()
+			self.id_search.Clear ()
+			self.patientDetailWin.on_new ()
+		except:
+			_log.LogException ("patient new", sys.exc_info (), verbose=0)
+		
 class PatientListWindow(wx.ListCtrl):		
 #E	, gmPatientHolder.PatientHolder):
 #		# FIXME: remove
 #		gmPatientHolder.PatientHolder.__init__(self)
 
-	def __init__(self, parent, id= -1, on_click=None):
+	def __init__(self, parent, main_window, id= -1, on_click=None):
 		wx.ListCtrl.__init__ (
 			self, parent, id,
 			pos = wx.DefaultPosition,
@@ -310,6 +323,7 @@ class PatientListWindow(wx.ListCtrl):
 			workplace = _whoami.get_workplace(),
 			option="widgets.demographics.patientlist.column_sizes"
 		)
+		self.main_window = main_window
 		self.patientcolumns = {_('Name'):100, _('Address'):250, _("Home Phone"):60, _("Sex"):50, _("Date of Birth"):60}
 		if opt_val and len(opt_val):
 			self.patientcolumns.update (dict ([i.split (':') for i in opt_val]))
@@ -323,7 +337,7 @@ class PatientListWindow(wx.ListCtrl):
 		wx.EVT_LIST_ITEM_ACTIVATED (self.patientlist, self.GetId (), self._on_list_click)
 		wx.EVT_MENU(self, ID_Popup_OpenPatient, self._on_Popup_OpenPatient)
 		wx.EVT_MENU(self, ID_Popup_SaveDisplayLayout, self._on_PopupSaveDisplayLayout)
-		wx.EVT_MENU(self, ID_Popup_AddPerson , self._on_Popup_AddPerson)
+		wx.EVT_MENU(self, ID_Popup_AddPerson , self.main_window.on_new)
 		wx.EVT_MENU(self, ID_Popup_AddAddressForPerson, self._on_Popup_AddAddressForPerson)
 		wx.EVT_MENU(self, ID_Popup_AddFamilyMember, self._on_Popup_AddFamilyMember)
 		wx.EVT_MENU(self, ID_Popup_DeletePerson, self._on_Popup_DeletePerson)
@@ -852,16 +866,11 @@ class DemographicDetailWindow(wx.Panel):
  		b = self.btn_addr_del
  		wx.EVT_BUTTON(b, b.GetId() ,  self._del_address_pressed)
 
- 		b = self.btn_save
- 		wx.EVT_BUTTON(b, b.GetId(), self._save_btn_pressed)
- 		wx.EVT_BUTTON(self.btn_del, self.btn_del.GetId (), self._del_button_pressed)
- 		wx.EVT_BUTTON(self.btn_new, self.btn_new.GetId (), self._new_button_pressed)
-
  		l = self.addresslist
- 		wx.EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected)
+ 		#wx.EVT_LISTBOX_DCLICK(l, l.GetId(), self._address_selected)
 
- 		wx.EVT_BUTTON(self.btn_photo_import, self.btn_photo_import.GetId (), self._photo_import)
- 		wx.EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
+ 		#wx.EVT_BUTTON(self.btn_photo_import, self.btn_photo_import.GetId (), self._photo_import)
+ 		#wx.EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
 
 
 
@@ -908,22 +917,22 @@ class DemographicDetailWindow(wx.Panel):
 
 
 
-	def setNewPatient(self, isNew):
-		#IAN TO RECONNECT
-		self._newPatient = isNew
+	def on_new(self):
+		self.identity = None
+		for x in ['firstnames', 'lastnames', 'title', 'preferred', 'pk_marital_status', 'occupation', 'gender', 'cob', 'txt_dob']:
+			getattr (self, x).SetValue ('')
 
-	def _new_button_pressed(self, event):
-		 #IAN TO RECONNECT
+		for i in self.ext_id_widgets.values ():
+			i.SetValue ('')
 
-		self.setNewPatient(1)
-		self.__init_data()
-		id = gmPerson.create_dummy_identity()
-		gmPerson.gmCurrentPatient(id)
+		for c in self.contacts_widgets.values ():
+			c.SetValue ('')
+
+		self.addresslist.Clear ()
+		self.lb_nok.Clear ()
 
 
-
-
-	def _save_data(self):
+	def on_save(self):
 		 #IAN TO RECONNECT
 		m = self.input_fields
 		self.value_map = self.get_input_value_map ()
@@ -1041,7 +1050,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.56  2005-02-20 10:45:49  sjtan
+# Revision 1.57  2005-02-22 10:21:33  ihaywood
+# new patient
+#
+# Revision 1.56  2005/02/20 10:45:49  sjtan
 #
 # kwargs syntax error.
 #
