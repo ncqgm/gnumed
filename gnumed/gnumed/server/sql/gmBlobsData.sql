@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.4 $ $Date: 2003-07-20 09:39:25 $ $Author: ncq $
+-- $Revision: 1.5 $ $Date: 2004-03-02 23:59:11 $ $Author: ihaywood $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -36,17 +36,21 @@ INSERT into doc_type(id, name) values(22, i18n('discharge summary ophthalmology'
 INSERT into doc_type(id, name) values(23, i18n('discharge summary ENT'));
 INSERT into doc_type(id, name) values(24, i18n('referral report pathology'));
 INSERT into doc_type(id, name) values(25, i18n('referral report neurosurgery'));
+INSERT into doc_type(id, name) values(26, i18n('patient photograph'));
 --INSERT into doc_type(id, name) values(, i18n(''));
 
 -- your own doc types can only have ids between 100 and 200
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.4  2003-07-20 09:39:25  ncq
+-- Revision 1.5  2004-03-02 23:59:11  ihaywood
+-- New document type 26: patient photograph
+--
+-- Revision 1.4  2003/07/20 09:39:25  ncq
 -- - added some doc types
 --
 -- Revision 1.3  2003/05/12 12:43:39  ncq
