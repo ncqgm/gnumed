@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.108 2004-06-01 08:20:14 ncq Exp $
-__version__ = "$Revision: 1.108 $"
+# $Id: gmClinicalRecord.py,v 1.109 2004-06-01 08:21:56 ncq Exp $
+__version__ = "$Revision: 1.109 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1138,8 +1138,7 @@ class cClinicalRecord:
 	#------------------------------------------------------------------
 	# lab data API
 	#------------------------------------------------------------------
-	def get_lab_results(self, limit=100):
-		lim = "limit %s" % limit
+	def get_lab_results(self, limit=None):
 		try:
 			return self.__db_cache['lab results']
 		except KeyError:
@@ -1147,7 +1146,10 @@ class cClinicalRecord:
 		self.__db_cache['lab results'] = []
 		# get list of IDs
 		# FIXME: date range, episode, encounter, issue, test filter
-		# FIXME: hardcoded limit on # of test results
+		if limit is None:
+			lim = ''
+		else:
+			lim = "limit %s" % limit
 		cmd = "select pk_result from v_results4lab_req where pk_patient=%%s %s" % lim
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if rows is None:
@@ -1307,7 +1309,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.108  2004-06-01 08:20:14  ncq
+# Revision 1.109  2004-06-01 08:21:56  ncq
+# - default limit to all on get_lab_results()
+#
+# Revision 1.108  2004/06/01 08:20:14  ncq
 # - limit in get_lab_results
 #
 # Revision 1.107  2004/05/30 20:51:34  ncq
