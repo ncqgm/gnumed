@@ -8,17 +8,17 @@ right from the directory where you put the files.
 You need to make sure, however, that you have all the necessary
 3rd party components installed. For this use:
 
-	gnumed/check-prerequisites.sh
+	check-prerequisites.sh
 
 You can bootstrap a database with help of the shell scripts in
 
-	gnumed/server/bootstrap/
+    gnumed/server/bootstrap/
 
 You can run the client with help of the shell scripts in
 
 	gnumed/client/
 
-If questions arise ask on the mailing list.
+If questions arise, please ask on the mailing list at http://lists.gnu.org/mailman/listinfo/gnumed-devel
 
 
 Enjoy !
