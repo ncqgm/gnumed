@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.27 2004-03-20 11:10:46 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmPatient.py,v 1.28 2004-03-20 11:45:41 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -538,11 +538,11 @@ class cPatientSearcher_SQL:
 			where_snippets.append("datetrunc('day', dob)=%(dob)s")
 		except KeyError:
 			pass
-		try:
-			data['ID']
-			where_snippets.append('i_id=%(ID)s')
-		except KeyError:
-			pass
+#		try:
+#			data['ID']
+#			where_snippets.append('i_id=%(ID)s')
+#		except KeyError:
+#			pass
 
 		# sufficient data ?
 		if len(where_snippets) == 0:
@@ -877,7 +877,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.27  2004-03-20 11:10:46  ncq
+# Revision 1.28  2004-03-20 11:45:41  ncq
+# - don't pass search_dict[id] to get_patient_ids()
+#
+# Revision 1.27  2004/03/20 11:10:46  ncq
 # - where_snippets needs to be []
 #
 # Revision 1.26  2004/03/20 10:48:31  ncq
