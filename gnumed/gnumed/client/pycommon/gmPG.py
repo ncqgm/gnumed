@@ -4,7 +4,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -678,7 +678,9 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 	pool = ConnectionPool()
 	conn = pool.GetConnection(str(service), readonly = 0)
 	if conn is None:
-		return (False, (1, _('cannot connect to service [%s]') % service))
+		msg = 'cannot connect to service [%s]'
+		_log.Log(gmLog.lErr, msg % service)
+		return (False, (1, _(msg) % service))
 	if extra_verbose:
 		if dbapi == pyPgSQL.PgSQL:
 			conn.conn.toggleShowQuery
@@ -692,6 +694,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 				t1 = time.time()
 			try:
 				curs.execute(query, *args)
+			# FIXME: be more specific in exception catching
 			except:
 				if extra_verbose:
 					duration = time.time() - t1
@@ -701,16 +704,13 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 				typ, val, tb = exc_info
 				_serialize_failure = "not serialize access due to concurrent update"
 				if str(val).find(_serialize_failure) > 0:
-					_log.Log(gmLog.lData, 'concurrency conflict detected')
+					_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
 					if attempt < max_tries:
 						# jump to next full attempt
 						time.sleep(0.1)
 						continue
 					curs.close()
 					conn.close()
-					if extra_verbose:
-						if dbapi == pyPgSQL.PgSQL:
-							conn.conn.toggleShowQuery
 					return (False, (2, _('Cannot save data. Database row locked by another user.')))
 				# FIXME: handle more types of errors
 				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], service), exc_info)
@@ -721,9 +721,6 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 				tmp = str(val).replace('ERROR:', '')
 				tmp = tmp.replace('ExecAppend:', '')
 				tmp = tmp.strip()
-				if extra_verbose:
-					if dbapi == pyPgSQL.PgSQL:
-						conn.conn.toggleShowQuery
 				return (False, (1, _('SQL: %s') % tmp))
 			# apparently succeeded
 			if extra_verbose:
@@ -733,9 +730,6 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 		# done with queries
 		break # out of retry loop
 	# done with attempt(s)
-	if extra_verbose:
-		if dbapi == pyPgSQL.PgSQL:
-			conn.conn.toggleShowQuery
 	# did we get result rows in the last query ?
 	data = None
 	idx = {}
@@ -784,7 +778,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 			typ, val, tb = exc_info
 			_serialize_failure = "not serialize access due to concurrent update"
 			if str(val).find(_serialize_failure) > 0:
-				_log.Log(gmLog.lData, 'concurrency conflict detected')
+				_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
 				curs.close()
 				if extra_verbose:
 					if dbapi == pyPgSQL.PgSQL:
@@ -851,7 +845,7 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 			typ, val, tb = exc_info
 			_serialize_failure = "not serialize access due to concurrent update"
 			if str(val).find(_serialize_failure) > 0:
-				_log.Log(gmLog.lData, 'concurrency conflict detected')
+				_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
 				return (False, (2, _('Cannot save data. Database row locked by another user.')))
 			# FIXME: handle more types of errors
 			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], cursor), exc_info)
@@ -1209,7 +1203,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.41 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.42 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1427,7 +1421,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.41  2005-01-31 06:26:38  ncq
+# Revision 1.42  2005-01-31 09:32:34  ncq
+# - improve error handling in commit2()
+#
+# Revision 1.41  2005/01/31 06:26:38  ncq
 # - several tidy-ups
 #
 # Revision 1.40  2005/01/29 17:56:13  ncq
