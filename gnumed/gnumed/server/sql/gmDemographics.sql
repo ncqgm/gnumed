@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.41 $
+-- $Revision: 1.42 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -282,6 +282,7 @@ create table names (
 	lastnames text not null,
 	firstnames text not null,
 	preferred text,
+	comment text,
 	unique(id_identity, lastnames, firstnames)
 );
 
@@ -295,6 +296,9 @@ comment on column names.lastnames IS
 	'all last names of an identity in legal order';
 comment on column names.preferred IS
 	'preferred first name, the name a person is usually called (nickname)';
+comment on column names.comment is
+	'a comment regarding this name, useful in things like "this was
+	 the name before marriage" etc';
 
 -- ==========================================================
 create table lnk_identity2comm (
@@ -524,11 +528,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.41 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.42 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.41  2005-02-12 13:49:14  ncq
+-- Revision 1.42  2005-02-13 14:42:47  ncq
+-- - add names.comment
+--
+-- Revision 1.41  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes
