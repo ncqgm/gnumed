@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -107,7 +107,7 @@ comment on function add_x_db_fk_def (name, name, text, name, name) is
 create table x_db_fk_violation (
 	id serial primary key,
 	id_fk_def integer references x_db_fk(id),
-	fk_table_pk integer not null,
+	fk_table_pk text not null,
 	fk_value text not null,
 	description text,
 	-- do not report the same violation (value) in
@@ -123,8 +123,7 @@ comment on column x_db_fk_violation.id_fk_def is
 comment on column x_db_fk_violation.fk_table_pk is
 	'the primary key of the row in which the value of the
 	 remote foreign key violates referential integrity,
-	 depends on the fact that all our primary keys are
-	 named "id" and are of type "integer"';
+	 casted to "text"';
 comment on column x_db_fk_violation.fk_value is
 	'the value of the remote foreign key violating
 	 referential integrity, casted to "text"';
@@ -133,7 +132,7 @@ comment on column x_db_fk_violation.description is
 	 - referenced service not accessible
 	 - referenced schema does not exist
 	 - referenced table does not exist
-	 - referenced colum does not exist
+	 - referenced column does not exist
 	 per remote FK value:
 	 - referenced value does not exist
 	 - referenced value not unique';
@@ -146,11 +145,14 @@ comment on column x_db_fk_violation.description is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FKs.sql,v $
--- Revision 1.6  2003-08-10 00:58:47  ncq
+-- Revision 1.7  2003-08-17 18:09:11  ncq
+-- - factor out views
+--
+-- Revision 1.6  2003/08/10 00:58:47  ncq
 -- - add stored procedure helper add_x_db_fk_def()
 --
 -- Revision 1.5  2003/08/03 14:41:01  ncq
