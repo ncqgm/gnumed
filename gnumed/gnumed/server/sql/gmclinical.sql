@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.49 $
+-- $Revision: 1.50 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -69,8 +69,7 @@ create table log_clin_episode (
 create table last_active_episode (
 	id serial primary key,
 	id_episode integer not null references clin_episode(id),
-	id_patient integer not null,
-	unique (id_episode, id_patient)
+	id_patient integer unique not null
 );
 
 comment on table last_active_episode is
@@ -519,11 +518,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.49 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.50 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.49  2003-06-01 11:38:12  ncq
+-- Revision 1.50  2003-06-02 21:03:41  ncq
+-- - last_active_episode: unique on id_patient, not composite(patient/episode)
+--
+-- Revision 1.49  2003/06/01 11:38:12  ncq
 -- - fix spelling of definate -> definite
 --
 -- Revision 1.48  2003/06/01 10:07:32  sjtan
