@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -111,6 +111,21 @@ class cWhoAmI(gmBorg.cBorg):
 			raise ValueError, _('no staff name on file for current database login')
 		self._staff_name = '%s%s.%s' % (result[0][0], result[0][1][:1], result[0][2])
 		return self._staff_name
+	#-----------------------------------------------
+	def get_staff_sign(self):
+		try:
+			return self._staff_sign
+		except AttributeError:
+			pass
+
+		cmd = "select sign from v_staff where db_user=CURRENT_USER"
+		result = gmPG.run_ro_query('personalia', cmd, None)
+		if result is None:
+			raise ValueError, _('cannot get staff sign')
+		if len(result) == 0:
+			raise ValueError, _('no staff sign on file for current database login')
+		self._staff_sign = result[0][0]
+		return self._staff_sign
 #===================================================
 if __name__ == '__main__':
 	_ = lambda x:x
@@ -122,7 +137,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.5  2004-08-13 08:54:24  ncq
+# Revision 1.6  2005-04-03 20:09:47  ncq
+# - get_staff_sign()
+#
+# Revision 1.5  2004/08/13 08:54:24  ncq
 # - overdue import cleanup
 #
 # Revision 1.4  2004/08/11 16:56:04  hinnef
