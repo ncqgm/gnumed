@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.17 2003-06-01 11:38:12 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.18 2003-06-03 13:49:06 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -43,10 +43,10 @@ drop view v_patient_episodes;
 
 create view v_patient_episodes as
 select
-	cep.id as id_episode,
 	chi.id_patient as id_patient,
-	chi.id as id_health_issue,
+	cep.id as id_episode,
 	cep.description as episode,
+	chi.id as id_health_issue,
 	chi.description as health_issue
 from
 	clin_episode cep, clin_health_issue chi
@@ -61,10 +61,10 @@ drop view v_patient_items;
 
 create view v_patient_items as
 select
+	vpep.id_patient as id_patient,
 	cri.pk_item as id_item,
 	cri.id_encounter as id_encounter,
 	cri.id_episode as id_episode,
-	vpep.id_patient as id_patient,
 	vpep.id_health_issue as id_health_issue,
 	cri.narrative as narrative,
 	sys.relname as src_table
@@ -171,11 +171,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.17  2003-06-01 11:38:12  ncq
+-- Revision 1.18  2003-06-03 13:49:06  ncq
+-- - reorder v_patient_episodes/*_items for clarity
+--
+-- Revision 1.17  2003/06/01 11:38:12  ncq
 -- - fix spelling of definate -> definite
 --
 -- Revision 1.16  2003/05/17 18:40:24  ncq
