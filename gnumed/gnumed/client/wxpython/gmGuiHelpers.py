@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.2 2003-08-24 08:58:07 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmGuiHelpers.py,v 1.3 2003-08-24 09:15:20 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -28,7 +28,7 @@ import gmLog
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 # ========================================================================
-def gm_show_error(self, aMessage = None, aTitle = None, aLogLevel = None):
+def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify error message')
 
@@ -42,6 +42,9 @@ def gm_show_error(self, aMessage = None, aTitle = None, aLogLevel = None):
 	if aTitle is None:
 		aTitle = _('generic error message dialog')
 
+	print aMessage
+	print aTitle
+
 	dlg = wxMessageDialog (
 		parent = NULL,
 		message = aMessage,
@@ -52,7 +55,7 @@ def gm_show_error(self, aMessage = None, aTitle = None, aLogLevel = None):
 	dlg.Destroy()
 	return 1
 #-------------------------------------------------------------------------
-def gm_show_question(self, aMessage = None, aTitle = None):
+def gm_show_question(aMessage = None, aTitle = None):
 	# sanity checks
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify question')
@@ -63,7 +66,7 @@ def gm_show_question(self, aMessage = None, aTitle = None):
 		NULL,
 		aMessage,
 		aTitle,
-		wxYES_NO | wxICON_QUESTION | wxNO_DEFAULT
+		wxYES_NO | wxICON_QUESTION
 	)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
@@ -74,7 +77,10 @@ def gm_show_question(self, aMessage = None, aTitle = None):
 		return 0
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.2  2003-08-24 08:58:07  ncq
+# Revision 1.3  2003-08-24 09:15:20  ncq
+# - remove spurious self's
+#
+# Revision 1.2  2003/08/24 08:58:07  ncq
 # - use gm_show_*
 #
 # Revision 1.1  2003/08/21 00:11:48  ncq
