@@ -20,14 +20,15 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.7 2003-08-23 13:23:29 shilbert Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmXdtViewer.py,v 1.8 2003-08-24 09:24:13 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
 # location of our modules
 if __name__ == "__main__":
 	sys.path.append(os.path.join('.', 'modules'))
+	sys.path.append(os.path.join('.', 'business'))
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -105,6 +106,7 @@ class gmXdtViewerPanel(wxPanel):
 		# if file name supplied, use it
 		if aFile is not None:
 			self.filename = aFile
+
 		# sanity check
 		if not os.path.isfile(self.filename):
 			gm_show_error(
@@ -286,6 +288,7 @@ def _preprocess_file(afile):
 		)
 		return None
 	# more than one patient
+	selected_pat_file = afile
 	if nr_pats > 1:
 		# standalone allows multiple-patient files
 		selected_pat_file = _split_and_select_pat(pats, afile)
@@ -404,10 +407,10 @@ if __name__ == '__main__':
 			if not gmCLI.has_arg('--xdt-file'):
 				gm_show_error (
 					_('No XDT file given on command line.\n\nFormat: --xdt-file=<file>'),
-					_('loading XDT file'),
+					_('XDT Viewer: loading XDT file'),
 					gmLog.lInfo
 				)
-				return None
+				return 0
 			# yes -> verify it
 			fname = _preprocess_file(gmCLI.arg['--xdt-file'])
 			if fname is None:
@@ -430,7 +433,6 @@ if __name__ == '__main__':
 	except StandardError:
 		_log.LogException('Unhandled exception.', sys.exc_info())
 		raise
-
 else:
 	import gmPlugin
 
@@ -479,7 +481,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.7  2003-08-23 13:23:29  shilbert
+# Revision 1.8  2003-08-24 09:24:13  ncq
+# - make it work with single-patient files in standalone mode
+#
+# Revision 1.7  2003/08/23 13:23:29  shilbert
 # - adapted some functions so that gmXdtToolsLib is no longer dependent on gmCfg
 #
 # Revision 1.6  2003/08/21 21:36:42  shilbert
