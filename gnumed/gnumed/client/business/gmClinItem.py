@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.15 2004-06-02 12:51:47 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmClinItem.py,v 1.16 2004-06-02 21:50:32 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -64,14 +64,17 @@ class cClinItem:
 			return self._payload[self._idx[attribute]]
 		except KeyError:
 			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
+			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self._idx.keys())))
 			raise gmExceptions.NoSuchClinItemAttributeError, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute not in self.__class__._updatable_fields:
+			_log.Log(gmLog.lWarn, '[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 			raise gmExceptions.ClinItemAttributeNotSettableError, '[%s]: attribute <%s> not settable' % (self.__class__.__name__, attribute)
 		try:
 			self._idx[attribute]
 		except KeyError:
+			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 			raise gmExceptions.NoSuchClinItemAttributeError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
 		self._payload[self._idx[attribute]] = value
 		self._is_modified = True
@@ -127,7 +130,10 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.15  2004-06-02 12:51:47  ncq
+# Revision 1.16  2004-06-02 21:50:32  ncq
+# - much improved error logging in set/getitem()
+#
+# Revision 1.15  2004/06/02 12:51:47  ncq
 # - add exceptions tailored to cClinItem __set/getitem__()
 #   errors as per Syan's suggestion
 #
