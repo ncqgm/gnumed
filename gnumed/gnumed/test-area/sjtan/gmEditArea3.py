@@ -18,11 +18,11 @@ from traceback import *
 import time
 
 from gmBrowse2 import *
-TBx = 1
-CHBx = 2
-RBn = 3
-CMBx =4
-LAB = 5
+TBx = 1		#TextBox
+CHBx = 2	#CheckBox	
+RBn = 3		#RadioButton
+CMBx =4		#ComboBox
+LAB = 5		#Label
 
 #this does make this module dependent on a lot of other modules
 if __name__ == "__main__":
@@ -33,12 +33,13 @@ from gmDateTimeInput import *
 
 import gmPG
 
-GMDI = 6
-PWh = 7
+GMDI = 6	#gmDateInput	
+PWh = 7		#gmPhraseWheel
 
-THRESHOLD_CHANGE = 3
-COMBO_MAX_LIST= 60
-COMBO_MAX_CACHE=4
+THRESHOLD_CHANGE = 3	#
+COMBO_MAX_LIST= 60	#the maximum display in the CMBx widget
+COMBO_MAX_CACHE=8	#number of fetchall() results  where combobox cache will evict.  
+COMBO_EVICT_DOWNTO=4	#when eviction occurs, evicts downto this size.
 
 sharedConnection = None
 dbpool = None
@@ -46,6 +47,7 @@ backup_dbapi = PgSQL
 
 backup_source = "localhost::gnumed4" 
 
+# a regex for determining if a sql CREATE  is for a table or a view and what it's called
 re_table = re.compile("^create\s+(?P<type>table|view)\s+(?P<table>\w+)\s*.*", re.I)
 
 
@@ -66,7 +68,6 @@ def getBackupConnection():
 	except:
 		print sys.exc_info()[0], sys.exc_info()[1]
 		print_tb(sys.exc_info()[2])
-		pass
 
 	return backup_dbapi.connect(backup_source)
 
@@ -79,6 +80,7 @@ def extractType( statement):
 	return re_obj.group("type")
 
 def makeSet( list):
+	"""removes duplicates from a list"""
 	set = []
 	for x in list:
 		if x in set:
@@ -87,6 +89,7 @@ def makeSet( list):
 	return set	
 
 def getIndexMap( description):
+	"""creates a map from a dbapi.cursor.description , keyed by field names, with items as cursor.description rows"""
 	map = {}
 	i = 0
 	for x in description:
@@ -96,6 +99,8 @@ def getIndexMap( description):
 	return map	
 
 class SelectedIndexUpdater:
+	"""used to link the gmPhraseWheel's id_callback to update internal map of primary key selections (selectedIndex),
+	   and to make a consistency check on the whole editArea"""
 	def __init__(self, widgetName, editArea):
 		self.widgetName = widgetName
 		self.editArea = editArea
@@ -111,6 +116,40 @@ class SelectedIndexUpdater:
 
 class EditArea2(wxPanel):
 	"""A frills version for prototyping and programming more easily.
+	This bloated class does several things:
+		
+		-simplifies and maps a EditArea layout and its widgets by sacrificing some (a lot) of the wxWindow flexibility.
+		
+		-links widgets to table fields.
+
+		-stores view and table definitions, and creates them if necessary.
+
+		-stores reference information between tables to view ( but not views to tables). 
+
+		-uses reference information for loading, inserting, updating and deleting editarea data from multiple tables,
+		by using recursion starting on a target table that has a reference path to all updateable tables.
+
+		-uses reference information to constrain selection widgets (phrasewheel and comboboxes) that display foreign key linked information.
+		The editarea displays a foreign key by a nominated field in the foreign keyed table (X).
+		X may be referenced by other tables e.g. (Y, Z) , which are also referenced by the target table and also
+		displayed. X may also reference other tables (U, V) that are displayed.  U reference (W) or be referenced by (T)
+		tables. When the foreign key value for X changes, a check is made on Y,Z , and U,V. A check is then made
+		on any tables referencing or referenced by U,V, Y, Z,  unless they've already been checked. And so on until 
+		no more references have been found. 
+		The reference check would go for say Y as 
+			"select id , displayField from Y where Y.id_X = X.newIdValue"
+		and for U
+			"select U.id, U.displayField from U, X where X.id_U = U.id and X.id = X.newIdValue"
+		
+		then a recursive check is done on U (which substitutes for X in the above statements), and W (becomes U), 
+		and T(becomes Y)  would be checked, but not X (which could become Y) , because X is already visited.
+
+		Well, that's what it should do , now that I've tried to explain it.
+
+		These constraint checks are most useful for non-updateable reference related information, as in drugref,
+		but shouldn't be done for say  address-> urb where address.street1 might be for a new tuple that references
+	 	a urb tuple. Therefore in widget construction , add(... constrained = 0)  turns off constraints .
+		
 	"""
 
 	def _getValidatedConnection(self):
@@ -161,17 +200,20 @@ class EditArea2(wxPanel):
 		self.oldText = ""
 		self.disableTextChange = 0
 
-		self.defaultFunctions = {}
+		self.defaultValueFunctions = {} #
 
-		self.ext_refs = {}
+		self.ext_refs = {}   #not used yet
 
 		self.writeMapping = {}  # used when an initial value may be mapped as in drug.quantity to the prescription.quantity field, but the write must be for a different table
 
-		self.descriptions = {} # for update and insert to check value types from dbapi cursor.description 
+		self.descriptions = {} # for update and insert to check value types from dbapi cursor.description. Caches the
+					# cursor descriptions for each entity.
 
 		self.targetId = None 
 
-	def add(self, propName,  type=TBx ,weight=1,  displayName = None,  newline = 0):
+		self.constrained = {}
+
+	def add(self, propName,  type=TBx ,weight=1,  displayName = None,  newline = 0, constrained = 1):
 		""" sets the default display Name to the property name,
 		    capitalizes the display name,
 		    creates the widget of the selected type, the default 
@@ -180,7 +222,20 @@ class EditArea2(wxPanel):
 		    widget on line ( does this really do anything?),
 		    add the line to the sizer if a newline and 
 		    start a newline.
+		    	parameters:
+				propName -the widgetName, the name which it will be mapped.
+				type     -the type of widget, as at the top of script. CMBx, PWh , TBx, LAB, CHBx, RBn
+				weight   -the weighting inside the FlexGridSizer.
+				displayName  -a different displayName to the widgetName. Not used as a key.
+				newline   - last widget on the line
+				constrained - whether the widget is subject to reference consistency checks, when a parent
+					       or child widget changes.
+
+				
 		    """
+
+		    
+		self.constrained[propName] = constrained
 
 		if displayName == None:
 			displayName = propName.capitalize()
@@ -271,8 +326,8 @@ class EditArea2(wxPanel):
 		self._setDefaultText()
 
 	def _setDefaultText(self):
-		for w in self.defaultFunctions.keys():
-			f = self.defaultFunctions[w]
+		for w in self.defaultValueFunctions.keys():
+			f = self.defaultValueFunctions[w]
 			if f == None:
 				continue
 			self.getWidgetByName(w).SetValue(f())	
@@ -469,7 +524,7 @@ class EditArea2(wxPanel):
 			list.append(tablename1)
 		self.narrowFrom[tablename2] = list
 	
-	def map( self, widgetName, sqlNames, order = 0, defaultFunction = None):
+	def map( self, widgetName, sqlNames, order = 0, defaultValueFunction = None):
 		if order == 1:
 			self.writeMapping[widgetName] = sqlNames
 			return
@@ -477,7 +532,7 @@ class EditArea2(wxPanel):
 		tableName = sqlNames.split('.')[0]
 		self._addTableToWidgetMapping(  tableName, widgetName) 
 		
-		self.defaultFunctions[widgetName] = defaultFunction
+		self.defaultValueFunctions[widgetName] = defaultValueFunction
 
 		if self.getWidgetType(widgetName) == PWh:
 			self._setPhraseWheelMatcher( widgetName, sqlNames)
@@ -510,6 +565,7 @@ class EditArea2(wxPanel):
 		return self._getValidatedConnection()
 
 	def ext_ref(self, name1, name2):
+		#adds a unchecked reference column to entity name1 to entity name2
 		statement1 = self.statements[name1]
 		tablename1 = extractTablename(statement1)
 		statement  = "alter table %s add column id_%s integer" % (tablename1 , name2)
@@ -714,6 +770,8 @@ class EditArea2(wxPanel):
 		self.updateParentAndChildSelections(  combo.GetName())
 
 	def updateParentAndChildSelections( self, widgetName):
+		if self.constrained[widgetName] == 0:
+			return
 		self._checkSameTableFields(widgetName)
 		self._checkChildCaches(widgetName)
 		self._checkParentText(widgetName)
@@ -743,6 +801,8 @@ class EditArea2(wxPanel):
 		#print "child list for parent table = ", parentTable, " = ", list
 		for childTable in  list:
 			widgetName = self.tableToWidgetName.get(childTable,[None]) [0]
+			if self.constrained[widgetName] == 0:
+				continue
 			if widgetName == None:
 				continue
 		#	if widgetName in self.comboCache:
@@ -793,6 +853,8 @@ class EditArea2(wxPanel):
 		list =  self.getParentWidgetNames( childWidgetName)
 		for parentWidgetName in  list:
 			if parentWidgetName == None:
+				continue
+			if self.constrained[parentWidgetName] == 0:
 				continue
 			self._checkOneParentText( childWidgetName, parentWidgetName)
 	
@@ -1006,6 +1068,16 @@ class EditArea2(wxPanel):
 		
 
 	def saveOrUpdate(self):
+		"""entry for the OK button. This will start with targetId: if it is not defined, 
+		then the editArea data has not been saved before, so saveNew will start with an
+		insert, otherwise updateTarget will start with a sql update.
+		However, any referenced tables are followed up, and ditto applies (i.e. recursive).
+		In this way, parents can be updated with new or updated children, and the saving
+		begins from bottom up , so any new child id's are generated before used as a 
+		reference value in a parent). When the recursionCount is zero, the end of the
+		first call to saveNewTarget or updateTarget will issue a commit().
+		"""
+		
 		print "saveOrUpdate: selectedIndex = ", self.selectedIndex
 		if self.targetId == None:
 			self.saveNew()
@@ -1188,7 +1260,7 @@ class EditArea2(wxPanel):
 	
 
 	def updateWidgetsFromTarget(self, target, id, extra_conditions = [] ):
-	 	"""recursively update widgets, following 'id_'... fields as references"""
+	 	"""recursively update widgets (i.e. loads them), following 'id_'... fields as references"""
 
 		conditions = [ "id = %d" %  id ]
 		conditions.extend ( extra_conditions)
@@ -1318,8 +1390,10 @@ class EditArea2(wxPanel):
 
 
 class ConfirmDialog(wxDialog):
+	"""A confirm dialog , that if gets hidden , as in Mac or Unix, should cancel itself. A Usability bug fix for dialogs."""
 	def __init__(self, parent, text = "confirm?"):
-		wxDialog.__init__(self, parent, -1, "CONFIRM", style = wxSTAY_ON_TOP | wxDEFAULT_DIALOG_STYLE)
+		#wxSTAY_ON_TOP doesn't work in unix, but might as well have it , in case it's windows os.
+		wxDialog.__init__(self, parent, -1, "CONFIRM", style = wxSTAY_ON_TOP | wxDEFAULT_DIALOG_STYLE) 
 		sizer = wxBoxSizer(wxVERTICAL)
 		sizer.Add( wxStaticText(self, -1, text) )
 		hSizer = wxBoxSizer(wxHORIZONTAL)
@@ -1406,7 +1480,7 @@ class MedicationEditArea(EditArea2):
 	
 	def __init__(self, parent, id):
 		EditArea2.__init__(self, parent, id)
-		self.add("classes", CMBx, newline = 1)
+		self.add("classes", PWh, newline = 1)
 		self.add("generic", PWh, weight = 3)
 		self.add("veteran", CHBx,newline=1)
 		self.add("drug", PWh,  weight = 3)
@@ -1443,7 +1517,7 @@ class MedicationEditArea(EditArea2):
 
 		self.map("quantity", "package.quantity", order=0)
 		self.ddl("prescription", "create table prescription(id integer primary key, quantity integer, repeats integer, for_condition text, direction text,  date timestamp default now(), veteran bool, usual bool , reg_24 bool)")
-		self.map("date", "prescription.date", defaultFunction = self.now )
+		self.map("date", "prescription.date", defaultValueFunction = self.now )
 		self.map("quantity", "prescription.quantity", order = 1)
 		self.map("repeats", "prescription.repeats")
 		
@@ -1650,8 +1724,8 @@ class DemographicEditArea(EditArea2):
 	#	self.add("family", CMBx, newline = 1)
 	#	self.add("place", CMBx, newline = 1)
 		
-		self.add("street 1", CMBx)  # by allowing Phrase wheel or combo box, addresses can be shared
-		self.add("street 2", newline=1)
+		self.add("street 1", PWh, constrained = 0)  # by allowing Phrase wheel or combo box, addresses can be shared
+		self.add("street 2", PWh, newline=1)
 		self.add("suburb", CMBx, newline = 1)
 		self.add("state", CMBx)
 		self.add("postcode", CMBx, newline = 1)
