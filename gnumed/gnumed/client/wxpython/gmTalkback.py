@@ -11,7 +11,7 @@ Original code courtesy of David Guest.
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmTalkback.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "D. Guest <dguest@zeeclor.mine.nu>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -69,7 +69,7 @@ class cTalkbackFrame(wxFrame):
 		self.mail_logger = aLogger
 	#-----------------------------------------------
 	def __set_properties(self):
-		self.SetTitle(_("GnuMed Talkback"))
+		self.SetTitle(_("GNUmed Talkback"))
 		self.label_title.SetFont(wxFont(16, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 	#-----------------------------------------------
 	def __do_layout(self):
@@ -90,7 +90,7 @@ class cTalkbackFrame(wxFrame):
 		self.szr_main.Add(self.szr_adr, 1, wxEXPAND, 0)
 
 		self.szr_btns.Add(self.btn_CANCEL, 0, wxALIGN_CENTER_HORIZONTAL, 0)
-		self.szr_btns.Add(20, 20, 0, wxEXPAND, 0)
+		self.szr_btns.Add((20, 20), 0, wxEXPAND, 0)
 		self.szr_btns.Add(self.btn_SEND, 0, 0, 0)
 		self.szr_main.Add(self.szr_btns, 1, wxALIGN_CENTER_HORIZONTAL, 0)
 
@@ -135,7 +135,10 @@ if __name__ == '__main__':
 
 #=========================================================================
 # $Log: gmTalkback.py,v $
-# Revision 1.7  2004-07-18 20:30:54  ncq
+# Revision 1.8  2005-03-29 07:31:28  ncq
+# - cleanup
+#
+# Revision 1.7  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.6  2004/02/25 09:46:22  ncq
