@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.52 2003-11-30 01:05:30 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmClinicalRecord.py,v 1.53 2003-12-01 01:01:05 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -444,9 +444,24 @@ class gmClinicalRecord:
 			self.__db_cache['health issue names'][row[idx_id]] = row[idx_name]
 		return self.__db_cache['health issue names']
 	#--------------------------------------------------------
-	def get_vaccinations(self):
+	def get_vaccinated_regimes(self):
+		cmd = """
+select distinct on (regime)
+	regime,
+	indication
+from v_patient_vaccinations
+where pk_patient = %s"""
+		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
+			return None
+		if len(rows) == 0:
+			return [[_('no vaccinations recorded'), '']]
+		return rows
+	#--------------------------------------------------------
+	def get_vaccinations(self, regime_list = None):
 		try:
-			return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
+			self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations']
 		except KeyError:
 			self.__db_cache['vaccinations'] = []
 			cmd = """
@@ -463,22 +478,28 @@ select
 	site,
 	pk_provider
 from  v_patient_vaccinations
-where pk_patient = %s
-"""
+where pk_patient = %s"""
 			rows, self.__db_cache['idx vaccinations'] = gmPG.run_ro_query('historica', cmd, 1, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
 				del self.__db_cache['vaccinations']
 				return (None, None)
 			self.__db_cache['vaccinations'] = rows
-		return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
+		if regime_list is None or len(regime_list) == 0:
+			return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
+		filtered_shots = []
+		for shot in self.__db_cache['vaccinations']:
+			if shot[self.__db_cache['idx vaccinations']['regime']] in regime_list:
+				filtered_shots.append(shot)
+		return filtered_shots, self.__db_cache['idx vaccinations']
 	#--------------------------------------------------------
 	def get_due_vaccinations(self):
 		try:
-			return self.__db_cache['vaccination status']
+			return self.__db_cache['due vaccinations']
 		except KeyError:
 			pass
-		self.__db_cache['vaccination status'] = {}
+		self.__db_cache['due vaccinations'] = {}
+		# due
 		cmd = """
 select
 	pk_vacc_def,
@@ -493,12 +514,15 @@ from v_pat_due_vaccs
 where pk_patient = %s
 """
 		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
-		if rows is not None:
-			self.__db_cache['vaccination status']['due'] = []
-			if len(rows) != 0:
-				self.__db_cache['vaccination status']['due'].extend(rows)
-			else:
-				self.__db_cache['vaccination status']['due'] = [[]]
+		if rows is None:
+			return None
+		self.__db_cache['due vaccinations']['due'] = []
+		if len(rows) == 0:
+			self.__db_cache['due vaccinations']['due'] = [[]]
+		else:
+			self.__db_cache['due vaccinations']['due'].extend(rows)
+
+		# overdue
 		cmd = """
 select
 	pk_vacc_def,
@@ -512,13 +536,16 @@ from v_pat_overdue_vaccs
 where pk_patient = %s
 """
 		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
-		if rows is not None:
-			self.__db_cache['vaccination status']['overdue'] = []
-			if len(rows) != 0:
-				self.__db_cache['vaccination status']['overdue'].extend(rows)
-			else:
-				self.__db_cache['vaccination status']['overdue'] = [[]]
-		return self.__db_cache['vaccination status']
+		if rows is None:
+			return None
+
+		self.__db_cache['due vaccinations']['overdue'] = []
+		if len(rows) == 0:
+			self.__db_cache['due vaccinations']['overdue'] = [[]]
+		else:
+			self.__db_cache['due vaccinations']['overdue'].extend(rows)
+
+		return self.__db_cache['due vaccinations']
 	#--------------------------------------------------------
 	# set up handler map
 #	_get_handler['allergy IDs'] = _get_allergies_list
@@ -946,7 +973,12 @@ if __name__ == "__main__":
 	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.52  2003-11-30 01:05:30  ncq
+# Revision 1.53  2003-12-01 01:01:05  ncq
+# - add get_vaccinated_regimes()
+# - allow regime_list filter in get_vaccinations()
+# - handle empty lists better in get_due_vaccinations()
+#
+# Revision 1.52  2003/11/30 01:05:30  ncq
 # - improve get_vaccinations
 # - added get_vacc_regimes
 #
