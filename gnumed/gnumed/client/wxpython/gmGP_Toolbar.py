@@ -10,8 +10,7 @@ class Toolbar(wxPanel):
 	#two vertically stacked toolbars
 	#----------------------------------------------------------------
         self.sizer = wxBoxSizer(wxVERTICAL) 
-	self.SetBackgroundColour(wxColour(222,222,222))
-        #(197,194,197)) #222,218,222
+	self.SetBackgroundColour(wxColour(214,214,214))
         gb = gmGuiBroker.GuiBroker ()
     
 	#-------------------------------------------------------------------------
