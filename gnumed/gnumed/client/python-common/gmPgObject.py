@@ -19,10 +19,14 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.5 $"                                               
+__version__ = "$Revision: 1.6 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.5  2002-10-24 21:41:40  hherb
+# Revision 1.6  2002-10-25 13:04:15  hherb
+# API change: pgobject constructor takes now gmPG.ConnectionPool as argument insted of an open connection
+# Write functionality now enabled, quoting works for strings, some datatypes still will crash
+#
+# Revision 1.5  2002/10/24 21:41:40  hherb
 # quoting of strings in write queries
 #
 # Revision 1.4  2002/10/23 22:08:49  hherb
@@ -120,7 +124,12 @@ def cache_table_info(con, table, cursor=None):
 
 class pgobject:
 	
-	def __init__(self, db, tablename, primarykey=None):
+	def __init__(self, db, table, primarykey=None):
+		"""db = gmPG.ConnectionPool object
+		table = service and table as string in the format 'service.table'
+		primarykey: if stated, the object will be initialized from the backend 
+		            using this primary key value"""
+		
 		#index of columns by column names
 		self._index = None
 		#DBAPI cursor.description
@@ -129,10 +138,18 @@ class pgobject:
 		self._foreignkeys = None
 		#fetched row data
 		self._row = None
-		#open database connection
-		self._db = db
-		#name of the table this object is representing
-		self._tablename = tablename
+		#name of the service and table this object is representing
+		st = string.split(table, '.')
+		if len(st) == 1:
+			self._service = 'default'
+			self._tablename = st[0]
+		else:
+			self._service = st[0]
+			self._tablename = st[1]
+		#database connection broker
+		self._dbbroker = db
+		#reuseable open read-only database connection
+		self._db = db.GetConnection(self._service)
 		#'dirty' flags: list of columns (colum names) that have been modified
 		self._modified = []
 		#value of the primary key
@@ -163,7 +180,7 @@ class pgobject:
 		"set the value of the column as determined by either column name or index"
 		#is table metadata already cached?
 		if self._index is None:
-			self._update_description()
+			self._update_metadata()
 		# are we dealing with a fetched row or with a new record?
 		if self._row is None:
 			#create an empty record if neccessary
@@ -201,20 +218,32 @@ class pgobject:
 				for column in self._modified[1:]:
 					colvals = "%s , %s = %s" % (colvals, column, self._quote(self._row[self._index[column]]))
 				query = "update %s set %s where %s = %s" % (self._tablename, colvals, self._pkcolumn, self._primarykey)
-				print query
 			else:
 				#a new row has to be inserted
-				columns = self._modified[0]
-				values = self._quote(self._row[seldf._index[self._modified[0]]])
-				for column in self._modified[1:]:
-					columns = "%s, %s" % (columns, column)
-					values = "%s, %s" % (values, self._quote(self._row[seldf._index[column]]))
+				columns = ""
+				count = 0
+				for column in self._modified:
+					value = self._row[self._index[column]]
+					if value is not None:
+						count += 1
+						#print "quoting"
+						value = self._quote(value)
+						if count == 1:
+							columns = column
+							values = value
+						else:
+							columns = "%s, %s" % (columns, column)
+							values = "%s, %s" % (values, value)
 				query = "insert into %s(%s) values(%s)" % (self._tablename, columns, values)
-				print query
+			db = self._dbbroker.GetConnection(self._service, 0)
+			cursor = db.cursor()
+			cursor.execute(query)
+			db.commit()
 			
 	def _quote(self, arg):
+		"postgres specific quoting: strings in '', single ' escaped by another '"
 		if type(arg) is str:
-			q = "'%s'" % arg
+			q = "'%s'" % arg.replace("'", "''")
 		else:
 			q = str(arg)
 		return q
@@ -228,7 +257,6 @@ class pgobject:
 			self._update_metadata()
 		cursor = self._db.cursor()
 		query = "select * from %s where %s = %s" % (self._tablename, self._pkcolumn, self._primarykey)
-		#print query
 		cursor.execute(query )
 		self._row = cursor.fetchone()
 		#did the query return a row?
@@ -268,18 +296,22 @@ if __name__ == "__main__":
 # within the database gnumed first.
 # create table testpgo(id serial primary key, text text, ts timestamp default now());
 
-	from pyPgSQL import PgSQL as DB
-	DB.fetchReturnsList=1
-	db = DB.connect(database='gnumed')
+	#from pyPgSQL import PgSQL as DB
+	import gmPG
+	db = gmPG.ConnectionPool()
+	db.SetFetchReturnsList(1)
+	#db = DB.connect(database='gnumed')
 	dbo = pgobject(db, 'testpgo', 1)
 	print dbo['text'], str(dbo['ts'])
 	dbo.fetch(2)
 	print dbo['text'], str(dbo['ts'])
 	print "Now changing a value, should force a backend update"
-	dbo['text'] = "it really works!"
+	dbo['text'] = "it really works!!!"
 	print dbo['text']
 	dbo.fetch(1)
 	print dbo['text'], str(dbo['ts'])
 	dbo.fetch(2)
 	print dbo['text'], str(dbo['ts'])
+	dbo = pgobject(db, 'testpgo')
+	dbo['text'] = "this wasn't there before"
 	
