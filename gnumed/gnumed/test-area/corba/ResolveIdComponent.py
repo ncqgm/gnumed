@@ -3,7 +3,7 @@ import omniORB
 import CosNaming
 import sys
 
-from SqlTraits import * 
+from SqlTraits import *
 from PlainConnectionProvider import *
 
 from  StartIdentificationComponent import StartIdentificationComponent
@@ -18,6 +18,7 @@ class IDComponentResolver :
 		self.local = '-local' in sys.argv
 
 	def __init_orb(self):
+		#set any initial name bindings using ORBInitRef parameter
 		self.orb = omniORB.CORBA.ORB_init(['-','-ORBInitRef', '%s=%s' %(self.initContextName, self.contextCorbaloc) ])
 
 
