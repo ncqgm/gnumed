@@ -4,24 +4,23 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 
--- this belongs into the service clinical (historica)
-
+-- this belongs into the clinical service (historica)
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- ====================================
 create table test_org (
-	id serial primary key,
-	id_org integer unique not null,
-	id_adm_contact integer
+	pk serial primary key,
+	fk_org integer unique not null,
+	fk_adm_contact integer
 		default null
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	id_med_contact integer
+	fk_med_contact integer
 		default null
 		references xlnk_identity(xfk_identity)
 		on update cascade
@@ -32,15 +31,15 @@ create table test_org (
 select add_table_for_audit('test_org');
 
 -- remote foreign keys
-select add_x_db_fk_def('test_org', 'id_org', 'personalia', 'org', 'id');
+select add_x_db_fk_def('test_org', 'fk_org', 'personalia', 'org', 'id');
 
 COMMENT ON TABLE test_org IS
 	'organisation providing results';
-COMMENT ON COLUMN test_org.id_org IS
+COMMENT ON COLUMN test_org.fk_org IS
 	'link to organisation';
-COMMENT ON COLUMN test_org.id_adm_contact IS
+COMMENT ON COLUMN test_org.fk_adm_contact IS
 	'whom to call for admin questions (modem link, etc.)';
-COMMENT ON COLUMN test_org.id_med_contact IS
+COMMENT ON COLUMN test_org.fk_med_contact IS
 	'whom to call for medical questions (result verification,
 	 additional test requests)';
 comment on column test_org."comment" is
@@ -55,11 +54,11 @@ comment on column test_org."comment" is
 -- ====================================
 create table test_type (
 	id serial primary key,
-	id_provider integer references test_org,
+	id_provider integer references test_org(pk),
 	code text not null,
 	coding_system text default null,
-	"name" text,
-	"comment" text,
+	name text,
+	comment text,
 	basic_unit text not null,
 	unique (id_provider, code)
 ) inherits (audit_fields);
@@ -117,7 +116,9 @@ comment on column lnk_tst2norm.id_norm is
 -- ====================================
 create table test_result (
 	id serial primary key,
-	id_type integer references test_type,
+	fk_type integer
+		not null
+		references test_type(id),
 
 	val_when timestamp with time zone not null default CURRENT_TIMESTAMP,
 	val_num float,
@@ -127,11 +128,14 @@ create table test_result (
 	val_normal_max float,
 	val_normal_range text,
 	technically_abnormal bool not null,
+	norm_ref_group text
 	note_provider text,
+	material text,
+	material_detail text,
 
 	reviewed_by_clinician bool default false,
-	id_clinician integer,
-	clinically_relevant bool
+	fk_clinician integer,
+	clinically_relevant bool not null
 ) inherits (clin_root_item);
 
 -- note_clinician provided as narrative by clin_root_item
@@ -140,12 +144,12 @@ select add_table_for_audit('test_result');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
--- should actually point to identity.doctor.id
-select add_x_db_fk_def('test_result', 'id_clinician', 'personalia', 'identity', 'id');
+-- FIXME: should actually point to staff.pk
+select add_x_db_fk_def('test_result', 'fk_clinician', 'personalia', 'identity', 'id');
 
 COMMENT ON TABLE test_result is 
 	'the results of a single measurement';
-comment on column test_result.id_type is
+comment on column test_result.fk_type is
 	'the type of test this result is from';
 comment on column test_result.val_when is
 	'the timestamp when the result was actually produced';
@@ -166,18 +170,31 @@ comment on column test_result.val_normal_range is
 	 as defined by provider for this result, eg.
 	 "less than 0.5 but detectable"';
 comment on column test_result.technically_abnormal is
-	'whether provider flagged this result as abnormal,
-	 *not* a clinical assessment but rather a technical one';
+	'whether test provider flagged this result as abnormal,
+	 *not* a clinical assessment but rather a technical one
+	 LDT: 8422';
+comment on column test_result.norm_ref_group is
+	'what sample of the population does this normal range
+	 applay to, eg what type of patient was assumed when
+	 interpreting this result,
+	 LDT: 8407';
 comment on column test_result.note_provider is
-	'any comment the provider should like to make, such
-	 as "may be inaccurate due to lack of adequate sample"';
+	'any comment the test provider should like to make, such
+	 as "may be inaccurate due to haemolyzed sample"
+	 LDT: 8470';
+comment on column test_result.material is
+	'the submitted material, eg. smear, serum, urine, etc.,
+	 LDT: 8430';
+comment on column test_result.material_detail is
+	'details re the material, eg. site take from, etc.
+	 LDT: 8431';
 comment on column test_result.reviewed_by_clinician is
 	'whether a clinician has seen this result yet,
 	 depending on the use case this need to simply get
 	 set by any read access but may follow specific
 	 business rules such as "set as SEEN when treating/
 	 requesting doctor has reviewed the item"';
-comment on column test_result.id_clinician is
+comment on column test_result.fk_clinician is
 	'who has reviewed the item';
 comment on column test_result.clinically_relevant is
 	'whether this result is considered relevant clinically,
@@ -186,31 +203,45 @@ comment on column test_result.clinically_relevant is
 	 ones can be of significance';
 
 -- ====================================
-create table lab_result (
-	id serial primary key,
-	id_result integer not null references test_result(id),
-	id_sampler integer
+create table lab_request (
+	pk serial primary key,
+	fk_test_org integer
+		not null
+		references test_org(pk),
+	request_id text not null,
+	-- FIXME: references staff(pk)
+	fk_requestor integer
 		default null
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	sample_id text not null default 'unknown',
-	-- this is according to LDT
-	abnormal_tag character(5)
+	lab_request_id text default null,
+	lab_rxd_when timestamp with time zone not null,
+	result_reported_when timestamp with time zone not null,
+	result_status text not null default 'preliminary',
+	is_pending boolean not null default true,
+	unique (fk_test_org, request_id)
+	-- FIXME: there really should be a constraint like that
+--	unique (fk_patient, request_id)
 ) inherits (clin_root_item);
 
-select add_table_for_audit('lab_result');
-
-comment on table lab_result is
-	'additional data for lab results';
-comment on column lab_result.id_result is
-	'which test result this lab data belongs to';
-comment on column lab_result.sample_id IS
-	'ID this sample had in the lab or when sent to the lab';
-comment on column lab_result.id_sampler IS
-	'who took the sample';
-comment on column lab_result.abnormal_tag IS
-	'tag attached by the lab whether value is considered pathological';
+comment on column lab_request.request_id IS
+	'ID this request had when sent to the lab
+	 LDT: 8310';
+comment on column lab_request.fk_requestor is
+	'who requested the test/needed ?';
+comment on column lab_request.lab_request_id is
+	'ID this request had internally at the lab
+	 LDT: 8311';
+comment on column lab_request.lab_rxd_when is
+	'when did the lab receive the request+request
+	 LDT: 8301';
+comment on column lab_request.result_reported_when is
+	'when was the report on the result generated,
+	LDT: 8302';
+comment on column lab_request.result_status is
+	'final, preliminary, complete, incomplete, etc.
+	 LDT: 8401';
 
 -- ====================================
 -- ====================================
@@ -244,11 +275,14 @@ comment on column lab_result.abnormal_tag IS
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.11  2004-01-15 15:15:41  ncq
+-- Revision 1.12  2004-03-12 23:15:42  ncq
+-- - more fixes for getting things in line with LDT
+--
+-- Revision 1.11  2004/01/15 15:15:41  ncq
 -- - use xlnk_identity
 --
 -- Revision 1.10  2003/10/01 15:45:20  ncq
