@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -230,7 +230,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 			minutes=0
 			hours+=1
 		label = "%02d:%02d" % (hours, minutes)
-		return self.idx_time2row(label)
+		return self.idx_time2row[label]
 
 
 
