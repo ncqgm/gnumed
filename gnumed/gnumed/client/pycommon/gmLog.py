@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -181,10 +181,10 @@ class cLogger:
 	def Data(self, aMsg, aRawnessFlag = lCooked):
 		"""Just a convenience wrapper for Log(gmLog.lData, ...)"""
 		self.Log(lData, aMsg, aRawnessFlag)
-	#---------------------------
-	def Error(self, aMsg):
-		self.Log(lErr, aMsg)
 
+	#---------------------------
+	def Error(self, aMsg, exception=sys.exc_info()):
+		self.LogException(aMsg, exception)
 	#---------------------------
 	def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
 		"""Log a message.
@@ -219,7 +219,7 @@ class cLogger:
 		for key in self.__targets.keys():
 			self.__targets[key].writeDelimiter()
 	#---------------------------
-	def LogException(self, aMsg, exception = sys.exc_info(), verbose=1, **kwargs):
+	def LogException(self, aMsg, exception, verbose=1, **kwargs):
 		"""Log an exception.
 
 		'exception' is a tuple as returned by sys.exc_info()
@@ -827,9 +827,8 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.8  2004-10-19 13:17:59  sjtan
-#
-# convenience method for Log(lErr,
+# Revision 1.9  2004-10-20 11:10:35  sjtan
+# convenient name for logging errors. Consistent with Data Info.
 #
 # Revision 1.7  2004/08/18 08:20:06  ncq
 # - remove SPACE from char2ascii map
