@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -595,6 +595,11 @@ if __name__ == "__main__":
 
 	myCfg.set("date", "modified", "right now", ["should always be rather current"])
 	myCfg.store()
+
+	print "======================================================================"
+	print __doc__
+	print "======================================================================"
+
 else:
 	# - we are being imported
 
@@ -611,7 +616,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.24  2002-11-05 18:15:03  ncq
+# Revision 1.25  2002-11-17 20:09:10  ncq
+# - always display __doc__ when called standalone
+#
+# Revision 1.24  2002/11/05 18:15:03  ncq
 # - new helper getOptions()
 # - modified example code to show real use
 #

@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -706,6 +706,10 @@ if __name__ == "__main__":
 	log.Log (lInfo, "done with whatever we were about to do")
 	log.close()
 
+	print "======================================================================"
+	print __doc__
+	print "======================================================================"
+
 	print "Done."
 else:
 	# register application specific default log file
@@ -761,7 +765,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.24  2002-11-08 16:32:24  ncq
+# Revision 1.25  2002-11-17 20:09:10  ncq
+# - always display __doc__ when called standalone
+#
+# Revision 1.24  2002/11/08 16:32:24  ncq
 # *** empty log message ***
 #
 # Revision 1.23  2002/11/03 14:11:19  ncq

@@ -45,7 +45,7 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string
@@ -142,13 +142,21 @@ if __name__ == "__main__":
 		print __doc__
 	else:
 		print "You might wanna try --help, -h, or -?"
+
+	print "======================================================================"
+	print __doc__
+	print "======================================================================"
+
 else:
 	(shorts, longs, opts) = _preparse_cmdline()
 	_parse_opts(shorts, longs, opts)
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.6  2002-09-30 10:58:27  ncq
+# Revision 1.7  2002-11-17 20:09:10  ncq
+# - always display __doc__ when called standalone
+#
+# Revision 1.6  2002/09/30 10:58:27  ncq
 # - consistently spell GnuMed
 #
 # Revision 1.5  2002/09/26 13:20:02  ncq

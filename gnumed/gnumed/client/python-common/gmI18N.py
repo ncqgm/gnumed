@@ -57,7 +57,7 @@ entirely.
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -183,6 +183,9 @@ def install_domain():
 #---------------------------------------------------------------------------
 if __name__ == "__main__":
 	log.SetAllLogLevels(gmLog.lData)
+	print "======================================================================"
+	print __doc__
+	print "======================================================================"
 
 log.Log(gmLog.lData, __version__)
 
@@ -201,7 +204,10 @@ log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.18  2002-09-26 13:16:52  ncq
+# Revision 1.19  2002-11-17 20:09:10  ncq
+# - always display __doc__ when called standalone
+#
+# Revision 1.18  2002/09/26 13:16:52  ncq
 # - log version
 #
 # Revision 1.17  2002/09/23 02:23:16  ncq
