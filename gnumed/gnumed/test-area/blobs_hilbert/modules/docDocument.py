@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -358,8 +358,11 @@ class cDocument:
 			file = line[start_pos:end_pos]
 			tmp = {}
 			tmp['file name'] = os.path.abspath(os.path.join(aBaseDir, file))
+			# this 'index' defines the order of objects in the document
 			tmp['index'] = i
 			# we must use imaginary oid's since we are reading from a file
+			# this OID defines the object ID in the data store, this
+			# has nothing to do with the semantic order of objects
 			self.__metadata['objects'][i] = tmp
 			i += 1
 
