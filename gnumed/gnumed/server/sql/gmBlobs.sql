@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.27 $ $Date: 2003-01-24 13:53:35 $ $Author: ncq $
+-- $Revision: 1.28 $ $Date: 2003-01-24 14:21:47 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -41,7 +41,7 @@ INSERT into doc_type(name) values(i18n('referral report psychotherapy'));
 -- add any number of types here, this is just to give you an idea
 
 -- =============================================
-create view v_i18n_doc_type as
+create view v_i18n_doc_type (id, name) as
 	select
 		doc_type.id,
 		_(doc_type.name)
@@ -122,7 +122,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- questions:
