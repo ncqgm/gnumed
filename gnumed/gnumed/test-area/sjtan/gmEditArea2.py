@@ -101,6 +101,9 @@ class EditArea2(wxPanel):
 		self.groups = {}
 		self.mapping = {}
 		self.statements = {}
+
+		self.statementsList = []  # need this for ordered creation
+		
 		self.refs = {}
 		self.comboCache = {}
 		self.evictionPolicyFunction = None
@@ -122,6 +125,8 @@ class EditArea2(wxPanel):
 		self.writeMapping = {}  # used when an initial value may be mapped as in drug.quantity to the prescription.quantity field, but the write must be for a different table
 
 		self.descriptions = {} # for update and insert to check value types from dbapi cursor.description 
+
+		self.targetId = None 
 
 	def add(self, propName,  type=TBx ,weight=1,  displayName = None,  newline = 0):
 		""" sets the default display Name to the property name,
@@ -268,7 +273,7 @@ class EditArea2(wxPanel):
 			
 		
 	def _execute_table_ddl(self, cu):
-		for x in self.statements.values():
+		for x in self.statementsList:
 			print x
 			try:
 				cu.execute(x)
@@ -307,7 +312,7 @@ class EditArea2(wxPanel):
 			try:
 				tableName = extractTablename(x)
 				statement = "select max(id) from %s" % tableName
-				self.ref("drug", "generic")
+				#self.ref("drug", "generic")
 				print statement
 				cu.execute(statement)
 				l = cu.fetchone()
@@ -362,12 +367,13 @@ class EditArea2(wxPanel):
 				w.SetValue('')
 				if type == CMBx:
 					w.Clear()
-			
+		self.targetId = None
 
 
 	def ddl(self, key, statement):
 		"""stores the creation statement for a table or view associated with the key"""
 		self.statements[key] = statement
+		self.statementsList.append(statement)
 
 	def ref( self, key1, key2):
 		"""adds sql  alteration statement for tables named in creation statements stored at key1 and key2.
@@ -774,7 +780,8 @@ class EditArea2(wxPanel):
 			list = []
 			list.extend(tables)
 			list.remove(t)
-			refs = self.narrowOn.get(t)
+			refs = self.narrowOn.get(t, [])
+			print "table = ", t, "self.narrowOn[t] = ", refs
 			for r in refs:
 				if r in list:
 					pairs.append( (t, r))
@@ -861,7 +868,7 @@ class EditArea2(wxPanel):
 	def saveOrUpdate(self):
 		
 		if self.targetId == None:
-			saveNew(self)
+			self.saveNew()
 		else:
 			self.updateTarget(self.target, self.targetId)	
 
@@ -887,6 +894,8 @@ class EditArea2(wxPanel):
 		for (f, w) in fields:
 
 			fieldList.append(f)
+			if not indexMap.has_key(f):
+				continue
 			print "checking ", indexMap[f][1]
 			typestr = str(indexMap[f][1])
 			if typestr in ['char', 'varchar','text','bpchar', 'timestamp'] :
@@ -1244,9 +1253,7 @@ class MedicationEditArea(EditArea2):
 
 		
 		self.finish()
-
 		# for testing
-
 		self.setExtRefId(1)
 		self.updateList()
 
@@ -1255,7 +1262,7 @@ class MedicationEditArea(EditArea2):
 class PastHistoryEditArea(EditArea2):
 	def __init__(self, parent, id):
 		EditArea2.__init__(self, parent, id)
-		self.add("coding system", CMBx, newline = 1)
+		#self.add("coding system", CMBx, newline = 1)
 		self.add("condition", CMBx,  newline  = 1 )
 		self.add("left",  RBn)
 		self.add("right", RBn)
@@ -1266,15 +1273,33 @@ class PastHistoryEditArea(EditArea2):
 		self.add("active", CHBx)
 		self.add("operation", CHBx)
 		self.add("confidential", CHBx)
-		self.add("significant", CHBx)
-	#	self.group("coding system", ["coding system"] )
-	#	self.group("past history", ["condition", "left", "right", "both", "notes", "age onset", "year onset", "active", "operation", "confidential", "significant" ] )
-					    
-	#	self.group_ref("past history","coding system")
-	#	self.group_mapping("disease_code.description[coding system]", "condition")
+		self.add("significant", CHBx, newline = 1)
+
+		self.ddl("condition", "create view condition as select distinct id, description , code from disease_code")
+		self.map("condition", "condition.description")
+		self.ddl("past_history", "create table past_history( id integer primary key, aleft boolean, aright boolean, aboth boolean, notes text, age_onset integer, year_onset integer, active boolean, operation boolean, confidential boolean, significant boolean )")
+		self.map("left", "past_history.aleft")
+		self.map("right", "past_history.aright")
+		self.map("both", "past_history.aboth")
+		self.map("notes", "past_history.notes")
+		self.map("age onset", "past_history.age_onset")
+		self.map("year onset", "past_history.year_onset")
+		self.map("active", "past_history.active")
+		self.map("operation", "past_history.operation")
+		self.map("confidential", "past_history.confidential")
+		self.map("significant", "past_history.significant")
+		self.ref("past_history", "condition")
+		self.ext_ref("past_history", "identity")
+		self.setExtRef( "identity")
+		self.target("past_history")
+		self.browse([ ( "past_history.year_onset" , 60), ("past_history.age_onset", 60), ("condition.description", 200) , ("past_history.aleft", 20), ( "past_history.aright", 20) , ("past_history.aboth", 20) , ("past_history.active", 20), ("past_history.notes", 200 ) ] )
 		
-					    
 		self.finish()
+		# for testing
+		self.setExtRefId(1)
+		self.updateList()
+
+					    
 
 
 class RecallEditArea(EditArea2):
@@ -1417,14 +1442,25 @@ class DemographicEditArea(EditArea2):
 if __name__=="__main__":
 	setBackupConnectionSource()
 
+	print sys.argv
+	choice = None
+	if (len(sys.argv) == 1):
+		choice == "prescribe"
+	else:
+		choice == sys.argv[1]
+		print choice
+
+
+#	if choice == "past":
+
+	app = wxPyWidgetTester(size=(500,300) )
+	app.SetWidget( PastHistoryEditArea, -1)
+	app.MainLoop()
 
 	app = wxPyWidgetTester(size=(500,300) )
 	app.SetWidget( MedicationEditArea, -1)
 	app.MainLoop()
 	
-	app = wxPyWidgetTester(size=(500,300) )
-	app.SetWidget( PastHistoryEditArea, -1)
-	app.MainLoop()
 	
 	app = wxPyWidgetTester( size=(500, 300) )
 	app.SetWidget( RecallEditArea, -1)
