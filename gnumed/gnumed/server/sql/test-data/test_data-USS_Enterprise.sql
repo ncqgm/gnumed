@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -23,7 +23,7 @@ values (
 
 -- tests
 insert into test_type
-	(fk_test_org, code, name, comment, basic_unit)
+	(fk_test_org, code, name, comment, conversion_unit)
 values (
 	currval('test_org_pk_seq'),
 	'WBC-EML',
@@ -35,13 +35,13 @@ values (
 insert into test_type_local
 	(fk_test_type, local_code, local_name)
 values (
-	currval('test_type_id_seq'),
+	currval('test_type_pk_seq'),
 	'WBC',
 	'leukocytes'
 );
 
 insert into test_type
-	(fk_test_org, code, name, comment, basic_unit)
+	(fk_test_org, code, name, comment, conversion_unit)
 values (
 	currval('test_org_pk_seq'),
 	'RBC-EML',
@@ -53,13 +53,13 @@ values (
 insert into test_type_local
 	(fk_test_type, local_code, local_name)
 values (
-	currval('test_type_id_seq'),
+	currval('test_type_pk_seq'),
 	'RBC',
 	'erythrocytes'
 );
 
 insert into test_type
-	(fk_test_org, code, name, comment, basic_unit)
+	(fk_test_org, code, name, comment, conversion_unit)
 values (
 	currval('test_org_pk_seq'),
 	'PLT-EML',
@@ -71,13 +71,13 @@ values (
 insert into test_type_local
 	(fk_test_type, local_code, local_name)
 values (
-	currval('test_type_id_seq'),
+	currval('test_type_pk_seq'),
 	'PLT',
 	'platelets'
 );
 
 insert into test_type
-	(fk_test_org, code, name, comment, basic_unit)
+	(fk_test_org, code, name, comment, conversion_unit)
 values (
 	currval('test_org_pk_seq'),
 	'CRP-EML',
@@ -89,7 +89,7 @@ values (
 insert into test_type_local
 	(fk_test_type, local_code, local_name)
 values (
-	currval('test_type_id_seq'),
+	currval('test_type_pk_seq'),
 	'CRP',
 	'C-reactive protein'
 );
@@ -97,11 +97,15 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.9  2004-06-02 14:41:18  ncq
+-- Revision 1.10  2004-09-29 10:31:11  ncq
+-- - test_type.id -> pk
+-- - basic_unit -> conversion_unit
+--
+-- Revision 1.9  2004/06/02 14:41:18  ncq
 -- - remove offending set time zone statement
 --
 -- Revision 1.8  2004/06/02 13:46:46  ncq

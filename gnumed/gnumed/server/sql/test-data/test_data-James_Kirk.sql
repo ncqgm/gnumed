@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.37 $
+-- $Revision: 1.38 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -336,7 +336,7 @@ insert into test_result (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
-	(select id from test_type where code='WBC-EML'),
+	(select pk from test_type where code='WBC-EML'),
 	'9.5',
 	'Gpt/l',
 	'4.4-11.3',
@@ -364,7 +364,7 @@ insert into test_result (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
-	(select id from test_type where code='RBC-EML'),
+	(select pk from test_type where code='RBC-EML'),
 	'4.40',
 	'Tpt/l',
 	'4.1-5.1',
@@ -392,7 +392,7 @@ insert into test_result (
 	'2000-9-17 18:17',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
-	(select id from test_type where code='PLT-EML'),
+	(select pk from test_type where code='PLT-EML'),
 	'282',
 	'Gpt/l',
 	'150-450',
@@ -420,7 +420,7 @@ insert into test_result (
 	'2000-9-17 18:23',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
-	(select id from test_type where code='CRP-EML'),
+	(select pk from test_type where code='CRP-EML'),
 	'17.3',
 	'mg/l',
 	'0.07-8',
@@ -627,11 +627,15 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.37 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.38 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.37  2004-09-25 13:25:56  ncq
+-- Revision 1.38  2004-09-29 10:31:11  ncq
+-- - test_type.id -> pk
+-- - basic_unit -> conversion_unit
+--
+-- Revision 1.37  2004/09/25 13:25:56  ncq
 -- - is_significant -> clinically_relevant
 --
 -- Revision 1.36  2004/09/20 21:18:26  ncq
