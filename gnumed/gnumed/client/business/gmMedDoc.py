@@ -1,54 +1,25 @@
 """This module encapsulates a document stored in a GnuMed database.
 
-metadata layout:
-
-self.__metadata		{}
- |
- >- 'id'			""
- |
- >- 'type ID'		""
- |
- >- 'type'			""
- |
- >- 'comment'		""
- |
- >- 'date'			mxDateTime
- |
- >- 'reference'		""
- |
- >- 'description'	""
- |
- >- 'patient id'	""
- |
- `- 'objects'		{}
-  |
-  `- id				{}
-   |
-   >- 'file name'	""		(on the local disc, fully qualified)
-   |
-   >- 'index'		""		(... into page sequence)
-   |
-   >- 'size'		""		(in bytes)
-   |
-   `- 'comment' 	""
-
 @copyright: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.23 2004-09-28 12:20:16 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmMedDoc.py,v 1.24 2004-10-11 19:46:52 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
 from cStringIO import StringIO
 
-from Gnumed.pycommon import gmLog, gmPG, gmExceptions
+from Gnumed.pycommon import gmLog, gmPG, gmExceptions, gmBusinessDBObject
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
+
+MUGSHOT=26
 #============================================================
 class cDocumentFolder:
+	"""Represents a folder with medical documents for a single patient."""
 
 	def __init__(self, aPKey = None):
 		"""Fails if
@@ -65,7 +36,7 @@ class cDocumentFolder:
 #		if not self._register_interests():
 #			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
-		_log.Log(gmLog.lData, 'Instantiated document folder for patient [%s].' % self.id_patient)
+		_log.Log(gmLog.lData, 'instantiated document folder for patient [%s]' % self.id_patient)
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -116,7 +87,7 @@ class cDocumentFolder:
 			_log.Log(gmLog.lInfo, 'no mugshots available for patient [%s]' % self.id_patient)
 			return None
 		try:
-			mugshot = gmMedObj(aPKey=rows[0][0])
+			mugshot = cMedDocPart(aPK_obj=rows[0][0])
 		except gmExceptions.ConstructorError, err:
 			_log.LogException(err, sys.exc_info(), verbose=0)
 			return None
@@ -132,7 +103,7 @@ class cDocumentFolder:
 					doc_med dm
 					doc_obj dobj
 				where
-					dm.type = (select id from doc_type where name='patient photograph') and
+					dm.type = (select pk from doc_type where name='patient photograph') and
 					dm.patient_id=%s and
 					and dobj.doc_id = dm.id
 				limit 1
@@ -143,29 +114,32 @@ class cDocumentFolder:
 			return None
 		return rows
 	#--------------------------------------------------------
-	def get_doc_list(self, doc_type = None):
+	def get_doc_list(self, doc_type=None):
 		"""return flat list of document IDs"""
+		args = {
+			'ID': self.id_patient,
+			'TYP': doc_type
+		}
 		if doc_type is None:
-			cmd = "select id from doc_med where patient_id=%(ID)s"
-			args = {'ID': self.id_patient}
+			cmd = """select id from doc_med where patient_id=%(ID)s"""
 		elif type(doc_type) == types.StringType:
 			cmd = """
 				select id
 				from doc_med
 				where
-					patient_id=%(ID)s and
-					type=(select id from doc_type where name=%(TYP)s)
+					patient_id=%(ID)s
+						and
+					type=(select pk from doc_type where name=%(TYP)s)
 				"""
-			args = {'ID': self.id_patient, 'TYP': doc_type}
 		else:
 			cmd = """
 				select id
 				from doc_med
 				where
-					patient_id=%(ID)s and
+					patient_id=%(ID)s
+						and
 					type=%(TYP)s
 				"""
-			args = {'ID': self.id_patient, 'TYP': doc_type}
 		rows = gmPG.run_ro_query('blobs', cmd, None, args)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load document list for patient [%s]' % self.id_patient)
@@ -176,151 +150,163 @@ class cDocumentFolder:
 		for row in rows:
 			doc_ids.append(row[0])
 		return doc_ids
-#============================================================
-class gmMedObj:
-	def __init__(self, aPKey=None):
-		"""Fails if
-
-		- no connection to database possible
-		- document referenced by aPKey does not exist.
-		"""
-		# if the client sets an encoding other than the default we
-		# will receive encoding-parsed data which isn't the binary
-		# content we want, hence we need to get our own hard connection
-		backend = gmPG.ConnectionPool()
-		self.__rwconn = backend.GetConnection('blobs', readonly = 0)
-		if self.__rwconn is None:
-			raise gmExceptions.ConstructorError, 'cannot get r/w connection to service [blobs]'
-		# this shouldn't, actually, really be necessary
-		cmd = 'reset client_encoding'
-		result = gmPG.run_ro_query(self.__rwconn, cmd)
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot reset client_encoding, BLOB download may fail')
-
-		self.ID = aPKey			# == doc_obj.id == primary key
-		if not self.__pkey_exists():
-			raise gmExceptions.ConstructorError, 'cannot find doc object [%]' % self.ID
-
-		self.metadata = {}
 	#--------------------------------------------------------
-	def __pkey_exists(self):
-		"""Does this primary key exist ?
-
-		- true/false/None
-		"""
-		cmd = "select exists(select id from doc_obj where id = %s )"
-		result = gmPG.run_ro_query('blobs', cmd, None, self.ID)
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot verify that object [%s] exists' % self.ID)
+	def get_documents(self, doc_type=None):
+		"""Return list of documents."""
+		doc_ids = self.get_doc_list(doc_type=doc_type)
+		if doc_ids is None:
 			return None
-		if not result[0][0]:
-			_log.Log(gmLog.lErr, "no object with ID [%s] in database" % self.ID)
-		return result[0][0]
+		docs = []
+		for doc_id in doc_ids:
+			try:
+				docs.append(cMedDoc(aPK_obj=doc_id))
+			except gmExceptions.ConstructorError:
+				_log.LogException('document error on [%s] for patient [%s]' % (doc_id, self.id_patient), sys.exc_info())
+				continue
+		return docs
+#============================================================
+class cMedDocPart(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents one part of a medical document."""
+
+	_service = 'blobs'
+
+	_cmd_fetch_payload = """
+		select
+			pk_patient,
+			pk_obj,
+			seq_idx,
+			date_generated,
+			type,
+			l10n_type,
+			size,
+			ext_ref,
+			doc_comment,
+			obj_comment,
+			pk_doc,
+			pk_type
+		from v_obj4doc
+		where pk_obj=%s"""
+
+	_cmds_store_payload = [
+		"""select 1 from doc_obj where id=%(pk_obj)s for update""",
+		"""update doc_obj set
+				seq_idx=%(seq_idx)s,
+				comment=%(obj_comment)s
+			where pk=%(pk_doc)s"""
+		]
+
+	_updatable_fields = [
+		'seq_idx',
+		'obj_comment'
+	]
 	#--------------------------------------------------------
 	def __del__(self):
-		if self.__dict__.has_key('__rwconn'):
-			self.__rwconn.close()
+		if self.__dict__.has_key('__conn'):
+			self.__conn.close()
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def get_metadata(self):
-		"""Get object level metadata."""
-		cmd = "SELECT doc_id, seq_idx, comment, octet_length(data) FROM doc_obj WHERE id=%s"
-		result = gmPG.run_ro_query('blobs', cmd, 0, self.ID) 
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot load object [%s] metadata' % self.ID)
-			return None
-		if len(result) is None:
-			_log.Log(gmLog.lErr, 'no metadata available for object [%s]' % self.ID)
-			return None
-		self.metadata = {
-			'id': self.ID,
-			'document id': result[0][0],
-			'sequence index': result[0][1],
-			'comment': result[0][2],
-			'size': result[0][3]
-		}
-		return self.metadata
-	#--------------------------------------------------------
 	def export_to_file(self, aTempDir = None, aChunkSize = 0):
-		if self.get_metadata is None:
-			_log.Log(gmLog.lErr, 'cannot load metadata')
-			return None
+		"""Export binary object data into file.
 
+			- returns file name or None
+		"""
+		if self._payload[self._idx['size']] == 0:
+			return None
 		# if None -> use tempfile module default, else use given
 		# path as base directory for temp files
-		if not aTempDir is None:
+		if aTempDir is not None:
 			tempfile.tempdir = aTempDir
 		tempfile.template = "gm-doc_obj-"
 
-		# cDocument.metadata->objects->file name
 		fname = tempfile.mktemp()
 		aFile = open(fname, 'wb+')
 
 		if self.__export(aFile, aChunkSize):
 			aFile.close()
 			return fname
-		aFile.close ()
+		aFile.close()
 		return None
 	#--------------------------------------------------------
 	def export_to_string (self, aChunkSize = 0):
+		"""Returns the document as a Python string.
+
+			- WARNING: better have enough RAM for whatever size it is !!
 		"""
-		Returns the document as a Python string
-		WARNING: better have enough RAM for whatever it is!!!!
-		"""
-		aFile = StringIO ()
-		if self.__export (aFile, aChunkSize):
-			r = aFile.getvalue ()
-			aFile.close ()
+		if self._payload[self._idx['size']] == 0:
+			return None
+		aFile = StringIO()
+		if self.__export(aFile, aChunkSize):
+			r = aFile.getvalue()
+			aFile.close()
 			return r
-		aFile.close ()
+		aFile.close()
 		return None
 	#--------------------------------------------------------
-	def __export (self, aFile, aChunkSize = 0):
+	def __export (self, aFile=None, aChunkSize = 0):
+		"""Export binary object data into <aFile>.
+
+			- internal helper
+			- writes data to the Python file object <aFile>
 		"""
-		Internal helper, grabs data and writes it to
-		the Python file object provided
-		"""
+		# If the client sets an encoding other than the default we
+		# will receive encoding-parsed data which isn't the binary
+		# content we want. Hence we need to get our own connection.
+		# It must be a read-write one so that we don't affect the
+		# encoding for other users of the shared read-only
+		# connections.
+		# Actually, encodings shouldn't be applied to binary data
+		# (eg. bytea types) in the first place but that is only
+		# reported to be fixed > v7.4.
+		backend = gmPG.ConnectionPool()
+		self.__conn = backend.GetConnection('blobs', readonly = 0)
+		if self.__conn is None:
+			_log.Log(gmLog.lErr, 'cannot get r/w connection to service [blobs]')
+			return None
+		# this shouldn't actually, really be necessary
+		if self.__conn.version < '7.4':
+			cmd = 'reset client_encoding'
+			result = gmPG.run_ro_query(self.__conn, cmd)
+			if result is None:
+				_log.Log(gmLog.lErr, 'cannot reset client_encoding, BLOB download may fail')
+
 		# Windoze sucks: it can't transfer objects of arbitrary size,
 		# or maybe this is due to pyPgSQL ?
 		# anyways, we need to split the transfer,
-		# only possible if postgres >= 7.2
-		if self.__rwconn.version < "7.2":
+		# however, only possible if postgres >= 7.2
+		if self.__conn.version < '7.2':
 			max_chunk_size = 0
 			_log.Log(gmLog.lWarn, 'PostgreSQL < 7.2 does not support substring() on bytea')
 		else:
 			max_chunk_size = aChunkSize
-		_log.Log(gmLog.lData, "export chunk size is %s" % max_chunk_size)
 
 		# a chunk size of 0 means: all at once
-		if ((max_chunk_size == 0) or (self.metadata['size'] <= max_chunk_size)):
-			_log.Log(gmLog.lInfo, "retrieving entire object at once")
-			# retrieve object
+		if ((max_chunk_size == 0) or (self._payload[self._idx['size']] <= max_chunk_size)):
+			# retrieve binary field
 			cmd = "SELECT data FROM doc_obj WHERE id=%s"
-			data = gmPG.run_ro_query(self.__rwconn, cmd, None, self.ID)
+			data = gmPG.run_ro_query(self.__conn, cmd, None, self.pk_obj)
 			if data is None:
-				_log.Log(gmLog.lErr, 'cannot retrieve BLOB [%s]' % self.ID)
+				_log.Log(gmLog.lErr, 'cannot retrieve BLOB [%s]' % self.pk_obj)
 				return None
 			if len(data) == 0:
-				_log.Log(gmLog.lErr, 'BLOB [%s] does not exist' % self.ID)
+				_log.Log(gmLog.lErr, 'BLOB [%s] does not exist' % self.pk_obj)
 				return None
 			if data[0][0] is None:
-				_log.Log (gmLog.lErr, 'BLOB [%s] is NULL' % self.ID)
+				_log.Log (gmLog.lErr, 'BLOB [%s] is NULL' % self.pk_obj)
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
 			return 1
 
 		# retrieve chunks
-		needed_chunks, remainder = divmod(self.metadata['size'], max_chunk_size)
-		_log.Log(gmLog.lData, "need %s chunks with a remainder of %s bytes" % (needed_chunks, remainder))
+		needed_chunks, remainder = divmod(self._payload[self._idx['size']], max_chunk_size)
+		_log.Log(gmLog.lData, "%s chunks of %s bytes, remainder of %s bytes" % (needed_chunks, max_chunk_size, remainder))
 		for chunk_id in range(needed_chunks):
-			_log.Log(gmLog.lData, "retrieving chunk %s" % (chunk_id+1))
 			pos = (chunk_id*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s"
-			data = gmPG.run_ro_query(self.__rwconn, cmd, None, pos, max_chunk_size, self.ID)
+			data = gmPG.run_ro_query(self.__conn, cmd, None, pos, max_chunk_size, self.pk_obj)
 			if data is None:
-				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s] of size [%s] from object [%s], try decreasing chunk size' % (chunk_id+1, max_chunk_size, self.ID))
+				_log.Log(gmLog.lErr, 'cannot retrieve chunk [%s/%s], size [%s], doc part [%s], try decreasing chunk size' % (chunk_id+1, needed_chunks, max_chunk_size, self.pk_obj))
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
@@ -330,9 +316,9 @@ class gmMedObj:
 			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
 			pos = (needed_chunks*max_chunk_size) + 1
 			cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE id=%s "
-			data = gmPG.run_ro_query(self.__rwconn, cmd, pos, remainder, self.ID)
+			data = gmPG.run_ro_query(self.__conn, cmd, pos, remainder, self.pk_obj)
 			if data is None:
-				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from object [%s]' % (remainder, self.ID), sys.exc_info())
+				_log.Log(gmLog.lErr, 'cannot retrieve remaining [%s] bytes from doc part [%s]' % (remainder, self.pk_obj), sys.exc_info())
 				return None
 			# it would be a fatal error to see more than one result as ids are supposed to be unique
 			aFile.write(str(data[0][0]))
@@ -356,14 +342,15 @@ class gmMedObj:
 		img_data = str(aFile.read())
 		aFile.close()
 		img_obj = PgBytea(img_data)
+		del(img_data)
 
 		# insert the data
 		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s"
-		result = gmPG.run_commit(self.__rwconn, [
-			(cmd, [img_obj, self.ID])
+		result = gmPG.run_commit('blobs', [
+			(cmd, [img_obj, self.pk_obj])
 		])
 		if result is None:
-			_log.Log(gmLog.lErr, 'cannot update object [%s] from file [%s]' (self.ID, fname))
+			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from file [%s]' (self.pk_obj, fname))
 			return None
 		return 1
 	#--------------------------------------------------------
@@ -379,83 +366,50 @@ class gmMedObj:
 
 		# insert the data
 		cmd = "UPDATE doc_obj SET data=%s WHERE id=%s"
-		result = gmPG.run_commit(self.__rwconn, [
-			(cmd, [img_obj, self.ID])
+		result = gmPG.run_commit(blobs, [
+			(cmd, [img_obj, self.pk_obj])
 		])
 		if result is None:
-			_log.Log(gmLog.lErr, 'cannot update object [%s] from data' % self.ID)
-			return None
-		return 1
-	#--------------------------------------------------------
-	def update_metadata(self, data = None):
-		if data is None:
-			return None
-
-		# make SET clause
-		sets = []
-		try:
-			data['document id']
-			sets.append("doc_id=%(document id)s")
-		except KeyError: pass
-		try:
-			data['sequence index']
-			sets.append("seq_idx=%(sequence index)s")
-		except KeyError: pass
-		try:
-			data['comment']
-			sets.append("comment=%(comment)s")
-		except KeyError: pass
-
-		set_clause = ', '.join(sets)
-
-		# actually set it in the DB
-		cmd =  "UPDATE doc_obj SET %s WHERE id=%(obj id)s" % set_clause
-		data['obj id'] = self.ID
-		result = gmPG.run_commit(self.__rwconn, [
-			(cmd, [data])
-		])
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot update metadata')
+			_log.Log(gmLog.lErr, 'cannot update doc part [%s] from data' % self.pk_obj)
 			return None
 		return 1
 #============================================================
-class gmMedDoc:
+class cMedDoc(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents one medical document."""
 
-	def __init__(self, aPKey, presume_exists=0):
-		"""Fails if
+	_service = 'blobs'
 
-		- no connection to database possible
-		- document referenced by aPKey does not exist.
-		"""
-		self.ID = aPKey			# == doc_med.id == primary key
-		if not presume_exists and not self.__pkey_exists():
-			raise gmExceptions.ConstructorError, "No document with ID [%s] in database." % aPKey
+	_cmd_fetch_payload = "select * from v_doc_med where pk_doc=%s"
 
-		self.metadata = {}
-	#--------------------------------------------------------
-	def __pkey_exists(self):
-		"""Does this primary key exist ?
+	_cmds_store_payload = [
+		"""select 1 from doc_med where id=%(pk_doc)s for update""",
+		"""update doc_med set
+				type=%(pk_type)s,
+				comment=%(comment)s,
+				date=%(date)s,
+				ext_ref=%(ext_ref)s
+			where pk=%(pk_doc)s"""
+		]
 
-		- true/false/None
-		"""
-		cmd = "select exists(select id from doc_med where id=%s)"
-		result = gmPG.run_ro_query('blobs', cmd, None, self.ID)
-		if result is None:
-			return None
-		return result[0][0]
-	#--------------------------------------------------------
-	def __del__(self):
-		pass
+	_updatable_fields = [
+		'pk_type',
+		'comment',
+		'date',
+		'ext_ref'
+	]
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
 		"""Get document descriptions.
 
 		- will return a list of strings
 		"""
-		cmd = "SELECT substring(text from 1 for %s) FROM doc_desc WHERE doc_id=%%s" % max_lng
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.ID)
+		if max_lng is None:
+			cmd = "SELECT text FROM doc_desc WHERE doc_id=%s"
+		else:
+			cmd = "SELECT substring(text from 1 for %s) FROM doc_desc WHERE doc_id=%%s" % max_lng
+		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
 		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load document [%s] descriptions' % self.ID)
+			_log.Log(gmLog.lErr, 'cannot load document [%s] descriptions' % self.pk_obj)
 			return [_('cannot load descriptions')]
 		if len(rows) == 0:
 			return [_('no descriptions available')]
@@ -464,89 +418,32 @@ class gmMedDoc:
 			data.extend(desc)
 		return data
 	#--------------------------------------------------------
-	def get_metadata(self):
-		"""Document meta data loader for GnuMed compatible database."""
-		cmd = """
-			SELECT
-				dm.patient_id,
-				dm.type,
-				dm.comment,
-				dm.date,
-				dm.ext_ref,
-				_(dt.name)
-			FROM
-				doc_med dm,
-				doc_type dt
-			WHERE
-				dm.id=%s and
-				dt.id = dm.type"""
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.ID)
+	def get_parts(self):
+		cmd = "select pk_obj from v_obj4doc where pk_doc=%s"
+		rows = gmPG.run_ro_query('blobs', cmd, None, self.pk_obj)
 		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load document [%s] metadata' % self.ID)
+			_log.LogException('cannot get parts belonging to document [%s]' % self.pk_obj, sys.exc_info())
 			return None
-		self.metadata['patient id'] = rows[0][0]
-		self.metadata['type ID'] = rows[0][1]
-		self.metadata['comment'] = rows[0][2]
-		self.metadata['date'] = rows[0][3]
-		self.metadata['reference'] = rows[0][4]
-		self.metadata['type'] = rows[0][5]
-
-		# get object level metadata for all objects of this document
-		cmd = "SELECT id, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id=%s"
-		rows = gmPG.run_ro_query('blobs', cmd, None, self.ID)
-		if rows is None:
-			_log.LogException('cannot load document [%s] metadata' % self.ID, sys.exc_info())
-			return None
-		self.metadata['objects'] = {}
+		parts = []
 		for row in rows:
-			obj_id = row[0]
-			# cDocument.metadata->objects->id->comment/index/size
-			tmp = {'comment': row[1], 'index': row[2], 'size': row[3]}
-			self.metadata['objects'][obj_id] = tmp
-
-		return self.metadata
+			try:
+				parts.append(cMedDocPart(aPK_obj=row[0]))
+			except ConstructorError, msg:
+				_log.LogException(msg, sys.exc_info())
+				continue
+		return parts
 	#--------------------------------------------------------
-	# storing data
-	#--------------------------------------------------------
-	def update_metadata(self, data = None):
-		sets = []
-		try:
-			self.metadata['patient id'] = data['patient id']
-			sets.append('patient_id=%(patient id)s')
-		except KeyError: pass
-		try:
-			self.metadata['type ID'] = data['type ID']
-			sets.append('type=%(type ID)s')
-		except KeyError: pass
-		try:
-			self.metadata['comment'] = data['comment']
-			sets.append('comment=%(comment)s')
-		except KeyError: pass
-		try:
-			self.metadata['date'] = data['date']
-			sets.append('date=%(date)s')
-		except KeyError: pass
-		try:
-			self.metadata['reference'] = data['reference']
-			sets.append('ext_ref=%(reference)s')
-		except KeyError: pass
-
-		set_clause = ', '.join(sets)
-		cmd =  "UPDATE doc_med SET %s WHERE id=%%(obj id)s" % set_clause
-
-		data['obj id'] = self.ID
-		result =  gmPG.run_commit('blobs', [
-			(cmd, [data])
-		])
-		if result is None:
-			_log.Log(gmLog.lErr, 'cannot update metadata')
+	def add_part(self):
+		new_part = create_document_part(self.pk_obj)
+		if new_part is None:
+			_log(gmLog.lErr, 'cannot add part to document [%s]' % self.pk_obj)
 			return None
-		return 1
+		return new_part
 #============================================================
 def create_document(patient_id=None):
 	"""
 	None - failed
-	not None - new document object
+	not None - new document class instance
 	"""
 	# sanity checks
 	if patient_id is None:
@@ -563,11 +460,11 @@ def create_document(patient_id=None):
 		_log.Log(gmLog.lErr, 'cannot create document for patient [%s]' % patient_id)
 		return None
 	doc_id = result[0][0]
-	# and init new document object
-	doc = gmMedDoc(aPKey = doc_id)
+	# and init new document instance
+	doc = cMedDoc(aPKey = doc_id)
 	return doc
 #------------------------------------------------------------
-def search_for_document (patient_id=None, type_id=None):
+def search_for_document(patient_id=None, type_id=None):
 	"""Searches for documents with the given patient and type ID.
 
 	No type ID returns all documents for the patient.
@@ -591,41 +488,60 @@ def search_for_document (patient_id=None, type_id=None):
 		return []
 	docs = []
 	for doc_id in doc_ids:
-		docs.append(gmMedDoc(doc_id, presume_exists=1)) # suppress pointless checking of primary key
+		docs.append(cMedDoc(doc_id, presume_exists=1)) # suppress pointless checking of primary key
 
 	return docs
-#------------------------------------------------------------
-# define some document types that are programmatically useful
-MUGSHOT=26
 #============================================================
-def create_object(doc_id):
+def create_document_part(doc_id):
 	"""
 	None - failed
-	not None - new document object
+	not None - new document part class instance
 	"""
 	# sanity checks
 	if doc_id is None:
-		_log.Log(gmLog.lErr, 'need document id to create object')
+		_log.Log(gmLog.lErr, 'need document id to create doc part')
 		return None
-	if isinstance (doc_id, gmMedDoc):
+	if isinstance (doc_id, cMedDoc):
 		doc_id = doc_id.ID
 	# insert document
 	cmd1 = "INSERT INTO doc_obj (doc_id) VALUES (%s)"
-	cmd2 = "select currval('doc_obj_id_seq')"
+	cmd2 = "select currval('doc_obj_pk_seq')"
 	result = gmPG.run_commit('blobs', [
 		(cmd1, [doc_id]),
 		(cmd2, [])
 	])
 	if result is None:
-		_log.Log(gmLog.lErr, 'cannot create object for document [%s]' % doc_id)
+		_log.Log(gmLog.lErr, 'cannot create part for document [%s]' % doc_id)
 		return None
-	obj_id = result[0][0]
-	# and init new document object
-	obj = gmMedObj(aPKey = obj_id)
-	return obj
+	part_id = result[0][0]
+	# and init new document part instance
+	part = cMedDocPart(aPKey=part_id)
+	return part
+#============================================================
+# main
+#------------------------------------------------------------
+if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+
+	doc_folder = cDocumentFolder(aPKey=12)
+
+	photo = doc_folder.get_latest_mugshot()
+	print type(photo), photo
+
+	docs = doc_folder.get_documents()
+	for doc in docs:
+		print type(doc), doc
+
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.23  2004-09-28 12:20:16  ncq
+# Revision 1.24  2004-10-11 19:46:52  ncq
+# - properly VOify deriving from cBusinessDBObject
+# - cMedObj -> cMedDocPart
+# - cDocumentFolder.get_documents()
+# - cMedDoc.get_descriptions() where max_lng=None will fetch entire description
+# - comments, cleanup
+#
+# Revision 1.23  2004/09/28 12:20:16  ncq
 # - cleanup/robustify
 # - add get_latest_mugshot()
 #
