@@ -9,15 +9,14 @@ class base_handler:
 		if model == None and self.model <> None:
 			model = self.model
 			
-		return self.__init__(panel, model)
+		return  self.__init__(panel, model, self.impl)
 
-	def __init__(self, panel, model = None):
+	def __init__(self, panel, model = None, impl = None):
 		self.panel = panel
-		
+		self.impl = impl	
 		if panel <> None:
 			self.set_id()
 			self.set_evt()
-			self.impl = None
 			self.set_name_map()	
 
 		self.set_model(model)
@@ -107,10 +106,10 @@ class base_handler:
 # type_search_str =  class\s+(?P<new_type>\w+)\s*\(.*(?P<base_type>wxTextCtrl|wxComboBox|wxButton|wxRadioButton|wxCheckBox|wxListBox)
 # [('txtHeight', 'wxTextCtrl')]
 
-class gmBMICalc_handler( base_handler):
+class gmBMICalc_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -172,10 +171,10 @@ class gmBMICalc_handler( base_handler):
 
 # [('addresslist', 'wxListBox'), ('combo_relationship', 'wxComboBox'), ('txt_surname', 'TextBox_RedBold'), ('combo_title', 'wxComboBox'), ('txt_firstname', 'TextBox_RedBold'), ('combo_sex', 'wxComboBox'), ('cb_preferredname', 'wxCheckBox'), ('txt_preferred', 'TextBox_RedBold'), ('txt_address', 'wxTextCtrl'), ('txt_suburb', 'TextBox_BlackNormal'), ('txt_zip', 'TextBox_BlackNormal'), ('txt_birthdate', 'TextBox_BlackNormal'), ('combo_maritalstatus', 'wxComboBox'), ('txt_occupation', 'TextBox_BlackNormal'), ('txt_countryofbirth', 'TextBox_BlackNormal'), ('btn_browseNOK', 'wxButton'), ('txt_nameNOK', 'wxTextCtrl'), ('txt_homephone', 'TextBox_BlackNormal'), ('txt_workphone', 'TextBox_BlackNormal'), ('txt_fax', 'TextBox_BlackNormal'), ('txt_email', 'TextBox_BlackNormal'), ('txt_web', 'TextBox_BlackNormal'), ('txt_mobile', 'TextBox_BlackNormal'), ('cb_addressresidence', 'wxCheckBox'), ('cb_addresspostal', 'wxCheckBox'), ('btn_photo_import', 'wxButton'), ('btn_photo_export', 'wxButton'), ('btn_photo_aquire', 'wxButton'), ('txt_findpatient', 'wxComboBox'), ('txt_age', 'wxTextCtrl'), ('txt_allergies', 'wxTextCtrl'), ('combo_consultation_type', 'wxComboBox')]
 
-class gmDemographics_handler( base_handler):
+class gmDemographics_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1269,10 +1268,10 @@ class gmDemographics_handler( base_handler):
 #creating a handler as gmGP_Allergies_handler from patient/gmGP_Allergies.py
 # [('classtxt', 'wxTextCtrl')]
 
-class gmGP_Allergies_handler( base_handler):
+class gmGP_Allergies_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1330,10 +1329,10 @@ class gmGP_Allergies_handler( base_handler):
 #creating a handler as gmGP_FamilyHistory_handler from patient/gmGP_FamilyHistory.py
 # [('txt_social_history', 'wxTextCtrl')]
 
-class gmGP_FamilyHistory_handler( base_handler):
+class gmGP_FamilyHistory_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1387,10 +1386,10 @@ class gmGP_FamilyHistory_handler( base_handler):
 #creating a handler as gmGP_Immunisation_handler from patient/gmGP_Immunisation.py
 # [('missingimmunisation_listbox', 'wxListBox')]
 
-class gmGP_Immunisation_handler( base_handler):
+class gmGP_Immunisation_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1478,10 +1477,10 @@ class gmGP_Immunisation_handler( base_handler):
 #creating a handler as gmGP_Prescriptions_handler from patient/gmGP_Prescriptions.py
 # [('txt_scriptDate', 'wxTextCtrl'), ('interactiontxt', 'wxTextCtrl')]
 
-class gmGP_Prescriptions_handler( base_handler):
+class gmGP_Prescriptions_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1571,10 +1570,10 @@ class gmGP_Prescriptions_handler( base_handler):
 #creating a handler as gmGP_Referrals_handler from patient/gmGP_Referrals.py
 # [('txt_referraldate', 'wxTextCtrl'), ('txt_referral_letter', 'wxTextCtrl')]
 
-class gmGP_Referrals_handler( base_handler):
+class gmGP_Referrals_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1662,10 +1661,10 @@ class gmGP_Referrals_handler( base_handler):
 #creating a handler as gmGP_Requests_handler from patient/gmGP_Requests.py
 # [('txt_requestDate', 'wxTextCtrl')]
 
-class gmGP_Requests_handler( base_handler):
+class gmGP_Requests_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1719,10 +1718,10 @@ class gmGP_Requests_handler( base_handler):
 #creating a handler as gmGP_ScratchPadRecalls_handler from patient/gmGP_ScratchPadRecalls.py
 # [('scratchpad_txt', 'wxTextCtrl')]
 
-class gmGP_ScratchPadRecalls_handler( base_handler):
+class gmGP_ScratchPadRecalls_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):

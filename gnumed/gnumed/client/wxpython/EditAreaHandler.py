@@ -12,15 +12,14 @@ class base_handler:
 		if model == None and self.model <> None:
 			model = self.model
 			
-		return self.__init__(panel, model)
+		return  self.__init__(panel, model, self.impl)
 
-	def __init__(self, panel, model = None):
+	def __init__(self, panel, model = None, impl = None):
 		self.panel = panel
-		
+		self.impl = impl	
 		if panel <> None:
 			self.set_id()
 			self.set_evt()
-			self.impl = None
 			self.set_name_map()	
 
 		self.set_model(model)
@@ -110,10 +109,10 @@ class base_handler:
 # found new type = EditAreaTextBox which is base_type wxTextCtrl
 
 
-class gmSECTION_SUMMARY_handler( base_handler):
+class gmSECTION_SUMMARY_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -177,10 +176,10 @@ class gmSECTION_SUMMARY_handler( base_handler):
 		print "btnClear_button_clicked received ", event
 			
 
-class gmSECTION_DEMOGRAPHICS_handler( base_handler):
+class gmSECTION_DEMOGRAPHICS_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -244,10 +243,10 @@ class gmSECTION_DEMOGRAPHICS_handler( base_handler):
 		print "btnClear_button_clicked received ", event
 			
 
-class gmSECTION_CLINICALNOTES_handler( base_handler):
+class gmSECTION_CLINICALNOTES_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -311,10 +310,10 @@ class gmSECTION_CLINICALNOTES_handler( base_handler):
 		print "btnClear_button_clicked received ", event
 			
 
-class gmSECTION_FAMILYHISTORY_handler( base_handler):
+class gmSECTION_FAMILYHISTORY_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -741,10 +740,10 @@ class gmSECTION_FAMILYHISTORY_handler( base_handler):
 		print "btn_familymembernextcondition_button_clicked received ", event
 			
 
-class gmSECTION_PASTHISTORY_handler( base_handler):
+class gmSECTION_PASTHISTORY_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1250,10 +1249,10 @@ class gmSECTION_PASTHISTORY_handler( base_handler):
 			print self.model, "progressnotes = ",  self.model['progressnotes']
 		
 
-class gmSECTION_VACCINATION_handler( base_handler):
+class gmSECTION_VACCINATION_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1521,10 +1520,10 @@ class gmSECTION_VACCINATION_handler( base_handler):
 			print self.model, "progressnotes = ",  self.model['progressnotes']
 		
 
-class gmSECTION_ALLERGIES_handler( base_handler):
+class gmSECTION_ALLERGIES_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -1894,10 +1893,10 @@ class gmSECTION_ALLERGIES_handler( base_handler):
 			print self.model, "cb2 = ",  self.model['cb2']
 		
 
-class gmSECTION_SCRIPT_handler( base_handler):
+class gmSECTION_SCRIPT_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -2449,10 +2448,10 @@ class gmSECTION_SCRIPT_handler( base_handler):
 			print self.model, "text10 = ",  self.model['text10']
 		
 
-class gmSECTION_REQUESTS_handler( base_handler):
+class gmSECTION_REQUESTS_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -3026,10 +3025,10 @@ class gmSECTION_REQUESTS_handler( base_handler):
 			print self.model, "request_bill_wcover = ",  self.model['request_bill_wcover']
 		
 
-class gmSECTION_MEASUREMENTS_handler( base_handler):
+class gmSECTION_MEASUREMENTS_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -3309,10 +3308,10 @@ class gmSECTION_MEASUREMENTS_handler( base_handler):
 		print "btn_graph_button_clicked received ", event
 			
 
-class gmSECTION_REFERRALS_handler( base_handler):
+class gmSECTION_REFERRALS_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):
@@ -4147,10 +4146,10 @@ class gmSECTION_REFERRALS_handler( base_handler):
 			print self.model, "referral_habits = ",  self.model['referral_habits']
 		
 
-class gmSECTION_RECALLS_handler( base_handler):
+class gmSECTION_RECALLS_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		
 
 	def set_name_map(self):

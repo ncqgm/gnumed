@@ -210,15 +210,14 @@ class base_handler:
 		if model == None and self.model <> None:
 			model = self.model
 			
-		return self.__init__(panel, model)
+		return  self.__init__(panel, model, self.impl)
 
-	def __init__(self, panel, model = None):
+	def __init__(self, panel, model = None, impl = None):
 		self.panel = panel
-		
+		self.impl = impl	
 		if panel <> None:
 			self.set_id()
 			self.set_evt()
-			self.impl = None
 			self.set_name_map()	
 
 		self.set_model(model)
@@ -307,10 +306,10 @@ class base_handler:
 
 	def print_class(self, name):
 		print"""
-class %s_handler( base_handler):
+class %s_handler(base_handler):
 	
-	def __init__(self, panel, model = None):
-		base_handler.__init__(self, panel, model)
+	def __init__(self, panel, model = None, impl = None):
+		base_handler.__init__(self, panel, model, impl)
 		""" % name
 		
 	
