@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.36 2004-03-27 04:37:01 ihaywood Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmPatientSelector.py,v 1.37 2004-03-27 18:24:11 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -53,7 +53,7 @@ def pat_expand_default(curs = None, ID_list = None):
 		SELECT i_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
 		FROM v_basic_person
 		WHERE i_id in (%s)
-		""" % string.join(map(lambda x:str(x), ID_list), ',')
+		""" % ','.join(map(lambda x: str(x), ID_list))
 
 	if not gmPG.run_query(curs, cmd):
 		_log.Log(gmLog.lErr, 'Cannot fetch patient data.')
@@ -582,7 +582,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.36  2004-03-27 04:37:01  ihaywood
+# Revision 1.37  2004-03-27 18:24:11  ncq
+# - Ian and I fixed the same bugs again :)
+#
+# Revision 1.36  2004/03/27 04:37:01  ihaywood
 # lnk_person2address now lnk_person_org_address
 # sundry bugfixes
 #
