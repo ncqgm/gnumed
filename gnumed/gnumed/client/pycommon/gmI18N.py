@@ -32,18 +32,15 @@ For DOS/Windows I don't know of standard places so only the last
 option will work unless you have CygWin installed. I don't know a
 thing about classic Mac behaviour. New Macs are POSIX, of course.
 
-The language you want to see is derived from the following locale
-related environment variables (in this order):
- - LANGUAGE
- - LC_ALL
- - LC_MESSAGES
- - LANG
+The language you want to see is derived from  environment
+variables by the locale system.
 
 @copyright: authors
 """
 #===========================================================================
+# $Id: gmI18N.py,v 1.5 2005-03-29 07:25:39 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -57,6 +54,14 @@ if __name__ == "__main__":
 
 system_locale = ''
 system_locale_level = {}
+
+# default is to use unicode conversion for gettext
+unicode_flag = 1
+if gmCLI.has_arg('--unicode-gettext'):
+	unicode_flag = gmCLI.arg['--unicode-gettext']
+if unicode_flag not in [0, 1]:
+	unicode_flag = 1
+
 #===========================================================================
 def __split_locale_into_levels():
 	"""Split locale into language, country and variant parts.
@@ -78,37 +83,41 @@ def __get_system_locale():
 	global system_locale
 	global system_locale_level
 
-	env_key = 'LANGUAGE'
-	if os.environ.has_key(env_key):
-		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-	else:
-		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
+#	env_key = 'LANGUAGE'
+#	if os.environ.has_key(env_key):
+#		system_locale = os.environ[env_key]
+#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
+#	else:
+#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
-	env_key = 'LC_ALL'
-	if os.environ.has_key(env_key):
-		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-	else:
-		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
+#	env_key = 'LC_ALL'
+#	if os.environ.has_key(env_key):
+#		system_locale = os.environ[env_key]
+#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
+#	else:
+#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
-	env_key = 'LC_MESSAGES'
-	if os.environ.has_key(env_key):
-		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-	else:
-		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
+#	env_key = 'LC_MESSAGES'
+#	if os.environ.has_key(env_key):
+#		system_locale = os.environ[env_key]
+#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
+#	else:
+#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
-	env_key = 'LANG'
-	if os.environ.has_key(env_key):
-		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
-	else:
-		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
+#	env_key = 'LANG'
+#	if os.environ.has_key(env_key):
+#		system_locale = os.environ[env_key]
+#		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
+#	else:
+#		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
+
+	# use locale system
+	import locale
+	system_locale = locale.setlocale(locale.LC_CTYPE)
 
 	# did we find any locale setting ? assume en_EN if not
-	if system_locale is None:
-		_log.Log(gmLog.lErr, 'the system locale is not set to anything, assuming [en_EN]')
+	if system_locale in [None, 'C']:
+		_log.Log(gmLog.lErr, 'the system locale is not set to anything or is [C], assuming [en_EN]')
 		system_locale = "en_EN"
 
 	# generate system locale levels
@@ -135,7 +144,7 @@ def __install_domain():
 	if os.name == 'posix':
 		_log.Log(gmLog.lData, 'looking in standard POSIX locations (see Python Manual)')
 		try:
-			gettext.install(text_domain)
+			gettext.install(text_domain, unicode=unicode_flag)
 			_log.Log(gmLog.lData, 'found msg catalog')
 			return 1
 		except IOError:
@@ -152,7 +161,7 @@ def __install_domain():
 		_log.Log(gmLog.lData, '$(%s) = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
 		if os.path.exists(loc_dir):
 			try:
-				gettext.install(text_domain, loc_dir)
+				gettext.install(text_domain, loc_dir, unicode=unicode_flag)
 				_log.Log(gmLog.lData, 'found msg catalog')
 				return 1
 			except IOError:
@@ -172,7 +181,7 @@ def __install_domain():
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
-			gettext.install(text_domain, loc_dir)
+			gettext.install(text_domain, loc_dir, unicode=unicode_flag)
 			_log.Log(gmLog.lData, 'found msg catalog')
 			return 1
 		except IOError:
@@ -187,7 +196,7 @@ def __install_domain():
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
-			gettext.install(text_domain, loc_dir)
+			gettext.install(text_domain, loc_dir, unicode=unicode_flag)
 			_log.Log(gmLog.lData, 'found msg catalog')
 			return 1
 		except IOError:
@@ -226,7 +235,12 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.4  2004-06-26 23:06:00  ncq
+# Revision 1.5  2005-03-29 07:25:39  ncq
+# - improve docs
+# - add unicode CLI switch to toggle unicode gettext use
+# - use std lib locale modules to get system locale
+#
+# Revision 1.4  2004/06/26 23:06:00  ncq
 # - cleanup
 # - I checked it, no matter where we import (function-/class-/method-
 #   local or globally) it will always only be done once so we can
