@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.106 2004-05-30 19:54:57 ncq Exp $
-__version__ = "$Revision: 1.106 $"
+# $Id: gmClinicalRecord.py,v 1.107 2004-05-30 20:51:34 ncq Exp $
+__version__ = "$Revision: 1.107 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -54,8 +54,11 @@ class cClinicalRecord:
 			raise gmExceptions.ConstructorError, "cannot connect EMR of patient [%s] to service 'historica'" % aPKey
 
 		self.id_patient = aPKey			# == identity.id == primary key
-		if not self._pkey_exists():
+		if not self.__patient_exists():
 			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
+
+		if not self.__provider_exists():
+			raise gmExceptions.ConstructorError, "cannot make sure provider [%s] is in service 'historica'" % _whoami.get_staff_ID()
 
 		self.__db_cache = {}
 
@@ -96,29 +99,29 @@ class cClinicalRecord:
 
 		self._backend.ReleaseConnection('historica')
 	#--------------------------------------------------------
-	# internal helper
+	# internal helpers
 	#--------------------------------------------------------
-	def _pkey_exists(self):
-		"""Does this primary key exist ?
+	def __patient_exists(self):
+		"""Does this patient exist ?
 
-		- true/false/None
+		- true/false
 		"""
 		# patient in demographic database ?
 		cmd = "select exists(select id from identity where id = %s)"
 		result = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in demographic database' % self.id_patient)
-			return None
+			return False
 		exists = result[0][0]
 		if not exists:
 			_log.Log(gmLog.lErr, "patient [%s] not in demographic database" % self.id_patient)
-			return None
+			return False
 		# patient linked in our local clinical database ?
 		cmd = "select exists(select pk from xlnk_identity where xfk_identity = %s)"
 		result = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in clinical database' % self.id_patient)
-			return None
+			return False
 		exists = result[0][0]
 		if not exists:
 			_log.Log(gmLog.lInfo, "patient [%s] not in clinical database" % self.id_patient)
@@ -130,9 +133,34 @@ class cClinicalRecord:
 			])
 			if status is None:
 				_log.Log(gmLog.lErr, 'cannot insert patient [%s] into clinical database' % self.id_patient)
-				return None
+				return False
 			if status != 1:
 				_log.Log(gmLog.lData, 'inserted patient [%s] into clinical database with local id [%s]' % (self.id_patient, status[0][0]))
+		return True
+	#--------------------------------------------------------
+	def __provider_exists(self):
+		"""Make sure provider is linked in clinical database.
+		"""
+		pk_provider = _whoami.get_staff_ID()
+		# provider linked in our local clinical database ?
+		cmd = "select exists(select pk from xlnk_identity where xfk_identity = %s)"
+		exists = gmPG.run_ro_query('historica', cmd, None, pk_provider)
+		if exists is None:
+			_log.Log(gmLog.lErr, 'unable to check for provider [%s] existence in clinical database' % pk_provider)
+			return False
+		if not exists[0][0]:
+			_log.Log(gmLog.lInfo, "provider [%s] not in clinical database" % pk_provider)
+			cmd1 = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
+			cmd2 = "select currval('xlnk_identity_pk_seq')"
+			status = gmPG.run_commit('historica', [
+				(cmd1, [pk_provider, pk_provider]),
+				(cmd2, [])
+			])
+			if status is None:
+				_log.Log(gmLog.lErr, 'cannot insert provider [%s] into clinical database' % pk_provider)
+				return False
+			if status != 1:
+				_log.Log(gmLog.lData, 'inserted provider [%s] into clinical database with local id [%s]' % (pk_provider, status[0][0]))
 		return True
 	#--------------------------------------------------------
 	# messaging
@@ -1278,7 +1306,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.106  2004-05-30 19:54:57  ncq
+# Revision 1.107  2004-05-30 20:51:34  ncq
+# - verify provider in __init__, too
+#
+# Revision 1.106  2004/05/30 19:54:57  ncq
 # - comment out attach_to_encounter(), actually, all relevant
 #   methods should have encounter_id, episode_id kwds that
 #   default to self.__*['id']
