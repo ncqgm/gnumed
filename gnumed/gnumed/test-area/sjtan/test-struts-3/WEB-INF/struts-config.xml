@@ -138,6 +138,7 @@
                 <form-property name="birthdate" type="java.lang.String" size="20"/>
                 <form-property name="streetno" type="java.lang.String" size="50"/>
                 <form-property name="street" type="java.lang.String" size="100"/>
+                <form-property name="suburb" type="java.lang.String" size="100"/>
                 <form-property name="urb" type="java.lang.String" size="100"/>
                 <form-property name="state" type="java.lang.String" size="50"/>
                 <form-property name="postcode" type="java.lang.String" size="50"/>
@@ -186,6 +187,10 @@
     
           <form-bean name="clinicalUpdateForm" type="org.gnumed.testweb1.forms.ClinicalUpdateForm"/>
          
+          
+          <form-bean name="clinicalEpisodesUpdateForm" type="org.gnumed.testweb1.forms.ClinicalUpdateForm2"/>
+         
+          
     <!-- sample form bean descriptor for an ActionForm
 
         <form-bean
@@ -263,12 +268,13 @@
         <!-- Demonstrates using index.jsp to forward -->
         
       
-
+        <!-- the Initial Forward from the default index page -->
         <forward
-
+            
             name="welcomeLink"
 
             path="/Welcome.do"/>
+            
           
         <forward
 
@@ -294,16 +300,6 @@
              
           
           
-        <forward      
-            name="loginLink"
-
-            path="/GetLogin.do"/>
-       
-         <forward      
-            name="login"
-
-            path="/Login.do"/>    
-            
         <forward
             name="getDemographicEntry"
             path="/GetDemoEntry.do"/>
@@ -349,6 +345,7 @@
         <action path="/PastNotes" forward="pastNotes"/>
         
         <action path="/Summary" forward="clinSummary"/>
+        
         <action path="/ClinEntry" forward="encounterEntry"/>
         
         <action path="/GetDemoEntry" forward="/DemographicEdit.do"/>
@@ -413,31 +410,56 @@
             path="/ClinicalEdit"
             type="org.gnumed.testweb1.actions.ClinicalEditAction"
             attribute="clinicalUpdateForm"
-            scope="session"
+            scope="request"
             >
             <!-- <forward name="successLoadClinical" path="clinicalentry"/>
             -->
             <forward name="successLoadClinical" path="clinicalentry"/>
         </action>
         
-            
         <action
              path="/SaveClinical"
              type="org.gnumed.testweb1.actions.ClinicalSaveAction"
              name="clinicalUpdateForm"
-             scope="session"
+             scope="request"
              input="clinicalEditAgain"
              >
              
              <forward name="clinicalEditAgain" path="clinicalentry"/>
                
          </action>
+        
          
+           <!-- stuff for the version2 clinicalUpdateForm --> 
+        <action
+            path="/ClinicalEdit2"
+            type="org.gnumed.testweb1.actions.ClinicalEditAction"
+            attribute="clinicalUpdateForm"
+            scope="request"
+            >
+            <!-- <forward name="successLoadClinical" path="clinicalentry"/>
+            -->
+            <forward name="successLoadClinical" path="clinicalentry2"/>
+        </action>
+            
+         <action
+             path="/SaveClinical2"
+             type="org.gnumed.testweb1.actions.ClinicalSaveAction2"
+             name="clinicalUpdateForm2"
+             scope="request"
+             input="clinicalEditAgain"
+             >
+             
+             <forward name="clinicalEditAgain" path="clinicalentry2"/>
+               
+         </action>
+        
+          
          <action
          	path="/SearchDrug"
 		type = "org.gnumed.testweb1.actions.SearchDrugAction"
                 attribute="clinicalUpdateForm"
-                scope="session"
+                scope="request"
 		input="clinicalEditAgain"
 		>
          	<forward name="showCandidateDrugs" path="showcandidatedrugs"/>
@@ -446,7 +468,7 @@
             path="/SelectDrug"
             type="org.gnumed.testweb1.actions.ReturnDrugSelectedAction"
             attribute="clinicalUpdateForm"
-            scope="session"
+            scope="request"
             input="clinicalEditAgain"
             >
             <!-- <forward name="successLoadClinical" path="clinicalentry"/>

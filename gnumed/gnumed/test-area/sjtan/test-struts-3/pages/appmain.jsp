@@ -5,10 +5,15 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic"%>
 
 <html>
-<head><title>JSP Page</title></head>
+<html:base/>
+
+
+<head>
+<title>Starting Page</title>
+<LINK   TYPE='text/css'  REL='stylesheet' href='style.css'/>     
+</head>
 <body>
 
-    <html:base/>
     <div class='errors'>
         <p><b>
         <html:errors/></b></p>
@@ -18,12 +23,6 @@
 
     <html:link action="/GetDemoEntry"> <bean:message key="new.patient"></bean:message></html:link>
     |
-    <html:link action="/GetLogin"> <bean:message key="app.login"></bean:message></html:link>
-    |
-    <html:link action="/GetLogin"> <bean:message key="app.login"></bean:message></html:link>
-
-    <p>
-
     <jsp:include page="./findIdentity.jsp" />
     </p>
 

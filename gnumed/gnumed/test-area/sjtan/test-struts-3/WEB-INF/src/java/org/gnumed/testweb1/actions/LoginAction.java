@@ -21,6 +21,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
+import org.gnumed.testweb1.business.LoginInfo;
 import org.gnumed.testweb1.business.LoginModule;
 import org.gnumed.testweb1.exceptions.login.InvalidPasswordException;
 import org.gnumed.testweb1.exceptions.login.InvalidUserNameException;
@@ -40,23 +41,23 @@ public class LoginAction extends Action {
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
-		byte[] password = null;
-
+		 
 		ActionMessages errors = new ActionMessages();
 
 		try {
 			String username = (String) PropertyUtils.getSimpleProperty(form,
 					"username");
-			password = ((String) PropertyUtils.getSimpleProperty(form,
-					"password")).getBytes();
+			String password = ((String) PropertyUtils.getSimpleProperty(form,
+					"password"));
 			LoginModule module = (LoginModule) servlet.getServletContext()
 					.getAttribute(Constants.LOGIN_MODULE);
 			//  LoginModule module = new
 			// org.gnumed.testweb1.mock.MockLoginModule();
 
 			log.info("Module is " + module);
-			module.validate(username, password);
-
+			module.validate(username, password.getBytes());
+			request.getSession().setAttribute(Constants.Session.LOGIN, new LoginInfo( username, password));
+			
 			// Remove the obsolete form bean
 			if (mapping.getAttribute() != null) {
 				if ("request".equals(mapping.getScope()))
@@ -97,8 +98,7 @@ public class LoginAction extends Action {
 		}
 
 		finally {
-			java.util.Arrays.fill(password, (byte) 0);
-
+			
 		}
 
 		saveMessages(request, errors);

@@ -7,6 +7,7 @@
 package org.gnumed.testweb1.persist.scripted;
 
 import java.lang.reflect.InvocationTargetException;
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,12 +46,15 @@ import org.gnumed.testweb1.data.HealthSummaryQuickAndDirty01;
 import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.data.Vitals;
 import org.gnumed.testweb1.global.Algorithms;
+import org.gnumed.testweb1.global.Util;
 import org.gnumed.testweb1.global.Constants.Schema;
 import org.gnumed.testweb1.persist.ClinicalDataAccess;
+import org.gnumed.testweb1.persist.CredentialUsing;
 import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
 import org.gnumed.testweb1.persist.DataSourceException;
 import org.gnumed.testweb1.persist.DataSourceUsing;
 import org.gnumed.testweb1.persist.HealthRecordAccess01;
+import org.gnumed.testweb1.persist.ThreadLocalCredentialUsing;
 import org.gnumed.testweb1.persist.scripted.gnumed.ClinRootInsert;
 import org.gnumed.testweb1.persist.scripted.gnumed.MedicationSaveScript;
 import org.gnumed.testweb1.persist.scripted.gnumed.clinroot.ClinRootInsertV01;
@@ -70,7 +75,7 @@ import org.gnumed.testweb1.persist.scripted.gnumed.medication.MedicationSaveScri
  *  
  */
 public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
-		DataSourceUsing, DataObjectFactoryUsing {
+		DataSourceUsing, DataObjectFactoryUsing , CredentialUsing {
 	
 	private ClinRootInsert clinRootInsert = new ClinRootInsertV01();
 	private MedicationSaveScript medicationSaveScript = new MedicationSaveScriptV01();
@@ -107,6 +112,11 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 
 	static Log log = LogFactory.getLog(ScriptedSQLHealthRecordAccess.class);
 
+	static ThreadLocalCredentialUsing threadCredential;
+	static {
+	    threadCredential = new ThreadLocalCredentialUsing();
+	}
+	
 	/** Creates a new instance of ScriptedSQLHealthRecordAccess */
 	public ScriptedSQLHealthRecordAccess() {
 	}
@@ -126,6 +136,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
+			Util.setSessionAuthentication(conn,(Principal)threadCredential.getCredential());
 			conn.setReadOnly(true);
 
 			ResultSet healthIssuesRS, episodesRS, encountersRS, vaccinationsRS, medicationsRS, allergyRS, narrativeRS, lab_requestRS, test_resultRS, referralRS, encounterTypeRS;
@@ -161,15 +172,16 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			return (HealthRecord01) accessedRecords.get(new Long(patientId));
 
 		} catch (Exception e) {
+		    e.printStackTrace();
 			throw new DataSourceException(e);
 		} finally {
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (SQLException se) {
-					throw new DataSourceException(se);
-				}
-			}
+//			if (conn != null) {
+//				try {
+//					//conn.close();
+//				} catch (SQLException se) {
+//					throw new DataSourceException(se);
+//				}
+//			}
 
 		}
 
@@ -352,6 +364,8 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 		try {
 
 			conn = getDataSource().getConnection();
+			Util.setSessionAuthentication(conn,(Principal)threadCredential.getCredential());
+			
 
 		//	conn.setAutoCommit(false);
 
@@ -402,7 +416,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 						+ idEncounter.toString());
 				conn.commit();
 				throw new DataSourceException(
-						"No items attached. Encounter deleted");
+						"No items attached. Encounter deleted" );
 			}
 
 			conn.commit();
@@ -415,6 +429,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
+			log.info(exception, exception);
 			throw new DataSourceException("unexpected ", exception);
 		}
 
@@ -532,26 +547,107 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 * @param summary
 	 * @param nonFatalExceptions
 	 * @return
+	 * @throws SQLException
 	 */
 	private int saveVaccinationsCollection(ClinicalEncounter encounter,
-			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
+			HealthSummary01 summary, List nonFatalExceptions, Connection conn) throws SQLException {
+	    
+	    meetSchemaRequirementVaccinations(encounter.getId().intValue(), summary.getIdentityId().intValue() , conn);
 	    int itemsAttached =0;
 		for (Iterator i = encounter.getVaccinations().iterator(); i.hasNext();) {
 			try {
 				EntryVaccination v = (EntryVaccination) i.next();
+				log.info("inspecting VACCINATION OBJECT" + v + " :" + v.getVaccineGiven() + " ");
+				
+				Util.logBean(log, v);
 				if (v.isEntered()) {
 					linkRootItem(conn, v, summary);
-					saveVaccination(conn, v, summary);
+					saveVaccination(conn, v, summary, encounter.getId().intValue());
 					itemsAttached++;
 				}
 			} catch (Exception e) {
 				nonFatalExceptions.add(e);
 			}
 		}
+		conn.commit();
 		return itemsAttached;
 	}
 	
-	private int saveMedicationCollection(ClinicalEncounter encounter,
+	/**
+     * @param i
+	 * @param conn
+	 * @throws SQLException
+     */
+    private void meetSchemaRequirementVaccinations(int idEncounter, int idPatient, Connection conn) throws SQLException {
+        // TODO Auto-generated method stub
+        
+        conn.commit();
+  /*
+        Statement defer = conn.createStatement();
+        log.info("AUTOCOMMIT IS " + conn.getAutoCommit());
+  
+        defer.execute("set constraints all deferred");
+  
+        PreparedStatement stmt0 = conn.prepareStatement(
+                "insert into clin_episode(" +
+                "fk_patient, fk_clin_narrative)" +
+                " values(  " +
+                " ? , " +
+                " (select max(pk) from clin_narrative where fk_patient = ?)  )");
+        stmt0.setInt(1, idPatient);
+        stmt0.setInt(2, idPatient);
+        stmt0.execute();
+        PreparedStatement stmt = 
+            conn.prepareStatement(
+                "insert into clin_narrative( pk, fk_encounter, fk_clin_episode, narrative)" +
+                " values( currval('clin_narrative_pk_seq'), (select max(id) from clin_encounter where fk_patient = ?),  select currval('clin_episode_pk_seq') " +
+                ", 'vaccination given (auto-recorded)')  ");
+        	stmt.setInt(1, idPatient);
+        	stmt.execute();
+        	PreparedStatement relink = conn.prepareStatement("update clin_episode set fk_clin_narrative=" +
+        			"(select max(pk) from clin_narrative where fk_patient = ?) " +
+        			" where fk_patient = ?");
+        	relink.setInt(1, idPatient);
+        	relink.execute();
+        	defer.execute("set constraints all immediate");
+*/		
+        conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+        Statement c = conn.createStatement();
+        
+        c.execute("commit;begin"); // required on salaam for some reason.
+        
+        c.executeUpdate("set constraints rfi_fk_clin_narrative deferred");
+        c.executeUpdate("insert into clin_episode " +
+                        "( fk_patient, fk_clin_narrative) " +
+                        "values ( " + Integer.toString(idPatient) + " , nextval('clin_narrative_pk_seq')) ");
+        c.executeUpdate("insert into clin_narrative " +
+                        "(pk,  fk_episode, fk_encounter, narrative) " +
+                        "values(" +
+                        "currval('clin_narrative_pk_seq')," +
+                        " (select max(pk) from clin_episode where fk_patient = " + Integer.toString(idPatient) + ")," +
+                        " (select max(id) from clin_encounter where fk_patient = " + Integer.toString(idPatient) + ") ," +
+                        "  'vaccination (auto record)' )");
+        conn.commit();
+
+//        PreparedStatement  defer = conn.prepareStatement("set constraints rfi_fk_clin_narrative deferred");
+//            defer.execute();
+//            
+//            PreparedStatement initNarrative = conn.prepareStatement(
+//                            "insert into clin_episode( fk_patient, fk_clin_narrative) values ( ?, nextval('clin_narrative_pk_seq')) ");
+//          initNarrative.setInt(1, idPatient);
+//            initNarrative.execute();
+//            PreparedStatement stmt0 = conn.prepareStatement(
+//                            "insert into clin_narrative(pk,  fk_episode, fk_encounter, narrative) values(currval('clin_narrative_pk_seq'), (select max(pk) from clin_episode where fk_patient = ?), (select max(id) from clin_encounter where fk_patient = ?) ,  'vaccination (auto record)' )");
+//          stmt0.setInt(1, idPatient);
+//          stmt0.setInt(2, idPatient);
+//          stmt0.execute();
+//            PreparedStatement  immed= conn.prepareStatement("set constraints all immediate");
+//            immed.execute();
+
+    }
+
+    private int saveMedicationCollection(ClinicalEncounter encounter,
 			HealthSummary01 summary, List nonFatalExceptions, Connection conn) {
 	    int itemsAttached =0;
 		for (Iterator i = encounter.getMedications().iterator(); i.hasNext();) {
@@ -810,33 +906,48 @@ throws SQLException, DataSourceException {
 	}
 
 	private void saveVaccination(Connection conn, Vaccination vacc,
-			HealthSummary01 summary) throws DataSourceException, SQLException {
+			HealthSummary01 summary, int idEncounter) throws DataSourceException, SQLException {
 		try {
-			String s6 = "insert into vaccination (pk_item, fk_patient, fk_provider, fk_vaccine, site, batch_no, "
+		    int idVaccine = Integer.parseInt(vacc.getVaccineGiven());
+		    if (idVaccine == 0) {
+		        return;
+		    }
+			String s6 = "insert into vaccination (" +
+					"pk_item, fk_patient, fk_provider, fk_vaccine, site, " +
+					"batch_no, "
 					+ " clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
-					+ "values (?,  ? , ? , ?, ?, ? , ? , ?, ?, ?, ?)";
+					+ "values (?,  ? , ? , ?, ?, ? , ? , ?, ?, " +
+							" (select max(id) from clin_encounter " +
+								"where fk_patient=" +summary.getIdentityId().toString() +
+							" ), " +
+							"(select max(pk) from clin_episode "+
+							"where fk_patient=" +summary.getIdentityId().toString() +
+							 
+							")  )";
 
 			PreparedStatement stmt = conn.prepareStatement(s6);
 
-			setClinRootItemStatement(stmt, vacc, 7);
-
+			setClinRootItemStatement(stmt, vacc, 7, 10);
+			
 			stmt.setInt(2, summary.getIdentityId().intValue());
 
 			stmt.setInt(3, 0);
 			log.info("TRYING TO SET" + s6 + " WITH vacc.getVaccineGiven()="
 					+ vacc.getVaccineGiven());
 
-			stmt.setInt(4, summary.findVaccine(vacc.getVaccineGiven()).getId()
-					.intValue());
+			
+            stmt.setInt(4, idVaccine);
 
 			stmt.setString(5, vacc.getSite());
 
 			stmt.setString(6, vacc.getBatchNo());
-
+		
+			
+			
 			log.info(s6);
 
 			stmt.execute();
-			conn.commit();
+			
 
 		} catch (Exception e) {
 			conn.rollback();
@@ -847,7 +958,37 @@ throws SQLException, DataSourceException {
 
 	}
 
-	private java.util.Date nullToNow(java.util.Date d) {
+	/**
+     * @param stmt
+     * @param vacc
+     * @param i
+     * @param j
+	 * @throws SQLException
+	 * @throws DataSourceException
+     */
+    private void setClinRootItemStatement(PreparedStatement stmt, Vaccination vacc, int i, int j) throws DataSourceException, SQLException {
+        // TODO Auto-generated method stub
+        clinRootInsert.setClinRootItemStatement(stmt, vacc, i, j);
+    }
+
+    /**
+     * @param idEncounter
+	 * @throws SQLException
+     */
+    private void meetSchemaRequirementVaccinations2(Connection conn, PreparedStatement stmt, int idEncounter) throws SQLException {
+        // TODO Auto-generated method stub
+        Statement stmt1 = conn.createStatement();
+        
+        stmt.setInt(10, idEncounter);
+      
+        ResultSet rs = stmt1.executeQuery("select currval('clin_episode_pk_seq')");
+        if ( rs.next() ) {
+            stmt.setInt(11, rs.getInt(1));
+        }
+        
+    }
+
+    private java.util.Date nullToNow(java.util.Date d) {
 		if (d == null)
 			return new java.util.Date();
 		return d;
@@ -991,5 +1132,14 @@ throws SQLException, DataSourceException {
 	public MedicationSaveScript getMedicationSaveScript( ) {
 		return medicationSaveScript;
 	}
+
+    /* (non-Javadoc)
+     * @see org.gnumed.testweb1.persist.CredentialUsing#setCredential(java.lang.Object)
+     */
+    public void setCredential(Object o) {
+        // TODO Auto-generated method stub
+        threadCredential.setCredential(o);
+        
+    }
 	
 }

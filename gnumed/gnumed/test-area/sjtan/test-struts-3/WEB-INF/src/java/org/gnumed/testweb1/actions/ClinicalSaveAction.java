@@ -35,6 +35,8 @@ import org.gnumed.testweb1.data.HealthRecord01;
 import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.forms.ClinicalUpdateForm;
 import org.gnumed.testweb1.global.Constants;
+import org.gnumed.testweb1.global.Util;
+import org.gnumed.testweb1.persist.CredentialUsing;
 import org.gnumed.testweb1.persist.HealthRecordAccess01;
 
 /**
@@ -54,7 +56,7 @@ public class ClinicalSaveAction extends Action {
 			HttpServletRequest request, HttpServletResponse response) {
 
 		ActionMessages messages = new ActionMessages();
-
+		List nonFatalException = new ArrayList();
 		try {
 			debugRequestAttributes(request);
 
@@ -74,28 +76,30 @@ public class ClinicalSaveAction extends Action {
 			HealthRecordAccess01 access = (HealthRecordAccess01) servlet
 					.getServletContext().getAttribute(
 							Constants.Servlet.HEALTH_RECORD_ACCESS);
+			
 
-			List nonFatalException = new ArrayList();
+
+			Util.setUserCredential(request, (CredentialUsing)access);
+			
+			
+			
+			
 			HealthRecord01 record = (HealthRecord01) request.getSession()
 					.getAttribute(Constants.Session.HEALTH_RECORD);
+			
+			
 			access.save(cform.getEncounter(), record.getHealthSummary(),
 					nonFatalException);
-			if (nonFatalException.size() > 0) {
-				for (int k = 0; k < nonFatalException.size(); ++k) {
-					messages.add("save item error",
-							new ActionMessage(((Exception) nonFatalException
-									.get(k)).getMessage()));
-				}
-				saveMessages(request, messages);
-			}
-			// logging
-			//    org.gnumed.testweb1.global.Util.logBean(log, form);
-			//   org.gnumed.testweb1.global.Util.logBean(log, detail);
-
+			
+			
+			setNonFatalErrors(request, messages, nonFatalException);
+			if (nonFatalException.size() >0)
+			    saveErrors(request, messages);
+			
 			return mapping.findForward("success");
 
 		} catch (Exception e) {
-
+		    setNonFatalErrors(request, messages, nonFatalException);
 			try {
 				util.setRequestAttributes(servlet, request, form, mapping);
 			} catch (Exception e2) {
@@ -104,7 +108,7 @@ public class ClinicalSaveAction extends Action {
 			log.info(e, e);
 			messages.add("error in constructing attributes for form",
 					new ActionMessage("error is", e));
-			saveMessages(request, messages);
+			saveErrors(request, messages);
 
 			return mapping.getInputForward();
 		}
@@ -112,6 +116,25 @@ public class ClinicalSaveAction extends Action {
 	}
 
 	/**
+     * @param request
+     * @param messages
+     * @param nonFatalException
+     */
+    public void setNonFatalErrors(HttpServletRequest request, ActionMessages messages, List nonFatalException) {
+        if (nonFatalException.size() > 0) {
+        	for (int k = 0; k < nonFatalException.size(); ++k) {
+        		messages.add("save item error",
+        				new ActionMessage(((Exception) nonFatalException
+        						.get(k)).getMessage()));
+        	}
+        	
+        }
+        // logging
+        //    org.gnumed.testweb1.global.Util.logBean(log, form);
+        //   org.gnumed.testweb1.global.Util.logBean(log, detail);
+    }
+
+    /**
 	 * @param request
 	 */
 	private void debugRequestAttributes(HttpServletRequest request) {
@@ -119,9 +142,9 @@ public class ClinicalSaveAction extends Action {
 		while(en1.hasMoreElements()) {
 		    log.info("Session has attribute " + en1.nextElement());
 		}
-		String[] ss = request.getSession().getValueNames();
-		for (int i =0; i < ss.length; ++i) {
-		    log.info("And object value names = " + ss[i]);
+		Enumeration ss = request.getSession().getAttributeNames();
+		for (;ss.hasMoreElements();) {
+	 	    log.info("And object value names = " + (String) ss.nextElement());
 		}
 	}
 

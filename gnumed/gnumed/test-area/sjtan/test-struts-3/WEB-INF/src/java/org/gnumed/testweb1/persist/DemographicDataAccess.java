@@ -12,7 +12,7 @@ import org.gnumed.testweb1.data.DemographicDetail;
  */
 public interface DemographicDataAccess {
     public final static String DEMOGRAPHIC_ACCESS = "DemographicDataAccess";
-    public DemographicDetail save(DemographicDetail detail) throws DataSourceException;
+    public DemographicDetail save( DemographicDetail detail) throws DataSourceException;
     public DemographicDetail findDemographicDetailById(final Long id) throws DataSourceException;
 public DemographicDetail[] findDemographicDetail( DemographicDetail fragment) throws DataSourceException;
     

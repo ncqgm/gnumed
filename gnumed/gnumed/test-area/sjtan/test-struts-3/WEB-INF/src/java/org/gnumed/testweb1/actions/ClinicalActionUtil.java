@@ -26,18 +26,19 @@ import org.gnumed.testweb1.persist.*;
  * 
  * @author sjtan
  */
-public class ClinicalActionUtil extends ActionUtil {
+public class ClinicalActionUtil extends ActionUtil  {
 	Log log = LogFactory.getLog(ClinicalActionUtil.class);
-
+ 
 	/** Creates a new instance of ClinicalAction */
 	public ClinicalActionUtil() {
 	}
 
 	/**
+	 * gets the patient id as a Long, from the request object.
 	 * @param request
 	 * @param id
 	 * @return
-	 */
+	 */ 
 	Long getIdFromRequestParameter(HttpServletRequest request) {
 		Long id = null;
 		if (request.getParameter(Constants.Request.PATIENT_ID) != null)
@@ -60,6 +61,8 @@ public class ClinicalActionUtil extends ActionUtil {
 				.getServletContext().getAttribute(
 						Constants.Servlet.HEALTH_RECORD_ACCESS);
 
+		Util.setUserCredential(request, (CredentialUsing)healthRecordAccess);
+		
 		HealthRecord01 healthRecord = healthRecordAccess
 				.findHealthRecordByIdentityId(id.longValue());
 
@@ -79,6 +82,9 @@ public class ClinicalActionUtil extends ActionUtil {
 				.getServletContext().getAttribute(
 						Constants.Servlet.DEMOGRAPHIC_ACCESS);
 
+
+		Util.setUserCredential(request, (CredentialUsing)demoDataAccess);
+		
 		DemographicDetail detail = demoDataAccess.findDemographicDetailById(id);
 		request.getSession().setAttribute(
 				Constants.Session.DEMOGRAPHIC_DETAIL_CURRENT, detail);
@@ -94,6 +100,9 @@ public class ClinicalActionUtil extends ActionUtil {
 				.getServletContext().getAttribute(
 						Constants.Servlet.CLINICAL_ACCESS);
 
+
+		Util.setUserCredential(request, (CredentialUsing)dataAccess);
+		
 		if (request.getSession().getAttribute(Constants.Session.VACCINES) == null) {
 			List vaccines = dataAccess.getVaccines();
 
@@ -114,7 +123,7 @@ public class ClinicalActionUtil extends ActionUtil {
 	 */
 	void setRequestAttributes(HttpServlet servlet, HttpServletRequest request,
 			ActionForm form, ActionMapping mapping) throws DataSourceException {
-
+	    
 		setVaccinesOnSession(servlet, request);
 
 		Long id = null;
@@ -144,4 +153,6 @@ public class ClinicalActionUtil extends ActionUtil {
 
 		setAttributeOnScopeFromMappingAttributeAndScope(request, mapping, form);
 	}
+
+    
 }

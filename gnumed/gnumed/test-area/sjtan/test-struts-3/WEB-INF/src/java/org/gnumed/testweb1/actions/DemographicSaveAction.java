@@ -32,7 +32,10 @@ import org.apache.struts.action.ActionMessages;
 import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.DemographicDetail;
 import org.gnumed.testweb1.global.Constants;
+import org.gnumed.testweb1.global.Util;
+import org.gnumed.testweb1.persist.CredentialUsing;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
+import org.gnumed.testweb1.persist.LoginInfoUsing;
 
 /**
  * 
@@ -110,6 +113,9 @@ public class DemographicSaveAction extends Action {
 					.getServletContext().getAttribute(
 							Constants.Servlet.DEMOGRAPHIC_ACCESS);
 
+
+			Util.setUserCredential(request, (CredentialUsing)dataAccess);
+			
 			detail = dataAccess.save(detail);
 
 			BeanUtils.copyProperties(form, detail);
@@ -136,7 +142,8 @@ public class DemographicSaveAction extends Action {
 		return mapping.getInputForward();
 	}
 
-	/**
+
+    /**
 	 * after saving the modified or new demographicDetail, update it if it is
 	 * stored in the session attribute DEMOGRAPHIC_DETAILS which is a list of
 	 * found demographic details.

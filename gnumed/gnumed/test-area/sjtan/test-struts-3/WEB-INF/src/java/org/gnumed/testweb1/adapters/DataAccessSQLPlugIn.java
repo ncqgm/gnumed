@@ -6,6 +6,7 @@
 
 package org.gnumed.testweb1.adapters;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -60,7 +61,7 @@ public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
      */
     public void init(org.apache.struts.action.ActionServlet actionServlet, org.apache.struts.config.ModuleConfig moduleConfig) throws javax.servlet.ServletException {
         try {
-            
+            //Locale.setDefault( new Locale("de", "DE"));
             Context ctx = new InitialContext();
             Context ctx2 = (Context) ctx.lookup(Constants.JNDI_ROOT);
             

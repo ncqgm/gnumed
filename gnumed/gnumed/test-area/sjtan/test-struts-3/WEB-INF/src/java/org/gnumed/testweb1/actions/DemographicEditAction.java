@@ -22,7 +22,10 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.config.FormBeanConfig;
 import org.gnumed.testweb1.data.DemographicDetail;
 import org.gnumed.testweb1.global.Constants;
+import org.gnumed.testweb1.global.Util;
+import org.gnumed.testweb1.persist.CredentialUsing;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
+import org.gnumed.testweb1.persist.LoginInfoUsing;
 
 /**
  * 
@@ -64,6 +67,9 @@ public class DemographicEditAction extends Action {
 					.getServletContext().getAttribute(
 							Constants.Servlet.DEMOGRAPHIC_ACCESS);
 
+
+			Util.setUserCredential(request, (CredentialUsing)dataAccess);
+			
 			Long id = null;
 
 			if (request.getParameter(Constants.Request.PATIENT_ID) != null)
@@ -94,14 +100,14 @@ public class DemographicEditAction extends Action {
 			//
 		} catch (Exception e) {
 			util.setAttributeOnScopeFromMappingAttributeAndScope(request, mapping, form);
-			log.info(e);
+			log.error(e);
 			ActionMessages messages = new ActionMessages();
 			messages.add("error in constructing attributes for form",
 					new ActionMessage("error is", e));
 			saveMessages(request, messages);
 			return mapping.getInputForward();
 		}
-
+		log.info("going to successLoadForEdit");
 		return mapping.findForward("successLoadForEdit");
 	}
 }

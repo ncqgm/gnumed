@@ -7,15 +7,27 @@
 <tiles-definitions>
 
 	<!-- DEFAULT MAIN TEMPLATE -->
+	
+  		
 
-        <definition name="template" page="/pages/main.jsp"  >
-        
-                <put name="support" value="/pages/support.jsp" type="page"/>
-     	</definition>
+        <definition name="template" page="/pages/layout/mainLayout.jsp"  >
+        		
         
           <definition name="index" extends="template">
 		<put name="content" value="/pages/Welcome.jsp" type="page"/>
               </definition>
+        
+                <put name="support" value="/pages/common/support.jsp" type="page"/>
+     	</definition>
+     	
+     	<definition name="template_topmenu" extends="template" >
+     		<put name="menu1" value="/pages/common/topMenu.jsp" type="page"/>
+     	</definition>
+     	
+        <definition name="appmain" extends="template">
+            <put name="content" value="/pages/appmain.jsp" type="page"/>
+        </definition>	
+        
 
 	<definition name="about" extends="template">
 		<put name="content" value="/pages/about.jsp" type="page"/>
@@ -25,27 +37,15 @@
 		<put name="content" value="/pages/ads.jsp" type="page"/>
 	</definition>
 
-        <definition name="getlogin" extends="template">
-		<put name="content" value="/pages/login.jsp" type="page"/>
-	</definition>
-
-           <definition name="dummylogin" extends="template">
-		<put name="content" value="/pages/dummylogin_done.jsp" type="page"/>
-	</definition>
-        
-        
-        <definition name="appmain" extends="template">
-            <put name="content" value="/pages/appmain.jsp" type="page"/>
-        </definition>
+      
         
 	<definition name="demoentry" extends="template">
-            <put name="content" value="/pages/demographicEntry.jsp" type="page"/>
-        </definition>
-      
-        <definition name="clinicalentry_old" page="/pages/main_2.jsp">
-             
-        </definition>
-      
+        	<put    name="content"
+                        value="/pages/demographicUpdate/demographicEntry.jsp"
+                        type="page"/>
+				
+	</definition>
+   
         
         <definition name="testdb" extends="template">
         <put name="content" value="/pages/test_dbcp.jsp" type="page"/>
@@ -54,59 +54,51 @@
         <definition name="testlinknames" extends="template">
         <put name="content" value="/TestListNames.do" type="page"/>
         </definition>
-        
-        <definition name="encounterEntry" page="/pages/intraLinkedClinical.jsp">
-         <put name="content" value="/pages/clinicalEntry.jsp" type="page"/>
+       
+         
+           <definition name="clinSummary" page="/pages/layout/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/clinicalStatus/clinSummary.jsp" type="page"/>
          </definition>
          
-           <definition name="clinSummary" page="/pages/intraLinkedClinical.jsp">
-         <put name="content" value="/pages/clinSummary.jsp" type="page"/>
-         </definition>
-         
-            <definition name="pastNotes" page="/pages/intraLinkedClinical.jsp">
-         <put name="content" value="/pages/pastNotes.jsp" type="page"/>
+            <definition name="pastNotes" page="/pages/layout/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/clinicalStatus/pastNotes.jsp" type="page"/>
          </definition>
          
            <definition name="episodeList" page="/pages/intraLinkedClinical.jsp">
-         <put name="content" value="/pages/episodeList.jsp" type="page"/>
+         <put name="content" value="/pages/clinicalStatus/episodeList.jsp" type="page"/>
          </definition>
          
-         <definition name="clinicalentry" page="/pages/main_2tiles.jsp">
+         <!-- used by ClinicalEdit action -->
+          
+        <definition name="encounterEntry" page="/pages/layout/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/clinicalUpdate/clinicalEntry.jsp" type="page"/>
+         </definition>
+       
+         <definition name="clinicalentry" page="/pages/layout/topClinicalLayout.jsp">
          <put name="leftTop" value="encounterEntry" />
             <put name="leftBottom" value="pastNotes" />
          <put name="rightTop" value="clinSummary" />
          <put name="rightBottom" value="episodeList" />
          </definition>
          
-         <definition name="printablerecord" page="/pages/summaryAndPastNotesPrintable.jsp">
-         </definition>         
-<!--         
-       <definition name="framesetClinEntry" page="/pages/main_2tiles.jsp">
-            <put name="summary" value="clinSummary"/>
-            <put name="pastNotes" value="pastNotes"/>
-            <put name="clinEntry" value="encounterEntry"/>
-    </definition>
-    -->
+       <!-- used by ClinicalEditAction2 -->    
+           <definition name="encounterEntry2" page="/pages/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/clinicalEntry2.jsp" type="page"/>
+         </definition>
+         
+          <definition name="clinicalentry2" extends="clinicalentry">
+           <put name="leftTop" value="encounterEntry2" />
         
-       <definition name="showcandidatedrugs" page="/pages/searchDrug.jsp"/>
+           </definition>
+       
+           
+             
+         <definition name="printablerecord" page="/pages/summaryAndPastNotesPrintable.jsp">
+         </definition> 
+     
+        
+       <definition name="showcandidatedrugs" page="/pages/drugs/searchDrug.jsp"/>
         
        
-          
-<!--
-	<definition name="news" page="/WEB-INF/jsp/news.jsp" controllerClass="org.springframework.samples.tiles.NewsFeedController">
-		<put name="size" value="5"/>
-	</definition>
-
-	<definition name="theserverside" extends="news">
-		<put name="sourceName" value="theserverside"/>
-	</definition>
-
-	<definition name="worldpress" extends="news">
-		<put name="sourceName" value="worldpress"/>
-	</definition>
-
-	<definition name="slashdot" extends="news">
-		<put name="sourceName" value="slashdot"/>
-	</definition>
-        -->
+         
 </tiles-definitions>

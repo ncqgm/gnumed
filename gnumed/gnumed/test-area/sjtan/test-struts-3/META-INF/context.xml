@@ -8,7 +8,7 @@
   <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource" 
 	  driverClassName="org.postgresql.Driver"
 	  url="jdbc:postgresql://127.0.0.1:5432/gnumed"
-	  username="any-doc" password="any-doc"
+	  username="gm-dbo" password="pass"
 	  maxActive="20" maxIdle="10"
 	  />
 
@@ -47,8 +47,6 @@
     <parameter>
       <name>maxWait</name>
       <value>-1</value>
-      <!-- negative maxWait means requestors block indefinitely on empty pool, until connection
-		returned to pool -->
     </parameter>
     <parameter>
       <name>removeAbandoned</name>
@@ -57,7 +55,6 @@
     <parameter>
       <name>removeAbandonedTimeout</name>
       <value>5</value>
-      <!-- too long a timeout , and things may freeze -->
     </parameter>
     <parameter>
       <name>logAbandoned</name>
@@ -108,8 +105,6 @@
     <parameter>
       <name>maxWait</name>
       <value>-1</value>
-      <!-- negative maxWait means requestors block indefinitely on empty pool, until connection
-		returned to pool -->
     </parameter>
     <parameter>
       <name>removeAbandoned</name>
@@ -118,7 +113,6 @@
     <parameter>
       <name>removeAbandonedTimeout</name>
       <value>5</value>
-      <!-- too long a timeout , and things may freeze -->
     </parameter>
     <parameter>
       <name>logAbandoned</name>

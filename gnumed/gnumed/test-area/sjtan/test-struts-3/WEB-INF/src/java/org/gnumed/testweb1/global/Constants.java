@@ -51,6 +51,7 @@ public final class Constants {
     }
     
     public static final  class Session {
+        public static final String LOGIN = "LOGIN";
         public final static String VACCINES= "vaccines";
         public final static String DEMOGRAPHIC_DETAILS="demographicDetails";
         

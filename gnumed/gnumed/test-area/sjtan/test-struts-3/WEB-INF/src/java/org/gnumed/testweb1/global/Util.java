@@ -6,6 +6,13 @@
 
 package org.gnumed.testweb1.global;
 
+import java.beans.PropertyDescriptor;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,11 +21,17 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.config.PlugInConfig;
+import org.gnumed.testweb1.persist.CredentialUsing;
+import org.gnumed.testweb1.persist.DemographicDataAccess;
+import org.gnumed.testweb1.persist.LoginInfoUsing;
 /**
  *
  * @author  sjtan
@@ -128,7 +141,23 @@ public class Util {
     }
     
     public static void logBean(Log log, Object bean) throws Exception {
-        log.info(bean + " has these properties" );
+        if (bean == null) {
+            log.error("PASSED A NULL LOG BEAN");
+            return;
+        }
+        PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(bean);
+        for (int i =0; i < props.length;++i) {
+        	try {
+        		String val = BeanUtils.getProperty(bean, props[i].getName()); 
+        		log.info(bean + " has property " 
+        				+ props[i].getName() + " , val =" + val);
+        	}catch (Exception e) {
+				// TODO: handle exception
+        		log.error("error getting property "+ props[i].getName()+" "+ e.getMessage());
+			}
+        }
+        /*log.info(bean + " has these properties" );
+        
         Map map = BeanUtils.describe(bean);
         
         Iterator j = map.entrySet().iterator();
@@ -136,7 +165,7 @@ public class Util {
         while(j.hasNext()) {
             Map.Entry me = (Map.Entry) j.next();
             log.info( me.getKey() + ":" + me.getValue() );
-        }
+        }*/
         
     }
     
@@ -181,13 +210,83 @@ public class Util {
     	return s.trim();
     }
     
-   public Date getRelativeDate( int years, int month, int daysAhead ) {
+   public static Date getRelativeDate( int years, int month, int daysAhead ) {
        Calendar c = Calendar.getInstance();
        c.set(Calendar.YEAR, c.get(Calendar.YEAR) + years);
        c.set(Calendar.MONTH, c.get( Calendar.MONTH)+month);
        c.set(Calendar.DATE, c.get(Calendar.DATE) + daysAhead);
        return c.getTime();
    }
+   /**
+    * @param e
+    * @return
+    */
+   public static StringBuffer getStringStackTrace(Exception e) {
+       StringBuffer sb = new StringBuffer();
+       for (int i = 0; i < e.getStackTrace().length; ++i) {
+       sb.append(
+       "\t"
+              + e.getStackTrace()[i].getClassName() + "."  
+       		
+              +e.getStackTrace()[0].getMethodName() +":"
+       
+              + String.valueOf(e.getStackTrace()[0].getLineNumber())
+          ); 
+       }
+       return sb;
+   }
+
    
+   private static String defaultEncoding = "UTF-8";
+   private static String defaultEncodingPostgres = "LATIN1";
+   public static void setEncoding( String encoding) {
+       synchronized( Util.class) {
+           defaultEncoding = encoding;
+       }
+   }
+   
+   
+   
+   public static String encode(String str) throws UnsupportedEncodingException {
+       if (str == null)
+           return str;
+        String newStr = new String( str.getBytes(), defaultEncoding );
+        log.info("ENCODING STRING " + str + " to " + newStr);
+        
+        return newStr;
+   }
+   
+
+   
+	/**
+    * @param conn
+    */
+   public static void setDefaultClientEncoding(Connection conn) throws SQLException {
+       // TODO Auto-generated method stub
+       Statement stmt = conn.createStatement();
+       stmt.execute("set client_encoding to '" + defaultEncodingPostgres +"'");
+   }
+
+   public static void setSessionAuthentication(Connection conn, Principal principal) throws SQLException {
+       PreparedStatement stmt = conn.prepareStatement("set  session authorization ?");
+       String name = principal.getName();
+       
+       if (name.equals("tomcat") )
+           name = "any-doc";
+       stmt.setString( 1, name );
+       
+       stmt.execute();
+   }   
+   
+   /**
+    * @param request
+    * @param dataAccess
+    */
+   public static void setUserCredential(HttpServletRequest request, CredentialUsing using) {
+           log.info("SETTING CREDENTIAL = " + request.getUserPrincipal() + " on " + using);
+           using.setCredential(request.getUserPrincipal());
+      
+   }
+
    
 }

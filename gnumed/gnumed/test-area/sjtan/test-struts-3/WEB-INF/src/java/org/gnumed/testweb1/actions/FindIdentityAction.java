@@ -27,8 +27,10 @@ import org.apache.struts.action.ActionMessages;
 import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.DemographicDetail;
 import org.gnumed.testweb1.global.Constants;
+import org.gnumed.testweb1.persist.CredentialUsing;
 import org.gnumed.testweb1.persist.DataSourceException;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
+import org.gnumed.testweb1.persist.LoginInfoUsing;
 
 /**
  * 
@@ -63,6 +65,11 @@ public class FindIdentityAction extends Action {
 					.getServletContext().getAttribute(
 							Constants.Servlet.DEMOGRAPHIC_ACCESS);
 
+			if (access instanceof CredentialUsing) {
+			    CredentialUsing using = (CredentialUsing )access;
+			    using.setCredential( request.getUserPrincipal());
+			}
+			
 			DemographicDetail[] details = access.findDemographicDetail(detail);
 
 			java.util.List list = new ArrayList(Arrays.asList(details));

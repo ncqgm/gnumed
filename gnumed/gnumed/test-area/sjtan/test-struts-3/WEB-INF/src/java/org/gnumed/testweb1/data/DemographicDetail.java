@@ -299,5 +299,6 @@ public interface DemographicDetail {
      * @param publicHealthIdWithExp New value of property publicHealthIdWithExp.
      */
     public void setPublicHealthIdWithExp(String publicHealthIdWithExp);
-    
+    public String getSuburb();
+    public void setSuburb(String suburb);
 }

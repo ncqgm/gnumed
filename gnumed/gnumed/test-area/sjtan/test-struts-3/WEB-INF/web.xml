@@ -103,4 +103,55 @@
  <res-auth>Container</res-auth>
 </resource-ref>
 
+  <!-- Define reference to the user database for looking up roles -->
+  <resource-env-ref>
+    <description>
+      Link to the UserDatabase instance from which we request lists of
+      defined role names.  Typically, this will be connected to the global
+      user database with a ResourceLink element in server.xml or the context
+      configuration file for the Manager web application.
+    </description>
+    <resource-env-ref-name>users</resource-env-ref-name>
+    <resource-env-ref-type>
+      org.apache.catalina.UserDatabase
+    </resource-env-ref-type>
+  </resource-env-ref>
+
+  <!-- Define a Security Constraint on this Application -->
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Demographic and Clinical command</web-resource-name>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+       <!-- NOTE:  This role is not present in the default users file -->
+       <!-- not configured yet in tomcat-users.xml -->
+       <!--
+       <role-name>gmdoctor</role-name>
+       -->
+       <role-name>tomcat</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <!-- Define the Login Configuration for this Application -->
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Test Gnumed Tomcat Application (any-doc/any-doc for 
+    accessing user; other-doc/other-doc for user that has web access
+    but no postgres access. If not configured, use ** tomcat/tomcat **.
+    </realm-name>
+  </login-config>
+
+  <!-- Security roles referenced by this web application -->
+  <security-role>
+    <description>
+      The role that is required to log in to this Application
+    </description>
+    <!-- not configured yet in tomcat-users.xml -->
+       <!--
+       <role-name>gmdoctor</role-name>
+       -->
+       <role-name>tomcat</role-name>
+  </security-role>
+
 </web-app>

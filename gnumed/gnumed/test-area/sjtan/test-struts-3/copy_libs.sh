@@ -1,6 +1,7 @@
 #change the 2 environment variables base_struts, base_tomcat to point to the local locations.
 
 if ! -d $HOME ;then HOME=/home/$USER; fi
+echo "home is " $HOME
 base_struts=`find $HOME -type d -name "jakarta-struts-1.2*" | head -n1`
 base_tomcat=`find $HOME -maxdepth 3 -type d -name "jakarta-tomcat-5.*" | head -n1`
 

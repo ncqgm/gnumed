@@ -23,7 +23,16 @@ public class ActionUtil {
 	/** Creates a new instance of ActionUtil */
 	public ActionUtil() {
 	}
-
+	
+	
+	/** mapping.attribute is the key to store the form, either on
+	 * as a request or a session attribute. mapping.scope has "session"
+	 * or "request" to specify which.
+	 * 
+	 * @param request
+	 * @param mapping
+	 * @param form
+	 */
 	public void setAttributeOnScopeFromMappingAttributeAndScope(HttpServletRequest request,
 			ActionMapping mapping, Object form) {
 		if ("session".equals(mapping.getScope())) {

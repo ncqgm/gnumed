@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.gnumed.testweb1.data.ClinRootItem;
+import org.gnumed.testweb1.data.Vaccination;
 import org.gnumed.testweb1.persist.DataSourceException;
 
 /**
@@ -26,5 +27,14 @@ public interface ClinRootInsert {
 			SQLException ;
 	 
 	 Integer getNextId(Connection connection, String string) throws SQLException, DataSourceException ;
+    /**
+     * @param stmt
+     * @param vacc
+     * @param i
+     * @param j
+     * @throws SQLException
+     * @throws DataSourceException
+     */
+    public void setClinRootItemStatement(PreparedStatement stmt, ClinRootItem item, int i, int j) throws DataSourceException, SQLException;
 		
 }

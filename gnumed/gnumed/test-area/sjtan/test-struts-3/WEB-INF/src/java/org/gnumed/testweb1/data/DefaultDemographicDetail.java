@@ -19,7 +19,7 @@ import org.gnumed.testweb1.global.Util;
  * @author sjtan
  */
 public class DefaultDemographicDetail implements Serializable, DemographicDetail {
-    
+   
     private Date birthdateValue;
     private String birthdate;
     private String email;
@@ -49,7 +49,19 @@ public class DefaultDemographicDetail implements Serializable, DemographicDetail
     
     Log log = LogFactory.getLog(this.getClass());
     
-    
+    private String suburb;
+	/**
+	 * @return Returns the suburb.
+	 */
+	public String getSuburb() {
+		return suburb;
+	}
+	/**
+	 * @param suburb The suburb to set.
+	 */
+	public void setSuburb(String suburb) {
+		this.suburb = suburb;
+	}
     
     public DefaultDemographicDetail() {
         propertySupport = new PropertyChangeSupport(this);

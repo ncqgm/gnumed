@@ -40,20 +40,22 @@ public class DataObjectFactoryPlugIn extends BasicPlugin implements PlugIn {
         }
     }
     
+    /** the PlugInConfig is the object constructed from 
+     * the xml configuration in struts-config.xml for this plugin.
+     * The map of properties of this config, has the name of the 
+     * class used as the implementation of dataObjectFactory.
+     */
     public void init(org.apache.struts.action.ActionServlet actionServlet, org.apache.struts.config.ModuleConfig moduleConfig) throws javax.servlet.ServletException {
         
-        PlugInConfig c = Util.findPluginConfig(moduleConfig, this.getClass());
-        Map map = c.getProperties();
-        
-        logProperties(map);
-        
-        String implClassName =(String) map.get(Constants.Servlet.OBJECT_FACTORY);
         DataObjectFactory factory = null;
         try {
-            factory = (DataObjectFactory) Class.forName(implClassName).newInstance();
+            factory = (DataObjectFactory)
+            Class.forName( getFactoryClassName(moduleConfig) ).newInstance();
             
             factory.setBundle(getResourceBundle(moduleConfig));
+            
             actionServlet.getServletContext().setAttribute(Constants.Servlet.OBJECT_FACTORY, factory);
+            
             log.info ("Set Servlet context attribute "+ Constants.Servlet.OBJECT_FACTORY);
             
            
@@ -75,6 +77,20 @@ public class DataObjectFactoryPlugIn extends BasicPlugin implements PlugIn {
         } catch (Exception e) {
             log.error( "UNABLE TO SET '" + Constants.Servlet.OBJECT_FACTORY + "' of clinical update form class", e);
         }
+    }
+
+    /**
+     * @param moduleConfig
+     * @return
+     */
+    private String getFactoryClassName(org.apache.struts.config.ModuleConfig moduleConfig) {
+        PlugInConfig c = Util.findPluginConfig(moduleConfig, this.getClass());
+        Map map = c.getProperties();
+        
+        logProperties(map);
+        
+        String implClassName =(String) map.get(Constants.Servlet.OBJECT_FACTORY);
+        return implClassName;
     }
     
 }

@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import org.apache.commons.beanutils.BasicDynaBean;
 import org.apache.commons.beanutils.BasicDynaClass;
@@ -22,6 +24,8 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.ResultSetDynaClass;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.gnumed.testweb1.persist.scripted.gnumed.MedicationReadScript;
 import org.gnumed.testweb1.persist.scripted.gnumed.medication.MedicationReadScriptV02;
 
@@ -30,7 +34,7 @@ import org.gnumed.testweb1.persist.scripted.gnumed.medication.MedicationReadScri
  * @author  sjtan
  */
 public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
-	
+	static Log log = LogFactory.getLog(HealthSummaryQuickAndDirty01.class);
 	MedicationReadScript medReadScript = new MedicationReadScriptV02();
     Long identityId;
     List healthIssues, episodes, encounters, vaccinations, medications, allergys,
@@ -429,10 +433,74 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
 	public Vaccine findVaccine(String tradeName) {
 		// TODO Auto-generated method stub
 		
-		return (Vaccine) vaccines.get(tradeName);
+		Vaccine v =  (Vaccine) vaccines.get(tradeName);
+		log.info( " RETURNING VACCINE=" + v);
+		if (v == null ) {
+		    v = findVaccineAsciiSeq(tradeName, vaccines);
+		}
+		return v;
 	}
+	
 
-	/* (non-Javadoc)
+	/**
+     * @param vaccines2
+     * @return
+     */
+    private Vaccine findVaccineAsciiSeq(String name, Map vaccines2) {
+        Iterator i = vaccines2.values().iterator();
+        while (i.hasNext()) {
+            Vaccine v2= (Vaccine)i.next();
+            if (constanantsMatch(name.substring(0, v2.getShortName().length()), v2.getShortName()) 
+            || constanantsMatch(name, v2.getDescriptiveName()) 
+            || constanantsMatch(name, v2.getTradeName()) ) {
+                return v2;
+            }
+            
+        }
+        return null;
+    }
+
+    /**
+     * @param name
+     * @param shortName
+     * @return
+     */
+    final static String consonants = "bcdfghjklmnpqrstvwxz";
+    static HashSet consonantSet;
+    static {
+        
+         consonantSet = new HashSet();
+        for (int i = 0; i < consonants.length();++i) {
+            consonantSet.add( new Character(consonants.charAt(i)));
+            
+        }
+    }
+    
+    private boolean constanantsMatch(String name, String shortName) {
+        if (name == null || shortName == null || shortName.length() == 0 ) {
+            return false;
+        }
+        int m = 0;
+        for (int i = 0 , j = 0; i < name.length();++i) {
+            if ( consonantSet.contains(new Character( name.charAt(i))) ){
+                while ( j < shortName.length() -1
+                        && !consonantSet.contains( new Character(shortName.charAt(j) ) ) 
+                        ) {
+                    ++j;
+                }
+                if ( name.charAt(i) == shortName.charAt(j)) {
+                    ++m;
+                }
+            }
+        }
+        if ( m *2 >= shortName.length() ) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /* (non-Javadoc)
 	 * @see org.gnumed.testweb1.data.HealthSummary01#setVaccines(org.gnumed.testweb1.data.Vaccine[])
 	 */
 	public void setVaccines(Vaccine[] vaccines) {
