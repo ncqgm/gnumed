@@ -17,14 +17,15 @@
 #           30.07.2002 rterry images put in file
 #
 # @TODO:
-#	
-#      
+#
+#
 ############################################################################
 
 from wxPython.wx import *
+from mx import DateTime
 import gmPlugin
-import gmLog
-import gmSQLListControl
+import gmLog, gmDispatcher, gmSignals
+import gmSQLListControl, gmDataPanelMixin
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
 import cPickle, zlib
 from string import *
@@ -82,7 +83,7 @@ aliasdata = {
 2 : ("Bruce Dag"),
 }
 namelistdata = ['Smith Adan 129 Box Hill Road BOX HILL etc....','Smith Jean 52 WhereEver Street CANBERRA etc.....','Smith Michael 99 Longbeach Rd MANLYVALE  etc........']
-		
+
 addressdata = ['129 Afred Street WARNERS BAY 2280', '99 Wolfe Street NEWCASTLE 2301']
 
 #--------------------------------------------------
@@ -90,7 +91,7 @@ addressdata = ['129 Afred Street WARNERS BAY 2280', '99 Wolfe Street NEWCASTLE 2
 #--------------------------------------------------
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
-		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
+		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
 		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
 		self.SetForegroundColour(wxColour(0,0,131))
 #------------------------------------------------------------
@@ -107,20 +108,20 @@ class TextBox_BlackNormal(wxTextCtrl):
 		self.SetForegroundColour(wxColor(0,0,0))
 		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
 
-class PatientsPanel(wxPanel):
-	def __init__(self, parent,id, plugin):
-		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
+class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
+	def __init__(self, parent, id, plugin):
+		wxPanel.__init__(self, parent, id ,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
+		gmDataPanelMixin.DataPanelMixin.__init__(self)
 		self.gb = plugin.gb
 		self.mwm = plugin.mwm
 		self.plugin = plugin
-		EVT_TOOL (self.plugin.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnSearch)
 		# controls on the top toolbar are available via plugin.foo
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,addressdata,wxLB_SINGLE)
 		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.addresslist.SetForegroundColour(wxColor(180,182,180))
 		# code to link up SQLListControl
 		self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=true, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		EVT_LIST_ITEM_SELECTED (self.patientslist, ID_PATIENTSLIST, self.OnSelected)
+
 		self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.lbl_surname = BlueLabel(self,-1,"Surname")
 		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
@@ -129,10 +130,10 @@ class PatientsPanel(wxPanel):
 		self.lbl_title = BlueLabel(self,-1,"Title")
 		self.lbl_sex = BlueLabel(self,-1,"Sex ")
 		self.lbl_street = BlueLabel(self,-1,"Street")
-		self.lbl_suburb = BlueLabel(self,-1,"Suburb")
+		self.lbl_suburb = BlueLabel(self,-1,"Subblurb")
 		self.lbl_zip = BlueLabel(self,-1,"Postcode")
 		self.lbl_address_s = BlueLabel(self,-1,"Address(s)")
-		self.lbl_birthdate = BlueLabel(self,-1,"Birthdate")	 
+		self.lbl_birthdate = BlueLabel(self,-1,"Birthdate")
 		self.lbl_maritalstatus = BlueLabel(self,-1,"  Marital Status")
 		self.lbl_occupation = BlueLabel(self,-1,"Occupation")
 		self.lbl_birthplace = BlueLabel(self,-1,"Born In")
@@ -153,14 +154,12 @@ class PatientsPanel(wxPanel):
 		self.combo_title = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,self.titlelist, wxCB_DROPDOWN)
 		self.txt_firstname = TextBox_RedBold(self,-1)
 		self.combo_sex = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, ['M','F'], wxCB_DROPDOWN)
-		self.cb_preferredname = wxCheckBox(self, -1, " Preferred Name ", wxDefaultPosition,wxDefaultSize, wxNO_BORDER)	  
+		self.cb_preferredname = wxCheckBox(self, -1, _("Preferred Name"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		self.txt_preferred = TextBox_RedBold(self,-1)
-		self.aliaslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,['Peter Smith','Mickey Smith'],wxLB_SINGLE)
+		self.aliaslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,[],wxLB_SINGLE)
 		self.aliaslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.aliaslist.SetForegroundColour(wxColor(180,182,180))
-		self.txt_address = wxTextCtrl(self, 30,
-					      "29 Alfred Street \n"
-					      "WARNERS BAY 2280",
+		self.txt_address = wxTextCtrl(self, 30, "",
 					      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 		self.txt_address.SetInsertionPoint(0)
 		self.txt_address.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
@@ -269,7 +268,7 @@ class PatientsPanel(wxPanel):
 		self.sizer_line8_left.Add(0,0,1)
 		self.sizer_line8_left.Add(self.lbl_zip,3,wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line8_left.Add(self.txt_zip,3,wxEXPAND)
-		#--------------------------------   
+		#--------------------------------
 		# create the multiple address box
 		#--------------------------------
 		self.sizer_line9_left = wxBoxSizer(wxHORIZONTAL)
@@ -309,7 +308,7 @@ class PatientsPanel(wxPanel):
 		self.sizer_line1_right.Add(self.lbl_maritalstatus,2,wxALIGN_CENTRE,0)
 		self.sizer_line1_right.Add(self.combo_maritalstatus, 2, wxALIGN_CENTER_VERTICAL,0)
 		#line2 - occupation (use word wheel later in place of text box)
-		self.sizer_line2_right.Add(self.lbl_occupation,2,wxALIGN_CENTER_VERTICAL,0) 
+		self.sizer_line2_right.Add(self.lbl_occupation,2,wxALIGN_CENTER_VERTICAL,0)
 		self.sizer_line2_right.Add(self.txt_occupation,6,wxEXPAND)
 		#line3 - country of birth (use word wheel later)
 		self.sizer_line3_right.Add(self.lbl_birthplace,2,wxALIGN_CENTER_VERTICAL,0)
@@ -382,50 +381,22 @@ class PatientsPanel(wxPanel):
 		self.SetSizer(self.mainsizer)
 		self.SetAutoLayout(true)
 		self.Show(false)
-		
 
-	def OnSearch (self, event):
-		"""
-		Search for patient and display
-		"""
-		name = split (lower(self.plugin.txt_findpatient.GetValue ()))
-		self.mwm.Display ('Patient Search')
-		self.gb['modules.gui']['Patient'].Raise ()
-		if len (name) == 0: # list everyone! (temporary, for small database)
-			query = """
-			select id, firstnames, lastnames, dob, gender from v_basic_person
-			order by lastnames"""
-		elif len (name) == 1:  # surname only
-			query = """
-		       select id, firstnames, lastnames, dob, gender from v_basic_person
-		       where lastnames ilike '%s%%' 
-		       order by lastnames""" % name[0]
-		else: # two words: sur- and firstname search 
-			query = """
-			select id, firstnames, lastnames, dob, gender from v_basic_person
-			where firstnames ilike '%s%%' and lastnames ilike '%s%%'
-		       order by lastnames""" % (name[0], name[1])
-		self.patientslist.SetLabels ([_('First name'), _('Family name'), _('Date of birth'), _('Gender')]) 
-		self.patientslist.SetQueryStr (query, 'demographica')
-		self.patientslist.RunQuery ()
-		       
-	def OnSelected (self, event):
-		gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % event.GetData ())          
-          
-if __name__ == "__main__":
-	import gmGuiBroker
-	app = wxPyWidgetTester(size = (800, 600))
-	gmGuiBroker.GuiBroker ()['gnumed_dir'] = '/home/ian/gnumed/gnumed/client'
-	app.SetWidget(PatientsPanel, -1)
-	app.MainLoop()
+	def RegisterInterests(self):
+		gmDispatcher.connect(self.OnSelected, gmSignals.PatientSelected())
 
-"""
-A plugin for searching the patient database by name.
-Required the gmPatientWindowPlgin to be loaded.
-CANNOT BE UNLOADED
-"""
 
-class gmDemographics (gmPlugin.wxBasePlugin):
+	def OnSelected (self, **kdws):
+		gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % str(kwds['ID']))
+
+
+
+class gmDemographics(gmPlugin.wxBasePlugin):
+	"""
+	A plugin for searching the patient database by name.
+	Required the gmPatientWindowPlgin to be loaded.
+	CANNOT BE UNLOADED
+	"""
 
 	def name (self):
 		return 'Patient Search'
@@ -437,15 +408,15 @@ class gmDemographics (gmPlugin.wxBasePlugin):
 	        self.tool_patient_search = self.tb_patient_search.AddTool(ID_BUTTONFINDPATIENT, getToolbar_FindPatientBitmap(),shortHelpString="Find Patient")
 		self.txt_findpatient = wxComboBox(tb, ID_TXTPATIENTFIND, "", wxDefaultPosition,wxDefaultSize,[], wxCB_DROPDOWN)
 	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
-	      	self.lbl_age =wxStaticText(tb,-1," Age ",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL) 
+	      	self.lbl_age =wxStaticText(tb,-1,_("Age"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL)
 	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
 	      	self.lbl_age.SetForegroundColour(wxColour(0,0,131))
-	      	self.txt_age = wxTextCtrl(tb,ID_TXTPATIENTAGE,"59",size = (40,-1))
+	      	self.txt_age = wxTextCtrl(tb,ID_TXTPATIENTAGE,"",size = (40,-1))
 	      	self.txt_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
-	      	self.lbl_allergies =wxStaticText(tb,-1," Allergies ",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL) 
+	      	self.lbl_allergies =wxStaticText(tb,-1,_("Allergies"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL)
 	      	self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
 	      	self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
-	      	self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"Penicillin, Macrolides")
+	      	self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"")
 	      	self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 	      	self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
 	      	self.combo_consultation_type = wxComboBox(tb, ID_COMBOCONSULTTYPE, "Surgery", wxDefaultPosition,wxDefaultSize,consulttypelist, wxCB_DROPDOWN)
@@ -456,11 +427,29 @@ class gmDemographics (gmPlugin.wxBasePlugin):
 	      	tb.toplinesizer.Add(self.lbl_allergies,0,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
 	      	tb.toplinesizer.Add(self.txt_allergies,6,wxEXPAND|wxALL,3)
 		tb.AddWidgetRightBottom (self.combo_consultation_type)
+		self.RegisterInterests()
 
-		# now set up the searching list
-		self.mwm = self.gb ['patient.manager']
-		self.widget = PatientsPanel (self.mwm, -1, self)
-		self.mwm.RegisterWholeScreen ('Patient Search', self.widget)
+	def RegisterInterests(self):
+		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
+
+
+	def OnSelected (self, **kwargs):
+		kwds = kwargs['kwds']
+		names = "%(title)s %(firstnames)s %(lastnames)s" % kwds
+		self.txt_findpatient.SetValue(names)
+		age = kwds['dob']
+		age.strip()
+		try:
+			dmy = DateTime.strptime(age, "%d/%m/%Y")
+		except:
+			try:
+				dmy = DateTime.strptime(age, "%d/%m/%y")
+			except:
+				pass
+		years = DateTime.Age(DateTime.now(), dmy).years
+		self.txt_age.SetValue(str(years))
+		#gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % str(kwds['ID']))
+
 
 #----------------------------------------------------------------------
 def getToolbar_FindPatientData():
@@ -481,3 +470,9 @@ def getToolbar_FindPatientImage():
 
 #----------------------------------------------------------------------
 
+if __name__ == "__main__":
+	import gmGuiBroker
+	app = wxPyWidgetTester(size = (800, 600))
+	#gmGuiBroker.GuiBroker ()['gnumed_dir'] = '/home/ian/gnumed/gnumed/client'
+	app.SetWidget(PatientsPanel, -1)
+	app.MainLoop()
