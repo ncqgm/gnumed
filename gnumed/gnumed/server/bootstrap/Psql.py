@@ -9,6 +9,25 @@ sys.path.append ('/home/ian/gnumed/gnumed/client/python-common')
 import gmLog
 _log = gmLog.gmDefLog
 
+
+def shellrun (cmd):
+	"""
+	runs the shell command and returns a string
+	"""
+	stdin, stdout = os.popen4 (cmd.group (1))
+	r = stdout.read ()
+	stdout.close ()
+	stdin.close ()
+	return r
+
+def shell (str):
+	"""
+	performs backtick shell extension in a string
+	"""
+	return re.sub (r"`(.*)`", shellrun, str)
+	
+
+
 class Psql:
 
 	def __init__ (self, conn):
@@ -49,21 +68,17 @@ class Psql:
 			_log.Log (gmLog.lErr, self.fmt_msg("cannot open file"))
 			return 1
 		for self.line in self.file.readlines ():
-			# remove comments
-			comment = string.find (self.line, '--')
-			if comment >= 0:
-				self.line = self.line[:comment]
 			if len (self.line) > 0:
 				# process \ commands
 				if self.match (r"^\\echo (.*)"):
-					_log.Log (gmLog.lInfo, self.fmt_msg(self.groups[0]))
+					_log.Log (gmLog.lInfo, self.fmt_msg(shell (self.groups[0])))
 				elif self.match (r"^\\qecho (.*)"):
-					_log.Log (gmLog.lInfo, self.fmt_msg(self.groups[0]))
+					_log.Log (gmLog.lInfo, self.fmt_msg(shell (self.groups[0])))
 				elif self.match (r"^\\q"):
 					_log.Log (gmLog.lWarn, self.fmt_msg("script terminated by \\q"))
 					return 0
 				elif self.match (r"^\\set (\S+) (\S+)"):
-					self.vars[self.groups[0]] = self.groups[1]
+					self.vars[self.groups[0]] = shell (self.groups[1])
 					if self.groups[0] == 'ON_ERROR_STOP':
 						self.vars['ON_ERROR_STOP'] = int (self.vars['ON_ERROR_STOP'])
 				elif self.match (r"^\\unset (\S+)"):
@@ -113,12 +128,15 @@ class Psql:
 					# much sense in an installation script, so we gently ignore them
 					_log.Log (gmLog.lWarn, self.fmt_msg("psql command \"\\%s\" being ignored " % self.groups[0]))
 				else:
-					for i in self.line:
+					i = self.line[0]
+					for next in self.line[1:] + ' ':
 						if i == "'":
 							if instring:
 								instring = 0
 							else:
 								instring = 1
+						if i == '-' and next == '-'and not instring:
+							break
 						if i == '(' and not instring:
 							bracketlevel += 1
 						if i == ')' and not instring:
@@ -142,19 +160,24 @@ class Psql:
 							self.cmd = ''
 						else:
 							self.cmd += i
+						i = next
 			self.lineno += 1
 		return 0
+
+
+def shell (str):
+	return re.sub ("`(.*)`", shellrun, str)
+
+
+
 
 # testing code
 if __name__ == '__main__':
 	from pyPgSQL import PgSQL
 	conn = PgSQL.connect (host = '127.0.0.1', user='ian', database = 'tester')
-	cursor = conn.cursor ()
-	psql = Psql (cursor)
+	psql = Psql (conn)
 	import pdb
-	pdb.run ('psql.run (\'/home/ian/php-drugref/sql/drugref.sql\')')# == 0:
-	cursor.close ()
-	conn.commit ()
+	psql.run ('/home/ian/my_gnumed/testsql')
 	#else:
 	 #	 conn.rollback ()
 	conn.close ()
