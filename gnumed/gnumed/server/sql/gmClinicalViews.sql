@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.65 2004-05-08 17:39:54 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.66 2004-05-08 20:43:48 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -532,15 +532,27 @@ select
 	vvr0.regime as regime,
 	vvr0.reg_comment as reg_comment,
 	vvr0.vacc_seq_no as seq_no,
-	-- FIXME: the following line does not deliver
-	coalesce((now() - vvr0.min_interval -
-		(select max(vpv4i12.date)
+	coalesce(
+		((select max(vpv4i12.date)
 		from v_pat_vacc4ind vpv4i12
 		where
 			vpv4i12.pk_patient = vpv4i0.pk_patient
 				and
-			vpv4i12.indication = vpv4i0.indication)
-	), vvr0.min_interval) as amount_overdue,
+			vpv4i12.indication = vvr0.indication
+		) + vvr0.min_interval),
+		(now() - '1 day'::interval)
+	) as latest_due,
+	coalesce(
+		(now() - (
+			(select max(vpv4i12.date)
+			from v_pat_vacc4ind vpv4i12
+			where
+				vpv4i12.pk_patient = vpv4i0.pk_patient
+					and
+				vpv4i12.indication = vvr0.indication) + vvr0.min_interval)
+		),
+		'1 day'::interval
+	) as amount_overdue,
 	vvr0.age_due_min as age_due_min,
 	vvr0.age_due_max as age_due_max,
 	vvr0.min_interval as min_interval,
@@ -768,11 +780,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.65 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.66 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.65  2004-05-08 17:39:54  ncq
+-- Revision 1.66  2004-05-08 20:43:48  ncq
+-- - eventually seem to have fixed latest_due/amount_overdue in v_pat_missing_boosters
+--
+-- Revision 1.65  2004/05/08 17:39:54  ncq
 -- - remove v_i18n_enum_encounter_type
 -- - _enum_encounter_type -> encounter_type
 -- - add some _() uses
