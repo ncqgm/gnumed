@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.7 2003-11-20 00:33:12 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmMatchProvider.py,v 1.8 2003-11-20 01:37:05 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -403,7 +403,7 @@ class cMatchProvider_SQL(cMatchProvider):
 			ctxt_where = ''
 			values = [aFragment]
 			# any extra conditions defined for this source ?
-			if src.has_key('extra conditions')
+			if src.has_key('extra conditions'):
 				# loop over name and condition for contexts
 				for ctxt_name, ctxt_condition in src['extra conditions'].iteritems():
 					# value known for this context condition ?
@@ -453,7 +453,11 @@ class cMatchProvider_SQL(cMatchProvider):
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.7  2003-11-20 00:33:12  ncq
+# Revision 1.8  2003-11-20 01:37:05  sjtan
+#
+# syntax correction.
+#
+# Revision 1.7  2003/11/20 00:33:12  ncq
 # - improve comments on extra conditions in __find_matches()
 #
 # Revision 1.6  2003/11/19 23:18:37  ncq
