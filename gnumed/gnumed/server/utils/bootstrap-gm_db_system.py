@@ -27,7 +27,7 @@ further details.
 # TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -193,10 +193,8 @@ class db_server:
 	def __lang_exists(self, aLanguage):
 		cmd = "SELECT lanname FROM pg_language WHERE lanname='%s';" % aLanguage
 		aCursor = self.conn.cursor()
-		try:
-			aCursor.execute(cmd)
-		except:
-			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+		if not _run_query(aCursor, cmd):
+			aCursor.close()
 			return None
 
 		res = aCursor.fetchone()
@@ -254,12 +252,13 @@ class db_server:
 		activate_lang_cmd = tmp[0]
 
 		cursor = self.conn.cursor()
-		try:
-			cursor.execute(call_handler_cmd)
-			cursor.execute(activate_lang_cmd)
-		except:
-			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), fatal=1)
+		if not _run_query(cursor, call_handler_cmd):
 			cursor.close()
+			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), fatal=1)
+			return None
+		if not _run_query(cursor, activate_lang_cmd):
+			cursor.close()
+			_log.LogException("cannot install procedural language [%s]" % aLanguage, sys.exc_info(), fatal=1)
 			return None
 
 		self.conn.commit()
@@ -725,14 +724,18 @@ class gmService:
 		# b) in the distributed database - DONE
 		# FIXME : We don't check for invalid service entries here 
 		# (e.g. multiple service aliases linking to the same internal gnumed service)
-		_log.Log(gmLog.lInfo, "Registering service [%s] (GnuMed internal name: [%s]." % (self.alias,self.name))
+		_log.Log(gmLog.lInfo, "Registering service [%s] (GnuMed internal name: [%s]." % (self.alias, self.name))
 
-		# FIXME
-		# we assume that the service config is assigned to database 'core'
-		# this might not always be true
-		self.coreDB =_bootstrapped_dbs['core']			
-		curs = self.coreDB.conn.cursor()
+		# note: this is not entirely safe
+		core_alias = _cfg.get(self.section, "registration database")
+		core_name = _cfg.get("database %s" % core_alias, "name")
+		try:
+			coreDB =_bootstrapped_dbs[core_name]
+		except KeyError:
+			_log.Log(gmLog.lErr, 'Cannot register service. Database [%s] (%s) not bootstrapped.' % (core_alias, core_name))
+			return None
 
+		curs = coreDB.conn.cursor()
 		# check for presence of service name in core database (service config)
 		cmd = "select id from distributed_db where name='%s' limit 1;" % self.name
 		try:
@@ -740,11 +743,11 @@ class gmService:
 		except:
 			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
 			curs.close()
-			return -1
-		# fetch distributed database ID 
-		ddbID = curs.fetchone()
-		
-		if ddbID is None:
+			return None
+		# fetch distributed database ID
+		result = curs.fetchone()
+
+		if result is None:
 			# if the servicename is not found there are 2 possibilities:
 			# a) don't allow creation of new service names
 			# b) create a new service name without further inquiry
@@ -754,17 +757,18 @@ class gmService:
 			_log.Log(gmLog.lInfo, "Check configuration file or ask GnuMed admins")
 			_log.Log(gmLog.lInfo, "for inclusion of new service name.")
 			curs.close()
-			return 0
+			return None
+		ddbID = result[0]
 
-	
 		# the service name has been found, ID is in ddbID
 		# now check if the according database is already known to gnumed
-		# if not, insert database definition in table db
 		# no need to store the core database definition
-		if self.db is self.coreDB:
-			_log.Log(gmLog.lInfo, "Service %s is on core db" % self.name)
+		if self.db is coreDB:
+			_log.Log(gmLog.lInfo, "Service [%s] resides on core database." % self.name)
 			_log.Log(gmLog.lInfo, "It will be automatically recognized by GnuMed.")
 			curs.close()
+			return 1
+		# if not, insert database definition in table db
 		else:
 			cmd = "select id from db where name='%s' limit 1;" % self.db.name
 			try:
@@ -772,12 +776,12 @@ class gmService:
 			except:
 				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
 				curs.close()
-				return -1
-	
-			dbID = curs.fetchone()			
-			if dbID is None:
-				# if the database wasn't found, store the database definition
-				# in table db
+				return None
+
+			result = curs.fetchone()			
+			if result is None:
+				# if the database wasn't found, store the database definition in table db
+				# FIXME: should this not be handled in cDatabase.bootstrap() ?
 				_log.Log(gmLog.lInfo, "Storing database definition for [%s]." % self.db.name)
 				_log.Log(gmLog.lInfo, "name=%s, host=%s, port=%s" % (self.db.name,self.db.server.port,self.db.server.name))
 	
@@ -787,7 +791,9 @@ class gmService:
 				except:
 					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
 					curs.close()
-					return -1
+					return None
+
+				coreDB.conn.commit()
 
 				# get the database id for the created entry
 				cmd = "select id from db where name='%s' limit 1;" % self.db.name
@@ -796,29 +802,28 @@ class gmService:
 				except:
 					_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
 					curs.close()
-					return -1
-	
-				dbID = curs.fetchone()
-			
-			self.coreDB.conn.commit()
+					return None
+				# this should return None anymore
+				dbID = curs.fetchone()[0]
+
+			dbID = result[0]
 
 			# now we must link services to databases
-			# we can omit this procedure for all services residing on the core database	
-
+			# we can omit this procedure for all services residing on the core database
 			_log.Log(gmLog.lInfo, "Linking service [%s] to database [%s]." % (self.name,self.db.name))
 
+			# FIXME: check if username='' is correct
 			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s');" % ('',dbID[0],ddbID[0])
 			try:
 				curs.execute(cmd)
 			except:
 				_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
 				curs.close()
-				return -1
+				return None
 			curs.close()
-	
-			self.coreDB.conn.commit()
-		_log.Log(gmLog.lInfo, "Service [%s] has been successfully registered." % self.alias )
+			coreDB.conn.commit()
 
+		_log.Log(gmLog.lInfo, "Service [%s] has been successfully registered." % self.alias )
 		return 1
 #==================================================================
 def bootstrap_services():
@@ -892,6 +897,14 @@ def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None
 		_log.Log(gmLog.lWarn, "aborted by signal")
 
 	return None
+#------------------------------------------------------------------
+def _run_query(aCurs, aQuery):
+	try:
+		aCurs.execute(aQuery)
+	except:
+		_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), fatal=1)
+		return None
+	return 1
 #------------------------------------------------------------------
 def ask_for_confirmation():
 	services = _cfg.get("installation", "services")
@@ -986,7 +999,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.20  2003-02-09 10:10:05  hinnef
+# Revision 1.21  2003-02-09 11:46:11  ncq
+# - added core database option for registering services
+# - convenience function _run_query()
+#
+# Revision 1.20  2003/02/09 10:10:05  hinnef
 # - get passwd without writing to the terminal
 # - services are now registered in service config (core database)
 #
