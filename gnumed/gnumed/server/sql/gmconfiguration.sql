@@ -12,7 +12,9 @@ CREATE TABLE db (
     id SERIAL PRIMARY KEY,
     name CHAR(35),
     port INT DEFAULT 5432,
-    host VARCHAR(255)DEFAULT 'localhost'
+    host VARCHAR(255)DEFAULT 'localhost',
+    opt varchar(255) DEFAULT '',
+    tty varchar(255) DEFAULT ''
 );
 
 COMMENT ON TABLE db IS
