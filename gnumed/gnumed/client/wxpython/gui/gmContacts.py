@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -381,8 +381,7 @@ class ContactsPanel(wxPanel):
 		if a row selected returns the id of a org, or an id of a person. Since
 		org and person are stored on different tables, the id itself cannot distinguish the item, and list data only stores an integer . Therefore the row position in the 
 		list control maps to a person if it is a key in _isPersonIndex, and 
-		the returned value is a tuple of (org, person) where org is the person's
-		organisation. Person is a OrgDemographicAdapter instance , which is 
+		the mapped object  is a OrgDemographicAdapter instance , which is 
 		a cDemographicRecord wrapped in cOrg clothing, the intention being
 		to minimize re-write of gmContact's controller code.
 		self._tmpPerson maps the persons found in _isPersonIndex, so that
@@ -403,7 +402,51 @@ class ContactsPanel(wxPanel):
 	  	self._isPersonIndex = {}
 	  	self._tmpPerson = {}
 	  	self._currentPerson = None
-		  
+
+		self._connectCutPaste()
+		
+		self._lastSelected = None # for internal cut and paste
+
+	def getLastSelected(self):
+		return self._lastSelected
+
+	def setLastSelected(self, obj):
+		self._lastSelected = obj
+
+	def _connectCutPaste(self):
+		EVT_KEY_DOWN(self.list_organisations, self._checkForCutPaste)
+
+	def _checkForCutPaste(self, keyEvent):
+		#print "control down is ", keyEvent.ControlDown()
+		#print "keyCode is ", keyEvent.GetKeyCode()
+		c = keyEvent.GetKeyCode()
+		if keyEvent.ControlDown():
+			print c
+			if c == 88 : # ascii('x')
+				print "cut"
+				self._cutPerson = self.getLastSelected()
+			elif c == 86: # ascii('v')
+				print "paste"
+				self.doPaste()
+		keyEvent.Skip()
+		
+	def doPaste(self):			
+		if self.getCurrent() <> None and self._cutPerson <> None:
+			p = self._cutPerson
+			o = p.getParent()
+			o.unlinkPerson(p.getDemographicRecord() )
+			self.getCurrent().linkPerson(p.getDemographicRecord())
+			p.setParent(self.getCurrent())
+
+			self._cutPerson = None
+			self.setLastSelected(None)
+
+			self.load_all_orgs()
+
+
+				
+				
+
        	def _connect_list(self):
 	  """allow list selection to update the org edit area"""
 	  EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
@@ -459,7 +502,8 @@ class ContactsPanel(wxPanel):
 			  	key, data = self.getOrgKeyData(person)
 			  	ix = self.list_organisations.GetItemCount()
 			  	self._insert_org_data(ix, key, data)
-			  	self._isPersonIndex[ix] = (org, person )
+				person.setParent(org)
+			  	self._isPersonIndex[ix] = person
 
 			  
 			  
@@ -550,14 +594,14 @@ class ContactsPanel(wxPanel):
 	  self._insert_example_data()
 	  if self._isPersonIndex <> {}:
 		  self._tmpPerson = {}
-		  for person, org  in self._isPersonIndex.values():
+		  for person  in self._isPersonIndex.values():
 			  self._tmpPerson[person.getId()] = person
 		  self._isPersonIndex = {}
 	  
 	  orgs = self.getOrgHelper().findAllOrganizations()
 	  for org in orgs:
 		  self.add_org(org)
-		 
+	 
        	def _insert_example_data(self):
 	  items = organisationsdata.items()
 	  for i in xrange(0,len(items)):
@@ -571,9 +615,11 @@ class ContactsPanel(wxPanel):
 	  
 	  ix = event.GetIndex()
 	  key = self.list_organisations.GetItemData(ix)
+
+	  self.setLastSelected(None)  # clear the last selected person.
 	  
 	  if self._isPersonIndex.has_key(ix):
-		  self._person_selected( ix)
+		  self._person_selected( self._isPersonIndex[ix])
 		  return
 	  else:
 		  self._currentPerson = None
@@ -751,15 +797,16 @@ class ContactsPanel(wxPanel):
 		self.newForm()
 		return True
 
-	def _person_selected(self, ix):
+	def _person_selected(self, person):
 		"""set the widget's state for person editing"""
-		org, person = self._isPersonIndex[ix]
 		self.clearForm()
-		self.setCurrent(org)
+		self.setCurrent(person.getParent() )
 		self._currentPerson = person 
 		self.checkEnabledFields()
 		self.loadCurrentValues(person)		
-		    
+		
+		self.setLastSelected(person)
+
 
 			
 class gmContacts (gmPlugin.wxNotebookPlugin):
@@ -884,7 +931,12 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.27  2004-05-30 10:57:31  sjtan
+# Revision 1.28  2004-05-31 14:24:19  sjtan
+#
+# intra-list cut and paste implemented. Not using wxClipboard ( could paste textified person
+# into clipboard ). Now the GP can be moved out of the Engineering department , but he may not be happy ;)
+#
+# Revision 1.27  2004/05/30 10:57:31  sjtan
 #
 # some code review, commenting, tooltips.
 #

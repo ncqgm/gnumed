@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -782,6 +782,8 @@ class cOrgImpl1(cOrg):
 		if result is None:
 			gmLog.gmDefLog.Log(gmLog.lErr, "Cannot unlink person")
 			return False
+
+		del self._personMap[demographicRecord.getID()]  # unlink in cache as well
 	
 		return True
 		
@@ -1888,7 +1890,12 @@ if __name__ == '__main__':
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.24  2004-05-30 13:02:49  sjtan
+# Revision 1.25  2004-05-31 14:24:19  sjtan
+#
+# intra-list cut and paste implemented. Not using wxClipboard ( could paste textified person
+# into clipboard ). Now the GP can be moved out of the Engineering department , but he may not be happy ;)
+#
+# Revision 1.24  2004/05/30 13:02:49  sjtan
 #
 # test help; need drag and drop to correct erroneous person-org relationships.
 #
