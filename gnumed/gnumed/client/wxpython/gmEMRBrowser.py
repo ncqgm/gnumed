@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.16 2005-03-11 22:52:54 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmEMRBrowser.py,v 1.17 2005-03-29 07:27:14 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -215,7 +215,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__emr_tree.DeleteAllItems()
 		
 		# FIXME: auto select the previously self.__selected_node if not None
-		
+
 		# EMR tree root item
 		ident = self.__pat.get_identity()
 		root_item = self.__emr_tree.AddRoot(_('%s EMR') % ident['description'])
@@ -284,7 +284,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #		self.__custom_right_widget.Destroy()
 		self.__custom_right_widget = None
 	#--------------------------------------------------------
-	def __handle_issue_context(self, issue = None):
+	def __handle_issue_context(self, issue=None, pos=wx.wxPyDefaultPosition):
 		print "handling issue context menu"
 		print issue
 		print "actions:"
@@ -293,7 +293,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print " attach issue to another patient"
 		print " move all episodes to another issue"
 	#--------------------------------------------------------
-	def __handle_episode_context(self, episode = None, pos = wx.wxPyDefaultPosition):
+	def __handle_episode_context(self, episode=None, pos=wx.wxPyDefaultPosition):
 		print "handling episode context"
 		self.__selected_episode = episode
 		self.__epi_context_popup.SetTitle(_('Episode %s') % episode['description'])
@@ -614,7 +614,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.16  2005-03-11 22:52:54  ncq
+# Revision 1.17  2005-03-29 07:27:14  ncq
+# - add missing argument
+#
+# Revision 1.16  2005/03/11 22:52:54  ncq
 # - simplify popup menu use
 #
 # Revision 1.15  2005/03/10 19:51:29  cfmoro
