@@ -15,7 +15,7 @@
     </parameter>
     <parameter>
       <name>url</name>
-      <value>jdbc:postgresql://locahost:5432/gnumed</value>
+      <value>jdbc:postgresql://localhost:5432/gnumed</value>
     </parameter>
     <parameter>
       <name>username</name>
