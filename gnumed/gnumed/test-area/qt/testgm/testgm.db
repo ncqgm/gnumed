@@ -1,0 +1,667 @@
+<!DOCTYPE DB><DB version="1.0">
+<connection>
+    <property name="name">
+        <string>gmed</string>
+    </property>
+    <property name="driver">
+        <string>QPSQL7</string>
+    </property>
+    <property name="database">
+        <string>testgm</string>
+    </property>
+    <property name="username">
+        <string>sjtan</string>
+    </property>
+    <property name="hostname">
+        <string>localhost</string>
+    </property>
+    <property name="port">
+        <string>-1</string>
+    </property>
+    <table>
+        <property name="name">
+            <string>lnk_patient_urb</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_urb</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>history</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_history</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_commenced</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>description</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>allergy</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_allergy</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_entered</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>drugname</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>reaction</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>prescription</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_prescription</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_commenced</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_prescribed</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>drugname</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>qty</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>dosing</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>print</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>progress_note</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_progress_note</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_entered</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>username</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>vaccination</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_vaccination</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>vaccine</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_given</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>serial_no</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>vaccine</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>name_vaccine</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>is_generic</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>is_combined</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>indications</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>usage</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>investigation</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_investigation</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>test_ordered</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>clinical_notes</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>datetime_ordered</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>datetime_completed</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>investigation_result</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_investigation_result</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_investigation</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>result</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>report_comment</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>datetime_reported</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>datetime_received</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>datetime_checked</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>checkedby</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>patient</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_patient</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>title</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>firstnames</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>lastnames</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>birthdate</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>sex</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>address</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>phone_home</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>phone_work</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>public_health_id</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>public_health_expiry_date</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>private_health_insurance</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>private_health_insurance_no</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>private_health_insurance_expiry_date</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>veterans_affairs_id</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>specialty</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>name</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>provider_numbers</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_doctor</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>provider_number</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>urb</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_urb</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>name</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>postcode</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>state</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>practices_at</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_consultant</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_known_active</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_known_ceased</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_practice_location</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>practice_location</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_practice_location</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>practice_name</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>address</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_urb</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>work_phone</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>work_phone2</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>fax</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>email</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>referral</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_doctor</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_practice_location</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>datetime_written</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>header</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>body</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>id_referring_doctor</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>doctor</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>id_doctor</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>prescriber_no</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>firstnames</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>lastnames</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>title</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>preferred_salutation</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>interest_in</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>mobile</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>pager</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>specialty</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>billing_item</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>billing_code</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>date_sourced</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>title</string>
+            </property>
+        </field>
+        <field>
+            <property name="name">
+                <string>notes</string>
+            </property>
+        </field>
+    </table>
+    <table>
+        <property name="name">
+            <string>billing_category</string>
+        </property>
+        <field>
+            <property name="name">
+                <string>billing_category</string>
+            </property>
+        </field>
+    </table>
+</connection>
+</DB>

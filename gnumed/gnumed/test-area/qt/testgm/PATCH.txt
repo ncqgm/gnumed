@@ -1,0 +1,12 @@
+if first using , or running /usr/lib/qt3/bin/qmake , a qmake-generated  Makefile will need modifying:
+
+so then run 
+
+	sh patch_makefile.sh 
+
+to automate a few corrections.
+	-patch an include in form1.h
+	-run a query for the local username and password to be used in the
+qmake generated main.cpp for the default connection. (updated with sed)
+	-run the script create_testgm_db to create the database testgm
+

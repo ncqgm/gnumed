@@ -1,0 +1,210 @@
+/****************************************************************************
+** Form interface generated from reading ui file 'form1.ui'
+**
+** Created: Tue Feb 17 01:03:41 2004
+**      by: The User Interface Compiler ($Id: form1.h.orig,v 1.2 2004-02-21 11:12:51 sjtan Exp $)
+**
+** WARNING! All changes made in this file will be lost!
+****************************************************************************/
+#ifndef FORM1_H
+#define FORM1_H
+#include <qvariant.h>
+#include <qpixmap.h>
+#include <qmainwindow.h>
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
+class QAction;
+class QActionGroup;
+class QToolBar;
+class QPopupMenu;
+class QSqlDatabase;
+class QSqlCursor;
+class QSqlForm;
+class QTabWidget;
+class QWidget;
+class QLabel;
+class QLineEdit;
+class QPushButton;
+class QDataTable;
+class QSqlRecord;
+class QLCDNumber;
+class QDataBrowser;
+class QDateEdit;
+class QTextEdit;
+
+class Form1 : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    Form1( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );
+    ~Form1();
+
+    QTabWidget* mainTabWidget;
+    QWidget* tab;
+    QLabel* textLabel1_2;
+    QLabel* textLabel2_2;
+    QLineEdit* lineEdit14;
+    QLineEdit* lineEdit15;
+    QWidget* tab_2;
+    QLabel* textLabel1;
+    QPushButton* findPatientButton;
+    QLineEdit* searchPatientNameLineEdit;
+    QDataTable* findPatientDataTable;
+    QWidget* tab_3;
+    QLCDNumber* lCDNumber1;
+    QDataBrowser* dataBrowser1;
+    QLineEdit* QLineEditPublic_health_id;
+    QLabel* labelPrivate_health_insurance_no;
+    QLabel* labelPublic_health_expiry_date;
+    QLineEdit* QLineEditNotes;
+    QLabel* labelFirstnames;
+    QLabel* labelSex;
+    QLineEdit* QLineEditTitle;
+    QLineEdit* QLineEditVeterans_affairs_id;
+    QLineEdit* QLineEditPrivate_health_insurance_no;
+    QDateEdit* QDateEditPublic_health_expiry_date;
+    QLabel* labelPublic_health_id;
+    QLabel* labelAddress;
+    QLineEdit* QLineEditPrivate_health_insurance;
+    QLabel* labelPrivate_health_insurance_expiry_date;
+    QDateEdit* QDateEditBirthdate;
+    QLabel* labelLastnames;
+    QLabel* labelVeterans_affairs_id;
+    QLabel* labelPrivate_health_insurance;
+    QLineEdit* QLineEditPhone_work;
+    QDateEdit* QDateEditPrivate_health_insurance_expiry_date;
+    QLineEdit* QLineEditPhone_home;
+    QLabel* labelTitle;
+    QLineEdit* QLineEditAddress;
+    QLabel* labelBirthdate;
+    QLineEdit* QLineEditLastnames;
+    QLabel* labelPhone_home;
+    QLineEdit* QLineEditSex;
+    QLineEdit* QLineEditFirstnames;
+    QLabel* labelNotes;
+    QLabel* labelPhone_work;
+    QPushButton* PushButtonFirst;
+    QPushButton* PushButtonPrev;
+    QPushButton* PushButtonNext;
+    QPushButton* PushButtonLast;
+    QPushButton* PushButtonInsert;
+    QPushButton* PushButtonUpdate;
+    QPushButton* PushButtonDelete;
+    QWidget* tab_4;
+    QLabel* textLabel5;
+    QLabel* textLabel2;
+    QLabel* textLabel4;
+    QLabel* textLabel3;
+    QDataTable* vaccinationDataTable;
+    QDataTable* investigationDataTable;
+    QDataTable* prescriptionDataTable;
+    QDataTable* allergyDataTable;
+    QDataTable* pastHistoryDataTable;
+    QWidget* tab_5;
+    QTextEdit* oldProgressTextEdit;
+    QLabel* authorAndTimeLabel;
+    QTextEdit* currentProgressTextEdit;
+    QWidget* tab_6;
+    QWidget* tab_7;
+    QWidget* tab_8;
+    QTextEdit* textEdit2;
+    QMenuBar *menubar;
+    QPopupMenu *fileMenu;
+    QPopupMenu *editMenu;
+    QPopupMenu *helpMenu;
+    QAction* fileNewAction;
+    QAction* fileOpenAction;
+    QAction* fileSaveAction;
+    QAction* fileSaveAsAction;
+    QAction* filePrintAction;
+    QAction* fileExitAction;
+    QAction* editUndoAction;
+    QAction* editRedoAction;
+    QAction* editCutAction;
+    QAction* editCopyAction;
+    QAction* editPasteAction;
+    QAction* editFindAction;
+    QAction* helpContentsAction;
+    QAction* helpIndexAction;
+    QAction* helpAboutAction;
+
+    QSqlDatabase* gmedConnection;
+
+    virtual void setSequenceField( QSqlRecord * record, const QString & fieldName, const QString & sequenceName );
+    virtual void setPatientId( uint id );
+    virtual uint getPatientId();
+    virtual void updatePatientIdFilter();
+    virtual bool insertProgressNote( const QString & note, uint patient_id );
+    virtual QString & debugQueryValues( QSqlQuery * query, QString & result );
+    virtual QString & getAuthorAndTimeString( QSqlQuery * query, QString & result );
+    virtual QString & convertProgressNotesSqlQueryToString( QSqlQuery * query, QString & result );
+
+public slots:
+    virtual void polish();
+
+    virtual void fileNew();
+    virtual void fileOpen();
+    virtual void fileSave();
+    virtual void fileSaveAs();
+    virtual void filePrint();
+    virtual void fileExit();
+    virtual void editUndo();
+    virtual void editRedo();
+    virtual void editCut();
+    virtual void editPaste();
+    virtual void editFind();
+    virtual void helpIndex();
+    virtual void helpContents();
+    virtual void helpAbout();
+    virtual void Form1_usesTextLabelChanged( bool );
+    virtual void patientDataView_destroyed( QObject * );
+    virtual void recordCurrentPatientId( const QSqlRecord * record );
+    virtual void setPatientIdField( QSqlRecord * record );
+    virtual void setPatientIdInRecord( QSqlRecord * record );
+    virtual void setPastHistoryId( QSqlRecord * record );
+    virtual void setPrescriptionId( QSqlRecord * record );
+    virtual void setAllergyId( QSqlRecord * record );
+    virtual void setInvestigationId( QSqlRecord * record );
+    virtual void setVaccinationId( QSqlRecord * record );
+    virtual void changePatientId( const QSqlRecord * record );
+    virtual void updateOldProgressNotes();
+    virtual void saveAndLoadCurrentProgressNotes();
+    virtual void mainTabWidget_currentChanged( QWidget * );
+    virtual void setPatientNameFilter();
+    virtual void updateBrowsePatientFilter();
+    virtual void selectPatientForEdit();
+    virtual void clearLinkedUI();
+
+protected:
+    uint patientId;
+
+    QGridLayout* dataBrowser1Layout;
+    QGridLayout* layout1;
+    QHBoxLayout* layout2;
+    QHBoxLayout* layout3;
+
+protected slots:
+    virtual void languageChange();
+
+private:
+    QVariant lastPatientId;
+    QString findPatientFilter;
+
+    QPixmap image0;
+    QPixmap image1;
+    QPixmap image2;
+    QPixmap image3;
+    QPixmap image4;
+    QPixmap image5;
+    QPixmap image6;
+    QPixmap image7;
+    QPixmap image8;
+    QPixmap image9;
+
+    void init();
+
+};
+
+#endif // FORM1_H
