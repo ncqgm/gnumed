@@ -14,7 +14,7 @@ def resultset_functional_batchgene rator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -82,6 +82,7 @@ _listener_api = None
 # default encoding for connections
 try:
 	_default_client_encoding = locale.nl_langinfo(locale.CODESET)
+	_log.Log(gmLog.lInfo, 'client encoding according to locale system: [%s]' % _default_client_encoding)
 except ValueError:
 	_default_client_encoding = None
 
@@ -1217,7 +1218,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.45 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.46 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1435,7 +1436,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.45  2005-03-29 07:26:38  ncq
+# Revision 1.46  2005-03-30 22:09:34  ncq
+# - better logging, as usual
+#
+# Revision 1.45  2005/03/29 07:26:38  ncq
 # - use std lib locale module to guess default client encoding
 #
 # Revision 1.44  2005/03/08 16:45:11  ncq
