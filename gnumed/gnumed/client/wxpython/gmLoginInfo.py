@@ -50,8 +50,16 @@ class LoginInfo:
 	def GetInfo(self):
         	return self.GetUser(), self.GetPassword(), self.GetHost(), self.GetPort(), \
 		self.GetDatabase(), self.GetOptions(), self.GetTTY(), self.GetProfile()
-		
-		
+
+	def GetInfoStr(self):
+	    info = "host:port=%s:%s, db=%s, user=%s, pw=%s, opts=%s, tty=%s" % (self.GetHost(), str(self.GetPort()),
+										self.GetDatabase(),
+										self.GetUser(),
+									        self.GetPassword(),
+										self.GetOptions(),
+									        self.GetTTY())
+	    return info
+
 	def GetPGDB_DSN(self):
 
 	    dsn = "%s:%s:%s:%s:%s:%s" % (self.GetHost(), 

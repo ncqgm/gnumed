@@ -64,12 +64,18 @@ class ConnectionPool:
 			try:
 				login = inputLoginParams()
 			except:
+				exc = sys.exc_info()
+				gmLog.gmDefLog.LogException("Exception: Cannot connect to databases without login information !", exc)
 				raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
+
+		gmLog.gmDefLog.Log(gmLog.lData,login.GetInfoStr())
 
 		#first, connect to the configuration server
 		try:
 			cdb = self.__pgconnect(login)
 		except:
+			exc = sys.exc_info()
+			gmLog.gmDefLog.LogException("Exception: Cannot connect to configuration database !", exc)
 			raise gmExceptions.ConnectionError(_("Could not connect to configuration database  backend!"))
 
 		ConnectionPool.__connected = 1
@@ -145,7 +151,8 @@ class ConnectionPool:
 		    db = pgdb.connect(dsn, host=hostport)
 		    return db
 		except: 
-		    self.LogError(_("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport))
+		    exc = sys.exc_info()
+		    gmLog.gmDefLog.LogException("Exception: Connection to database failed. DSN was [" + dsn + "], host:port was [" + hostport + "]", exc)
 		    raise gmExceptions.ConnectionError, _("Connection to database failed. \nDSN was [%s], host:port was [%s]") % (dsn, hostport)
 
 

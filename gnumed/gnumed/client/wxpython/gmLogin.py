@@ -37,16 +37,17 @@ def Login(max_attempts=3):
 	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = os.path.join (broker['gnumed_dir'], 'bitmaps/gnumedlogo.png'))
 	dlg.Centre(wxBOTH)
 	while not logged_in and attempts < max_attempts:
-		myLog.Log(gmLog.lInfo, _("login attempt #") + str(attempts) + _(" of ") + str(max_attempts))
 		dlg.ShowModal()
 		#get the login parameters
 		login = dlg.panel.GetLoginInfo()
 		if login is None:
 			#user cancelled
 			dlg.Destroy()
+			myLog.Log(gmLog.lInfo, _("user cancelled login dialog"))
 			return None
 		# FIXME: this is security sensitive because of passwords
 		myLog.Log(gmLog.lData, _("login parameters: ") + str(login))
+		myLog.Log(gmLog.lInfo, _("login attempt #") + str(attempts) + _(" of ") + str(max_attempts))
 		#now try to connect to the backend
 		backend = gmPG.ConnectionPool(login)
 		if backend.Connected() is not None:

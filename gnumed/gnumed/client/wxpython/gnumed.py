@@ -18,7 +18,7 @@ import sys, os
 import gmLog
 
 if __name__ == "__main__":
-	"launch the gnumed wx GUI client "
+	"""Launch the gnumed wx GUI client."""
 	appPath = os.path.split(sys.argv[0])[0]
 
 	# log file
