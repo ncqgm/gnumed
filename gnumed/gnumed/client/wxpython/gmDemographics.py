@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.1 2003-11-17 11:04:34 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDemographics.py,v 1.2 2003-11-18 16:46:02 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -632,7 +632,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		myPatient = self.get_demographic_record()
 		self.orig_address = {}
 		for x in myPatient.getAddressTypes():
-			address = myPatient.getAddress(x)
+			address = myPatient.getAddresses(x)
 			if address == None:
 				continue
 			self.orig_address[x] = self._store_to_input_addr(address[0])
@@ -643,9 +643,8 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 	def __update_nok(self):
 		myPatient = self.get_patient()
-		l = myPatient.get_relative_list()
+		#l = myPatient.get_relatives()
 		l2 = []
-		from gmDemographicRecord import get_time_tuple
 		for m in l:
 			s = """%-12s   - %s %s, %s, %s %s""" % (m['description'], m['firstnames'], m['lastnames'], m['gender'], _('born'), time.strftime('%d/%m/%Y', get_time_tuple(m['dob']) )  )
 			l2.append( {'str':s, 'id':m['id'] } )
@@ -686,10 +685,10 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
                 adr_types = myPatient.getAddressTypes()
                 print "adr types", adr_types
                 for type_name in adr_types:
-                        print "adr (%s)" % type_name, myPatient.getAddress (type_name)
+                        print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
 
 		try:
-			print "relations ", self.get_patient().get_relative_list()	
+			print "relations ", self.get_patient().get_relatives()
 		except:
 			gmLog.gmDefLog.LogException("relations ", sys.exc_info(), verbose= 1)
 			pass
@@ -803,7 +802,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.1  2003-11-17 11:04:34  sjtan
+# Revision 1.2  2003-11-18 16:46:02  ncq
+# - sync with method name changes
+#
+# Revision 1.1  2003/11/17 11:04:34  sjtan
 #
 # added.
 #
