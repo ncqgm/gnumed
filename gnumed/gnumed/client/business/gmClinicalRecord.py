@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.141 2004-10-11 19:50:15 ncq Exp $
-__version__ = "$Revision: 1.141 $"
+# $Id: gmClinicalRecord.py,v 1.142 2004-10-12 11:14:51 ncq Exp $
+__version__ = "$Revision: 1.142 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -890,11 +890,12 @@ where
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
-	def get_scheduled_vaccination_regimes(self, indications=None):
+	def get_scheduled_vaccination_regimes(self, ID=None, indications=None):
 		"""
 			Retrieves vaccination regimes the patient is on.
 
 			optional:
+			* ID - PK of the vaccination regime				
 			* indications - indications we want to retrieve vaccination
 				regimes for, must be primary language, not l10n_indication
 		"""
@@ -903,37 +904,34 @@ where
 		except KeyError:
 			# retrieve vaccination regimes definitions
 			self.__db_cache['vaccinations']['scheduled regimes'] = []
-			cmd = """
-					select
-						indication,
-						l10n_indication,
-						max(vacc_seq_no)
-					from
-						v_vaccs_scheduled4pat
-					where
-						pk_patient=%s
-					group by
-						indication, l10n_indication
-					"""
+			cmd = """select distinct on(pk_regime) pk_regime
+					 from v_vaccs_scheduled4pat
+					 where pk_patient=%s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			# check for None or empty vaccination regimes
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination regimes')
 				del self.__db_cache['vaccinations']['scheduled regimes']
 				return None
-			if len(rows) == 0:
-				return None
-			# keep cache of vaccination regime definition (list)
-			self.__db_cache['vaccinations']['scheduled regimes'] = rows
+			# Instantiate vaccination items and keep cache
+			for row in rows:
+				try:
+					self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationRegime(aPK_obj=row[0]))
+				except gmExceptions.ConstructorError:
+					_log.LogException('vaccination regime error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 
-		if indications is None:
-			return self.__db_cache['vaccinations']['scheduled regimes']
-			
 		# ok, lets's constrain our list
 		filtered_regimes = []
-		for regime in self.__db_cache['vaccinations']['scheduled regimes']:
-			if regime[0] in indications:
-				filtered_regimes.append(regime)
+		filtered_regimes.extend(self.__db_cache['vaccinations']['scheduled regimes'])
+		if ID is not None:
+			filtered_regimes = filter(lambda regime: regime['pk_regime'] == ID, filtered_regimes)
+			if len(filtered_regimes) == 0:
+				_log.Log(gmLog.lErr, 'no vaccination regime [%s] found for patient [%s]' % (ID, self.id_patient))
+				return None
+			else:
+				return filtered_regimes[0]
+		if indications is not None:
+			filtered_regimes = filter(lambda regime: regime['indication'] in indications, filtered_regimes)
 
 		return filtered_regimes
 	#--------------------------------------------------------
@@ -994,18 +992,17 @@ where
 				except KeyError:
 					vaccs[row[1]] = [vacc]
 
-			# calculate sequence number and is_booster
-			self.get_scheduled_vaccination_regimes()
+			# calculate sequence number and is_booster			
 			for ind in vaccs.keys():
+				vacc_regime = self.get_scheduled_vaccination_regimes(indications = [ind])[0]
 				for vacc in vaccs[ind]:
-					# due to the "order by indication, date" the vaccinations are in the right order...
-					seq_no = vaccs[ind].index(vacc)
-					# FIXME: the integer access is ugly - maybe VO after all as Carlos suggested ?
-					max_seq_no = self.__db_cache['vaccinations']['scheduled regimes'][2]
-					if seq_no > max_seq_no:
-						vacc.set_booster(True)
+					# due to the "order by indication, date" the vaccinations are in the
+					# right temporal order inside the indication-keyed dicts
+					seq_no = vaccs[ind].index(vacc)+1
+					if seq_no > vacc_regime['shots']:
+						vacc.set_booster_status(True)
 					else:
-						vacc.set_seq_no(seq_no)
+						vacc.set_seq_no(seq_no=seq_no)
 			del vaccs
 
 		# ok, lets's constrain our list
@@ -1498,18 +1495,25 @@ if __name__ == "__main__":
 	try:
 		emr = cClinicalRecord(aPKey = 12)
 
+		# Vacc regimes
+		vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
+		print '\nVaccination regimes: '
+		for a_regime in vacc_regimes:
+			print a_regime
+		vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
+		print vacc_regime
+		
 		# vaccination regimes and vaccinations for regimes
-		print '\nVaccination regime: %s' %(emr.get_scheduled_vaccination_regimes(['tetanus'])[0])
-		scheduled_vaccs = emr.get_scheduled_vaccinations4regime(['tetanus'])
+		scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
 		print 'Vaccinations for the regime:'
-		for a_scheduled_vacc in scheduled_vaccs['tetanus']:
+		for a_scheduled_vacc in scheduled_vaccs:
 			print '   %s' %(a_scheduled_vacc)
 		
 				
 		# vaccination next shot and booster
 		vaccinations = emr.get_vaccinations()
 		for a_vacc in vaccinations:
-			print '\nVaccination %s , date: %s, booster: %s, next shot: %s' %(a_vacc['batch_no'], a_vacc['date'].Format('%Y-%m-%d'), a_vacc.is_booster(), a_vacc.get_next_shot_due().Format('%Y-%m-%d'))
+			print '\nVaccination %s , date: %s, booster: %s, seq no: %s' %(a_vacc['batch_no'], a_vacc['date'].Format('%Y-%m-%d'), a_vacc['is_booster'], a_vacc['seq_no'])
 
 		# first and last encounters
 		first_encounter = emr.get_first_encounter(issue_id = 1)
@@ -1568,7 +1572,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.141  2004-10-11 19:50:15  ncq
+# Revision 1.142  2004-10-12 11:14:51  ncq
+# - improve get_scheduled_vaccination_regimes/get_vaccinations, mostly by Carlos
+#
+# Revision 1.141  2004/10/11 19:50:15  ncq
 # - improve get_allergies()
 #
 # Revision 1.140  2004/09/28 12:19:15  ncq
