@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -123,6 +123,7 @@ class ConnectionPool:
 				ConnectionPool.__connections_in_use['default'] = 1
 
 			return ConnectionPool.__databases['default']
+			
 	#-----------------------------
 	
 	def ReleaseConnection(self, service):
@@ -188,7 +189,6 @@ class ConnectionPool:
 			self.__threads[backend].Stop()
 		except:
 			pass
-		
 	
 		
 	#-----------------------------
@@ -209,6 +209,17 @@ class ConnectionPool:
 		"This function must be overridden by GUI applications"
 		print msg
 
+	#-----------------------------
+		
+	def SetFetchReturnsList(self, on=1):
+		"""when performance is crucial, let the db adapter
+		return a list of lists instead a list of database objects.
+		CAREFUL: this affects the whole connection!!!"""
+		if dbapi is pyPgSQL.PgSQL:
+			dbapi.fetchReturnsList=on
+
+		
+		
 	def GetLoginInfoFor(self, service, login=None):
 		"try to get login information for a particular service and return it"
 		if login is None:
@@ -608,6 +619,9 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.16  2002-09-10 07:44:29  ncq
+# Revision 1.17  2002-09-15 13:20:17  hherb
+# option to return results as list instead of result set objects added
+#
+# Revision 1.16  2002/09/10 07:44:29  ncq
 # - added changelog keyword
 #
