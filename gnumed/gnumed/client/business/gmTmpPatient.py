@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.37 2003-09-23 12:09:26 ihaywood Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmTmpPatient.py,v 1.38 2003-09-23 12:49:56 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -295,29 +295,46 @@ where
 		return 1
 	#--------------------------------------------------------
 	def NewAddress (self, type, number, street, urb, postcode, state, country):
+		"""Adds a new address into this persons list of addresses.
 		"""
-		Adds a new address yto this persons list of addresses
-		"""
-		data = gmPG.run_ro_query ('personalia', """
-		select addr_id from v_basic_address where number = %s and street = %s and city = %s and postcode = %s
-		and state = %s and country = %s""", None, number, street, urb, postcode, state, country)
-		if data:
-			# we have a matching address, just add the link
+		cmd = """
+select addr_id
+from v_basic_address
+where
+	number = %s and
+	street = %s and
+	city = %s and
+	postcode = %s and
+	state = %s and
+	country = %s
+"""
+		data = gmPG.run_ro_query ('personalia', cmd, None, number, street, urb, postcode, state, country)
+		if data is None:
+			_log.Log(gmLog.lErr, 'cannot check for address existence')
+			return None
+		# we have a matching address, just add the link
+		if len(data) > 0:
 			addr_id = data[0][0]
-			gmPG.run_commit ("personalia", [("""
-			insert into lnk_person2address (id_identity, id_address, id_type)
-			values (%d, %d, (select id from address_type where name = %s))
-			""", (self.ID, addr_id, type))])
-		else:
-			# insert a new address
-			gmPG.run_commit ("personalia", [("""
-			insert into v_basic_address (number, street, city, postcode, state, country)
-			values (%s, %s, %s, %s, %s, %s)
-			""", (number, street, urb, postcode, state, country)),
-							("""
-			insert into lnk_person2address (id_identity, id_address, id_type)
-			values (%d, curr_val (address_id_seq), (select id from address_type where name = %s))""",
-						 (self.ID, type))]) 
+			cmd = """
+insert into lnk_person2address (id_identity, id_address, id_type)
+values (%s, %s, (select id from address_type where name = %s))
+"""
+			gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, type))])
+			return 1
+		# insert a new address
+		cmd1 = """
+insert into v_basic_address (number, street, city, postcode, state, country)
+values (%s, %s, %s, %s, %s, %s)
+"""
+		cmd2 = """
+insert into lnk_person2address (id_identity, id_address, id_type)
+values (%s, curr_val (address_id_seq), (select id from address_type where name = %s))
+"""
+		gmPG.run_commit ("personalia", [
+			(cmd1, (number, street, urb, postcode, state, country)),
+			(cmd2, (self.ID, type))
+			]
+		)
 	#----------------------------------------------------------
 	def GetAddressTypes (self):
 		"""
@@ -329,9 +346,9 @@ where
 		cmd = "select dob from identity where id = %s"
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 
-		if not data:
+		if data is None:
 			return '??'
-		if data[0] is None:
+		if len(data) == 0:
 			return '??'
 		return get_medical_age(data[0][0])
 	#--------------------------------------------------------
@@ -743,7 +760,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.37  2003-09-23 12:09:26  ihaywood
+# Revision 1.38  2003-09-23 12:49:56  ncq
+# - reformat, %d -> %s
+#
+# Revision 1.37  2003/09/23 12:09:26  ihaywood
 # Karsten, we've been tripping over each other again
 #
 # Revision 1.36  2003/09/23 11:31:12  ncq
