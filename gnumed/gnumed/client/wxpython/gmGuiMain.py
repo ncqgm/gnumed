@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-01-12 17:31:10 $
-# @version $Revision: 1.57 $ $Date: 2003-01-12 17:31:10 $ $Author: ncq $
+# @Date: $Date: 2003-01-13 06:30:16 $
+# @version $Revision: 1.58 $ $Date: 2003-01-13 06:30:16 $ $Author: michaelb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -40,7 +40,7 @@ __author__  = "H. Herb <hherb@gnumed.net>,\
 from wxPython.wx import *
 from wxPython.html import *
 
-import sys, time, os
+import sys, time, os, cPickle, zlib
 
 import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmLog, gmPlugin, gmCfg
 import images
@@ -71,6 +71,15 @@ class MainFrame(wxFrame):
 	This is where it all happens. Avoid popping up any other windows.
 	Most user interaction should happen to and from widgets within this frame
 	"""
+	
+	icon_gui_main='x\xdae\x901\x0e\x830\x0cEwNa)\x03\x95\x90\xbe\xc2R\x18\xad\x0e\x19\xcb\xc0\
+\x92\x15\xa1NEM\xef?\xd5&\tM\xc0\x06)\xefa;\t\xb7\xed\xdb7s\xdb\xdfI\x9e\x91\
+\xfa\xb6Y\xe6\x16\xb4\xd2c[\xd6\xf7NF\xc88g%v\xf6\xca\xa3\x1d3O\xca\x83\x1b\
+\\bV\xb6\xd6e\xeeb\xff\xc1!~\xd7\x8a\x9dI\xf8\x19>\xaf\x04\x1a\x00\xe2\x82\
+\x0e\tx\xefQIU\x01\xa1\x92\x98\xa4\xaa\x93\xc4_j\xa7X\xc98 KNQJ!\x86\x91\xf7\
+$a\x8c\xa9gj\xa3\x91<U2\xd2v\x95\xf48v*\xa4\xde\xe0"=\xd1E\xb2N,$\x81\xb9<}\
+\xfe!\xe7\x1b\xe1\x07\xd3\xd7d\xf3'
+
 	#----------------------------------------------
 	def __init__(self, parent, id, title, size=wxPyDefaultSize):
 		"""You'll have to browse the source to understand what the constructor does
@@ -440,6 +449,11 @@ class MainFrame(wxFrame):
 
 		# set it
 		self.SetTitle(title)
+		
+		# set window icon
+		icon=wxEmptyIcon()
+		icon.CopyFromBitmap(wxBitmapFromXPMData (cPickle.loads(zlib.decompress(self.icon_gui_main ))))
+        	self.SetIcon(icon)
 #==================================================
 class gmApp(wxApp):
 
@@ -494,7 +508,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.57  2003-01-12 17:31:10  ncq
+# Revision 1.58  2003-01-13 06:30:16  michaelb
+# the serpent window-icon was added
+#
+# Revision 1.57  2003/01/12 17:31:10  ncq
 # - catch failing plugins better
 #
 # Revision 1.56  2003/01/12 01:46:57  ncq
