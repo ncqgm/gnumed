@@ -104,7 +104,7 @@ msgstr "unerwünschte Reaktionen"
 
 #: ../wxpython/gmLoginDialog.py:213
 msgid "host"
-msgstr "host"
+msgstr "Datenbankserver"
 
 #: ../wxpython/patient/gmGP_ClinicalSummary.py:61
 #: ../wxpython/patient/gmGP_PastHistory.py:141
@@ -258,7 +258,7 @@ msgstr ""
 
 #: ../wxpython/gmLoginDialog.py:186
 msgid "Login Parameters"
-msgstr "Login Parameter"
+msgstr "Anmeldung bei der Datenbank"
 
 #: ../wxpython/gmPersonDetails.py:138
 msgid "pre&v. names"
@@ -355,7 +355,7 @@ msgstr "Indikation"
 
 #: ../wxpython/gmLoginDialog.py:242
 msgid "Save current entries in configuration file"
-msgstr "Sichern von aktuellen Einträgen in Konfigurations-Datei"
+msgstr "Sichern der aktuellen Einträge in Konfigurationsdatei"
 
 #: ../wxpython/gui/gmDrugDisplay.py:171
 msgid "Enter the name of the drug you are interested in"
@@ -555,7 +555,7 @@ msgstr "Adresse"
 
 #: ../wxpython/gmLoginDialog.py:386
 msgid "Sorry, not implemented yet!"
-msgstr "Entschuldigung, derzeit nicht eingebunden!"
+msgstr "Funktioniert leider noch nicht."
 
 #: ../wxpython/gmGuiMain.py:99 ../wxpython/gmGuiMain.py:152
 msgid "You are logged in as [%s]"
@@ -658,7 +658,7 @@ msgstr "16 inch"
 
 #: ../wxpython/gmLoginDialog.py:220
 msgid "port"
-msgstr "port"
+msgstr "Port"
 
 #: ../wxpython/gui/gmSQL.py:119
 msgid "Tables in database  /  Feedback"
@@ -722,7 +722,7 @@ msgstr "Speicherung"
 
 #: ../wxpython/gmLoginDialog.py:236
 msgid "&Login"
-msgstr "L&ogin"
+msgstr "&Anmelden"
 
 #: ../wxpython/gmSQLSimpleSearch.py:53
 msgid "&Search"
@@ -772,7 +772,7 @@ msgstr "Auswahl"
 
 #: ../wxpython/gmLoginDialog.py:227
 msgid "backend options"
-msgstr "????"
+msgstr "Optionen (DB)"
 
 #: ../wxpython/gmPersonDetails.py:161
 msgid "Categorize this address (i.e. \"home\", \"work\", \"holidays\")"
@@ -1029,7 +1029,7 @@ msgstr "Service"
 
 #: ../wxpython/gmLoginDialog.py:241
 msgid "&Save conf."
-msgstr "Sichern der &Einstellungen"
+msgstr "&Einstellungen speichern"
 
 #: ../wxpython/patient/gmGP_Immunisation.py:78
 msgid "Disease or Schedule"
