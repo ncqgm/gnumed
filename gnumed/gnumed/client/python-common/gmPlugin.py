@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -193,8 +193,10 @@ class wxNotebookPlugin (wxBasePlugin):
 		
 	#-----------------------------------------------------	
 	def Raise (self):
-		self.nb.SetSelection (self.nb_no)
-		self.tbm.ShowBar (self.nb_no)
+		nbns = self.gb['main.notebook.numbers']
+		nb_no = nbns.index (self)
+		self.nb.SetSelection (nb_no)
+		self.tbm.ShowBar (self.name ())
 	#-----------------------------------------------------
 	def OnMenu (self, event):
 		self.Raise ()
@@ -250,7 +252,8 @@ class wxPatientPlugin (wxBasePlugin):
 	def OnTool (self, event):
 		self.Shown ()
 		self.mwm.Display (self.name ())
-		self.gb['modules.gui']['Patient'].Raise ()
+		# reduntant as cannot access toolbar unless mwm raised
+		#self.gb['modules.gui']['Patient'].Raise ()
 	#-----------------------------------------------------
 	def Raise (self):
 		self.gb['modules.gui']['Patient'].Raise ()
@@ -462,7 +465,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.29  2003-01-05 10:00:38  ncq
+# Revision 1.30  2003-01-06 04:52:55  ihaywood
+# resurrected gmDemographics.py
+#
+# Revision 1.29  2003/01/05 10:00:38  ncq
 # - better comments
 # - implement database plugin configuration loading/storing
 #

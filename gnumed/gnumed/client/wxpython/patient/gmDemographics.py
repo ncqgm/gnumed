@@ -24,6 +24,7 @@
 from wxPython.wx import *
 from mx import DateTime
 import gmPlugin
+import gmGuiBroker
 import gmLog, gmDispatcher, gmSignals
 import gmSQLListControl, gmDataPanelMixin
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
@@ -109,11 +110,11 @@ class TextBox_BlackNormal(wxTextCtrl):
 		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
 
 class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
-	def __init__(self, parent, id, plugin):
+	def __init__(self, parent, plugin, id=wxNewId ()):
 		wxPanel.__init__(self, parent, id ,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
 		gmDataPanelMixin.DataPanelMixin.__init__(self)
-		self.gb = plugin.gb
-		self.mwm = plugin.mwm
+		self.gb = gmGuiBroker.GuiBroker ()
+		self.mwm = self.gb['patient.manager']
 		self.plugin = plugin
 		# controls on the top toolbar are available via plugin.foo
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,addressdata,wxLB_SINGLE)
@@ -130,7 +131,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.lbl_title = BlueLabel(self,-1,"Title")
 		self.lbl_sex = BlueLabel(self,-1,"Sex ")
 		self.lbl_street = BlueLabel(self,-1,"Street")
-		self.lbl_suburb = BlueLabel(self,-1,"Subblurb")
+		self.lbl_suburb = BlueLabel(self,-1,"Suburb")
 		self.lbl_zip = BlueLabel(self,-1,"Postcode")
 		self.lbl_address_s = BlueLabel(self,-1,"Address(s)")
 		self.lbl_birthdate = BlueLabel(self,-1,"Birthdate")
@@ -195,7 +196,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		#--------------------
 		self.btn_photo_import= wxButton(self,-1,"Import")
 		self.btn_photo_export = wxButton(self,-1,"Export")
-		self.btn_photo_aquire = wxButton(self,-1,"Aquire")
+		self.btn_photo_aquire = wxButton(self,-1,"Acquire")
 		#-------------------------------------------------------
 		#Add the each line of controls to a horizontal box sizer
 		#-------------------------------------------------------
@@ -406,7 +407,9 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		tb = self.gb['main.toolbar']
 		self.tb_patient_search = wxToolBar(tb,-1,wxDefaultPosition,wxDefaultSize,wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
 	        self.tool_patient_search = self.tb_patient_search.AddTool(ID_BUTTONFINDPATIENT, getToolbar_FindPatientBitmap(),shortHelpString="Find Patient")
+		EVT_TOOL (self.tb_patient_search, ID_BUTTONFINDPATIENT, self.OnTool)
 		self.txt_findpatient = wxComboBox(tb, ID_TXTPATIENTFIND, "", wxDefaultPosition,wxDefaultSize,[], wxCB_DROPDOWN)
+		EVT_COMBOBOX (self.txt_findpatient, ID_TXTPATIENTFIND, self.OnTool)
 	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
 	      	self.lbl_age =wxStaticText(tb,-1,_("Age"),wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL)
 	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
@@ -428,6 +431,18 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 	      	tb.toplinesizer.Add(self.txt_allergies,6,wxEXPAND|wxALL,3)
 		tb.AddWidgetRightBottom (self.combo_consultation_type)
 		self.RegisterInterests()
+		#
+		#now register ourselves with the patient window manager
+		# so the demographics widget will display.
+		# ?????? WHY WAS THIS REMOVED ?????
+		self.mwm = self.gb['patient.manager']
+		self.widget = PatientsPanel (self.mwm, self)
+		self.mwm.RegisterWholeScreen (self.name (), self.widget)
+		self.gb['modules.patient'][self.name ()] = self
+		
+	def OnTool (self, event):
+		self.mwm.Display (self.name ())
+		self.gb['modules.gui']['Patient'].Raise ()
 
 	def RegisterInterests(self):
 		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())

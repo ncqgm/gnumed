@@ -11,18 +11,25 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDataPanelMixin.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "H.Herb <hherb@gnumed.net>"
 # $Log: gmDataPanelMixin.py,v $
-# Revision 1.1  2002-10-13 11:49:50  hherb
+# Revision 1.2  2003-01-06 04:52:55  ihaywood
+# resurrected gmDemographics.py
+#
+# Revision 1.1  2002/10/13 11:49:50  hherb
 # provides a uniform means of data sensitivity to a GUI panel
 #
 
 """Provides a uniform means of data sensitivity to a GUI panel"""
 
+import gmPG
+
 class DataPanelMixin :
 
-	def __init__(self, dbbroker):
+	def __init__(self, dbbroker=None):
+		if dbbroker is None:
+			dbbroker = gmPG.ConnectionPool ()
 		self._dbbroker = dbbroker	# a gmPG database broker object
 		self._dirty = 0		# true if the data has been modified
 		self._loaded = 0	# true if the panel has been filled with data loaded from the backend

@@ -15,11 +15,7 @@ class gmplNbSchedule(gmPlugin.wxNotebookPlugin):
         return ('view', '&Appointments')
 
     def GetWidget (self, parent):
-        try:
-            pnl = gmScheduleAllDoctorsPnl.ScheduleAllDoctorsPnl(parent)
-        except:
-            print "Failed to load schedule panel"
-	    return None
+        pnl = gmScheduleAllDoctorsPnl.ScheduleAllDoctorsPnl(parent)
         return pnl
 
 
