@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -163,7 +163,7 @@ limit 1""" % where_clause
 			return None
 		if len(rows) == 0:
 			curs.close()
-			_log.Log(gmLog.lWarn, 'option definition for [%s] not in config database' % cache_key)
+			_log.Log(gmLog.lInfo, 'option definition for [%s] not in config database' % cache_key)
 			return None
 		item_id = rows[0][0]
 		value_type = rows[0][1]
@@ -176,7 +176,7 @@ limit 1""" % where_clause
 			_log.Log(gmLog.lErr, 'unable to get option value for [%s]' % cache_key)
 			return None
 		if len(rows) == 0:
-			_log.Log(gmLog.lWarn, 'option value for [%s] not in config database' % cache_key)
+			_log.Log(gmLog.lInfo, 'option value for [%s] not in config database' % cache_key)
 			return None
 		val = rows[0][0]
 		if value_type == 'data':
@@ -834,6 +834,7 @@ class cCfgFile:
 			# last resort for inferior operating systems such as DOS/Windows
 			a_dir = os.path.abspath(os.path.split(sys.argv[0])[0])
 			std_dirs.append(a_dir)
+			std_dirs.append(os.path.join (a_dir, '..', 'etc'))
 
 			# compile candidate file names from
 			# standard dirs and base name
@@ -852,7 +853,7 @@ class cCfgFile:
 			if not os.path.isfile(candidate):
 				_log.Log(gmLog.lInfo, "config file [%s] not found" % candidate)
 			else:
-				_log.Log(gmLog.lData, 'found config file [%s]' % candidate)
+				_log.Log(gmLog.lInfo, 'found config file [%s]' % candidate)
 				self.cfgName = candidate
 				return 1
 
@@ -1091,6 +1092,8 @@ def getDBParam(workplace = None, cookie = None, option = None):
 
 	# cleanup
 	db.ReleaseConnection(service = "default")
+	if matchingSet is None:
+		_log.Log (gmLog.lWarn, 'no config data for [%s]' % option)
 	return (result, matchingSet)
 #-------------------------------------------------------------
 def setDBParam(workplace = None, user = None, cookie = None, option = None, value = None):
@@ -1254,8 +1257,9 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.25  2005-02-01 16:56:58  ncq
-# - downgrade some log messages from Warn to Info
+# Revision 1.26  2005-02-05 10:58:09  ihaywood
+# fixed patient picture problem (gratutious use of a named parameter)
+# more rationalisation of loggin in gmCfg
 #
 # Revision 1.24  2005/01/10 11:46:51  ncq
 # - make cCfgSQL also support arbitrary option values in cfg_data

@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.7 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPatPicWidgets.py,v 1.8 2005-02-05 10:58:09 ihaywood Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -113,7 +113,7 @@ class cPatientPicture(wx.wxStaticBitmap):
 		try:
 			img_data = wx.wxImage(fname, wx.wxBITMAP_TYPE_ANY)
 			img_data.Rescale(self.desired_width, self.desired_height)
-			bmp_data = wx.wxBitmapFromImage(img=img_data)
+			bmp_data = wx.wxBitmapFromImage(img_data)
 		except:
 			_log.LogException('cannot set patient picture from [%s]' % fname, sys.exc_info())
 			return False
@@ -181,7 +181,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.7  2005-01-31 10:37:26  ncq
+# Revision 1.8  2005-02-05 10:58:09  ihaywood
+# fixed patient picture problem (gratutious use of a named parameter)
+# more rationalisation of loggin in gmCfg
+#
+# Revision 1.7  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.6  2004/10/11 20:18:17  ncq
