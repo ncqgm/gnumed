@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -109,7 +109,7 @@ class cDocTree(wxTreeCtrl):
 		return 1
 	#------------------------------------------------------------------------
 	def __populate_tree(self):
-		# FIXME: check if patient changed at all ?
+		# FIXME: check if patient changed at all
 
 		# clean old tree
 		if not self.root is None:
@@ -481,7 +481,6 @@ else:
 			return _("Documents")
 
 		def GetWidget (self, parent):
-			self.__pat = gmTmpPatient.gmDefPatient
 			self.panel = cPluginTreePanel(parent, -1)
 			return self.panel
 
@@ -490,7 +489,7 @@ else:
 
 		def ReceiveFocus(self):
 			# get patient object
-			if self.panel.tree.update(self.__pat) is None:
+			if self.panel.tree.update(gmTmpPatient.gmDefPatient) is None:
 				_log.Log(gmLog.lErr, "cannot update document tree")
 				return None
 			# FIXME: register interest in patient_changed signal, too
@@ -522,7 +521,11 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.15  2003-03-25 19:57:09  ncq
+# Revision 1.16  2003-04-01 12:31:53  ncq
+# - we can't use constant reference self.patient if we don't register interest
+#   in gmSignals.patient_changed, hence, acquire patient when needed
+#
+# Revision 1.15  2003/03/25 19:57:09  ncq
 # - add helper __show_error()
 #
 # Revision 1.14  2003/03/23 02:38:46  ncq
