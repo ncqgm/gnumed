@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __license__ = "GPL"
-__author__ = "\
-	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
-	Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
+				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
 import string, time, shutil, os, sys, os.path, tempfile
@@ -33,7 +32,7 @@ except ImportError:
 	wxID_BTN_show_page,
 	wxID_BTN_move_page,
 	wxID_BTN_save_doc,
-	wxID_SCANFRAMESCANBUTTON,
+	wxID_BTN_acquire_page,
 	wxID_SCANFRAMESCANWINDOW,
 	wxID_PNL_main
 ] = map(lambda _init_ctrls: wxNewId(), range(9))
@@ -42,7 +41,7 @@ class scanFrame(wxFrame):
 	page = 0
 	selected_pic = ''
 	# a dict holding our objects
-	acquired_pages = {}
+	acquired_pages = []
 	#----------------------------------------------
 	def __init__(self, parent):
 		self._init_ctrls(parent)
@@ -69,7 +68,7 @@ class scanFrame(wxFrame):
 				tempfile.tempdir = tmp
 		# temp files shall start with "obj-"
 		tempfile.template = "obj-"
-		_log.Log(gmLog.lData, 'using tmp dir [%s]' % tmp)
+		_log.Log(gmLog.lData, 'using tmp dir [%s]' % tempfile.tempdir)
 	#----------------------------------------------
 	def _init_utils(self):
 		pass
@@ -110,17 +109,17 @@ class scanFrame(wxFrame):
 		self.PNL_main.SetBackgroundColour(wxColour(225, 225, 225))
 
 		#-- "get next page" button -------------
-		self.BTN_acquire_image = wxButton(
-			id = wxID_SCANFRAMESCANBUTTON,
+		self.BTN_acquire_page = wxButton(
+			id = wxID_BTN_acquire_page,
 			label = _('acquire image'),
-			name = 'BTN_acquire_image',
+			name = 'BTN_acquire_page',
 			parent = self.PNL_main,
 			pos = wxPoint(56, 80),
 			size = wxSize(240, 64),
 			style = 0
 		)
-		self.BTN_acquire_image.SetToolTipString(_('acquire the next image from the image source'))
-		EVT_BUTTON(self.BTN_acquire_image, wxID_SCANFRAMESCANBUTTON, self.on_acquire_image)
+		self.BTN_acquire_page.SetToolTipString(_('acquire the next image from the image source'))
+		EVT_BUTTON(self.BTN_acquire_page, wxID_BTN_acquire_page, self.on_acquire_page)
 
 		#-- list box with pages -------------
 		self.LBOX_doc_pages = wxListBox(
@@ -184,7 +183,7 @@ class scanFrame(wxFrame):
 			size = wxSize(152, 344),
 			style = 0
 		)
-		self.BTN_save_doc.SetToolTipString(_('save all currently acquired images as one document'))
+		self.BTN_save_doc.SetToolTipString(_('save all currently acquired pages as one document'))
 		EVT_BUTTON(self.BTN_save_doc, wxID_BTN_save_doc, self.on_save_doc)
 
 		self.staticText1 = wxStaticText(
@@ -221,7 +220,7 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
-	def on_acquire_image(self, event):
+	def on_acquire_page(self, event):
 		_log.Log(gmLog.lData, "trying to acquire image")
 		self.acquire_handler[scan_drv]
 	#-----------------------------------
@@ -258,7 +257,6 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def on_del_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
-
 		if page_idx == -1:
 			dlg = wxMessageDialog(
 				self,
@@ -270,24 +268,76 @@ class scanFrame(wxFrame):
 			dlg.Destroy()
 			return None
 		else:
-			page_data = self.LBOX_doc_pages.GetClientData(page_idx)
-			page_fname = page_data['file name']
-			page_seq_ID = page_data['index']
+			page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
 
 			# 1) del item from self.acquired_pages
-			#  - move trailing items forward one position
-			for idx in range(page_seq_ID, len(self.acquired_pages)):
-				self.acquired_pages[idx] = self.acquired_pages[idx+1]
-			#  - remove last item
-			del self.acquired_pages[len(self.acquired_pages)]
+			tmp = self.acquired_pages[:page_idx] + self.acquired_pages[(page_idx+1):]
+			self.acquired_pages = tmp
 
 			# 2) reload list box
 			self.__reload_LBOX_doc_pages()
 
-			# 3) kill file in os
+			# 3) kill file in the file system
 			os.remove(page_fname)
 
 			return 1
+	#-----------------------------------
+	def on_move_page(self, event):
+		return
+		# 1) get page
+		page_idx = self.LBOX_doc_pages.GetSelection()
+		if page_idx == -1:
+			dlg = wxMessageDialog(
+				self,
+				_('You must select a page before you can move it around.'),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+
+		page_fname = self.LBOX_doc_pages.GetClientData(page_idx)
+		path, name = os.path.split(page_fname)
+
+		# 2) ask for new position
+		new_page_idx = -1
+		while new_page_idx == -1:
+			dlg = wxTextEntryDialog(
+				parent = self,
+				message = _('Moving page %s.\n(file %s in %s)\n\nPlease enter the new position for the page !' % ((page_idx+1), name, path)),
+				caption = _('new page number'),
+				defaultValue = str(page_idx+1)
+			)
+			btn = dlg.ShowModal()
+			dlg.Destroy()
+			# move ?
+			if  btn == wxID_OK:
+				tmp = dlg.GetValue()
+
+				# numveric ?
+				if not tmp.isdigit():
+					new_page_idx = -1
+					continue
+				new_page_idx = int(tmp) - 1
+
+				# in range ?
+				if new_page_idx not in range(len(self.acquired_pages) - 1):
+					new_page_idx = -1
+					continue
+
+				# 3) move pages after the new position
+				head = self.acquired_pages[:new_page_idx]
+				tail = self.acquired_pages[(new_page_idx+1):]
+				self.acquired_pages = head + (page_fname,) + tail
+
+				# 5) update list box
+				self.__reload_LBOX_doc_pages()
+
+				return 1
+			# or cancel moving ?
+			elif btn == wxID_CANCEL:
+				return 1
 	#-----------------------------------
 	# TWAIN related scanning code
 	#-----------------------------------
@@ -350,8 +400,8 @@ class scanFrame(wxFrame):
 			twain.DIBToBMFile(external_data_handle, fname)
 			# free external image memory
 			twain.GlobalHandleFree(external_data_handle)
-			# and keep a reference (put nothing at [0])
-			self.acquired_images[len(self.acquired_images)+1] = fname
+			# and keep a reference
+			self.acquired_pages[len(self.acquired_pages)] = fname
 
 			# FIXME:
 			#if more_images_pending:
@@ -404,8 +454,8 @@ class scanFrame(wxFrame):
 			img = scanner.snap()
 			#save image file to disk
 			img.save(fname)
-			# and keep a reference (put nothing at [0])
-			self.acquired_images[len(self.acquired_images)+1] = fname
+			# and keep a reference
+			self.acquired_pages[len(self.acquired_pages)] = fname
 
 			# FIXME:
 			#if more_images_pending:
@@ -461,11 +511,12 @@ class scanFrame(wxFrame):
 	# internal methods
 	#-----------------------------------
 	def __reload_LBOX_doc_pages(self):
-		if len(self.acquired_images) > 0:
+		if len(self.acquired_pages) > 0:
 			self.LBOX_doc_pages.Clear()
-			for seq_ID, fname in self.acquired_images.items():
+			for i in self.acquired_pages:
+				fname = self.acquired_pages[i]
 				path, name = os.path.split(fname)
-				self.LBOX_doc_pages.Append(_('page %s (%s in %s)') % (seq_ID, name, path), {'index': seq_ID, 'file name': fname})
+				self.LBOX_doc_pages.Append(_('page %s (%s in %s)' % (i+1, name, path)), fname)
 	#-----------------------------------
 	def on_save_doc(self, event):
 		return
@@ -504,35 +555,6 @@ class scanFrame(wxFrame):
 				dlg.ShowModal()
 			finally:
 				dlg.Destroy()
-	#-----------------------------------
-	def on_move_page(self, event):
-		pass
-		##current_selection=self.LBOX_doc_pages.GetSelection()
-		##if not current_selection == -1:
-		##	  self.selected_pic=self.LBOX_doc_pages.GetString(current_selection)
-			#picTochange
-		##	  print "u want to change pos for :" + self.selected_pic
-		##	 dlg = wxTextEntryDialog(self, _('please tell me the desired position for the page - string format : page[x]'),_('alter page position'), _('page'))
-		##	  try:
-		##		  if dlg.ShowModal() == wxID_OK:
-		##			  answer = dlg.GetValue()
-		##			  # Your code
-		##			  print 'hello'
-		##	  finally:
-		##		  dlg.Destroy()
-		##	  #first rename selected
-		##	  tempposition=len(self.picList)+1	  
-		##	  self.LBOX_doc_pages.Delete(current_selection)
-		##	  self.picList.remove(self.selected_pic)
-		##	  print self.picList
-		##	  #del page from hdd
-		
-		##else:
-		##	  dlg = wxMessageDialog(self, _('You did not select a page'),_('Attention'), wxOK | wxICON_INFORMATION)
-		##	  try:
-		##		  dlg.ShowModal()
-		##	  finally:
-		##		  dlg.Destroy()
 
 #======================================================
 class ScanningApp(wxApp):
