@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.40 2004-01-18 21:56:38 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.41 2004-01-26 18:26:04 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -325,10 +325,9 @@ drop view v_vacc_regimes;
 
 create view v_vacc_regimes as
 select
-	vreg.id as id_regime,
+	vreg.id as pk_regime,
 	vind.description as indication,
 	vreg.name as regime,
-	vreg.fk_recommended_by,
 	coalesce(vreg.comment, '') as reg_comment,
 	vdef.is_booster as is_booster,
 	case when vdef.is_booster
@@ -338,7 +337,9 @@ select
 	vdef.min_age_due as age_due_min,
 	vdef.max_age_due as age_due_max,
 	vdef.min_interval as min_interval,
-	coalesce(vdef.comment, '') as vacc_comment
+	coalesce(vdef.comment, '') as vacc_comment,
+	vind.id as pk_indication,
+	vreg.pk_recommended_by
 from
 	vacc_regime vreg,
 	vacc_indication vind,
@@ -501,14 +502,13 @@ order by
 ;
 
 \unset ON_ERROR_STOP
-drop view v_patient_vacc4ind;
+drop view v_pat_vacc4ind;
 \set ON_ERROR_STOP 1
 
-create view v_patient_vacc4ind as
+create view v_pat_vacc4ind as
 select
 	v.fk_patient as pk_patient,
 	v.id as pk_vaccination,
-	vind.id as pk_indication,
 	v.clin_when as date,
 	vind.description as indication,
 	vcine.trade_name as vaccine,
@@ -516,6 +516,7 @@ select
 	v.batch_no as batch_no,
 	v.site as site,
 	v.narrative,
+	vind.id as pk_indication,
 	v.fk_provider as pk_provider,
 	vcine.id as pk_vaccine
 from
@@ -581,7 +582,7 @@ GRANT SELECT ON
 	v_patient_vaccinations,
 	v_pat_due_vaccs,
 	v_pat_overdue_vaccs
-	, v_patient_vacc4ind
+	, v_pat_vacc4ind
 TO GROUP "gm-doctors";
 
 --GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -600,11 +601,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.40 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.40  2004-01-18 21:56:38  ncq
+-- Revision 1.41  2004-01-26 18:26:04  ncq
+-- - add/rename some FKs in views
+--
+-- Revision 1.40  2004/01/18 21:56:38  ncq
 -- - v_patient_vacc4ind
 -- - reformatting DDLs
 --
