@@ -7,7 +7,7 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmCalcPreg.py,v $
-__version__ = "$Revision"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Ian Haywood"
 
 from wxPython.wx import *
