@@ -14,7 +14,7 @@ set data using SetConfigData.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types
@@ -692,3 +692,29 @@ class ConfigDataFile(ConfigData):
 		# the parameter name
 
 		return aParameterName
+
+
+#=========================================================================
+def exportDBSet(aUser = None, aMachine = '__default__'):
+	"""
+	Fetches a backend stored set of config options (defined by user and machine)
+	and returns it as a plain text file.
+	"""
+	try:
+		expConfigSource = ConfigSourceDB("export",aUser,aMachine)
+	except:
+		_log.Log(gmLog.lErr, "Cannot open config set [%s@%s]." % (aUser,aMachine))
+		return None
+	
+	paramList = expConfigSource.getAllParamNames()
+	text = ''
+	for param in (paramList):
+		description = expConfigSource.getDescription(param)
+		cType = expConfigSource.getParamType(param)
+		value = expConfigSource.getConfigData(param)
+		part = "[%s]\ntype = %s\ndescription = %s\nvalue = %s\n\n" % \
+			(param,cType,description,value)
+		text = text + part
+
+	return text
+	
