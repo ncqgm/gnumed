@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -42,18 +42,52 @@ class BackendListener:
 	def register_callback(self, aSignal, aCallback):
 		if not self._thread_running:
 			self.__start_thread()
-		# don't listen twice to the same signal
-		# FIXME: but we DO want to connect another callback !!
-		if aSignal in self._intercepted_signals:
-			return
-		#tell the backend to notify us on this signal
-		res = self._conn.query('LISTEN %s' % signal)
-		if res.resultStatus != libpq.COMMAND_OK:
-			raise libpq.Error, "ERROR: command failed"
-
-		self._intercepted_signals.append(aSignal)
-		# connect the signal with the callback function
-		gmDispatcher.connect(receiver = aCallback, signal = aSignal)
+		# if not listening to that signal yet, do so now
+		if aSignal not in self._intercepted_signals:
+			cmd = 'LISTEN "%s";' % aSignal
+			try:
+				res = self._conn.query(cmd)
+			except StandardError:
+				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
+				_log.LogException('cannot register backend callback', sys.exc_info())
+				return None
+			if res.resultType == libpq.RESULT_ERROR:
+#			if res.resultStatus != libpq.COMMAND_OK:
+				_log.Log(gmLog.lErr, 'cannot register backend callback')
+				_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
+				_log.Log(gmLog.lData, "command status [%s], result status [%s]" % (res.resultStatus, res.cmdStatus))
+				_log.Log(gmLog.lData, self._conn.errorMessage)
+				_log.Log(gmLog.lData, libpq.Error)
+				return None
+			self._intercepted_signals.append(aSignal)
+		# connect signal with callback function
+		gmDispatcher.connect(receiver = aCallback, signal = aSignal, sender = self._service)
+	#-------------------------------
+	def unregister_callback(self, aSignal, aCallback):
+		# are we listening at all ?
+		if aSignal not in self._intercepted_signals:
+			_log.Log(gmLog.lWarn, 'not listening to [%s]' % aSignal)
+			return 1
+		# stop listening now
+		cmd = 'UNLISTEN "%s";' % aSignal
+		try:
+			res = self._conn.query(cmd)
+		except StandardError:
+			_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
+			_log.LogException('cannot unregister backend callback', sys.exc_info())
+			return None
+		if res.resultType == libpq.RESULT_ERROR:
+			_log.Log(gmLog.lErr, 'cannot unregister backend callback')
+			_log.Log(gmLog.lErr, ">>>%s<<< failed" % cmd)
+			_log.Log(gmLog.lData, "command status [%s], result status [%s]" % (res.resultStatus, res.cmdStatus))
+			_log.Log(gmLog.lData, self._conn.errorMessage)
+			_log.Log(gmLog.lData, libpq.Error)
+			return None
+		# don't deliver the backend signal anymore,
+		# this isn't strictly required but helps to prevent
+		# accumulation of dead receivers in gmDispatcher
+		gmDispatcher.disconnect(receiver = aCallback, signal = aSignal, sender = self._service)
+		return 1
 	#-------------------------------
 	def tell_thread_to_stop(self):
 		self._quit = 1
@@ -61,39 +95,47 @@ class BackendListener:
 	# internal helpers
 	#-------------------------------
 	def __connect(self, database, user, password, host='localhost', port=5432):
-		cnx=None
+		cnx = None
 		try:
-			constr="dbname='%s' user='%s' password='%s' host='%s' port=%d" % (database, user, password, host, port)
-			#print constr
-			cnx = libpq.PQconnectdb(constr)
+			auth = "dbname='%s' user='%s' password='%s' host='%s' port=%d" % (database, user, password, host, port)
+			cnx = libpq.PQconnectdb(auth)
 		except libpq.Error, msg:
-			exc = sys.exc_info()
-			_log.LogException("Connection to database '%s' failed: %s" % (database, msg), exc, fatal=0)
+			_log.LogException("Connection to database '%s' failed: %s" % (database, msg), sys.exc_info())
 		return cnx
 	#-------------------------------
 	def __start_thread(self):
 		if self._conn is None:
 			_log.Log(gmLog.lErr, "Can't start thread. No connection to backend available.")
 			return None
-		sys.stdout.flush()
-		t = threading.Thread(target = self._process_signals)
+#		sys.stdout.flush()
+		thread = threading.Thread(target = self._process_notifications)
 		self._thread_running = 1
-		t.start()
+		thread.start()
 	#-------------------------------
-	def _process_signals(self):
+	def _process_notifications(self):
 		while 1:
-			ready_sockets = select.select([self._conn.socket], [], [], 1.0)[0]
-			if len(ready_sockets):
+			# don't check for input if we plan on quitting anyways
+			if self._quit:
+				break
+			ready_input_sockets = select.select([self._conn.socket], [], [], 1.0)[0]
+			if len(ready_input_sockets) != 0:
 				self._conn.consumeInput()
 				note = self._conn.notifies()
 				while note:
-					sys.stdout.flush()
-					gmDispatcher.send(signal = note.relname, sender = self._service)
+					_log.Log(gmLog.lData, 'backend [%s] sent signal [%s]' % (note.be_pid, note.relname))
+#					sys.stdout.flush()
+					gmDispatcher.send(signal = note.relname, sender = self._service, backend_pid = note.be_pid)					
+					# don't handle more notifications if we plan on quitting anyways
 					if self._quit:
 						break
 					note = self._conn.notifies()
 			else:
-				time.sleep(self._poll_interval)
+				# don't sleep waiting for input if we plan on quitting anyways
+				if self._quit:
+					break
+				# wait at max self.__poll_intervall
+				select.select([self._conn.socket], [], [], self._poll_interval)
+#				time.sleep(self._poll_interval)
 			if self._quit:
 				self._thread_running=0
 				break
@@ -173,7 +215,13 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.8  2003-04-25 13:00:43  ncq
+# Revision 1.9  2003-04-27 11:34:02  ncq
+# - rewrite register_callback() to allow for more than one callback per signal
+# - add unregister_callback()
+# - clean up __connect(), __start_thread()
+# - optimize _process_notifications()
+#
+# Revision 1.8  2003/04/25 13:00:43  ncq
 # - more cleanup/renaming on the way to more goodness, eventually
 #
 # Revision 1.7  2003/02/07 14:22:35  ncq
