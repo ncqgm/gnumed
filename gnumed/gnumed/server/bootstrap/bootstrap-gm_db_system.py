@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -92,6 +92,7 @@ _bootstrapped_dbs = {}
 _dbowner = None
 cached_host = None
 cached_passwd = {}
+_keep_temp_files = False
 
 #==================================================================
 pg_hba_sermon = """
@@ -769,7 +770,7 @@ class database:
 			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GnuMed database [%s]' % self.name)
 			return None
 		# write schema to file
-		file = open ('/tmp/audit-trail-schema.sql', 'wb')
+		file = open('/tmp/audit-trail-schema.sql', 'wb')
 		for line in audit_schema:
 			file.write("%s;\n" % line)
 		file.close()
@@ -781,8 +782,12 @@ class database:
 			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
 			return None
 
+		if _keep_temp_files:
+			return 1
+
 		try:
 			os.remove('/tmp/audit-trail-schema.sql')
+			pass
 		except StandardError:
 			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
 		return 1
@@ -825,6 +830,10 @@ class database:
 		if psql.run('/tmp/scoring-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
 			return None
+
+		if _keep_temp_files:
+			return 1
+
 		try:
 			os.remove('/tmp/scoring-schema.sql')
 		except StandardError:
@@ -860,6 +869,10 @@ class database:
 		if psql.run('/tmp/notification-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import notification schema definition for database [%s]" % (self.name))
 			return None
+
+		if _keep_temp_files:
+			return 1
+
 		try:
 			os.remove('/tmp/notification-schema.sql')
 		except StandardError:
@@ -1383,6 +1396,10 @@ if __name__ == "__main__":
 	if tmp == "yes":
 		_interactive = 1
 
+	tmp = _cfg.get('installation', 'keep temp files')
+	if tmp == "yes":
+		_keep_temp_files = True
+
 	if not ask_for_confirmation():
 		exit_with_msg("Bootstrapping aborted by user.")
 
@@ -1430,7 +1447,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.59  2004-06-28 13:31:17  ncq
+# Revision 1.60  2004-11-24 15:37:12  ncq
+# - honor option "keep temp files"
+#
+# Revision 1.59  2004/06/28 13:31:17  ncq
 # - really fix imports, now works again
 #
 # Revision 1.58  2004/06/28 13:23:20  ncq
