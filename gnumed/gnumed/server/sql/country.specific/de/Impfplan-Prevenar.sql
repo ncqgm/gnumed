@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Prevenar.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -23,7 +23,7 @@ insert into vacc_regime
 values (
 	-1,
 	(select id from vacc_indication where description='pneumococcus'),
-	'Pneumokokken (<6 Monate, Hersteller)'
+	'Pneumokokken (Start <6 Monate, Hersteller)'
 );
 
 -- Impfzeitpunkte definieren
@@ -84,7 +84,7 @@ insert into vacc_regime
 values (
 	-1,
 	(select id from vacc_indication where description='pneumococcus'),
-	'Pneumokokken (7-11 Monate, Hersteller)'
+	'Pneumokokken (Start 7-11 Monate, Hersteller)'
 );
 
 -- Impfzeitpunkte definieren
@@ -133,7 +133,7 @@ insert into vacc_regime
 values (
 	-1,
 	(select id from vacc_indication where description='pneumococcus'),
-	'Pneumokokken (12-23 Monate, Hersteller)'
+	'Pneumokokken (Start 12-23 Monate, Hersteller)'
 );
 
 -- Impfzeitpunkte definieren
@@ -164,11 +164,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%Impfplan-Prevenar%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: Impfplan-Prevenar.sql,v $
--- Revision 1.4  2003-11-28 08:15:57  ncq
+-- Revision 1.5  2003-12-01 22:14:24  ncq
+-- - improve wording
+--
+-- Revision 1.4  2003/11/28 08:15:57  ncq
 -- - PG 7.1/pyPgSQL/mxDateTime returns 0 for interval=1 month,
 --   it works with interval=4 weeks, though, so use that
 --
