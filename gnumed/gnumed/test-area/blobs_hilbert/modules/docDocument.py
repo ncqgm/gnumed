@@ -33,10 +33,10 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
-import os.path, fileinput, string, types, sys, tempfile, os
+import os.path, fileinput, string, types, sys, tempfile, os, shutil
 
 from pyPgSQL import PgSQL
 
@@ -661,12 +661,12 @@ def call_viewer_on_file(aFile = None):
 	if f_ext == "":
 		# try to guess one
 		f_ext = docMime.guess_ext_by_mimetype(mime_type)
-		if not f_ext:
+		if f_ext is None:
 			_log.Log(gmLog.lErr, "Unable to guess file extension from mime type. Trying sheer luck.")
 			file_to_display = aFile
 			f_ext = ""
 		else:
-			file_to_display = aFile + f_ext						
+			file_to_display = aFile + f_ext
 			shutil.copyfile(aFile, file_to_display)
 	# yes
 	else:
@@ -683,8 +683,9 @@ def call_viewer_on_file(aFile = None):
 		return None, msg
 
 	# clean up if necessary
-	if file_to_display != aFile:
-		os.remove(file_to_display)
+	# don't kill the file from under the (async) viewer
+	#if file_to_display != aFile:
+		#os.remove(file_to_display)
 
 	return 1, ""
 #============================================================
@@ -697,7 +698,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.21  2002-11-23 16:45:21  ncq
+# Revision 1.22  2002-11-30 22:48:13  ncq
+# - fix some Windows related oddities with mime types/file extensions
+# - don't remove the object file from under the viewer
+#
+# Revision 1.21  2002/11/23 16:45:21  ncq
 # - make work with pyPgSQL
 # - fully working now but needs a bit of polish
 #

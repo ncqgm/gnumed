@@ -11,12 +11,12 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #----------------------------------------------------------------------
 import os.path, sys, os
 
-from wxPython import wx
+from wxPython.wx import *
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
@@ -50,7 +50,7 @@ _cfg = gmCfg.gmDefCfgFile
 #        EVT_RIGHT_DOWN(self.tree, self.OnRightClick)
 #        EVT_RIGHT_UP(self.tree, self.OnRightUp)
 
-class cDocTree(wx.wxTreeCtrl):
+class cDocTree(wxTreeCtrl):
 	"""
 	This wxTreeCtrl derivative displays a tree view of a Python namespace.
 	Anything from which the dir() command returns a non-empty list is a branch
@@ -85,12 +85,12 @@ class cDocTree(wx.wxTreeCtrl):
 			_log.Log(gmLog.lErr, "Cannot find any documents.")
 			return None
 
-		wx.wxTreeCtrl.__init__(self, parent, id, style=wx.wxTR_NO_BUTTONS)
+		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
 
 		# build tree from document list
 		self.root = self.AddRoot(_("available documents"), -1, -1)
 		self.SetPyData(self.root, None)
-		self.SetItemHasChildren(self.root, wx.TRUE)
+		self.SetItemHasChildren(self.root, TRUE)
 
 		# add our documents as first level nodes
 		for doc_id in self.doc_list.keys():
@@ -106,7 +106,7 @@ class cDocTree(wx.wxTreeCtrl):
 			data = {'doc_id': doc_id,
 					'id'	: doc_id}
 			self.SetPyData(doc_node, data)
-			self.SetItemHasChildren(doc_node, wx.TRUE)
+			self.SetItemHasChildren(doc_node, TRUE)
 
 			# now add objects as child nodes
 			i = 1
@@ -129,7 +129,7 @@ class cDocTree(wx.wxTreeCtrl):
 		# and uncollapse
 		self.Expand(self.root)
 
-		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
+		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
 	#------------------------------------------------------------------------
 	def OnActivate (self, event):
 		item = event.GetItem()
@@ -167,7 +167,7 @@ class cDocTree(wx.wxTreeCtrl):
 		if not result:
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot display page %s.\n%s') % (page_idx+1, msg),
+				_('Cannot display page.\n%s') % msg,
 				_('displaying page'),
 				wxOK | wxICON_ERROR
 			)
@@ -176,7 +176,7 @@ class cDocTree(wx.wxTreeCtrl):
 			return None
 		return 1
 #------------------------------------------------------------------------
-class MyFrame(wx.wxFrame):
+class MyFrame(wxFrame):
 	"""Very standard Frame class. Nothing special here!"""
 
 	def __init__(self):
@@ -190,15 +190,15 @@ class MyFrame(wx.wxFrame):
 			return None
 
 		# setup basic frame
-		wx.wxFrame.__init__(self, None, -1, _("stored medical documents"), wx.wxDefaultPosition, wx.wxSize(800,500))
+		wxFrame.__init__(self, None, -1, _("stored medical documents"), wxDefaultPosition, wxSize(800,500))
 
 		# make split window
-		split_win = wx.wxSplitterWindow(self, -1)
+		split_win = wxSplitterWindow(self, -1)
 
 		# make patient panel
 		title = "%s %s (%s), %s" % (aPat.firstnames, aPat.lastnames, gm2long_gender_map[aPat.gender], aPat.dob)
 		# FIXME: adjust font + bold + size
-		pat_panel = wx.wxStaticText(split_win, -1, title, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_LEFT)
+		pat_panel = wxStaticText(split_win, -1, title, wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT)
 
 		# make document tree
 		tree = cDocTree(split_win, -1, aPat, self.__conn)
@@ -242,15 +242,15 @@ class MyFrame(wx.wxFrame):
 
 		return aPatient
 #------------------------------------------------------------------
-class MyApp(wx.wxApp):
+class MyApp(wxApp):
 	"""This class is even less interesting than MyFrame."""
 
 	def OnInit(self):
 		"""OnInit. Boring, boring, boring!"""
 		frame = MyFrame()
-		frame.Show(wx.TRUE)
+		frame.Show(TRUE)
 		self.SetTopWindow(frame)
-		return wx.TRUE
+		return TRUE
 #----------------------------------------------------------------
 # MAIN
 #----------------------------------------------------------------
