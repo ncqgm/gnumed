@@ -143,7 +143,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		else:
 			whereclause = "where (surname like '%s')" % searchexpr
 
-            	query = "%s %s %s;" % (selectclause, whereclause, orderclause)
+            	query = "%s %s %s ;" % (selectclause, whereclause, orderclause)
 		#print query
 
 

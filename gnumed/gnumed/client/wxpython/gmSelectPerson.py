@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
@@ -84,7 +84,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 		else:
 			whereclause = "where (lastnames %s '%s%%')" % (searchclause, names[0])
 
-            	query = "%s %s %s;" % (selectclause, whereclause, orderclause)
+            	query = "%s %s %s ;" % (selectclause, whereclause, orderclause)
 		return query
 
 
