@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1243,6 +1243,31 @@ def show_msg(aMsg = None):
 	if aMsg is not None:
 		print aMsg
 	print "Please see log file for details."
+#------------------------------------------------------------------
+def set_user ():
+	"""
+	On UNIX type syatems, attempt to use setuid () to become the postgres user if
+	possible. This is so we can use the IDENT method to get to the database
+	(NB by default, at least on Debian and postgres source installs, this is the only way,
+	as the postgres userhas no password)
+	"""
+	postgres_passwd = None
+	try:
+		import pwd
+		if os.getuid () == 0: # we are the super-user
+			try:
+				postgres_passwd = pwd.getpwnam ('postgres')
+			except KeyError:
+				try:
+					postgres_passwd = pwd.getpwnam ('pgsql')
+				except KeyError:
+					_log.Log (gmLog.lWarn, 'can''t find postgres user')
+			if postgres_passwd:
+				_log.Log (gmLog.lInfo, 'switching to UNIX user [%s]' % postgres_passwd[0])
+				os.setuid (postgres_passwd[2])	   
+	except ImportError:
+		_log.Log (gmLog.lWarn, 'running on broken OS -- can''t change user')
+
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
@@ -1251,6 +1276,8 @@ if __name__ == "__main__":
 		exit_with_msg("Cannot find config file.\nFormat is --conf-file=<file name>.")
 
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
+
+	set_user ()
 
 	print "Bootstrapping GnuMed database system..."
 
@@ -1305,7 +1332,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.45  2004-01-14 10:47:43  ncq
+# Revision 1.46  2004-02-13 10:21:39  ihaywood
+# Calls setuid () to postgres user if possible
+#
+# Revision 1.45  2004/01/14 10:47:43  ncq
 # - stdout readability
 #
 # Revision 1.44  2004/01/06 23:44:40  ncq
