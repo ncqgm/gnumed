@@ -1,7 +1,7 @@
 """GnuMed simple EMR text dump plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import sys
@@ -10,8 +10,10 @@ if __name__ == "__main__":
 	sys.path.append('../pycommon')
 	sys.path.append('patient')
 
-import gmLog, gmPlugin
-import gmDemographics
+import Gnumed.pycommon.gmLog as gmLog
+import Gnumed.wxpython.gmPlugin as gmPlugin
+import Gnumed.business.gmDemographicRecord as gmDemographicRecord
+import Gnumed.wxpython.gmDemographics as gmDemographics
 
 gmLog.gmDefLog.Log(gmLog.lData, __version__)
 
@@ -64,7 +66,10 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.3  2004-02-25 09:46:22  ncq
+# Revision 1.4  2004-03-07 13:19:18  ihaywood
+# more work on forms
+#
+# Revision 1.3  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.2  2004/02/18 06:30:30  ihaywood

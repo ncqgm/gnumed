@@ -8,7 +8,7 @@
 \begin{page}
 \text{20}{12}{70}{\recipient}
 
-\lineh{20}{40}{170} % horiztonal separators
+\lineh{20}{40}{170} % horizontal separators
 \lineh{20}{50}{110}
 \lineh{20}{80}{170}
 \lineh{20}{135}{170}
@@ -33,39 +33,39 @@
 \\
 \sender \\
 \senderaddress}
-\text{22}{55}{50}{\patientname \\
-\patientaddress}
+\text{22}{55}{50}{@PATIENTNAME \\
+@PATIENTADDRESS}
 \text{22}{85}{100}{
 \textbf{REQUEST}\\
-\request\\
+@REQUEST \\
 \\
 \textbf{THERAPY}\\
-\therapy\\
+@THERAPY \\
 \\
 \textbf{CLINICAL NOTES}\\
-\clinicalnotes\\
+@CLINICALNOTES \\
 }
 
 \text{133}{85}{55}{
 \textbf{Copy of report to:}\\
 \\
-\copyaddress}
+@COPYADDRESS }
 
 \text{130}{107}{60}{
 \begin{multicols}{2}
-\checkbox{\routine}{Routine}\\
-\checkbox{\urgent}{Urgent}\\
-\checkbox{\fax}{Fax result}\\
-\checkbox{\phone}{Phone results}\\
-\checkbox{\pensioner}{Pensioner}\\
-\checkbox{\veteran}{Veteran}\\
-\checkbox{\pads}{Referral pads}\\
+\checkbox{@ROUTINE}{Routine}\\
+\checkbox{@URGENT}{Urgent}\\
+\checkbox{@FAX}{Fax result}\\
+\checkbox{@PHONE}{Phone results}\\
+\checkbox{@PENSIONER}{Pensioner}\\
+\checkbox{@VETERAN}{Veteran}\\
+\checkbox{@PADS}{Referral pads}\\
 \end{multicols}
 }
 
 \text{22}{140}{165}{
 \textbf{PATIENT INSTRUCTIONS}\\
-\instructions}
+@INSTRUCTIONS}
 
 \text{133}{225}{55}{
 \textbf{Doctor's Signature}

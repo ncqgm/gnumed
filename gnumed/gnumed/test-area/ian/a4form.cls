@@ -10,13 +10,6 @@
 
 % \checkbox {c} draws a small rectangle, with a dot if c is nonzero
 
-% the documents use field values as TeX commands: viz. \patientaddress, \doctorname
-% these are defined by commands prepended to the document by the LaTeX module,
-% from the provided dictionary object. 
-% NOTE: they cannot contain underscores
-% NOTE 2: be careful of name collisions with LaTeX
-
-
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{a4form}[2003/11/15 A4 forms class]
 
@@ -37,16 +30,16 @@
 % our environment is really a picture environment covering the entire page
 \newenvironment{page}{\setlength{\unitlength}{1mm}\begin{picture}(210,295)(0,-295)}{\end{picture}}
 
-% horiztional lines. Note Y is negative so coordinates are ``right''
+% horizontal lines. Note Y is negative so coordinates are ``right''
 \DeclareRobustCommand{\lineh}[3]{\put(#1,-#2){\line(1,0){#3}}}
 % vertical lines
 \DeclareRobustCommand{\linev}[3]{\put(#1,-#2){\line(0,-1){#3}}}
-% text at arbitary position. Use parbox to provide word wrapping
+% text at arbitrary position. Use parbox to provide word wrapping
 \DeclareRobustCommand{\text}[4]{\put(#1,-#2){
 \parbox[t]{#3 mm}{#4}
 }}
 
-% checkbox. Box is checked if pased integer greater han zero
+% checkbox. Box is checked if pased integer greater than zero
 \DeclareRobustCommand{\checkbox}[1]{\ifnum#1>0 \framebox(3,3){$\bullet$} \else \framebox(3,3){} \fi}
 
 

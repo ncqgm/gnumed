@@ -5,7 +5,7 @@
 -- author: Ian Haywood <>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- Note: this is office related while gmFormData.sql is clinical content
 
@@ -63,10 +63,28 @@ create table form_types (
 	name_long varchar(60),
 	version varchar(30) unique not null,
 	in_use bool,
-	deprecated date
+	deprecated date,
+	template text,
+	electronic bool, 
+	engine char default 'T' not null check (engine in ('T', 'L')),
+	flags varchar (100) []
 );
 comment on table form_types is
 	'metadata on forms';
+
+comment on column form_types.engine is
+'the business layer forms engine class to use for this form.
+Currently only T=plain text, and L=LaTeX are defined';
+
+create lnk_form2discipline (
+	id_form integer references form_types (id),
+	discipline text
+);
+
+
+comment on table lnk_form2discipline is
+'the discipline which uses this form. This maps to
+gmDemographics.occupation for indivuduals, gmDemographics.category for organisations';
 
 -- ===================================================
 create table form_print_defs (
@@ -149,7 +167,7 @@ comment on column form_fields.is_editable is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- * do we need "form_types.iso_countrycode" ?
@@ -159,7 +177,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.
 
 -- =============================================
 -- $Log: gmFormDefs.sql,v $
--- Revision 1.4  2003-01-05 13:05:51  ncq
+-- Revision 1.5  2004-03-07 13:19:18  ihaywood
+-- more work on forms
+--
+-- Revision 1.4  2003/01/05 13:05:51  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.3  2003/01/01 13:36:56  ncq
