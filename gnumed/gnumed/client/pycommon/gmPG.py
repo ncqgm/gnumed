@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -375,7 +375,6 @@ class ConnectionPool:
 	#-----------------------------
 	def __setup_default_ro_conns(self, login):
 		"""Initialize connections to all servers."""
-
 		if login is None and ConnectionPool.__connected is None:
 			try:
 				login = request_login_params()
@@ -418,23 +417,23 @@ class ConnectionPool:
 		databases = cursor.fetchall()
 		dbidx = get_col_indices(cursor)
 
-		#for all configuration entries that match given user and profile
+		# for all configuration entries that match given user and profile
 		for db in databases:
-			###get the symbolic name of the distributed service
+			# - get symbolic name of distributed service
 			cursor.execute("select name from distributed_db where id = %d" %  db[dbidx['ddb']])
 			service = string.strip(cursor.fetchone()[0])
-			# map service name to id of real database
+			# - map service name to id of real database
 			_log.Log(gmLog.lData, "mapping service [%s] to DB ID [%s]" % (service, db[dbidx['db']]))
 			ConnectionPool.__service2db_map[service] = db[dbidx['db']]
-
-			# init ref counter
+			# - init ref counter
 			ConnectionPool.__connections_in_use[service] = 0
 			dblogin = self.GetLoginInfoFor(service, login)
-			# update 'Database Broker' dictionary
+			# - update 'Database Broker' dictionary
 			conn = self.__pgconnect(dblogin, readonly=1, encoding=_default_client_encoding)
 			if conn is None:
 				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
 			ConnectionPool.__databases[service] = conn
+			# - document DB version
 			cmd = "select version()"
 			data = run_ro_query(conn, cmd)
 			_log.Log(gmLog.lInfo, 'service [%s] running on [%s]' % (service, data[0][0]))
@@ -935,7 +934,7 @@ def __request_login_params_tui():
 	"""text mode request of database login parameters
 	"""
 	import getpass
-	login = gmLoginInfo.LoginInfo('', '')
+	login = gmLoginInfo.LoginInfo('', '', '')
 
 	print "\nPlease enter the required login parameters:"
 	try:
@@ -1123,7 +1122,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.12  2004-04-22 13:14:38  ncq
+# Revision 1.13  2004-04-24 13:17:02  ncq
+# - logininfo() needs host= in request_login_params_tui()
+#
+# Revision 1.12  2004/04/22 13:14:38  ncq
 # - cleanup
 #
 # Revision 1.11  2004/04/21 14:27:15  ihaywood
