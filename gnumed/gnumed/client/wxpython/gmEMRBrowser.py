@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.12 2005-03-09 18:31:57 cfmoro Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmEMRBrowser.py,v 1.13 2005-03-09 19:43:21 cfmoro Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -13,7 +13,7 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPerson
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -357,13 +357,67 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		On new edit encounter notes menu item selection: edit encounter's soap notes
 		"""
 		emr = gmPerson.gmCurrentPatient().get_clinical_record()
+		encounter = self.__sel_item_obj		
+		narrative = self.__get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = 1)
 		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
-		encounter = self.__sel_item_obj
-		self.__browser.SetCustomRightWidget(gmSOAPWidgets.cResizingSoapPanel(self.__browser, problem, encounter))
+		self.__browser.SetCustomRightWidget(gmSOAPWidgets.cResizingSoapPanel(self.__browser, problem = problem,
+		input_defs = narrative))
 				
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
+	def __get_narrative(self, pk_encounter=None, pk_health_issue = None, default_labels=None):
+		"""
+		Retrieve the soap editor input lines definitions built from
+		all the narratives for the given issue along a specific
+		encounter.
+		
+		@param pk_health_issue The id of the health issue to obtain the narratives for.
+		@param pk_health_issue An integer instance
+
+		@param pk_encounter The id of the encounter to obtain the narratives for.
+		@type A gmEMRStructItems.cEncounter instance.
+
+		@param default_labels: The user customized labels for each
+		soap category.
+		@type default_labels: A dictionary instance which keys are
+		soap categories.
+		"""
+		
+		# custom labels
+		if default_labels is None:
+			default_labels = {
+				's': _('History Taken'),
+				'o': _('Findings'),
+				'a': _('Assessment'),
+				'p': _('Plan')
+		}		
+		
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_clinical_record()
+		soap_lines = []
+		# for each soap cat
+		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:
+			# retrieve narrative for given problem/encounter
+			narr_items =  emr.get_clin_narrative (
+				encounters = [pk_encounter],
+				issues = [pk_health_issue],
+				soap_cats = [soap_cat]
+			)
+			for narrative in narr_items:
+				try:
+					# FIXME: add more data such as doctor sig
+					label_txt = default_labels[narrative['soap_cat']]
+				except:
+					label_txt = narrative['soap_cat']				
+				line = gmSOAPWidgets.cSOAPLineDef()
+				line.label = label_txt
+				line.text = narrative['narrative']
+				line.data['narrative instance'] = narrative
+				soap_lines.append(line)
+		return soap_lines
+		
+	#--------------------------------------------------------	
 	def __append_new_encounter_menuitem(self, episode):
 		"""
 		Adds a menu item to create a new encounter for the given episode.
@@ -484,7 +538,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.12  2005-03-09 18:31:57  cfmoro
+# Revision 1.13  2005-03-09 19:43:21  cfmoro
+# EMR browser edit problem-episodes notes responsible for providing the narrative definitions to cSoapResizingPanel
+#
+# Revision 1.12  2005/03/09 18:31:57  cfmoro
 # As proof of concept: episode editor and notes editor are displayed in the right panel. Just an initial draft, needs feeback a lot of coding yet ;)
 #
 # Revision 1.11  2005/03/09 16:58:09  cfmoro
