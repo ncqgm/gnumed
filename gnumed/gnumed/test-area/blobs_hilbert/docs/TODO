@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -13,9 +13,6 @@ scan
 ----
 - internationalize on Windows
 - test consecutive IDs
-- unify show_ID()
-
--> vor eigentlichen abspeichern paginiernummer nochmal gegen Verzeichnisse prüfen
 
 index
 -----
@@ -25,8 +22,8 @@ index
 import
 ------
 - handle date as date not string
-- doc_type_usr/_sys
 - general fixup
+- quite fixup
 
 viewer
 ------
