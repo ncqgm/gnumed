@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -114,25 +114,25 @@ class cCfgSQL:
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
 			return None
-		where_option = "cfg_template.name like '%s'" % option
-
-		# if no machine given: any machine
-		where_machine = " and cfg_item.machine like '%s'" % machine
-
-		# if no cookie given: standard cookie
-		where_cookie = " and cfg_item.cookie like '%s'" % cookie
 
 		# if no user given: current db user
 		# but check for "_user", too, due to ro/rw conn interaction
 		if user is None:
-			where_user = " and (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
-		else:
-			where_user = " and cfg_item.owner like '%s'" % user
+			user = "NONE"
 
 		curs = self.conn.cursor()
 
 		# retrieve option definition
-		if gmPG.run_query(curs, "select cfg_item.id, cfg_template.type from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
+		if gmPG.run_query(curs, """
+select cfg_item.id, cfg_template.type
+from cfg_item, cfg_template
+where
+cfg_template.name like %s and
+cfg_item.machine like %s and
+cfg_item.cookie like %s and
+(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER or cfg_item.owner like %s)
+and cfg_template.id = cfg_item.id_template limit 1;
+""", option, machine, cookie, user) is None:
 			curs.close()
 			return None
 
@@ -164,23 +164,21 @@ class cCfgSQL:
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve the ID for.")
 			return None
-		where_option = "cfg_template.name like '%s'" % option
-
-		# if no machine given: any machine
-		where_machine = " and cfg_item.machine like '%s'" % machine
-
-		# if no user given: current db user
 		if user is None:
-			where_user = " and (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
-		else:
-			where_user = " and cfg_item.owner like '%s'" % user
-
-		# if no cookie given: standard cookie
-		where_cookie = " and cfg_item.cookie like '%s'" % cookie
+			user = "NONE"
 
 		curs = self.conn.cursor()
 		# retrieve option definition
-		if gmPG.run_query(curs, "select cfg_item.id from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
+		if gmPG.run_query(curs, """
+select cfg_item.id, cfg_template.type
+from cfg_item, cfg_template
+where
+cfg_template.name like %s and
+cfg_item.machine like %s and
+cfg_item.cookie like %s and
+(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER or cfg_item.owner like %s)
+and cfg_template.id = cfg_item.id_template limit 1;
+""", option, machine, cookie, user) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -233,6 +231,7 @@ class cCfgSQL:
 			_log.Log(gmLog.lErr, "Don't know how to store option of type [%s] (%s -> %s)." % (type(value), cache_key, data_value))
 			return None
 
+		where_args = []
 		# set up field/value pairs
 		if user is None:
 			owner_field = ""
@@ -240,8 +239,9 @@ class cCfgSQL:
 			owner_where = ""
 		else:
 			owner_field = ", owner"
-			owner_value = ", '%s'" % user
-			owner_where = " and owner='%s'" % user
+			owner_value = ", %s"
+			owner_where = " and owner=%s"
+			where_args.append (user)
 
 		if machine is None:
 			machine_field = ""
@@ -249,8 +249,9 @@ class cCfgSQL:
 			machine_where = ""
 		else:
 			machine_field = ", machine"
-			machine_value = ", '%s'" % machine
-			machine_where = " and machine='%s'" % machine
+			machine_value = ", %s" 
+			machine_where = " and machine=%s"
+			where_args.append (machine)
 
 		if cookie is None:
 			cookie_field = ""
@@ -258,8 +259,9 @@ class cCfgSQL:
 			cookie_where = ""
 		else:
 			cookie_field = ", cookie"
-			cookie_value = ", '%s'" % cookie
-			cookie_where = " and cookie='%s'" % cookie
+			cookie_value = ", %s"
+			cookie_where = " and cookie=%s"
+			where_args.append (cookie)
 
 		# get id of option template
 		curs = aRWConn.cursor()
@@ -286,7 +288,7 @@ class cCfgSQL:
 		if self.get(machine, user, cookie, option) is None:
 			# insert new option
 			# insert option instance
-			if gmPG.run_query(curs, "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value)) is None:
+			if gmPG.run_query(curs, "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value), where_args) is None:
 				curs.close()
 				return None
 			# insert option value
@@ -1040,7 +1042,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.60  2003-08-24 13:36:39  hinnef
+# Revision 1.61  2003-09-21 08:37:47  ihaywood
+# database code now properly escaped
+#
+# Revision 1.60  2003/08/24 13:36:39  hinnef
 # added getFirstMatchingDBSet() for convenient config data retrieval
 #
 # Revision 1.59  2003/08/24 08:01:44  ncq
