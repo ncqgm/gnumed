@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.58 2005-02-12 14:00:21 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmDemographicRecord.py,v 1.59 2005-02-13 15:46:46 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -120,7 +120,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				vba.city,
 				vba.postcode,
 				at.name,
-				vbp.i_pk as pk_identity,
+				vbp.pk_identity,
 				title,
 				firstnames,
 				lastnames,
@@ -141,7 +141,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 			where
 				lpoa.id_address = vba.id
 				and lpoa.id_type = at.id
-				and lpoa.id_identity = vbp.i_pk
+				and lpoa.id_identity = vbp.pk_identity
 				and lpoa.id_org = %%s
 				"""
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['id'])
@@ -156,8 +156,8 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		"""
 		Binds a person to this organisation at this address
 		"""
-		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values ((select id from address_types where type=%(type)s), create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(i_pk)s)"
-		address['i_pk'] = person['id']
+		cmd = "insert into lnk_person_org_address (id_type, id_address, id_org, id_identity) values ((select id from address_types where type=%(type)s), create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(pk_identity)s)"
+		address['pk_identity'] = person['pk_identity']
 		address['org_id'] = self['id']
 		if not id_addr:
 			return (False, None)
@@ -254,8 +254,8 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 #==============================================================================
 class cIdentity (cOrg):
 	_table = "identity"
-	_cmd_fetch_payload = "select * from v_basic_person where i_pk=%s"
-	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(i_pk)s and xmin_identity = %(xmin_identity)"]
+	_cmd_fetch_payload = "select * from v_basic_person where pk_identity=%s"
+	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(pk_identity)s and xmin_identity = %(xmin_identity)"]
 	_cmds_store_payload = [
 		"""update identity set
 			title=%(title)s,
@@ -265,8 +265,8 @@ class cIdentity (cOrg):
 			fk_marital_status = %(fk_marital_status)s,
 			karyotype = %(karyotype)s,
 			pupic = %(pupic)s
-		where pk=%(i_pk)s""",
-		"""select xmin_identity from v_basic_person where i_pk=%(i_pk)s"""
+		where pk=%(pk_identity)s""",
+		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "fk_marital_status", "karyotype", "pupic"]
 	#--------------------------------------------------------
@@ -310,8 +310,8 @@ class cIdentity (cOrg):
 		"""
 		Binds an address to this person
 		"""
-		cmd = "insert into lnk_person_org_address ((select id from address_types where type = %s), id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(i_pk)s)"
-		address["i_pk"] = self['id']
+		cmd = "insert into lnk_person_org_address ((select id from address_types where type = %s), id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(pk_identity)s)"
+		address["pk_identity"] = self['id']
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#---------------------------------------------------------------------
 	def get_occupation (self):
@@ -339,16 +339,16 @@ class cIdentity (cOrg):
 	def get_relatives(self):
 		cmd = """
 select
-        t.description, v.i_pk as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, fk_marital_status,
+        t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, fk_marital_status,
 	marital_status, xmin_identity, preferred
 from
-	v_basic_person v, relation_types t, lnk_person2relative l
+	v_basic_person vbp, relation_types t, lnk_person2relative l
 where
 	(l.id_identity = %s and
-	v.i_pk = l.id_relative and
+	vbp.pk_identity = l.id_relative and
 	t.id = l.id_relation_type) or
 	(l.id_relation = %s and
-	v.i_pk = i.id_identity and
+	vbp.pk_identity = i.id_identity and
 	t.inverse = l.id_relation_type)
 """
 		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self['id'], self['id']])
@@ -356,7 +356,7 @@ where
 			return []
 		if len(data) == 0:
 			return []
-		return [(r[0], cIdentity (row = {'data':r[1:], 'idx':idx, 'pk_field':'id'})) for r in data ]
+		return [(r[0], cIdentity (row = {'data':r[1:], 'idx':idx, 'pk_field': 'pk'})) for r in data ]
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type = 'parent'):
 		from Gnumed.business.gmPerson import create_dummy_identity
@@ -660,7 +660,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.58  2005-02-12 14:00:21  ncq
+# Revision 1.59  2005-02-13 15:46:46  ncq
+# - trying to keep up to date with schema changes but may conflict with Ian
+#
+# Revision 1.58  2005/02/12 14:00:21  ncq
 # - identity.id -> pk
 # - v_basic_person.i_id -> i_pk
 # - likely missed some places here, though
