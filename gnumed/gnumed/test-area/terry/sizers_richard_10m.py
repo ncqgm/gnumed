@@ -1,4 +1,4 @@
-
+#!/usr/bin/python
 from wxPython.wx import *
 import images
 import images_gnuMedGP_Toolbar

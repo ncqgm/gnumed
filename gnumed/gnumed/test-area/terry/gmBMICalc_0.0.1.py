@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #############################################################################
 #
 # gmBMICalc.py  Feedback: anything which is incorrect or ambiguous please

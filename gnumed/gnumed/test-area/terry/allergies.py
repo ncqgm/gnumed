@@ -28,7 +28,9 @@ from wxPython.wx import *
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
+import gmEditArea_1h             #panel class holding editing prompts and text boxes
 ID_ALLERGYLIST = wxNewId()
+gmSECTION_ALLERGY = 7
 #------------------------------------
 #Dummy data to simulate allergy items
 #------------------------------------
@@ -37,13 +39,21 @@ allergydata = {
 2 : ("macrolides","Sensitivity","definate", "erythromycin ethyl succinate", "nausea and vomiting"),
 3 : ( "celecoxib","Allergy","definate","celecoxib", "allergic drug rash"),
 }
+
+allergyprompts = {
+1:("Date"),
+2:("Search Drug"),
+3:("Generic"),
+4:("Class"),
+5:("Reaction"),
+6:("Type")
+ }
+
 class MyFrame(wxFrame):
      def __init__(self,parent,ID,title,position,size,style):
           wxFrame.__init__(self,parent,ID,title,
                            wxDefaultPosition,wxSize(600,550))
-          #def __init__(self,parent, id,title,position,size,style):
-		#wxFrame.__init__(self,parent, id,title,wxDefaultPosition,wxDefaultSize,style)
-          ##--------------------
+          #--------------------
           #add the main heading
           #--------------------
           self.allergypanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"  ALLERGIES  ")
@@ -51,16 +61,13 @@ class MyFrame(wxFrame):
           #dummy panel will later hold the editing area
           #--------------------------------------------
           self.dummypanel = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-          self.messagetxt = wxTextCtrl(self,-1,
-                        "Hi Guys, this is a prototype Allergy Panel. Comments please to rterry@gnumed.net..\n\n"
-		        "The information in the lists and text boxes below is completely dummy stuff.\n"
-		          "When Karsten and Ian finish the wxWordWheel.py then I'll be\n"
-		          "able to finish designing the editing area!!!! \n"
-                                      "which by rights, should occupy the space this text box does \n\N"
-     		 	  "View this screen about 1/2 the size of your monitor width. Bye for now...\n\n",  
-                                       size = (200,100), style=wxTE_MULTILINE)
-          
+	  self.dummypanel.SetBackgroundColour(wxColor(222,222,222))
+          #----------------------------------------------
+	  #now create the editarea specific for allergies
+	  #----------------------------------------------
+          self.editarea = gmEditArea_1h.EditArea(self,-1,allergyprompts,gmSECTION_ALLERGY)
           self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
+	  self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
           #-----------------------------------------------
           #add the divider headings below the editing area
           #-----------------------------------------------
@@ -95,7 +102,7 @@ class MyFrame(wxFrame):
 	  items = allergydata.items()
 	  for x in range(len(items)):
 	      key, data = items[x]
-	      print items[x]
+	      #print items[x]
 	      #print x, data[0],data[1],data[2]
 	      self.list_allergy.InsertStringItem(x, data[0])
 	      self.list_allergy.SetStringItem(x, 1, data[1])
@@ -129,7 +136,7 @@ class MyFrame(wxFrame):
           self.mainsizer = wxBoxSizer(wxVERTICAL)
           self.mainsizer.Add(self.allergypanelheading,0,wxEXPAND)
           self.mainsizer.Add(self.dummypanel,1,wxEXPAND)
-          self.mainsizer.Add(self.messagetxt,4,wxEXPAND)
+          self.mainsizer.Add(self.editarea,6,wxEXPAND)
           self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
           self.mainsizer.Add(self.sizer_divider_drug_generic,0,wxEXPAND)
           self.mainsizer.Add(self.list_allergy,4,wxEXPAND)
@@ -140,14 +147,13 @@ class MyFrame(wxFrame):
           self.mainsizer.Fit
           self.SetAutoLayout(true)
           self.Show(true)
-          
-          
+      
           
           
 class App(wxApp):
      def OnInit(self):
          #frame = MyFrame(NULL,-1,"Allergies")
-         frame = MyFrame(NULL, -1, "gnuMEdGP_PreAlphaGUI__AllergyPanel_V0.0.2", 
+         frame = MyFrame(NULL, -1, "gnuMEdGP_PreAlphaGUI__AllergyPanel_V0.0.5", 
 		                           wxDefaultPosition, size = wxSize(600,500),
 		                           style= wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
          frame.Show (true)
@@ -156,4 +162,4 @@ class App(wxApp):
     
 if __name__ == "__main__":
     app = App(0)
-    app.MainLoop()
+    app.MainLoop()#!/usr/bin/python
