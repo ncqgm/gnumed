@@ -3,8 +3,10 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
+
+import types
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
@@ -106,6 +108,18 @@ class cEncounter(gmClinItem.cClinItem):
 		'pk_provider',
 		'pk_type'
 	]
+	#--------------------------------------------------------
+	def set_active(self, staff_id=None):
+		cmd = """update clin_encounter set
+					fk_provider=%s,
+					last_affirmed=now()
+				where id=%s"""
+		success, msg = gmPG.run_commit('historica', [(cmd, [staff_id, self.pk_obj])])
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
+			_log.Log(gmLog.lErr, str(msg))
+			return False
+		return True
 #============================================================
 # convenience functions
 #------------------------------------------------------------	
@@ -149,7 +163,7 @@ def create_health_issue(patient_id=None, description='xxxDEFAULTxxx'):
 		return (False, _('internal error, check log'))
 	return (True, h_issue)
 #-----------------------------------------------------------
-def create_encounter(fk_patient=None, fk_location=-1, fk_provider= None, description=None, fk_type=None):
+def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, description=None, enc_type=None):
 	"""Creates a new encounter for a patient.
 
 	fk_patient - patient PK
@@ -161,26 +175,38 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider= None, descrip
 	FIXME: we don't deal with location yet
 	"""
 	# sanity check:
-	# - any of the args being None should fail the SQL code
-	# insert new health issue
-	cmd1 = """
-		insert into clin_encounter (
-			fk_patient, fk_location, fk_provider, description, fk_type
-		) values (
-			%s, -1, %s, %s,	(select id from encounter_type where description=%s)
-		)"""
-	cmd2 = "select currval('clin_encounter_id_seq')"
-	result, msg = gmPG.run_commit('historica', [
-		(cmd1, [fk_patient, fk_provider, description, fk_type]),
-		(cmd2, [])
-	])
+	if description is None:
+		description = 'auto-created %s' % mxDT.today().Format('%A %Y-%m-%d %H:%M')
+	# FIXME: look for MRU/MCU encounter type here
+	if enc_type is None:
+		enc_type = 'chart review'
+	# insert new encounter
+	queries = []
+	if type(enc_type) == types.IntType:
+		cmd = """
+			insert into clin_encounter (
+				fk_patient, fk_location, fk_provider, description, fk_type
+			) values (
+				%s, -1, %s, %s,	(select id from encounter_type where description=%s)
+			)"""
+	else:
+		cmd = """
+			insert into clin_encounter (
+				fk_patient, fk_location, fk_provider, description, fk_type
+			) values (
+				%s, -1, %s, %s,	%s
+			)"""
+	queries.append((cmd, [fk_patient, fk_provider, description, str(enc_type)]))
+	cmd = "select currval('clin_encounter_id_seq')"
+	queries.append((cmd, []))
+	result, msg = gmPG.run_commit('historica', queries, True)
 	if result is None:
-		return (None, msg)
+		return (False, msg)
 	try:
 		encounter = cEncounter(aPK_obj = result[0][0])
 	except gmExceptions.ConstructorError:
 		_log.LogException('cannot instantiate encounter [%s]' % (result[0][0]), sys.exc_info, verbose=0)
-		return (None, _('internal error, check log'))
+		return (False, _('internal error, check log'))
 	return (True, encounter)
 #============================================================
 # main - unit testing
@@ -221,7 +247,11 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.4  2004-05-16 15:47:51  ncq
+# Revision 1.5  2004-05-17 19:02:26  ncq
+# - encounter.set_active()
+# - improve create_encounter()
+#
+# Revision 1.4  2004/05/16 15:47:51  ncq
 # - add episode.set_active()
 #
 # Revision 1.3  2004/05/16 14:31:27  ncq
