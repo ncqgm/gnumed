@@ -1,0 +1,15 @@
+Regression tests and proof-of-concept clients
+=============================================
+
+Export:
+test-export.py is a simple text mode document export client
+
+Import
+------
+
+Make a link from ./test-import to ../import/import-med_docs.py.
+This will allow you to run an import test.
+
+Karsten Hilbert <Karsten.Hilbert@gmx.net>
+-- 
+$Revision: 1.1 $
