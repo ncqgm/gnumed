@@ -42,7 +42,7 @@ July 2004
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmNull.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Dinu C. Gherman"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -159,15 +159,20 @@ def test():
 	assert str(n) == 'Null'
 
 	# comparing
-	if n == '1':
-		pass
+	if n == 1:
+		print "Null object == 1"
+	else:
+		print "Null object != 1"
 #--------------------------------------------------------------
 if __name__ == '__main__':
 	test()
 
 #==============================================================
 # $Log: gmNull.py,v $
-# Revision 1.2  2004-07-21 07:51:47  ncq
+# Revision 1.3  2004-08-20 08:38:47  ncq
+# - robustify while working on allowing inactive patient after search
+#
+# Revision 1.2  2004/07/21 07:51:47  ncq
 # - tabified
 # - __nonzero__ added
 # - if keyword argument 'warn' is True: warn on use of Null class
