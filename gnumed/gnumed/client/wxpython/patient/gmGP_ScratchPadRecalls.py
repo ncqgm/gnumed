@@ -1,3 +1,11 @@
+# GnuMed ...
+# licnese: GPL
+
+#===============================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_ScratchPadRecalls.py,v $
+# $Id
+__version__ = "$Revision: 1.11 $"
+
 from wxPython.wx import *
 import gmPlugin, gmShadow, gmLog, gmDispatcher, gmSignals, gmPG
 
@@ -7,6 +15,7 @@ recalldata = {}
 query_scratchpad = "select id, timestamp, text, author from scratchpad where id_identity=%s"
 query_recalls = "select id, timestamp, reason from recalls where id_identity=%s"
 
+#===============================================================
 class ScratchPadRecalls(wxPanel):
 	def __init__(self, parent,id=-1):
 		self.patientID=None
@@ -124,9 +133,7 @@ class ScratchPadRecalls(wxPanel):
 		self.UpdateRecalls(patid)
 		self.UpdateScratchpad(patid)
 
-
-
-
+#===============================================================
 class gmGP_ScratchPadRecalls (gmPlugin.wxBasePlugin):
     """
     Plugin to encapsulate the scratch pad and recalls
@@ -141,8 +148,16 @@ class gmGP_ScratchPadRecalls (gmPlugin.wxBasePlugin):
 
     def unregister (self):
         self.gb['patient.manager'].Unregister ('scratchpad_recalls')
-    
+
+#===============================================================    
+# Main
+#===============================================================
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 500))
 	app.SetWidget(ScratchPadRecalls, -1)
 	app.MainLoop()
+#===============================================================
+# $Log: gmGP_ScratchPadRecalls.py,v $
+# Revision 1.11  2003-02-02 13:36:52  ncq
+# - cvs metadata keywords
+#
