@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.142 2004-03-04 19:46:54 ncq Exp $
-__version__ = "$Revision: 1.142 $"
+# $Id: gmGuiMain.py,v 1.143 2004-03-12 13:22:02 ncq Exp $
+__version__ = "$Revision: 1.143 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -382,7 +382,7 @@ class gmTopLevelFrame(wxFrame):
 		self.updateTitle()
 	#----------------------------------------------
 	def OnAbout(self, event):
-		import gmAbout
+		from Gnumed.wxpython import gmAbout
 		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
 		gmAbout.Centre(wxBOTH)
 		gmTopLevelFrame.otherWin = gmAbout
@@ -578,7 +578,7 @@ class gmApp(wxApp):
 		self.__guibroker = gmGuiBroker.GuiBroker()
 
 		# connect to backend (implicitely runs login dialog)
-		import gmLogin
+		from Gnumed.wxpython import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend is None:
 			_log.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
@@ -616,7 +616,8 @@ class gmApp(wxApp):
 
 		# last but not least: start macro listener if so desired
 		if gmCLI.has_arg('--slave'):
-			import gmScriptingListener, gmMacro
+			from Gnumed.pycommon import gmScriptingListener
+			from Gnumed.wxpython import gmMacro
 			macro_executor = gmMacro.cMacroPrimitives(cookie)
 			if gmCLI.has_arg('--port'):
 				port = gmCLI.arg['--port']
@@ -767,7 +768,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.142  2004-03-04 19:46:54  ncq
+# Revision 1.143  2004-03-12 13:22:02  ncq
+# - fix imports
+#
+# Revision 1.142  2004/03/04 19:46:54  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.141  2004/03/03 23:53:22  ihaywood
