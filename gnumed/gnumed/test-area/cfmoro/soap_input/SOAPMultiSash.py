@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.4 2004-11-21 19:21:00 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.5 2004-11-21 20:10:14 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -54,9 +54,10 @@ class cSOAPMultiSash(wxWindow):
         self.child.OnSize(None)
 
     def GetSelectedLeaf(self):
-	selected_leaf = self.child.GetSelectedLeaf()
-	return  selected_leaf
+	return  self.selected_leaf
 
+    def SetSelectedLeaf(self, selected_leaf):
+	self.selected_leaf = selected_leaf
 
 #----------------------------------------------------------------------
 
@@ -82,14 +83,6 @@ class wxMultiSplit(wxWindow):
 
         EVT_SIZE(self,self.OnSize)
 	
-    def GetSelectedLeaf(self):
-	selected_leaf = None
-        if self.view1 and self.view1.IsSelected():
-            selected_leaf = self.view1
-        elif self.view2 and self.view2.IsSelected():
-            selected_leaf = self.view2
-	return selected_leaf
-
     def UnSelect(self):
         if self.view1:
             self.view1.UnSelect()
@@ -258,9 +251,6 @@ class wxMultiViewLeaf(wxWindow):
     def GetSOAPPanel(self):
         return self.detail.child
 	
-    def IsSelected(self):
-	return self.detail.selected
-
     def UnSelect(self):
         self.detail.UnSelect()
 
@@ -324,7 +314,8 @@ class MultiClient(wxWindow):
             self.Refresh()
 
     def Select(self):
-        self.GetParent().multiView.UnSelect()
+        self.GetParent().multiView.UnSelect()	
+	self.GetParent().multiView.SetSelectedLeaf(self.GetParent())
         self.selected = True
         self.SetBackgroundColour(wxColour(255,255,0)) # Yellow
         self.Refresh()

@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
-import SOAP2
+import SOAP2, SOAPMultiSash
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -157,9 +157,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def do_layout(self):
 		"""
 		Arranges SOAP input layout
-		"""
-		
-		import SOAPMultiSash	
+		"""		
 		
 		# SOAP input panel main splitter window
 		self.soap_emr_splitter = wx.wxSplitterWindow(self, -1)
@@ -261,6 +259,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# FIXME only when unique and empty SOAP
 		selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
 		selected_soap_panel.SetHealthIssue(self.selected_issue)
+		# FIXME calculate height
+		self.soap_multisash.GetSelectedLeaf().AddLeaf(SOAPMultiSash.MV_VER, 200)
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):
