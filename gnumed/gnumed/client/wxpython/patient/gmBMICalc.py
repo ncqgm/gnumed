@@ -306,7 +306,7 @@ class gmBMICalc (gmPlugin.wxBasePlugin):
         menu = self.gb['main.toolsmenu']
         menu.Append (ID_BMIMENU, "BMI", "Body Mass Index Calculator")
         EVT_MENU (self.gb['main.frame'], ID_BMIMENU, self.OnBMITool)
-	tb = self.gb['toolbar.Patient Window']
+	tb = self.gb['toolbar.Patient']
 	tb.AddTool (ID_BMITOOL,images_gnuMedGP_Toolbar.getToolbar_BMICalcBitmap(),shortHelpString="Body Mass Index Calculator")
 	EVT_TOOL (tb, ID_BMITOOL, self.OnBMITool)
 

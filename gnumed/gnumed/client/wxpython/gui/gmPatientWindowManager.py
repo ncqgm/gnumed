@@ -168,7 +168,7 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
         return "Patient"
 
     def MenuInfo (self):
-        return ('view', '&Patient')
+        return None # we add our own submenu
 
     def GetWidget (self, parent):
         self.pw = PatientWindow (parent)
@@ -177,6 +177,12 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
 
     def register (self):
         gmPlugin.wxNotebookPlugin.register (self)
+        # add own submenu, patient plugins add to this
+        ourmenu = wxMenu ()
+        self.gb['patient.submenu'] = ourmenu
+        menu = self.gb['main.viewmenu']
+        self.menu_id = wxNewId ()
+        menu.AppendMenu (self.menu_id, '&Patient', ourmenu, self.name ())
         for plugin in gmPlugin.GetAllPlugins ('patient'):
             gmPlugin.LoadPlugin ('patient', plugin,
                                  guibroker = self.gb)

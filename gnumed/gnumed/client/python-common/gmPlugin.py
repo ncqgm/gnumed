@@ -121,16 +121,19 @@ class wxNotebookPlugin (wxBasePlugin):
 
 		# and put ourselves into the menu structure
 		# FIXME: this should be optional, too
-		menuset, menuname = self.MenuInfo ()
-		menu = self.gb['main.%smenu' % menuset]
-		self.menu_id = wxNewId ()
-		menu.Append (self.menu_id, menuname, self.name ())
-		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
+		if self.MenuInfo ():
+			menuset, menuname = self.MenuInfo ()
+			menu = self.gb['main.%smenu' % menuset]
+			self.menu_id = wxNewId ()
+			menu.Append (self.menu_id, menuname, self.name ())
+			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
+		# so notebook can find this widget
+		self.gb['main.notebook.numbers'][self.nb_no] = self
 	#-----------------------------------------------------
 	def unregister (self):
 		"""Remove ourselves."""
 		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
-		menu.Delete (menu_id)
+		menu.Delete (self.menu_id)
 		nb = gb['main.notebook']
 		nb.DeletePage (self.nb_no)
 		self.tbm.DeleteBar (self.nb_no)
@@ -167,22 +170,24 @@ class wxPatientPlugin (wxBasePlugin):
 			tool1 = tb2.AddTool(self.tool_id, icon,
 					    shortHelpString=self.name ())
 			EVT_TOOL (tb2, self.tool_id, self.OnTool)
-		menuset, menuname = self.MenuInfo ()
-		menu = self.gb['main.%smenu' % menuset]
+		menuname = self.name ()
+		menu = self.gb['patient.submenu']
 		self.menu_id = wxNewId ()
-		menu.Append (self.menu_id, menuname, self.name ())
+		menu.Append (self.menu_id, menuname)
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
 	#-----------------------------------------------------        
 	def OnTool (self, event):
+		self.Shown ()
 		self.mwm.Display (self.name ())
+		self.gb['modules.gui']['Patient'].Raise ()
 	#-----------------------------------------------------
 	def Raise (self):
-		self.gb['modules.gui']['Patient Window'].Raise ()
+		self.gb['modules.gui']['Patient'].Raise ()
 		self.mwm.Display (self.name ())
 	#-----------------------------------------------------
 	def unregister (self):
 		self.mwm.Unregister (self.name ())
-		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
+		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
 		if self.GetIcon () is not None:
 			tb2 = self.gb['tollbar.Patient Window']

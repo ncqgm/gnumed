@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-10 19:16:49 $
-# @version $Revision: 1.26 $ $Date: 2002-07-10 19:16:49 $ $Author: ncq $
+# @Date: $Date: 2002-07-11 13:06:52 $
+# @version $Revision: 1.27 $ $Date: 2002-07-11 13:06:52 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -139,6 +139,8 @@ class MainFrame(wxFrame):
 		# set change in toolbar
 		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebook)
 		self.vbox.Add (self.nb, 10, wxEXPAND|wxALL, 1)
+		# this dictionary relates plugins to the notebook
+		self.guibroker['main.notebook.numbers'] = {}
 		for plugin in gmPlugin.GetAllPlugins ('gui'):
 			gmPlugin.LoadPlugin ('gui', plugin,
 						guibroker = self.guibroker,
@@ -179,10 +181,8 @@ class MainFrame(wxFrame):
 		# show toolbar
 		self.tb.ShowBar (nb_no)
 		# tell module it is shown
-		for module in self.guibroker['modules.gui'].values ():
-			if issubclass (module.__class__, gmPlugin.wxNotebookPlugin):
-				if module.GetNotebookNumber () == nb_no:
-					module.Shown ()
+		self.guibroker['main.notebook.numbers'][nb_no].Shown ()
+	
 
 
 	def RegisterEvents(self):
