@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.137 2004-09-06 18:54:31 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gmClinicalRecord.py,v 1.138 2004-09-13 19:07:00 ncq Exp $
+__version__ = "$Revision: 1.138 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -912,6 +912,24 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
+	def get_scheduled_vaccination_regimes(self):
+		"""Retrieves vaccination regimes the patient is on."""
+		cmd = """
+select
+	indication,
+	l10n_indication,
+	max(vacc_seq_no)
+from v_vaccs_scheduled4pat
+where pk_patient=%s
+group by indication, l10n_indication"""
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot retrieve scheduled vaccination regimes')
+			return None
+		if len(rows) == 0:
+			return None
+		return rows
+	#--------------------------------------------------------
 	def get_vaccinated_indications(self):
 		"""Retrieves patient vaccinated indications list.
 		"""
@@ -1481,7 +1499,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.137  2004-09-06 18:54:31  ncq
+# Revision 1.138  2004-09-13 19:07:00  ncq
+# - get_scheduled_vaccination_regimes() returns list of lists
+#   (indication, l10n_indication, nr_of_shots) - this allows to
+#   easily build table of given/missing vaccinations
+#
+# Revision 1.137  2004/09/06 18:54:31  ncq
 # - some cleanup
 # - in get_first/last_encounter we do need to check issue/episode for None so
 #   we won't be applying the "one-item -> two-duplicate-items for IN query" trick
