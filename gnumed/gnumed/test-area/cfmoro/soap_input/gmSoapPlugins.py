@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -65,9 +65,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__selected_episode = None
 
 		# multisash's selected leaf
-		self.__focussed_soap_editor = None
+		#self.__focussed_soap_editor = None
 		# multisash's selected soap widget
-		self.__selected_soap = None
+		#self.__selected_soap = None
 
 		# ui contruction and event handling set up
 		self.__do_layout()
@@ -159,15 +159,16 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Check and configure adecuate buttons enabling state
 		"""
-		if None in (self.__focussed_soap_editor, self.__selected_soap, self.__selected_episode):
+		#if None in (self.__focussed_soap_editor, self.__selected_soap, self.__selected_episode):
 #			print "Selected leaf:", self.__focussed_soap_editor
 #			print "Selected soap:", self.__selected_soap
 #			print "Selected episode:", self.__selected_episode
 #			print "Won't check buttons for None leaf/soap/selected_episode"
-			return False
+		#	return False
 						
+		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
 		# if soap stack is empty, disable save, clear and remove buttons		
-		if isinstance(self.__selected_soap, SOAPMultiSash.EmptyWidget) or self.__selected_soap.IsSaved():
+		if isinstance(selected_soap, multisash.cEmptyChild) or selected_soap.IsSaved():
 			self.__BTN_save.Enable(False)
 			self.__BTN_clear.Enable(False)
 			self.__BTN_remove.Enable(False)
@@ -184,8 +185,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__BTN_new.Enable(True)
 
 		# disabled save button when soap was dumped to backend
-		if not isinstance(self.__selected_soap, SOAPMultiSash.EmptyWidget) and self.__selected_soap.IsSaved():
+		if not isinstance(selected_soap, multisash.cEmptyChild) and selected_soap.IsSaved():
 			self.__BTN_remove.Enable(True)
+			
 	#--------------------------------------------------------	
 	def __allow_perform_action(self, action_id):
 		"""
@@ -193,6 +195,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		@param action_id: ui widget wich fired the action
 		"""
+		selected_leaf = self.__soap_multisash.get_focussed_leaf()
 		if action_id == self.__BTN_new.GetId():
 			if self.__selected_episode is None:
 				wx.wxMessageBox("There is not any problem selected.\nA problem must be selected to create a new SOAP note.",
@@ -201,7 +204,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				return False
 
 		if action_id != self.__BTN_new.GetId():
-			if (self.__focussed_soap_editor is None) or (len(self.__managed_episodes) == 0):
+			if (selected_leaf is None) or (len(self.__managed_episodes) == 0):
 				# FIXME: gui helpers
 				wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.",
 					caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION,
@@ -313,7 +316,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 						'The GnuMed window is too small. Please enlarge\n'
 						'the lowermost editor and try again.') % problem['problem']
 				gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
-			#self.__managed_episodes.append(episode_id)
+			self.__managed_episodes.append(episode_id)
 		else:
 			# FIXME: find and focus
 			msg = _(
@@ -339,7 +342,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# security check
 		if not self.__allow_perform_action(self.__BTN_save.GetId()):
 			return
-
+		
+		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
 		#FIXME initial development implementation. Refactor and update
 		vepisode_id = self.__emr.get_active_episode()['pk_episode']
 		vencounter_id = self.__emr.get_active_episode()['pk_episode']
@@ -352,24 +356,26 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		}
 		bundle = []
 		# iterate over input keys
-		for input_key in self.__selected_soap.GetSOAP().GetValue().keys():
+		for input_key in selected_soap.GetSOAP().GetValue().keys():
 			bundle.append (
 			{
 				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY:input_key,
 				gmSOAPimporter.soap_bundle_TYPES_KEY:['Hx'],
-				gmSOAPimporter.soap_bundle_TEXT_KEY:self.__selected_soap.GetSOAP().GetValue()[input_key],
+				gmSOAPimporter.soap_bundle_TEXT_KEY:selected_soap.GetSOAP().GetValue()[input_key],
 				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY:clin_ctx,
 				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY:{}
 			}
 			)
 
 		# let's dump soap contents		   
-		importer = gmSOAPimporter.cSOAPImporter()
-		importer.import_soap(bundle)
+		print 'Saving: %s' % bundle
+		#importer = gmSOAPimporter.cSOAPImporter()
+		#importer.import_soap(bundle)		
 				
 		# update buttons
-		self.__selected_soap.SetSaved(True)
+		selected_soap.SetSaved(True)
 		self.__update_button_state()
+		
 	#--------------------------------------------------------
 	def __on_clear(self, event):
 		"""
@@ -378,8 +384,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# security check
 		if not self.__allow_perform_action(self.__BTN_clear.GetId()):
 			return
-
-		self.__selected_soap.Clear()
+			
+		selected_soap = self.__soap_multisash.get_focussed_leaf().get_content()
+		selected_soap.Clear()
 
 	#--------------------------------------------------------
 	def __on_new(self, evt):
@@ -424,7 +431,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		print "remove SOAP input widget"
-		self.__focussed_soap_editor.DestroyLeaf()
+		selected_leaf = self.__soap_multisash.get_focussed_leaf()
+		selected_leaf.DestroyLeaf()
 
 		print "problems with soap: %s" % (self.__managed_episodes)
 		# there's no leaf selected after deletion, so disable all buttons
@@ -547,7 +555,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.18  2005-02-21 10:20:46  cfmoro
+# Revision 1.19  2005-02-21 11:52:37  cfmoro
+# Ported action of buttons to recent changes. Begin made them functional
+#
+# Revision 1.18  2005/02/21 10:20:46  cfmoro
 # Class renaming
 #
 # Revision 1.17  2005/02/17 16:46:20  cfmoro

@@ -6,12 +6,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: multisash.py,v 1.8 2005-02-21 10:31:11 cfmoro Exp $
+# RCS-ID:		$Id: multisash.py,v 1.9 2005-02-21 11:52:37 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/multisash.py,v $
-# $Id: multisash.py,v 1.8 2005-02-21 10:31:11 cfmoro Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: multisash.py,v 1.9 2005-02-21 11:52:37 cfmoro Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "cfmoro"
 __license__ = "GPL"
 	   
@@ -462,6 +462,13 @@ class cMultiSashLeaf(wxWindow):
 		@type content Any wxWindow derived object.
 		"""				
 		self.detail.set_new_content(content)
+
+	#-----------------------------------------------------		
+	def get_content(self):
+		"""
+		Retrieves the content child of this leaf.
+		"""				
+		return self.detail.child
 		
 	#-----------------------------------------------------
 	def AddLeaf(self,direction,pos):
@@ -942,7 +949,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: multisash.py,v $
-# Revision 1.8  2005-02-21 10:31:11  cfmoro
+# Revision 1.9  2005-02-21 11:52:37  cfmoro
+# Ported action of buttons to recent changes. Begin made them functional
+#
+# Revision 1.8  2005/02/21 10:31:11  cfmoro
 # Display empty child when removing first leaf. Some clean ups
 #
 # Revision 1.7  2005/02/21 10:20:46  cfmoro
