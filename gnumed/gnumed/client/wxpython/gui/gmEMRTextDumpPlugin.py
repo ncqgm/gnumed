@@ -1,11 +1,12 @@
 """GnuMed simple EMR text dump plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
-import gmLog, gmPlugin
-from gmEMRTextDump import gmEMRDumpPanel
+from Gnumed.pycommon import gmLog
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython.gmEMRTextDump import gmEMRDumpPanel
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -49,7 +50,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.3  2003-11-17 10:56:40  sjtan
+# Revision 1.4  2004-03-09 10:12:01  shilbert
+# - adapt to new API from Gnumed.foo import bar
+#
+# Revision 1.3  2003/11/17 10:56:40  sjtan
 #
 # synced and commiting.
 #

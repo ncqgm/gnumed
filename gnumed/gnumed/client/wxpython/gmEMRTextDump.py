@@ -2,21 +2,21 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.8 2004-02-25 09:46:22 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmEMRTextDump.py,v 1.9 2004-03-09 10:12:41 shilbert Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
-import gmLog
+from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher
 _log = gmLog.gmDefLog
 
 if __name__ == "__main__":
 	sys.path.append ("../pycommon/")
-	import gmI18N
+	from Gnumed.pycommon import gmI18N
 
-import gmDispatcher, gmPatient, gmSignals
+from Gnumed.business import gmPatient 
 
-from gmExceptions import ConstructorError
+from Gnumed.pycommon.gmExceptions import ConstructorError
 from wxPython.wx import *
 #============================================================
 class gmEMRDumpPanel(wxPanel):
@@ -125,7 +125,10 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.8  2004-02-25 09:46:22  ncq
+# Revision 1.9  2004-03-09 10:12:41  shilbert
+# - adapt to new API from Gnumed.foo import bar
+#
+# Revision 1.8  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.7  2004/02/05 23:49:52  ncq
