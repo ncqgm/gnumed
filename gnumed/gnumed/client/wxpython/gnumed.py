@@ -21,11 +21,11 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
-import sys, os, os.path, getopt
+import sys, os, os.path
 # ---------------------------------------------------------------------------
 def get_base_dir():
 	"""Retrieve the global base directory.
@@ -94,33 +94,10 @@ def get_base_dir():
 def call_main():
 	"""Call the appropriate main().
 	"""
-	# long options only !
-	cmd_line = []
-	try:
-		cmd_line = getopt.getopt(sys.argv[1:], '', ['talkback',])
-	except getopt.GetoptError:
-		pass
-
-	# 1) tuple(cmd_line) -> (known options, junk)
-	known_opts = []
-	if len(cmd_line) > 0:
-		known_opts = cmd_line[0]
-
-	if len(known_opts) > 0:
-		with_email_log = 1
+	if gmCLI.has_arg("--talkback"):
+		gmGuiMain.main_with_talkback()
 	else:
-		with_email_log = 0
-
-	# run gnumed and intercept _all_ exceptions (but reraise them ...)
-	try:
-		if with_email_log:
-			gmGuiMain.main_with_talkback()
-		else:
-			gmGuiMain.main()
-	except:
-		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc)
-		raise
+		gmGuiMain.main()
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
@@ -135,30 +112,17 @@ if __name__ == "__main__":
 
 	try:
 		import gmLog
+		import gmCLI
 	except ImportError:
-		sys.exit("CRITICAL ERROR: Can't load gmLog ! - Program halted.\n \
+		sys.exit("CRITICAL ERROR: Can't load gmLog or gmCLI ! - Program halted.\n \
 				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
 				  variables are set correctly.")
 
-	# long options only !
-	cmd_line = []
-	try:
-		cmd_line = getopt.getopt(sys.argv[1:], '', ['debug',])
-	except getopt.GetoptError:
-		pass
-
-	# 1) tuple(cmd_line) -> (known options, junk)
-	known_opts = []
-	if len(cmd_line) > 0:
-		known_opts = cmd_line[0]
-
-	if len(known_opts) > 0:
-		# know everything in debugging versions
+	if gmCLI.has_arg("--debug"):
+		print "Activating verbose output for debugging."
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-		print "debug"
 	else:
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
-		print "no debug"
 
 	#<DEBUG>
 	# console is Good(tm)
@@ -193,8 +157,13 @@ if __name__ == "__main__":
 		gmLog.gmDefLog.LogException('Exception: cannot change into resource directory ' + appPath, exc)
 		# let's try going on anyways
 
-	# now go do the stuff
-	call_main()
+	# run gnumed and intercept _all_ exceptions (but reraise them ...)
+	try:
+		call_main()
+	except:
+		exc = sys.exc_info()
+		gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc)
+		raise
 
 	#<DEBUG>
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Shutting down as main module.')
