@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-28 21:12:03 $
-# @version $Revision: 1.33 $ $Date: 2002-07-28 21:12:03 $ $Author: ncq $
+# @Date: $Date: 2002-07-31 13:02:23 $
+# @version $Revision: 1.34 $ $Date: 2002-07-31 13:02:23 $ $Author: rterry $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -151,7 +151,7 @@ class MainFrame(wxFrame):
 		self.SetSizer( self.vbox )
 		self.vbox.Fit( self )
 		#don't let the window get too small
-		self.vbox.SetSizeHints(self)
+		#self.vbox.SetSizeHints(self)
 		#position the Window on the desktop
 		self.Fit ()
 		self.Centre(wxBOTH)
