@@ -23,7 +23,7 @@
 --                BREAKS BACKWARDS COMPATIBILITY!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmidentity.sql,v $
--- $Id: gmidentity.sql,v 1.31 2003-02-24 23:08:21 ncq Exp $
+-- $Id: gmidentity.sql,v 1.32 2003-03-27 17:51:58 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -57,7 +57,6 @@ create table identity (
 	deceased timestamp with time zone null
 ) inherits (audit_identity);
 
-
 COMMENT ON TABLE identity IS
 'represents the unique identity of a person';
 
@@ -76,6 +75,9 @@ COMMENT ON COLUMN identity.cob IS
 COMMENT ON COLUMN identity.deceased IS
 'date when a person has died (if so), format yyyymmdd';
 
+create index idx_identity_dob on identity(dob);
+
+-- ==========================================================
 -- as opposed to the versioning of all other tables, changed names
 -- should not be moved into the audit trail tables. Search functionality
 -- must be available at any time for all names a person ever had.
@@ -108,6 +110,10 @@ COMMENT ON COLUMN names.lastnames IS
 COMMENT ON COLUMN names.preferred IS
 	'the preferred first name, the name a person is usually called (nickname)';
 
+create index idx_names_lastnames on names(lastnames);
+create index idx_names_firstnames on names(firstnames);
+
+-- ----------------------------------------------------------
 -- IH: 9/3/02
 -- trigger function to ensure one name is active.
 -- it's behaviour is to set all other names to inactive when
@@ -270,11 +276,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: gmidentity.sql,v $
--- Revision 1.31  2003-02-24 23:08:21  ncq
+-- Revision 1.32  2003-03-27 17:51:58  ncq
+-- - add a few indices
+--
+-- Revision 1.31  2003/02/24 23:08:21  ncq
 -- - fix my own typos :-)
 -- - make dob constrained to NOT NULL
 -- - make gender varchar(2) instead of character(2) or
