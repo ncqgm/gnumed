@@ -14,6 +14,7 @@
 #	24.10.2001 hherb comments added
 #	24.10.2001 hherb LoginDialog class added,
 #	24.10.2001 hherb persistent changes across multiple processes enabled
+#	25.10.2001 hherb more flexible configuration options, more commenting
 #
 # @TODO:
 ############################################################################
@@ -56,15 +57,27 @@ def ListToString(strlist, separator='|'):
 
 #############################################################################
 # returns a distinct merger of all items contained in origstr and newstr
+# and takes care of placing the most recent items at the beginnig of the
+# list
 #############################################################################
 
-def AppendSettings(origstr, newstr, separator='|'):
+def AppendSettings(origstr, newstr, maxitems=0, separator='|'):
 	"returns a distinct merger of all items contained in origstr and newstr"
 	origlist = StringToList(origstr, separator)
 	newlist = StringToList(newstr, separator)
 	newlist.reverse()
 	for item in newlist:
 		if item not in origlist:
+			#if we care how many items should be in our list
+			if maxitems>0:
+				#remove the last item if we have exceeded the quota
+				if len(origlist)>=maxitems:
+					origlist = origlist[:-1]
+			#if it is a new item, insert it at the beginnig of the list
+			origlist.insert(0,item)
+		else:
+			#move this item to the beginning of the list
+			origlist.remove(item)
 			origlist.insert(0,item)
 	return ListToString(origlist)
 
@@ -97,7 +110,7 @@ class LoginParameters:
 	def __init__(self):
 		self.userlist = ['gnumed', 'guest']
 		self.password = ''
-		self.databaselist = ['gnumed', 'demographica']
+		self.databaselist = ['gnumed', 'demograph', 'gis', 'pharma']
 		self.hostlist=['localhost']
 		self.portlist = ['5432']
 		self.backendoptionlist = ['']
@@ -110,19 +123,52 @@ class LoginParameters:
 class LoginPanel(wxPanel):
 	"GUI panel class that gets interactively Postgres login parameters"
 
+	# constructor parameters:
+	#	loginparams: to override default login parameters and configuration file.
+	#	             see class "LoginParameters" in this module
+	#	isDialog: if this panel is the main panel of a dialog, the panel will
+	#	          resize the dialog automatically to display everything neatly
+	#	          if isDialog is set to true
+	#	configroot: where to load and store saved settings; allows to have multiple
+	#	          login dialogs with different settings within the same application
+	#	          which is neccessary when working with distributed servers
+	#	configfilename: name of configuration file. It is NOT neccessary to include
+	#	          a path or extension here, as wxConfig will choose automatically
+	#	          whatever is convention on the current platform
+	#	maxitems: maximum number of items "remembered" in the comboboxes
+
 	def __init__(self, parent, id,
                   pos = wxPyDefaultPosition, size = wxPyDefaultSize,
-                  style = wxTAB_TRAVERSAL, loginparams=None, isDialog=0 ):
+                  style = wxTAB_TRAVERSAL,
+		  loginparams=None,
+		  isDialog=0,
+		  configroot = '/login' ,
+		  configfilename='gnumed',
+		  maxitems=8):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent=parent
+
 		#file name of configuration file - wxConfig takes care of path, extension etc.
-		self.confname="gnumed"
+		self.confname=configfilename
+
+		#root of setings in the configuration file for this particular dialog
+		self.configroot = configroot
+
+		#true if dialog was cancelled by user
 		self.cancelled=false
+
+		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog=isDialog
 
+		#the number of items we allow to be stored in the comboboxes "history"
+		self.maxitems = maxitems
+
+		#get some default login parameter settings in case the configuration file is empty
 		self.loginparams = loginparams or LoginParameters()
-		self.LoadSettings()
+		#if we didn't override the standard parameters, load them from the configuration file
+		if loginparams==None:
+			self.LoadSettings()
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 		self.paramsbox = wxStaticBox( self, -1, _("Login Parameters"))
@@ -229,7 +275,7 @@ class LoginPanel(wxPanel):
 		and make sure that changes already committed by other processes
 		using the same configuration file don't get overwritten"""
 
-		conf.Write(key, AppendSettings(conf.Read(key), setting))
+		conf.Write(key, AppendSettings(conf.Read(key), setting, self.maxitems))
 
 	def SaveSettings(self):
 		"Save parameter settings to standard configuration file"
@@ -248,7 +294,7 @@ class LoginPanel(wxPanel):
 #############################################################################
 
 	def GetLoginParams(self):
-		"Fetch login parameters from dialog widgets"
+		"Fetch login parameters from dialog widgets - return None if the user pressed the 'Cancel' button"
 		if not self.cancelled:
 			self.loginparams.userlist = ComboBoxItems(self.usercombo)
 			self.loginparams.password = self.GetPassword()
@@ -256,7 +302,9 @@ class LoginPanel(wxPanel):
 			self.loginparams.hostlist = ComboBoxItems(self.hostcombo)
 			self.loginparams.portlist = ComboBoxItems(self.portcombo)
 			self.loginparams.backendoptionlist = ComboBoxItems(self.beoptioncombo)
-		return self.loginparams
+			return self.loginparams
+		else:
+			return None
 
 #############################################################################
 # Functions to get and set values in user interface widgets
@@ -325,7 +373,8 @@ class LoginPanel(wxPanel):
 class LoginDialog(wxDialog):
 	def __init__(self, parent, id, title=_("Login")):
 		wxDialog.__init__(self, parent, id, title)
-		panel = LoginPanel(self, -1, isDialog=1)
+		self.panel = LoginPanel(self, -1, isDialog=1)
+
 
 
 #############################################################################
@@ -334,9 +383,17 @@ class LoginDialog(wxDialog):
 
 if __name__ == '__main__':
 	app = wxPyWidgetTester(size = (400, 400))
+	#show the login panel in a main window
 	app.SetWidget(LoginPanel, -1)
+	#and pop the login dialog up modally
 	dlg = LoginDialog(NULL, -1)
 	dlg.ShowModal()
+	#demonstration how to access the login dialog values
+	lp = dlg.panel.GetLoginParams()
+	if lp is None:
+		wxMessageBox("Dialog was cancelled by user")
+	else:
+		wxMessageBox("You tried to log in as %s with password %s" % (lp.userlist[0], lp.password))
 	dlg.Destroy()
 	app.MainLoop()
 
