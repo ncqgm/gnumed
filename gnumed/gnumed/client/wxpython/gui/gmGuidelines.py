@@ -59,7 +59,7 @@ class GuidelinesHtmlPanel(wxPanel):
 
         subbox = wxBoxSizer(wxHORIZONTAL)
         n = wxNewId()
-        btn = wxButton(self, n, _(""))
+        btn = wxButton(self, n, _("?button?"))
         EVT_BUTTON(self, n, self.OnShowDefault)
         subbox.Add(btn, 1, wxGROW | wxALL, 2)
 
