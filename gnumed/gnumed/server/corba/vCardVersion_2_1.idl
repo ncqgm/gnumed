@@ -1,4 +1,7 @@
 //File: vCardVersion2_1.idl
+/* Authorship by omg.org; the understanding is that this idl file is freely
+distributable according to the preface in omg document 01-04-04.pdf
+*/
 
 #ifndef _V_CARD_VERSION_2_1_IDL_
 #define _V_CARD_VERSION_2_1_IDL_

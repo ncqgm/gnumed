@@ -1,5 +1,8 @@
 
 //File: NamingAuthority.idl
+/* Authorship by omg.org; the understanding is that this idl file is freely
+distributable according to the preface in omg document 01-04-04.pdf
+*/
 
 #ifndef _NAMING_AUTHORITY_IDL_
 #define _NAMING_AUTHORITY_IDL_

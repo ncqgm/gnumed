@@ -3,6 +3,10 @@
 #include "Notification.idl"
  */
 
+/* Authorship by omg.org; the understanding is that this idl file is freely
+distributable according to the preface in omg document 01-04-04.pdf
+*/
+
 #ifndef  _PERSON_ID_SERVICE_IDL_
 #define  _PERSON_ID_SERVICE_IDL_
 #pragma  prefix "omg.org"

@@ -1,4 +1,7 @@
 //File: HL7Version2_3.idl
+/* Authorship by omg.org; the understanding is that this idl file is freely
+distributable according to the preface in omg document 01-04-04.pdf
+*/
 
 #ifndef _HL7_VERSION_2_3_IDL_
 #define _HL7_VERSION_2_3_IDL_
