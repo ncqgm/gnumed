@@ -4,14 +4,15 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
--- identity
--- name
+-- service personalia
+-- ---------------------------------------------
+-- identity/name
 delete from names where
 	firstnames = 'James T.'
 		and
@@ -30,8 +31,14 @@ values ('m', '1931-3-22+2:00', 'CA', 'Capt.');
 insert into names (id_identity, active, lastnames, firstnames)
 values (currval('identity_id_seq'), true, 'Kirk', 'James T.');
 
+-- =============================================
+-- service historica
+-- ---------------------------------------------
+-- only works because both services in same database
 insert into xlnk_identity (xfk_identity, pupic)
 values (currval('identity_id_seq'), currval('identity_id_seq'));
+
+-- EMR data
 
 -- default health issue
 delete from clin_health_issue where
@@ -50,7 +57,7 @@ delete from clin_episode where id in (
 insert into clin_episode (fk_health_issue, description)
 values (
 	currval('clin_health_issue_id_seq'),
-	'knive cut left arm 9/2000'
+	'knive cut L arm 9/2000'
 );
 
 -- encounter: first, for knive cut ------------------------------------------------
@@ -59,14 +66,114 @@ insert into clin_encounter (
 	fk_location,
 	fk_provider,
 	fk_type,
-	description
+	started,
+	last_affirmed
 ) values (
 	currval('identity_id_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
-	'first for this RFE'
+	'2000-9-17 17:13',
+	'2000-9-17 19:33'
 );
+
+-- RFE
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat,
+	is_rfe
+) values (
+	'2000-9-17 17:14:32',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'dirty knive cut',
+	's',
+	'true'::boolean
+);
+
+-- subjective
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat
+) values (
+	'2000-9-17 17:16:41',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'acc cut himself left forearm ca -2/24, dirty blade, extraterrest.envir.',
+	's'
+);
+
+-- objective
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat
+) values (
+	'2000-9-17 17:20:59',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'left ulnar forearm; 5cm jagged(+) cut; dirt; skin/sc fat only; musc/tend not injured; no dist sens loss found; pain/redness++; smelly secretion+, no pus',
+	'o'
+);
+
+-- assessment
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat
+) values (
+	'2000-9-17 17:21:19',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'contam/infected knive cut left arm, ?extraterr. vector?, req ABs/surg/blood',
+	'a'
+);
+
+-- plan
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat
+) values (
+	'2000-9-17 17:2',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'1) inflamm.screen/std ET serology
+2) debridement/loose adapt.; 10ml xylocitin sc; 00-Reprolene
+3) Pen 1.5 Mega 1-1-1
+4) review +2/7; tomorrow if symptoms/blood screen +',
+	'p'
+);
+
+-- AOE
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat,
+	is_aoe
+) values (
+	'2000-9-17 17:14:32',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'dirty knive cut',
+	's',
+	'true'::boolean
+);
+
 
 -- diagnoses
 insert into clin_aux_note (
@@ -421,11 +528,20 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.27  2004-06-26 23:45:50  ncq
+-- Revision 1.28  2004-07-02 00:28:54  ncq
+-- - clin_working_diag -> clin_coded_diag + index fixes therof
+-- - v_pat_diag rewritten for clin_coded_diag, more useful now
+-- - v_patient_items.id_item -> pk_item
+-- - grants fixed
+-- - clin_rfe/aoe folded into clin_narrative, that enhanced by
+--   is_rfe/aoe with appropriate check constraint logic
+-- - test data adapted to schema changes
+--
+-- Revision 1.27  2004/06/26 23:45:50  ncq
 -- - cleanup, id_* -> fk/pk_*
 --
 -- Revision 1.26  2004/06/26 07:33:55  ncq

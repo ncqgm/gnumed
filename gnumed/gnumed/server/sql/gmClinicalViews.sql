@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.78 2004-06-30 15:43:52 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.79 2004-07-02 00:28:52 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -36,9 +36,6 @@ drop index idx_allg_episode;
 
 drop index idx_formi_encounter;
 drop index idx_formi_episode;
-
-drop index idx_cwdiag_encounter;
-drop index idx_cwdiag_episode;
 
 drop index idx_cmeds_encounter;
 drop index idx_cmeds_episode;
@@ -80,8 +77,8 @@ create index idx_allg_episode on allergy(fk_episode);
 create index idx_formi_encounter on form_instances(fk_encounter);
 create index idx_formi_episode on form_instances(fk_episode);
 
-create index idx_cwdiag_encounter on clin_working_diag(fk_encounter);
-create index idx_cwdiag_episode on clin_working_diag(fk_episode);
+--create index idx_ccdiag_encounter on clin_coded_diag(fk_encounter);
+--create index idx_ccdiag_episode on clin_coded_diag(fk_episode);
 
 create index idx_cmeds_encounter on curr_medication(fk_encounter);
 create index idx_cmeds_episode on curr_medication(fk_episode);
@@ -237,7 +234,7 @@ select
 		else true
 	end as is_modified,
 	vpep.id_patient as id_patient,
-	cri.pk_item as id_item,
+	cri.pk_item as pk_item,
 	cri.fk_encounter as pk_encounter,
 	cri.fk_episode as pk_episode,
 	vpep.pk_health_issue as pk_health_issue,
@@ -422,7 +419,7 @@ drop view v_pat_allergies;
 create view v_pat_allergies as
 select
 	a.id as id,
-	a.pk_item as id_item,
+	a.pk_item as pk_item,
 	vpep.id_patient as id_patient,
 	case when coalesce(trim(both from a.allergene), '') = ''
 		then a.substance
@@ -677,25 +674,30 @@ drop view v_pat_diag;
 
 create view v_pat_diag as
 select
-	cwd.pk as pk_diagnosis,
 	vpi.id_patient as pk_patient,
-	cwd.narrative as diagnosis,
-	cwd.laterality as laterality,
-	cwd.is_chronic as is_chronic,
-	cwd.is_active as is_active,
-	cwd.is_definite as is_definite,
-	cwd.is_significant as is_significant,
-	cauxn.narrative as comment,
-	cwd.fk_encounter as pk_encounter,
-	cwd.fk_episode as pk_episode
+	ccd.pk as pk_coded_diag,
+	ccd.fk_aoe as pk_diagnosis,
+	cn.clin_when as diagnosed_when,
+	cn.narrative as diagnosis,
+	ccd.code as code,
+	ccd.xfk_coding_system as pk_coding_system,
+	ccd.laterality as laterality,
+	ccd.is_chronic as is_chronic,
+	ccd.is_active as is_active,
+	ccd.is_definite as is_definite,
+	ccd.is_significant as is_significant,
+	cn.fk_encounter as pk_encounter,
+	cn.fk_episode as pk_episode
 from
-	clin_working_diag cwd,
-	v_patient_items vpi,
-	clin_aux_note cauxn
+	clin_coded_diag ccd,
+	clin_narrative as cn,
+	v_patient_items vpi
 where
-	cwd.pk_item = vpi.id_item
+	cn.is_aoe is true
 		and
-	cwd.fk_progress_note = cauxn.pk
+	ccd.fk_aoe = cn.pk
+		and
+	cn.pk_item = vpi.pk_item
 ;
 
 -- =============================================
@@ -707,8 +709,6 @@ GRANT SELECT ON
 	, encounter_type
 	, clin_encounter
 	, curr_encounter
-	, clin_rfe
-	, clin_aoe
 	, clin_narrative
 	, clin_aux_note
 	, _enum_hx_type
@@ -726,8 +726,7 @@ GRANT SELECT ON
 	, xlnk_identity
 	, form_instances
 	, form_data
-	, clin_working_diag
-	, lnk_diag2code
+	, clin_coded_diag
 	, constituent
 	, curr_medication
 	, referral
@@ -747,13 +746,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_encounter,
 	clin_encounter_id_seq,
 	curr_encounter,
-	curr_encounter_id_seq
-	, clin_rfe
-	, clin_rfe_pk_seq
-	, clin_aoe
-	, clin_aoe_pk_seq,
+	curr_encounter_id_seq,
 	clin_narrative,
-	clin_narrative_id_seq,
+	clin_narrative_pk_seq,
 	clin_aux_note,
 	clin_aux_note_pk_seq,
 	_enum_hx_type,
@@ -786,10 +781,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, form_instances_pk_seq
 	, form_data
 	, form_data_pk_seq
-	, clin_working_diag
-	, clin_working_diag_pk_seq
-	, lnk_diag2code
-	, lnk_diag2code_pk_seq
+	, clin_coded_diag
+	, clin_coded_diag_pk_seq
 	, referral
 	, referral_id_seq
 	, curr_medication
@@ -845,11 +838,20 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.78 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.79 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.78  2004-06-30 15:43:52  ncq
+-- Revision 1.79  2004-07-02 00:28:52  ncq
+-- - clin_working_diag -> clin_coded_diag + index fixes therof
+-- - v_pat_diag rewritten for clin_coded_diag, more useful now
+-- - v_patient_items.id_item -> pk_item
+-- - grants fixed
+-- - clin_rfe/aoe folded into clin_narrative, that enhanced by
+--   is_rfe/aoe with appropriate check constraint logic
+-- - test data adapted to schema changes
+--
+-- Revision 1.78  2004/06/30 15:43:52  ncq
 -- - clin_note -> clin_narrative
 -- - remove v_i18n_curr_encounter
 -- - add clin_rfe, clin_aoe

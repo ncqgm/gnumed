@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.112 $
+-- $Revision: 1.113 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -144,7 +144,7 @@ create table clin_encounter (
 	last_affirmed timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP
-);
+) inherits (audit_fields);
 
 -- remote foreign keys
 select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
@@ -236,83 +236,41 @@ comment on column clin_root_item.narrative is
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
-create table clin_rfe (
-	pk serial primary key,
-	unique(fk_encounter, narrative)
-) inherits (clin_root_item);
-
--- this is Subjective/Anamnese
-alter table clin_rfe
-	alter column soap_cat set default 's';
--- narrative == RFE must not be NULL
-alter table clin_rfe
-	add constraint rfe_not_null check(narrative is not null);
-
-select add_table_for_audit('clin_rfe');
-
-comment on table clin_rfe is
-	'stores Reasons For Encounter/Beratungsursachen/Beratungsanlass,
-	 there may be several per encounter but they are unique across
-	 encounter/narrative combinations';
-comment on column clin_rfe.clin_when is
-	'when did this RFE become known to the provider,
-	 often when the patient first talked to front-desk
-	 staff';
-comment on column clin_rfe.fk_encounter is
-	'the encounter this RFE belongs too';
-comment on column clin_rfe.fk_episode is
-	'the episode this RFE belongs too,
-	 this allows to differentiate multiple
-	 unrelated RFEs per encounter';
-comment on column clin_rfe.narrative is
-	'the actual RFE as voiced by the patient';
-
--- --------------------------------------------
--- AOE - assessment of encounter
--- latest AOE per episode == active problem
-create table clin_aoe (
-	pk serial primary key,
-	unique(fk_encounter, narrative)
-) inherits (clin_root_item);
-
--- this is Assessment/Beratungsergebnis
-alter table clin_aoe
-	alter column soap_cat set default 'a';
--- narrative == AOE must not be NULL
-alter table clin_aoe
-	add constraint aoe_not_null check(narrative is not null);
-
-select add_table_for_audit('clin_aoe');
-
-comment on table clin_aoe is
-	'stores Assessment of Encounter/Beratungsergebnis,
-	 there may be several per encounter but they are
-	 unique across encounter/narrative combinations,
-	 the latest one per episode will be considered the
-	 active problem for that episode, at each encounter
-	 there must be exactly one AOE per distinct RFE
-	 where distinct means per-episode';
-comment on column clin_aoe.clin_when is
-	'when was this AOE decided on by the provider and patient';
-comment on column clin_aoe.fk_encounter is
-	'the encounter this AOE belongs too';
-comment on column clin_aoe.fk_episode is
-	'the episode this AOE belongs too';
-comment on column clin_aoe.narrative is
-	'the actual AOE as agreed upon by patient and provider';
-
--- --------------------------------------------
 create table clin_narrative (
-	id serial primary key
+	pk serial primary key,
+	is_rfe boolean
+		not null
+		default false,
+	is_aoe boolean
+		not null
+		default false,
+	unique(fk_encounter, narrative)
 ) inherits (clin_root_item);
+
+alter table clin_narrative add constraint aoe_xor_rfe
+	check (not (is_rfe is true and is_aoe is true));
+alter table clin_narrative add constraint rfe_is_subj
+	check ((is_rfe is false) or (is_rfe is true and soap_cat='s'));
+alter table clin_narrative add constraint aoe_is_assess
+	check ((is_aoe is false) or (is_aoe is true and soap_cat='a'));
+alter table clin_narrative add constraint narrative_not_empty
+	check (coalesce(narrative, '') != '');
 
 select add_table_for_audit('clin_narrative');
 
 comment on TABLE clin_narrative is
 	'Used to store clinical free text *not* associated
-	 with any other table. Can be used to implement
-	 a simple SOAP structure. Also other tags can be
-	 associated via link tables.';
+	 with any other table. Used to implement a simple
+	 SOAP structure. Also other tags can be associated
+	 via link tables.';
+comment on column clin_narrative.clin_when is
+	'when did the item reach clinical reality';
+comment on column clin_narrative.is_rfe is
+	'if TRUE the narrative stores a Reason for Encounter
+	 which also implies soap_cat = s';
+comment on column clin_narrative.is_aoe is
+	'if TRUE the narrative stores a Assessment of Encounter
+	 which also implies soap_cat = a';
 
 -- --------------------------------------------
 create table clin_aux_note (
@@ -324,6 +282,7 @@ select add_table_for_audit('clin_aux_note');
 comment on TABLE clin_aux_note is
 	'Other tables link here if they need more free text fields.';
 
+-- --------------------------------------------
 -- --------------------------------------------
 create table _enum_hx_type (
 	id serial primary key,
@@ -765,19 +724,16 @@ comment on column form_data.value is
 -- diagnosis tables
 -- --------------------------------------------
 -- patient attached diagnosis
-create table clin_working_diag (
+create table clin_coded_diag (
 	pk serial primary key,
-	fk_progress_note integer
-		default null
-		references clin_aux_note(pk)
+	fk_aoe integer
+		not null
+		references clin_narrative(pk)
 		on update cascade
 		on delete restrict,
 	laterality char
 		default null
 		check ((laterality in ('l', 'r', 'b', '?')) or (laterality is null)),
---	definity char
---		default 's'
---		check (definity in ('s', 'c', 'e')),
 	is_chronic boolean
 		not null
 		default false,
@@ -800,48 +756,59 @@ create table clin_working_diag (
 				or
 			((is_active = true) and (is_significant = true))
 		),
-	unique (narrative, fk_episode),
-	unique (narrative, fk_encounter)
-) inherits (clin_root_item);
-
--- FIXME: trigger to insert/update/delete clin_aux_note fields on description update
-
-select add_table_for_audit('clin_working_diag');
-
-alter table clin_working_diag alter column soap_cat set default 'a';
-
-comment on table clin_working_diag is
-	'stores diagnoses attached to patients, may or may not be
-	 linked to codes via lnk_diag2code';
-comment on column clin_working_diag.narrative is
-	'name of diagnosis';
-comment on column clin_working_diag.fk_progress_note is
-	'some additional clinical narrative such as approximate start';
-
-
--- "working set" of coded diagnoses
-create table lnk_diag2code (
-	pk serial primary key,
-	description text
-		not null,
 	code text
 		not null,
 	xfk_coding_system text
-		not null,
-	unique (description, code, xfk_coding_system)
+		not null
 ) inherits (audit_fields);
 
-select add_table_for_audit('lnk_diag2code');
-select add_x_db_fk_def('lnk_diag2code', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
+--alter table clin_coded_diag alter column soap_cat set default 'a';
 
-comment on TABLE lnk_diag2code is
-	'diagnoses as used clinically in patient charts linked to codes';
-comment on column lnk_diag2code.description is
-	'free text description of diagnosis';
-comment on column lnk_diag2code.code is
-	'the code in the coding system';
-comment on column lnk_diag2code.xfk_coding_system is
-	'the coding system used to code the diagnosis';
+select add_table_for_audit('clin_coded_diag');
+select add_x_db_fk_def('clin_coded_diag', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
+
+comment on table clin_coded_diag is
+	'stores additional detail on those AOEs (eg
+	 clin_narrative where is_aoe=true) that are
+	 true diagnoses, true diagnoses DO have a
+	 code from one of the coding systems';
+
+
+--create table clin_working_diag (
+--	pk serial primary key,
+--	fk_progress_note integer
+--		default null
+--		references clin_aux_note(pk)
+--		on update cascade
+--		on delete restrict,
+--) inherits (clin_root_item);
+
+-- FIXME: trigger to insert/update/delete clin_aux_note fields on description update
+
+--comment on column clin_working_diag.narrative is
+--	'name of diagnosis';
+--comment on column clin_working_diag.fk_progress_note is
+--	'some additional clinical narrative such as approximate start';
+
+
+-- "working set" of coded diagnoses
+--create table lnk_diag2code (
+--	pk serial primary key,
+--	description text
+--		not null,
+--	unique (description, code, xfk_coding_system)
+--) inherits (audit_fields);
+
+--select add_table_for_audit('lnk_diag2code');
+
+--comment on TABLE lnk_diag2code is
+--	'diagnoses as used clinically in patient charts linked to codes';
+--comment on column lnk_diag2code.description is
+--	'free text description of diagnosis';
+--comment on column lnk_diag2code.code is
+--	'the code in the coding system';
+--comment on column lnk_diag2code.xfk_coding_system is
+--	'the coding system used to code the diagnosis';
 
 
 -- ===================================================================
@@ -968,11 +935,20 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.112 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.113 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.112  2004-06-30 15:43:52  ncq
+-- Revision 1.113  2004-07-02 00:28:53  ncq
+-- - clin_working_diag -> clin_coded_diag + index fixes therof
+-- - v_pat_diag rewritten for clin_coded_diag, more useful now
+-- - v_patient_items.id_item -> pk_item
+-- - grants fixed
+-- - clin_rfe/aoe folded into clin_narrative, that enhanced by
+--   is_rfe/aoe with appropriate check constraint logic
+-- - test data adapted to schema changes
+--
+-- Revision 1.112  2004/06/30 15:43:52  ncq
 -- - clin_note -> clin_narrative
 -- - remove v_i18n_curr_encounter
 -- - add clin_rfe, clin_aoe
