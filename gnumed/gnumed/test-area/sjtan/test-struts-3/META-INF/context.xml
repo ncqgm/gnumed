@@ -3,7 +3,18 @@
 <!-- change the path below to the correct docBase for the installation e.g /home/myhome/testweb/test-struts-3 -->
 <Context crossContext="true" debug="5" docBase="../webapps/gnumed-test-war" path="/gnumed-test-war" reloadable="true" scope="session">
   <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_DBTest_log." suffix=".txt" timestamp="true"/>
-  <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource"/>
+
+  <!-- configuration for tomcat 5.5 -->
+  <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource" 
+	  driverClassName="org.postgresql.Driver"
+	  url="jdbc:postgresql://127.0.0.1:5432/gnumed"
+	  username="any-doc" password="any-doc"
+	  maxActive="20" maxIdle="10"
+	  />
+
+  <!-- configuratio for tomcat 5.0
+  <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource" />
+  
   <ResourceParams name="jdbc/gnumed">
     <parameter>
       <name>factory</name>
@@ -15,7 +26,7 @@
     </parameter>
     <parameter>
       <name>url</name>
-      <value>jdbc:postgresql://locahost:5432/gnumed</value>
+      <value>jdbc:postgresql://localhost:5432/gnumed</value>
     </parameter>
     <parameter>
       <name>username</name>
@@ -53,7 +64,16 @@
       <value>true</value>
     </parameter>
   </ResourceParams>
+  -->
   
+  <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource" 
+	  driverClassName="org.postgresql.Driver"
+	  url="jdbc:postgresql://127.0.0.1:5432/drugref"
+	  username="any-doc" password="any-doc"
+	  maxActive="20" maxIdle="10"
+	  />
+
+  <!-- for tomcat 5.0 <=  
    <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource"/>
   
   <ResourceParams name="jdbc/drugref">
@@ -71,12 +91,10 @@
     </parameter>
     <parameter>
       <name>username</name>
-      <!--   <value>sjtan</value> -->
       <value>any-doc</value>
     </parameter>
     <parameter>
       <name>password</name>
-      <!-- <value>monica</value> -->
       <value>any-doc</value>
     </parameter>
     <parameter>
@@ -107,4 +125,5 @@
       <value>true</value>
     </parameter>
     </ResourceParams>
+    -->
 </Context>
