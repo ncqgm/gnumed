@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.5 2004-12-14 10:26:01 ihaywood Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmResizingWidgets.py,v 1.6 2004-12-14 11:58:15 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -127,8 +127,8 @@ class cResizingWindow(wx.wxScrolledWindow):
 #		self.__matcher = None
 #		self.__popup = None
 
-		self.prev = None
-		self.next = None
+#		self.prev_in_tab_order = None
+#		self.next_in_tab_order = None
 		self.complete = complete	# ??
 
 		self.__szr_main = None
@@ -361,9 +361,12 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		wx.EVT_KEY_DOWN (self, self.__OnKeyDown)
 		wx.EVT_KEY_UP (self, self.__OnKeyUp)
 
+		self.next_in_tab_order = None
+		self.prev_in_tab_order = None
+
 		self.__popup_keywords = {}
 
-		self.parent = parent
+		self.__parent = parent
 		self.__show_list = 1
 		self.__embed = {}
 		self.list = 0
@@ -422,7 +425,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	def SetFocus (self):
 		wx.wxStyledTextCtrl.SetFocus(self)
 		cur = self.PointFromPosition(self.GetCurrentPos())
-		self.parent.EnsureVisible (self, cur.x, cur.y)
+		self.__parent.EnsureVisible (self, cur.x, cur.y)
 	#------------------------------------------------
 	def AttachMatcher (self, matcher):
 		"""
@@ -442,7 +445,7 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + self.TextHeight(0)
 		x, visible_height = self.GetSizeTuple()
 		if visible_height != true_txt_height:
-			self.parent.ReSize(self, true_txt_height)
+			self.__parent.ReSize(self, true_txt_height)
 		# get current relevant string
 		curs_pos = self.GetCurrentPos()
 		text = self.GetText()
@@ -485,76 +488,98 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		if not (self.list and self.list.alive):
 			x, y = self.GetPositionTuple()
 			p = self.PointFromPosition(curs_pos)
-			self.list = self.parent.GetPickList(self.__userlist, x+p.x, y+p.y)
+			self.list = self.__parent.GetPickList(self.__userlist, x+p.x, y+p.y)
 		self.list.SetItems(matches)
 	#------------------------------------------------
 	def __OnKeyDown (self, event):
+
+		# FIXME: I think the event.Skip() logic is faulty, no ?
+		# FIXME: after all Skip() means that we DID handle the key
+
 		if self.list and not self.list.alive:
 			self.list = None # someone else has destroyed our list!
-		pos = self.GetCurrentPos()
 
-		if event.KeyCode () == wx.WXK_TAB:
+		curs_pos = self.GetCurrentPos()
+
+		# tab/shift-tab handling
+		if event.KeyCode() == wx.WXK_TAB:
 			if event.m_shiftDown:
-				if self.prev:
-					self.prev.SetFocus()
+				if self.prev_in_tab_order:
+					self.prev_in_tab_order.SetFocus()
 			else:
-				if self.next:
-					self.next.SetFocus()
-				elif self.parent.complete:
-					self.parent.complete()
-
-		elif self.parent.complete and event.KeyCode() == wx.WXK_F12:
-			self.parent.complete ()
-
-		elif event.KeyCode () == ord (';'):
-			if self.GetLength () == 0:
-				wx.wxBell ()
-			elif self.GetCharAt (pos and pos-1) == ord (';'):
-				wx.wxBell ()
-			else:
-				event.Skip ()
-
-		elif event.KeyCode () == wx.WXK_DELETE:
-			if self.GetStyleAt (pos) == STYLE_EMBED:
-				self.DelPhrase (pos)
-			else:
-				event.Skip ()
-
-		elif event.KeyCode () == wx.WXK_BACK:
-			if self.GetStyleAt (pos and pos-1) == STYLE_EMBED:
-				self.DelPhrase (pos and pos-1)
-			else:
-				event.Skip ()
-
-		elif event.KeyCode () == wx.WXK_RETURN and not event.m_shiftDown:
-			if self.list and self.list.alive:
-				self.list.Enter ()
-			elif pos == self.GetLength ():
-				if self.GetCharAt (pos and pos-1) == ord (';'):
-					if self.next:
-						self.next.SetFocus ()
-					elif self.parent.complete:
-						self.parent.complete ()
-				else:
-					self.AddText (';')
-			elif self.GetLength () == 0 and self.next ():
-				self.next.SetFocus ()
+				if self.next_in_tab_order:
+					self.next_in_tab_order.SetFocus()
+				# FIXME: why ?
+				elif self.__parent.complete:
+					self.__parent.complete()
+		# FIXME: why ?
+		elif event.KeyCode() == wx.WXK_F12 and self.__parent.complete:
+			self.__parent.complete()
+		# ';' pressed
+		elif event.KeyCode() == ord(';'):
+			# cannot "end" empty phrase
+			if self.GetLength() == 0:
+				wx.wxBell()
+			# cannot enter two ';' in a row
+			# FIXME: why is this ANDed ? should this be getcharat() and getcharat() ?
+			elif self.GetCharAt(curs_pos and curs_pos-1) == ord (';'):
+				wx.wxBell()
 			else:
 				event.Skip()
-
-		elif self.list and self.list.alive and event.KeyCode () == wx.WXK_UP:
-			self.list.Up()
-
-		elif self.list and self.list.alive and event.KeyCode () == wx.WXK_DOWN:
-			self.list.Down()
-
+		# <DEL>
+		elif event.KeyCode() == wx.WXK_DELETE:
+			if self.GetStyleAt(curs_pos) == STYLE_EMBED:
+				self.DelPhrase(curs_pos)
+				# FIXME: also delete additional data dict ...
+			else:
+				event.Skip()
+		# <BACKSPACE>
+		elif event.KeyCode() == wx.WXK_BACK:
+			# FIXME: why is this ANDed ? should this be getcharat() and getcharat() ?
+			if self.GetStyleAt(curs_pos and curs_pos-1) == STYLE_EMBED:
+				self.DelPhrase (curs_pos)
+				# FIXME: also delete additional data dict ...
+			else:
+				event.Skip()
+		# <ENTER>
+		elif event.KeyCode() == wx.WXK_RETURN and not event.m_shiftDown:
+			# if list open proxy <ENTER> to list
+			if self.list and self.list.alive:
+				self.list.Enter ()
+			# if no text in the widget
+			elif self.GetLength() == 0:
+				# go to next widget
+				if self.next_in_tab_order:
+					self.next_in_tab_order.SetFocus()
+			# if in last line
+			elif curs_pos == self.GetLength():
+				if self.GetCharAt (curs_pos and curs_pos-1) == ord (';'):
+					if self.next_in_tab_order:
+						self.next_in_tab_order.SetFocus ()
+					elif self.__parent.complete:
+						self.__parent.complete ()
+				else:
+					self.AddText (';')
+			else:
+				event.Skip()
+		# <UP>
+		elif event.KeyCode() == wx.WXK_UP:
+			# if list open proxy <UP> to list
+			if self.list and self.list.alive:
+				self.list.Up()
+		# <DOWN>
+		elif event.KeyCode() == wx.WXK_DOWN:
+			# if list open proxy <UP> to list
+			if self.list and self.list.alive:
+				self.list.Down()
+		# other keys: no action
 		else:
-			event.Skip ()
+			event.Skip()
 	#------------------------------------------------
 	def __OnKeyUp (self, event):
 		if not self.list:
 			cur = self.PointFromPosition (self.GetCurrentPos())
-			self.parent.EnsureVisible (self, cur.x, cur.y)
+			self.__parent.EnsureVisible (self, cur.x, cur.y)
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -563,12 +588,16 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 			win = data(self, -1, pos = pos, size = wxSize(300, 150))
 			cPopupFrame(text, win, self, self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))).Show()
 		elif callable (data):
-			data (text, self.parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
+			data (text, self.__parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
 		else:
 			self.Embed (text, data)
 #====================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.5  2004-12-14 10:26:01  ihaywood
+# Revision 1.6  2004-12-14 11:58:15  ncq
+# - various inline comments enhanced
+# - in __OnKeyDown isn't the Skip() logic wrong ?
+#
+# Revision 1.5  2004/12/14 10:26:01  ihaywood
 #
 # minor fixes carried over from SOAP2.py
 #
