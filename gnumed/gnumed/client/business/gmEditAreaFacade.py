@@ -90,13 +90,13 @@ class gmEditAreaFacade:
 		"""
 		self._traceback("error whilst formatting")
 		if not values.has_key(f):
-			self._print("no value for for ", f)
+			_print("no value for for ", f)
 		if not formatting.has_key(f):
-			self._print("no formatting for ", f)
+			_print("no formatting for ", f)
 
-		self._print ("formatting for ", f, " is ", formatting.get(f, "none"))
+		_print ("formatting for ", f, " is ", formatting.get(f, "none"))
 
-		self._print ("value for ", f, " is ", values.get(f, "none"))
+		_print ("value for ", f, " is ", values.get(f, "none"))
 		
 		
 
@@ -130,7 +130,7 @@ class gmEditAreaFacade:
 		cmd = "insert into %s( %s) values ( %s )" 	
 		curs = conn.cursor()			
 		sql = cmd % (self.table, ", ".join(fields), ",".join(valList)  ) 
-		self._print(sql)
+		_print(sql)
 		curs.execute(sql)
 
 
