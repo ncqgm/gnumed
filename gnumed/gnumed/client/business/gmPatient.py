@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.39 2004-04-11 10:14:36 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmPatient.py,v 1.40 2004-05-18 20:40:11 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -122,7 +122,7 @@ class gmPerson:
 		try:
 			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self.__ID)
 		except StandardError:
-			_log.LogException('cannot instantiate clinical record for person [%s]', sys.exc_info())
+			_log.LogException('cannot instantiate clinical record for person [%s]' % self.__ID, sys.exc_info())
 			return None
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
@@ -155,6 +155,8 @@ class gmPerson:
 	def export_data(self):
 		data = {}
 		emr = self.get_clinical_record()
+		if emr is None:
+			return None
 		data['clinical'] = emr.get_text_dump()
 		return data
 	#--------------------------------------------------------
@@ -186,13 +188,12 @@ class gmCurrentPatient(gmBorg.cBorg):
 	There may be many instances of this but they all share state.
 	"""
 	def __init__(self, aPKey = None):
-		_log.Log(gmLog.lData, 'selection of patient [%s] requested' % aPKey)
 		# share state among all instances ...
 		gmBorg.cBorg.__init__(self)
 
 		# make sure we do have a patient pointer even if it is None
-		if not self.__dict__.has_key('patient'):
-			self.patient = None
+		if not self.__dict__.has_key('__patient'):
+			self.__patient = None
 
 		# set initial lock state,
 		# this lock protects against activating another patient
@@ -201,68 +202,78 @@ class gmCurrentPatient(gmBorg.cBorg):
 			self.unlock()
 
 		# user wants to init or change us
+		if aPKey is None:
+			# do nothing which will return ourselves
+			_log.Log(gmLog.lData, 'patient [<current>] requested, no ID specified')
+			return None
+
 		# possibly change us, depending on PKey
-		if aPKey is not None:
-			_log.Log(gmLog.lData, 'patient ID explicitely specified, trying to connect')
-			# init, no previous patient
-			if self.patient is None:
-				_log.Log(gmLog.lData, 'no previous patient')
-				try:
-					self.patient = gmPerson(aPKey)
-					# remote app must lock explicitly
-					self.unlock()
-					self.__send_selection_notification()
-				except:
-					_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
-			# change to another patient
-			else:
-				_log.Log(gmLog.lData, 'patient change: [%s] -> [%s]' % (self.patient['ID'], aPKey))
-				# are we really supposed to become someone else ?
-				if self.patient['ID'] != aPKey:
-					# yes, but CAN we ?
-					if self.locked is None:
-						try:
-							tmp = gmPerson(aPKey)
-							# clean up after ourselves
-							self.__send_pre_selection_notification()
-							self.patient.cleanup()
-							# and change to new patient
-							self.patient = tmp
-							self.unlock()
-							self.__send_selection_notification()
-						except:
-							_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
-							# FIXME: maybe raise exception here ?
-					else:
-						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
-				# no, same patient, so do nothing
-				else:
-					_log.Log(gmLog.lData, 'same ID, no change needed')
-		# else do nothing which will return ourselves
-		else:
-			_log.Log(gmLog.lData, 'no patient ID specified, returning current patient')
+		_log.Log(gmLog.lData, 'patient [%s] requested' % aPKey)
+		# no previous patient
+		if self.__patient is None:
+			_log.Log(gmLog.lData, 'no previous patient')
+			try:
+				self.__patient = gmPerson(aPKey)
+			except:
+				_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
+				return None
+			# remote app must lock explicitly
+			self.unlock()
+			self.__send_selection_notification()
+			return None
+
+		# change to another patient
+		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self.__patient['ID'], aPKey))
+		# are we really supposed to become someone else ?
+		if self.__patient['ID'] == aPKey:
+			# no, same patient, do nothing
+			_log.Log(gmLog.lData, 'same ID, no change needed')
+			return None
+
+		# yes, but CAN we ?
+		if self.locked is not None:
+			# no
+			_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.__patient['ID'], aPKey))
+			return None
+		# yes
+		try:
+			tmp = gmPerson(aPKey)
+		except:
+			_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
+			# returning None (and thereby silently staying
+			# the same patient) is a design decision
+			# FIXME: maybe raise exception here ?
+			return None
+
+		# clean up after ourselves
+		self.__send_pre_selection_notification()
+		self.__patient.cleanup()
+		# and change to new patient
+		self.__patient = tmp
+		self.unlock()
+		self.__send_selection_notification()
 
 		return None
 	#--------------------------------------------------------
 	def get_clinical_record(self):
-		return self.patient.get_clinical_record()
+		return self.__patient.get_clinical_record()
 	#--------------------------------------------------------
 	def get_demographic_record(self):
-		return self.patient.get_demographic_record()
+		return self.__patient.get_demographic_record()
 	#--------------------------------------------------------
 	def get_document_folder(self):
-		return self.patient.get_document_folder()
+		return self.__patient.get_document_folder()
 	#--------------------------------------------------------
 	def get_ID(self):
-		if self.patient is None:
+		if self.__patient is None:
 			return None
 		else:
-			return self.patient.getID()
+			return self.__patient.getID()
 	#--------------------------------------------------------
 	def export_data(self):
-		if self.patient is None:
+		if self.__patient is None:
 			return None
-		return self.patient.export_data()
+		return self.__patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -297,7 +308,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
-			'ID': self.patient['ID'],
+			'ID': self.__patient['ID'],
 			'signal': gmSignals.patient_selected(),
 			'sender': id(self.__class__)
 		}
@@ -306,14 +317,14 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __send_pre_selection_notification(self):
 		"""Sends signal when another patient is about to become active."""
 		kwargs = {
-			'ID': self.patient['ID'],
+			'ID': self.__patient['ID'],
 			'signal': gmSignals.activating_patient(),
 			'sender': id(self.__class__)
 		}
 		gmDispatcher.send(gmSignals.activating_patient(), kwds=kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
-		if self.patient is None:
+		if self.__patient is None:
 			return None
 		else:
 			return 1
@@ -323,8 +334,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		if self.patient is not None:
-			return self.patient[aVar]
+		if self.__patient is not None:
+			return self.__patient[aVar]
 		else:
 			return None
 #============================================================
@@ -892,7 +903,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.39  2004-04-11 10:14:36  ncq
+# Revision 1.40  2004-05-18 20:40:11  ncq
+# - streamline __init__ significantly
+# - check return status of get_clinical_record()
+# - self.patient -> self.__patient
+#
+# Revision 1.39  2004/04/11 10:14:36  ncq
 # - fix b0rked dob/dod handling in query generation
 # - searching by dob should now work
 #
