@@ -7,8 +7,8 @@ for which no translation is given.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/locale/dump-missing-db_translations.py,v $
-# $Id: dump-missing-db_translations.py,v 1.1 2003-12-29 14:57:37 uid66147 Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: dump-missing-db_translations.py,v 1.2 2004-01-12 17:15:18 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -47,13 +47,16 @@ if __name__ == '__main__':
 	dump.write('\unset ON_ERROR_STOP\n\n')
 	for row in rows:
 		dump.write('insert into i18n_translations (lang, orig, trans) values\n')
-		dump.write("\tvalues ('%s', '%s', '');\n" % (row[0], esc_str(row[1])))
+		dump.write("\t('%s', '%s', '');\n" % (row[0], esc_str(row[1])))
 	dump.write('\n\set ON_ERROR_STOP 1\n')
 	dump.close()
 	# cleanup
 	print "done"
 #============================================================
 # $Log: dump-missing-db_translations.py,v $
-# Revision 1.1  2003-12-29 14:57:37  uid66147
+# Revision 1.2  2004-01-12 17:15:18  ncq
+# - removed extra "values" in SQL template
+#
+# Revision 1.1  2003/12/29 14:57:37  uid66147
 # - dumps missing translations from GnuMed database
 #
