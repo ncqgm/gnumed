@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #----------------------------------------------------------------------
 import os.path, sys, os
@@ -19,7 +19,7 @@ import os.path, sys, os
 from wxPython import wx
 
 # location of our modules
-sys.path.append(os.path.join('..', 'modules'))
+sys.path.append(os.path.join('.', 'modules'))
 
 from docPatient import cPatient, gm2long_gender_map
 from docDocument import cDocument, cPatientDocumentList
