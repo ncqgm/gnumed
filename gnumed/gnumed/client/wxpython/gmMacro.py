@@ -2,16 +2,18 @@
 
 This module implements functions a macro can legally use.
 """
+#FIXME: semaphore für Gui-Aktionen :-)
+
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random
 
-from Gnumed.pycommon import gmLog, gmI18N, gmPlugin, gmGuiBroker, gmExceptions
+from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions
 from Gnumed.business import gmPatient
-from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmGuiHelpers, gmPlugin
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -74,7 +76,7 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.8 $" % self.__class__.__name__
+		return "%s $Revision: 1.9 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -156,6 +158,9 @@ class cMacroPrimitives:
 			return 0
 		return "cMacroPrimitives.assume_staff_identity() not implemented"
 	#-----------------------------------------------------------------
+	def wait_until_user_done():
+		return 0
+	#-----------------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------------
 #=====================================================================
@@ -190,7 +195,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.8  2004-03-05 11:22:35  ncq
+# Revision 1.9  2004-03-12 13:22:38  ncq
+# - comment on semaphore for GUI actions
+#
+# Revision 1.8  2004/03/05 11:22:35  ncq
 # - import from Gnumed.<pkg>
 #
 # Revision 1.7  2004/02/25 09:46:22  ncq
