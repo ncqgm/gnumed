@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -20,7 +20,6 @@ scan
 
 viewer
 ------
-- quit button
 
 =====================================================
 post-1.0
@@ -42,8 +41,6 @@ import
     - or perhaps use a binary cursor ?
 
 - investigate binary cursors
-
-- Benachrichtigung bei Importproblemen
 
 scan
 ----
@@ -78,14 +75,6 @@ viewer
    - "export this object"
    - "export this document"
    - "export selected" (multiple selections !)
-   - "display descriptions"
-     - level 1 menu:
-	   - zap consecutive whitespace into 1 space
-	   - display first 10 characters of description as item
-	   - level 2 menu:
-	     - "display"
-		 - "export"
-		 - "edit"
 
  - progress bar on download/unescape
 
