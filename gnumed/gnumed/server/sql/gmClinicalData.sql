@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.13 2003-10-21 15:04:48 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.14 2003-10-26 09:41:03 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -169,7 +169,7 @@ insert into test_type (
 */
 -- ===================================================================
 -- vaccination routes
-truncate vacc_route;
+delete from vacc_route;
 
 insert into vacc_route
 	(abbreviation, description)
@@ -183,7 +183,7 @@ values
 
 -- ===================================================================
 -- vaccination indications
-truncate vacc_indication;
+delete from vacc_indication;
 
 insert into vacc_indication (description) values (i18n('measles'));
 insert into vacc_indication (description) values (i18n('mumps'));
@@ -196,7 +196,7 @@ insert into vacc_indication (description) values (i18n('pertussis'));
 
 -- ===================================================================
 -- vaccination indication to disease code links
-truncate lnk_vacc_ind2code;
+delete from lnk_vacc_ind2code;
 
 -- ICD 10 GM (German Modification)
 
@@ -430,11 +430,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.13  2003-10-21 15:04:48  ncq
+-- Revision 1.14  2003-10-26 09:41:03  ncq
+-- - truncate -> delete from
+--
+-- Revision 1.13  2003/10/21 15:04:48  ncq
 -- - update vaccination schedules for Germany
 --
 -- Revision 1.12  2003/10/19 12:58:58  ncq

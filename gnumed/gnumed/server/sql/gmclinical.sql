@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.63 $
+-- $Revision: 1.64 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -329,12 +329,12 @@ create table vacc_def (
 	fk_indication integer not null references vacc_indication(id),
 	-- FIXME: specific constraint: null if (is_booster == true) else > 0
 	is_booster boolean not null default false,
-	seq_id integer not null,
+	seq_no integer not null,
 	min_age_due interval not null,
 	max_age_due interval not null,
 	min_interval interval not null,
 	comment text,
-	unique(fk_indication, seq_id)
+	unique(fk_indication, seq_no)
 ) inherits (audit_fields);
 
 select add_table_for_audit('vacc_def');
@@ -346,7 +346,7 @@ comment on column vacc_def.fk_indication is
 	 event is scheduled';
 comment on column vacc_def.is_booster is
 	'does this definition represent a booster';
-comment on column vacc_def.seq_id is
+comment on column vacc_def.seq_no is
 	'sequence number for this vaccination event
 	 within a particular schedule/regime,
 	 meaningless if (is_booster == true)';
@@ -360,7 +360,7 @@ comment on column vacc_def.min_interval is
 		recommended interval for boostering
 	 id (is_booster == false):
 	 	minimum interval after previous vaccination,
-		meaningless if seq_id == 1';
+		meaningless if seq_no == 1';
 
 -- --------------------------------------------
 create table vaccination (
@@ -369,7 +369,7 @@ create table vaccination (
 	fk_provider integer not null,
 	fk_vaccine integer references vaccine(id),
 	-- we need a constraint on fk_vacc_def to only
-	-- allow sequential vacc_def.seq_id inserts
+	-- allow sequential vacc_def.seq_no inserts
 	fk_vacc_def integer references vacc_def(id),
 	date_given date not null default CURRENT_DATE,
 	site text default 'not recorded',
@@ -713,11 +713,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.63 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.64 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.63  2003-10-20 22:01:01  ncq
+-- Revision 1.64  2003-10-26 09:41:03  ncq
+-- - truncate -> delete from
+--
+-- Revision 1.63  2003/10/20 22:01:01  ncq
 -- - removed use of array type in FKs as per Syan's suggestion
 --
 -- Revision 1.62  2003/10/19 15:43:00  ncq

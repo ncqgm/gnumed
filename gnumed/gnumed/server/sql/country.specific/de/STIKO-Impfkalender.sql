@@ -11,13 +11,13 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
-truncate vacc_def;
-truncate vacc_regime;
-truncate lnk_vacc_def2regime;
+delete from vacc_def;
+delete from vacc_regime;
+delete from lnk_vacc_def2regime;
 
 ------------
 -- Masern --
@@ -500,11 +500,14 @@ values (
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%STIKO-Impfkalender%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.3  2003-10-25 16:45:19  ncq
+-- Revision 1.4  2003-10-26 09:41:03  ncq
+-- - truncate -> delete from
+--
+-- Revision 1.3  2003/10/25 16:45:19  ncq
 -- - seq_id -> seq_no
 --
 -- Revision 1.2  2003/10/21 15:04:49  ncq

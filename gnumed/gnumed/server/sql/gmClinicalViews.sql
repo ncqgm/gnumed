@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.25 2003-10-19 15:43:00 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.26 2003-10-26 09:41:03 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -314,8 +314,8 @@ select
 	vdef.is_booster as is_booster,
 	case when vdef.is_booster
 		then null
-		else vdef.seq_id
-	end as vacc_seq_id,
+		else vdef.seq_no
+	end as vacc_seq_no,
 	vdef.min_age_due as age_due_min,
 	vdef.max_age_due as age_due_max,
 	vdef.min_interval as min_interval,
@@ -333,7 +333,7 @@ where
 	vdef.id = lvd2r.fk_vacc_def
 order by
 	indication,
-	vacc_seq_id
+	vacc_seq_no
 ;
 
 \unset ON_ERROR_STOP
@@ -354,11 +354,11 @@ select
 	vdef.is_booster as is_booster,
 	case when vdef.is_booster
 		then null
-		else vdef.seq_id
+		else vdef.seq_no
 	end as seq_no,
 	-- FIXME: this needs to be *per indication*
 	-- use group by/having etc.
-	case when (vdef.seq_id = (select max(seq_id) from vacc_def))
+	case when (vdef.seq_no = (select max(seq_no) from vacc_def))
 		then true
 		else false
 	end as is_last_shot,
@@ -442,11 +442,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.25  2003-10-19 15:43:00  ncq
+-- Revision 1.26  2003-10-26 09:41:03  ncq
+-- - truncate -> delete from
+--
+-- Revision 1.25  2003/10/19 15:43:00  ncq
 -- - even better vaccination tables
 --
 -- Revision 1.24  2003/10/19 12:59:42  ncq
