@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.20 2005-03-14 18:41:53 cfmoro Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmSOAPWidgets.py,v 1.21 2005-03-14 21:02:41 cfmoro Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -239,10 +239,10 @@ class cResizingSoapPanel(wx.wxPanel):
 		progress note).
 
 		@param txt: The heading text to set (episode name)
-		@param txt: string
+		@param txt: StringType
 		"""
-		if self.__episode is None:
-			self.__soap_heading.SetValue(txt)
+		if isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
+			self.__set_heading(txt)
 		else:
 			msg = _('Cannot change the episode description for current note.')
 			gmGuiHelpers.gm_show_error(msg, _('changing episode description'), gmLog.lErr)
@@ -287,7 +287,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		@param txt: New widget's heading title to set
 		@type txt: string
 		"""
-		if self.__episode is None:
+		if isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
 			self.__soap_heading.SetValue(txt)
 		else:
 			self.__soap_heading.SetLabel(txt)
@@ -519,7 +519,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.20  2005-03-14 18:41:53  cfmoro
+# Revision 1.21  2005-03-14 21:02:41  cfmoro
+# Handle changing text in unassociated notes
+#
+# Revision 1.20  2005/03/14 18:41:53  cfmoro
 # Indent fix
 #
 # Revision 1.19  2005/03/14 18:39:49  cfmoro
