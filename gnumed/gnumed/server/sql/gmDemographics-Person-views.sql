@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.25 2004-12-15 09:30:48 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.26 2004-12-20 19:04:37 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -133,6 +133,26 @@ BEGIN
 END;' language 'plpgsql';
 
 -- ==========================================================
+
+\unset ON_ERROR_STOP 
+drop function create_occupation (text);
+\set ON_ERROR_STOP 1
+
+CREATE FUNCTION create_occupation (text) RETURNS integer AS '
+DECLARE
+	occ_name alias for $1;
+	occ_id integer;
+	n_rec RECORD;
+BEGIN
+	select into n_rec * from occupation where name = occ_name;
+	if FOUND then
+		return n_rec.id;
+	else
+		insert into occupation (name) values (occ_name);
+		return currval (''occupation_id_seq'');
+	end if;
+END;' LANGUAGE 'plpgsql';
+
 \unset ON_ERROR_STOP
 drop function new_pupic();
 \set ON_ERROR_STOP 1
@@ -161,8 +181,11 @@ select
 	i.cob as cob,
 	i.gender as gender,
 	i.karyotype as karyotype,
+	i.pupic as pupic,
 	ms.name as marital_status,
-	n.preferred as preferred
+	fk_marital_status as pk_marital_status,
+	n.preferred as preferred,
+	i.xmin as xmin_identity
 from
 	identity i,
 	names n,
@@ -250,52 +273,38 @@ CREATE VIEW lnk_org2address AS
 	FROM lnk_person_org_address;
 
 -- ==========================================================
-\unset ON_ERROR_STOP
-drop view v_person_comms cascade;
-drop view v_person_comms;			-- cascade doesn't work on 7.1
+\unset ON_ERROR_STOP			-- cascade doesn't work on 7.1
 drop view v_person_comms_flat cascade;
 drop view v_person_comms_flat;
 \set ON_ERROR_STOP 1
 
-create view v_person_comms as
-select *
-from
-	(select i.id as pk_identity, ect.id as pk_comm_type
-	 from (enum_comm_types ect cross join identity i) 
-	 where exists( select id from lnk_identity2comm_chan l where l.id_identity=i.id) 
-	) as ic
-		left join
-	(select li2cc.id_identity as pk_identity, cc.url as url, cc.id_type as pk_comm_type
-	 from lnk_identity2comm_chan li2cc, comm_channel cc
-	 where li2cc.id_comm = cc.id) as l_comm
-	 	using (pk_identity, pk_comm_type) ;
-
 
 create view v_person_comms_flat as
-select distinct on (pk_identity)
-	v1.pk_identity as pk_identity,
+select distinct on (id_identity)
+	v1.id_identity as id_identity,
 	v1.url as email,
 	v2.url as fax,
 	v3.url as homephone,
 	v4.url as workphone,
 	v5.url as mobile
 from
-	v_person_comms v1,
-	v_person_comms v2,
-	v_person_comms v3,
-	v_person_comms v4,
-	v_person_comms v5
+	lnk_identity2comm_channel v1,
+	lnk_identity2comm_channel v2,
+	lnk_identity2comm_channel v3,
+	lnk_identity2comm_channel v4,
+	lnk_identity2comm_channel v5
 where
-	v1.pk_identity = v2.pk_identity
-	and v2.pk_identity = v3.pk_identity
-	and v3.pk_identity = v4.pk_identity
-	and v4.pk_identity = v5.pk_identity
-	and v1.pk_comm_type = 1
-	and v2.pk_comm_type = 2
-	and v3.pk_comm_type = 3
-	and v4.pk_comm_type = 4
-	and v5.pk_comm_type = 5 ;
+	v1.id_identity = v2.id_identity
+	and v2.id_identity = v3.id_identity
+	and v3.id_identity = v4.id_identity
+	and v4.id_identity = v5.id_identity
+	and v1.id_type = 1
+	and v2.id_type = 2
+	and v3.id_type = 3
+	and v4.id_type = 4
+	and v5.id_type = 5 ;
 
+-- =========================================================
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -312,8 +321,6 @@ GRANT SELECT ON
 	v_staff
 	, lnk_person2address
 	, lnk_org2address
-	, v_person_comms
-	, v_person_comms_flat
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -323,11 +330,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.25  2004-12-15 09:30:48  ncq
+-- Revision 1.26  2004-12-20 19:04:37  ncq
+-- - fixes by Ian while overhauling the demographics API
+--
+-- Revision 1.25  2004/12/15 09:30:48  ncq
 -- - correctly pull in martial status in v_basic_person
 --   (update/insert rules may be lacking now, though ?)
 --

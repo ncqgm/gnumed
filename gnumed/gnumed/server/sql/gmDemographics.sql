@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.37 $
+-- $Revision: 1.38 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -172,23 +172,6 @@ create table enum_comm_types (
 	description text unique not null
 );
 
-create table comm_channel (
-	id serial primary key,
-	id_type integer not null
-		references enum_comm_types(id)
-		on update cascade
-		on delete restrict,
-	url text not null,
-	unique(id_type, url)
-);
-
-comment on table comm_channel is
-	'stores reachability information';
-comment on column comm_channel.id_type is
-	'the id specifying the type of communication channel e.g. phone, email address, pager number, etc.';
-comment on column comm_channel.url is
-	'the connection detail i.e. the phone number, email address, pager number, etc.';
-
 -- ===================================================================
 
 -- the following table still needs a lot of work.
@@ -335,7 +318,7 @@ create table names (
 		references identity(id)
 		on update cascade
 		on delete cascade,
-	active boolean default false,
+	active boolean default true,
 	lastnames text not null,
 	firstnames text not null,
 	preferred text,
@@ -354,18 +337,16 @@ comment on column names.preferred IS
 	'preferred first name, the name a person is usually called (nickname)';
 
 -- ==========================================================
-create table lnk_identity2comm_chan (
+create table lnk_identity2comm_channel (
 	id serial primary key,
 	id_identity integer not null
 		references identity(id)
 		on update cascade
 		on delete cascade,
-	id_comm integer not null
-		references comm_channel(id)
-		on update cascade
-		on delete cascade,
+	url text,
+	id_type integer references enum_comm_types,
 	is_confidential bool not null default false,
-	unique (id_identity, id_comm)
+	unique (id_identity, url)
 );
 
 -- ==========================================================
@@ -378,6 +359,7 @@ create table lnk_identity2comm_chan (
 
 create table relation_types (
 	id serial primary key,
+	inverse integer references relation_types (id),
 	biological boolean not null,
 	biol_verified boolean default false,
 	description text
@@ -526,12 +508,10 @@ create table lnk_org2comm_channel (
 		references org(id)
 		on update cascade
 		on delete cascade,
-	id_comm integer not null
-		references comm_channel(id)
-		on update cascade
-		on delete cascade,
+	url text,
+	id_type integer references enum_comm_types (id), 
 	is_confidential bool not null default false,
-	unique (id_org, id_comm)
+	unique (id_org, url)
 );
 
 -- =====================================================================
@@ -555,7 +535,6 @@ create table lnk_person_org_address (
 	id_type integer references address_type (id) default 1,
 	address_source text,
 	id_org integer references org (id),
-	id_occupation integer references occupation (id),
 	unique(id_identity, id_address),
 	unique(id_org, id_address),
 	unique(id_identity, id_org, id_occupation)
@@ -580,11 +559,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.37 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.38 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.37  2004-12-15 09:33:16  ncq
+-- Revision 1.38  2004-12-20 19:04:37  ncq
+-- - fixes by Ian while overhauling the demographics API
+--
+-- Revision 1.37  2004/12/15 09:33:16  ncq
 -- - improve marital_status handling
 --
 -- Revision 1.36  2004/11/28 14:30:55  ncq
