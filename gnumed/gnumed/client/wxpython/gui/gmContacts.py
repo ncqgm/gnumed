@@ -6,7 +6,7 @@
 #
 # If you don't like it - change this code see @TODO!
 #  $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -21,12 +21,11 @@ __license__ = "GPL"  # (details at http://www.gnu.org)
 ############################################################################
 
 import sys
-if __name__ == '__main__':
-	sys.path.append (['..', '../../pycommon', '../../business'])
+#if __name__ == '__main__':
+#	sys.path.append (['..', '../../pycommon', '../../business'])
 
 from wxPython.wx import *
-import gmPlugin
-import images_contacts_toolbar16_16
+from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 
 DISPLAYPERSON = 0
 organisationsdata = {
@@ -408,7 +407,10 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.11  2004-02-25 09:46:22  ncq
+# Revision 1.12  2004-03-08 23:55:40  shilbert
+# - adapt to new API from Gnumed.foo import bar
+#
+# Revision 1.11  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.10  2004/02/18 06:30:30  ihaywood
