@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.13 2003-05-12 12:43:39 ncq Exp $
+-- $Id: gmI18N.sql,v 1.14 2003-06-10 09:58:11 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -35,7 +35,7 @@ create table i18n_keys (
 
 comment on table i18n_keys is
 	'this table holds all the original strings that need translation so give this to your language teams,
-	the function _() will take care to enter relevant strings into this table,
+	the function i18n() will take care to enter relevant strings into this table,
 	the table table does NOT play any role in runtime translation activity';
 
 -- =============================================
@@ -166,11 +166,14 @@ TO group "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.13  2003-05-12 12:43:39  ncq
+-- Revision 1.14  2003-06-10 09:58:11  ncq
+-- - i18n() inserts strings into i18n_keys, not _(), fix comment to that effect
+--
+-- Revision 1.13  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
