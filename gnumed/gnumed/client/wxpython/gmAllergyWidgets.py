@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -229,7 +229,7 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		allow entry of those details via the editing area.
 	"""
 	#----------------------------------------------------
-	def __init__(self, parent,id):
+	def __init__(self, parent, id=-1):
 		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__do_layout()
@@ -344,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.6  2005-01-31 10:37:26  ncq
+# Revision 1.7  2005-03-20 17:49:11  ncq
+# - default for id
+#
+# Revision 1.6  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.5  2004/12/15 21:55:00  ncq
