@@ -11,7 +11,7 @@ neccessary scoring tables automatically.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/gmScoringSchemaGenerator.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -38,7 +38,9 @@ scoring_fields_table = 'scoring_fields'
 template_create_scoring_table = """create table %s (
 	id serial primary key,
 	%s
-) inherits (%s)"""
+) inherits (%s);
+
+grant select on %s to group "gm-public" """
 #------------------------------------------------------------------
 def scoring_table_schema(aCursor, table2score):
 	scoring_table = '%s%s' % (scoring_table_prefix, table2score)
@@ -52,8 +54,8 @@ def scoring_table_schema(aCursor, table2score):
 	# get PK of scored table
 	pk = gmPG.get_pkey_name(aCursor, table2score)
 	# FIXME: this assumes the PK is always of type INT
-	fk_column = "fk_%s integer not null references %s(%s)" % (table2score, table2score, pk)
-	table_def = template_create_scoring_table % (scoring_table, fk_column, scoring_fields_table)
+	fk_col_def = "fk_%s integer not null references %s(%s)" % (table2score, table2score, pk)
+	table_def = template_create_scoring_table % (scoring_table, fk_col_def, scoring_fields_table, scoring_table)
 	return [table_def, '']
 #------------------------------------------------------------------
 def create_scoring_schema(aCursor):
@@ -111,6 +113,9 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmScoringSchemaGenerator.py,v $
-# Revision 1.1  2003-10-19 12:57:19  ncq
+# Revision 1.2  2003-12-29 15:25:07  uid66147
+# - auto-add grants on scoring tables
+#
+# Revision 1.1  2003/10/19 12:57:19  ncq
 # - add scoring schema generator and use it
 #
