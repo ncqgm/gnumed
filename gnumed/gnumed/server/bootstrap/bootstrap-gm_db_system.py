@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -342,8 +342,8 @@ class db_server:
 			print "config file you will be asked to provide it."
 			print "If you already ran the bootstrapping script previously"
 			print "please provide the same password again. Otherwise you"
-			print "you may get connection errors depending on whether the"
-			print "database user had been created previously."
+			print "you may get connection errors if this database user had"
+			print "been created previously with a different password."
 			print ""
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
 
@@ -1022,7 +1022,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.8  2003-04-09 13:07:19  ncq
+# Revision 1.9  2003-04-09 13:55:51  ncq
+# - some whitespace fixup
+#
+# Revision 1.8  2003/04/09 13:07:19  ncq
 # - clarification
 #
 # Revision 1.7  2003/04/04 11:06:25  ncq
