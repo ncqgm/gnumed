@@ -4,33 +4,57 @@
 
 @copyright: GPL
 """
+
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
+__version__ = "$Revision: 1.7 $"
+__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+
 #=======================================================================================
 import os, mailcap, string
 import gmLog
-
-__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.6 $"
 
 __log__ = gmLog.gmDefLog
 #=======================================================================================
 def guess_mimetype(aFileName = None):
 	"""Guess mime type of arbitrary file."""
 	# sanity check
-	if aFileName == None:
+	if not os.path.exists(aFileName):
 		__log__.Log(gmLog.lErr, "Cannot guess mimetypes if I don't have any file to guess on.")
 		return None
 
+	desperate_guess = "application/octet-stream"
+
+	mime_type = desperate_guess
 	# this only works on POSIX with 'file' installed (which is standard, however)
-	if os.name == 'posix':
-		# get mime type and don't display a header
-		aPipe = os.popen("file -i -b %s" % aFileName)
-		mime_type = string.replace(aPipe.readline(), "\n", "")
-		aPipe.close()
-	# sorry, no mime types on lesser operating systems ...
-	# please send me your improvements
+	# it might work of Cygwin installations
+	# -i get mime type
+	# -b don't display a header
+	aPipe = os.popen("fil -i -b %s" % aFileName)
+	tmp = aPipe.readline()
+	ret_code = aPipe.close()
+	if ret_code == None:
+		mime_type = string.replace(tmp, "\n", "")
+		__log__.Log(gmLog.lData, "%s -> %s" % (aFileName, mime_type))
 	else:
-		__log__.Log(gmLog.lWarn, "No mime type detection available on this system. Please send your suggestions.")
-		mime_type = 'application/octet-stream'
+		__log__.Log(gmLog.lErr, "Something went awry while calling `file -i -b`.")
+		__log__.Log(gmLog.lErr, "%s (%s): [%s] %s" % (os.name, sys.platform, ret_code, tmp))
+
+	# if we still have "application/octet-stream" we either
+	# have an insufficient systemwide magic number file or we
+	# suffer from a deficient operating system altogether,
+	# it can't get much worse if we try ourselves
+	if mime_type == desperate_guess:
+		# we must trade speed vs. RAM now by loading a data file
+		try:
+			import docMagic
+		except ImportError:
+			__log__.Log(gmLog.lErr, "Cannot import internal magic data file !")
+
+		tmp = docMagic.file(aFileName)
+		# save ressources
+		del docMagic
+		if not tmp == None:
+			mime_type = tmp
 
 	return mime_type
 #-----------------------------------------------------------------------------------
@@ -57,4 +81,4 @@ if __name__ == "__main__":
 	import sys
 	filename = sys.argv[1]
 	print str(guess_mimetype(filename))
-	print str(get_viewer_cmd(guess_mimetype(filename), filename))
+#	print str(get_viewer_cmd(guess_mimetype(filename), filename))
