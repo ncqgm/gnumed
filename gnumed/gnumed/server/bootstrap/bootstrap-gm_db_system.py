@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -104,15 +104,25 @@ class user:
 		if self.name is None:
 			raise ConstructorError, "cannot get user name"
 
-		if aPassword is None:
+		self.password = aPassword
+
+		# password not passed in, try to get it from elsewhere
+		if self.password is None:
+			# look into config file
 			self.password = self.cfg.get(self.group, "password")
+			# not defined there
 			if self.password is None:
+				# but we can ask the user
 				if _interactive:
 					self.password = getpass.getpass("I need the password for the GnuMed database user [%s].\nPlease type password: " % self.name)
+				# or we cannot, fail
 				else:
 					raise ConstructorError, "cannot load database user password from config file"
-		else:
-			self.password = aPassword
+			# defined but empty: this means the user does not need
+			# a password but connects via IDENT or TRUST
+			elif self.password == '':
+				_log.Log(gmLog.lInfo, 'password explicitely set to be empty, assuming connect via IDENT/TRUST')
+				self.password = None
 		return None
 #==================================================================
 class db_server:
@@ -186,6 +196,7 @@ class db_server:
 			self.superuser.password
 		)
 		try:
+			# Under Debian this also works with password == None
 			self.conn = dbapi.connect(dsn)
 		except:
 			_log.LogException("cannot connect with DSN = [%s]" % dsn, sys.exc_info(), fatal=1)
@@ -1071,7 +1082,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.12  2003-05-22 12:53:41  ncq
+# Revision 1.13  2003-05-26 13:53:28  ncq
+# - slightly changed semantics for passwords:
+#   - no option: ask user or die
+#   - option set to empty: assume NONE password for IDENT/TRUST connect
+#
+# Revision 1.12  2003/05/22 12:53:41  ncq
 # - add automatic audit trail generation
 # - add options for that
 #
