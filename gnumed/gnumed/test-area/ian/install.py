@@ -34,9 +34,9 @@ for i in sys.argv[1:]:
     if i[:7] == "PREFIX=":
         prefix = i[7:]
         bindir = join (prefix, "bin")
-        docdir = prefix + "/share/doc/gnumed"
-        sharedir = prefix + "/share/gnumed"
-	mandir = prefix + "/share/man/man1"
+        docdir = join (prefix , "share", "doc", "gnumed")
+        sharedir = join (prefix,  "share", "gnumed")
+	mandir = join (prefix , "share", "man", "man1")
         
     if i[:7] == "BINDIR=":
         bindir = i[7:]
@@ -70,7 +70,7 @@ if remove:
     soft_delete (join (bindir, 'gnumed'))
     soft_delete (sharedir)
     soft_delete (docdir)
-    soft_delete ('/etc/gnumed.conf')
+    soft_delete (join ('/etc', 'gnumed.conf'))
     sys.exit (0)
                  
     
@@ -147,6 +147,7 @@ def process (fr, to):
 
 
 process ('doc', docdir)
+process ('man', mandir)
 for i in ['python-common', 'wxpython', 'wxpython', 'business', 'locale', 'bitmaps']:
     process (i, join (sharedir, i))
 

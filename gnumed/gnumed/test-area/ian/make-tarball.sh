@@ -22,8 +22,11 @@ find -name *.pyc -exec rm \{} \;
 cp ../gnumed/gnumed/test-area/ian/install.py .
 chmod 755 install.py
 mkdir man
-mv doc/man-pages/gnumed.1 man
+mv doc/man-pages/* man
 rmdir doc/man-pages
+cd man
+gzip *
+cd ..
 
 # this is the List of Shame. As modules get to a usable state they will be removed
 cd wxpython
