@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -19,7 +19,7 @@
 -- -------------------------------------------------------------------
 -- we need to audit this table so we can trace back removed references
 create table ref_source (
-	id serial primary key,
+	pk serial primary key,
 	name_short text unique not null,
 	name_long text unique default null,
 	version text not null,
@@ -45,7 +45,7 @@ comment on column ref_source.source is
 
 -- ====================================
 create table lnk_tbl2src (
-	id_ref_source integer not null references ref_source(id),
+	fk_ref_source integer not null references ref_source(pk),
 	data_table name unique not null
 );
 
@@ -68,7 +68,7 @@ comment on table lnk_tbl2src is
 -- measurement units
 -- -------------------------------------------------------------------
 CREATE TABLE basic_unit (
-	id serial primary key,
+	pk serial primary key,
 	name_short text unique not null,
 	name_long text unique
 );
@@ -78,8 +78,8 @@ COMMENT ON TABLE basic_unit IS
 
 -- ====================================
 create table unit (
-	id serial primary key,
-	id_basic_unit integer references basic_unit,
+	pk serial primary key,
+	fk_basic_unit integer references basic_unit(pk),
 	name_short text not null,
 	name_long text,
 	factor float not null default 1.0,
@@ -88,7 +88,7 @@ create table unit (
 
 COMMENT ON TABLE unit IS 
 	'units as used in real life';
-COMMENT ON column unit.id_basic_unit IS
+COMMENT ON column unit.fk_basic_unit IS
 	'what is the SI-Standard unit for this, e.g. for the unit mg it is kg';
 COMMENT ON column unit.factor IS
 	'what factor the value with this unit has to be multiplied with to get values in the basic_unit';
@@ -97,16 +97,16 @@ COMMENT ON column unit.shift IS
 
 -- =============================================
 create table test_norm (
-	id serial primary key,
-	id_ref_src integer not null references ref_source(id),
+	pk serial primary key,
+	fk_ref_src integer not null references ref_source(pk),
 	data text not null,
 	comment text,
-	unique (id_ref_src, data)
+	unique (fk_ref_src, data)
 );
 
 comment on table test_norm is
 	'each row defines one set of measurement reference data';
-comment on column test_norm.id_ref_src is
+comment on column test_norm.fk_ref_src is
 	'source this reference data set was taken from';
 comment on column test_norm.data is
 	'the actual reference data in some format,
@@ -121,11 +121,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.5  2003-10-01 15:45:20  ncq
+-- Revision 1.6  2003-12-29 15:41:59  uid66147
+-- - fk/pk naming cleanup
+--
+-- Revision 1.5  2003/10/01 15:45:20  ncq
 -- - use add_table_for_audit() instead of inheriting from audit_mark
 --
 -- Revision 1.4  2003/08/17 00:25:38  ncq
