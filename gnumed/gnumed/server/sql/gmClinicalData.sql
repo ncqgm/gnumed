@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.1 2003-02-14 10:54:19 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.2 2003-04-09 13:08:21 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -16,31 +16,31 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-INSERT INTO enum_clinical_encounters (description) values (i18n('surgery consultation'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('phone consultation'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('fax consultation'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('home visit'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('nursing home visit'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('repeat script'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('hospital visit'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('video conference'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('proxy encounter'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('emergency encounter'));
-INSERT INTO enum_clinical_encounters (description) values (i18n('other encounter'));
+INSERT INTO enum_clin_encounters (description) values (i18n('surgery consultation'));
+INSERT INTO enum_clin_encounters (description) values (i18n('phone consultation'));
+INSERT INTO enum_clin_encounters (description) values (i18n('fax consultation'));
+INSERT INTO enum_clin_encounters (description) values (i18n('home visit'));
+INSERT INTO enum_clin_encounters (description) values (i18n('nursing home visit'));
+INSERT INTO enum_clin_encounters (description) values (i18n('repeat script'));
+INSERT INTO enum_clin_encounters (description) values (i18n('hospital visit'));
+INSERT INTO enum_clin_encounters (description) values (i18n('video conference'));
+INSERT INTO enum_clin_encounters (description) values (i18n('proxy encounter'));
+INSERT INTO enum_clin_encounters (description) values (i18n('emergency encounter'));
+INSERT INTO enum_clin_encounters (description) values (i18n('other encounter'));
 
 -- ===================================================================
-INSERT INTO enum_clinical_history (description) values (i18n('past'));
-INSERT INTO enum_clinical_history (description) values (i18n('presenting complaint'));
-INSERT INTO enum_clinical_history (description) values (i18n('history of present illness'));
-INSERT INTO enum_clinical_history (description) values (i18n('social'));
-INSERT INTO enum_clinical_history (description) values (i18n('family'));
-INSERT INTO enum_clinical_history (description) values (i18n('immunisation'));
-INSERT INTO enum_clinical_history (description) values (i18n('requests'));
-INSERT INTO enum_clinical_history (description) values (i18n('allergy'));
-INSERT INTO enum_clinical_history (description) values (i18n('drug'));
-INSERT INTO enum_clinical_history (description) values (i18n('sexual'));
-INSERT INTO enum_clinical_history (description) values (i18n('psychiatric'));
-INSERT INTO enum_clinical_history (description) values (i18n('other'));
+INSERT INTO enum_clin_history (description) values (i18n('past'));
+INSERT INTO enum_clin_history (description) values (i18n('presenting complaint'));
+INSERT INTO enum_clin_history (description) values (i18n('history of present illness'));
+INSERT INTO enum_clin_history (description) values (i18n('social'));
+INSERT INTO enum_clin_history (description) values (i18n('family'));
+INSERT INTO enum_clin_history (description) values (i18n('immunisation'));
+INSERT INTO enum_clin_history (description) values (i18n('requests'));
+INSERT INTO enum_clin_history (description) values (i18n('allergy'));
+INSERT INTO enum_clin_history (description) values (i18n('drug'));
+INSERT INTO enum_clin_history (description) values (i18n('sexual'));
+INSERT INTO enum_clin_history (description) values (i18n('psychiatric'));
+INSERT INTO enum_clin_history (description) values (i18n('other'));
 
 -- ===================================================================
 insert into enum_info_sources (description) values (i18n('patient'));
@@ -121,10 +121,13 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.1  2003-02-14 10:54:19  ncq
+-- Revision 1.2  2003-04-09 13:08:21  ncq
+-- - _clinical_ -> _clin_
+--
+-- Revision 1.1  2003/02/14 10:54:19  ncq
 -- - breaking out enumerated data
 --
