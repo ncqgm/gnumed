@@ -43,7 +43,7 @@ related environment variables (in this order):
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -86,30 +86,30 @@ def __get_system_locale():
 	env_key = 'LANGUAGE'
 	if os.environ.has_key(env_key):
 		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
+		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
 	else:
-		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
 	env_key = 'LC_ALL'
 	if os.environ.has_key(env_key):
 		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
+		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
 	else:
-		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
 	env_key = 'LC_MESSAGES'
 	if os.environ.has_key(env_key):
 		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
+		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
 	else:
-		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
 	env_key = 'LANG'
 	if os.environ.has_key(env_key):
 		system_locale = os.environ[env_key]
-		_log.Log(gmLog.lData, '$(%s) is set to "%s"' % (env_key, system_locale))
+		_log.Log(gmLog.lData, '$(%s): "%s"' % (env_key, system_locale))
 	else:
-		_log.Log(gmLog.lData, '$(%s) is not set' % (env_key))
+		_log.Log(gmLog.lData, '$(%s) not set' % (env_key))
 
 	# did we find any locale setting ? assume en_EN if not
 	if system_locale is None:
@@ -138,10 +138,10 @@ def __install_domain():
 	# now we can install this text domain
 	# 1) try standard places first
 	if os.name == 'posix':
-		_log.Log(gmLog.lData, 'Looking in standard POSIX locations (see Python Manual).')
+		_log.Log(gmLog.lData, 'looking in standard POSIX locations (see Python Manual)')
 		try:
 			gettext.install(text_domain)
-			_log.Log(gmLog.lData, 'Found message catalog.')
+			_log.Log(gmLog.lData, 'found msg catalog')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
@@ -151,14 +151,14 @@ def __install_domain():
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
-	_log.Log(gmLog.lData, 'looking at environment variable $(%s)' % env_key)
+	_log.Log(gmLog.lData, 'looking at $(%s)' % env_key)
 	if os.environ.has_key(env_key):
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], "locale"))
 		_log.Log(gmLog.lData, '$(%s) = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
 		if os.path.exists(loc_dir):
 			try:
 				gettext.install(text_domain, loc_dir)
-				_log.Log(gmLog.lData, 'Found message catalog.')
+				_log.Log(gmLog.lData, 'found msg catalog')
 				return 1
 			except IOError:
 				# most likely we didn't have a .mo file
@@ -166,7 +166,7 @@ def __install_domain():
 		else:
 			_log.Log(gmLog.lWarn, 'Custom location [%s] does not exist. Cannot install textdomain from there.' % (loc_dir))
 	else:
-		_log.Log(gmLog.lInfo, "environment variable $(%s) not set" % env_key)
+		_log.Log(gmLog.lInfo, "$(%s) not set" % env_key)
 
 	# 3) one level below path to binary
 	#    last resort for inferior operating systems such as DOS/Windows
@@ -178,7 +178,7 @@ def __install_domain():
 	if os.path.exists(loc_dir):
 		try:
 			gettext.install(text_domain, loc_dir)
-			_log.Log(gmLog.lData, 'Found message catalog.')
+			_log.Log(gmLog.lData, 'found msg catalog')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
@@ -193,7 +193,7 @@ def __install_domain():
 	if os.path.exists(loc_dir):
 		try:
 			gettext.install(text_domain, loc_dir)
-			_log.Log(gmLog.lData, 'Found message catalog.')
+			_log.Log(gmLog.lData, 'found msg catalog')
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
@@ -233,7 +233,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.2  2004-06-25 07:11:15  ncq
+# Revision 1.3  2004-06-25 12:29:13  ncq
+# - cleanup
+#
+# Revision 1.2  2004/06/25 07:11:15  ncq
 # - make gmI18N self-aware (eg. remember installing _())
 #   so we should be able to safely import gmI18N anywhere
 #

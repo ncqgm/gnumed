@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.29 2004-06-13 22:31:50 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmDemographics.py,v 1.30 2004-06-25 12:33:18 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -27,8 +27,6 @@ from Gnumed.pycommon import gmGuiBroker, gmLog, gmDispatcher, gmSignals
 import gmPlugin
 import gmPatientNameQuery
 import gmSQLListControl, gmDataPanelMixin
-from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
-import cPickle, zlib
 from string import *
 import gmGP_PatientPicture
 
@@ -391,58 +389,39 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.patientslist.RunQuery ()
 
 #============================================================
-class gmDemographics(gmPlugin.wxBasePlugin):
-	"""A plugin for searching the patient database by name.
-
-	Required the gmPatientWindowPlugin to be loaded.
-	CANNOT BE UNLOADED
-	"""
-	def name (self):
-		return 'Patient Search'
-	#--------------------------------------------------------
-	def register (self):
-		# first, set up the widgets on the top line of the toolbar
-		top_panel = self.gb['main.top_panel']
-
-		# and register ourselves as a widget
-		self.gb['modules.patient'][self.__class__.__name__] = self
-		self.mwm = self.gb['clinical.manager']
-		self.widget = PatientsPanel (self.mwm, self)
-		self.mwm.RegisterWholeScreen(self.__class__.__name__, self.widget)
-		self.RegisterInterests()
-	#--------------------------------------------------------
-	def OnTool (self, event):
-		pass
+#class gmDemographics(gmPlugin.wxBasePlugin):
+#	"""A plugin for searching the patient database by name.
+#
+#	Required the gmPatientWindowPlugin to be loaded.
+#	CANNOT BE UNLOADED
+#	"""
+#	def name (self):
+#		return 'Patient Search'
+#	#--------------------------------------------------------
+#	def register (self):
+#		# first, set up the widgets on the top line of the toolbar
+#		top_panel = self.gb['main.top_panel']
+#
+#		# and register ourselves as a widget
+#		self.gb['modules.patient'][self.__class__.__name__] = self
+#		self.mwm = self.gb['clinical.manager']
+#		self.widget = PatientsPanel (self.mwm, self)
+#		self.mwm.RegisterWholeScreen(self.__class__.__name__, self.widget)
+#		self.RegisterInterests()
+#	#--------------------------------------------------------
+#	def OnTool (self, event):
+#		pass
 #		self.mwm.Display (self.__class__.__name__)
 #		print "OnTool"
 #		self.gb['modules.gui']['Patient'].Raise()
-
-	def RegisterInterests(self):
-		pass
+#
+#	def RegisterInterests(self):
+#		pass
 #		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
-
-	def OnSelected (self, **kwargs):
-		pass
-
+#
+#	def OnSelected (self, **kwargs):
+#		pass
 #----------------------------------------------------------------------
-def getToolbar_FindPatientData():
-   return cPickle.loads(zlib.decompress(
-'x\xdam\x8e\xb1\n\xc4 \x0c\x86\xf7>\x85p\x83\x07\x01\xb9.\xa7\xb3\x16W\x87.]\
-K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
-\xaaA\x1d\xca\x9f\xfb\xf1!RH\x8f\x17\x96u\xc4\xa9\xb0u6\x08\x9b\xc2\x8b[\xc2\
-\xc2\x9c\x0bG\x17Cd\xde\n{\xe7\x83wr\xef*\x83\xc5\xe1\xa6Z_\xe1_3\xb7\xea\
-\xc3\x94\xa4\x07\x13\x00h\xdcL\xc8\x90\x12\x8e\xd1\xa4\xeaM\xa0\x94\xf7\x9bI\
-\x92\xa8\xf5\x9f$\x19\xd69\xc43rp\x08\xb3\xac\xe7!4\xf5\xed\xd7M}kx+\x0c\xcd\
-\x0fE\x94aS' ))
-
-def getToolbar_FindPatientBitmap():
-    return wxBitmapFromXPMData(getToolbar_FindPatientData())
-
-def getToolbar_FindPatientImage():
-    return wxImageFromBitmap(getToolbar_FindPatientBitmap())
-
-#----------------------------------------------------------------------
-
 if __name__ == "__main__":
 	import gmGuiBroker
 	app = wxPyWidgetTester(size = (800, 600))
@@ -451,7 +430,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.29  2004-06-13 22:31:50  ncq
+# Revision 1.30  2004-06-25 12:33:18  ncq
+# - cleanup
+#
+# Revision 1.29  2004/06/13 22:31:50  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()
