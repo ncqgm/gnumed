@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -97,7 +97,7 @@ def call_main():
 	# long options only !
 	cmd_line = []
 	try:
-		cmd_line = getopt.getopt(sys.argv[1:], '', ['send-log',])
+		cmd_line = getopt.getopt(sys.argv[1:], '', ['talkback',])
 	except getopt.GetoptError:
 		pass
 
