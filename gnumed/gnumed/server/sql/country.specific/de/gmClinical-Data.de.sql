@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- part of GnuMed
 -- GPL
@@ -138,6 +138,8 @@ insert into i18n_translations (lang, orig, trans) values
 	('de_DE', 'pneumococcus', 'Pneumokokken');
 insert into i18n_translations (lang, orig, trans) values
 	('de_DE', 'meningococcus C', 'Meningokokken Typ C');
+insert into i18n_translations (lang, orig, trans) values
+	('de_DE', 'tick-borne meningoencephalitis', 'FSME');
 
 -- =============================================
 -- description
@@ -155,11 +157,14 @@ insert into i18n_translations (lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmClinical-Data.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmClinical-Data.de.sql,v $
--- Revision 1.4  2004-01-12 17:16:19  ncq
+-- Revision 1.5  2004-01-22 23:49:46  ncq
+-- - FSME
+--
+-- Revision 1.4  2004/01/12 17:16:19  ncq
 -- - removed extra "values"
 --
 -- Revision 1.3  2004/01/12 13:32:17  ncq
