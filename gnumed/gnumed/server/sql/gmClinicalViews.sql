@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.110 2004-10-29 22:37:02 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.111 2004-11-16 19:01:27 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -94,6 +94,7 @@ create index idx_narr_a on clin_narrative(soap_cat) where soap_cat='a';
 create index idx_narr_p on clin_narrative(soap_cat) where soap_cat='p';
 create index idx_narr_rfe on clin_narrative(is_rfe) where is_rfe is true;
 create index idx_narr_aoe on clin_narrative(is_aoe) where is_aoe is true;
+create index idx_narr_epi on clin_narrative(is_episode_name) where is_episode_name is true;
 
 \set ON_ERROR_STOP 1
 
@@ -180,12 +181,45 @@ where
 -- =============================================
 -- episodes stuff
 
+-- speed up access by fk_health_issue
 \unset ON_ERROR_STOP
 drop index idx_episode_issue;
 drop index idx_episode_valid_issue;
 create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not null;
 \set ON_ERROR_STOP 1
+
 create index idx_episode_issue on clin_episode(fk_health_issue);
+
+-- pull in episode names from clin_narrative
+\unset ON_ERROR_STOP
+drop view v_named_episodes cascade;
+drop view v_named_episodes;
+\set ON_ERROR_STOP 1
+
+-- FIXME: this does not handle unnamed episodes
+create view v_named_episodes as
+select
+	cep.fk_patient as pk_patient,
+	cn.soap_cat as soap_cat,
+	cn.narrative as description,
+	cep.is_active as is_active,
+	cep.clinically_relevant as clinically_relevant,
+	cn.is_rfe as is_rfe,
+	cn.is_aoe as is_aoe,
+	cep.pk as pk_episode,
+	cep.fk_health_issue as pk_health_issue,
+	cep.modified_when as modified_when,
+	cep.xmin as xmin_clin_episode,
+	cn.pk as pk_narrative
+from
+	clin_episode cep,
+	clin_narrative cn
+where
+	cep.pk = cn.fk_episode
+		and
+	cn.is_episode_name is True
+;
+
 
 \unset ON_ERROR_STOP
 drop view v_pat_episodes cascade;
@@ -194,44 +228,46 @@ drop view v_pat_episodes;
 
 create view v_pat_episodes as
 select
-	cep.fk_patient as id_patient,
-	cep.description as description,
-	cep.is_active as episode_active,
-	cep.clinically_relevant as episode_clinically_relevant,
+	vnep.pk_patient as id_patient,
+	vnep.soap_cat as soap_cat,
+	vnep.description as description,
+	vnep.is_active as episode_active,
+	vnep.clinically_relevant as episode_clinically_relevant,
 	null as health_issue,
 	null as issue_active,
 	null as issue_clinically_relevant,
-	cep.pk as pk_episode,
+	vnep.pk_episode as pk_episode,
 	null as pk_health_issue,
-	cep.modified_when as episode_modified_when,
-	cep.xmin as xmin_clin_episode
+	vnep.modified_when as episode_modified_when,
+	vnep.xmin_clin_episode as xmin_clin_episode
 from
-	clin_episode cep
+	v_named_episodes vnep
 where
-	cep.fk_health_issue is null
+	vnep.pk_health_issue is null
 
 		UNION ALL
 
 select
 	chi.id_patient as id_patient,
-	case when cep.description is null
+	vnep.soap_cat as soap_cat,
+	case when vnep.description is null
 		then chi.description
-		else cep.description
+		else vnep.description
 	end as description,
-	cep.is_active as episode_active,
-	cep.clinically_relevant as episode_clinically_relevant,
+	vnep.is_active as episode_active,
+	vnep.clinically_relevant as episode_clinically_relevant,
 	chi.description as health_issue,
 	chi.is_active as issue_active,
 	chi.clinically_relevant as issue_clinically_relevant,
-	cep.pk as pk_episode,
-	cep.fk_health_issue as pk_health_issue,
-	cep.modified_when as episode_modified_when,
-	cep.xmin as xmin_clin_episode
+	vnep.pk_episode as pk_episode,
+	vnep.pk_health_issue as pk_health_issue,
+	vnep.modified_when as episode_modified_when,
+	vnep.xmin_clin_episode as xmin_clin_episode
 from
-	clin_episode cep, clin_health_issue chi
+	v_named_episodes vnep, clin_health_issue chi
 where
 	-- this should exclude all (fk_health_issue is Null) ?
-	cep.fk_health_issue=chi.id
+	vnep.pk_health_issue=chi.id
 ;
 
 -- =============================================
@@ -1161,6 +1197,16 @@ where
 
 -- =============================================
 -- types of narrative
+
+-- allow only one name per episode
+\unset ON_ERROR_STOP
+drop index idx_uniq_epi_name;
+create unique index idx_single_epi_name on clin_narrative(fk_episode) where is_episode_name is true;
+comment on index idx_single_epi_name is
+	'per fk_episode only one clin_narrative row can be marked is_episode_name = TRUE';
+\set ON_ERROR_STOP 1
+
+
 \unset ON_ERROR_STOP
 drop view v_pat_rfe;
 \set ON_ERROR_STOP 1
@@ -1172,6 +1218,7 @@ select
 	cn.clin_when as clin_when,
 	cn.soap_cat as soap_cat,
 	cn.narrative as rfe,
+	cn.is_episode_name as is_episode_name,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	cn.pk_item as pk_item,
@@ -1197,6 +1244,7 @@ select
 	cn.clin_when as clin_when,
 	cn.soap_cat as soap_cat,
 	cn.narrative as aoe,
+	cn.is_episode_name as is_episode_name,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	cn.pk_item as pk_item,
@@ -1223,6 +1271,7 @@ select
 	cn.narrative as narrative,
 	cn.is_aoe as is_aoe,
 	cn.is_rfe as is_rfe,
+	cn.is_episode_name as is_episode_name,
 	cn.pk_item as pk_item,
 	cn.pk as pk_narrative,
 	vpi.pk_health_issue as pk_health_issue,
@@ -1273,19 +1322,6 @@ from
 	clin_health_issue chi
 where
 	trim(coalesce(chi.description, '')) != ''
-
-		union
--- episodes
-select
-	vpep.id_patient as pk_patient,
-	'a' as soap_cat,
-	vpep.description as narrative,
-	vpep.pk_episode as src_pk,
-	'clin_episode' as src_table
-from
-	v_pat_episodes vpep
-where
-	trim(coalesce(vpep.description, '')) != ''
 
 		union
 -- encounters
@@ -1466,6 +1502,7 @@ to group "gm-doctors";
 -- views
 GRANT SELECT ON
 	v_pat_encounters
+	, v_named_episodes
 	, v_pat_episodes
 	, v_pat_narrative
 	, v_patient_items
@@ -1499,11 +1536,16 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.110 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.111 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.110  2004-10-29 22:37:02  ncq
+-- Revision 1.111  2004-11-16 19:01:27  ncq
+-- - adjust to episode name now living in clin_narrative
+-- - v_named_episodes still needs work to properly account for
+--   erronously unnamed episodes
+--
+-- Revision 1.110  2004/10/29 22:37:02  ncq
 -- - propagate xmin to the relevant views to business classes can
 --   use it for concurrency conflict detection
 -- - fix v_problem_list to properly display a patient's problems
