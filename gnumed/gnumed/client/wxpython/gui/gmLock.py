@@ -33,7 +33,7 @@ class gmLock (gmPlugin.wxBasePlugin):
 	EVT_TOOL (self.tb_lock, ID_LOCKBUTTON, self.OnLockTool)
 
     def unregister (self):
-        #tb2 = self.gb['toolbar.Patient']
+        #tb2 = self.gb['toolbar.Clinical']
         #tb2.DeleteTool (ID_BMITOOL)
         menu = self.gb['main.toolsmenu']
         menu.Delete (ID_LOCKMENU)

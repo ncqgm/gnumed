@@ -132,7 +132,7 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 
 	def register (self):
 		gmPlugin.wxPatientPlugin.register (self)
-		self.gb['patient.manager'].SetDefault ('Clinical Summary')
+		self.gb['clinical.manager'].SetDefault ('Clinical Summary')
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 500))

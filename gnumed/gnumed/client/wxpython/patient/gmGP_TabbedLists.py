@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.14 2003-02-25 05:30:46 michaelb Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmGP_TabbedLists.py,v 1.15 2003-04-05 00:39:23 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -324,7 +324,7 @@ class gmGP_TabbedLists (gmPlugin.wxBasePlugin):
         return 'TabbedListsPlugin'
 
     def register (self):
-        self.mwm = self.gb['patient.manager']
+        self.mwm = self.gb['clinical.manager']
         self.mwm.RegisterRightSide ('tabbed_lists', TabbedLists
                                    (self.mwm.righthalfpanel, -1), position=1)
 
@@ -338,7 +338,10 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.14  2003-02-25 05:30:46  michaelb
+# Revision 1.15  2003-04-05 00:39:23  ncq
+# - "patient" is now "clinical", changed all the references
+#
+# Revision 1.14  2003/02/25 05:30:46  michaelb
 # improvements on the tooltips 'attached' to the tab images
 #
 # Revision 1.13  2003/02/20 02:13:49  michaelb

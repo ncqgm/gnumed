@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -386,7 +386,7 @@ else:
 			# kind = wxITEM_NORMAL,
 		#---------------------
 		def unregister (self):
-			#tb2 = self.gb['toolbar.Patient']
+			#tb2 = self.gb['toolbar.Clinical']
 			#tb2.DeleteTool (ID_BMITOOL)
 			menu = self.gb['main.toolsmenu']
 			menu.Delete (ID_BMIMENU)
@@ -410,7 +410,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.12  2003-01-14 20:18:57  ncq
+# Revision 1.13  2003-04-05 00:39:23  ncq
+# - "patient" is now "clinical", changed all the references
+#
+# Revision 1.12  2003/01/14 20:18:57  ncq
 # - fixed setfont() problem
 #
 # Revision 1.11  2003/01/12 18:51:32  ncq

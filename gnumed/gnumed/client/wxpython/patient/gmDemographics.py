@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.23 2003-04-04 20:52:44 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmDemographics.py,v 1.24 2003-04-05 00:39:23 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -129,7 +129,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		wxPanel.__init__(self, parent, id ,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
 		gmDataPanelMixin.DataPanelMixin.__init__(self)
 		self.gb = gmGuiBroker.GuiBroker ()
-		self.mwm = self.gb['patient.manager']
+		self.mwm = self.gb['clinical.manager']
 		self.plugin = plugin
 		# controls on the top toolbar are available via plugin.foo
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,addressdata,wxLB_SINGLE)
@@ -449,7 +449,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 
 		# and register ourselves as a widget
 		self.gb['modules.patient'][self.name ()] = self
-		self.mwm = self.gb['patient.manager']
+		self.mwm = self.gb['clinical.manager']
 		self.widget = PatientsPanel (self.mwm, self)
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
 		self.set_widget_reference(self.widget)
@@ -507,7 +507,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.23  2003-04-04 20:52:44  ncq
+# Revision 1.24  2003-04-05 00:39:23  ncq
+# - "patient" is now "clinical", changed all the references
+#
+# Revision 1.23  2003/04/04 20:52:44  ncq
 # - start disentanglement with top pane:
 #   - remove patient search/age/allergies/patient details
 #

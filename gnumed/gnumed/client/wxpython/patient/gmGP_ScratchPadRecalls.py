@@ -3,8 +3,8 @@
 
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_ScratchPadRecalls.py,v $
-# $Id: gmGP_ScratchPadRecalls.py,v 1.12 2003-02-02 13:37:27 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmGP_ScratchPadRecalls.py,v 1.13 2003-04-05 00:39:23 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 
 from wxPython.wx import *
 import gmPlugin, gmShadow, gmLog, gmDispatcher, gmSignals, gmPG
@@ -142,12 +142,12 @@ class gmGP_ScratchPadRecalls (gmPlugin.wxBasePlugin):
         return 'ScratchPadRecallsPlugin'
 
     def register (self):
-        mwm = self.gb['patient.manager']
+        mwm = self.gb['clinical.manager']
         mwm.RegisterRightSide ('scratchpad_recalls', ScratchPadRecalls
                                    (mwm.righthalfpanel, -1), position=2)
 
     def unregister (self):
-        self.gb['patient.manager'].Unregister ('scratchpad_recalls')
+        self.gb['clinical.manager'].Unregister ('scratchpad_recalls')
 
 #===============================================================    
 # Main
@@ -158,7 +158,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===============================================================
 # $Log: gmGP_ScratchPadRecalls.py,v $
-# Revision 1.12  2003-02-02 13:37:27  ncq
+# Revision 1.13  2003-04-05 00:39:23  ncq
+# - "patient" is now "clinical", changed all the references
+#
+# Revision 1.12  2003/02/02 13:37:27  ncq
 # - typo
 #
 # Revision 1.11  2003/02/02 13:36:52  ncq

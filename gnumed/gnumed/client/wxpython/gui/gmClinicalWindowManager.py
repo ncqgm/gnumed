@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.1 2003-04-04 23:15:46 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.2 2003-04-05 00:39:23 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -214,7 +214,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 				_log.LogException("file [%s] doesn't seem to be a plugin" % plugin, sys.exc_info(), fatal=0)
 		#self.panel.Show (0)
 		self.panel.DisplayDefault()
-		self.gb['toolbar.%s' % self.name ()].Realize()
+		self.gb['toolbar.%s' % self.name()].Realize()
 	#----------------------------------------------
 	def unregister (self):
 		# tidy up after ourselves
@@ -227,7 +227,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		self.gb['modules.patient'][self.panel.GetVisible()].Shown()
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.1  2003-04-04 23:15:46  ncq
+# Revision 1.2  2003-04-05 00:39:23  ncq
+# - "patient" is now "clinical", changed all the references
+#
+# Revision 1.1  2003/04/04 23:15:46  ncq
 # - renamed to clinical* as per Richard's request
 # - updated plugins.conf.sample
 #
