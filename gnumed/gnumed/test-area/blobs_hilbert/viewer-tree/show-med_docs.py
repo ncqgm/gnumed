@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -106,7 +106,7 @@ class cDocTree(wxTreeCtrl):
 			mdata = doc.getMetaData()
 			c = mdata['comment'] + " " * 25
 			r = mdata['reference'] + " " * 10
-			tmp = _("%s | %s | %s")
+			tmp = "%s | %s | %s"
 			label =  tmp % (mdata['date'][:10], c[:25], r[:10])
 			doc_node = self.AppendItem(self.root, label)
 			self.SetItemBold(doc_node, bold=TRUE)
@@ -321,7 +321,10 @@ else:
 			return ('tools', '&Show Documents')
 #================================================================
 # $Log: show-med_docs.py,v $
-# Revision 1.11  2002-12-13 11:22:34  ncq
+# Revision 1.12  2002-12-22 11:50:20  ncq
+# - removed useless _() wrapper
+#
+# Revision 1.11  2002/12/13 11:22:34  ncq
 # - further pluginification and cleanup
 #
 # Revision 1.10  2002/12/05 22:43:51  ncq
