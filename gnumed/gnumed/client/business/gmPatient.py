@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.5 2003-11-04 00:07:40 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPatient.py,v 1.6 2003-11-09 16:39:34 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -152,7 +152,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
-	_get_handler['demographics'] = get_demographic_record
+	_get_handler['demographic record'] = get_demographic_record
 	_get_handler['clinical record'] = _get_clinical_record
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
@@ -321,7 +321,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.5  2003-11-04 00:07:40  ncq
+# Revision 1.6  2003-11-09 16:39:34  ncq
+# - get handler now 'demographic record', not 'demographics'
+#
+# Revision 1.5  2003/11/04 00:07:40  ncq
 # - renamed gmDemographics
 #
 # Revision 1.4  2003/10/26 17:35:04  ncq
