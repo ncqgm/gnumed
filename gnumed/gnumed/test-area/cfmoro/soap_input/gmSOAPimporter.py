@@ -28,7 +28,7 @@ This script is designed for importing GnuMed SOAP input "bundle".
 			- the narrative for clin_narrative.narrative, imported as is
 			- substrings of the form [:...:] are remembered
 		- 'clin_context':
-			- 'clin_context' is the key or a dictionary containing clinical
+			- 'clin_context' is a dictionary containing clinical
 			  context information, required to properly create clinical items.
 			  Its 'episode_id' must always be supplied.
 		- 'struct_data':
@@ -43,8 +43,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.4 2004-12-13 16:28:11 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmSOAPimporter.py,v 1.5 2004-12-13 19:37:08 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -118,25 +118,7 @@ class cSOAPImporter:
 				continue
 			_log.Log(gmLog.lInfo, "embedded data imported OK")
 
-
-			
-#			# verify additional embedded data
-#			entry_keys = self._verify_embedded_data(soap_entry)
-#
-#			# cache unmatched keys and unkeyed data for user warning
-#			if len(entry_keys['unmatched_keys']) > 0:
-#				unmatched_keys.extend(entry_keys['unmatched_keys'])
-#			if len(entry_keys['unkeyed_data']) > 0:
-#				# ?!?
-#				unkeyed_data.extend(entry_keys['unmatched_keys'])
-#			# dump parsed out additional embedded data
-#			self._dump_additional_data(soap_entry, entry_keys)
-#			
-#		if len(unmatched_keys) > 0:
-#			_log.Log(gmLog.lInfo, "can not dump empty keys [%s] in soap bundle [%s]" % (unmatched_keys, bundle))
-#		if len(unkeyed_data) > 0:
-#			_log.Log(gmLog.lInfo, "can not dump lonely data [%s] in soap bundle [%s]" % (unkeyed_data, bundle))
-			
+		return True
 	#-----------------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------------
@@ -162,8 +144,7 @@ class cSOAPImporter:
 			print emr
 			enc = emr.get_active_encounter()
 			print enc
-			enc_id = 1
-#			enc_id = emr.get_active_encounter()['pk_encounter']
+			enc_id = emr.get_active_encounter()['pk_encounter']
 
 		# create narrative row
 		status = True
@@ -172,7 +153,7 @@ class cSOAPImporter:
 #			narrative = soap_entry[cSOAPImporter._text_key],
 #			soap_cat = soap_entry[cSOAPImporter._soap_cat_key],
 #			episode_id = epi_id,
-#			encounter_id=enc_id
+#			encounter_id = enc_id
 #		)
 
 		print "SOAP row created"
@@ -282,120 +263,6 @@ class cSOAPImporter:
 	#-----------------------------------------------------------
 	#-----------------------------------------------------------
 	#-----------------------------------------------------------
-#	def _dump_additional_data(self, soap_entry, entry_keys):
-#		"""
-#		Dump valid key's embedded additional data to backend.
-#		
-#		@param soap_entry: dictionary containing information related to one
-##						   SOAP input
-#		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'		  
-#		
-#		@param entry_keys: dictionary of keys parsed from soap entry, with keys:
-#							   .text_keys: soap entry text parsed out keys
-#							   .unmatched_keys: soap entry text parsed out keys that
-#											are missing from data dictionary
-#											key set
-#							   .unkeyed_data: data dictionary keys missing from
-#											 soap entry text parsed out keys
-#							   
-#		@type unmatched_keys: type dict
-#		"""
-#		# obtain clinical context information
-#		vepisode_id = soap_entry[cSOAPImporter._struct_data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._episode_id_key]
-#		# FIXME unify
-#		# obtain active encounter and episode
-#		emr = self._pat.get_clinical_record()
-#		vencounter_id = ''
-#		vstaff_id = ''
-#		if soap_entry[cSOAPImporter._struct_data_key][cSOAPImporter._clin_ctx_key].has_key(cSOAPImporter._encounter_id_key):
-#			vencounter_id = soap_entry[cSOAPImporter._struct_data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._encounter_id_key]
-#		else:
-#			vencounter_id = emr.get_active_encounter()['pk_encounter']
-#		if soap_entry[cSOAPImporter._struct_data_key][cSOAPImporter._clin_ctx_key].has_key(cSOAPImporter._staff_id_key):
-#			vstaff_id = soap_entry[cSOAPImporter._struct_data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._staff_id_key]
-#		else:
-#			vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
-#
-#		# extract useful key lists
-#		text_keys = entry_keys['text_keys']
-#		unmatched_keys = entry_keys['unmatched_keys']
-#		
-#		# embedded data clinical item type
-#		type = ''		 
-#		# embedded data clinical item values
-#		data = {}
-#		
-#		# walk through text keys scaping the empty ones and creating additional
-#		# clinical items
-#		for text_key in text_keys:
-#			if text_key in unmatched_keys:
-#				continue
-#			type = soap_entry[cSOAPImporter._struct_data_key][text_key][cSOAPImporter._type_key]
-#			data = soap_entry[cSOAPImporter._struct_data_key][text_key][cSOAPImporter._struct_data_key]
-#			if type == 'vaccination':
-#				#gmVaccination.createVaccination(patient_id= self._pat.GetID(),
-#				#episode_id=vepisode_id, encounter_id=vencounter_id,
-#				#staff_id=vstaff_id, vaccine=data['vaccine'])
-#				print "Creating vaccination [%s]. Episode [%s]. Encounter [%s]. Staff id [%s]" % (data, vepisode_id, vencounter_id, vstaff_id)
-#			else:
-#				_log.Log(gmLog.lErr, 'cannot create clinical item of unknown type [%s] for soap entry [%s]' % (type,soap_entry, vepisode_id, vencounter_id, vstaff_id))
-#
-#	#-----------------------------------------------------------
-#	def _parse_embedded_keys(self, soap_entry):
-#		"""
-#		Parse out and extract embedded keys for additional data contained in
-#		narrative text. Embedded keys are the '....' in the pattern [:....:]
-#		
-#		@param soap_entry: dictionary containing information related to one
-#						   SOAP input
-#		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'		  
-#		"""
-#
-#		# parse out embedded keys as are
-#		txt = soap_entry[cSOAPImporter._text_key]	 
-#		embedded_keys = re.findall(cSOAPImporter._key_pattern, txt)
-#		# clean pattern from embedded keys
-#		embedded_keys = map(lambda key: key.replace("[:","").replace(":]",""), embedded_keys)
-#		_log.Log(gmLog.lInfo, "parsed out embedded keys [%s] from soap entry text[%s]" % (embedded_keys, soap_entry[cSOAPImporter._text_key]))
-#		
-#		return embedded_keys
-#	#-----------------------------------------------------------
-#	def _verify_embedded_data(self, soap_entry):
-#		"""
-#		Perform integrity check of additional embedded data supplied in
-#		the SOAP entry
-#		
-#		@param soap_entry: dictionary containing information related to one
-#						   SOAP input
-#		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'		  
-#		"""
-#
-#		# keys in the text that have no entry in the additional data
-#		unmatched_keys = []
-#		# additional data that does not have a key
-#		unkeyed_data = []
-#		
-#		# keys embedded in text
-#		text_keys = self._parse_embedded_keys(soap_entry)
-#		# additional data
-#		data = soap_entry[cSOAPImporter._struct_data_key]
-#				
-#		# check empty keys
-#		for a_key in text_keys:
-#			if a_key not in data.keys():
-#				unmatched_keys.append(a_key)
-#		
-#		# check lonely data
-#		for a_key in data.keys():
-#			if a_key not in text_keys:
-#				unkeyed_data.append(a_key)		 
-#			
-#		if len(text_keys) > 0:
-#			print "text_keys: %s" % text_keys
-#			print "unmatched_keys: %s" % unmatched_keys
-#			print "unkeyed_data: %s" % unkeyed_data
-#		return {'text_keys':text_keys, 'unmatched_keys':unmatched_keys, 'unkeyed_data':unkeyed_data}
-#	#-----------------------------------------------------------
 #	def _verify_types(self, soap_entry):
 #		"""
 #		Perform types key check of a supplied SOAP entry
@@ -413,66 +280,8 @@ class cSOAPImporter:
 #				soap_entry)
 #				return False
 #		return True
-#	#-----------------------------------------------------------
-#	def _verify_clin_ctx(self, soap_entry):
-#		"""
-#		Perform clinical context key check of a supplied SOAP entry
-#
-#		@param soap_entry: dictionary containing information related to one
-#						   SOAP input
-#		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'
-#		"""
-#		if not soap_entry[cSOAPImporter._clin_ctx_key].has_key(cSOAPImporter._episode_id_key):
-#			_log.Log(gmLog.lErr, 'adecuate clinical contex must be supplied under key [%s] in soap entry data dictionary [%s]' % 
-#			(cSOAPImporter._clin_ctx_key, soap_entry))
-#			return False
-#		return True
-#
-#	#-----------------------------------------------------------
-#	def _verify_soap(self, soap_entry):
-#		"""
-#		Perform soap key check of a supplied SOAP entry
-#		
-#		@param soap_entry: dictionary containing information related to one
-#						   SOAP input
-#		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'
-#		"""
-#		
-#		# FIXME fetch from backend
-#		soap_cats = ['s','o','a','p']
-#		if not soap_entry[cSOAPImporter._soap_cat_key] in soap_cats:
-#			_log.Log(gmLog.lErr, 'bad clin_narrative.soap_cat in supplied soap entry [%s]' % 
-#			soap_entry)
-#			return False
-#		return True
-#	#-----------------------------------------------------------
-#	# this check is done inside cClinicalRecord.create_clin_narrative() already
-#	def _verify_text(self, soap_entry):
-#		"""
-#		Perform text check of a supplied SOAP entry
-#		
-#		@param soap_entry: dictionary containing information related to one
-#						   SOAP input
-#		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'
-#		"""
-#				
-#		text = soap_entry[cSOAPImporter._text_key]
-#		if text is None or len(text) == 0:
-#			_log.Log(gmLog.lErr, 'empty clin_narrative.narrative in supplied soap entry [%s]' % 
-#				soap_entry)
-#			return False
-#		return True
-#	#-----------------------------------------------------------
-#	def _verify_data(self, soap_entry):
-#		"""
-#		Perform additional data check of a supplied SOAP entry
-#		
-#		@param soap_entry: dictionary containing information related to one
-#						   SOAP input
-#		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'
-#		"""
-#		# FIXME pending
-#		pass
+
+
 #== Module convenience functions (for standalone use) =======================
 def prompted_input(prompt, default=None):
 	"""
@@ -599,4 +408,10 @@ if __name__ == '__main__':
 		raise
 
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
-	
+#================================================================
+# $Log: gmSOAPimporter.py,v $
+# Revision 1.5  2004-12-13 19:37:08  ncq
+# - cleanup after review by Carlos
+# - will be moved to main trunk RSN
+#
+#
