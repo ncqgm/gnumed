@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.15 2003-06-01 14:45:31 sjtan Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmClinicalRecord.py,v 1.16 2003-06-01 15:00:31 sjtan Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -278,11 +278,10 @@ class gmClinicalRecord:
 		cmd_part = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, %s )"
 
 		value_part = " values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
-		try:
+		cmd = cmd_part % "definite"  + value_part
+		if self.execute( cmd, "insert allergy failed with definAte ", rollback = 0 ) is None:
+			# remove this if really upto date
 			cmd = cmd_part % "definate"  + value_part
-			self.execute( cmd, "insert allergy failed with definAte ", rollback = 0 )
-		except:
-			cmd = cmd_part % "definite"  + value_part
 			self.execute( cmd, "insert allergy failed with definIte as definite", rollback = 1 )
 				
 			
@@ -402,7 +401,10 @@ class gmClinicalRecord:
 			# just closing the cursor without a commit rolls back
 			# and why would we want to roll back if we don't
 			# even check for is_update_command ?!?
-			curs.close()
+
+			#ok 
+			if rollback:
+				curs.close()
 			_log.Log(gmLog.lErr, error_msg)
 			
 			return None
@@ -469,7 +471,11 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.15  2003-06-01 14:45:31  sjtan
+# Revision 1.16  2003-06-01 15:00:31  sjtan
+#
+# works with definite, maybe note definate.
+#
+# Revision 1.15  2003/06/01 14:45:31  sjtan
 #
 # definite and definate databases catered for, temporarily.
 #
