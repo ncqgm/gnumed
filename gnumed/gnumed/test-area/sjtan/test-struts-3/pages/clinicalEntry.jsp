@@ -9,18 +9,7 @@
 <html:base/>   
     <html:form action="/SaveClinical"> 
   <a name='submitEncounter' />
-    <div id="submitEncounter" style="display:block" />
-        <table >
-            <tr>
-            <td>
-                <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
-            </td>
-            <td>
-                <html:reset altKey="reset" />
-            </td>
-            </tr>
-        </table>
-    </div>
+    
     <table>
     <tr valign='top'>
         <td >

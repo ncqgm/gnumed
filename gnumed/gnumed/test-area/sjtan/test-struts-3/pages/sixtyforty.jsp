@@ -1,10 +1,9 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
-<%@taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
-<%@ taglib uri="/tags/struts-bean" prefix="bean" %>
 
-<%@ taglib uri="/tags/struts-html" prefix="html" %>
-
+<%@taglib uri="http://jakarta.apache.org/struts/tags-html" prefix="html"%>
+<%@taglib uri="http://jakarta.apache.org/struts/tags-bean" prefix="bean"%>
+<%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic"%>
 <html>
 <head><title>JSP Page</title></head>
 <body>

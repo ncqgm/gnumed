@@ -140,7 +140,6 @@ e.g. getNarrative(index) ...  id='narrative'
             scope="request" indexId="index"
             >
         
-            <br>
              
             <div id='links<%=index%>' style='display:<%=((index.intValue()==1 )? "block": "none")%>'>
                 link

@@ -45,12 +45,13 @@
         <table >
         <tr valign='top'>
         <td valign='top'>
+        
             <input type="button" value='entry'
                 onclick='
                     var e = document.getElementById("clinicalEntry");
                     var p = document.getElementById("pastNotes");
                     e.style.display="block";
-                    p.style.display="none";
+                    p.style.display="block";
                     '/>
                     |
             <input type="button" value='past notes'
@@ -67,9 +68,12 @@
             <td  valign='top' > 
             <div id="clinicalEntry">
                 <tiles:insert name="leftTop"/>
-                
+            </td>
+            </tr>
+            <tr>
+             <td>   
             </div>    
-            <div id="pastNotes" style='display:none'>
+            <div id="pastNotes" style='display:block'>
                  <tiles:insert name="leftBottom"/>
             </div>
             </td>

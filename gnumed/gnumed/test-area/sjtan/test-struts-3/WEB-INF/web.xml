@@ -44,27 +44,42 @@
   <!-- Struts Tag Library Descriptors -->
   <taglib>
     <taglib-uri>/tags/struts-bean</taglib-uri>
-    <taglib-location>/WEB-INF/struts-bean.tld</taglib-location>
+    <taglib-location>/WEB-INF/lib/struts-bean.tld</taglib-location>
   </taglib>
 
   <taglib>
     <taglib-uri>/tags/struts-html</taglib-uri>
-    <taglib-location>/WEB-INF/struts-html.tld</taglib-location>
+    <taglib-location>/WEB-INF/lib/struts-html.tld</taglib-location>
   </taglib>
 
   <taglib>
     <taglib-uri>/tags/struts-logic</taglib-uri>
-    <taglib-location>/WEB-INF/struts-logic.tld</taglib-location>
+    <taglib-location>/WEB-INF/lib/struts-logic.tld</taglib-location>
+  </taglib>
+  
+   <taglib>
+    <taglib-uri>/tags/struts-bean-el</taglib-uri>
+    <taglib-location>/WEB-INF/lib/struts-bean-el.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/tags/struts-html-el</taglib-uri>
+    <taglib-location>/WEB-INF/lib/struts-html-el.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/tags/struts-logic-el</taglib-uri>
+    <taglib-location>/WEB-INF/lib/struts-logic-el.tld</taglib-location>
   </taglib>
 
   <taglib>
     <taglib-uri>/tags/struts-nested</taglib-uri>
-    <taglib-location>/WEB-INF/struts-nested.tld</taglib-location>
+    <taglib-location>/WEB-INF/lib/struts-nested.tld</taglib-location>
   </taglib>
 
   <taglib>
     <taglib-uri>/tags/struts-tiles</taglib-uri>
-    <taglib-location>/WEB-INF/struts-tiles.tld</taglib-location>
+    <taglib-location>/WEB-INF/lib/struts-tiles.tld</taglib-location>
   </taglib>
 <!-- must be put here, the DBCP database pooled basic datasource -->
 <resource-ref>
