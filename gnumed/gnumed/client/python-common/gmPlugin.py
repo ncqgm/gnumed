@@ -13,12 +13,18 @@
 #
 # @TODO: Almost everything
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
+__version__ = "$Revision: 1.8 $"
+__author__ = "H.Herb, I.Haywood, K.Hilbert"
 
-import gmExceptions, os, sys, re, traceback
+import os, sys, re, traceback
+
+from wxPython.wx import *
+
 from gmLog import *
 log = gmDefLog.Log
-from wxPython.wx import *
-import gmGuiBroker, gmPG, gmConf, gmShadow
+
+import gmExceptions, gmGuiBroker, gmPG, gmConf, gmShadow
 #------------------------------------------------------------------
 class gmPlugin:
 	"""base class for all gnumed plugins"""
@@ -62,8 +68,7 @@ class wxBasePlugin (gmPlugin):
 	"""
 	# NOTE: I anticipate that all plugins will in fact be derived
 	# from this class. Without the brokers a plugin is useless (IH)
-	def __init__(self, guibroker=None, callbackbroker=None,
-	dbbroker=None, params=None):
+	def __init__(self, guibroker=None, callbackbroker=None, dbbroker=None, params=None):
 		self.gb = guibroker
 		self.cb = callbackbroker
 		self.db = dbbroker
@@ -103,10 +108,9 @@ class wxNotebookPlugin (wxBasePlugin):
 	"""
 	Base plugin for plugins which provide a 'big page'
 	Either whole screen, or notebook if it exists
-	"""
-	
+	"""	
 	def register (self):
-		"""Register ourselves."""
+		"""Register ourselves with the main notebook widget."""
 
 		# add ourselves to the main notebook
 		self.nb = self.gb['main.notebook']
@@ -195,44 +199,58 @@ class wxPatientPlugin (wxBasePlugin):
 		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
 		if self.GetIcon () is not None:
-			tb2 = self.gb['tollbar.Patient Window']
+			tb2 = self.gb['toolbar.Patient Window']
 			tb2.DeleteTool (self.tool_id)
 #------------------------------------------------------------------
-def LoadPlugin (set, plugin_name, guibroker = None, dbbroker = None):
-	"""
-	Loads a plugins.
-	set is a string specifying the subdirectory in which to
-	find the plugins.
+def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
+	"""Loads a plugin from a package directory.
+
+	- "set" specifies the subdirectory in which to find the plugin
+	- this knows nothing of databases, all it does is load a named plugin
+
 	There will be a general 'gui' directory for large GUI
 	components: prescritions, etc., then several others for more
 	specific types: export/import filters, crypto algorithms
 	guibroker, dbbroker are broker objects provided
 	defaults are the default set of plugins to be loaded
-	(TODO: get plugin list from gmconfiguration for this user).
 	"""
+	# we do need brokers, else we are useless
 	if guibroker is None:
 		guibroker = gmGuiBroker.GuiBroker ()
 	if dbbroker is None:
 		dbbroker = gmPG.ConnectionPool ()
-	# talk to database here instead
-	if not 'modules.%s' % set in guibroker.keylist ():
-		guibroker['modules.%s' % set] = {}
-	# keep a record of plugins
+
+	# bean counting ! -> loaded plugins
+	if not ('modules.%s' % aPackage) in guibroker.keylist ():
+		guibroker['modules.%s' % aPackage] = {}
+
 	try:
-		set_module = __import__ ("%s.%s" % (set, plugin_name))
-		plugin_module = set_module.__dict__[plugin_name]
-		plugin_class = plugin_module.__dict__[plugin_name]
-		if issubclass (plugin_class, wxBasePlugin):
-			plugin = plugin_class (guibroker = guibroker, dbbroker = dbbroker)
-			plugin.register ()
-			guibroker['modules.%s' % set][plugin.name()] = plugin
-			log (lInfo, "registering plugin %s" % plugin_name)
-		else:
-			log (lErr, "class %s is not a subclass of wxBasePlugin" % name)
-	except Exception, error:
-		frame = traceback.extract_tb (sys.exc_info ()[2])[-1]
-		log (lErr, "cannot load module %s/%s:\nException: %s\nFile: %s\nLine: %s\n" % (set, plugin_name, error, frame[0], frame[1]))
+		# use __import__() so we can dynamically calculate the module name
+		mod_from_pkg = __import__ ("%s.%s" % (aPackage, plugin_name))
+		# find name of class of plugin (must be the same as the plugin module filename)
+		# 1) get module name
+		plugin_module_name = mod_from_pkg.__dict__[plugin_name]
+		# 2) get class name
+		plugin_class = plugin_module_name.__dict__[plugin_name]
+	except Exception, err:
+		exc = sys.exc_info()
+		gmLog.gmDefLog.LogException ('Cannot import module "%s.%s": %s' % (aPackage, plugin_name, err), exc)
+		return None
+
+	if issubclass (plugin_class, wxBasePlugin):
+		log (lInfo, "registering plugin %s" % plugin_name)
+		plugin = plugin_class(guibroker = guibroker, dbbroker = dbbroker)
+		plugin.register ()
+		guibroker['modules.%s' % aPackage][plugin.name()] = plugin
+	else:
+		log (lErr, "class %s is not a subclass of wxBasePlugin" % plugin_name)
+		return None
+
+#	except Exception, error:
+#		frame = traceback.extract_tb (sys.exc_info ()[2])[-1]
+#		log (lErr, "cannot load module %s/%s:\nException: %s\nFile: %s\nLine: %s\n" % (aPackage, plugin_name, error, frame[0], frame[1]))
 #------------------------------------------------------------------
+# (TODO: get plugin list from gmconfiguration for this user).
 def GetAllPlugins (set):
 	"""
 	Searches the directory for all plugins
@@ -258,7 +276,6 @@ def UnloadPlugin (set, name):
 	plugin.unregister ()
 	del gb['modules.%s' % set][name]
 	log (lInfo, "unloaded plugin %s/%s" % (set, name))
-
 #####################################################################
 # here is sample code of how to use gmPlugin.py:
 #import inspect
