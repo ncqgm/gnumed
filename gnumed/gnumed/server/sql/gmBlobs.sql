@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.43 $ $Date: 2004-10-10 06:34:12 $ $Author: ihaywood $
+-- $Revision: 1.44 $ $Date: 2004-10-10 13:13:51 $ $Author: ihaywood $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -49,6 +49,7 @@ this allows SQL views of document "queues" for faxing, emailing, doctor''s inbox
 -- =============================================
 CREATE TABLE doc_med (
 	id serial primary key,
+	reply_to integer references doc_med (id),
 	patient_id integer references xlnk_identity(xfk_identity) not null,
 	local_id integer references xlnk_identity(xfk_identity),
 	remote_id integer references xlnk_identity(xfk_identity),
@@ -61,7 +62,9 @@ CREATE TABLE doc_med (
 	has_measure boolean,
 	fk_reviewer integer
 		default null
-		references xlnk_identity(xfk_identity)
+		references xlnk_identity(xfk_identity),
+	request_rxd_when timestamp with time zone,
+	report_status text default 'final' check ((report_status in ('preliminary', 'partial', 'final'))
 );
 
 COMMENT ON TABLE doc_med IS
@@ -69,6 +72,8 @@ COMMENT ON TABLE doc_med IS
 	 data objects such as several pages of a paper document';
 COMMENT ON COLUMN doc_med.patient_id IS
 	'the patient this document belongs to';
+COMMENT ON COLUMN doc_med.reply_to IS
+	'this document is a reply -- the reference to the original document';
 COMMENT ON COLUMN doc_med.type IS
 	'semantic type of document (not type of file or mime
 	 type), such as >referral letter<, >discharge summary<, etc.';
@@ -86,12 +91,17 @@ COMMENT ON COLUMN doc_med.fk_form_template IS
 COMMENT ON COLUMN doc_med.date IS
 	'date of document content creation (such as exam date),
 	 NOT date of document creation or date of import; may
-	 be imprecise such as "7/99"';
+	 be imprecise such as "7/99"
+	Path: LDT 8302';
 COMMENT ON COLUMN doc_med.ext_ref IS
 	'external reference string of physical document,
 	 original paper copy can be found with this';
 COMMENT ON COLUMN doc_med.has_measure IS 'true if
-measurement data (see gmMeasurement.sql) has been generated from this document';
+	measurement data (see gmMeasurement.sql) has been generated from this document';
+COMMENT ON med_doc.request_rxd_when IS
+	'For path and some other results, the date when the request was received. LDT 8301';  
+COMMENT ON med_doc.report_status IS
+	'If a report, whether final, preliminary, etc. LDT 8401';
 
 -- =============================================
 CREATE TABLE doc_obj (
@@ -136,7 +146,7 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.43 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.44 $');
 
 -- =============================================
 -- questions:
@@ -156,7 +166,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.43  2004-10-10 06:34:12  ihaywood
+-- Revision 1.44  2004-10-10 13:13:51  ihaywood
+-- example of views to emulate the gmMeasurements tables
+--
+-- Revision 1.43  2004/10/10 06:34:12  ihaywood
 -- Extended blobs to support basic document management:
 -- keeping track of whose reviewed what, etc.
 --

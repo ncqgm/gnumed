@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.5 $ $Date: 2004-09-20 21:12:42 $ $Author: ncq $
+-- $Revision: 1.6 $ $Date: 2004-10-10 13:13:51 $ $Author: ihaywood $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -84,6 +84,29 @@ where
 	)
 ;
 -- =============================================
+
+-- 
+--CREATE VIEW v_lnk_result2lab_req AS SELECT test_result.id AS fk_result, med_doc.id AS fk_request 
+--	FROM med_doc, test_result 
+--	WHERE med_doc.type = 28 and test_result.fk_doc = med_doc.id;
+--
+--CREATE VIEW v_incoming_path AS SELECT * FROM med_doc WHERE type = 28;
+--CREATE VIEW v_outgoing_path AS SELECT * FROM med_doc WHERE type = 27;
+--
+--CREATE VIEW v_lab_request AS SELECT DISTINCT ON (outgoing.id)
+--	o.id AS pk,
+--	o.remote_id AS fk_test_org,
+--	o.ext_id AS request_id,
+--	o.local_id AS fk_requestor,
+--	i.ext_id AS lab_request_id,
+--	i.request_rxd_when AS lab_rxd_when,
+--	i.date AS results_reported,
+--	i.report_status AS request_status,
+--	(o.fk_queue = 11) AS is_pending
+--FROM v_outgoing_path o LEFT OUTER JOIN v_incoming_path i ON (o.id = i.reply_to)
+--ORDER BY i.date; -- always get the latest report
+
+
 -- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	doc_desc
@@ -105,11 +128,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.5  2004-09-20 21:12:42  ncq
+-- Revision 1.6  2004-10-10 13:13:51  ihaywood
+-- example of views to emulate the gmMeasurements tables
+--
+-- Revision 1.5  2004/09/20 21:12:42  ncq
 -- - constraint on doc_desc
 -- - improve v_obj4doc
 -- - fix v_latest_mugshot

@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.7 $ $Date: 2004-10-10 06:34:13 $ $Author: ihaywood $
+-- $Revision: 1.8 $ $Date: 2004-10-10 13:13:51 $ $Author: ihaywood $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -15,9 +15,11 @@ INSERT INTO queues (pk, name) values (2, 'Received, awaiting clinical review');
 INSERT INTO queues (pk, name) values (3, 'Received, awaiting secretarial review');
 INSERT INTO queues (pk, name) values (4, 'Sent, archived');
 INSERT INTO queues (pk, name) values (11, 'Sent, awaiting consultant''s report');
-INSERT INTO queues (pk, name) values (5, 'Sent, awaiting confirmation of receipt');
+INSERT INTO queues (pk, name) values (5, 'Sent, awaiting confirmation of receipt'); -- HL7 supports this, others will 
+                                                                                    -- progress straight to 11 
 INSERT INTO queues (pk, name) values (6, 'Sent, permanent error');
-INSERT INTO queues (pk, name) values (7, 'Sent, temporary error (e-mail)');
+INSERT INTO queues (pk, name) values (7, 'Sent, temporary error (e-mail)'); -- med_doc.date should be last attempted transmission
+                                                                            -- to allow timed retries.
 INSERT INTO queues (pk, name) values (8, 'Sent, temporary error (fax)');
 INSERT INTO queues (pk, name) values (9, 'For e-mail transmission');
 INSERT INTO queues (pk, name) values (10, 'For fax transmission');
@@ -51,6 +53,8 @@ INSERT into doc_type(id, name) values(23, i18n('discharge summary ENT'));
 INSERT into doc_type(id, name) values(24, i18n('referral report pathology'));
 INSERT into doc_type(id, name) values(25, i18n('referral report neurosurgery'));
 INSERT into doc_type(id, name) values(26, i18n('patient photograph'));
+INSERT into doc_type(id, name) values(27, i18n('pathology request'));
+INSERT into doc_type(id, name) values(28, i18n('pathology report'));
 --INSERT into doc_type(id, name) values(, i18n(''));
 
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -59,11 +63,14 @@ INSERT into doc_type(id, name) values(26, i18n('patient photograph'));
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.7  2004-10-10 06:34:13  ihaywood
+-- Revision 1.8  2004-10-10 13:13:51  ihaywood
+-- example of views to emulate the gmMeasurements tables
+--
+-- Revision 1.7  2004/10/10 06:34:13  ihaywood
 -- Extended blobs to support basic document management:
 -- keeping track of whose reviewed what, etc.
 --
