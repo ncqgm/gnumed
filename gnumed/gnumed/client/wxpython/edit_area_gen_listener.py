@@ -24,6 +24,7 @@ class generator:
 	def __init__(self):
 		self.funcs = []
 		self.evts = []
+		self.prog_map = None
 		self.gen_func_params_map = {
 		'EditAreaTextBox': ("EVT_TEXT", "text_entered"),
 		'wxTextCtrl': ("EVT_TEXT", "text_entered"),
@@ -32,6 +33,34 @@ class generator:
 		'wxCheckBox': ("EVT_CHECKBOX", "checkbox_clicked"),
 		'wxButton' : ("EVT_BUTTON", "button_clicked" )
 		}
+		self.components = [ 'EditAreaTextBox','wxTextCtrl', 'wxComboBox', 'wxButton', 'wxRadioButton', 'wxCheckBox' ]
+		
+	def get_prog_map(self):
+		"""returns a regular expression object map for the different components """
+
+		if self.prog_map <> None:
+			return self.prog_map
+		
+		prog_map = {}
+		editarea_str = '\s+self\s*.\s*(?P<component>\w+)\s*=\s*%s'
+		for c in self.components:
+			prog_map[c] = re.compile( editarea_str % c , re.I)
+
+		self.prog_map = prog_map	
+
+		return self.prog_map	
+
+	def get_name_type_for_line( self, line):
+		prog_map = self.get_prog_map()
+		for c in prog_map.keys():
+			re_match_obj =  prog_map[c].match(l)
+			if re_match_obj == None:
+				continue
+			return ( re_match_obj.group('component'), c )
+		return None
+		
+			
+
 	def gen_id_set(self, component):
 		return """
 		id = wxNewId()
@@ -136,18 +165,13 @@ print """# scanning for section headers,
 #	and generating a script template for attaching
 #	a listener to the components.  """
 section_str = '.*section\s*==\s*(?P<section>\w+)'
-prog1 = re.compile(section_str, re.I )
+prog_section_start = re.compile(section_str, re.I )
 
-components = [ 'EditAreaTextBox','wxTextCtrl', 'wxComboBox', 'wxButton', 'wxRadioButton', 'wxCheckBox' ]
 
-editarea_str = '\s+self\s*.\s*(?P<component>\w+)\s*=\s*%s'
 
 prog_def = re.compile( '(?P<name>gmSECTION\w+)\s*=\s*(?P<number>[0-9]+)')
 section_num_map = {}
 
-prog_map = {}
-for c in components:
-	prog_map[c] = re.compile( editarea_str % c , re.I)
 	
 section_map = {}
 
@@ -160,7 +184,7 @@ for l in lines:
 		section_num_map[int(re_match_obj.group('number'))] = re_match_obj.group('name')
 		continue
 	# match a section start : the state 'creating map' is when section_map.has_key['name'] 
-	re_match_obj =  prog1.match(l)
+	re_match_obj =  prog_section_start.match(l)
 	if re_match_obj <> None:
 		sys.stderr.write('\nSection is %s\n' % re_match_obj.group('section') )
 		if section_map <> {} :
@@ -170,21 +194,23 @@ for l in lines:
 		section_map['name'] = re_match_obj.group('section') 
 		section_map['components'] = []
 		section_map['components'].extend( common_comps)
+		continue
 		
 	# match for components	
 	#sys.stderr.write( "#checking  %s against %s\n"% (l,  prog_map.keys()))
-	for c in prog_map.keys():
-		#if  c == 'wxCheckBox' and section_map.has_key('name') and section_map['name'] =="gmSECTION_SCRIPT":
-		#	sys.stderr.write('checking %s against %s\n' % (l, c))
-		re_match_obj =  prog_map[c].match(l)
-		if re_match_obj <> None and section_map.has_key('name'):
-			sys.stderr.write( '#*** %s is a %s\n'%( re_match_obj.group('component'), c ))	
-			section_map['components'].append( (  re_match_obj.group('component'), c ) )
-			break
-		if re_match_obj <> None :
-			common_comps.append( (  re_match_obj.group('component'), c ) )
-			
-	
+
+	prog_map = gen.get_prog_map()
+
+	name_type = gen.get_name_type_for_line(l)
+	if name_type <> None and section_map.has_key('name'):
+		sys.stderr.write( '#*** %s is a %s\n'% name_type )
+		section_map['components'].append( ( name_type ))
+		continue
+
+	if name_type <> None :
+		common_comps.append( name_type )
+		
+
 
 if section_map.has_key('name'):
 	process_section(gen, section_map)
