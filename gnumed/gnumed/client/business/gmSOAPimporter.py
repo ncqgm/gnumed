@@ -1,4 +1,6 @@
-"""GnuMed SOAP importer (specification by Karsten Hilbert <Karsten.Hilbert@gmx.net>)
+"""GnuMed SOAP importer
+
+(specification by Karsten Hilbert <Karsten.Hilbert@gmx.net>)
 
 This script is designed for importing GnuMed SOAP input "bundle".
 
@@ -43,8 +45,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.2 2004-12-19 18:41:55 cfmoro Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmSOAPimporter.py,v 1.3 2004-12-20 09:51:28 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -63,19 +65,19 @@ _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
 
 # module level constants
-soap_importer_SOAP_CAT_KEY = "soap"
-soap_importer_TYPES_KEY = "types"
-soap_importer_TEXT_KEY = "text"
-soap_importer_STRUCT_DATA_KEY = 'struct_data'
-soap_importer_CLIN_CTX_KEY = "clin_context"
-soap_importer_TYPE_KEY = "type"
-soap_importer_EPISODE_ID_KEY = "episode_id"
-soap_importer_ENCOUNTER_ID_KEY = "encounter_id"
-soap_importer_STAFF_ID_KEY = "staff_id"
-soap_importer_SOAP_CATS = ['s','o','a','p']		# these are pretty much fixed
+soap_bundle_SOAP_CAT_KEY = "soap"
+soap_bundle_TYPES_KEY = "types"
+soap_bundle_TEXT_KEY = "text"
+soap_bundle_STRUCT_DATA_KEY = 'struct_data'
+soap_bundle_CLIN_CTX_KEY = "clin_context"
+soap_bundle_TYPE_KEY = "type"
+soap_bundle_EPISODE_ID_KEY = "episode_id"
+soap_bundle_ENCOUNTER_ID_KEY = "encounter_id"
+soap_bundle_STAFF_ID_KEY = "staff_id"
+soap_bundle_SOAP_CATS = ['s','o','a','p']		# these are pretty much fixed
 # key pattern: any string between [: and :]. Any of chars in '[:]'
 # are forbidden in the key string
-soap_importer_KEY_PATTERN = "\[:.[^:\[\]]*:\]"	 
+soap_bundle_KEY_PATTERN = "\[:.[^:\[\]]*:\]"	 
 #===============================================================
 class cSOAPImporter:
 	"""
@@ -139,9 +141,9 @@ class cSOAPImporter:
 			_log.Log(gmLog.lErr, 'cannot verify soap entry')
 			return False
 		# obtain clinical context information
-		epi_id = soap_entry[soap_importer_CLIN_CTX_KEY][soap_importer_EPISODE_ID_KEY]
+		epi_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		try:
-			enc_id = soap_entry[soap_importer_CLIN_CTX_KEY][soap_importer_ENCOUNTER_ID_KEY]
+			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]
 		except KeyError:
 			emr = self.__pat.get_clinical_record()
 			print emr
@@ -153,8 +155,8 @@ class cSOAPImporter:
 		status = True
 
 #		status, narr = gmClinNarrative.create_clin_narrative (
-#			narrative = soap_entry[soap_importer_TEXT_KEY],
-#			soap_cat = soap_entry[soap_importer_SOAP_CAT_KEY],
+#			narrative = soap_entry[soap_bundle_TEXT_KEY],
+#			soap_cat = soap_entry[soap_bundle_SOAP_CAT_KEY],
 #			episode_id = epi_id,
 #			encounter_id = enc_id
 #		)
@@ -162,13 +164,13 @@ class cSOAPImporter:
 		print "SOAP row created"
 		print "episode  : %s" % epi_id
 		print "encounter: %s" % enc_id
-		print "category : %s" % soap_entry[soap_importer_SOAP_CAT_KEY]
-		print "narrative: %s" % soap_entry[soap_importer_TEXT_KEY]
+		print "category : %s" % soap_entry[soap_bundle_SOAP_CAT_KEY]
+		print "narrative: %s" % soap_entry[soap_bundle_TEXT_KEY]
 
 		# attach types
-		if soap_entry.has_key(soap_importer_TYPES_KEY):
-			print "types	: %s" % soap_entry[soap_importer_TYPES_KEY]
-#			for narr_type in soap_entry[soap_importer_TYPES_KEY]:
+		if soap_entry.has_key(soap_bundle_TYPES_KEY):
+			print "types	: %s" % soap_entry[soap_bundle_TYPES_KEY]
+#			for narr_type in soap_entry[soap_bundle_TYPES_KEY]:
 #				narr.attach_type(item_type = narr_type)
 
 		return status
@@ -182,9 +184,9 @@ class cSOAPImporter:
 		@type soap_entry: dictionary with keys 'soap', 'types', 'text', 'struct_data'
 		"""
 		required_keys = [
-			soap_importer_SOAP_CAT_KEY,
-			soap_importer_CLIN_CTX_KEY,
-			soap_importer_TEXT_KEY
+			soap_bundle_SOAP_CAT_KEY,
+			soap_bundle_CLIN_CTX_KEY,
+			soap_bundle_TEXT_KEY
 		]
 		# verify key existence
 		for a_key in required_keys:
@@ -195,12 +197,12 @@ class cSOAPImporter:
 				_log.Log(gmLog.lErr, '%s' % soap_entry)
 				return False
 		# verify key *values*
-		if not soap_entry[soap_importer_SOAP_CAT_KEY] in soap_importer_SOAP_CATS:
-			_log.Log(gmLog.lErr, 'invalid soap category [%s]' % soap_entry[soap_importer_SOAP_CAT_KEY])
+		if not soap_entry[soap_bundle_SOAP_CAT_KEY] in soap_bundle_SOAP_CATS:
+			_log.Log(gmLog.lErr, 'invalid soap category [%s]' % soap_entry[soap_bundle_SOAP_CAT_KEY])
 			_log.Log(gmLog.lErr, '%s' % soap_entry)
 			return False
 		try:
-			soap_entry[soap_importer_CLIN_CTX_KEY][soap_importer_EPISODE_ID_KEY]
+			soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		except KeyError:
 			_log.Log(gmLog.lErr, 'SOAP entry does not provide mandatory episode ID')
 			_log.Log(gmLog.lErr, '%s' % soap_entry)
@@ -208,19 +210,19 @@ class cSOAPImporter:
 		return True
 	#-----------------------------------------------------------
 	def __print_item(self, soap_entry=None, data=None):
-		epi_id = soap_entry[soap_importer_CLIN_CTX_KEY][soap_importer_EPISODE_ID_KEY]
+		epi_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_EPISODE_ID_KEY]
 		try:
-			enc_id = soap_entry[soap_importer_CLIN_CTX_KEY][soap_importer_ENCOUNTER_ID_KEY]
+			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]
 		except KeyError:
 			emr = self.__pat.get_clinical_record()
 			enc_id = emr.get_active_encounter()['pk_encounter']
 
 		print "additional data"
-		print "type	 : %s" % data[soap_importer_TYPE_KEY]
+		print "type	 : %s" % data[soap_bundle_TYPE_KEY]
 		print "episode  : %s" % epi_id
 		print "encounter: %s" % enc_id
-		for key in data[soap_importer_STRUCT_DATA_KEY].keys():
-			print "%s: %s" % (key, data[soap_importer_STRUCT_DATA_KEY][key])
+		for key in data[soap_bundle_STRUCT_DATA_KEY].keys():
+			print "%s: %s" % (key, data[soap_bundle_STRUCT_DATA_KEY][key])
 	#-----------------------------------------------------------
 	# FIXME: to be replaced as written
 	_struct_data_handlers = {
@@ -230,12 +232,12 @@ class cSOAPImporter:
 	#-----------------------------------------------------------
 	def __import_embedded_data(self, soap_entry):
 		# find embedded keys
-		narr = soap_entry[soap_importer_TEXT_KEY]
-		embedded_keys = re.findall(soap_importer_KEY_PATTERN, narr)
+		narr = soap_entry[soap_bundle_TEXT_KEY]
+		embedded_keys = re.findall(soap_bundle_KEY_PATTERN, narr)
 		embedded_keys = map(lambda key: key.replace("[:","").replace(":]",""), embedded_keys)
 		# cross-check
 		try:
-			struct_data_list = soap_entry[soap_importer_STRUCT_DATA_KEY]
+			struct_data_list = soap_entry[soap_bundle_STRUCT_DATA_KEY]
 		except KeyError:
 			if len(embedded_keys) == 0:
 				return True
@@ -248,9 +250,9 @@ class cSOAPImporter:
 			embedded_keys.remove(key)
 			struct_data = struct_data_list[key]
 			try:
-				struct_data_handler = cSOAPImporter._struct_data_handlers[struct_data[soap_importer_TYPE_KEY]]
+				struct_data_handler = cSOAPImporter._struct_data_handlers[struct_data[soap_bundle_TYPE_KEY]]
 			except KeyError:
-				_log.Log(gmLog.lErr, 'unknown type [%s] of additional data' % struct_data[soap_importer_TYPE_KEY])
+				_log.Log(gmLog.lErr, 'unknown type [%s] of additional data' % struct_data[soap_bundle_TYPE_KEY])
 				_log.Log(gmLog.lErr, '%s' % struct_data)
 				continue
 			if not struct_data_handler(self, soap_entry=soap_entry, data=struct_data):
@@ -277,7 +279,7 @@ class cSOAPImporter:
 #		
 #		# FIXME fetch from backend
 #		allowed_types = ['Hx']
-#		for input_type in soap_entry[soap_importer_TYPES_KEY]:
+#		for input_type in soap_entry[soap_bundle_TYPES_KEY]:
 #			if not input_type in allowed_types:
 #				_log.Log(gmLog.lErr, 'bad clin_item_type.type in supplied soap entry [%s]' % 
 #				soap_entry)
@@ -347,39 +349,39 @@ if __name__ == '__main__':
 		# now import
 		importer = cSOAPImporter()
 		bundle = [
-			{soap_importer_SOAP_CAT_KEY: 's',
-			 soap_importer_TYPES_KEY: ['Hx'],
-			 soap_importer_TEXT_KEY: 'Test subjective narrative',
-			 soap_importer_CLIN_CTX_KEY: {soap_importer_EPISODE_ID_KEY: '1'}
+			{soap_bundle_SOAP_CAT_KEY: 's',
+			 soap_bundle_TYPES_KEY: ['Hx'],
+			 soap_bundle_TEXT_KEY: 'Test subjective narrative',
+			 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
 			},
-			{soap_importer_SOAP_CAT_KEY: 'o',
-			 soap_importer_TYPES_KEY: ['Hx'],
-			 soap_importer_TEXT_KEY: 'Test objective narrative',
-			 soap_importer_CLIN_CTX_KEY: {soap_importer_EPISODE_ID_KEY: '1'}
+			{soap_bundle_SOAP_CAT_KEY: 'o',
+			 soap_bundle_TYPES_KEY: ['Hx'],
+			 soap_bundle_TEXT_KEY: 'Test objective narrative',
+			 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
 			},
-			{soap_importer_SOAP_CAT_KEY: 'a',
-			 soap_importer_TYPES_KEY: ['Hx'],
-			 soap_importer_TEXT_KEY: 'Test assesment narrative',
-			 soap_importer_CLIN_CTX_KEY: {soap_importer_EPISODE_ID_KEY: '1'}
+			{soap_bundle_SOAP_CAT_KEY: 'a',
+			 soap_bundle_TYPES_KEY: ['Hx'],
+			 soap_bundle_TEXT_KEY: 'Test assesment narrative',
+			 soap_bundle_CLIN_CTX_KEY: {soap_bundle_EPISODE_ID_KEY: '1'}
 			},
-			{soap_importer_SOAP_CAT_KEY: 'p',
-			 soap_importer_TYPES_KEY: ['Hx'],
-			 soap_importer_TEXT_KEY: 'Test plan narrative. [:tetanus:]. [:pneumoniae:].',
-			 soap_importer_CLIN_CTX_KEY: {
-			 	soap_importer_EPISODE_ID_KEY: '1',
-				soap_importer_ENCOUNTER_ID_KEY: '1',
-				soap_importer_STAFF_ID_KEY: '1'
+			{soap_bundle_SOAP_CAT_KEY: 'p',
+			 soap_bundle_TYPES_KEY: ['Hx'],
+			 soap_bundle_TEXT_KEY: 'Test plan narrative. [:tetanus:]. [:pneumoniae:].',
+			 soap_bundle_CLIN_CTX_KEY: {
+			 	soap_bundle_EPISODE_ID_KEY: '1',
+				soap_bundle_ENCOUNTER_ID_KEY: '1',
+				soap_bundle_STAFF_ID_KEY: '1'
 				},
-			 soap_importer_STRUCT_DATA_KEY: {
+			 soap_bundle_STRUCT_DATA_KEY: {
 				'tetanus': {
-					soap_importer_TYPE_KEY: 'vaccination',
-					soap_importer_STRUCT_DATA_KEY: {
+					soap_bundle_TYPE_KEY: 'vaccination',
+					soap_bundle_STRUCT_DATA_KEY: {
 						'vaccine':'tetanus'
 					}
 				},
 				'pneumoniae': {
-					soap_importer_TYPE_KEY: 'vaccination',
-					soap_importer_STRUCT_DATA_KEY: {
+					soap_bundle_TYPE_KEY: 'vaccination',
+					soap_bundle_STRUCT_DATA_KEY: {
 						'vaccine':'pneumoniae'
 					}
 				}
@@ -407,7 +409,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.2  2004-12-19 18:41:55  cfmoro
+# Revision 1.3  2004-12-20 09:51:28  ncq
+# - tie constants to bundle not importer re naming
+#
+# Revision 1.2  2004/12/19 18:41:55  cfmoro
 # Struct keys made module level constants
 #
 # Revision 1.1  2004/12/18 16:14:13  ncq
