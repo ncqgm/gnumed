@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.10 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmSOAPWidgets.py,v 1.11 2005-02-21 19:07:42 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,7 +16,7 @@ from wxPython import wx
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.wxpython import gmResizingWidgets
-from Gnumed.business import gmPerson
+from Gnumed.business import gmPerson, gmEMRStructItems
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -72,7 +72,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 class cResizingSoapPanel(wx.wxPanel):
 	"""
 	Basic note panel. It provides gmResizingWindows based editor
-	and a staticText that displays which problem its current note is related to.
+	and a staticText that displays which health problem its current note is related to.
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, problem=None, input_defs=None):
@@ -80,11 +80,11 @@ class cResizingSoapPanel(wx.wxPanel):
 
 		@param parent: the parent widget
 		problem:
-			health problem name, may be issue or episode name,
-			for clarity let's assume there cannot be a SOAP editor w/o a problem
+			cProblem instance
+			for clarity let's assume there cannot be a SOAP editor w/o a health problem
 		"""
-		if problem is None:
-			raise gmExceptions.ConstructorError, 'Cannot contruct progress note editor for problem [%s]' % str(problem)
+		if not isinstance(problem, gmEMRStructItems.cProblem):
+			raise gmExceptions.ConstructorError, 'cannot make progress note editor for health problem [%s]' % str(problem)
 		self.__problem = problem
 		# do layout
 		wx.wxPanel.__init__ (self,
@@ -120,7 +120,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.SetSizerAndFit(self.__szr_main)
 
 		# display health problem
-		txt = '%s:' % self.__problem['problem']
+		txt = 'problem: %s' % self.__problem['problem']
 		self.__set_heading(txt)
 
 		# flag indicating saved state
@@ -140,7 +140,7 @@ class cResizingSoapPanel(wx.wxPanel):
 #		if self.__problem is None or len(self.__problem) == 0:
 #			self.__soap_heading.SetLabel("Select issue and press 'New'")
 #		else:
-#			txt = '%s# %s'%(self.__problem[0]+1,self.__problem[1]['description'])
+#			txt = '%s# %s'%(self.__problem[0]+1,self.__problem[1]['problem'])
 #			# update staticText content and recalculate sizer internal values
 #			self.__set_heading(txt)
 #		self.ShowContents()
@@ -367,7 +367,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.10  2005-01-31 10:37:26  ncq
+# Revision 1.11  2005-02-21 19:07:42  ncq
+# - some cleanup
+#
+# Revision 1.10  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.9  2005/01/28 18:35:42  cfmoro
