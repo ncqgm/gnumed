@@ -1,12 +1,12 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Karsten Hilbert
 
 -- import this into any GnuMed database that has foreign keys
--- pointing to other databases
+-- pointing to other databases, IOW, nearly all of them :-)
 
 -- a cron script checks those FKs and reports errors,
 -- the service configuration is taken from the "default"
@@ -46,8 +46,8 @@ comment on column x_db_fk.fk_table is
 comment on column x_db_fk.fk_col is
 	'the actual FK column name';
 comment on column x_db_fk.src_service is
-	'the service holding the FK column, remote
-	 database access parameters are derived from this';
+	'the service holding the column referenced by the FK,
+	 remote database access parameters are derived from this';
 comment on column x_db_fk.src_schema is
 	'the schema holding the column referenced by the FK, unused so far';
 comment on column x_db_fk.src_table is
@@ -65,7 +65,7 @@ create table x_db_fk_violation (
 	id serial primary key,
 	 -- this relies on the fact that we use
 	 -- integers for all our primary keys
-	pk_fk_table integer not null,
+	fk_table_pk integer not null,
 	-- value casted to text ...
 	fk_value text not null,
 	fk_schema name default null,
@@ -84,21 +84,46 @@ create table x_db_fk_violation (
 	unique (src_service, src_table, src_col)
 );
 
+comment on table x_db_fk_violation is
+	'describes cross-database (remote) foreign keys';
+comment on column x_db_fk_violation.fk_table_pk is
+	'the primary key of the row in which the value
+	 of the remote foreign key violates referential integrity';
+comment on column x_db_fk_violation.fk_value is
+	'the value of the remote foreign key violating
+	 referential integrity, casted to "text"';
+comment on column x_db_fk_violation.fk_schema is
+	'the schema holding the FK column, unused so far';
+comment on column x_db_fk_violation.fk_table is
+	'the table holding the FK column';
+comment on column x_db_fk_violation.fk_col is
+	'the actual FK column name';
+comment on column x_db_fk_violation.src_service is
+	'the service holding the column referenced by the FK,
+	 remote database access parameters are derived from this';
+comment on column x_db_fk_violation.src_schema is
+	'the schema holding the column referenced by the FK, unused so far';
+comment on column x_db_fk_violation.src_table is
+	'the table holding the column referenced by the FK';
+comment on column x_db_fk_violation.src_col is
+	'the name of the column referenced by the FK';
+
 -- =============================================
 -- no grants needed since the only one using
 -- these tables is gm-dbowner, the owner of them
 --GRANT SELECT ON
---	x_db_fk,
---	x_db_fk_violation
---TO GROUP "gm-doctors";
+--TO GROUP "";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FKs.sql,v $
--- Revision 1.2  2003-07-26 23:59:03  ncq
+-- Revision 1.3  2003-07-27 16:41:29  ncq
+-- - add table for reporting violations
+--
+-- Revision 1.2  2003/07/26 23:59:03  ncq
 -- - can't create trigger on pg_class, hence cannot reference as FK source
 --
 -- Revision 1.1  2003/07/26 23:52:40  ncq
