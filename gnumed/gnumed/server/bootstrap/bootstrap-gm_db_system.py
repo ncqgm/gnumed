@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -525,7 +525,7 @@ class db_server:
 			print "config file you will be asked to provide it."
 			print "If you already ran the bootstrapping script previously"
 			print "please provide the same password again. Otherwise you"
-			print "you may get connection errors if this database user had"
+			print "may get connection errors if this database user had"
 			print "been created previously with a different password."
 			print ""
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
@@ -1444,7 +1444,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.52  2004-03-09 08:14:06  ncq
+# Revision 1.53  2004-03-09 10:45:02  ncq
+# - typo fix
+# - gmFormDefs now merged with gmReference.sql
+#
+# Revision 1.52  2004/03/09 08:14:06  ncq
 # - call helper shell script to regenerate AU postcodes
 #
 # Revision 1.51  2004/03/04 19:40:50  ncq
