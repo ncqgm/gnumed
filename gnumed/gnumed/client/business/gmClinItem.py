@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.2 2004-04-11 11:24:00 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmClinItem.py,v 1.3 2004-04-12 22:53:19 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -30,7 +30,7 @@ class cClinItem:
 	- NO lazy fetching of fields
 	"""
 	#--------------------------------------------------------
-	def __init__(self, aPKey = None):
+	def __init__(self, aPKey = None, **kwargs):
 		self._is_modified = False
 		#<DEBUG>
 		# check descendants
@@ -38,10 +38,15 @@ class cClinItem:
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
 		#</DEBUG>
-		# load data
 		self.pk = aPKey
+		if not self._pre_init(**kwargs):
+			raise gmExceptions.ConstructorError, "[%s]: cannot init" % self.__class__.__name__
+		if self.pk is None:
+			raise gmExceptions.ConstructorError, "[%s]: must have primary key" % self.__class__.__name__
 		if not self.refetch_payload():
 			raise gmExceptions.ConstructorError, "[%s:%s]: cannot load instance" % (self.__class__.__name__, self.pk)
+		if not self._post_init(**kwargs):
+			raise gmExceptions.ConstructorError, "[%s]: cannot init" % self.__class__.__name__
 	#--------------------------------------------------------
 	def __del__(self):
 		if self._is_modified:
@@ -49,8 +54,6 @@ class cClinItem:
 			_log.Log(gmLog.lData, self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
-		if len(self._payload) is None:
-			self.refetch_payload
 		return str(self._payload)
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
@@ -64,11 +67,19 @@ class cClinItem:
 		if attribute not in self.__class__._updatable_fields:
 			raise KeyError, '[%s]: attribute <%s> not settable' % (self.__class__.__name__, attribute)
 		try:
-			self._payload[attribute]
+			self._idx[attribute]
 		except KeyError:
 			raise KeyError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
-		self._payload[attribute] = value
+		self._payload[self._idx[attribute]] = value
 		self._is_modified = True
+		return True
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def _pre_init(self, **kwargs):
+		return True
+	#--------------------------------------------------------
+	def _post_init(self, **kwargs):
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -112,7 +123,13 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.2  2004-04-11 11:24:00  ncq
+# Revision 1.3  2004-04-12 22:53:19  ncq
+# - __init__ now handles arbitrary keyword args
+# - _pre_/_post_init()
+# - streamline
+# - must do _payload[self._idx[attribute]] since payload not a dict
+#
+# Revision 1.2  2004/04/11 11:24:00  ncq
 # - handle _is_modified
 # - protect against reload if modified
 #
