@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.80 2003-02-12 23:37:58 sjtan Exp $
-__version__ = "$Revision: 1.80 $"
+# $Id: gmGuiMain.py,v 1.81 2003-02-12 23:45:49 sjtan Exp $
+__version__ = "$Revision: 1.81 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -431,16 +431,12 @@ class MainFrame(wxFrame):
 		self.mainmenu=None
 		self.window=None
 		self.Destroy()
-		#self.data_cleanup()
 		gmDispatcher.send(gmSignals.application_clean_closing())
 
-#	def data_cleanup(self):
-#		handler_loader.save_models()
 				
 	#----------------------------------------------
 	def OnClose(self,event):
 		self.CleanExit()
-		event.Skip()
 	#----------------------------------------------
 	def OnIdle(self, event):
 		"""Here we can process any background tasks
@@ -637,7 +633,11 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.80  2003-02-12 23:37:58  sjtan
+# Revision 1.81  2003-02-12 23:45:49  sjtan
+#
+# removing dead code.
+#
+# Revision 1.80  2003/02/12 23:37:58  sjtan
 #
 # now using gmDispatcher and gmSignals for initialization and cleanup.
 # Comment out the import handler_loader in gmGuiMain will restore back
