@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 
 			# make document tree
-			self.tree = cDocTree(self, -1)
+			self.tree = gmMedDocWidgets.cDocTree(self, -1)
 			self.tree.update()
 			self.tree.SelectItem(self.tree.root)
 
@@ -248,7 +248,7 @@ else:
 				shortHelpString=_("show document"),
 				isToggle=false
 			)
-			EVT_TOOL (tb, wxID_TB_BTN_show_page, cDocTree.OnActivate)
+			EVT_TOOL (tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree.OnActivate)
 	
 			#tool1 = tb.AddTool(
 			#	wxID_PNL_BTN_select_files,
@@ -288,7 +288,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.48  2004-06-26 23:39:34  ncq
+# Revision 1.49  2004-06-29 22:58:43  ncq
+# - add missing gmMedDocWidgets. qualifiers
+#
+# Revision 1.48  2004/06/26 23:39:34  ncq
 # - factored out widgets for re-use
 #
 # Revision 1.47	 2004/06/20 16:50:51  ncq
