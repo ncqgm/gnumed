@@ -3,14 +3,14 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmLab-de.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
 CREATE TABLE lab_test_GNR (
-	test_id integer references lab_test,
+	id_test integer references lab_test,
 	EBM character(6) references ebm.gnr,
 	GOA_88 character(6) references goae_88.gnr,
 	GOA_96 character(6) references goae_96.gnr,
@@ -26,11 +26,14 @@ COMMENT ON COLUMN lab_test_GNR.BG_GOA is "GNR according to GOAe (GebuehrenOrdnun
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmLab-de.sql,v $', '$Revision: 1.4 $')
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmLab-de.sql,v $', '$Revision: 1.5 $')
 
 -- =============================================
 -- $Log: gmLab-de.sql,v $
--- Revision 1.4  2003-05-12 12:43:40  ncq
+-- Revision 1.5  2003-07-27 22:02:18  ncq
+-- - test_id -> id_test
+--
+-- Revision 1.4  2003/05/12 12:43:40  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
