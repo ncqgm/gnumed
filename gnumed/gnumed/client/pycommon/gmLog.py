@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -121,8 +121,7 @@ AsciiName = ['<#0-0x00-nul>',
 			 '<#28-0x1C-fs>',
 			 '<#29-0x1D-gs>',
 			 '<#30-0x1E-rs>',
-			 '<#31-0x1F-us>',
-			 '<#32-0x20-space>'
+			 '<#31-0x1F-us>'
 			]
 
 class cLogger:
@@ -824,7 +823,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.6  2004-08-16 19:24:21  ncq
+# Revision 1.7  2004-08-18 08:20:06  ncq
+# - remove SPACE from char2ascii map
+#
+# Revision 1.6  2004/08/16 19:24:21  ncq
 # - try to speed up __char2AsciiName()
 #
 # Revision 1.5  2004/08/11 08:00:05  ncq
