@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.91 $"
+__version__ = "$Revision: 1.92 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -606,6 +606,8 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 
 	If the last query returned data (i.e. was a SELECT query), the
 	data will be returned.
+
+	If there were no queries to execute it returns 1.
 	"""
 	# sanity checks
 	if link_obj is None:
@@ -614,6 +616,8 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 		raise TypeError, 'gmPG.run_commit(): forgot to pass in queries'
 	if len(queries) == 0:
 		_log.Log(gmLog.lWarn, 'no queries to execute ?!?')
+		if return_err_msg:
+			return (1, 'no queries to execute ?!?')
 		return 1
 
 	close_cursor = 0
@@ -1088,7 +1092,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.91  2004-01-22 23:41:06  ncq
+# Revision 1.92  2004-02-18 13:43:33  ncq
+# - fail with consistent return struct in run_commit()
+#
+# Revision 1.91  2004/01/22 23:41:06  ncq
 # - add commented out query timing code
 #
 # Revision 1.90  2004/01/18 21:48:42  ncq
