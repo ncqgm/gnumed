@@ -2,10 +2,10 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
-import sys, os.path, cPickle, zlib
+import sys, os.path, cPickle, zlib, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
@@ -320,7 +320,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.12  2003-06-01 12:31:58  ncq
+# Revision 1.13  2003-06-26 04:18:40  ihaywood
+# Fixes to gmCfg for commas
+#
+# Revision 1.12  2003/06/01 12:31:58  ncq
 # - logging data is not by any means lInfo
 #
 # Revision 1.11  2003/06/01 01:47:33  sjtan

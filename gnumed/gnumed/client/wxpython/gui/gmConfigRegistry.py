@@ -564,7 +564,7 @@ class ConfigDataDB(ConfigData):
 		except:
 			_log.Log(gmLog.lErr, "Cannot get config parameter names.")
 			raise
-		if result == []:
+		if not result:
 			return None
 		else:
 			# gmCfg.getAllParams returns name,cookie, owner, type and description 
@@ -575,7 +575,8 @@ class ConfigDataDB(ConfigData):
 			# displayed. If the cookie is something else, we mark the cookie part
 			# by a leading "._"
 			mParamNames = []
-			for param in (result):
+			# for param in (result): why???
+			for param in result:
 				name = param[0]
 				cookie = param[1]
 				if cookie == '__default__':
@@ -911,7 +912,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.2  2003-06-10 09:56:31  ncq
+# Revision 1.3  2003-06-26 04:18:40  ihaywood
+# Fixes to gmCfg for commas
+#
+# Revision 1.2  2003/06/10 09:56:31  ncq
 # - coding style, comments, tab name
 #
 # Revision 1.1  2003/06/03 21:50:44  hinnef

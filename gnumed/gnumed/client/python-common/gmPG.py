@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -54,6 +54,14 @@ _log.Log(gmLog.lInfo, 'DBMS "%s" via DB-API module "%s": API level %s, thread sa
 assert(float(dbapi.apilevel) >= 2.0)
 assert(dbapi.threadsafety > 0)
 assert(dbapi.paramstyle == 'pyformat')
+
+
+#=====================================================================
+
+# convience function to escape strings for incorporation into SQL queries
+
+def esc (s):
+	return string.replace (s, "'", "''")
 
 listener_api = None
 #======================================================================
@@ -753,7 +761,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.59  2003-06-25 22:24:55  ncq
+# Revision 1.60  2003-06-26 04:18:40  ihaywood
+# Fixes to gmCfg for commas
+#
+# Revision 1.59  2003/06/25 22:24:55  ncq
 # - improve logging in run_query() depending on --debug (yuck !)
 #
 # Revision 1.58  2003/06/23 21:21:55  ncq

@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -57,7 +57,7 @@ import os.path, fileinput, string, sys, shutil
 from types import *
 
 # gnumed modules
-import gmLog, gmCLI
+import gmLog, gmCLI, gmPG
 
 _log = gmLog.gmDefLog
 
@@ -316,14 +316,14 @@ class cCfgSQL:
 		"""
         
 		# if no machine given: any machine
-		where_machine = " and cfg_item.machine like '%s'" % machine
+		where_machine = " and cfg_item.machine like '%s'" % gmPG.esc (machine)
 
 		# if no user given: current db user
 		# but check for "_user", too, due to ro/rw conn interaction
 		if user is None:
 			where_user = " (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
 		else:
-			where_user = "  cfg_item.owner like '%s'" % user
+			where_user = "  cfg_item.owner like '%s'" % gmPG.esc(user)
 
 		curs = self.conn.cursor()
 
@@ -978,7 +978,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.51  2003-06-21 10:44:09  ncq
+# Revision 1.52  2003-06-26 04:18:40  ihaywood
+# Fixes to gmCfg for commas
+#
+# Revision 1.51  2003/06/21 10:44:09  ncq
 # - handle read-only media better when modifying config file
 #
 # Revision 1.50  2003/06/17 22:21:53  ncq

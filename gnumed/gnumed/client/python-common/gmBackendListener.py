@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -47,7 +47,7 @@ class BackendListener:
 		# if not listening to that signal yet, do so now
 		if aSignal not in self._intercepted_notifications:
 			cmd = 'LISTEN "%s";' % aSignal
-			self._conn_lock.acquire(1)
+			self._conn_lock.acquire(blocking = 1)
 			try:
 				res = self._conn.query(cmd)
 			except StandardError:
@@ -265,7 +265,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.16  2003-06-03 13:21:20  ncq
+# Revision 1.17  2003-06-26 04:18:40  ihaywood
+# Fixes to gmCfg for commas
+#
+# Revision 1.16  2003/06/03 13:21:20  ncq
 # - still some problems syncing with threads on __del__ when
 #   failing in a constructor that sets up threads also
 # - slightly better comments in threaded code
