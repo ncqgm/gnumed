@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
 from Gnumed.pycommon import gmCfg, gmWhoAmI, gmConfigCommon
-from Gnumed.wxpython import gmPlugin, gmGuiHelpers
+from Gnumed.wxpython import gmPlugin, gmGuiHelpers, gmRegetMixin
 
 from wxPython.wx import *
 
@@ -71,7 +71,7 @@ class cConfTree(wxTreeCtrl):
 		if self.__populate_tree() is None:
 			return None
 
-		return 1
+		return True
 	#------------------------------------------------------------------------
 	def __populate_tree(self):
 		# FIXME: TODO ALL !
@@ -108,7 +108,7 @@ class cConfTree(wxTreeCtrl):
 		# and uncollapse
 		self.Expand(self.root)
 
-		return 1
+		return True
 	#------------------------------------------------------------------------
 	# this must be reentrant as we will iterate over the tree branches
 	def __addSubTree(self,aNode=None, aSubTree=None):
@@ -294,7 +294,7 @@ class cConfTree(wxTreeCtrl):
 				self.Collapse(item)
 			else:
 				self.Expand(item)
-		return 1
+		return True
 
 	#--------------------------------------------------------
 	def OnRightDown(self,event):
@@ -368,10 +368,11 @@ class cParamCtrl(wxTextCtrl):
 ###############################################################################
 # TODO: -a MenuBar allowing for import, export and options
 # 		-open a connection to backend via gmCfg
-class gmConfigEditorPanel(wxPanel):
+class gmConfigEditorPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, parent, aUser,aWorkplace, plugin = 1):
 		wxPanel.__init__(self, parent, -1)
-
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		
 		self.currUser = aUser
 		self.currWorkplace = aWorkplace
 		# init data structures
@@ -489,7 +490,11 @@ class gmConfigEditorPanel(wxPanel):
 			self.configTree.SaveCurrParam()
 
 	def RevertChanges(self,event):
-		self.configEntryParamCtrl.RevertToSaved()		
+		self.configEntryParamCtrl.RevertToSaved()
+		
+	def _populate_with_data(self):
+		self.configTree.update()
+		return True
 
 #================================================================
 # MAIN
@@ -529,13 +534,17 @@ else:
 		def MenuInfo (self):
 			return ('tools', _('&ConfigRegistry'))
 
+# DEPRECATED - remove once gmPlugin is converted to gmRegetMixin use
 		def populate_with_data(self):
-			self._widget.configTree.update()
+#			self._widget.configTree.update()
 			return 1
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.23  2004-07-24 10:27:22  ncq
+# Revision 1.24  2004-08-02 17:48:53  hinnef
+# converted to use gmRegetMixin
+#
+# Revision 1.23  2004/07/24 10:27:22  ncq
 # - TRUE/FALSE -> True/False so Python doesn't barf
 #
 # Revision 1.22  2004/07/19 11:50:43  ncq
