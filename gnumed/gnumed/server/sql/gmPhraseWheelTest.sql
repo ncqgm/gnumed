@@ -1,7 +1,7 @@
 -- Project: GnuMed - public database table for phrase wheel SQL test
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPhraseWheelTest.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -14,7 +14,7 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
---set client_encoding to 'latin1';
+set client_encoding to 'latin1';
 -- ===================================================================
 \unset ON_ERROR_STOP
 drop table gmpw_sql_test;
@@ -237,11 +237,14 @@ insert into gmpw_sql_test(phrase) values ('Nervenhyperregeneration [Narbenneurom
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmPhraseWheelTest.sql,v $';
-insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.5 $');
+insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.6 $');
 
 -- ===================================================================
 -- $Log: gmPhraseWheelTest.sql,v $
--- Revision 1.5  2003-12-29 15:41:15  uid66147
+-- Revision 1.6  2004-01-10 01:29:25  ncq
+-- - add test data for test-nurse, test-doctor
+--
+-- Revision 1.5  2003/12/29 15:41:15  uid66147
 -- - cleanup
 --
 -- Revision 1.4  2003/10/19 13:05:25  ncq

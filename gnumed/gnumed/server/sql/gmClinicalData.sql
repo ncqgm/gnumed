@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.18 2003-12-29 15:29:45 uid66147 Exp $
+-- $Id: gmClinicalData.sql,v 1.19 2004-01-10 01:29:25 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -171,7 +171,7 @@ delete from staff_role;
 
 -- standard GP practice staff
 insert into staff_role (name) values (i18n('doctor'));
-insert into staff_role (name) values (i18n('practice nurse'));
+insert into staff_role (name) values (i18n('nurse'));
 insert into staff_role (name) values (i18n('manager'));
 insert into staff_role (name) values (i18n('secretary'));
 insert into staff_role (name) values (i18n('X-ray assistant'));
@@ -517,11 +517,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.18  2003-12-29 15:29:45  uid66147
+-- Revision 1.19  2004-01-10 01:29:25  ncq
+-- - add test data for test-nurse, test-doctor
+--
+-- Revision 1.18  2003/12/29 15:29:45  uid66147
 -- - staff roles data
 -- - more vacc_indications
 -- - more vacc_indications -> disease codes
