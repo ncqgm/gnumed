@@ -2,21 +2,17 @@
 
 """GnuMed user/group installation.
 
-This script installs all the users and groups needed for
-proper GnuMed usage. It will also set proper access rights.
+This script bootstraps a GnuMed database system. All the
+infrastructure is in place to support distributed
+services. However, until further notice one should stick
+to monolithic database design as cross-database links
+are not well supported yet.
 
-Theory of operation:
-
-Rights will be granted to users via groups. Effectively, groups
-are granted certain access rights and users are added to the
-appropriate groups as needed.
+This will set up databases, services, database tables,
+groups, permissions and possibly users.
 
 There's a special user called "gmdb-owner" who owns all the
 database objects.
-
-Normal users are represented twice in the database:
- 1) under their normal user name with read-only rights
- 2) under their user name prepended by "_" for write access
 
 For all this to work you must be able to access the database
 server as the standard "postgres" superuser.
@@ -25,12 +21,13 @@ This script does NOT set up user specific configuration options.
 
 All definitions are loaded from a config file.
 
-Please consult the Developer's Guide in the GnuMed CVS for
+Please consult the User Manual in the GnuMed CVS for
 further details.
 """
+# TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -878,7 +875,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.16  2003-01-30 09:05:08  ncq
+# Revision 1.17  2003-01-30 16:30:37  ncq
+# - updated docstring, added TODO item
+#
+# Revision 1.16  2003/01/30 09:05:08  ncq
 # - it finally works as advertised
 #
 # Revision 1.15  2003/01/30 07:55:01  ncq
