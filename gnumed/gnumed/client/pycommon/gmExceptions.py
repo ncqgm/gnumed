@@ -52,6 +52,7 @@ class PureVirtualFunction(Exception):
 		return self.errmsg
 
 #------------------------------------------------------------
+# constructor errors
 class ConstructorError(Exception):
 	"""Raised when a constructor fails."""
 	def __init__(self, errmsg = None):
@@ -59,22 +60,53 @@ class ConstructorError(Exception):
 			self.errmsg = "%s.__init__() failed" % self.__class__.__name__
 		else:
 			self.errmsg = errmsg
-
 	def __str__(self):
 		return str(self.errmsg)
 
-class NoSuchClinItemError(ConstructorError):
+# business DB-object exceptions
+class NoSuchBusinessObjectError(ConstructorError):
+	"""Raised when a business db-object can not be found."""
+	def __init__(self, errmsg = None):
+		if errmsg is None:
+			self.errmsg = "no such business DB-object found"
+		else:
+			self.errmsg = errmsg
+	def __str__(self):
+		return str(self.errmsg)
+
+# access errors
+class NoSuchBusinessObjectAttributeError(KeyError):
+	"""Raised when a clinical item attribute can not be found."""
+	def __init__(self, errmsg = None):
+		if errmsg is None:
+			self.errmsg = "no such business DB-object attribute found"
+		else:
+			self.errmsg = errmsg
+	def __str__(self):
+		return str(self.errmsg)
+
+class BusinessObjectAttributeNotSettableError(KeyError):
+	"""Raised when a clinical item attribute is not settable."""
+	def __init__(self, errmsg = None):
+		if errmsg is None:
+			self.errmsg = "business DB-object attribute not settable"
+		else:
+			self.errmsg = errmsg
+	def __str__(self):
+		return str(self.errmsg)
+
+# clinical item exceptions
+class NoSuchClinItemError(NoSuchBusinessObjectError):
 	"""Raised when a clinical item can not be found."""
 	def __init__(self, errmsg = None):
 		if errmsg is None:
 			self.errmsg = "no such clinical item found"
 		else:
 			self.errmsg = errmsg
-
 	def __str__(self):
 		return str(self.errmsg)
 
-class NoSuchClinItemAttributeError(KeyError):
+class NoSuchClinItemAttributeError(NoSuchBusinessObjectAttributeError):
 	"""Raised when a clinical item attribute can not be found."""
 	def __init__(self, errmsg = None):
 		if errmsg is None:
@@ -85,14 +117,13 @@ class NoSuchClinItemAttributeError(KeyError):
 	def __str__(self):
 		return str(self.errmsg)
 
-class ClinItemAttributeNotSettableError(KeyError):
+class ClinItemAttributeNotSettableError(BusinessObjectAttributeNotSettableError):
 	"""Raised when a clinical item attribute is not settable."""
 	def __init__(self, errmsg = None):
 		if errmsg is None:
 			self.errmsg = "clinical item attribute not settable"
 		else:
 			self.errmsg = errmsg
-
 	def __str__(self):
 		return str(self.errmsg)
 #------------------------------------------------------------
@@ -110,7 +141,10 @@ class InvalidInputError(Exception):
 
 #=====================================================================
 # $Log: gmExceptions.py,v $
-# Revision 1.5  2004-06-02 12:51:45  ncq
+# Revision 1.6  2004-10-11 19:07:36  ncq
+# - add exceptions for business db class
+#
+# Revision 1.5  2004/06/02 12:51:45  ncq
 # - add exceptions tailored to cClinItem __set/getitem__()
 #   errors as per Syan's suggestion
 #
