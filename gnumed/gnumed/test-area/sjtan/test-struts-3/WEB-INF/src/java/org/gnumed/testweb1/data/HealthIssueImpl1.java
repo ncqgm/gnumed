@@ -1,8 +1,4 @@
-/*
- * HealthIssueImpl.java
- *
- * Created on September 18, 2004, 9:33 PM
- */
+ 
 
 package org.gnumed.testweb1.data;
 
@@ -70,13 +66,18 @@ public class HealthIssueImpl1 implements HealthIssue {
 			ClinicalEpisode en = (ClinicalEpisode) ei.next();
 
 			ClinRootItem n = en.getEarliestRootItem();
-
-			if (early == null
+                        
+			if (n != null && (early == null
 					|| n.getClin_when().getTime() < early.getClin_when()
-							.getTime()) {
+							.getTime()) ){
 				early = n;
 			}
 		}
+                
+                if (early == null) {
+                    early = new ClinRootItemImpl1();
+                    early.setClin_when(new java.util.Date());
+                }
 
 		return early;
 
