@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.61 2005-02-19 15:04:55 sjtan Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmDemographicRecord.py,v 1.62 2005-02-20 08:33:26 sjtan Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -270,13 +270,13 @@ class cIdentity (cOrg):
 			dob=%(dob)s,
 			cob=%(cob)s,
 			gender=%(gender)s,
-			fk_marital_status = %(fk_marital_status)s,
+			pk_marital_status = %(pk_marital_status)s,
 			karyotype = %(karyotype)s,
 			pupic = %(pupic)s
 		where pk=%(pk_identity)s""",
 		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
 	]
-	_updatable_fields = ["title", "dob", "cob", "gender", "fk_marital_status", "karyotype", "pupic"]
+	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
 
 	def getId(self):
 		return self['pk_identity']
@@ -350,7 +350,7 @@ class cIdentity (cOrg):
 	def get_relatives(self):
 		cmd = """
 select
-        t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, fk_marital_status,
+        t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, marital_status,
 	marital_status, xmin_identity, preferred
 from
 	v_basic_person vbp, relation_types t, lnk_person2relative l
@@ -358,10 +358,12 @@ where
 	(l.id_identity = %s and
 	vbp.pk_identity = l.id_relative and
 	t.id = l.id_relation_type) or
-	(l.id_relation = %s and
-	vbp.pk_identity = i.id_identity and
+	(l.id_relative = %s and
+	vbp.pk_identity = l.id_identity and
 	t.inverse = l.id_relation_type)
 """
+		#where the v_basic_person is on either end of a lnk_person2relative and the other end is this identity
+	
 		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self.getId(), self.getId()])
 		if data is None:
 			return []
@@ -672,7 +674,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.61  2005-02-19 15:04:55  sjtan
+# Revision 1.62  2005-02-20 08:33:26  sjtan
+#
+# syntax errors.
+#
+# Revision 1.61  2005/02/19 15:04:55  sjtan
 #
 # identity.id is now identity.pk_identity, so adapt
 #
