@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.129 2003-11-29 01:33:23 ncq Exp $
-__version__ = "$Revision: 1.129 $"
+# $Id: gmGuiMain.py,v 1.130 2003-11-30 01:09:10 ncq Exp $
+__version__ = "$Revision: 1.130 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -414,9 +414,9 @@ class gmTopLevelFrame(wxFrame):
 				'Do you want to reactivate this encounter ?\n'
 				'Hitting "No" will start a new one.'
 			) % (pat_string, encounter['type'], encounter['started'], encounter['affirmed'], encounter['status'], encounter['comment'])
-			result = self.__show_question(msg, _('recording patient encounter'))
+			result = gmGuiHelpers.gm_show_question(msg, _('recording patient encounter'))
 			# attach to existing
-			if result == wxID_YES:
+			if result == 1:
 				epr.attach_to_encounter(anID = encounter['ID'], forced = 1)
 			# create new one
 			else:
@@ -754,21 +754,6 @@ class gmApp(wxApp):
 			_log.Log(gmLog.lData, "Successfully set database language to [%s]." % lang)
 			return 1
 		return None
-	#----------------------------------------------
-	def __show_question(self, aMessage = None, aTitle = ''):
-		# sanity checks
-		tmp = aMessage
-		if aMessage is None:
-			tmp = _('programmer forgot to specify question')
-		dlg = wxMessageDialog(
-			NULL,
-			tmp,
-			aTitle,
-			wxYES_NO | wxICON_QUESTION
-		)
-		result = dlg.ShowModal()
-		dlg.Destroy()
-		return result
 #=================================================
 def main():
 	#create an instance of our GNUmed main application
@@ -789,7 +774,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.129  2003-11-29 01:33:23  ncq
+# Revision 1.130  2003-11-30 01:09:10  ncq
+# - use gmGuiHelpers
+#
+# Revision 1.129  2003/11/29 01:33:23  ncq
 # - a bit of streamlining
 #
 # Revision 1.128  2003/11/21 19:55:32  hinnef
