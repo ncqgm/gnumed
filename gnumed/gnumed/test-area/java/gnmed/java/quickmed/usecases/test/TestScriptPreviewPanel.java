@@ -9,13 +9,20 @@ import java.awt.print.*;
 import java.awt.Point;
 import java.awt.Component;
 import javax.swing.*;
+import java.util.logging.*;
+import java.util.*;
+import javax.print.*;
+import javax.print.attribute.*;
+import javax.print.attribute.standard.*;
+
+
 /**
  *
  * @author  syan
  */
 public class TestScriptPreviewPanel extends javax.swing.JPanel {
     private   TestBasicScriptPrintable test = new TestBasicScriptPrintable();
-//    private   MedicareBasicScriptPrintable printable = (MedicareBasicScriptPrintable)test.getBasicScriptPrintable();
+    //    private   MedicareBasicScriptPrintable printable = (MedicareBasicScriptPrintable)test.getBasicScriptPrintable();
     private JPanel[] previews;
     /** Creates new form TestScriptPreviewForm */
     public TestScriptPreviewPanel() {
@@ -35,6 +42,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
             MedicareOriginTextField.setText(  getTextFromPoint(p.getOriginHealthNumber() ));
             fontSizeTextField1.setText( Integer.toString( p.getFontSize()) );
             splitWidthTextField1.setText( Integer.toString(p.getSplitWidth()) );
+            jSpinner1.getModel().setValue(new Integer( p.getLeftMargin() ) );
         }
     }
     
@@ -67,6 +75,9 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         splitWidthTextField1 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         fontSizeTextField1 = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        jSpinner1 = new javax.swing.JSpinner();
+        jButton2 = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -141,11 +152,36 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         fontSizeTextField1.setText("jTextField1");
         jPanel2.add(fontSizeTextField1, new java.awt.GridBagConstraints());
 
+        jLabel9.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("leftMargin"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        jPanel2.add(jLabel9, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 0.5;
+        jPanel2.add(jSpinner1, gridBagConstraints);
+
+        jButton2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("print"));
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton2, new java.awt.GridBagConstraints());
+
         jPanel3.add(jPanel2, java.awt.BorderLayout.SOUTH);
 
         add(jPanel3, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
+    
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // Add your handling code here:
+        printAction(evt);
+    }//GEN-LAST:event_jButton2ActionPerformed
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // Add your handling code here:
@@ -161,6 +197,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
     private javax.swing.JTextField ProviderOriginTextField1;
     private javax.swing.JTextField fontSizeTextField1;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -169,9 +206,11 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField splitWidthTextField1;
     private javax.swing.JTextField subsidizedOriginTextField;
@@ -201,6 +240,17 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         
     }
     
+    static class RunnableFocusListener extends  java.awt.event.FocusAdapter {
+        Runnable runnable;
+        public RunnableFocusListener(Runnable r) {
+            this.runnable = r;
+        }
+        public void focusGained(java.awt.event.FocusEvent ev) {
+            Logger.global.info("PAINTING USING " + runnable);
+            SwingUtilities.invokeLater(runnable);
+        }
+    }
+    
     static class RunnableComponentListener implements java.awt.event.ComponentListener {
         Runnable runnable;
         public RunnableComponentListener(Runnable r) {
@@ -216,40 +266,109 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         }
         
         public void componentShown(java.awt.event.ComponentEvent e) {
+            Logger.global.info("PAINTING USING " + runnable);
+            
             SwingUtilities.invokeLater(runnable);
         }
         
     }
     
+    void printAction(java.awt.event.ActionEvent evt) {
+        configurePrintLocations();
+        DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PAGEABLE;
+        
+        
+        HashPrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
+        //        attributes.add( MediaSizeName.ISO_A4);
+        //        attributes.add( MediaSizeName.FOLIO);
+        //
+        
+        
+        PrintService[] services = PrintServiceLookup.lookupPrintServices(flavor, attributes);
+        List list = new ArrayList();
+        list.addAll(Arrays.asList(services));
+        
+        services = new PrintService[] { PrintServiceLookup.lookupDefaultPrintService() };
+        list.addAll(Arrays.asList(services));
+        services = (PrintService[]) list.toArray( new PrintService[0]);
+        
+        PrintService service = ServiceUI.printDialog(null,
+        ((java.awt.Component)evt.getSource()).getX(),
+        ((java.awt.Component)evt.getSource()).getY() ,
+        services, null,  flavor,   attributes) ;
+        SimpleDoc doc = new SimpleDoc( getBasicScriptPrintable().getPageable() , flavor, null);
+        try {
+            service.createPrintJob().print(doc, attributes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     void testAction() {
         // Add your handling code here:
-        setPointsFromFields();
-        setSplitWidth();
-        setFontSize();
-        
+        configurePrintLocations();
         try {
             //            test.test();
             BasicScriptPrintable bp = getBasicScriptPrintable();
             int pages = bp.getPageable().getNumberOfPages();
             setPages(pages);
-            for (int i = 0; i < pages; ++i) {
-                previews[i].addComponentListener( new TestScriptPreviewPanel.RunnableComponentListener(
-                new TestScriptPreviewPanel.PreviewPainter(previews[i], bp.getPageable().getPrintable(i), i ) ) );
-            }
+            //            for (int i = 0; i < pages; ++i) {
+            //                TestScriptPreviewPanel.PreviewPainter painter =
+            //                new TestScriptPreviewPanel.PreviewPainter(previews[i], bp.getPageable().getPrintable(i), i ) ;
+            //                previews[i].setRunnable(painter);
+            //
+            ////                TestScriptPreviewPanel.RunnableComponentListener listener = new TestScriptPreviewPanel.RunnableComponentListener(
+            //                painter
+            //                ) ;
+            //                System.out.println("MADE  FOR " + previews[i] + listener);
+            //                previews[i].addComponentListener( listener);
+            //                previews[i].addFocusListener(new RunnableFocusListener(painter) );
+            //            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    void configurePrintLocations() {
+        setPointsFromFields();
+        setSplitWidth();
+        setFontSize();
+        setLeftMargin();
     }
     
     void setPages(int pages) {
         jTabbedPane1.removeAll();
         previews = new JPanel[pages];
         for (int i = 0; i < pages; ++i) {
-            previews[i] = new JPanel();
+            previews[i] =createPreviewPanel(i);
             jTabbedPane1.addTab("Page " + Integer.toString(i) , previews[i]);
         }
         
     }
+    
+    static class PreviewPanel extends JPanel {
+        Printable printable; PageFormat format ; int index;
+        public PreviewPanel( Printable p, PageFormat format, int index) {
+            this.printable = p;
+            this.format = format;
+            this.index = index;
+        }
+        public void paintComponent(java.awt.Graphics g) {
+            super.paintComponent(g);
+            try {
+                printable.print(g, format, index);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+        }
+    }
+    
+    public JPanel createPreviewPanel(int i ) {
+        return new PreviewPanel( getBasicScriptPrintable().getPageable().getPrintable(i),
+        getBasicScriptPrintable().getPageable().getPageFormat(i), i);
+    }
+    
     
     void setPointsFromFields() {
         if ( getBasicScriptPrintable() instanceof BasicScriptFormLayoutAdjustable) {
@@ -265,7 +384,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
                 q.setOriginDate(p3);
             Point p4 = getPointFromText(PatientOriginTextField3.getText());
             if ( p4 != null)
-               q.setOriginPatientDetail(p4);
+                q.setOriginPatientDetail(p4);
             Point p5 = getPointFromText(PrescriptionOriginTextField5.getText());
             if (p5 != null)
                 q.setOriginDrugDetails(p5);
@@ -278,9 +397,18 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
     void  setSplitWidth() {
         try {
             BasicScriptFormLayoutAdjustable f = (BasicScriptFormLayoutAdjustable) getBasicScriptPrintable();
-           f.setSplitWidth(Integer.parseInt(splitWidthTextField1.getText().trim()));
+            f.setSplitWidth(Integer.parseInt(splitWidthTextField1.getText().trim()));
             
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    void setLeftMargin() {
+        try {
+            BasicScriptFormLayoutAdjustable f = (BasicScriptFormLayoutAdjustable) getBasicScriptPrintable();
+            f.setLeftMargin( ((Integer)jSpinner1.getModel().getValue() ).intValue() );
+        }catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -289,7 +417,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
     void   setFontSize() {
         try {
             BasicScriptFormLayoutAdjustable f = (BasicScriptFormLayoutAdjustable) getBasicScriptPrintable();
-           f.setFontSize(Integer.parseInt(fontSizeTextField1.getText().trim()));
+            f.setFontSize(Integer.parseInt(fontSizeTextField1.getText().trim()));
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -317,6 +445,7 @@ public class TestScriptPreviewPanel extends javax.swing.JPanel {
         return Integer.toString(p.x) +  ", " + Integer.toString(p.y);
         
     }
+    
     
     /** Getter for property basicScriptPrintable.
      * @return Value of property basicScriptPrintable.
