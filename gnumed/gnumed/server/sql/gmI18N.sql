@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.17 2005-02-01 16:52:50 ncq Exp $
+-- $Id: gmI18N.sql,v 1.18 2005-02-03 20:28:25 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -25,7 +25,8 @@ create table i18n_curr_lang (
 );
 
 comment on table i18n_curr_lang is
-	'holds the currently selected language per user for fixed strings in the database';
+	'holds the currently selected per-user default
+	 language for fixed strings in the database';
 
 -- =============================================
 create table i18n_keys (
@@ -34,9 +35,11 @@ create table i18n_keys (
 );
 
 comment on table i18n_keys is
-	'this table holds all the original strings that need translation so give this to your language teams,
-	the function i18n() will take care to enter relevant strings into this table,
-	the table table does NOT play any role in runtime translation activity';
+	'this table holds all the original strings that need
+	 translation so give this to your language teams,
+	 the function i18n() will take care to enter relevant
+	 strings into this table, the table table does NOT
+	 play any role in runtime translation activity';
 
 -- =============================================
 create table i18n_translations (
@@ -47,6 +50,16 @@ create table i18n_translations (
 	unique (lang, orig)
 );
 create index idx_orig on i18n_translations(orig);
+
+comment on table i18n_translations is
+	'this table holds all the translated strings';
+comment on column i18n_translations.lang is
+	'the language (corresponding to i18n_curr_lang for
+	 a given user) that this translation belongs to';
+comment on column i18n_translations.orig is
+	'the original, untranslated string, used as the search key.';
+comment on column i18n_translations.trans is
+	'the translation of <orig> into <lang>';
 
 -- =============================================
 create function i18n(text) returns text as '
@@ -70,10 +83,6 @@ DECLARE
     trans_str text;
     my_lang varchar(10);
 BEGIN
-    -- no translation available at all ?
-    if not exists(select orig from i18n_translations where orig = orig_str) then
-	return orig_str;
-    end if;
     -- get language
     select into my_lang lang
 	from i18n_curr_lang
@@ -97,7 +106,37 @@ END;
 ' language 'plpgsql';
 
 comment on function _(text) is
-	'will return either the input or the translation if it exists';
+	'will return either the translation into i18n_curr_lang.lang
+	 for the current user or the input';
+
+
+create function _(text, text) returns text as '
+DECLARE
+	orig_str ALIAS FOR $1;
+	my_lang = $2;
+	trans_str text;
+BEGIN
+	-- no translation available at all ?
+	if not exists(select orig from i18n_translations where orig = orig_str) then
+		return orig_str;
+	end if;
+	-- get translation
+	select into trans_str trans
+	from i18n_translations
+	where
+		lang = my_lang
+			and
+		orig = orig_str;
+	if not found then
+		return orig_str;
+	end if;
+	return trans_str;
+END;
+' language 'plpgsql';
+
+comment on function _(text, text) is
+	'will return either the translation into <text> (2nd
+	 argument) for the current user or the input';
 
 -- =============================================
 create function set_curr_lang(text) returns unknown as '
@@ -175,6 +214,9 @@ where
 	ik.orig not in (select orig from i18n_translations)
 ;
 
+comment on view v_missing_translations is
+	'lists per language which strings are missing a translation';
+
 -- =============================================
 -- there's most likely no harm in granting select to all
 GRANT SELECT on
@@ -193,11 +235,15 @@ TO group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.17  2005-02-01 16:52:50  ncq
+-- Revision 1.18  2005-02-03 20:28:25  ncq
+-- - improved comments
+-- - added _(text, text)
+--
+-- Revision 1.17  2005/02/01 16:52:50  ncq
 -- - added force_curr_lang()
 --
 -- Revision 1.16  2004/07/17 20:57:53  ncq
