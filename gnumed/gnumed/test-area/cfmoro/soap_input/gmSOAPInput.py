@@ -13,7 +13,7 @@
         -Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -378,55 +378,59 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
         vepisode_id = self._emr.get_active_episode()['pk_episode']
         vencounter_id = self._emr.get_active_episode()['pk_episode']
         vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
+        # compose soap bundle
+        clin_ctx = {
+            cSOAPImporter._episode_id_key:vepisode_id,
+            cSOAPImporter._encounter_id_key: vencounter_id,
+            cSOAPImporter._staff_id_key: vstaff_id
+        }
         bundle = []
+        # subjective
         bundle.append(
-           {cSOAPImporter._soap_key:'s',
+        {
+            cSOAPImporter._soap_cat_key:'s',
             cSOAPImporter._types_key:['Hx'],
             cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Subjective'],
-            cSOAPImporter._data_key:{
-                      cSOAPImporter._clin_ctx_key:{       
-                                         cSOAPImporter._episode_id_key:vepisode_id
-                                                  }
-                   }
-           }
+            cSOAPImporter._clin_ctx_key:clin_ctx,
+            cSOAPImporter._struct_data_key:{}
+        }
         )
+        # objective
         bundle.append(
-           {cSOAPImporter._soap_key:'o',
+        {
+            cSOAPImporter._soap_cat_key:'o',
             cSOAPImporter._types_key:['Hx'],
             cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Objective'],
-            cSOAPImporter._data_key:{
-                      cSOAPImporter._clin_ctx_key:{       
-                                         cSOAPImporter._episode_id_key:vepisode_id
-                                                  }
-                   }
-           }
+            cSOAPImporter._clin_ctx_key:clin_ctx,
+            cSOAPImporter._struct_data_key:{}
+        }
         )
+        # assesment
         bundle.append(
-           {cSOAPImporter._soap_key:'a',
+        {
+            cSOAPImporter._soap_cat_key:'a',
             cSOAPImporter._types_key:['Hx'],
             cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Assessment'],
-            cSOAPImporter._data_key:{
-                      cSOAPImporter._clin_ctx_key:{       
-                                         cSOAPImporter._episode_id_key:vepisode_id
-                                                  }
-                   }
-           }
+            cSOAPImporter._clin_ctx_key:clin_ctx,                  
+            cSOAPImporter._struct_data_key:{}
+        }
         )
+        # plan
         bundle.append(
-           {cSOAPImporter._soap_key:'p',
+        {
+           cSOAPImporter._soap_cat_key:'p',
             cSOAPImporter._types_key:['Hx'],
             cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Plan'],
-            cSOAPImporter._data_key:{
-                      cSOAPImporter._clin_ctx_key:{       
-                                         cSOAPImporter._episode_id_key:vepisode_id
-                                                  }
-                   }
-           }
-        )                
+            cSOAPImporter._clin_ctx_key:clin_ctx,
+            cSOAPImporter._struct_data_key:{}
+        }
+        )
+        # let's dump soap contents           
         importer = cSOAPImporter()
         print bundle[0]
         importer.import_soap(bundle)
                 
+        # update buttons
         self._selected_soap.SetSaved(True)
         self.check_buttons()
         print "Done!"
