@@ -9,13 +9,13 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.38 2004-06-25 12:30:52 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPhraseWheel.py,v 1.39 2004-09-13 09:24:30 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider, gmGuiBroker, gmNull
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -68,12 +68,14 @@ class cPhraseWheel (wxTextCtrl):
 
 		self.__matcher = aMatchProvider
 		self.__real_matcher = None
-		
 		self.__currMatches = []
+
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
-		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 		self.allow_multiple_phrases()
+
 		self.input2match = ''
+		self.left_part = ''
+		self.right_part = ''
 		self.data = None
 		self.input_was_selected = False
 		self.selection_only = selection_only
@@ -92,17 +94,9 @@ class cPhraseWheel (wxTextCtrl):
 		#self.SetBackgroundColour (wxColour (200, 100, 100))
 
 		# set event handlers
-		# 1) entered text changed
-		EVT_TEXT (self, self.GetId(), self.__on_text_update)
-		# - user pressed <enter>
-		EVT_TEXT_ENTER	(self, self.GetId(), self.__on_enter)
-		# 2) a key was pressed
-		EVT_KEY_DOWN (self, self.__on_key_pressed)
-		# 3) evil user wants to resize widget
-		EVT_SIZE (self, self.on_resize)
-		EVT_SET_FOCUS (self, self.on_set_focus)
-		EVT_KILL_FOCUS (self, self.on_kill_focus)
+		self.__register_events()
 
+		# multiple matches dropdown list
 		tmp = kwargs.copy()
 		width, height = self.GetSize()
 		x, y = self.GetPosition()
@@ -113,8 +107,24 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist_win.Hide ()
 		self.__picklist_visible = False
 
-		self.left_part = ''
-		self.right_part = ''
+		self.__gb = gmGuiBroker.GuiBroker()
+		if not self.__gb['main.slave_mode']:
+			self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
+		else:
+			self.__timer = gmNull.cNull()
+
+	#--------------------------------------------------------
+	def __register_events(self):
+		# 1) entered text changed
+		EVT_TEXT (self, self.GetId(), self.__on_text_update)
+		# - user pressed <enter>
+		EVT_TEXT_ENTER	(self, self.GetId(), self.__on_enter)
+		# 2) a key was pressed
+		EVT_KEY_DOWN (self, self.__on_key_pressed)
+		# 3) evil user wants to resize widget
+		EVT_SIZE (self, self.on_resize)
+		EVT_SET_FOCUS (self, self.on_set_focus)
+		EVT_KILL_FOCUS (self, self.on_kill_focus)
 	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = True):
 		self.__handle_multiple_phrases = state
@@ -525,7 +535,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.38  2004-06-25 12:30:52  ncq
+# Revision 1.39  2004-09-13 09:24:30  ncq
+# - don't start timers in slave_mode since cannot start from
+#   other than main thread, this is a dirty fix but will do for now
+#
+# Revision 1.38  2004/06/25 12:30:52  ncq
 # - use True/False
 #
 # Revision 1.37  2004/06/17 11:43:15  ihaywood
