@@ -4,10 +4,191 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+
+-- =============================================
+-- vaccination related data
+
+---------------------
+-- Tetanus vaccine --
+---------------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'Tetasorbat (SFCMS)',
+	'Tetanus',
+	false,
+	-- FIXME: check this
+	'1 year'::interval,
+	'Starfleet Central Medical Supplies'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tetanus'));
+
+
+-- FIXME: we currently assume that the services [reference]
+-- and [historica] reside in the same database (see fk_recommended_by)
+
+-- Enterprise Vaccination Council
+delete from ref_source where name_short = 'SFCVC';
+insert into ref_source (
+	name_short,
+	name_long,
+	version,
+	description,
+	source
+) values (
+	'SFCVC',
+	'Starfleet Central Vaccination Council',
+	'December 2004',
+	'vaccination recommendations for Starfleet personnel',
+	'Starfleet Central Medical Facilities, Earth'
+);
+
+delete from vacc_regime where fk_recommended_by = currval('ref_source_id_seq');
+
+-------------
+-- Tetanus --
+-------------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='tetanus'),
+	'Tetanus (SFCVC)'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'2 months'::interval,
+	'2 months'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	2,
+	'3 months'::interval,
+	'3 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 6, '9 years'::interval, '17 years'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+values (
+	currval('vacc_regime_id_seq'),
+	null,
+	'5 years'::interval,
+	'10 years'::interval,
+	true,
+	'10 years'::interval,
+	'at +10 years if no injury, at +7 years if minor injury, at +5 years if major injury,
+	 however, US military studies show adequate titers w/o boosters at +30 years'
+);
+
+---------
+-- HiB --
+---------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='haemophilus influenzae b'),
+	'HiB (SFCVC)',
+	'if combined w/ pertussis vaccine (aP) use DTaP/Dt/Td regime'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'2 months'::interval,
+	'2 months'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	2,
+	'4 months'::interval,
+	'4 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	3,
+	'11 months'::interval,
+	'14 months'::interval,
+	'4 weeks'::interval
+);
+
+---------------------
+-- Meningokokken C --
+---------------------
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, name, comment)
+values (
+	currval('ref_source_pk_seq'),
+	(select id from vacc_indication where description='meningococcus C'),
+	'MenC (SFCVC)',
+	'> 12 months of age, meningococcus C'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'12 months'::interval
+);
+
 
 -- =============================================
 -- pathology lab
@@ -119,11 +300,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.11  2004-09-29 19:16:28  ncq
+-- Revision 1.12  2004-12-18 09:57:17  ncq
+-- - add vaccination related data
+--
+-- Revision 1.11  2004/09/29 19:16:28  ncq
 -- - fix test type defs
 --
 -- Revision 1.10  2004/09/29 10:31:11  ncq
