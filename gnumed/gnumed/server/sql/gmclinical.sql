@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -17,59 +17,114 @@
 
 -- ===================================================================
 create table audit_clinical (
-	audit_id serial
+	id_audit serial
 );
 
 comment on table audit_clinical is 
-'ancestor table for auditing. Marks tables for automatic trigger generation';
+	'ancestor table for auditing. Marks tables for automatic audit trigger generation';
 
 -- -------------------------------------------------------------------
-create table enum_clinical_encounters(
+create table clin_health_issue (
 	id serial primary key,
-	description text
-)inherits (audit_clinical);
-
-COMMENT ON TABLE enum_clinical_encounters is
-'these are the types of encounter';
-
--- -------------------------------------------------------------------
-create table clinical_encounter (
-	id serial primary key
+	id_patient integer not null,
+	description varchar(128) default 'unspecified',
+	unique (id_patient, description)
 ) inherits (audit_clinical);
 
+comment on table clin_health_issue is
+	'long-ranging, underlying health issue such as "mild immunodeficiency", "diabetes type 2"';
+comment on column clin_health_issue.id_patient is
+	'id of patient this episode relates to';
+comment on column clin_health_issue.description is
+	'descriptive name of this health issue, may change over time';
+
+-- start: start of first episode
+-- end: end of latest episode
+
 -- -------------------------------------------------------------------
-create table clinical_transaction (
+create table clin_episode (
 	id serial primary key,
-	id_location int,
-	id_provider int,
-	id_patient int,
-	id_enum_clinical_encounters int REFERENCES enum_clinical_encounters (id),
-	stamp timestamp with time zone,
-	duration interval
+	id_health_issue integer references clin_health_issue(id),
+	description varchar(128) default 'unspecified',
+	"comment" text default '',
+	unique (id_health_issue, description)
 ) inherits (audit_clinical);
 
-COMMENT ON TABLE clinical_transaction is
+comment on table clin_episode is
+	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
+comment on column clin_episode.id_health_issue is
+	'health issue this episode is part of';
+comment on column clin_episode.description is
+	'descriptive name of this episode, may change over time';
+comment on column clin_episode."comment" is
+	'some note as to the episode, such as when the episode started before the first transaction, etc.';
+
+-- start/end to be calculated from commit times of corresponding transactions
+
+-- -------------------------------------------------------------------
+create table _enum_encounter_type (
+	id serial primary key,
+	value varchar(32) unique not null
+) inherits (audit_clinical);
+
+comment on TABLE _enum_encounter_type is
+	'these are the types of encounter';
+
+create view vi18n_enum_encounter_type as
+	select _enum_encounter_type.id, _(_enum_encounter_type.value)
+	from _enum_encounter_type;
+
+-- -------------------------------------------------------------------
+create table clin_encounter (
+	id serial primary key,
+	id_location integer,
+	id_provider integer,
+	id_type integer references _enum_encounter_type(id),
+	"comment" text default ''
+) inherits (audit_clinical);
+
+comment on table clin_encounter is
+	'a clinical encounter between a person and the health care system';
+comment on COLUMN clin_encounter.id_location is
+	'Location ID';
+comment on COLUMN clin_encounter.id_provider is
+	'ID of doctor/nurse/patient/';
+comment on COLUMN clin_encounter.id_type is
+	'ID of encounter type of this encounter';
+comment on column clin_encounter."comment" is
+	'some note as to the encounter';
+
+-- about the only reason for this table to exist is the id_type
+-- field, otherwiese one could just store the data in clin_transaction
+
+-- -------------------------------------------------------------------
+create table clin_transaction (
+	id serial primary key,
+	id_encounter integer references clin_encounter(id),
+	id_episode integer references clin_episode(id),
+	committed timestamp with time zone default CURRENT_TIMESTAMP
+) inherits (audit_clinical);
+
+comment on TABLE clin_transaction is
 	'unique identifier for clinical transaction';
+comment on COLUMN clin_transaction.id_encounter is
+	'ID of encounter this transaction belongs to';
+comment on COLUMN clin_transaction.id_episode is
+	'ID of episode this transaction belongs to';
+comment on COLUMN clin_transaction.committed is
+	'when has this transaction been committed, may not be necessary depending on auditing';
 
-COMMENT ON COLUMN clinical_transaction.stamp is 
-	'Date, time and timezone of the transaction.'; 
-
-COMMENT ON COLUMN clinical_transaction.id_location is 
-	'Location ID, in ?? gmoffice';
-
-COMMENT ON COLUMN clinical_transaction.id_provider is 
-	'ID of doctor/nurse/patient/..., in ?? gmoffice';
-
-COMMENT ON COLUMN clinical_transaction.id_patient is 
-	'Patient''s ID, in gmidentity';
+-- durations of office visits should be stored in other tables
+-- or computed from the commit timestamps of transactions with
+-- identical encounter IDs :-)
 
 -- -------------------------------------------------------------------
-create table enum_clinical_history(
+create table enum_clin_history(
 	id serial primary key,
 	description text
 ) inherits (audit_clinical);
 
-COMMENT ON TABLE enum_clinical_history is
+comment on TABLE enum_clin_history is
 'types of history taken during a clinical encounter';
 
 -- -------------------------------------------------------------------
@@ -83,24 +138,24 @@ comment on table enum_info_sources is
 'sources of clinical information: patient, relative, notes, correspondence';
 
 -- -------------------------------------------------------------------
-create table clinical_history(
+create table clin_history(
 	id serial primary key,
-	id_enum_clinical_history int REFERENCES enum_clinical_history (id),
-	id_clinical_transaction int  REFERENCES clinical_transaction (id),
+	id_enum_clin_history int REFERENCES enum_clin_history (id),
+	id_clin_transaction int  REFERENCES clin_transaction (id),
 	id_info_sources int REFERENCES enum_info_sources (id),
 	text text
 )inherits (audit_clinical);
 
-COMMENT ON TABLE clinical_history is
+comment on TABLE clin_history is
 'narrative details of history taken during a clinical encounter';
 
-COMMENT ON COLUMN clinical_history.id_enum_clinical_history is
+comment on COLUMN clin_history.id_enum_clin_history is
 'the type of history taken';
 
-COMMENT ON COLUMN clinical_history.id_clinical_transaction is
+comment on COLUMN clin_history.id_clin_transaction is
 'The transaction during which this history was taken';
 
-COMMENT ON COLUMN clinical_history.text is
+comment on COLUMN clin_history.text is
 'The text typed by the doctor';
 
 -- -------------------------------------------------------------------
@@ -110,7 +165,7 @@ create table enum_coding_systems (
 )inherits (audit_clinical);
 
 
-COMMENT ON TABLE enum_coding_systems is
+comment on TABLE enum_coding_systems is
 'The various types of coding systems available';
 
 -- -------------------------------------------------------------------
@@ -126,30 +181,30 @@ comment on table coding_systems is
 'The coding systems in this database.';
 
 -- -------------------------------------------------------------------
-create table clinical_diagnosis (
+create table clin_diagnosis (
 	id serial primary key,
-	id_clinical_transaction int  REFERENCES clinical_transaction (id),
+	id_clin_transaction int  REFERENCES clin_transaction (id),
 	approximate_start text DEFAULT null,
 	code char(16),
 	id_coding_systems int REFERENCES coding_systems (id),
 	text text
 )inherits (audit_clinical);
 
-COMMENT ON TABLE clinical_diagnosis is
+comment on TABLE clin_diagnosis is
 'Coded clinical diagnoses assigned to patient, in addition to history';
 
-comment on column clinical_diagnosis.id_clinical_transaction is
+comment on column clin_diagnosis.id_clin_transaction is
 'the transaction in which this diagnosis was made.';
 
-comment on column clinical_diagnosis.approximate_start is
+comment on column clin_diagnosis.approximate_start is
 'around the time at which this diagnosis was made';
 
-comment on column clinical_diagnosis.code is
+comment on column clin_diagnosis.code is
 'the code';
-comment on column clinical_diagnosis.id_coding_systems is
+comment on column clin_diagnosis.id_coding_systems is
 'the coding system used to code the diagnosis';
 
-comment on column clinical_diagnosis.text is
+comment on column clin_diagnosis.text is
 'extra notes on the diagnosis';
 
 -- -------------------------------------------------------------------
@@ -162,30 +217,15 @@ comment on table enum_confidentiality_level is
 'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
 
 -- -------------------------------------------------------------------
-create table clinical_diagnosis_extra (
+create table clin_diagnosis_extra (
 	id serial primary key,
-	id_clinical_diagnosis int REFERENCES clinical_diagnosis (id),
+	id_clin_diagnosis int REFERENCES clin_diagnosis (id),
 	id_enum_confidentiality_level int REFERENCES enum_confidentiality_level (id)
 
 )inherits (audit_clinical);
 
-comment on table clinical_diagnosis_extra is
+comment on table clin_diagnosis_extra is
 'Extra information about a diagnosis, just the confidentiality level at present.';
-
--- =============================================
--- episode related tables
-create table episode (
-	id serial primary key,
-	id_patient integer not null,
-	name varchar(128) default 'unspecified'
-) inherits (audit_clinical);
-
-comment on table episode is
-	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
-comment on column episode.id_patient is
-	'id of patient this episode relates to';
-comment on column episode.name is
-	'descriptive name of this episode, may change over time';
 
 -- ============================================
 create table _enum_allergy_type (
@@ -198,29 +238,29 @@ create view vi18n_enum_allergy_type as
 	from _enum_allergy_type;
 
 -- --------------------------------------------
--- IMHO this is non-episode-related data
 create table allergy (
 	id serial primary key,
-	id_clinical_transaction integer references clinical_transaction(id),
+	id_clin_transaction integer references clin_transaction(id),
 
 	substance varchar(128) not null,
-	generic varchar(256),
+	generic varchar(256) default null,
 	allergene varchar(256) default null,
-	atc_code varchar(32),
+	atc_code varchar(32) default null,
 
-	description text,
-	definate boolean default 0,
 	type integer references _enum_allergy_type(id),
-	last_observed varchar(32)
+	reaction text default '',
+	definate boolean default 0,
+	had_hypo boolean default 0,
+	"comment" text default ''
 ) inherits (audit_clinical);
 
 -- we need some way of marking "inactive" allergies after hyposensibilization
---	type varchar(32) references vi18n_enum_allergy_type(value),
 
 comment on table allergy is
 	'patient allergy details';
-comment on column allergy.id_clinical_transaction is
+comment on column allergy.id_clin_transaction is
 	'link to transaction, provides: patient, recorded_when';
+
 comment on column allergy.substance is
 	'real-world name of substance the patient reacted to, brand name if drug';
 comment on column allergy.generic is
@@ -229,18 +269,21 @@ comment on column allergy.allergene is
 	'name of allergenic ingredient in substance if known';
 comment on column allergy.atc_code is
 	'ATC code of allergene or substance if approprate, applicable for penicilline, not so for cat fur';
-comment on column allergy.description is
-	'free-text description of reaction such as "difficulty breathing, "skin rash", "diarrhea" etc.';
-comment on column allergy.definate is
-	'true: definate, false: not definate';
+
 comment on column allergy.type is
 	'allergy/sensitivity';
-comment on column allergy.last_observed is
-	'when has this been observed for the last time';
+comment on column allergy.reaction is
+	'description of reaction such as "difficulty breathing, "skin rash", "diarrhea" etc.';
+comment on column allergy.definate is
+	'true: definate, false: not definate';
+comment on column allergy.had_hypo is
+	'true: has been treated with hyposensibilization, if true hypo data is recorded elsewhere';
+comment on column allergy."comment" is
+	'free text comment, such as first/last time observed, etc.'
+
 
 -- ============================================
 -- Drug related tables
-
 
 -- These tables are pasted from gmdrugs.sql, how do we otherwise
 -- deal with this?
@@ -333,7 +376,7 @@ comment on column constituents.dose is
 create table script
 (
 	id serial primary key,
-	id_transaction integer references clinical_transaction (id)
+	id_transaction integer references clin_transaction (id)
 );
 
 comment on table script is
@@ -364,11 +407,15 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.21  2003-04-07 12:28:24  ncq
+-- Revision 1.22  2003-04-09 13:10:13  ncq
+-- - _clinical_ -> _clin_
+-- - streamlined episode/encounter/transaction
+--
+-- Revision 1.21  2003/04/07 12:28:24  ncq
 -- - allergies table updated according to comments on resmed-de and gm-dev
 --
 -- Revision 1.20  2003/04/06 15:18:21  ncq
