@@ -1,0 +1,73 @@
+12,13c12,13
+< # $Id: gmClinicalRecord.diff,v 1.1 2004-12-21 23:52:59 sjtan Exp $
+< __version__ = "$Revision: 1.1 $"
+---
+> # $Id: gmClinicalRecord.diff,v 1.1 2004-12-21 23:52:59 sjtan Exp $
+> __version__ = "$Revision: 1.1 $"
+21a22
+> from threading import Lock
+88a90
+> 		self.__method_lock= Lock()
+1163c1165
+< 		successful, enc = gmEMRStructItems.create_encounter (
+---
+> 		result = gmEMRStructItems.create_encounter(
+1167c1169
+< 		if not successful:
+---
+> 		if result is False:
+1169c1171
+< 		self.__encounter = enc
+---
+> 		self.__encounter = result
+1364a1367
+> 
+1373,1385c1376,1378
+< 		h_iss = issue_id
+< 		epis = episode_id
+< 		if issue_id is not None:
+< 			h_iss = [issue_id]
+< 		if episode_id is not None:
+< 			epis = [episode_id]
+< 		encounters = self.get_encounters(issues=h_iss, episodes=epis)
+< 		if encounters is None or len(encounters) == 0:
+< 			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s], issues [%s] (patient ID [%s])' % (str(epis), str(h_iss), self.id_patient))
+< 			return None
+< 		# FIXME: this does not scale particularly well
+< 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
+< 		return encounters[0]
+---
+> 		e =   self._get_encounters(issue_id, episode_id)[0]
+> 		return e
+> 
+1393a1387,1392
+> 		e =  self._get_encounters(issue_id, episode_id)[-1]
+> 		return e
+> 
+> 	#--------------------------------------------------------		
+> 	def _get_encounters(self, issue_id=None, episode_id=None):
+> 			
+1400a1400,1404
+> 		try:
+> 			#print issues, episodes
+> 			pass
+> 		except:
+> 			print "issues and episodes may not be assigned"
+1402,1403c1406,1409
+< 			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues [%s]. Patient ID [%s]' % (str(epis), str(h_iss), self.id_patient))
+< 			return None
+---
+> 			episodes = epis
+> 			issues = h_iss
+> 			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s], issues [%s] (patient ID [%s])' % (str(episodes), str(issues), self.id_patient))
+> 			return [None]
+1406c1412
+< 		return encounters[-1]
+---
+> 		return encounters
+1614,1618d1619
+< # Revision 1.152  2004/12/18 15:57:57  ncq
+< # - Syan found a logging bug, which is now fixed
+< # - eventually fix bug in use of create_encounter() that
+< #   prevented gmSoapImporter from working properly
+< #

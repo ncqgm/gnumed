@@ -1,0 +1,91 @@
+262a263,272
+> <<<<<<< gmEMRStructItems.py
+> 	try:
+> 		episode = cEpisode(id_patient=id_patient, name=episode_name)
+> 		#print "found episode on select = ", episode
+> 		
+> 		return (True, episode)
+> 	except gmExceptions.ConstructorError, msg:
+> 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+> 	# insert new episode
+> =======
+270a281
+> >>>>>>> 1.26
+271a283,294
+> <<<<<<< gmEMRStructItems.py
+> 
+> 	# meet constraint standalone episode
+> 	if not pk_health_issue is None: id_patient = None
+> 	
+> 	cmd = "insert into clin_episode (fk_patient, fk_health_issue) values (%s, %s)"
+> 	print cmd, id_patient, pk_health_issue
+> 	
+> 	queries.append((cmd, [id_patient, pk_health_issue ]))
+> 	
+> 	# get PK of inserted row
+> =======
+283a307
+> >>>>>>> 1.26
+285a310,354
+> <<<<<<< gmEMRStructItems.py
+> 	result, msg = gmPG.run_commit('historica', queries, True)
+> 	if result is None:
+> 		print "got msg", msg
+> 		return (False, msg)
+> 	
+> 	pk_episode = result[0][0]
+> 	
+> 	
+> 	import gmPatient, gmClinNarrative
+> 	pat = gmPatient.gmCurrentPatient()
+> 	rec = pat.get_clinical_record()
+> 	
+> 	pkEncounter = rec.get_active_encounter().pk_obj
+> 	
+> 	#this doesn't work and is hard to debug, because tracing doesn't go back to the sql statement and error
+> 	#narrative = gmClinNarrative.create_clin_narrative(str(episode_name), 'a', pk_episode, pkEncounter)
+> 	#narrative['is_aoe'] = True
+> 	#narrative.save_payload()
+> 	
+> 	queries2=[] 
+> 	
+> 	
+> 	cmd = """
+> 	insert into clin_narrative(fk_encounter, fk_episode , narrative, soap_cat, is_aoe) values (
+> 	%s, %s, %s, %s, true)
+> 	"""
+> 	queries2.append((cmd, [pkEncounter,pk_episode, str(episode_name), 'a']))
+> 	print "insert is ", cmd, [pkEncounter, pk_episode, str(episode_name), 'a']
+> 	
+> 	
+> 	cmd = "update clin_episode set fk_clin_narrative = (select currval('clin_narrative_pk_seq')) where pk=%s"
+> 	
+> 	queries2.append( (cmd, [ pk_episode]) )
+> 	
+> 	#print "cmd is " , cmd, narrative['pk'], pk_episode
+> 	
+> 	#queries2.append( (cmd, [ narrative.pk_obj , pk_episode] ) )
+> 	
+> 	
+> 		
+> 	result, msg = gmPG.run_commit('historica', queries2, True)
+> 	if result is None:
+> 		print "msg=", msg
+> =======
+288a358
+> >>>>>>> 1.26
+289a360,362
+> <<<<<<< gmEMRStructItems.py
+> 		
+> =======
+290a364
+> >>>>>>> 1.26
+291a366,368
+> <<<<<<< gmEMRStructItems.py
+> 		episode = cEpisode(aPK_obj = pk_episode)
+> =======
+292a370
+> >>>>>>> 1.26
+295a374,375
+> 			
+> 		
