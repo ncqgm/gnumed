@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -169,33 +169,17 @@ if __name__ == "__main__":
 	import gmCfg
 	_cfg = gmCfg.gmDefCfgFile
 	if _cfg is None:
-		# make sure standard directory is there (~/.gnumed/)
-		# FIXME: this isn't portable very well
-		# - should we rather use the current dir ?
-		# - but no, this may not be writeable
-		tmp = os.path.expanduser(os.path.join('~', '.gnumed'))
-		if not os.path.exists(tmp):
-			os.mkdir(tmp)
+		if gmCfg.create_default_cfg_file():
+			# now that we got the file we can reopen it as a config file :-)
+			try:
+				f = gmCfg.cCfgFile()
+			except:
+				print "Cannot open or create config file by any means.\nPlease see the log for details."
+				_log.LogException('unhandled exception', sys.exc_info(), fatal=0)
+				raise
 
-		# now the path exists but we still need to make sure
-		# the file itself exists
-		tmp = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf'))
-		if not os.path.exists(tmp):
-			_log.Log(gmLog.lErr, 'Creating empty config file [%s].' % tmp)
-			print "Creating default config file [%s]." % tmp
-			f = open(tmp, "wb")
-			f.close
-
-		# now that we got the file we can reopen it as a config file :-)
-		try:
-			f = gmCfg.cCfgFile(aFile = tmp)
-		except:
-			print "Cannot even create default config file.\nThis ain't gonna work !"
-			_log.LogException('unhandled exception', sys.exc_info(), fatal=0)
-			raise
-
-		gmCfg.gmDefCfgFile = f
-		_cfg = gmCfg.gmDefCfgFile
+			gmCfg.gmDefCfgFile = f
+			_cfg = gmCfg.gmDefCfgFile
 
 	try:
 		import gmI18N
@@ -246,7 +230,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.42  2002-11-03 14:10:15  ncq
+# Revision 1.43  2002-11-04 15:38:59  ncq
+# - use helper in gmCfg for config file creation
+#
+# Revision 1.42  2002/11/03 14:10:15  ncq
 # - autocreate empty config file on failing to find one
 # - might fail on Windows - untested so far
 #
