@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -25,6 +25,7 @@ ln -vs ../../../client/python-common/gmLoginInfo.py modules/gmLoginInfo.py
 ln -vs ../../../client/python-common/gmExceptions.py modules/gmExceptions.py
 ln -vs ../../../client/python-common/gmMimeLib.py modules/gmMimeLib.py
 ln -vs ../../../client/python-common/gmMimeMagic.py modules/gmMimeMagic.py
+ln -vs ../../../client/python-common/gmBorg.py modules/gmBorg.py
 
 ln -vs ../../../client/business/gmTmpPatient.py modules/gmTmpPatient.py
 ln -vs ../../../client/business/gmMedDoc.py modules/gmMedDoc.py
