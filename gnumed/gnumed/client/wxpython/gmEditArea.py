@@ -3,11 +3,11 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.24 2003-05-26 15:14:36 sjtan Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmEditArea.py,v 1.25 2003-05-26 15:42:52 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "R.Terry, K.HIlbert"
 #====================================================================
-import sys
+import sys, traceback
 
 if __name__ == "__main__":
 	sys.path.append ("../python-common/")
@@ -18,14 +18,9 @@ _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	import gmI18N
 
-import gmExceptions, gmDateTimeInput
-
-from PropertySupport import *
+import gmExceptions, gmDateTimeInput, PropertySupport, gmTestEvent
 
 from wxPython.wx import *
-
-from  gmTestEvent import *
-import traceback
 
 ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
@@ -132,10 +127,6 @@ _known_edit_area_types = [
 	'past history'
 ]
 
-allergyDate = "Date"
-allergyDrug ="Drug/Subst"
-
-
 _prompt_defs = {
 	'allergy': [
 		_("Date"),
@@ -159,15 +150,12 @@ _prompt_defs = {
 		_("Notes"),
 		_("More Notes"),
 		_("Age"),
-		_("Year"), "" ,
-		_("Progress Notes") , ""
+		_("Year"),
+		"" ,
+		_("Progress Notes") ,
+		""
 	]
 }
-
-familyhistoryprompts = {
-
-}
-
 
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
@@ -180,11 +168,8 @@ class cEditAreaField(wxTextCtrl):
 		self.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 #====================================================================
 #====================================================================
-			
-
-class gmEditArea(PropertySupported, wxPanel):
+class gmEditArea(PropertySupport.PropertySupported, wxPanel):
 	def __init__(self, parent, id, aType = None):
-		PropertySupported.__init__(self)
 		# sanity checks
 		if aType not in _known_edit_area_types:
 			_log.Log(gmLog.lErr, 'unknown edit area type: [%s]' % aType)
@@ -200,14 +185,19 @@ class gmEditArea(PropertySupported, wxPanel):
 			wxDefaultSize,
 			style = wxNO_BORDER | wxTAB_TRAVERSAL
 		)
-		self.listener = TestPropertyListener("EDITAREA TEST  listener")
-		self.addPropertyListener( self.listener)
-		self.testEventListener = TestEventListener()
+#		self.SetBackgroundColour(wxColor(222,222,222))
 
+		# set up links between edit fields and business objects
+		PropertySupport.PropertySupported.__init__(self)
+
+		self.listener = PropertySupport.TestPropertyListener("EDITAREA TEST  listener")
+		self.addPropertyListener( self.listener)
+
+		self.testEventListener = gmTestEvent.TestEventListener()
 		self.addPropertyListener( self.testEventListener)
 		# refactor: pull-up this to base class
+
 		self.input_fields = {}
-#		self.SetBackgroundColour(wxColor(222,222,222))
 
 		# make prompts
 		szr_prompts = self.__make_prompts(_prompt_defs[self._type])
@@ -479,7 +469,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			raise
 	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData,	"making past Hx lines")
+		_log.Log(gmLog.lData, "making past Hx lines")
 		lines = []
 		#self.gszr = wxGridSizer( 8, 1, 2, 2)
 		self.txt_condition = cEditAreaField(parent, PHX_CONDITION,wxDefaultPosition,wxDefaultSize)
@@ -1092,7 +1082,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.24  2003-05-26 15:14:36  sjtan
+# Revision 1.25  2003-05-26 15:42:52  ncq
+# - some minor coding style cleanup here and there, hopefully don't break Syan's work
+#
+# Revision 1.24  2003/05/26 15:14:36  sjtan
 #
 # ok , following the class style of gmEditArea refactoring.
 #
