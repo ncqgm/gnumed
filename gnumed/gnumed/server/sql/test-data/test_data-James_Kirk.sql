@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.47 $
+-- $Revision: 1.48 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -38,7 +38,7 @@ insert into names (id_identity, active, lastnames, firstnames, comment)
 values (currval('identity_pk_seq'), false, 'Shatner', 'William', 'name of actor in real life');
 
 insert into enum_ext_id_types (name, issuer, context)
-values ('Starfleet Serial Number', 'Star Fleet Central Staff Office', 'o');
+values ('Starfleet Serial Number', 'Star Fleet Central Staff Office', 'p');
 
 insert into lnk_identity2ext_id (id_identity, external_id, fk_origin)
 values (currval('identity_pk_seq'), 'SC937-0176-CEC', currval('enum_ext_id_types_pk_seq'));
@@ -629,11 +629,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.47 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.48 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.47  2005-02-15 18:27:24  ncq
+-- Revision 1.48  2005-02-20 09:46:08  ihaywood
+-- demographics module with load a patient with no exceptions
+--
+-- Revision 1.47  2005/02/15 18:27:24  ncq
 -- - test_result.id -> pk
 --
 -- Revision 1.46  2005/02/13 15:08:23  ncq

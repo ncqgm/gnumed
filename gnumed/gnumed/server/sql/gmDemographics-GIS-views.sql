@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -21,7 +21,7 @@ select
 	s.country as country,
 	s.code as state,
 	coalesce (str.postcode, urb.postcode) as postcode,
-	urb.name as city,
+	urb.name as urb,
 	adr.number as number,
 	str.name as street,
 	adr.addendum as addendum,
@@ -252,11 +252,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.16 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.15  2005-01-24 17:57:43  ncq
+-- Revision 1.16  2005-02-20 09:46:08  ihaywood
+-- demographics module with load a patient with no exceptions
+--
+-- Revision 1.15  2005/01/24 17:57:43  ncq
 -- - cleanup
 -- - Ian's enhancements to address and forms tables
 --

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.62 2005-02-20 08:33:26 sjtan Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmDemographicRecord.py,v 1.63 2005-02-20 09:46:08 ihaywood Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -87,7 +87,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				vba.number,
 				vba.addendum, 
 				vba.street,
-				vba.city,
+				vba.urb,
 				vba.postcode,
 				at.name
 			from
@@ -99,13 +99,13 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				and lpoa.id_type = at.id
 				and lpoa.id_%s = %%s 
 				""" % self._table     # this operator, then passed to SQL layer
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, [self.getId()])
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'])
 		if rows is None:
 			return []
 		elif len(rows) == 0:
 			return []
 		else:
-			return [{'id':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5], 'type':i[6]} for i in rows]
+			return [{'pk':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5], 'type':i[6]} for i in rows]
 	#--------------------------------------------------------------------
 	def get_members (self):
 		"""
@@ -116,7 +116,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				vba.number,
 				vba.addendum, 
 				vba.street,
-				vba.city,
+				vba.urb,
 				vba.postcode,
 				at.name,
 				vbp.pk_identity,
@@ -127,7 +127,7 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				cob,
 				gender,
 				pupic,
-				fk_marital_status,
+				pk_marital_status,
 				marital_status,
 				karyotype,
 				xmin_identity,
@@ -143,13 +143,14 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 				and lpoa.id_identity = vbp.pk_identity
 				and lpoa.id_org = %%s
 				"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId())
+
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'])
 		if rows is None:
 			return []
 		elif len(rows) == 0:
 			return []
 		else:
-			return [({'id':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5], 'type':i[6]}, cIdentity (row = {'data':i[7:], 'id':idx[7:], 'pk_field':'id'})) for i in rows]	
+			return [({'pk':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5], 'type':i[6]}, cIdentity (row = {'data':i[7:], 'id':idx[7:], 'pk_field':'id'})) for i in rows]	
 	#------------------------------------------------------------
 	def set_member (self, person, address):
 		"""
@@ -171,7 +172,8 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	#------------------------------------------------------------
 	def unlink_address (self, address):
 		cmd = "delete from lnk_person_org_address where id_address = %s and id_%s = %%s" % self._table
-		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self.getId()])])
+		return gmPG.run_commit2 ('personalia', [(cmd, [address['id'], self['pk_identity']])])
+
 	#------------------------------------------------------------
 	def get_ext_ids (self):
 		"""
@@ -219,24 +221,24 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		self.set_ext_id (fk_origin, None, comment)
 	#-------------------------------------------------------	
 	def get_comms (self):
-		"""A list of ways to communicate
+		"""
+		A list of ways to communicate
 		List if dicts, keys 'id_type' 'url' 'is_confidential'
 		"""
 		cmd = """select
-				lcc.id_type,
-				lcc.url,
-				lcc.is_confidential
+				l2c.id_type,
+				l2c.url,
+				l2c.is_confidential
 			from
-				lnk_%s2comm lcc
+				lnk_%s2comm l2c
 			where
-				lcc.id_%s = %%s
+				l2c.id_%s = %%s
 				""" % (self._table, self._table)
-
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId() )
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'])
 		if rows is None:
-			return {}
+			return []
 		elif len(rows) == 0:
-			return {}
+			return []
 		else:
 			return [{'id_type':i[0], 'url':i[1],'is_confidential':[2]} for i in rows]
 	#--------------------------------------------------------------
@@ -249,16 +251,13 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		cmd2 = """insert into lnk_%s2ext_id (id_%s, id_type, url, is_confidential)
 		values (%%s, %%s, %%s, %%s)""" % (self._table, self._table)
 		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cm1, [self.getId(), url]), (cm2, [self.getId(), id_type, url, is_confidential])])
+		return gmPG.run_commit2 ('personalia', [(cm1, [self['pk_identity'], url]), (cm2, [self['pk_identity'], id_type, url, is_confidential])])
 	#-------------------------------------------------------
 	def delete_comm (self, url):
 		cmd = """delete from lnk_%s2comm_channel where
 		id_%s = %%s and url = %%s""" % (self._table, self._table)
 		del self._ext_cache['comms']
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), url])])
-
-	def getId(self):
-		return self['id']
+		return gmPG.run_commit2 ('personalia', [(cmd, [self['pk_identity'], url])])
 #==============================================================================
 class cIdentity (cOrg):
 	_table = "identity"
@@ -322,7 +321,7 @@ class cIdentity (cOrg):
 		Binds an address to this person
 		"""
 		cmd = "insert into lnk_person_org_address (id_type, id_address, id_identity) values (%(type)s, create_address (%(number)s, %(addendum)s, %(street)s, %(urb)s, %(postcode)s), %(pk_identity)s)"
-		address["pk_identity"] = self.getId()
+		address["pk_identity"] = self['pk_identity']
 		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
 	#---------------------------------------------------------------------
 	def get_occupation (self):
@@ -350,7 +349,7 @@ class cIdentity (cOrg):
 	def get_relatives(self):
 		cmd = """
 select
-        t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, marital_status,
+        t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, pk_marital_status,
 	marital_status, xmin_identity, preferred
 from
 	v_basic_person vbp, relation_types t, lnk_person2relative l
@@ -362,8 +361,6 @@ where
 	vbp.pk_identity = l.id_identity and
 	t.inverse = l.id_relation_type)
 """
-		#where the v_basic_person is on either end of a lnk_person2relative and the other end is this identity
-	
 		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self.getId(), self.getId()])
 		if data is None:
 			return []
@@ -431,6 +428,13 @@ def dob2medical_age(dob):
 	if age.minutes > 5:
 		return "%sm" % (age.minutes)
 	return "%sm%ss" % (age.minutes, age.seconds)
+
+def get_time_tuple (mx):
+	"""
+	wrap mx.DateTime brokenness
+	Returns 9-tuple for use with pyhon time functions
+	"""
+	return [ int(x) for x in  str(mx).split(' ')[0].split('-') ] + [0,0,0, 0,0,0]
 #----------------------------------------------------------------
 def getAddressTypes():
 	"""Gets a dict matching address types to thier ID"""
@@ -674,9 +678,8 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.62  2005-02-20 08:33:26  sjtan
-#
-# syntax errors.
+# Revision 1.63  2005-02-20 09:46:08  ihaywood
+# demographics module with load a patient with no exceptions
 #
 # Revision 1.61  2005/02/19 15:04:55  sjtan
 #

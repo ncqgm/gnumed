@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.53 2005-02-18 11:16:41 ihaywood Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmDemographics.py,v 1.54 2005-02-20 09:46:08 ihaywood Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -148,7 +148,10 @@ class SmartCombo (wx.ComboBox):
 		)
 
 	def SetValue (self, value):
-		self.SetSelection (self.FindString (self.pam[value]))
+		if not value:
+			wx.ComboBox.SetValue (self, '')
+		else:
+			self.SetSelection (self.FindString (self.pam[value]))
 
 	def GetValue (self):
 		return self.map[self.GetValue ()]
@@ -425,8 +428,11 @@ class PatientListWindow(wx.ListCtrl):
 		self.menu_patientlist.Destroy()
 
 	def _on_list_click (self, event):
-		if self.on_click:
-			self.on_click (self.ids_in_list[event.getIndex ()])
+		try:
+			if self.on_click:
+				self.on_click (self.ids_in_list[event.GetIndex ()])
+		except:
+			_log.LogException ("loading patient", sys.exc_info (), verbose=0)
 
 	def _on_Popup_OpenPatient (self, event):
 		sel = self.patientlist.GetNextItem (-1, wx.LIST_NEXT_ALL, wx.LIST_STATE_SELECTED)
@@ -549,7 +555,7 @@ class PatientListWindow(wx.ListCtrl):
 
 	def _form_home_address (self, i):
 		for a in i['addresses']:
-			if a['type'] == 'home':
+			if a['type'] == _('home'):
 				return _("%(number)s %(street)s %(addendum)s, %(city)s %(postcode)s") % a
 		if i['addresses']:
 			return _("%(number)s %(street)s %(addendum)s, %(city)s %(postcode)s") % i['addresses'][0]
@@ -643,91 +649,34 @@ class DemographicDetailWindow(wx.Panel):
 		#--------------------------------------------------------------------------
 		#The heading for 'Address, sits on its own box sizer
 		#--------------------------------------------------------------------------
-		lbl_heading_address = BlueLabel_Bold(self,-1, _("Address"), wx.ALIGN_CENTRE)
-		self.sizer_lbl_heading_address = wx.BoxSizer(wx.HORIZONTAL)   #holds address heading
-		self.sizer_lbl_heading_address.Add(lbl_space,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_lbl_heading_address.Add(lbl_heading_address,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
+		lbl_heading_address = BlueLabel_Bold(self,-1, _("Addresses"), wx.ALIGN_CENTRE)
+		sizer_lbl_heading_address = wx.BoxSizer(wx.HORIZONTAL)   #holds address heading
+		sizer_lbl_heading_address.Add(lbl_space,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
+		sizer_lbl_heading_address.Add(lbl_heading_address,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
 		lbl_space2 = BlueLabel_Normal(self,-1,"",wx.LEFT) #This lbl_space is used as a spacer between label
-		self.sizer_lbl_heading_address.Add(lbl_space2,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		#------------------------------------------------------------------------------
-		#Next add street label + 3 line size textbox for street
-		#------------------------------------------------------------------------------
-		self.sizer_street = wx.BoxSizer(wx.HORIZONTAL)
-		lbl_street = BlueLabel_Normal(self,-1, _("Street"), wx.LEFT)
-		self.txt_street = gmPhraseWheel.cPhraseWheel (
-			self, -1, pos=wx.DefaultPosition, size=(1,50),
-			aMatchProvider = gmDemographicRecord.StreetMP())
-		self.sizer_street.Add(lbl_street,3,wx.EXPAND)
-		self.sizer_street.Add(self.txt_street,13, wx.EXPAND)
-		#------------------------------------------------
-		#suburb on one line
-		#------------------------------------------------
-		self.sizer_suburb = wx.BoxSizer(wx.HORIZONTAL)
-		lbl_suburb = BlueLabel_Normal(self,-1, _("Municipality"), wx.LEFT)
-		self.txt_suburb = gmPhraseWheel.cPhraseWheel (
-			parent = self,
-			id = -1,
-			aMatchProvider = gmDemographicRecord.MP_urb_by_zip(),
-			selection_only = 1,
-			pos = wx.DefaultPosition,
-			size=wx.DefaultSize
-		)
-		self.sizer_suburb.Add(lbl_suburb,3,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_suburb.Add(self.txt_suburb,13,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_stateandpostcode = wx.BoxSizer(wx.HORIZONTAL)
-		#-----------------------------------------------------------
-		#state and postcode on next line on sizer
-		#-----------------------------------------------------------
-		lbl_state = BlueLabel_Normal(self,-1, _("State"), wx.LEFT)
-		self.txt_state = gmPhraseWheel.cPhraseWheel (self, -1, aMatchProvider = gmDemographicRecord.StateMP (), selection_only = 1)
-		lbl_postcode = BlueLabel_Normal(self,-1, _("Postcode"), wx.ALIGN_CENTRE)
-  		self.txt_postcode  = gmPhraseWheel.cPhraseWheel (
-			parent = self,
-			id = -1,
-			aMatchProvider = gmDemographicRecord.PostcodeMP(),
-			selection_only = 1,
-			pos = wx.DefaultPosition,
-			size=wx.DefaultSize,
-		)
-		self.txt_postcode.setDependent (self.txt_suburb, 'postcode')
-		self.txt_suburb.setDependent (self.txt_street, 'urb')
-		self.txt_state.setDependent (self.txt_suburb, 'state')
-		self.txt_postcode.setDependent (self.txt_street, 'postcode')
-		self.txt_suburb.addCallback (self.__urb_set)
-		self.txt_street.addCallback (self.__street_set)
-		self.sizer_stateandpostcode.Add(lbl_state,3,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_stateandpostcode.Add(self.txt_state,5,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_stateandpostcode.Add(lbl_postcode,3,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_stateandpostcode.Add(self.txt_postcode,5,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		#Next line = Type of address (e.g home, work, parents - any one of which could be a 'postal address'
-		self.sizer_addresstype_chkpostal = wx.BoxSizer(wx.HORIZONTAL)
-		lbl_addresstype = BlueLabel_Normal(self,-1, _("Type"), wx.LEFT)
-		self.combo_address_type = SmartCombo (self, gmDemographicRecord.getAddressTypes ())
-		self.chk_addresspostal = wx.CheckBox(
-			self,
-			-1,
-			_("Postal Address"),
-			wx.DefaultPosition,
-			wx.DefaultSize, 
-			wx.NO_BORDER
-		)
-		self.chk_addresspostal.SetForegroundColour(wx.Colour(0,0,131))
-		self.sizer_addresstype_chkpostal.Add(lbl_addresstype,3,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_addresstype_chkpostal.Add(self.combo_address_type,5,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_addresstype_chkpostal.Add(lbl_space,3,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
-		self.sizer_addresstype_chkpostal.Add(self.chk_addresspostal,5,wx.EXPAND|wx.BOTTOM,1)
+		sizer_lbl_heading_address.Add(lbl_space2,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
+		self.addresslist = wx.ListBox (self, -1, size= wx.Size (-1,100))
+		sizer_addresslist = wx.BoxSizer (wx.HORIZONTAL)
+		sizer_addresslist.Add (self.addresslist, 1, wx.EXPAND)
+		self.btn_addr_add = wx.Button (self, -1, _("Add"))
+		self.btn_addr_del = wx.Button (self, -1, _("Del"))
+		sizer_addr_btn = wx.BoxSizer (wx.VERTICAL)
+		sizer_addr_btn.Add (self.btn_addr_add, 0)
+		sizer_addr_btn.Add ((0, 0), 2)
+		sizer_addr_btn.Add (self.btn_addr_del, 0)
+		sizer_addresslist.Add (sizer_addr_btn, 0, wx.EXPAND)
 		#---------------------------------------------------------------------
 		#Contact details - phone work, home,fax,mobile,internet and email
 		#--------------------------------------------------------------------
 		lbl_contact_heading = BlueLabel_Bold (self, -1, _("Contacts"), wx.LEFT)
-		self.sizer_contacts_line1 = wx.BoxSizer (wx.HORIZONTAL)
+		sizer_contacts_line1 = wx.BoxSizer (wx.HORIZONTAL)
 		lbl_space = BlueLabel_Normal(self,-1,"",wx.LEFT) #This lbl_space is used as a spacer between label
-		self.sizer_contacts_line1 .Add(lbl_space,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
+		sizer_contacts_line1 .Add(lbl_space,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
 		lbl_space = BlueLabel_Normal(self,-1,"",wx.LEFT) #This lbl_space is used as a spacer between label
-		self.sizer_contacts_line1 .Add(lbl_space,1,wx.EXPAND)
-		self.sizer_contacts_line1 .Add(lbl_contact_heading,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
+		sizer_contacts_line1 .Add(lbl_space,1,wx.EXPAND)
+		sizer_contacts_line1 .Add(lbl_contact_heading,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
 		lbl_space = BlueLabel_Normal(self,-1,"",wx.LEFT) #This lbl_space is used as a spacer between label
-		self.sizer_contacts_line1 .Add(lbl_space,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
+		sizer_contacts_line1 .Add(lbl_space,1,wx.EXPAND|wx.TOP|wx.BOTTOM,1)
 
 		#-----------------------------------------------------------------------
 		#Now add all the lines for the left side of the screen on their sizers
@@ -736,13 +685,11 @@ class DemographicDetailWindow(wx.Panel):
 		#--------------------------------------------------------------------
 		sizer_leftside = wx.BoxSizer(wx.VERTICAL)
 		sizer_leftside.Add(sizer_line1, 0, wx.EXPAND)
+		sizer_leftside.Add(sizer_line2, 0, wx.EXPAND)
 		sizer_leftside.Add(sizer_line3, 0, wx.EXPAND)
-		sizer_leftside.Add(self.sizer_lbl_heading_address, 0, wx.EXPAND)
-		sizer_leftside.Add(self.sizer_street, 0, wx.EXPAND)
-		sizer_leftside.Add(self.sizer_suburb, 0, wx.EXPAND)
-		sizer_leftside.Add(self.sizer_stateandpostcode, 0, wx.EXPAND)
-		sizer_leftside.Add(self.sizer_addresstype_chkpostal, 0, wx.EXPAND)
-		sizer_leftside.Add(self.sizer_contacts_line1, 0, wx.EXPAND)
+		sizer_leftside.Add(sizer_lbl_heading_address, 0, wx.EXPAND)
+		sizer_leftside.Add(sizer_addresslist, 0, wx.EXPAND)
+		sizer_leftside.Add(sizer_contacts_line1, 0, wx.EXPAND)
 
 		self.contacts_map = gmDemographicRecord.getCommChannelTypes ()
 		self.contacts_pam = dict([(y, x) for x, y in self.contacts_map.items ()])
@@ -760,7 +707,8 @@ class DemographicDetailWindow(wx.Panel):
 			if not toggle:
 				sizer_leftside.Add(sizer_contacts_line, 0, wx.EXPAND)
 			toggle = not toggle
-
+		if not toggle:
+			sizer_leftside.Add(sizer_contacts_line, 0, wx.EXPAND)
 		#-----------------------------------------------------------
 		#   right-hand size of bottom half:
 		#  ----------------------------------------------
@@ -783,12 +731,12 @@ class DemographicDetailWindow(wx.Panel):
 		lbl_dob = BlueLabel_Normal(self,-1, _("Birthdate"), wx.LEFT)
 		self.txt_dob = TextBox_BlackNormal(self,-1)
 		lbl_maritalstatus = BlueLabel_Normal(self,-1, _("Marital Status"), wx.ALIGN_CENTER)
-		self.fk_marital_status = SmartCombo (self, gmDemographicRecord.getMaritalStatusTypes ())
+		self.pk_marital_status = SmartCombo (self, gmDemographicRecord.getMaritalStatusTypes ())
 		sizer_dob_marital = wx.BoxSizer(wx.HORIZONTAL)
 		sizer_dob_marital.Add(lbl_dob, 3, wx.EXPAND)
 		sizer_dob_marital.Add(self.txt_dob, 5, wx.EXPAND)
 		sizer_dob_marital.Add(lbl_maritalstatus, 3, wx.EXPAND)
-		sizer_dob_marital.Add(self.fk_marital_status, 5, wx.EXPAND)
+		sizer_dob_marital.Add(self.pk_marital_status, 5, wx.EXPAND)
 
 		# occupation
 		lbl_job = BlueLabel_Normal(self, -1, _("Occupation"), wx.LEFT)
@@ -821,17 +769,14 @@ class DemographicDetailWindow(wx.Panel):
 		lbl_nok_heading = BlueLabel_Bold(self, -1, _("Next of Kin"), wx.ALIGN_CENTER)
 		# NOK name/address
 		lbl_nok_details = BlueLabel_Normal(self, -1, _("NOK Details"), wx.LEFT)
-		self.txt_nok_name_addr = wx.TextCtrl (
+		self.lb_nok = wx.ListBox (
 			self,
 			ID_TXTNOK,
-			"",
-			wx.DefaultPosition,
-			size=(-1,50),				 # note 50 needed to allow it to expand, otherwise is too small
-			style = wx.TE_MULTILINE | wx.TE_READONLY
+			size=(-1,50)
 		)
 		sizer_nok_name_addr = wx.BoxSizer(wx.HORIZONTAL)
 		sizer_nok_name_addr.Add(lbl_nok_details, 3, wx.EXPAND)
-		sizer_nok_name_addr.Add(self.txt_nok_name_addr, 13, wx.EXPAND)
+		sizer_nok_name_addr.Add(self.lb_nok, 13, wx.EXPAND)
 
 		# NOK relationship/phone
 		lbl_relationshipNOK = BlueLabel_Normal(self, -1, _("Relationship"), wx.LEFT)
@@ -883,7 +828,8 @@ class DemographicDetailWindow(wx.Panel):
 			if not toggle:
 				sizer_rightside.Add(sizer_ext_id_line, 0, wx.EXPAND)
 			toggle = not toggle
-
+		if not toggle:
+			sizer_rightside.Add(sizer_ext_id_line, 0, wx.EXPAND)
 		#-----------------------------------------------------------
 		#   bottom half of screen:
 		#  ------------------------
@@ -899,9 +845,9 @@ class DemographicDetailWindow(wx.Panel):
 
 
  	def __connect (self):
- 		b = self.btn_add_address
+ 		b = self.btn_addr_add
  		wx.EVT_BUTTON(b, b.GetId() , self._add_address_pressed)
- 		b = self.btn_del_address
+ 		b = self.btn_addr_del
  		wx.EVT_BUTTON(b, b.GetId() ,  self._del_address_pressed)
 
  		b = self.btn_save
@@ -1035,38 +981,24 @@ class DemographicDetailWindow(wx.Panel):
 		m['urb'] = self.txt_suburb.GetValue ()
 		m['postcode'] = self.txt_postcode.GetValue ()
 		return m
-
-	def _update_address_list_display(self):
-		self.addresslist.Clear()
-		for data in self.identity['addresses']:
-			s = '%-10s - %s,%s,%s' % ( data['type'],  data['number'], data['street'], data['urb'])
-			self.addresslist.Append(s)
-
-
-
+	
 	def __update_addresses(self):
 		try:
 			self.identity['addresses']
 		except:
 			_log.LogException ('failed to get addresses', sys.exc_info (), verbose=0)
-		if self.addr_cache:
-			self._update_address_list_display()
-		else: # we have no addresses
-			self.addresslist.Clear ()
-		self.txt_number.Clear ()
-		self.txt_street.Clear ()
-		self.txt_postcode.Clear ()
-		self.txt_suburb.Clear ()
-		self.txt_state.Clear ()
-		self.combo_address_type.SetValue ('')
+		self.addresslist.Clear()
+		for data in self.identity['addresses']:
+			s = '%-10s - %s,%s,%s' % ( data['type'],  data['number'], data['street'], data['urb'])
+			self.addresslist.Append(s, data)
+
 
 
 	def __update_nok(self):
-		l = []
-		self.lb_nameNOK.Clear()
+		self.lb_nok.Clear()
 		for r, i in self.identity['relatives']:
-			s = """%-12s   - %s, %s %s""" % (r, i['description'], _('born'), time.strftime('%d/%m/%Y', get_time_tuple(i['dob'])))
-			self.lb_nameNOK.Append (s, i)
+			s = """%-12s   - %s, %s %s""" % (r, i['description'], _('born'), time.strftime('%d/%m/%Y', gmDemographicRecord.get_time_tuple(i['dob'])))
+			self.lb_nok.Append (s, i)
 
 
 	def _on_patient_selected (self, kwargs):
@@ -1074,16 +1006,10 @@ class DemographicDetailWindow(wx.Panel):
 		
 	def load_identity (self, identity):
 		self.identity = identity
-		for x in ['firstnames', 'lastnames', 'title', 'preferred', 'fk_marital_status', 'occupation', 'gender']:
+		for x in ['firstnames', 'lastnames', 'title', 'preferred', 'pk_marital_status', 'occupation', 'gender']:
 			getattr (self, x).SetValue (identity[x] or '')
-
-		#mx date time object will not convert to int() sometimes, but always printable,
-		# so parse it as a string , and extract into a 9-sequence time value,
-		# and then convert
-		# with strftime.
-		t = [ int(x) for x in  str(identity['dob']).split(' ')[0].split('-') ] + [0,0,0, 0,0,0 ]
-		t = time.strftime('%d/%m/%Y', t)
-		self.txt_birthdate.SetValue(t)
+		t = time.strftime('%d/%m/%Y', gmDemographicRecord.get_time_tuple(identity['dob']))
+		self.txt_dob.SetValue(t)
 		
 		self.cob.SetValue (gmDemographicRecord.getCountry (identity['cob']))
 		w = {}
@@ -1100,9 +1026,7 @@ class DemographicDetailWindow(wx.Panel):
 			self.ext_id_widgets[i].SetValue (";".join (w[i]))
 
 		for c in identity['comms']:
-			self.contacts_widgets[c['id_type']].SetValue (c['url'])
-			
-				   
+			self.contacts_widgets[c['id_type']].SetValue (c['url'])		   
 		self.__update_addresses()
 		self.__update_nok()
 
@@ -1115,7 +1039,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.53  2005-02-18 11:16:41  ihaywood
+# Revision 1.54  2005-02-20 09:46:08  ihaywood
+# demographics module with load a patient with no exceptions
+#
+# Revision 1.53  2005/02/18 11:16:41  ihaywood
 # new demographics UI code won't crash the whole client now ;-)
 # still needs much work
 # RichardSpace working
