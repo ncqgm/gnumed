@@ -6,8 +6,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.1 2004-07-17 21:16:39 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmAllergiesPlugin.py,v 1.2 2004-08-04 17:16:02 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 from wxPython.wx import *
@@ -19,7 +19,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
-class gmAllergiesPlugin(gmPlugin.wxNotebookPlugin):
+class gmAllergiesPlugin(gmPlugin.cNotebookPluginOld):
 	"""Plugin to encapsulate the allergies window."""
 
 	__icons = {
@@ -64,7 +64,14 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergiesPlugin.py,v $
-# Revision 1.1  2004-07-17 21:16:39  ncq
+# Revision 1.2  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.1  2004/07/17 21:16:39  ncq
 # - cleanup/refactor allergy widgets:
 #   - Horst space plugin added
 #   - Richard space plugin separated out

@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.16 2004-06-25 12:37:21 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmXdtViewer.py,v 1.17 2004-08-04 17:16:02 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -288,7 +288,7 @@ if __name__ == '__main__':
 else:
 	from Gnumed.wxpython import gmPlugin
 
-	class gmXdtViewer(gmPlugin.wxNotebookPlugin):
+	class gmXdtViewer(gmPlugin.cNotebookPluginOld):
 		tab_name = 'XDT'
 
 		def name (self):
@@ -331,7 +331,14 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.16  2004-06-25 12:37:21  ncq
+# Revision 1.17  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.16  2004/06/25 12:37:21  ncq
 # - eventually fix the import gmI18N issue
 #
 # Revision 1.15  2004/06/13 22:31:49  ncq

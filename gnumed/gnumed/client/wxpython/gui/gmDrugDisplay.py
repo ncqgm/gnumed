@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -613,7 +613,7 @@ else:
 	from Gnumed.pycommon import gmPG, gmI18N
 	from Gnumed.wxpython import gmPlugin
 
-	class gmDrugDisplay (gmPlugin.wxNotebookPlugin):
+	class gmDrugDisplay (gmPlugin.cNotebookPluginOld):
 	
 		def name (self):
 			return _("DrugBrowser")
@@ -626,7 +626,14 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.21  2004-07-19 11:50:43  ncq
+# Revision 1.22  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.21  2004/07/19 11:50:43  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.20  2004/07/18 20:30:54  ncq

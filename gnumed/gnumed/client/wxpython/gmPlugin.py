@@ -1,13 +1,13 @@
-"""gmPlugin - base classes for GnuMed notebook plugins.
+"""gmPlugin - base classes for GnuMed Horst space notebook plugins.
 
 @copyright: author
-@license: GPL (details at http://www.gnu.org)
 """
-############################################################################
+#==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.31 2004-07-24 17:21:49 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmPlugin.py,v 1.32 2004-08-04 17:16:02 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
 import os, sys, re
 
@@ -24,24 +24,17 @@ _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
 
 #==================================================================
+# TODO: remove set argument
 
-#########################################################
 # This is for NOTEBOOK plugins. Please write other base
 # classes for other types of plugins.
-#########################################################
-
-class wxNotebookPlugin:
+#==================================================================
+class cNotebookPlugin:
 	"""Base class for plugins which provide a full notebook page.
 	"""
 	def __init__(self, set=None):
 		self.gb = gmGuiBroker.GuiBroker()
-#		self.__db = gmPG.ConnectionPool()
 		self._set = 'gui'
-		# make sure there's a raised_plugin entry
-		try:
-			tmp = self.gb['main.notebook.raised_plugin']
-		except KeyError:
-			self.gb['main.notebook.raised_plugin'] = 'none'
 		self._widget = None
 	#-----------------------------------------------------
 	def register (self):
@@ -74,13 +67,13 @@ class wxNotebookPlugin:
 			self.menu_id = wxNewId()
 			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
 			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
-			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
+			EVT_MENU (self.gb['main.frame'], self.menu_id, self._on_menu)
 
-		# so *notebook* can find this widget
+		# so notebook can find this widget
 		self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__] = self
 		self.gb['horstspace.notebook.pages'].append(self)
 
-		return 1
+		return True
 	#-----------------------------------------------------
 	def unregister(self):
 		"""Remove ourselves."""
@@ -112,14 +105,6 @@ class wxNotebookPlugin:
 	def MenuInfo (self):
 		"""Return tuple of (menuname, menuitem)."""
 		return None
-	#-----------------------------------------------------
-	def populate_with_data(self):
-		print "missing", self.__class__.__name__, "-> populate_with_data()"
-	#-----------------------------------------------------
-	def ReceiveFocus(self):
-		"""We *are* receiving focus now."""
-		self.gb['main.notebook.raised_plugin'] = self.__class__.__name__
-		self.populate_with_data()
 	#-----------------------------------------------------
 	def can_receive_focus(self):
 		"""Called when this plugin is *about to* receive focus.
@@ -153,18 +138,19 @@ class wxNotebookPlugin:
 		set_statustext(txt)
 		return 1
 	#-----------------------------------------------------
+	def receive_focus(self):
+		"""We *are* receiving focus via EVT_NotebookPageChanged."""
+		pass
+	#-----------------------------------------------------
 	def Raise(self):
 		"""Raise ourselves."""
-		# already raised ?
-		if self.gb['main.notebook.raised_plugin'] == self.__class__.__name__:
-			return 1
 		nb_pages = self.gb['horstspace.notebook.pages']
 		plugin_page = nb_pages.index(self)
 		nb = self.gb['horstspace.notebook']
 		nb.SetSelection(plugin_page)
-		return 1
+		return True
 	#-----------------------------------------------------
-	def OnMenu (self, event):
+	def _on_menu (self, event):
 		self.Raise()
 	#----------------------------------------------------
 	def populate_toolbar (self, tb, widget):
@@ -183,9 +169,37 @@ class wxNotebookPlugin:
 	# -----------------------------------------------------
 	def OnShow (self, evt):
 		self.register() # register without changing configuration
-#=========================================================
+
+#==================================================================
+class cNotebookPluginOld(cNotebookPlugin):
+	def __init__(self, set=None):
+		print "%s: class cNotebookPluginOld used, please convert" % self.__class__.__name__
+		cNotebookPlugin.__init__(self)
+		# make sure there's a raised_plugin entry
+		try:
+			tmp = self.gb['main.notebook.raised_plugin']
+		except KeyError:
+			self.gb['main.notebook.raised_plugin'] = 'none'
+	#-----------------------------------------------------
+	def populate_with_data(self):
+		_log.Log(gmLog.lInfo, '%s: outdated populate_with_data() missing' % self.__class__.__name__)
+	#-----------------------------------------------------
+	def receive_focus(self):
+		"""We *are* receiving focus now."""
+		self.gb['main.notebook.raised_plugin'] = self.__class__.__name__
+		self.populate_with_data()
+	#-----------------------------------------------------
+	def Raise(self):
+		"""Raise ourselves."""
+		# already raised ?
+		if self.gb['main.notebook.raised_plugin'] == self.__class__.__name__:
+			return True
+		cNotebookPlugin.Raise()
+		return True
+
+#==================================================================
 # some convenience functions
-#---------------------------------------------------------
+#------------------------------------------------------------------
 def raise_notebook_plugin(plugin_name = None):
 	"""plugin_name is a plugin internal name"""
 	gb = gmGuiBroker.GuiBroker()
@@ -196,8 +210,8 @@ def raise_notebook_plugin(plugin_name = None):
 		return None
 	if plugin.can_receive_focus():
 		plugin.Raise()
-		return 1
-	return 0
+		return True
+	return False
 #------------------------------------------------------------------
 def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	"""Instantiates a plugin object from a package directory, returning the object.
@@ -236,8 +250,8 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
 		return None
 
-	if not issubclass(plugin_class, wxNotebookPlugin):
-		_log.Log(gmLog.lErr, "[%s] not a subclass of wxNotebookPlugin" % plugin_name)
+	if not issubclass(plugin_class, cNotebookPlugin):
+		_log.Log(gmLog.lErr, "[%s] not a subclass of cNotebookPlugin" % plugin_name)
 		return None
 
 	_log.Log(gmLog.lInfo, plugin_name)
@@ -322,7 +336,14 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.31  2004-07-24 17:21:49  ncq
+# Revision 1.32  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.31  2004/07/24 17:21:49  ncq
 # - some cleanup, also re from wxPython import wx
 # - factored out Horst space layout manager into it's own
 #   wxPanel child class

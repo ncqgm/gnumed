@@ -1,7 +1,7 @@
 """GnuMed demographics editor plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import sys
@@ -17,7 +17,7 @@ from wxPython.wx import *
 if __name__ == '__main__':
 	_ = lambda x:x
 #================================================================
-class gmDemographicsEditor(gmPlugin.wxNotebookPlugin):
+class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 	tab_name = _("Patient Details")
 
 	def name (self):
@@ -60,7 +60,14 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.8  2004-06-20 16:50:51  ncq
+# Revision 1.9  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.8  2004/06/20 16:50:51  ncq
 # - carefully fool epydoc
 #
 # Revision 1.7  2004/06/20 06:49:21  ihaywood

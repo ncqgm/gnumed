@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.20 2004-06-25 12:51:23 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.21 2004-08-04 17:16:02 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ =	"I.Haywood"
 
 import sys
@@ -185,7 +185,7 @@ class gmClinicalPanel (wxPanel):
 			return ""
 		return self.visible_plugin
 #==================================================
-class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
+class gmClinicalWindowManager (gmPlugin.cNotebookPluginOld):
 
 	tab_name = _("Clinical")
 
@@ -201,7 +201,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return self._widget
 	#----------------------------------------------
 	def register (self):
-		gmPlugin.wxNotebookPlugin.register(self)
+		gmPlugin.cNotebookPluginOld.register(self)
 		# add own submenu, patient plugins add to this
 		ourmenu = wxMenu()
 		self.gb['clinical.submenu'] = ourmenu
@@ -226,7 +226,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 	#----------------------------------------------
 	def unregister (self):
 		# tidy up after ourselves
-		gmPlugin.wxNotebookPlugin.unregister (self)
+		gmPlugin.cNotebookPluginOld.unregister (self)
 		menu = self.gb['main.viewmenu']
 		menu.Destroy (self.menu_id)
 		# FIXME: should we unregister () each of our sub-modules?
@@ -241,7 +241,14 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.20  2004-06-25 12:51:23  ncq
+# Revision 1.21  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.20  2004/06/25 12:51:23  ncq
 # - InstPlugin() -> instantiate_plugin()
 #
 # Revision 1.19  2004/06/20 16:50:51  ncq

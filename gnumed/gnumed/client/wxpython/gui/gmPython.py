@@ -1,5 +1,5 @@
 # a simple wrapper for the cryptowidget
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
                  someone before me :-)>"
@@ -7,10 +7,7 @@ __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin
 
-if __name__ == '__main__':
-	_ = lambda x:x
-
-class gmPython (gmPlugin.wxNotebookPlugin):
+class gmPython (gmPlugin.cNotebookPluginOld):
     """
     Plugin to encapsulate the Python shell
     """
@@ -34,7 +31,14 @@ class gmPython (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmPython.py,v $
-# Revision 1.9  2004-06-20 16:50:51  ncq
+# Revision 1.10  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.9  2004/06/20 16:50:51  ncq
 # - carefully fool epydoc
 #
 # Revision 1.8  2004/06/20 06:49:21  ihaywood

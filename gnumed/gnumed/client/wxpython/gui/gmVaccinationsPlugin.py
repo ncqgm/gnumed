@@ -5,12 +5,12 @@
 # this plugin holds the immunisation details
 #
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmVaccinationsPlugin.py,v $
-# $Id: gmVaccinationsPlugin.py,v 1.2 2004-07-15 23:27:04 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmVaccinationsPlugin.py,v 1.3 2004-08-04 17:16:02 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
+__license__ = 'GPL (details at http://www.gnu.org)'
 
 from wxPython.wx import *
 
@@ -22,7 +22,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
-class gmVaccinationsPlugin(gmPlugin.wxNotebookPlugin):
+class gmVaccinationsPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate the immunisation window."""
 
 	__icons = {
@@ -39,18 +39,11 @@ Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87'
 		return gmVaccinationsPlugin.tab_name
 
 	def GetWidget (self, parent):
-		self._widget = gmVaccWidgets.cImmunisationsPanel (parent, -1)
+		self._widget = gmVaccWidgets.cImmunisationsPanel(parent, -1)
 		return self._widget
 
 	def MenuInfo (self):
 		return ('view', '&Vaccinations')
-
-	def populate_with_data(self):
-		# no use reloading if invisible
-		if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-			return 1
-		self._widget.populate()
-		return 1
 
 	def can_receive_focus(self):
 		# need patient
@@ -67,7 +60,14 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccinationsPlugin.py,v $
-# Revision 1.2  2004-07-15 23:27:04  ncq
+# Revision 1.3  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.2  2004/07/15 23:27:04  ncq
 # - typo fix
 #
 # Revision 1.1  2004/07/15 23:16:21  ncq

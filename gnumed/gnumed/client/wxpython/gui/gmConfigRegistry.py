@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -15,16 +15,15 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-	from Gnumed.pycommon import gmI18N
 
-from Gnumed.pycommon import gmCfg, gmWhoAmI, gmConfigCommon
+from Gnumed.pycommon import gmCfg, gmWhoAmI, gmConfigCommon, gmI18N
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers, gmRegetMixin
 
 from wxPython.wx import *
 
 _cfg = gmCfg.gmDefCfgFile
 
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
@@ -519,7 +518,7 @@ if __name__ == '__main__':
 else:
 	_whoami = gmWhoAmI.cWhoAmI()
 
-	class gmConfigRegistry(gmPlugin.wxNotebookPlugin):
+	class gmConfigRegistry(gmPlugin.cNotebookPlugin):
 		def name (self):
 			return _("Setup")
 
@@ -533,15 +532,16 @@ else:
 
 		def MenuInfo (self):
 			return ('tools', _('&ConfigRegistry'))
-
-# DEPRECATED - remove once gmPlugin is converted to gmRegetMixin use
-		def populate_with_data(self):
-#			self._widget.configTree.update()
-			return 1
-
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.24  2004-08-02 17:48:53  hinnef
+# Revision 1.25  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.24  2004/08/02 17:48:53  hinnef
 # converted to use gmRegetMixin
 #
 # Revision 1.23  2004/07/24 10:27:22  ncq

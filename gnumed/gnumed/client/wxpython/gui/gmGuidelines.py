@@ -139,7 +139,7 @@ class GuidelinesHtmlPanel(wxPanel):
         self.printer.PrintFile(self.html.GetOpenedPage())
 
 
-class gmGuidelines (gmPlugin.wxNotebookPlugin):
+class gmGuidelines (gmPlugin.cNotebookPluginOld):
     """
     Plugin to encapsulate the manual window
     """

@@ -19,8 +19,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.166 2004-07-28 15:40:05 ncq Exp $
-__version__ = "$Revision: 1.166 $"
+# $Id: gmGuiMain.py,v 1.167 2004-08-04 17:16:02 ncq Exp $
+__version__ = "$Revision: 1.167 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -221,7 +221,7 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
 		# do we need to check the new page ?
 		if self.__new_page_is_checked or new_page.can_receive_focus():
-			new_page.ReceiveFocus()
+			new_page.receive_focus()
 			# activate toolbar of new page
 			self.__gb['main.top_panel'].ShowBar(new_page.__class__.__name__)
 			event.Skip()
@@ -251,7 +251,7 @@ class cHorstSpaceLayoutMgr(wx.wxPanel):
 			except StandardError:
 				continue
 			# not a plugin
-			if not isinstance(plugin, gmPlugin.wxNotebookPlugin):
+			if not isinstance(plugin, gmPlugin.cNotebookPlugin):
 				plugin = None
 				continue
 			# already loaded ?
@@ -1028,7 +1028,14 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.166  2004-07-28 15:40:05  ncq
+# Revision 1.167  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.166  2004/07/28 15:40:05  ncq
 # - log wxWidgets version
 #
 # Revision 1.165  2004/07/24 17:21:49  ncq

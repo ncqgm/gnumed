@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -188,7 +188,7 @@ else:
 	#------------------------------------------------------------
 	from Gnumed.wxpython import gmPlugin, images_Archive_plugin, images_Archive_plugin1
 
-	class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
+	class gmShowMedDocs(gmPlugin.cNotebookPluginOld):
 		tab_name = _("Documents")
 
 		def name (self):
@@ -288,7 +288,14 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.52  2004-07-18 20:30:54  ncq
+# Revision 1.53  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.52  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.51  2004/07/15 20:42:18  ncq

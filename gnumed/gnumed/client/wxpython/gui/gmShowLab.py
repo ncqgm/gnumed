@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -19,11 +19,9 @@ from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmLabWidgets
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-
 #== classes for standalone use ==================================
 if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
 
 	from Gnumed.pycommon import gmLoginInfo
 	from Gnumed.business import gmXdtObjects, gmXdtMappings, gmDemographicRecord
@@ -172,7 +170,7 @@ else:
 			sizer.Fit(self)
 			self.Layout()
 	#------------------------------------------------------------
-	class gmShowLab(gmPlugin.wxNotebookPlugin):
+	class gmShowLab(gmPlugin.cNotebookPluginOld):
 		tab_name = _("path lab")
 
 		def name (self):
@@ -201,7 +199,7 @@ else:
 			# need patient
 			if not self._verify_patient_avail():
 				return None
-			return 1
+			return True
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -228,7 +226,14 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.14  2004-07-15 16:04:05  ncq
+# Revision 1.15  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.14  2004/07/15 16:04:05  ncq
 # - fixed missing relative import
 #
 # Revision 1.13  2004/07/15 15:53:52  ncq

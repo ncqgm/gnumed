@@ -14,7 +14,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -130,7 +130,7 @@ class StikoHtmlPanel(wxPanel):
         self.printer.PrintFile(self.html.GetOpenedPage())
 
 
-class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
+class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
     """
     Plugin to encapsulate the STIKO window
     """
@@ -241,7 +241,14 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.14  2004-07-18 20:30:54  ncq
+# Revision 1.15  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.14  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.13  2004/06/26 23:45:50  ncq

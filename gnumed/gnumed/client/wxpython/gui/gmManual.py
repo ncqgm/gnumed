@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.22 2004-07-18 20:30:54 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmManual.py,v 1.23 2004-08-04 17:16:02 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -127,7 +127,7 @@ class ManualHtmlPanel(wxPanel):
 	def OnPrint(self, event):
 		self.printer.PrintFile(self.html.GetOpenedPage())
 #===========================================================
-class gmManual (gmPlugin.wxNotebookPlugin):
+class gmManual (gmPlugin.cNotebookPluginOld):
 	"""
 	Plugin to encapsulate the manual window
 	"""
@@ -245,7 +245,14 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.22  2004-07-18 20:30:54  ncq
+# Revision 1.23  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.22  2004/07/18 20:30:54  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.21  2004/06/25 12:37:21  ncq

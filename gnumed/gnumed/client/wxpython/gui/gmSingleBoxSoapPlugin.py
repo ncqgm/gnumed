@@ -1,7 +1,7 @@
 """GnuMed single box SOAP notes plugin.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSingleBoxSoapPlugin.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 from Gnumed.pycommon import gmLog
@@ -9,14 +9,11 @@ from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython.gmSingleBoxSOAP import gmSingleBoxSOAPPanel
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
 from wxPython.wx import *
-
-if __name__ == '__main__':
-	_ = lambda x:x
 #================================================================
-class gmSingleBoxSoapPlugin(gmPlugin.wxNotebookPlugin):
+class gmSingleBoxSoapPlugin(gmPlugin.cNotebookPluginOld):
     tab_name = _("David's SOAP")
 
     def name (self):
@@ -50,7 +47,14 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmSingleBoxSoapPlugin.py,v $
-# Revision 1.9  2004-06-20 16:50:52  ncq
+# Revision 1.10  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.9  2004/06/20 16:50:52  ncq
 # - carefully fool epydoc
 #
 # Revision 1.8  2004/06/20 06:49:21  ihaywood

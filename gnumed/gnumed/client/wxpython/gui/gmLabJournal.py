@@ -6,7 +6,8 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmLabJournal.py,v 1.36 2004-08-04 17:16:02 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -37,7 +38,7 @@ class cPluginPanel(wxPanel):
 		self.Layout()
 
 #------------------------------------------------------------
-class gmLabJournal(gmPlugin.wxNotebookPlugin):
+class gmLabJournal(gmPlugin.cNotebookPluginOld):
 	tab_name = _("lab journal")
 
 	def name (self):
@@ -71,7 +72,14 @@ if __name__ == '__main__':
 	print "do not run standalone like this"
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.35  2004-07-15 15:18:53  ncq
+# Revision 1.36  2004-08-04 17:16:02  ncq
+# - wxNotebookPlugin -> cNotebookPlugin
+# - derive cNotebookPluginOld from cNotebookPlugin
+# - make cNotebookPluginOld warn on use and implement old
+#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
+# - ReceiveFocus() -> receive_focus()
+#
+# Revision 1.35  2004/07/15 15:18:53  ncq
 # - factored out everything that wasn't strictly notebook plugin
 #   related, see wxpython/gmLabWidgets.py
 #

@@ -125,7 +125,7 @@ class cActiveRequestsPanel (RequestsPanel):
             
 
 
-class gmRequest (gmPlugin.wxNotebookPlugin):
+class gmRequest (gmPlugin.cNotebookPluginOld):
 
     tab_name = _("Request")
 

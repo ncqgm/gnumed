@@ -54,7 +54,7 @@ to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSQL.py,v $
 
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -216,7 +216,7 @@ class SQLWindow(wxPanel):
 
 
 
-class gmSQL (gmPlugin.wxNotebookPlugin):
+class gmSQL (gmPlugin.cNotebookPluginOld):
     """
     Plugin to encapsulate the cryptowidget
     """

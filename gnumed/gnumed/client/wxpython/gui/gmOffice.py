@@ -12,7 +12,7 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmPlugin
 from wxPython import wx
 
-class gmOffice (gmPlugin.wxNotebookPlugin):
+class gmOffice (gmPlugin.cNotebookPluginOld):
 
     tab_name = _("Office")
 

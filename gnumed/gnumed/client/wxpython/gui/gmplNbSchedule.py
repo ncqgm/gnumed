@@ -3,7 +3,7 @@ from wxPython.wx import *
 import gmPlugin
 import gmScheduleAllDoctorsPnl
 
-class gmplNbSchedule(gmPlugin.wxNotebookPlugin):
+class gmplNbSchedule(gmPlugin.cNotebookPluginOld):
     """
     Plugin to encapsulate a patient scheduling system
     """
