@@ -2,18 +2,19 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
-import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient
+import gmLog, gmGuiBroker, gmGP_PatientPicture, gmPatientSelector, gmDispatcher, gmSignals, gmTmpPatient, gmPG
 
 from wxPython.wx import *
 
 ID_BTN_pat_demographics = wxNewId()
+ID_CBOX_consult_type = wxNewId()
 
 # FIXME: need a better name here !
 bg_col = wxColour(214,214,214)
@@ -36,7 +37,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
 
+		self.__load_consultation_types()
 		self.__do_layout()
+		del self.__consultation_types
 		self.__register_interests()
 
 		# init plugin toolbars dict
@@ -106,6 +109,17 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.szr_bottom_row = wxBoxSizer (wxHORIZONTAL)
 		self.pnl_bottom_row = wxPanel(self, -1)
 		self.szr_bottom_row.Add (self.pnl_bottom_row, 1, wxGROW)
+		# consultation type selector
+		self.combo_consultation_type = wxComboBox (
+			self,
+			ID_CBOX_consult_type,
+			self.DEF_CONSULT_TYPE,
+			wxDefaultPosition,
+			wxDefaultSize,
+			self.__consultation_types,
+			wxCB_DROPDOWN
+		)
+		self.szr_bottom_row.Add(self.combo_consultation_type, 0, wxRIGHT, 0)
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
@@ -129,6 +143,69 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.SetSizer(self.szr_main)
 		# and auto-size to minimum calculated size
 		self.szr_main.Fit(self)
+	#-------------------------------------------------------
+	# internal helpers
+	#-------------------------------------------------------
+	def __load_consultation_types(self):
+#		# Richard, can you please add some comments here ?
+#		self.__consultation_types = [
+#			_('in surgery'),
+#			_('home visit'),
+#			_('by phone'),
+#			_('at specialist'),
+#			_('patient absent'),
+#			_('by email'),
+#			_('other consultation')
+#		]
+
+		dbpool = gmPG.ConnectionPool()
+		conn = dbpool.GetConnection(service = 'historica')
+		rocurs = conn.cursor()
+		cmd = "SELECT description from vi18n_enum_encounter_type;"
+		if not gmPG.run_query(rocurs, cmd):
+			rocurs.close()
+			dbpool.ReleaseConnection('historica')
+			self.__consultation_types = [_('in surgery')]
+			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
+			self.__show_error(
+				_('Cannot load consultation types from backend.\nConsequently, the only available type is:\n[%s]') % self.__consultation_types[0],
+				_('loading consultation types')
+			)
+			return None
+		result = rocurs.fetchall()
+		rocurs.close()
+		dbpool.ReleaseConnection('historica')
+		if len(result) == 0:
+			self.__consultation_types = [_('in surgery')]
+			self.DEF_CONSULT_TYPE = self.__consultation_types[0]
+			self.__show_error(
+				_('Cannot load consultation types from backend.\nConsequently, the only available type is:\n[%s]') % self.__consultation_types[0],
+				_('loading consultation types')
+			)
+			return None
+		self.__consultation_types = []
+		for cons_type in result:
+			self.__consultation_types.append(cons_type[0])
+		self.DEF_CONSULT_TYPE = self.__consultation_types[0]
+		return 1
+	#--------------------------------------------------------
+	def __show_error(self, aMessage = None, aTitle = ''):
+		# sanity checks
+		tmp = aMessage
+		if aMessage is None:
+			tmp = _('programmer forgot to specify error message')
+
+		tmp = tmp + _("\n\nPlease consult the error log for further information !")
+
+		dlg = wxMessageDialog(
+			NULL,
+			tmp,
+			aTitle,
+			wxOK | wxICON_ERROR
+		)
+		dlg.ShowModal()
+		dlg.Destroy()
+		return 1
 	#-------------------------------------------------------
 	# event handling
 	#-------------------------------------------------------
@@ -240,7 +317,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.2  2003-04-19 15:00:30  ncq
+# Revision 1.3  2003-04-25 13:37:22  ncq
+# - moved combo box "consultation type" here from gmDemographics (still needs to be placed right-most)
+# - helper __show_error()
+# - connected "consultation type" to backend
+#
+# Revision 1.2  2003/04/19 15:00:30  ncq
 # - display age, finally
 #
 # Revision 1.1  2003/04/08 21:24:14  ncq
