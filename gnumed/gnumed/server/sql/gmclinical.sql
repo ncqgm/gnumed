@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.65 $
+-- $Revision: 1.66 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -679,7 +679,8 @@ GRANT SELECT ON
 	"_enum_allergy_type",
 	"allergy",
 	vaccination,
-	vaccine
+	vaccine,
+	vacc_def
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -716,7 +717,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	vaccination,
 	vaccination_id_seq,
 	vaccine,
-	vaccine_id_seq
+	vaccine_id_seq,
+	vacc_def,
+	vacc_def_id_seq
 TO GROUP "_gm-doctors";
 
 
@@ -725,11 +728,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.65 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.66 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.65  2003-10-31 23:29:38  ncq
+-- Revision 1.66  2003-11-04 00:23:58  ncq
+-- - some grants
+--
+-- Revision 1.65  2003/10/31 23:29:38  ncq
 -- - cleanup, id_ -> fk_
 --
 -- Revision 1.64  2003/10/26 09:41:03  ncq
