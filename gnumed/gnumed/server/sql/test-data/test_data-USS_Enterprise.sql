@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -21,7 +21,10 @@ values (
 	'the main path lab aboard the USS Enterprise'
 );
 
+-- FIXME: delete statements
+
 -- tests
+-- WBC
 insert into test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
@@ -32,14 +35,19 @@ values (
 	'Gpt/l'
 );
 
-insert into test_type_local
-	(fk_test_type, local_code, local_name)
+insert into test_type_local (code, name)
 values (
-	currval('test_type_pk_seq'),
 	'WBC',
 	'leukocytes'
 );
 
+insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+values (
+	currval('test_type_pk_seq'),
+	currval('test_type_local_pk_seq')
+);
+
+-- RBC
 insert into test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
@@ -50,14 +58,19 @@ values (
 	'Tpt/l'
 );
 
-insert into test_type_local
-	(fk_test_type, local_code, local_name)
+insert into test_type_local (code, name)
 values (
-	currval('test_type_pk_seq'),
 	'RBC',
 	'erythrocytes'
 );
 
+insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+values (
+	currval('test_type_pk_seq'),
+	currval('test_type_local_pk_seq')
+);
+
+-- PLT
 insert into test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
@@ -68,14 +81,19 @@ values (
 	'Gpt/l'
 );
 
-insert into test_type_local
-	(fk_test_type, local_code, local_name)
+insert into test_type_local (code, name)
 values (
-	currval('test_type_pk_seq'),
 	'PLT',
 	'platelets'
 );
 
+insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+values (
+	currval('test_type_pk_seq'),
+	currval('test_type_local_pk_seq')
+);
+
+-- CRP
 insert into test_type
 	(fk_test_org, code, name, comment, conversion_unit)
 values (
@@ -86,22 +104,29 @@ values (
 	'mg/l'
 );
 
-insert into test_type_local
-	(fk_test_type, local_code, local_name)
+insert into test_type_local (code, name)
 values (
-	currval('test_type_pk_seq'),
 	'CRP',
 	'C-reactive protein'
+);
+
+insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+values (
+	currval('test_type_pk_seq'),
+	currval('test_type_local_pk_seq')
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.10  2004-09-29 10:31:11  ncq
+-- Revision 1.11  2004-09-29 19:16:28  ncq
+-- - fix test type defs
+--
+-- Revision 1.10  2004/09/29 10:31:11  ncq
 -- - test_type.id -> pk
 -- - basic_unit -> conversion_unit
 --
