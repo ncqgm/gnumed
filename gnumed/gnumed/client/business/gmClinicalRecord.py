@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.110 2004-06-01 23:51:33 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmClinicalRecord.py,v 1.111 2004-06-02 13:10:18 sjtan Exp $
+__version__ = "$Revision: 1.111 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -613,6 +613,7 @@ class cClinicalRecord:
 			self.__db_cache['episodes']
 		except KeyError:
 			self.__db_cache['episodes'] = []
+			
 			cmd = "select id_episode from v_pat_episodes where id_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
@@ -732,7 +733,14 @@ class cClinicalRecord:
 		# none found whatsoever
 		if episode is None:
 			# so try to create default episode ...
-			episode = gmEMRStructItem.create_episode(health_issue_id=self.health_issue['id'])
+			success, result = gmEMRStructItems.create_episode(id_health_issue=self.health_issue['id'])
+			if not success:
+				msg = result
+				_log.Log(gm.lErr, msg)
+			else:
+				episode = result
+			
+			
 			if episode is None:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.id_patient)
 				return False
@@ -1309,7 +1317,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.110  2004-06-01 23:51:33  ncq
+# Revision 1.111  2004-06-02 13:10:18  sjtan
+#
+# error handling , in case unsuccessful get_episodes.
+#
+# Revision 1.110  2004/06/01 23:51:33  ncq
 # - id_episode/pk_encounter
 #
 # Revision 1.109  2004/06/01 08:21:56  ncq
