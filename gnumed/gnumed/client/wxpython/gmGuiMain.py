@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-08-08 11:02:32 $
-# @version $Revision: 1.38 $ $Date: 2002-08-08 11:02:32 $ $Author: ncq $
+# @Date: $Date: 2002-09-08 23:17:37 $
+# @version $Revision: 1.39 $ $Date: 2002-09-08 23:17:37 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -41,7 +41,7 @@ from wxPython.wx import *
 from wxPython.html import *
 
 import sys, time, os
-import gmLogFrame, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin
+import gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
@@ -362,3 +362,9 @@ if __name__ == '__main__':
 	myLog.AddTarget(aLogTarget)
 	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
 	main()
+
+#==================================================
+# $Log: gmGuiMain.py,v $
+# Revision 1.39  2002-09-08 23:17:37  ncq
+# - removed obsolete reference to gmLogFrame.py
+#
