@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.147 2004-10-20 12:28:25 ncq Exp $
-__version__ = "$Revision: 1.147 $"
+# $Id: gmClinicalRecord.py,v 1.148 2004-10-20 21:50:29 ncq Exp $
+__version__ = "$Revision: 1.148 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -927,7 +927,7 @@ where
 			filtered_regimes = filter(lambda regime: regime['pk_regime'] == ID, filtered_regimes)
 			if len(filtered_regimes) == 0:
 				_log.Log(gmLog.lErr, 'no vaccination regime [%s] found for patient [%s]' % (ID, self.id_patient))
-				return None
+				return []
 			else:
 				return filtered_regimes[0]
 		if indications is not None:
@@ -937,6 +937,11 @@ where
 	#--------------------------------------------------------
 	def get_vaccinated_indications(self):
 		"""Retrieves patient vaccinated indications list.
+
+		Note that this does NOT rely on the patient being on
+		some schedule or other but rather works with what the
+		patient has ACTUALLY been vaccinated against. This is
+		deliberate !
 		"""
 		# most likely, vaccinations will be fetched close
 		# by so it makes sense to count on the cache being
@@ -944,13 +949,17 @@ where
 		vaccinations = self.get_vaccinations()
 		if vaccinations is None:
 			_log.Log(gmLog.lErr, 'cannot load vaccinated indications for patient [%s]' % self.id_patient)
-			return (None, [[_('ERROR: cannot retrieve vaccinated indications'), _('ERROR: cannot retrieve vaccinated indications')]])
+			return (False, [[_('ERROR: cannot retrieve vaccinated indications'), _('ERROR: cannot retrieve vaccinated indications')]])
 		if len(vaccinations) == 0:
-			return (1, [[_('no vaccinations recorded'), _('no vaccinations recorded')]])
+			return (True, [[_('no vaccinations recorded'), _('no vaccinations recorded')]])
 		v_indications = []
 		for vacc in vaccinations:
-			v_indications.append([vacc['indication'], vacc['l10n_indication']])
-		return (1, v_indications)
+			tmp = [vacc['indication'], vacc['l10n_indication']]
+			# remove duplicates
+			if tmp in v_indications:
+				continue
+			v_indications.append(tmp)
+		return (True, v_indications)
 	#--------------------------------------------------------
 	def get_vaccinations(self, ID=None, indications=None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves list of vaccinations the patient has received.
@@ -996,15 +1005,19 @@ where
 					vaccs_by_ind[vacc['indication']].append(vacc)
 				except KeyError:
 					vaccs_by_ind[vacc['indication']] = [vacc]
+				vacc.set_booster_status(is_booster=False)
+				vacc.set_seq_no(seq_no=-1)
 
-			# calculate sequence number and is_booster			
+			# calculate sequence number and is_booster
 			for ind in vaccs_by_ind.keys():
-				vacc_regime = self.get_scheduled_vaccination_regimes(indications = [ind])[0]
+				vacc_regimes = self.get_scheduled_vaccination_regimes(indications = [ind])
+				if (vacc_regimes is None) or (len(vacc_regimes) == 0):
+					continue
 				for vacc in vaccs_by_ind[ind]:
 					# due to the "order by indication, date" the vaccinations are in the
 					# right temporal order inside the indication-keyed dicts
 					seq_no = vaccs_by_ind[ind].index(vacc) + 1
-					if seq_no > vacc_regime['shots']:
+					if seq_no > vacc_regimes[0]['shots']:
 						vacc.set_booster_status(True)
 					else:
 						vacc.set_seq_no(seq_no=seq_no)
@@ -1130,7 +1143,7 @@ where
 	#--------------------------------------------------------
 	def add_vaccination(self, vaccine):
 		"""Creates a new vaccination entry in backend."""
-		return gmVaccination.create_vaccination(
+		return gmVaccination.create_vaccination (
 			patient_id = self.id_patient,
 			episode_id = self.__episode['pk_episode'],
 			encounter_id = self.__encounter['pk_encounter'],
@@ -1589,7 +1602,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.147  2004-10-20 12:28:25  ncq
+# Revision 1.148  2004-10-20 21:50:29  ncq
+# - return [] on no vacc regimes found
+# - in get_vaccinations() handle case where patient is not on any schedule
+#
+# Revision 1.147  2004/10/20 12:28:25  ncq
 # - revert back to Carlos' bulk loading code
 # - keep some bits of what Syan added
 # - he likes to force overwriting other peoples' commits
