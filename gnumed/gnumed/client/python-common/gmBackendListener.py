@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -20,9 +20,9 @@ class BackendListener:
 	def __init__(self, service, database, user, password, host='localhost', port=5432, poll_interval = 3):
 		#when self._quit is true, the thread is stopped
 		self._quit=0
-		#remeber what signals we are listening for; no need to listen twice to the same signal
+		# remember what signals we are listening for; no need to listen twice to the same signal
 		self._signals = []
-		#remeber what service we are representing
+		# remember what service we are representing
 		self._service = service
 		#check for messages every 'poll_interval' seconds
 		self._poll_interval = poll_interval
@@ -39,7 +39,7 @@ class BackendListener:
 
 	#-------------------------------
 	def Stop(self):
-		self._quit=1				
+		self._quit=1
 
 	#-------------------------------
 	def Connect(self, database, user, password, host='localhost', port=5432):
@@ -176,7 +176,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.6  2003-01-16 14:45:03  ncq
+# Revision 1.7  2003-02-07 14:22:35  ncq
+# - whitespace fix
+#
+# Revision 1.6  2003/01/16 14:45:03  ncq
 # - debianized
 #
 # Revision 1.5  2002/09/26 13:21:37  ncq
