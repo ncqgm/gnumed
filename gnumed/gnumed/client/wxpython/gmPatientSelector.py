@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.11 2003-04-04 23:54:30 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPatientSelector.py,v 1.12 2003-04-09 16:20:19 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,12 +23,11 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+import gmTmpPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
 
-import gmTmpPatient, gmDispatcher, gmSignals, gmPG, gmI18N
 from wxPython.wx import *
 
 ID_PatPickList = wxNewId()
-
 #============================================================
 def _sensitize(aName = None):
 	"""Make user input suitable for case-sensitive matching.
@@ -80,10 +79,10 @@ def _normalize_soundalikes(aString = None, aggressive = 0):
 #------------------------------------------------------------
 def pat_expand_default(curs = None, ID_list = None):
 	if ID_list is None:
-		return {}
+		return ([], [])
 
 	if curs is None:
-		return {}
+		return ([], [])
 
 	pat_data = []
 
@@ -444,14 +443,15 @@ class cPatientPickList(wxDialog):
 		self,
 		parent,
 		id = -1,
+		title = _('please select a patient'),
 		pos = (-1, -1),
-		size = (-1, -1),
+		size = (320, 240),
 	):
 		wxDialog.__init__(
 			self,
 			parent,
 			id,
-			_('please select a patient'),
+			title,
 			pos,
 			size,
 			style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxSTAY_ON_TOP
@@ -478,6 +478,7 @@ class cPatientPickList(wxDialog):
 		self.listctrl.ClearAll()
 		for order_idx in range(len(col_order)):
 			self.listctrl.InsertColumn(order_idx, col_order[order_idx]['label'])
+
 		# now add items
 		for row_idx in range(len(self.items)):
 			# set up item
@@ -509,18 +510,19 @@ class cPatientPickList(wxDialog):
 			self.listctrl.SetColumnWidth(order_idx, wxLIST_AUTOSIZE)
 
 		# FIXME: and make ourselves just big enough
-		#self.szrMain.Fit(self)
-		#self.Fit()
+		self.szrMain.Fit(self)
+		self.Fit()
+#		self.
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_item_activated(self, evt):
+		# item dict must always contain ID to be used for selection later on at index 0
 		item = self.items[evt.m_itemIndex]
-		# the key "#" is assumed to always exist
 		try:
 			self.EndModal(item[0])
 		except KeyError:
-			_log.LogException('required key "#" missing, item keys: %s' % item.keys(), sys.exc_info())
+			_log.LogException('item [%s] has faulty structure' % item, sys.exc_info())
 			self.EndModal(-1)
 	#--------------------------------------------------------
 	def _on_cancel(self, evt):
@@ -537,7 +539,6 @@ class cPatientPickList(wxDialog):
 			id = ID_PatPickList,
 			style = wxLC_REPORT | wxLC_SINGLE_SEL | wxVSCROLL | wxHSCROLL | wxSUNKEN_BORDER
 		)
-		#pos = wxDefaultPosition,
 		# and place it
 		self.szrMain.AddWindow(self.listctrl, 1, wxGROW | wxALIGN_CENTER_VERTICAL, 5)
 
@@ -601,7 +602,6 @@ class cPatientSelector(wxTextCtrl):
 			size,
 			style = wxTE_PROCESS_ENTER
 		)
-#		self.SetBackgroundColour (wxColour (200, 100, 100))
 		selector_tooltip = _( \
 """Patient search field.                                   \n
 to search, type any of:\n - fragment of last or first name\n - date of birth (can start with '$' or '*')\n - patient ID (can start with '#')\nand hit <ENTER>
@@ -651,14 +651,16 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		# - process some special chars
 		EVT_CHAR(self, self._on_char)
 
-		# - validate upon loosing focus (but see the caveat in the handler)
+		# - select data in input field upon tabbing in
+		EVT_SET_FOCUS (self, self._on_get_focus)
+
+		# - redraw the currently active name upon losing focus
+		#   (but see the caveat in the handler)
 		EVT_KILL_FOCUS (self, self._on_loose_focus)
 
 		# - user pressed <enter>
 		EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
 
-		# evil user wants to resize widget
-		#EVT_SIZE (self, self.on_resize)
 	#--------------------------------------------------------
 	def SetActivePatient(self, anID = None, data = None):
 		if anID is None:
@@ -734,6 +736,15 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
+	def _on_get_focus(self, evt):
+		"""uponn tabbing in
+
+		- select all text in the field so that the next
+		  character typed will delete it
+		"""
+		self.SetSelection (-1,-1)
+		evt.Skip()
+	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
 		# if we use EVT_KILL_FOCUS we will also receive this event
 		# when closing our application or loosing focus to another
@@ -754,7 +765,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		keycode = evt.GetKeyCode()
 
 		if evt.AltDown():
-		# ALT-L, ALT-P - list of previously active patients
+			# ALT-L, ALT-P - list of previously active patients
 			if keycode in [ord('l'), ord('p')]:
 				if self.prev_pats == []:
 					return true
@@ -769,16 +780,30 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 					self.SetActivePatient(result)
 				return true
 
-		# ALT-N - enter new patient
+			# ALT-N - enter new patient
 			if keycode == ord('n'):
 				print "ALT-N not implemented yet"
 				print "should immediately jump to entering a new patient"
 				return true
 
-		# ALT-K - access chipcards
-			if keycode == ord('k'):
-				print "ALT-K not implemented yet"
-				print "should tell chipcard demon to read KVK and display list of cached KVKs"
+			# ALT-K - access chipcards
+			if keycode in [ord('k'), ord('c')]:
+				# FIXME: make configurable !!
+				kvks = gmKVK.get_available_kvks('~/gnumed/kvks/')
+				if kvks is None:
+					print "No KVKs available !"
+					# show some message here ...
+					return true
+				picklist, col_order = gmKVK.kvks_extract_picklist(kvks)
+				# show list
+				dlg = cPatientPickList(parent = NULL, title = _("please select a KVK"))
+				dlg.SetItems(picklist, col_order)
+				result = dlg.ShowModal()
+				dlg.Destroy()
+				# and process selection
+				if result != -1:
+					print "user selected kvkd file %s" % picklist[result][10]
+					print picklist[result]
 				return true
 
 		# cycling through previous fragments
@@ -846,13 +871,6 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
-
-#	kwargs = {}
-#	kwargs['ID'] = 1
-#	kwargs['signal']= gmSignals.patient_selected()
-#	kwargs['sender'] = 'main'
-#	gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
-
 	app = wxPyWidgetTester(size = (200, 40))
 	app.SetWidget(cPatientSelector, -1)
 	app.MainLoop()
@@ -966,7 +984,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.11  2003-04-04 23:54:30  ncq
+# Revision 1.12  2003-04-09 16:20:19  ncq
+# - added set selection on get focus -- but we don't tab in yet !!
+# - can now set title on pick list
+# - added KVK handling :-)
+#
+# Revision 1.11  2003/04/04 23:54:30  ncq
 # - tweaked some parent and style settings here and there, but still
 #   not where we want to be with the pick list ...
 #
