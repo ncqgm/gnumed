@@ -58,7 +58,7 @@
         <set
             name="clin_health_issues"
             lazy="false"
-            inverse="false"
+            inverse="true"
             cascade="all"
             sort="unsorted"
         >
