@@ -33,9 +33,18 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jList2.setModel(new DefaultListModel());
         
         ToolTipManager.sharedInstance().setEnabled(true);
-        
+        configure();
     }
     
+    void configure() {
+        identity id = new identity();
+        ManagerReference manager = new SingleSessionManagerReference();
+        id.setPersister(manager);
+        TestProviderController controller = new TestProviderController();
+        controller.setIdentity(id);
+         setController(controller);   
+        
+    }
     void setTabLabels() {
         jTabbedPane1.setTitleAt(2, getResourceName("create_role"));
         
@@ -108,6 +117,8 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     DefaultMutableTreeNode urologists ;
     DefaultMutableTreeNode doctors;
     void postSetViewInit() {
+        if (top != null)
+            return;
         top = createNode("Providers"  , null );
         
         supers = new identity_role[] { (identity_role) top.getUserObject() };
@@ -223,6 +234,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jLabel8 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel12 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -302,6 +314,15 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jPanel2.add(jButton5, new java.awt.GridBagConstraints());
 
         findjTree2.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("role")));
+        findjTree2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                findjTree2KeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                findTreeSelectionTransferAction(evt);
+            }
+        });
+
         jScrollPane5.setViewportView(findjTree2);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -332,7 +353,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.weightx = 1.0;
         jPanel5.add(firstNamesjTextField4, gridBagConstraints);
 
-        jPanel6.setLayout(new java.awt.GridLayout());
+        jPanel6.setLayout(new java.awt.GridLayout(1, 0));
 
         jLabel4.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("sex"));
         jPanel6.add(jLabel4);
@@ -475,6 +496,15 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         jPanel3.add(jLabel12, gridBagConstraints);
 
+        jButton3.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("clear"));
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearIdentityActionPerformed(evt);
+            }
+        });
+
+        jPanel3.add(jButton3, new java.awt.GridBagConstraints());
+
         jTabbedPane1.addTab("tab3", jPanel3);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -526,6 +556,25 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
     }//GEN-END:initComponents
 
+    private void findjTree2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_findjTree2KeyPressed
+        // Add your handling code here:
+         if (evt.getKeyCode() == evt.VK_ENTER) {
+            
+            searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), evt.VK_ENTER, "search for providers with role"));
+        }
+    }//GEN-LAST:event_findjTree2KeyPressed
+
+    private void findTreeSelectionTransferAction(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_findTreeSelectionTransferAction
+        // Add your handling code here:
+       
+    }//GEN-LAST:event_findTreeSelectionTransferAction
+
+    private void clearIdentityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearIdentityActionPerformed
+        // Add your handling code here:
+        
+       getController().setProvider(new identity());
+    }//GEN-LAST:event_clearIdentityActionPerformed
+
     private void deleteFromListHandler(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_deleteFromListHandler
         // Add your handling code here:
           if (evt.getKeyCode() == evt.VK_DELETE) {
@@ -540,10 +589,8 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         // Add your handling code here:
         Object o = resultjList1.getSelectedValue();
         if ( o instanceof identity) {
-            identity i = (identity ) o;
-            i.setPersister(getController().getManagerReference());  // use the same manager referenceto avoid 2 session conflict.
-            getController().setProvider(i);
-            getController().modelToUi();
+            getController().setProvider( (identity ) o);
+          
             jTabbedPane1.setSelectedIndex(1);
         }
     }//GEN-LAST:event_editButtonActionPerformed
@@ -630,6 +677,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JTextField firstNamesjTextField4;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JCheckBox jCheckBox1;
@@ -676,8 +724,9 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JTextField telephonejTextField6;
     // End of variables declaration//GEN-END:variables
     
-    static Class[] roleFilter = { identity_role.class };
+//    static Class[] roleFilter = { identity_role.class };
     
+   
     
     public Collection getRemoved() {
         return removed;

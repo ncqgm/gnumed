@@ -301,7 +301,8 @@ public class IdentityManager {
             
             getSession().connection().commit();
             
-            getSession().refresh(id);
+//            getSession().refresh(id);
+            getSession().evict(id);
             getSession().connection().commit();
             getSession().setFlushMode(mode);
             getSession().disconnect();

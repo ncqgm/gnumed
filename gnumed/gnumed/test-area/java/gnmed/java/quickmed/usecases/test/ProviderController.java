@@ -20,7 +20,7 @@ public interface ProviderController {
     public void uiToModel();
     public void save();
     public identity_role createOrFindRole(final java.lang.String name);
-    
+    public void changeProvider(identity i);
     /** Getter for property managerReference.
      * @return Value of property managerReference.
      *

@@ -41,6 +41,7 @@ public class TestProviderController implements ProviderController , ProviderView
     }
     
     public void modelToUi() {
+        if (view != null)
         try {
             transferer.transfer(this, view);
         } catch (Exception e) {
@@ -50,7 +51,7 @@ public class TestProviderController implements ProviderController , ProviderView
     
     public void setProvider(org.gnumed.gmIdentity.identity id) {
         this.id = id;
-        setIdentity(id);
+       changeProvider(id);
     }
     
     public void setView(ProviderView view) {
@@ -143,7 +144,7 @@ public class TestProviderController implements ProviderController , ProviderView
      *
      */
     public void setIdentity(identity id) {
-        model.setIdentity(id);
+        changeProvider(id);
     }
     
     public identity_role createOrFindRole(String name) {
@@ -171,6 +172,13 @@ public class TestProviderController implements ProviderController , ProviderView
     
     public void setSex(String sex) {
         model.setSex(sex);
+    }
+    
+    public void changeProvider(identity i) {
+        if (getProvider() != null)
+            i.setPersister(getManagerReference());
+        model.setIdentity(i);
+        modelToUi();
     }
     
 }

@@ -17,14 +17,14 @@ public class TestContacts extends javax.swing.JFrame {
         initComponents();
         panel1 =new ContactsPanel();
         
-        identity id = new identity();
-        ManagerReference manager = new SingleSessionManagerReference();
-        id.setPersister(manager);
-        
-        TestProviderController controller = new TestProviderController();
-        controller.setIdentity(id);
-        
-        panel1.setController(controller);
+//        identity id = new identity();
+//        ManagerReference manager = new SingleSessionManagerReference();
+//        id.setPersister(manager);
+//        
+//        TestProviderController controller = new TestProviderController();
+//        controller.setIdentity(id);
+//        
+//        panel1.setController(controller);
         setContentPane(panel1);
         pack();
     }

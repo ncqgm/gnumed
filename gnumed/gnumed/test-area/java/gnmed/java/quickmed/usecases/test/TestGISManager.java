@@ -71,7 +71,7 @@ public class TestGISManager {
         return null;
     }
     
-    public urb findByPostcode(String postcode) throws Exception {
+    public urb findUrbByPostcode(String postcode) throws Exception {
         urb u = null;
         Session sess = null;
         logger.info(" using postcode = " + postcode.trim().toLowerCase());
@@ -141,9 +141,6 @@ public class TestGISManager {
         Session sess = null;
         try {
             sess =  getSession();
-            
-            
-            
             List l  =
             sess.find("select s from street s where lower(s.name) like ? "+
             "and s.urb.id = ? ", new Object[] { name.trim().toLowerCase(), urb.getId() },
@@ -215,6 +212,13 @@ public class TestGISManager {
         return found;
     }
     
+    public address createOrFindAddress( String number, street s) {
+        address a = new address();
+        a.setNumber(number);
+        a.setStreet(s);
+        a = substituteExistingAddress(a);
+        return a;
+     }
     
     public address findExistingAddress( address a) {
         address a2 = null;
@@ -223,8 +227,8 @@ public class TestGISManager {
             return a;
         try {
             sess =  getSession();
-            Iterator j = sess.iterate( "select a from address a where a.number like ? "+
-            "a.street.id = ? ", new Object[] { a.getNumber(), a.getStreet().getId() },
+            Iterator j = sess.iterate( "select a from address a where lower(a.number) like ? "+
+            "and a.street.id = ? ", new Object[] { a.getNumber().toLowerCase() , a.getStreet().getId() },
             new Type[] { Hibernate.STRING, Hibernate.LONG } );
             
             if (j.hasNext())
@@ -273,6 +277,58 @@ public class TestGISManager {
         return id;
     }
     
+    public urb createOrFindNamedUrb(String urbS, state state) {
+        urbS = urbS.trim();
+        urb urb = null;
+        try {
+        urb = findUrbByNameAndState(urbS, state.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (urb == null) {
+            urb = new urb();
+            urb.setName(urbS);
+            urb.setState(state);
+        }
+        
+        return urb;
+    }
+    
+    public state findState(String stateStr) {
+        Session sess = null;
+       state state = null;
+        try {
+            sess =  getSession();
+            
+            Iterator j = 
+            sess.iterate("select s from state s where lower(s.name) = ?" , stateStr.trim().toLowerCase(),
+            Hibernate.STRING );
+            if (j.hasNext())
+                state = (state) j.next();
+        } catch (Exception e) {
+            logger.info(e.getLocalizedMessage());
+        } finally {
+            try {
+            getSession().disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return state;
+    }
+    
+    public state findStateByPostcode( String postcode) {
+        urb urb = null;
+        try {
+          urb = findUrbByPostcode(postcode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (urb == null)
+            return null;
+        return urb.getState();
+        
+    }
     
     /**
      * adds a default address of the type
@@ -337,6 +393,20 @@ public class TestGISManager {
         return t;
     }
     
+    
+    street createStreet(String street,  urb urb) throws Exception {
+        Session s= getSession();
+        street st = new street();
+        st.setName(street);
+        st.setUrb(urb);
+        s.save(st);
+        s.flush();
+        s.connection().commit();
+        s.disconnect();
+        logger.fine("CREATED STREET " + st.getName() + " in urb " + st.getUrb());
+        logger.fine("urb name ="+ st.getUrb().getName());
+        return st;
+    }
     
     
     private SessionHolder sessionHolder = new SessionHolder();
