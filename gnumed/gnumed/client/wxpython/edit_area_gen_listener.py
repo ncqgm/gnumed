@@ -148,7 +148,7 @@ section_map = {}
 
 gen = generator()
 gen.print_imports()
-
+common_comps = []
 for l in lines:
 	re_match_obj = prog_def.match(l)
 	if re_match_obj <> None:
@@ -164,6 +164,7 @@ for l in lines:
 		section_map = {}
 		section_map['name'] = re_match_obj.group('section') 
 		section_map['components'] = []
+		section_map['components'].extend( common_comps)
 		
 	# match for components	
 	#sys.stderr.write( "#checking  %s against %s\n"% (l,  prog_map.keys()))
@@ -175,6 +176,9 @@ for l in lines:
 			sys.stderr.write( '#*** %s is a %s\n'%( re_match_obj.group('component'), c ))	
 			section_map['components'].append( (  re_match_obj.group('component'), c ) )
 			break
+		if re_match_obj <> None :
+			common_comps.append( (  re_match_obj.group('component'), c ) )
+			
 	
 
 if section_map.has_key('name'):

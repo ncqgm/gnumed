@@ -16,9 +16,39 @@ class gmSECTION_SUMMARY_handler:
 		self.id_map = {}
 
 
+		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
 	def __set_evt(self):
 		pass
 		
+
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 
 class gmSECTION_DEMOGRAPHICS_handler:
@@ -31,9 +61,39 @@ class gmSECTION_DEMOGRAPHICS_handler:
 		self.id_map = {}
 
 
+		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
 	def __set_evt(self):
 		pass
 		
+
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 
 class gmSECTION_CLINICALNOTES_handler:
@@ -46,9 +106,39 @@ class gmSECTION_CLINICALNOTES_handler:
 		self.id_map = {}
 
 
+		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
 	def __set_evt(self):
 		pass
 		
+
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 
 class gmSECTION_FAMILYHISTORY_handler:
@@ -60,6 +150,16 @@ class gmSECTION_FAMILYHISTORY_handler:
 	def __set_id(self):
 		self.id_map = {}
 
+
+		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
 
 		id = wxNewId()
 		self.panel.txt_familymembername.SetId(id)
@@ -120,6 +220,14 @@ class gmSECTION_FAMILYHISTORY_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.txt_familymembername,\
 			self.id_map['txt_familymembername'],\
 			self.text_entered_txt_familymembername)
@@ -163,6 +271,18 @@ class gmSECTION_FAMILYHISTORY_handler:
 		EVT_BUTTON(self.panel.btn_familymembernextcondition,\
 			self.id_map['btn_familymembernextcondition'],\
 			self.button_clicked_btn_familymembernextcondition)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_txt_familymembername( self, event):
 		pass
@@ -242,6 +362,16 @@ class gmSECTION_PASTHISTORY_handler:
 
 
 		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
+		id = wxNewId()
 		self.panel.txt_condition.SetId(id)
 		self.id_map['txt_condition'] = id
 		
@@ -310,6 +440,14 @@ class gmSECTION_PASTHISTORY_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.txt_condition,\
 			self.id_map['txt_condition'],\
 			self.text_entered_txt_condition)
@@ -361,6 +499,18 @@ class gmSECTION_PASTHISTORY_handler:
 		EVT_TEXT(self.panel.txt_progressnotes,\
 			self.id_map['txt_progressnotes'],\
 			self.text_entered_txt_progressnotes)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_txt_condition( self, event):
 		pass
@@ -452,6 +602,16 @@ class gmSECTION_VACCINATION_handler:
 
 
 		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
+		id = wxNewId()
 		self.panel.txt_targetdisease.SetId(id)
 		self.id_map['txt_targetdisease'] = id
 		
@@ -485,6 +645,14 @@ class gmSECTION_VACCINATION_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.txt_targetdisease,\
 			self.id_map['txt_targetdisease'],\
 			self.text_entered_txt_targetdisease)
@@ -508,6 +676,18 @@ class gmSECTION_VACCINATION_handler:
 		EVT_TEXT(self.panel.txt_progressnotes,\
 			self.id_map['txt_progressnotes'],\
 			self.text_entered_txt_progressnotes)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_txt_targetdisease( self, event):
 		pass
@@ -555,6 +735,16 @@ class gmSECTION_ALLERGIES_handler:
 	def __set_id(self):
 		self.id_map = {}
 
+
+		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
 
 		id = wxNewId()
 		self.panel.text1.SetId(id)
@@ -605,6 +795,14 @@ class gmSECTION_ALLERGIES_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.text1,\
 			self.id_map['text1'],\
 			self.text_entered_text1)
@@ -640,6 +838,18 @@ class gmSECTION_ALLERGIES_handler:
 		EVT_CHECKBOX(self.panel.cb2,\
 			self.id_map['cb2'],\
 			self.checkbox_clicked_cb2)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_text1( self, event):
 		pass
@@ -705,6 +915,16 @@ class gmSECTION_SCRIPT_handler:
 	def __set_id(self):
 		self.id_map = {}
 
+
+		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
 
 		id = wxNewId()
 		self.panel.text1.SetId(id)
@@ -785,6 +1005,14 @@ class gmSECTION_SCRIPT_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.text1,\
 			self.id_map['text1'],\
 			self.text_entered_text1)
@@ -844,6 +1072,18 @@ class gmSECTION_SCRIPT_handler:
 		EVT_TEXT(self.panel.text10,\
 			self.id_map['text10'],\
 			self.text_entered_text10)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_text1( self, event):
 		pass
@@ -947,6 +1187,16 @@ class gmSECTION_REQUESTS_handler:
 
 
 		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
+		id = wxNewId()
 		self.panel.txt_request_type.SetId(id)
 		self.id_map['txt_request_type'] = id
 		
@@ -1025,6 +1275,14 @@ class gmSECTION_REQUESTS_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.txt_request_type,\
 			self.id_map['txt_request_type'],\
 			self.text_entered_txt_request_type)
@@ -1084,6 +1342,18 @@ class gmSECTION_REQUESTS_handler:
 		EVT_RADIOBUTTON(self.panel.rb_request_bill_wcover,\
 			self.id_map['rb_request_bill_wcover'],\
 			self.radiobutton_clicked_rb_request_bill_wcover)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_txt_request_type( self, event):
 		pass
@@ -1187,6 +1457,16 @@ class gmSECTION_MEASUREMENTS_handler:
 
 
 		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
+		id = wxNewId()
 		self.panel.combo_measurement_type.SetId(id)
 		self.id_map['combo_measurement_type'] = id
 		
@@ -1225,6 +1505,14 @@ class gmSECTION_MEASUREMENTS_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.combo_measurement_type,\
 			self.id_map['combo_measurement_type'],\
 			self.text_entered_combo_measurement_type)
@@ -1252,6 +1540,18 @@ class gmSECTION_MEASUREMENTS_handler:
 		EVT_BUTTON(self.panel.btn_graph,\
 			self.id_map['btn_graph'],\
 			self.button_clicked_btn_graph)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_combo_measurement_type( self, event):
 		pass
@@ -1305,6 +1605,16 @@ class gmSECTION_REFERRALS_handler:
 	def __set_id(self):
 		self.id_map = {}
 
+
+		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
 
 		id = wxNewId()
 		self.panel.btnpreview.SetId(id)
@@ -1425,6 +1735,14 @@ class gmSECTION_REFERRALS_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_BUTTON(self.panel.btnpreview,\
 			self.id_map['btnpreview'],\
 			self.button_clicked_btnpreview)
@@ -1516,6 +1834,18 @@ class gmSECTION_REFERRALS_handler:
 		EVT_CHECKBOX(self.panel.chkbox_referral_habits,\
 			self.id_map['chkbox_referral_habits'],\
 			self.checkbox_clicked_chkbox_referral_habits)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def button_clicked_btnpreview( self, event):
 		pass
@@ -1667,6 +1997,16 @@ class gmSECTION_RECALLS_handler:
 
 
 		id = wxNewId()
+		self.panel.btnOK.SetId(id)
+		self.id_map['btnOK'] = id
+		
+
+		id = wxNewId()
+		self.panel.btnClear.SetId(id)
+		self.id_map['btnClear'] = id
+		
+
+		id = wxNewId()
 		self.panel.combo_tosee.SetId(id)
 		self.id_map['combo_tosee'] = id
 		
@@ -1710,6 +2050,14 @@ class gmSECTION_RECALLS_handler:
 		pass
 		
 
+		EVT_BUTTON(self.panel.btnOK,\
+			self.id_map['btnOK'],\
+			self.button_clicked_btnOK)
+
+		EVT_BUTTON(self.panel.btnClear,\
+			self.id_map['btnClear'],\
+			self.button_clicked_btnClear)
+
 		EVT_TEXT(self.panel.combo_tosee,\
 			self.id_map['combo_tosee'],\
 			self.text_entered_combo_tosee)
@@ -1741,6 +2089,18 @@ class gmSECTION_RECALLS_handler:
 		EVT_TEXT(self.panel.txt_recall_progressnotes,\
 			self.id_map['txt_recall_progressnotes'],\
 			self.text_entered_txt_recall_progressnotes)
+
+	def button_clicked_btnOK( self, event):
+		pass
+
+		print "button_clicked_btnOK received ", event
+			
+
+	def button_clicked_btnClear( self, event):
+		pass
+
+		print "button_clicked_btnClear received ", event
+			
 
 	def text_entered_combo_tosee( self, event):
 		pass
