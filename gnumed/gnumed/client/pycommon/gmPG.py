@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -637,7 +637,7 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	  - a connection: rollback/commit is handled
 	  - a service name: rollback/commit is handled
 
-	- queries is a list of (query, [args])
+	- queries is a list of (query, [args]) tuples
 	  - executed as a single transaction
 
 	- returns:
@@ -745,9 +745,11 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	"""Runs a read-only query.
 
 	- link_obj can be a service name, connection or cursor object
-	- get_col_idx
-		- None  : return data
-		- ! None: return (data, idx)
+
+	- return status:
+		- return data			if get_col_idx is None
+		- return (data, idx)	if get_col_idx != None
+
 	- if query fails: data is None
 	- if query is not a row-returning SQL statement: data is None
 
@@ -804,7 +806,7 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	# and return the data, possibly including the column index
 	if curs.description is None:
 		data = None
-		_log.Log(gmLog.lErr, 'query did not return rows !')
+		_log.Log(gmLog.lErr, 'query did not return rows')
 	else:
 		data = curs.fetchall()
 	# can "close" before closing cursor since it just decrements the ref counter
@@ -936,7 +938,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.25 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.26 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1164,7 +1166,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.25  2004-09-01 22:00:10  ncq
+# Revision 1.26  2004-09-06 18:56:16  ncq
+# - improve inline docs
+#
+# Revision 1.25  2004/09/01 22:00:10  ncq
 # - prompt for host first in textmode login dialog
 #
 # Revision 1.24  2004/07/17 20:54:50  ncq
