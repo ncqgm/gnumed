@@ -1,8 +1,12 @@
-"""
+"""This plugin lets you manage laboratory requests
+ - add requests
+ - keep track of pending requests
+ - see import errors
+ - review newly imported lab results
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -361,9 +365,9 @@ class cLabJournalNB(wxNotebook):
 		for request in pending_requests:
 			item_idx = self.lbox_pending.InsertItem(info=wxListItem())
 			# request date
-			self.lbox_pending.SetStringItem(index = item_idx, col=0, label=request['clin_when'].date)
+			self.lbox_pending.SetStringItem(index = item_idx, col=0, label=request['sampled_when'].date)
 			# request lab
-			lab = self.__get_labname(request['fk_test_org'])
+			lab = self.__get_labname(request['pk_test_org'])
 			self.lbox_pending.SetStringItem(index = item_idx, col=1, label=lab[0][0])
 			# request id
 			self.lbox_pending.SetStringItem(index = item_idx, col=2, label=request['request_id'])
@@ -739,7 +743,11 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.31  2004-06-26 23:45:50  ncq
+# Revision 1.32  2004-06-30 07:05:31  shilbert
+# - 'clin_when' -> 'sampled_when'
+# - more fk/pk changes
+#
+# Revision 1.31  2004/06/26 23:45:50  ncq
 # - cleanup, id_* -> fk/pk_*
 #
 # Revision 1.30  2004/06/26 07:33:55  ncq
