@@ -13,8 +13,6 @@ from wxPython.wx import *
 import gmPlugin
 import math
 import random
-import gettext
-_ = gettext.gettext
 
 ID_SNELLENMENU = wxNewId ()
 
@@ -484,15 +482,10 @@ if __name__ == '__main__':
             return 1
 
     def main ():
-        gettext.textdomain ('gnumed')
-        app = TestApp ()
-        app.MainLoop ()
+		import gettext
+		_ = gettext.gettext
+		gettext.textdomain ('gnumed')
+		app = TestApp ()
+		app.MainLoop ()
 
     main ()  
-    
-
-
-
-
-
-

@@ -13,18 +13,12 @@ The manuals should reside where the manual_path points to
          Robin Dunn's extraordinary wxPython sample
 """
 
-# text translation function for localization purposes
-import gettext
-_ = gettext.gettext
-
 import sys, os
 
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
-import gmGuiBroker
-import gmPlugin
-import gmLog
+import gmGuiBroker, gmPlugin, gmLog
 
 manual_path = 'doc/gnumed/book1.html'
 
@@ -166,4 +160,3 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 
     def GetWidget (self, parent):
         return ManualHtmlPanel (parent, self.gb['main.frame'])
-

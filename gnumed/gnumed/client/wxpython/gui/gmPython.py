@@ -17,5 +17,3 @@ class gmPython (gmPlugin.wxNotebookPlugin):
         from wxPython.lib.pyshell import PyShellWindow
         from wxPython.lib.shell import PyShell
         return PyShell(parent, globals())
-
-                            
