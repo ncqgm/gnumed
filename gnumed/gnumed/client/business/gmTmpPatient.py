@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.35 2003-09-22 23:29:30 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmTmpPatient.py,v 1.36 2003-09-23 11:31:12 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -111,7 +111,7 @@ class gmPerson:
 		- true/false/None
 		"""
 		cmd = "select exists(select id from identity where id = %s)"
-		res, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
+		res = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if res is None:
 			_log.Log(gmLog.lErr, 'check for person ID [%s] existence failed' % self.ID)
 			return None
@@ -190,7 +190,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
-		data, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
+		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if data is None:
 			return ''
 		if data[0][0] is None:
@@ -203,7 +203,7 @@ class gmPerson:
 	def _getDOB(self):
 		# FIXME: invent a mechanism to set the desired format
 		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s"
-		data, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
+		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if data is None:
 			return ''
 		if data[0] is None:
@@ -231,6 +231,10 @@ where
 	lp2a.id_identity = %s
 """
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+		if rows is None:
+			return None
+		if rows[0] is None:
+			return None
 		return [{
 			'ID':r[idx['addr_id']],
 			'type':r[idx['name']],
@@ -274,8 +278,7 @@ where
 		if postcode is None or len (postcode) == 0:
 			return [] # cope with empty postcode name
 		cmd = "select street from v_zip2street where postcode = %s"
-		data, = gmPG.run_ro_query('personalia', cmd, None, postcode)
-		return data
+		return gmPG.run_ro_query('personalia', cmd, None, postcode)
 	#--------------------------------------------------------
 	def DeleteAddress (self, ID):
 		rwconn = self._backend.GetConnection('personalia', readonly=0)
@@ -293,7 +296,7 @@ where
 	#--------------------------------------------------------
 	def _get_medical_age(self):
 		cmd = "select dob from identity where id = %s"
-		data, = gmPG.run_ro_query('personalia', cmd, None, self.ID)
+		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 
 		if data is None:
 			return '??'
@@ -708,7 +711,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.35  2003-09-22 23:29:30  ncq
+# Revision 1.36  2003-09-23 11:31:12  ncq
+# - properly use ro_run_query()s returns
+#
+# Revision 1.35  2003/09/22 23:29:30  ncq
 # - new style run_ro_query()
 #
 # Revision 1.34  2003/09/21 12:46:30  ncq
