@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/bootstrap-ng/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -73,6 +73,31 @@ _interactive = 0
 _bootstrapped_servers = {}
 _bootstrapped_dbs = {}
 #==================================================================
+class user:
+	def __init__(self, anAlias = None, aPassword = None, aCfg = _cfg):
+		self.cfg = aCfg
+
+		if anAlias is None:
+			raise ConstructorError, "need user alias"
+		self.alias = anAlias
+		self.group = "user %s" % self.alias
+
+		self.name = self.cfg.get(self.group, "name")
+		if self.name is None:
+			raise ConstructorError, "cannot get user name"
+
+		if aPassword is None:
+			self.password = self.cfg.get(self.group, "password")
+			if self.password is None:
+				if _interactive:
+					print "I need the password for the GnuMed database user [%s]." % self.name
+					self.password = raw_input("Please type password: ")
+				else:
+					raise ConstructorError, "cannot load database user password from config file"
+		else:
+			self.password = aPassword
+		return None
+#==================================================================
 class db_server:
 	def __init__(self, aSrv_alias, aCfg):
 		_log.Log(gmLog.lInfo, "bootstrapping server [%s]" % aSrv_alias)
@@ -85,8 +110,7 @@ class db_server:
 
 		self.cfg = aCfg
 		self.alias = aSrv_alias
-		self.server_group = "server %s" % self.alias
-		self.dbowner_password = None
+		self.section = "server %s" % self.alias
 
 		if not self.__bootstrap():
 			raise ConstructorError, "db_server.__init__(): Cannot bootstrap db server."
@@ -96,30 +120,11 @@ class db_server:
 		return None
 	#--------------------------------------------------------------
 	def __bootstrap(self):
-		# sanity checks
-		self.template_db = self.cfg.get(self.server_group, "template database")
-		if self.template_db is None:
-			_log.Log(gmLog.lErr, "Need to know the template database name.")
-			return None
-
-		self.super_user = self.cfg.get(self.server_group, "super user")
-		if self.super_user is None:
-			_log.Log(gmLog.lErr, "Need to know the super user name.")
-			return None
-
-		self.super_user_password = self.cfg.get(self.server_group, "super user password")
-		if self.super_user_password is None:
-			if _interactive:
-				print "I need the password for the database super user."
-				print "(user [%s] in db [%s] on [%s:%s])" % (self.super_user, self.template_db, self.alias, self.cfg.get(self.server_group, "port"))
-				self.super_user_password = raw_input("Please type password: ")
-			else:
-				_log.Log(gmLog.lErr, "Need to know the super user password.")
-				return None
+		self.superuser = user(anAlias = self.cfg.get(self.section, "super user"))
 
 		# connect to template
-		if not self.__connect(self.template_db, self.super_user, self.super_user_password):
-			_log.Log(gmLog.lErr, "Cannot connect to template db [%s@%s] on [%s:%s]." % (self.super_user, self.template_db, self.alias, self.cfg.get(self.server_group, "port")))
+		if not self.__connect_to_template():
+			_log.Log(gmLog.lErr, "Cannot connect to template database.")
 			return None
 
 		# add users/groups
@@ -137,29 +142,39 @@ class db_server:
 		self.conn.close()
 		return 1
 	#--------------------------------------------------------------
-	def __connect(self, aDB, aUser, aPW):
-		_log.Log(gmLog.lInfo, "connecting to database [%s]" % aDB)
+	def __connect_to_template(self):
+		_log.Log(gmLog.lInfo, "connecting to template database")
+
+		# sanity checks
+		self.template_db = self.cfg.get(self.section, "template database")
+		if self.template_db is None:
+			_log.Log(gmLog.lErr, "Need to know the template database name.")
+			return None
+
+		self.name = self.cfg.get(self.section, "name")
+		if self.name is None:
+			_log.Log(gmLog.lErr, "Need to know the server name.")
+			return None
+
+		self.port = self.cfg.get(self.section, "port")
+		if self.port is None:
+			_log.Log(gmLog.lErr, "Need to know the database server port address.")
+			return None
+
 		dsn = "%s:%s:%s:%s:%s" % (
-			self.cfg.get(self.server_group, "name"),
-			self.cfg.get(self.server_group, "port"),
-			aDB,
-			aUser,
-			aPW
+			self.name,
+			self.port,
+			self.template_db,
+			self.superuser.name,
+			self.superuser.password
 		)
 		try:
 			self.conn = dbapi.connect(dsn)
 		except:
-			_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (
-				self.cfg.get(self.server_group, "name"),
-				self.cfg.get(self.server_group, "port"),
-				aDB,
-				aUser,
-				aPW),
-				sys.exc_info(),
-				fatal=1
-			)
+			_log.LogException("cannot connect with DSN = [%s]" % dsn, sys.exc_info(), fatal=1)
 			return None
-		_log.Log(gmLog.lInfo, "successfully connected to database")
+
+		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.name)
 		return 1
 	#--------------------------------------------------------------
 	# procedural languages related
@@ -281,16 +296,6 @@ class db_server:
 			_log.Log(gmLog.lErr, "Cannot create GnuMed standard groups.")
 			return None
 
-		# NOTE! those should be added via some standard sql script in the schema !
-
-		# insert test users
-#		if not self.__create_test_users():
-#			_log.Log(gmLog.lErr, "Cannot bootstrap test database users.")
-
-		# insert site-specific users
-		#if not gmUserSetup.create_local_structure(dbconn):
-		#	print "Cannot create site-specific GnuMed user/group structure.\nPlease see log file for details."
-
 		return 1
 	#--------------------------------------------------------------
 	def __user_exists(self, aCursor, aUser):
@@ -313,7 +318,7 @@ class db_server:
 			if self.dbowner_password is None:
 				if _interactive:
 					print "I need the password for the GnuMed database owner."
-					print "(user [%s] on [%s:%s])" % (aDB_Owner, self.alias, self.cfg.get(self.server_group, "port"))
+					print "(user [%s] on [%s:%s])" % (aDB_Owner, self.alias, self.cfg.get(self.section, "port"))
 					self.dbowner_password = raw_input("Please type password: ")
 				else:
 					_log.Log(gmLog.lErr, "Cannot load GnuMed database owner password from config file.")
@@ -321,8 +326,9 @@ class db_server:
 		return self.dbowner_password
 	#--------------------------------------------------------------
 	def __create_dbowner(self):
-
-		dbowner = self.cfg.get("GnuMed defaults", "database owner")
+		# get owner
+		dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
+		
 		if dbowner is None:
 			_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
 			return None
@@ -424,61 +430,102 @@ class database:
 
 		self.conn = None
 		self.cfg = aCfg
-		self.alias = aDB_alias
-		self.db_group = "database %s" % self.alias
+		self.section = "database %s" % aDB_alias
 
-		self.server_alias = self.cfg.get(self.db_group, "server alias")
+		self.name = self.cfg.get(self.section, 'name')
+		if self.name is None:
+			_log.Log(gmLog.lErr, "Need to know database name.")
+			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+
+		self.server_alias = self.cfg.get(self.section, "server alias")
 		if self.server_alias is None:
 			_log.Log(gmLog.lErr, "Server alias missing.")
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
 		# make sure server is bootstrapped
 		db_server(self.server_alias, self.cfg)
+		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
-		_bootstrapped_dbs[self.alias] = self
+		_bootstrapped_dbs[aDB_alias] = self
 
 		return None
 	#--------------------------------------------------------------
-	def connect(self, aServer):
-		try:
-			dsn = "%s:%s:%s:%s:%s" % (aServer.server, aServer.port, aServer.template_db, aServer.super_user, aServer.super_user_password)
-		except:
-			_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
-			return None
-
-		try:
-			self.conn = dbapi.connect(dsn)
-		except:
-			_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (aServer.server, aServer.port, aServer.template_db, aServer.super_user, aServer.super_user_password), sys.exc_info(), fatal=1)
-			return None
-		_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], aDB, core_server["host name"], core_server["port"]))
-	#--------------------------------------------------------------
 	def __bootstrap(self):
-		owner = self.cfg.get("GnuMed defaults", "database owner")		
-
-		srv = _bootstrapped_servers[self.server_alias]
-		passwd = srv.get_dbowner_password(owner)
-
-		srv_group = "server %s" % self.server_alias
-		db = self.cfg.get(srv_group, "template database")
+		# get owner
+		self.owner = user(anAlias = self.cfg.get(self.section, "owner alias"))
 
 		# connect as owner to template
+		if not self.__connect_owner_to_template():
+			_log.Log(gmLog.lError, "Cannot connect to template database.")
+			return None
 
-		# check if db already exists
+		# make sure db exists
+		if not self.__create_db():
+			_log.Log(gmLog.lError, "Cannot create database.")
+			return None
 
-		# create db
-
-		# reconnect to db as owner
+		# reconnect as owner to db
+		if not self.__connect_owner_to_db():
+			_log.Log(gmLog.lError, "Cannot connect to database.")
+			return None
 
 		# import schema
 
 		return 1
 	#--------------------------------------------------------------
-	def __db_exists(aDatabase):
-		cmd = "SELECT datname FROM pg_database WHERE datname='%s';" % aDatabase
+	def __connect_owner_to_template(self):
+		srv = self.server
+		try:
+			dsn = "%s:%s:%s:%s:%s" % (
+				srv.name,
+				srv.port,
+				srv.template_db,
+				self.owner.name,
+				self.owner.password
+			)
+		except:
+			_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
+			return None
+
+		if self.conn is not None:
+			self.conn.close()
+
+		try:
+			self.conn = dbapi.connect(dsn)
+		except:
+			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), fatal=1)
+			return None
+		_log.Log(gmLog.lInfo, "successfully connected to database")
+	#--------------------------------------------------------------
+	def __connect_owner_to_db(self):
+		srv = self.server
+		try:
+			dsn = "%s:%s:%s:%s:%s" % (
+				srv.name,
+				srv.port,
+				self.name,
+				self.owner.name,
+				self.owner.password
+			)
+		except:
+			_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
+			return None
+
+		if self.conn is not None:
+			self.conn.close()
+
+		try:
+			self.conn = dbapi.connect(dsn)
+		except:
+			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), fatal=1)
+			return None
+		_log.Log(gmLog.lInfo, "successfully connected to database")
+	#--------------------------------------------------------------
+	def __db_exists(self):
+		cmd = "SELECT datname FROM pg_database WHERE datname='%s';" % self.name
 
 		aCursor = self.conn.cursor()
 		try:
@@ -491,11 +538,35 @@ class database:
 		tmp = aCursor.rowcount
 		aCursor.close()
 		if tmp == 1:
-			_log.Log(gmLog.lInfo, "Database %s exists." % aDatabase)
+			_log.Log(gmLog.lInfo, "Database %s exists." % self.name)
 			return 1
 
-		_log.Log(gmLog.lInfo, "Database %s does not exist." % aDatabase)
+		_log.Log(gmLog.lInfo, "Database %s does not exist." % self.name)
 		return None
+	#--------------------------------------------------------------
+	def __create_db(self):
+		if self.__db_exists():
+			return 1
+
+		# create database
+		# FIXME: we need to pull this nasty trick of ending and restarting
+		# the current transaction to work around pgSQL automatically associating
+		# cursors with transactions
+		cmd = 'commit; create database "%s"; begin' % self.name
+
+		cursor = self.conn.cursor()
+		try:
+			cursor.execute(cmd)
+		except:
+			_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
+			return None
+		self.conn.commit()
+		cursor.close()
+
+		if not self.__db_exists():
+			return None
+		_log.Log(gmLog.lInfo, "Successfully created GnuMed database [%s]." % self.name)
+		return 1
 #==================================================================
 #==================================================================
 def connect_to_db():
@@ -629,28 +700,6 @@ def connect_to_core_db(aDB):
 #------------------------------------------------------------------
 #------------------------------------------------------------------
 #------------------------------------------------------------------
-def create_db(aConn, aDB):
-	if db_exists(aDB):
-		return 1
-
-	# create main database
-	cursor = aConn.cursor()
-	# FIXME: we need to pull this nasty trick of ending and restarting
-	# the current transaction to work around pgSQL automatically associating
-	# cursors with transactions
-	cmd = 'commit; create database "%s"; begin' % aDB
-	try:
-		cursor.execute(cmd)
-	except:
-		_log.LogException(">>>[%s]<<< failed." % cmd, sys.exc_info(), fatal=1)
-		return None
-	aConn.commit()
-	cursor.close()
-
-	if not db_exists(aDB):
-		return None
-	_log.Log(gmLog.lInfo, "Successfully created GnuMed core database [%s]." % aDB)
-	return 1
 #------------------------------------------------------------------
 def import_schema_file(anSQL_file = None, aDB = None, aHost = None, aUser = None, aPassword = None):
 	# sanity checks
@@ -935,7 +984,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.2  2003-01-14 20:52:46  ncq
+# Revision 1.3  2003-01-21 01:11:09  ncq
+# - current (non-complete) state of affairs
+#
+# Revision 1.2  2003/01/14 20:52:46  ncq
 # - works "more" :-)
 #
 # Revision 1.1  2003/01/13 16:55:20  ncq
