@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.27 2003-11-22 02:01:17 ihaywood Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmDemographics.py,v 1.28 2003-11-23 23:33:15 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -410,6 +410,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.mwm.RegisterWholeScreen(self.internal_name(), self.widget)
 		self.set_widget_reference(self.widget)
 		self.RegisterInterests ()
+
 	def Shown (self):
 		pass
 	#--------------------------------------------------------		
@@ -423,22 +424,8 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		pass
 #		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
 
-
 	def OnSelected (self, **kwargs):
 		pass
-#		kwds = kwargs['kwds']
-#		names = "%(title)s %(firstnames)s %(lastnames)s" % kwds
-#		self.txt_findpatient.SetValue(names)
-#		age = kwds['dob']
-#		age = age.strip ()
-		# FIXME:
-#		try:
-#			dmy = DateTime.strptime(age, "%d/%m/%y")
-#		except:
-#			dmy = DateTime.strptime(age, "%d/%m/%Y")
-#		years = DateTime.Age(DateTime.now(), dmy).years
-#		years = 20
-#		self.txt_age.SetValue(str(years))
 
 #----------------------------------------------------------------------
 def getToolbar_FindPatientData():
@@ -467,7 +454,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.27  2003-11-22 02:01:17  ihaywood
+# Revision 1.28  2003-11-23 23:33:15  ncq
+# - cleanup
+#
+# Revision 1.27  2003/11/22 02:01:17  ihaywood
 # added Shown () function to please ClinicalWindowManager
 #
 # Revision 1.26  2003/04/28 12:14:40  ncq
