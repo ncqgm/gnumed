@@ -1,11 +1,15 @@
 % LaTeX environment for GnuMed forms
 % ============================================================
 % $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/ian/a4form.cls,v $
-% $Revision: 1.7 $
+% $Revision: 1.8 $
+
+% Installation:
+% /usr/local/share/texmf/tex/latex/a4form/a4form.cls on most systems
+% then run ``texhash'' as root
 
 % Usage:
 % - each page of the form is wrapped in \begin{page}....\end{page}
-% - within this environment 3 commands are available:
+% - within this environment 4 commands are available:
 
 % \lineh{xx}{yy}{ll}
 %	- draws horizontal line
@@ -59,6 +63,9 @@
 
 % ============================================================
 % $Log: a4form.cls,v $
-% Revision 1.7  2004-03-12 23:20:12  ncq
+% Revision 1.8  2004-06-05 13:03:14  ihaywood
+% more commenting of the forms stuff
+%
+% Revision 1.7  2004/03/12 23:20:12  ncq
 % - why, cleanup, of course ...
 %

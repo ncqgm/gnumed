@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -12,6 +12,25 @@
 
 -- ===================================================================
 
+
+-- this form is for nice laTeX referral letters
+-- accepts a dictionary of the following values
+-- (all strings unless otherwise specified)
+-- SENDER: the sender's name
+-- SENDERADDRESS: [multiline]: the sender's address
+-- RECIPIENT: the recipient's name
+-- RECIPIENTADDRESS: you get the idea
+-- PATIENTNAME
+-- PATIENTADDRESS
+-- DOB: the patient's date of birth
+-- TEXT: free text of the clinical notes. Paragraphs marked by double lines
+-- [integer] INCLUDEMEDS: nonzero if meds should be included
+-- [string list] MEDNAME: names of medications
+-- [string list] MEDFORM: form of medication
+-- [string list] MEDDOSE: dose of medication
+-- [integer] INCLUDEPASTHX: nonzero if past history is to be included
+-- [string list] PASTHX: past history disgnoses
+-- [string list] PASTHXBEGAN: when the diagnosis began  
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
 (1,
  'Standard Referral', 'Standard specialist referral letter for AU', 1, 'L', 
@@ -59,6 +78,20 @@ Re: @PATIENT, @PATIENTADDRESS
 ');
 
 
+-- this is a form to print PBS scripts
+-- note this requires the "a4form" LaTeX extension, in gnumed CVS under gnumed/test-area/ian/a4form.cls
+-- parameters:
+-- PRESCRIBERNO: prescriber's 6-digit HIC prescriber number
+-- PRESCRIBERNAME: prescriber's full name and academic title
+-- MEDICARENO: patient's medicare number
+-- PATIENTNAME: patient's name
+-- PATIENTADDRESS: patient's address (can have newlines)
+-- [inetger] RPBS: nonzero if this a Repatriation script
+-- [integer] BRAND: nonzero for no brand substitution
+-- [string list] DRUG: list of drugs
+-- [string list] FORM: drug strength and form
+-- [string list] DOSE: frequency of taking
+-- [string list] QUANTITY: quantity of drug 
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
 (3, 
 'PBS Script', 'Prescription using the standard form of the Pharmaceutical Benefits Scheme', 1, 'L',
