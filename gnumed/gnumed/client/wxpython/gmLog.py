@@ -44,11 +44,10 @@ Usage:
 
 import sys, time, traceback, os.path, atexit
 
-try:
-	import syslog
-	__use_syslog=1
-except:
-	__use_syslog=0
+# safely import SYSLOG, currently POSIX only
+import os
+if os.name == 'posix':
+    import syslog
 
 #-------------------------------------------
 
@@ -331,15 +330,18 @@ class LogTargetConsole(LogTarget):
 #---------------------------------------------------------------
 class LogTargetSyslog(LogTarget):
     def __init__ (self, aLogLevel = lErr):
-    	assert(__use_syslog==1)
-	# call inherited
-	LogTarget.__init__(self, aLogLevel)
-	# do our extra work
-	syslog.openlog(os.path.basename(sys.argv[0]))
-	syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
-	self.ID = "syslog"
-	self.writeMsg (lData, "instantiated syslog logging with ID " + str(self.ID))
-
+	# is syslog available ?
+    	if os.name == 'posix':
+	    # call inherited
+	    LogTarget.__init__(self, aLogLevel)
+	    # do our extra work
+	    syslog.openlog(os.path.basename(sys.argv[0]))
+	    syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
+	    self.ID = "syslog"
+	    self.writeMsg (lData, "instantiated syslog logging with ID " + str(self.ID))
+	else:
+	    raise NotImplementedError, "No SYSLOG module available on this platform (" + str(os.name) + ") !"
+ 
     def close(self):
 	LogTarget.close(self)
 	syslog.closelog()
@@ -399,10 +401,10 @@ if __name__ == "__main__":
     log.Log (lInfo, "this should show up both on console and in the log file")
 
     # syslog is cool, too
-    if __use_syslog:
-    	print "adding syslog logging"
-    	sysloghandle = LogTargetSyslog (lWarn)
-    	log.AddTarget (sysloghandle)
+    #if __use_syslog:
+    print "adding syslog logging"
+    sysloghandle = LogTargetSyslog (lWarn)
+    log.AddTarget (sysloghandle)
 
     log.Log (lData, "the logger object uncooked: " + str(log))
     log.Log (lInfo, "and now cooked with some non-printables appended:")
