@@ -19,10 +19,13 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.6 $"                                               
+__version__ = "$Revision: 1.7 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.6  2002-10-25 13:04:15  hherb
+# Revision 1.7  2002-10-26 02:47:08  hherb
+# object changes now saved to backend. Foreign key references now transparently dereferenced (write access untested)
+#
+# Revision 1.6  2002/10/25 13:04:15  hherb
 # API change: pgobject constructor takes now gmPG.ConnectionPool as argument insted of an open connection
 # Write functionality now enabled, quoting works for strings, some datatypes still will crash
 #
@@ -74,11 +77,18 @@ def listForeignKeys(con, table):
 		cursor.execute(QTableForeignKeys % table)
 	except ValueError:
 		return {}
+	d = cursor.description
+	tgargs=0
+	for row in d:
+		if row[0] != 'tgargs':
+			tgargs += 1
+		else:
+			break
 	fkresult = cursor.fetchall()
 	if len(fkresult) <=0:
 		return {}
 	for fk in fkresult:
-		fkarray = repr(fk['tgargs'])
+		fkarray = repr(fk[tgargs])
 		fkname, referencing_table, referenced_table, dummy, referencing_column, referenced_column, dummy2  = string.split(fkarray, '\\x00')
 		references[referencing_column] = (referenced_table, referenced_column)
 	return references
@@ -136,6 +146,8 @@ class pgobject:
 		self._metadata = None
 		#list of referenced foreign keys
 		self._foreignkeys = None
+		#cache for referenced objects
+		self._referenced = {}
 		#fetched row data
 		self._row = None
 		#name of the service and table this object is representing
@@ -161,6 +173,13 @@ class pgobject:
 		if primarykey is not None:
 			self.fetch(primarykey)
 	
+	def _is_foreign_key(self, column):
+		if self._foreignkeys.has_key(column):
+				print "Foreign key!"
+				return 1
+		else:
+			return 0
+			
 		
 	def __getitem__(self, key):
 		"return the column as determined by either column name or column index"
@@ -173,7 +192,14 @@ class pgobject:
 		if type(key) == int:
 			return self._row[key]
 		else:
-			return self._row[self._index[key]]
+			if self._foreignkeys.has_key(key):
+				if not self._referenced.has_key(key):
+					ref = pgobject(self._dbbroker, self._service +"."+self._foreignkeys[key][0], self._row[self._index[key]])
+					self._referenced[key] = ref
+				print "-> reference:", self._foreignkeys[key][0], self._foreignkeys[key][1]
+				return self._referenced[key]
+			else:
+				return self._row[self._index[key]]
 		
 		
 	def __setitem__(self, key, value):
@@ -292,26 +318,68 @@ class pgobject:
 		
 				
 if __name__ == "__main__":
-# in order to test this you have to create a table 'testpgo'
-# within the database gnumed first.
-# create table testpgo(id serial primary key, text text, ts timestamp default now());
 
-	#from pyPgSQL import PgSQL as DB
-	import gmPG
-	db = gmPG.ConnectionPool()
+	import sys, gmPG, gmLoginInfo
+	
+	login = gmLoginInfo.LoginInfo(user="hherb", passwd='')
+	db = gmPG.ConnectionPool(login)
 	db.SetFetchReturnsList(1)
-	#db = DB.connect(database='gnumed')
-	dbo = pgobject(db, 'testpgo', 1)
-	print dbo['text'], str(dbo['ts'])
-	dbo.fetch(2)
+	#request a writeable connection and create test tables
+	con = db.GetConnection('default', 0)
+	try:
+		cursor = con.cursor()
+		try:
+			cursor.execute("drop sequence test_pgo_id_seq")
+			con.commit()
+		except:
+			pass
+		cursor.execute("drop table test_pgo");
+		con.commit()
+	except:
+		pass
+	try:
+		cursor = con.cursor()
+		try:
+			cursor.execute("drop sequence test_pgofk_id_seq")
+			con.commit()
+		except:
+			print "sequence test_pgofk_id_seq did not exist"
+		cursor.execute("drop table test_pgofk");
+		con.commit()
+	except:
+		print "test_pgofk did not exist"
+		
+	try:
+		cursor = con.cursor()
+		cursor.execute("create table test_pgofk (id serial primary key, text text, ts timestamp default now())")
+		cursor.execute("create table test_pgo (id serial primary key, id_fk integer references test_pgofk, text text, ts timestamp default now())")
+		con.commit()
+	except:
+		print "Could not create test tables on backend. Test failed"
+		sys.exit(-1)
+	
+	try:
+		cursor = con.cursor()
+		cursor.execute("insert into test_pgofk(text) values('this is the text in the referenced table')")
+		cursor.execute("insert into test_pgo(id_fk, text) values(1, 'this is the text in the referencing table 1')")
+		cursor.execute("insert into test_pgo(id_fk, text) values(1, 'this is the text in the referencing table 2')")
+		con.commit()
+	except:
+		print "Cannot fill test tables with default values! - Test failed."
+		sys.exit(-1)
+		
+	dbo = pgobject(db, 'test_pgo', 1)
 	print dbo['text'], str(dbo['ts'])
 	print "Now changing a value, should force a backend update"
 	dbo['text'] = "it really works!!!"
 	print dbo['text']
-	dbo.fetch(1)
-	print dbo['text'], str(dbo['ts'])
 	dbo.fetch(2)
 	print dbo['text'], str(dbo['ts'])
-	dbo = pgobject(db, 'testpgo')
+	dbo.fetch(1)
+	print dbo['text'], str(dbo['ts'])
+	dbo = pgobject(db, 'test_pgo')
 	dbo['text'] = "this wasn't there before"
+	dbo = pgobject(db, 'test_pgo', 1)
+	print dbo['id_fk']['text'] 
+	
 	
