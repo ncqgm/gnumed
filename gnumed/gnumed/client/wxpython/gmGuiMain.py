@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.103 2003-06-10 09:55:34 ncq Exp $
-__version__ = "$Revision: 1.103 $"
+# $Id: gmGuiMain.py,v 1.104 2003-06-17 22:30:41 ncq Exp $
+__version__ = "$Revision: 1.104 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -285,9 +285,9 @@ class MainFrame(wxFrame):
 			)
 
 			try:
-				p = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
-				_log.Log(gmLog.lInfo,  'got plugin of type %s' % p.__class__.__name__)
-				p.register()
+				plugin = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
+				_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
+				plugin.register()
 				result = _("success")
 			except:
 				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
@@ -301,6 +301,7 @@ class MainFrame(wxFrame):
 		"""Called when notebook changes.
 
 		FIXME: we can maybe change title bar information here
+		FIXME: we may want to veto() if no patient selected
 		"""
 		new_page_id = event.GetSelection()
 		#old_page_id = event.GetOldSelection()
@@ -439,7 +440,6 @@ class MainFrame(wxFrame):
 		self.mainmenu = None
 		self.window = None
 		self.Destroy()
-#		gmDispatcher.send(gmSignals.application_clean_closing())
 	#----------------------------------------------
 	def OnClose(self,event):
 		self.CleanExit()
@@ -531,15 +531,11 @@ class gmApp(wxApp):
 
 		db_lang = None
 
-		# get read-only connection
 		roconn = self.__backend.GetConnection(service = 'default')
 		if roconn is None:
 			_log.Log(gmLog.lInfo, 'Cannot connect to database to check database locale setting.')
 			return None
-
-		# set up 'read-only' cursor
 		rocurs = roconn.cursor()
-
 		# get current database locale
 		cmd = "select lang from i18n_curr_lang where owner = CURRENT_USER limit 1;"
 		try:
@@ -554,8 +550,6 @@ class gmApp(wxApp):
 			self.__backend.ReleaseConnection('default')
 			return None
 		result = rocurs.fetchone()
-
-		# release read-only connection
 		rocurs.close()
 		self.__backend.ReleaseConnection('default')
 
@@ -594,15 +588,11 @@ class gmApp(wxApp):
 			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Good luck.')
 			return 1
 
-		# get read-write connection
 		rwconn = self.__backend.GetConnection(service = 'default', readonly = 0)
 		if rwconn is None:
 			_log.Log(gmLog.lInfo, 'Cannot connect to database to set database locale.')
 			return None
-
-		# set up 'read-write' cursor
 		rwcurs = rwconn.cursor()
-
 		# try setting database language (only possible if translations exist)
 		cmd = "select set_curr_lang(%s);"
 		for lang in [system_locale_level['full'], system_locale_level['country'], system_locale_level['language']]:
@@ -645,7 +635,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.103  2003-06-10 09:55:34  ncq
+# Revision 1.104  2003-06-17 22:30:41  ncq
+# - some cleanup
+#
+# Revision 1.103  2003/06/10 09:55:34  ncq
 # - don't import handler_loader anymore
 #
 # Revision 1.102  2003/06/01 14:34:47  sjtan
