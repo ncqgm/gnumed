@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.118 $
+-- $Revision: 1.119 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -527,7 +527,6 @@ create table vacc_regime (
 ) inherits (audit_fields);
 
 select add_table_for_audit('vacc_regime');
-select add_table_for_scoring('vacc_regime');
 
 -- remote foreign keys:
 select add_x_db_fk_def('vacc_regime', 'fk_recommended_by', 'reference', 'ref_source', 'id');
@@ -542,6 +541,32 @@ comment on column vacc_regime.name is
 	'regime name: schedule/disease/target bacterium...';
 
 -- --------------------------------------------
+create table lnk_pat2vacc_reg (
+	pk serial primary key,
+	fk_patient integer
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete cascade,
+	fk_regime integer
+		not null
+		references vacc_regime(id)
+		on update cascade
+		on delete restrict,
+	unique(fk_patient, fk_regime)
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_pat2vacc_reg');
+select add_table_for_notifies('lnk_pat2vacc_reg', 'vacc');
+
+comment on table lnk_pat2vacc_reg is
+	'links patients to vaccination regimes they are actually on,
+	 this allows for per-patient selection of regimes to be
+	 followed, eg. children at different ages may be on different
+	 vaccination schedules or some people are on a schedule due
+	 to a trip abroad while most others are not';
+
+-- --------------------------------------------
 create table vacc_def (
 	id serial primary key,
 	fk_regime integer
@@ -551,10 +576,10 @@ create table vacc_def (
 		on update cascade,
 	is_booster boolean
 		default false
-		check (((is_booster=true) and (seq_no is null)) or ((is_booster=false) and (seq_no > 0))),
+		check (((is_booster is true) and (seq_no is null)) or ((is_booster is false) and (seq_no > 0))),
 	seq_no integer
 		default null
-		check (((is_booster=true) and (seq_no is null)) or ((is_booster=false) and (seq_no > 0))),
+		check (((is_booster is true) and (seq_no is null)) or ((is_booster is false) and (seq_no > 0))),
 	min_age_due interval
 		not null
 		check (min_age_due > '0 seconds'::interval),
@@ -577,7 +602,7 @@ create table vacc_def (
 select add_table_for_audit('vacc_def');
 
 comment on table vacc_def is
-	'defines a given vaccination event';
+	'defines a given vaccination event for a particular regime';
 comment on column vacc_def.fk_regime is
 	'regime to which this event belongs';
 comment on column vacc_def.is_booster is
@@ -911,11 +936,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.118 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.119 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.118  2004-08-04 10:06:49  ncq
+-- Revision 1.119  2004-08-16 19:26:45  ncq
+-- - add lnk_pat2vacc_reg so we can actually define which
+--   patient is on which vaccination schedule
+--
+-- Revision 1.118  2004/08/04 10:06:49  ncq
 -- - typo
 --
 -- Revision 1.117  2004/07/18 11:50:20  ncq
