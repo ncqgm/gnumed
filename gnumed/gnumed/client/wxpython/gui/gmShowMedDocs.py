@@ -11,15 +11,13 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
 
 # location of our modules
 if __name__ == '__main__':
-	#sys.path.append(os.path.join('..', '..', 'python-common'))
-	#sys.path.append(os.path.join('..', '..', 'business'))
 	sys.path.append(os.path.join('.', 'modules'))
 
 import gmLog
@@ -297,6 +295,7 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
+	import gmLoginInfo
 	import gmXdtObjects
 	from gmXdtMappings import xdt_gmgender_map
 
@@ -306,6 +305,16 @@ if __name__ == '__main__':
 			# get patient from file
 			if self.__get_pat_data() is None:
 				raise ConstructorError, "Cannot load patient data."
+
+			# set up database connectivity
+			auth_data = gmLoginInfo.LoginInfo(
+				user = _cfg.get('database', 'user'),
+				passwd = _cfg.get('database', 'password'),
+				host = _cfg.get('database', 'host'),
+				port = _cfg.get('database', 'port'),
+				database = _cfg.get('database', 'database')
+			)
+			backend = gmPG.ConnectionPool(login = auth_data)
 
 			# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
 			cooked_search_terms = {
@@ -320,29 +329,35 @@ if __name__ == '__main__':
 			# find matching patient IDs
 			patient_ids = gmTmpPatient.get_patient_ids(cooked_search_terms)
 			if patient_ids is None:
-				dlg = wxMessageDialog(
-					parent,
-					_('This patient does not exist in the document database.\n"%s %s"') % (aPatient.firstnames, aPatient.lastnames),
-					_('searching patient documents'),
-					wxOK | wxICON_ERROR
+				self.__show_error(
+					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
+					aTitle = _('searching patient')
 				)
-				dlg.ShowModal()
-				dlg.Destroy()
 				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
 				raise ConstructorError, "Patient from XDT file does not exist in database."
 
 			# ambigous ?
 			if len(patient_ids) != 1:
+				self.__show_error(
+					aMessage = _('Data in xDT file matches more than one patient in database !'),
+					aTitle = _('searching patient')
+				)
 				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
 				raise ConstructorError, "Problem getting patient ID from database. Aborting."
 
 			try:
 				self.__gm_pat = gmTmpPatient.gmPatient(aPKey = patient_ids[0][0])
 			except:
+				# this is an emergency
+				self.__show_error(
+					aMessage = _('Cannot load patient from database !\nAborting.'),
+					aTitle = _('searching patient')
+				)
 				_log.Log(gmLog.lPanic, 'Cannot access patient [%s] in database.' % patient_ids[0][0])
 				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
 				raise
 
+			# make main panel
 			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 			self.SetTitle(_("stored medical documents"))
 
@@ -384,8 +399,30 @@ if __name__ == '__main__':
 				self.__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
 			except:
 				_log.LogException('Cannot read patient from xDT file [%s].' % pat_file)
+				self.__show_error(
+					aMessage = _('Cannot load patient from xDT file\n[%s].') % pat_file,
+					aTitle = _('loading patient from xDT file')
+				)
 				return None
 
+			return 1
+		#--------------------------------------------------------
+		def __show_error(self, aMessage = None, aTitle = ''):
+			# sanity checks
+			tmp = aMessage
+			if aMessage is None:
+				tmp = _('programmer forgot to specify error message')
+
+			tmp = tmp + _("\n\nPlease consult the error log for further information !")
+
+			dlg = wxMessageDialog(
+				NULL,
+				tmp,
+				aTitle,
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
 			return 1
 #== classes for plugin use ======================================
 else:
@@ -462,7 +499,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.7  2003-02-19 15:19:43  ncq
+# Revision 1.8  2003-02-20 01:25:18  ncq
+# - read login data from config file again
+#
+# Revision 1.7  2003/02/19 15:19:43  ncq
 # - remove extra print()
 #
 # Revision 1.6  2003/02/18 02:45:21  ncq
