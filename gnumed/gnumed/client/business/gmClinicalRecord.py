@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.29 2003-06-27 22:54:29 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmClinicalRecord.py,v 1.30 2003-07-03 15:20:55 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -240,24 +240,35 @@ class gmClinicalRecord:
 			return self.__db_cache['text dump']
 		except KeyError:
 			pass
-
+		# not cached so go get it
+		fields = [
+			'age',
+			"to_char(modified_when, 'YYYY-MM-DD @ HH24:MI') as modified_when",
+			'modified_by',
+			"case is_modified when false then '%s' else '%s' end as modify_string" % (_('original entry'), _('modified entry')),
+			'id_item',
+			'id_encounter',
+			'id_episode',
+			'id_health_issue',
+			'src_table'
+		]
+		cmd = "select %s from v_patient_items where id_patient=%%s order by src_table, age" % string.join(fields, ', ')
 		curs = self._defconn_ro.cursor()
-		cmd = "select id_item, id_encounter, id_episode, id_health_issue, src_table from v_patient_items where id_patient=%s order by src_table"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
 			return None
-		pat_items = curs.fetchall()
+		rows = curs.fetchall()
 		view_col_idx = gmPG.get_col_indices(curs)
 		# aggregate by src_table for item retrieval
 		items_by_table = {}
-		for item in pat_items:
-			table = item[view_col_idx['src_table']]
+		for item in rows:
+			src_table = item[view_col_idx['src_table']]
 			id_item = item[view_col_idx['id_item']]
-			if not items_by_table.has_key(table):
-				items_by_table[table] = {}
-			items_by_table[table][id_item] = item
-		# get episode/issue maps for translation
+			if not items_by_table.has_key(src_table):
+				items_by_table[src_table] = {}
+			items_by_table[src_table][id_item] = item
+		# get mapping for issue/episode IDs
 		issue_map = self._get_health_issue_names()
 		if issue_map is None:
 			issue_map = {}
@@ -267,55 +278,60 @@ class gmClinicalRecord:
 		emr_data = {}
 		# get item data from all source tables
 		for table_name in items_by_table.keys():
-			cmd = "select extract(epoch from modify_when) as age, * from %s where id in %%s order by age" % table_name
 			item_ids = tuple(items_by_table[table_name].keys())
-			if not gmPG.run_query(curs, cmd, (item_ids,)):
+			# we don't know the columns of the source
+			# tables but this is a dump
+			cmd = "select * from %s where id in (%%s) order by modified_when" % table_name
+			if not gmPG.run_query(curs, cmd, item_ids):
 				_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % table_name)
 				# skip this table
 				continue
-			pat_items = curs.fetchall()
+			rows = curs.fetchall()
 			table_col_idx = gmPG.get_col_indices(curs)
 			curs.close()
 			# format per-table items
-			for table_item in pat_items:
-				id_item = table_item[table_col_idx['id']]
-				age = table_item[table_col_idx['age']]
-				view_item = items_by_table[table_name][id_item]
+			for row in rows:
+				id_item = row[table_col_idx['id']]
+				view_row = items_by_table[table_name][id_item]
+				age = view_row[view_col_idx['age']]
 				# format metadata
 				try:
-					episode_name = episode_map[table_item[table_col_idx['id_episode']]]
+					episode_name = episode_map[view_row[view_col_idx['id_episode']]]
 				except:
-					episode_name = table_item[table_col_idx['id_episode']]
+					episode_name = view_row[view_col_idx['id_episode']]
 				try:
-					issue_name = issue_map[view_item[view_col_idx['id_health_issue']]]
+					issue_name = issue_map[view_row[view_col_idx['id_health_issue']]]
 				except:
-					issue_name = view_item[view_col_idx['id_health_issue']]
+					issue_name = view_row[view_col_idx['id_health_issue']]
 				if not emr_data.has_key(age):
 					emr_data[age] = []
+
 				emr_data[age].append(
-					'%s: doc %s, issue %s, episode %s, encounter %s (table %s, entry revision %s)' % (
-						table_item[table_col_idx['modify_when']],
-						table_item[table_col_idx['modify_by']],
-						issue_name,
-						episode_name,
-						table_item[table_col_idx['id_encounter']],
-						table_name,
-						table_item[table_col_idx['row_version']]
+					_('%s: encounter (%s) with "%s"') % (
+						view_row[view_col_idx['modified_when']],
+						view_row[view_col_idx['id_encounter']],
+						view_row[view_col_idx['modified_by']]
 					)
 				)
+				emr_data[age].append(_('health issue: %s') % issue_name)
+				emr_data[age].append(_('episode     : %s') % episode_name)
 				# format table specific data columns
 				# - ignore those, they are metadata
 				cols2ignore = [
-					'age',
-					'pk_audit', 'row_version', 'modify_when', 'modify_by',
+					'audit_this_table',
+					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'id_encounter', 'id_episode'
 				]
 				col_data = []
 				for col_name in table_col_idx.keys():
 					if col_name in cols2ignore:
 						continue
-					col_data.append("%s: %s" % (col_name, table_item[table_col_idx[col_name]]))
-				emr_data[age].append("   %s" % string.join(col_data, ' | '))
+					col_data.append("%s: %s" % (col_name, row[table_col_idx[col_name]]))
+				emr_data[age].append(">>> %s (%s from table %s)" % (
+					string.join(col_data, ' | '),
+					view_row[view_col_idx['modify_string']],
+					table_name
+				))
 		return emr_data
 	#--------------------------------------------------------
 	def _get_patient_ID(self):
@@ -845,7 +861,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.29  2003-06-27 22:54:29  ncq
+# Revision 1.30  2003-07-03 15:20:55  ncq
+# - lots od cleanup, some nice formatting for text dump of EMR
+#
+# Revision 1.29  2003/06/27 22:54:29  ncq
 # - improved _get_text_dump()
 # - added _get_episode/health_issue_names()
 # - remove old workaround code
