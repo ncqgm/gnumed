@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -505,6 +505,7 @@ class ScanPanel(wxPanel):
 		tempfile.tempdir = self.scan_tmp_dir
 		tempfile.template = 'obj-'
 		bmp_name = tempfile.mktemp('.bmp')
+		fname = bmp_name
 		try:
 			# convert to bitmap file
 			_twain.DIBToBMFile(external_data_handle, bmp_name)
@@ -523,6 +524,7 @@ class ScanPanel(wxPanel):
 		do_jpeg = _cfg.get("scanning", "convert to JPEG")
 		if do_jpeg in ["yes", "on"]:
 			jpg_name = tempfile.mktemp('.jpg')
+			fname = jpg_name
 			# get JPEG quality factor
 			quality_value = _cfg.get("scanning", "JPEG quality level")
 			if quality_value is None:
@@ -536,15 +538,15 @@ class ScanPanel(wxPanel):
 					quality_value = 75
 			# do we want progression ?
 			progression_flag = _cfg.get("scanning", "progressive JPEG")
-			_log.Log(gmLog.lData, "JPEG conversion: quality level: %s, progression: %s" % (quality_level, progression_flag))
+			_log.Log(gmLog.lData, "JPEG conversion: quality level: %s, progression: %s" % (quality_value, progression_flag))
 			kwds = {}
-			kwds[quality] = quality_value
+			kwds['quality'] = quality_value
 			if progression_flag in ["yes", "on"]:
-				kwds[progressive] = 1
+				kwds['progressive'] = 1
 			# actually convert to JPEG
 			try:
 				Image.open(bmp_name).save(jpg_name, optimize = 1, **kwds)
-			except IOError:
+			except:
 				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
 				Image.open(bmp_name).save(jpg_name, **kwds)
 			# remove bitmap (except Windows can't do that sometimes :-(
@@ -993,7 +995,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.18  2002-12-28 22:10:21  ncq
+# Revision 1.19  2002-12-28 23:06:15  ncq
+# - *_name -> fname, various typos
+#
+# Revision 1.18  2002/12/28 22:10:21  ncq
 # - Windows can't remove files sometimes
 #
 # Revision 1.17  2002/12/28 21:50:39  ncq
