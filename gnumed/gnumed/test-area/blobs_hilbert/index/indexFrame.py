@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
+__author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 #Boa:Frame:indexFrame
 from wxPython.wx import *
 from wxPython.lib.anchors import LayoutAnchors
 
-import Image,os,time,ConfigParser,shutil
-import gettext,locale
+import Image, os, time, shutil
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
@@ -16,10 +16,10 @@ sys.path.append(os.path.join('.', 'modules'))
 from docPatient import *
 from docDocument import cDocument
 from gmPhraseWheel import *
-import gmCfg,gmLog,gmI18N
+import gmLog
+gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+import gmCfg, gmI18N
 
-
-__author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __log__ = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
 
