@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.141 $
+-- $Revision: 1.142 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -100,13 +100,6 @@ alter table clin_episode add constraint standalone_epi_needs_patient
 			or
 		((fk_health_issue is not null) and (fk_patient is null))
 	);
-
--- FIXME: need trigger on INSERT/UPDATE - when fk_clin_narrative NOT NULL: cyclic consistency ...
---alter table clin_episode add constraint standalone_epi_needs_name
---	check (
---		(fk_health_issue is not null) or
---		((fk_health_issue is null) and (fk_clin_narrative))
---	);
 
 select add_table_for_audit('clin_episode');
 
@@ -1084,11 +1077,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.141 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.142 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.141  2004-11-28 14:35:03  ncq
+-- Revision 1.142  2004-12-06 21:10:16  ncq
+-- - cleanup
+--
+-- Revision 1.141  2004/11/28 14:35:03  ncq
 -- - I first thought putting is_episode_name into clin_narrative would solve
 --   more issues that putting fk_clin_narrative into clin_episode, it turned
 --   out to be the other way round, however
