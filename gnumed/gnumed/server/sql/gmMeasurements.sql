@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.39 $
+-- $Revision: 1.40 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -37,7 +37,8 @@ select add_x_db_fk_def('test_org', 'fk_org', 'personalia', 'org', 'id');
 COMMENT ON TABLE test_org IS
 	'organisation providing results';
 COMMENT ON COLUMN test_org.fk_org IS
-	'link to organisation';
+	'link to organisation
+	 HL7: MSH.sending_facility/sending_application';
 COMMENT ON COLUMN test_org.fk_adm_contact IS
 	'whom to call for admin questions (modem link, etc.)';
 COMMENT ON COLUMN test_org.fk_med_contact IS
@@ -45,7 +46,8 @@ COMMENT ON COLUMN test_org.fk_med_contact IS
 	 additional test requests)';
 comment on column test_org.internal_name is
 	'you can store here the name a test org identifies
-	 itself with when sending data';
+	 itself with when sending data
+	 HL7: MSH.sending_application/OBR.universal_service_id';
 comment on column test_org."comment" is
 	'useful for, say, dummy records where you want
 	 to mark up stuff like "pharmacy such-and-such"
@@ -84,14 +86,16 @@ comment on column test_type.code is
 	 Australian Pathology request codes or German lab-specific ELVs,
 	 actually, this column should be checked against the coding system
 	 tables, too, the only problem being that we do not know which
-	 one ... as it depends on the *value* in "coding_system"';
+	 one ... as it depends on the *value* in "coding_system",
+	 HL7: OBX.observation_identifier';
 comment on column test_type.coding_system is
 	'identifier of coding system that the code of this
 	 measurement type is taken from, should be verifiable
 	 against the "reference" service of GnuMed';
-comment on column test_type."name" is
-	'descriptive name of this measurement type';
-comment on column test_type."comment" is
+comment on column test_type.name is
+	'descriptive name of this measurement type,
+	 HL7: OBX.observation_identifier';
+comment on column test_type.comment is
 	'arbitrary comment on this type of measurement/test such
 	 as "outdated" or "only reliable when ..."';
 comment on column test_type.conversion_unit is
@@ -260,7 +264,8 @@ COMMENT ON TABLE test_result is
 comment on column test_result.clin_when is
 	'the time when this result was *actually* obtained,
 	 if this is a lab result this should be between
-	 lab_request.clin_when and lab_request.results_reported_when';
+	 lab_request.clin_when and lab_request.results_reported_when,
+	 HL7: OBR.observation_date_time';
 comment on column test_result.narrative is
 	'clinical comment, progress note';
 comment on column test_result.fk_type is
@@ -268,11 +273,14 @@ comment on column test_result.fk_type is
 comment on column test_result.fk_doc is
 	'the document used to generate these results';
 comment on column test_result.val_num is
-	'numeric value if any';
+	'numeric value if any,
+	 HL7: OBX.observation_results if OBX.value_type == NM';
 comment on column test_result.val_alpha is
-	'alphanumeric value if any';
+	'alphanumeric value if any,
+	 HL7: OBX.observation_results if OBX.value_type == FT';
 comment on column test_result.val_unit is
-	'the unit this result came in';
+	'the unit this result came in
+	 HL7: OBX.units';
 comment on column test_result.val_normal_min is
 	'lower bound of normal range if numerical as
 	 defined by provider for this result';
@@ -282,7 +290,8 @@ comment on column test_result.val_normal_max is
 comment on column test_result.val_normal_range is
 	'range of normal values if alphanumerical
 	 as defined by provider for this result, eg.
-	 "less than 0.5 but detectable"';
+	 "less than 0.5 but detectable"
+	 HL7: OBX.reference_range';
 comment on column test_result.val_target_min is
 	'lower bound of target range if numerical as
 	 defined by clinician caring this patient';
@@ -368,23 +377,31 @@ select i18n('final');
 
 alter table lab_request alter column soap_cat set default 'p';
 
+comment on table lab_request is
+	'test request metadata';
 comment on column lab_request.clin_when is
 	'the time the sample for this request was taken
-	 LDT: 8432:8433';
+	 LDT: 8432:8433
+	 HL7: OBR.quantity_timing';
+comment on column lab_request.narrative is
+	'free text comment on request';
 comment on column lab_request.request_id IS
 	'ID this request had when sent to the lab
-	 LDT: 8310';
+	 LDT: 8310
+	 HL7: OBR.filler_order_number';
 comment on column lab_request.fk_requestor is
-	'who requested the test/needed ?';
+	'who requested the test - really needed ?';
 comment on column lab_request.lab_request_id is
 	'ID this request had internally at the lab
 	 LDT: 8311';
 comment on column lab_request.lab_rxd_when is
 	'when did the lab receive the request+sample
-	 LDT: 8301';
+	 LDT: 8301
+	 HL7: OBR.requested_date_time';
 comment on column lab_request.results_reported_when is
 	'when was the report on the result generated,
-	LDT: 8302';
+	LDT: 8302
+	HL7: OBR.results_report_status_change';
 comment on column lab_request.request_status is
 	'final, preliminary, partial
 	 LDT: 8401';
@@ -425,11 +442,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.39 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.40 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.39  2005-02-15 18:25:14  ncq
+-- Revision 1.40  2005-03-08 16:50:00  ncq
+-- - add HL7 mapping docs to field comments
+--
+-- Revision 1.39  2005/02/15 18:25:14  ncq
 -- - test_result.id -> pk
 --
 -- Revision 1.38  2005/02/13 19:18:40  ncq
