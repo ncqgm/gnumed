@@ -27,7 +27,8 @@
 #                   reference to help removed (have help button for that)
 #                   date removed - can't see use of this in login - clutters
 #   	06.09.2002 hberger removed old code, fixed "login on close window" bug
-
+#       07.09.2002 rterry removed duplicated heading in advanced login options
+#
 # @TODO:
 ############################################################################
 
@@ -378,7 +379,7 @@ For assistance on using GnuMed please contact:
 ########################################################################################
 
 class LoginDialog(wxDialog):
-	def __init__(self, parent, id, title=_("Welcome to GnuMed")):
+	def __init__(self, parent, id, title=_("Welcome to the")):
 		wxDialog.__init__(self, parent, id, title)
 		self.panel = LoginPanel(self, -1, isDialog=1)
 		self.Fit () # needed for Windoze.
@@ -426,10 +427,11 @@ class OptionPanel(wxPanel):
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 
-		self.paramsbox = wxStaticBox( self, -1, _("Advanced Login Parameters"))
+		#rterry commented out 07.09.02 duplication of title self.paramsbox = wxStaticBox( self, -1, _("Advanced Login Parameters"))
+		self.paramsbox = wxStaticBox( self, -1, _(""))
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
 
-		self.pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
+		self.pboxgrid = wxFlexGridSizer( 4, 2, 5, 0 )
 		self.pboxgrid.AddGrowableCol( 1 )
 
 		#DATABASE COMBO
