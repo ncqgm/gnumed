@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.2 2003-11-18 16:46:02 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmDemographics.py,v 1.3 2003-11-19 23:11:58 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -40,6 +40,7 @@ import time
 
 from gmPhraseWheel import cPhraseWheel
 from gmDemographicRecord import UrbMP , PostcodeMP, StreetMP
+import gmDemographicRecord
 
 ID_PATIENT = wxNewId()
 ID_PATIENTSLIST = wxNewId()
@@ -188,9 +189,9 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.txt_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
 		self.txt_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.txt_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= UrbMP(), selectionOnly = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
+		self.txt_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= UrbMP(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 
-		self.txt_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selectionOnly = 1,  pos = wxDefaultPosition, size=wxDefaultSize )
+		self.txt_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize )
 
 		self.txt_birthdate = TextBox_BlackNormal(self,-1)
 		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
@@ -615,7 +616,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 	
 	def __get_address_types(self):
-		import gmDemographicRecord
 		return gmDemographicRecord.getAddressTypes()
 
 	def __update_address_types(self):
@@ -631,7 +631,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 	def __update_addresses(self):
 		myPatient = self.get_demographic_record()
 		self.orig_address = {}
-		for x in myPatient.getAddressTypes():
+		for x in gmDemographicRecord.getAddressTypes():
 			address = myPatient.getAddresses(x)
 			if address == None:
 				continue
@@ -642,8 +642,10 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 
 	def __update_nok(self):
+		"""this function is disabled until further notice. see l = []"""
 		myPatient = self.get_patient()
 		#l = myPatient.get_relatives()
+		l = [] # disabled for the time being
 		l2 = []
 		for m in l:
 			s = """%-12s   - %s %s, %s, %s %s""" % (m['description'], m['firstnames'], m['lastnames'], m['gender'], _('born'), time.strftime('%d/%m/%Y', get_time_tuple(m['dob']) )  )
@@ -682,13 +684,13 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
                 print "title    ", myPatient.getTitle ()
                 print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
                 print "med age  ", myPatient.getMedicalAge()
-                adr_types = myPatient.getAddressTypes()
+                adr_types = gmDemographicRecord.getAddressTypes()
                 print "adr types", adr_types
                 for type_name in adr_types:
                         print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
 
 		try:
-			print "relations ", self.get_patient().get_relatives()
+			print "relations ", self.get_patient().get_demographic_record().get_relatives()
 		except:
 			gmLog.gmDefLog.LogException("relations ", sys.exc_info(), verbose= 1)
 			pass
@@ -699,7 +701,13 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		m['firstname'].SetValue( myPatient.getActiveName()['first'] )
 		m['surname'].SetValue( myPatient.getActiveName()['last'] )
 		m['title'].SetValue( myPatient.getTitle() )
-		m['birthdate'].SetValue(time.strftime('%d/%m/%Y', myPatient.getDOBTimeTuple() ) )
+		dob = myPatient.getDOB()
+		#mx date time object will not convert to int() sometimes, but always printable,
+		# so parse it as a string , and extract into a 9-sequence time value, and then convert
+		# with strftime.
+		t = [ int(x) for x in  str(dob).split(' ')[0].split('-') ] + [0,0,0, 0,0,0 ]
+		t = time.strftime('%d/%m/%Y', t)
+		m['birthdate'].SetValue(t)
 		m['sex'].SetValue( myPatient.getGender() )
 
 		self.__update_address_types()
@@ -802,7 +810,13 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.2  2003-11-18 16:46:02  ncq
+# Revision 1.3  2003-11-19 23:11:58  sjtan
+#
+# using local time tuple conversion function; mxDateTime object sometimes can't convert to int.
+# Changed to global module.getAddressTypes(). To decide: mechanism for postcode update when
+# suburb selected ( not back via gmDemographicRecord.getPostcodeForUrbId(), ? via linked PhraseWheel matchers ?)
+#
+# Revision 1.2  2003/11/18 16:46:02  ncq
 # - sync with method name changes
 #
 # Revision 1.1  2003/11/17 11:04:34  sjtan
