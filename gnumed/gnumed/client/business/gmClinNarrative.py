@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -27,9 +27,9 @@ class cDiag(gmClinItem.cClinItem):
 				laterality=%()s,
 				laterality=%(laterality)s,
 				is_chronic=%(is_chronic)s::boolean,
-				is_active=%(is_active)::booleans,
-				is_definite=%(is_definite)::booleans,
-				is_significant=%(is_significant)::booleans
+				is_active=%(is_active)s::boolean,
+				is_definite=%(is_definite)s::boolean,
+				is_significant=%(is_significant)s::boolean
 			where pk=%(pk_diag)s""",
 		"""select 1 from clin_narrative where pk=%(pk_diagnosis)s for update""",
 		"""update clin_narrative set
@@ -48,35 +48,42 @@ class cDiag(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def get_codes(self):
 		"""
-			Retrieves codes for the diagnosis
+			Retrieves codes linked to *this* diagnosis
 		"""
-		try:
-			self.__codes
-		except:
-			self.load_codes()
-		return self.__codes
+		# Note: caching won't work without a having a mechanism
+		# to evict the cache when the backend changes
+		cmd = "select code, coding_system from v_pat_diag_codes where pk_diag=%s"
+		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_obj)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot get codes linked to diagnosis [%s] (%s)' % (self._payload[self._idx['diagnosis']], self.pk_obj))
+			return []
+		return rows
 	#--------------------------------------------------------
-	def load_codes(self):
-	    """
-			Fetches from backend codes associated with this diagnosis
-	    """
-	    self.__codes = []
-	    queries = []
-	    cmd = "select code, coding_system from v_coded_diags where diagnosis=%s"
-	    rows = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['diagnosis']])
-	    if rows is None:
-	        _log.Log(gmLog.lErr, 'cannot query codes for diagnosis [%s]' % self._payload[self._idx['diagnosis']])
-	        del self.__codes
-	        return []
-	    self.__codes = rows
-	    return self.__codes
+	def get_possible_codes(self):
+		"""
+			Retrieves codes linked to *any* diagnosis of this name
+		"""
+		# Note: caching won't work without a having a mechanism
+		# to evict the cache when the backend changes
+		cmd = "select code, coding_system from v_codes4diag where diagnosis=%(diagnosis)s"
+		rows = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['diagnosis']])
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot get codes for diagnosis [%s]' % self._payload[self._idx['diagnosis']])
+			return []
+		return rows
 	#--------------------------------------------------------
 	def add_code(self, code=None, coding_system=None):
 		"""
 			Associates a code (from coding system) with this diagnosis.
 		"""
-		# FIXME:
-		print "please write me"
+		# insert new code
+		queries = []
+		cmd = """insert into lnk_code2diag (fk_diag, code, xfk_coding_system) values (%s, %s, %s)"""
+		queries.append((cmd, [self._payload[self._idx['pk_diag']], code, coding_system]))
+		result, msg = gmPG.run_commit('historica', queries, True)
+		if result is None:
+		    return (False, msg)
+		return (True, msg)
 #============================================================
 class cNarrative(gmClinItem.cClinItem):
 	"""
@@ -89,8 +96,8 @@ class cNarrative(gmClinItem.cClinItem):
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(clin_when)s,
-				is_rfe=%(is_rfe)::boolean,
-				is_aoe=%(is_aoe)::boolean,
+				is_rfe=%(is_rfe)s::boolean,
+				is_aoe=%(is_aoe)s::boolean,
 				soap_cat=%(soap_cat)
 			where pk=%(pk)s"""
 		]
@@ -176,7 +183,7 @@ class cAOE(gmClinItem.cClinItem):
 	    self.__diagnosis = []
 	    queries = []
 	    vals = {'pk_narrative': self['pk_narrative']}
-	    cmd = "select * from v_pat_diag where pk_diagnosis=%(pk_narrative)s"
+	    cmd = "select distinct on (diagnosis, code, coding_system) * from v_pat_diag where pk_diagnosis=%(pk_narrative)s"
 	    rows = gmPG.run_ro_query('historica', cmd, None, vals)
 	    if rows is None:
 	        _log.Log(gmLog.lErr, 'cannot query diagnosis for aoe [%s]' % (self.pk_obj))
@@ -247,6 +254,9 @@ if __name__ == '__main__':
 		print field, ':', diagnose[field]
 	print "updatable:", diagnose.get_updatable_fields()
 	print "codes:", diagnose.get_codes()
+	#print "adding code..."
+	#diagnose.add_code('Test code', 'Test coding system')
+	#print "codes:", diagnose.get_codes()
 
 	print "\nnarrative test"
 	print   "--------------"
@@ -264,7 +274,12 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.3  2004-07-06 00:09:19  ncq
+# Revision 1.4  2004-07-07 15:05:51  ncq
+# - syntax fixes by Carlos
+# - get_codes(), get_possible_codes()
+# - talk to the right views
+#
+# Revision 1.3  2004/07/06 00:09:19  ncq
 # - Carlos added create_clin_narrative(), cDiag, cNarrative, and unit tests - nice work !
 #
 # Revision 1.2  2004/07/05 10:24:46  ncq
