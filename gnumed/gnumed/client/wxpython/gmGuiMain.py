@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-11-09 18:14:38 $
-# @version $Revision: 1.48 $ $Date: 2002-11-09 18:14:38 $ $Author: hherb $
+# @Date: $Date: 2002-11-12 21:24:51 $
+# @version $Revision: 1.49 $ $Date: 2002-11-12 21:24:51 $ $Author: hherb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -42,14 +42,14 @@ from wxPython.html import *
 
 import sys, time, os
 
-import gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin, gmCfg
+import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmConf, gmLog, gmPlugin, gmCfg
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import images_gnuMedGP_TabbedLists             #bitmaps for tabs on notebook
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
-import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
+import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-import gmGP_PatientPicture                     #panel to display patients picture 
+import gmGP_PatientPicture                     #panel to display patients picture
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
@@ -218,7 +218,7 @@ class MainFrame(wxFrame):
 		self.tb.ShowBar (nb_no)
 		# tell module it is shown
 		self.guibroker['main.notebook.numbers'][nb_no].Shown ()
-	
+
 
 
 	def RegisterEvents(self):
@@ -227,6 +227,13 @@ class MainFrame(wxFrame):
 		EVT_CLOSE(self, self.OnClose)
 		EVT_ICONIZE(self, self.OnIconize)
 		EVT_MAXIMIZE(self, self.OnMaximize)
+		gmDispatcher.connect(self.OnPatientChanged, gmSignals.patient_selected())
+		
+	def OnPatientChanged(self, **kwargs):
+		print "gmGuiMain acknowledges that patient has changed"
+		kwds = kwargs['kwds']
+		title= "Active patient: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
+		self.SetTitle(title)
 
 
 
@@ -400,7 +407,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.48  2002-11-09 18:14:38  hherb
+# Revision 1.49  2002-11-12 21:24:51  hherb
+# started to use dispatcher signals
+#
+# Revision 1.48  2002/11/09 18:14:38  hherb
 # Errors / delay caused by loading plugin progess bar fixed
 #
 # Revision 1.47  2002/09/30 10:57:56  ncq

@@ -105,24 +105,26 @@ class SQLSimpleSearch(wxPanel):
 
 
 	def OnSearchResultItemActivated(self, event):
-		print "def OnSearchResultItemActivated(self, event):"
-		#self.selected = event.m_ItemIndex
-		event.Skip()
+		#print "def OnSearchResultItemActivated(self, event):"
+		self.selected = event.GetIndex()
+		self.ProcessSelection(self.selected)
+		#event.Skip()
 
 	def OnSearchResultItemDeselected(self, event):
-		print "def OnSearchResultItemDeselected(self, event):"
-
+		#print "def OnSearchResultItemDeselected(self, event):"
+		pass
+		#event.Skip()
 
 	def OnSearchResultItemSelected(self, event):
-		print "def OnSearchResultItemSelected(self, event):"
-		self.ProcessSelection(event.m_itemIndex)
-		event.Skip()
+		#print "def OnSearchResultItemSelected(self, event):"
+		self.selected = event.GetIndex()
+		#event.Skip()
 
 
 
 	def OnCaseInsensitiveCheckbox(self, event):
-		print "def OnCaseInsensitiveCheckbox(self, event):"
-
+		#print "def OnCaseInsensitiveCheckbox(self, event):"
+		pass
 
 	def OnSearch(self, event):
 		self.Search()
@@ -144,7 +146,7 @@ class SQLSimpleSearch(wxPanel):
 		searchexpr = self.comboSearchExpr.GetValue()
 		querystr = self.TransformQuery(searchexpr)
 		self.listctrlSearchResults.SetQueryStr(querystr, self.__service)
-		print "gmSQLSimpleSearch.py: running query %s on service %s" % (querystr, self.__service)
+		#print "gmSQLSimpleSearch.py: running query %s on service %s" % (querystr, self.__service)
 		self.listctrlSearchResults.RunQuery()
 
 	def TransformQuery(self, searchexpr):
@@ -155,6 +157,10 @@ class SQLSimpleSearch(wxPanel):
 
 	def GetSelection(self):
 		self.listctrlSearchResults.GetSelection()
+
+	def GetLabels(self):
+		"returns the list control column labels"
+		return self.listctrlSearchResults.GetLabels()
 
 
 	def ProcessSelection(self, index):

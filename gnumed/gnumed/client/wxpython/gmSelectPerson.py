@@ -16,8 +16,10 @@
 # @TODO: Almost everything
 ############################################################################
 
+import string, gmDispatcher, gmSignals
 from wxPython.wx import *
 from gmSQLSimpleSearch import SQLSimpleSearch
+
 
 ID_BUTTON_SELECT = wxNewId()
 ID_BUTTON_ADD = wxNewId()
@@ -28,15 +30,21 @@ ID_BUTTON_EDIT = wxNewId()
 
 
 class DlgSelectPerson(SQLSimpleSearch):
-	"The central dialog interface to all person related queries"
+	"""The central dialog interface to all person related queries.
+	It allows to select a patient via fractions of surname or first names and surname,
+	to create a new person record, to delete and to modify records"""
 
-	def __init__(self, parent, id,
+	def __init__(self, parent, id=-1,
 		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
 		style = wxTAB_TRAVERSAL, service = 'demographica' ):
 
 		SQLSimpleSearch.__init__(self, parent, id, pos, size, style, service)
+		gmDispatcher.connect(self.dummy, gmSignals.patient_selected())
+
 		#add a bottom row sizer to hold a few buttons
-		self.__SelectedPersonId=None
+		self.__selectedPersonId=None
+
+		self.checkboxCaseInsensitive.SetValue(true)
 		self.sizerButtons = wxBoxSizer( wxHORIZONTAL )
 		#add a "select patient" button
 		self.buttonSelect = wxButton( self, ID_BUTTON_SELECT, _("&Select"), wxDefaultPosition, wxDefaultSize, 0 )
@@ -58,42 +66,71 @@ class DlgSelectPerson(SQLSimpleSearch):
 
 
 	def TransformQuery(self, searchexpr):
-		"'virtual' function of the base class, adjusted to the needs of this dialog"
+		"""Creates a SQL query from the text string entered by the user into the
+		combo box.
+		'virtual' function of the base class, adjusted to the needs of this dialog"""
 		selectclause = "select * from v_basic_person"
 		orderclause = "order by lastnames, firstnames"
+		searchclause = "like"
 		if self.checkboxCaseInsensitive.GetValue():
-			#perform (slower) case insensitive search
-			whereclause = "where (lastnames ilike '%s')" % (searchexpr + '%')
+			searchclause = "ilike"
+		names = string.split(searchexpr, ' ')
+		if len(names) > 1:
+			whereclause = "where (lastnames %s '%s%%' and firstnames %s '%s%%')" % \
+				(searchclause, names[1], searchclause, names[0])
 		else:
-			whereclause = "where (lastnames like '%s')" % (searchexpr +'%')
+			whereclause = "where (lastnames %s '%s%%')" % (searchclause, names[0])
 
             	query = "%s %s %s;" % (selectclause, whereclause, orderclause)
-		#<DEBUG>
-		#print "gmSelectPerson transformed query to: ", query
-		#</DEBUG>
 		return query
 
 
 	def ProcessSelection(self, index):
+		"""This function is called when a patient has been activated in the list control
+		via double click or select & CR"""
 		if index is None:
 			return None
+		kwargs = {}
 		item = self.listctrlSearchResults.GetItem(index,0)
-		self.__SelectedPersonId = int(item.GetText())
-		#return self.SelectedPersonId
-		#<DEBUG>
-		#item = self.listctrlSearchResults.GetItem(index,2)
-		#name = item.GetText()
-		#item = self.listctrlSearchResults.GetItem(index,3)
-		#name = name + ' ' + item.GetText()
-		#print "The person selected was %s (id=%d)" % (name, personID)
-		#</DEBUG>
+		self._selectedPersonId = int(item.GetText())
+		kwargs['ID'] = self._selectedPersonId
+		data = self.GetLabels()
+		for i in range(len(data)):
+			item = self.listctrlSearchResults.GetItem(index,i)
+			kwargs[data[i]] = item.GetText()
+		kwargs['signal']= gmSignals.patient_selected()
+		kwargs['sender'] = 'patient.selector'
+		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+		return self._selectedPersonId
+
 
 	def GetSelectedPersonId(self):
-		return self.__SelectedPersonId
+		"""Theoretically no need for this function - whoever is interested in the
+		selected patient, should register interest in gmSignals.patient_selected()
+		with gmDispatcher"""
+		return self._selectedPersonId
+
+	def dummy(self, **kwargs):
+		kwds = kwargs['kwds']
+		print "Notice from dummy:"
+		print "Selection: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
+
+
 
 if __name__ == "__main__":
+
+	#define a callback function that shall be called whenever a patient is selected
+	def callback(**kwargs):
+		kwds = kwargs['kwds']
+		print "Selection: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
+
+	#tell the dispatcher about this callback function and the event we are interested in
+	gmDispatcher.connect(callback, gmSignals.patient_selected())
+
 	_ = lambda x:x
-	app = wxPyWidgetTester(size = (400, 500))
+	app = wxPyWidgetTester(size = (600, 300))
 	app.SetWidget(DlgSelectPerson, -1)
+	import gmPG
+	db = gmPG.ConnectionPool()
 	app.MainLoop()
 
