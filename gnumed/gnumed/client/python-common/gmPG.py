@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.71 $"
+__version__ = "$Revision: 1.72 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -283,7 +283,7 @@ class ConnectionPool:
 			_log.Log(gmLog.lWarn, 'trying to make do with default login parameters')
 			return dblogin
 		auth_data = cursor.fetchone()
-		idx = cursorIndex(cursor)
+		idx = get_col_indices(cursor)
 		cursor.close()
 		# substitute values into default login data
 		try: # db name
@@ -347,7 +347,7 @@ class ConnectionPool:
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load user profile [%s] from database" % login.GetProfile())
 		databases = cursor.fetchall()
-		dbidx = cursorIndex(cursor)
+		dbidx = get_col_indices(cursor)
 
 		#for all configuration entries that match given user and profile
 		for db in databases:
@@ -463,20 +463,6 @@ class ConnectionPool:
 #---------------------------------------------------
 # database helper functions
 #---------------------------------------------------
-def cursorIndex(cursor):
-	"""returns a dictionary of row atribute names and their row indices"""
-	i=0
-	dict={}
-    
-	if cursor.description is None:
-		return None
-        
-	for d in cursor.description:
-		dict[d[0]] = i
-		i+=1
-	return dict
-
-#---------------------------------------------------
 def descriptionIndex(cursordescription):
 	"""returns a dictionary of row atribute names and their row indices"""
 	i=0
@@ -485,7 +471,6 @@ def descriptionIndex(cursordescription):
 		dict[d[0]] = i
 		i+=1
 	return dict
-
 #---------------------------------------------------
 def dictResult(cursor, fetched=None):
 	"returns the all rows fetchable by the cursor as dictionary (attribute:value)"
@@ -501,7 +486,6 @@ def dictResult(cursor, fetched=None):
 			i+=1
 		dictres.append(dict)
 	return dictres
-
 #---------------------------------------------------
 def fieldNames(cursor):
 	"returns the attribute names of the fetched rows in natural sequence as a list"
@@ -509,41 +493,29 @@ def fieldNames(cursor):
 	for d in cursor.description:
 		names.append(d[0])
 	return names
-
 #---------------------------------------------------
 def listDatabases(service='default'):
-	"list all accessible databases on the database backend of the specified service"
+	"""list all accessible databases on the database backend of the specified service"""
 	assert(__backend == 'Postgres')
-	return quickROQuery("select * from pg_database")
-
+	data, = run_ro_query(service, "select * from pg_database", None)
+	return data
 #---------------------------------------------------
 def listUserTables(service='default'):
-	"list the tables except all system tables of the specified service"
+	"""list the tables except all system tables of the specified service"""
 	assert(__backend == 'Postgres')
-	return quickROQuery("select * from pg_tables where tablename not like 'pg_%'", service)
-
+	data, = run_ro_query(service, "select * from pg_tables where tablename not like 'pg_%'", None)
+	return data
 #---------------------------------------------------
 def listSystemTables(service='default'):
-	"list the system tables of the specified service"
+	"""list the system tables of the specified service"""
 	assert(__backend == 'Postgres')
-	return quickROQuery("select * from pg_tables where tablename like 'pg_%'", service)
-
+	data, = run_ro_query(service, "select * from pg_tables where tablename like 'pg_%'", None)
+	return data
 #---------------------------------------------------
 def listTables(service='default'):
-	"list all tables available in the specified service"
-	return quickROQuery("select * from pg_tables", service)
-
-#---------------------------------------------------
-def quickROQuery(query, service='default'):
-	"""a quick read-only query that fetches all possible results at once
-	returns the tuple containing the fetched rows and the cursor 'description' object"""
-
-	dbp = ConnectionPool()
-	con = dbp.GetConnection(service)
-	cur=con.cursor()
-	cur.execute(query)
-	return cur.fetchall(), cur.description
-#---------------------------------------------------
+	"""list all tables available in the specified service"""
+	data, = run_ro_query(service, "select * from pg_tables", None)
+	return data
 #---------------------------------------------------
 def _import_listener_engine():
 	try:
@@ -571,21 +543,21 @@ def run_query(aCursor = None, aQuery = None, *args):
 		return None
 	return 1
 #---------------------------------------------------
-def run_ro_query(aService = None, aQuery = None, *args):
+def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
 	# sanity checks
 	if aService is None:
 		_log.Log(gmLog.lErr, 'need service name to run query')
-		return None
+		return None, None
 	if aQuery is None:
 		_log.Log(gmLog.lErr, 'need query to run it')
-		return None
+		return None, None
 
 	# connect read only
 	pool = ConnectionPool()
 	conn = pool.GetConnection(aService, readonly = 1)
 	if conn is None:
 		_log.Log(gmLog.lErr, 'cannot get connection to service [%s]' % aService)
-		return None
+		return None, None
 	curs = conn.cursor()
 
 	# run the query
@@ -597,11 +569,15 @@ def run_ro_query(aService = None, aQuery = None, *args):
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed on service [%s]" % (aQuery, args, aService), sys.exc_info(), verbose = _query_logging_verbosity)
 		return None
 
-	# and return the data
+	# and return the data, possibly including the column index
 	data = curs.fetchall()
+	if get_col_idx is None:
+		col_idx = get_col_indices(curs)
+	else:
+		col_idx = None
 	curs.close
 	pool.ReleaseConnection(aService)
-	return data
+	return data, col_idx
 #---------------------------------------------------
 def get_col_indices(aCursor = None):
 	# sanity checks
@@ -854,7 +830,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.71  2003-09-21 12:47:48  ncq
+# Revision 1.72  2003-09-22 23:31:44  ncq
+# - remove some duplicate code
+# - new style run_ro_query() use
+#
+# Revision 1.71  2003/09/21 12:47:48  ncq
 # - iron out bugs
 #
 # Revision 1.70  2003/09/21 11:23:10  ncq
