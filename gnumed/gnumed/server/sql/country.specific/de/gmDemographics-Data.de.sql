@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics-Data.de.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -11,18 +11,6 @@
 
 set client_encoding to 'LATIN1';
 -- =============================================
--- names of interpersonal relations translated into German
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'parent', 'Elternteil');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'sibling', 'Geschwister');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'halfsibling', 'Stiefgeschwister');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'stepparent', 'Stiefelter');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'married', 'verheiratet');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'de facto', 'de facto');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'divorced', 'geschieden');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'separated', 'getrennt');
-insert into i18n_translations(lang, orig, trans) values('de_DE', 'legal guardian', 'Vormund');
-
--- =============================================
 -- external ID types
 insert into enum_ext_id_types (name, issuer, context) values ('KV-Nummer', 'KV', 'c');
 insert into enum_ext_id_types (name, issuer, context) values ('Mitgliedsnummer', 'Krankenkasse', 'p');
@@ -32,11 +20,14 @@ insert into enum_ext_id_types (name, issuer, context) values ('BLZ', 'Bank', 'o'
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.de.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.de.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmDemographics-Data.de.sql,v $
--- Revision 1.2  2004-03-04 10:53:07  ncq
+-- Revision 1.3  2005-03-31 20:10:16  ncq
+-- - aggregate translations
+--
+-- Revision 1.2  2004/03/04 10:53:07  ncq
 -- - add a bunch of external id types
 --
 -- Revision 1.1  2003/08/05 08:16:00  ncq
