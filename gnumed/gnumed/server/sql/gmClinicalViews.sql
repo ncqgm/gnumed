@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.75 2004-06-28 12:15:38 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.76 2004-06-28 12:38:30 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -303,7 +303,7 @@ select
 	fk_test_org as pk_test_org,
 	fk_requestor as pk_requestor,
 	fk_encounter as pk_encounter,
-	fk_episode as fk_episode
+	fk_episode as pk_episode
 from
 	lab_request lr,
 	test_org torg
@@ -862,11 +862,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.75 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.76 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.75  2004-06-28 12:15:38  ncq
+-- Revision 1.76  2004-06-28 12:38:30  ncq
+-- - fixed on fk_ -> pk_
+--
+-- Revision 1.75  2004/06/28 12:15:38  ncq
 -- - add view on lab_request -> v_lab_requests so we can fk_ -> pk_
 --
 -- Revision 1.74  2004/06/26 23:42:44  ncq
