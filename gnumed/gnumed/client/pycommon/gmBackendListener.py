@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBackendListener.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
@@ -267,7 +267,7 @@ if __name__ == "__main__":
 	print "This should trigger our backend listening callback."
 	print "You can also try to stop the demo with Ctrl-C!"
 
-	listener = BackendListener(service='default', database='gnumed', user='gm-dbowner', password='')
+	listener = BackendListener(service='default', database='gnumed', user='gm-dbo', password='')
 	listener.register_callback('patient_changed', OnPatientModified)
 
 	try:
@@ -294,7 +294,10 @@ if __name__ == "__main__":
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.6  2004-06-25 12:28:25  ncq
+# Revision 1.7  2005-01-12 14:47:48  ncq
+# - in DB speak the database owner is customarily called dbo, hence use that
+#
+# Revision 1.6  2004/06/25 12:28:25  ncq
 # - just cleanup
 #
 # Revision 1.5  2004/06/15 19:18:06  ncq

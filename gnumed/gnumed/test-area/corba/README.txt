@@ -79,7 +79,7 @@ Important external parameters:
   connection strings are :
   
         a. the dsn for the dbapi is in PlainConnectionProvider.py.
-	 	I've set up  database gnumed, user gm-dbowner,  password as pg.
+	 	I've set up  database gnumed, user gm-dbo,  password as pg.
 		
 	b. the corbaloc NameService url is in ResolveIdComponent.py
 		corbaloc:iiop:localhost:5002/NameService
@@ -88,7 +88,7 @@ Important external parameters:
 
 Dependencies:
 
-A.installation of gnumed database; setting the password of gm-dbowner to 'pg', or change the default dsn's password in PlainConnectionWrapper.py;
+A.installation of gnumed database; setting the password of gm-dbo to 'pg', or change the default dsn's password in PlainConnectionWrapper.py;
 B. omniOrb installation; omniPy installation; successful  running omniPy tests;
 C. omniidl works and generates the stubs from the idl files in this directory
 (omniidl -b python -nc ..)  ; 

@@ -15,7 +15,7 @@ class PlainConnectionProvider:
 	def __init__(self, dsn = None, dbapi = None):
 
 		if dsn == None:
-			dsn ="localhost:gnumed:gm-dbowner:pg"
+			dsn ="localhost:gnumed:gm-dbo:pg"
 
 		if dbapi == None:
 			use_pgdb = '-pgdb' in sys.argv

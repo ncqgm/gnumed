@@ -1,7 +1,7 @@
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/ian/SOAP2.py,v $
-# $Id: SOAP2.py,v 1.8 2004-11-09 13:13:18 ihaywood Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: SOAP2.py,v 1.9 2005-01-12 14:47:49 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Ian Haywood"
 __license__ = 'GPL'
 
@@ -345,7 +345,7 @@ class ResizingSTC (wxStyledTextCtrl):
                 flag, l = self.__matcher.getMatches (text)
                 if flag:
                     if not (self.list and self.list.alive):
-                        x, y = self.GetPositionTuple ()
+                        x, y = self.GetPositionTuple()
                         p = self.PointFromPosition (pos)
                         self.list = self.parent.PickList (self.__userlist, x+p.x, y+p.y)
                     self.list.SetItems (l)
@@ -358,7 +358,12 @@ class ResizingSTC (wxStyledTextCtrl):
 
     def __userlist (self, text, data=None):
         if isinstance (data, types.ClassType) and issubclass (data, ResizingWindow):
-            PopupFrame (text, data, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ()))).Show ()
+            PopupFrame (
+                text = text,
+                widget_class = data,
+                originator = self,
+                pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
+            ).Show()
         elif callable (data):
             data (text, self.parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
         else:
@@ -633,7 +638,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: SOAP2.py,v $
-# Revision 1.8  2004-11-09 13:13:18  ihaywood
+# Revision 1.9  2005-01-12 14:47:49  ncq
+# - in DB speak the database owner is customarily called dbo, hence use that
+#
+# Revision 1.8  2004/11/09 13:13:18  ihaywood
 # Licence added
 #
 # Segfaults fixed.

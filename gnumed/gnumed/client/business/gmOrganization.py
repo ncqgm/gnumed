@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPatient
@@ -1618,7 +1618,7 @@ if __name__ == '__main__':
 
 
 	def create_temp_categories( categories = ['hospital']):
-		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbowner' and  his password"
+		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbo' and  his password"
 		#get a admin login
 		for i in xrange(0, 4):
 			result ,tmplogin = login_admin_user()
@@ -1667,7 +1667,7 @@ if __name__ == '__main__':
 
 		The temporary category(s) will now
 		need to be removed under an administrator login
-		e.g. gm-dbowner
+		e.g. gm-dbo
 		Please enter login for administrator:
 		"""
 		if adminlogin is None:
@@ -2022,7 +2022,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.30  2004-06-21 16:01:55  ncq
+# Revision 1.31  2005-01-12 14:47:48  ncq
+# - in DB speak the database owner is customarily called dbo, hence use that
+#
+# Revision 1.30  2004/06/21 16:01:55  ncq
 # - cleanup, trying to make epydoc fix do the right thing
 #
 # Revision 1.29  2004/06/21 15:08:45  sjtan

@@ -7,7 +7,7 @@ export PYTHONPATH="${PYTHONPATH}:../../"
 
 echo "re-bootstrapping public database"
 echo "dropping old database"
-dropdb -U gm-dbowner -i gnumed
+dropdb -U gm-dbo -i gnumed
 rm -rf *.log
 echo "============================"
 echo "bootstrappping core database"

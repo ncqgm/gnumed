@@ -10,9 +10,9 @@ MODULES_DIR=../../client/python-common/
 GNUMED_DB=gnumed
 
 read -p "Please enter path to amis-data:" AMIS_DIR;
-echo "You may have to type in the password for gm-dbowner."
+echo "You may have to type in the password for gm-dbo."
 cat $SQL_DIR/country.specific/de/amis-import_data_template.sql | sed "s%AMIS_PATH%"$AMIS_DIR"%" |\
-psql -d $GNUMED_DB -U gm-dbowner
+psql -d $GNUMED_DB -U gm-dbo
 
 # eventually set config parameters for AMIS drug browser
 echo "Now config parameters will be set in the GnuMed database so that GnuMed will"
@@ -24,7 +24,10 @@ echo "You will have to login to the GnuMed database to write these data."
 env PYTHONPATH=$MODULES_DIR $MODULES_DIR/tools/transferDBset.py -i ./amis-config.set
 
 # $Log: install_AMIS_data.sh,v $
-# Revision 1.4  2004-07-19 11:50:43  ncq
+# Revision 1.5  2005-01-12 14:47:49  ncq
+# - in DB speak the database owner is customarily called dbo, hence use that
+#
+# Revision 1.4  2004/07/19 11:50:43  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.3  2003/12/29 21:09:00  uid67323

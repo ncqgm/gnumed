@@ -5,8 +5,8 @@
 # Licence: GPL
 #===================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPsql.py,v $
-# $Id: gmPsql.py,v 1.3 2004-12-14 09:50:21 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPsql.py,v 1.4 2005-01-12 14:47:48 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Ian Haywood"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,7 +17,7 @@ import sys, os, string, re, urllib2
 import gmLog
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, '$Revision: 1.3 $')
+_log.Log(gmLog.lInfo, '$Revision: 1.4 $')
 
 #===================================================================
 def shellrun (cmd):
@@ -228,13 +228,16 @@ class Psql:
 # testing code
 if __name__ == '__main__':
 	from pyPgSQL import PgSQL
-	conn = PgSQL.connect (user='gm-dbowner', database = 'gnumed')
+	conn = PgSQL.connect (user='gm-dbo', database = 'gnumed')
 	psql = Psql (conn)
 	psql.run (sys.argv[1])
 	conn.close ()
 #===================================================================
 # $Log: gmPsql.py,v $
-# Revision 1.3  2004-12-14 09:50:21  ncq
+# Revision 1.4  2005-01-12 14:47:48  ncq
+# - in DB speak the database owner is customarily called dbo, hence use that
+#
+# Revision 1.3  2004/12/14 09:50:21  ncq
 # - somewhat reformatted from improved readability
 #
 #

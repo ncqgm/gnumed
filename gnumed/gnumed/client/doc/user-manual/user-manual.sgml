@@ -1044,7 +1044,7 @@ Answer yes to all the questions and enter the passwords as requested.
 The postgres password is the one you used when setting up postgres in 
 section 3.
 </para><para>
-The gm-dbowner password, if not already set, will be remembered when 
+The gm-dbo password, if not already set, will be remembered when 
 you first enter it (so don't forget).
 </para></listitem>
 
@@ -1349,7 +1349,7 @@ as user gnumed and in the bootstrap directory, run ./make-links.sh
 su to root and type passwd postgres and set the password. This sets a password for the system user 'postgres' which is different from the database user 'postgres' <emphasis>I HAVE BEEN TOLD: This is not needed. </emphasis> [I chose to create a password because I can su into postgres from any user. I do not have to jump to root to get into postgres.]
 
 </para></listitem><listitem><para>
-in the bootstrap directory vi bootstrap-monolithic_core.conf and uncomment BOTH password lines for gm-dbowner and postgres and type in the passwords. Select a password for gm-dbowner. I selected the same one I use for the gnumed user account. <emphasis>I HAVE BEEN TOLD: Many setups use the same name for both thesystem level user account "postgres" under which the
+in the bootstrap directory vi bootstrap-monolithic_core.conf and uncomment BOTH password lines for gm-dbo and postgres and type in the passwords. Select a password for gm-dbo. I selected the same one I use for the gnumed user account. <emphasis>I HAVE BEEN TOLD: Many setups use the same name for both thesystem level user account "postgres" under which the
 
 postgresql data files are installed in the filesystem and for the database superuser. Those accounts are actually unrelated entities. They need not have the same password. In fact, the system account postgres need not have a password at all. It is sufficient to be able to su - to it from root. It helps to
 

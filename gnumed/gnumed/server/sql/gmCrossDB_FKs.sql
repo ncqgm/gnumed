@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -139,17 +139,20 @@ comment on column x_db_fk_violation.description is
 
 -- =============================================
 -- no grants needed since the only one using
--- these tables is gm-dbowner, the owner of them
+-- these tables is gm-dbo, the owner of them
 --GRANT SELECT ON
 --TO GROUP "";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FKs.sql,v $
--- Revision 1.7  2003-08-17 18:09:11  ncq
+-- Revision 1.8  2005-01-12 14:47:48  ncq
+-- - in DB speak the database owner is customarily called dbo, hence use that
+--
+-- Revision 1.7  2003/08/17 18:09:11  ncq
 -- - factor out views
 --
 -- Revision 1.6  2003/08/10 00:58:47  ncq

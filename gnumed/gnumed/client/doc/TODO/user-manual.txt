@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.38 $
+# $Revision: 1.39 $
 ---------------------------------------------------
 Rules:
 ------
@@ -252,7 +252,7 @@ Please incorporate this into the manual:
 <PARA></PARA>
 <PARA>g.  su to root and type passwd postgres  and set the password. This sets  a password for the system user “postgres,” which is different from the database user “postgres.” &lt;emphasis&gt;I HAVE BEEN TOLD:  This is not needed. &lt;/emphasis&gt; [I chose to create a password because I can su into postgres from any user. I do not have to jump to root to get into postgres.]</PARA>
 <PARA></PARA>
-<PARA>h.  in the bootstrap directory vi bootstrap-monolithic_core.conf and uncomment BOTH password lines for gm-dbowner and postgres and type in the passwords. Select a password for gm-dbowner. I selected the same one I use for the gnumed user account. &lt;emphasis&gt;I HAVE BEEN TOLD:  Many setups use the same name for both thesystem level user account "postgres" under which the</PARA>
+<PARA>h.  in the bootstrap directory vi bootstrap-monolithic_core.conf and uncomment BOTH password lines for gm-dbo and postgres and type in the passwords. Select a password for gm-dbo. I selected the same one I use for the gnumed user account. &lt;emphasis&gt;I HAVE BEEN TOLD:  Many setups use the same name for both thesystem level user account "postgres" under which the</PARA>
 <PARA>postgresql data files are installed in the filesystem and for the database superuser. Those accounts are actually unrelated entities. They need not have the same password. In fact, the system account postgres need not have a password at all. It is sufficient to be able to su - to it from root. It helps to</PARA>
 <PARA>have a password for the DB account "postgres", though. &lt;/emphasis&gt; </PARA>
 <PARA>                       &lt;/para&gt;</PARA>

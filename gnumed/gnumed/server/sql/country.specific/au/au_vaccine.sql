@@ -2,13 +2,13 @@
 -- PostgreSQL database dump
 --
 
-\connect - "gm-dbowner"
+\connect - "gm-dbo"
 
 SET search_path = public, pg_catalog;
 
 --
 -- Data for TOC entry 2 (OID 22970)
--- Name: vaccine; Type: TABLE DATA; Schema: public; Owner: gm-dbowner
+-- Name: vaccine; Type: TABLE DATA; Schema: public; Owner: gm-dbo
 --
 
 INSERT INTO vaccine ( id_route, trade_name, short_name, is_live, min_age, max_age, last_batch_no, "comment") VALUES (1, 'Hepatitis B', 'Hep B', false, '00:00', NULL, NULL, NULL);
@@ -30,7 +30,7 @@ INSERT INTO vaccine ( id_route, trade_name, short_name, is_live, min_age, max_ag
 
 --
 -- TOC entry 1 (OID 22968)
--- Name: vaccine_id_seq; Type: SEQUENCE SET; Schema: public; Owner: gm-dbowner
+-- Name: vaccine_id_seq; Type: SEQUENCE SET; Schema: public; Owner: gm-dbo
 --
 
 SELECT pg_catalog.setval ('vaccine_id_seq', 16, true);

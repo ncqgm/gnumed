@@ -11,7 +11,7 @@ are not well supported yet.
 This will set up databases, services, database tables,
 groups, permissions and possibly users.
 
-There's a special user called "gm-dbowner" who owns all the
+There's a special user called "gm-dbo" who owns all the
 database objects.
 
 For all this to work you must be able to access the database
@@ -28,10 +28,10 @@ further details.
 # TODO
 # - warn if empty password
 # - option to drop databases
-# - verify that pre-created database is owned by "gm-dbowner"
+# - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -716,7 +716,7 @@ class database:
 	#--------------------------------------------------------------
 	def __create_db(self):
 		if self.__db_exists():
-			# FIXME: verify that database is owned by "gm-dbowner"
+			# FIXME: verify that database is owned by "gm-dbo"
 			return 1
 
 		# create database
@@ -1120,7 +1120,7 @@ class gmService:
 
 			# FIXME: check if username='' is correct
 			# in fact, no: this is configuration and thus user dependant,
-			# bootstrapping, however, is done by gm-dbowner,
+			# bootstrapping, however, is done by gm-dbo,
 			# so, actually, this should not be done here but rather moved
 			# over to the generic configuration tables and be done for the
 			# xxxDEFAULTxxx user, upon client startup if not "user" config exists
@@ -1260,13 +1260,13 @@ def _import_schema (aSection, aConn):
 #	os.chdir(path)
 
 	# (at, 11.6.2003)
-	# The following psql call has to be done as user aUser (= gm-dbowner)
+	# The following psql call has to be done as user aUser (= gm-dbo)
 	# Because we can not ask for a password while non-interactive install
 	# authenitification method in /etc/postgresql/pg_hba.conf has to be set
 	# to TRUST.  This can be done via the following line:
 	#    local   gnumed-test  @gmTemplate1User.list                  trust
 	# This requires a file /var/lib/postgres/data/gmTemplate1User.list containing
-	# at least gm-dbowner
+	# at least gm-dbo
 	# From `man psql`: If you omit the host name, psql will connect
 	#                  via a Unix domain socket to a server on the
 	#                  local host.
@@ -1357,7 +1357,7 @@ def become_pg_demon_user():
 		os.setuid(pg_demon_user_passwd_line[2])
 	else:
 		_log.Log(gmLog.lWarn, 'not running as root, cannot become postmaster demon user')
-		_log.Log(gmLog.lWarn, 'may have trouble connecting as gm-dbowner if IDENT auth forced on us')
+		_log.Log(gmLog.lWarn, 'may have trouble connecting as gm-dbo if IDENT auth forced on us')
 		if _interactive:
 			print "WARNING: This script may not work if not running as the system administrator."
 
@@ -1450,7 +1450,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.1  2004-12-18 13:02:49  ncq
+# Revision 1.2  2005-01-12 14:47:48  ncq
+# - in DB speak the database owner is customarily called dbo, hence use that
+#
+# Revision 1.1  2004/12/18 13:02:49  ncq
 # - as per Ian's request
 #
 # Revision 1.62  2004/12/18 09:59:11  ncq
