@@ -5,6 +5,12 @@ import sys
 s = Server( "http://localhost.localdomain:9000")
 tablename = "enum_confidentiality_level"
 count = 30
+
+if len(sys.argv) == 1:
+	print "\n\nUSAGE  python test_rpc_client n_clients\n\n\t  where n_clients is number of child processes running calls to xmlrpc server"
+	sys.exit(0)
+
+count = int(sys.argv[1])	
 for x in xrange(0, count):
 	f = os.fork()
 	if f in (-1, 0):
