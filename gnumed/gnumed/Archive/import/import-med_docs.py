@@ -14,7 +14,7 @@ search for FIXME to find places to fix
 #######################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/import/Attic/import-med_docs.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 # modules
 import os, fileinput, string, time, sys, os.path
@@ -33,9 +33,9 @@ if _cfg is None:
 	_log.Log (gmLog.lPanic, "cannot run without config file")
 	sys.exit(1)
 
-import gmI18N
+import gmI18N, gmXdtObjects
 
-from docPatient import cPatient
+#from docPatient import cPatient
 from docDocument import cDocument
 from docDatabase import cDatabase
 
@@ -101,9 +101,14 @@ def import_from_dir(aDir):
 	tmp = _cfg.get("import", "patient file")
 	pat_file = os.path.abspath(os.path.join(aDir, tmp))
 	pat_format = _cfg.get("import", "patient file format")
-	aPatient = cPatient()
-	if not aPatient.loadFromFile(pat_format, pat_file):
-		_log.Log(gmLog.lErr, "Skipping [%s]: problem with reading patient data from %s file [%s]" % (aDir, pat_format, pat_file))
+	_log.Log(gmLog.lWarn, 'patient file format is [%s]' % pat_format)
+	_log.Log(gmLog.lWarn, 'note that we only handle xDT files so far')
+
+	# get patient data from xDT file
+	try:
+		__xdt_pat = gmXdtObjects.xdtPatient(anXdtFile = pat_file)
+	except:
+		_log.LogException("Skipping [%s]: problem reading patient data from %s file [%s]" % (aDir, pat_format, pat_file), sys.exc_info())
 		unlock(aDir)
 		return None
 
@@ -122,7 +127,7 @@ def import_from_dir(aDir):
 		return None
 
 	# now import the good stuff
-	if not myDB.importDocument (aPatient, aDoc):
+	if not myDB.importDocument (__xdt_pat, aDoc):
 		_log.Log(gmLog.lErr, "cannot import documents into database")
 		unlock(aDir)
 		return None
@@ -178,7 +183,10 @@ sys.exit(0)
 
 #=========================================================
 # $Log: import-med_docs.py,v $
-# Revision 1.1  2003-03-01 15:39:49  ncq
+# Revision 1.2  2004-01-06 23:22:16  ncq
+# - use XdtObjects business objects
+#
+# Revision 1.1  2003/03/01 15:39:49  ncq
 # - moved here from test-area
 #
 # Revision 1.12  2003/01/30 23:47:41  ncq
