@@ -8,17 +8,17 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
-
+from Gnumed.pycommon import gmLog
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId
-from Gnumed.business.gmOrganization import cOrgHelperImpl1
+from Gnumed.business.gmOrganization import cOrgHelperImpl1, cOrgImpl1
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
@@ -57,9 +57,10 @@ ID_SENDEMAIL,
 ID_LINKINTERNET,
 ID_INSTANTREPORT,
 ID_REPORTS,
-ID_SAVE
+ID_SAVE,
+ID_ORGPERSON_SELECTED
 
-] = map(lambda _init_ctrls: wxNewId(), range(22))
+] = map(lambda _init_ctrls: wxNewId(), range(23))
 
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
@@ -215,6 +216,8 @@ class ContactsPanel(wxPanel):
 		'mobile': self.txt_org_mobile,
 		'email': self.txt_org_email,
 		'jabber': self.txt_org_internet }
+
+	  self._set_controller()	
 
 	  #-------------------------------------------
 	  #create the sizers for each line of controls
@@ -388,17 +391,110 @@ class ContactsPanel(wxPanel):
        def add_org(self, org):
 	  a = org.getAddress()
 	  o = org.get()
-	  data = [ o['name'],"", " ".join( [a['number'], a['street'], a['urb'], a['postcode']]), o['category'], o['phone'] ]
-	  key = org.getId()
+	  data = [ o['name'],"", " ".join( [a.get('number',''), a.get('street',''), a.get('urb',''), a.get('postcode','')]), o.get('category',''), o.get('phone', '') ]
+	  key = int(org.getId())
 	  x = self.list_organisations.GetItemCount()
-	  self.list_organisations.InsertStringItem(x, data[0])
-	  self.list_organisations.SetStringItem(x, 1, data[1])
-	  self.list_organisations.SetStringItem(x, 2, data[2])
-	  self.list_organisations.SetStringItem(x, 3, data[3])
-	  self.list_organisations.SetStringItem(x, 4, data[4])
-	  self.list_organisations.SetItemData(x, key)
+	  
+	  self._insert_org_data( x, key, data)
+
+      
+      
+       def _insert_org_data(self, n, key, data): 	  
+	  self.list_organisations.InsertStringItem(n, data[0])
+	  self.list_organisations.SetStringItem(n, 1, data[1])
+	  self.list_organisations.SetStringItem(n, 2, data[2])
+	  self.list_organisations.SetStringItem(n, 3, data[3])
+	  self.list_organisations.SetStringItem(n, 4, data[4])
+	  self.list_organisations.SetItemData(n, key)
+
+       def load_all_orgs(self):
+	  self.list_organisations.DeleteAllItems()
+	  self._insert_example_data()
+	  
+	  orgs = cOrgHelperImpl1().findAllOrganizations()
+	  for org in orgs:
+		  self.add_org(org)
+
+       def _insert_example_data(self):
+	  items = organisationsdata.items()
+	  for i in xrange(0,len(items)):
+		  key, data = items[i]
+		  self._insert_org_data(i, key, data)
+
+       def _set_controller(self):
+          self._connect_list()
+	  self._helper = cOrgHelperImpl1()
+	  self._current = None
+		  
+       def _connect_list(self):
+	  EVT_LIST_ITEM_ACTIVATED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
+
+       def _orgperson_selected(self, event):
+	  print "orgperson selected"
+	  ix = event.GetIndex()
+	  key = self.list_organisations.GetItemData(ix)
+	  org = self._helper.getFromCache(key)
+	  if org == None:
+		  org = self._helper.create()
+		  data = [ self.list_organisations.GetItem(ix,n).GetText() for n in xrange(0,5) ]
+		  
+		  org['name'] = data[0]
+		  
+		  org['category'] = data[3]
+		  org['phone'] = data[4]
+	
+	          try:
+			  
+			l = data[2].split(' ')
+			
+			# if no numerals in first token assume no address number
+			if l[0].isalpha():
+				l = [''] + l
+			# if no numerals in last token asssume no postcode 	
+			if l[-1].isalpha():
+				l.append('')
+			if len (l) >= 4:
+				number , street, urb, postcode = l[0], ' '.join(l[1:-2]), l[-2], l[-1]
+		  		org.setAddress( number, street, urb, postcode, None, None )
+		  except:
+			  gmLog.gmDefLog.LogException("Unable to parse address", sys.exc_info() )
+			  print "unable to parse address"
+		  	  
+	  self.setCurrent(org)
+	
+       def setCurrent(self, org):
+	  self.clearForm()
+	  self._current = org
+	  f = self.input_fields
+	  for n in ['name', 'category', 'phone', 'email', 'fax', 'mobile']:
+		  v = org[n]
+		  
+		  if v == None: v = ''
+		  
+		  #TODO remove this test filter
+		  if n == 'category' and v.lower().find('hospital') >= 0:  v = 'hospital'
+		  
+		  f[n].SetValue(v)
 
 
+	  a = org.getAddress()
+	  s = a.get('number','') + ' ' + a.get('street','') 
+	  f['street'] .SetValue(s.strip())
+	  f['urb'] .SetValue(a.get('urb','') )
+	  f['postcode'] .SetValue( a.get('postcode',''))
+
+       def getCurrent(self):
+	       return self._current
+
+       def getOrgHelper(self):
+	       return self._helper
+
+       def newOrg(self):
+           self.setCurrent(self._helper.create())	   
+
+       def clearForm(self):
+           for k,f in self.input_fields.items():
+             f.SetValue('')
 	  
 class gmContacts (gmPlugin.wxNotebookPlugin):
 	tab_name = _("Contacts")
@@ -436,8 +532,15 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
               tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
               tool1 = tb.AddTool(ID_RELOAD, images_contacts_toolbar16_16.getreloadBitmap(),
 				shortHelpString=_("Refresh Display"),)
-              tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
-              tool1 = tb.AddTool(ID_SEARCHSPECIFIC, images_contacts_toolbar16_16.getfind_specificBitmap(),
+              
+	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+	      
+	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+	      
+	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
+				shortHelpString=_("Save Record"),)
+              
+	      tool1 = tb.AddTool(ID_SEARCHSPECIFIC, images_contacts_toolbar16_16.getfind_specificBitmap(),
 				shortHelpString=_("Find Specific Records in Contacts Database"),)
               tool1 = tb.AddTool(ID_SORTA_Z, images_contacts_toolbar16_16.getsort_A_ZBitmap(),
 				shortHelpString=_("Sort A to Z"),)
@@ -451,36 +554,46 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 				shortHelpString=_("Instant Report from Grid"),)
 	      tool1 = tb.AddTool(ID_REPORTS, images_contacts_toolbar16_16.getreportsBitmap(),
 				shortHelpString=_("Pre-formatted reports"),)
-	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
-	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
-				shortHelpString=_("Save Record"),)
 
 	      self.__connect_commands(tb)
 
 	def __connect_commands(self, toolbar):
-		EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.doOrgAdd)
-		EVT_TOOL(toolbar, ID_EMPLOYEEADD, self.doEmployeeAdd)
-		EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.doBranchDeptAdd)
-
-        def doEmployeeAdd(self, event):
+		EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.addOrg)
+		EVT_TOOL(toolbar, ID_EMPLOYEEADD, self.addEmployee)
+		EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.addBranchDept)
+		EVT_TOOL(toolbar, ID_ORGANISATIONDISPLAY, self.displayOrg)
+                EVT_TOOL(toolbar, ID_SAVE, self.saveOrg)
+	def addEmployee(self, event):
 		print "doEmployeeAdd"
 
-	def doOrgAdd(self, event):
+	def addOrg(self, event):
 		print "doOrgAdd"
+		w = self._last_widget		  
+		w.newOrg()
+		
+		
+	def saveOrg(self, event):
 		w = self._last_widget
-		a = w.get_address_values()
+		org = w.getCurrent()
+		if org is None:
+			org = w.getOrgHelper().create()
+		org = w.getOrgHelper().create()
 		o = w.get_org_values()
-		org = cOrgHelperImpl1()
+		a = w.get_address_values()
 		org.set(*o)
 		org.setAddress(*a)
-		org.save()
-		w.add_org(org)
 		
-
-        def doBranchDeptAdd(self, event):
+		isNew = org.getId() is None
+		org.save()
+		if isNew:
+			w.add_org(org)
+		
+        def addBranchDept(self, event):
 		print "doBranchDeptAdd"
 
-		
+	def displayOrg(self, event):
+		w = self._last_widget
+		w.load_all_orgs()
 		
 
 
@@ -491,7 +604,12 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.18  2004-05-25 17:56:50  sjtan
+# Revision 1.19  2004-05-26 18:21:38  sjtan
+#
+# add org , save  toolbar buttons linked,  list select linked, needs testing,
+# must have 'hospital' if table org_category.
+#
+# Revision 1.18  2004/05/25 17:56:50  sjtan
 #
 # first steps at activating gmContacts. Will need a manually inserted
 # org_category that matches the category name entered in the category field.
