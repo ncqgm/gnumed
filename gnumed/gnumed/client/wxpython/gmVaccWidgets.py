@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.3 2004-07-18 20:12:03 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmVaccWidgets.py,v 1.4 2004-07-28 15:40:53 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -16,7 +16,7 @@ import sys, time
 from wxPython.wx import *
 import mx.DateTime as mxDT
 
-from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts
+from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin
 from Gnumed.business import gmPatient
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider
 
@@ -235,10 +235,11 @@ class cVaccinationEditArea(gmEditArea.gmEditArea):
 		self.fld_progress_note.SetValue(aVacc['narrative'])
 		return 1
 #======================================================================
-class cImmunisationsPanel(wxPanel):
+class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, parent,id):
-		wxPanel.__init__(self, parent, id, wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__pat = gmPatient.gmCurrentPatient()
 
@@ -309,25 +310,28 @@ class cImmunisationsPanel(wxPanel):
 		self.mainsizer.Add(pnl_BottomCaption, 0, wxEXPAND)
 
 		self.SetSizer(self.mainsizer)
-		self.mainsizer.Fit (self)
+		self.mainsizer.Fit(self)
 		self.SetAutoLayout(True)
 
 		self.__register_interests()
+
+		self.__reset_ui_content()
 	#----------------------------------------------------
 	def __register_interests(self):
-		# events
+		# wxPython events
 		EVT_SIZE(self, self.OnSize)
 		EVT_LISTBOX(self, ID_VaccinatedIndicationsList, self.on_vaccinated_indication_selected)
 		EVT_LISTBOX_DCLICK(self, ID_VaccinationsPerRegimeList, self.on_given_shot_selected)
 		EVT_LISTBOX_DCLICK(self, ID_MissingShots, self.on_missing_shot_selected)
 #		EVT_RIGHT_UP(self.lb1, self.EvtRightButton)
+
 		# client internal signals
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+#		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		# behaves just like patient_selected, really
-		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._on_vaccinations_updated)
-	#----------------------------------------------------
-	def populate(self):
-		self.__reset_ui_content()
+#		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._on_vaccinations_updated)
+		# test
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
+		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
 	#----------------------------------------------------
 	# event handlers
 	#----------------------------------------------------
@@ -377,12 +381,18 @@ class cImmunisationsPanel(wxPanel):
 		self.LBOX_vaccinated_indications.Clear()
 		self.LBOX_given_shots.Clear()
 		self.LBOX_missing_shots.Clear()
-
+	#----------------------------------------------------
+	def _populate_with_data(self):
+		print "_populate_with_data() start"
+		# clear lists
+		self.LBOX_vaccinated_indications.Clear()
+		self.LBOX_given_shots.Clear()
+		self.LBOX_missing_shots.Clear()
 		# populate vaccinated-indications list
 		emr = self.__pat.get_clinical_record()
 		if emr is None:
 			# FIXME: error message
-			return None
+			return False
 		status, indications = emr.get_vaccinated_indications()
 		# FIXME: would be faster to use Set() but can't
 		# use Set(labels, client_data), and have to know
@@ -391,51 +401,55 @@ class cImmunisationsPanel(wxPanel):
 			self.LBOX_vaccinated_indications.Append(indication[1], indication[0])
 #		self.LBOX_vaccinated_indications.Set(lines)
 #		self.LBOX_vaccinated_indications.SetClientData(data)
+		print "updated indications"
 
 		# populate missing-shots list
+		# FIXME: this is very slow !
 		missing_shots = emr.get_missing_vaccinations()
+		print "got missing shots - this was slow, no ?"
 		if missing_shots is None:
 			label = _('ERROR: cannot retrieve due/overdue vaccinations')
 			self.LBOX_missing_shots.Append(label, None)
-		else:
-			# due
-			due_template = _('%.0d weeks left: shot %s for %s in %s, due %s (%s)')
-			overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in %s (%s)')
-			for shot in missing_shots['due']:
-				if shot['overdue']:
-					years, days_left = divmod(shot['amount_overdue'].days, 364.25)
-					weeks = days_left / 7
-					# amount_overdue, seq_no, indication, regime, vacc_comment
-					label = overdue_template % (
-						years,
-						weeks,
-						shot['seq_no'],
-						shot['l10n_indication'],
-						shot['regime'],
-						shot['vacc_comment']
-					)
-					self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
-				else:
-					# time_left, seq_no, regime, latest_due, vacc_comment
-					label = due_template % (
-						shot['time_left'].days / 7,
-						shot['seq_no'],
-						shot['indication'],
-						shot['regime'],
-						shot['latest_due'].Format('%m/%Y'),
-						shot['vacc_comment']
-					)
-					self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
-			# booster
-			lbl_template = _('due now: booster for %s in %s (%s)')
-			for shot in missing_shots['boosters']:
-				# indication, regime, vacc_comment
-				label = lbl_template % (
+			return True
+		# due
+		due_template = _('%.0d weeks left: shot %s for %s in %s, due %s (%s)')
+		overdue_template = _('overdue %.0dyrs %.0dwks: shot %s for %s in %s (%s)')
+		for shot in missing_shots['due']:
+			if shot['overdue']:
+				years, days_left = divmod(shot['amount_overdue'].days, 364.25)
+				weeks = days_left / 7
+				# amount_overdue, seq_no, indication, regime, vacc_comment
+				label = overdue_template % (
+					years,
+					weeks,
+					shot['seq_no'],
 					shot['l10n_indication'],
 					shot['regime'],
 					shot['vacc_comment']
 				)
 				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
+			else:
+				# time_left, seq_no, regime, latest_due, vacc_comment
+				label = due_template % (
+					shot['time_left'].days / 7,
+					shot['seq_no'],
+					shot['indication'],
+					shot['regime'],
+					shot['latest_due'].Format('%m/%Y'),
+					shot['vacc_comment']
+				)
+				self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
+		# booster
+		lbl_template = _('due now: booster for %s in %s (%s)')
+		for shot in missing_shots['boosters']:
+			# indication, regime, vacc_comment
+			label = lbl_template % (
+				shot['l10n_indication'],
+				shot['regime'],
+				shot['vacc_comment']
+			)
+			self.LBOX_missing_shots.Append(label, None)	# pk_vacc_def
+		return True
 	#----------------------------------------------------
 	def _on_patient_selected(self, **kwargs):
 		return 1
@@ -463,7 +477,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.3  2004-07-18 20:12:03  ncq
+# Revision 1.4  2004-07-28 15:40:53  ncq
+# - convert to EVT_PAINT framework
+#
+# Revision 1.3  2004/07/18 20:12:03  ncq
 # - vacc business object primary key is named pk_vaccination in view
 #
 # Revision 1.2  2004/07/17 21:11:47  ncq
