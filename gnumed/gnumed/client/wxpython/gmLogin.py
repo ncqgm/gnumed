@@ -40,8 +40,6 @@ def Login(max_attempts=3):
 			dlg.Destroy()
 			myLog.Log(gmLog.lInfo, _("user cancelled login dialog"))
 			return None
-		# FIXME: this is security sensitive because of passwords
-		myLog.Log(gmLog.lData, _("login parameters: ") + str(login))
 		myLog.Log(gmLog.lInfo, _("login attempt #") + str(attempts) + _(" of ") + str(max_attempts))
 		#now try to connect to the backend
 		try:
