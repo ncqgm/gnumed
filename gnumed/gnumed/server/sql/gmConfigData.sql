@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -17,6 +17,22 @@ values (
 	'horstspace.notebook.plugin_load_order',
 	'str_array',
 	'which plugins to load in the GUI'
+);
+
+-- a 'workplace' called "Release 0.1"
+insert into cfg_item
+	(id_template, owner, workplace)
+values (
+	currval('cfg_template_id_seq'),
+	'xxxDEFAULTxxx',
+	'Release 0.1'
+);
+
+insert into cfg_str_array
+	(id_item, value)
+values (
+	currval('cfg_item_id_seq'),
+	'{"gmManual","gmConfigRegistry","gmDemographicsEditor","gmShowLab","gmLabJournal","gmShowMedDocs","gmEMRBrowserPlugin"}'
 );
 
 -- Arbeitsplatz Labor
@@ -165,11 +181,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.6  2005-01-09 19:49:39  ncq
+-- Revision 1.7  2005-03-08 13:33:35  ncq
+-- - added workplace "Release 0.1"
+--
+-- Revision 1.6  2005/01/09 19:49:39  ncq
 -- - add vaccination browser workplace definition
 --
 -- Revision 1.5  2004/10/19 22:18:34  sjtan
