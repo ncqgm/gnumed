@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.63 $"
+__version__ = "$Revision: 1.64 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -378,12 +378,16 @@ class ConnectionPool:
 			return None
 
 		# set the default characteristics of our sessions
-		cmd = 'set session characteristics as transaction isolation level SERIALIZABLE;'
+		if readonly:
+			isolation_level = 'READ COMMITTED'
+		else:
+			isolation_level = 'SERIALIZABLE'
+		cmd = 'set session characteristics as transaction isolation level %s' % isolation_level
 		curs = conn.cursor()
 		if not run_query(curs, cmd):
-			cur.close()
+			curs.close()
 			conn.close()
-			_log.Log(gmLog.lErr, 'cannot set connection characteristics to "serializable"')
+			_log.Log(gmLog.lErr, 'cannot set connection characteristics to "%s"' % isolation_level)
 			return None
 
 		#  this needs >= 7.4
@@ -768,7 +772,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.63  2003-07-05 12:55:58  ncq
+# Revision 1.64  2003-07-09 15:44:31  ncq
+# - our RO connections need to be READ COMMITTED so they can
+#   see concurrent committed writes
+#
+# Revision 1.63  2003/07/05 12:55:58  ncq
 # - improved exception reporting on failing queries
 #
 # Revision 1.62  2003/06/27 16:05:22  ncq
