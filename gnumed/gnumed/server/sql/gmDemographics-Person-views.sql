@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.30 2005-02-12 13:49:14 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.31 2005-02-13 14:41:52 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -171,9 +171,7 @@ drop view v_basic_person;
 
 create view v_basic_person as
 select
-	-- "i.pk as id" is legacy compatibility code, remove it once Archive is updated
-	i.pk as id,
-	i.pk as i_pk,
+	i.pk as pk_identity,
 	n.id as n_id,
 	i.title as title,
 	n.firstnames as firstnames,
@@ -219,18 +217,18 @@ create RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person
     WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
     OR NEW.title != OLD.title DO INSTEAD 
     INSERT INTO names (firstnames, lastnames, id_identity, active)
-     VALUES (NEW.firstnames, NEW.lastnames, NEW.i_pk, true);
+     VALUES (NEW.firstnames, NEW.lastnames, NEW.pk_identity, true);
 
 -- rule for identity change
 -- yes, you would use this, think carefully.....
 create RULE r_update_basic_person2 AS ON UPDATE TO v_basic_person
     DO INSTEAD UPDATE identity SET dob=NEW.dob, cob=NEW.cob, gender=NEW.gender
-    WHERE pk=NEW.i_pk;
+    WHERE pk=NEW.pk_identity;
 
 -- deletes names as well by use of a trigger (double rule would be simpler, 
 -- but didn't work)
 create RULE r_delete_basic_person AS ON DELETE TO v_basic_person DO INSTEAD
-       DELETE FROM identity WHERE pk=OLD.i_pk;
+       DELETE FROM identity WHERE pk=OLD.pk_identity;
 
 -- =============================================
 -- staff views
@@ -240,7 +238,7 @@ drop view v_staff;
 
 create view v_staff as
 select
-	vbp.i_pk as pk_identity,
+	vbp.pk_identity as pk_identity,
 	s.pk as pk_staff,
 	vbp.title as title,
 	vbp.firstnames as firstnames,
@@ -258,7 +256,7 @@ from
 where
 	s.fk_role = sr.pk
 		and
-	s.fk_identity = vbp.i_pk
+	s.fk_identity = vbp.pk_identity
 ;
 
 -- =========================================================
@@ -335,11 +333,15 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.30  2005-02-12 13:49:14  ncq
+-- Revision 1.31  2005-02-13 14:41:52  ncq
+-- - v_basic_person.i_pk was an exceptionally bad choice, make that pk_identity
+-- - remove legacy identity.pk mappings in v_basic_person
+--
+-- Revision 1.30  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes
