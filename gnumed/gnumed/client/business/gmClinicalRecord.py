@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.53 2003-12-01 01:01:05 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmClinicalRecord.py,v 1.54 2003-12-02 01:58:28 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -517,9 +517,7 @@ where pk_patient = %s
 		if rows is None:
 			return None
 		self.__db_cache['due vaccinations']['due'] = []
-		if len(rows) == 0:
-			self.__db_cache['due vaccinations']['due'] = [[]]
-		else:
+		if len(rows) != 0:
 			self.__db_cache['due vaccinations']['due'].extend(rows)
 
 		# overdue
@@ -540,9 +538,7 @@ where pk_patient = %s
 			return None
 
 		self.__db_cache['due vaccinations']['overdue'] = []
-		if len(rows) == 0:
-			self.__db_cache['due vaccinations']['overdue'] = [[]]
-		else:
+		if len(rows) != 0:
 			self.__db_cache['due vaccinations']['overdue'].extend(rows)
 
 		return self.__db_cache['due vaccinations']
@@ -973,7 +969,10 @@ if __name__ == "__main__":
 	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.53  2003-12-01 01:01:05  ncq
+# Revision 1.54  2003-12-02 01:58:28  ncq
+# - make get_due_vaccinations return the right thing on empty lists
+#
+# Revision 1.53  2003/12/01 01:01:05  ncq
 # - add get_vaccinated_regimes()
 # - allow regime_list filter in get_vaccinations()
 # - handle empty lists better in get_due_vaccinations()
