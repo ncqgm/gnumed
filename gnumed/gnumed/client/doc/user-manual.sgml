@@ -157,7 +157,7 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 		<row>
 		  <entry>Gentoo</entry>
 		  <entry>???</entry>
-		  <entry><ulink url="http://www.gentoo·org">www.gentoo.org</ulink></entry>
+		  <entry><ulink url="http://www.gentoo.org">www.gentoo.org</ulink></entry>
 		  <entry>Yes</entry>
 		</row>
 
@@ -183,7 +183,7 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 		<row>
 		  <entry>Mac OS X</entry>
 		  <entry>???</entry>
-		  <entry>www.apple.com</entry>
+		  <entry><ulink url="http://www.apple.com">www.apple.com</ulink></entry>
 		  <entry>Unknown</entry>
 		</row>
 			</tbody>
