@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.38 2003-09-23 12:49:56 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmTmpPatient.py,v 1.39 2003-09-23 19:38:03 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -191,9 +191,9 @@ class gmPerson:
 	def _getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-		if not data:
+		if data is None:
 			return ''
-		if data[0][0] is None:
+		if len(data) == 0:
 			return ''
 		return data[0][0]
 	#--------------------------------------------------------
@@ -204,9 +204,9 @@ class gmPerson:
 		# FIXME: invent a mechanism to set the desired format
 		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s"
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-		if not data:
+		if data is None:
 			return ''
-		if data[0] is None:
+		if len(data) == 0:
 			return ''
 		return data[0][0]
 	#--------------------------------------------------------
@@ -233,7 +233,7 @@ where
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
 		if rows is None:
 			return None
-		if rows[0] is None:
+		if len(rows) == 0:
 			return None
 		return [{
 			'ID':r[idx['addr_id']],
@@ -272,7 +272,7 @@ where
 		curs.close ()
 		return data
 	#--------------------------------------------------------
-	def GuessStreetFromZip(postcode):
+	def GuessStreetFromZip(postcode = None):
 		"""Guess the street name based on the postcode.
 		"""
 		if postcode is None or len (postcode) == 0:
@@ -335,12 +335,6 @@ values (%s, curr_val (address_id_seq), (select id from address_type where name =
 			(cmd2, (self.ID, type))
 			]
 		)
-	#----------------------------------------------------------
-	def GetAddressTypes (self):
-		"""
-		Gets a simple list of address types
-		"""
-		return [i[0] for i in gmPG.run_ro_query ('personalia', "select name from address_type")]
 	#------------------------------------------------------------
 	def _get_medical_age(self):
 		cmd = "select dob from identity where id = %s"
@@ -517,7 +511,15 @@ class gmCurrentPatient(cBorg):
 			return None
 #============================================================
 
-
+#------------------------------------------------------------
+def GetAddressTypes ():
+	"""Gets a simple list of address types."""
+	row_list = gmPG.run_ro_query('personalia', "select name from address_type")
+	if row_list is None:
+		return None
+	if len(row_list) == 0:
+		return None
+	return [row[0] for row in row_list]
 #------------------------------------------------------------
 def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 	"""Get a list of matching patient IDs.
@@ -727,7 +729,6 @@ def create_patient(data):
 def _patient_selected(**kwargs):
 	print "received patient_selected notification"
 	print kwargs['kwds']
-
 #============================================================
 if __name__ == "__main__":
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
@@ -741,16 +742,16 @@ if __name__ == "__main__":
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
 			continue
-		print "ID     ", myPatient['ID']
-		print "name   ", myPatient['active name']
-		print "doc ids", myPatient['document id list']
-		print "title  ", myPatient['title']
-		print "dob    ", myPatient['dob']
-		print "med age", myPatient['medical age']
+		print "ID       ", myPatient['ID']
+		print "name     ", myPatient['active name']
+		print "doc ids  ", myPatient['document id list']
+		print "title    ", myPatient['title']
+		print "dob      ", myPatient['dob']
+		print "med age  ", myPatient['medical age']
 		print "addresses", myPatient['addresses']
+		print "adr types", GetAddressTypes()
 		record = myPatient['clinical record']
-		print "EPR    ", record
-		print myPatient.patient.GetAddressTypes ()
+		print "EPR      ", record
 #		print "allergy IDs", record['allergy IDs']
 #		print "fails  ", myPatient['missing handler']
 		print "--------------------------------------"
@@ -760,7 +761,11 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.38  2003-09-23 12:49:56  ncq
+# Revision 1.39  2003-09-23 19:38:03  ncq
+# - cleanup
+# - moved GetAddressesType out of patient class - it's a generic function
+#
+# Revision 1.38  2003/09/23 12:49:56  ncq
 # - reformat, %d -> %s
 #
 # Revision 1.37  2003/09/23 12:09:26  ihaywood
