@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-08-07 14:59:19 $
-# @version $Revision: 1.36 $ $Date: 2002-08-07 14:59:19 $ $Author: ncq $
+# @Date: $Date: 2002-08-08 10:11:52 $
+# @version $Revision: 1.37 $ $Date: 2002-08-08 10:11:52 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -388,8 +388,9 @@ class cTalkbackFrame(wxFrame):
 		self.Close(true)
     #-----------------------------------------------
 	def onSend(self, event):
-		email_logger.setComment (self.field_desc.GetValue())
 		email_logger.setFrom (self.field_from.GetValue ())
+		email_logger.setTo (self.field_to.GetValue())
+		email_logger.setComment (self.field_desc.GetValue())		
 		email_logger.flush ()
 		self.Close(true)
 #==================================================
@@ -437,10 +438,17 @@ def main():
 def main_with_talkback():
 	"""Alternative main() method to run talkback logger.
 	"""
+
 	# "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org"
 	# aTo = ("gnumed-bugs@gmx.net",), anSMTPServer = "mail.gmx.net"
+
+	if gmCLI.has_arg('--debug'):
+		level = gmLog.lData
+	else:
+		level = gmLog.lInfo
+
 	global email_logger
-	email_logger = gmLog.cLogTargetEMail (gmLog.lInfo, aFrom = "GNUmed client", aTo = ("ncq@localhost",), anSMTPServer = "localhost")
+	email_logger = gmLog.cLogTargetEMail(level, aFrom = "GNUmed client", aTo = ("ncq@localhost",), anSMTPServer = "localhost")
 	myLog.AddTarget (email_logger)
 
 	# run normal main() but catch all exceptions and reraise them
