@@ -260,7 +260,7 @@ FOR EACH ROW EXECUTE PROCEDURE delete_names ();
 -- otherwise new users  can spend hours wrestling with
 -- postgres permissions
 GRANT SELECT ON names, identity, v_basic_person TO GROUP "gm-doctors";
-GRANT SELECT, INSERT, UPDATE, DELETE ON v_basic_person TO "_gm-doctors";
+GRANT SELECT, INSERT, UPDATE, DELETE ON v_basic_person TO GROUP "_gm-doctors";
 
 -- ==========================================================
 -- insert some example people
