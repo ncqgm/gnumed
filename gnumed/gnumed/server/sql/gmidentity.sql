@@ -23,7 +23,7 @@
 --                BREAKS BACKWARDS COMPATIBILITY!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmidentity.sql,v $
--- $Id: gmidentity.sql,v 1.34 2003-03-31 23:43:48 ncq Exp $
+-- $Id: gmidentity.sql,v 1.35 2003-04-01 13:14:11 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -232,18 +232,18 @@ CREATE RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person
     WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
     OR NEW.title != OLD.title DO INSTEAD 
     INSERT INTO names (title, firstnames, lastnames, id_identity, active)
-     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.id, 't');
+     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.i_id, 't');
 
 -- rule for identity change
 -- yes, you would use this, think carefully.....
 CREATE RULE r_update_basic_person2 AS ON UPDATE TO v_basic_person
     DO INSTEAD UPDATE identity SET dob=NEW.dob, cob=NEW.cob, gender=NEW.gender
-    WHERE id=NEW.id;
-       
+    WHERE id=NEW.i_id;
+
 -- deletes names as well by use of a trigger (double rule would be simpler, 
 -- but didn't work)
 CREATE RULE r_delete_basic_person AS ON DELETE TO v_basic_person DO INSTEAD
-       DELETE FROM identity WHERE id=OLD.id;
+       DELETE FROM identity WHERE id=OLD.i_id;
 
 CREATE FUNCTION delete_names () RETURNS OPAQUE AS '
 DECLARE
@@ -278,11 +278,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.35 $');
 
 -- =============================================
 -- $Log: gmidentity.sql,v $
--- Revision 1.34  2003-03-31 23:43:48  ncq
+-- Revision 1.35  2003-04-01 13:14:11  ncq
+-- - fix a few references to i_id in v_basic_person rules
+--
+-- Revision 1.34  2003/03/31 23:43:48  ncq
 -- - slightly change v_basic_person to allow for massive speedup of selects
 --
 -- Revision 1.33  2003/03/30 23:16:07  ncq
