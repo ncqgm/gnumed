@@ -8,7 +8,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmTestAccounts.sql,v $
--- $Id: gmTestAccounts.sql,v 1.7 2003-06-11 12:51:07 ncq Exp $
+-- $Id: gmTestAccounts.sql,v 1.8 2003-06-14 11:42:45 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -19,40 +19,43 @@
 -- Anyone know a way of telling VALID UNTIL that the
 -- value is CURRENT_DATE + interval '4 months' ?
 
+-- not possible according to Tom Lane, either do in client
+-- or wrap in pl/pgsql function with execute()
+
 -- ===================================================
 CREATE USER "test-doc"
 	WITH PASSWORD 'test-doc'
 	IN GROUP "gm-doctors", "gm-public"
-	VALID UNTIL '2003-09-30'
+	VALID UNTIL '2003-12-31'
 ;
 CREATE USER "_test-doc"
 	WITH PASSWORD 'test-doc'
 	IN GROUP "gm-doctors", "_gm-doctors", "gm-public"
-	VALID UNTIL '2003-09-30'
+	VALID UNTIL '2003-12-31'
 ;
 
 -- ===================================================
 CREATE USER "test-nurse"
 	WITH PASSWORD 'test-nurse'
 	IN GROUP "gm-staff_medical", "gm-public"
-	VALID UNTIL '2003-09-30'
+	VALID UNTIL '2003-12-31'
 ;
 CREATE USER "_test-nurse"
 	WITH PASSWORD 'test-nurse'
 	IN GROUP "gm-staff_medical", "_gm-staff_medical", "gm-public"
-	VALID UNTIL '2003-09-30'
+	VALID UNTIL '2003-12-31'
 ;
 
 -- ===================================================
 CREATE USER "test-secretary"
 	WITH PASSWORD 'test-secretary'
 	IN GROUP "gm-staff_office", "gm-public"
-	VALID UNTIL '2003-09-30'
+	VALID UNTIL '2003-12-31'
 ;
 CREATE USER "_test-secretary"
 	WITH PASSWORD 'test-secretary'
 	IN GROUP "gm-staff_office", "_gm-staff_office", "gm-public"
-	VALID UNTIL '2003-09-30'
+	VALID UNTIL '2003-12-31'
 ;
 
 -- ===================================================
@@ -61,13 +64,17 @@ CREATE USER "_test-secretary"
 -- instantiated at the database level or IOW *after* this script
 
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmTestAccounts.sql,v $', '$Revision: 1.7 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmTestAccounts.sql,v $', '$Revision: 1.8 $');
 
 \set ON_ERROR_STOP 1
 
 -- ===================================================
 -- $Log: gmTestAccounts.sql,v $
--- Revision 1.7  2003-06-11 12:51:07  ncq
+-- Revision 1.8  2003-06-14 11:42:45  ncq
+-- - note on VALID UNTIL
+-- - bump up VALID UNTIL to 2003-12-31
+--
+-- Revision 1.7  2003/06/11 12:51:07  ncq
 -- - Andreas is right, we *cannot* do revision tracking here ...
 --
 -- Revision 1.6  2003/06/10 08:56:59  ncq
