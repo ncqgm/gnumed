@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.33 2003-09-21 10:37:20 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmTmpPatient.py,v 1.34 2003-09-21 12:46:30 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -110,17 +110,12 @@ class gmPerson:
 
 		- true/false/None
 		"""
-		curs = self._defconn_ro.cursor()
 		cmd = "select exists(select id from identity where id = %s)"
-		try:
-			curs.execute(cmd, self.ID)
-		except:
-			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info(), verbose=0)
+		res = gmPG.run_ro_query('personalia', cmd, self.ID)
+		if res is None:
+			_log.Log(gmLog.lErr, 'check for person ID [%s] existence failed' % self.ID)
 			return None
-		res = curs.fetchone()[0]
-		curs.close()
-		return res
+		return res[0][0]
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------
@@ -183,66 +178,41 @@ class gmPerson:
 		return docs
 	#--------------------------------------------------------
 	def _getActiveName(self):
-		curs = self._defconn_ro.cursor()
 		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s"
-		try:
-			curs.execute(cmd, self.ID)
-		except:
-			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
-			return None
-		data = curs.fetchone()
-		curs.close()
+		data = gmPG.run_ro_query('personalia', cmd, self.ID)
 		if data is None:
 			return None
-		else:
-			result = {
-				'first': data[0],
-				'last': data[1]
-			}
-			return result
+		result = {
+			'first': data[0][0],
+			'last': data[0][1]
+		}
+		return result
 	#--------------------------------------------------------
 	def _getTitle(self):
-		curs = self._defconn_ro.cursor()
 		cmd = "select title from v_basic_person where i_id = %s"
-		try:
-			curs.execute(cmd, self.ID)
-		except:
-			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
-			return ''
-		data = curs.fetchone()
-		curs.close()
+		data = gmPG.run_ro_query('personalia', cmd, self.ID)
 		if data is None:
 			return ''
 		else:
-			if data[0] is None:
+			if data[0][0] is None:
 				return ''
 			else:
-				return data[0]
+				return data[0][0]
 	#--------------------------------------------------------
 	def _getID(self):
 		return self.ID
 	#--------------------------------------------------------
 	def _getDOB(self):
-		curs = self._defconn_ro.cursor()
 		# FIXME: invent a mechanism to set the desired format
 		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s"
-		try:
-			curs.execute(cmd, self.ID)
-		except:
-			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
-			return None
-		data = curs.fetchone()
-		curs.close()
+		data = gmPG.run_ro_query('personalia', cmd, self.ID)
 		if data is None:
 			return ''
-		else:
-			return data[0]
+		if data[0] is None:
+			return ''
+		return data[0][0]
 	#--------------------------------------------------------
 	def _get_addresses(self):
-		curs = self._defconn_ro.cursor()
 		cmd = """
 select
 	vba.addr_id,
@@ -262,12 +232,7 @@ where
 		and
 	lp2a.id_identity = %s
 """
-		if not gmPG.run_query(curs, cmd, self.ID):
-			curs.close()
-			_log.Log(gmLog.lErr, 'cannot get addresses for patient [%s]' % self.ID)
-			return None
-		data = curs.fetchall()
-		curs.close()
+		data = gmPG.run_ro_query('personalia', cmd, self.ID)
 		return [{'ID':i[0], 'type':i[1], 'number':i[2], 'street':i[3], 'urb':i[4], 'postcode':i[5]} for i in data]
 	#--------------------------------------------------------
 	def GuessPostcode (self, urb, street = None):
@@ -303,14 +268,8 @@ where
 		"""
 		if postcode is None or len (postcode) == 0:
 			return [] # cope with empty postcode name
-		curs = self._defconn_ro.cursor ()
 		cmd = "select street from v_zip2street where postcode = %s"
-		if not gmPG.run_query(curs, cmd, postcode):
-			curs.close()
-			_log.Log(gmLog.lErr, 'guessing street from postcode [%s] failed' % postcode)
-			return None
-		data = curs.fetchall()
-		curs.close()
+		data = gmPG.run_ro_query('personalia', cmd, postcode)
 		return data
 	#--------------------------------------------------------
 	def DeleteAddress (self, ID):
@@ -328,20 +287,14 @@ where
 		return 1
 	#--------------------------------------------------------
 	def _get_medical_age(self):
-		curs = self._defconn_ro.cursor()
 		cmd = "select dob from identity where id = %s"
-		try:
-			curs.execute(cmd, self.ID)
-		except:
-			curs.close()
-			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
-			return None
-		data = curs.fetchone()
-		curs.close()
+		data = gmPG.run_ro_query('personalia', cmd, self.ID)
 
 		if data is None:
 			return '??'
-		return get_medical_age(data[0])
+		if data[0] is None:
+			return '??'
+		return get_medical_age(data[0][0])
 	#--------------------------------------------------------
 	def _get_clinical_record(self):
 		if self.__db_cache.has_key('clinical record'):
@@ -750,7 +703,10 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.33  2003-09-21 10:37:20  ncq
+# Revision 1.34  2003-09-21 12:46:30  ncq
+# - switched most ro queries to run_ro_query()
+#
+# Revision 1.33  2003/09/21 10:37:20  ncq
 # - bugfix, cleanup
 #
 # Revision 1.32  2003/09/21 06:53:40  ihaywood
