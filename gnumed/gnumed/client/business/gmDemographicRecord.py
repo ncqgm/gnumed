@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.46 2004-05-30 03:50:41 sjtan Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmDemographicRecord.py,v 1.47 2004-06-17 11:36:12 ihaywood Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -630,6 +630,7 @@ where
 		if rows is None:
 			return []
 		return [{'id':row[0], 'origin':row[1], 'comment':row[2], 'external_id':row[3]} for row in rows]
+	#----------------------------------------------------------------
 #================================================================
 # convenience functions
 #================================================================
@@ -869,76 +870,6 @@ class OrgCategoryMP (gmMatchProvider.cMatchProvider_SQL):
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 #------------------------------------------------------------
-def setPostcodeWidgetFromUrbId(postcodeWidget, id_urb):
-	"""convenience method for urb and postcode phrasewheel interaction.
-	   never called without both arguments, but need to check that id_urb
-	   is not invalid"""
-	#TODO type checking that the postcodeWidget is a phrasewheel configured
-	# with a postcode matcher
-	if  postcodeWidget is None or id_urb is None:
-		return False 
-	postcode = getPostcodeForUrbId(id_urb)
-	if postcode is None:
-		return False
-	if len(postcode) == 0:
-		return True 
-	postcodeWidget.SetValue(postcode)
-	postcodeWidget.input_was_selected= 1
-	return True
-#------------------------------------------------------------
-def setUrbPhraseWheelFromPostcode(pwheel, postcode):
-	"""convenience method for common postcode to urb phrasewheel collaboration.
-	   there is no default args for these utility functions,
-	   This function is never called without both arguments, otherwise
-	   there is no intention (= modify the urb phrasewheel with postcode value).
-	"""
-	# TODO type checking that the pwheel is a urb phrasewheel with a urb matcher
-	# clearing post code unsets target
-	# phrasewheel's postcode context
-	if pwheel is None:
-		return False
-	if postcode == '':
-		pwheel.setContext("postcode", "%")
-		return True
-	urbs = getUrbsForPostcode(postcode)
-	if urbs is None:
-		return False
-	if len(urbs) == 0:
-		return True
-	pwheel.SetValue(urbs[0])
-	pwheel.input_was_selected = 1
-
-	# FIXME: once the postcode context is set,
-	# the urb phrasewheel will only return urbs with
-	# the same postcode. These can be viewed by clearing
-	# the urb widget. ?How to unset the postcode context,
-	# some gui gesture ? clearing the postcode
-	# (To view all the urbs for a set context,
-	# put a "*" in the urb box and activate the picklist.
-	# THE PROBLEM WITH THIS IS IF THE USER CLEARS THE BOX AND SET CONTEXT IS RESET,
-	# then the "*" will try to pull all thousands of urb names, freezing the app.
-	# so needs a fixup (? have SQL select ... LIMIT n in Phrasewheel )
-
-	pwheel.setContext("postcode", postcode)
-	return True
-
-
-#------------------------------------------------------------
-
-# FIXME: do we REALLY need this ?
-#def get_time_tuple(faultyMxDateObject):
-#		list = [0,0,0,   0, 0, 0,   0, 0, 0]
-#		try:
-#			i = 0
-#			l = str(faultyMxDateObject).split(' ')[0].split('-')
-#			for x in l:
-#				list[i] = int(x)
-#				i += 1
-#		except:
-#			print "Failed to parse dob"
-#			_log.LogException("Failed to parse DOB", sys.exc_info(), verbose = 1)
-#
-#		return list
 
 
 #============================================================
@@ -972,7 +903,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.46  2004-05-30 03:50:41  sjtan
+# Revision 1.47  2004-06-17 11:36:12  ihaywood
+# Changes to the forms layer.
+# Now forms can have arbitrary Python expressions embedded in @..@ markup.
+# A proper forms HOWTO will appear in the wiki soon
+#
+# Revision 1.46  2004/05/30 03:50:41  sjtan
 #
 # gmContacts can create/update org, one level of sub-org, org persons, sub-org persons.
 # pre-alpha or alpha ? Needs cache tune-up .

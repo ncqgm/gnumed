@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.20 2004-06-08 00:56:39 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmForms.py,v 1.21 2004-06-17 11:36:13 ihaywood Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -16,7 +16,7 @@ import sys, os.path, string, time, re, tempfile, cStringIO, types
 #if __name__ == "__main__":
 #		sys.path.append('../..')
 
-from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions
+from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchProvider
 from Gnumed.pycommon.gmPyCompat import *
 if __name__ == "__main__":
 	from Gnumed.pycommon import gmI18N
@@ -31,13 +31,23 @@ class gmFormEngine:
 	"""Ancestor for forms.
 
 	No real functionality as yet
-	Descendants should override class variables country, type, electronic, date as neccessary
+	Descendants should override class variables country, type, electronic,
+	date as neccessary
 	"""
 
 	def __init__ (self, pk_def=None, template=None, flags=[]):
 		self.template = template
 		self.flags = flags
 		self.pk_def = pk_def
+		self.patient = gmPatient.gmCurrentPatient ()
+		self.whoami = gmWhoAmI.cWhoAmI ()
+		self.machine = self.whoami.get_workplace ()
+
+	def convert (self, item):
+		"""
+		Perform whatever character set conversions are reuired for this form
+		"""
+		return item
 
 	def process (self, params, escape='@'):
 		"""Merge values into the form template.
@@ -71,7 +81,7 @@ class gmFormEngine:
 		"""
 		return self.flags
 	#--------------------------------------------------------
-	def store(self, episode, encounter, params=None, link_obj='historica'):
+	def store(self, params=None):
 		"""Stores the parameters in the backend.
 
 		- link_obj can be a cursor, a connection or a service name
@@ -82,6 +92,9 @@ class gmFormEngine:
 		# some forms may not have values ...
 		if params is None:
 			params = {}
+		patient_clinical = self.patient.get_clinical_record ()
+		encounter = patient_clinical.get_active_encounter()['pk_encounter']
+		episode = patient_clinical.get_active_episode()['id_episode']
 		# generate "forever unique" name
 		cmd = "select name_short || ': <' || name_long || '::' || revision || '>' from form_defs where pk=%s";
 		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
@@ -109,7 +122,7 @@ class gmFormEngine:
 			queries.append((cmd, [key, params[key]]))
 		# - get inserted PK
 		queries.append(("select currval ('form_instances_pk_seq')", []))
-		status, err = gmPG.run_commit(link_obj, queries, True)
+		status, err = gmPG.run_commit('historica', queries, True)
 		if status is None:
 			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
 			return None
@@ -120,49 +133,75 @@ class TextForm (gmFormEngine):
 	Takes a plain text form and subsitutes the fields
 	which are marked using an escape character.
 
-	The fields are a dictionary of strings or string lists
+	The fields are a dictionary of strings, string lists, or functions that return these
+	Lists of lists ae allowed, and will be printed as tab-separated tables 
 	If lists, the lines containing these fields are repeated until one
 	of the lists is exhausted.
 	"""
-	def __subst (self, match):
-		"""
-		Perform a substitution on the string using a parameters dictionary,
-		returns the subsitution
-		"""
-		try:
-			is_list = (type(self.params[match]) is types.ListType)
-		except KeyError:
-			_log.Log (gmLog.lInfo, "can't find value for placeholder [%s] in data dictionary" % match)
-			return ""
 
-		if is_list:
-			self.start_list = 1 # we've got a list, keep repeating this line
-			if self.idx >= len (self.params[match]):
-				_log.Log (gmLog.lErr, "array field %s exhausted at index %d" % (match, self.idx))
-				return ""
-			elif len (self.params[match]) == self.idx+1: # stop when list exhausted, separate flag so other flags don't overwrite
-				self.stop_list = 1
-			return self.params[match][self.idx]
+
+	def __init__ (self, *args):
+		gmFormEngine.__init__ (self, *args)
+		self.basic_params = {}
+		self.results = {}
+		self.basic_params['sender'] = gmDemographicRecord.cDemographicRecord_SQL (self.whoami.get_staff_identity ())
+		self.basic_params['patient'] = self.patient.get_demographic_record ()
+		self.basic_params['clinical'] = self.patient.get_clinical_record ()
+
+	def convert (self, item, table_sep='\n'):
+		"""
+		Convert lists and tuples to tab-separated lines
+		"""
+		if type (item) is types.ListType or type (item) is types.TupleType:
+			return string.join ([self.convert (i, '\t') for i in item], table_sep)
+		elif type (item) is types.IntType or type (item) is types.FloatType:
+			return str (item)
 		else:
-			return self.params[match]
+			return item
+		
 	#--------------------------------------------------------
 	def process (self, params, escape='@'):
+		self.basic_params.update (params)
 		# FIXME: rewrite for @placeholder@ style
-		regex = "%s(\\w+)" % escape
-		self.result = cStringIO.StringIO ()
-		self.params = params
-		_subst = self.__subst	# scope hack
-		for line in self.template.split ('\n'):
-			self.idx = 0
-			self.start_list = 0
-			self.stop_list = 0
-			self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
-			if self.start_list:
-				while not self.stop_list:
-					self.idx += 1
-					self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
+                regex = "%s(.+)%s" % (escape, escape)
+                self.result = cStringIO.StringIO ()
+                self.params = self.basic_params
+                _subst = self.__subst   # scope hack
+                for line in self.template.split ('\n'):
+                        self.idx = 0
+                        self.start_list = 0
+                        self.stop_list = 0
+                        self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
+                        if self.start_list:
+                                while not self.stop_list:
+                                        self.idx += 1
+                                        self.result.write (re.sub (regex, lambda x: _subst (x.group (1)), line) + '\n')
+
 		self.result.seek (0)
 		return self.result
+	
+        def __subst (self, match):
+                """
+                Perform a substitution on the string using a parameters dictionary,
+                returns the subsitution
+                """
+		try:
+			self.results[match] = eval (match, self.params)
+		except NameError:
+			_log.Log (gmLog.lErr, "name error on %s" % match)
+			return ""
+                if type(self.results[match]) is types.ListType:
+                        self.start_list = 1 # we've got a list, keep repeating this line
+                        if self.idx >= len (self.params[match]):
+                                _log.Log (gmLog.lErr, "array field %s exhausted at index %d" % (match, self.idx))
+                                return ""
+                        elif len (self.results[match]) == self.idx+1: # stop when list exhausted, separate flag so other flags don't overwrite
+                                self.stop_list = 1
+                        return self.convert (self.results[match][self.idx])
+                else:
+                        return self.convert (self.results[match])
+        #--------------------------------------------------------
+
 	#--------------------------------------------------------
 	def exe (self, command):
 		if "%F" in command:
@@ -177,20 +216,25 @@ class TextForm (gmFormEngine):
 			stdin = os.popen (command, "w", 2048)
 			stdin.write (self.result.read ())
 			stdin.close ()
-
+	#----------------------------------------------------------
+	
+	def printout (self):
+		command, set1 = gmCfg.getFirstMatchingDBSet (machine = self.machine, option = 'main.comms.print')
+		self.exe (command)
 #============================================================
 class LaTeXForm (TextForm):
 	"""A forms engine wrapping LaTeX.
 	"""
-	def __texify (self, item):
+	def convert (self, item  ):
 		"""
 		Convience function to escape ISO-Latin-1 strings for TeX output
 		WARNING: not all ISO-Latin-1 characters are expressible in TeX
 		FIXME: nevertheless, there are a few more we could support
-		"""
 
-		if type (item) is types.StringType or type (item) is types.UnicodeType:
-			item = item.replace ("\\", "\\backspace") # I wonder about this, do we want users to be able to use raw TeX?
+		Also intelligently convert lists and tuples into TeX-style table lines
+		"""
+		if type (item) is types.UnicodeType or type (item) is types.StringType:
+			item = item.replace ("\\", "\\backslash") # I wonder about this, do we want users to be able to use raw TeX?
 			item = item.replace ("&", "\\&")
 			item = item.replace ("$", "\\$")
 			item = item.replace ('"', "") # okay, that's not right, but easiest solution for now
@@ -200,28 +244,30 @@ class LaTeXForm (TextForm):
 			# FIXME: cover all of ISO-Latin-1 which can be expressed in TeX
 			if type (item) is types.UnicodeType:
 				item = item.encode ('latin-1', 'replace')
-			trans = {'ß':'\\ss{}', 'ä': '\\"{a}', 'Ä' :'\\"{A}', 'ö': '\\"{o}', 'Ö': '\\"{O}',	'ü': '\\"{u}', 'Ü': '\\"{U}',
+				trans = {'ß':'\\ss{}', 'ä': '\\"{a}', 'Ä' :'\\"{A}', 'ö': '\\"{o}', 'Ö': '\\"{O}',	'ü': '\\"{u}', 'Ü': '\\"{U}',
 					 '\x8a':'\\v{S}', '\x8a':'\\OE{}', '\x9a':'\\v{s}', '\x9c': '\\oe{}', '\a9f':'\\"{Y}', #Microsloth extensions
 					 '\x86': '{\\dag}', '\x87': '{\\ddag}', '\xa7':'{\\S}', '\xb6': '{\\P}', '\xa9': '{\\copyright}', '\xbf': '?`',
 					 '\xc0':'\\`{A}', '\xa1': "\\'{A}", '\xa2': '\\^{A}', '\xa3':'\\~{A}', '\\xc5': '{\AA}',
 					 '\xc7':'\\c{C}', '\xc8':'\\`{E}',	
 					 '\xa1': '!`',
-					 '\xb5':'$\mu$', '\xa3': '\pounds{}', '\xa2':'cent'}
-			for k, i in trans.items ():
-				item = item.replace (k, i)
-		if type (item) is types.ListType: 
-			item = [self.texify (i) for i in item]
-		if type (item) is types.IntType:
-			item = str(item)
-		if type (item) is types.DictType:
-			for i in item.keys ():
-				item[i] = self.__texify (item[i])
+				 '\xb5':'$\mu$', '\xa3': '\pounds{}', '\xa2':'cent'}
+				for k, i in trans.items ():
+					item = item.replace (k, i)
+		elif type (item) is types.ListType or type (item) is types.TupleType:
+			item = string.join ([self.convert (i) in item], ' & ') + ' \\\\\n'
+		elif item is None:
+			item = '\\relax % Python None\n'
+		elif type (item) is types.IntType or type (item) is types.FloatType:
+			item = str (item)
+		else:
+			_log.Log (gmLog.lErr, "unknown type %s " % type (item))
+			raise FormError ('unknown type [%s]' % type (item))
 		return item
 
 	def process (self, params):
 		try:
-			params = self.__texify (params)
 			latex = TextForm.process (self, params)
+			print latex.getvalue ()
 			# create a 'sandbox' directory for LaTeX to play in
 			self.tmp = tempfile.mktemp ()
 			os.makedirs (self.tmp)
@@ -231,11 +277,12 @@ class LaTeXForm (TextForm):
 			stdin.write (latex.getvalue ()) # send text. LaTeX spits it's output into stdout.
 			# FIXME: send LaTeX output to the logger
 			stdin.close ()
-			if os.system ("dvips texput.dvi -o texput.ps") != 0:
-				raise gmExceptions.InvalidInputError ('DVIPS returned error') 
+			dvips = os.system ("dvips texput.dvi -o texput.ps")
+			if dvips != 0:
+				raise FormError ('DVIPS returned error [%d]' % dvips) 
 		except EnvironmentError, e:
-			_log.Log (gmLog.lErr, '' % e.strerror)
-			raise gmExceptions.InvalidInputError ('Form printing failed because [%s]' % e.strerror)
+			_log.Log (gmLog.lErr, e.strerror)
+			raise FormError (e.strerror)
 		return file ("texput.ps")
 
 	def xdvi (self):
@@ -250,9 +297,14 @@ class LaTeXForm (TextForm):
 			command.replace ("%F", "texput.ps")
 		else:
 			command	 = "%s < texput.ps" % command
-		if os.system (command) != 0:
-			_log.Log (gmLog.lErr, "external command %s returned non-zero" % command)
-			return False
+		try:
+			ret = os.system (command)
+			if ret != 0:
+				_log.Log (gmLog.lErr, "external command %s returned non-zero" % command)
+				raise FormError ('external command %s returned %s' % (command, ret))
+		except EnvironmentError, e:
+			_log.Log (gmLog.lErr, e.strerror)
+			raise FormError (e.strerror)		     
 		return True
 
 	def cleanup (self):
@@ -267,18 +319,26 @@ class LaTeXForm (TextForm):
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def search_form (discipline = None, electronic=0):
-	"""
-	Searches for available forms given the discipline and electronicity
-	(i.e whether the output is  for printing or direct electronic transmission by whatever secure protocol)
-	"""
 
-	cmd = "select name_short, name_long, version, id from form_types, lnk_form2discipline where id_form = id and discipline like %%s and %s electronic" % (electronic or 'not') and ''
-	result = gmPG.run_ro_query ('reference', cmd, None, discipline)
-	if result is None:
-		return []
-	else:
-		return [{'name_short':r[0], 'name_long':r[1], 'version':r[2], 'id':r[3]} for r in result]
+class FormTypeMP (gmMatchProvider.cMatchProvider_SQL):
+	def __init__ (self):
+		source = [{
+			'column':'name',
+			'table':'form_types',
+			'service':'reference',
+			'pk':'pk'}]
+		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
+
+class FormMP (gmMatchProvider.cMatchProvider_SQL):
+	def __init__ (self):
+		source = [{
+			'column':'name_long',
+			'table':'form_defs',
+			'service':'reference',
+			'extra conditions':{'type':'fk_type = %s or fk_type is null'},
+			'pk':'pk'}]
+		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
+	
 #------------------------------------------------------------
 def get_form(id):
 	"""
@@ -294,19 +354,27 @@ def get_form(id):
 	result = gmPG.run_ro_query ('reference', cmd, None, id)
 	if result is None:
 		_log.Log (gmLog.lErr, 'error getting form [%s]' % id)
-		raise gmExceptions.InvalidInputError ('Error getting form [%s]' % id)
+		raise gmExceptions.FormError ('Error getting form [%s]' % id)
 	if len(result) == 0:
 		_log.Log (gmLog.lErr, 'no form [%s] found' % id)
-		raise gmExceptions.InvalidInputError ('No such form found [%s]' % id)
+		raise gmExceptions.FormError ('No such form found [%s]' % id)
 	if result[0][1] == 'L':
 		return LaTeXForm (result[0][3], result[0][0], result[0][2])
 	elif result[0][1] == 'T':
 		return TextForm (result[0][3], result[0][0], result[0][2])
 	else:
 		_log.Log (gmLog.lErr, 'no form engine [%s] for form [%s]' % (result[0][1], id))
-		raise gmExceptions.InvalidInputError ('no engine [%s] for form [%s]' % (result[0][1], id))
+		raise FormError ('no engine [%s] for form [%s]' % (result[0][1], id))
 		
 #-------------------------------------------------------------
+class FormError (Exception):
+	def __init__ (self, value):
+		self.value = value
+
+	def __str__ (self):
+		return repr (self.value)
+#-------------------------------------------------------------
+
 def test_au():
 		f = open('../../test-area/ian/terry-form.tex')
 		params = {
@@ -359,7 +427,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.20  2004-06-08 00:56:39  ncq
+# Revision 1.21  2004-06-17 11:36:13  ihaywood
+# Changes to the forms layer.
+# Now forms can have arbitrary Python expressions embedded in @..@ markup.
+# A proper forms HOWTO will appear in the wiki soon
+#
+# Revision 1.20  2004/06/08 00:56:39  ncq
 # - even if we don't need parameters we need to pass an
 #   empty param list to gmPG.run_commit()
 #
