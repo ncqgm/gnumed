@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.166 2005-03-17 21:15:29 cfmoro Exp $
-__version__ = "$Revision: 1.166 $"
+# $Id: gmClinicalRecord.py,v 1.167 2005-03-20 16:47:26 ncq Exp $
+__version__ = "$Revision: 1.167 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1576,8 +1576,7 @@ where pk_episode in %s and pk_patient = %s"""
 		if problem['type'] != 'episode':
 			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (problem['problem'], problem['type']))
 			return None
-		episode = self.get_episodes(id_list=[problem['pk_episode']])[0]
-		return episode
+		return self.get_episodes(id_list=[problem['pk_episode']])[0]
 	#------------------------------------------------------------------
 	# unchecked stuff
 	#------------------------------------------------------------------
@@ -1710,7 +1709,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.166  2005-03-17 21:15:29  cfmoro
+# Revision 1.167  2005-03-20 16:47:26  ncq
+# - cleanup
+#
+# Revision 1.166  2005/03/17 21:15:29  cfmoro
 # Added problem2episode cast method
 #
 # Revision 1.165  2005/03/14 18:16:52  cfmoro

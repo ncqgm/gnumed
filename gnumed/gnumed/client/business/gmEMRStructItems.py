@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -278,7 +278,7 @@ class cProblem(gmClinItem.cClinItem):
 		The problem's type attribute must be 'episode'
 		"""
 		if self._payload[self._idx['type']] != 'episode':
-			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
+			_log.Log(gmLog.lErr, 'cannot convert problem [%s] of type [%s] to episode' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
 		try:
 			episode = cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
@@ -505,7 +505,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.44  2005-03-17 21:59:35  cfmoro
+# Revision 1.45  2005-03-20 16:47:26  ncq
+# - cleanup
+#
+# Revision 1.44  2005/03/17 21:59:35  cfmoro
 # Fixed log comment
 #
 # Revision 1.43  2005/03/17 21:46:23  cfmoro

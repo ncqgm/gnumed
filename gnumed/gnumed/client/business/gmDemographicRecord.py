@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.66 2005-03-08 16:41:37 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmDemographicRecord.py,v 1.67 2005-03-20 16:47:26 ncq Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -248,7 +248,7 @@ class cIdentity (cOrg):
 			title = ''
 		else:
 			title = title[:4] + '.'
-		return _("%s%s %s") % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
+		return "%s%s %s" % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
 		"""Add a name """
@@ -596,7 +596,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.66  2005-03-08 16:41:37  ncq
+# Revision 1.67  2005-03-20 16:47:26  ncq
+# - cleanup
+#
+# Revision 1.66  2005/03/08 16:41:37  ncq
 # - properly handle title
 #
 # Revision 1.65  2005/03/06 08:17:02  ihaywood
