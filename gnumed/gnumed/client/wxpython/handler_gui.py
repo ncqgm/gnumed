@@ -1,16 +1,9 @@
-# ['gmContacts.py', 'gmDrugDisplay.py', 'gmGuidelines.py', 'gmLock.py', 'gmManual.py', 'gmOffice.py', 'gmPatientWindowManager.py', 'gmPython.py', 'gmSQL.py', 'gmSnellen.py', 'gmStikoBrowser.py', 'gmplNbPatientSelector.py', 'gmplNbSchedule.py']
+# ['gmContacts.py', 'gmDrugDisplay.py', 'gmGuidelines.py', 'gmLock.py', 'gmManual.py', 'gmOffice.py', 'gmPatientWindowManager.py', 'gmPython.py', 'gmSQL.py', 'gmShowMedDocs.py', 'gmSnellen.py', 'gmStikoBrowser.py', 'gmplNbPatientSelector.py', 'gmplNbSchedule.py']
 
 from wxPython.wx import * 
-#creating a handler as gmContacts_handler from gui/gmContacts.py
-# type_search_str =  class\s+(?P<new_type>\w+)\s*\(.*(?P<base_type>wxTextCtrl|wxComboBox|wxButton|wxRadioButton|wxCheckBox|wxListBox)
-# found new type = TextBox_RedBold which is base_type wxTextCtrl
-
-# found new type = TextBox_BlackNormal which is base_type wxTextCtrl
-
-# [('txt_org_name', 'TextBox_RedBold'), ('txt_org_type', 'TextBox_RedBold'), ('txt_org_street', 'wxTextCtrl'), ('txt_org_suburb', 'TextBox_RedBold'), ('txt_org_zip', 'TextBox_RedBold'), ('txt_org_state', 'TextBox_RedBold'), ('txt_org_user1', 'TextBox_BlackNormal'), ('txt_org_user2', 'TextBox_BlackNormal'), ('txt_org_user3', 'TextBox_BlackNormal'), ('txt_org_category', 'TextBox_BlackNormal'), ('txt_org_phone', 'TextBox_BlackNormal'), ('txt_org_fax', 'TextBox_BlackNormal'), ('txt_org_mobile', 'TextBox_BlackNormal'), ('txt_org_email', 'TextBox_BlackNormal'), ('txt_org_internet', 'TextBox_BlackNormal'), ('txt_org_memo', 'wxTextCtrl'), ('combo_type', 'wxComboBox'), ('chbx_postaladdress', 'wxCheckBox')]
 
 
-class gmContacts_handler:
+class base_handler:
 
 	def create_handler(self, panel, model = None):
 		if model == None and self.model <> None:
@@ -20,169 +13,302 @@ class gmContacts_handler:
 
 	def __init__(self, panel, model = None):
 		self.panel = panel
-		self.model = model
+		
 		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
+			self.set_id()
+			self.set_evt()
 			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
+			self.set_name_map()	
 
+		self.set_model(model)
+			
+	def set_id(self):
+		# pure virtual
+		pass
+	
+	def set_evt(self):
+		# pure virtual
+		pass
+
+	def set_name_map(self):
+		# implement in subclasses,ie. pure virtual(c++) or abstact method( java)
+		pass
+		
 	def set_model(self,  model):
+		if model == None:
+			self.model ={}
+			return
+		
 		self.model = model
+		
+		
+		if  len(model) > 0 and self.panel <> None:
+			self.update_ui(model)
+			
+	def update_ui(self, model):
+		
+		if not  self.__dict__.has_key('name_map'):
+			return
+		if self.name_map == None:
+			return
+		
+		for k in model.keys():
+			v = model[k]
+			map = self.name_map.get( k, None)
+			if map == None:
+				continue
+			print "comp map = ", map
+			setter = map.get('setter_name', None)
+			if setter == None:
+				continue
+			component = map.get('comp_name')
+			if component ==  None:
+				continue
+			
+			#setter(component, v)
+			try:
+				exec( 'self.panel.%s.%s("%s")' % ( component, setter, v) )
+			except:
+				try:
+					exec( 'self.panel.%s.%s(%s)' % ( component, setter, v) )
+				except:
+					print 'failed to set',component,setter,  v
+			
+			
 		
 	def set_impl(self, impl):
 		self.impl = impl
+		
+	def get_valid_component( self , key):
+		if self.panel.__dict__.has_key(key):
+			return self.panel.__dict__[key]
+		return None
 
-	def __set_id(self):
+	def get_valid_func( self, key , func):
+		component =  self.get_valid_component(key)
+		if component == None:
+			return None
+		if component.__class__.__dict__.has_key(func):
+			return component.__class__.__dict__[func]
+		else:
+			print "unable to find ", func, "in component.class ", component.__class__.__name__
+		return None
+
+	def set_id_common(self, name ,  control ):
+		id = control.GetId()
+		if id <= 0:
+			id = wxNewId()
+			control.SetId(id)
+		self.id_map[name] = id
+
+		
+	
+#creating a handler as gmContacts_handler from gui/gmContacts.py
+# type_search_str =  class\s+(?P<new_type>\w+)\s*\(.*(?P<base_type>wxTextCtrl|wxComboBox|wxButton|wxRadioButton|wxCheckBox|wxListBox)
+# found new type = TextBox_RedBold which is base_type wxTextCtrl
+
+# found new type = TextBox_BlackNormal which is base_type wxTextCtrl
+
+# [('txt_org_name', 'TextBox_RedBold'), ('txt_org_type', 'TextBox_RedBold'), ('txt_org_street', 'wxTextCtrl'), ('txt_org_suburb', 'TextBox_RedBold'), ('txt_org_zip', 'TextBox_RedBold'), ('txt_org_state', 'TextBox_RedBold'), ('txt_org_user1', 'TextBox_BlackNormal'), ('txt_org_user2', 'TextBox_BlackNormal'), ('txt_org_user3', 'TextBox_BlackNormal'), ('txt_org_category', 'TextBox_BlackNormal'), ('txt_org_phone', 'TextBox_BlackNormal'), ('txt_org_fax', 'TextBox_BlackNormal'), ('txt_org_mobile', 'TextBox_BlackNormal'), ('txt_org_email', 'TextBox_BlackNormal'), ('txt_org_internet', 'TextBox_BlackNormal'), ('txt_org_memo', 'wxTextCtrl'), ('combo_type', 'wxComboBox'), ('chbx_postaladdress', 'wxCheckBox')]
+
+class gmContacts_handler( base_handler):
+	
+	def __init__(self, panel, model = None):
+		base_handler.__init__(self, panel, model)
+		
+
+	def set_name_map(self):
+		map = {}
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_name') ,
+			'setter': self.get_valid_func( 'txt_org_name', 'SetValue')  ,
+			'comp_name' : 'txt_org_name','setter_name' :  'SetValue' } 
+		map['org_name'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_type') ,
+			'setter': self.get_valid_func( 'txt_org_type', 'SetValue')  ,
+			'comp_name' : 'txt_org_type','setter_name' :  'SetValue' } 
+		map['org_type'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_street') ,
+			'setter': self.get_valid_func( 'txt_org_street', 'SetValue')  ,
+			'comp_name' : 'txt_org_street','setter_name' :  'SetValue' } 
+		map['org_street'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_suburb') ,
+			'setter': self.get_valid_func( 'txt_org_suburb', 'SetValue')  ,
+			'comp_name' : 'txt_org_suburb','setter_name' :  'SetValue' } 
+		map['org_suburb'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_zip') ,
+			'setter': self.get_valid_func( 'txt_org_zip', 'SetValue')  ,
+			'comp_name' : 'txt_org_zip','setter_name' :  'SetValue' } 
+		map['org_zip'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_state') ,
+			'setter': self.get_valid_func( 'txt_org_state', 'SetValue')  ,
+			'comp_name' : 'txt_org_state','setter_name' :  'SetValue' } 
+		map['org_state'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_user1') ,
+			'setter': self.get_valid_func( 'txt_org_user1', 'SetValue')  ,
+			'comp_name' : 'txt_org_user1','setter_name' :  'SetValue' } 
+		map['org_user1'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_user2') ,
+			'setter': self.get_valid_func( 'txt_org_user2', 'SetValue')  ,
+			'comp_name' : 'txt_org_user2','setter_name' :  'SetValue' } 
+		map['org_user2'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_user3') ,
+			'setter': self.get_valid_func( 'txt_org_user3', 'SetValue')  ,
+			'comp_name' : 'txt_org_user3','setter_name' :  'SetValue' } 
+		map['org_user3'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_category') ,
+			'setter': self.get_valid_func( 'txt_org_category', 'SetValue')  ,
+			'comp_name' : 'txt_org_category','setter_name' :  'SetValue' } 
+		map['org_category'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_phone') ,
+			'setter': self.get_valid_func( 'txt_org_phone', 'SetValue')  ,
+			'comp_name' : 'txt_org_phone','setter_name' :  'SetValue' } 
+		map['org_phone'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_fax') ,
+			'setter': self.get_valid_func( 'txt_org_fax', 'SetValue')  ,
+			'comp_name' : 'txt_org_fax','setter_name' :  'SetValue' } 
+		map['org_fax'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_mobile') ,
+			'setter': self.get_valid_func( 'txt_org_mobile', 'SetValue')  ,
+			'comp_name' : 'txt_org_mobile','setter_name' :  'SetValue' } 
+		map['org_mobile'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_email') ,
+			'setter': self.get_valid_func( 'txt_org_email', 'SetValue')  ,
+			'comp_name' : 'txt_org_email','setter_name' :  'SetValue' } 
+		map['org_email'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_internet') ,
+			'setter': self.get_valid_func( 'txt_org_internet', 'SetValue')  ,
+			'comp_name' : 'txt_org_internet','setter_name' :  'SetValue' } 
+		map['org_internet'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('txt_org_memo') ,
+			'setter': self.get_valid_func( 'txt_org_memo', 'SetValue')  ,
+			'comp_name' : 'txt_org_memo','setter_name' :  'SetValue' } 
+		map['org_memo'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('combo_type') ,
+			'setter': self.get_valid_func( 'combo_type', 'SetValue')  ,
+			'comp_name' : 'combo_type','setter_name' :  'SetValue' } 
+		map['type'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('chbx_postaladdress') ,
+			'setter': self.get_valid_func( 'chbx_postaladdress', 'SetValue')  ,
+			'comp_name' : 'chbx_postaladdress','setter_name' :  'SetValue' } 
+		map['postaladdress'] = comp_map
+		
+
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
 
 
 		if self.panel.__dict__.has_key('txt_org_name'):
-			id = self.panel.txt_org_name.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_name.SetId(id)
-			self.id_map['txt_org_name'] = id
+			self.set_id_common( 'txt_org_name',self.panel.txt_org_name)
 			
 
 		if self.panel.__dict__.has_key('txt_org_type'):
-			id = self.panel.txt_org_type.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_type.SetId(id)
-			self.id_map['txt_org_type'] = id
+			self.set_id_common( 'txt_org_type',self.panel.txt_org_type)
 			
 
 		if self.panel.__dict__.has_key('txt_org_street'):
-			id = self.panel.txt_org_street.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_street.SetId(id)
-			self.id_map['txt_org_street'] = id
+			self.set_id_common( 'txt_org_street',self.panel.txt_org_street)
 			
 
 		if self.panel.__dict__.has_key('txt_org_suburb'):
-			id = self.panel.txt_org_suburb.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_suburb.SetId(id)
-			self.id_map['txt_org_suburb'] = id
+			self.set_id_common( 'txt_org_suburb',self.panel.txt_org_suburb)
 			
 
 		if self.panel.__dict__.has_key('txt_org_zip'):
-			id = self.panel.txt_org_zip.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_zip.SetId(id)
-			self.id_map['txt_org_zip'] = id
+			self.set_id_common( 'txt_org_zip',self.panel.txt_org_zip)
 			
 
 		if self.panel.__dict__.has_key('txt_org_state'):
-			id = self.panel.txt_org_state.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_state.SetId(id)
-			self.id_map['txt_org_state'] = id
+			self.set_id_common( 'txt_org_state',self.panel.txt_org_state)
 			
 
 		if self.panel.__dict__.has_key('txt_org_user1'):
-			id = self.panel.txt_org_user1.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_user1.SetId(id)
-			self.id_map['txt_org_user1'] = id
+			self.set_id_common( 'txt_org_user1',self.panel.txt_org_user1)
 			
 
 		if self.panel.__dict__.has_key('txt_org_user2'):
-			id = self.panel.txt_org_user2.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_user2.SetId(id)
-			self.id_map['txt_org_user2'] = id
+			self.set_id_common( 'txt_org_user2',self.panel.txt_org_user2)
 			
 
 		if self.panel.__dict__.has_key('txt_org_user3'):
-			id = self.panel.txt_org_user3.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_user3.SetId(id)
-			self.id_map['txt_org_user3'] = id
+			self.set_id_common( 'txt_org_user3',self.panel.txt_org_user3)
 			
 
 		if self.panel.__dict__.has_key('txt_org_category'):
-			id = self.panel.txt_org_category.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_category.SetId(id)
-			self.id_map['txt_org_category'] = id
+			self.set_id_common( 'txt_org_category',self.panel.txt_org_category)
 			
 
 		if self.panel.__dict__.has_key('txt_org_phone'):
-			id = self.panel.txt_org_phone.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_phone.SetId(id)
-			self.id_map['txt_org_phone'] = id
+			self.set_id_common( 'txt_org_phone',self.panel.txt_org_phone)
 			
 
 		if self.panel.__dict__.has_key('txt_org_fax'):
-			id = self.panel.txt_org_fax.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_fax.SetId(id)
-			self.id_map['txt_org_fax'] = id
+			self.set_id_common( 'txt_org_fax',self.panel.txt_org_fax)
 			
 
 		if self.panel.__dict__.has_key('txt_org_mobile'):
-			id = self.panel.txt_org_mobile.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_mobile.SetId(id)
-			self.id_map['txt_org_mobile'] = id
+			self.set_id_common( 'txt_org_mobile',self.panel.txt_org_mobile)
 			
 
 		if self.panel.__dict__.has_key('txt_org_email'):
-			id = self.panel.txt_org_email.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_email.SetId(id)
-			self.id_map['txt_org_email'] = id
+			self.set_id_common( 'txt_org_email',self.panel.txt_org_email)
 			
 
 		if self.panel.__dict__.has_key('txt_org_internet'):
-			id = self.panel.txt_org_internet.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_internet.SetId(id)
-			self.id_map['txt_org_internet'] = id
+			self.set_id_common( 'txt_org_internet',self.panel.txt_org_internet)
 			
 
 		if self.panel.__dict__.has_key('txt_org_memo'):
-			id = self.panel.txt_org_memo.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.txt_org_memo.SetId(id)
-			self.id_map['txt_org_memo'] = id
+			self.set_id_common( 'txt_org_memo',self.panel.txt_org_memo)
 			
 
 		if self.panel.__dict__.has_key('combo_type'):
-			id = self.panel.combo_type.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.combo_type.SetId(id)
-			self.id_map['combo_type'] = id
+			self.set_id_common( 'combo_type',self.panel.combo_type)
 			
 
 		if self.panel.__dict__.has_key('chbx_postaladdress'):
-			id = self.panel.chbx_postaladdress.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.chbx_postaladdress.SetId(id)
-			self.id_map['chbx_postaladdress'] = id
+			self.set_id_common( 'chbx_postaladdress',self.panel.chbx_postaladdress)
 			
 
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		
 
@@ -286,8 +412,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_name']= obj.GetValue()
-			print self.model['org_name']
+			try :
+				self.model['org_name']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_name'] = str(obj.GetValue())
+				
+			print self.model, "org_name = ",  self.model['org_name']
 		
 
 	def txt_org_type_text_entered( self, event): 
@@ -300,8 +431,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_type']= obj.GetValue()
-			print self.model['org_type']
+			try :
+				self.model['org_type']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_type'] = str(obj.GetValue())
+				
+			print self.model, "org_type = ",  self.model['org_type']
 		
 
 	def txt_org_street_text_entered( self, event): 
@@ -314,8 +450,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_street']= obj.GetValue()
-			print self.model['org_street']
+			try :
+				self.model['org_street']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_street'] = str(obj.GetValue())
+				
+			print self.model, "org_street = ",  self.model['org_street']
 		
 
 	def txt_org_suburb_text_entered( self, event): 
@@ -328,8 +469,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_suburb']= obj.GetValue()
-			print self.model['org_suburb']
+			try :
+				self.model['org_suburb']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_suburb'] = str(obj.GetValue())
+				
+			print self.model, "org_suburb = ",  self.model['org_suburb']
 		
 
 	def txt_org_zip_text_entered( self, event): 
@@ -342,8 +488,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_zip']= obj.GetValue()
-			print self.model['org_zip']
+			try :
+				self.model['org_zip']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_zip'] = str(obj.GetValue())
+				
+			print self.model, "org_zip = ",  self.model['org_zip']
 		
 
 	def txt_org_state_text_entered( self, event): 
@@ -356,8 +507,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_state']= obj.GetValue()
-			print self.model['org_state']
+			try :
+				self.model['org_state']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_state'] = str(obj.GetValue())
+				
+			print self.model, "org_state = ",  self.model['org_state']
 		
 
 	def txt_org_user1_text_entered( self, event): 
@@ -370,8 +526,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_user1']= obj.GetValue()
-			print self.model['org_user1']
+			try :
+				self.model['org_user1']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_user1'] = str(obj.GetValue())
+				
+			print self.model, "org_user1 = ",  self.model['org_user1']
 		
 
 	def txt_org_user2_text_entered( self, event): 
@@ -384,8 +545,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_user2']= obj.GetValue()
-			print self.model['org_user2']
+			try :
+				self.model['org_user2']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_user2'] = str(obj.GetValue())
+				
+			print self.model, "org_user2 = ",  self.model['org_user2']
 		
 
 	def txt_org_user3_text_entered( self, event): 
@@ -398,8 +564,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_user3']= obj.GetValue()
-			print self.model['org_user3']
+			try :
+				self.model['org_user3']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_user3'] = str(obj.GetValue())
+				
+			print self.model, "org_user3 = ",  self.model['org_user3']
 		
 
 	def txt_org_category_text_entered( self, event): 
@@ -412,8 +583,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_category']= obj.GetValue()
-			print self.model['org_category']
+			try :
+				self.model['org_category']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_category'] = str(obj.GetValue())
+				
+			print self.model, "org_category = ",  self.model['org_category']
 		
 
 	def txt_org_phone_text_entered( self, event): 
@@ -426,8 +602,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_phone']= obj.GetValue()
-			print self.model['org_phone']
+			try :
+				self.model['org_phone']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_phone'] = str(obj.GetValue())
+				
+			print self.model, "org_phone = ",  self.model['org_phone']
 		
 
 	def txt_org_fax_text_entered( self, event): 
@@ -440,8 +621,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_fax']= obj.GetValue()
-			print self.model['org_fax']
+			try :
+				self.model['org_fax']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_fax'] = str(obj.GetValue())
+				
+			print self.model, "org_fax = ",  self.model['org_fax']
 		
 
 	def txt_org_mobile_text_entered( self, event): 
@@ -454,8 +640,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_mobile']= obj.GetValue()
-			print self.model['org_mobile']
+			try :
+				self.model['org_mobile']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_mobile'] = str(obj.GetValue())
+				
+			print self.model, "org_mobile = ",  self.model['org_mobile']
 		
 
 	def txt_org_email_text_entered( self, event): 
@@ -468,8 +659,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_email']= obj.GetValue()
-			print self.model['org_email']
+			try :
+				self.model['org_email']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_email'] = str(obj.GetValue())
+				
+			print self.model, "org_email = ",  self.model['org_email']
 		
 
 	def txt_org_internet_text_entered( self, event): 
@@ -482,8 +678,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_internet']= obj.GetValue()
-			print self.model['org_internet']
+			try :
+				self.model['org_internet']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_internet'] = str(obj.GetValue())
+				
+			print self.model, "org_internet = ",  self.model['org_internet']
 		
 
 	def txt_org_memo_text_entered( self, event): 
@@ -496,8 +697,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['org_memo']= obj.GetValue()
-			print self.model['org_memo']
+			try :
+				self.model['org_memo']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['org_memo'] = str(obj.GetValue())
+				
+			print self.model, "org_memo = ",  self.model['org_memo']
 		
 
 	def combo_type_text_entered( self, event): 
@@ -510,8 +716,13 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['type']= obj.GetValue()
-			print self.model['type']
+			try :
+				self.model['type']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['type'] = str(obj.GetValue())
+				
+			print self.model, "type = ",  self.model['type']
 		
 
 	def chbx_postaladdress_checkbox_clicked( self, event): 
@@ -524,130 +735,157 @@ class gmContacts_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['postaladdress']= obj.GetValue()
-			print self.model['postaladdress']
+			try :
+				self.model['postaladdress']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['postaladdress'] = str(obj.GetValue())
+				
+			print self.model, "postaladdress = ",  self.model['postaladdress']
 		
 #creating a handler as gmDrugDisplay_handler from gui/gmDrugDisplay.py
 # [('comboProduct', 'wxComboBox'), ('btnBookmark', 'wxButton'), ('rbtnSearchAny', 'wxRadioButton'), ('rbtnSearchBrand', 'wxRadioButton'), ('rbtnSearchGeneric', 'wxRadioButton'), ('rbtnSearchIndication', 'wxRadioButton'), ('listbox_jumpto', 'wxListBox'), ('btnPrescribe', 'wxButton'), ('btnDisplay', 'wxButton'), ('btnPrint', 'wxButton'), ('listbox_drugchoice', 'wxListBox')]
 
-
-class gmDrugDisplay_handler:
-
-	def create_handler(self, panel, model = None):
-		if model == None and self.model <> None:
-			model = self.model
-			
-		return self.__init__(panel, model)
-
+class gmDrugDisplay_handler( base_handler):
+	
 	def __init__(self, panel, model = None):
-		self.panel = panel
-		self.model = model
-		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
-			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
-
-	def set_model(self,  model):
-		self.model = model
+		base_handler.__init__(self, panel, model)
 		
-	def set_impl(self, impl):
-		self.impl = impl
 
-	def __set_id(self):
+	def set_name_map(self):
+		map = {}
+		
+ 
+		comp_map = { 'component': self.get_valid_component('comboProduct') ,
+			'setter': self.get_valid_func( 'comboProduct', 'SetValue')  ,
+			'comp_name' : 'comboProduct','setter_name' :  'SetValue' } 
+		map['comboProduct'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('btnBookmark') ,
+			'setter': self.get_valid_func( 'btnBookmark', 'None')  ,
+			'comp_name' : 'btnBookmark','setter_name' :  'None' } 
+		map['btnBookmark'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('rbtnSearchAny') ,
+			'setter': self.get_valid_func( 'rbtnSearchAny', 'SetValue')  ,
+			'comp_name' : 'rbtnSearchAny','setter_name' :  'SetValue' } 
+		map['rbtnSearchAny'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('rbtnSearchBrand') ,
+			'setter': self.get_valid_func( 'rbtnSearchBrand', 'SetValue')  ,
+			'comp_name' : 'rbtnSearchBrand','setter_name' :  'SetValue' } 
+		map['rbtnSearchBrand'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('rbtnSearchGeneric') ,
+			'setter': self.get_valid_func( 'rbtnSearchGeneric', 'SetValue')  ,
+			'comp_name' : 'rbtnSearchGeneric','setter_name' :  'SetValue' } 
+		map['rbtnSearchGeneric'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('rbtnSearchIndication') ,
+			'setter': self.get_valid_func( 'rbtnSearchIndication', 'SetValue')  ,
+			'comp_name' : 'rbtnSearchIndication','setter_name' :  'SetValue' } 
+		map['rbtnSearchIndication'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('listbox_jumpto') ,
+			'setter': self.get_valid_func( 'listbox_jumpto', 'SetStringSelection')  ,
+			'comp_name' : 'listbox_jumpto','setter_name' :  'SetStringSelection' } 
+		map['jumpto'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('listbox_jumpto') ,
+			'setter': self.get_valid_func( 'listbox_jumpto', 'SetStringSelection')  ,
+			'comp_name' : 'listbox_jumpto','setter_name' :  'SetStringSelection' } 
+		map['jumpto'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('btnPrescribe') ,
+			'setter': self.get_valid_func( 'btnPrescribe', 'None')  ,
+			'comp_name' : 'btnPrescribe','setter_name' :  'None' } 
+		map['btnPrescribe'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('btnDisplay') ,
+			'setter': self.get_valid_func( 'btnDisplay', 'None')  ,
+			'comp_name' : 'btnDisplay','setter_name' :  'None' } 
+		map['btnDisplay'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('btnPrint') ,
+			'setter': self.get_valid_func( 'btnPrint', 'None')  ,
+			'comp_name' : 'btnPrint','setter_name' :  'None' } 
+		map['btnPrint'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('listbox_drugchoice') ,
+			'setter': self.get_valid_func( 'listbox_drugchoice', 'SetStringSelection')  ,
+			'comp_name' : 'listbox_drugchoice','setter_name' :  'SetStringSelection' } 
+		map['drugchoice'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('listbox_drugchoice') ,
+			'setter': self.get_valid_func( 'listbox_drugchoice', 'SetStringSelection')  ,
+			'comp_name' : 'listbox_drugchoice','setter_name' :  'SetStringSelection' } 
+		map['drugchoice'] = comp_map
+		
+
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
 
 
 		if self.panel.__dict__.has_key('comboProduct'):
-			id = self.panel.comboProduct.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.comboProduct.SetId(id)
-			self.id_map['comboProduct'] = id
+			self.set_id_common( 'comboProduct',self.panel.comboProduct)
 			
 
 		if self.panel.__dict__.has_key('btnBookmark'):
-			id = self.panel.btnBookmark.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.btnBookmark.SetId(id)
-			self.id_map['btnBookmark'] = id
+			self.set_id_common( 'btnBookmark',self.panel.btnBookmark)
 			
 
 		if self.panel.__dict__.has_key('rbtnSearchAny'):
-			id = self.panel.rbtnSearchAny.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.rbtnSearchAny.SetId(id)
-			self.id_map['rbtnSearchAny'] = id
+			self.set_id_common( 'rbtnSearchAny',self.panel.rbtnSearchAny)
 			
 
 		if self.panel.__dict__.has_key('rbtnSearchBrand'):
-			id = self.panel.rbtnSearchBrand.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.rbtnSearchBrand.SetId(id)
-			self.id_map['rbtnSearchBrand'] = id
+			self.set_id_common( 'rbtnSearchBrand',self.panel.rbtnSearchBrand)
 			
 
 		if self.panel.__dict__.has_key('rbtnSearchGeneric'):
-			id = self.panel.rbtnSearchGeneric.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.rbtnSearchGeneric.SetId(id)
-			self.id_map['rbtnSearchGeneric'] = id
+			self.set_id_common( 'rbtnSearchGeneric',self.panel.rbtnSearchGeneric)
 			
 
 		if self.panel.__dict__.has_key('rbtnSearchIndication'):
-			id = self.panel.rbtnSearchIndication.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.rbtnSearchIndication.SetId(id)
-			self.id_map['rbtnSearchIndication'] = id
+			self.set_id_common( 'rbtnSearchIndication',self.panel.rbtnSearchIndication)
 			
 
 		if self.panel.__dict__.has_key('listbox_jumpto'):
-			id = self.panel.listbox_jumpto.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.listbox_jumpto.SetId(id)
-			self.id_map['listbox_jumpto'] = id
+			self.set_id_common( 'listbox_jumpto',self.panel.listbox_jumpto)
 			
 
 		if self.panel.__dict__.has_key('btnPrescribe'):
-			id = self.panel.btnPrescribe.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.btnPrescribe.SetId(id)
-			self.id_map['btnPrescribe'] = id
+			self.set_id_common( 'btnPrescribe',self.panel.btnPrescribe)
 			
 
 		if self.panel.__dict__.has_key('btnDisplay'):
-			id = self.panel.btnDisplay.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.btnDisplay.SetId(id)
-			self.id_map['btnDisplay'] = id
+			self.set_id_common( 'btnDisplay',self.panel.btnDisplay)
 			
 
 		if self.panel.__dict__.has_key('btnPrint'):
-			id = self.panel.btnPrint.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.btnPrint.SetId(id)
-			self.id_map['btnPrint'] = id
+			self.set_id_common( 'btnPrint',self.panel.btnPrint)
 			
 
 		if self.panel.__dict__.has_key('listbox_drugchoice'):
-			id = self.panel.listbox_drugchoice.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.listbox_drugchoice.SetId(id)
-			self.id_map['listbox_drugchoice'] = id
+			self.set_id_common( 'listbox_drugchoice',self.panel.listbox_drugchoice)
 			
 
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		
 
@@ -726,8 +964,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['comboProduct']= obj.GetValue()
-			print self.model['comboProduct']
+			try :
+				self.model['comboProduct']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['comboProduct'] = str(obj.GetValue())
+				
+			print self.model, "comboProduct = ",  self.model['comboProduct']
 		
 
 	def btnBookmark_button_clicked( self, event): 
@@ -748,8 +991,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['rbtnSearchAny']= obj.GetValue()
-			print self.model['rbtnSearchAny']
+			try :
+				self.model['rbtnSearchAny']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['rbtnSearchAny'] = str(obj.GetValue())
+				
+			print self.model, "rbtnSearchAny = ",  self.model['rbtnSearchAny']
 		
 
 	def rbtnSearchBrand_radiobutton_clicked( self, event): 
@@ -762,8 +1010,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['rbtnSearchBrand']= obj.GetValue()
-			print self.model['rbtnSearchBrand']
+			try :
+				self.model['rbtnSearchBrand']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['rbtnSearchBrand'] = str(obj.GetValue())
+				
+			print self.model, "rbtnSearchBrand = ",  self.model['rbtnSearchBrand']
 		
 
 	def rbtnSearchGeneric_radiobutton_clicked( self, event): 
@@ -776,8 +1029,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['rbtnSearchGeneric']= obj.GetValue()
-			print self.model['rbtnSearchGeneric']
+			try :
+				self.model['rbtnSearchGeneric']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['rbtnSearchGeneric'] = str(obj.GetValue())
+				
+			print self.model, "rbtnSearchGeneric = ",  self.model['rbtnSearchGeneric']
 		
 
 	def rbtnSearchIndication_radiobutton_clicked( self, event): 
@@ -790,8 +1048,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['rbtnSearchIndication']= obj.GetValue()
-			print self.model['rbtnSearchIndication']
+			try :
+				self.model['rbtnSearchIndication']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['rbtnSearchIndication'] = str(obj.GetValue())
+				
+			print self.model, "rbtnSearchIndication = ",  self.model['rbtnSearchIndication']
 		
 
 	def listbox_jumpto_list_box_single_clicked( self, event): 
@@ -804,8 +1067,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['jumpto']= obj.GetStringSelection()
-			print self.model['jumpto']
+			try :
+				self.model['jumpto']= obj.GetStringSelection()
+			except:
+				# for dumbdbm persistent maps
+				self.model['jumpto'] = str(obj.GetStringSelection())
+				
+			print self.model, "jumpto = ",  self.model['jumpto']
 		
 
 	def listbox_jumpto_list_box_double_clicked( self, event): 
@@ -818,8 +1086,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['jumpto']= obj.GetStringSelection()
-			print self.model['jumpto']
+			try :
+				self.model['jumpto']= obj.GetStringSelection()
+			except:
+				# for dumbdbm persistent maps
+				self.model['jumpto'] = str(obj.GetStringSelection())
+				
+			print self.model, "jumpto = ",  self.model['jumpto']
 		
 
 	def btnPrescribe_button_clicked( self, event): 
@@ -856,8 +1129,13 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['drugchoice']= obj.GetStringSelection()
-			print self.model['drugchoice']
+			try :
+				self.model['drugchoice']= obj.GetStringSelection()
+			except:
+				# for dumbdbm persistent maps
+				self.model['drugchoice'] = str(obj.GetStringSelection())
+				
+			print self.model, "drugchoice = ",  self.model['drugchoice']
 		
 
 	def listbox_drugchoice_list_box_double_clicked( self, event): 
@@ -870,50 +1148,45 @@ class gmDrugDisplay_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['drugchoice']= obj.GetStringSelection()
-			print self.model['drugchoice']
+			try :
+				self.model['drugchoice']= obj.GetStringSelection()
+			except:
+				# for dumbdbm persistent maps
+				self.model['drugchoice'] = str(obj.GetStringSelection())
+				
+			print self.model, "drugchoice = ",  self.model['drugchoice']
 		
 #creating a handler as gmGuidelines_handler from gui/gmGuidelines.py
 # [('infoline', 'wxTextCtrl')]
 
-
-class gmGuidelines_handler:
-
-	def create_handler(self, panel, model = None):
-		if model == None and self.model <> None:
-			model = self.model
-			
-		return self.__init__(panel, model)
-
+class gmGuidelines_handler( base_handler):
+	
 	def __init__(self, panel, model = None):
-		self.panel = panel
-		self.model = model
-		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
-			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
-
-	def set_model(self,  model):
-		self.model = model
+		base_handler.__init__(self, panel, model)
 		
-	def set_impl(self, impl):
-		self.impl = impl
 
-	def __set_id(self):
+	def set_name_map(self):
+		map = {}
+		
+ 
+		comp_map = { 'component': self.get_valid_component('infoline') ,
+			'setter': self.get_valid_func( 'infoline', 'SetValue')  ,
+			'comp_name' : 'infoline','setter_name' :  'SetValue' } 
+		map['infoline'] = comp_map
+		
+
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
 
 
 		if self.panel.__dict__.has_key('infoline'):
-			id = self.panel.infoline.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.infoline.SetId(id)
-			self.id_map['infoline'] = id
+			self.set_id_common( 'infoline',self.panel.infoline)
 			
 
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		
 
@@ -932,52 +1205,47 @@ class gmGuidelines_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['infoline']= obj.GetValue()
-			print self.model['infoline']
+			try :
+				self.model['infoline']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['infoline'] = str(obj.GetValue())
+				
+			print self.model, "infoline = ",  self.model['infoline']
 		
 #creating a handler as gmLock_handler from gui/gmLock.py
 # []
 #creating a handler as gmManual_handler from gui/gmManual.py
 # [('infoline', 'wxTextCtrl')]
 
-
-class gmManual_handler:
-
-	def create_handler(self, panel, model = None):
-		if model == None and self.model <> None:
-			model = self.model
-			
-		return self.__init__(panel, model)
-
+class gmManual_handler( base_handler):
+	
 	def __init__(self, panel, model = None):
-		self.panel = panel
-		self.model = model
-		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
-			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
-
-	def set_model(self,  model):
-		self.model = model
+		base_handler.__init__(self, panel, model)
 		
-	def set_impl(self, impl):
-		self.impl = impl
 
-	def __set_id(self):
+	def set_name_map(self):
+		map = {}
+		
+ 
+		comp_map = { 'component': self.get_valid_component('infoline') ,
+			'setter': self.get_valid_func( 'infoline', 'SetValue')  ,
+			'comp_name' : 'infoline','setter_name' :  'SetValue' } 
+		map['infoline'] = comp_map
+		
+
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
 
 
 		if self.panel.__dict__.has_key('infoline'):
-			id = self.panel.infoline.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.infoline.SetId(id)
-			self.id_map['infoline'] = id
+			self.set_id_common( 'infoline',self.panel.infoline)
 			
 
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		
 
@@ -996,8 +1264,13 @@ class gmManual_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['infoline']= obj.GetValue()
-			print self.model['infoline']
+			try :
+				self.model['infoline']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['infoline'] = str(obj.GetValue())
+				
+			print self.model, "infoline = ",  self.model['infoline']
 		
 #creating a handler as gmOffice_handler from gui/gmOffice.py
 # []
@@ -1008,68 +1281,64 @@ class gmManual_handler:
 #creating a handler as gmSQL_handler from gui/gmSQL.py
 # [('comboQueryInput', 'wxComboBox'), ('buttonRunQuery', 'wxButton'), ('buttonClearQuery', 'wxButton'), ('textQueryResults', 'wxTextCtrl')]
 
-
-class gmSQL_handler:
-
-	def create_handler(self, panel, model = None):
-		if model == None and self.model <> None:
-			model = self.model
-			
-		return self.__init__(panel, model)
-
+class gmSQL_handler( base_handler):
+	
 	def __init__(self, panel, model = None):
-		self.panel = panel
-		self.model = model
-		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
-			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
-
-	def set_model(self,  model):
-		self.model = model
+		base_handler.__init__(self, panel, model)
 		
-	def set_impl(self, impl):
-		self.impl = impl
 
-	def __set_id(self):
+	def set_name_map(self):
+		map = {}
+		
+ 
+		comp_map = { 'component': self.get_valid_component('comboQueryInput') ,
+			'setter': self.get_valid_func( 'comboQueryInput', 'SetValue')  ,
+			'comp_name' : 'comboQueryInput','setter_name' :  'SetValue' } 
+		map['comboQueryInput'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('buttonRunQuery') ,
+			'setter': self.get_valid_func( 'buttonRunQuery', 'None')  ,
+			'comp_name' : 'buttonRunQuery','setter_name' :  'None' } 
+		map['buttonRunQuery'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('buttonClearQuery') ,
+			'setter': self.get_valid_func( 'buttonClearQuery', 'None')  ,
+			'comp_name' : 'buttonClearQuery','setter_name' :  'None' } 
+		map['buttonClearQuery'] = comp_map
+		
+ 
+		comp_map = { 'component': self.get_valid_component('textQueryResults') ,
+			'setter': self.get_valid_func( 'textQueryResults', 'SetValue')  ,
+			'comp_name' : 'textQueryResults','setter_name' :  'SetValue' } 
+		map['textQueryResults'] = comp_map
+		
+
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
 
 
 		if self.panel.__dict__.has_key('comboQueryInput'):
-			id = self.panel.comboQueryInput.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.comboQueryInput.SetId(id)
-			self.id_map['comboQueryInput'] = id
+			self.set_id_common( 'comboQueryInput',self.panel.comboQueryInput)
 			
 
 		if self.panel.__dict__.has_key('buttonRunQuery'):
-			id = self.panel.buttonRunQuery.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.buttonRunQuery.SetId(id)
-			self.id_map['buttonRunQuery'] = id
+			self.set_id_common( 'buttonRunQuery',self.panel.buttonRunQuery)
 			
 
 		if self.panel.__dict__.has_key('buttonClearQuery'):
-			id = self.panel.buttonClearQuery.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.buttonClearQuery.SetId(id)
-			self.id_map['buttonClearQuery'] = id
+			self.set_id_common( 'buttonClearQuery',self.panel.buttonClearQuery)
 			
 
 		if self.panel.__dict__.has_key('textQueryResults'):
-			id = self.panel.textQueryResults.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.textQueryResults.SetId(id)
-			self.id_map['textQueryResults'] = id
+			self.set_id_common( 'textQueryResults',self.panel.textQueryResults)
 			
 
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		
 
@@ -1103,8 +1372,13 @@ class gmSQL_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['comboQueryInput']= obj.GetValue()
-			print self.model['comboQueryInput']
+			try :
+				self.model['comboQueryInput']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['comboQueryInput'] = str(obj.GetValue())
+				
+			print self.model, "comboQueryInput = ",  self.model['comboQueryInput']
 		
 
 	def buttonRunQuery_button_clicked( self, event): 
@@ -1133,50 +1407,47 @@ class gmSQL_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['textQueryResults']= obj.GetValue()
-			print self.model['textQueryResults']
+			try :
+				self.model['textQueryResults']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['textQueryResults'] = str(obj.GetValue())
+				
+			print self.model, "textQueryResults = ",  self.model['textQueryResults']
 		
+#creating a handler as gmShowMedDocs_handler from gui/gmShowMedDocs.py
+# []
 #creating a handler as gmSnellen_handler from gui/gmSnellen.py
 # [('mirror_ctrl', 'wxCheckBox')]
 
-
-class gmSnellen_handler:
-
-	def create_handler(self, panel, model = None):
-		if model == None and self.model <> None:
-			model = self.model
-			
-		return self.__init__(panel, model)
-
+class gmSnellen_handler( base_handler):
+	
 	def __init__(self, panel, model = None):
-		self.panel = panel
-		self.model = model
-		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
-			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
-
-	def set_model(self,  model):
-		self.model = model
+		base_handler.__init__(self, panel, model)
 		
-	def set_impl(self, impl):
-		self.impl = impl
 
-	def __set_id(self):
+	def set_name_map(self):
+		map = {}
+		
+ 
+		comp_map = { 'component': self.get_valid_component('mirror_ctrl') ,
+			'setter': self.get_valid_func( 'mirror_ctrl', 'SetValue')  ,
+			'comp_name' : 'mirror_ctrl','setter_name' :  'SetValue' } 
+		map['ctrl'] = comp_map
+		
+
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
 
 
 		if self.panel.__dict__.has_key('mirror_ctrl'):
-			id = self.panel.mirror_ctrl.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.mirror_ctrl.SetId(id)
-			self.id_map['mirror_ctrl'] = id
+			self.set_id_common( 'mirror_ctrl',self.panel.mirror_ctrl)
 			
 
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		
 
@@ -1195,50 +1466,45 @@ class gmSnellen_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['ctrl']= obj.GetValue()
-			print self.model['ctrl']
+			try :
+				self.model['ctrl']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['ctrl'] = str(obj.GetValue())
+				
+			print self.model, "ctrl = ",  self.model['ctrl']
 		
 #creating a handler as gmStikoBrowser_handler from gui/gmStikoBrowser.py
 # [('infoline', 'wxTextCtrl')]
 
-
-class gmStikoBrowser_handler:
-
-	def create_handler(self, panel, model = None):
-		if model == None and self.model <> None:
-			model = self.model
-			
-		return self.__init__(panel, model)
-
+class gmStikoBrowser_handler( base_handler):
+	
 	def __init__(self, panel, model = None):
-		self.panel = panel
-		self.model = model
-		if panel <> None:
-			self.__set_id()
-			self.__set_evt()
-			self.impl = None
-			if model == None:
-				self.model = {}  # change this to a persistence/business object later
-
-	def set_model(self,  model):
-		self.model = model
+		base_handler.__init__(self, panel, model)
 		
-	def set_impl(self, impl):
-		self.impl = impl
 
-	def __set_id(self):
+	def set_name_map(self):
+		map = {}
+		
+ 
+		comp_map = { 'component': self.get_valid_component('infoline') ,
+			'setter': self.get_valid_func( 'infoline', 'SetValue')  ,
+			'comp_name' : 'infoline','setter_name' :  'SetValue' } 
+		map['infoline'] = comp_map
+		
+
+		self.name_map = map
+	
+
+	def set_id(self):
 		self.id_map = {}
 
 
 		if self.panel.__dict__.has_key('infoline'):
-			id = self.panel.infoline.GetId()
-			if id  <= 0:
-				id = wxNewId()
-				self.panel.infoline.SetId(id)
-			self.id_map['infoline'] = id
+			self.set_id_common( 'infoline',self.panel.infoline)
 			
 
-	def __set_evt(self):
+	def set_evt(self):
 		pass
 		
 
@@ -1257,8 +1523,13 @@ class gmStikoBrowser_handler:
 	
 		if event <> None:
 			obj = event.GetEventObject()
-			self.model['infoline']= obj.GetValue()
-			print self.model['infoline']
+			try :
+				self.model['infoline']= obj.GetValue()
+			except:
+				# for dumbdbm persistent maps
+				self.model['infoline'] = str(obj.GetValue())
+				
+			print self.model, "infoline = ",  self.model['infoline']
 		
 #creating a handler as gmplNbPatientSelector_handler from gui/gmplNbPatientSelector.py
 # []
