@@ -170,8 +170,9 @@ class RecallApp(wxApp):
 # end of class RecallApp
 
 if __name__ == "__main__":
-    import gettext
-    gettext.install("recalls") # replace with the appropriate catalog name
+    #import gettext
+    _ = lambda x:x
+    #gettext.install("recalls") # replace with the appropriate catalog name
 
     recalls = RecallApp()
     recalls.MainLoop()
