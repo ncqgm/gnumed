@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -111,7 +111,7 @@ class ConfigSource:
 			if not type(eval(aValue)) in (types.IntType, types.FloatType, types.LongType):
 				castedVal = None
 			else:
-				castedVal = aValue
+				castedVal = eval(aValue)
 		elif castType == 'string':
 			castedVal = str(aValue)
 
@@ -887,7 +887,10 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.6  2003-10-13 21:02:55  hinnef
+# Revision 1.7  2003-10-22 21:35:51  hinnef
+# - fixed a bug in CastType that prevented numeric values to be written as such
+#
+# Revision 1.6  2003/10/13 21:02:55  hinnef
 # - added GPL statement
 #
 # Revision 1.5  2003/10/02 20:02:28  hinnef
