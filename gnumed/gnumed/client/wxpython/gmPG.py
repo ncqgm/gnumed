@@ -11,6 +11,7 @@
 # @change log:
 #	25.10.2001 hherb first draft, untested
 #	29.10.2001 hherb crude functionality achieved (works ! (sortof))
+#	30.10.2001 hherb reference counting to prevent disconnection of active connections
 #
 # @TODO: Almost everything
 ############################################################################
@@ -19,17 +20,19 @@ import string, gettext, copy, pg, gmLoginInfo
 
 _ = gettext.gettext
 
-
+LIFE_CONNECTION_DELETE_ATTEMPT = _("attempt to teminate a database connection possibly still in use")
 
 class ConnectionPool:
 	"maintains a static dictionary of available database connections"
 
 	#a dictionary with lists of databases; dictionary key is the name of the database
 	__databases = {}
+	__connections_in_use = {}
 	__connected = None
 
 
 	def __init__(self, login=None):
+		### TODO: don't allow disconnection of connections in use!!!
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
@@ -64,6 +67,8 @@ class ConnectionPool:
 			service = string.strip(cdb.query(
 			                       "select name from distributed_db where id = %d"
 			                       % db['ddb']).getresult()[0][0])
+			###initialize our reference counter
+			ConnectionPool.__connections_in_use[service]=0
 			###try to get login information for a particular service
 			database = cdb.query("select name, host, port, opt, tty from db where id = %d"
 			                     % db['db']).dictresult()[0]
@@ -87,7 +92,7 @@ class ConnectionPool:
 			except: pass
 			###TTY option of the distributed service
 			try:
-					dblogin.SetTTY(string.strip(database['tty']))
+				dblogin.SetTTY(string.strip(database['tty']))
 			except:pass
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
@@ -132,13 +137,26 @@ class ConnectionPool:
 		pass
 
 
-	def __disconnect(self):
+	def __disconnect(self, force_it=0):
+		"safe disconnect (respecting possibly active connections) unless the force flag is set"
+		###are we conected at all?
 		if ConnectionPool.__connected is None:
+			###just in case
+			ConnectionPool.__databases.clear()
 			return
-		#disconnect from all databases
+		###disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
-			ConnectionPool.__databases[key].close()
-		#clear the dictionary
+			### check whether this connection might still be in use ...
+			if ConnectionPool.__connections_in_use[service] > 0 :
+				###unless we are really mean :-(((
+				if force_it == 0:
+					#let the end user know thatshit is happening
+					raise LIFE_CONNECTION_DELETE_ATTEMPT
+			else:
+				###close the connection
+				ConnectionPool.__databases[key].close()
+
+		#clear the dictionary (would close all connections anyway)
 		ConnectionPool.__databases.clear()
 		ConnectionPool.__connected = None
 
@@ -146,9 +164,33 @@ class ConnectionPool:
 	def GetConnection(self, service):
 		"if a distributed service exists, return it - otherwise return the default server"
 		if ConnectionPool.__databases.has_key(service):
+			try:
+				ConnectionPool.__connections_in_use[service] += 1
+			except:
+				ConnectionPool.__connections_in_use[service] = 1
 			return ConnectionPool.__databases[service]
 		else:
+			try:
+				ConnectionPool.__connections_in_use['default'] += 1
+			except:
+				ConnectionPool.__connections_in_use['default'] = 1
+
 			return ConnectionPool.__databases['default']
+
+
+	def ReleaseConnection(self, service):
+		"decrease reference counter of active connection"
+		if ConnectionPool.__databases.has_key(service):
+			try:
+				ConnectionPool.__connections_in_use[service] -= 1
+			except:
+				ConnectionPool.__connections_in_use[service] = 0
+		else:
+			try:
+				ConnectionPool.__connections_in_use['default'] -= 1
+			except:
+				ConnectionPool.__connections_in_use['default'] = 0
+
 
 
 	def GetAvailableServices(self):
