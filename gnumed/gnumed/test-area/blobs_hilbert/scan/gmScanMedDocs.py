@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -668,7 +668,7 @@ class scanFrame(wxPanel):
 	# internal helper methods
 	#-----------------------------------
 	def __do_barcode(self):
-		tmp = _cfg.get("scan", "generate barcode")
+		tmp = _cfg.get("scanning", "generate barcode")
 		_log.Log(gmLog.lData, 'document barcode generation mode: <%s>' % tmp)
 		if tmp in ['on', 'yes']:
 			return 1
@@ -676,7 +676,7 @@ class scanFrame(wxPanel):
 			return None
 	#-----------------------------------
 	def __generate_barcode(self, doc_id):
-		tmp = _cfg.get("scan", "barcode generation command")
+		tmp = _cfg.get("scanning", "barcode generation command")
 		if not tmp:
 			_log.Log(gmLog.lErr, 'Cannot get barcode generation command from config file.')
 			return None
@@ -933,7 +933,10 @@ else:
 			return (_('Tools'), _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.3  2002-10-08 20:55:34  ncq
+# Revision 1.4  2002-10-08 21:05:48  ncq
+# - it is group scanning, not scan
+#
+# Revision 1.3  2002/10/08 20:55:34  ncq
 # - sorry for the cruft
 #
 # Revision 1.2  2002/10/08 20:54:26  ncq
