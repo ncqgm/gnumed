@@ -83,8 +83,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.16 2005-03-06 21:15:13 ihaywood Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmBusinessDBObject.py,v 1.17 2005-03-14 14:31:17 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -159,6 +159,7 @@ class cBusinessDBObject:
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
+		self.__class__._subtables = {}
 		self._subtable_changes = []
 		if cBusinessDBObject._conn_pool is None:
 			# once for ALL descendants :-)
@@ -210,12 +211,16 @@ class cBusinessDBObject:
 			_log.Log(gmLog.lPanic, 'field index vs. payload length mismatch: %s field names vs. %s fields' % (len(self._idx.keys()), len(self._payload)))
 			_log.LogException('faulty <row> argument structure: %s' % row, sys.exc_info())
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
+		self.original_payload = {}
+		for field in self._idx.keys():
+			self.original_payload[field] = self._payload[self._idx[field]]
 	#--------------------------------------------------------
 	def __del__(self):
 		if self.__dict__.has_key('_is_modified'):
 			if self._is_modified:
 				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
-				_log.Log(gmLog.lData, self._payload)
+				_log.Log(gmLog.lData, 'original: %s' % self.original_payload)
+				_log.Log(gmLog.lData, 'modified: %s' % self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
 		tmp = []
@@ -319,6 +324,9 @@ class cBusinessDBObject:
 			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
 			return False
 		self._payload = data[0]
+		self.original_payload = {}
+		for field in self._idx.keys():
+			self.original_payload[field] = self._payload[self._idx[field]]
 		return True
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
@@ -335,6 +343,7 @@ class cBusinessDBObject:
 		params = {}
 		for field in self._idx.keys():
 			params[field] = self._payload[self._idx[field]]
+		self.modified_payload = params
 		if conn is None:
 			conn = self.__class__._conn_pool.GetConnection(self.__class__._service, readonly=0)
 		if conn is None:
@@ -483,7 +492,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.16  2005-03-06 21:15:13  ihaywood
+# Revision 1.17  2005-03-14 14:31:17  ncq
+# - add support for self.original_payload such that we can make
+#   available all the information to the user when concurrency
+#   conflicts are detected
+# - init _subtables so child classes don't HAVE to have it
+#
+# Revision 1.16  2005/03/06 21:15:13  ihaywood
 # coment expanded on _subtables
 #
 # Revision 1.15  2005/03/06 14:44:02  ncq
