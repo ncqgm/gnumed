@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -728,12 +728,13 @@ class database:
 		cursor = self.conn.cursor()
 		try:
 			cursor.execute(cmd)
+			self.conn.commit()
 		except libpq.Warning, warning:
-			_log.LogException(">>>[%s]<<< warning: %s" % (cmd, warning), sys.exc_info(), verbose=0)
+			_log.Log(gmLog.lWarn, warning)
 		except StandardError:
 			_log.LogException(">>>[%s]<<< failed" % cmd, sys.exc_info(), verbose=1)
+			cursor.close()
 			return None
-		self.conn.commit()
 		cursor.close()
 
 		if not self.__db_exists():
@@ -1450,7 +1451,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.2  2005-01-12 14:47:48  ncq
+# Revision 1.3  2005-01-24 17:22:15  ncq
+# - Ian downgraded the severity on libpq warnings on create database
+#
+# Revision 1.2  2005/01/12 14:47:48  ncq
 # - in DB speak the database owner is customarily called dbo, hence use that
 #
 # Revision 1.1  2004/12/18 13:02:49  ncq
