@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.7 2004-03-04 19:46:54 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmGuiHelpers.py,v 1.8 2004-04-10 01:48:31 ihaywood Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -39,7 +39,7 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 		log_msg = string.replace(log_msg, '\012', ' ')
 		_log.Log(aLogLevel, log_msg)
 
-	aMessage = aMessage + _("\n\nPlease consult the error log for all the gory details !")
+	aMessage = str(aMessage) + _("\n\nPlease consult the error log for all the gory details !")
 
 	if aTitle is None:
 		aTitle = _('generic error message dialog')
@@ -106,7 +106,10 @@ def gm_beep_statustext(aMessage, aLogLevel = None):
 	return 1
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.7  2004-03-04 19:46:54  ncq
+# Revision 1.8  2004-04-10 01:48:31  ihaywood
+# can generate referral letters, output to xdvi at present
+#
+# Revision 1.7  2004/03/04 19:46:54  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.6  2003/12/29 16:49:18  uid66147

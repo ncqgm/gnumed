@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.66 2004-03-28 11:09:04 ncq Exp $
-__version__ = "$Revision: 1.66 $"
+# $Id: gmEditArea.py,v 1.67 2004-04-10 01:48:31 ihaywood Exp $
+__version__ = "$Revision: 1.67 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -13,8 +13,8 @@ __author__ = "R.Terry, K.Hilbert"
 import sys, traceback, time
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions
-from Gnumed.business import gmPatient, gmDemographicRecord
-from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel
+from Gnumed.business import gmPatient, gmDemographicRecord, gmForms
+from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 from wxPython.wx import *
 
@@ -315,11 +315,11 @@ class gmEditArea(wxPanel):
 	def __do_layout(self):
 		# define prompts and fields
 		self._define_prompts()
-		fields_pnl = wxPanel(self, -1, style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
-		self._define_fields(parent = fields_pnl)
+		self.fields_pnl = wxPanel(self, -1, style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
+		self._define_fields(parent = self.fields_pnl)
 		# and generate edit area from it
 		szr_prompts = self.__generate_prompts()
-		szr_fields = self.__generate_fields(parent = fields_pnl)
+		szr_fields = self.__generate_fields()
 
 		# stack prompts and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
@@ -345,19 +345,13 @@ class gmEditArea(wxPanel):
 		prompt_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER)
 		prompt_pnl.SetBackgroundColour(richards_light_gray)
 		# make them
-		vszr = wxBoxSizer (wxVERTICAL)
 		color = richards_aqua
 		lines = self.prompts.keys()
 		lines.sort()
+		self.prompt_widget = {}
 		for line in lines:
 			label, color, weight = self.prompts[line]
-			prompt = self.__make_prompt(prompt_pnl, "%s " % label, color)
-			vszr.Add(prompt, weight, wxEXPAND)
-		# put sizer on panel
-		prompt_pnl.SetSizer(vszr)
-		vszr.Fit(prompt_pnl)
-		prompt_pnl.SetAutoLayout(true)
-
+			self.prompt_widget[line] = self.__make_prompt(prompt_pnl, "%s " % label, color)
 		# make shadow below prompts in gray
 		shadow_below_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
 		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
@@ -384,8 +378,8 @@ class gmEditArea(wxPanel):
 
 		return hszr_prompts
 	#----------------------------------------------------------------
-	def __generate_fields(self, parent):
-		parent.SetBackgroundColour(wxColor(222,222,222))
+	def __generate_fields(self):
+		self.fields_pnl.SetBackgroundColour(wxColor(222,222,222))
 		# rows, cols, hgap, vgap
 		vszr = wxBoxSizer(wxVERTICAL)
 		lines = self.fields.keys()
@@ -400,9 +394,9 @@ class gmEditArea(wxPanel):
 				self.field_line_szr[line].Add(field, weight, wxEXPAND)
 			vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wxEXPAND) # use same lineweight as prompts
 		# put them on the panel
-		parent.SetSizer(vszr)
-		vszr.Fit(parent)
-		parent.SetAutoLayout(true)
+		self.fields_pnl.SetSizer(vszr)
+		vszr.Fit(self.fields_pnl)
+		EVT_SIZE (self.fields_pnl, self.__on_resize_fields)
 
 		# make shadow below edit fields in gray
 		shadow_below_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
@@ -413,7 +407,7 @@ class gmEditArea(wxPanel):
 
 		# stack edit fields and shadow vertically
 		vszr_edit_fields = wxBoxSizer(wxVERTICAL)
-		vszr_edit_fields.Add(parent, 92, wxEXPAND)
+		vszr_edit_fields.Add(self.fields_pnl, 92, wxEXPAND)
 		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wxEXPAND)
 
 		# make shadow to the right of the edit area
@@ -430,6 +424,15 @@ class gmEditArea(wxPanel):
 
 		return hszr_edit_fields
 	#----------------------------------------------------------------
+	def __on_resize_fields (self, event):
+		self.fields_pnl.Layout ()
+		# resize the prompts accordingly
+		for i in self.field_line_szr.keys():
+			# query the BoxSizer to find where the field line is
+			pos = self.field_line_szr[i].GetPosition ()
+			# and set the prompt lable to the same Y position
+			self.prompt_widget[i].SetPosition ((0, pos.y))
+	#---------------------------------------------------------------
 	def __make_prompt(self, parent, aLabel, aColor):
 		# FIXME: style for centering in vertical direction ?
 		prompt = wxStaticText(
@@ -444,7 +447,14 @@ class gmEditArea(wxPanel):
 	#----------------------------------------------------------------
 	# intra-class API
 	#----------------------------------------------------------------
-	def _add_prompt(self, line, label, color=richards_blue, weight=1):
+	def _add_prompt(self, line, label, color=richards_blue, weight=0):
+		"""
+		Add a new prompt line
+		- label, the label text
+		- color
+		- weight, the weight given in sizing the various rows. 0 means the rwo
+		  always has minimum size 
+		"""
 		self.prompts[line] = (label, color, weight)
 	#----------------------------------------------------------------
 	def _add_field(self, line=None, pos=None, widget=None, weight=0):
@@ -587,15 +597,23 @@ class gmEditArea(wxPanel):
 	# handlers
 	#--------------------------------------------------------
 	def _on_OK_btn_pressed(self, event):
-		event.Skip()
-		if self.data_ID is None:
-			print "must be new entry"
-			self._save_new_entry()
-			self.set_data()
-		else:
-			print "must be modified entry"
-			self._save_modified_entry()
-			self.set_data()
+		try:
+			event.Skip()
+			if self.data_ID is None:
+				self._save_new_entry()
+				self.set_data()
+			else:
+				self._save_modified_entry()
+				self.set_data()
+		except gmExceptions.InvalidInputError, err:
+			# nasty evil popup dialogue box
+			# but for invalid input we want to interrupt user
+			try:
+				gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+			except:
+				_log.LogException ('', sys.exc_info (), verbose = 0)
+		except:
+			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
 		# FIXME: check for unsaved data
@@ -1542,39 +1560,11 @@ class gmReferralEditArea(gmEditArea):
 			widget = self.fld_med,
 			weight = 1
 			)
-		self.fld_fhx = wxCheckBox (parent, -1, _("Fam Hx"), style=wxNO_BORDER)
-		self._add_field (
-			line = 4,
-			pos = 2,
-			widget = self.fld_fhx,
-			weight = 1
-			)
-		self.fld_active = wxCheckBox (parent, -1, _("Active Hx"), style=wxNO_BORDER)
-		self._add_field (
-			line = 4,
-			pos = 3,
-			widget = self.fld_active,
-			weight = 1
-			)
 		self.fld_past = wxCheckBox (parent, -1, _("Past Hx"), style=wxNO_BORDER)
 		self._add_field (
 			line = 4,
 			pos = 4,
 			widget = self.fld_past,
-			weight = 1
-			)
-		self.fld_social = wxCheckBox (parent, -1, _("Social Hx"), style=wxNO_BORDER)
-		self._add_field (
-			line = 4,
-			pos = 5,
-			widget = self.fld_social,
-			weight = 1
-			)
-		self.fld_habits = wxCheckBox (parent, -1, _("Habits"), style=wxNO_BORDER)
-		self._add_field (
-			line = 4,
-			pos = 6,
-			widget = self.fld_habits,
 			weight = 1
 			)
 		self.fld_text = wxTextCtrl (parent, -1, style= wxTE_MULTILINE)
@@ -1599,12 +1589,9 @@ class gmReferralEditArea(gmEditArea):
 		self.fld_specialty.SetValue ('')
 		self.fld_name.SetValue ('')
 		self.fld_address.Clear ()
+		self.fld_address.SetValue ('')
 		self.fld_med.SetValue (0)
-		self.fld_fhx.SetValue (0)
-		self.fld_active.SetValue (0)
 		self.fld_past.SetValue (0)
-		self.fld_social.SetValue (0)
-		self.fld_habits.SetValue (0)
 		self.fld_text.SetValue ('')
 		self.recipient = None
 
@@ -1612,25 +1599,37 @@ class gmReferralEditArea(gmEditArea):
 		"""
 		Set the available addresses for the selected identity
 		"""
-		self.recipient = gmDemographicRecord.cDemographicRecord_SQL (id)
-		self.fld_address.Clear ()
-		self.addr = self.recipient.getAddresses ('work')
-		for i in self.addr:
-			self.fld_address.Append (_("%(number)s %(street)s, %(urb)s %(postcode)s") % i, i['ID'])
-		fax = self.recipient.getCommChannel (gmDemographicRecord.FAX)
-		email  = self.recipient.getCommChannel (gmDemographicRecord.EMAIL)
-		if fax:
-			self.fld_address.Append ("%s: %s" % (_("FAX"), fax))
-		if email:
-			self.fld_address.Append ("%s: %s" % (_("E-MAIL"), email))
+		if id is None:
+			self.recipient = None
+			self.fld_address.Clear ()
+			self.fld_address.SetValue ('')
+		else:
+			self.recipient = gmDemographicRecord.cDemographicRecord_SQL (id)
+			self.fld_address.Clear ()
+			self.addr = self.recipient.getAddresses ('work')
+			for i in self.addr:
+				self.fld_address.Append (_("%(number)s %(street)s, %(urb)s %(postcode)s") % i, ('post', i))
+			fax = self.recipient.getCommChannel (gmDemographicRecord.FAX)
+			email  = self.recipient.getCommChannel (gmDemographicRecord.EMAIL)
+			if fax:
+				self.fld_address.Append ("%s: %s" % (_("FAX"), fax), ('fax', fax))
+			if email:
+				self.fld_address.Append ("%s: %s" % (_("E-MAIL"), email), ('email', email))
 
 	def _save_new_entry(self):
 		"""
 		We are always saving a "new entry" here because data_ID is always None
 		"""
 		if not self.recipient:
-			raise gmExceptions.InvalidInputException (_('must have a recipient'))
-
+			raise gmExceptions.InvalidInputError (_('must have a recipient'))
+		if self.fld_address.GetSelection () == -1:
+			raise gmExceptions.InvalidInputError (_('must select address'))
+		channel, addr = self.fld_address.GetClientData (self.fld_address.GetSelection ())
+		text = self.fld_text.GetValue ()
+		flags = {}
+		flags['meds'] = self.fld_med.GetValue ()
+		flags['pasthx'] = self.fld_past.GetValue ()
+		gmForms.send_referral (self.recipient, channel, addr, text, flags)
 
 #====================================================================
 #====================================================================
@@ -2396,7 +2395,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.66  2004-03-28 11:09:04  ncq
+# Revision 1.67  2004-04-10 01:48:31  ihaywood
+# can generate referral letters, output to xdvi at present
+#
+# Revision 1.66  2004/03/28 11:09:04  ncq
 # - some cleanup
 #
 # Revision 1.65  2004/03/28 04:09:31  ihaywood

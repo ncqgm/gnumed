@@ -1,13 +1,13 @@
 \documentclass{letter}
-\address{ \sender \\ \senderaddress }
-\signature{\sender }
+\address{ @SENDER \\ @SENDERADDRESS }
+\signature{@SENDER }
 
 \begin{document}
-\begin{letter}{\recipient }
+\begin{letter}{@RECIPIENT \\ @RECIPIENTADDRESS }
 
-\opening{\salutation}
+\opening{Dear @RECIPIENT}
 
-\textbf{Re:} \patientname, DOB: \patientDOB, \patientaddress 
+\textbf{Re:} \PATIENTNAME, DOB: @DOB, @PATIENTADDRESS 
 
 \maintext
 

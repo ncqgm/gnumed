@@ -1,5 +1,5 @@
 #===================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Hilmar.Berger@gmx.de"
 __license__ = "GPL"
 
@@ -81,6 +81,21 @@ class cWhoAmI(gmBorg.cBorg):
 		self._staff_ID = result[0][0]
 		return self._staff_ID
 	#-----------------------------------------------
+	def get_staff_identity (self):
+		try:
+			return self._staff_identity
+		except AttributeError:
+			pass
+
+		cmd = "select pk_identity from v_staff where db_user=CURRENT_USER"
+		result = gmPG.run_ro_query('personalia', cmd, None)
+		if result is None:
+			raise ValueError, _('cannot resolve db account name to identity of staff member')
+		if len(result) == 0:
+			raise ValueError, _('no correspondig staff member for current database login')
+		self._staff_identity = result[0][0]
+		return self._staff_identity	
+	#-----------------------------------------------
 	def get_staff_name(self):
 		try:
 			return self._staff_name
@@ -105,7 +120,10 @@ if __name__ == '__main__':
 	print "staff name:", whoami.get_staff_name()
 #===================================================
 # $Log: gmWhoAmI.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-04-10 01:48:31  ihaywood
+# can generate referral letters, output to xdvi at present
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.4  2004/01/06 23:44:40  ncq

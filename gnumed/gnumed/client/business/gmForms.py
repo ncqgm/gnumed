@@ -9,23 +9,30 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.10 2004-03-12 15:23:36 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmForms.py,v 1.11 2004-04-10 01:48:31 ihaywood Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
+from Gnumed.business import gmDemographicRecord, gmPatient
 
 # access our modules
 if __name__ == "__main__":
 	sys.path.append('../..')
 
 # start logging
-from Gnumed.pycommon import gmLog, gmPG
+from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
     _log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
- 
+
+
+# we make these assumptions about the assignment of form IDs on the backend.
+ID_STANDARD_REFERRAL=101
+ID_STANDARD_REFERRAL_EMAIL=102
+ID_STANDARD_SCRIPT = 201
+
 #============================================================
 class gmFormEngine:
     """Ancestor for forms.
@@ -113,24 +120,24 @@ class LaTeXForm (TextForm):
         """
 
         if type (item) is types.StringType or type (item) is types.UnicodeType:
-            item = item.replace ("\\", "\\backspace")
+            item = item.replace ("\\", "\\backspace") # I wonder about this, do we want users to be able to use raw TeX?
             item = item.replace ("&", "\\&")
             item = item.replace ("$", "\\$")
-            item = item.replace ('"', "")
+            item = item.replace ('"', "") # okay, that's not right, but easiest solution for now
             item = item.replace ("\n", "\\\\ ")
             if len (item.strip ()) == 0:
                 item = "\relax " # sometimes TeX really hates empty strings, this seems to mollify it
-	    # FIXME: cover all of ISO-Latin-1 which can be expressed in TeX
+		# FIXME: cover all of ISO-Latin-1 which can be expressed in TeX
+	    if type (item) is types.UnicodeType:
+	        item = item.encode ('latin-1', 'replace')
 	    trans = {'ß':'\\ss{}', 'ä': '\\"{a}', 'Ä' :'\\"{A}', "ö ": '\\"{o}', "Ö": '\\"{O}',  "ü": '\\"{u}', "Ü": '\\"{U}',
-		     '\x8a':'\\v{S}', 'x8a':'\\OE{}', '\x9a':'\\v{s}', '\x9c': '\\oe{}', '\a9f':'\\"{Y}', #Microsloth extensions
+		     '\x8a':'\\v{S}', '\x8a':'\\OE{}', '\x9a':'\\v{s}', '\x9c': '\\oe{}', '\a9f':'\\"{Y}', #Microsloth extensions
 		     '\x86': '{\\dag}', '\x87': '{\\ddag}', '\xa7':'{\\S}', '\xb6': '{\\P}', '\xa9': '{\\copyright}', '\xbf': '?`',
-		     '\xc0':'\\`{A}', '\xa1': "\\'{A}", '\xa2': '\\^{A}', '\xa3':'\\~{A}', '\\xc5': '{\\AA}',
+		     '\xc0':'\\`{A}', '\xa1': "\\'{A}", '\xa2': '\\^{A}', '\xa3':'\\~{A}', '\\xc5': '{\AA}',
 		     '\xa1': '!`',
 		     '\xb5':'$\mu$', '\xa3': '\pounds{}'}
 	    for k, i in trans.items ():
-		    item = item.replace (k, i)
-            if type (item) is types.UnicodeType:
-                item = item.encode ('ascii') # TeX only works on plain ASCII!
+                item = item.replace (k, i)
         if type (item) is types.ListType: 
             item = [self.texify (i) for i in item]
         if type (item) is types.IntType:
@@ -142,7 +149,6 @@ class LaTeXForm (TextForm):
 
     def process (self, params):
         params = self.__texify (params)
-        print params
         latex = TextForm.process (self, params)
         # create a 'sandbox' directory for LaTeX to play in
         self.tmp = tempfile.mktemp ()
@@ -150,7 +156,6 @@ class LaTeXForm (TextForm):
         self.oldcwd = os.getcwd ()
         os.chdir (self.tmp)
         stdin = os.popen ("latex", "w", 2048)
-        print latex.getvalue ()
         stdin.write (latex.getvalue ()) # send text. LaTeX spits it's output into stdout.
         # FIXME: send LaTeX  output to the logger
         stdin.close ()
@@ -172,7 +177,7 @@ class LaTeXForm (TextForm):
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def search_form (discipline, electronic=0):
+def search_form (discipline = None, electronic=0):
     """
     Searches for available forms given the discipline and electronicity
     """
@@ -188,15 +193,65 @@ def get_form (id):
     """
     Instantiates a FormEngine based on the form ID from the backend
     """
-    result = gmPG.run_ro_query ('reference', 'select template, engine, flags from form_types where is = %s', None, id)
-    if result[1] == 'L':
-        return LaTeXForm (result[0], result[2])
+    result = gmPG.run_ro_query ('reference', 'select template, engine, flags from form_defs where pk = %s', None, id)
+    if result[0][1] == 'L':
+        return LaTeXForm (result[0][0], result[0][2])
     elif result[1] == 'T':
-        return TextForm (result[0], result[2])
+        return TextForm (result[0][0], result[0][2])
     else:
         _log.Log (gmLog.lErr, 'no such form engine %s' % result[1])
         return None
 #------------------------------------------------------------
+def send_referral (recipient, channel, addr, text, flags):
+	whoami = gmWhoAmI.cWhoAmI ().get_staff_identity ()
+	sender = gmDemographicRecord.cDemographicRecord_SQL (whoami)
+	patient = gmPatient.gmCurrentPatient ()
+	patient_demo = patient.get_demographic_record ()
+	params = {}
+	params['SENDER'] = sender.getFullName ()
+	params['PATIENTNAME'] = patient_demo.getFullName ()
+	params['RECIPIENT'] = recipient.getFullName ()
+	params['DOB'] = patient_demo.getDOB ().Format ('%x')
+	params['PATIENTADDRESS'] = _("%(number)s %(street)s, %(urb)s %(postcode)s") % patient_demo.getAddresses ('home', 1)
+	params['TEXT'] = text
+	params['INCLUDEMEDS'] = flags['meds']
+	# FUTURE
+	# params['MEDLIST'] = patient_epr.getMedicationsList ()
+	params['INCLUDEPASTHX'] = flags['pasthx']
+	#F FUTURE
+	# params['PASTHXLIST'] = patient_epr.getPastHistory ()
+	
+	if channel == 'post':
+		params['RECIPIENTADDRESS'] = _('%(number)s %(street)s\n%(urb)s %(postcode)s') % addr
+		sndr_addr = sender.getAddresses ('work', 1)
+		if sndr_addr:
+			params['SENDERADDRESS'] = _('%(number)s %(street)s\n%(urb)s %(postcode)s') % sender.getAddresses('work', 1)
+		else:
+			params['SENDERADDRESS'] = _('No address')
+		form = get_form (ID_STANDARD_REFERRAL)
+		form.process (params)
+		form.xdvi ()
+		form.cleanup ()
+	if channel == 'fax':
+		params['RECIPIENTADDRESS'] = _('FAX: %s') % addr
+		sender_addr = sender.getAddresses('work', 1)
+		if sender_addr:
+			sender_addr['fax'] = sender.getCommChannel (gmDemographicRecord.FAX)
+			params['SENDERADDRESS'] = _('%(number)s %(street)s\n%(urb)s %(postcode)s\nFAX: %(fax)s' % sender_addr)
+		else:
+			params['SENDERADDRESS'] = _('No address')
+		form = get_form (ID_STANDARD_REFERRAL)
+		form.process (params)
+		form.xdvi ()
+		form.cleanup ()
+	if channel == 'email':
+		params['RECIPIENTADDRESS'] = addr
+		params['SENDERADDRESS'] = sender.getCommChannel (gmDemographicRecord.EMAIL)
+		form = get_form (ID_STANDARD_REFERRAL_EMAIL)
+		form.process (params)
+		print form.read ()
+		
+#-------------------------------------------------------------
 def test_au():
 	f = open('../../test-area/ian/terry-form.tex')
 	params = {
@@ -248,7 +303,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.10  2004-03-12 15:23:36  ncq
+# Revision 1.11  2004-04-10 01:48:31  ihaywood
+# can generate referral letters, output to xdvi at present
+#
+# Revision 1.10  2004/03/12 15:23:36  ncq
 # - cleanup, test_de
 #
 # Revision 1.9  2004/03/12 13:20:29  ncq

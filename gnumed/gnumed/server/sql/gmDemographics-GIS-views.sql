@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -360,18 +360,21 @@ GRANT select ON
 	v_zip2data
 TO GROUP "gm-doctors";
 
-GRANT select, delete, update ON
+GRANT select, delete, insert, update ON
 	v_basic_address
 TO GROUP "_gm-doctors";
 
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.9 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.8  2004-01-05 00:45:41  ncq
+-- Revision 1.9  2004-04-10 01:48:31  ihaywood
+-- can generate referral letters, output to xdvi at present
+--
+-- Revision 1.8  2004/01/05 00:45:41  ncq
 -- - drop rule wants relation name
 --
 -- Revision 1.7  2003/12/29 15:33:43  uid66147

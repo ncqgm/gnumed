@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.36 2004-04-07 18:43:47 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmDemographicRecord.py,v 1.37 2004-04-10 01:48:31 ihaywood Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -195,6 +195,13 @@ class cDemographicRecord_SQL(cDemographicRecord):
 			return names
 		else:
 			return {'first': rows[0][0], 'last': rows[0][1]}
+	def getFullName (self):
+		cmd  = "select title, firstnames, lastnames from v_basic_person where i_id = %s"
+		r = gmPG.run_ro_query ('personalia', cmd, 0, self.ID)
+		if r:
+			return "%s %s %s" % (r[0][0], r[0][1], r[0][2])
+		else:
+			return _("Unknown")
 	#--------------------------------------------------------
 	def addName(self, firstname, lastname, activate = None):
 		"""Add a name and possibly activate it."""
@@ -254,7 +261,8 @@ class cDemographicRecord_SQL(cDemographicRecord):
 		if not success:
 			# user probably gave us invalid country
 			msg = '%s (%s)' % ((_('invalid country [%s]') % cob), err_msg)
-			raise gmExceptions.InvalidInputException (msg)
+			print "invalid country!"
+			raise gmExceptions.InvalidInputError (msg)
 	#----------------------------------------------------------------------
 	def getMaritalStatus (self):
 		cmd = "select name from marital_status, identity where marital_status.id = identity.id_marital_status and identity.id = %s"
@@ -367,7 +375,7 @@ where
 		cmd = "update identity set gender = %s where id = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [gender, self.ID])])
 	#--------------------------------------------------------
-	def getAddresses(self, addr_type = None):
+	def getAddresses(self, addr_type = None, firstonly = 0):
 		"""Return a patient's addresses.
 
 		- return all types if addr_type is None
@@ -378,6 +386,10 @@ where
 		else:
 			addr_where = 'and at.name = %(addr_type)s'
 			vals['addr_type'] = addr_type
+		if firstonly:
+			limit = ' limit 1'
+		else:
+			limit = ''
 		cmd = """select
 				vba.addr_id,
 				vba.number,
@@ -393,13 +405,13 @@ where
 				lpoa.id_address = vba.addr_id
 				and lpoa.id_type = at.id
 				and lpoa.id_identity = %%(pat_id)s
-				%s""" % addr_where
+				%s %s""" % (addr_where, limit)
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, vals)
 		if rows is None:
 			return []
 		if len(rows) == 0:
 			return []
-		return [{
+		ret = [{
 			'ID': r[idx['addr_id']],
 			'number': r[idx['number']],
 			'street': r[idx['street']],
@@ -407,6 +419,10 @@ where
 			'postcode': r[idx['postcode']],
 			'type': r[idx['name']]
 		} for r in rows]
+		if firstonly:
+			return ret[0]
+		else:
+			return ret
 	#--------------------------------------------------------
 	def unlinkAddress (self, ID):
 		cmd = "delete from lnk_person_org_address where id_identity = %s and id_address = %s"
@@ -839,7 +855,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.36  2004-04-07 18:43:47  ncq
+# Revision 1.37  2004-04-10 01:48:31  ihaywood
+# can generate referral letters, output to xdvi at present
+#
+# Revision 1.36  2004/04/07 18:43:47  ncq
 # - more gender mappings
 # - *comm_channel -> comm_chan
 #

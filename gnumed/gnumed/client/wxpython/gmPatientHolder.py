@@ -8,8 +8,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.12 2004-03-28 11:24:12 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPatientHolder.py,v 1.13 2004-04-10 01:48:31 ihaywood Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
@@ -50,7 +50,11 @@ class PatientHolder:
 		except gmExceptions.InvalidInputError, err:
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
-			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+			print "invalid input %s" % err
+			try:
+				gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+			except:
+				gmLog.gmDefLog.LogException ("", sys.exc_info (), verbose=0)
 		except:
 			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 	#------------------------------------------------
@@ -68,6 +72,9 @@ class PatientHolder:
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.12  2004-03-28 11:24:12  ncq
+# Revision 1.13  2004-04-10 01:48:31  ihaywood
+# can generate referral letters, output to xdvi at present
+#
+# Revision 1.12  2004/03/28 11:24:12  ncq
 # - just some cleanup/comments
 #

@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -21,10 +21,11 @@ insert into form_defs (pk, name_short, name_long, revision, engine, template) va
 \\begin{document}
 \\begin{letter}{@RECIPIENT \\\\ @RECIPIENTADDRESS }
 \\opening{Dear @RECIPIENT}
-\\textbf{Re:} \PATIENTNAME, DOB: @DOB, @PATIENTADDRESS 
+\\textbf{Re:} @PATIENTNAME, DOB: @DOB, @PATIENTADDRESS 
+
 @TEXT
 
-\\ifnum@INCLUDEMEDSLIST>0
+\\ifnum@INCLUDEMEDS>0
 \\textbf{Medications List}
 \\begin{tabular}{lll}
 @MEDNAME & @MEDFORM & @MEDDOSE \\\\
@@ -96,10 +97,16 @@ insert into form_defs (pk, name_short, name_long, revision, engine, template) va
 
 \\text{22.5}{84}{82.5}{
 @DRUG \\\\ \\hspace{0.5cm}@FORM \\\\ \hspace{0.7cm}@DOSE \\\\ \\hspace{0.7cm}@QUANTITY \\\\\
+
+\\vspace{1cm}
+\\hspace{1cm} @PRESCRIBERNAME
 }
 
 \\text{127.5}{84}{82.5}{
 @DRUG \\\\ \\hspace{0.5cm}@FORM \\\\ \hspace{0.7cm}@DOSE \\\\ \\hspace{0.7cm}@QUANTITY \\\\\
+
+\\vspace{1cm}
+\\hspace{1cm} @PRESCRIBERNAME
 }
 \\end{page}
 \\end{document}');
