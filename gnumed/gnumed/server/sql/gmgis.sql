@@ -12,6 +12,9 @@
 
 -- =============================================
 
+\connect - ian
+
+
 -- any table that needs auditing MUST inherit audit_gis
 -- A python script (gmhistorian.py) generates automatically all triggers
 -- and tables neccessary to allow versioning and audit trail keeping of
@@ -30,7 +33,7 @@ COMMENT ON TABLE audit_gis IS
 
 create table country (
 	code char(2) unique primary key,
-	name varchar(60),
+	name varchar(80),
 	deprecated date default NULL
 );
 
@@ -93,7 +96,7 @@ COMMENT ON COLUMN urb.name IS
 
 create table street (
 	id serial primary key,
-	id_urb integer references urb,
+	id_urb integer references urb not null,
 	name varchar(60)
 ) inherits (audit_gis);
 
@@ -104,7 +107,7 @@ COMMENT ON COLUMN street.id_urb IS
 'reference to information postcode, city, country and state';
 
 COMMENT ON COLUMN street.name IS
-'name of this city/town/dwelling';
+'name of this street';
 
 -- =============================================
 
@@ -150,17 +153,15 @@ select
 	u.name as city,
 	a.number as number,
 	str.name as street,
-	a.addendum as street2,
-	t.name as address_type
+	a.addendum as street2
 
 from
 	address a,
 	state s,
 	urb u,
-	street str,
-	address_type t
+	street str
 where
-	a.street = s.id
+	a.street = str.id
 	and
 	a.addrtype = 1	-- home address
 	and
@@ -168,33 +169,124 @@ where
 	and
 	u.statecode = s.id;
 
+-- added IH 8/3/02
+-- insert, delete, and update rules on this table
+-- problem: the street table had better contain the street.
+-- solution: function to auto-create street records on demand.
 
 
+-- This function returns the id of street, BUT if the street does not
+-- exist, it is created.
+CREATE FUNCTION find_street (text, integer) RETURNS integer AS '
+DECLARE
+	s_name ALIAS FOR $1;
+	s_id_urb ALIAS FOR $2;
+	s RECORD;
+BEGIN
+	SELECT INTO s * FROM street WHERE name = s_name AND
+	       id_urb = s_id_urb;
+	IF FOUND THEN
+	   RETURN s.id;
+	ELSE
+	   INSERT INTO street (id_urb, name) VALUES (s_id_urb, s_name);
+	   RETURN currval (''street_id_seq'');
+	END IF;
+END;' LANGUAGE 'plpgsql';
 
+CREATE RULE insert_address AS ON INSERT TO basic_address DO INSTEAD
+	INSERT INTO address (addrtype, street, number, addendum) 
+	VALUES (
+	       1,
+	       find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE 
+			   urb.name = NEW.city AND  
+			   urb.postcode = NEW.postcode AND
+			   urb.statecode = state.id AND
+			   state.code = NEW.state AND
+			   state.country = NEW.country)),
+	       NEW.number,
+	       NEW.street2
+	       );	
+
+
+CREATE RULE delete_address AS ON DELETE TO basic_address DO INSTEAD
+       DELETE FROM address WHERE addrtype = 1 AND 
+       number = OLD.number AND addendum = OLD.street2 AND
+       street = (SELECT street.id FROM street, urb, state WHERE 
+	       street.name = OLD.street AND 
+	       street.id_urb = urb.id AND
+	       urb.name = OLD.city AND  
+	       urb.postcode = OLD.postcode AND
+	       urb.statecode = state.id AND
+	       state.code = OLD.state AND
+	       state.country = OLD.country);
+
+CREATE RULE update_address AS ON UPDATE TO basic_address DO INSTEAD
+       UPDATE address SET number = NEW.number, addendum = NEW.street2,
+       street = find_street (NEW.name, (SELECT urb.id FROM urb, state WHERE
+		   urb.name = NEW.city AND  
+		   urb.postcode = NEW.postcode AND
+		   urb.statecode = state.id AND
+		   state.code = NEW.state AND
+		   state.country = NEW.country),
+	       NEW.number,
+	       NEW.street2
+	       )
+	WHERE 
+	       addrtype = 1 AND 
+	       number = OLD.number AND addendum = OLD.street2 AND
+	       street = (SELECT street.id FROM street, urb, state  WHERE 
+	       street.name = OLD.street AND 
+	       street.id_urb = urb.id AND
+	       urb.name = OLD.city AND  
+	       urb.postcode = OLD.postcode AND
+	       urb.statecode = state.id AND
+	       state.code = OLD.state AND
+	       state.country = OLD.country);
 
 -- =============================================
 
 -- the following table still needs a lot of work.
 -- especially the GPS and map related information needs to be
--- denormalized
+-- normalized
+
+-- added IH 8/3/02
+-- table for street civilian type maps, i.e Melways
+create table mapbook (
+       id serial,
+       name char (30)
+);
+
+-- table for co-ordinate systems, such at latitude-longitude
+-- there are others, military, aviation and country-specific.
+-- GPS handsets can display several.
+create table coordinate (
+      id serial,
+      name varchar (30),
+      scale float
+      -- NOTE: this converts distances from the co-ordinate units to 
+      -- kilometres.
+      -- theoretically this may be problematic with some systems due to the 
+      -- ellipsoid nature of the Earth, but in reality it is unlikely to matter
+);
 
 create table address_info (
 	address_id int references address(id),
-	gps char(30),
-	gps_grid char(30),
+	location point,
+-- this refers to a SQL point type. This would allow us to do 
+-- interesting queries, like, how many patients live within
+-- 10kms of the clinic.
+	id_coord integer references coordinate (id),
 	mapref char(30),
-	map char(30),
+	id_map integer references mapbook (id),
 	howto_get_there text,
 	comments text
 ) inherits (audit_gis);
+
 -- =============================================
-
-
 
 -- =============================================
 -- Here come the ISO country codes ...
-
-COPY country FROM stdin;
+COPY "country"  FROM stdin;
 AF	AFGHANISTAN	\N
 AL	ALBANIA	\N
 DZ	ALGERIA	\N
@@ -307,11 +399,11 @@ JO	JORDAN	\N
 KZ	KAZAKSTAN	\N
 KE	KENYA	\N
 KI	KIRIBATI	\N
-KP	KOREA, DEMOCRATIC PEOPLE'S REP	\N
+KP	KOREA, DEMOCRATIC PEOPLE'S REPUBLIC	\N
 KR	KOREA, REPUBLIC OF	\N
 KW	KUWAIT	\N
 KG	KYRGYZSTAN	\N
-LA	LAO PEOPLE'S DEMOCRATIC REPUBL	\N
+LA	LAO PEOPLE'S DEMOCRATIC REPUBLIC	\N
 LV	LATVIA	\N
 LB	LEBANON	\N
 LS	LESOTHO	\N
@@ -334,7 +426,7 @@ MR	MAURITANIA	\N
 MU	MAURITIUS	\N
 YT	MAYOTTE	\N
 MX	MEXICO	\N
-FM	MICRONESIA, FEDERATED STATES O	\N
+FM	MICRONESIA, FEDERATED STATES OF	\N
 MD	MOLDOVA, REPUBLIC OF	\N
 MC	MONACO	\N
 MN	MONGOLIA	\N
@@ -359,7 +451,7 @@ NO	NORWAY	\N
 OM	OMAN	\N
 PK	PAKISTAN	\N
 PW	PALAU	\N
-PS	PALESTINIAN TERRITORY, OCCUPIE	\N
+PS	PALESTINIAN TERRITORY, OCCUPIED	\N
 PA	PANAMA	\N
 PG	PAPUA NEW GUINEA	\N
 PY	PARAGUAY	\N
@@ -378,7 +470,7 @@ SH	SAINT HELENA	\N
 KN	SAINT KITTS AND NEVIS	\N
 LC	SAINT LUCIA	\N
 PM	SAINT PIERRE AND MIQUELON	\N
-VC	SAINT VINCENT AND THE GRENADIN	\N
+VC	SAINT VINCENT AND THE GRENADINES	\N
 WS	SAMOA	\N
 SM	SAN MARINO	\N
 ST	SAO TOME AND PRINCIPE	\N
@@ -434,4 +526,119 @@ YE	YEMEN	\N
 YU	YUGOSLAVIA	\N
 ZM	ZAMBIA	\N
 ZW	ZIMBABWE	\N
+\.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

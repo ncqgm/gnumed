@@ -103,6 +103,24 @@ COMMENT ON COLUMN names.aka IS
 COMMENT ON COLUMN names.preferred IS
 'the preferred first name, the name a person is usually called';
 
+-- IH: 9/3/02
+-- trigger function to ensure one name is active.
+-- its behaviour is to set all other names to inactive when
+-- a name is made active.
+
+CREATE FUNCTION check_active_name () RETURNS OPAQUE AS '
+DECLARE
+BEGIN
+	IF NEW.active THEN
+	   UPDATE names SET active=''f'' WHERE id_identity = NEW.id_identity
+	   AND active;
+	END IF;
+	RETURN NEW;
+END;' LANGUAGE 'plpgsql';
+
+CREATE TRIGGER t_check_active_name BEFORE INSERT OR UPDATE ON names
+FOR EACH ROW EXECUTE PROCEDURE check_active_name ();
+
 -- ==========================================================
 
 -- theoretically, the only information needed to establish any kind of
@@ -196,12 +214,34 @@ create view v_basic_person as
 select
 	i.id as id,
 	n.title as title, n.firstnames as firstnames , n.lastnames as lastnames, n.aka as aka,
-	i.dob as dob, i.gender as gender
+	i.dob as dob, i.cob as cob, i.gender as gender
 from
 	identity i, names n
 where
 	i.deceased = NULL and n.id=i.id and n.active=true;
+ 
+-- IH 9/3/02 Add some rules
 
+CREATE RULE insert_basic_person AS ON INSERT TO basic_address DO INSTEAD
+(
+	INSERT INTO identity (pupic, gender, dob, cob) values
+	       (new_pupic (), NEW.gender, NEW.dob, NEW.cob);
+	INSERT INTO names (title, firstnames, lastnames, aka, id_identity)
+	VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.aka, 
+	       currval ('identity_id_seq'));
+);
 
+-- rule for name change - add new name to list.
+CREATE RULE r_update_basic_person1 AS ON UPDATE TO basic_address 
+    WHERE NEW.dob = OLD.dob AND NEW.cob = OLD.cob AND NEW.gender
+    = OLD.gender DO INSTEAD INSERT INTO names (title, firstnames,
+    lastnames, aka, id_identity, active) VALUES (NEW.title, NEW.firstnames,
+    NEW.lastnames, NEW.aka, NEW.id, 't');
+       
 
+CREATE RULE r_delete_basic_person AS ON DELETE TO basic_address DO INSTEAD
+(
+	DELETE FROM names WHERE id_identity=NEW.id;
+	DELETE FROM identity WHERE id=NEW.id;
+); 	       
 
