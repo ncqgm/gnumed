@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -228,7 +228,7 @@ else:
 				shortHelpString=_("show document"),
 				isToggle=False
 			)
-			EVT_TOOL(tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree.OnActivate)
+			EVT_TOOL(tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree._on_activate)
 	
 			tb.AddControl(wxStaticBitmap(
 				tb,
@@ -260,7 +260,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.55  2004-09-19 15:12:26  ncq
+# Revision 1.56  2004-10-14 12:15:21  ncq
+# - cleanup
+#
+# Revision 1.55  2004/09/19 15:12:26  ncq
 # - cleanup
 #
 # Revision 1.54  2004/09/13 21:12:36  ncq
