@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.17 2005-01-05 21:52:24 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmResizingWidgets.py,v 1.18 2005-01-11 08:06:38 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -185,20 +185,21 @@ class cResizingWindow(wx.wxScrolledWindow):
 	"""A vertically-scrolled window which allows subwindows
 	   to change their size, and adjusts accordingly.
 	"""
-	def __init__ (self, parent, id, pos = wx.wxDefaultPosition, size = wx.wxDefaultSize, complete = None):
+#	def __init__ (self, parent, id, pos = wx.wxDefaultPosition, size = wx.wxDefaultSize, complete = None):
+	def __init__ (self, parent, id, pos = wx.wxPyDefaultPosition, size = wx.wxPyDefaultSize):
 
 		wx.wxScrolledWindow.__init__(self, parent, id, pos = pos, size = size, style=wx.wxVSCROLL)
 		self.SetScrollRate(0, 20) # suppresses X scrolling by setting X rate to zero
 
-		self.__lines = [[]]
+		self.__input_lines = [[]]
 #		self.__list = None
 
-		self.complete = complete	# ??
+#		self.complete = complete	# ??
 
 		self.__szr_main = None
 		self.DoLayout()
-		self.__szr_main = wx.wxFlexGridSizer(len(self.__lines), 2)
-		for line in self.__lines:
+		self.__szr_main = wx.wxFlexGridSizer(len(self.__input_lines), 2)
+		for line in self.__input_lines:
 			if len(line) != 0:
 				# first label goes into column 1
 				if line[0]['label'] is not None:
@@ -232,13 +233,13 @@ class cResizingWindow(wx.wxScrolledWindow):
 		else:
 			textbox = wx.wxStaticText (self, -1, label, style=wx.wxALIGN_RIGHT)
 		# append to last line
-		self.__lines[-1].append({'ID': label, 'label': textbox, 'instance': widget})
+		self.__input_lines[-1].append({'ID': label, 'label': textbox, 'instance': widget})
 	#------------------------------------------------
 	def Newline (self):
 		"""
 		Starts a newline on the widget
 		"""
-		self.__lines.append([])
+		self.__input_lines.append([])
 	#------------------------------------------------
 	def DoLayout (self):
 		"""
@@ -283,7 +284,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		@type values: dictionary
 		@param values: keys are the labels, values are passed to SetValue()
 		"""
-		for line in self.__lines:
+		for line in self.__input_lines:
 			for widget in line:
 				if values.has_key(widget['ID']):
 					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
@@ -301,22 +302,27 @@ class cResizingWindow(wx.wxScrolledWindow):
 		"""
 		# FIXME: this does not detect ID collisions between lines
 		vals = {}
-		for line in self.__lines:
+		for line in self.__input_lines:
 			for widget in line:
-				if widget['ID'] is not None:
-					if isinstance(widget['instance'], stc.wxStyledTextCtrl):
-						vals[widget['ID']] = widget['instance'].GetText()
-					elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
-						vals[widget['ID']] = widget['instance'].GetSelection()
-					else:
-						vals[widget['ID']] = widget['instance'].GetValue ()
+				if widget['ID'] is None:
+					continue
+				if isinstance(widget['instance'], cResizingSTC):
+					txt = widget['instance'].GetText()
+					data = widget['instance'].GetData()
+					vals[widget['ID']] = {'text': txt, 'data': data}
+				elif isinstance(widget['instance'], stc.wxStyledTextCtrl):
+					vals[widget['ID']] = widget['instance'].GetText()
+				elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
+					vals[widget['ID']] = widget['instance'].GetSelection()
+				else:
+					vals[widget['ID']] = widget['instance'].GetValue()
 		return vals
 	#------------------------------------------------
 	def Clear (self):
 		"""
 		Clears all widgets where this makes sense
 		"""
-		for line in self.__lines:
+		for line in self.__input_lines:
 			for widget in line:
 				if isinstance (widget['instance'], stc.wxStyledTextCtrl):
 					widget['instance'].ClearAll()
@@ -383,8 +389,8 @@ class cResizingWindow(wx.wxScrolledWindow):
 		list = cPickList(self, wx.wxPoint(x_final, y_final), wx.wxSize(list_width, list_height), callback=callback)
 		return list
 	#------------------------------------------------
-	def set_completion_callback(self, callback):
-		self.complete = callback
+#	def set_completion_callback(self, callback):
+#		self.complete = callback
 	#------------------------------------------------
 	def GetSummary (self):
 		"""Gets a terse summary string for the data in the widget"""
@@ -399,7 +405,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 	FIXME: override standard STC popup menu
 	"""
-	def __init__ (self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=0):
+	def __init__ (self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=0, data=None):
 		if not isinstance(parent, cResizingWindow):
 			 raise ValueError, 'parent of %s MUST be a ResizingWindow' % self.__class__.__name__
 		stc.wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
@@ -435,6 +441,8 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		self.__embed = {}
 		self.list = None
 		self.no_list = 0			# ??
+
+		self.__data = data			# this is just a placeholder for data to be attached to this STC, will be returned from get_data()
 	#------------------------------------------------
 	# public API
 	#------------------------------------------------
@@ -519,6 +527,9 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		Attaches a gmMatchProvider to the STC,this will be used to drive auto-completion
 		"""
 		self.__matcher = matcher
+	#------------------------------------------------
+	def GetData(self):
+		return self.__data
 	#------------------------------------------------
 	# event handlers
 	#------------------------------------------------
@@ -1092,7 +1103,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.17  2005-01-05 21:52:24  ncq
+# Revision 1.18  2005-01-11 08:06:38  ncq
+# - comment out self.completion for now
+#
+# Revision 1.17  2005/01/05 21:52:24  ncq
 # - add logging on UP-ARROW for debugging
 #
 # Revision 1.16  2004/12/30 12:39:10  ncq
