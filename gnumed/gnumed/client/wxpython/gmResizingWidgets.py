@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.6 2004-12-14 11:58:15 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmResizingWidgets.py,v 1.7 2004-12-15 12:48:39 ihaywood Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -583,17 +583,29 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
-		# FIXME: need explanation on instance/callable business, it seems complicated
-		if issubclass(data, cResizingWindow):
-			win = data(self, -1, pos = pos, size = wxSize(300, 150))
-			cPopupFrame(text, win, self, self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))).Show()
-		elif callable (data):
-			data (text, self.__parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
+		if self.MakePopup (text, data, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ()))):
+			pass
 		else:
 			self.Embed (text, data)
+	#--------------------------------------------------
+	def MakePopup (self, text, data, parent, cursor_position):
+		"""
+		An overrideable method, called whenever a match is made in this STC
+		Designed for producing popups, but the overrider can in fact, do
+		whatever they please.
+
+		@return True if a poup-up or similar actually happened (which suppresses inserting the match string in the text
+		@rtype boolean
+		"""
+		#cPopupFrame(text, win, self, cursor_position)).Show()
+		return False
 #====================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.6  2004-12-14 11:58:15  ncq
+# Revision 1.7  2004-12-15 12:48:39  ihaywood
+# replaced fancy GUI-widget handling match providers with a simpler solution that
+# preserves the GUI/business layer divide.
+#
+# Revision 1.6  2004/12/14 11:58:15  ncq
 # - various inline comments enhanced
 # - in __OnKeyDown isn't the Skip() logic wrong ?
 #
