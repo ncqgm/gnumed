@@ -68,8 +68,8 @@ succeeds.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.6 2004-12-20 16:46:55 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmBusinessDBObject.py,v 1.7 2005-01-02 16:16:52 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -117,11 +117,8 @@ class cBusinessDBObject:
 			# one or multiple "update ... set ..." statements which
 			# actually update the database from the data in self._payload,
 			# the last query must refetch the XMIN values needed to detect
-			# concurrent updates
-		self.__class__._xmins_refetch_col_pos
-			# a dict mapping column names to positions for the last
-			# query in self.__class__._cmds_store_payload such that
-			# the XMIN fields in self._payload can be updated
+			# concurrent updates, their field names had better be the same as
+			# in _cmd_fetch_payload
 		self.__class__._updatable_fields
 			# a list of fields available to users via object['field']
 		self.__class__._service
@@ -301,16 +298,17 @@ class cBusinessDBObject:
 
 		# try to lock rows
 		for query in self.__class__._cmds_lock_rows_for_update:
-			successful, data = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])])
+			successful, result = gmPG.run_commit2(link_obj = conn, queries = [(query, [params])])
 			# error
 			if not successful:
 				conn.rollback()
 				conn.close()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, error locking row' % (self.__class__.__name__, self.pk_obj))
-				return (False, data)
+				return (False, result)
 			# query succeeded but failed to find the row to lock
 			# because another transaction committed a change or
 			# delete *before* we attempted to lock it ...
+			data, idx = result
 			if len(data) == 0:
 				conn.rollback()
 				conn.close()
@@ -337,29 +335,30 @@ class cBusinessDBObject:
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append((query, [params]))
-		successful, data = gmPG.run_commit2(link_obj = conn, queries = queries)
+		successful, data = gmPG.run_commit2(link_obj = conn, queries = queries, get_col_idx = True)
 		if not successful:
 			conn.rollback()
 			conn.close()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
 			_log.Log(gmLog.lErr, params)
-			return (False, data)
-		# update cached XMIN values
+			return (False, result)
+		data, idx = result
 		if data is None:
 			conn.rollback()
 			conn.close()
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, last query did not return XMIN values' % (self.__class__.__name__, self.pk_obj))
 			return (False, data)
+		# update cached XMIN values
 		row = data[0]
-		for key in self.__class__._xmins_refetch_col_pos.keys():
+		for key in idx.keys():
 			try:
-				self._payload[self._idx[key]] = row[self.__class__._xmins_refetch_col_pos[key]]
+				self._payload[self._idx[key]] = row[idx[key]]
 			except KeyError:
 				conn.rollback()
 				conn.close()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, XMIN refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
 				_log.Log(gmLog.lErr, 'payload keys: %s' % str(self._idx))
-				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(self.__class__._xmins_refetch_col_pos.keys()))
+				_log.Log(gmLog.lErr, 'XMIN refetch keys: %s' % str(idx))
 				_log.Log(gmLog.lErr, params)
 				return (False, data)
 		conn.commit()
@@ -395,7 +394,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.6  2004-12-20 16:46:55  ncq
+# Revision 1.7  2005-01-02 16:16:52  ncq
+# - by Ian: improve XMIN update on save by using new commit() get_col_idx
+#
+# Revision 1.6  2004/12/20 16:46:55  ncq
 # - improve docs
 # - close last known concurrency issue (reget xmin values after save)
 #
