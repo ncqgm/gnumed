@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.68 2004-05-22 11:54:23 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.69 2004-05-30 20:58:13 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -47,7 +47,7 @@ from
 	clin_encounter cle,
 	encounter_type et
 where
-	cle.fk_type = et.id
+	cle.fk_type = et.pk
 ;
 
 -- current ones
@@ -71,7 +71,7 @@ from
 	encounter_type et,
 	curr_encounter cu_e
 where
-	et.id = cl_e.fk_type
+	et.pk = cl_e.fk_type
 		and
 	cu_e.id_encounter = cl_e.id
 ;
@@ -96,7 +96,7 @@ from
 	clin_encounter ce1,
 	encounter_type et
 where
-	ce1.fk_type = et.id
+	ce1.fk_type = et.pk
 		and
 	ce1.id = (
 		select max(id)
@@ -192,13 +192,15 @@ select
 	cri.id_episode as id_episode,
 	vpep.id_health_issue as id_health_issue,
 	cri.narrative as narrative,
-	sys.relname as src_table
+	pgc.relname as src_table
 from
-	clin_root_item cri, v_pat_episodes vpep, pg_class sys
+	clin_root_item cri,
+	v_pat_episodes vpep,
+	pg_class pgc
 where
 	vpep.id_episode=cri.id_episode
 		and
-	cri.tableoid=sys.oid
+	cri.tableoid=pgc.oid
 order by
 	age
 ;
@@ -240,7 +242,7 @@ create view v_results4lab_req as
 select
 	vpep.id_patient as pk_patient,
 	tr0.id as pk_result,
-	lr.clin_when as req_when,
+	lr.clin_when as req_when,			-- FIXME: should be sampled_when
 	lr.lab_rxd_when,
 	tr0.clin_when as val_when,
 	lr.results_reported_when as reported_when,
@@ -647,7 +649,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	last_act_episode,
 	last_act_episode_id_seq,
 	encounter_type,
-	encounter_type_id_seq,
+	encounter_type_pk_seq,
 	clin_encounter,
 	clin_encounter_id_seq,
 	curr_encounter,
@@ -742,11 +744,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.68 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.69 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.68  2004-05-22 11:54:23  ncq
+-- Revision 1.69  2004-05-30 20:58:13  ncq
+-- - encounter_type.id -> encounter_type.pk
+--
+-- Revision 1.68  2004/05/22 11:54:23  ncq
 -- - cleanup signal handling on allergy table
 --
 -- Revision 1.67  2004/05/11 01:34:51  ncq
