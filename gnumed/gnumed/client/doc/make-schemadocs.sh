@@ -1,21 +1,19 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
 export PGUSER="gm-dbowner"
-
-# this only really works on hherb.com
-#/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t html &> ~/schemadocs.log
-
-# this only really works on Carlos' server
-/usr/local/postgresql_autodoc/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t html &> ~/schemadocs.log
+/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t html &> ~/schemadocs.log
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.4  2005-01-10 12:06:13  ncq
+# Revision 1.5  2005-01-10 12:26:40  ncq
+# - properly installing pg_autodoc on Carlos' machine should help
+#
+# Revision 1.4  2005/01/10 12:06:13  ncq
 # - tell pg autodoc to act as gm-dbowner
 #
 # Revision 1.3  2005/01/06 19:21:29  ncq
