@@ -42,12 +42,17 @@ Usage:
 @copyright: GPL
 """
 
-import sys, time, traceback, os.path, atexit
+import sys, time, traceback, os.path, atexit, os
 
 # safely import SYSLOG, currently POSIX only
-import os
-if os.name == 'posix':
+try:
     import syslog
+    _use_syslog = (1 == 1)
+except ImportError:
+    _use_syslog = (1 == 0)
+    if os.name == 'posix':
+	print "Although we are on a POSIX compliant platform the module SYSLOG cannot be imported !"
+	print "You should download and install this module !"
 
 #-------------------------------------------
 
@@ -331,7 +336,7 @@ class LogTargetConsole(LogTarget):
 class LogTargetSyslog(LogTarget):
     def __init__ (self, aLogLevel = lErr):
 	# is syslog available ?
-    	if os.name == 'posix':
+    	if _use_syslog:
 	    # call inherited
 	    LogTarget.__init__(self, aLogLevel)
 	    # do our extra work
@@ -341,7 +346,7 @@ class LogTargetSyslog(LogTarget):
 	    self.writeMsg (lData, "instantiated syslog logging with ID " + str(self.ID))
 	else:
 	    raise NotImplementedError, "No SYSLOG module available on this platform (" + str(os.name) + ") !"
- 
+
     def close(self):
 	LogTarget.close(self)
 	syslog.closelog()
