@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -567,9 +567,9 @@ def __open_default_logfile():
 		first_opt = known_opts[0]
 		# 3) tuple(first_opt) -> (option name, option value)
 		logName = os.path.abspath(os.path.expanduser(first_opt[1]))
-		print "trying log file [%s]" % logName
 		try:
 			loghandle = cLogTargetFile (lInfo, logName, "wb")
+			print "log file is [%s]" % logName
 			return loghandle
 		except:
 			return None
@@ -581,28 +581,32 @@ def __open_default_logfile():
 	base_name = base_dir + ".log"
 
 	# ~/.base_dir/base_name.log
+	# make sure path is there
+	tmp = os.path.expanduser(os.path.join('~', '.' + base_dir))
+	if not os.path.exists(tmp):
+		os.mkdir(tmp)
 	logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
-	print "trying log file [%s]" % logName
 	try:
 		loghandle = cLogTargetFile (lInfo, logName, "wb")
+		print "log file is [%s]" % logName
 		return loghandle
 	except:
 		pass
 
 	# /var/log/base_dir/base_name.log
 	logName = os.path.join('/var/log', base_dir, base_name)
-	print "trying log file [%s]" % logName
 	try:
 		loghandle = cLogTargetFile (lInfo, logName, "ab")
+		print "log file is [%s]" % logName
 		return loghandle
 	except:
 		pass
 
 	# /var/log/base_name.log
 	logName = os.path.join('/var/log', base_name)
-	print "trying log file [%s]" % logName
 	try:
 		loghandle = cLogTargetFile (lInfo, logName, "ab")
+		print "log file is [%s]" % logName
 		return loghandle
 	except:
 		pass
@@ -610,9 +614,9 @@ def __open_default_logfile():
 	# ./base_name.log
 	# last resort for inferior operating systems such as DOS/Windows
 	logName = os.path.abspath(os.path.join(os.path.split(sys.argv[0])[0], base_name))
-	print "trying log file [%s]" % logName
 	try:
 		loghandle = cLogTargetFile (lInfo, logName, "wb")
+		print "log file is [%s]" % logName
 		return loghandle
 	except:
 		pass
