@@ -106,12 +106,21 @@ class wxNotebookPlugin (wxBasePlugin):
 	"""
 	
 	def register (self):
+		"""Register ourselves."""
+
+		# add ourselves to the main notebook
 		self.nb = self.gb['main.notebook']
 		self.nb_no = self.nb.GetPageCount ()
 		self.nb.AddPage (self.GetWidget (self.nb), self.name ())
+
+		# place ourselves in the main toolbar
+		# FIXME: this should be optional
 		self.tbm = self.gb['main.toolbar']
 		tb = self.tbm.AddBar (self.nb_no)
 		self.gb['toolbar.%s' % self.name ()] = tb
+
+		# and put ourselves into the menu structure
+		# FIXME: this should be optional, too
 		menuset, menuname = self.MenuInfo ()
 		menu = self.gb['main.%smenu' % menuset]
 		self.menu_id = wxNewId ()
@@ -119,11 +128,13 @@ class wxNotebookPlugin (wxBasePlugin):
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 	#-----------------------------------------------------
 	def unregister (self):
+		"""Remove ourselves."""
 		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
 		menu.Delete (menu_id)
 		nb = gb['main.notebook']
 		nb.DeletePage (self.nb_no)
-		self.tbm.DeleteBar (self.nb_no) 
+		self.tbm.DeleteBar (self.nb_no)
+		# FIXME: shouldn't we delete the menu item, too ?
 	#-----------------------------------------------------	
 	def Raise (self):
 		self.nb.SetSelection (self.nb_no)
