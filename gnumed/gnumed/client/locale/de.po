@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
-"POT-Creation-Date: Mon Sep  9 03:07:07 2002\n"
+"POT-Creation-Date: Tue Sep 10 11:56:15 2002\n"
 "PO-Revision-Date: 2002-08-05 18:36+0200\n"
 "Last-Translator: Christian Axel Herda <dc.herda@t-online.de>\n"
 "Language-Team: deutsch <de@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Generated-By: pygettext.py 1.3\n"
 "X-Generator: KBabel 0.9.6\n"
 
-#: ../wxpython/gmGuiMain.py:164
+#: ../wxpython/gmGuiMain.py:166
 msgid ""
 "previous: %s - %s\n"
 "current : %s"
@@ -31,7 +31,7 @@ msgstr " OK "
 msgid "Inbox"
 msgstr "Posteingang"
 
-#: ../wxpython/gmLoginDialog.py:130
+#: ../wxpython/gmLoginDialog.py:133
 msgid "Login - %s"
 msgstr "Anmeldung - %s"
 
@@ -47,7 +47,7 @@ msgstr "Aktionen"
 msgid "Results"
 msgstr "Ergebnisse"
 
-#: ../wxpython/gmLoginDialog.py:439
+#: ../wxpython/gmLoginDialog.py:442
 msgid "database"
 msgstr "Datenbank"
 
@@ -79,7 +79,7 @@ msgstr "Schwangerschaftsrechner"
 msgid "&Select"
 msgstr "&Auswahl"
 
-#: ../wxpython/gmLabels.py:42 ../wxpython/gmLoginDialog.py:139
+#: ../wxpython/gmLabels.py:42 ../wxpython/gmLoginDialog.py:142
 msgid "user"
 msgstr "Benutzer"
 
@@ -95,11 +95,15 @@ msgstr "Benutzerverwaltung"
 msgid "Type"
 msgstr ""
 
+#: ../wxpython/gmGuiMain.py:156
+msgid "loading list of plugins                    "
+msgstr ""
+
 #: ../wxpython/gui/gmDrugDisplay.py:225
 msgid "Adverse reactions"
 msgstr "unerwünschte Reaktionen"
 
-#: ../wxpython/gmLoginDialog.py:452
+#: ../wxpython/gmLoginDialog.py:455
 msgid "host"
 msgstr "Datenbankserver"
 
@@ -152,7 +156,7 @@ msgstr ""
 msgid "Set pass phrase"
 msgstr "Passwort einsetzen"
 
-#: ../wxpython/gmLoginDialog.py:194
+#: ../wxpython/gmLoginDialog.py:197
 msgid "Help for login screen"
 msgstr ""
 
@@ -162,6 +166,9 @@ msgid ""
 "To do this set the option \"name\" in the group [workplace] in the config "
 "file !"
 msgstr ""
+"Sie sollten diesem Computer einen Namen in GnuMed geben !\n"
+"Setzen Sie dazu in der Konfigurationsdatei die Option\"name\" in der Gruppe "
+"[workplace]."
 
 #: ../wxpython/gui/gmDrugDisplay.py:225
 msgid "Description"
@@ -196,7 +203,7 @@ msgstr "Darstellung"
 msgid "Recalls entered this consultation"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:360
+#: ../wxpython/gmGuiMain.py:364
 msgid "GNUmed client"
 msgstr "GnuMed: Hauptprogramm"
 
@@ -279,16 +286,16 @@ msgstr "vorherige &Namen? Mädchennamen?"
 msgid "Family name"
 msgstr "Familienname"
 
-#: ../wxpython/gmLoginDialog.py:574
+#: ../wxpython/gmLoginDialog.py:577
 msgid "You tried to log in as [%s] with password [%s]."
 msgstr ""
 "Sie haben versucht, sich als Nutzer [%s] mit dem Passwort [%s] anzumelden."
 
-#: ../wxpython/gmLoginDialog.py:182
+#: ../wxpython/gmLoginDialog.py:185
 msgid "Cancel Login."
 msgstr "Anmeldung abbrechen."
 
-#: ../wxpython/gmGuiMain.py:256
+#: ../wxpython/gmGuiMain.py:258
 msgid "Close this GNUmed client"
 msgstr "Dieses GnuMed-Fenster schliessen."
 
@@ -351,7 +358,7 @@ msgstr "zuletzt"
 msgid "firstnames"
 msgstr "Vornamen"
 
-#: ../wxpython/gmLoginDialog.py:193 ../wxpython/gmLoginDialog.py:504
+#: ../wxpython/gmLoginDialog.py:196 ../wxpython/gmLoginDialog.py:507
 msgid "&Help"
 msgstr "H&ilfe"
 
@@ -368,7 +375,7 @@ msgstr "privat"
 msgid "Reprint Item"
 msgstr ""
 
-#: ../wxpython/gmLoginDialog.py:340
+#: ../wxpython/gmLoginDialog.py:343
 msgid ""
 "GnuMed main login screen\n"
 "\n"
@@ -398,7 +405,7 @@ msgstr "Handelsname"
 msgid "Print Single Item"
 msgstr ""
 
-#: ../wxpython/gmLoginDialog.py:176
+#: ../wxpython/gmLoginDialog.py:179
 msgid "Proceed with login."
 msgstr ""
 
@@ -429,7 +436,6 @@ msgid "Save Item no print"
 msgstr ""
 
 #: ../wxpython/patient/gmGP_TabbedLists.py:135
-#, fuzzy
 msgid "First Date"
 msgstr "erstmals"
 
@@ -458,11 +464,11 @@ msgstr ""
 msgid "Generic name"
 msgstr "Freiname"
 
-#: ../wxpython/gmLoginDialog.py:175 ../wxpython/gmLoginDialog.py:498
+#: ../wxpython/gmLoginDialog.py:178 ../wxpython/gmLoginDialog.py:501
 msgid "&Ok"
 msgstr "&Ok"
 
-#: ../wxpython/gmGuiMain.py:224
+#: ../wxpython/gmGuiMain.py:226
 msgid ""
 "Message from GNUmed:\n"
 "Please write a nice About box!"
@@ -521,7 +527,7 @@ msgstr "Details"
 msgid "Mrs."
 msgstr "Frau"
 
-#: ../wxpython/gmLoginDialog.py:572
+#: ../wxpython/gmLoginDialog.py:575
 msgid "Dialog was cancelled by user"
 msgstr "Anmeldung vom Benutzer abgebrochen"
 
@@ -584,11 +590,11 @@ msgstr ""
 msgid "Please enter your pass phrase:"
 msgstr "Bitte geben Sie Ihr Passwort ein:"
 
-#: ../wxpython/gmLoginDialog.py:181 ../wxpython/gmLoginDialog.py:509
+#: ../wxpython/gmLoginDialog.py:184 ../wxpython/gmLoginDialog.py:512
 msgid "&Cancel"
 msgstr "A&bbrechen"
 
-#: ../wxpython/gmLoginDialog.py:337
+#: ../wxpython/gmLoginDialog.py:340
 msgid ""
 "You need to set the option [workplace] -> <help desk> in the config file !"
 msgstr ""
@@ -617,7 +623,7 @@ msgstr "&Vorschrift"
 msgid "address"
 msgstr "Adresse"
 
-#: ../wxpython/gmGuiMain.py:99 ../wxpython/gmGuiMain.py:172
+#: ../wxpython/gmGuiMain.py:174
 msgid "You are logged in as [%s]"
 msgstr "Sie sind als (%s) eingeloggt"
 
@@ -653,7 +659,7 @@ msgstr "BMI-Rechner"
 msgid "Delete all Items"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:168
+#: ../wxpython/gmGuiMain.py:170
 msgid "failed"
 msgstr "fehlgeschlagen"
 
@@ -669,7 +675,7 @@ msgstr "Fügen Sie eine andere Telefonnummer zu"
 msgid "Prof."
 msgstr "Prof."
 
-#: ../wxpython/gmGuiMain.py:153
+#: ../wxpython/gmGuiMain.py:155
 msgid "GnuMed: loading plugins"
 msgstr "GnuMed: Laden der Module"
 
@@ -689,10 +695,6 @@ msgstr "Bildschirmhöhe (cm): "
 #, fuzzy
 msgid "Prescribed For"
 msgstr "&Vorschrift"
-
-#: ../wxpython/gmGuiMain.py:154
-msgid "loading list of plugins"
-msgstr ""
 
 #: ../wxpython/patient/gmGP_ScratchPadRecalls.py:22
 msgid "Recalls/Reviews"
@@ -727,7 +729,7 @@ msgstr "Abfage &löschen"
 msgid "16 inch"
 msgstr "16 inch"
 
-#: ../wxpython/gmLoginDialog.py:465
+#: ../wxpython/gmLoginDialog.py:468
 msgid "port"
 msgstr "Port"
 
@@ -772,7 +774,7 @@ msgstr "Kontraindikationen"
 msgid "Year Onset"
 msgstr ""
 
-#: ../wxpython/gmGuiMain.py:224
+#: ../wxpython/gmGuiMain.py:226
 msgid "About GNUmed"
 msgstr "Über GnuMed"
 
@@ -831,7 +833,7 @@ msgstr ""
 msgid "Select"
 msgstr "Auswahl"
 
-#: ../wxpython/gmLoginDialog.py:479
+#: ../wxpython/gmLoginDialog.py:482
 msgid "backend options"
 msgstr "Optionen (DB)"
 
@@ -844,9 +846,13 @@ msgstr ""
 msgid "Date"
 msgstr "Datum"
 
+#: ../wxpython/gmGuiMain.py:100
+msgid "GnuMed: idle - no patient (%s@%s)"
+msgstr "GnuMed: warte - kein Patient (%s@%s)"
+
 #: ../wxpython/gmPersonDetails.py:96
 msgid "a.k.a."
-msgstr "???"
+msgstr "alias"
 
 #: ../wxpython/gmPersonDetails.py:217
 msgid "country"
@@ -886,7 +892,7 @@ msgstr "Geschlecht"
 msgid "Card type"
 msgstr "Kartentyp"
 
-#: ../wxpython/gmGuiMain.py:166
+#: ../wxpython/gmGuiMain.py:168
 msgid "success"
 msgstr "erfolgreich"
 
@@ -898,15 +904,15 @@ msgstr "Hilfe"
 msgid "comment"
 msgstr "Kommentar"
 
-#: ../wxpython/gmGuiMain.py:256
+#: ../wxpython/gmGuiMain.py:258
 msgid "E&xit\tAlt-X"
 msgstr "E&xit\tAlt-X"
 
-#: ../wxpython/gmLoginDialog.py:394
+#: ../wxpython/gmLoginDialog.py:397
 msgid "Advanced login options"
 msgstr "Optionen (DB)"
 
-#: ../wxpython/gmLoginDialog.py:153
+#: ../wxpython/gmLoginDialog.py:156
 msgid "password"
 msgstr "Passwort"
 
@@ -955,7 +961,7 @@ msgstr "Benutzer Login"
 msgid "URL"
 msgstr "URL"
 
-#: ../wxpython/gmLoginDialog.py:188
+#: ../wxpython/gmLoginDialog.py:191
 msgid "Set advanced options like database, host, port etc."
 msgstr ""
 
@@ -1055,7 +1061,7 @@ msgstr ""
 msgid "GNUmed Talkback Facility"
 msgstr ""
 
-#: ../wxpython/gmLoginDialog.py:543
+#: ../wxpython/gmLoginDialog.py:546
 msgid ""
 "Advanced backend options: \n"
 "\n"
@@ -1085,11 +1091,11 @@ msgstr ""
 msgid "dose"
 msgstr "Dosierung"
 
-#: ../wxpython/gmLoginDialog.py:187
+#: ../wxpython/gmLoginDialog.py:190
 msgid "&Options"
 msgstr "Optionen"
 
-#: ../wxpython/gmLoginDialog.py:382
+#: ../wxpython/gmLoginDialog.py:385
 msgid "Welcome to the"
 msgstr ""
 
@@ -1148,9 +1154,6 @@ msgstr ""
 #~ msgid "user cancelled login dialog"
 #~ msgstr "Abbruch des Login-Dialogs durch Benutzer"
 
-#~ msgid "Not GNUMed database"
-#~ msgstr "Keine GNUMed Datenbank"
-
 #~ msgid "Cancel"
 #~ msgstr "Abbrechen"
 
@@ -1160,11 +1163,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Login Versuch gescheitert\n"
 #~ "GNUMed kann nicht ohne Datenbankverbindung ausgeführt werden"
-
-#~ msgid "Attempting to close a database connection that is still in use"
-#~ msgstr ""
-#~ "Versuch eine Datenbankverbindung zu schliessen, welche noch in Anwendung "
-#~ "ist"
 
 #~ msgid "Could not connect to configuration database  backend!"
 #~ msgstr ""
