@@ -4,8 +4,8 @@ This maps XDT field IDs to verbose names.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.4 2003-02-13 15:42:54 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmXdtMappings.py,v 1.5 2003-02-14 01:49:17 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "S.Hilbert"
 __license__ = "GPL"
 
@@ -28,7 +28,7 @@ xdt_id_map = {
 			
 		 '9103':'Datum der Erstellung',
 
-		 '9105':'Ordnungsnummer des Datentraegers dieses Datenpakets',
+		 '9105':'Lfd.Nr. Datentraeger im Paket',
 			
 		 '9106':'Zeichencode',
 		#--------------------------------------------------
@@ -50,9 +50,9 @@ xdt_id_map = {
 		#data package header end
 		#--------------------------------------------------
 		#full length of data package 
-		 '9202':'Gesamtlaenge des Datenpakets',
+		 '9202':'Gesamtlänge Datenpaket',
 		#number of media for this data package     
-		 '9203':'Anzahl Datentraeger des Datenpakets',
+		 '9203':'Anzahl Datenträger im Paket',
 		#-------------------------------------------------
 		#practice data
 		#-------------------------------------------------
@@ -87,9 +87,9 @@ xdt_id_map = {
 		#number of doctors
 		 '0225':'Anzahl der Aerzte',
 		#name of first free category
-		 '0250':'Name der ersten freien Kategorie',
+		 '0250':'Name erste freie Kategorie',
 		#content of first free category
-		 '0251':'Inhalt der ersten frien Kategorie',
+		 '0251':'Inhalt erste freie Kategorie',
 		#-------------------------------------------------
 		#medical treatment
 		#-------------------------------------------------
@@ -162,7 +162,7 @@ xdt_id_map = {
 		#Entfernung Wohnung/Praxis-- nur bei header 6100 --
 		 '3631':'Entfernung Wohnung-Praxis',
 		#interne Zuordnung Arzt bei Gemeinschaftspraxen -- nur bei header 6100 --
-		 '3635':'interne Zuordnung Arzt bei Gemeinschaftspraxen',
+		 '3635':'interne Zuordnung Arzt bei GP',
 		#Rezeptkennung -- nur bei header 6100 --
 		 '3637':'Rezeptkennung',
 		#Dauerdiagnosen ab Datum -- nur bei header 6100 --
@@ -188,7 +188,7 @@ xdt_id_map = {
 		#Anzahl Kinder -- nur bei header 6100 --
 		 '3666':'Anzahl Kinder',
 		#Anzahl Schwangerschaften -- nur bei header 6100 --
-		 '3668':'Anzahl Schwangerschafen',
+		 '3668':'Anzahl Schwangerschaften',
 		#Dauertherapie -- nur bei header 6100 --
 		 '3670':'Dauertherapie',
 		#Kontrolltermine -- nur bei header 6100 --
@@ -411,7 +411,7 @@ xdt_id_map = {
 		#ICD-Schluessel
 		 '6001':'ICD-Schluessel',
 		#Tag der Speicherung von Behandlungsdaten -- nur bei header 6200 --
-		 '6200':'Tag der Speicherung von Behandlungsdaten',
+		 '6200':'gespeichert am',
 		#aktuelle Diagnose -- nur bei header 6200 --
 		 '6205':'aktuelle Diagnose',
 		#Medikament verordnet auf Rezept -- nur bei header 6200 --
@@ -563,7 +563,10 @@ xdt_packet_type_map = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.4  2003-02-13 15:42:54  ncq
+# Revision 1.5  2003-02-14 01:49:17  ncq
+# - better strings
+#
+# Revision 1.4  2003/02/13 15:42:54  ncq
 # - changed some strings
 #
 # Revision 1.3  2003/02/13 15:26:09  ncq
