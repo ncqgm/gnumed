@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.1 2003-02-14 00:22:17 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMimeLib.py,v 1.2 2003-02-17 16:17:20 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -53,14 +53,14 @@ def guess_mimetype(aFileName = None):
 
 		# we must trade speed vs. RAM now by loading a data file
 		try:
-			import docMagic
+			import gmMimeMagic
 		except ImportError:
 			exc = sys.exc_info()
 			_log.LogException("Cannot import internal magic data file.", exc, fatal=0)
 			return None
-		tmp = docMagic.file(aFileName)
+		tmp = gmMimeMagic.file(aFileName)
 		# save resources
-		del docMagic
+		del gmMimeMagic
 
 		if not tmp is None:
 			mime_type = tmp
@@ -110,6 +110,9 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.1  2003-02-14 00:22:17  ncq
+# Revision 1.2  2003-02-17 16:17:20  ncq
+# - fix typo
+#
+# Revision 1.1  2003/02/14 00:22:17  ncq
 # - mime ops for general use
 #
