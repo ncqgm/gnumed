@@ -6,12 +6,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: multisash.py,v 1.5 2005-02-17 16:46:20 cfmoro Exp $
+# RCS-ID:		$Id: multisash.py,v 1.6 2005-02-17 17:28:14 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/multisash.py,v $
-# $Id: multisash.py,v 1.5 2005-02-17 16:46:20 cfmoro Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: multisash.py,v 1.6 2005-02-17 17:28:14 cfmoro Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "cfmoro"
 __license__ = "GPL"
 	   
@@ -79,7 +79,7 @@ class wxMultiSash(wxWindow):
 		
 		@param content The new content widget to add.
 		@type content Any wxWindow derived object.
-		"""		
+		"""
 		successful, errno = self.bottom_leaf.AddLeaf(direction = MV_VER, pos = 100)
 		if successful:
 			self.bottom_leaf.set_content(content)
@@ -175,7 +175,7 @@ class wxMultiSplit(wxWindow):
 		if not self.view2:
 			self.view1.DefaultChildChanged()
 	#---------------------------------------------
-	def AddLeaf(self,direction,caller,pos):
+	def AddLeaf(self,direction,caller,pos):		
 		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
 		print "leaf 1: %s [%s]" % (self.view1.__class__.__name__, id(self.view1))
 		print "leaf 2: %s [%s]" % (self.view2.__class__.__name__, id(self.view2))
@@ -425,13 +425,11 @@ class wxMultiViewLeaf(wxWindow):
 	def set_focus(self):
 		"""
 		Set current leaf as focused leaf. Typically, the focused widget
-		will be required to further actions and processing. If the leaf
-		is not selected (eg. just after creation), select it. Otherwise,
-		skip selecting it (prevents endless recursive call).
+		will be required to further actions and processing.
 		"""
 		self.multiView.focussed_leaf = self
-		if self.detail is not None and not self.detail.selected :
-			self.detail.Select()		
+		#if self.detail is not None and not self.detail.selected :
+		#	self.detail.Select()		
 		print "focussed soap editor leaf:", self.__class__.__name__, id(self)
 		#self.multiView.get_bottom_leaf()
 
@@ -441,8 +439,16 @@ class wxMultiViewLeaf(wxWindow):
 	def DefaultChildChanged(self):
 		self.detail.SetNewChildCls(self.multiView._defChild)
 		
+	#-----------------------------------------------------		
 	def set_content(self, content):
-		self.detail.set_new_content(content)		
+		"""
+		Sets the as content child of this leaf.
+		
+		@param content The new content widget to set..
+		@type content Any wxWindow derived object.
+		"""				
+		self.detail.set_new_content(content)
+		
 	#-----------------------------------------------------
 	def AddLeaf(self,direction,pos):
 		"""Add a leaf.
@@ -462,7 +468,12 @@ class wxMultiViewLeaf(wxWindow):
 				return (False, 1)
 		else:
 			if pos > w - 10: return (False, 1)
-		self.GetParent().AddLeaf(direction,self,pos)
+		# Gnumed: when initial leaf, replace its content widget and focus it
+		#		 else, add a new leaf
+		if not isinstance(self.detail.child, EmptyChild):
+			self.GetParent().AddLeaf(direction,self,pos)
+		else:
+			self.set_focus()
 		return (True, None)
 	#---------------------------------------------
 	def DestroyLeaf(self):
@@ -573,13 +584,25 @@ class MultiClient(wxWindow):
 		self.child = childCls(self)
 		self.child.MoveXY(2,2)
 		
+	#-----------------------------------------------------		
 	def set_new_content(self,content):
+		"""
+		Sets the as content child of this widget.
+		
+		@param content The new content widget to set..
+		@type content Any wxWindow derived object.
+		"""
+		# Gnumed: avoid yellow blinking during widget replacement
+		self.SetBackgroundColour(self.normalColour)					
 		if self.child:
 			self.child.Destroy()
 			self.child = None
 		content.Reparent(self)
 		self.child = content
-		self.child.MoveXY(2,2)		
+		self.child.MoveXY(2,2)
+		# Gnumed: required to a proper layout of the child and parent widgets
+		self.Select()
+		self.OnSize(None)
 
 	def OnSetFocus(self,evt):
 		self.Select()
@@ -899,7 +922,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: multisash.py,v $
-# Revision 1.5  2005-02-17 16:46:20  cfmoro
+# Revision 1.6  2005-02-17 17:28:14  cfmoro
+# Some clean ups. Replace when initial leaf. UI fixes.
+#
+# Revision 1.5  2005/02/17 16:46:20  cfmoro
 # Adding and removing soap editors. Simplified multisash interface.
 #
 # Revision 1.4  2005/02/16 11:19:12  ncq
