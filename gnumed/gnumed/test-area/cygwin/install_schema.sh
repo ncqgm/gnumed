@@ -22,10 +22,9 @@ createlang -d gnumed -h127.0.0.1 -Ugm-dbowner "plpgsql"
 rm all
 touch all
 
-#manually add groups 
-echo create group \"gm-doctors\"\; >> all
 echo create group \"gm-public\"\; >> all
-echo create group \"gm-staff\"\; >> all
+echo create group \"gm-doctors\"\; >> all
+echo create user \"any-doc\" with password \'any-doc\' in group \"gm-doctors\", \"gm-public\"\; >> all
 
 for  x in `cat filelist`;do
 	cat $sql_path/$x >> all

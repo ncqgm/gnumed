@@ -13,7 +13,7 @@ for l in file(sys.argv[1]):
 		section = res.group(1)
 		w  = section.split(' ')
 		service_name=' '.join(w[1:])
-		is_typed_section= w[0] in ['service', 'database']
+		is_typed_section= w[0] in ['service', 'database', 'server']
 		if is_typed_section:
 			m[w[0]] = m.get(w[0], {})
 			m[w[0]][service_name] = {}
