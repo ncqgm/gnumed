@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.28 2003-06-27 16:03:50 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmClinicalRecord.py,v 1.29 2003-06-27 22:54:29 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -257,8 +257,14 @@ class gmClinicalRecord:
 			if not items_by_table.has_key(table):
 				items_by_table[table] = {}
 			items_by_table[table][id_item] = item
+		# get episode/issue maps for translation
+		issue_map = self._get_health_issue_names()
+		if issue_map is None:
+			issue_map = {}
+		episode_map = self._get_episode_names()
+		if episode_map is None:
+			episode_map = {}
 		emr_data = {}
-#		self._defconn_ro.conn.toggleShowQuery
 		# get item data from all source tables
 		for table_name in items_by_table.keys():
 			cmd = "select extract(epoch from modify_when) as age, * from %s where id in %%s order by age" % table_name
@@ -276,14 +282,22 @@ class gmClinicalRecord:
 				age = table_item[table_col_idx['age']]
 				view_item = items_by_table[table_name][id_item]
 				# format metadata
+				try:
+					episode_name = episode_map[table_item[table_col_idx['id_episode']]]
+				except:
+					episode_name = table_item[table_col_idx['id_episode']]
+				try:
+					issue_name = issue_map[view_item[view_col_idx['id_health_issue']]]
+				except:
+					issue_name = view_item[view_col_idx['id_health_issue']]
 				if not emr_data.has_key(age):
 					emr_data[age] = []
 				emr_data[age].append(
 					'%s: doc %s, issue %s, episode %s, encounter %s (table %s, entry revision %s)' % (
 						table_item[table_col_idx['modify_when']],
 						table_item[table_col_idx['modify_by']],
-						view_item[view_col_idx['id_health_issue']],
-						table_item[table_col_idx['id_episode']],
+						issue_name,
+						episode_name,
 						table_item[table_col_idx['id_encounter']],
 						table_name,
 						table_item[table_col_idx['row_version']]
@@ -293,22 +307,15 @@ class gmClinicalRecord:
 				# - ignore those, they are metadata
 				cols2ignore = [
 					'age',
-					'pk_audit',
-					'row_version',
-					'modify_when',
-					'modify_by',
-					'pk_item',
-					'id',
-					'id_encounter',
-					'id_episode'
+					'pk_audit', 'row_version', 'modify_when', 'modify_by',
+					'pk_item', 'id', 'id_encounter', 'id_episode'
 				]
-				tmp = "=> "
+				col_data = []
 				for col_name in table_col_idx.keys():
 					if col_name in cols2ignore:
 						continue
-					tmp = tmp + "%s: %s | " % (col_name, table_item[table_col_idx[col_name]])
-				emr_data[age].append(tmp)
-#		self._defconn_ro.conn.toggleShowQuery
+					col_data.append("%s: %s" % (col_name, table_item[table_col_idx[col_name]]))
+				emr_data[age].append("   %s" % string.join(col_data, ' | '))
 		return emr_data
 	#--------------------------------------------------------
 	def _get_patient_ID(self):
@@ -320,13 +327,13 @@ class gmClinicalRecord:
 			return self.__db_cache['allergies']
 		except:
 			pass
+		self.__db_cache['allergies'] = []
 		curs = self._defconn_ro.cursor()
-		# the connection can become stale
-#		curs = self.getCursor()
 		cmd = "select * from v_i18n_patient_allergies where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load allergies for patient [%s]' % self.id_patient)
+			del self.__db_cache['allergies']
 			return None
 		rows = curs.fetchall()
 		curs.close()
@@ -363,11 +370,12 @@ class gmClinicalRecord:
 		except KeyError:
 			pass
 		self.__db_cache['allergy IDs'] = []
-		cmd = "select id from v_i18n_patient_allergies where id_patient=%s"
 		curs = self._defconn_ro.cursor()
+		cmd = "select id from v_i18n_patient_allergies where id_patient=%s"
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load list of allergies for patient [%s]' % self.id_patient)
+			del self.__db_cache['allergy IDs']
 			return None
 		rows = curs.fetchall()
 		curs.close()
@@ -375,12 +383,58 @@ class gmClinicalRecord:
 			self.__db_cache['allergy IDs'].extend(row)
 		return self.__db_cache['allergy IDs']
 	#--------------------------------------------------------
+	def _get_episode_names(self):
+		try:
+			return self.__db_cache['episode names']
+		except KeyError:
+			pass
+		self.__db_cache['episode names'] = {}
+		curs = self._defconn_ro.cursor()
+		cmd = "select id_episode, episode from v_patient_episodes where id_patient=%s"
+		if not gmPG.run_query(curs, cmd, self.id_patient):
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot load episode names for patient [%s]' % self.id_patient)
+			del self.__db_cache['episode names']
+			return None
+		rows = curs.fetchall()
+		col_idx = gmPG.get_col_indices(curs)
+		curs.close()
+		idx_id = col_idx['id_episode']
+		idx_name = col_idx['episode']
+		for row in rows:
+			self.__db_cache['episode names'][row[idx_id]] = row[idx_name]
+		return self.__db_cache['episode names']
+	#--------------------------------------------------------
+	def _get_health_issue_names(self):
+		try:
+			return self.__db_cache['health issue names']
+		except KeyError:
+			pass
+		self.__db_cache['health issue names'] = {}
+		curs = self._defconn_ro.cursor()
+		cmd = "select id, description from clin_health_issue where id_patient=%s"
+		if not gmPG.run_query(curs, cmd, self.id_patient):
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot load health issue names for patient [%s]' % self.id_patient)
+			del self.__db_cache['health issue names']
+			return None
+		rows = curs.fetchall()
+		col_idx = gmPG.get_col_indices(curs)
+		curs.close()
+		idx_id = col_idx['id']
+		idx_name = col_idx['description']
+		for row in rows:
+			self.__db_cache['health issue names'][row[idx_id]] = row[idx_name]
+		return self.__db_cache['health issue names']
+	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['patient ID'] = _get_patient_ID
 #	_get_handler['allergy IDs'] = _get_allergies_list
 	_get_handler['allergy names'] = _get_allergy_names
 	_get_handler['allergies'] = _get_allergies
 	_get_handler['text dump'] = _get_text_dump
+	_get_handler['episode names'] = _get_episode_names
+	_get_handler['health issue names'] = _get_health_issue_names
 	#------------------------------------------------------------------
 	# health issue related helpers
 	#------------------------------------------------------------------
@@ -712,17 +766,6 @@ class gmClinicalRecord:
 		_log.Data("after end Transaction")
 		#</DEBUG>
 		
-		#need to invalidate cache or add to it.
-		# KH: no, a trigger on the allergies table ensures that a
-		# notification is sent via the backend to all interested clients
-		# which will make them do the right cache invalidation thing
-		#del self.__db_cache("allergies")	
-#		self._allergy_added_deleted()
-		# send signal to update listeners
-		# KH; not necessary either as gmClinicalRecord will
-		# notify all listeners in this frontend after being
-		# notified of the change by the backend
-		#gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 		return 1
 	#------------------------------------------------------------------
 	# convenience sql call interface
@@ -791,15 +834,24 @@ class gmClinicalRecord:
 if __name__ == "__main__":
 	record = gmClinicalRecord(aPKey = 1)
 	dump = record['text dump']
-	for aged_line in dump.keys():
-		for line in dump[aged_line]:
-			print line
+	if dump is not None:
+		keys = dump.keys()
+		keys.sort()
+		for aged_line in keys:
+			for line in dump[aged_line]:
+				print line
 	import time
 	time.sleep(3)
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.28  2003-06-27 16:03:50  ncq
+# Revision 1.29  2003-06-27 22:54:29  ncq
+# - improved _get_text_dump()
+# - added _get_episode/health_issue_names()
+# - remove old workaround code
+# - sort test output by age, oldest on top
+#
+# Revision 1.28  2003/06/27 16:03:50  ncq
 # - no need for ; in DB-API queries
 # - implement EMR text dump
 #
