@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -546,10 +546,10 @@ class ScanPanel(wxPanel):
 				kwds['progressive'] = 1
 			# actually convert to JPEG
 			try:
-				Image.open(bmp_name).save(jpg_name, **kwds)
+				Image.open(bmp_name).convert('RGB').save(jpg_name, **kwds)
 			except:
 				_log.LogException("optimized JPEG write failed, turning off optimization", sys.exc_info(), fatal=0)
-				Image.open(bmp_name).save(jpg_name)
+				Image.open(bmp_name).convert('RGB').save(jpg_name)
 			# remove bitmap (except Windows can't do that sometimes :-(
 			try:
 				os.remove(bmp_name)
@@ -996,7 +996,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.20  2003-01-06 13:51:57  ncq
+# Revision 1.21  2003-01-12 13:24:02  ncq
+# - bmp to jpg conversion needs convert(RGB) at times
+#
+# Revision 1.20  2003/01/06 13:51:57  ncq
 # - jpeg.progression seems to only work if jpeg.optimize works, too
 #
 # Revision 1.19  2002/12/28 23:06:15  ncq
