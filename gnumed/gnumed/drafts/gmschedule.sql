@@ -1,3 +1,6 @@
+-- halt on any error
+\SET ON_ERROR_STOP
+
 CREATE TABLE enum_stafftype (
 	id serial primary key,
 	description varchar(30)
@@ -25,29 +28,31 @@ INSERT INTO enum_speciality(description) VALUES ('Anaesthesist Specialist');
 
 CREATE TABLE staff (
 	id serial primary key,
-	id_person int references identity
+	--id_person int references identity
+	-- provisional, to make appointments work right now:
+	surnames varchar(60),
+	givennames varchar(60),
+	title varchar(12),
+	qualifications varchar(254)
 );
 
 CREATE TABLE m2m_staff_type (
-	id_staff int references staff,
-	id_enum_stafftype references enum_stafftype
+	id_staff integer references staff,
+	id_enum_stafftype integer references enum_stafftype
 );
 
 CREATE TABLE m2m_staff_speciality (
-	id_staff int references staff,
-	id_speciality references enum_speciality
+	id_staff integer references staff,
+	id_speciality integer references enum_speciality
 );
 
 CREATE TABLE staff_working_hours (
-	id_staff int references staff,
-	dow int,
+	id_staff integer references staff,
+	dow integer,
 	from_time time,
 	to_time time,
-	as_staff int references enum_stafftype
+	as_staff integer references enum_stafftype
 );
-
-
-
 
 
 CREATE TABLE public_holidays (
@@ -61,16 +66,16 @@ CREATE TABLE public_holidays (
 CREATE TABLE surgery_open (
 	id_surgery integer,		-- should reference f.k.
 	date date,
-	from time,
-	to time
+	from_t time,
+	to_t time
 );
 
 CREATE TABLE staff_working (
 	id serial primary key,
 	id_staff integer NOT NULL,
 	date date,
-	from time,
-	to time,
+	from_t time,
+	to_t time
 );
 
 CREATE TABLE enum_absence_reason (
@@ -91,15 +96,54 @@ CREATE TABLE staff_absent (
 	id serial primary key,
 	id_staff integer NOT NULL,
 	date date,
-	from time,
-	to time,
-	reason integer references enum_reason_for_absence,
+	from_t time,
+	to_t time,
+	reason integer references enum_absence_reason,
 	comment text
 );
+
+CREATE TABLE enum_app_type (
+	id serial primary key,
+	description text
+);
+
+INSERT INTO enum_app_type(description) VALUES ('standard');
+INSERT INTO enum_app_type(description) VALUES ('short');
+INSERT INTO enum_app_type(description) VALUES ('long');
+INSERT INTO enum_app_type(description) VALUES ('check-up geriatric');
+INSERT INTO enum_app_type(description) VALUES ('medication review');
+INSERT INTO enum_app_type(description) VALUES ('psychiatric');
+INSERT INTO enum_app_type(description) VALUES ('substance abuse - first');
+INSERT INTO enum_app_type(description) VALUES ('family');
+INSERT INTO enum_app_type(description) VALUES ('partner therapy');
+INSERT INTO enum_app_type(description) VALUES ('group therapy');
+
 
 CREATE TABLE preferred_app_length (
 	id serial primary key,
 	id_staff integer,
-	id_app_type integer references enum_app_types,
+	id_enum_app_type integer references enum_app_type,
 	duration integer  -- in minutes
 );
+
+CREATE VIEW v_doctors_only AS
+	select * from staff where id =
+	(select id_staff from m2m_staff_type where id_enum_stafftype=
+	(select id from enum_stafftype where description='doctor'));
+
+CREATE VIEW v_duration_standard AS
+	select duration, id_staff  from preferred_app_length
+	where id_enum_app_type =
+	(select id from enum_app_type where description='standard');
+
+CREATE VIEW v_duration_long AS
+	select duration, id_staff from preferred_app_length
+	where id_enum_app_type =
+	(select id from enum_app_type where description='long');
+
+CREATE VIEW v_duration_short AS
+	select duration, id_staff from preferred_app_length
+	where id_enum_app_type =
+	(select id from enum_app_type where description='short');
+
+

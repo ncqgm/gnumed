@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -16,29 +16,39 @@ import gmScheduleGrid
 
 ID_COMBO_STAFF = wxNewId()
 
+doctorquery = "select title, firstname, surname, id_staff from v_doctors_only"
+preferred_interval_query = "select duration from v_duration_standard where id_staff = %d"
+doc_available_query = "select is_available(%d, %s)"    #id_doctor, date, time
+
 class DoctorsSchedulePnl(wxPanel):
 	def __init__(self, parent, doctor = None):
 		wxPanel.__init__(self, parent, -1)
 
 		self.dbpool=gmPG.ConnectionPool()
-		self.db = self.dbpool.GetConnection('personalia')
-		self.doctor=doctor
+		self.db = self.dbpool.GetConnection('appointments')
+		cur = self.db.cursor()
+		cur.execute(doctorquery);
+		self.doctors=gmPG.dictresult(cur);
+
+		self.doctor_labels = []
+		for doc in self.doctors:
+			label = "%s %s %s (%d)" % (doc['title'], doc['givennames'], doc['surnames'], doc['id_staff'])
+			self.doctor_labels.append(label)
 
 		self.szrMain = wxBoxSizer(wxVERTICAL)
 		self.szrTopRow = wxBoxSizer(wxHORIZONTAL)
 		session_interval = 15
-		if doctor == "Dr. Eburn":
-			session_interval = 20
+
 		self.schedule = gmScheduleGrid.ScheduleGrid(self, session_interval=session_interval)
 		self.szrButtons = wxBoxSizer(wxHORIZONTAL)
 		self.szrMain.AddSizer(self.szrTopRow, 0, wxGROW|wxALIGN_TOP|wxLEFT|wxRIGHT, 5 )
 		self.szrMain.AddWindow(self.schedule, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 3 )
 		self.szrMain.AddSizer(self.szrButtons, 0, wxALIGN_TOP|wxLEFT|wxRIGHT, 1 )
 
-		txt = wxStaticText( self, -1, _("App. with:"), wxDefaultPosition, wxDefaultSize, 0 )
+		txt = wxStaticText( self, -1, _("with:"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.szrTopRow.AddWindow( txt, 0, wxALIGN_CENTER_VERTICAL, 5 )
 		self.cbStaffSelection = wxComboBox( self, ID_COMBO_STAFF, "", wxDefaultPosition, wxSize(70,-1),
-		["Dr. Herb","Dr. Eburn", "Dr. Kamerman", "Dr. Leneham", "Dr. Wearne", "Locum"] , wxCB_DROPDOWN )
+		self.doctor_labels , wxCB_DROPDOWN )
 		self.szrTopRow.AddWindow( self.cbStaffSelection, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
 
 		if self.doctor is not None:
