@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.9 2003-02-04 13:22:01 ncq Exp $
+-- $Id: gmI18N.sql,v 1.10 2003-04-23 08:04:44 michaelb Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -22,7 +22,7 @@
 create table i18n_curr_lang (
 	id serial primary key,
 	owner name default CURRENT_USER unique not null,
-	lang varchar(10) not null
+	lang varchar(11) not null
 );
 
 comment on table i18n_curr_lang is
@@ -172,11 +172,14 @@ TO group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.9  2003-02-04 13:22:01  ncq
+-- Revision 1.10  2003-04-23 08:04:44  michaelb
+-- 'i18n_curr_lang' length from 10 to 11 -- to accomidate long lang variables like "en_CA.UTF-8"
+--
+-- Revision 1.9  2003/02/04 13:22:01  ncq
 -- - refined set_curr_lang to only work if translations available
 -- - also auto-set for both "user" and "_user"
 --
