@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docPatient.py,v $
-__version__	= "$Revision: 1.3 $"
+__version__	= "$Revision: 1.4 $"
 __author__	= "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, string, fileinput
@@ -107,7 +107,7 @@ class cPatient:
 			__log__.Log(gmLog.lErr, "could not find sufficient patient data in xDT file " + str(anXdtFile))
 			__log__.Log(gmLog.lErr, "found only " + str(data_found) + " items:")
 			__log__.Log(gmLog.lErr, str(aPatient))
-			raise EOFError, "could not find sufficient patient data in xDT file " + str(anXdtFile)
+			return None
 
 		# now normalize what we got
 		self.firstnames = tmpPat['first name']
@@ -116,14 +116,14 @@ class cPatient:
 		# mangle date of birth into ISO8601 (yyyymmdd) for Postgres
 		if tmpPat.has_key('date of birth') != 1:
 			__log__.Log(gmLog.lErr,'patient has no "date of birth" field')
-			raise AttributeError, 'patient has no "date of birth" field'
+			return None
 		else:
 			self.dob = tmpPat['date of birth'][4:] + tmpPat['date of birth'][2:4] + tmpPat['date of birth'][:2]
 
 		# mangle gender
 		if tmpPat.has_key('gender') != 1:
 			__log__.Log(gmLog.lErr,'patient has no "gender" field')
-			raise AttributeError, 'patient has no "gender" field'
+			return None
 		else:
 			self.gender = xdt2gm_gender_map[tmpPat['gender']]
 
@@ -229,6 +229,61 @@ class cPatient:
 		else:
 			__log__.Log(gmLog.lErr, "This should not happen.")
 			return ((1==0), None)
+	#-----------------------------------
+	def getDocsFromGNUmed(self, aConn = None):
+		"""Build a complete list of metadata for all documents of our patient.
+
+		Note that we DON'T keep a list of those documents local to cPatient !
+		"""
+		__log__.Log(gmLog.lInfo, 'getting documents from GNUmed compatible database')
+
+		# sanity check
+		if aConn == None:
+			__log__.Log(gmLog.lErr, 'Cannot load documents without connection object.')
+			return None
+
+		if self.ID == None:
+			__log__.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
+			return None
+
+		import docDocument
+
+		# start our transaction (done implicitely by defining a cursor)
+		cursor = aConn.cursor()
+
+		# get document IDs
+		cmd = "SELECT id from doc_med WHERE patient_id='%s'" % self.ID
+		cursor.execute(cmd)
+		matching_rows = cursor.fetchall()
+
+		if cursor.rowcount == 0:
+			__log__.Log(gmLog.lErr, "No documents found (%s) for patient with ID %s." % (matching_rows, self.ID))
+			return None
+
+		__log__.Log(gmLog.lData, "document IDs: %s" % matching_rows)
+
+		# and load docs
+		docs = {}
+		for row in matching_rows:
+			doc_id = row[0]
+			docs[doc_id] = docDocument.cDocument()
+			docs[doc_id].loadMetaDataFromGNUmed(aConn, doc_id)
+
+		cursor.close
+		return docs
+	#-----------------------------------
+	def setID (self, anID = None):
+		# sanity checks
+		if anID == None:
+			__log__.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
+			return None
+
+		if self.ID != None:
+			__log__.Log(gmLog.lErr, "Patient already has an associated ID (%s). It is not safe to change it arbitrarily." % self.ID)
+
+		__log__.Log(gmLog.lData, "Setting patient ID to %s." % anID)
+
+		self.ID = anID
 #-----------------------------------
 #------- MAIN ----------------------
 #-----------------------------------

@@ -4,10 +4,10 @@
 
 @copyright: GPL
 """
-#=======================================================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.5 $"
-
+#=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
 import gmLog
 import docPatient
@@ -24,11 +24,11 @@ class cDocument:
 		# sanity checks
 		if aCfg == None:
 			__log__.Log(gmLog.lErr, "Parameter aCfg must point to a config parser object.")
-			raise ValueError, "Parameter aCfg must point to a config parser object."
+			return None
 
 		if not os.path.exists (aBaseDir):
 			__log__.Log(gmLog.lErr, "The directory '" + str(aBaseDir) + "' does not exist !")
-			raise IOError, "The directory '" + str(aBaseDir) + "' does not exist !"
+			return None
 		else:
 			__log__.Log(gmLog.lData, "working from directory '" + str(aBaseDir) + "'")
 
@@ -36,7 +36,7 @@ class cDocument:
 		desc_file_name = aCfg.get("metadata", "description")
 		if not os.path.exists (os.path.join(aBaseDir, desc_file_name)):
 			__log__.Log (gmLog.lErr, "skipping " + aBaseDir + "- no description file (" + desc_file_name + ") found")
-			raise IOError, "skipping " + aBaseDir + "- no description file (" + desc_file_name + ") found"
+			return None
 		else:
 			DescFile = os.path.join(aBaseDir, desc_file_name)
 
@@ -120,12 +120,12 @@ class cDocument:
 		cmd = "SELECT oid, comment FROM doc_obj WHERE doc_id='%s'" % (self.__metadata['id'])
 		cursor.execute(cmd)
 		matching_rows = cursor.fetchall()
-		self.__metadata['objects'] = []
+		self.__metadata['objects'] = {}
 		for row in matching_rows:
-			# cDocument.metadata->objects->comment
-			tmp = { 'oid'	: row[0],
-					'comment'	: row[1]}
-			self.__metadata['objects'].append(tmp)
+			oid = row[0]
+			tmp = {'comment': row[1]}
+			# cDocument.metadata->objects->oid->comment
+			self.__metadata['objects'][oid] = tmp
 
 		cursor.close()
 		__log__.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
@@ -165,8 +165,9 @@ class cDocument:
 			cursor.execute(cmd)
 
 			# insert the document data objects
-			for i in range(len(self.__metadata['objects'])):
-				aHandle = open(self.__metadata['objects'][i]['file name'], "rb")
+			for oid in self.__metadata['objects'].keys():
+				obj = self.__metadata['objects'][oid]
+				aHandle = open(obj['file name'], "rb")
 				img_data = str(aHandle.read())
 				aHandle.close()
 				# tag images so they are self-identifying
@@ -229,12 +230,13 @@ class cDocument:
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = aConn.cursor()
 		# retrieve objects one by one
-		for i in range(len(self.__metadata['objects'])):
-			cmd = "SELECT data FROM doc_obj WHERE oid='%s'" % (self.__metadata['objects'][i]['oid'])
+		for oid in self.__metadata['objects'].keys():
+			cmd = "SELECT data FROM doc_obj WHERE oid='%s'" % (oid)
 			cursor.execute(cmd)
 			# cDocument.metadata->objects->file name
-			self.__metadata['objects'][i]['file name'] = tempfile.mktemp()
-			aFile = open(self.__metadata['objects'][i]['file name'], 'wb+')
+			obj = self.__metadata['objects'][oid]
+			obj['file name'] = tempfile.mktemp()
+			aFile = open(obj['file name'], 'wb+')
 			# it would be a fatal error to see more than one result as oids are supposed to be unique
 			aFile.write(self.__unescapeByteA(cursor.fetchone()[0]))
 			aFile.close()
@@ -266,27 +268,23 @@ class cDocument:
 			__log__.Log(gmLog.lErr, 'Cannot export object without object IDs.')
 			return None
 
-		# is this an object belonging to our document ?
-		for i in range(len(self.__metadata['objects'])):
-			if self.__metadata['objects'][i]['oid'] == anObjID:
-				# remember the index in metadata['objects']
-				self.tmp = i
-				break
-		else:
+		if not self.__metadata['objects'].has_key(anObjID):
 			__log__.Log(gmLog.lErr, 'Cannot export object (%s). It does not seem to belong to this document (%d).' % (anObjID, self.__metadata['id']))
 			return None
 
 		# if None -> use tempfile module default, else use that path as base directory for temp files
 		tempfile.tempdir = aTempDir
 
+		# now get the object
+		obj = self.__metadata['objects'][anObjID]
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = aConn.cursor()
 		# retrieve object
 		cmd = "SELECT data FROM doc_obj WHERE oid='%s'" % (anObjID)
 		cursor.execute(cmd)
 		# cDocument.metadata->objects->file name
-		self.__metadata['objects'][self.tmp]['file name'] = tempfile.mktemp()
-		aFile = open(self.__metadata['objects'][self.tmp]['file name'], 'wb+')
+		obj['file name'] = tempfile.mktemp()
+		aFile = open(obj['file name'], 'wb+')
 		# it would be a fatal error to see more than one result as oids are supposed to be unique
 		aFile.write(self.__unescapeByteA(cursor.fetchone()[0]))
 		aFile.close()
@@ -299,8 +297,9 @@ class cDocument:
 		return (1==1)
 	#-----------------------------------
 	def __read_img_list(self, aDescFile = None, aBaseDir = None):
-		self.__metadata['objects'] = []
+		self.__metadata['objects'] = {}
 
+		i = 1
 		# now read the xml file
 		for line in fileinput.input(aDescFile):
 			# is this a line we want ?
@@ -321,12 +320,14 @@ class cDocument:
 			file = line[start_pos:end_pos]
 			tmp = {}
 			tmp['file name'] = os.path.abspath(os.path.join(aBaseDir, file))
-			self.__metadata['objects'].append(tmp)
+			# we must use imaginary oid's
+			self.__metadata['objects'][i] = tmp
+			i += 1
 
 		# cleanup
 		fileinput.close()
 
-		if len(self.__metadata['objects']) == 0:
+		if len(self.__metadata['objects'].keys()) == 0:
 			log.Log (gmLog.lErr, "no files found for import")
 			return (1 == 0)
 
