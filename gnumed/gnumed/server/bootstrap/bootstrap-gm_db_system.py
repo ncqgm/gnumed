@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -201,7 +201,7 @@ def connect (host, port, db, user, passwd, superuser=0):
                 host, port = cached_host
             else:
                 host = ''
-        if passwd == 'blank' or len (passwd) == 0:
+        if passwd == 'blank' or passwd is None or len (passwd) == 0:
             if cached_passwd.has_key (user):
                 passwd = cached_passwd[user]
             else:
@@ -1444,7 +1444,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.49  2004-02-25 09:46:36  ncq
+# Revision 1.50  2004-03-02 10:22:30  ihaywood
+# support for martial status and occupations
+# .conf files now use host autoprobing
+#
+# Revision 1.49  2004/02/25 09:46:36  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.48  2004/02/24 11:02:29  ihaywood

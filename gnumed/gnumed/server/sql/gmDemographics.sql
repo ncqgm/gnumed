@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -127,6 +127,12 @@ create table address_type (
 	"name" text unique not null
 );
 
+
+-- ===================================================================
+create table marital_status (
+	id serial primary key,
+	"name" text unique not null
+);
 -- ===================================================================
 create table enum_comm_types (
 	id serial primary key,
@@ -202,6 +208,7 @@ create table identity (
 	gender varchar(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
 	karyotype character(10) default null,
 	dob timestamp with time zone not null,
+	id_marital_status integer references marital_status (id) not null default 1, 
 	cob char(2),
 	-- FIXME: constraint: deceased > dob
 	deceased timestamp with time zone default null,
@@ -474,12 +481,17 @@ comment on column org.type is
 
 -- ====================================================================
 create table lnk_org2comm (
-	id serial primary key,
 	id_org integer not null references org (id),
 	id_comm_channel integer not null references comm_channel (id),
 	unique (id_org, id_comm_channel)
 );
 
+
+create table lnk_person2org (
+	id_org integer not null references org (id),
+	id_identity integer not null references identity (id),
+	unique (id_org, id_identity)
+);
 
 -- ===================================================================
 -- permissions
@@ -508,8 +520,10 @@ GRANT SELECT ON
 	org_category,
 	org,
 	lnk_org2comm,
+	lnk_person2org,
 	staff_role,
-	staff
+	staff,
+	marital_status
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -535,22 +549,28 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	lnk_person2comm_channel,
 	lnk_person2comm_channel_id_seq,
 	lnk_person2relative,
-	lnk_person2relative_id_seq,	
+	lnk_person2relative_id_seq,
+	occupation,
+	occupation_id_seq,	
 	lnk_job2person,
 	lnk_job2person_id_seq,
 	org,
 	org_id_seq,
 	lnk_org2comm,
-	lnk_org2comm_id_seq
+	lnk_person2org
 TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.21 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.22 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.21  2004-02-27 07:05:30  ihaywood
+-- Revision 1.22  2004-03-02 10:22:30  ihaywood
+-- support for martial status and occupations
+-- .conf files now use host autoprobing
+--
+-- Revision 1.21  2004/02/27 07:05:30  ihaywood
 -- org_address is dead. Doesn't make
 -- sense for orgs to have multiple addresses IMHO
 -- as we allow branch organisations
