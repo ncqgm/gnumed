@@ -13,7 +13,6 @@ rm -rf redo-max-de.log
 ./bootstrap-gm_db_system.py --log-file=redo-max-de.log --conf-file=bootstrap-de.conf
 echo "-------------------------"
 echo "adding data for locale AU"
-echo "generating AU post code SQL script"
 cd ../sql/country.specific/au/
 make-postcode-sql.sh
 cd -
