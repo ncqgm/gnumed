@@ -2,7 +2,7 @@
 
 """GNUmed command line options handling.
 
-All command line switch handling should go through this module.
+All command line argument handling should go through this module.
 
 Theory of operation:
 --------------------
@@ -10,12 +10,12 @@ Upon startup the command line is parsed for any option
 arguments. Those are assumed to start with at least one "-".
 Any arguments not starting with a "-" are considered
 non-option arguments. Option arguments are then stored in
-the module level global dictionary cli_args{}.
+the module level global dictionary _cli_args{}.
 
 Your module should import gmCLI and query for existence of
 one-letter arguments like this:
 
-if gmGLI.cli_args.has_key("-v"):
+if gmGLI.has_arg("-v"):
 	do_something_verbosely()
 else:
 	be_rather_quiet()
@@ -23,8 +23,8 @@ else:
 If you want to access the value for a long option you should
 first check for it's existence and then access the value:
 
-if gmCLI.cli_args.has_key("--foo"):
-	print gmCLI.cli_args["--foo"]
+if gmCLI.has_arg("--foo"):
+	print gmCLI.arg["--foo"]
 else:
 	print "no argument --foo specified"
 
@@ -45,14 +45,19 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string
 import gmLog
+
 _log = gmLog.gmDefLog
+_cli_args = {}
+
+has_arg = _cli_args.has_key
+arg = _cli_args
 ######################################################################
-def preparse_cmdline():
+def _preparse_cmdline():
 	"""Parse command line for given options.
 
 	- this is needed to tell getopt which options to get
@@ -96,7 +101,7 @@ def preparse_cmdline():
 
 	return short_opt_names, long_opt_names, opts
 #---------------------------------------------------------------------
-def parse_opts(short_names, long_names, arg_list):
+def _parse_opts(short_names, long_names, arg_list):
 	"""Break down preparsed command line into option-value pairs.
 	"""
 	opts = []
@@ -109,31 +114,29 @@ def parse_opts(short_names, long_names, arg_list):
 		_log.LogException("Non-fatal exception caught:", exc, fatal=0)
 
 	for opt in opts:
-		cli_args[opt[0]] = opt[1]
+		_cli_args[opt[0]] = opt[1]
 
-	_log.Log(gmLog.lData, "command line arguments: %s" % str(cli_args))
+	_log.Log(gmLog.lData, "command line arguments: %s" % str(_cli_args))
 ######################################################################
 # Main
 #=====================================================================
-cli_args = {}
-
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 	_ = lambda x:x
 	print "testing gmCLI"
 	print "============="
 	print "You gave me the following arguments on the command line:"
-	(shorts, longs, opts) = preparse_cmdline()
+	(shorts, longs, opts) = _preparse_cmdline()
 	print "short options:", shorts
 	print "long  options:", longs
-	parse_opts(shorts, longs, opts)
+	_parse_opts(shorts, longs, opts)
 	print "This yields the following command line arguments dictionary:"
-	print cli_args
-	if cli_args.has_key("--help") or cli_args.has_key("-h") or cli_args.has_key("-?"):
+	print _cli_args
+	if has_arg("--help") or has_arg("-h") or has_arg("-?"):
 		print "You requested help. Wise you."
 		print __doc__
 	else:
 		print "You might wanna try --help, -h, or -?"
 else:
-	(shorts, longs, opts) = preparse_cmdline()
-	parse_opts(shorts, longs, opts)
+	(shorts, longs, opts) = _preparse_cmdline()
+	_parse_opts(shorts, longs, opts)
