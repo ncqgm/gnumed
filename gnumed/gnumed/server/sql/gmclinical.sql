@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.39 $
+-- $Revision: 1.40 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -357,7 +357,7 @@ Applications should try in this order:
 - ATC code
 - generic name(s) (in constituents)
 ';
-comment on column script_drug.xref_id is 'ID of the source database';
+--comment on column script_drug.xref_id is 'ID of the source database';
 comment on column script_drug.total_amount is 'the total amount to be dispensed';
 comment on column script_drug.dose_amount is 'the amount to be consumed at each dose';
 comment on column script_drug.prn is 'true if "pro re nata" (= as required)';
@@ -457,11 +457,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.39 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.40 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.39  2003-05-05 11:58:51  ncq
+-- Revision 1.40  2003-05-05 12:26:31  ncq
+-- - remove comment on xref_id in script_drug, xref_id does not exist
+--
+-- Revision 1.39  2003/05/05 11:58:51  ncq
 -- - audit_clinical -> clin_audit + use it
 -- - clin_narrative now ancestor table + use it (as discussed with Ian)
 --
