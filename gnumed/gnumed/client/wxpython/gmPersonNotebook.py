@@ -55,7 +55,11 @@ class PersonNotebook(wxPanel):
 		#tell the parent window about our size
 		self.__sizer.Fit( parent )
 		self.__sizer.SetSizeHints( parent )
-		
+
+		self.__person.notify_me("PersonNotebook", self.OnDataUpdate)
+	
+	def OnDataUpdate( self, updater , id):
+		self.SearchPersonDlg.Search()	
 
 	def RegisterEvents(self):
 		EVT_BUTTON(self, gmSelectPerson.ID_BUTTON_SELECT, self.OnPersonSelected)

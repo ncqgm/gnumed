@@ -72,6 +72,11 @@ class CachedAddress(gmDBCache.CachedDBObject):
         	                print x
                 	        cursor.execute(x)
 
+                        self.reset()
+                        self.notify()
+
+
+
 			
 
 

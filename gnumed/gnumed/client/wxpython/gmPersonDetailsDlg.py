@@ -236,7 +236,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 					self.__setAddressId(b)
 					self.__person.reset()
 					self.__address.reset()
-					self.OnDataUpdate(None, a)
+					self.__address.notify()
+					self.__person.notify()
 					
 				except Exception, errorStr:
 					db.rollback()
@@ -264,11 +265,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 
 					self.__person.update_person( personMap, db)
 					self.__address.update_address_link(addressMap, db)	
-
+					# possible deadlock.
                                         db.commit()
-                                        self.__person.reset()
-                                        self.__address.reset()
-                                        self.OnDataUpdate(None, self.personId) 
 
                         except Exception, errorStr:
                                         db.rollback()
