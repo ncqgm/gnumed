@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -378,9 +378,8 @@ class cCfgFile:
 			return 1
 
 		# we still don't have a valid config file name ?!?
-		# we can't help it but die
-		print "Cannot find any configuration file.\nPlease consult log file for details."
-		_log.Log(gmLog.lErr, "Cannot run without any configuration file. Aborting.")
+		# we can't help it
+		_log.Log(gmLog.lErr, "Cannot run without any configuration file.")
 		return None
 	#----------------------------
 	def __parse_conf_file(self):
@@ -508,9 +507,41 @@ class cCfgFile:
 				self._cfg_data['groups'][curr_group]['options'][curr_opt]['value'] = val
 
 		return 1
-#================================
+#=============================================================
+def create_default_cfg_file():
+	# get base dir from name of script
+	base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+
+	# make sure base directory is there
+	# FIXME: this isn't portable very well
+	# - should we rather use the current dir ?
+	# - but no, this may not be writeable
+	tmp = os.path.expanduser(os.path.join('~', "." + base_dir))
+	if not os.path.exists(tmp):
+		os.mkdir(tmp)
+
+	base_dir = tmp
+
+	# get base name from name of script
+	base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
+
+	# - now the path exists but we still need to
+	#   make sure the file itself exists
+	tmp = os.path.join(base_dir, base_name)
+	if not os.path.exists(tmp):
+		try:
+			f = open(tmp, "wb")
+			f.close
+		except:
+			_log.LogException("Cannot create empty default config file.", sys.exc_info(), fatal=0)
+			return None
+
+	_log.Log(gmLog.lErr, 'Created empty config file [%s].' % tmp)
+	print "Had to create default config file [%s].\nPlease check the settings there." % tmp
+	return 1
+#=============================================================
 # main
-#================================
+#=============================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
 
@@ -565,7 +596,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.22  2002-11-03 14:11:19  ncq
+# Revision 1.23  2002-11-04 15:38:28  ncq
+# - moved empty config file creation to helper function
+#
+# Revision 1.22  2002/11/03 14:11:19  ncq
 # - autocreate log file on failing to find one
 #
 # Revision 1.21  2002/11/03 13:21:05  ncq
