@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.55 $"
+__version__ = "$Revision: 1.56 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -300,9 +300,8 @@ class ConnectionPool:
 		ConnectionPool.__login = login
 
 		# connect to the configuration server
-		try:
-			cfg_db = self.__pgconnect(login, readonly=1)
-		except StandardError:
+		cfg_db = self.__pgconnect(login, readonly=1)
+		if cfg_db is None:
 			raise gmExceptions.ConnectionError, _('Cannot connect to configuration database with:\n\n[%s]') % login.GetInfoStr()
 
 		ConnectionPool.__connected = 1
@@ -753,7 +752,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.55  2003-06-14 22:41:51  ncq
+# Revision 1.56  2003-06-21 10:53:03  ncq
+# - correctly handle failing connections to cfg db
+#
+# Revision 1.55  2003/06/14 22:41:51  ncq
 # - remove dead code
 #
 # Revision 1.54  2003/06/10 08:48:12  ncq
