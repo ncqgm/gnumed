@@ -14,6 +14,11 @@ class gmPython (gmPlugin.wxNotebookPlugin):
         return ('view', '&Python')
 
     def GetWidget (self, parent):
-        from wxPython.lib.pyshell import PyShellWindow
-        from wxPython.lib.shell import PyShell
-        return PyShell(parent, globals())
+        from wxPython.lib.PyCrust import shell, version, filling
+        win = wxSplitterWindow(parent, -1, size=(600, 300))
+        shellWin = shell.Shell(win, -1, introText='The Amazing GnuMed Python Shell!\n')
+        fillingWin = filling.Filling(win, -1, size=(600, 180), rootIsNamespace=1)
+        win.SplitHorizontally(shellWin, fillingWin)
+        return win
+
+
