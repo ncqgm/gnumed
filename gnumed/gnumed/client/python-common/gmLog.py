@@ -22,7 +22,7 @@ automatically derived from the name of the main application.
 The log file will be found in one of the following standard
 locations:
 
-1) given on the command line as "--log-file=<log file>"
+1) given on the command line as "--log-file=LOGFILE"
 2) /var/log/<base_name>/<base_name>.log
 3) /var/log/<base_name>.log
 4) ~/.<base_name>/<base_name>.log
@@ -30,6 +30,9 @@ locations:
 
 where <base_name> is derived from the name
 of the main application.
+
+If you want to specify just a directory for the log file you
+must end the LOGFILE definition with slash.
 
 By importing gmLog and logging to the default log your modules
 never need to worry about the real message destination or whether
@@ -50,12 +53,11 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
-# use getopt directly, instead
-import sys, time, traceback, os.path, os, string, getopt, stat
+import sys, time, traceback, os.path, os, string, stat
 #, atexit
 
 # safely import SYSLOG, currently POSIX only
@@ -559,35 +561,30 @@ def __open_default_logfile():
 	"""
 	loghandle = None
 
-	# config file given on command line ?
-	cmd_line = []
-	known_opts = []
-	# long options only !
-	try:
-		cmd_line = getopt.getopt(sys.argv[1:], '', ['log-file=',])
-	except getopt.GetoptError:
-		pass
-	# 1) tuple(cmd_line) -> (known options, junk)
-	if len(cmd_line) > 0:
-		known_opts = cmd_line[0]
-	if len(known_opts) > 0:
-		# 2) sequence(known_opt) -> (opt 1, opt 2, ..., opt n)
-		first_opt = known_opts[0]
-		# 3) tuple(first_opt) -> (option name, option value)
-		logName = os.path.abspath(os.path.expanduser(first_opt[1]))
-		try:
-			loghandle = cLogTargetFile (lInfo, logName, "ab")
-			print "log file is [%s]" % logName
-			return loghandle
-		except:
-			return None
-
-	# else look in standard locations
 	# get base dir from name of script
 	base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 	# get base name from name of script
 	base_name = base_dir + ".log"
 
+	# config file given on command line ?
+	for option in sys.argv[1:]:
+		if option.find('--log-file=') == 0:
+			(tmp1,tmp2) = option.split('=')
+			(ldir, lname) = os.path.split(tmp2)
+			if ldir == '':
+				ldir = base_dir
+			if lname == '':
+				lname = base_name
+			logName = os.path.abspath(os.path.expanduser(os.path.join(ldir, lname)))
+			try:
+				loghandle = cLogTargetFile (lInfo, logName, "ab")
+				print "log file is [%s]" % logName
+				return loghandle
+			except:
+				print "command line log file [%s] cannot be opened" % logName
+				pass
+
+	# else look in standard locations
 	# /var/log/base_dir/base_name.log
 	logName = os.path.join('/var/log', base_dir, base_name)
 	try:
@@ -764,7 +761,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.29  2002-11-18 11:36:04  ncq
+# Revision 1.30  2002-11-20 12:08:36  ncq
+# - finally make --log-file=LOGFILE actually work
+#
+# Revision 1.29  2002/11/18 11:36:04  ncq
 # - --log-file -> append not overwrite
 #
 # Revision 1.28  2002/11/18 09:41:25  ncq
@@ -774,7 +774,7 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # - make it work with /var/log/...
 #
 # Revision 1.26  2002/11/18 00:18:12  ncq
-# - conform to Debian/FHS/LSB idea of where to place log files (/var/log/base/)
+# - conform to Debian/FHS/LSB idea of where to place log files (/var/log/<base>/)
 # - will slightly increase startup on Windows/DOS
 # - admin must still create /var/log/base/ and assign appropriate rights to users
 #
