@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -60,19 +60,15 @@ class scanFrame(wxFrame):
 		}
 
 		# get temp dir path from config file
-		tmp = None
-		try:
-			tmp = os.path.abspath(os.path.expanduser(_cfg.get("repositories", "scan_tmp")))
-		except:
-			exc = sys.exc_info()
-			_log.LogException('Cannot get tmp dir from config file', exc, fatal=0)
-		# but use it only if it exists
-		if tmp != None:
+		self.scan_tmp_dir = None
+		tmp = _cfg.get("repositories", "scan_tmp")
+		if tmp == None:
+			_log.Log(gmLog.lErr, 'Cannot get tmp dir from config file.')
+		else:
+			tmp = os.path.abspath(os.path.expanduser(tmp))
 			if os.path.exists(tmp):
-				tempfile.tempdir = tmp
-		# temp files shall start with "obj-"
-		tempfile.template = "obj-"
-		_log.Log(gmLog.lData, 'using tmp dir [%s]' % tempfile.tempdir)
+				self.scan_tmp_dir = tmp
+		_log.Log(gmLog.lData, 'using tmp dir [%s]' % self.scan_tmp_dir)
 	#----------------------------------------------
 	def _init_utils(self):
 		pass
@@ -288,7 +284,6 @@ class scanFrame(wxFrame):
 			return 1
 	#-----------------------------------
 	def on_move_page(self, event):
-		return
 		# 1) get page
 		page_idx = self.LBOX_doc_pages.GetSelection()
 		if page_idx == -1:
@@ -418,11 +413,14 @@ class scanFrame(wxFrame):
 
 		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
 
-		# convert to bitmap file
+		# make tmp file name
 		# for now we know it's bitmap
-		# FIXME: should be JPEG ?
+		# FIXME: should be JPEG, perhaps ?
+		tempfile.tempdir = self.scan_tmp_dir
+		tempfile.template = 'obj-'
 		fname = tempfile.mktemp('.bmp')
 		try:
+			# convert to bitmap file
 			twain.DIBToBMFile(external_data_handle, fname)
 		except:
 			exc = sys.exc_info()
@@ -473,11 +471,14 @@ class scanFrame(wxFrame):
 		scanner.br_x = 412.0
 		scanner.br_y = 583.0
 
-		# just so we can us fname down below in case tempfile.mktemp() fails
-		fname = ""
+		# make tmp file name
+		# for now we know it's bitmap
+		# FIXME: should be JPEG, perhaps ?
+		# FIXME: get extension from config file
+		tempfile.tempdir = self.scan_tmp_dir
+		tempfile.template = 'obj-'
+		fname = tempfile.mktemp('.jpg')
 		try:
-			# FIXME: get extension from config file
-			fname = tempfile.mktemp('.jpg')
 			# initiate the scan
 			scanner.start()
 			# get an Image object
@@ -485,7 +486,7 @@ class scanFrame(wxFrame):
 			#save image file to disk
 			img.save(fname)
 			# and keep a reference
-			self.acquired_pages[len(self.acquired_pages)] = fname
+			self.acquired_pages.appen(fname)
 
 			# FIXME:
 			#if more_images_pending:
@@ -494,7 +495,7 @@ class scanFrame(wxFrame):
 			_log.LogException('Unable to get image from scanner into [%s] !' % fname, exc, fatal=1)
 			return None
 
-		#update list of pages in GUI
+		# update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
 	#-----------------------------------
 	def __open_sane_scanner(self):
@@ -543,29 +544,25 @@ class scanFrame(wxFrame):
 
 		return 1
 	#-----------------------------------
+	# internal helper methods
+	#-----------------------------------
 	def __get_ID_mode(self):
-		tmp = None
-		try:
-			tmp = os.path.abspath(os.path.expanduser(_cfg.get("metadata", "document_ID_mode")))
-		except:
-			exc = sys.exc_info()
-			_log.LogException('cannot get document ID generation mode from config file', exc, fatal=0)
+		tmp = _cfg.get("scanning", "document_ID_mode")
 
 		if not tmp in ['random', 'consecutive']:
 			_log.Log(gmLog.lErr, '"%s" is not a valid document ID generation mode. Falling back to "random".' % tmp)
-			tmp = "random"
+			return "random"
 
-		_log.Log(gmLog.lData, 'document ID generation mode "%s"' % tmp)
+		_log.Log(gmLog.lData, 'document ID generation mode is "%s"' % tmp)
 		return tmp
 	#-----------------------------------
 	def __get_next_consecutive_ID(self):
-		fname = None
-		try:
-			fname = os.path.abspath(os.path.expanduser(_cfg.get("metadata", "document_ID_file")))
-		except:
-			exc = sys.exc_info()
-			_log.LogException('Cannot get name of file with most recently used document ID from config file', exc, fatal=0)
+		fname = _cfg.get("scanning", "document_ID_file")
+		if fname == None:
+			_log.Log(gmLog.lErr, 'Cannot get name of file with most recently used document ID from config file')
 			return None
+
+		fname = os.path.abspath(os.path.expanduser(fname))
 
 		try:
 			ID_file = open(fname, "rb")
@@ -574,41 +571,99 @@ class scanFrame(wxFrame):
 			_log.LogException('Cannot open file [%s] with most recently used document ID.' % fname, exc, fatal=0)
 			return None
 
-		ID_str = ID_file.readline()
+		last_ID = ID_file.readline()
 		ID_file.close()
 
 		# ask for confirmation of ID
 		doc_id = -1
-		tmp = str(int(ID_str) + 1)
-		while doc_id == -1:
+		new_ID = str(int(last_ID) + 1)
+		while doc_id < 0:
 			dlg = wxTextEntryDialog(
 				parent = self,
-				message = _('The most recently used document ID was "%s".\nWe would use the ID "%s" for the current document.\nPlease confirm the ID or type in a new numeric ID.\n\nYou should also write down this ID on the documents themselves.' % (ID_str, tmp)),
+				message = _('The most recently used document ID was "%s".\nWe would use the ID "%s" for the current document.\nPlease confirm the ID or type in a new numeric ID.\n\nYou should also write down this ID on the documents themselves.' % (last_ID, new_ID)),
 				caption = _('document ID'),
-				defaultValue = tmp,
+				defaultValue = new_ID,
 				style = wxOK | wxCentre
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
 			tmp = dlg.GetValue()
 			# numeric ?
-			if not tmp.isdigit():
+			if not new_ID.isdigit():
 				doc_id = -1
 			else:
-				doc_id = int(tmp)
+				doc_id = int(new_ID)
 
-		ID_str = tmp
 		# store new document ID as most recently used one
-		ID_file.write("%s\n" % ID_str)
+		try:
+			ID_file = open(fname, "wb")
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Cannot open file [%s] with most recently used document ID for storing new ID.' % fname, exc, fatal=0)
+			return None
+		ID_file.write("%s\n" % new_ID)
 		ID_file.close()
-		dirname = os.path.join(basedir, ID_str)
 
+		return new_ID
+	#-----------------------------------
+	def __get_random_ID(self, target_repository):
+		# set up temp file environment for creating unique random directory
+		tempfile.tempdir = target_repository
+		tempfile.template = ""
+		# create temp dir name
+		dirname = tempfile.mktemp(time.strftime("-%Y%m%d_%H%M%S", time.localtime()))
+		# extract name for dir
+		tmp = os.path.commonprefix(target_repository, dirname)
+		doc_ID = tmp.replace(target_repository, '')
+
+		show_ID = _cfg.get('scanning', 'show_document_ID')
+		if show_ID == None:
+			_log.Log(gmLog.lWarn, 'Cannot get option from config file.')
+			show_ID = "yes"
+
+		if show_ID != "no":
+			dlg = wxMessageDialog(
+				self,
+				_("This is the reference ID for the current document:\n%s\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file." % doc_ID),
+				_('random document ID'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+
+		return doc_ID
+	#-----------------------------------
+	def __dump_metadata_to_xml(self, aDir):
+		# FIMXE: error handling
+		content = []
+
+		tag = _cfg.get("metadata", "document_tag")
+		content.append('<%s>\n' % tag)
+
+#		tag = _cfg.get("metadata", "ref_tag")
+#		doc_ref = self.doc_id_wheel.GetLineText(0)
+#		content.append('<%s>%s</%s>\n' % (tag, doc_ref, tag))
+
+		tag = _cfg.get("metadata", "obj_tag")
+		for idx in range(len(self.acquired_pages)):
+			dirname, fname = os.path.split(self.acquired_pages[idx])
+			content.append('<%s>%s</%s>\n' % (tag, fname, tag))
+
+		content.append('</%s>\n' % _cfg.get("metadata", "document_tag"))
+
+		# overwrite old XML metadata file and write new one
+		xml_fname = os.path.join(aDir, _cfg.get("metadata", "description"))
+		#os.remove(xml_fname)
+		xml_file = open(xml_fname, "w")
+		map(xml_file.write, content)
+		xml_file.close()
+		return 1
 	#-----------------------------------
 	def on_save_doc(self, event):
 		return
 
 		# - anything to do ?
-		if len(self.acquired_images) == 0:
+		if self.acquired_images == []:
 			dlg = wxMessageDialog(
 				self,
 				_('You must acquire some images before\nyou can save them as a document !'),
@@ -620,11 +675,9 @@ class scanFrame(wxFrame):
 			return None
 
 		# get target repository
-		try:
-			target_repository = os.path.abspath(os.path.expanduser(_cfg.get("repositories", "to_index")))
-		except:
-			exc = sys.exc_info()
-			_log.LogException('Cannot get target repository for scans from config file.', exc, fatal=1)
+		tmp = _cfg.get("repositories", "to_index")
+		if tmp == None:
+			_log.Log(gmLog.lErr, 'Cannot get target repository for scans from config file.')
 			dlg = wxMessageDialog(
 				self,
 				_('Cannot get target repository from config file.'),
@@ -634,7 +687,9 @@ class scanFrame(wxFrame):
 			dlg.ShowModal()
 			dlg.Destroy()
 			return None
+		target_repository = os.path.abspath(os.path.expanduser(tmp))
 
+		# valid dir ?
 		if not os.path.exists(target_repository):
 			_log.Log(gmLog.lErr, 'Target repository [%s] not accessible.' % target_repository)
 			dlg = wxMessageDialog(
@@ -654,50 +709,15 @@ class scanFrame(wxFrame):
 		if mode == "consecutive":
 			doc_id = self.__get_next_consecutive_ID()
 		else:
-			doc_id = self.__get_random_ID()
-
-		# actually make document reference string
-
-		# FIXME: there needs to be locking here
-		if mode == "consecutive":
-			pass
-		else:
-			# set up temp file environment
-			# remember state
-			prefix = tempfile.gettempprefix()
-			tmpdir = tempfile.tempdir		
-			tempfile.tempdir = target_repository
-			tempfile.template = ""
-			# create temp dir name
-			dirname = tempfile.mktemp()
-			# reset state
-			tempfile.tempdir = tmpdir
-			tempfile.template = prefix
-			try:
-				show_ID = _cfg.get('scanning', 'show_document_ID')
-			except:
-				exc = sys.exc_info()
-				_log.LogException('Cannot get option from config file.', exc, fatal=0)
-				show_ID = "yes"
-
-			if show_ID != "no":
-				tmp = os.path.commonprefix(target_repository, dirname)
-				tmp = tmp.replace(target_repository, '')
-				dlg = wxMessageDialog(
-					self,
-					_("This is the reference ID for the current document:\n%s\nYou should write this down on the original documents.\n\nIf you don't care about the ID you can switch off this\nmessage in the config file." % tmp),
-					_('random document ID'),
-					wxOK | wxICON_ERROR
-				)
-				dlg.ShowModal()
-				dlg.Destroy()
+			doc_id = self.__get_random_ID(target_repository)
 
 		# create new directory in target repository
+		dirname = os.path.join(target_repository, doc_id)
 		if os.path.exists(dirname):
 			_log.Log(gmLog.lErr, 'The target repository subdirectory [%s] already exists. Cannot save current document there.' % dirname)
 			dlg = wxMessageDialog(
 				self,
-				_("The target repository subdirectory already exists.\n(%s)\nCannot save current document there." % tmp),
+				_("The target repository subdirectory already exists.\n(%s)\nCannot save current document there." % dirname),
 				_('target directory subdirectory'),
 				wxOK | wxICON_ERROR
 			)
@@ -705,72 +725,37 @@ class scanFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
-#################################################################
+		try:
+			os.mkdir(dirname)
+		except:
+			exc = sys.exc_info()
+			_log.LogException('Cannot create target repository subdirectory [%s]' % dirname, exc, fatal=1)
+			dlg = wxMessageDialog(
+				self,
+				_("Cannot create the target repository subdirectory.\n(%s)" % dirname),
+				_('target directory subdirectory'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
 
+		# - write XML meta file
+		if not self.__dump_metadata_to_xml(target_repository):
+			return None
 
 		# - move data files there
-		# - write XML meta file
+#################################################################
+
 		# - write checkpoint file
 		# - clean up gui/acquired_images
 
-		if not self.__valid_input():
-			return None
-		else:
-			full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
-			self.__dump_metadata_to_xml(full_dir)
-			self.__unlock_for_import(full_dir)
-			self.__clear_doc_fields()
-			self.doc_id_wheel.Clear()
+#		else:
+#			full_dir = os.path.join(self.repository, self.doc_id_wheel.GetLineText(0))
 
-
-	def __dump_metadata_to_xml(self, aDir):
-
-		content = []
-
-		tag = __cfg__.get("metadata", "document_tag")
-		content.append('<%s>\n' % tag)
-
-		tag = __cfg__.get("metadata", "name_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.lastnames, tag))
-
-		tag = __cfg__.get("metadata", "firstname_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.firstnames, tag))
-
-		tag = __cfg__.get("metadata", "birth_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.myPatient.dob, tag))
-
-		tag = __cfg__.get("metadata", "date_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_doc_date.GetLineText(0), tag))
-
-		tag = __cfg__.get("metadata", "type_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.SelBOX_doc_type.GetStringSelection(), tag))
-
-		tag = __cfg__.get("metadata", "comment_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_desc_short.GetLineText(0), tag))
-
-		tag = __cfg__.get("metadata", "aux_comment_tag")
-		content.append('<%s>%s</%s>\n' % (tag, self.TBOX_desc_long.GetValue(), tag))
-
-		tag = __cfg__.get("metadata", "ref_tag")
-		doc_ref = self.doc_id_wheel.GetLineText(0)
-		content.append('<%s>%s</%s>\n' % (tag, doc_ref, tag))
-
-		# FIXME: take reordering into account
-		tag = __cfg__.get("metadata", "obj_tag")
-		objLst = self.myDoc.getMetaData()['objects']
-		for object in objLst.values():
-			dirname, fname = os.path.split(object['file name'])
-			content.append('<%s>%s</%s>\n' % (tag, fname, tag))
-
-		content.append('</%s>\n' % __cfg__.get("metadata", "document_tag"))
-
-		# overwrite old XML metadata file and write new one
-		xml_fname = os.path.join(aDir, __cfg__.get("metadata", "description"))
-		os.remove(xml_fname)
-		xml_file = open(xml_fname, "w")
-		map(xml_file.write, content)
-		xml_file.close()
-	#----------------------------------------
+#			self.__unlock_for_import(full_dir)
+#			self.__clear_doc_fields()
+#			self.doc_id_wheel.Clear()
 
 
 		if self.picList != []:
@@ -779,7 +764,6 @@ class scanFrame(wxFrame):
 			tmpdir_content = self.picList
 			runs = len(tmpdir_content)
 			x=0
-			savedir = time.strftime("%a%d%b%Y%H%M%S", time.localtime())
 			# here come the contents of the xml-file
 			out_file.write ("<" + _cfg.get("metadata", "document_tag")+">\n")
 			out_file.write ("<" + _cfg.get("metadata", "ref_tag") + ">" + savedir + "</" + _cfg.get("metadata", "ref_tag") + ">\n")
@@ -788,6 +772,7 @@ class scanFrame(wxFrame):
 				x=x+1
 			out_file.write ("</" + _cfg.get("metadata", "document_tag")+">\n")
 			out_file.close()
+
 			# move files around
 			shutil.copytree(_cfg.get("tmpdir", "tmpdir"),_cfg.get("source", "repositories") + savedir)
 			# generate a file to tell import script that we are done here
@@ -795,6 +780,7 @@ class scanFrame(wxFrame):
 			# refresh
 			shutil.rmtree(_cfg.get("tmpdir", "tmpdir"), true)
 			os.mkdir(_cfg.get("tmpdir", "tmpdir"))
+
 			self.picList = []	
 			self.LBOX_doc_pages = wxListBox(choices = [], id = wxID_LBOX_doc_pages, name = 'LBOX_doc_pages', parent = self.PNL_main, pos = wxPoint(56, 184), size = wxSize(240, 160), style = 0, validator = wxDefaultValidator)
 			dlg = wxMessageDialog(self, _('please put down') + savedir + _('on paper copy for reference'),_('Attention'), wxOK | wxICON_INFORMATION)
