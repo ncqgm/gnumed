@@ -9,12 +9,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/patient_search/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.7 2003-03-25 22:49:34 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPatientSelector.py,v 1.8 2003-03-27 21:04:58 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, re
+import sys, os.path, re, time, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('.', 'modules'))
 	sys.path.append(os.path.join('.', 'business'))
@@ -34,12 +34,14 @@ ID_PatPickList = wxNewId()
 #============================================================
 # country-specific functions
 #------------------------------------------------------------
-def pat_expand_default(curs = None, anID = None):
-	if anID is None:
+def pat_expand_default(curs = None, ID_list = None):
+	if ID_list is None:
 		return {}
 
 	if curs is None:
 		return {}
+
+	pat_data = []
 
 	# FIXME: add more data here
 	# - last visit
@@ -49,19 +51,20 @@ def pat_expand_default(curs = None, anID = None):
 	# - KVK indicator
 	# - has been in this Quartal
 	# ...
-	cmd = "SELECT firstnames, lastnames, to_char(dob, 'DD.MM.YYYY') FROM v_basic_person WHERE id = '%s';" % anID
+	# Note: this query must ALWAYS return the ID in field 0
+	cmd = "SELECT id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY') FROM v_basic_person WHERE id in (%s);" % string.join(map(str, ID_list), ',')
+
 	if not gmPG.run_query(curs, cmd):
 		_log.Log(gmLog.lErr, 'Cannot fetch patient data.')
 	else:
-		result = curs.fetchone()
-	data = {
-		'#': anID,
-		_('first name'): result[0],
-		_('last name'): result[1],
-		_('dob'): result[2]
-	}
-	labels = [_('last name'), _('first name'), _('dob')]
-	return data, labels
+		pat_data = curs.fetchall()
+
+	col_order = [
+		{'label': _('last name'),	'data idx': 1},
+		{'label': _('first name'),	'data idx': 2},
+		{'label': _('dob'),			'data idx': 3}
+	]
+	return pat_data, col_order
 #------------------------------------------------------------
 patient_expander = {
 	'default': pat_expand_default,
@@ -307,49 +310,48 @@ class cPatientPickList(wxDialog):
 		# FIXME: remove button, add evt char ESC
 		EVT_BUTTON(self, wxID_CANCEL, self._on_cancel)
 	#--------------------------------------------------------
-	def SetItems(self, items = [], col_labels = []):
+	def SetItems(self, items = [], col_order = []):
 		# TODO: make selectable by 0-9
 
 		self.items = items
 
 		# set up columns
 		self.listctrl.ClearAll()
-		for col_idx in range(len(col_labels)):
-			self.listctrl.InsertColumn(col_idx, col_labels[col_idx])
+		for order_idx in range(len(col_order)):
+			self.listctrl.InsertColumn(order_idx, col_order[order_idx]['label'])
 		# now add items
 		for row_idx in range(len(self.items)):
 			# set up item
 			row = self.items[row_idx]
 			# first column
 			try:
-				self.listctrl.InsertStringItem(row_idx, str(row[col_labels[0]]))
+				self.listctrl.InsertStringItem(row_idx, str(row[col_order[0]['data idx']]))
 			except KeyError:
 				_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
 				if self.items != []:
 					_log.Log(gmLog.lData, "item keys: %s" % row.keys())
 				else:
 					_log.Log(gmLog.lData, "item keys: None")
-				_log.Log(gmLog.lData, "labels   : %s" % col_labels)
+				_log.Log(gmLog.lData, "labels   : %s" % col_order)
 			# subsequent columns
-			for col_idx in range(1, len(col_labels)):
-			#for label in col_labels[1:]:
+			for order_idx in range(1, len(col_order)):
 				try:
-					self.listctrl.SetStringItem(row_idx, col_idx, str(row[col_labels[col_idx]]))
+					self.listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['data idx']]))
 				except KeyError:
 					_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
 					if self.items != []:
 						_log.Log(gmLog.lData, "item keys: %s" % row.keys())
 					else:
 						_log.Log(gmLog.lData, "item keys: None")
-					_log.Log(gmLog.lData, "labels   : %s" % col_labels)
+					_log.Log(gmLog.lData, "labels   : %s" % col_order)
 
 		# adjust column width
-		for col_idx in range(len(col_labels)):
-			self.listctrl.SetColumnWidth(col_idx, wxLIST_AUTOSIZE)
+		for order_idx in range(len(col_order)):
+			self.listctrl.SetColumnWidth(order_idx, wxLIST_AUTOSIZE)
 
 		# and make ourselves just big enough
 		#self.szrMain.Fit(self)
-		self.Fit()
+		#self.Fit()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -357,7 +359,7 @@ class cPatientPickList(wxDialog):
 		item = self.items[evt.m_itemIndex]
 		# the key "#" is assumed to always exist
 		try:
-			self.EndModal(item['#'])
+			self.EndModal(item[0])
 		except KeyError:
 			_log.LogException('required key "#" missing, item keys: %s' % item.keys(), sys.exc_info())
 			self.EndModal(-1)
@@ -489,7 +491,7 @@ class cPatientSelector(wxTextCtrl):
 		if data is not None:
 			# only unique patients
 			for prev_pat in self.prev_pats:
-				if prev_pat['#'] == anID:
+				if prev_pat[0] == anID:
 					return true
 			self.prev_pats.append(data)
 
@@ -518,6 +520,7 @@ class cPatientSelector(wxTextCtrl):
 		pat_ids = []
 		curs = self.conn.cursor()
 
+		_log.Log(gmLog.lData, "level 1: running %s" % query_list[1])
 		for cmd in query_list[1]:
 			if not gmPG.run_query(curs, cmd):
 				_log.Log(gmLog.lErr, 'Cannot fetch patient IDs.')
@@ -527,6 +530,7 @@ class cPatientSelector(wxTextCtrl):
 					pat_ids.extend(pat_id)
 
 		if len(pat_ids) == 0:
+			_log.Log(gmLog.lData, "level 2: running %s" % query_list[2])
 			for cmd in query_list[2]:
 				if not gmPG.run_query(curs, cmd):
 					_log.Log(gmLog.lErr, 'Cannot fetch patient IDs.')
@@ -536,6 +540,7 @@ class cPatientSelector(wxTextCtrl):
 						pat_ids.extend(pat_id)
 
 		if len(pat_ids) == 0:
+			_log.Log(gmLog.lData, "level 3: running %s" % query_list[3])
 			for cmd in query_list[3]:
 				if not gmPG.run_query(curs, cmd):
 					_log.Log(gmLog.lErr, 'Cannot fetch patient IDs.')
@@ -572,11 +577,13 @@ class cPatientSelector(wxTextCtrl):
 		if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
 			self.prev_search_term = curr_search_term
 
+		# and display currently active patient
 		if gmTmpPatient.gmDefPatient is None:
 			self.SetValue(value = _('no active patient'))
 		else:
 			name = gmTmpPatient.gmDefPatient['active name']
 			self.SetValue(value = '%s, %s' % (name['last'], name['first']))
+		evt.Skip()
 	#--------------------------------------------------------
 	def _on_char(self, evt):
 		keycode = evt.GetKeyCode()
@@ -617,6 +624,7 @@ class cPatientSelector(wxTextCtrl):
 		
 #		elif keycode == WXK_DOWN:
 #			pass
+
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
@@ -627,14 +635,12 @@ class cPatientSelector(wxTextCtrl):
 
 		# generate queries
 		queries = self.generate_queries(curr_search_term)
-		#<DEBUG>
-		_log.Log(gmLog.lData, queries[1])
-		_log.Log(gmLog.lData, queries[2])
-		_log.Log(gmLog.lData, queries[3])
-		#</DEBUG>
 
 		# get list of matching ids
+		start = time.time()
 		ids = self._fetch_pat_ids(queries)
+		end = time.time()
+		print "%s patient IDs fetched in %s seconds" % (len(ids), (end - start))
 		if ids is None or len(ids) == 0:
 			return true
 
@@ -642,16 +648,15 @@ class cPatientSelector(wxTextCtrl):
 		# only one matching patient
 		if len(ids) == 1:
 			# and make our selection known to others
-			data, self.prev_col_order = self.pat_expander(curs, ids[0])
-			data['#'] = ids[0]
-			self.SetActivePatient(ids[0], data)
+			data, self.prev_col_order = self.pat_expander(curs, ids)
+			self.SetActivePatient(ids[0], data[0])
 		else:
 			# generate patient data to display from ID list
-			pat_list = []
-			for ID in ids:
-				data, self.prev_col_order = self.pat_expander(curs, ID)
-				data['#'] = ID
-				pat_list.append(data)
+			start = time.time()
+			pat_list, self.prev_col_order = self.pat_expander(curs, ids)
+			duration = time.time() - start
+			print "patient data fetched in %s seconds" % duration
+
 			# generate list dialog
 			dlg = cPatientPickList(parent = self)
 			dlg.SetItems(pat_list, self.prev_col_order)
@@ -661,7 +666,7 @@ class cPatientSelector(wxTextCtrl):
 			if result in ids:
 				# and make our selection known to others
 				for pat in pat_list:
-					if pat['#'] == result:
+					if pat[0] == result:
 						self.SetActivePatient(result, pat)
 						break
 		curs.close()
@@ -745,18 +750,16 @@ if __name__ == "__main__":
 #  *dob
 #  #ID
 #  ID
-#
+#  HIlbert, karsten
+#  karsten, hilbert
+#  kars, hilb
 #
 # non-working:
 #  Haywood, Ian <40
 #  ?, Ian 1977
 #  Ian Haywood, 19/12/77
 #  PUPIC
-# "HIlbert, karsten"
-# "karsten, hilbert"
-# "kars, hilb"
 # "hilb; karsten, 23.10.74"
-
 
 #------------------------------------------------------------
 # notes
@@ -777,3 +780,7 @@ if __name__ == "__main__":
 # we don't expect patient IDs in complicated patterns, hence any digits signify a date
 
 # FIXME: make list window fit list size ...
+
+# clear search field upon get-focus ?
+
+# F1 -> context help with hotkey listing
