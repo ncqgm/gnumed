@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -99,7 +99,10 @@ class wxBasePlugin (gmPlugin):
 		else:
 			return wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_data)))
 	#-----------------------------------------------------
-	def GetIconData(self):
+	def GetIconData(self, anIconID = None):
+		# FIXME: in overriding methods need to be very careful about the
+		# type of the icon ID since if we read it back from the database we
+		# may not know what type it was
 		return None
 	#-----------------------------------------------------
 	def GetWidget (self, parent):
