@@ -123,7 +123,7 @@ class SQLListControl(wxListCtrl):
 			conn = gmPG.ConnectionPool().GetConnection(self.__service)
 			cursor = conn.cursor ()
 		except:
-			_log.LogException("Cannot connect to backend.", sys.exc_info(), fatal=0)
+			_log.LogException("Cannot connect to backend.", sys.exc_info(), verbose=0)
 			self.RestoreOutput()
 			return
 

@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -590,7 +590,7 @@ if __name__ == '__main__':
 		application.SetWidget(cStandalonePanel,-1)
 		application.MainLoop()
 	except:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), fatal=1)
+		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
 		# but re-raise them
 		raise
 
@@ -600,7 +600,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.24  2003-06-19 15:31:37  ncq
+# Revision 1.25  2003-06-26 21:41:51  ncq
+# - fatal->verbose
+#
+# Revision 1.24  2003/06/19 15:31:37  ncq
 # - cleanup, page change vetoing
 #
 # Revision 1.23  2003/04/28 12:11:30  ncq

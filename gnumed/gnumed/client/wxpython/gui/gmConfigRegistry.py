@@ -413,7 +413,7 @@ class ConfigDefinition:
 			# handle all exceptions including 'config file not found'
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Unhandled exception while opening config file [%s]" % self.__mDefinitionSource, exc, fatal=1)
+			_log.LogException("Unhandled exception while opening config file [%s]" % self.__mDefinitionSource, exc, verbose=1)
 			return None
 
 		cfgData = cfgSource.getCfg()
@@ -610,7 +610,7 @@ class ConfigDataFile(ConfigData):
 		try:
 			self.__cfgfile = gmCfg.cCfgFile(aFile = self.filename)
 		except:
-			_log.LogException("Can't open config file !", sys.exc_info(), fatal=1)
+			_log.LogException("Can't open config file !", sys.exc_info(), verbose=1)
 
 		# this is a little bit ugly, but we need to get the full name of the
 		# file because this depends on the installation/system settings
@@ -880,7 +880,7 @@ if __name__ == '__main__':
 		application.SetWidget(gmConfigEditorPanel,"test-doc",workplace)
 		application.MainLoop()
 	except:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), fatal=1)
+		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
 		# but re-raise them
 		raise
 
@@ -912,7 +912,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.3  2003-06-26 04:18:40  ihaywood
+# Revision 1.4  2003-06-26 21:41:51  ncq
+# - fatal->verbose
+#
+# Revision 1.3  2003/06/26 04:18:40  ihaywood
 # Fixes to gmCfg for commas
 #
 # Revision 1.2  2003/06/10 09:56:31  ncq

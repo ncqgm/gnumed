@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.7 2003-04-28 12:12:18 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmXdtViewer.py,v 1.8 2003-06-26 21:41:51 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -280,7 +280,7 @@ if __name__ == '__main__':
 		app = TestApp ()
 		app.MainLoop ()
 	except StandardError:
-		_log.LogException('Unhandled exception.', sys.exc_info(), fatal=1)
+		_log.LogException('Unhandled exception.', sys.exc_info(), verbose=1)
 		raise
 
 else:
@@ -326,7 +326,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.7  2003-04-28 12:12:18  ncq
+# Revision 1.8  2003-06-26 21:41:51  ncq
+# - fatal->verbose
+#
+# Revision 1.7  2003/04/28 12:12:18  ncq
 # - refactor name(), better CANCEL handling on file select dialog
 #
 # Revision 1.6  2003/04/25 13:04:39  ncq

@@ -1,7 +1,7 @@
 """GnuMed single box SOAP notes plugin.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSingleBoxSoapPlugin.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 #import os.path, sys, os, re
@@ -45,12 +45,15 @@ if __name__ == '__main__':
 		application.SetWidget(cStandalonePanel,-1)
 		application.MainLoop()
 	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), fatal=1)
+		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
 		# but re-raise them
 		raise
 
 #================================================================
 # $Log: gmSingleBoxSoapPlugin.py,v $
-# Revision 1.1  2003-06-19 16:48:57  ncq
+# Revision 1.2  2003-06-26 21:41:51  ncq
+# - fatal->verbose
+#
+# Revision 1.1  2003/06/19 16:48:57  ncq
 # - this is what David wanted
 #

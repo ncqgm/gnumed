@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -296,7 +296,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			self.subbars[key].Show(1)
 			self.__current = key
 		except KeyError:
-			gmLog.gmDefLog.LogException("cannot show undefined toolbar [%s]" % key, sys.exc_info(), fatal=1)
+			gmLog.gmDefLog.LogException("cannot show undefined toolbar [%s]" % key, sys.exc_info(), verbose=1)
 	#-------------------------------------------------------
 	def DeleteBar (self, key):
 		"""Removes a toolbar.
@@ -309,7 +309,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 				self.__current = self.subbars.keys()[0]
 				self.subbars[self.__current].Show(1)
 		except KeyError:
-			gmLog.gmDefLog.LogException("cannot delete undefined toolbar [%s]" % key, sys.exc_info(), fatal=1)
+			gmLog.gmDefLog.LogException("cannot delete undefined toolbar [%s]" % key, sys.exc_info(), verbose=1)
 
 #===========================================================	
 if __name__ == "__main__":
@@ -320,7 +320,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.13  2003-06-26 04:18:40  ihaywood
+# Revision 1.14  2003-06-26 21:40:29  ncq
+# - fatal->verbose
+#
+# Revision 1.13  2003/06/26 04:18:40  ihaywood
 # Fixes to gmCfg for commas
 #
 # Revision 1.12  2003/06/01 12:31:58  ncq

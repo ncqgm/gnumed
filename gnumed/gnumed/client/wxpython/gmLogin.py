@@ -11,8 +11,8 @@
 # @TODO: testing
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLogin.py,v $
-# $Id: gmLogin.py,v 1.15 2003-02-07 14:28:05 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmLogin.py,v 1.16 2003-06-26 21:40:29 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "H.Herb"
 
 from wxPython.wx import *
@@ -55,10 +55,10 @@ def Login(max_attempts=3):
 		except gmExceptions.ConnectionError, e:
 			attempt += 1
 			if attempt < max_attempts:
-				_log.LogException("backend connection failed", sys.exc_info(), fatal=0)
+				_log.LogException("backend connection failed", sys.exc_info(), verbose=0)
 				wxMessageBox(_("Unable to connect to database.\n(%s)\n\nPlease retry or cancel") % e)
 			else:
-				_log.LogException("backend connection failed", sys.exc_info(), fatal=1)
+				_log.LogException("backend connection failed", sys.exc_info(), verbose=1)
 
 	dlg.Close()
 	dlg.Destroy()
@@ -72,6 +72,9 @@ if __name__ == "__main__":
 	print "This module needs a test function!  please write it"
 #==============================================================
 # $Log: gmLogin.py,v $
-# Revision 1.15  2003-02-07 14:28:05  ncq
+# Revision 1.16  2003-06-26 21:40:29  ncq
+# - fatal->verbose
+#
+# Revision 1.15  2003/02/07 14:28:05  ncq
 # - cleanup, cvs keywords
 #
