@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 			# find matching patient IDs
 			searcher = gmPatient.cPatientSearcher_SQL()
 			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
-			if patient_ids is None or len(patient_ids)== 0:
+			if patient_ids is None or len(patient_ids) == 0:
 				gmGuiHelpers.gm_show_error(
 					aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
 					aTitle = _('searching patient')
@@ -96,10 +96,14 @@ if __name__ == '__main__':
 				_log.Log(gmLog.lPanic, self.__xdt_pat['all'])
 				raise
 
-			# make main panel
-			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+			wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize)
 			self.SetTitle(_("stored medical documents"))
-
+			self.__do_layout()
+			self.tree.refresh()
+			self.tree.SelectItem(self.tree.root)
+			self.Layout()
+		#--------------------------------------------------------
+		def __do_layout(self):
 			# make patient panel
 			gender = gmDemographicRecord.map_gender_gm2long[gmXdtMappings.map_gender_xdt2gm[self.__xdt_pat['gender']]]
 			self.pat_panel = wxStaticText(
@@ -112,8 +116,6 @@ if __name__ == '__main__':
 
 			# make document tree
 			self.tree = gmMedDocWidgets.cDocTree(self, -1)
-			self.tree.update()
-			self.tree.SelectItem(self.tree.root)
 
 			# buttons
 			btn_quit = wxButton(
@@ -133,7 +135,6 @@ if __name__ == '__main__':
 			self.SetAutoLayout(1)
 			self.SetSizer(szr_main)
 			szr_main.Fit(self)
-			self.Layout()
 		#--------------------------------------------------------
 		def __get_pat_data(self):
 			"""Get data of patient for which to retrieve documents.
@@ -164,6 +165,7 @@ if __name__ == '__main__':
 else:
 	from Gnumed.wxpython import gmPlugin, gmRegetMixin, images_Archive_plugin, images_Archive_plugin1
 	from Gnumed.pycommon import gmDispatcher, gmSignals
+	from Gnumed.business import gmPatient
 
 	wxID_TB_BTN_show_page = wxNewId()
 
@@ -193,11 +195,12 @@ else:
 			#gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
 		#--------------------------------------------------------
 		def _populate_with_data(self):
-			if self.__doc_tree.update() is None:
+			if not self.__doc_tree.refresh():
 				_log.Log(gmLog.lErr, "cannot update document tree")
-				return None
+				return False
 			self.__doc_tree.SelectItem(self.__doc_tree.root)
 			return True
+
 	#============================================================
 	class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 		tab_name = _("Documents")
@@ -225,7 +228,7 @@ else:
 				shortHelpString=_("show document"),
 				isToggle=False
 			)
-			EVT_TOOL (tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree.OnActivate)
+			EVT_TOOL(tb, wxID_TB_BTN_show_page, gmMedDocWidgets.cDocTree.OnActivate)
 	
 			tb.AddControl(wxStaticBitmap(
 				tb,
@@ -257,7 +260,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.54  2004-09-13 21:12:36  ncq
+# Revision 1.55  2004-09-19 15:12:26  ncq
+# - cleanup
+#
+# Revision 1.54  2004/09/13 21:12:36  ncq
 # - convert to use cRegetMixin so it plays really nice with xdt connector
 #
 # Revision 1.53  2004/08/04 17:16:02  ncq
