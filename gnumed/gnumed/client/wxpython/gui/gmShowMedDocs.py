@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -372,6 +372,7 @@ if __name__ == '__main__':
 
     from Gnumed.pycommon import gmLoginInfo
     from Gnumed.business import gmXdtObjects, gmXdtMappings
+    from Gnumed.business.gmDemographicRecord import gm2long_gender_map
 
     wxID_btn_quit = wxNewId()
 
@@ -394,18 +395,16 @@ if __name__ == '__main__':
 
             # mangle date of birth into ISO8601 (yyyymmdd) for Postgres
             cooked_search_terms = {
-                #'globbing': None,
-                #'case sensitive': None,
                 'dob': '%s%s%s' % (self.__xdt_pat['dob year'], self.__xdt_pat['dob month'], self.__xdt_pat['dob day']),
                 'lastnames': self.__xdt_pat['last name'],
-                #'gender': self.__xdt_pat['gender'],
+                'gender': self.__xdt_pat['gender'],
                 'firstnames': self.__xdt_pat['first name']
             }
 
             # find matching patient IDs
             searcher = gmPatient.cPatientSearcher_SQL()
             patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
-            if patient_ids is None:
+            if patient_ids is None or len(patient_ids)== 0:
                 gmGuiHelpers.gm_show_error(
                     aMessage = _('This patient does not exist in the document database.\n"%s %s"') % (self.__xdt_pat['first name'], self.__xdt_pat['last name']),
                     aTitle = _('searching patient')
@@ -423,7 +422,7 @@ if __name__ == '__main__':
                 raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
 
             try:
-                gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
+                gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0][0])
             except:
                 # this is an emergency
                 gmGuiHelpers.gm_show_error(
@@ -439,7 +438,7 @@ if __name__ == '__main__':
             self.SetTitle(_("stored medical documents"))
 
             # make patient panel
-            gender = gmPatient.gm2long_gender_map[gmXdtMappings.xdt_gmgender_map[self.__xdt_pat['gender']]]
+            gender = gm2long_gender_map[gmXdtMappings.xdt_gmgender_map[self.__xdt_pat['gender']]]
             self.pat_panel = wxStaticText(
                 id = -1,
                 parent = self,
@@ -625,7 +624,10 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.38  2004-03-19 21:26:15  shilbert
+# Revision 1.39  2004-03-20 18:30:54  shilbert
+# - runs standalone again
+#
+# Revision 1.38  2004/03/19 21:26:15  shilbert
 # - more module import fixes
 #
 # Revision 1.37  2004/03/19 08:29:21  ncq
