@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.25 2005-03-17 13:35:23 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmSOAPWidgets.py,v 1.26 2005-03-17 16:41:30 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -711,13 +711,15 @@ class cResizingSoapPanel(wx.wxPanel):
 		@type input_defs: a list of cSOAPLineDef instances
 
 		"""
-		orig_episode = episode
 		# problem -> episode conversion
 		if isinstance(episode, gmEMRStructItems.cProblem):
+			old_epi = episode
 			episode = episode.get_as_episode()
+			if episode is None:
+				raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(old_epi)
 		# sanity check
 		if not isinstance(episode, gmEMRStructItems.cEpisode):
-			raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(orig_episode)
+			raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(episode)
 		self.__episode = episode
 		# do layout
 		wx.wxPanel.__init__ (self,
@@ -1140,7 +1142,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.25  2005-03-17 13:35:23  ncq
+# Revision 1.26  2005-03-17 16:41:30  ncq
+# - properly allow explicit None episodes to indicate "unassociated"
+#
+# Revision 1.25  2005/03/17 13:35:23  ncq
 # - some cleanup
 #
 # Revision 1.24  2005/03/16 19:29:22  cfmoro
