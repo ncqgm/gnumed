@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.1 $ $Date: 2002-03-06 17:49:30 $ $Author: ncq $
+-- $Revision: 1.2 $ $Date: 2002-03-09 13:16:56 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -62,10 +62,13 @@ COMMENT ON TABLE "doc_desc" is 'a textual description of the content such as a r
 -- questions:
 --  - do we need doc_desc linkeable to doc_obj, too ?
 --  - do we need a "source" field in doc_desc so we can distinguish between "that's what the OCR software understood from this referral letter scan" vs "that's what the cardiologist thinks of this ECG"
+--  - how do we protect documents from being accessed by unauthorized users ?
+--    - on access search for the oid in gmCrypto tables for a matching key/PW hash record ??
+--  - should (potentially large) binary objects be moved to audit tables ?!?
 
 -- notes:
 -- - as this uses BYTEA for storing binary data we have the following limitations
 --   - needs postgres >= 7.1
 --   - needs proper escaping of NUL, \ and ' (should go away once postgres 7.3 arrives)
 --   - has a 1 GB limit for data objects
--- - we explicitely don't try to store MIME types or such - they should be handled at runtime
+-- - we explicitely don't store MIME types etc. as selecting an appropriate viewer is a runtime issue
