@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.9 2004-10-20 07:49:45 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPatSearchWidgets.py,v 1.10 2004-10-20 12:40:55 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -99,7 +99,6 @@ class cPatientPickList(wx.wxDialog):
 
 		self.__register_events()
 
-#		self.__do_layout_old()
 		self.__do_layout()
 		self.__items = []
 	#--------------------------------------------------------
@@ -218,6 +217,7 @@ class cPatientPickList(wx.wxDialog):
 		self.SetAutoLayout(True)
 		self.SetSizer(self.sizer_main)
 		self.sizer_main.Fit(self)
+		self.sizer_main.SetSizeHints(self)
 		self.__listctrl.SetFocus()					# won't work on Windoze without this
 	#--------------------------------------------------------
 	def __do_layout_old(self):
@@ -426,7 +426,7 @@ and hit <ENTER>
 		- or set cursor to text position in case more left
 		  clicks follow
 		"""
-		# unclicked , not highlighted
+		# unclicked, not highlighted
 		if self._lclick_count == 0:
 			self.SetSelection (-1,-1)			# highlight entire text
 			self._lclick_count = 1
@@ -723,7 +723,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.9  2004-10-20 07:49:45  sjtan
+# Revision 1.10  2004-10-20 12:40:55  ncq
+# - some cleanup
+#
+# Revision 1.9  2004/10/20 07:49:45  sjtan
 # small forward wxWidget compatibility change.
 #
 # Revision 1.7  2004/09/06 22:22:15  ncq
