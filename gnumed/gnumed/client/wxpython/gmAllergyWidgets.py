@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -12,15 +12,13 @@ import sys, time
 from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmExceptions
-from Gnumed.wxpython import gmPlugin_Patient, gmEditArea, gmDateTimeInput, gmTerryGuiParts
-from Gnumed.business import gmPatient
+from Gnumed.wxpython import gmEditArea, gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
+from Gnumed.business import gmPatient, gmAllergy
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_ALLERGYLIST = wxNewId()
-ID_ALLERGIES = wxNewId ()
-ID_ALL_MENU = wxNewId ()
+ID_ALLERGY_LIST = wxNewId()
 
 #======================================================================
 class gmAllergyEditArea(gmEditArea.gmEditArea):
@@ -74,11 +72,11 @@ class gmAllergyEditArea(gmEditArea.gmEditArea):
 			weight = 0
 		)
 		# line 4
-		self.fld_drug_class = gmEditArea.cEditAreaField(parent)
+		self.fld_atc_drug_class = gmEditArea.cEditAreaField(parent)
 		self._add_field(
 			line = 4,
 			pos = 1,
-			widget = self.fld_drug_class,
+			widget = self.fld_atc_drug_class,
 			weight = 0
 		)
 		# line 5
@@ -91,42 +89,34 @@ class gmAllergyEditArea(gmEditArea.gmEditArea):
 			weight = 1
 		)
 		# line 6
-		self.fld_progress_note = gmEditArea.cEditAreaField(parent)
-		self._add_field(
-			line = 6,
-			pos = 1,
-			widget = self.fld_progress_note,
-			weight = 1
-		)
-		# line 7
 		self.fld_is_allergy = wxRadioButton(parent, -1, _("Allergy"))
 		self._add_field(
-			line = 7,
+			line = 6,
 			pos = 1,
 			widget = self.fld_is_allergy,
 			weight = 2
 		)
 		self.fld_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"))
 		self._add_field(
-			line = 7,
+			line = 6,
 			pos = 2,
 			widget = self.fld_is_sensitivity,
 			weight = 2
 		)
-		self.fld_is_definite_allergy = wxCheckBox(
+		self.fld_is_definite_allergy = wxCheckBox (
 			parent,
 			-1,
 			_("Definite"),
 			style = wxNO_BORDER
 		)
 		self._add_field(
-			line = 7,
+			line = 6,
 			pos = 3,
 			widget = self.fld_is_definite_allergy,
 			weight = 2
 		)
 		self._add_field(
-			line = 7,
+			line = 6,
 			pos = 4,
 			widget = self._make_standard_buttons(parent),
 			weight = 1
@@ -135,39 +125,46 @@ class gmAllergyEditArea(gmEditArea.gmEditArea):
 	def _define_prompts(self):
 		self._add_prompt(line = 1, label = _("Date Noted"))
 		self._add_prompt(line = 2, label = _("Brand/Substance"))
-		self._add_prompt(line = 3, label = _("Generic"))
-		self._add_prompt(line = 4, label = _("Drug Class"))
+		self._add_prompt(line = 3, label = _("Generics"))
+		self._add_prompt(line = 4, label = _("ATC/Drug Class"))
 		self._add_prompt(line = 5, label = _("Reaction"))
-		self._add_prompt(line = 6, label = _("Progress Note"))
-		self._add_prompt(line = 7, label = '')
+		self._add_prompt(line = 6, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
-		allergy = {}
-		allergy['date noted'] = self.fld_date_noted.GetValue()
-		allergy['substance'] = self.fld_substance.GetValue()
-		allergy['generic'] = self.fld_generic.GetValue()
-		allergy['is generic specific'] = self.fld_generic_specific.GetValue()
-		allergy['drug class'] = self.fld_drug_class.GetValue()
-		allergy['reaction'] = self.fld_reaction.GetValue()
-		allergy['progress note'] = self.fld_progress_note.GetValue()
-		allergy['is allergy'] = self.fld_is_allergy.GetValue()
-		allergy['is sensitivity'] = self.fld_is_sensitivity.GetValue()
-		allergy['is definite'] = self.fld_is_definite_allergy.GetValue()
-		# FIXME: validation
-		epr = self.patient.get_clinical_record()
-		if epr is None:
-			# FIXME: badder error message
+		emr = self.patient.get_clinical_record()
+		if emr is None:
 			wxBell()
-			_gb['main.statustext'](_('Cannot save allergy.'))
-			return None
-		status, data = epr.add_allergy(allergy)
+			_gb['main.statustext'](_('Cannot create allergy: %s') % data)
+			return False
+		# create new allergy entry
+		if self.fld_is_allergy.GetValue():
+			allgtype = 'allergy'
+		else:
+			allgtype = 'sensitivity'
+		allg = emr.add_allergy (
+			substance = self.fld_substance.GetValue(),
+			allg_type = allgtype
+		)
+		if allg is None:
+			wxBell()
+			_gb['main.statustext'](_('Cannot create allergy: %s') % data)
+			return False
+		# and update it with known data
+		allg['date'] = self.fld_date_noted.GetValue()
+		allg['substance'] = self.fld_substance.GetValue()
+		allg['generics'] = self.fld_generic.GetValue()
+		allg['atc_code'] = self.fld_atc_drug_class.GetValue()
+		allg['generic_specific'] = (True and self.fld_generic_specific.GetValue())
+		allg['definite'] = (True and self.fld_is_definite_allergy.GetValue())
+		allg['reaction'] = self.fld_reaction.GetValue()
+		status, err = allg.save_payload()
 		if status is None:
 			wxBell()
-			_gb['main.statustext'](_('Cannot save allergy.'))
-			return None
+			_gb['main.statustext'](_('Cannot update allergy: %s') % err)
+			return False
 		_gb['main.statustext'](_('Allergy saved.'))
-		self.data = data
-		return 1
+		self.data = allg
+		return True
 	#----------------------------------------------------
 	def set_data(self, allergy = None):
 		"""Set edit area fields with allergy object data.
@@ -175,198 +172,170 @@ class gmAllergyEditArea(gmEditArea.gmEditArea):
 		- set defaults if no object is passed in, this will
 		  result in a new object being created upon saving
 		"""
-		self.data = None
-		# defaults
 		if allergy is None:
+			self.data = None
 			self.fld_date_noted.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
 			self.fld_substance.SetValue('')
 			self.fld_generic.SetValue('')
 			self.fld_generic_specific.SetValue(0)
-			self.fld_drug_class.SetValue('')
+			self.fld_atc_drug_class.SetValue('')
 			self.fld_reaction.SetValue('')
-			self.fld_progress_note.SetValue('')
 			self.fld_is_allergy.SetValue(1)
 			self.fld_is_sensitivity.SetValue(0)
 			self.fld_is_definite_allergy.SetValue(1)
-			return 1
-		# or data
-		self.data = allergy
-		print allergy.get_fields()
-		try: self.fld_date_noted.SetValue(allergy['date noted'])
-		except KeyError: pass
-		try: self.fld_substance.SetValue(allergy['substance'])
-		except KeyError: pass
+			return True
 
-		try: self.fld_progress_note.SetValue(allergy['progress note'])
-		except KeyError: pass
+		if isinstance(allergy, gmAllergy.cAllergy):
+			self.data = allergy
+			self.fld_date_noted.SetValue(allergy['date'].Format('%Y-%m-%d'))
+			self.fld_substance.SetValue(allergy['substance'])
 
-		# example for checkboxes
-#		try:
-#			if allergy['is booster']:
-#				self.fld_is_booster.SetValue(1)
-#			else:
-#				self.fld_is_booster.SetValue(0)
-#		except KeyError: pass
+			if allergy['generics'] is not None:
+				self.fld_generic.SetValue(allergy['generics'])
+			else:
+				self.fld_generic.SetValue('')
 
-		return 1
+			if allergy['generic_specific']:
+				self.fld_generic_specific.SetValue(1)
+			else:
+				self.fld_generic_specific.SetValue(0)
 
-#======================================================================
-class cAllergyPanel(wxPanel):
+			if allergy['atc_code'] is not None:
+				self.fld_atc_drug_class.SetValue(allergy['atc_code'])
+			else:
+				self.fld_atc_drug_class.SetValue('')
+
+			if allergy['reaction'] is not None:
+				self.fld_reaction.SetValue(allergy['reaction'])
+			else:
+				self.fld_reaction.SetValue('')
+
+			if allergy['type'] == 'allergy':
+				self.fld_is_allergy.SetValue(1)
+#				self.fld_is_sensitivity.SetValue(0)
+			else:
+				self.fld_is_allergy.SetValue(0)
+#				self.fld_is_sensitivity.SetValue(1)
+
+			if allergy['definite']:
+				self.fld_is_definite_allergy.SetValue(1)
+			else:
+				self.fld_is_definite_allergy.SetValue(0)
+			return True
+
+		_log.Log(gmLog.lErr, 'cannot handle [%s:%s]' % (type(allergy), str(allergy)))
+		return False
+#========================================================
+class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	"""Allergy details panel.
 
 		This panel will hold all the allergy details and
-		allow entry of those details via the editing area
+		allow entry of those details via the editing area.
 	"""
-
+	#----------------------------------------------------
 	def __init__(self, parent,id):
-		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
-		# main heading
-		self.allergypanelheading = gmTerryGuiParts.cHeadingCaption(
-			self,
-			-1,
-			_("ALLERGIES")
-		)
-		# edit area specific for allergies
-		self.editarea = gmAllergyEditArea(self, -1)
-		# divider headings below edit area
-		self.drug_subheading = gmTerryGuiParts.cDividerCaption(
-			self,
-			-1,
-			_("Allergy and Sensitivity - Summary")
-		)
-		self.sizer_divider_drug_generic = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_divider_drug_generic.Add(self.drug_subheading, 1, wxEXPAND)
-		#--------------------------------------------------------------------------------------
-		#add the list to contain the drugs person is allergic to
-		#
-		# c++ Default Constructor:
-		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-		# const wxSize& size = wxDefaultSize, long style = wxLC_ICON,
-		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
-		#--------------------------------------------------------------------------------------
-		self.list_allergy = wxListCtrl(
-			self,
-			ID_ALLERGYLIST,
-			wxPyDefaultPosition,
-			wxPyDefaultSize,
-			wxLC_REPORT | wxLC_NO_HEADER | wxSUNKEN_BORDER
-		)
-		self.list_allergy.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
-		# add some dummy data to the allergy list
-		self._constructListColumns()
-		#-------------------------------------------------------------
-		#loop through the scriptdata array and add to the list control
-		#note the different syntax for the first coloum of each row
-		#i.e. here > self.list_allergy.InsertStringItem(x, data[0])!!
-		#-------------------------------------------------------------
-		#add a richtext control or a wxTextCtrl multiline to display the class text information
-		#e.g. would contain say information re the penicillins
-		self.classtext_subheading = gmTerryGuiParts.cDividerCaption(
-			self,
-			-1,
-			"Class notes for celecoxib"
-		)
-		self.classtxt = wxTextCtrl(self,-1,
-			"A member of a new class of nonsteroidal anti-inflammatory agents (COX-2 selective NSAIDs) which have a mechanism of action that inhibits prostaglandin synthesis primarily by inhibition of cyclooxygenase 2 (COX-2). At therapeutic doses these have no effect on prostanoids synthesised by activation of COX-1 thereby not interfering with normal COX-1 related physiological processes in tissues, particularly the stomach, intestine and platelets.",
-			size = (200, 100),
-			style = wxTE_MULTILINE
-		)
-		self.classtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
-		# add elements to main background sizer
-		self.mainsizer = wxBoxSizer(wxVERTICAL)
-		self.mainsizer.Add(self.allergypanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.editarea,6,wxEXPAND)
-		self.mainsizer.Add(self.sizer_divider_drug_generic,0,wxEXPAND)
-		self.mainsizer.Add(self.list_allergy,5,wxEXPAND)
-		self.mainsizer.Add(self.classtext_subheading,0,wxEXPAND)
-		self.mainsizer.Add(self.classtxt,4,wxEXPAND)
-		self.SetSizer(self.mainsizer)
-		self.mainsizer.Fit
-		self.SetAutoLayout(True)
-		self.Show(True)
-
+		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__do_layout()
 		self.__pat = gmPatient.gmCurrentPatient()
 		self.__register_interests()
+		self.__reset_ui_content()
+	#----------------------------------------------------
+	def __do_layout(self):
+		# -- top part --
+		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("ALLERGIES"))
+		self.editarea = gmAllergyEditArea(self, -1)
+
+		# -- middle part --
+		# divider headings below edit area
+		pnl_MiddleCaption = gmTerryGuiParts.cDividerCaption(self, -1, _("Allergy and Sensitivity - Summary"))
+#		self.sizer_divider_drug_generic = wxBoxSizer(wxHORIZONTAL)
+#		self.sizer_divider_drug_generic.Add(pnl_MiddleCaption, 1, wxEXPAND)
+		self.LCTRL_allergies = wxListCtrl (
+			parent = self,
+			id = ID_ALLERGY_LIST,
+			pos = wxPyDefaultPosition,
+			size = wxPyDefaultSize,
+			style = wxLC_SINGLE_SEL | wxLC_REPORT | wxSUNKEN_BORDER | wxLC_HRULES | wxLC_VRULES | wxVSCROLL
+		)
+		self.LCTRL_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+		self.LCTRL_allergies.InsertColumn(0, _("Type"))
+		self.LCTRL_allergies.InsertColumn(1, _("Status"))
+		self.LCTRL_allergies.InsertColumn(2, _("ATC/Class"))
+		self.LCTRL_allergies.InsertColumn(3, _("Substance"))
+		self.LCTRL_allergies.InsertColumn(4, _("Generics"))
+		self.LCTRL_allergies.InsertColumn(5, _("Reaction"))
+
+		# -- bottom part --
+		pnl_LowerCaption = gmTerryGuiParts.cDividerCaption(self, -1, _('Class notes'))
+		#add a richtext control or a wxTextCtrl multiline to display the class text information
+		#e.g. would contain say information re the penicillins
+		self.class_notes = wxTextCtrl (
+			self,
+			-1,
+			"A member of a new class of nonsteroidal anti-inflammatory agents (COX-2 selective NSAIDs) which have a mechanism of action that inhibits prostaglandin synthesis primarily by inhibition of cyclooxygenase 2 (COX-2). At therapeutic doses these have no effect on prostanoids synthesised by activation of COX-1 thereby not interfering with normal COX-1 related physiological processes in tissues, particularly the stomach, intestine and platelets.",
+			size = (200, 100),
+			style = wxTE_MULTILINE | wxTE_READONLY
+		)
+		self.class_notes.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxNORMAL, False, ''))
+
+		# -- add elements to main background sizer --
+		self.mainsizer = wxBoxSizer(wxVERTICAL)
+		self.mainsizer.Add(pnl_UpperCaption, 0, wxEXPAND)
+		self.mainsizer.Add(self.editarea, 6, wxEXPAND)
+#		self.mainsizer.Add(self.sizer_divider_drug_generic,0,wxEXPAND)
+		self.mainsizer.Add(pnl_MiddleCaption, 0, wxEXPAND)
+		self.mainsizer.Add(self.LCTRL_allergies, 5, wxEXPAND)
+		self.mainsizer.Add(pnl_LowerCaption, 0, wxEXPAND)
+		self.mainsizer.Add(self.class_notes, 4, wxEXPAND)
+
+		self.SetAutoLayout(True)
+		self.SetSizer(self.mainsizer)
+		self.mainsizer.Fit(self)
 	#-----------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(self.UpdateAllergies, gmSignals.allergy_updated())
+		EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
 
-#		EVT_LIST_ITEM_ACTIVATED( self.list_allergy, self.list_allergy.GetId(), self._allergySelected)
-	#-----------------------------------------------
-	def populate(self):
-		self.__reset_ui_content()
+		# client internal signals
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._schedule_data_reget)
+		gmDispatcher.connect(signal=gmSignals.vaccinations_updated(), receiver=self._schedule_data_reget)
 	#-----------------------------------------------
 	def __reset_ui_content(self):
 		self.editarea.set_data()
-		# FIXME: populate lists etc.
+		self.LCTRL_allergies.DeleteAllItems()
 	#-----------------------------------------------
-	def _updateUI(self):
-		self.UpdateAllergies()
+	def _populate_with_data(self):
+		self.LCTRL_allergies.DeleteAllItems()
 
-	def _constructListColumns(self):
-		self.list_allergy.InsertColumn(0, _("Type"))
-		self.list_allergy.InsertColumn(1, _("Status"))
-		self.list_allergy.InsertColumn(2, _("Class"))
-		self.list_allergy.InsertColumn(3, _("Substance"))
-		self.list_allergy.InsertColumn(4, _("Generic"))
-		self.list_allergy.InsertColumn(5, _("Reaction"))
-		
-	
-#	def _allergySelected(self, event):
-#		ix = event.GetIndex()
-#		allergy_map = self.get_allergies().get_allergy_items()
-#		for id, values in allergy_map.items():
-#			if ix == 0:
-#				self.editarea.setInputFieldValues( values, id)
-#			ix -= 1
-			
-
-		
-
-#	def _update_list_row( self, i,id,  val_map):
-#		if val_map['is allergy'] == 1:
-#			atype = _('allergy')
-#		else:
-#			atype = _('sensitivity')
-#		if val_map['definite']:
-#			surety = 'definite'
-#		else:
-#			surety = 'uncertain'
-
-#		self.list_allergy.SetItemData( i, id  )
-#		self.list_allergy.InsertStringItem( i, atype )
-		
-#		list = [  surety, val_map['allergy class'], val_map['substance'], val_map['generics'], val_map['reaction'] ]
-#		for j in xrange(0, len( list) ):
-#			self.list_allergy.SetStringItem( i, j+1, list[j] )
-		
-
-	def UpdateAllergies(self, **kwargs):
-#		# remember wxCallAfter
-#		try:
-			#epr = self.__pat.get_clinical_record()
-			#allergies = epr['allergies']
-#			allergy_map = self.get_allergies()
-			# { 941: map_values, 2: map_values }
-			
-#		except:
-#			_log.LogException( "problem getting allergy list", sys.exc_info(), 4)
-#			return None
-
-#		_log.Data("Allergies " + str(allergy_map))
-
-#		i = 0
-#		self.list_allergy.DeleteAllItems()
-#		self._constructListColumns()
-		
-#		for id, val_map in allergy_map.items():
-#			self._update_list_row(i, id, val_map)
-#			i = i + 1
-			
-#		for column in range(0,3):
-#			self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
-
-		return 1
+		emr = self.__pat.get_clinical_record()
+		allergies = emr.get_allergies()
+		if allergies is None:
+			return False
+		for list_line in range(len(allergies)):
+			allg = allergies[list_line]
+			list_line = self.LCTRL_allergies.InsertStringItem(list_line, allg['l10n_type'])
+			# FIXME: check with Richard design specs
+			if allg['definite']:
+				self.LCTRL_allergies.SetStringItem(list_line, 1, _('definite'))
+			else:
+				self.LCTRL_allergies.SetStringItem(list_line, 1, _('likely'))
+			if allg['atc_code'] is not None:
+				self.LCTRL_allergies.SetStringItem(list_line, 2, allg['atc_code'])
+			self.LCTRL_allergies.SetStringItem(list_line, 3, allg['substance'])
+			if allg['generics'] is not None:
+				self.LCTRL_allergies.SetStringItem(list_line, 4, allg['generics'])
+			self.LCTRL_allergies.SetStringItem(list_line, 5, allg['reaction'])
+			self.LCTRL_allergies.SetItemData(list_line, allg['pk_allergy'])
+		for col in range(5):
+			self.LCTRL_allergies.SetColumnWidth(col, wxLIST_AUTOSIZE)
+		# FIXME: resize event needed ?
+		return True
+	#-----------------------------------------------
+	def _on_allergy_activated(self, evt):
+		pk_allg = evt.GetData()
+		emr = self.__pat.get_clinical_record()
+		allgs = emr.get_allergies(ID_list=[pk_allg])
+		self.editarea.set_data(allergy = allgs[0])
 #======================================================================
 # main
 #----------------------------------------------------------------------
@@ -376,7 +345,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.2  2004-07-18 20:30:53  ncq
+# Revision 1.3  2004-10-11 20:14:16  ncq
+# - use RegetOnPaintMixin
+# - attach to backend
+# - cleanup, remove cruft
+#
+# Revision 1.2  2004/07/18 20:30:53  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.1  2004/07/17 21:16:38  ncq
