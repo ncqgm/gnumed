@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.155 2005-01-29 19:20:49 cfmoro Exp $
-__version__ = "$Revision: 1.155 $"
+# $Id: gmClinicalRecord.py,v 1.156 2005-01-31 20:25:07 ncq Exp $
+__version__ = "$Revision: 1.156 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -177,6 +177,9 @@ class cClinicalRecord:
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.id_patient)
 		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
 			return None
+		sig = "%s:%s" % (gmSignals.episode_change_db(), self.id_patient)
+		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_episodes_modified):
+			return None
 		return 1
 	#--------------------------------------------------------
 	def db_callback_vaccs_modified(self, **kwds):
@@ -201,6 +204,14 @@ class cClinicalRecord:
 		except KeyError:
 			pass
 		gmDispatcher.send(signal = gmSignals.health_issue_updated(), sender = self.__class__.__name__)
+		return 1
+	#--------------------------------------------------------
+	def _db_callback_episodes_modified(self):
+		try:
+			del self.__db_cache['episodes']
+		except KeyError:
+			pass
+		gmDispatcher.send(signal = gmSignals.episodes_updated(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
 	def _clin_item_modified(self):
@@ -1652,7 +1663,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.155  2005-01-29 19:20:49  cfmoro
+# Revision 1.156  2005-01-31 20:25:07  ncq
+# - listen on episode changes, too
+#
+# Revision 1.155  2005/01/29 19:20:49  cfmoro
 # Commented out episode cache update after episode creation, should we use gmSignals?
 #
 # Revision 1.154  2005/01/29 19:14:00  cfmoro
