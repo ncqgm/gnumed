@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.12 2004-01-06 10:02:47 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmMatchProvider.py,v 1.13 2004-01-12 13:10:27 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -346,14 +346,12 @@ class cMatchProvider_SQL2(cMatchProvider):
 	def __find_matches(self, fragment_condition):
 		matches = []
 		# FIXME: deal with gmpw_score...
-		print "context values:", self._context_vals
 		query = self._query % {'fragment_condition': fragment_condition}
-		print "processed query:", query
-		pool = gmPG.ConnectionPool()
-		conn = pool.GetConnection(self._service, extra_verbose=1)
-		rows = gmPG.run_ro_query(conn, query, None, self._context_vals)
-		pool.ReleaseConnection(self._service)
-		print "matches:", rows
+		rows = gmPG.run_ro_query(self._service, query, None, self._context_vals)
+#		pool = gmPG.ConnectionPool()
+#		conn = pool.GetConnection(self._service, extra_verbose=1)
+#		rows = gmPG.run_ro_query(conn, query, None, self._context_vals)
+#		pool.ReleaseConnection(self._service)
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
 			_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
@@ -541,7 +539,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.12  2004-01-06 10:02:47  ncq
+# Revision 1.13  2004-01-12 13:10:27  ncq
+# - remove debugging code
+#
+# Revision 1.12  2004/01/06 10:02:47  ncq
 # - add _SQL2 match provider that operates on queries rather than tables/columns
 #
 # Revision 1.11  2003/12/29 16:28:04  uid66147
