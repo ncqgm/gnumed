@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Prevenar.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -21,7 +21,7 @@
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
-	1,
+	-1,
 	(select id from vacc_indication where description='pneumococcus'),
 	'Pneumokokken (<6 Monate, Hersteller)'
 );
@@ -111,7 +111,7 @@ values (
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
-	1,
+	-1,
 	(select id from vacc_indication where description='pneumococcus'),
 	'Pneumokokken (7-11 Monate, Hersteller)'
 );
@@ -182,7 +182,7 @@ values (
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
-	1,
+	-1,
 	(select id from vacc_indication where description='pneumococcus'),
 	'Pneumokokken (12-23 Monate, Hersteller)'
 );
@@ -229,11 +229,14 @@ values (
 
 -- =============================================
 -- do simple revision tracking
-delete from gm_schema_revision where filename like '%Impfkalender-Prevenar%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.1 $');
+delete from gm_schema_revision where filename like '%Impfplan-Prevenar%';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: Impfplan-Prevenar.sql,v $
--- Revision 1.1  2003-11-26 00:10:45  ncq
+-- Revision 1.2  2003-11-26 00:12:19  ncq
+-- - fix fk_recommended_by value
+--
+-- Revision 1.1  2003/11/26 00:10:45  ncq
 -- - Prevenar
 --
