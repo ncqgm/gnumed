@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -26,7 +26,7 @@ import gmCfg, gmI18N
 import docXML
 
 _log = gmLog.gmDefLog
-_cfg = gmCfg.gmDefCfg
+_cfg = gmCfg.gmDefCfgFile
 
 [	wxID_INDEXFRAME,
 	wxID_INDEXFRAMEADDITIONCOMMENTBOX,
@@ -55,7 +55,7 @@ class indexFrame(wxFrame):
 	def __init__(self, parent):
 
 		# get valid document types from ini-file
-		self.valid_doc_types = string.split(_cfg.get("metadata", "doctypes"),',')
+		self.valid_doc_types = _cfg.get("metadata", "doctypes")
 
 		# init ctrls
 		self._init_ctrls(parent)
@@ -63,7 +63,7 @@ class indexFrame(wxFrame):
 		# we are indexing data from one particular patient
 		# this is a design decision
 		if not self.__load_patient():
-			raise ValueError
+			return -1
 		self.__fill_pat_fields()
 
 		# repository base
@@ -71,7 +71,7 @@ class indexFrame(wxFrame):
 
 		# items for phraseWheel
 		if not self._init_phrase_wheel():
-			raise ValueError
+			return -1
 	#---------------------------------------------------------------------------
 	def _init_utils(self):
 		pass
