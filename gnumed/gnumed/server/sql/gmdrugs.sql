@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.13 $ $Date: 2002-09-29 08:16:05 $ $Author: hherb $
+-- $Revision: 1.14 $ $Date: 2002-09-29 10:20:14 $ $Author: ncq $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.13  2002-09-29 08:16:05  hherb
+-- Revision 1.14  2002-09-29 10:20:14  ncq
+-- - added code_systems.revision
+--
+-- Revision 1.13  2002/09/29 08:16:05  hherb
 -- Complete rewrite: clean separation of drug reference and clinical data
 -- such as prescriptions. Most issues now country/regulation independend with
 -- facilities for internationalization.
@@ -356,7 +359,8 @@ create table code_systems(
 	id serial primary key,
 	iso_country_code char(2) default '**',
 	name varchar(30),
-	version varchar(30)
+	version varchar(30),
+	revision varchar(30)
 );
 comment on table code_systems is
 'listing of disease coding systems used for drug indication listing';
@@ -366,8 +370,10 @@ comment on column code_systems.name is
 'name of the code systme like ICD, ICPC';
 comment on column code_systems.version is
 'version of the code system, like "10" for ICD-10';
+comment on column code_systems.revision is
+'revision of the version of the coding system/classification';
 
-insert into code_systems(name, version) values ('ICD', '10');
+insert into code_systems(name, version, revision) values ('ICD', '10', 'SGBV v1.3');
 insert into code_systems(name, version) values ('ICPC', '2');
 
 
