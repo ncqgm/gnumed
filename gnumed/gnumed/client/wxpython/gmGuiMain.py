@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.135 2004-01-06 10:05:21 ncq Exp $
-__version__ = "$Revision: 1.135 $"
+# $Id: gmGuiMain.py,v 1.136 2004-01-18 21:52:20 ncq Exp $
+__version__ = "$Revision: 1.136 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -374,9 +374,6 @@ class gmTopLevelFrame(wxFrame):
 	#----------------------------------------------
 	def on_patient_selected(self, **kwargs):
 		pat = gmPatient.gmCurrentPatient()
-		#<DEBUG>
-		_log.Log(gmLog.lWarn, "patient changed to [%s]" % pat)
-		#</DEBUG>
 		try:
 			epr = pat['clinical record']
 			demos = pat['demographic record']
@@ -515,6 +512,7 @@ class gmTopLevelFrame(wxFrame):
 		# signal imminent demise to plugins
 		gmDispatcher.send(gmSignals.application_closing())
 		# handle our own stuff
+		gmPG.ConnectionPool().StopListeners()
 		self.timer.Stop()
 		self.mainmenu = None
 		self.Destroy()
@@ -771,7 +769,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.135  2004-01-06 10:05:21  ncq
+# Revision 1.136  2004-01-18 21:52:20  ncq
+# - stop backend listeners in clean_exit()
+#
+# Revision 1.135  2004/01/06 10:05:21  ncq
 # - question dialog on continuing previous encounter was incorrect
 #
 # Revision 1.134  2004/01/04 09:33:32  ihaywood
