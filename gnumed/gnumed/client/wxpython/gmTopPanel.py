@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -82,39 +82,39 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			style = wxBU_EXACTFIT | wxNO_BORDER
 		)
 		self.btn_pat_demographics.SetToolTip(wxToolTip(_("display patient demographics")))
-		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND)
+		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wxBOTTOM, 3)
 		#  - patient selector
 		self.patient_selector = gmPatientSelector.cPatientSelector(self, -1)
 		if gmCLI.has_arg('--slave'):
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
 		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
-		self.szr_top_row.Add (self.patient_selector, 5, wxEXPAND, 3)
+		self.szr_top_row.Add (self.patient_selector, 5, wxEXPAND | wxBOTTOM, 3)
 		#  - age
-		self.lbl_age = wxStaticText (self, -1, _("Age"), style = wxALIGN_CENTER_VERTICAL)
-		self.lbl_age.SetFont (wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
-		self.txt_age = wxTextCtrl (self, -1, "", size = (40,-1), style = wxTE_READONLY)
+#		self.lbl_age = wxStaticText (self, -1, _("Age"), style = wxALIGN_CENTER_VERTICAL)
+#		self.lbl_age.SetFont (wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.txt_age = wxTextCtrl (self, -1, "", size = (50,-1), style = wxTE_READONLY)
 		self.txt_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
-		self.szr_top_row.Add (self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
-		self.szr_top_row.Add (self.txt_age, 0, wxEXPAND | wxALL, 3)
+#		self.szr_top_row.Add (self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
+		self.szr_top_row.Add (self.txt_age, 0, wxEXPAND | wxBOTTOM | wxLEFT | wxRIGHT, 3)
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
 		self.lbl_allergies = wxStaticText (self, -1, _("Allergies"), style = wxALIGN_CENTER_VERTICAL)
-		self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
+		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
 		self.lbl_allergies.SetForegroundColour(col_brightred)
 		self.txt_allergies = wxTextCtrl (self, -1, "", style = wxTE_READONLY)
-		self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
+		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 		self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
-		self.szr_top_row.Add (self.lbl_allergies, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
-		self.szr_top_row.Add (self.txt_allergies, 6, wxEXPAND | wxALL, 3)
+		self.szr_top_row.Add (self.lbl_allergies, 0, wxEXPAND | wxBOTTOM, 3)
+		self.szr_top_row.Add (self.txt_allergies, 6, wxEXPAND | wxBOTTOM, 3)
 
 		# - bottom row
 		# (holds most of the buttons)
 		self.szr_bottom_row = wxBoxSizer (wxHORIZONTAL)
 		self.pnl_bottom_row = wxPanel(self, -1)
-		self.szr_bottom_row.Add (self.pnl_bottom_row, 1, wxGROW)
+		self.szr_bottom_row.Add (self.pnl_bottom_row, 6, wxGROW, 0)
 		# episode selector
 		# FIXME: handle input -> new episode
 		# FIXME: should be cEpisodeSelector class
@@ -122,26 +122,26 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			self,
 			ID_CBOX_episode,
 			'',
-			wxDefaultPosition,
-			wxDefaultSize,
+			wxPyDefaultPosition,
+			wxPyDefaultSize,
 			[],
 			wxCB_DROPDOWN
 		)
-		tt = wxToolTip(_('choose active episode\nany subsequent input will be attributed to this episode'))
+		tt = wxToolTip(_('choose problem to work on\nsubsequent input is attached to the corresponding episode'))
 		self.combo_episodes.SetToolTip(tt)
-		self.szr_bottom_row.Add(self.combo_episodes, 0, wxRIGHT, 0)
+		self.szr_bottom_row.Add(self.combo_episodes, 3, wxEXPAND, 0)
 		# consultation type selector
 		self.combo_consultation_type = wxComboBox (
 			self,
 			ID_CBOX_consult_type,
 			self.DEF_CONSULT_TYPE,
-			wxDefaultPosition,
-			wxDefaultSize,
+			wxPyDefaultPosition,
+			wxPyDefaultSize,
 			self.__consultation_types,
 			wxCB_DROPDOWN | wxCB_READONLY
 		)
 		self.combo_consultation_type.SetToolTip(wxToolTip(_('choose consultation type')))
-		self.szr_bottom_row.Add(self.combo_consultation_type, 0, wxRIGHT, 0)
+		self.szr_bottom_row.Add(self.combo_consultation_type, 2, wxEXPAND, 0)
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
@@ -234,7 +234,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 		# update episode selector
 		self.combo_episodes.Clear()
-		epr = self.curr_pat['clinical record']
+		epr = self.curr_pat.get_clinical_record()
 		if epr is None:
 			return None
 		episodes = epr.get_episodes()
@@ -249,7 +249,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		wxCallAfter(self.__update_allergies)
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
-		epr = self.curr_pat['clinical record']
+		epr = self.curr_pat.get_clinical_record()
 		allergies = epr.get_allergies(remove_sensitivities=1)
 		if allergies is None:
 			self.txt_allergies.SetValue(_('error getting allergies'))
@@ -350,7 +350,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.44  2004-06-26 07:33:55  ncq
+# Revision 1.45  2004-07-15 20:39:51  ncq
+# - normalize/cleanup layout, I'm sure Richard will have a
+#   say on this but it does look cleaner to me
+#
+# Revision 1.44  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.43  2004/06/13 22:18:41  ncq
