@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -46,13 +46,6 @@ COMMENT ON COLUMN state.code IS
 COMMENT ON COLUMN state.country IS
 	'2 character ISO 3166-1 country code';
 
-create table log_state (
-        id integer not null,
-        code char(10) not null,
-        country char(2) not null,
-        name text not null
-) inherits (audit_trail);
-
 -- ===================================================================
 create table urb (
 	id serial primary key,
@@ -80,13 +73,6 @@ COMMENT ON COLUMN urb.postcode IS
 COMMENT ON COLUMN urb.name IS
 	'the name of the city/town/dwelling';
 
-create table log_urb (
-	id integer not null,
-	id_state integer not null,
-	postcode varchar(12) not null,
-	name text not null
-) inherits (audit_trail);
-
 -- ===================================================================
 create table street (
 	id serial primary key,
@@ -104,13 +90,6 @@ COMMENT ON COLUMN street.name IS
 	'name of this street';
 COMMENT ON COLUMN street.postcode IS
 	'postcode for systems (such as UK Royal Mail) which specify the street';
-
-create table log_street (
-	id integer not null,
-	id_urb integer not null,
-	name text not null,
-	postcode varchar(12)
-) inherits (audit_trail);
 
 -- ===================================================================
 create table address (
@@ -133,14 +112,6 @@ comment on column address.number is
 	'number of the house';
 comment on column address.addendum is
 	'eg. appartment number, room number, level, entrance';
-
-create table log_address (
-	id integer not null,
-	id_street integer not null,
-	suburb text,
-	number char(10) not null,
-	addendum text
-) inherits (audit_trail);
 
 -- ===================================================================
 -- Other databases may reference to an address stored in this table.
@@ -225,17 +196,6 @@ create table address_info (
 -- interesting queries, like, how many patients live within
 -- 10kms of the clinic.
 
-create table log_address_info (
-        id integer,
-        id_address integer not null,
-        location point,
-        id_coord integer not null,
-        mapref char(30),
-        id_map integer not null,
-        howto_get_there text,
-        comments text
-) inherits (audit_trail);
-
 -- ===================================================================
 -- person related tables
 -- ===================================================================
@@ -266,16 +226,6 @@ comment on column identity.cob IS
 	'country of birth as per date of birth, coded as 2 character ISO code';
 comment on column identity.deceased IS
 	'date when a person has died (if so), format yyyymmdd';
-
-create table log_identity (
-	id integer not null,
-	pupic char(24),
-	gender varchar(2) not null,
-	karyotype character(10),
-	dob timestamp with time zone not null,
-	cob char(2),
-	deceased timestamp with time zone
-) inherits (audit_trail);
 
 -- ==========================================================
 -- as opposed to the versioning of all other tables, changed names
@@ -322,6 +272,11 @@ COMMENT ON COLUMN lnk_person2address.id_address IS
 COMMENT ON COLUMN lnk_person2address.id_type IS
 	'type of this address (like home, work, parents, holidays ...)';
 
+-- consider not plainly auditing this table but also
+-- giving a reason for changes (incorrectly recorded
+-- vs. moved etc.) or even explicitely model that
+-- behaviour (as per Tim Churches)
+
 -- ==========================================================
 create table lnk_person2comm_channel (
 	id serial primary key,
@@ -356,13 +311,6 @@ comment on column relation_types.biol_verified IS
 comment on column relation_types.description IS
 	'plain text description of relationship';
 
-create table log_relation_types (
-	id integer not null,
-	biological boolean not null,
-	biol_verified boolean,
-	description text
-) inherits (audit_trail);
-
 -- ==========================================================
 create table lnk_person2relative (
 	id serial primary key,
@@ -387,14 +335,30 @@ comment on column lnk_person2relative.ended IS
 	'date when this relationship ended, biological
 	 relationships do not end !';
 
-create table log_lnk_person2relative (
-	id integer not null,
-	id_identity integer not null,
-	id_relative integer not null,
-	id_relation_type integer not null,
-	started date,
-	ended date
-) inherits (audit_trail);
+-- ==========================================================
+create table occupation (
+	id serial primary key,
+	name text
+) inherits (audit_mark, audit_fields);
+
+comment on table occupation is
+	'collects occupation names';
+
+-- ==========================================================
+create table lnk_job2person (
+	id serial primary key,
+	id_identity integer not null references identity(id),
+	id_occupation integer not null references occupation(id),
+	comment text,
+	unique (id_identity, id_occupation)
+) inherits (audit_mark, audit_fields);
+
+comment on table lnk_job2person is
+	'linking (possibly several) jobs to a person';
+comment on column lnk_job2person.comment is
+	'if you think you need non-unique id_identity/id_occupation
+	 combinations, think again, you may be missing the point
+	 of the comment field';
 
 -- ===================================================================
 -- organisation related tables
@@ -459,11 +423,15 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.6 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.5  2003-08-13 21:08:51  ncq
+-- Revision 1.6  2003-08-17 00:23:22  ncq
+-- - add occupation tables
+-- - remove log_ tables, they are now auto-created
+--
+-- Revision 1.5  2003/08/13 21:08:51  ncq
 -- - remove default "unknown" from urb.postcode
 --
 -- Revision 1.4  2003/08/10 01:03:39  ncq
