@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.9 2003-11-22 12:53:48 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmDemographicRecord.py,v 1.10 2003-11-22 14:40:59 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -40,7 +40,7 @@ class gmDemographicRecord:
 	def getActiveName (self):
 		raise gmExceptions.PureVirtualFunction()
 
-	def setActiveName (self, firstnames, lastnames):
+	def addName (self, firstname, lastname, activate):
 		raise gmExceptions.PureVirtualFunction ()
 
 	def getTitle(self):
@@ -160,12 +160,22 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 			'last': data[0][idx['lastnames']]
 		}
 	#--------------------------------------------------------
-	def setActiveName (self, firstnames, lastnames):
+	def addName(self, firstname, lastname, activate = None):
+		"""Add a name and possibly activate it."""
+		cmd = "select add_name(%s, %s, %s, %s)"
+		if activate:
+			activate_str = 'true'
+		else:
+			activate_str = 'false'
+		cmd = "update names set active = true, firstnames = %s, lastnames = %s where id_identity = %s"
+		return gmPG.run_commit ('personalia', [(cmd, [self.ID, firstname, lastname, activate_str])])
+
+	# keep this until the above is shown to work reliably
+#	def setActiveName (self, firstnames, lastnames):
 		#empirically works.
 		#do an insert to change the name, the old name becomes inactive anyway with the trigger.
-		cmd = "insert into  names ( firstnames , lastnames , title,  id_identity ) values( %s , %s ,'',  %s)"
-		gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID]) ])
-
+#		cmd = "insert into  names ( firstnames , lastnames , title,  id_identity ) values( %s , %s ,'',  %s)"
+#		gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID]) ])
 	#---------------------------------------------------------	
 	def getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
@@ -179,10 +189,15 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		return data[0][0]
 	#--------------------------------------------------------
 	def setTitle (self, title):
+<<<<<<< gmDemographicRecord.py
+		cmd = "update names set title = %s where id_identity = %s and active = true"
+		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
+=======
 		# empirically, this works; updating the name twice, then setting it active. 
 		cmd = "update names set title = %s  where id = (select max(id) from names where id_identity = %s)"
 		cmd2 = "update names set active = true where id = (select max(id) from names where id_identity = %s)"
 		gmPG.run_commit ('personalia', [(cmd, [title, self.ID]), (cmd, [title, self.ID]),  (cmd2, [self.ID])])
+>>>>>>> 1.9
 	#--------------------------------------------------------
 	def getID(self):
 		return self.ID
@@ -239,7 +254,7 @@ where
 		# pre-fill with data from ourselves
 		relative_demographics = relative.get_demographic_record()
 		relative_demographics.copyAddresses(self)
-		relative_demographics.setActiveName( "?", self.getActiveName()['last'])
+		relative_demographics.addName( '**?**', self.getActiveName()['last'], activate = 1)
 		# and link the two
 		cmd = """
 insert into lnk_person2relative (
@@ -552,7 +567,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.9  2003-11-22 12:53:48  sjtan
+# Revision 1.10  2003-11-22 14:40:59  ncq
+# - setActiveName -> addName
+#
+# Revision 1.9  2003/11/22 12:53:48  sjtan
 #
 # modified the setActiveName and setTitle so it works as intended in the face of insurmountable triggers ;)
 #
