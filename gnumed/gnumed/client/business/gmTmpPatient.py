@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.23 2003-06-01 14:34:47 sjtan Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmTmpPatient.py,v 1.24 2003-06-19 15:24:23 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -404,6 +404,12 @@ class gmCurrentPatient(cBorg):
 		}
 		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
 	#--------------------------------------------------------
+	def is_connected(self):
+		if self.patient is None:
+			return None
+		else:
+			return 1
+	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
@@ -668,11 +674,16 @@ if __name__ == "__main__":
 		print "fails  ", myPatient['missing handler']
 		api = myPatient['API']
 		for call in api:
-			print "API call: %s (interally %s)" % (call['API call name'], call['internal name'])
+			print "API call: %s (internally %s)" % (call['API call name'], call['internal name'])
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.23  2003-06-01 14:34:47  sjtan
+# Revision 1.24  2003-06-19 15:24:23  ncq
+# - add is_connected check to gmCurrentPatient to find
+#   out whether there's a live patient record attached
+# - typo fix
+#
+# Revision 1.23  2003/06/01 14:34:47  sjtan
 #
 # hopefully complies with temporary model; not using setData now ( but that did work).
 # Please leave a working and tested substitute (i.e. select a patient , allergy list
