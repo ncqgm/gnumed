@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-
+"""
+@license: GPL
+"""
 __version__ = ""
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
@@ -536,7 +538,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.8  2003-10-13 21:01:46  hinnef
+# Revision 1.9  2003-10-13 21:04:00  hinnef
+# - added GPL statement
+#
+# Revision 1.8  2003/10/13 21:01:46  hinnef
 # -fixed a bug that would introduce newlines in str_array type values
 #
 # Revision 1.7  2003/09/03 17:33:22  hinnef

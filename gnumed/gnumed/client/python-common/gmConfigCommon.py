@@ -11,10 +11,11 @@ First get a list of available config parameters through getAllParamNames (return
 names + metadata), get the values using GetConfigData, change, check for validity
 using isValid (if definition data and parameter definition is available) and 
 set data using SetConfigData.
+License: GNU Public License 
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -886,6 +887,9 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.5  2003-10-02 20:02:28  hinnef
+# Revision 1.6  2003-10-13 21:02:55  hinnef
+# - added GPL statement
+#
+# Revision 1.5  2003/10/02 20:02:28  hinnef
 # small fixes to import/exportDBSet
 #
