@@ -18,9 +18,12 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
+__author__ = "Horst Herb <hherb@malleenet.net.au>"
 
+# standard modules
 import sys, os
+# GNUmed modules
 import gmLog
 
 if __name__ == "__main__":
