@@ -13,6 +13,10 @@ rm -rf redo-public-de.log
 bootstrap-gm_db_system.py --log-file=redo-public-de.log --conf-file=bootstrap-de.conf
 echo "========================="
 echo "adding data for locale AU"
+echo "generating AU post code SQL script"
+cd ../sql/country.specific/au/
+python postcode_import.py postcodes.au.csv > postcodes.au.sql 2> postcodes.au.log
+cd -
 rm -rf redo-public-au.log
 bootstrap-gm_db_system.py --log-file=redo-public-au.log --conf-file=bootstrap-au.conf
 echo "================"
