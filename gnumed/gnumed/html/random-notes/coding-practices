@@ -1,22 +1,29 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/html/random-notes/Attic/coding-practices,v $
-$Revision: 1.2 $
+$Revision: 1.3 $
 --------------------------------------------------------------
 1.) strings and translation:
-
+----------------------------
 hardcoded error strings meant for developers / debugging are in English.
 All other strings MUST be translateable, that is called as a gettext 
 function. To achieve this, you do the following:
 
-#import translation module
-import gettext
-#set an alias for the translation function
-_ = gettext.gettext
-#whenever you use a string, do it like
-print _("this will be automatically translated")
-#instead of
-print "this can't be translated and should thus not be programmed this way"
+If your modules can be called as a standalone script you
+should add this to your main part:
 
+if name == '__main__':
+	import gettext
+	_ = gettext.gettext()
+    # ... now on to other stuff
 
+If your module is invoked from within the GNUmed framework the
+translation function _() is automatically defined for you.
+
+Now, whenever you use a string, do it like
+ print _("this will be automatically translated")
+instead of
+ print "this can't be translated and should thus not be written this way"
+
+--------------------------------------------------------------
 2.) when doing database work, NEVER rely on a table being present in the 
 "default" database. Lookup the appropriate service 
 (as listed in http://gnumed.net/whitepapers/serviceslist.html) and use it 
@@ -31,6 +38,7 @@ in the default database accordingly
 (database name in "db", service in "distributed_db", reference to db and 
 distributed_db in "config" attributes "db" and "ddb")
 
+--------------------------------------------------------------
 3.) When trying to map database results to widgets, remember that not all 
 widgets can use the same functions (like SetValue()) under all 
 circumstances to set their properties. Notable examples for exceptions are 
@@ -39,18 +47,10 @@ function SetData(), UpdateData(), ClearData() for each dialog instead -
 far more control over what is actually happening to the widgets, though 
 unfortunately a little bit more typing.
 
+--------------------------------------------------------------
 4.) and finally, try to always insert at least one line of docstring 
 unless the function is no more than a couple of lines long and perfectly 
 self-explanatory
-
-Horst
-
-_______________________________________________
-Gnumed-devel mailing list
-Gnumed-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/gnumed-devel
-To subscribe or unsubscribe send a message with "help" as subject
-
 --------------------------------------------------------------
 COMMENTS
 --------
@@ -62,14 +62,14 @@ COMMENTS
 CVS
 ---
 - always test before you check in (yes, I have been guilty of not
-  heeding my advice, sorry)
+  heeding my own advice, sorry)
 --------------------------------------------------------------
 DEBUGGING/LOGGING
 -----------------
 - place markers before/after logging statements
   that can be commented out once things work like this:
 
-#<DEBUG>/
-gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
 #<DEBUG>
+gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
+#</DEBUG>
 --------------------------------------------------------------
