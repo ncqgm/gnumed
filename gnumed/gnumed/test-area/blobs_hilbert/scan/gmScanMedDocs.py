@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -47,7 +47,7 @@ _sane = None
 	wxID_BTN_save_doc,
 	wxID_BTN_acquire_page,
 	wxID_PNL_main
-] = map(lambda _init_ctrls: wxNewId(), range(8))
+] = map(lambda _init_ctrls: wxNewId(), range(7))
 #==================================================
 class ScanPanel(wxPanel):
 	# a list holding our objects
@@ -961,7 +961,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.13  2002-12-05 15:19:25  ncq
+# Revision 1.14  2002-12-08 12:40:54  ncq
+# - fixed wxID list off by one
+#
+# Revision 1.13  2002/12/05 15:19:25  ncq
 # - based on sizers now
 #
 # Revision 1.12  2002/11/18 16:59:08  ncq
