@@ -11,12 +11,9 @@
 be the name of the property targetted by the getter
 e.g. getNarrative(index) ...  id='narrative'
 --%>
-<html>
-<head>
-    <title>Encounter </title>
- 
-</head>
-<body>
+
+<jsp:include page="./createContextPath.jsp"/>
+    
 <h3> <bean:message key="encounter.entry.title"/> </h3>
     <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>
     <%-- <jsp:getProperty name="beanInstanceName"  property="propertyName" /> --%>
@@ -31,12 +28,6 @@ e.g. getNarrative(index) ...  id='narrative'
     <jsp:include page="./patient_detail_block.jsp"/>
     
     
-    <div id="testdiv" class="testdiv0" style='visibility:hidden;'>
-    <h2>THis should be hidden </h2>
-    </div>
-    <%--
-    <html:form action="/SaveClinical">
---%>
         <table>
             
            
@@ -223,7 +214,10 @@ onchange=""
                         <html:textarea  name="narrative" property="narrative"  rows="6" cols="80" indexed="true" />
                     
                     </td>
-                    </tr>
+                    
+                    <td><sub><a href='<%=request.getAttribute("contextPath")%>#submitEncounter'>to submit</a></sub></td>
+                   
+                        </tr>
                 </table>
             </div>
                     
@@ -232,7 +226,7 @@ onchange=""
         </logic:iterate>
         </table>
         <%--
-        <table>
+        <table >
             <td>
                 <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
             </td>
@@ -247,7 +241,3 @@ onchange=""
 
 <html:javascript formName="clinicalUpdateForm"
    dynamicJavascript="true" staticJavascript="false"/> 
-
-
-</body>
-</html>

@@ -75,10 +75,12 @@
                         <b>
                         <bean:write name="narrative" property="soapCat"/>
                         </b>
+                        
                     </td>
         
                     <td colspan='2'> 
                         <bean:write name="narrative" property="narrative"/>
+                          <i><sub> <a href='<%=contextPath%>#linkItemDetail<%=itemId%>'>to summary</a></sub> </i> 
                     </td>
                 </tr>
                 </table>

@@ -24,7 +24,8 @@
             <jsp:include page="./vaccinationEntry.jsp"/>
  <%--
  --%>   
-        <table>
+    <a name='submitEncounter' />
+        <table >
             <td>
                 <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
             </td>
@@ -38,3 +39,4 @@
 
 </body>
 </html>
+

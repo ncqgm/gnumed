@@ -11,10 +11,10 @@
 
 <body>
 <a name="clinicalSummary" ></a>
-    <h2>Summary</h2>  
+    <h4>Summary</h4>  
   <jsp:include page="./patient_detail_block.jsp"/>   
   <jsp:include page="./relative_url_javascript.jsp"/>  
-    <h3>Problem List</h3>
+    <h5>Problem List</h5>
     <table border='1' cellpadding='2'e>
     <logic:iterate   id="healthIssue" 
             name="healthRecord" 
@@ -39,9 +39,10 @@
     </table>
      
     
-    <h3>Allergies </h3>
-     <table cellpadding='4' border='1'>
-     <thead><td><b>Substance</b></td> <td><b>is definite</b></td> <td> <b>description</b> </td> </thead>
+    <h5>Allergies </h5>
+     <table  border='1'>
+  <%--   <thead><td><b>Substance</b></td> <td><b>is definite</b></td> <td> <b>description</b> </td> </thead>
+    --%>
     <logic:iterate   id="allergy" 
             name="healthRecord" 
             property="healthSummary.allergys"
@@ -51,16 +52,23 @@
             <bean:write name="allergy" property="substance"/>
             </td>
             <td>
-            <bean:write name="allergy" property="definite"/>
-            </td>
+            <logic:equal name="allergy" property="definite" value="true">
+            definite
+            </logic:equal>
+            <logic:equal name="allergy" property="definite" value="false">
+            not definite
+            </logic:equal>
+             </td>
             <td>
+            <small>
             <bean:write name="allergy" property="narrative" />
+            </small>
             </td>
             </tr>
     </logic:iterate>
     </table>
     
-    <h3>Vaccinations </h3>
+    <h5>Vaccinations </h5>
      <logic:present name="vaccines" scope="session">
     
     
@@ -91,13 +99,10 @@
      </logic:present>
     
 
-    <h3>Clinical Episode</h3>
-        <bean:define id="identityId" name="healthRecord" property="healthSummary.identityId" />
-    <%String contextPath=org.apache.struts.util.RequestUtils.serverURL(request)+"/"
-        +request.getContextPath()+"/"+"ClinicalEdit.do?id="+identityId.toString();
-        request.setAttribute("contextPath", contextPath); %>
-    
-  
+    <h5>Clinical Episode</h5>
+    <jsp:include page="./createContextPath.jsp"/>
+      
+ 
     <a   href="<%=request.getAttribute("contextPath")%>#pastNotes"> past notes </a>
          
     <table>
@@ -127,8 +132,8 @@
                         indexId="itemIndex"  >
                    <bean:define    id="itemId"
                         name="item" property="id"/> 
-                         
-                     <a href="<%=contextPath%>#itemDetail<%=itemId%>">
+                     <a name="linkItemDetail<%=itemId%>"/>    
+                     <a href="<%=request.getAttribute("contextPath")%>#itemDetail<%=itemId%>">
                     <%=(itemIndex.intValue()+1)%> 
                 </a> |
             </nested:iterate>
