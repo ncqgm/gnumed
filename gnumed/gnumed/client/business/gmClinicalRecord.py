@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.117 2004-06-13 08:03:07 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmClinicalRecord.py,v 1.118 2004-06-14 06:36:51 ncq Exp $
+__version__ = "$Revision: 1.118 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -894,7 +894,7 @@ class cClinicalRecord:
 		filtered_shots = []
 		filtered_shots.extend(self.__db_cache['vaccinations'])
 		if ID is not None:
-			filtered_shots = filter(lambda shot: shot['pk_vaccination'] = ID, filtered_shots)
+			filtered_shots = filter(lambda shot: shot['pk_vaccination'] == ID, filtered_shots)
 			if len(filtered_shots) == 0:
 				_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.id_patient))
 				return None
@@ -1277,7 +1277,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.117  2004-06-13 08:03:07  ncq
+# Revision 1.118  2004-06-14 06:36:51  ncq
+# - fix = -> == in filter(lambda ...)
+#
+# Revision 1.117  2004/06/13 08:03:07  ncq
 # - cleanup, better separate vaccination code from general EMR code
 #
 # Revision 1.116  2004/06/13 07:55:00  ncq
