@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -199,7 +199,7 @@ select add_table_for_audit('address_info');
 create table identity (
 	id serial primary key,
 	pupic char(24),
-	gender varchar(3) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?', 'N/A')),
+	gender varchar(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
 	karyotype character(10) default null,
 	dob timestamp with time zone not null,
 	cob char(2),
@@ -504,11 +504,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.14 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.13  2003-11-20 00:38:43  ncq
+-- Revision 1.14  2003-11-20 02:08:20  ncq
+-- - we decided to drop N/A from identity.gender, hence make it varchar(2) again
+--
+-- Revision 1.13  2003/11/20 00:38:43  ncq
 -- - if we want to allow "N/A" in identity.gender we better make it
 --   varchar(3) not (2) :-)       found by Syan
 --
