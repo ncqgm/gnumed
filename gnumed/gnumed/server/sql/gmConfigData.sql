@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -147,12 +147,15 @@ values (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $');
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.4 $');
+delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.4  2004-10-01 13:26:15  ncq
+-- Revision 1.5  2004-10-19 22:18:34  sjtan
+-- fix syntax error end bracket.
+--
+-- Revision 1.4  2004/10/01 13:26:15  ncq
 -- - add workplace "KnoppixMedica" CD user
 --
 -- Revision 1.3  2004/09/13 19:25:56  ncq
