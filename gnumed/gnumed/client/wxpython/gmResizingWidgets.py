@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.1 2004-12-06 20:36:48 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmResizingWidgets.py,v 1.2 2004-12-06 20:46:49 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -64,19 +64,19 @@ class cPickList (wx.wxListBox):
 				self.callback (text, data)
 			self.alive = 2
 		else:
-			wxCallAfter (self.Destroy) # in theory we shouldn't have to do this,
+			wx.wxCallAfter (self.Destroy) # in theory we shouldn't have to do this,
 									   # but when we don't, wx segfaults.
 	#------------------------------------------------
 	def Destroy (self):
 		self.alive = 0
-		wxListBox.Destroy (self)
+		wx.wxListBox.Destroy (self)
 #====================================================================
-class cPopupFrame(wxFrame):
+class cPopupFrame(wx.wxFrame):
 #	def __init__ (self, text, widget_class, originator=None, pos=wxDefaultPosition):
 #		wxFrame.__init__(self, None, wxNewId(), widget_class.__name__, pos=pos, style=wxSIMPLE_BORDER)
 #		self.win = widget_class(self, -1, pos = pos, size = wxSize(300, 150), complete = self.OnOK)
-	def __init__ (self, text, widget, originator=None, pos=wxDefaultPosition):
-		wxFrame.__init__(self, None, wxNewId(), widget.__class__.__name__, pos=pos, style=wxSIMPLE_BORDER)
+	def __init__ (self, text, widget, originator=None, pos=wx.wxDefaultPosition):
+		wx.wxFrame.__init__(self, None, wx.wxNewId(), widget.__class__.__name__, pos=pos, style=wx.wxSIMPLE_BORDER)
 		widget.set_completion_callback(self.OnOK)
 		self.win = widget
 		self.text = text
@@ -88,15 +88,15 @@ class cPopupFrame(wxFrame):
 		EVT_BUTTON(self.__BTN_Cancel, self.__BTN_Cancel.GetId(), self._on_close)
 	#------------------------------------------------
 	def __do_layout(self):
-		self.__BTN_OK = wxButton (self, -1, _("OK"), style=wxBU_EXACTFIT)
-		self.__BTN_Cancel = wxButton (self, -1, _("Cancel"), style=wxBU_EXACTFIT)
-		szr_btns = wxBoxSizer (wxHORIZONTAL)
+		self.__BTN_OK = wx.wxButton (self, -1, _("OK"), style=wx.wxBU_EXACTFIT)
+		self.__BTN_Cancel = wx.wxButton (self, -1, _("Cancel"), style=wx.wxBU_EXACTFIT)
+		szr_btns = wx.wxBoxSizer (wx.wxHORIZONTAL)
 		szr_btns.Add(self.__BTN_OK, 0, 0)
 		szr_btns.Add(self.__BTN_Cancel, 0, 0)
 
-		szr_main = wxBoxSizer(wxVERTICAL)
-		szr_main.Add(self.win, 1, wxEXPAND, 0)
-		szr_main.Add(szr_btns, 0, wxEXPAND)
+		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_main.Add(self.win, 1, wx.wxEXPAND, 0)
+		szr_main.Add(szr_btns, 0, wx.wxEXPAND)
 
 		self.SetAutoLayout(1)
 		self.SetSizer(szr_main)
@@ -426,9 +426,8 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 	def __userlist (self, text, data=None):
 		# this is a callback
 		# FIXME: need explanation on instance/callable business, it seems complicated
-		if isinstance (data, types.ClassType) and issubclass (data, cResizingWindow):
-			# FIXME: don't be lazy but rather instantiate "data" here
-			win = cResizingWindows(self, -1, pos = pos, size = wxSize(300, 150))
+		if issubclass(data, cResizingWindow):
+			win = data(self, -1, pos = pos, size = wxSize(300, 150))
 			cPopupFrame(text, win, self, self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))).Show()
 		elif callable (data):
 			data (text, self.parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
@@ -529,7 +528,10 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 
 #====================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.1  2004-12-06 20:36:48  ncq
+# Revision 1.2  2004-12-06 20:46:49  ncq
+# - a bit of cleanup
+#
+# Revision 1.1  2004/12/06 20:36:48  ncq
 # - starting to integrate soap2
 #
 #
