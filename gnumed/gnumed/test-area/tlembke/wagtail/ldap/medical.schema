@@ -1,0 +1,46 @@
+attributeType ( 1.3.6.1.4.1.18298.99.2.1
+        NAME 'pgpKeyID'
+        DESC 'OpenPGP key ID'
+        EQUALITY caseIgnoreMatch
+        SYNTAX  1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributeType ( 1.3.6.1.4.1.18298.99.2.2
+        NAME 'jabberID'
+        DESC 'RFC822-style jabber ID'
+        EQUALITY caseIgnoreIA5Match
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+
+attributeType ( 1.3.6.1.4.1.18298.99.2.3
+        NAME 'providerNumber'
+        DESC 'unique provider number issued by HIC'
+        EQUALITY caseIgnoreMatch
+        SYNTAX  1.3.6.1.4.1.1466.115.121.1.15{8} )
+
+attributeType ( 1.3.6.1.4.1.18298.99.2.4
+        NAME 'speciality'
+        DESC 'speciality of medicine'
+        EQUALITY caseIgnoreMatch
+        SYNTAX  1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributeType ( 1.3.6.1.4.1.18298.99.2.5
+        NAME 'preferredEncryption'
+        DESC 'preferred method of encyption'    
+		EQUALITY caseIgnoreMatch
+        SYNTAX  1.3.6.1.4.1.1466.115.121.1.15 )
+        
+attributetype ( 1.3.6.1.4.1.18298.99.2.6
+		NAME  'clinicalMail'
+		DESC 'preferred email address for encrypted clinical mail'
+   	 	EQUALITY caseIgnoreIA5Match
+    	SUBSTR caseIgnoreIA5SubstringsMatch
+   		SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} )
+        
+objectclass (1.3.6.1.4.1.18298.99.1.1 NAME 'medicalPerson'
+        SUP inetOrgPerson 
+        STRUCTURAL
+        MAY (providerNumber $ clinicalMail $ jabberID $ pgpKeyID $ speciality $ preferredEncryption) )
+
+objectclass (1.3.6.1.4.1.18298.99.1.2 NAME 'medicalOrganization'
+        SUP organizationalUnit 
+        STRUCTURAL
+        MAY (clinicalMail $ mail $ pgpKeyID $ preferredEncryption $ userCertificate $ uid) )
