@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -216,18 +216,21 @@ GRANT SELECT ON
 	, basic_unit
 	, test_norm
 	, papersizes
-        , form_types
+	, form_types
 	, form_defs
 	, form_print_defs
 TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.10  2004-06-17 11:32:08  ihaywood
+-- Revision 1.11  2004-06-23 21:11:27  ncq
+-- - whitespace fix
+--
+-- Revision 1.10  2004/06/17 11:32:08  ihaywood
 -- bugfixes
 --
 -- Revision 1.9  2004/04/07 18:16:06  ncq
