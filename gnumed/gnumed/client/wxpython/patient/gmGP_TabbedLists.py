@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.9 2003-01-28 06:47:43 michaelb Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmGP_TabbedLists.py,v 1.10 2003-01-30 06:02:14 michaelb Exp $
+__version__ = "$Revision: 1.10 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -37,7 +37,6 @@ import keyword
 import time
 import images #bitmaps for column headers of lists
 import gmPlugin, gmShadow, gmLog
-#import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 import zlib, cPickle
 
@@ -247,7 +246,10 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.9  2003-01-28 06:47:43  michaelb
+# Revision 1.10  2003-01-30 06:02:14  michaelb
+# tiny bit of clean-up
+#
+# Revision 1.9  2003/01/28 06:47:43  michaelb
 # removed dependence on "images_gnuMedGP_TabbedLists.py", changed drugs tab icon to 'Rx'
 #
 # Revision 1.8  2003/01/25 23:02:53  ncq
