@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -40,22 +40,16 @@ COMMENT ON COLUMN lab_test_GNR.BG_GOA is
 	 health insurance)';
 */
 
-create table log_lab_test_GNR (
-	id integer not null,
-	id_test integer not null
---	EBM character(6) references ebm(gnr),
---	GOA_88 character(6) references goae_88.gnr,
---	GOA_96 character(6) references goae_96.gnr
---	UVT_GOA character(6) references bg_goae(gnr)
-) inherits (audit_trail);
-
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.1 $')
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.2 $')
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.1  2003-08-05 08:16:00  ncq
+-- Revision 1.2  2003-08-17 00:28:25  ncq
+-- - removed log_ table since now autocreated
+--
+-- Revision 1.1  2003/08/05 08:16:00  ncq
 -- - cleanup/renaming
 --
 -- Revision 1.5  2003/07/27 22:02:18  ncq
