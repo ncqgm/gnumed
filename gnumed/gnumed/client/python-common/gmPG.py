@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -85,7 +85,7 @@ class ConnectionPool:
 	#number of connections in use for each service (for reference counting purposes)
 	__connections_in_use = {}
 	
-	#variable used to check whether a first connection has been initialized yet or not  yet
+	#variable used to check whether a first connection has been initialized yet or not
 	__connected = None
 	
 	#a dictionary mapping all backend listening threads to database id
@@ -93,8 +93,7 @@ class ConnectionPool:
 	
 	#gmLoginInfo.LoginInfo instance
 	__login = None
-	
-	
+	#-----------------------------
 	def __init__(self, login=None):
 		"""parameter login is of type gmLoginInfo.LoginInfo"""
 		if login is not None:
@@ -102,14 +101,13 @@ class ConnectionPool:
 		if ConnectionPool.__connected is None:
 			ConnectionPool.__connected = self.__connect(login)
 	#-----------------------------
-	
 	def GetConnection(self, service, readonly=1):
 		"if a distributed service exists, return it - otherwise return the default server"
 		if not readonly:
 			logininfo = self.GetLoginInfoFor(service)
 			logininfo.SetUser("_%s" % logininfo.GetUser())
 			return self.__pgconnect(logininfo)
-			
+
 		if ConnectionPool.__databases.has_key(service):
 			try:
 				ConnectionPool.__connections_in_use[service] += 1
@@ -123,9 +121,7 @@ class ConnectionPool:
 				ConnectionPool.__connections_in_use['default'] = 1
 
 			return ConnectionPool.__databases['default']
-			
 	#-----------------------------
-	
 	def ReleaseConnection(self, service):
 		"decrease reference counter of active connection"
 		if ConnectionPool.__databases.has_key(service):
@@ -138,9 +134,7 @@ class ConnectionPool:
 				ConnectionPool.__connections_in_use['default'] -= 1
 			except:
 				ConnectionPool.__connections_in_use['default'] = 0
-				
 	#-----------------------------
-	
 	def Listen(self, service, signal, callback):
 		"""Listen to 'signal' from backend in an asynchronous thread.
 		If 'signal' is received from database 'service', activate
@@ -155,10 +149,7 @@ class ConnectionPool:
 		if id not in ConnectionPool.__threads.keys():
 			ConnectionPool.__threads[id] = self._StartListeningThread(service);
 		self._ListenTo(service, signal, callback)
-	
-	
 	#-----------------------------
-	
 	def _ListenTo(self, service, signal, callback):
 		"Tell the backend to notify us asynchronously on 'signal'"
 		try:
@@ -167,8 +158,7 @@ class ConnectionPool:
 			id = 0
 		backendlistener = ConnectionPool.__threads[id]
 		backendlistener.RegisterCallback(callback, signal)
-		
-		
+	#-----------------------------
 	def _StartListeningThread(self, service):
 		try:
 			backend = self.__service_mapping[service]
@@ -178,8 +168,7 @@ class ConnectionPool:
 		if backend not in self.__threads.keys():
 			backend = gmBackendListener.BackendListener(service, l.GetDatabase(), l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
 			return backend
-	
-		
+	#-----------------------------
 	def StopListeningThread(self, service):
 		try:
 			backend = self.__service_mapping[service]	
@@ -189,57 +178,48 @@ class ConnectionPool:
 			self.__threads[backend].Stop()
 		except:
 			pass
-	
-		
 	#-----------------------------
-	
 	def GetAvailableServices(self):
 		"""list all distributed services available on this system
 		(according to configuration database)"""
 		return ConnectionPool.__databases.keys()
-	
 	#-----------------------------
-	
 	def Connected(self):
-		return ConnectionPool.__connected
-	
-	#-----------------------------
-	
+		return ConnectionPool.__connected	
+	#-----------------------------	
 	def LogError(self, msg):
 		"This function must be overridden by GUI applications"
 		print msg
-
-	#-----------------------------
-		
+	#-----------------------------		
 	def SetFetchReturnsList(self, on=1):
 		"""when performance is crucial, let the db adapter
 		return a list of lists instead a list of database objects.
 		CAREFUL: this affects the whole connection!!!"""
 		if dbapi is pyPgSQL.PgSQL:
-			dbapi.fetchReturnsList=on
+			dbapi.fetchReturnsList = on
+	#-----------------------------		
+	def GetLoginInfoFor(self, service, login = None):
+		"""return login information for a particular service"""
 
-		
-		
-	def GetLoginInfoFor(self, service, login=None):
-		"try to get login information for a particular service and return it"
 		if login is None:
-			login = ConnectionPool.__login
-		###create a copy of the default login information, keeping user name and password
-		dblogin = copy.deepcopy(login)
-		try:
-			id = ConnectionPool.__service_mapping[service]
-			if id==0:
-				#default service login
-				return dblogin
-			querystr = "select name, host, port, opt, tty from db where id = %d" % id
-		except KeyError:
-			###if the requested service is not mapped, return default login information
+			dblogin = ConnectionPool.__login
+		else:
+			dblogin = copy.deepcopy(login)
+
+		# if requested service is not mapped, return default login information
+		if not ConnectionPool.__service_mapping.has_key(service):
 			return dblogin
 
-		# get connection to database config and create cursor (HB)
+		srvc_id = ConnectionPool.__service_mapping[service]
+		if srvc_id == 0:
+			return dblogin
+
+		# get connection to database "config" and create cursor (HB)
 		cdb = ConnectionPool.__databases['config']
 		cursor = cdb.cursor()
 
+		# actually fetch login parameters for the database
+		querystr = "select name, host, port, opt, tty from db where id = %d" % srvc_id
 		cursor.execute(querystr)
 		database = cursor.fetchone()
 		idx = cursorIndex(cursor)
@@ -264,8 +244,7 @@ class ConnectionPool:
 		try:
 			dblogin.SetTTY(string.strip(database[idx['tty']]))
 		except:pass
-		return dblogin
-			
+		return dblogin			
 	#-----------------------------
 	# private methods
 	#-----------------------------
@@ -278,7 +257,7 @@ class ConnectionPool:
 				print login.GetDBAPI_DSN()
 			except:
 				exc = sys.exc_info()
-				_log.LogException("Exception: Cannot connect to databases without login information !", exc)
+				_log.LogException("Exception: Cannot connect to databases without login information !", exc, fatal=1)
 				raise gmExceptions.ConnectionError("Can't connect to database without login information!")
 
 		_log.Log(gmLog.lData,login.GetInfoStr())
@@ -289,7 +268,7 @@ class ConnectionPool:
 			cdb = self.__pgconnect(login)
 		except:
 			exc = sys.exc_info()
-			_log.LogException("Exception: Cannot connect to configuration database !", exc)
+			_log.LogException("Exception: Cannot connect to configuration database !", exc, fatal=1)
 			raise gmExceptions.ConnectionError("Could not connect to configuration database  backend!")
 
 		ConnectionPool.__connected = 1
@@ -303,7 +282,7 @@ class ConnectionPool:
 		cursor.execute("select name from distributed_db")
 		services = cursor.fetchall()
 		for service in services:
-			ConnectionPool.__service_mapping[service[0]]=0
+			ConnectionPool.__service_mapping[service[0]] = 0
 
 		#try to establish connections to all servers we need
 		#according to configuration database
@@ -327,7 +306,7 @@ class ConnectionPool:
 			ConnectionPool.__service_mapping[service] = db[dbidx['db']]
 
 			###initialize our reference counter
-			ConnectionPool.__connections_in_use[service]=0
+			ConnectionPool.__connections_in_use[service] = 0
 			dblogin = self.GetLoginInfoFor(service,login)
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
@@ -337,8 +316,7 @@ class ConnectionPool:
 			pass
 		return ConnectionPool.__connected
 	
-	#-----------------------------
-	
+	#-----------------------------	
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
 
@@ -627,7 +605,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.19  2002-09-26 13:14:59  ncq
+# Revision 1.20  2002-09-29 14:39:44  ncq
+# - cleanup, clarification
+#
+# Revision 1.19  2002/09/26 13:14:59  ncq
 # - log version
 #
 # Revision 1.18  2002/09/19 18:07:48  hinnef
