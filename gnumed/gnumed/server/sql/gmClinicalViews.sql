@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.50 2004-04-17 11:54:16 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.51 2004-04-17 12:42:09 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -37,6 +37,31 @@ from
 	_enum_encounter_type
 ;
 
+-- per patient
+\unset ON_ERROR_STOP
+drop view v_pat_encounters;
+\set ON_ERROR_STOP 1
+
+create view v_pat_encounters as
+select
+	cle.id as pk_encounter,
+	cle.fk_patient as pk_patient,
+	cle.started as started,
+	et.description as type,
+	_(et.description) as l10n_type,
+	cle.description as description,
+	cle.last_affirmed as last_affirmed,
+	cle.fk_location as pk_location,
+	cle.fk_provider as pk_provider,
+	cle.fk_type as pk_type
+from
+	clin_encounter cle,
+	_enum_encounter_type et
+where
+	cle.fk_type = et.id
+;
+
+-- current ones
 \unset ON_ERROR_STOP
 drop view v_i18n_curr_encounters;
 \set ON_ERROR_STOP 1
@@ -688,11 +713,12 @@ grant select, insert, update, delete on
 to group "_gm-doctors";
 
 GRANT SELECT ON
-	v_i18n_enum_encounter_type,
-	v_pat_episodes,
-	v_patient_items,
-	v_i18n_patient_allergies,
-	v_vacc_regimes
+	v_i18n_enum_encounter_type
+	, v_pat_encounters
+	, v_pat_episodes
+	, v_patient_items
+	, v_i18n_patient_allergies
+	, v_vacc_regimes
 	, v_pat_vacc4ind
 	, v_pat_missing_vaccs
 	, v_pat_missing_boosters
@@ -717,11 +743,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.50 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.51 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.50  2004-04-17 11:54:16  ncq
+-- Revision 1.51  2004-04-17 12:42:09  ncq
+-- - add v_pat_encounters
+--
+-- Revision 1.50  2004/04/17 11:54:16  ncq
 -- - v_patient_episodes -> v_pat_episodes
 --
 -- Revision 1.49  2004/04/07 18:16:06  ncq
