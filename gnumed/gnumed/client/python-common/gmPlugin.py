@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -133,7 +133,7 @@ class wxBasePlugin (gmPlugin):
 	#-----------------------------------------------------
 	def register(self):
 		self.gb['modules.%s' % self.set][self.name()] = self
-		_log.Log(gmLog.lInfo, "loaded plugin %s/%s" % (self.set, self.name ()))
+		_log.Log(gmLog.lInfo, "loaded plugin %s/%s" % (self.set, self.name() ))
 	#-----------------------------------------------------
 	def unregister(self):
 		del self.gb['modules.%s' % self.set][self.name ()]
@@ -307,7 +307,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		# 2) get class name
 		plugin_class = plugin_module_name.__dict__[plugin_name]
 	except:
-		_log.LogException ('Cannot import module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), fatal=0)
+		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), fatal=0)
 		return None
 
 	if not issubclass (plugin_class, wxBasePlugin):
@@ -468,7 +468,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.34  2003-01-12 17:30:19  ncq
+# Revision 1.35  2003-01-16 09:18:11  ncq
+# - cleanup
+#
+# Revision 1.34  2003/01/12 17:30:19  ncq
 # - consistently return None if no plugins found by GetPluginLoadList()
 #
 # Revision 1.33  2003/01/12 01:45:12  ncq
