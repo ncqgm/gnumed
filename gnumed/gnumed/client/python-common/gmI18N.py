@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -136,7 +136,7 @@ def install_domain():
 			log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), exc, 0)
 	else:
 		# this should not happen at all
-		log.Log(gmLog.lWarn, "Huh ? Binary seems to be installed in a non-existant directory (%s) ?!? I'm scared but I'll try to be brave." % (loc_dir))
+		log.Log(gmLog.lWarn, "Huh ? Binary seems to be installed in a non-existant directory (%s) ?!? I'm scared but will try to face things." % (loc_dir))
 
 	# 4) install a dummy translation class
 	log.Log(gmLog.lWarn, "Falling back to NullTranslations class in despair.")
