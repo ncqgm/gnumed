@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.3 2005-01-23 12:20:15 cfmoro Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmEMRStructWidgets.py,v 1.4 2005-01-24 16:57:38 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -27,7 +27,7 @@ import SOAPMultiSash
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-#============================================================					  
+#============================================================
 class cEpisodeEditor(wx.wxPanel):
 	"""
 	This widget allows the creation and addition of episodes.
@@ -47,7 +47,7 @@ class cEpisodeEditor(wx.wxPanel):
 	   the contents of the table, refresed from backend.
 	"""
 	def __init__(self, parent, id, pk_health_issue):
-		
+
 		# parent class initialization
 		wx.wxPanel.__init__ (
 			self,
@@ -57,7 +57,7 @@ class cEpisodeEditor(wx.wxPanel):
 			size = wx.wxPyDefaultSize,
 			style = wx.wxNO_BORDER
 		)
-		
+
 		# edited episodes' issue's PK
 		self.__pk_health_issue = pk_health_issue
 		pat = gmPatient.gmCurrentPatient()
@@ -81,6 +81,7 @@ class cEpisodeEditor(wx.wxPanel):
 		"""Arrange widgets.
 		"""
 		# instantiate and initialize widgets
+		# - episodes list
 		self.__LST_episodes = wx.wxListCtrl(
 			self,
 			-1,
@@ -88,49 +89,56 @@ class cEpisodeEditor(wx.wxPanel):
 		)
 		self.__LST_episodes.InsertColumn(0, _('Start date'))
 		self.__LST_episodes.InsertColumn(1, _('Description'), wx.wxLIST_FORMAT_RIGHT)
-		self.__LST_episodes.InsertColumn(2, _('Caterogy'))
-		self.__LST_episodes.InsertColumn(3, _('Is open'))
+#		self.__LST_episodes.InsertColumn(2, _('Category'))
+		self.__LST_episodes.InsertColumn(2, _('Is open'))
+#		self.__LST_episodes.InsertColumn(3, _('Is open'))
 		self.__LST_episodes.SetColumnWidth(0, 100)
 		self.__LST_episodes.SetColumnWidth(1, 230)
 		self.__LST_episodes.SetColumnWidth(2, 70)
-		self.__LST_episodes.SetColumnWidth(3, 70)
+#		self.__LST_episodes.SetColumnWidth(3, 70)
+		szr_list = wx.wxStaticBoxSizer (
+			wx.wxStaticBox(self, -1, _('Episode list')),
+			wx.wxHORIZONTAL
+		)
+		szr_list.Add(self.__LST_episodes, 1, wx.wxEXPAND | wx.wxTOP, border=4)
 
-		self.__STT_description = wx.wxStaticText(self, -1, _('Description: '))
+		# - episode editor
+		self.__STT_description = wx.wxStaticText(self, -1, _('Description'))
 		# FIXME: configure, attach matcher (Karsten)
 		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-		self.__STT_soap_cat = wx.wxStaticText(self, -1, _('Category: '))
-		soap_choices = [_('--Select option--')]
+		self.__STT_soap_cat = wx.wxStaticText(self, -1, _('Category'))
+		soap_choices = [_('--Select category--')]
 		soap_choices.extend(gmSOAPimporter.soap_bundle_SOAP_CATS)
-		print soap_choices
-		self.__CHC_soap_cat = wx.wxChoice(self, -1, choices=soap_choices) 
-		self.__BTN_add = wx.wxButton(self, -1, _('Add episode'))
-		self.__BTN_clear = wx.wxButton(self, -1, _('Clear'))
-
-		# arrange widgets		
-		szr_list = wx.wxStaticBoxSizer(wx.wxStaticBox(self, -1, _('Episode list')) , wx.wxHORIZONTAL)
-		szr_list.Add(self.__LST_episodes, 1, wx.wxEXPAND | wx.wxTOP, border=4)
-		
-		szr_editor = wx.wxStaticBoxSizer(wx.wxStaticBox(self, -1, _('Episode editor')) ,wx.wxVERTICAL)
-		
+		self.__CHC_soap_cat = wx.wxChoice(self, -1, choices=soap_choices)
 		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
 		szr_input.AddGrowableCol(1)
 		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
-		# FIXME avoid phrasewheel to grow vertically
+		# FIXME: avoid phrasewheel to grow vertically
 		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
 		szr_input.Add(self.__STT_soap_cat, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
-		szr_input.Add(self.__CHC_soap_cat, 0, wx.wxSHAPED)		
+		szr_input.Add(self.__CHC_soap_cat, 0, wx.wxSHAPED)
 
+		# - buttons
+		self.__BTN_add = wx.wxButton(self, -1, _('Add episode'))
+		self.__BTN_clear = wx.wxButton(self, -1, _('Clear'))
 		szr_actions = wx.wxBoxSizer(wx.wxHORIZONTAL)
 		szr_actions.Add(self.__BTN_add, 0, wx.wxSHAPED)
 		szr_actions.Add(self.__BTN_clear, 0, wx.wxSHAPED | wx.wxALIGN_RIGHT)
-		
-		szr_editor.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
-		szr_editor.Add(szr_actions, 1, wx.wxALIGN_CENTER | wx.wxTOP, border = 10)		
+
+		# arrange widgets
+#		# FIXME: can we not simply merge szr_editor and szr_main ?
+#		szr_editor = wx.wxStaticBoxSizer (
+#			wx.wxStaticBox(self, -1, _('Episode editor')),
+#			wx.wxVERTICAL
+#		)
+#		szr_editor.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
+#		szr_editor.Add(szr_actions, 1, wx.wxALIGN_CENTER | wx.wxTOP, border = 10)
 
 		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(szr_list, 1, wx.wxEXPAND)
-		szr_main.Add(szr_editor,1 , wx.wxEXPAND | wx.wxTOP, border=4)
-
+		szr_main.Add(szr_list, 2, wx.wxEXPAND)
+		szr_main.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
+		szr_main.Add(szr_actions, 1, wx.wxALIGN_CENTER | wx.wxTOP, border = 10)
+#		szr_main.Add(szr_editor, 1, wx.wxEXPAND | wx.wxTOP, border=4)
 
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
@@ -149,8 +157,9 @@ class cEpisodeEditor(wx.wxPanel):
 			self.__LST_episodes.InsertStringItem(idx,  str(epi['episode_modified_when']))
 #			self.__LST_episodes.SetStringItem(idx, 0, str(epi['episode_modified_when']))
 			self.__LST_episodes.SetStringItem(idx, 1, epi['description'])
-			self.__LST_episodes.SetStringItem(idx, 2, epi['soap_cat'])
-			self.__LST_episodes.SetStringItem(idx, 3, str(epi['episode_open']))
+#			self.__LST_episodes.SetStringItem(idx, 2, epi['soap_cat'])
+			self.__LST_episodes.SetStringItem(idx, 2, str(epi['episode_open']))
+#			self.__LST_episodes.SetStringItem(idx, 3, str(epi['episode_open']))
 			self.__episodes[idx] = epi
 			self.__LST_episodes.SetItemData(idx, idx)
 
@@ -191,14 +200,10 @@ class cEpisodeEditor(wx.wxPanel):
 			# on episode edition
 			self.__BTN_add.SetLabel(_('Add episode'))
 			self.__BTN_clear.SetLabel(_('Clear'))
-			self.__selected_episode = None			
+			self.__selected_episode = None
 		event.Skip()
-		
+
 	#--------------------------------------------------------
-	# FIXME:
-	#	on new episode: emr has no active encounter in standalone mode
-	#	on episode edition: updating description is related to a join with
-	#	a narrative entry
 	def __on_add(self, event):
 		"""
 		On new episode: add episode to backend
@@ -209,18 +214,18 @@ class cEpisodeEditor(wx.wxPanel):
 		soap_cat = self.__CHC_soap_cat.GetStringSelection()
 
 		# sanity check
-		action = ''
 		if self.__selected_episode is None:
 			action = 'create'
 		else:
-			action = 'update'			
-		if description is None or len(description) == 0 or \
-		   self.__CHC_soap_cat.GetSelection() == 0:
-			msg = _('Cannot %s episode.\nAll required fields must be filled') % (action)
+			action = 'update'
+		if (description is None or
+		 description.strip() == '' or
+		 self.__CHC_soap_cat.GetSelection() == 0):
+			msg = _('Cannot %s episode.\nAll required fields must be filled.') % action
 			gmGuiHelpers.gm_show_error(msg, _('episode editor'), gmLog.lErr)
-			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s:%s]' % (description,soap_cat))
-			return False					
-		
+			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s:%s]' % (description, soap_cat))
+			return False
+
 		if self.__selected_episode is None:
 			# on new episode
 			#self.__emr.add_episode(episode_name= , pk_health_issue=self.__pk_health_issue, soap_cat= self.__CHC_soap_cat.GetStringSelection())
@@ -229,14 +234,13 @@ class cEpisodeEditor(wx.wxPanel):
 			# on episode edition
 			#self.__selected_episode['description'] = self.__PRW_description.GetValue()
 			#self.__selected_episode.save_payload()
-			print 'Updating episode: %s' % self.__selected_episode
-						
+			print 'Renaming episode: %s' % self.__selected_episode
+
 		# do clear stuff
 		self.__on_clear(event)
 		# refresh episode table
 		self.__refresh_episode_list
 
-		
 #== Module convenience functions (for standalone use) =======================
 def prompted_input(prompt, default=None):
 	"""
@@ -249,8 +253,8 @@ def prompted_input(prompt, default=None):
 	if usr_input == '':
 		return default
 	return usr_input
-	
-#------------------------------------------------------------				 
+
+#------------------------------------------------------------
 def askForPatient():
 	"""
 		Main module application patient selection function.
@@ -261,7 +265,7 @@ def askForPatient():
 
 	# Ask patient
 	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
-	
+
 	if patient_term == 'bye':
 		return None
 	search_ids = pat_searcher.get_patient_ids(search_term = patient_term)
@@ -273,9 +277,9 @@ def askForPatient():
 		return None
 	patient_id = search_ids[0]
 	patient = gmPatient.gmCurrentPatient(patient_id)
-	
+
 	return patient
-	
+
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -327,3 +331,9 @@ if __name__ == '__main__':
 		raise
 
 	_log.Log (gmLog.lInfo, "closing notes input...")
+#================================================================
+# $Log: gmEMRStructWidgets.py,v $
+# Revision 1.4  2005-01-24 16:57:38  ncq
+# - some cleanup here and there
+#
+#
