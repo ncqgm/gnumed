@@ -5,7 +5,7 @@ This lib provides functions for working with XDT-files.
 MERGE INTO business/gmXdtObjects.py !!
 """
 #=====================================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -45,34 +45,32 @@ def xdt_get_pats(aFile):
 	return pats
 #=====================================================================
 def get_pat_data(aFile,ID,name,patdir = None ,patlst = None ):
-	pat_dir = patdir
-	_patlst = patlst
 	_log.Log(gmLog.lData, "looking for patient: %s" % ID+':'+name)
 	# return list of filenames for selected patient
-	data = [pat_dir,_patlst.get(aGroup=ID+':'+name,anOption="files")]
+	data = [patdir,patlst.get(aGroup=ID+':'+name,anOption="files")]
 	_log.Log(gmLog.lData, "data: %s" % data)
 	return data
 #=====================================================================
 def split_xdt_file(aFile,patlst,cfg):
 	content=[]
 	lineno = []
-	aline = '0'
+
 	# xDT line format: aaabbbbcccccccccccCRLF where aaa = length, bbbb = record type, cccc... = content
+
+	content = []
+	record_start_lines = []
+
+	# find record starts
 	for line in fileinput.input(aFile):
-		# remove trailing CR and/or LF
 		strippedline = string.replace(line,'\015','')
 		strippedline = string.replace(strippedline,'\012','')
-		# do we care about this line ?
-		field = strippedline[3:7]
-		# record starts with 8000
-		if field == '8000':			
-			curr_line=fileinput.filelineno()
-			#lineno.append(aline+':'+curr_line)
-			lineno.append(curr_line)	
-			#curr_line=aline
-			
-	# is it a patient record or some other block ?	
-	for aline in lineno:
+		# do we care about this line ? (records start with 8000)
+		if strippedline[3:7] == '8000':
+			record_start_lines.append(fileinput.filelineno())
+
+	# loop over patient records
+	for aline in record_start_lines:
+		# WHY +2 ?!?
 		line = linecache.getline(aFile,aline+2)	
 		# remove trailing CR and/or LF
 		strippedline = string.replace(line,'\015','')
@@ -91,7 +89,7 @@ def split_xdt_file(aFile,patlst,cfg):
 			if field == '3101':
 				name = strippedline [7:]
 			startline=aline
-			endline=lineno[lineno.index(aline)+1]
+			endline=record_start_lines[record_start_lines.index(aline)+1]
 			_log.Log(gmLog.lData, "reading from%s" %str(startline)+' '+str(endline) )
 			for tmp in range(startline,endline):							
 				content.append(linecache.getline(aFile,tmp))
@@ -117,10 +115,9 @@ def get_random_ID(aDir):
 	return doc_ID
 #=====================================================================
 def dump2individualFile(content,cfg):
-	_cfg = cfg
 	fname = []
 	# write record for this patient to new file
-	pat_dir=_cfg.get("xdt-viewer", "export-dir")
+	pat_dir = cfg.get("xdt-viewer", "export-dir")
 	# create unique filname and add it to a list
 	fname.append(get_random_ID(aDir=pat_dir))
 	pat_fname = os.path.join(pat_dir,fname[0])
@@ -132,12 +129,11 @@ def dump2individualFile(content,cfg):
 	return fname
 #=====================================================================
 def check_for_previous_records(ID,name,file_lst,patlst):
-	_patlst = patlst
 	anIdentity = str(ID)+':'+str(name)
 	# patient already in list ?
-	if anIdentity in _patlst.getGroups():
+	if anIdentity in patlst.getGroups():
 		_log.Log(gmLog.lData, "identity already in list" )
-		files = _patlst.get(aGroup=anIdentity,anOption="files")
+		files = patlst.get(aGroup=anIdentity,anOption="files")
 		#file already in list ?
 		for file in file_lst:
 			if file in files:
@@ -152,24 +148,25 @@ def check_for_previous_records(ID,name,file_lst,patlst):
 	return 1
 #=====================================================================
 def add_pat_to_patlst(anIdentity,patlst):
-	_patlst = patlst
-	_patlst.set(aGroup=anIdentity,anOption="files",aValue = [], aComment="")
-	
+	patlst.set(aGroup=anIdentity,anOption="files",aValue = [], aComment="")
 #=====================================================================
 def add_file_to_patlst(anIdentity,patlst,file_lst):
-	_patlst = patlst
+	patlst = patlst
 	files = _patlst.get(aGroup=anIdentity,anOption="files")
 	#_log.Log(gmLog.lData, "files already there : %s" %files )
 	for file in file_lst:
 		files.append(file)
 		_log.Log(gmLog.lData, "files now there : %s" %files )
-	_patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")
+	patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")
 #=====================================================================
 def hash_split_file():
 	md5.new()
 #=====================================================================
 # $Log: gmXdtToolsLib.py,v $
-# Revision 1.6  2003-08-23 13:20:34  shilbert
+# Revision 1.7  2003-08-23 16:32:42  ncq
+# - removed some extraneous assignments
+#
+# Revision 1.6  2003/08/23 13:20:34  shilbert
 # - freed the lib from gmCfg dependency as proposed by ncq
 #
 # Revision 1.5  2003/08/21 21:38:11  shilbert
