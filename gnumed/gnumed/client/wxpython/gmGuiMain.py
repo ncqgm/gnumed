@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.163 2004-07-19 11:50:42 ncq Exp $
-__version__ = "$Revision: 1.163 $"
+# $Id: gmGuiMain.py,v 1.164 2004-07-24 10:26:35 ncq Exp $
+__version__ = "$Revision: 1.164 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -689,13 +689,13 @@ class gmTopLevelFrame(wxFrame):
 	#----------------------------------------------
 	def OnIconize(self, event):
 		# FIXME: we should maximize the amount of title bar information here
-		pass
 		#_log.Log(gmLog.lInfo, 'OnIconify')
+		event.Skip()
 	#----------------------------------------------
 	def OnMaximize(self, event):
 		# FIXME: we should change the amount of title bar information here
-		pass
 		#_log.Log(gmLog.lInfo,'OnMaximize')
+		event.Skip()
 	#----------------------------------------------
 	#----------------------------------------------
 	def updateTitle(self, anActivity = None):
@@ -987,7 +987,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.163  2004-07-19 11:50:42  ncq
+# Revision 1.164  2004-07-24 10:26:35  ncq
+# - two missing event.Skip()s added
+#
+# Revision 1.163  2004/07/19 11:50:42  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.162  2004/07/18 19:54:44  ncq
