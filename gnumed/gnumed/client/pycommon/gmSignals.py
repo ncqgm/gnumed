@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -58,6 +58,21 @@ def health_issue_change_db():
 def health_issue_updated():
 	"""Announce health issue cache update within frontend."""
 	return 'health_issue_updated'
+
+
+def episode_change_db():
+	"""Announce episode row insert/update/delete in backend.
+
+	- there's only a few episode rows per patient and they
+	  are rarely accessed so efficiency does not make it necessary to
+	  have separate signals for insert/delete and update
+	"""
+	return 'episode_change_db'
+
+def episode_updated():
+	"""Announce episode cache update within frontend."""
+	return 'episode_updated'
+
 
 
 def item_change_db():
@@ -187,7 +202,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.5  2004-07-15 07:57:20  ihaywood
+# Revision 1.6  2005-01-31 20:25:37  ncq
+# - add episode change signals
+#
+# Revision 1.5  2004/07/15 07:57:20  ihaywood
 # This adds function-key bindings to select notebook tabs
 # (Okay, it's a bit more than that, I've changed the interaction
 # between gmGuiMain and gmPlugin to be event-based.)
