@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.117 2003-10-26 01:36:13 ncq Exp $
-__version__ = "$Revision: 1.117 $"
+# $Id: gmGuiMain.py,v 1.118 2003-10-26 11:27:10 ihaywood Exp $
+__version__ = "$Revision: 1.118 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -381,14 +381,14 @@ class gmTopLevelFrame(wxFrame):
 		#</DEBUG>
 		try:
 			epr = pat['clinical record']
-			names = pat['active name']
+			names = pat['demographics'].getActiveName ()
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
 
 		# make sure there's an encounter
 		status, encounter = epr.attach_to_encounter(forced = 0)
-		patient = "%s %s (%s)" % (names['first'], names['last'], pat['dob'])
+		patient = "%s %s (%s)" % (names['first'], names['last'], pat['demographics'].getDOB ())
 		# error ?
 		if status == -1:
 			msg = _(
@@ -430,7 +430,7 @@ class gmTopLevelFrame(wxFrame):
 		fname = names['first']
 		if len(fname) > 0:
 			fname = fname[:1]
-		patient = "%s %s.%s (%s) #%d" % (pat['title'], fname, names['last'], pat['dob'], int(pat['ID']))
+		patient = "%s %s.%s (%s) #%d" % (pat['demographics'].getTitle (), fname, names['last'], pat['demographics'].getDOB (), int(pat['ID']))
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -848,7 +848,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.117  2003-10-26 01:36:13  ncq
+# Revision 1.118  2003-10-26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
+#
+# Ergregious breakages are fixed, but needs more work
+#
+# Revision 1.117  2003/10/26 01:36:13  ncq
 # - gmTmpPatient -> gmPatient
 #
 # Revision 1.116  2003/10/22 21:34:42  hinnef

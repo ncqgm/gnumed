@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.18 2003-10-26 01:36:13 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPatientSelector.py,v 1.19 2003-10-26 11:27:10 ihaywood Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,7 +23,7 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
+import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK, gmDemographics
 
 from wxPython.wx import *
 
@@ -668,11 +668,13 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 
 		if anID == self.curr_pat['ID']:
 			return None
-
-		old_ID = self.curr_pat['ID']
-		self.curr_pat = gmPatient.gmCurrentPatient(aPKey = anID)
+		if self.curr_pat is not None:
+			old_ID = self.curr_pat['ID']
+		else:
+			old_ID = -1
+		self.curr_pat = gmPatient.gmCurrentPatient(gmDemographics.gmSQLPerson (anID))
 		if old_ID == self.curr_pat['ID']:
-			_log.LogException('cannot change active patient', sys.exc_info())
+			_log.Log (gmLog.lErr, 'cannot change active patient')
 			# error message ?
 			return None
 
@@ -728,10 +730,10 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		return pat_ids
 	#--------------------------------------------------------
 	def _display_name(self):
-		name = self.curr_pat['active name']
-		if name is None:
+		if self.curr_pat['demographics'] is None:
 			self.SetValue(_('no active patient'))
 		else:
+			name = self.curr_pat['demographics'].getActiveName ()
 			self.SetValue('%s, %s' % (name['last'], name['first']))
 	#--------------------------------------------------------
 	# event handlers
@@ -988,7 +990,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.18  2003-10-26 01:36:13  ncq
+# Revision 1.19  2003-10-26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
+#
+# Ergregious breakages are fixed, but needs more work
+#
+# Revision 1.18  2003/10/26 01:36:13  ncq
 # - gmTmpPatient -> gmPatient
 #
 # Revision 1.17  2003/10/19 12:17:57  ncq

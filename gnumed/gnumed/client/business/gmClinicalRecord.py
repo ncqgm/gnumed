@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.36 2003-10-19 12:12:36 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmClinicalRecord.py,v 1.37 2003-10-26 11:27:10 ihaywood Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -328,6 +328,7 @@ class gmClinicalRecord:
 		return self.__db_cache['allergies']
 	#--------------------------------------------------------
 	def _get_allergy_names(self):
+		data = []
 		try:
 			self.__db_cache['allergies']
 		except KeyError:
@@ -820,7 +821,12 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.36  2003-10-19 12:12:36  ncq
+# Revision 1.37  2003-10-26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
+#
+# Ergregious breakages are fixed, but needs more work
+#
+# Revision 1.36  2003/10/19 12:12:36  ncq
 # - remove obsolete code
 # - filter out sensitivities on get_allergy_names
 # - start get_vacc_status

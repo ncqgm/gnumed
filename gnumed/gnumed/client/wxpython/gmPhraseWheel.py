@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.19 2003-10-09 15:45:16 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmPhraseWheel.py,v 1.20 2003-10-26 11:27:10 ihaywood Exp $
+__version__ = "$Revision: 1.20 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -44,7 +44,7 @@ class cMatchProvider:
 	"""
 	__threshold = {}
 	default_word_separators = re.compile('[- \t=+&:@]+')
-	default_ignored_chars = re.compile("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
+	default_ignored_chars = re.compile("[?!.'\\(){}\[\]<>~#*$%^_]+" + '"')
 	#--------------------------------------------------------
 	def __init__(self):
 		self.enableMatching()
@@ -58,7 +58,7 @@ class cMatchProvider:
 	def getMatches(self, aFragment = None):
 		"""Return matches according to aFragment and matching thresholds.
 
-		FIXME: design decision: we don't worry about data source changes
+		FIXME: design decision: we dont worry about data source changes
 			   during the lifetime of a MatchProvider
 		FIXME: sort according to weight
 		FIXME: append _("*get all items*") on truncation
@@ -807,7 +807,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.19  2003-10-09 15:45:16  ncq
+# Revision 1.20  2003-10-26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
+#
+# Ergregious breakages are fixed, but needs more work
+#
+# Revision 1.19  2003/10/09 15:45:16  ncq
 # - validate cookie column in score tables, too
 #
 # Revision 1.18  2003/10/07 22:20:50  ncq

@@ -5,10 +5,8 @@ API crystallize from actual use in true XP fashion.
 
 license: GPL
 """
-#============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.1 2003-10-25 08:48:06 ihaywood Exp $
-__version__ = "$Revision: 1.1 $"
+
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -462,7 +460,12 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.1  2003-10-25 08:48:06  ihaywood
+# Revision 1.2  2003-10-26 11:27:10  ihaywood
+# gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
+#
+# Ergregious breakages are fixed, but needs more work
+#
+# Revision 1.1  2003/10/25 08:48:06  ihaywood
 # Split from gmTmpPatient
 #
 
