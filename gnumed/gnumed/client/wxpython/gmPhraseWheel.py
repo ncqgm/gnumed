@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.16 2003-10-02 20:51:12 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPhraseWheel.py,v 1.17 2003-10-03 00:20:25 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -441,6 +441,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 		self.allow_multiple_phrases()
+		self.relevant_input = ''
 
 		wxTextCtrl.__init__ (self, *args, **kwargs)
 		# unnecessary as we are using styles
@@ -509,13 +510,13 @@ class cPhraseWheel (wxTextCtrl):
 			self.right_part = entire_input[phrase_end+1:]
 #			print "phrase end:", phrase_end
 
-			relevant_input = entire_input[phrase_start:phrase_end+1]
+			self.relevant_input = entire_input[phrase_start:phrase_end+1]
 		else:
-			relevant_input = self.GetValue()
-#		print "relevant input:", relevant_input
+			self.relevant_input = self.GetValue()
+#		print "relevant input:", self.relevant_input
 
 		# get all currently matching items
-		(matched, self.__currMatches) = self.__matcher.getMatches(relevant_input)
+		(matched, self.__currMatches) = self.__matcher.getMatches(self.relevant_input)
 		# and refill our picklist with them
 		self._picklist.Clear()
 		if matched:
@@ -526,10 +527,11 @@ class cPhraseWheel (wxTextCtrl):
 		"""Display the pick list."""
 
 		# if only one match and text == match
-#		if (len(self.__currMatches) == 1) and (self.__currMatches[0]['label'] == self.GetValue()):
-			# don't display drop down list
-#			self._hide_picklist()
-#			return 1
+		if len(self.__currMatches) == 1:
+			if self.__currMatches[0]['label'] == self.relevant_input:
+				# don't display drop down list
+				self._hide_picklist()
+				return 1
 
 		# recalculate position
 		# FiXME: check for number of entries - shrink list windows
@@ -720,6 +722,8 @@ if __name__ == '__main__':
 						{'data':6, 'label':"Judson-Jacobs",'weight':5}
 					]
 			mp1 = cMatchProvider_FixedList(items)
+			# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
+			mp1.setWordSeparators(separators = '[ \t=+&:@]+')
 			ww1 = cPhraseWheel(
 				parent = frame,
 				id = -1,
@@ -758,7 +762,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.16  2003-10-02 20:51:12  ncq
+# Revision 1.17  2003-10-03 00:20:25  ncq
+# - handle case where matches = 1 and match = input -> don't show picklist
+#
+# Revision 1.16  2003/10/02 20:51:12  ncq
 # - add alt-XX shortcuts, move __* to _*
 #
 # Revision 1.15  2003/09/30 18:52:40  ncq
