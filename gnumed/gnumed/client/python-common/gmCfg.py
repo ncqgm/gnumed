@@ -45,9 +45,11 @@ permanent you need to call store() on the file object.
 
 @copyright: GPL
 """
+# TODO:
+# - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -813,7 +815,7 @@ def create_default_cfg_file():
 			return None
 
 	_log.Log(gmLog.lErr, 'Created empty config file [%s].' % tmp)
-	print "Had to create default config file [%s].\nPlease check the settings there." % tmp
+	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
 #=============================================================
 # main
@@ -926,7 +928,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.41  2003-02-21 08:58:51  ncq
+# Revision 1.42  2003-03-23 10:32:50  ncq
+# - improve console messages a bit
+#
+# Revision 1.41  2003/02/21 08:58:51  ncq
 # - improve PgArray detection even more
 #
 # Revision 1.40  2003/02/21 08:51:57  ncq
