@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -332,14 +332,13 @@ class cCfgSQL:
 			curs.close()
 			return None
 
-#		result should contain a list of strings
+		# result should contain a list of strings
 		result = curs.fetchall()
-		_log.Log(gmLog.lInfo, 'RESULT [%s@%s]: %s' % (user,machine,str(result)))
-		if result is None:
-			curs.close()
-			_log.Log(gmLog.lInfo, 'No parameters stored for [%s@%s] in config database' % (user,machine))
-			return None
 		curs.close()
+		_log.Log(gmLog.lData, 'options [%s@%s]: %s' % (user, machine, result))
+		if result is None:
+			_log.Log(gmLog.lWarn, 'no parameters stored for [%s@%s] in config database' % (user, machine))
+			return None
 
 		return result
 	#----------------------------
@@ -972,7 +971,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.47  2003-05-10 18:45:52  hinnef
+# Revision 1.48  2003-05-12 09:12:48  ncq
+# - minor cleanups
+#
+# Revision 1.47  2003/05/10 18:45:52  hinnef
 # - added getAllParams for use in gmConfigRegistry
 #
 # Revision 1.46  2003/04/14 07:45:47  ncq
