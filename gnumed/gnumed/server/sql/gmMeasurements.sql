@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -152,9 +152,12 @@ create table test_result (
 	val_alpha text
 		default null,
 	val_unit text,
-	val_normal_min float,
-	val_normal_max float,
+	val_normal_min float,		-- precision of numeric not really needed
+	val_normal_max float,		-- precision of numeric not really needed
 	val_normal_range text,
+	val_target_min float,		-- precision of numeric not really needed
+	val_target_max float,		-- precision of numeric not really needed
+	val_target_range text,
 	technically_abnormal text
 		default null
 		check (
@@ -210,6 +213,15 @@ comment on column test_result.val_normal_range is
 	'range of normal values if alphanumerical
 	 as defined by provider for this result, eg.
 	 "less than 0.5 but detectable"';
+comment on column test_result.val_target_min is
+	'lower bound of target range if numerical as
+	 defined by clinician caring this patient';
+comment on column test_result.val_target_max is
+	'upper bound of target range if numerical as
+	 defined by clinician caring for this patient';
+comment on column test_result.val_target_range is
+	'range of target values if alphanumerical
+	 as defined by clinician caring for this patient';
 comment on column test_result.technically_abnormal is
 	'whether test provider flagged this result as abnormal,
 	 *not* a clinical assessment but rather a technical one
@@ -343,11 +355,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.28  2004-07-17 20:57:53  ncq
+-- Revision 1.29  2004-09-17 20:15:00  ncq
+-- - add val_target_* to test_result
+--
+-- Revision 1.28  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --
