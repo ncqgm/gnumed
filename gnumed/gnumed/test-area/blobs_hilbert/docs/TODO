@@ -1,10 +1,14 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
 immediately
 ===========
+
+schema
+------
+doc_med.date -> date !!!
 
 Conf/Doc
 --------
@@ -13,20 +17,20 @@ scan
 ----
 - test consecutive IDs
 - quit button
-- als jpg mit lossless-Kompression speichern
+(- als jpg mit lossless-Kompression speichern)
 
 index
 -----
-- quitibus
+- quit button
 
 import
 ------
-- move/delete script for after successful import
 
 viewer
 ------
-- sort objects by sequence index and date reverse-chron
+(- sort objects by sequence index and date reverse-chron)
 - fail gracefully if no docs available
+- quit button
 
 =====================================================
 post-1.0

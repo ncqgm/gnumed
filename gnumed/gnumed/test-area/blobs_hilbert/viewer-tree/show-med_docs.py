@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -301,9 +301,15 @@ if __name__ == '__main__':
 		_log.Log(gmLog.lErr, "Cannot run without config file.")
 		sys.exit("Cannot run without config file.")
 
-	application = wxPyWidgetTester(size=(640,480))
-	application.SetWidget(cStandalonePanel,-1)
-	application.MainLoop()
+	# catch all remaining exceptions
+	try:
+		application = wxPyWidgetTester(size=(640,480))
+		application.SetWidget(cStandalonePanel,-1)
+		application.MainLoop()
+	except:
+		_log.Log("unhandled exception caught !", sys.exc_info(), fatal=1)
+		# but re-raise them
+		raise
 
 	_log.Log (gmLog.lInfo, "closing display handler")
 else:
@@ -318,10 +324,13 @@ else:
 			return wxPanel (parent, -1)
 
 		def MenuInfo (self):
-			return ('tools', '&Show Documents')
+			return ('tools', _('&Show Documents'))
 #================================================================
 # $Log: show-med_docs.py,v $
-# Revision 1.13  2002-12-23 08:51:29  ncq
+# Revision 1.14  2002-12-24 14:18:40  ncq
+# - handle more exceptions gracefully
+#
+# Revision 1.13  2002/12/23 08:51:29  ncq
 # - the remove script belongs into import/ of course
 #
 # Revision 1.12  2002/12/22 11:50:20  ncq

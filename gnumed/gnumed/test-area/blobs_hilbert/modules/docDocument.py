@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -230,18 +230,14 @@ class cDocument:
 				#  FIXME:
 				#  (actually we should write into official comment fields
 				#   and only append stuff if we don't see any other chance)
-				img_data = img_data + "\n"
-				img_data = img_data + "charset:DIN_66003\n"
-				img_data = img_data + "last name:" + str(aPatient.lastnames) + "\n"
-				img_data = img_data + "first name:" + str(aPatient.firstnames) + "\n"
-				img_data = img_data + "date of birth:" + str(aPatient.dob) + "\n"
-				img_data = img_data + "reference date:" + str(self.__metadata['date']) + "\n"
-				img_data = img_data + "external reference:" + str(self.__metadata['reference']) + "\n"
-				# and escape stuff so we can store it in a BYTEA field
-				#img_data = self.__escapeByteA(img_data)
+				img_data = img_data + "\ncharset:DIN_66003\n"
+				img_data = img_data + "last name:%s\n" % aPatient.lastnames
+				img_data = img_data + "first name:%s\n" % aPatient.firstnames
+				img_data = img_data + "date of birth:%s\n" % str(aPatient.dob)
+				img_data = img_data + "reference date:%s\n" % str(self.__metadata['date'])
+				img_data = img_data + "external reference:%s\n" % str(self.__metadata['reference'])
+
 				img_obj = PgSQL.PgBytea(img_data)
-				# FIXME:
-				#del img_data
 				# finally insert the data
 				cmd = "INSERT INTO doc_obj (doc_id, seq_idx, data) VALUES (currval('doc_med_id_seq'), %s, %s)"
 				cursor.execute(cmd, obj['index'], img_obj)
@@ -351,7 +347,11 @@ class cDocument:
 		cursor = aConn.cursor()
 		# retrieve object
 		cmd = "SELECT data FROM doc_obj WHERE oid='%s'" % (anObjID)
-		cursor.execute(cmd)
+		try:
+			cursor.execute(cmd)
+		except:
+			_log.LogException("cannot SELECT doc_obj", sys.exc_info())
+			return None
 		# cDocument.metadata->objects->file name
 		obj['file name'] = tempfile.mktemp()
 		aFile = open(obj['file name'], 'wb+')
@@ -698,7 +698,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.22  2002-11-30 22:48:13  ncq
+# Revision 1.23  2002-12-24 14:18:40  ncq
+# - handle more exceptions gracefully
+#
+# Revision 1.22  2002/11/30 22:48:13  ncq
 # - fix some Windows related oddities with mime types/file extensions
 # - don't remove the object file from under the viewer
 #
