@@ -58,13 +58,13 @@ public class HealthIssueImpl1 implements HealthIssue {
         
     }
     
-    public ClinNarrative getEarliestNarrative() {
+   public ClinRootItem getEarliestClinRootItem() {
         Iterator ei = episodes.iterator();
-        ClinNarrative early = null;
+        ClinRootItem early = null;
         while (ei.hasNext()) {
             ClinicalEpisode en = (ClinicalEpisode) ei.next();
             
-            ClinNarrative n = en.getEarliestNarrative();
+            ClinRootItem n = en.getEarliestRootItem();
             
             if ( early == null || n.getClin_when().getTime() < early.getClin_when().getTime()) {
                 early = n;
@@ -72,6 +72,7 @@ public class HealthIssueImpl1 implements HealthIssue {
         }
         
         return early;
+   
     }
     
 }

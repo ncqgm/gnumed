@@ -77,20 +77,19 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
         return rootItems;
     }
     
-    public ClinNarrative getEarliestNarrative() {
+    public ClinRootItem getEarliestRootItem() {
         java.util.Iterator i = rootItems.iterator();
-        ClinNarrative earliest = null;
+        ClinRootItem earliest = null;
         while (i.hasNext()) {
             ClinRootItem item = (ClinRootItem) i.next();
-            if (item instanceof ClinNarrative && 
-            ( earliest == null || 
-                item.getClin_when().getTime() < earliest.getClin_when().getTime() )
-                ) 
-            {
-               earliest = (ClinNarrative) item; 
+            if   ( earliest == null ||
+                item.getClin_when().getTime() < earliest.getClin_when().getTime() ) {
+                
+                    earliest = (ClinNarrative) item; 
             }
+            
         }
-        return earliest;
+        return earliest != null ? earliest : NullRootItem.NullItem;
     }
     
 }

@@ -25,3 +25,7 @@
     <html:link anchor='episodeListLast' action='ClinicalEdit.do' paramId="id" paramName="clinicalUpdateForm"
     paramProperty="patientId" >
    end of episode list</html:link>
+   |
+   <html:link anchor='submitEncounter' action='ClinicalEdit.do' paramId="id" paramName="clinicalUpdateForm"
+    paramProperty="patientId" >
+   to Submit</html:link>

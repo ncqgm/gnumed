@@ -16,6 +16,7 @@ public interface HealthSummary01 {
     public List getAllergys( );
     public List  getVaccinations();
     public List getClinEpisodes();
+    
     Long getIdentityId();
     
     /**
@@ -23,6 +24,7 @@ public interface HealthSummary01 {
      * @return Value of property encounters.
      */
     public List getEncounters();
+    
     
     /**
      * Setter for property encounters.
@@ -32,5 +34,8 @@ public interface HealthSummary01 {
     
     public boolean hasHealthIssue(final HealthIssue issue);
     public boolean addHealthIssue(  HealthIssue issue);
-}
     
+    public List getEncounterTypes();
+    
+}
+

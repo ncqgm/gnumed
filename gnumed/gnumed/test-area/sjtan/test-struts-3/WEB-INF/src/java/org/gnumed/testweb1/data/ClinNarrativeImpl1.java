@@ -11,7 +11,16 @@ package org.gnumed.testweb1.data;
  * @author  sjtan
  */
 public class ClinNarrativeImpl1 extends ClinRootItemImpl1 implements ClinNarrative {
-     private boolean aoe, rfe;
+    
+    /**
+     * assesssment of encounter
+     */
+    private boolean aoe;
+    
+    /**
+     * reason for encounter
+     */    
+     private boolean  rfe;
     
     
     /** Creates a new instance of ClinNarrativeImpl1 */
@@ -20,10 +29,18 @@ public class ClinNarrativeImpl1 extends ClinRootItemImpl1 implements ClinNarrati
      
      
     
+    /**
+     *
+     * @return
+     */    
     public boolean isAoe() {
         return aoe;
     }
     
+    /**
+     *
+     * @return
+     */    
     public boolean isRfe() {
         return rfe;
     }

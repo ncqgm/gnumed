@@ -27,6 +27,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     narratives, lab_requests, test_results, referrals;
     Map mapEpisodes, mapHI, emap;
     DataObjectFactory dof ;
+    List encounterTypes;
     /** Creates a new instance of HealthSummaryQuickAndDirty01 */
     public HealthSummaryQuickAndDirty01(DataObjectFactory dof,
     Long  patientId,
@@ -40,7 +41,9 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     ResultSet narrativeRS,
     ResultSet    lab_requestRS,
     ResultSet test_resultRS,
-    ResultSet referralRS ) {
+    ResultSet referralRS , 
+    ResultSet encounterTypeRS 
+    ) {
         this.dof = dof;
         identityId =  patientId;
         try {
@@ -66,7 +69,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             
             encounters = getListOfDynaBeansFromResultSet(encountersRS);
             
-            
+            encounterTypes = getListOfDynaBeansFromResultSet(encounterTypeRS);
             
             constructEpisodes();
             
@@ -357,6 +360,10 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             getClinEpisodes().add(es[i]);
         
         }
+    }
+    
+    public List getEncounterTypes() {
+        return encounterTypes;
     }
     
 }

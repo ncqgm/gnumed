@@ -16,6 +16,9 @@ import org.gnumed.testweb1.data.ClinicalEncounterImpl1;
 import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.DefaultVaccination;
 import org.gnumed.testweb1.data.Vaccination;
+import org.gnumed.testweb1.data.AllergyEntry;
+import org.gnumed.testweb1.data.Allergy;
+import org.gnumed.testweb1.data.ClinRootItem;
 /**
  *
  * @author  sjtan
@@ -25,9 +28,9 @@ public class ClinicalUpdateForm extends ActionForm {
     //List vaccinations = new ArrayList();
     Vaccination[] vaccinations ;
     ClinNarrative[] narratives;
-    String test;
+     String test;
     Log log = LogFactory.getLog(this.getClass());
-   
+    
     static DataObjectFactory factory;
     
     public static void setDataObjectFactory(DataObjectFactory _factory ) {
@@ -50,27 +53,64 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     private boolean[] linkNarrative;
     
+    /**
+     * Holds value of property isAllergy.
+     */
+    private boolean[] allergy;
+    
+    /**
+     * Holds value of property allergyEntry.
+     */
+    private AllergyEntry[] allergyEntry;
+    
+    /**
+     * Holds value of property allergies.
+     */
+    private java.util.List allergies = new java.util.ArrayList();
+    
     public ClinicalUpdateForm() {
         initVaccinations();
         setEncounter( factory.createEntryClinicalEncounter() );
+        initAllergyFlags();
+        initAllergyEntry();
         
     }
+    
+    
+    
     
     /** Creates a new instance of ClinicalUpdateForm */
     public ClinicalUpdateForm(DataObjectFactory factory, Integer id) {
+        this();
         setPatientId(id);
-        initVaccinations();
-        setEncounter( factory.createEntryClinicalEncounter() );
+        
         
         
     }
     
+    private void initAllergyFlags() {
+        allergy = new boolean[narratives.length];
+        for (int i = 0 ; i < narratives.length;++i) {
+            allergy[i] = false;
+        }
+    }
+    
+    private void initAllergyEntry() {
+        allergyEntry = new AllergyEntry[narratives.length];
+        for (int i = 0 ; i < narratives.length;++i) {
+            allergyEntry[i] = factory.createAllergyEntry();
+        }
+    }
+    
+    private void initAllergies() {
+        allergies = getEncounter().getAllergies();
+    }
     
     private void initNarratives() {
-         narratives =  (ClinNarrative[])getEncounter().
+        narratives =  (ClinNarrative[])getEncounter().
         getNarratives().toArray(new ClinNarrative[0]);
-    //    narratives = new ClinNarrative[nn.length];
-    //    System.arraycopy(nn, 0, narratives, 0, nn.length);
+        //    narratives = new ClinNarrative[nn.length];
+        //    System.arraycopy(nn, 0, narratives, 0, nn.length);
         
     }
     
@@ -82,16 +122,18 @@ public class ClinicalUpdateForm extends ActionForm {
         log.info("ClinicalForm was initialized");
         
     }
+    
+    
     public Vaccination[] getVaccinations() {
         return (Vaccination[]) vaccinations;
     }
-  /*  
+  /*
     public DefaultVaccination getVaccination(int index) {
         return (DefaultVaccination) vaccinations.get(index);
     }
-*/    
+   */
     
-    public Vaccination getVaccination(int index) { 
+    public Vaccination getVaccination(int index) {
         
         return vaccinations[index];
     }
@@ -105,9 +147,9 @@ public class ClinicalUpdateForm extends ActionForm {
             BeanUtils.copyProperties(vaccinations[index], v);
         } catch (Exception e) {
             e.printStackTrace();
-           
+            
         }
-         log.info("COPIED vaccine="+ vaccinations[index]);
+        log.info("COPIED vaccine="+ vaccinations[index]);
     }
     
     public String getTest() {
@@ -133,6 +175,7 @@ public class ClinicalUpdateForm extends ActionForm {
     public void setEncounter(ClinicalEncounter encounter) {
         this.encounter = encounter;
         initNarratives();
+        initAllergies();
     }
     
     /**
@@ -148,26 +191,26 @@ public class ClinicalUpdateForm extends ActionForm {
      * @param index Index of the property.
      * @return Value of the property at <CODE>index</CODE>.
      */
-      
+    
     public ClinNarrative getNarrative(int index) {
         return narratives[index];
-    }    
-       
+    }
+    
     /**
      * Indexed setter for property narrative.
      * @param index Index of the property.
      * @param narrative New value of the property at <CODE>index</CODE>.
      */
     public void setNarrative(int index, ClinNarrative narrative) {
-         //Vaccination vo = (Vaccination) vaccinations.get(index);
+        //Vaccination vo = (Vaccination) vaccinations.get(index);
         try {
             BeanUtils.copyProperties(narratives[index], narrative);
         } catch (Exception e) {
             e.printStackTrace();
-           
+            
         }
-         log.info("COPIED narratives="+ narratives[index]);
-    }    
+        log.info("COPIED narratives="+ narratives[index]);
+    }
     
     /**
      * Getter for property patientId.
@@ -192,7 +235,7 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     public boolean getLinkNarrative(int index) {
         return this.linkNarrative[index];
-    }    
+    }
     
     /**
      * Indexed setter for property linkNarrative.
@@ -201,19 +244,101 @@ public class ClinicalUpdateForm extends ActionForm {
      */
     public void setLinkNarrative(int index, boolean linkNarrative) {
         this.linkNarrative[index] = linkNarrative;
-    }    
+    }
     
-    public void copyPreviousEpisodeForLinkedNarrative() {
+    public void linkObjects() {
+        copyPreviousEpisodeForLinkedNarrative();
+        copyAllergyEntriesToAllergies();
+    }
+    
+    void copyPreviousEpisodeForLinkedNarrative() {
         for ( int i=1; i < narratives.length; ++i ) {
-           if ( narratives[i].isLinkedToPreviousEpisode() ) {
-               narratives[i].setNewHealthIssueName(narratives[i-1].getNewHealthIssueName());
+            if ( narratives[i].isLinkedToPreviousEpisode() ) {
+                narratives[i].setNewHealthIssueName(narratives[i-1].getNewHealthIssueName());
                 narratives[i].setHealthIssueName(narratives[i-1].getHealthIssueName());
-             
-               narratives[i].setEpisode(narratives[i-1].getEpisode());
+                
+                narratives[i].setEpisode(narratives[i-1].getEpisode());
                 log.info(narratives[i] + " WAS LINKED");
-           } else {
-           log.info(narratives[i] + " is not Linked");
-           }
+            } else {
+                log.info(narratives[i] + " is not Linked");
+            }
         }
     }
+    
+    void copyAllergyEntriesToAllergies() {
+        int j=0;
+        
+        for ( int i= 0; i < narratives.length; ++i ) {
+            ClinRootItem n = (ClinRootItem) narratives[i];
+            log.info("ALLERGY ENTRY BEING CHECKED" +  allergyEntry[i] + ": substance=" + allergyEntry[i].getSubstance());
+            log.info("copying from " + n);
+            if ( j >= allergies.size()) {
+                continue;
+            }
+            Allergy a = (Allergy) allergies.get(j++);
+                
+            if (getAllergy(i) ) {
+                log.debug("allergy "+ i + " is NOT EMPTY");
+                try {
+                    BeanUtils.copyProperties(a, allergyEntry[i] );
+                    BeanUtils.copyProperties(a,n);
+                    
+                    encounter.removeNarrative(narratives[i]);
+                } catch (Exception e) {
+                    log.error(e.getLocalizedMessage(), e);
+                    
+                }
+             } else {
+                 log.info("isAllergy was 0");
+             }
+            log.info("ALLERGY "+ a + " has values " + a.getEncounter() + " description" + a.getNarrative()
+            + "episode" + a.getEpisode() + " episode description " + a.getEpisode().getDescription());
+        }
+        
+    }
+    
+    /**
+     * Indexed getter for property isAllergy.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public boolean getAllergy(int index) {
+        return this.allergy[index];
+    }
+    
+    /**
+     * Indexed setter for property isAllergy.
+     * @param index Index of the property.
+     * @param isAllergy New value of the property at <CODE>index</CODE>.
+     */
+    public void setAllergy(int index, boolean isAllergy) {
+        this.allergy[index] = isAllergy;
+    }
+    
+    /**
+     * Indexed getter for property allergyEntry.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public AllergyEntry getAllergyEntry(int index) {
+        return this.allergyEntry[index];
+    }
+    
+    /**
+     * Indexed setter for property allergyEntry.
+     * @param index Index of the property.
+     * @param allergyEntry New value of the property at <CODE>index</CODE>.
+     */
+    public void setAllergyEntry(int index, AllergyEntry allergyEntry) {
+        this.allergyEntry[index] = allergyEntry;
+    }
+    
+    /**
+     * Getter for property allergies.
+     * @return Value of property allergies.
+     */
+    public java.util.List getAllergies() {
+        return this.allergies;
+    }
+    
 }

@@ -62,6 +62,6 @@ public interface HealthIssue {
      */
     public void setClinicalEpisode(int index, ClinicalEpisode clinicalEpisode);
     
-    public ClinNarrative getEarliestNarrative();
+    public ClinRootItem getEarliestClinRootItem();
     
 }

@@ -69,7 +69,9 @@ public class ClinRootItemImpl1 implements ClinRootItem {
         this.soapCat = soapCat;
     }
     
-    public Integer getPk() {
+    public Integer getPk() { 
+        if (id == null)
+            return null;
         return new Integer(id.intValue());
     }
     

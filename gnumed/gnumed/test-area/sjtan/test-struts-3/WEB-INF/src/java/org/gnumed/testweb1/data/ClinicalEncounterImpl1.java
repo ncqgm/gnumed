@@ -7,13 +7,16 @@
 package org.gnumed.testweb1.data;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import org.apache.commons.logging.*;
+import org.apache.commons.beanutils.BeanUtils;
 
 /**
  *
  * @author  sjtan
  */
 public class ClinicalEncounterImpl1 implements ClinicalEncounter {
-    
+    Log log = LogFactory.getLog(ClinicalEncounterImpl1.class);
     java.util.Date started, affirmed;
     String type, description;
     Long id;
@@ -94,6 +97,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     }
     
     public void setAllergy(int index, Allergy allergy) {
+        
         set(allergys, index, allergy);
     }
     
@@ -127,6 +131,11 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
             Object old = l.remove(index);
             l.add(index, o);
         }
+        try {
+         BeanUtils.setProperty(o, "encounter", this);
+        } catch (Exception e) {
+            log.error(e);
+        }
         
     }
     
@@ -151,8 +160,7 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     }
     
     public void setNarrative(int index, ClinNarrative narrative) {
-        narrative.setEncounter(this);
-        set( narratives, index, narrative);
+         set( narratives, index, narrative);
     }
     
     public List getNarratives() {
@@ -171,5 +179,21 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     public void setVitals(Vitals vitals) {
         this.vitals = vitals;
     }
+    
+    public void removeNarrative(ClinNarrative narrative) {
+        narratives.remove(narrative);
+    }
+    
+    public java.util.List getAllergies() {
+        return allergys;
+    }
+     
+    public ClinRootItem[] getRootItems() {
+        java.util.List l = new ArrayList();
+        l.addAll(narratives);
+        l.addAll(allergys);
+        return (ClinRootItem[]) l.toArray( new ClinRootItem[0]);
+    }    
+     
     
 }

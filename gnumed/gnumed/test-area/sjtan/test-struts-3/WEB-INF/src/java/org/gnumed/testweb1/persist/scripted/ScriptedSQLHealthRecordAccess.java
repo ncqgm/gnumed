@@ -55,11 +55,11 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     }
     
     public HealthRecord01 findHealthRecordByIdentityId(long patientId) throws org.gnumed.testweb1.persist.DataSourceException {
-       /* 
+       /*
         Map accessedRecords = getAccessedRecords();
         if (accessedRecords.containsKey(new Long(patientId)) ) {
             return (HealthRecord01) accessedRecords.get(new Long(patientId));
-            
+        
         }
         
         */
@@ -72,7 +72,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             
             ResultSet healthIssuesRS, episodesRS, encountersRS,
             vaccinationsRS, medicationsRS, allergyRS, narrativeRS,
-            lab_requestRS, test_resultRS, referralRS;
+            lab_requestRS, test_resultRS, referralRS, encounterTypeRS;
             
             ensureXLinkIdentityExists(conn, patientId);
             healthIssuesRS = getHealthIssueRS(conn, patientId);
@@ -89,6 +89,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             lab_requestRS= getLabRequestRS(conn, encounter_ids);
             test_resultRS= getTestResultRS(conn, encounter_ids);
             referralRS= getReferralRS(conn, encounter_ids);
+            encounterTypeRS = getEncounterTypeRS(conn);
             Map vaccineMap = getVaccineMap();
             
             HealthSummary01 hs = new HealthSummaryQuickAndDirty01(
@@ -105,7 +106,8 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             narrativeRS,
             lab_requestRS,
             test_resultRS,
-            referralRS
+            referralRS,
+            encounterTypeRS
             );
             
             
@@ -118,12 +120,12 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         } finally {
             if (conn != null) {
                 try {
-                conn.close();
+                    conn.close();
                 } catch (SQLException se) {
-                     throw new org.gnumed.testweb1.persist.DataSourceException(se);
+                    throw new org.gnumed.testweb1.persist.DataSourceException(se);
                 }
             }
-                
+            
         }
         
     }
@@ -194,6 +196,14 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     private ResultSet getClinEncountersRS(Connection conn, long patientId ) throws SQLException {
         PreparedStatement stmt =  conn.prepareStatement("select * from clin_encounter where fk_patient =  ?   ");
         stmt.setLong(1, patientId);
+        stmt.execute();
+        return stmt.getResultSet();
+        
+        
+    }
+    
+    private  ResultSet getEncounterTypeRS( Connection conn  ) throws SQLException {
+        PreparedStatement stmt =  conn.prepareStatement("select * from encounter_type");
         stmt.execute();
         return stmt.getResultSet();
         
@@ -312,30 +322,54 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             
             
             
-            Iterator i = encounter.getNarratives().iterator();
             
             
             List healthIssues = new ArrayList();
             
-            while (i.hasNext()) {
-                
-                ClinNarrative narrative = (ClinNarrative) i.next();
-                if (narrative.getNarrative() == null || narrative.getNarrative().trim().equals("")) {
-                    // DONT SAVE EMPTY NARRATIVES
+            List[] itemLists = new java.util.List[] {
+                encounter.getNarratives(), encounter.getAllergies() 
+            };
+            for (int j = 0; j < itemLists.length; ++j) {
+            for( java.util.ListIterator i = itemLists[j].listIterator(); i.hasNext(); ) {
+                ClinRootItem item = (ClinRootItem) i.next();
+                if (item.getNarrative() == null || item.getNarrative().equals("") || 
+                item.getEpisode().getDescription() == null ) {
+                    // DONT SAVE EMPTY itemS
+                    log.info("** REMOVE ** " + item );
+                    log.info(" episode.description=" + item.getEpisode().getDescription());
+                    log.info("*********** has null narrative or null episode description");
+                    
+                    i.remove();
+                }
+            }
+            }
+            
+           ClinRootItem[] items=encounter.getRootItems();
+           
+           for( int i=0; i < items.length;++i) {
+                if (items[i].getNarrative() ==null || items[i].getEpisode().getDescription() ==null)
+                {
+                    log.info("null narrative or episode description: SKIPPING " + items[i]);
                     continue;
                 }
                 
-                String healthIssueName   =normalizeHealthIssueName( narrative);
+                String healthIssueName   =normalizeHealthIssueName( items[i]);
                 HealthIssue issue = findOrCreateHealthIssue(conn, healthIssueName, summary);
                 healthIssues.add(issue);
                 
-                ClinicalEpisode episode = findOrCreateEpisode( conn, issue, narrative.getEpisode() );
+                ClinicalEpisode episode = findOrCreateEpisode( conn, issue, items[i].getEpisode() );
                 
-                narrative.setEpisode(episode);
-                
+                items[i].setEpisode(episode);
+            }
+                  
+            for( Iterator i = encounter.getNarratives().iterator(); i.hasNext(); ) {
+                ClinNarrative narrative = (ClinNarrative) i.next();
+                 
                 saveNarrative(conn, narrative);
-                
-                
+            }
+            
+            for( Iterator i = encounter.getAllergies().iterator(); i.hasNext(); ) {
+                saveAllergy(conn, (Allergy) i.next() );
             }
             
             conn.commit();
@@ -382,10 +416,10 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     
     /** makes healthissue name non-null, default xxxDEFAULTxxxx */
     private String normalizeHealthIssueName(ClinRootItem item) {
-        String healthIssueName = item.getHealthIssueName();
+        String healthIssueName = item.getEpisode().getHealthIssue().getDescription();
         String newName = item.getNewHealthIssueName();
         
-        if (newName != null && healthIssueName == null || healthIssueName.trim().equals("")) {
+        if (newName != null && !newName.equals("") &&  (healthIssueName == null || healthIssueName.trim().equals("")) ) {
             return newName;
         }
         
@@ -403,7 +437,8 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         ClinicalEpisode[] episodes = issue.getClinicalEpisodes();
         
         for (int i =0; i < episodes.length; ++i ) {
-            
+            log.info("episodes[i].description=" + episodes[i].getDescription()
+            + "   candidateEpisodes=" + candidateEpisode.getDescription());
             if( isSameEpisode(episodes[i], candidateEpisode ) ) {
                 
                 return episodes[i];
@@ -443,7 +478,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     private HealthIssue findOrCreateHealthIssue(Connection conn,String healthIssueName, HealthSummary01 summary) throws DataSourceException, SQLException {
         // hacky guard
         if (healthIssueName.trim().equals(""))
-                healthIssueName = "xxxDEFAULTxxx";
+            healthIssueName = "xxxDEFAULTxxx";
         
         
         Iterator i = summary.getHealthIssues().iterator();
@@ -483,30 +518,61 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     
     private void saveNarrative( Connection conn, ClinNarrative narrative) throws DataSourceException, SQLException {
         String s4 = "insert into clin_narrative(pk_item, is_aoe, is_rfe, clin_when, narrative, soap_cat,  fk_encounter, fk_episode) " +
-        "values (?,  ? , ? , ?, ?, ? , ? , ?)";
+        "values (?,  ? , ? , ?, ?, ? , ? , ? )";
         
-        Integer id = getNextId(conn, "clin_root_item_pk_item_seq");
         PreparedStatement stmt = conn.prepareStatement(s4);
-        
-        stmt.setInt(1, id.intValue());
         stmt.setBoolean(2, narrative.isAoe());
         stmt.setBoolean(3, narrative.isRfe());
-        stmt.setTimestamp(4, new java.sql.Timestamp( narrative.getClin_when().getTime() ));
-        stmt.setString(5, narrative.getNarrative());
         
-        
-        stmt.setString(6, narrative.getSoapCat().substring(0,1) );
-        stmt.setInt(7, narrative.getEncounter().getId(). intValue() );
-        stmt.setInt(8,   narrative.getEpisode().getId(). intValue() );
+        setClinRootItemStatement( stmt, narrative, 4);
         
         log.info(s4);
         
         stmt.execute();
         
+    }
+    
+    private void setClinRootItemStatement(PreparedStatement stmt, ClinRootItem item, int startIndex) throws DataSourceException, SQLException {
         
+        Integer id = getNextId(stmt.getConnection(), "clin_root_item_pk_item_seq");
+        
+        stmt.setInt(1, id.intValue());
+        stmt.setTimestamp(startIndex++, new java.sql.Timestamp( item.getClin_when().getTime() ));
+        stmt.setString(startIndex++, item.getNarrative() == null ? "": item.getNarrative() );
+        
+        
+        stmt.setString(startIndex++, item.getSoapCat().substring(0,1) );
+        stmt.setInt(startIndex++, item.getEncounter().getId(). intValue() );
+        stmt.setInt(startIndex++,   item.getEpisode().getId(). intValue() );
         
     }
     
+    private void saveAllergy( Connection conn, Allergy allergy) throws DataSourceException, SQLException {
+        log.info( "SAVE ALLERGY" + allergy.getEncounter() +":"+allergy.getNarrative()+":" + allergy.getSubstance());
+       
+        if (allergy.getEncounter() == null || allergy.getEpisode() == null) {
+            log.info("DIDNot save");
+            return;
+        }
+        String s5 = "insert into allergy(pk_item, definite, substance,id_type,   clin_when, narrative, soap_cat,  fk_encounter, fk_episode) " +
+        "values (?,  ? , ? , ?, ?, ? , ? , ?, ?)";
+        
+        log.info( "SAVE ALLERGY" + allergy.getEncounter() +":"+allergy.getNarrative()+":" + allergy.getSubstance());
+        
+        PreparedStatement stmt = conn.prepareStatement(s5);
+      
+        setClinRootItemStatement( stmt, allergy, 5);
+        
+        stmt.setInt(4,1); // id_type allergy 
+       //  ** change **
+        
+        stmt.setString(3, allergy.getSubstance());
+        
+        stmt.setBoolean(2, allergy.isDefinite());
+        
+        log.info(s5);
+        stmt.execute();
+    }
     
     private java.util.Date nullToNow(java.util.Date d) {
         if (d == null)
@@ -531,7 +597,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         stmt2.setLong(1, patientId);
         stmt2.setLong(2, patientId);
         stmt2.execute();
-       
+        
         stmt2.close();
     }
 }

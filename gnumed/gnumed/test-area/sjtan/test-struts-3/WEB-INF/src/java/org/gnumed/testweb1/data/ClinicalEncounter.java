@@ -140,6 +140,9 @@ public interface ClinicalEncounter {
      * @param narrative New value of the property at <CODE>index</CODE>.
      */
     public void setNarrative(int index, ClinNarrative narrative);
+    
+    public void removeNarrative(ClinNarrative narrative);
+    
     public void sortRootItems(final java.util.Comparator comparator) ;
     
     /**
@@ -153,5 +156,17 @@ public interface ClinicalEncounter {
      * @param vitals New value of property vitals.
      */
     public void setVitals(Vitals vitals);
+    
+    /**
+     * Getter for property allergies.
+     * @return Value of property allergies.
+     */
+    public java.util.List getAllergies();
+    
+    /**
+     * Getter for property rootItems.
+     * @return Value of property rootItems.
+     */
+    public ClinRootItem[] getRootItems();
     
 }

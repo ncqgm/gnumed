@@ -23,7 +23,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     public static int nEntryVaccs =10, nEntryMeds =20, nEntryNarratives=6, nEntryAllergies=5;
     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy" };
-    public final static String[] factoryMethods = new String[] { "createEntryClinNarrative", "createMedication", "createVaccination", "createAllergy" };
+    public final static String[] factoryMethods = new String[] { "createEntryClinNarrative", "createMedication", "createVaccination", "createEntryAllergy" };
    
     final static int[] nEntries = new int[] {nEntryNarratives, nEntryMeds, nEntryVaccs, nEntryAllergies };
     
@@ -113,7 +113,6 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     public ClinNarrative createClinNarrative() {
         ClinNarrative cn =  new ClinNarrativeImpl1();
-        cn.setEpisode(createClinicalEpisode());
         return cn;
     }
     
@@ -133,15 +132,36 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         return new ClinicalEpisodeImpl1();
     }
     
+    public ClinicalEpisode createEntryClinicalEpisode() {
+        ClinicalEpisode e = createClinicalEpisode();
+        e.setHealthIssue(createHealthIssue());
+        return e;
+    }
+    
     public Vitals createVitals() {
         return new VitalsImpl1();
     }
     
     public ClinNarrative createEntryClinNarrative() {
         ClinNarrative cn = new EntryClinNarrativeImpl1();
-        cn.setEpisode(createClinicalEpisode());
+        addEntryEpisode(cn);
         return cn;
     
     }
+    
+    void addEntryEpisode( ClinRootItem ri) {
+        ri.setEpisode(createEntryClinicalEpisode());
+     }
+    
+    public Allergy createEntryAllergy() {
+        Allergy a= createAllergy();
+        addEntryEpisode(a);
+        return a;
+    }
+    
+    public AllergyEntry createAllergyEntry() {
+        return new AllergyEntryImpl1();
+    }
+    
     
 }

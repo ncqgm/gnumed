@@ -95,7 +95,8 @@ public class ClinicalSaveAction extends Action {
             getAttribute(Constants.Servlet.OBJECT_FACTORY);
             
             ClinicalUpdateForm cform = (ClinicalUpdateForm) form;
-              cform.copyPreviousEpisodeForLinkedNarrative();
+              cform.linkObjects();
+              
             
        //     log.info("TEST ATTRIBUTE FROM "+cform + " = "+cform.getTest());
             
@@ -118,15 +119,15 @@ public class ClinicalSaveAction extends Action {
 
             List l2 =java.util. Arrays.asList(cform.getNarratives() );
             if (l2.equals( cform.getEncounter().getNarratives() ) ) {
-                log.info("The narratives are the same in the form");
+                log.debug("The narratives are the same in the form");
             }
              System.err.println("There are " +l2.size() + "NARRATIVES");
             Iterator j =l2.iterator();
             while(j.hasNext()) {
                 ClinNarrative n = (ClinNarrative) j.next();
-                 log.info("narrative found with text " + n.getNarrative() + ">");
-                 log.info("Health issue name for " + n + " was " + n.getHealthIssueName());
-                 log.info("Narrative SOAP CAT " +n.getSoapCat());
+                 log.debug("narrative found with text " + n.getNarrative() + ">");
+                 log.debug("Health issue name for " + n + " was " + n.getHealthIssueName());
+                 log.debug("Narrative SOAP CAT " +n.getSoapCat());
             }
             
             HealthRecordAccess01 access = 

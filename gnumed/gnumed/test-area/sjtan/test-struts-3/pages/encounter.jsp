@@ -43,38 +43,15 @@ e.g. getNarrative(index) ...  id='narrative'
             <td>
                 <bean:message key="encounter.location"/>
                 <html:select  name="clinicalUpdateForm" property="encounter.location" >
-                    <html:option value="1">consulting room </html:option>
-                    <html:option value="2">nursing home </html:option>
+                    <logic:iterate id="encounterType" type="org.apache.commons.beanutils.BasicDynaBean" name="healthRecord" property="healthSummary.encounterTypes">
+                    <option value='<%=encounterType.get("pk")%>' > <%=encounterType.get("description")%> </option>
+                    </logic:iterate>
                 </html:select>
             </td>
              
             </tr>
             
         </table>
-        <h4><bean:message key="vitals"/></h4> 
-        <table width='80%' border='1'><tr> 
-        <td colspan='2'>BP <html:text name="clinicalUpdateForm" property="encounter.vitals.systolic" size="3" maxlength="4"/>
-        / <html:text name="clinicalUpdateForm" property="encounter.vitals.diastolic" size="2"  maxlength="4"/> mmHg
-        </td><td>PR <html:text name="clinicalUpdateForm" property="encounter.vitals.pr" size="3"  maxlength="4"/>bpm
-        </td>
-        <td>rhythm <html:text name="clinicalUpdateForm" property="encounter.vitals.rhytm" size="12" maxlength="8"/>
-        </td></tr>
-        <tr>
-        <td>T <html:text name="clinicalUpdateForm" property="encounter.vitals.temp" size="3" maxlength="4"/>c
-        </td>
-        <td>RR <html:text name="clinicalUpdateForm" property="encounter.vitals.rr" size="2" maxlength="4"/>kg
-        </td> 
-        <td>ht <html:text name="clinicalUpdateForm" property="encounter.vitals.height" size="4"/>m
-        </td>
-        <td>wt <html:text name="clinicalUpdateForm" property="encounter.vitals.height" size="4"/>kg
-        </td>
-        </tr>
-        <tr><td colspan='2'/>
-        <td>PEFR pre <html:text name="clinicalUpdateForm" property="encounter.vitals.prepefr" size="4"/>
-        </td>
-        <td>PEFR post <html:text name="clinicalUpdateForm" property="encounter.vitals.postpefr" size="4"/>
-        </td>
-        </tr></table>
         
         <table border='1' id='allNarrativeInput'>
         
@@ -82,15 +59,18 @@ e.g. getNarrative(index) ...  id='narrative'
         property="encounter.narratives"   
          scope="request" indexId="index">
          <tr>
+         <td>
+          <a name='linkNarrative<%=index%>'> </a>
+           <%=index.intValue()+1%>
+         </td>
         <td>
-            <a name='linkNarrative<%=index%>'> </a>
-            Narrative <%=index%>
+           
             <table id='narrativeEntry<%=index%>' >
                 <tr>
                 
                 <td  >
                  <logic:greaterThan name="index" value="0">
-                    link previous episode
+                    link
                     
                     <html-el:checkbox  name="narrative" property="linkedToPreviousEpisode" indexed="true" 
                      onchange="if (this.checked) { 
@@ -135,7 +115,7 @@ e.g. getNarrative(index) ...  id='narrative'
                 <div id="sel<%=index%>">
                 
                   
-                <html:select name="narrative" property="healthIssueName" indexed="true"
+                <html:select name="narrative" property="episode.healthIssue.description" indexed="true"
 onchange=""  
 >
                       <html:option key="" value="">no issue selected</html:option>
@@ -178,9 +158,9 @@ onchange=""
                 </tr>    
                 
             </table>
-                
-            <div id='clinNarrative<%=index%>' style='display:<%=(String)((index.intValue() == 0)? "block":"none")%>'  >   
-              
+            
+             <div id='clinNarrative<%=index%>' style='display:<%=(String)((index.intValue() == 0)? "block":"none")%>'  >   
+             
                 <table > 
                 
                         <tr>
@@ -194,13 +174,20 @@ onchange=""
                             <bean:message key="narrative.notes" />
                         </td>
                         <td>
-                            <html:select name="narrative" property="soapCat" indexed="true" >
+                            <bean:message key="narrative.soap"/>
+                            <html-el:select styleId="soapCat${index}" name="narrative" property="soapCat" indexed="true" 
+                                onchange="if ( this.value =='o' ) {
+                                            document.getElementById('vitals${index}').style.display='block'; 
+                                        } else
+                                        {
+                                            document.getElementById('vitals${index}').style.display='none'; 
+                                        }" >
                             <html:option key="s" value="s" >S</html:option>
                              <html:option key="o" value="o">O</html:option>
                             <html:option key="a" value="a">A</html:option>
                             <html:option key="p" value="p">P</html:option>
                      
-                            </html:select>
+                            </html-el:select>
                         </td>
                          <td >
                          <bean:message key="narrative.clin_when" />
@@ -210,11 +197,56 @@ onchange=""
                         </td> 
                         <td><bean:message key="aoe"/> <html:radio name="narrative" property="aoe" indexed="true" value="false"/>
                         </td>
-                               
+                        
                     </tr>
                     <tr>
-                    <td COLSPAN='5'>
-                        <html:textarea  name="narrative" property="narrative"  rows="6" cols="80" indexed="true" />
+                    
+                    <td  >
+                     <bean:message key="allergy"/> 
+                    <html-el:checkbox styleId="isAllergy${index}" 
+                    name="clinicalUpdateForm" property="allergy[${index}]"     
+                    onchange="if (this.checked) {
+                        document.getElementById('allergyInput${index}').style.display='block'; 
+                         
+                    } else {  
+                        document.getElementById('allergyInput${index}').style.display='none'; 
+                    }"  />
+                    </td>
+                    <td colspan='4' >
+                    <div  id="allergyInput<%=index%>" style='display: none'>
+                        <bean:message key="allergy.definite"/>
+                        <html-el:checkbox name="clinicalUpdateForm" property="allergyEntry[${index}].definite"
+                                 />
+                                 
+                           <bean:message key="allergy.substance"/>
+                          <html-el:text name="clinicalUpdateForm" property="allergyEntry[${index}].substance"
+                                 />
+                           
+                        
+                    </div>
+                    </td>
+                    </tr>
+                     <tr>
+                     <td colspan='6'>
+                     <div id="vitals<%=index%>" style='display: none'>
+                        
+                             
+                     
+                                <jsp:include page="./vitals.jsp"/>
+                     </div>
+                     
+                    </td>     
+                     </tr>
+                     
+                    <tr>
+                    <td COLSPAN='6'>
+                        <html-el:textarea  name="narrative" property="narrative"  rows="6" cols="80" indexed="true"
+                        onmouseover="if ( document.getElementById('soapCat${index}').value =='o' ) {
+                                            document.getElementById('vitals${index}').style.display='block'; 
+                                        } else
+                                        {
+                                            document.getElementById('vitals${index}').style.display='none'; 
+                                        }" />
                     
                     </td>
                     

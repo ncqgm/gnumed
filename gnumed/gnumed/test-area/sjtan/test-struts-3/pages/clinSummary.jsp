@@ -15,10 +15,10 @@
     <a name="clinicalSummary" ></a>
     
     <h4>Summary</h4>  
-    <jsp:include page="./patient_detail_block.jsp"/>   
+    <%-- <jsp:include page="./patient_detail_block.jsp"/>   --%>
     <jsp:include page="./relative_url_javascript.jsp"/>  
     <h5>Problem List</h5>
-    <table cellpadding='2' >
+    <table  >
     <logic:iterate   id="healthIssue" 
         name="healthRecord" 
         property="healthSummary.healthIssues"
@@ -29,7 +29,7 @@
         </logic:equal>
             
             <td>
-                <i><bean:write name="healthIssue" property="earliestNarrative.clin_when" format="MMM yy" />
+                <i><bean:write name="healthIssue" property="earliestClinRootItem.clin_when" format="MMM yy" />
                 </i>
                  <b>
                 <bean:write name="healthIssue" property="description" />
@@ -71,6 +71,9 @@
                 <small>
                     <bean:write name="allergy" property="narrative" />
                 </small>
+                <sub>
+                    <bean:write name="allergy" property="clin_when" format="dd/MM/yyyy"/>
+                </sub>
             </td>
             </tr>
         </logic:iterate>
