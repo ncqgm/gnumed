@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 
 -- this belongs into the service clinical (historica)
 
@@ -19,7 +19,9 @@ create table test_org (
 	id_adm_contact integer default null,
 	id_med_contact integer default null,
 	"comment" text
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('test_org');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_org', 'id_org', 'personalia', 'org', 'id');
@@ -54,7 +56,9 @@ create table test_type (
 	"comment" text,
 	basic_unit text not null,
 	unique (id_provider, code)
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('test_type');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
@@ -91,7 +95,9 @@ create table lnk_tst2norm (
 	id_test integer not null references test_type(id),
 	id_norm integer not null,
 	unique (id_test, id_norm)
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_tst2norm');
 
 select add_x_db_fk_def ('lnk_tst2norm', 'id_norm', 'reference', 'test_norm', 'id');
 
@@ -120,9 +126,11 @@ create table test_result (
 	reviewed_by_clinician bool default false,
 	id_clinician integer,
 	clinically_relevant bool
-) inherits (audit_mark, clin_root_item);
+) inherits (clin_root_item);
 
 -- note_clinician provided as narrative by clin_root_item
+
+select add_table_for_audit('test_result');
 
 -- remote foreign keys
 select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
@@ -179,7 +187,9 @@ create table lab_result (
 	sample_id text not null default 'unknown',
 	-- this is according to LDT
 	abnormal_tag character(5)
-) inherits (audit_mark, clin_root_item);
+) inherits (clin_root_item);
+
+select add_table_for_audit('lab_result');
 
 select add_x_db_fk_def('lab_result', 'id_sampler', 'personalia', 'identity', 'id');
 
@@ -225,11 +235,14 @@ comment on column lab_result.abnormal_tag IS
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.9  2003-08-17 00:25:38  ncq
+-- Revision 1.10  2003-10-01 15:45:20  ncq
+-- - use add_table_for_audit() instead of inheriting from audit_mark
+--
+-- Revision 1.9  2003/08/17 00:25:38  ncq
 -- - remove log_ tables, they are now auto-created
 --
 -- Revision 1.8  2003/08/13 21:10:21  ncq

@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -16,7 +16,9 @@ CREATE TABLE lab_test_GNR (
 --	GOA_88 character(6) references goae_88.gnr,
 --	GOA_96 character(6) references goae_96.gnr
 --	UVT_GOA character(6) references bg_goae(gnr)
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('lab_test_gnr');
 
 COMMENT ON TABLE lab_test_GNR is
 	'specific for Germany, GNR = GebührenordnungsNummeR = billing
@@ -42,11 +44,14 @@ COMMENT ON COLUMN lab_test_GNR.BG_GOA is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.2 $')
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.3 $')
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.2  2003-08-17 00:28:25  ncq
+-- Revision 1.3  2003-10-01 15:45:20  ncq
+-- - use add_table_for_audit() instead of inheriting from audit_mark
+--
+-- Revision 1.2  2003/08/17 00:28:25  ncq
 -- - removed log_ table since now autocreated
 --
 -- Revision 1.1  2003/08/05 08:16:00  ncq

@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -25,7 +25,9 @@ create table ref_source (
 	version text not null,
 	description text,
 	source text unique not null
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
+
+select add_table_for_audit('ref_source');
 
 comment on table ref_source is
 	'lists the available coding systems, classifications, ontologies and term lists';
@@ -119,11 +121,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.4  2003-08-17 00:25:38  ncq
+-- Revision 1.5  2003-10-01 15:45:20  ncq
+-- - use add_table_for_audit() instead of inheriting from audit_mark
+--
+-- Revision 1.4  2003/08/17 00:25:38  ncq
 -- - remove log_ tables, they are now auto-created
 --
 -- Revision 1.3  2003/08/13 21:12:24  ncq

@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -10,15 +10,45 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-create table audit_mark (
-	audit_this_table boolean default true check(audit_this_table in (true, false))
+create table audited_tables (
+	id serial primary key,
+	schema name default null,
+	table_name name unique not null
 );
 
-comment on table audit_mark is
-	'All tables that need standard auditing must inherit from this table.
-	 Marks tables for automatic audit trigger generation';
-comment on column audit_mark.audit_this_table is
-	'just a dummy field for "create table"';
+comment on table audited_tables is
+	'All tables that need standard auditing must be
+	 recorded in this table. Audit triggers will be
+	 generated automatically for all tables recorded
+	 here.';
+
+-- ===================================================================
+\unset ON_ERROR_STOP
+drop function add_table_for_audit (name);
+\set ON_ERROR_STOP 1
+
+create function add_table_for_audit (name) returns unknown as '
+DECLARE
+	tbl_name ALIAS FOR $1;
+	dummy RECORD;
+BEGIN
+	-- does table exist ?
+	select relname into dummy from pg_class where relname = tbl_name;
+	if not found then
+		raise exception ''add_table_for_audit: Table [%] does not exist.'', tbl_name;
+		return false;
+	end if;
+	-- add definition
+	insert into audited_tables (
+		table_name
+	) values (
+		tbl_name
+	);
+	return true;
+END;' language 'plpgsql';
+
+comment on function add_table_for_audit (name) is
+	'sanity-checking convenience function for marking tables for auditing';
 
 -- ===================================================================
 create table audit_fields (
@@ -69,8 +99,9 @@ comment on column audit_trail.audit_by is
 	'committed to this table for auditing by whom';
 
 -- ===================================================================
+-- FIXME: actually this should be done by giving "creator"
+-- rights to the audit trigger functions
 grant SELECT, UPDATE, INSERT, DELETE on
-	"audit_mark",
 	"audit_fields",
 	"audit_fields_pk_audit_seq",
 	"audit_trail",
@@ -79,11 +110,14 @@ to group "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.6 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.5  2003-06-29 15:22:50  ncq
+-- Revision 1.6  2003-10-01 15:45:20  ncq
+-- - use add_table_for_audit() instead of inheriting from audit_mark
+--
+-- Revision 1.5  2003/06/29 15:22:50  ncq
 -- - split audit_fields off of audit_mark, they really
 --   are two separate if related things
 --

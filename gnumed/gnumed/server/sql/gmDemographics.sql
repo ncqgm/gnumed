@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -37,7 +37,9 @@ create table state (
 	country char(2) not null references country(code),
 	name text not null,
 	unique (code, country)
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
+
+select add_table_for_audit('state');
 
 COMMENT ON TABLE state IS
 	'state codes (country specific)';
@@ -53,7 +55,7 @@ create table urb (
 	postcode varchar(12) not null,
 	name text not null,
 	unique (id_state, postcode, name)
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
 
 -- this does not work in the UK! Seperate postcodes for each street,
 -- Same in Germany ! Postcodes can be valid for:
@@ -63,6 +65,8 @@ create table urb (
 -- - one street in one urb
 -- - part of one street in one urb
 -- Take that !  :-)
+
+select add_table_for_audit('urb');
 
 COMMENT ON TABLE urb IS
 	'cities, towns, dwellings ...';
@@ -80,7 +84,9 @@ create table street (
 	name text not null,
 	postcode varchar(12),
 	unique(id_urb, name)
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
+
+select add_table_for_audit('street');
 
 COMMENT ON TABLE street IS
 	'street names, specific for distinct "urbs"';
@@ -99,7 +105,9 @@ create table address (
 	suburb text default null,
 	number char(10) not null,
 	addendum text
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
+
+select add_table_for_audit('address');
 
 comment on table address is
 	'an address aka a location';
@@ -190,7 +198,9 @@ create table address_info (
         id_map integer references mapbook (id),
         howto_get_there text,
         comments text
-) inherits (audit_fields, audit_mark);
+) inherits (audit_fields);
+
+select add_table_for_audit('address_info');
 
 -- this refers to a SQL point type. This would allow us to do
 -- interesting queries, like, how many patients live within
@@ -207,7 +217,9 @@ create table identity (
 	dob timestamp with time zone not null,
 	cob char(2),
 	deceased timestamp with time zone null
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('identity');
 
 comment on table identity IS
 	'represents the unique identity of a person';
@@ -299,7 +311,9 @@ create table relation_types (
 	biological boolean not null,
 	biol_verified boolean default false,
 	description text
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('relation_types');
 
 comment on table relation_types IS
 	'types of biological/social relationships between identities';
@@ -319,7 +333,9 @@ create table lnk_person2relative (
 	id_relation_type integer not null references relation_types,
 	started date default NULL,
 	ended date default NULL
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_person2relative');
 
 comment on table lnk_person2relative IS
 	'biological and social relationships between an identity and other identities';
@@ -339,7 +355,9 @@ comment on column lnk_person2relative.ended IS
 create table occupation (
 	id serial primary key,
 	name text
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('occupation');
 
 comment on table occupation is
 	'collects occupation names';
@@ -351,7 +369,9 @@ create table lnk_job2person (
 	id_occupation integer not null references occupation(id),
 	comment text,
 	unique (id_identity, id_occupation)
-) inherits (audit_mark, audit_fields);
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_job2person');
 
 comment on table lnk_job2person is
 	'linking (possibly several) jobs to a person';
@@ -475,11 +495,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.9 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.8  2003-09-21 06:54:13  ihaywood
+-- Revision 1.9  2003-10-01 15:45:20  ncq
+-- - use add_table_for_audit() instead of inheriting from audit_mark
+--
+-- Revision 1.8  2003/09/21 06:54:13  ihaywood
 -- sane permissions
 --
 -- Revision 1.7  2003/09/21 06:10:06  ihaywood
