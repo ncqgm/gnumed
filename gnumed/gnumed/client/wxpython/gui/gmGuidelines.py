@@ -12,11 +12,6 @@ The manuals should reside where the manual_path points to
 @thanks: this code has been heavily "borrowed" from
          Robin Dunn's extraordinary wxPython sample
 """
-
-# text translation function for localization purposes
-import gettext
-_ = gettext.gettext
-
 import sys, os
 
 from   wxPython.wx         import *
@@ -165,5 +160,3 @@ class gmGuidelines (gmPlugin.wxNotebookPlugin):
 
     def GetWidget (self, parent):
         return GuidelinesHtmlPanel (parent, self.gb['main.frame'])
-
-
