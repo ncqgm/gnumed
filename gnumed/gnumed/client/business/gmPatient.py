@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.46 2004-07-15 23:30:11 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmPatient.py,v 1.47 2004-07-20 01:01:44 ihaywood Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -575,6 +575,10 @@ class cPatientSearcher_SQL:
 			where_snippets.append('lastnames=%(lastnames)s')
 		except KeyError:
 			pass
+		queries = []
+		if where_snippets:
+			queries.append(['select id_identity from names where %s' % ' and '.join(where_snippets)])
+		where_snippets = []
 		try:
 			data['dob']
 			where_snippets.append("dob=%(dob)s::timestamp")
@@ -586,15 +590,14 @@ class cPatientSearcher_SQL:
 		except KeyError:
 			pass
 
+		queries.append(['select i_id from v_basic_person where %s' % ' and '.join(where_snippets)])
 		# sufficient data ?
-		if len(where_snippets) == 0:
+		if len(queries) == 0:
 			_log.Log(gmLog.lErr, 'invalid search dict structure')
 			_log.Log(gmLog.lData, data)
 			return []
 		# shall we mogrify name parts ? probably not
-
-		queries = []
-		queries.append(['select i_id from v_basic_person where %s' % ' and '.join(where_snippets)])
+		
 		return queries
 	#--------------------------------------------------------
 	# queries for DE
@@ -620,13 +623,13 @@ class cPatientSearcher_SQL:
 			# there's no intermediate whitespace due to the regex
 			tmp = no_umlauts.strip()
 			# assumption: this is a last name
-			queries.append(["SELECT i_id FROM v_basic_person WHERE lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT i_id FROM v_basic_person WHERE lastnames  ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT id_identity FROM names WHERE lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT id_identity FROM names WHERE lastnames  ~* '^%s'" % tmp])
 			# assumption: this is a first name
-			queries.append(["SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
-			queries.append(["SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s'" % tmp])
+			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s'" % tmp])
 			# name parts anywhere in name
-			queries.append(["SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s'" % tmp])
+			queries.append(["SELECT DISTINCT id_identity FROM names WHERE firstnames || lastnames ~* '%s'" % tmp])
 			return queries
 
 		# try to split on (major) part separators
@@ -656,22 +659,22 @@ class cPatientSearcher_SQL:
 					# assumption: first last
 					queries.append(
 						[
-						 "SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
+						 "SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
 						]
 					)
 					queries.append([
-						 "SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
+						 "SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
 					])
 					# assumption: last first
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
 					])
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
 					])
 					return queries
 				# FIXME: either "name date" or "date date"
@@ -684,21 +687,21 @@ class cPatientSearcher_SQL:
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
 					])
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					# assumption: last, first, dob - second order query
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND dob='%s'::timestamp" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
 					])
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND dob='%s'::timestamp" % (name_parts[1], name_parts[0], date_part)
 					])
 					# name parts anywhere in name - third order query ...
 					queries.append([
-						"SELECT i_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
+						"SELECT DISTINCT id_identity FROM names WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND dob='%s'::timestamp" % (name_parts[0], name_parts[1], date_part)
 					])
 					return queries
 				# FIXME: "name name name" or "name date date"
@@ -924,7 +927,17 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.46  2004-07-15 23:30:11  ncq
+# Revision 1.47  2004-07-20 01:01:44  ihaywood
+# changing a patients name works again.
+# Name searching has been changed to query on names rather than v_basic_person.
+# This is so the old (inactive) names are still visible to the search.
+# This is so when Mary Smith gets married, we can still find her under Smith.
+# [In Australia this odd tradition is still the norm, even female doctors
+# have their medical registration documents updated]
+#
+# SOAPTextCtrl now has popups, but the cursor vanishes (?)
+#
+# Revision 1.46  2004/07/15 23:30:11  ncq
 # - 'clinical_record' -> get_clinical_record()
 #
 # Revision 1.45  2004/07/05 22:26:24  ncq

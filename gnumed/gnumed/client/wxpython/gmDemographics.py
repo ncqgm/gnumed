@@ -12,8 +12,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.32 2004-07-18 20:30:53 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmDemographics.py,v 1.33 2004-07-20 01:01:46 ihaywood Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -639,6 +639,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self._save_addresses()
 		myPatient = self.patient.get_demographic_record()
 		if m['firstname'].IsModified () or m['surname'].IsModified ():
+			print "name is modified"
 			myPatient.addName(self.value_map['firstname'].strip(), self.value_map['surname'].strip(), activate=1)
 		for key, value in self.gendermap.items (): # find the backend code for selected gender
 			if value == self.value_map['sex'] and key != self.old_gender: # has it changed?
@@ -784,7 +785,17 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.32  2004-07-18 20:30:53  ncq
+# Revision 1.33  2004-07-20 01:01:46  ihaywood
+# changing a patients name works again.
+# Name searching has been changed to query on names rather than v_basic_person.
+# This is so the old (inactive) names are still visible to the search.
+# This is so when Mary Smith gets married, we can still find her under Smith.
+# [In Australia this odd tradition is still the norm, even female doctors
+# have their medical registration documents updated]
+#
+# SOAPTextCtrl now has popups, but the cursor vanishes (?)
+#
+# Revision 1.32  2004/07/18 20:30:53  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.31  2004/06/30 15:09:47  shilbert

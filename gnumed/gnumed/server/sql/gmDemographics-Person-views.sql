@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.19 2004-07-17 20:57:53 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.20 2004-07-20 01:01:46 ihaywood Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -121,6 +121,7 @@ BEGIN
 		return NULL;
 	end if;
 	-- no, insert new name
+	update names set active=''f'' where id_identity = identity_id;
 	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activated);
 	if FOUND then
 		return n_rec.id;
@@ -296,11 +297,21 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.19  2004-07-17 20:57:53  ncq
+-- Revision 1.20  2004-07-20 01:01:46  ihaywood
+-- changing a patients name works again.
+-- Name searching has been changed to query on names rather than v_basic_person.
+-- This is so the old (inactive) names are still visible to the search.
+-- This is so when Mary Smith gets married, we can still find her under Smith.
+-- [In Australia this odd tradition is still the norm, even female doctors
+-- have their medical registration documents updated]
+--
+-- SOAPTextCtrl now has popups, but the cursor vanishes (?)
+--
+-- Revision 1.19  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --

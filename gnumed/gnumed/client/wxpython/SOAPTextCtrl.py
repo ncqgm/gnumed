@@ -37,8 +37,21 @@ STYLE_HEADER=1
 STYLE_TEXT=2
 STYLE_KEYWORD=3
 
+
+class myTimer (wxTimer):
+
+    def __init__ (self, funct, parent, pos):
+        self.funct = funct
+        self.pos = pos
+        self.parent = parent
+        wxTimer.__init__ (self)
+        self.Start (300, wxTIMER_ONE_SHOT)
+
+    def Notify (self):
+        self.funct (parent=self.parent, pos=self.pos)
+
 class SOAPTextCtrl (wxStyledTextCtrl):
-    def __init__ (self, parent, id, headers = None, matchers = {}):
+    def __init__ (self, parent, id, pos=wxDefaultPosition, size= None, headers = None, matchers = {}, poppers = {}):
         """
         @type parent: wxWindow
         @param parent: the parent widget
@@ -48,9 +61,12 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         @param headers: the headers to be displayed in the widget, in order
         @type matchers: dictionary of L{Gnumed.pycommon.gmMatchProvider.cMatchProvider}
         @param matchers: the plugged match providers, by activating keyword,
-                         which may or may not be the same as rhe headers 
+                         which may or may not be the same as rhe headers
+        @ params poppers: dictionary of callables, name is the keyword, called when this keyword is typed
         """
-        wxStyledTextCtrl.__init__ (self, parent, id, size = wxSize (400, 400))
+        if size is None:
+            size = wxSize (400, 200)
+        wxStyledTextCtrl.__init__ (self, parent, id, pos=pos, size=size)
         id = self.GetId ()
         self.SetWrapMode (wxSTC_WRAP_WORD)
         self.StyleSetSpec (STYLE_HEADER, "fore:#7F11010,bold,face:Times,size:12")
@@ -71,6 +87,8 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         # FIXME: do we need to check that all headers have matchers
         # and set missing ones to gmNull.cNull() ?
         self.matchers = matchers
+        self.poppers = poppers
+        self.timer = None
         self.__matcher = None
         self.AutoCompSetSeparator (10)
         self.__write_headings ()
@@ -107,7 +125,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             self.SetStyling (len (heading)+1, STYLE_HEADER)
             pos += len (text)
             
-        self.GotoPos (len (self.headers[0]))
+        self.GotoPos (len (self.headers[0])+2)
 
 
     def get_data (self):
@@ -132,6 +150,9 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         
     def __keypressed (self, event):
         pos = self.GetCurrentPos ()
+        if self.timer:
+            self.timer.Stop ()
+            self.timer = None
         if self.AutoCompActive ():
             event.Skip ()
         else:
@@ -181,12 +202,16 @@ class SOAPTextCtrl (wxStyledTextCtrl):
                     event.Skip ()
                 else:
                     self.GotoPos (lineend)
+            elif event.KeyCode () == WXK_ESCAPE:
+                self.escape ()
             else:
                 event.Skip ()
         if event.KeyCode () < 255:
             ch = string.lower (chr (event.KeyCode ()))
             if ch in string.letters:
                 self.autocompstr += ch
+                if self.poppers.has_key (self.autocompstr):
+                    self.timer = myTimer (self.poppers[self.autocompstr], self, self.PointFromPosition(pos))
                 if not self.AutoCompActive () and len (self.autocompstr) > 0:
                     if self.__matcher is None:
                         self.__find_matcher ()
@@ -229,11 +254,53 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             if rfind > highestpos:
                 highestpos = rfind
                 self.__matcher = matcher
-            
 
+    def escape (self):
+        """
+        Escape pressed
+        Descendants may want to override this
+        """
+        pass
+
+
+class gmPopupSOAPTextCtrl (SOAPTextCtrl):
+    """
+    A convience class for popups text ctrls
+    """
+    def __init__ (self, parent, pos, headers, matchers={}):
+        """
+        @type parent : wxWindow
+        @param parent : The parent widget
+        @type pos: wxPoint 
+        @param pos: point to pop up at
+        """
+        pos = parent.ClientToScreen (pos)
+        size = parent.GetSize ()
+        size = wxSize (size.width/2, size.height/2)
+        self.popup = wxPopupTransientWindow (parent, wxBORDER_SUNKEN)
+        panel = wxPanel (self.popup, -1)
+        self.master = parent # so we don't get confused with the wxWindows parent which is self.popup now
+        SOAPTextCtrl.__init__ (self, panel, -1, (10, 10), size, headers, matchers)
+        size = wxSize (size.width+20, size.height+20)
+        panel.SetSize (size)
+        self.popup.SetSize (size)
+        self.popup.Position (pos, (0, 0))
+        self.popup.Popup ()
+        self.SetFocus ()
+        self.EnsureCaretVisible ()
+        self.SetCaretWidth (2)
+
+    def escape (self):
+        self.master.SetFocus ()
 
 ### For testing only
 
+
+class RxCtrl (gmPopupSOAPTextCtrl):
+    def __init__ (self, parent, pos):
+        gmPopupSOAPTextCtrl.__init__ (self, parent, pos, headers=['Drug', 'Dose', 'Frequency', 'Directions'])
+
+        
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
 AOElist = [{'label':'otitis media', 'data':1, 'weight':1}, {'label':'otitis externa', 'data':2, 'weight':1},
@@ -254,7 +321,7 @@ class testFrame(wxFrame):
         wxFrame.__init__(self, None, wxNewId (), title)
         matchers = {"AOE": cMatchProvider_FixedList (AOElist), "Plan": cMatchProvider_FixedList (Planlist),
                     "Subj": cMatchProvider_FixedList (Subjlist), "Obj": None}
-        self.text_ctrl_1 = SOAPTextCtrl(self, -1, headers=['RFE', "Subj", "Obj", "Assess", "AOE", "Plan"], matchers = matchers)
+        self.text_ctrl_1 = SOAPTextCtrl(self, -1, headers=['RFE', "Subj", "Obj", "Assess", "AOE", "Plan"], matchers = matchers, poppers={'prescribe':RxCtrl})
         self.text_ctrl_1.set_data ({'RFE':'earache', 'Assess':'otitis media'})
         EVT_CLOSE (self, self.OnClose)
 
