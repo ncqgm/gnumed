@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -22,7 +22,7 @@ from wxPython import wx
 # GnuMed
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmWhoAmI
 from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmSOAPWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
 import SOAPMultiSash
@@ -173,10 +173,9 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			print "Selected episode:", self.__selected_episode
 			print "Won't check buttons for None leaf/soap/selected_episode"
 			return False
-
-		# if soap stack is empty, disable save, clear and remove buttons
-		print "Health problems: %s"%(self.__selected_soap.GetHealthIssue())
-		if self.__selected_soap.GetHealthIssue() is None or self.__selected_soap.IsSaved():
+						
+		# if soap stack is empty, disable save, clear and remove buttons		
+		if isinstance(self.__selected_soap, SOAPMultiSash.EmptyChild) or self.__selected_soap.IsSaved():
 			self.__BTN_save.Enable(False)
 			self.__BTN_clear.Enable(False)
 			self.__BTN_remove.Enable(False)
@@ -187,13 +186,13 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# allow new when soap stack is empty
 		# avoid enabling new button to create more than one soap per issue.
-		if self.__selected_episode['pk_episode'] in self.__managed_episodes:
+		if self.__selected_episode[1]['pk_episode'] in self.__managed_episodes:
 			self.__BTN_new.Enable(False)
 		else:
 			self.__BTN_new.Enable(True)
 
 		# disabled save button when soap was dumped to backend
-		if self.__selected_soap.IsSaved():
+		if not isinstance(self.__selected_soap, SOAPMultiSash.EmptyChild) and self.__selected_soap.IsSaved():
 			self.__BTN_remove.Enable(True)
 	#--------------------------------------------------------	
 	def __allow_perform_action(self, action_id):
@@ -253,20 +252,17 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__selected_episode = problem.add_episode()
 			self.__refresh_problem_list()
 		elif problem['type'] == 'episode':
-			self.__selected_episode = problem
+			self.__selected_episode = (problem_idx, problem)
 		else:
 			msg = _('Cannot open progress note editor for problem:\n%s') % problem
 			gmGuiHelpers.gm_show_error(msg, _('progress note editor'), gmLog.lErr)
 			_log.Log(gmLog.lErr, 'invalid problem type [%s]' % type(problem))
 			return False
 
-		episode_id = self.__selected_episode['pk_episode']
-		if episode_id not in self.__managed_episodes:
-			self.__managed_episodes.append(episode_id)
-			# create
-		else:
-			# find and focus
-			self.__soap_multisash
+		episode_id = self.__selected_episode[1]['pk_episode']
+		if episode_id  in self.__managed_episodes:
+			# FIXME find and focus
+			pass
 
 		#if not self.__BTN_new.IsEnabled():
 		#	self.__BTN_new.Enable(True)
@@ -339,19 +335,22 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		print "New SOAP"
+		if isinstance(self.__selected_soap, SOAPMultiSash.EmptyChild):
+			self.__managed_episodes.append(self.__selected_episode[1]['pk_episode'])
+			self.__focussed_soap_editor.MakeSoapEditor()			
 		# first SOAP input widget is displayed by showing an empty hidden one
-		if not self.__selected_soap is None and not self.__selected_soap.IsContentShown():
-#			self.__managed_episodes.append(self.__selected_episode[1])
-#			self.__selected_soap.SetHealthIssue(self.__selected_episode)
-			self.__focussed_soap_editor.GetSOAPPanel().Show()
-			self.__focussed_soap_editor.detail.Select()
-			self.__focussed_soap_editor.creatorHor.Show(True)
-			self.__focussed_soap_editor.closer.Show(True)
+		#if not self.__selected_soap is None and not self.__selected_soap.IsContentShown():
+#		#	self.__managed_episodes.append(self.__selected_episode[1])
+#		#	self.__selected_soap.SetHealthIssue(self.__selected_episode)
+		#	self.__focussed_soap_editor.GetSOAPPanel().Show()
+		#	self.__focussed_soap_editor.detail.Select()
+		#	self.__focussed_soap_editor.creatorHor.Show(True)
+		#	self.__focussed_soap_editor.closer.Show(True)
 			
-		else:
+		#else:
 			# create SOAP input widget for currently selected issue
 			# FIXME: programmatically calculate height
-			self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
+		#	self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
 
 		print "problems with soap: %s"%(self.__managed_episodes)
 		

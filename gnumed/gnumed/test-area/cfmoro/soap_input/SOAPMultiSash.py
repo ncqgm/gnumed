@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.19 2005-01-16 20:30:54 ncq Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.20 2005-01-17 19:56:10 cfmoro Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -374,6 +374,9 @@ class cMultiSashLeaf(wxWindow):
 		Set main controller
 		"""
 		self.content.SetNewController(self.MultiSashWin.childController)
+		
+	def MakeSoapEditor(self):
+		self.content.MakeSoapEditor()
 
 	def AddLeaf(self,direction,pos):
 		if pos < 10: return
@@ -500,6 +503,18 @@ class cMultiSashLeafContent(wxWindow):
 		@type: gmSOAPInput.cSOAPInputPanel
 		"""
 		self.childController = childController
+		self.Select()
+
+	def MakeSoapEditor(self):
+		"""
+		Destroys current widget (usually EmptyWidget, becouse no soap editors are
+		displayed at startup - no episode selected)
+		"""
+		if self.soap_panel:
+			self.soap_panel.Destroy()
+			self.soap_panel = None
+		self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, self.childController.get_selected_episode())
+		self.soap_panel.MoveXY(2,2)
 		self.Select()
 
 	def OnChildFocus(self,evt):
@@ -766,7 +781,8 @@ class EmptyChild(wxWindow):
 	"""
 	def __init__(self,parent):
 		wxWindow.__init__(self,parent,-1, style = wxCLIP_CHILDREN)
-
+		
+		
 #============================================================
 def DrawSash(win,x,y,direction):
 	"""
