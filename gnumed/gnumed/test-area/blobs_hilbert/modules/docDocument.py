@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -18,6 +18,7 @@ class cDocument:
 
 	def __init__(self):
 		__log__.Log(gmLog.lData, "Instantiated.")
+		self.__metadata = {}
 	#-----------------------------------
 	def loadMetaDataFromXML(self, aBaseDir = None, aCfg = None, aSection = None):
 		"""Load document metadata from XML file."""
@@ -102,6 +103,8 @@ class cDocument:
 		if not self.__read_img_list(aDescFile, aBaseDir):
 			__log__.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
 			return None
+		else:
+			return 1
 	#-----------------------------------
 	def loadMetaDataFromGNUmed(self, aConn = None, aDocumentID = None):
 		"""Document meta data loader for GNUmed compatible database."""
@@ -364,12 +367,12 @@ class cDocument:
 		fileinput.close()
 
 		if len(self.__metadata['objects'].keys()) == 0:
-			log.Log (gmLog.lErr, "no files found for import")
+			__log__.Log (gmLog.lErr, "no files found for import")
 			return None
 
 		__log__.Log(gmLog.lData, "document data files to be processed: " + str(self.__metadata['objects']))
 
-		return (1==1)
+		return 1
 	#-----------------------------------
 	def __get_from_xml(self, aTag = None, anXMLfile = None):
 		# sanity
