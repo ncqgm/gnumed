@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -64,6 +64,7 @@ class cSOAPControl(wx.wxPanel):
 		# soap's health issue heading
 		self.soap_label = wx.wxStaticText(self, -1, "Select issue and press 'New'")
 		self.health_issue = None
+		print "AAAAAAA"
 		
 		# soap rich and smart text editor
 		# FIXME currently copied form SOAP2.py
@@ -103,18 +104,20 @@ class cSOAPControl(wx.wxPanel):
 		
 		# 
 		
-	def SetHealthIssue(self, health_issue):
+	def SetHealthIssue(self, selected_issue):
 		"""
 		Sets health issue SOAP editor
 		"""
-		self.health_issue = health_issue
-		if self.health_issue is None:
+		self.health_issue = selected_issue
+		if self.health_issue is None or len(self.health_issue) == 0:
 			self.soap_label.SetLabel("Select issue and press 'New'")
 		else:
-			self.soap_label.SetLabel(health_issue['description'] )
+			txt = '%s# %s'%(self.health_issue[0]+1, self.health_issue[1]['description'])
+			self.soap_label.SetLabel(txt)
 			size = self.soap_label.GetBestSize()
 			self.soap_control_sizer.SetItemMinSize(self.soap_label, size.width, size.height)
 			self.Layout()
+		self.ShowContents()
 			
 
 		
@@ -135,6 +138,14 @@ class cSOAPControl(wx.wxPanel):
 		Clear values in SOAP text editor
 		"""
 		self.soap_text_editor.SetValues ({"Subjective":" ", "Objective":" ", "Assessment":" ", "Plan":" "})
+
+	def HideContents(self):
+		self.soap_label.Hide()
+		self.soap_text_editor.Hide()
+		
+	def ShowContents(self):
+		self.soap_label.Show(True)
+		self.soap_text_editor.Show(True)
 
 #============================================================	       	       
 class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
@@ -161,7 +172,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# business objects setup
 		self.patient = gmPatient.gmCurrentPatient()
 		self.emr = self.patient.get_clinical_record()
-		self.selected_issue = None
+		self.selected_issue = []
 		self.issues_with_soap = []
 		
 		# ui contruction and event interests
@@ -182,10 +193,9 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.soap_panel = wx.wxPanel(self.soap_emr_splitter,-1)
 		# SOAP multisash
 		self.soap_multisash = SOAPMultiSash.cSOAPMultiSash(self.soap_panel, -1)
-		self.selected_issue = None
 		self.soap_multisash.SetDefaultChildClassAndControllerObject(cSOAPControl,self)
-		self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().Hide()
-		self.soap_multisash.GetSelectedLeaf().UnSelect()
+		#self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().Hide()
+		#self.soap_multisash.GetSelectedLeaf().UnSelect()
 		# SOAP action buttons
 		self.save_button = wx.wxButton(self.soap_panel, -1, "&Save")
 		self.clear_button = wx.wxButton(self.soap_panel, -1, "&Clear")
@@ -194,12 +204,6 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# EMR tree
 		self.emr_panel = wx.wxPanel(self.soap_emr_splitter,-1)
-		#self.health_issues_list = wx.wxTreeCtrl (
-		#	self.emr_panel,
-		#	-1,
-		#	style=wx.wxTR_HAS_BUTTONS | wx.wxNO_BORDER
-		#)
-		# FIXME currently only single selection is supported
 		self.health_issues_list = wx.wxListBox(
 			self.emr_panel,
 			-1,
@@ -260,55 +264,69 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Obtains SOAP input from selected editor and dumps it to backend
 		"""
-		#result = self.soap_multisash.GetSaveData()
-		selected_soap = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().GetSOAP()
-		print selected_soap.GetValues()
-		print "Saving SOAP: %s"%(selected_soap.GetValues())
+		if self.soap_multisash.GetSelectedLeaf() is None or len(self.issues_with_soap) == 0:
+			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+		else:
+			selected_soap = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().GetSOAP()
+			print selected_soap.GetValues()
+			print "Saving SOAP: %s"%(selected_soap.GetValues())
 			
 	#--------------------------------------------------------
 	def on_clear(self, event):
 		"""
 		Clears selected SOAP editor
 		"""
-		print "Clear SOAP"
-		selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
-		selected_soap_panel.ClearSOAP()
+		if self.soap_multisash.GetSelectedLeaf() is None or len(self.issues_with_soap) == 0:
+			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+		else:
+			print "Clear SOAP"
+			selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
+			selected_soap_panel.ClearSOAP()
 		
 	#--------------------------------------------------------
 	def on_new(self, event):
 		"""
 		Creates and displays a new SOAP input editor
 		"""
-		print "New SOAP"
-		# FIXME only when unique and empty SOAP
-		selected_leaf = self.soap_multisash.GetSelectedLeaf()
-		if selected_leaf.GetSOAPPanel().GetHealthIssue() is None:
-		#selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
-			selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
-			selected_leaf.GetSOAPPanel().Show()
-			selected_leaf.detail.Select()
-			self.issues_with_soap.append(self.selected_issue)
-			
+		if self.soap_multisash.GetSelectedLeaf() is None:
+			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+		elif self.selected_issue is None or len(self.selected_issue) == 0:
+			wx.wxMessageBox("There is not any problem selected.\nA problem must be selected to create a new SOAP note.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
 		else:
-			if self.selected_issue in self.issues_with_soap:
-				print "Issue has already soap"
-				wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+			print "New SOAP"
+			# FIXME only when unique and empty SOAP
+			selected_leaf = self.soap_multisash.GetSelectedLeaf()
+			selected_issue = selected_leaf.GetSOAPPanel().GetHealthIssue()
+			if selected_issue is None or len(selected_issue) == 0:
+			#selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
+				selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
+				selected_leaf.GetSOAPPanel().Show()
+				selected_leaf.detail.Select()
+				self.issues_with_soap.append(self.selected_issue[1])
+				
 			else:
-				# FIXME calculate height
-				selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
+				if self.selected_issue[1] in self.issues_with_soap:
+					print "Issue has already soap"
+					wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+				else:
+					# FIXME calculate height
+					selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
 
-		print "Issues with soap: %s"%(self.issues_with_soap)
+			print "Issues with soap: %s"%(self.issues_with_soap)
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):
 		"""
 		Creates and displays a new SOAP input editor
 		"""
-		print "Remove SOAP"
-		selected_leaf = self.soap_multisash.GetSelectedLeaf()
-		selected_leaf.DestroyLeaf()
+		if self.soap_multisash.GetSelectedLeaf() is None or len(self.issues_with_soap) == 0:
+			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+		else:
+			print "Remove SOAP"
+			selected_leaf = self.soap_multisash.GetSelectedLeaf()
+			selected_leaf.DestroyLeaf()
 
-		print "Issues with soap: %s"%(self.issues_with_soap)
+			print "Issues with soap: %s"%(self.issues_with_soap)
 	#--------------------------------------------------------	
 	def on_patient_selected(self):
 		"""
@@ -320,7 +338,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Displays information for a selected tree node
 		"""		
-		self.selected_issue = self.health_issues_list.GetClientData(self.health_issues_list.GetSelection())
+		self.selected_issue = [self.health_issues_list.GetSelection(), self.health_issues_list.GetClientData(self.health_issues_list.GetSelection())]
 		print 'Selected: %s'%(self.selected_issue)
 
 	#--------------------------------------------------------
@@ -404,6 +422,7 @@ def askForPatient():
 
 	# Ask patient
 	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
+	
 	if patient_term == 'bye':
 		return None
 	search_ids = pat_searcher.get_patient_ids(search_term = patient_term)

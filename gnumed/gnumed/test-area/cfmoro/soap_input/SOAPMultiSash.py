@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.8 2004-11-26 06:19:38 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.9 2004-11-27 18:25:12 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -23,6 +23,8 @@ MV_VER = not MV_HOR
 SH_SIZE = 5 
 CR_SIZE = SH_SIZE * 3
 
+import gmSOAPInput
+
 #----------------------------------------------------------------------
 
 class cSOAPMultiSash(wxWindow):
@@ -30,6 +32,7 @@ class cSOAPMultiSash(wxWindow):
         apply(wxWindow.__init__,(self,) + _args,_kwargs)
         self._defChild = EmptyChild
         self._childController = None
+	self.child = None
         self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
         EVT_SIZE(self,self.OnMultiSize)
 
@@ -45,7 +48,8 @@ class cSOAPMultiSash(wxWindow):
         self.child.SetSize(self.GetSize())
 
     def UnSelect(self):
-        self.child.UnSelect()
+    	if not self.child is None:
+	        self.child.UnSelect()
 
     def Clear(self):
         old = self.child
@@ -133,11 +137,9 @@ class wxMultiSplit(wxWindow):
 	    soap_issue = self.view1.detail.child.GetHealthIssue()
 	    self.view1.detail.child.SetHealthIssue(None)
 	    self.view1.detail.child.ClearSOAP()	    
-	    self.view1.detail.UnSelect()
-	    self.view1.detail.child.Hide()
-	    self.view1.detail.childController.get_issues_with_soap().remove(soap_issue)
-	    
-	    
+	    self.view1.detail.child.HideContents()
+	    if len(self.view1.detail.childController.get_issues_with_soap()) > 0:
+		    self.view1.detail.childController.get_issues_with_soap().remove(soap_issue[1])
 	    return                      # we need to destroy any
         parent = self.GetParent()       # Another splitview
         if parent == self.multiView:    # We'r at the root
@@ -146,12 +148,14 @@ class wxMultiSplit(wxWindow):
                 self.view1 = self.view2
                 self.view2 = None
 	        soap_issue = self.old.detail.child.GetHealthIssue()
-	        self.old.detail.childController.get_issues_with_soap().remove(soap_issue)
+	        self.old.detail.childController.get_issues_with_soap().remove(soap_issue[1])
+		old.UnSelect()
                 old.Destroy()
 		print "1.1"
             else:
 	        soap_issue = self.view2.detail.child.GetHealthIssue()
-	        self.view2.detail.childController.get_issues_with_soap().remove(soap_issue)
+	        self.view2.detail.childController.get_issues_with_soap().remove(soap_issue[1])
+		self.view2.UnSelect()
                 self.view2.Destroy()
                 self.view2 = None
 		print "1.2"
@@ -313,18 +317,20 @@ class MultiClient(wxWindow):
 			  
         print "Creating view object  (%s), controller (%s)"%(childCls,childController)
         if not childController is None:
-                self.child = childCls(self)
+		self.child = childCls(self)
 		self.child.SetHealthIssue(childController.get_selected_issue())
-		childController.get_issues_with_soap().append(childController.get_selected_issue())
+		childController.get_issues_with_soap().append(childController.get_selected_issue()[1])
         else:
-                self.child = childCls(self)
+		# initializing component
+                self.child = gmSOAPInput.cSOAPControl(self)
 		
         self.childController = childController
         self.child.MoveXY(2,2)
         self.normalColour = self.GetBackgroundColour()
-        self.selected = False
-	if not childController is None:	
-		self.Select()
+	self.Select()
+
+        if childController is None:
+		self.child.HideContents()
 
         EVT_SET_FOCUS(self,self.OnSetFocus)
         EVT_CHILD_FOCUS(self,self.OnChildFocus)
@@ -332,12 +338,13 @@ class MultiClient(wxWindow):
     def UnSelect(self):
         if self.selected:
             self.selected = False
+	    self.GetParent().multiView.SetSelectedLeaf(None)
             self.SetBackgroundColour(self.normalColour)
             self.Refresh()
 
     def Select(self):    
-        if not self.child.IsShown():
-		return
+        #if not self.child.IsShown():
+	#	return
         self.GetParent().multiView.UnSelect()	
 	self.GetParent().multiView.SetSelectedLeaf(self.GetParent())
         self.selected = True
@@ -356,23 +363,11 @@ class MultiClient(wxWindow):
         w,h = self.GetClientSizeTuple()
         self.child.SetSize(wxSize(w-4,h-4))
 
-    def SetNewChildClsAndControllerObj(self,childCls,childController):
-        if self.child:
-            self.child.Destroy()
-            self.child = None
-        if self.childController:
-            self.childController.Destroy()
-            self.childController = None
-	print "Instantiating SOAP control"
-	self.child = childCls(self)
-	if not childController.get_selected_issue() is None:
-		self.child.SetHealthIssue(childController.get_selected_issue())
-	self.childController = childController
-        self.child.MoveXY(2,2)
-	self.Select()
-        	
     def OnSetFocus(self,evt):
         self.Select()
+	
+    def SetNewChildClsAndControllerObj(self,childCls,childController):
+	self.childController = childController
 
     def OnChildFocus(self,evt):
         self.OnSetFocus(evt)
