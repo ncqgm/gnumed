@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.2 2004-04-16 00:00:59 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmAllergy.py,v 1.3 2004-04-16 16:17:33 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 from Gnumed.pycommon import gmLog
@@ -31,14 +31,14 @@ class cAllergy(gmClinItem.cClinItem):
 				id_type=%(id_type)s,
 				generic_specific=%(generic_specific)s,
 				definite=%(definite)s,
-				narrative=%(reaction)s,
---              id_item,
---              id_episode,
---              id_patient,
---              id_encounter,
---              id_health_issue
+				narrative=%(reaction)s
 			where id=%(id)s"""
 		]
+#--              id_item,
+#--              id_episode,
+#--              id_patient,
+#--              id_encounter,
+#--              id_health_issue
 
 	_updatable_fields = [
 		'substance',
@@ -63,18 +63,19 @@ if __name__ == '__main__':
 	gmPG.set_default_client_encoding('latin1')
 	allg = cAllergy(aPKey=1)
 	print allg
-	fields = allg.get_fields()
-	for field in fields:
-		print field, ':', allg[field]
+#	fields = allg.get_fields()
+#	for field in fields:
+#		print field, ':', allg[field]
 	print "updatable:", allg.get_updatable_fields()
-	print allg['wrong attribute']
-	try:
-		allg['wrong attribute'] = 'hallo'
-	except:
-		_log.LogException('programming error', sys.exc_info())
+	allg['reaction'] = 'hehehe'
+	print allg
+	allg.save_payload()
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.2  2004-04-16 00:00:59  ncq
+# Revision 1.3  2004-04-16 16:17:33  ncq
+# - test save_payload
+#
+# Revision 1.2  2004/04/16 00:00:59  ncq
 # - Carlos fixes
 # - save_payload should now work
 #
