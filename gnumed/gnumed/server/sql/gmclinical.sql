@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.100 $
+-- $Revision: 1.101 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -217,7 +217,7 @@ comment on TABLE clin_note is
 
 -- --------------------------------------------
 create table clin_aux_note (
-	id serial primary key
+	pk serial primary key
 ) inherits (clin_root_item);
 
 select add_table_for_audit('clin_aux_note');
@@ -633,7 +633,11 @@ comment on column form_instances.form_name is
 -- --------------------------------------------
 create table form_data (
 	pk serial primary key,
-	fk_instance integer not null references form_instances(pk),
+	fk_instance integer
+		not null
+		references form_instances(pk)
+		on update cascade
+		on delete cascade,
 	place_holder text not null,
 	value text not null,
 	unique(fk_instance, place_holder)
@@ -652,26 +656,70 @@ comment on column form_data.place_holder is
 comment on column form_data.value is
 	'the value to replace the place holder with';
 
+-- ============================================
+-- diagnosis tables
+-- --------------------------------------------
+-- patient attached diagnosis
+create table clin_diag (
+	pk serial primary key,
+	fk_aux_note integer
+		default null
+		references clin_aux_note(pk)
+		on update cascade
+		on delete restrict,
+	is_chronic boolean
+		not null
+		default false,
+	is_active boolean
+		not null
+		default true
+		check ((is_chronic = true) and (is_active = true)),
+	is_definite boolean
+		not null
+		default false
+		check ((is_active = true) and (is_definite = true)),
+	is_significant boolean
+		not null
+		default true
+		check ((is_active = true) and (is_significant = true)),
+	unique (narrative, id_episode),
+	unique (narrative, id_encounter)
+) inherits (clin_root_item);
+
+select add_table_for_audit('clin_diag');
+
+-- diagnosis name stored in clin_diag(clin_root_item).narrative
+
+
+-- "working set" of coded diagnoses
+create table lnk_diag2code (
+	pk serial primary key,
+	description text
+		not null,
+	code text
+		not null,
+	xfk_coding_system text
+		not null,
+	unique (description, code, xfk_coding_system)
+) inherits (audit_fields);
+
+select add_table_for_audit('lnk_diag2code');
+select add_x_db_fk_def('lnk_diag2code', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
+
+comment on TABLE lnk_diag2code is
+	'diagnoses as used clinically in patient charts linked to codes';
+comment on column lnk_diag2code.description is
+	'free text description of diagnosis';
+comment on column lnk_diag2code.code is
+	'the code in the coding system';
+comment on column lnk_diag2code.xfk_coding_system is
+	'the coding system used to code the diagnosis';
+
+
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
-create table clin_diagnosis (
-	id serial primary key,
-	approximate_start text default null,
-	code text not null,
-	id_coding_systems integer not null
-) inherits (clin_root_item);
 
-comment on TABLE clin_diagnosis is
-	'Coded clinical diagnoses assigned to patient, in addition to history';
-comment on column clin_diagnosis.approximate_start is
-	'around the time at which this diagnosis was made';
-comment on column clin_diagnosis.code is
-	'the code';
-comment on column clin_diagnosis.id_coding_systems is
-	'the coding system used to code the diagnosis';
-
--- -------------------------------------------------------------------
 create table enum_confidentiality_level (
 	id SERIAL primary key,
 	description text
@@ -679,16 +727,6 @@ create table enum_confidentiality_level (
 
 comment on table enum_confidentiality_level is
 	'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
-
--- -------------------------------------------------------------------
-create table clin_diagnosis_extra (
-	id serial primary key,
-	id_clin_diagnosis int REFERENCES clin_diagnosis (id),
-	id_enum_confidentiality_level int REFERENCES enum_confidentiality_level (id)
-);
-
-comment on table clin_diagnosis_extra is
-'Extra information about a diagnosis, just the confidentiality level at present.';
 
 -- ============================================
 -- Drug related tables
@@ -831,11 +869,14 @@ comment on column referral.narrative is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.100 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.101 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.100  2004-04-24 12:59:17  ncq
+-- Revision 1.101  2004-04-27 15:18:38  ncq
+-- - rework diagnosis tables + grants for them
+--
+-- Revision 1.100  2004/04/24 12:59:17  ncq
 -- - all shiny and new, vastly improved vaccinations
 --   handling via clinical item objects
 -- - mainly thanks to Carlos Moro

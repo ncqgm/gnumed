@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.57 2004-04-26 21:17:10 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.58 2004-04-27 15:18:38 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -637,16 +637,18 @@ GRANT SELECT ON
 	_enum_hx_source,
 	clin_history,
 	clin_physical,
-	_enum_allergy_type,
-	allergy,
-	vaccination,
-	vaccine,
-	vacc_def
+	_enum_allergy_type
+	, allergy
+	, vaccination
+	, vaccine
+	, vacc_def
 	, vacc_regime
 	, lnk_vacc2vacc_def
 	, xlnk_identity
 	, form_instances
 	, form_data
+	, clin_diag
+	, lnk_diag2code
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -664,10 +666,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_encounter_id_seq",
 	"curr_encounter",
 	"curr_encounter_id_seq",
-	"clin_note",
-	"clin_note_id_seq",
-	"clin_aux_note",
-	"clin_aux_note_id_seq",
+	clin_note,
+	clin_note_id_seq,
+	clin_aux_note,
+	clin_aux_note_pk_seq,
 	"_enum_hx_type",
 	"_enum_hx_type_id_seq",
 	"_enum_hx_source",
@@ -696,8 +698,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, form_instances_pk_seq
 	, form_data
 	, form_data_pk_seq
+	, clin_diag
+	, clin_diag_pk_seq
+	, lnk_diag2code
+	, lnk_diag2code_pk_seq
 TO GROUP "_gm-doctors";
 
+-- measurements
 grant select on
 	test_org
 	, test_type
@@ -740,27 +747,18 @@ GRANT SELECT ON
 	, v_test_org_profile
 TO GROUP "gm-doctors";
 
---GRANT SELECT, INSERT, UPDATE, DELETE ON
---	"v_i18n_enum_encounter_type",
---	"v_pat_episodes",
---	"v_patient_items",
---	"v_i18n_curr_encounters",
---	"v_pat_allergies",
---	"v_vacc_regimes",
---	v_patient_vaccinations,
---	v_pat_due_vaccs,
---	v_pat_overdue_vaccs
---TO GROUP "_gm-doctors";
-
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.57 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.58 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.57  2004-04-26 21:17:10  ncq
+-- Revision 1.58  2004-04-27 15:18:38  ncq
+-- - rework diagnosis tables + grants for them
+--
+-- Revision 1.57  2004/04/26 21:17:10  ncq
 -- - fix v_test_org_profile
 --
 -- Revision 1.56  2004/04/26 09:38:43  ncq
