@@ -3,7 +3,7 @@ import re
 import sys
 
 
-#credentials = "hherb.com:gnumed:any-doc:any-doc"
+credentials = "hherb.com:gnumed:any-doc:any-doc"
 
 """ uncomment the credentials below for local testing.
 this is meant to sit on a server object, either local machine or LAN. 
@@ -11,7 +11,7 @@ and will take a long time across the internet.
 The values in self.model, self.values, self.collections, self.refs
 need to be packed up and serialized by a server for sending to a client.
 """
-credentials = "localhost:gnumed:any-doc:any-doc"
+#credentials = "localhost:gnumed:any-doc:any-doc"
 
 class SchemaParser:
 	
@@ -20,14 +20,15 @@ class SchemaParser:
 
 		self.create_regex()
 		#self.create_alias_sets()
-		self.fks = self.get_fk_list()
 		self.model = {}
 		self.next_level_maps = {}
 		self.type_tables = {} 
 		self.parents = {}
 		self.global_visited = {}
-		self.inherits = self.get_inherits()
 		self.formList = {}
+		self.conn = pgdb.connect(credentials)
+		self.fks = self.get_fk_list()
+		self.inherits = self.get_inherits()
 
 		self.build()
 		
@@ -40,8 +41,7 @@ class SchemaParser:
 
 	def get_inherits(self):
 
-		c = pgdb.connect(credentials)
-		cu = c.cursor()
+		cu = self.conn.cursor()
 		cu.execute("""
 		select c1.relname, c2.relname from pg_class c1, pg_class c2, pg_inherits c3
 		where c3.inhrelid = c1.relfilenode and c3.inhparent = c2.relfilenode""")
@@ -49,8 +49,7 @@ class SchemaParser:
 
 	def get_fk_list(self):
 		"""get a foreign key list from pg_constraint"""
-		c = pgdb.connect(credentials)
-		cu = c.cursor()
+		cu = self.conn.cursor()
 		cu.execute("""
 		select c1.relname, c2.relname from pg_class c1, pg_class c2, pg_constraint c3 where c1.relfilenode = c3.conrelid and c2.relfilenode = c3.confrelid and c3.contype='f'""")
 		r = cu.fetchall()
@@ -60,8 +59,7 @@ class SchemaParser:
 	def get_fk_details(self):
 		"""gets table, keying attribute, foreign table, foreign key attr"""
 
-		c = pgdb.connect(credentials)
-		cu = c.cursor()
+		cu = self.conn.cursor()
 		cu.execute( """
 		select c1.relname,a1.attname, c2.relname, a2.attname from pg_class c1, pg_class c2, pg_constraint c3 , pg_attribute a1, pg_attribute a2 where c1.relfilenode = c3.conrelid and c2.relfilenode = c3.confrelid and c3.contype='f' and c3.conrelid = a1.attrelid and c3.conkey[1] = a1.attnum and c3.confkey[1] = a2.attnum and c3.confrelid = a2.attrelid
 			""")
@@ -75,8 +73,7 @@ class SchemaParser:
 		else:
 			fk_cmp = 'not'
 
-		c = pgdb.connect(credentials)
-		cu = c.cursor()
+		cu = self.conn.cursor()
 		cu.execute("""
 		select attname from pg_attribute a, pg_class c where c.relfilenode = a.attrelid
 		and c.relname = '%s' and a.attnum > 0
@@ -92,8 +89,7 @@ class SchemaParser:
 		select  c.relname, a.attname from pg_attribute a, pg_class c, pg_constraint pc where  a.attrelid = c.relfilenode and pc.contype= 'p' and pc.conrelid = a.attrelid and pc.conkey[1] = a.attnum
 
 		""" 
-		c = pgdb.connect(credentials)
-		cu = c.cursor()
+		cu = self.conn.cursor()
 		cu.execute(stmt)
 		return cu.fetchall()
 
@@ -143,15 +139,15 @@ class SchemaParser:
 			print
 			print
 
-		print self.type_tables
-		print "These tables are not type tables"
-		print  filter( lambda(x): x not in self.type_tables.keys() , self.global_visited.keys() ) 
+		#print self.type_tables
+		#print "These tables are not type tables"
+		#print  filter( lambda(x): x not in self.type_tables.keys() , self.global_visited.keys() ) 
 
-		print 
-		print "These tables have non-reference/non-structural attributes"
-		print self.getDomainAttributedTables()
+	#	print 
+	#	print "These tables have non-reference/non-structural attributes"
+	#	print self.getDomainAttributedTables()
 
-		print 
+	#	print 
 		print "The flattened attributes were:-"
 
 		self.get_forms(1)

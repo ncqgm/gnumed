@@ -12,8 +12,8 @@ import testschema5 as testschema
 import pgdb
 import traceback,sys
 
-credentials = "localhost:gnumed:any-doc:any-doc"
-#credentials = "hherb.com:gnumed:any-doc:any-doc"
+#credentials = "localhost:gnumed:any-doc:any-doc"
+credentials = "hherb.com:gnumed:any-doc:any-doc"
 
 class Loader:
 
@@ -133,9 +133,24 @@ class Loader:
 
 	def getForeignIds( self, referredId, referer, referred ):
 		stmt  = self.getSelectChildPk( referer, referred)
-		
-		ids = [ v[0] for v in self.execute( stmt % referredId)]
-		return ids 
+		if stmt is None:
+			stmt = self.getSelectChildPk(referred, referer)
+		#<DEBUG>
+		print "in getForeignIds(), stmt = ", stmt, "referredId = ", referredId
+		#</DEBUG>
+		if referredId is None or stmt is None:
+			return []
+		cmd = stmt % referredId
+		try:
+			l = self.execute(cmd)
+			ids = [ v[0] for v in l]
+			return ids 
+		except:
+			for i in range(3):
+				print sys.exc_info()[i]
+			traceback.print_tb(sys.exc_info()[2])	
+
+			return []
 
 	def loadCollection(self, name , id, childName, childMap):
 		ids = self.getForeignIds( id,  childName, name)
@@ -162,6 +177,7 @@ class Loader:
 		
 	def execute(self, stmt, label = 'last'):
 		cu = self.conn.cursor() 
+		self.conn.commit()
 		cu.execute(stmt)
 		l = cu.fetchall()
 		if not self.descriptions.has_key(label):
@@ -184,9 +200,13 @@ class Loader:
 		return self.subclass.has_key(name) and self.subclass[name].has_key(id) and self.subclass[name][id].has_key(subName)
 
 	def mergeSubClassClassInstances(self, name, id, subName):
+		
 		id2 = self.subclass[name][id][subName]
+		self.assertValues(name)	
 		m1 = self.values[name][id]
+		self.assertCollections(name, id)
 		c1 = self.collections[name][id]
+		self.assertRef(name, id)
 		r1 = self.refs[name][id]
 
 		d2 = dict( [(v[0],1) for v in self.descriptions.get(subName, []) ] )
@@ -194,9 +214,9 @@ class Loader:
 			if not d2.has_key(self.descriptions[name][i][0]):
 				self.values[subName][id2].append(m1[i])
 			
-		self.assertCollections(subName,id)
+		self.assertCollections(subName,id2)
 		self.collections[subName][id2].update(c1)
-		self.assertRef(subName,id)
+		self.assertRef(subName,id2)
 		self.refs[subName][id2].update(r1)
 		
 		del self.values[name][id]
