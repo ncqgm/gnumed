@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmConnectionPool - Broker for Postgres distributed backend connections
@@ -30,7 +29,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -633,7 +632,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.30  2003-01-06 14:35:02  ncq
+# Revision 1.31  2003-01-16 14:45:04  ncq
+# - debianized
+#
+# Revision 1.30  2003/01/06 14:35:02  ncq
 # - fail gracefully on not being able to connect RW
 #
 # Revision 1.29  2003/01/05 09:58:19  ncq

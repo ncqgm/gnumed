@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmExceptions - classes for exceptions gnumed modules may throw

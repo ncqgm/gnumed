@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """GNUMed GUI element brokerage
 
 This module provides wrappers for the equivalent of global
@@ -10,7 +9,7 @@ variables needed for a gnumed GUI client interface
 """
 #-----------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmGuiBroker.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "H.Herb <hherb@gnumed.net>, H.Berger <Hilmar.Berger@gmx.de>"
 #===========================================================
 
@@ -154,7 +153,10 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGuiBroker.py,v $
-# Revision 1.4  2003-01-12 00:20:04  ncq
+# Revision 1.5  2003-01-16 14:45:03  ncq
+# - debianized
+#
+# Revision 1.4  2003/01/12 00:20:04  ncq
 # - fixed __author__
 #
 # Revision 1.3  2003/01/12 00:17:44  ncq

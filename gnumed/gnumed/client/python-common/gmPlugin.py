@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmPlugin - base classes for GNUMed's plugin architecture
@@ -14,7 +13,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -468,7 +467,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.35  2003-01-16 09:18:11  ncq
+# Revision 1.36  2003-01-16 14:45:04  ncq
+# - debianized
+#
+# Revision 1.35  2003/01/16 09:18:11  ncq
 # - cleanup
 #
 # Revision 1.34  2003/01/12 17:30:19  ncq

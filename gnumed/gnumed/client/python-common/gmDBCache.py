@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmCachedDBObject : abstraction and performance improvement for simple

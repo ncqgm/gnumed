@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmCachedAddress - data broker for a person's address

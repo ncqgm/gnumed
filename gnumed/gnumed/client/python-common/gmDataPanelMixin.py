@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmDataPanelMixin - Provides a uniform means of data sensitivity to a GUI panel
@@ -11,10 +10,13 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDataPanelMixin.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "H.Herb <hherb@gnumed.net>"
 # $Log: gmDataPanelMixin.py,v $
-# Revision 1.2  2003-01-06 04:52:55  ihaywood
+# Revision 1.3  2003-01-16 14:45:03  ncq
+# - debianized
+#
+# Revision 1.2  2003/01/06 04:52:55  ihaywood
 # resurrected gmDemographics.py
 #
 # Revision 1.1  2002/10/13 11:49:50  hherb

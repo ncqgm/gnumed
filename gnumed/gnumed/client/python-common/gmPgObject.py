@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #############################################################################
 #
 # gmPgObject - database row abstraction for gnumed
@@ -19,10 +18,13 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.10 $"                                               
+__version__ = "$Revision: 1.11 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.10  2002-10-26 04:43:06  hherb
+# Revision 1.11  2003-01-16 14:45:04  ncq
+# - debianized
+#
+# Revision 1.10  2002/10/26 04:43:06  hherb
 # Undo implemented for fetched rows modified before committtment
 # Manually enforced "save" implemented
 #

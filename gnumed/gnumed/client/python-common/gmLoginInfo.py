@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmLoginInfo - a class to encapsulate Postgres login information
@@ -16,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.8 2003-01-04 09:34:16 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmLoginInfo.py,v 1.9 2003-01-16 14:45:03 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 #====================================================================
@@ -173,7 +172,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.8  2003-01-04 09:34:16  ncq
+# Revision 1.9  2003-01-16 14:45:03  ncq
+# - debianized
+#
+# Revision 1.8  2003/01/04 09:34:16  ncq
 # - missing self. in GetDBAPI_DSN
 #
 # Revision 1.7  2003/01/04 09:05:17  ncq

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmDbObject : base class for generic database objects
@@ -17,7 +16,7 @@
 ############################################################################
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmDbObject.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 import sys
@@ -219,7 +218,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmDbObject.py,v $
-# Revision 1.5  2002-09-26 13:18:24  ncq
+# Revision 1.6  2003-01-16 14:45:03  ncq
+# - debianized
+#
+# Revision 1.5  2002/09/26 13:18:24  ncq
 # - log version
 #
 # Revision 1.4  2002/09/16 23:26:30  ncq

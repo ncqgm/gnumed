@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmSignals.py: factory functions returning GnuMed internal signal strings
@@ -24,7 +23,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -86,7 +85,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.4  2002-11-30 11:07:50  ncq
+# Revision 1.5  2003-01-16 14:45:04  ncq
+# - debianized
+#
+# Revision 1.4  2002/11/30 11:07:50  ncq
 # - just a bit of cleanup
 #
 # Revision 1.3  2002/09/10 07:41:27  ncq

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmCachedPerson - data broker for single person information

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """GnuMed database backend listener.
 
 This module implements listening for asynchronuous
@@ -10,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -178,7 +176,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.5  2002-09-26 13:21:37  ncq
+# Revision 1.6  2003-01-16 14:45:03  ncq
+# - debianized
+#
+# Revision 1.5  2002/09/26 13:21:37  ncq
 # - log version
 #
 # Revision 1.4  2002/09/08 21:22:36  ncq
