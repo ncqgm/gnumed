@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.42 2004-12-27 16:23:39 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmPhraseWheel.py,v 1.43 2005-03-14 14:37:56 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -110,15 +110,15 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist_visible = False
 
 		self.__gb = gmGuiBroker.GuiBroker()
-		if self.__gb.has_key('main.slave_mode') and not self.__gb['main.slave_mode']:
+		if self.__gb.has_key('main.slave_mode') and self.__gb['main.slave_mode']:
+			_log.Log(gmLog.lWarn, 'disabling gmTimer in slave mode')
+			self.__timer = gmNull.cNull()
+		else:
 			self.__timer = gmTimer.cTimer (
 				callback = self._on_timer_fired,
 				delay = aDelay
 			)
 			#self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
-		else:
-			self.__timer = gmNull.cNull()
-
 	#--------------------------------------------------------
 	def __register_events(self):
 		# 1) entered text changed
@@ -541,7 +541,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.42  2004-12-27 16:23:39  ncq
+# Revision 1.43  2005-03-14 14:37:56  ncq
+# - only disable timer if slave mode is really active
+#
+# Revision 1.42  2004/12/27 16:23:39  ncq
 # - gmTimer callbacks take a cookie
 #
 # Revision 1.41  2004/12/23 16:21:21  ncq
