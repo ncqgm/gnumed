@@ -97,7 +97,10 @@ class BrowseListCtrl( TestListCtrl):
 			if pos == None:
 				text = ""
 			else:
-				text = str(tuple[pos])
+				if tuple[pos] == None:
+					text = ""
+				else:	
+					text = str(tuple[pos])
 				
 					
 			if col == 0:
