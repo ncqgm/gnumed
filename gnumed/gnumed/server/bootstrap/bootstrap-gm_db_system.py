@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1005,7 +1005,7 @@ class gmService:
 	def __verify_pg_version(self):
 		"""Verify database version information."""
 
-		required_version = _cfg.get(self.section, "postgres version")
+		required_version = _cfg.get(self.section, "minimum postgresql version")
 		if required_version is None:
 			_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
 			return None
@@ -1444,7 +1444,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.53  2004-03-09 10:45:02  ncq
+# Revision 1.54  2004-03-14 22:32:04  ncq
+# - postgres version -> minimum postgresql version
+#
+# Revision 1.53  2004/03/09 10:45:02  ncq
 # - typo fix
 # - gmFormDefs now merged with gmReference.sql
 #
