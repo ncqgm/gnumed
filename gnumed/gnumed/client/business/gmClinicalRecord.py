@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.158 2005-02-12 13:52:45 ncq Exp $
-__version__ = "$Revision: 1.158 $"
+# $Id: gmClinicalRecord.py,v 1.159 2005-02-13 15:44:52 ncq Exp $
+__version__ = "$Revision: 1.159 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1290,7 +1290,7 @@ where
 		# ask user whether to attach or not
 		cmd = """
 			select title, firstnames, lastnames, gender, dob
-			from v_basic_person	where i_pk=%s"""
+			from v_basic_person	where pk_identity=%s"""
 		pat = gmPG.run_ro_query('personalia', cmd, None, self.pk_patient)
 		if (pat is None) or (len(pat) == 0):
 			_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.pk_patient)
@@ -1667,7 +1667,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.158  2005-02-12 13:52:45  ncq
+# Revision 1.159  2005-02-13 15:44:52  ncq
+# - v_basic_person.i_pk -> pk_identity
+#
+# Revision 1.158  2005/02/12 13:52:45  ncq
 # - identity.id -> pk
 # - v_basic_person.i_id -> i_pk
 # - self.id_patient -> self.pk_patient
