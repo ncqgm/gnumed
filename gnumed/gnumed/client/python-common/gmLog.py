@@ -24,9 +24,9 @@ The log file will be found in one of the following standard
 locations:
 
 1) given on the command line as "--log-file=<log file>"
-2) ~/.<base_name>/<base_name>.log
-3) /var/log/<base_name>/<base_name>.log
-4) /var/log/<base_name>.log
+2) /var/log/<base_name>/<base_name>.log
+3) /var/log/<base_name>.log
+4) ~/.<base_name>/<base_name>.log
 5) /dir/of/binary/<base_name>.log	- mainly for DOS/Windows
 
 where <base_name> is derived from the name
@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -589,23 +589,6 @@ def __open_default_logfile():
 	# get base name from name of script
 	base_name = base_dir + ".log"
 
-	# ~/.base_dir/base_name.log
-	# make sure path is there
-	tmp = os.path.expanduser(os.path.join('~', '.' + base_dir))
-	if not os.path.exists(tmp):
-		try:
-			os.mkdir(tmp)
-		except:
-			print "Cannot make directory [%s] for log file." % tmp
-	if os.path.exists(tmp):
-		logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
-		try:
-			loghandle = cLogTargetFile (lInfo, logName, "wb")
-			print "log file is [%s]" % logName
-			return loghandle
-		except:
-			pass
-
 	# /var/log/base_dir/base_name.log
 	logName = os.path.join('/var/log', base_dir, base_name)
 	try:
@@ -623,6 +606,23 @@ def __open_default_logfile():
 		return loghandle
 	except:
 		pass
+
+	# ~/.base_dir/base_name.log
+	# make sure path is there
+	tmp = os.path.expanduser(os.path.join('~', '.' + base_dir))
+	if not os.path.exists(tmp):
+		try:
+			os.mkdir(tmp)
+		except:
+			print "Cannot make directory [%s] for log file." % tmp
+	if os.path.exists(tmp):
+		logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
+		try:
+			loghandle = cLogTargetFile (lInfo, logName, "wb")
+			print "log file is [%s]" % logName
+			return loghandle
+		except:
+			pass
 
 	# ./base_name.log
 	# last resort for inferior operating systems such as DOS/Windows
@@ -765,7 +765,12 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.25  2002-11-17 20:09:10  ncq
+# Revision 1.26  2002-11-18 00:18:12  ncq
+# - conform to Debian/FHS/LSB idea of where to place log files (/var/log/base/)
+# - will slightly increase startup on Windows/DOS
+# - admin must still create /var/log/base/ and assign appropriate rights to users
+#
+# Revision 1.25  2002/11/17 20:09:10  ncq
 # - always display __doc__ when called standalone
 #
 # Revision 1.24  2002/11/08 16:32:24  ncq
