@@ -26,6 +26,10 @@
 #        ?can cursor tool tip change when hovered over bitmap on a tab?
 #        remove non-used imports from below this text
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
+# $Id: gmGP_TabbedLists.py,v 1.8 2003-01-25 23:02:53 ncq Exp $
+__version__ = "$Revision: 1.8 $"
+
 from wxPython.wx import *
 #from wxPython.gizmos import *
 from wxPython.stc import *
@@ -35,12 +39,15 @@ import images #bitmaps for column headers of lists
 import gmPlugin, gmShadow, gmLog
 import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin   
+
 scriptdata = {
 1 : ("Adalat Oris", "30mg","1 mane","21/01/2002", "Hypertension","30 Rpt5","29/02/2000"),
 2 : ("Nitrolingual Spray","", "1 spray when needed","24/08/2001", "Angina","1 Rpt2","01/06/2001"),
 3 : ("Losec", "20mg","1 mane", "21/01/2002","Reflux Oesophagitis","30 Rpt5","16/11/2001"),
 4 : ("Zoloft", "50mg","1 mane", "24/04/2002","Depression","30 Rpt0","24/04/2002"),
 }
+
+#=====================================================================
 class TabbedLists(wxPanel): #, wxColumnSorterMixin):
     def __init__(self, parent,id):
 	wxPanel.__init__(self, parent, id)
@@ -174,7 +181,7 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         self.Show(true)
 
-
+#=====================================================================
 class gmGP_TabbedLists (gmPlugin.wxBasePlugin):
     """
     Plugin to encapsulate the tabbed lists
@@ -195,3 +202,8 @@ if __name__ == "__main__":
 	app.SetWidget(TabbedLists, -1)
 	app.MainLoop()
  
+#=====================================================================
+# $Log: gmGP_TabbedLists.py,v $
+# Revision 1.8  2003-01-25 23:02:53  ncq
+# - cvs keywords/metadata
+#
