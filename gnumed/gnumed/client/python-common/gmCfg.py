@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -402,7 +402,7 @@ class cCfgFile:
 	#----------------------------
 	def getComment(self, aGroup = None, anOption = None):
 		# file level
-		if aGroup == None:
+		if aGroup is None:
 			# return file level comment if available
 			if self._cfg_data.has_key('comment'):
 				return self._cfg_data['comment']
@@ -412,7 +412,7 @@ class cCfgFile:
 
 		# group or option level
 		if self._cfg_data['groups'].has_key(aGroup):
-			if anOption == None:
+			if anOption is None:
 				if self._cfg_data['groups'][aGroup].has_key('comment'):
 					return self._cfg_data['groups'][aGroup]['comment']
 				else:
@@ -440,8 +440,8 @@ class cCfgFile:
 		This does not write the changed configuration to a file !
 		"""
 		# setting file level comment ?
-		if aGroup == None:
-			if aComment == None:
+		if aGroup is None:
+			if aComment is None:
 				_log.Log(gmLog.lErr, "don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
 				return None
 			self._cfg_data['comment'] = [str(aComment)]
@@ -453,8 +453,8 @@ class cCfgFile:
 			self._cfg_data['groups'][aGroup] = {'options': {}}
 
 		# setting group level comment ?
-		if anOption == None:
-			if aComment == None:
+		if anOption is None:
+			if aComment is None:
 				_log.Log(gmLog.lErr, "don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
 				return None
 			self._cfg_data['groups'][aGroup]['comment'] = aComment
@@ -462,7 +462,7 @@ class cCfgFile:
 			return 1
 
 		# setting option
-		if aValue == None:
+		if aValue is None:
 			_log.Log(gmLog.lErr, "don't know what to do with (aGroup = %s, anOption = %s, aValue = %s, aComment = %s)" % (aGroup, anOption, aValue, aComment))
 			return None
 		# make sure option is there
@@ -471,7 +471,7 @@ class cCfgFile:
 		# set value
 		self._cfg_data['groups'][aGroup]['options'][anOption]['value'] = aValue
 		# set comment
-		if not aComment == None:
+		if not aComment is None:
 			self._cfg_data['groups'][aGroup]['options'][anOption]['comment'] = aComment
 		self._modified = 1
 		return 1
@@ -581,13 +581,13 @@ class cCfgFile:
 			_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
 
 		# now make base path components
-		if aName == None:
+		if aName is None:
 			# get base name from name of script
 			base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
 		else:
 			base_name = aName
 
-		if aDir == None:
+		if aDir is None:
 			# get base dir from name of script
 			base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 		else:
@@ -672,19 +672,6 @@ class cCfgFile:
 			# remove leading/trailing whitespace
 			line = string.strip(line)
 
-			# ignore empty lines
-			if line == "":
-				# if before first group
-				if curr_group == None:
-					if self._cfg_data.has_key('comment'):
-						self._cfg_data['comment'].append(comment_buf)
-					else:
-						self._cfg_data['comment'] = comment_buf
-					comment_buf = []
-				continue
-
-			#_log.Log(gmLog.lData, 'parsing line >>>%s<<<' % line)
-
 			#-----------------------
 			# are we inside a list ?
 			if in_list:
@@ -694,6 +681,18 @@ class cCfgFile:
 					continue
 				# else keep unmodified line as list item
 				self._cfg_data['groups'][curr_group]['options'][curr_opt]['value'].append(line)
+				continue
+
+			#-----------------------
+			# ignore empty lines
+			if line == "":
+				# if before first group
+				if curr_group is None:
+					if self._cfg_data.has_key('comment'):
+						self._cfg_data['comment'].append(comment_buf)
+					else:
+						self._cfg_data['comment'] = comment_buf
+					comment_buf = []
 				continue
 
 			#----------
@@ -924,7 +923,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.38  2003-02-11 16:52:36  ncq
+# Revision 1.39  2003-02-15 08:51:05  ncq
+# - don't remove empty lines in lists
+#
+# Revision 1.38  2003/02/11 16:52:36  ncq
 # - log one more failing corner case
 #
 # Revision 1.37  2003/02/09 09:48:28  ncq
