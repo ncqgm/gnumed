@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.115 2004-11-26 12:18:04 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.116 2004-11-26 13:51:18 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -202,18 +202,12 @@ declare
 	clin_narr_insert text;
 begin
 	-- generate insert query
-	clin_narr_insert := ''
-insert into clin_narrative (
-	fk_episode,
-	soap_cat,
-	narrative,
-	is_episode_name
-) values (''
-	|| ''''NEW.pk'''' || '',
-	''''s'''',
-	''''by_trigger_on_insert'''',
-	''''true''''::boolean
-)'';
+	clin_narr_insert := ''insert into clin_narrative (soap_cat, narrative, is_episode_name, fk_episode) values (''
+					 || '' ''''s'''',''
+					 || '' ''''by_trigger_on_insert'''',''
+					 || '' ''''true''''::boolean, ''
+					 || NEW.pk || '')'' ;
+--	raise notice ''%'', clin_narr_insert;
 	-- execute insert query
 	EXECUTE clin_narr_insert;
 	return NULL;
@@ -409,6 +403,7 @@ order by
 -- measurements stuff
 
 \unset ON_ERROR_STOP
+drop view v_test_type_local cascade;
 drop view v_test_type_local;
 \set ON_ERROR_STOP 1
 
@@ -433,6 +428,7 @@ comment on view v_test_type_local is
 
 --
 \unset ON_ERROR_STOP
+drop view v_test_type_unified cascade;
 drop view v_test_type_unified;
 \set ON_ERROR_STOP 1
 
@@ -469,6 +465,7 @@ comment on view v_test_type_unified is
 
 --
 \unset ON_ERROR_STOP
+drop view v_test_org_profile cascade;
 drop view v_test_org_profile;
 \set ON_ERROR_STOP 1
 
@@ -501,6 +498,7 @@ comment on view v_test_org_profile is
 
 --
 \unset ON_ERROR_STOP
+drop view v_test_results cascade;
 drop view v_test_results;
 \set ON_ERROR_STOP 1
 
@@ -1568,11 +1566,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.115 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.116 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.115  2004-11-26 12:18:04  ncq
+-- Revision 1.116  2004-11-26 13:51:18  ncq
+-- - always hard to get quoting right for dynamic pl/pgsql
+--
+-- Revision 1.115  2004/11/26 12:18:04  ncq
 -- - trigger/func _name_new_episode
 --
 -- Revision 1.114  2004/11/24 15:39:33  ncq
