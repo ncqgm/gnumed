@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.7 $
+version = $Revision: 1.8 $
 
 #----------------------------------
 [installation]
@@ -101,6 +101,7 @@ sql/gmSchemaRevision.sql
 sql/gmServices.sql
 sql/gmI18N.sql
 sql/gmAudit.sql
+sql/gmCrossDB_FKs.sql
 $schema$
 
 
@@ -240,7 +241,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.7  2003-05-26 13:59:12  ncq
+# Revision 1.8  2003-07-27 21:45:16  ncq
+# - add gmMeasurements and gmCrossDB_FKs
+#
+# Revision 1.7  2003/05/26 13:59:12  ncq
 # - explain new password option semantics
 #
 # Revision 1.6  2003/05/22 12:53:41  ncq
