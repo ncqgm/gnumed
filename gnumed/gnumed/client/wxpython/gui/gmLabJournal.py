@@ -35,9 +35,19 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_NB_LabJournal,
 	wxID_LBOX_pending_results,
 	wxID_PHRWH_labs,
-	wxIS_PHRWH_ids,
+	wxID_TXTCTRL_ids,
 	wxID_BTN_submit_Lab_ID
 ] = map(lambda _init_ctrls: wxNewId(), range(6))
+
+wxEVT_ITEM_SELECTED = wxNewEventType()
+#============================================================
+def EVT_ITEM_SELECTED(win, func):
+    win.Connect(-1, -1, wxEVT_ITEM_SELECTED, func)
+#============================================================
+class ItemSelectedEvent(wxPyCommandEvent):
+    def __init__(self):
+        wxPyEvent.__init__(self)
+        self.SetEventType(wxEVT_ITEM_SELECTED)
 #================================================================
 
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
@@ -114,12 +124,13 @@ class cLabJournalNB(wxNotebook):
 			#wxSize(80,-1),
 			#0
 			#)
-
+		EVT_ITEM_SELECTED(self.PNL_due_tab,self.__on_lab_selected)
+		
 		vbszr_main.AddWindow(lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
 
 		item2 = wxTextCtrl(
 			self.PNL_due_tab,
-			wxIS_PHRWH_ids,
+			wxID_TXTCTRL_ids,
 			"",
 			wxDefaultPosition,
 			wxSize(80,-1),
@@ -226,13 +237,16 @@ class cLabJournalNB(wxNotebook):
 		#get value for chosen laboratory
 		
 		#get id to associate with lab/probe
-		#seld.item2.
+		#item2.
 		pass
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
-		pass
-		#evt.Skip()
-	
+		#pass
+		evt.Skip()
+	#-------------------------------------------------------
+	def __on_lab_selected(self,evt):
+		#item2.SetValue(self.last_id[self.item1.GetValue()])
+		print ' it works'
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -342,9 +356,9 @@ if __name__ == '__main__':
 #			self.Layout()
 		#--------------------------------------------------------
 #		def __get_pat_data(self):
-			"""Get data of patient for which to retrieve documents.
+		#	"""Get data of patient for which to retrieve documents.
 
-			"""
+		#	"""
 			# FIXME: error checking
 #			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
 			# FIXME: actually handle pat_format, too
@@ -467,7 +481,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.2  2004-04-28 16:12:02  ncq
+# Revision 1.3  2004-04-29 21:05:19  shilbert
+# - some more work on auto update of id field
+#
+# Revision 1.2  2004/04/28 16:12:02  ncq
 # - cleanups, as usual
 #
 # Revision 1.1  2004/04/28 07:20:00  shilbert
