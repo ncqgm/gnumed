@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.84 $
+-- $Revision: 1.85 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -285,7 +285,11 @@ comment on column vacc_indication.description is
 -- --------------------------------------------
 create table lnk_vacc_ind2code (
 	id serial primary key,
-	fk_indication integer not null references vacc_indication(id) on delete cascade on update cascade,
+	fk_indication integer
+		not null
+		references vacc_indication(id)
+		on delete cascade
+		on update cascade,
 	code text not null,
 	coding_system text not null,
 	unique (fk_indication, code, coding_system)
@@ -321,11 +325,13 @@ comment on table vacc_route is
 -- "inventory"/"stock" or something one day
 create table vaccine (
 	id serial primary key,
-	id_route integer not null references vacc_route(id) default 1,
+	id_route integer
+		not null
+		references vacc_route(id)
+		default 1,
 	trade_name text unique not null,
 	short_name text not null,
 	is_live boolean not null default false,
-	is_licensed boolean not null default true,
 	min_age interval not null,
 	max_age interval default null,
 	last_batch_no text default null,
@@ -346,9 +352,6 @@ comment on column vaccine.short_name is
 	 for referring to this vaccine';
 comment on column vaccine.is_live is
 	'whether this is a live vaccine';
-comment on column vaccine.is_licensed is
-	'whether this vaccine is currently licensed
-	 for use in your jurisdiction';
 comment on column vaccine.min_age is
 	'minimum age this vaccine is licensed for';
 comment on column vaccine.max_age is
@@ -360,8 +363,16 @@ comment on column vaccine.last_batch_no is
 -- --------------------------------------------
 create table lnk_vaccine2inds (
 	id serial primary key,
-	fk_vaccine integer not null references vaccine(id) on delete cascade on update cascade,
-	fk_indication integer not null references vacc_indication(id) on delete cascade on update cascade,
+	fk_vaccine integer
+		not null
+		references vaccine(id)
+		on delete cascade
+		on update cascade,
+	fk_indication integer
+		not null
+		references vacc_indication(id)
+		on delete cascade
+		on update cascade,
 	unique (fk_vaccine, fk_indication)
 );
 
@@ -377,7 +388,8 @@ create table vacc_regime (
 	fk_indication integer
 		not null
 		references vacc_indication(id)
-		on update cascade,
+		on update cascade
+		on delete restrict,
 	comment text,
 	unique(fk_recommended_by, fk_indication, name)
 ) inherits (audit_fields);
@@ -833,11 +845,15 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.84 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.85 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.84  2004-01-15 15:09:24  ncq
+-- Revision 1.85  2004-01-18 21:56:38  ncq
+-- - v_patient_vacc4ind
+-- - reformatting DDLs
+--
+-- Revision 1.84  2004/01/15 15:09:24  ncq
 -- - use xlnk_identity extensively
 --
 -- Revision 1.83  2004/01/15 14:26:25  ncq

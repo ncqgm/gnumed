@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.39 2004-01-06 23:44:40 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.40 2004-01-18 21:56:38 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -326,7 +326,7 @@ drop view v_vacc_regimes;
 create view v_vacc_regimes as
 select
 	vreg.id as id_regime,
-	_(vind.description) as indication,
+	vind.description as indication,
 	vreg.name as regime,
 	vreg.fk_recommended_by,
 	coalesce(vreg.comment, '') as reg_comment,
@@ -362,7 +362,7 @@ select
 	v.id as pk_vaccination,
 	v.clin_when as date,
 	vreg.name as regime,
-	_(vind.description) as indication,
+	vind.description as indication,
 	vdef.is_booster as is_booster,
 	case when vdef.is_booster
 		then 0
@@ -402,7 +402,6 @@ where
 --		then true
 --		else false
 --	end as is_last_shot,
-
 
 
 \unset ON_ERROR_STOP
@@ -501,6 +500,37 @@ order by
 	vdef.max_age_due
 ;
 
+\unset ON_ERROR_STOP
+drop view v_patient_vacc4ind;
+\set ON_ERROR_STOP 1
+
+create view v_patient_vacc4ind as
+select
+	v.fk_patient as pk_patient,
+	v.id as pk_vaccination,
+	vind.id as pk_indication,
+	v.clin_when as date,
+	vind.description as indication,
+	vcine.trade_name as vaccine,
+	vcine.short_name as vaccine_short,
+	v.batch_no as batch_no,
+	v.site as site,
+	v.narrative,
+	v.fk_provider as pk_provider,
+	vcine.id as pk_vaccine
+from
+	vaccination v,
+	vaccine vcine,
+	lnk_vaccine2inds lv2i,
+	vacc_indication vind
+where
+	v.fk_vaccine = vcine.id
+		and
+	lv2i.fk_vaccine = vcine.id
+		and
+	lv2i.fk_indication = vind.id
+;
+
 -- ==========================================================
 -- current encounter stuff
 \unset ON_ERROR_STOP
@@ -551,6 +581,7 @@ GRANT SELECT ON
 	v_patient_vaccinations,
 	v_pat_due_vaccs,
 	v_pat_overdue_vaccs
+	, v_patient_vacc4ind
 TO GROUP "gm-doctors";
 
 --GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -569,13 +600,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-\set ON_ERROR_STOP 1
-
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.39 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.40 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.39  2004-01-06 23:44:40  ncq
+-- Revision 1.40  2004-01-18 21:56:38  ncq
+-- - v_patient_vacc4ind
+-- - reformatting DDLs
+--
+-- Revision 1.39  2004/01/06 23:44:40  ncq
 -- - __default__ -> xxxDEFAULTxxx
 --
 -- Revision 1.38  2003/12/29 15:31:53  uid66147
