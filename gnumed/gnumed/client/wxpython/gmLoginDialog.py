@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.49 2004-06-20 16:01:05 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmLoginDialog.py,v 1.50 2004-07-18 18:44:27 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib, types
@@ -68,7 +68,7 @@ class LoginPanel(wxPanel):
 
 		#true if dialog was cancelled by user 
 		#if the dialog is closed manually, login should be cancelled
-		self.cancelled = true
+		self.cancelled = True
 
 		# true if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
@@ -103,7 +103,7 @@ class LoginPanel(wxPanel):
 				family = wxSWISS,
 				style = wxNORMAL,
 				weight = wxBOLD,
-				underline = false
+				underline = False
 			))
 		else:
 			self.paramsbox.SetFont(wxFont(
@@ -111,7 +111,7 @@ class LoginPanel(wxPanel):
 				family = wxSWISS,
 				style = wxNORMAL,
 				weight = wxBOLD,
-				underline = false,
+				underline = False,
 				faceName = ''
 			))
 		self.pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
@@ -187,7 +187,7 @@ class LoginPanel(wxPanel):
 		#old code:self.topsizer.AddSizer(self.infoboxsizer, 0,wxGROW|wxALL, 10)
 		self.topsizer.AddSizer( self.button_gridsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
-		self.SetAutoLayout( true )
+		self.SetAutoLayout(True)
 		self.SetSizer( self.topsizer)
 		self.topsizer.Fit( self )
 		if self.isDialog:
@@ -354,11 +354,11 @@ For assistance on using GnuMed please contact:
 		    self.loginparams.backendoptionlist = self.__cbox_to_list(self.optionwindow.panel.beoptioncombo)
 	#----------------------------		
 	def OnLogin(self, event):
-		self.cancelled = false
+		self.cancelled = False
 		self.parent.Close()
 	#----------------------------
 	def OnCancel(self, event):
-		self.cancelled = true
+		self.cancelled = True
 		self.parent.Close()
 
 #====================================================
@@ -430,7 +430,7 @@ class OptionPanel(wxPanel):
 		self.parent = parent
 
 		#true if dialog was cancelled by user
-		self.cancelled = false
+		self.cancelled = False
 
 		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
@@ -533,7 +533,7 @@ class OptionPanel(wxPanel):
 		self.topsizer.AddSizer(self.paramsboxsizer, 1, wxGROW|wxALL, 10)
 		self.topsizer.AddSizer( self.button_gridsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
-		self.SetAutoLayout( true )
+		self.SetAutoLayout(True)
 		self.SetSizer( self.topsizer)
 		self.topsizer.Fit( self )
 		if self.isDialog:
@@ -549,7 +549,7 @@ class OptionPanel(wxPanel):
 #############################################################################
 
 	def OnCancel(self, event):
-		self.cancelled = true
+		self.cancelled = True
 		self.parent.Close()
 
 	def OnHelp(self, event):
@@ -562,7 +562,7 @@ Port: port number of database server\n\
 Backend options: options passed through unparsed to the backend\n"))
 		
 	def OnOK(self, event):
-		self.cancelled = false
+		self.cancelled = False
 		self.parent.Close()
 
 #====================================================
@@ -589,7 +589,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.49  2004-06-20 16:01:05  ncq
+# Revision 1.50  2004-07-18 18:44:27  ncq
+# - use Python True, not wxPython true
+#
+# Revision 1.49  2004/06/20 16:01:05  ncq
 # - please epydoc more carefully
 #
 # Revision 1.48  2004/06/20 06:49:21  ihaywood
