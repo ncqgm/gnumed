@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-01-04 07:43:55 $
-# @version $Revision: 1.53 $ $Date: 2003-01-04 07:43:55 $ $Author: ihaywood $
+# @Date: $Date: 2003-01-05 10:03:30 $
+# @version $Revision: 1.54 $ $Date: 2003-01-05 10:03:30 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -168,24 +168,26 @@ class MainFrame(wxFrame):
 
 	#----------------------------------------------
 	def OnNotebookPopup(self, evt):
-		load_menu = wxMenu ()
-		show_menu = wxMenu ()
+		load_menu = wxMenu()
+		show_menu = wxMenu()
 		any_loadable = 0
 		any_showable = 0
-		for plugin_name in gmPlugin.GetAllPlugins ('gui'):
+		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		myLog.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
+		for plugin_name in plugin_list:
 			plugin = gmPlugin.InstPlugin ('gui', plugin_name, guibroker = self.guibroker)
-			if isinstance ( plugin, gmPlugin.wxNotebookPlugin): 
-				if not (plugin.name () in self.guibroker['modules.gui']):
-					id = wxNewId ()
+			if isinstance (plugin, gmPlugin.wxNotebookPlugin): 
+				if not (plugin.name() in self.guibroker['modules.gui'].keys()):
 					# if not installed
-					load_menu.AppendItem(wxMenuItem (load_menu, id, plugin.name ()))
+					id = wxNewId ()
+					load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
 					EVT_MENU (load_menu, id, plugin.OnLoad)
 					any_loadable = 1
 					# else
 				        #show_menu.AppendItem(wxMenuItem (show_menu, id, plugin.name ()))
 				        #EVT_MENU (show_menu, id, plugin.OnShow)
 				        #any_showable = 1
-				
+
 		menu = wxMenu()
 		ID_LOAD = wxNewId ()
 		ID_SHOW = wxNewId ()
@@ -195,21 +197,21 @@ class MainFrame(wxFrame):
 			menu.AppendMenu(ID_LOAD, _("Load New"), load_menu)
 		if any_showable:
 			menu.AppendMenu (ID_SHOW, _("Show"), show_menu)
-		menu.AppendItem(wxMenuItem(menu, ID_DROP, "Drop Window"))
-		menu.AppendItem(wxMenuItem(menu, ID_HIDE, "Hide Window"))
+		menu.AppendItem(wxMenuItem(menu, ID_DROP, "Drop Window ..."))
+		menu.AppendItem(wxMenuItem(menu, ID_HIDE, "Hide Window ..."))
 		EVT_MENU (menu, ID_DROP, self.OnPluginDrop)
 		EVT_MENU (menu, ID_HIDE, self.OnPluginHide)
 		self.PopupMenu(menu, evt.GetPosition())
 		menu.Destroy()
 		evt.Skip()
-		
+	#----------------------------------------------		
 	def OnPluginDrop (self, evt):
 		# this dictionary links notebook page numbers to plugin objects
 		nbns = self.guibroker['main.notebook.numbers']
 		# get the widget of the currently selected window
 		nbns[self.nb.GetSelection ()].unregister ()
 		# FIXME:"dropping" means talking to configurator so not reloaded
-
+	#----------------------------------------------
 	def OnPluginHide (self, evt):
 		# this dictionary links notebook page numbers to plugin objects
 		nbns = self.guibroker['main.notebook.numbers']
@@ -231,7 +233,7 @@ class MainFrame(wxFrame):
 			myLog.Log(gmLog.lInfo,'running on an unknown platform')
 	#----------------------------------------------
 	def LoadPlugins(self, backend):
-		plugin_list = gmPlugin.GetAllPlugins('gui')
+		plugin_list = gmPlugin.GetPluginLoadList('gui')
 		nr_plugins = len(plugin_list)
 		#  set up a progress bar
 		progress_bar = wxProgressDialog(
@@ -292,20 +294,22 @@ class MainFrame(wxFrame):
 		wxMessageBox(_("Message from GnuMed:\nPlease write a nice About box!"), _("About GnuMed"))
 	#----------------------------------------------
 	def SetupAccelerators(self):
-		acctbl = wxAcceleratorTable([(wxACCEL_ALT|wxACCEL_CTRL, ord('X'), ID_EXIT), \
-		                             (wxACCEL_CTRL, ord('H'), ID_HELP)])
+		acctbl = wxAcceleratorTable([
+			(wxACCEL_ALT | wxACCEL_CTRL, ord('X'), ID_EXIT),
+			(wxACCEL_CTRL, ord('H'), ID_HELP)
+		])
 		self.SetAcceleratorTable(acctbl)
 	#----------------------------------------------
 	def SetupStatusBar(self):
 		self.CreateStatusBar(2, wxST_SIZEGRIP)
 		#add time and date display to the right corner of the status bar
-		self.timer = wxPyTimer(self.Notify)
+		self.timer = wxPyTimer(self.Callback_UpdateTime)
+		self.Callback_UpdateTime()
 		#update every second
 		self.timer.Start(1000)
-		self.Notify()
-	#----------------------------------------------	
-	def Notify(self):
-		"Displays date and local time in the second slot of the status bar"
+	#----------------------------------------------
+	def Callback_UpdateTime(self):
+		"""Displays date and local time in the second slot of the status bar"""
 
 		t = time.localtime(time.time())
 		st = time.strftime(gmTimeformat, t)
@@ -468,7 +472,11 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.53  2003-01-04 07:43:55  ihaywood
+# Revision 1.54  2003-01-05 10:03:30  ncq
+# - code cleanup
+# - use new plugin config storage infrastructure
+#
+# Revision 1.53  2003/01/04 07:43:55  ihaywood
 # Popup menus on notebook tabs
 #
 # Revision 1.52  2002/12/26 15:50:39  ncq
