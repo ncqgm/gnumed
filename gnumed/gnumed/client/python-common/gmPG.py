@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -113,27 +113,6 @@ class ConnectionPool:
 					return  None
 
 		return conn
-
-#		try:
-#			if checked:
-#				cursor = conn.cursor()
-#				cursor.execute("select 1;")
-#				cursor.close()
-#			return conn
-#		except StandardError:
-#			_log.LogException("connection is dead", sys.exc_info(), 4)
-#			_log.Data("trying a direct connection via __pgconnect()")
-#			logininfo = self.GetLoginInfoFor(service)
-#			conn =  self.__pgconnect(logininfo, readonly)
-#			try:
-#				if checked:
-#					cursor = conn.cursor()
-#					cursor.execute("select 1;")
-#					cursor.close()
-#				return conn
-#			except:
-#				_log.LogException("connection is dead", sys.exc_info(), 4)
-#				return  None
 	#-----------------------------
 	def GetConnectionUnchecked(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
@@ -774,7 +753,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.54  2003-06-10 08:48:12  ncq
+# Revision 1.55  2003-06-14 22:41:51  ncq
+# - remove dead code
+#
+# Revision 1.54  2003/06/10 08:48:12  ncq
 # - on-demand import of gmBackendListener so we can use gmPG generically
 #   without having to have pyPgSQL available (as long as we don't use
 #   notifications)
