@@ -9,8 +9,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.15 2003-11-17 10:56:41 sjtan Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmGP_Immunisation.py,v 1.16 2003-11-30 01:12:10 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -22,17 +22,13 @@ if __name__ == "__main__":
 	sys.path.append("../")
 	import gmI18N
 
-# panel class to display top headings
 from gmGuiElement_HeadingCaptionPanel import HeadingCaptionPanel
-# panel class to display sub-headings or divider headings
 from gmGuiElement_DividerCaptionPanel import DividerCaptionPanel
-# panel to hold flashing alert messages
 from gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
 
 # panel class holding editing prompts and text boxes
 import gmEditArea
-import gmPlugin, gmPatient
-from gmListCtrlMapper import *
+import gmPlugin, gmPatient, gmDispatcher, gmSignals
 
 from gmPatientHolder import PatientHolder
 
@@ -75,97 +71,53 @@ immunisationprompts = {
 class ImmunisationPanel(wxPanel, PatientHolder):
 
 	def __init__(self, parent,id):
-		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
-		PatientHolder.__init__(self)
+		wxPanel.__init__(self, parent, id, wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+#		PatientHolder.__init__(self)
 		self.patient = gmPatient.gmCurrentPatient()
 		#--------------------
 		#add the main heading
 		#--------------------
 		pnl_UpperCaption = HeadingCaptionPanel (self, -1, _("  IMMUNISATIONS  "))
-#		#--------------------------------------------
-#		#dummy panel will later hold the editing area
-#		#--------------------------------------------
-#		self.dummypanel1 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-#		self.dummypanel1.SetBackgroundColour(wxColor(222, 222, 222))
 		#--------------------------------------------------
 		#now create the editarea specific for immunisations
 		#--------------------------------------------------
 		self.editarea = gmEditArea.gmVaccinationEditArea(self,-1)
 		#,immunisationprompts,gmSECTION_IMMUNISATIONS)
+
 		#-----------------------------------------------
-		#add the divider headings below the editing area
+		# middle part
 		#-----------------------------------------------
-		disease_schedule_heading = DividerCaptionPanel(self, -1, _("Disease or Schedule"))
+		# divider headings below editing area
+		vaccinated_regimes_heading = DividerCaptionPanel(self, -1, _("Disease or Schedule"))
 		vaccine_given_heading = DividerCaptionPanel(self, -1, _("Vaccine Given"))
 		szr_MiddleCaption1 = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleCaption1.Add(disease_schedule_heading, 1, wxEXPAND)
+		szr_MiddleCaption1.Add(vaccinated_regimes_heading, 1, wxEXPAND)
 		szr_MiddleCaption1.Add(vaccine_given_heading, 1, wxEXPAND)
-		#--------------------------------------------------------------------------------------
-		#add the list to contain the drugs person is allergic to
-		#
-		# c++ Default Constructor:
-		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-		# const wxSize& size = wxDefaultSize, long style = wxLC_ICON, 
-		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
-		#
-		#--------------------------------------------------------------------------------------
-		self.disease_schedule_list = wxListCtrl(
-			self,
-			ID_IMMUNISATIONLIST,
-			wxDefaultPosition,
-			wxDefaultSize,
-			wxLC_REPORT | wxLC_NO_HEADER | wxSUNKEN_BORDER
+
+		# left list: regimes for which vaccinations have been given
+		self.vaccinated_regimes_list = wxListBox(
+			parent = self,
+			id = ID_IMMUNISATIONLIST,
+			choices = [],
+			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
-		self.disease_schedule_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		self.schedule_vaccine_given_list = wxListCtrl(self, ID_IMMUNISATIONLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		self.schedule_vaccine_given_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		self.vaccinated_regimes_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		# right list: vaccines the patient received
+		self.vaccines_given_list = wxListBox(
+			parent = self,
+			id = ID_IMMUNISATIONLIST,
+			choices = [],
+			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
+		)
+		self.vaccines_given_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+
+		# and place them
 		szr_MiddleCaption2 = wxBoxSizer(wxHORIZONTAL)
-		szr_MiddleCaption2.Add(self.disease_schedule_list,4,wxEXPAND)
-		szr_MiddleCaption2.Add(self.schedule_vaccine_given_list,6, wxEXPAND)
+		szr_MiddleCaption2.Add(self.vaccinated_regimes_list,4,wxEXPAND)
+		szr_MiddleCaption2.Add(self.vaccines_given_list,6, wxEXPAND)
 
-		self.disease_mapper = gmListCtrlMapper( self.disease_schedule_list)
-		self.vaccine_mapper = gmListCtrlMapper( self.schedule_vaccine_given_list)
-		#----------------------------------------
-		# add some dummy data to the Schedule list
-		#-----------------------------------------
-		self.disease_schedule_list.InsertColumn(0, _("Schedule"))
-		self.disease_schedule_list.InsertColumn(1, "null")
-		#-------------------------------------------------------------
-		#loop through the scheduledata array and add to the list control
-		#note the different syntax for the first coloum of each row
-		#i.e. here > self.disease_schedule_list.InsertStringItem(x, data[0])!!
-		#-------------------------------------------------------------
-		self.disease_mapper.SetData( scheduledata)
-
-		#items = scheduledata.items()
-		#for x in range(len(items)):
-	#		key, data = items[x]
-	#		gmLog.gmDefLog.Log (gmLog.lData, items[x])
-	#		self.disease_schedule_list.InsertStringItem(x, data[0])
-	#		self.disease_schedule_list.SetItemData(x, key)
-
-		self.disease_schedule_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
-		#-----------------------------------------	  
-		# add some dummy data to the vaccines list
-		#-----------------------------------------
-		self.schedule_vaccine_given_list.InsertColumn(0, _("Vaccine"))
-		self.schedule_vaccine_given_list.InsertColumn(1, "null")
-		#-------------------------------------------------------------
-		#loop through the scheduledata array and add to the list control
-		#note the different syntax for the first coloum of each row
-		#i.e. here > self.disease_schedule_list.InsertStringItem(x, data[0])!!
-		#-------------------------------------------------------------
-		self.vaccine_mapper.SetData( vaccinedata)
-#		items = vaccinedata.items()
-#		for x in range(len(items)):
-#			key, data = items[x]
-#			gmLog.gmDefLog.Log (gmLog.lData, items[x])
-#			self.schedule_vaccine_given_list.InsertStringItem(x, data[0])
-#			self.schedule_vaccine_given_list.SetStringItem(x, 1, data[1])
-#			self.schedule_vaccine_given_list.SetItemData(x, key)
-
-		self.schedule_vaccine_given_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
-		self.schedule_vaccine_given_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#--------------------------------------------------------------------------------------
 		pnl_MiddleCaption3 = DividerCaptionPanel(self, -1, _("Missing Immunisations"))
 #		epr = self.pat['clinical record']
@@ -202,13 +154,35 @@ class ImmunisationPanel(wxPanel, PatientHolder):
 		self.SetAutoLayout(true)
 		EVT_SIZE (self, self.OnSize)
 
-		print self.disease_mapper.GetData()
-		print self.vaccine_mapper.GetData()
-		
-
+		self.__register_interests()
+	#----------------------------------------------------
+	def __register_interests(self):
+		# client internal signals
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+	#----------------------------------------------------
 	def OnSize (self, event):
 		w, h = event.GetSize ()
 		self.mainsizer.SetDimension (0, 0, w, h)
+	#----------------------------------------------------
+	def _on_patient_selected(self, **kwargs):
+		print "******** updating vaccination lists"
+		# FIXME: only do this if visible ...
+		epr = self.patient.get_clinical_record()
+		shots, idx = epr.get_vaccinations()
+		# populate vaccinated-regimes list
+		data = []
+		for shot in shots:
+			data.append('%s (%s)' % (shot[idx['regime']], shot[idx['indication']]))
+		self.vaccinated_regimes_list.Set(data)
+		# populate vaccines-given list
+		data = []
+		for shot in shots:
+			data.append('%s: %s (%s)' % (shot[idx['date']].Format('%Y-%m-%d'), shot[idx['vaccine']], shot[idx['vaccine_short']]))
+		self.vaccines_given_list.Set(data)
+
+		# FIXME: start listening to this patients *vaccination* updates
+#		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
+
 #======================================================================
 class gmGP_Immunisation(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
@@ -247,7 +221,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.15  2003-11-17 10:56:41  sjtan
+# Revision 1.16  2003-11-30 01:12:10  ncq
+# - lots of cleanup
+# - listen to patient_selected
+# - actually fetch middle two lists from database
+#
+# Revision 1.15  2003/11/17 10:56:41  sjtan
 #
 # synced and commiting.
 #
