@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.66 $
+-- $Revision: 1.67 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -140,6 +140,8 @@ comment on column curr_encounter."comment" is
 -- -------------------------------------------------------------------
 create table clin_root_item (
 	pk_item serial primary key,
+	clin_date date with time zone not null default CURRENT_DATE,
+	clin_time time default CURRENT_TIME,
 	id_encounter integer not null references clin_encounter(id),
 	id_episode integer not null references clin_episode(id),
 	narrative text
@@ -155,6 +157,12 @@ comment on TABLE clin_root_item is
 comment on COLUMN clin_root_item.pk_item is
 	'the primary key, not named "id" as usual since child tables
 	 will have "id" primary keys already';
+comment on column clin_root_item.clin_date is
+	'date when this clinical item became known, can be different from
+	 when it was entered into the system (= audit_fields.modified_when)';
+comment on column clin_root_item.clin_time is
+	'time when this clinical item became known, can be different from
+	 when it was entered into the system (= audit_fields.modified_when)';
 comment on COLUMN clin_root_item.id_encounter is
 	'the encounter this item belongs to';
 comment on COLUMN clin_root_item.id_episode is
@@ -377,10 +385,9 @@ create table vaccination (
 	-- we need a constraint on fk_vacc_def to only
 	-- allow sequential vacc_def.seq_no inserts
 	fk_vacc_def integer references vacc_def(id),
-	date_given date not null default CURRENT_DATE,
 	site text default 'not recorded',
 	batch_no text not null default 'not recorded',
-	unique (fk_patient, fk_vaccine, date_given)
+	unique (fk_patient, fk_vaccine, clin_date)
 ) inherits (audit_fields, clin_root_item);
 
 -- Richard tells us that "refused" should go into progress note
@@ -728,11 +735,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.66 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.67 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.66  2003-11-04 00:23:58  ncq
+-- Revision 1.67  2003-11-13 09:45:54  ncq
+-- - add clin_date, clin_time to clin_root_item
+--
+-- Revision 1.66  2003/11/04 00:23:58  ncq
 -- - some grants
 --
 -- Revision 1.65  2003/10/31 23:29:38  ncq
