@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.28 2004-05-30 20:12:33 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPathLab.py,v 1.29 2004-06-01 23:56:39 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -191,6 +191,12 @@ class cLabRequest(gmClinItem.cClinItem):
 					and
 				vbp.i_id=vpi.id_patient"""
 		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
+		if pat is None:
+			_log.Log(gmLog.lErr, 'cannot get patient for lab request [%s]' % self._payload[self._idx['pk_item']])
+			return None
+		if len(pat) == 0:
+			_log.Log(gmLog.lErr, 'no patient associated with lab request [%s]' % self._payload[self._idx['pk_item']])
+			return None
 		return pat[0]
 #============================================================
 class cTestType(gmClinItem.cClinItem):
@@ -294,7 +300,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.28 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.29 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -371,10 +377,13 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	# found
 	if req is not None:
 		db_pat = req.get_patient()
+		if db_pat is None:
+			_log.Log(gmLog.lErr, 'cannot cross-check patient on lab request')
+			return (None, '')
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.28 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.29 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -610,7 +619,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.28  2004-05-30 20:12:33  ncq
+# Revision 1.29  2004-06-01 23:56:39  ncq
+# - improved error handling in several places
+#
+# Revision 1.28  2004/05/30 20:12:33  ncq
 # - make create_lab_result() handle request objects, not request_id
 #
 # Revision 1.27  2004/05/26 15:45:25  ncq
