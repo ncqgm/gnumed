@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -247,7 +247,29 @@ insert into vaccine (
 	false,
 	'1 year'::interval,
 	'16 years'::interval,
-	'nicht zur Grundimmunisierung verwenden, Tetanus-Diphtherie-azellulärer-5-Komponenten-Pertussis-inaktivierter Poliomyelitis-Adsorbat-Impfstoff'
+	''
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tick-borne meningoencephalitis'));
+
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	max_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'Encepur Kinder',
+	'Encepur K',
+	false,
+	'1 year'::interval,
+	'12 years'::interval,
+	''
 );
 
 -- link to indications
@@ -286,11 +308,14 @@ values (currval('vaccine_id_seq'), (select id from vacc_indication where descrip
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.10  2004-02-09 23:57:39  ncq
+-- Revision 1.11  2004-03-27 18:36:28  ncq
+-- - cleanup, added FSME vaccine
+--
+-- Revision 1.10  2004/02/09 23:57:39  ncq
 -- - Priorix (MMR)
 --
 -- Revision 1.9  2004/01/26 20:18:37  ncq

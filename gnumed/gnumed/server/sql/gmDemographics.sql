@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -462,7 +462,6 @@ create table org (
 	unique(id_category, description)
 );
 
-
 -- ====================================================================
 
 create table lnk_org2comm_channel (
@@ -491,32 +490,31 @@ create table lnk_person_org_address (
 	id serial primary key,
 	id_identity integer references identity (id),
 	id_address integer references address (id),
-	id_type int references address_type (id) default 1,
-	address_source varchar(30),
+	id_type integer references address_type (id) default 1,
+	address_source text,
 	id_org integer references org (id),
 	id_occupation integer references occupation (id),
 	unique(id_identity, id_address),
-	unique(id_org, id_address)
+	unique(id_org, id_address),
+	unique(id_identity, id_org, id_occupation)
 );
 
 COMMENT ON TABLE lnk_person_org_address IS
-	'a many-to-many pivot table describing the relationship between a person,
-organisation, their work address and occupation at that location. For patients id_org is NULL';
+	'a many-to-many pivot table describing the relationship
+	 between an organisation, a person, their work address and
+	 their occupation at that location.
+	 For patients id_org is NULL';
 COMMENT ON COLUMN lnk_person_org_address.id_identity IS
-	'identity to whom the address belongs';
+	'identity to which the address belongs';
 COMMENT ON COLUMN lnk_person_org_address.id_address IS
 	'address belonging to this identity (the branch of the organisation)';
 COMMENT ON COLUMN lnk_person_org_address.id_type IS
 	'type of this address (like home, work, parents, holidays ...)';
 
-
-
 -- consider not plainly auditing this table but also
 -- giving a reason for changes (incorrectly recorded
 -- vs. moved etc.) or even explicitely model that
 -- behaviour (as per Tim Churches)
-
-
 
 -- ===================================================================
 -- permissions
@@ -590,11 +588,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.26 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.27 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.26  2004-03-27 04:37:01  ihaywood
+-- Revision 1.27  2004-03-27 18:36:28  ncq
+-- - cleanup, added FSME vaccine
+--
+-- Revision 1.26  2004/03/27 04:37:01  ihaywood
 -- lnk_person2address now lnk_person_org_address
 -- sundry bugfixes
 --
