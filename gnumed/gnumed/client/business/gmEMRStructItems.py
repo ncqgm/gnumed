@@ -3,11 +3,12 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
+from Gnumed.pycommon.gmPyCompat import *
 
 gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
 #============================================================
@@ -26,6 +27,22 @@ class cHealthIssue(gmClinItem.cClinItem):
 	_updatable_fields = [
 		'description'
 	]
+	#--------------------------------------------------------
+	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx'):
+		pk = aPK_obj
+		if pk is None:
+			cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
+			rows = gmPG.run_ro_query('historica', cmd, None, patient_id, name)
+			if rows is None:
+				raise gmExceptions.ConstructorError, 'error getting health issue for [%s:%s]' % (patient_id, name)
+			if len(rows) == 0:
+				raise gmExceptions.NoSuchClinItemError, 'no health issue for [%s:%s]' % (patient_id, name)
+			pk = rows[0][0]
+		# instantiate class
+		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+	#--------------------------------------------------------
+	def get_patient(self):
+		return self._payload[self._idx['id_patient']]
 #============================================================
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
@@ -60,9 +77,9 @@ class cEncounter(gmClinItem.cClinItem):
 				description=%(description)s,
 				started=%(started)s,
 				last_affirmed=%(last_affirmed)s,
-				fk_location=%(pk_location)s,
-				fk_provider=%(pk_provider)s,
-				fk_type=%(pk_type)s
+				pk_location=%(pk_location)s,
+				pk_provider=%(pk_provider)s,
+				pk_type=%(pk_type)s
 			where id=%(pk_encounter)s"""
 		]
 
@@ -74,6 +91,82 @@ class cEncounter(gmClinItem.cClinItem):
 		'pk_provider',
 		'pk_type'
 	]
+#============================================================
+# convenience functions
+#------------------------------------------------------------	
+def create_health_issue(patient_id=None, description='xxxDEFAULTxxx'):
+	"""Creates a new health issue for a given patient.
+
+	patient_id - given patient PK
+	description - health issue name
+	"""
+	# already there ?
+	try:
+		h_issue = cHealthIssue(patient_id=patient_id, name=description)
+		return (True, h_issue)
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+	# error or not found
+#	# sanity check for patient
+#	cmd = "select exists(select 1 from xlnk_identity where xfk_identity=%s)"
+#	valid = gmPG.run_ro_query('personalia', cmd, None, patient_id)
+#	if valid is None:
+#		_log.Log(gmLog.lErr, 'error checking patient [%s] consistency' % (patient_id))
+#		return (False, _('internal error, check log'))
+#	if not valid[0]:
+#		_log(gmLog.lErr, 'patient [%s] apparently does not exist in database' % (patient_id))
+#		return (False, _('consistency error, check log'))
+
+	# insert new health issue
+	queries = []
+	cmd = "insert into clin_health_issue (id_patient, description) values (%s, %s)"
+	queries.append((cmd, [patient_id, description]))
+	# get PK of inserted row
+	cmd = "select currval('clin_health_issue_id_seq')"
+	queries.append((cmd, []))
+	result, msg = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, msg)
+	try:
+		h_issue = cHealthIssue(aPK_obj = result[0][0])
+	except gmExceptions.ConstructorError:
+		_log.LogException('cannot instantiate health issue [%s]' % (result[0][0]), sys.exc_info, verbose=0)
+		return (False, _('internal error, check log'))
+	return (True, h_issue)
+#-----------------------------------------------------------
+def create_encounter(fk_patient=None, fk_location=-1, fk_provider= None, description=None, fk_type=None):
+	"""Creates a new encounter for a patient.
+
+	fk_patient - patient PK
+	fk_location - encounter location
+	fk_provider - who was the patient seen by
+	description - name or description for the encounter
+	fk_type - type of encounter
+
+	FIXME: we don't deal with location yet
+	"""
+	# sanity check:
+	# - any of the args being None should fail the SQL code
+	# insert new health issue
+	cmd1 = """
+		insert into clin_encounter (
+			fk_patient, fk_location, fk_provider, description, fk_type
+		) values (
+			%s, -1, %s, %s,	(select id from encounter_type where description=%s)
+		)"""
+	cmd2 = "select currval('clin_encounter_id_seq')"
+	result, msg = gmPG.run_commit('historica', [
+		(cmd1, [fk_patient, fk_provider, description, fk_type]),
+		(cmd2, [])
+	])
+	if result is None:
+		return (None, msg)
+	try:
+		encounter = cEncounter(aPK_obj = result[0][0])
+	except gmExceptions.ConstructorError:
+		_log.LogException('cannot instantiate encounter [%s]' % (result[0][0]), sys.exc_info, verbose=0)
+		return (None, _('internal error, check log'))
+	return (True, encounter)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -92,6 +185,7 @@ if __name__ == '__main__':
 	for field in fields:
 		print field, ':', h_issue[field]
 	print "updatable:", h_issue.get_updatable_fields()
+	
 
 	print "episode test"
 	print "------------"
@@ -112,7 +206,13 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.2  2004-05-12 14:28:53  ncq
+# Revision 1.3  2004-05-16 14:31:27  ncq
+# - cleanup
+# - allow health issue to be instantiated by name/patient
+# - create_health_issue()/create_encounter
+# - based on Carlos' work
+#
+# Revision 1.2  2004/05/12 14:28:53  ncq
 # - allow dict style pk definition in __init__ for multicolum primary keys (think views)
 # - self.pk -> self.pk_obj
 # - __init__(aPKey) -> __init__(aPK_obj)
