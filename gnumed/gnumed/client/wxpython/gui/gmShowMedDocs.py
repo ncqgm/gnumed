@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -64,8 +64,6 @@ from wxPython.wx import *
 #        EVT_TREE_ITEM_ACTIVATED (self, tID, self.OnActivate)
 
 #        EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
-#        EVT_RIGHT_DOWN(self.tree, self.OnRightClick)
-#        EVT_RIGHT_UP(self.tree, self.OnRightUp)
 
 [	wxID_PNL_main,
 ] = map(lambda _init_ctrls: wxNewId(), range(1))
@@ -95,8 +93,9 @@ class cDocTree(wxTreeCtrl):
 		self.doc_list = None
 		self.curr_pat = gmTmpPatient.gmCurrentPatient()
 
-		# connect handler
+		# connect handlers
 		EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self.OnActivate)
+		EVT_TREE_ITEM_RIGHT_CLICK(self, self.GetId(), self.__on_right_click)
 	#------------------------------------------------------------------------
 	def update(self):
 		if self.curr_pat['ID'] is None:
@@ -307,6 +306,61 @@ class cDocTree(wxTreeCtrl):
 			return None
 		return 1
 	#--------------------------------------------------------
+	def __on_right_click(self, evt):
+		item = evt.GetItem()
+		node_data = self.GetPyData(item)
+
+		# exclude pseudo root node
+		if node_data is None:
+			return None
+
+		# objects
+		if node_data['type'] == 'object':
+			self.__handle_obj_context(node_data)
+
+		# documents
+		if node_data['type'] == 'document':
+			self.__handle_doc_context(node_data)
+
+		evt.Skip()
+	#--------------------------------------------------------
+	def __handle_doc_context(self, data):
+		doc_id = data['id']
+		try:
+			doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
+		except:
+			_log.LogException('Cannot init document [%s]' % doc_id, sys.exc_info())
+			# FIXME: message box
+			return None
+
+		descriptions = doc['descriptions']
+
+		# build menu
+		wxIDs_desc = []
+		desc_menu = wxMenu()
+		for desc in descriptions:
+			d_id = wxNewId()
+			wxIDs_desc.append(d_id)
+			# contract string
+			tmp = re.split('\r\n+|\r+|\n+|\s+|\t+', desc)
+			tmp = string.join(tmp, ' ')
+			# but only use first 30 characters
+			tmp = "%s ..." % tmp[:30]
+			desc_menu.AppendItem(wxMenuItem(desc_menu, d_id, tmp))
+			# connect handler
+			EVT_MENU(desc_menu, d_id, self.__show_description)
+		wxID_load_submenu = wxNewId()
+		menu = wxMenu(title = _('document menu'))
+		menu.AppendMenu(wxID_load_submenu, _('descriptions ...'), desc_menu)
+		self.PopupMenu(menu, wxPyDefaultPosition)
+		menu.Destroy()
+	#--------------------------------------------------------
+	def __show_description(self, evt):
+		print "showing description"
+	#--------------------------------------------------------
+	def __handle_obj_context(self, data):
+		print "handling object context menu"
+	#--------------------------------------------------------
 	def __show_error(self, aMessage = None, aTitle = ''):
 		# sanity checks
 		tmp = aMessage
@@ -327,6 +381,7 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
+	import re
 	import gmLoginInfo
 	import gmXdtObjects
 	from gmXdtMappings import xdt_gmgender_map
@@ -545,7 +600,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.19  2003-04-18 17:45:05  ncq
+# Revision 1.20  2003-04-18 22:34:44  ncq
+# - document context menu, mainly for descriptions, currently
+#
+# Revision 1.19  2003/04/18 17:45:05  ncq
 # - add quit button
 #
 # Revision 1.18  2003/04/18 16:40:04  ncq
