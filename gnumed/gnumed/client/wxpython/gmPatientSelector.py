@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.8 2003-04-01 15:33:22 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPatientSelector.py,v 1.9 2003-04-01 16:01:06 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -681,11 +681,11 @@ class cPatientSelector(wxTextCtrl):
 	# utility methods
 	#--------------------------------------------------------
 	def _fetch_pat_ids(self, query_lists = None):
+		# anything to do ?
 		if query_lists is None:
 			_log.Log(gmLog.lErr, 'query tree empty')
 			return None
 		try:
-			# anything to do ?
 			if query_lists[0] == []:
 				_log.Log(gmLog.lWarn, 'query tree empty ?')
 				_log.Log(gmLog.lWarn, query_lists)
@@ -700,16 +700,15 @@ class cPatientSelector(wxTextCtrl):
 		curs = self.conn.cursor()
 		for query_list in query_lists:
 			_log.Log(gmLog.lData, "running %s" % query_list)
+			# try all queries at this query level
 			for cmd in query_list:
 				if not gmPG.run_query(curs, cmd):
 					_log.Log(gmLog.lErr, 'cannot fetch patient IDs')
 				else:
 					rows = curs.fetchall()
-					print rows
 					pat_ids.extend(rows)
-#					for pat_id in rows:
-#						pat_ids.extend(pat_id)
-			if len(pat_ids[0]) > 0:
+			# if we got patients don't try more query levels
+			if len(pat_ids) > 0:
 				break
 		curs.close()
 
@@ -951,7 +950,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.8  2003-04-01 15:33:22  ncq
+# Revision 1.9  2003-04-01 16:01:06  ncq
+# - fixed handling of no-patients-found result
+#
+# Revision 1.8  2003/04/01 15:33:22  ncq
 # - and double :: of course, duh
 #
 # Revision 1.7  2003/04/01 15:32:52  ncq
