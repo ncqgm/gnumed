@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -685,8 +685,8 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 		if _query_logging_verbosity == 1:
 			_log.Log(gmLog.lData, '%s rows affected by >>>%s<<<' % (curs.rowcount, query))
 	# did we get result rows in the last query ?
+	data = None
 	if curs.description is None:
-		data = None
 		if _query_logging_verbosity == 1:
 			_log.Log(gmLog.lData, 'last query did not return rows')
 	else:
@@ -1124,7 +1124,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.7  2004-04-15 23:38:07  ncq
+# Revision 1.8  2004-04-16 00:21:22  ncq
+# - fix access to "data" in run_commit
+#
+# Revision 1.7  2004/04/15 23:38:07  ncq
 # - debug odd rowcount vs description behaviour in row-returning commits
 #
 # Revision 1.6  2004/04/11 10:13:32  ncq
