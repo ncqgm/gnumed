@@ -1,15 +1,15 @@
-"""gmPlugin - base classes for GNUMed's plugin architecture.
+"""gmPlugin - base classes for GnuMed notebook plugins.
 
 @copyright: author
 @license: GPL (details at http://www.gnu.org)
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.20 2004-06-25 13:28:00 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPlugin.py,v 1.21 2004-06-25 14:39:35 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
-import os, sys, re, cPickle, zlib
+import os, sys, re
 
 from wxPython.wx import *
 
@@ -18,6 +18,7 @@ from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
 
 gmPatient = None
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
@@ -83,7 +84,7 @@ class wxNotebookPlugin:
 		# delete menu item
 		menu_info = self.MenuInfo()
 		if menu_info is not None:
-			menu = self.gb['main.%smenu' % menu_info()[0]]
+			menu = self.gb['main.%smenu' % menu_info[0]]
 			menu.Delete(self.menu_id)
 
 		# delete toolbar
@@ -169,9 +170,10 @@ class wxNotebookPlugin:
 		pass
 	# -----------------------------------------------------
 	# event handlers for the popup window
-	def OnLoad (self, evt):
+	def on_load (self, evt):
 		# FIXME: talk to the configurator so we're loaded next time
 		self.register()
+		# FIXME: raise ?
 	# -----------------------------------------------------
 	def OnShow (self, evt):
 		self.register() # register without changing configuration
@@ -355,7 +357,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.20  2004-06-25 13:28:00  ncq
+# Revision 1.21  2004-06-25 14:39:35  ncq
+# - make right-click runtime load/drop of plugins work again
+#
+# Revision 1.20  2004/06/25 13:28:00  ncq
 # - logically separate notebook and clinical window plugins completely
 #
 # Revision 1.19  2004/06/25 12:51:23  ncq

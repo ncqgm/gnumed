@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.155 2004-06-25 12:51:23 ncq Exp $
-__version__ = "$Revision: 1.155 $"
+# $Id: gmGuiMain.py,v 1.156 2004-06-25 14:39:35 ncq Exp $
+__version__ = "$Revision: 1.156 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -325,7 +325,7 @@ class gmTopLevelFrame(wxFrame):
 		# - notebook page has been changed
 		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebookPageChanged)
 		# - popup menu on right click in notebook
-		EVT_RIGHT_UP(self.nb, self.OnNotebookPopup)
+		EVT_RIGHT_UP(self.nb, self._on_right_click)
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
@@ -388,56 +388,54 @@ class gmTopLevelFrame(wxFrame):
 		gmAbout.Show(true)
 		del gmAbout
 	#----------------------------------------------
-	def OnNotebookPopup(self, evt):
+	def _on_right_click(self, evt):
 		load_menu = wxMenu()
-		show_menu = wxMenu()
 		any_loadable = 0
-		any_showable = 0
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
-		_log.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
 		for plugin_name in plugin_list:
-			plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
-			if isinstance (plugin, gmPlugin.wxNotebookPlugin):
-				if not (plugin.__class__.__name__ in self.guibroker['modules.gui'].keys()):
-					# if not installed
-					id = wxNewId ()
-					load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
-					EVT_MENU (load_menu, id, plugin.OnLoad)
-					any_loadable = 1
-					# else
-				        #show_menu.AppendItem(wxMenuItem (show_menu, id, plugin.name ()))
-				        #EVT_MENU (show_menu, id, plugin.OnShow)
-				        #any_showable = 1
-
+			try:
+				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
+			except StandardError:
+				continue
+			# not a plugin
+			if not isinstance(plugin, gmPlugin.wxNotebookPlugin):
+				del plugin
+				continue
+			# already loaded
+			if plugin.__class__.__name__ in self.guibroker['modules.gui'].keys():
+				del plugin
+				continue
+			# add to load menu
+			id = wxNewId()
+			load_menu.AppendItem(wxMenuItem(load_menu, id, plugin.name()))
+			EVT_MENU(load_menu, id, plugin.on_load)
+			any_loadable = 1
+		# make menus
 		menu = wxMenu()
-		ID_LOAD = wxNewId ()
-		ID_SHOW = wxNewId ()
-		ID_DROP = wxNewId ()
-		ID_HIDE = wxNewId ()
+		ID_LOAD = wxNewId()
+		ID_DROP = wxNewId()
 		if any_loadable:
-			menu.AppendMenu(ID_LOAD, _("Load New"), load_menu)
-		if any_showable:
-			menu.AppendMenu (ID_SHOW, _("Show"), show_menu)
-		menu.AppendItem(wxMenuItem(menu, ID_DROP, "Drop Window ..."))
-		menu.AppendItem(wxMenuItem(menu, ID_HIDE, "Hide Window ..."))
-		EVT_MENU (menu, ID_DROP, self.OnPluginDrop)
-		EVT_MENU (menu, ID_HIDE, self.OnPluginHide)
+			menu.AppendMenu(ID_LOAD, _('add plugin ...'), load_menu)
+		plugins = self.guibroker['main.notebook.plugins']
+		raised_plugin = plugins[self.nb.GetSelection()].name()
+		menu.AppendItem(wxMenuItem(menu, ID_DROP, "drop [%s]" % raised_plugin))
+		EVT_MENU (menu, ID_DROP, self._on_drop_plugin)
 		self.PopupMenu(menu, evt.GetPosition())
 		menu.Destroy()
 		evt.Skip()
 	#----------------------------------------------		
-	def OnPluginDrop (self, evt):
-		# this dictionary links notebook page numbers to plugin objects
-		nbns = self.guibroker['main.notebook.plugins']
-		# get the widget of the currently selected window
-		nbns[self.nb.GetSelection ()].unregister ()
+	def _on_drop_plugin(self, evt):
+		plugins = self.guibroker['main.notebook.plugins']
+		plugin = plugins[self.nb.GetSelection()]
+		plugin.unregister()
+		# FIXME: set selection to another plugin
 		# FIXME:"dropping" means talking to configurator so not reloaded
 	#----------------------------------------------
 	def OnPluginHide (self, evt):
 		# this dictionary links notebook page numbers to plugin objects
-		nbns = self.guibroker['main.notebook.plugins']
-		# get the widget of the currently selected window
-		nbns[self.nb.GetSelection ()].unregister ()
+		plugins = self.guibroker['main.notebook.plugins']
+		plugin = plugins[self.nb.GetSelection()]
+		plugin.unregister()
 	#----------------------------------------------
 	def OnFileExit(self, event):
 		"""Invoked from Menu->Exit (calls ID_EXIT handler)."""
@@ -767,7 +765,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.155  2004-06-25 12:51:23  ncq
+# Revision 1.156  2004-06-25 14:39:35  ncq
+# - make right-click runtime load/drop of plugins work again
+#
+# Revision 1.155  2004/06/25 12:51:23  ncq
 # - InstPlugin() -> instantiate_plugin()
 #
 # Revision 1.154  2004/06/25 12:37:20  ncq
