@@ -18,16 +18,12 @@ Should not gmSchemaRevisionChecker inherit from cBorg ? See gmCurrentPatient.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSchemaRevisionCheck.py,v $
-# $Id: gmSchemaRevisionCheck.py,v 1.2 2004-02-25 09:46:21 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmSchemaRevisionCheck.py,v 1.3 2004-03-20 19:46:38 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Hilmar Berger <ju0815nk@gmx.net>"
 
 # access our modules
 import sys, os.path, string, re
-
-# the following lines are borrowed from gmClinicalRecord.
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'pycommon'))
 
 # start logging
 import gmLog
@@ -143,7 +139,10 @@ if __name__ == "__main__":
 	print a.checkSchemaRevision('gmconfiguration',float(x)+0.1,exact = 1), " should be 0"
 #============================================================
 # $Log: gmSchemaRevisionCheck.py,v $
-# Revision 1.2  2004-02-25 09:46:21  ncq
+# Revision 1.3  2004-03-20 19:46:38  ncq
+# - cleanup
+#
+# Revision 1.2  2004/02/25 09:46:21  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
