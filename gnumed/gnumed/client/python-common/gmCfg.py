@@ -50,15 +50,16 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
 import os.path, fileinput, string, sys
 
-import gmLog
+# gnumed modules
+import gmLog, gmCLI
+
 _log = gmLog.gmDefLog
-import gmCLI
 #================================
 class cCfgBase:
 	def __init__(self):
@@ -84,24 +85,25 @@ class cCfgFile:
 	item 3
 	$listname$
 
-	Config data is chached in the following layout:
-	self._cfg_data	= {}
+	Config data is cached in the following layout:
+
+	self._cfg_data	= {dict}
 	|
-	|-> 'comment'	= []
-	`-> 'groups'	= {}
+	|-> 'comment'	= [list of strings]
+	`-> 'groups'	= {dict}
 	 |
-	 |-> group 1	= {}
+	 |-> group 1	= {dict}
 	 | ...
 	 `-> group n
 	  |
-	  |-> 'comment' = []
-	  `-> 'options'	= {}
+	  |-> 'comment' = [list of strings]
+	  `-> 'options'	= {dict}
 	   |
-	   |-> option 1	= {}
+	   |-> option 1	= {dict}
 	   | ...
 	   `-> option n
 	    |
-		|-> 'comment'
+		|-> 'comment' [list of strings]
 		`-> 'value'
 	"""
 	_cfg_data = {}
