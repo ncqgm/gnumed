@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.13 2004-03-10 12:56:01 ihaywood Exp $
+# $Id: gmClinicalWindowManager.py,v 1.14 2004-03-10 14:00:00 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
@@ -43,7 +43,8 @@ class gmClinicalPanel (wxPanel):
 		self.righthalf = {}
 		self.sizer = wxBoxSizer (wxHORIZONTAL)
 		self.SetSizer (self.sizer)
-		if 1: #FIXME: use proper config to check for shadowing options
+		#FIXME: use proper config to check for shadowing options
+		if 1: 
 			self.righthalfshadow = gmShadow.Shadow (self, -1)
 			self.righthalfpanel = wxPanel (self.righthalfshadow, -1)
 			self.righthalfshadow.SetContents (self.righthalfpanel)
@@ -239,7 +240,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.13  2004-03-10 12:56:01  ihaywood
+# Revision 1.14  2004-03-10 14:00:00  ncq
+# - cleanup
+#
+# Revision 1.13  2004/03/10 12:56:01  ihaywood
 # fixed sudden loss of main.shadow
 # more work on referrals,
 #
