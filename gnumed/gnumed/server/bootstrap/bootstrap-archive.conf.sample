@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-archive.conf.sample,v $
-version = $Revision: 1.1 $
+version = $Revision: 1.2 $
 
 #----------------------------------
 [installation]
@@ -16,7 +16,8 @@ interactive = yes
 description = $description$
 - suitable for GnuMed/Archive
 - a monolithic setup on localhost
-- no test data included
+- no test accounts
+- no test data
 - german translations included
 $description$
 
@@ -83,10 +84,8 @@ port = 5432
 template database = template1
 super user alias = postgres
 schema = $schema$
-sql/gmTestAccounts.sql
+gmArchiveAccounts.sql
 $schema$
-
-# gmArchiveAccounts.sql
 
 #----------------------------------
 # users
@@ -144,7 +143,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-archive.conf.sample,v $
-# Revision 1.1  2003-02-25 08:26:49  ncq
+# Revision 1.2  2003-03-01 16:51:49  ncq
+# - updated
+#
+# Revision 1.1  2003/02/25 08:26:49  ncq
 # - moved here from server/utils/
 #
 # Revision 1.6  2003/02/23 19:13:08  ncq
