@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.38 2003-11-19 13:55:57 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmEditArea.py,v 1.39 2003-11-19 23:23:53 sjtan Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1129,18 +1129,24 @@ class gmPastHistoryEditArea(gmEditArea):
 	def _ageKillFocus( self, event):	
 		# skip first, else later failure later in block causes widget to be unfocusable
 		event.Skip()	
-		birthyear = self.get_demographic_record().getBirthYear()
 		try :
-			year = birthyear + int(self.input_fields['age'].GetValue().strip() )
+			year = self._getBirthYear() + int(self.input_fields['age'].GetValue().strip() )
 			self.input_fields['year'].SetValue( str (year) )
 		except:
 			_print( "failed to get year from age")
+
+	def _getBirthYear(self):
+		try:
+			birthyear = int(str(self.get_demographic_record().getDOB()).split('-')[0]) 
+		except:
+			birthyear = time.localtime()[0]
+		
+		return birthyear
 		
 	def _yearKillFocus( self, event):	
 		event.Skip()	
-		birthyear = self.get_demographic_record().getBirthYear() 
 		try:
-			age = int(self.input_fields['year'].GetValue().strip() ) - birthyear
+			age = int(self.input_fields['year'].GetValue().strip() ) - self._getBirthYear() 
 			self.input_fields['age'].SetValue( str (age) )
 		except:
 			_print( "failed to get age from year")
@@ -2180,7 +2186,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.38  2003-11-19 13:55:57  ncq
+# Revision 1.39  2003-11-19 23:23:53  sjtan
+#
+# extract birthyear from gmDateTime object returned by gmDemographicRecord.getDOB() locally.
+#
+# Revision 1.38  2003/11/19 13:55:57  ncq
 # - Syans forgot to accept kw arg list in _check_unsaved_data()
 #
 # Revision 1.37  2003/11/17 10:56:37  sjtan
