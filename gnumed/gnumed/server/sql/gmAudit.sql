@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -28,7 +28,7 @@ comment on COLUMN audit_mark.modify_by is
 	'by whom has this row been committed (created/modified)';
 
 -- ===================================================================
-create table audit_log (
+create table audit_trail (
 	pk_audit serial primary key,
 	orig_version integer not null default 0,
 	orig_when timestamp with time zone not null,
@@ -39,40 +39,43 @@ create table audit_log (
 	audit_by name not null default CURRENT_USER
 );
 
-comment on table audit_log is
+comment on table audit_trail is
 	'Each table that needs standard auditing must have a log table inheriting
 	 from this table. Log tables have the same name with a prepended "log_".
 	 However, log_* tables shall not have constraints.';
-comment on column audit_log.orig_version is
+comment on column audit_trail.orig_version is
 	'the version of this row in the original table previous to the modification';
-comment on column audit_log.orig_when is
+comment on column audit_trail.orig_when is
 	'previous modification date in the original table';
-comment on column audit_log.orig_by is
+comment on column audit_trail.orig_by is
 	'who committed the row to the original table';
-comment on column audit_log.orig_tableoid is
+comment on column audit_trail.orig_tableoid is
 	'the table oid of the original table, use this to identify the source table';
-comment on column audit_log.audit_action is
+comment on column audit_trail.audit_action is
 	'either "update" or "delete"';
-comment on column audit_log.audit_when is
+comment on column audit_trail.audit_when is
 	'when committed to this table for auditing';
-comment on column audit_log.audit_by is
+comment on column audit_trail.audit_by is
 	'committed to this table for auditing by whom';
 
 -- ===================================================================
 grant SELECT, UPDATE, INSERT, DELETE on
 	"audit_mark",
 	"audit_mark_pk_audit_seq",
-	"audit_log",
-	"audit_log_pk_audit_seq"
+	"audit_trail",
+	"audit_trail_pk_audit_seq"
 to group "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.3  2003-05-13 14:40:54  ncq
+-- Revision 1.4  2003-05-22 12:55:19  ncq
+-- - table audit_log -> audit_trail
+--
+-- Revision 1.3  2003/05/13 14:40:54  ncq
 -- - remove check constraints, they are done by triggers now
 --
 -- Revision 1.2  2003/05/12 19:29:45  ncq
