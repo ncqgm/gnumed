@@ -19,10 +19,13 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.8 $"                                               
+__version__ = "$Revision: 1.9 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.8  2002-10-26 04:14:24  hherb
+# Revision 1.9  2002-10-26 04:32:32  hherb
+# minor code cleanup, comments added
+#
+# Revision 1.8  2002/10/26 04:14:24  hherb
 # when a newly created object (row) is first modified, it is saved to the backend and refreshed from the backend in order to load default values
 #
 # Revision 1.7  2002/10/26 02:47:08  hherb
@@ -82,6 +85,8 @@ def listForeignKeys(con, table):
 		return {}
 	d = cursor.description
 	tgargs=0
+	#get the index of the column we are interested in, since we are fetching a list
+	#and don't know anything about the order of columns in this table
 	for row in d:
 		if row[0] != 'tgargs':
 			tgargs += 1
@@ -91,6 +96,7 @@ def listForeignKeys(con, table):
 	if len(fkresult) <=0:
 		return {}
 	for fk in fkresult:
+		#ugly hack to cope with the NULL characters in the array
 		fkarray = repr(fk[tgargs])
 		fkname, referencing_table, referenced_table, dummy, referencing_column, referenced_column, dummy2  = string.split(fkarray, '\\x00')
 		references[referencing_column] = (referenced_table, referenced_column)
@@ -176,21 +182,11 @@ class pgobject:
 		if primarykey is not None:
 			self.fetch(primarykey)
 	
-	def _is_foreign_key(self, column):
-		if self._foreignkeys.has_key(column):
-				print "Foreign key!"
-				return 1
-		else:
-			return 0
-		
-				
 	def new_primary_key(self):
-		querystr = "select nextval('%s_%s_seq')" % (self._tablename, self._pkcolumn)
-		con = self._dbbroker.GetConnection(self._service, 0)
-		cursor = con.cursor()
-		cursor.execute(querystr)
-		pk = cursor.fetchone()
-		return pk[0]
+		"""returns a new primary key safely created via the appropriate backend sequence"""
+		cursor.execute("select nextval('%s_%s_seq')" % (self._tablename, self._pkcolumn))
+		pk, = cursor.fetchone()
+		return pk
 			
 		
 	def __getitem__(self, key):
@@ -328,7 +324,7 @@ class pgobject:
 		
 
 	def _update_metadata(self, cursor=None):
-		"cache the tables meta data"
+		"cache the table's meta data"
 		global _column_indices
 		global _pkcolumn
 		global _foreignkeys
