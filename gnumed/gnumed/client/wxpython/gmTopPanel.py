@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -221,7 +221,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		# FIXME: filter out sensitivities
 		epr = self.curr_pat['clinical record']
 		allergy_names = epr['allergy names']
-		_log.Info("Allergy names = " + str(allergy_names))
+		_log.Log(gmLog.lData, "allergy names: %s" % allergy_names)
 		tmp = []
 		for allergy in allergy_names:
 			tmp.append(allergy['name'])
@@ -320,7 +320,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.11  2003-06-01 01:47:33  sjtan
+# Revision 1.12  2003-06-01 12:31:58  ncq
+# - logging data is not by any means lInfo
+#
+# Revision 1.11  2003/06/01 01:47:33  sjtan
 #
 # starting allergy connections.
 #
