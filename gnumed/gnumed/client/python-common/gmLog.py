@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -175,10 +175,10 @@ class cLogger:
 			self.Log(lWarn, 'SECURITY: removing log target "' + str(anID) + '"')
 			self.__targets[anID].close()
 			del self.__targets[anID]
-
-	def Info(self, aMsg, aRawnessFlag=lCooked):
+	#---------------------------
+	def Info(self, aMsg, aRawnessFlag = lCooked):
+		"""Just a convenience wrapper for Log(gmLog.lInfo"""
 		self.Log(lInfo, aMsg, aRawnessFlag)
-
 	#---------------------------
 	def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
 		"""Log a message.
@@ -237,9 +237,9 @@ class cLogger:
 				self.__targets[key].writeMsg(level1, "exception value: %s" % v)
 				for line in tbs:
 					self.__targets[key].writeMsg(level2, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
-
+	#---------------------------
 	def SetInfoLevel(self):
-		self.SetAllLogLevels( lInfo)
+		self.SetAllLogLevels(lInfo)
 	#---------------------------
 	def SetAllLogLevels (self, aLogLevel = None):
 		"""Set a certain log level on all targets."""
@@ -768,7 +768,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.33  2003-05-27 13:00:41  sjtan
+# Revision 1.34  2003-05-27 13:13:23  ncq
+# - I must always nitpick on coding style :-)
+#
+# Revision 1.33  2003/05/27 13:00:41  sjtan
 #
 # removed redundant property support, read directly from __dict__
 #
