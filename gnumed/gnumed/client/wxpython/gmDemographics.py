@@ -12,8 +12,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.28 2004-06-23 21:26:28 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmDemographics.py,v 1.29 2004-06-27 13:42:26 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -305,12 +305,21 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		self.sizer_line3_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line3_left.Add(self.lbl_preferredname,3,wxGROW|wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line3_left.Add(self.txt_preferred,7,wxEXPAND)
-		self.sizer_line3_left.Add(1,0,7)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line3_left.Add(wxSize(1,0), 7)
+		else:
+			self.sizer_line3_left.Add(1,0, 7)
 		#line four: preferred alias
 		self.sizer_line4_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line4_left.Add(1,0,3)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line4_left.Add(wxSize(1,0), 3)
+		else:
+			self.sizer_line4_left.Add(1,0, 3)
 		self.sizer_line4_left.Add(self.cb_preferredname,7,wxEXPAND)
-		self.sizer_line4_left.Add(1,0,7)
+		if wxPlatform == '__WXMAC__':
+			self.sizer_line4_left.Add(wxSize(1,0), 7)
+		else:
+			self.sizer_line4_left.Add(1,0, 7)
 		#line6 on this left side is blank
 		self.sizer_line6_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line6_left.Add(self.lbl_line6gap,1,wxEXPAND)
@@ -766,7 +775,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.28  2004-06-23 21:26:28  ncq
+# Revision 1.29  2004-06-27 13:42:26  ncq
+# - further Mac fixes - maybe 2.5 issues ?
+#
+# Revision 1.28  2004/06/23 21:26:28  ncq
 # - kill dead code, fixup for Mac
 #
 # Revision 1.27  2004/06/20 17:28:34  ncq
