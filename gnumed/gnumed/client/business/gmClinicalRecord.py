@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.55 2003-12-29 16:13:51 uid66147 Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmClinicalRecord.py,v 1.56 2004-01-06 09:56:41 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -26,6 +26,8 @@ _log.Log(gmLog.lData, __version__)
 
 import gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI
 _whoami = gmWhoAmI.cWhoAmI()
+
+import mx.DateTime as mxDT
 #============================================================
 class gmClinicalRecord:
 
@@ -54,11 +56,11 @@ class gmClinicalRecord:
 		self.id_default_health_issue = None
 		if not self.__load_default_health_issue():
 			raise gmExceptions.ConstructorError, "cannot activate default health issue for patient [%s]" % aPKey
-		self.id_curr_health_issue = self.id_default_health_issue
+		self.id_health_issue = self.id_default_health_issue
 
 		# what episode did we work on last time we saw this patient ?
 		self.id_episode = None
-		if not self.__load_most_recent_episode():
+		if not self.__load_last_active_episode():
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
 
 		# load or create current encounter
@@ -248,10 +250,10 @@ class gmClinicalRecord:
 			items_by_table[src_table][id_item] = item
 
 		# get mapping for issue/episode IDs
-		issue_map = self._get_health_issue_names()
+		issue_map = self.get_health_issue_names()
 		if issue_map is None:
 			issue_map = {}
-		episode_map = self._get_episode_names()
+		episode_map = self.get_episodes()
 		if episode_map is None:
 			episode_map = {}
 		emr_data = {}
@@ -333,6 +335,8 @@ class gmClinicalRecord:
 	def get_patient_ID(self):
 		return self.id_patient
 	#--------------------------------------------------------
+	# allergy methods
+	#--------------------------------------------------------
 	def get_allergies(self, remove_sensitivities = None):
 		"""Return rows from v_i18n_patient_allergies."""
 		try:
@@ -401,29 +405,174 @@ class gmClinicalRecord:
 			self.__db_cache['allergy IDs'].extend(row)
 		return self.__db_cache['allergy IDs']
 	#--------------------------------------------------------
-	def _get_episode_names(self):
+	# episodes API
+	#--------------------------------------------------------
+	def get_episodes(self):
 		try:
-			return self.__db_cache['episode names']
+			return self.__db_cache['episodes']
 		except KeyError:
 			pass
-		self.__db_cache['episode names'] = {}
-		curs = self._ro_conn_clin.cursor()
+		self.__db_cache['episodes'] = {}
 		cmd = "select id_episode, episode from v_patient_episodes where id_patient=%s"
-		if not gmPG.run_query(curs, cmd, self.id_patient):
-			curs.close()
-			_log.Log(gmLog.lErr, 'cannot load episode names for patient [%s]' % self.id_patient)
-			del self.__db_cache['episode names']
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot load episodes for patient [%s]' % self.id_patient)
+			del self.__db_cache['episodes']
 			return None
-		rows = curs.fetchall()
-		col_idx = gmPG.get_col_indices(curs)
-		curs.close()
-		idx_id = col_idx['id_episode']
-		idx_name = col_idx['episode']
+		idx_id = 0
+		idx_name = 1
 		for row in rows:
-			self.__db_cache['episode names'][row[idx_id]] = row[idx_name]
-		return self.__db_cache['episode names']
+			self.__db_cache['episodes'][row[idx_id]] = row[idx_name]
+		return self.__db_cache['episodes']
+	#------------------------------------------------------------------
+	def set_active_episode(self, episode_name = '__default__'):
+		# does this episode exist at all ?
+		# (else we can't activate it in the first place)
+		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
+		# error
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot check for episode [%s] existence' % episode_name)
+			return None
+		# none found
+		if len(rows) == 0:
+			# if __default__ then create it
+			if episode_name == '__default__':
+				id_episode = self.add_episode()
+				if id_episode is None:
+					return None
+			# else fail
+			else:
+				_log.Log(gmLog.lErr, 'patient [%s] has no episode [%s]' % (self.id_patient, episode_name))
+				return None
+		# found it
+		else:
+			id_episode = rows[0][0]
+
+		# eventually activate episode
+		# delete old entry
+		cmd1 = "delete from last_act_episode where id_patient=%s"
+		# activate new one
+		cmd2 = "insert into last_act_episode (id_episode, id_patient) values (%s, %s)"
+		rows = gmPG.run_commit('historica', [
+			(cmd1, [self.id_patient]),
+			(cmd2, [id_episode, self.id_patient])])
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
+			return None
+		if len(rows) == 0:
+			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
+			return None
+
+		# load corresponding health issue
+		cmd = "select id_health_issue from v_patient_episodes where id=%s"
+		rows = gmPG.run_ro_query('historica', cmd, None, id_episode)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot find health issue linked from episode [%s], using default' % episode_name)
+			id_health_issue = self.id_default_health_issue
+		elif len(rows) == 0:
+			_log.Log(gmLog.lErr, 'cannot find health issue linked from episode [%s], using default' % episode_name)
+			id_health_issue = self.id_default_health_issue
+		else:
+			id_health_issue = row[0][0]
+
+		self.id_health_issue = id_health_issue
+		self.id_episode = id_episode
+		return 1
+	#------------------------------------------------------------------
+	def add_episode(self, episode_name = '__default__', id_health_issue = None):
+		"""Add episode 'episode_name'.
+
+		- returns ID of episode
+		- adds default episode if no name given
+		"""
+		# anything to do ?
+		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot check if episode [%s] exists for patient [%s]' % (episode_name, self.id_patient))
+			return None
+		# episode already exists
+		if len(rows) != 0:
+			return rows[0][0]
+
+		# episode does not exist yet so create it
+		# no health issue given -> use active health issue
+		if id_health_issue is None:
+			id_health_issue = self.id_health_issue
+		cmd1 = "insert into clin_episode (id_health_issue, description) values (%s, %s)"
+		cmd2 = "select currval('clin_episode_id_seq')"
+		rows = gmPG.run_commit('historica', [
+			(cmd1, [id_health_issue, episode_name]),
+			(cmd2, [])
+		])
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot insert episode [%s] for patient [%s]' % (episode_name, self.id_patient))
+			return None
+		if len(rows) == 0:
+			_log.Log(gmLog.lErr, 'cannot obtain id of last episode insertion')
+			return None
+		return rows[0][0]
 	#--------------------------------------------------------
-	def _get_health_issues(self):
+	def __load_last_active_episode(self):
+		# check if there's an active episode
+		cmd = "select id_episode from last_act_episode where id_patient=%s limit 1"
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+		# error
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
+			return None
+		# no last_active_episode recorded so far
+		episode_name = '__default__'
+		if len(rows) == 0:
+			# find episode with the most recently modified clinical item
+			# FIXME: optimize query
+			cmd = """
+				select description
+				from clin_episode
+				where id=(
+					select distinct on(id_episode) id_episode
+					from v_patient_items
+					where
+						id_patient=%s
+							and
+						modified_when=(select max(modified_when) where id_patient=%s)
+				)"""
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, self.id_patient)
+			# error
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot check for most recently used episode on patient [%s]' % self.id_patient)
+				return None
+			# no episode-connected clinical items recorded so far
+			if len(rows) == 0:
+				_log.Log(gmLog.lErr, 'cannot find any episodes via v_patient_items for patient [%s]' % self.id_patient)
+			else:
+				episode_name = rows[0][0]
+			# try to activate episode
+			if self.set_active_episode(episode_name):
+				return 1
+			_log.Log(gmLog.lErr, 'cannot create/activate episode [%s] for patient [%s]' % (episode_name, self.id_patient))
+			return None
+		# found last_active_episode
+		self.id_episode = rows[0][0]
+
+		# load corresponding health issue
+		cmd = "select id_health_issue from v_patient_episodes where id_episode=%s"
+		rows = gmPG.run_ro_query('historica', cmd, None, self.id_episode)
+		if rows is None:
+			self.id_health_issue = self.id_default_health_issue
+			_log.Log(gmLog.lErr, 'cannot find health issue linked from episode [%s], using default' % self.id_episode)
+		elif len(rows) == 0:
+			self.id_health_issue = self.id_default_health_issue
+			_log.Log(gmLog.lErr, 'cannot find health issue linked from episode [%s], using default' % self.id_episode)
+		else:
+			self.id_health_issue = rows[0][0]
+
+		return 1
+	#--------------------------------------------------------
+	# health issues API
+	#--------------------------------------------------------
+	def get_health_issues(self):
 		try:
 			return self.__db_cache['health issues']
 		except KeyError:
@@ -445,7 +594,7 @@ class gmClinicalRecord:
 			self.__db_cache['health issues'][row[idx_id]] = row[idx_name]
 		return self.__db_cache['health issues']
 	#--------------------------------------------------------
-	def _get_health_issue_names(self):
+	def get_health_issue_names(self):
 		try:
 			return self.__db_cache['health issue names']
 		except KeyError:
@@ -466,6 +615,53 @@ class gmClinicalRecord:
 		for row in rows:
 			self.__db_cache['health issue names'][row[idx_id]] = row[idx_name]
 		return self.__db_cache['health issue names']
+	#------------------------------------------------------------------
+	def __load_default_health_issue(self):
+		self.id_default_health_issue = self.add_health_issue()
+		if self.id_default_health_issue is None:
+			_log.Log(gmLog.lErr, 'cannot load default health issue for patient [%s]' % self.id_patient)
+			return None
+		return 1
+	#------------------------------------------------------------------
+	def add_health_issue(self, health_issue_name = '__default__'):
+		curs = self._ro_conn_clin.cursor()
+		cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
+		if not gmPG.run_query(curs, cmd, self.id_patient, health_issue_name):
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot check if health issue [%s] exists for patient [%s]' % (health_issue_name, self.id_patient))
+			return None
+		row = curs.fetchone()
+		curs.close()
+		# issue exists already
+		if row is not None:
+			return row[0]
+		# issue does not exist yet so create it
+		_log.Log(gmLog.lData, "health issue [%s] does not exist for patient [%s]" % (health_issue_name, self.id_patient))
+		rw_conn = self._backend.GetConnection('historica', readonly = 0)
+		rw_curs = rw_conn.cursor()
+		cmd = "insert into clin_health_issue (id_patient, description) values (%s, %s)"
+		if not gmPG.run_query(rw_curs, cmd, self.id_patient, health_issue_name):
+			rw_curs.close()
+			rw_conn.close()
+			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
+			return None
+		# get ID of insertion
+		cmd = "select currval('clin_health_issue_id_seq')"
+		if not gmPG.run_query(rw_curs, cmd):
+			rw_curs.close()
+			rw_conn.close()
+			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
+			return None
+		id_issue = rw_curs.fetchone()[0]
+		# and commit our work
+		rw_conn.commit()
+		rw_curs.close()
+		rw_conn.close()
+		_log.Log(gmLog.lData, 'inserted [%s] issue with ID [%s] for patient [%s]' % (health_issue_name, id_issue, self.id_patient))
+		
+		return id_issue
+	#--------------------------------------------------------
+	# vaccinations API
 	#--------------------------------------------------------
 	def get_vaccinated_regimes(self):
 		cmd = """
@@ -681,155 +877,10 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 		return (1, result[0][0])
 	#--------------------------------------------------------
 	# set up handler map
-#	_get_handler['allergy IDs'] = _get_allergies_list
-	_get_handler['episode names'] = _get_episode_names
-	_get_handler['health issues'] = _get_health_issues
-	_get_handler['health issue names'] = _get_health_issue_names
+	_get_handler['health issues'] = get_health_issues
+	_get_handler['health issue names'] = get_health_issue_names
 	#------------------------------------------------------------------
-	# health issue related helpers
-	#------------------------------------------------------------------
-	def __load_default_health_issue(self):
-		self.id_default_health_issue = self._create_health_issue()
-		if self.id_default_health_issue is None:
-			_log.Log(gmLog.lErr, 'cannot load default health issue for patient [%s]' % self.id_patient)
-			return None
-		return 1
-	#------------------------------------------------------------------
-	def _create_health_issue(self, health_issue_name = '__default__'):
-		curs = self._ro_conn_clin.cursor()
-		cmd = "select id from clin_health_issue where id_patient=%s and description=%s"
-		if not gmPG.run_query(curs, cmd, self.id_patient, health_issue_name):
-			curs.close()
-			_log.Log(gmLog.lErr, 'cannot check if health issue [%s] exists for patient [%s]' % (health_issue_name, self.id_patient))
-			return None
-		row = curs.fetchone()
-		curs.close()
-		# issue exists already
-		if row is not None:
-			return row[0]
-		# issue does not exist yet so create it
-		_log.Log(gmLog.lData, "health issue [%s] does not exist for patient [%s]" % (health_issue_name, self.id_patient))
-		rw_conn = self._backend.GetConnection('historica', readonly = 0)
-		rw_curs = rw_conn.cursor()
-		cmd = "insert into clin_health_issue (id_patient, description) values (%s, %s)"
-		if not gmPG.run_query(rw_curs, cmd, self.id_patient, health_issue_name):
-			rw_curs.close()
-			rw_conn.close()
-			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
-			return None
-		# get ID of insertion
-		cmd = "select currval('clin_health_issue_id_seq')"
-		if not gmPG.run_query(rw_curs, cmd):
-			rw_curs.close()
-			rw_conn.close()
-			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
-			return None
-		id_issue = rw_curs.fetchone()[0]
-		# and commit our work
-		rw_conn.commit()
-		rw_curs.close()
-		rw_conn.close()
-		_log.Log(gmLog.lData, 'inserted [%s] issue with ID [%s] for patient [%s]' % (health_issue_name, id_issue, self.id_patient))
-		
-		return id_issue
-	#------------------------------------------------------------------
-	# episode related helpers
-	#------------------------------------------------------------------
-	def __load_most_recent_episode(self):
-		# check if there's an active episode
-		curs = self._ro_conn_clin.cursor()
-		cmd = "select id_episode from last_act_episode where id_patient=%s limit 1"
-		if not gmPG.run_query(curs, cmd, self.id_patient):
-			curs.close()
-			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
-			return None
-		row = curs.fetchone()
-		curs.close()
-		# no: should only happen in new patients
-		if row is None:
-			# try to set one to active or create default one
-			if not self._set_active_episode():
-				_log.Log(gmLog.lErr, 'cannot activate default episode for patient [%s]' % self.id_patient)
-				return None
-		else:
-			self.id_episode = row[0]
-		return 1
-	#------------------------------------------------------------------
-	def _set_active_episode(self, episode_name = '__default__'):
-		# does this episode exist at all ? (else we can't activate it in the first place)
-		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
-		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
-		# no
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot check for episode [%s] existance' % episode_name)
-			return None
-		elif len(rows) == 0:
-			# if __default__ then create it
-			if episode_name == '__default__':
-				id_episode = self._create_episode()
-				if id_episode is None:
-					return None
-			# else fail
-			else:
-				_log.Log(gmLog.lErr, 'patient [%s] has no episode [%s]' % (self.id_patient, episode_name))
-				return None
-		# yes
-		else:
-			id_episode = rows[0][0]
-
-		# delete old entry
-		cmd1 = "delete from last_act_episode where id_patient=%s"
-		# eventually activate new one
-		cmd2 = "insert into last_act_episode (id_episode, id_patient) values (%s, %s)"
-		if not gmPG.run_commit('historica', [
-			(cmd1, [self.id_patient]),
-			(cmd2, [id_episode, self.id_patient])]):
-				_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
-				return None
-
-		self.id_episode = id_episode
-		return 1
-	#------------------------------------------------------------------
-	def _create_episode(self, episode_name = '__default__'):
-		ro_curs = self._ro_conn_clin.cursor()
-		# anything to do ?
-		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
-		if not gmPG.run_query(ro_curs, cmd, self.id_patient, episode_name):
-			ro_curs.close()
-			_log.Log(gmLog.lErr, 'cannot check if episode [%s] exists for patient [%s]' % (episode_name, self.id_patient))
-			return None
-		row = ro_curs.fetchone()
-		ro_curs.close()
-		# episode already exists
-		if row is not None:
-			return row[0]
-		# episode does not exist yet so create it
-		rw_conn = self._backend.GetConnection('historica', readonly = 0)
-		if rw_conn is None:
-			return None
-		rw_curs = rw_conn.cursor()
-		# for now new episodes belong to the __default__ health issue
-		cmd = "insert into clin_episode (id_health_issue, description) values (%s, %s)"
-		if not gmPG.run_query(rw_curs, cmd, self.id_default_health_issue, episode_name):
-			rw_curs.close()
-			rw_conn.close()
-			_log.Log(gmLog.lErr, 'cannot insert episode [%s] for patient [%s]' % (episode_name, self.id_patient))
-			return None
-		# get id for it
-		cmd = "select currval('clin_episode_id_seq')"
-		if not gmPG.run_query(rw_curs, cmd):
-			rw_curs.close()
-			rw_conn.close()
-			_log.Log(gmLog.lErr, 'cannot obtain id of last episode insertion')
-			return None
-		id_episode = rw_curs.fetchone()[0]
-		# and commit our work
-		rw_conn.commit()
-		rw_curs.close()
-		rw_conn.close()
-		return id_episode
-	#------------------------------------------------------------------
-	# encounter related helpers
+	# encounter API
 	#------------------------------------------------------------------
 	def attach_to_encounter(self, anID = None, forced = None, comment = 'affirmed'):
 		"""Try to attach to an encounter.
@@ -840,7 +891,7 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 		if forced:
 			# ... create a new encounter and attach to that
 			if anID is None:
-				self.id_encounter = self.__insert_encounter()
+				self.id_encounter = self.__add_encounter()
 				if self.id_encounter is None:
 					return -1, ''
 				else:
@@ -854,7 +905,6 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 					return 1, ''
 
 		# else auto-search for encounter and attach if necessary
-		ro_curs = self._ro_conn_clin.cursor()
 		if anID is None:
 			# 1) very recent encounter recorded ? (that we always consider current)
 			cmd = """
@@ -865,15 +915,13 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 						and
 					now() - last_affirmed < %s::interval
 				"""
-			if not gmPG.run_query(ro_curs, cmd, self.id_patient, self.encounter_soft_ttl):
-				ro_curs.close()
+			rows = gmPG.run_ro_query('historica', cmd, self.id_patient, self.encounter_soft_ttl)
+			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot access current encounter table')
 				return -1, ''
-			row = ro_curs.fetchone()
 			# yes, so update and return that
-			if row is not None:
-				ro_curs.close()
-				self.id_encounter = row[0]
+			if len(rows) != 0:
+				self.id_encounter = rows[0][0]
 				if not self.__affirm_current_encounter(comment):
 					return -1, ''
 				else:
@@ -894,26 +942,24 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 						and
 					now() - last_affirmed < %s::interval
 				limit 1"""
-			if not gmPG.run_query(ro_curs, cmd, self.id_patient, self.encounter_hard_ttl):
-				ro_curs.close()
+			rows = gmPG.run_ro_query('historica', cmd, self.id_patient, self.encounter_hard_ttl)
+			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot access current encounter table')
 				return -1, ''
-			row = ro_curs.fetchone()
-			ro_curs.close()
 			# ask user what to do about it
-			if row is not None:
+			if len(rows) != 0:
 				data = {
-					'ID': row[0],
-					'started': row[1],
-					'affirmed': row[2],
-					'status': row[3],
-					'comment': row[4],
-					'type': row[5]
+					'ID': rows[0][0],
+					'started': rows[0][1],
+					'affirmed': rows[0][2],
+					'status': rows[0][3],
+					'comment': rows[0][4],
+					'type': rows[0][5]
 				}
 				return 0, data
 
 			# 3) no encounter active or encounter timed out, create new one
-			self.id_encounter = self.__insert_encounter()
+			self.id_encounter = self.__add_encounter()
 			if self.id_encounter is None:
 				return -1, ''
 			else:
@@ -922,20 +968,22 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 			_log.Log(gmLog.lErr, 'invalid argument combination: forced=false & anID given (= %d)' % anID)
 			return -1, ''
 	#------------------------------------------------------------------
-	def __insert_encounter(self, aComment = 'created'):
+	def __add_encounter(self, aComment = 'created', encounter_name = None):
 		"""Insert a new encounter.
 		"""
 		# delete old entries if any
 		cmd1 = "delete from curr_encounter where id_encounter in (select id from clin_encounter where fk_patient=%s)"
 		# insert new encounter
 		# FIXME: we don't deal with location yet
-		cmd2 = "insert into clin_encounter(fk_patient, fk_location, fk_provider) values(%s, -1, %s)"
+		if encounter_name is None:
+			encounter_name = _('auto-created %s') % mxDT.today().Format('%A %Y-%m-%d %H:%M')
+		cmd2 = "insert into clin_encounter(fk_patient, fk_location, fk_provider, description) values(%s, -1, %s, %s)"
 		# and record as currently active encounter
 		cmd3 = "insert into curr_encounter (id_encounter, \"comment\") values (currval('clin_encounter_id_seq'), %s)"
 
 		return gmPG.run_commit('historica', [
 			(cmd1, [self.id_patient]),
-			(cmd2, [self.id_patient, _whoami.get_staff_ID()]),
+			(cmd2, [self.id_patient, _whoami.get_staff_ID(), encounter_name]),
 			(cmd3, [aComment])
 		])
 	#------------------------------------------------------------------
@@ -1069,7 +1117,17 @@ if __name__ == "__main__":
 	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.55  2003-12-29 16:13:51  uid66147
+# Revision 1.56  2004-01-06 09:56:41  ncq
+# - default encounter name __default__ is nonsense, of course,
+#   use mxDateTime.today().Format() instead
+# - consolidate API:
+#   - load_most_recent_episode() -> load_last_active_episode()
+#   - _get_* -> get_*
+#   - sort methods
+# - convert more gmPG.run_query()
+# - handle health issue on episode change as they are tighthly coupled
+#
+# Revision 1.55  2003/12/29 16:13:51  uid66147
 # - listen to vaccination changes in DB
 # - allow filtering by ID in get_vaccinations()
 # - order get_due_vacc() by time_left/amount_overdue
