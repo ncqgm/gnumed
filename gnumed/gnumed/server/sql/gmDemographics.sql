@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -141,7 +141,10 @@ create table enum_comm_types (
 
 create table comm_channel (
 	id serial primary key,
-	id_type integer not null references enum_comm_types(id),
+	id_type integer not null
+		references enum_comm_types(id)
+		on update cascade
+		on delete restrict,
 	url text not null,
 	unique(id_type, url)
 );
@@ -309,8 +312,14 @@ comment on column names.preferred IS
 -- ==========================================================
 create table lnk_identity2comm_chan (
 	id serial primary key,
-	id_identity integer not null references identity(id),
-	id_comm integer not null references comm_channel(id),
+	id_identity integer not null
+		references identity(id)
+		on update cascade
+		on delete cascade,
+	id_comm integer not null
+		references comm_channel(id)
+		on update cascade
+		on delete cascade,
 	is_confidential bool not null default false,
 	unique (id_identity, id_comm)
 );
@@ -463,11 +472,16 @@ create table org (
 );
 
 -- ====================================================================
-
 create table lnk_org2comm_channel (
 	id serial primary key,
-	id_org integer not null references org(id),
-	id_comm integer not null references comm_channel(id),
+	id_org integer not null
+		references org(id)
+		on update cascade
+		on delete cascade,
+	id_comm integer not null
+		references comm_channel(id)
+		on update cascade
+		on delete cascade,
 	is_confidential bool not null default false,
 	unique (id_org, id_comm)
 );
@@ -518,11 +532,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.29 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.30 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.29  2004-04-07 18:42:10  ncq
+-- Revision 1.30  2004-05-30 21:01:11  ncq
+-- - cleanup
+--
+-- Revision 1.29  2004/04/07 18:42:10  ncq
 -- - *comm_channel -> *comm_chan
 --
 -- Revision 1.28  2004/04/07 18:16:06  ncq
