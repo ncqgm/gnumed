@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.133 $
+-- $Revision: 1.134 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -47,6 +47,9 @@ create table clin_health_issue (
 		default true,
 	unique (id_patient, description)
 ) inherits (audit_fields);
+
+alter table cln_health_issue add constraint issue_name_not_empty
+	check (trim(both from description) != '');
 
 select add_table_for_audit('clin_health_issue');
 
@@ -98,7 +101,7 @@ alter table clin_episode add constraint standalone_epi_needs_patient
 alter table clin_episode add constraint standalone_epi_needs_name
 	check (
 		(fk_health_issue is not null) or
-		((fk_health_issue is null) and (description is not null))
+		((fk_health_issue is null) and (coalesce(trim(both from description), '') != '')
 	);
 
 select add_table_for_audit('clin_episode');
@@ -1073,11 +1076,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.133 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.134 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.133  2004-10-20 13:52:27  sjtan
+-- Revision 1.134  2004-10-20 21:41:03  ncq
+-- - issue/episode must have non-empty name
+--
+-- Revision 1.133  2004/10/20 13:52:27  sjtan
 --
 -- placement of , with recent change to field.
 --
