@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.14 2003-10-26 09:41:03 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.15 2003-11-02 10:17:02 ihaywood Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -159,14 +159,12 @@ insert into test_type (
 ) values (
 	5, 1, i18n('SpO2'), null, i18n('blood oxygen saturation'), i18n('peripheral arterial blood oxygenization level, transduced'), '%'
 );
-/*
--- template
-insert into test_type (
-	id, id_provider, code, coding_system, name, comment, basic_unit
-) values (
-	'missing', 1, i18n(''), null, i18n(''), i18n(''), ''
-);
-*/
+--insert into test_type (
+--	id, id_provider, code, coding_system, name, comment, basic_unit
+--) values (
+--	'missing', 1, i18n(''), null, i18n(''), i18n(''), ''
+--);
+
 -- ===================================================================
 -- vaccination routes
 delete from vacc_route;
@@ -430,11 +428,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.14  2003-10-26 09:41:03  ncq
+-- Revision 1.15  2003-11-02 10:17:02  ihaywood
+-- fixups that crash psql.py
+--
+-- Revision 1.14  2003/10/26 09:41:03  ncq
 -- - truncate -> delete from
 --
 -- Revision 1.13  2003/10/21 15:04:48  ncq

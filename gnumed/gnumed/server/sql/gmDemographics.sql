@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -73,7 +73,7 @@ COMMENT ON TABLE urb IS
 COMMENT ON COLUMN urb.id_state IS
 	'reference to information about country and state';
 COMMENT ON COLUMN urb.postcode IS
-	'the postcode (if applicable';
+	'the postcode (if applicable)';
 COMMENT ON COLUMN urb.name IS
 	'the name of the city/town/dwelling';
 
@@ -504,11 +504,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.12 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.11  2003-10-31 23:29:38  ncq
+-- Revision 1.12  2003-11-02 10:17:02  ihaywood
+-- fixups that crash psql.py
+--
+-- Revision 1.11  2003/10/31 23:29:38  ncq
 -- - cleanup, id_ -> fk_
 --
 -- Revision 1.10  2003/10/26 18:00:03  ncq
