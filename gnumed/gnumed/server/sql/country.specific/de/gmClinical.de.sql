@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -44,11 +44,14 @@ COMMENT ON COLUMN lab_test_GNR.BG_GOA is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.3 $')
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.3  2003-10-01 15:45:20  ncq
+-- Revision 1.4  2003-10-19 13:52:20  ncq
+-- - add missing ;
+--
+-- Revision 1.3  2003/10/01 15:45:20  ncq
 -- - use add_table_for_audit() instead of inheriting from audit_mark
 --
 -- Revision 1.2  2003/08/17 00:28:25  ncq
