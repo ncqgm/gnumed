@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-de.txt,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 #------------------------------------------------------------------------
 
 Sie lesen gerade eine Vorversion des Installationshandbuchs zu GNUmedArchiv
@@ -94,7 +94,7 @@ auf dem Client
 
 	PythonImagingLibrary
 	--------------------
-	http://www.pythonware.com
+	http://www.pythonware.com - PIL 1.1.3
 
 	mx-tools
 	-------------------
@@ -153,7 +153,7 @@ Client
 ------
 	GNU/Linux )
 	Entpacken Sie das Archiv 'gnumed-archive-client.tgz' in ein Verzeichnis Ihrer Wahl.
-	Führen Sie dann in diesem Verzeichnis das Installationsskript 'install-sh' aus.
+	Führen Sie dann in diesem Verzeichnis das Installationsskript 'install.sh' aus.
 
 	Windows )
 	Führen Sie das Installationsprogramm [setup.exe] aus.
@@ -193,7 +193,7 @@ Server
 	PostgreSQL ist jetzt auch für das Netzwerkbetriebssystem Novell erschienen und
 	kann daher auch auf diesem Betriebssystem eingesetzt werden.
 
-	Entpacken Sie das Archiv 'gnumed-archive-server' in ein Verzeichnis Ihrer Wahl.
+	Entpacken Sie das Archiv 'gnumed-archive-server.tgz' in ein Verzeichnis Ihrer Wahl.
 	Für die Installation benötigen Sie root-Zugriff auf Ihr System.
 
 	Passen Sie nun die Datei'german-doc_types.sql' an Ihre individuellen Bedürfnisse an.
@@ -230,6 +230,10 @@ Server
 	Läuft die Installation ohne Fehler durch, erhalten Sie am Ende weitere Anweisungen
 	was noch zu tun ist damit beispielsweise automatisch die angelieferten
 	Befunde in die Datenbank gespeichert werden.
+	
+	Falls bei der Installation Fehler auftreten, ist es ratsam, einen Blick in das Fehlerprotokoll
+	zu werfen. Für den Fall, dass auch das nicht zum Ziel führt kann eine Nachricht an die Mailing-Liste
+	weiterhelfen. Bitte nicht vergessen, das Fehlerprotokoll anzuhängen.
 
 	Passen Sie nun den Abschnitt [import] in der Konfigurationsdatei 'gnumed-archive.conf' an Ihre Bedürfnisse an.
 #################
@@ -249,10 +253,10 @@ Client
 Server
 ------
 	GNU/Linux )
-		'import-med_docs.py'
+		'run-importer.sh'
 
-Idealerweise legt man einen cron-job an der zu festgelegten Zeiten die Befunde
-in die Datenbank schiebt.
+	Idealerweise legt man einen cron-job an der zu festgelegten Zeiten die Befunde
+	in die Datenbank schiebt.
 
 ###############################
 4.  Loslegen
@@ -266,7 +270,7 @@ in die Datenbank schiebt.
     und so ist der Ablauf ...
 
 Teil 1: Erfassung
-
+------------------------
 Ein Stapel Befunde wird fortlaufend eingescannt. Mehrseitige
 Dokumente behalten ihren inneren Zusammenhang. Das
 Scanprogramm folgt dabei einem logischen Ablauf.
@@ -296,7 +300,7 @@ Barcode und im Klartext auf den Originalbefund zu drucken.
 Dafür kann die freie Software GNUBarcode verwendet werden.
 
 Teil 2: Zuordnung
-
+------------------------
 Dieses Programm dient der Zuordnung der gescannten Dokumente zu
 einem Patienten. Die meisten kommerziellen Praxisprogramme
 lassen für Fremdprogramme keinen direkten Zugriff auf die
@@ -372,7 +376,7 @@ ausgewählte Dokumente zurück an das Praxisprogramm zu
 #########################################
 
 GNU/Linux
-	GNUmed - GNUmedArchiv ist Bestandteil von GNUmed und wird direkt als Plugin in das Programm integriert.
+	GNUmed - GNUmedArchive ist Bestandteil von GNUmed und wird direkt als Plugin in das Programm integriert.
 
 DOS
 	Turbomed - Das Programm GNUmed/Archive soll direkt aus Turbomed heraus gestartet werden.
@@ -418,7 +422,11 @@ DOS
 
 #------------------------------------------------------------------------
 $Log: README-GnuMed-Archiv-de.txt,v $
-Revision 1.3  2002-12-22 22:25:04  ncq
+Revision 1.4  2003-01-19 13:44:09  ncq
+- new Englisch installation manual
+- fixes for German
+
+Revision 1.3  2002/12/22 22:25:04  ncq
 - Windows install: setup.exe
 
 Revision 1.2  2002/12/03 10:16:59  ncq
