@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.43 2004-08-02 18:53:36 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmPatientSelector.py,v 1.44 2004-08-18 08:18:35 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -395,7 +395,7 @@ and hit <ENTER>
 				if self.prev_pats == []:
 					return True
 				# show list
-				dlg = cPatientPickList(parent = NULL)
+				dlg = cPatientPickList(parent = self)
 				dlg.SetItems(self.prev_pats, self.prev_col_order)
 				result = dlg.ShowModal()
 				dlg.Destroy()
@@ -421,7 +421,7 @@ and hit <ENTER>
 					return True
 				picklist, col_order = gmKVK.kvks_extract_picklist(kvks)
 				# show list
-				dlg = cPatientPickList(parent = NULL, title = _("please select a KVK"))
+				dlg = cPatientPickList(parent = self, title = _("please select a KVK"))
 				dlg.SetItems(picklist, col_order)
 				result = dlg.ShowModal()
 				dlg.Destroy()
@@ -458,7 +458,7 @@ and hit <ENTER>
 			if ids is None or len(ids) == 0:
 				# FIXME: gmGuiHelpers
 				dlg = wx.wxMessageDialog(
-					NULL,
+					self,
 					_('Cannot find ANY matching patients for search term\n"%s" !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
 					_('selecting patient'),
 					wx.wxOK | wx.wxICON_EXCLAMATION
@@ -483,7 +483,7 @@ and hit <ENTER>
 				curs.close()
 
 			# and let user select from pick list
-				dlg = cPatientPickList(parent = NULL)
+				dlg = cPatientPickList(parent = self)
 				dlg.SetItems(pat_list, self.prev_col_order)
 				result = dlg.ShowModal()
 				dlg.Destroy()
@@ -615,7 +615,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.43  2004-08-02 18:53:36  ncq
+# Revision 1.44  2004-08-18 08:18:35  ncq
+# - later wxWidgets version don't support parent=NULL anymore
+#
+# Revision 1.43  2004/08/02 18:53:36  ncq
 # - used wxBegin/EndBusyCursor() around setting the active patient
 #
 # Revision 1.42  2004/07/18 19:51:12  ncq
