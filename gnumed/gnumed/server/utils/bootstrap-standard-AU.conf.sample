@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-standard-AU.conf.sample,v $
-version = $Revision: 1.1 $
+version = $Revision: 1.2 $
 
 #----------------------------------
 [installation]
@@ -16,7 +16,7 @@ interactive = yes
 description = $description$
 This will set up a standard monolithic test system for GnuMed
 that is immediately useable. It will contain patient demographics,
-clinical tables, german translations and some sample data.
+clinical tables, Australian postcodes and some sample data.
 
 There's also some test accounts included for access to the
 database. Please refer to server/sql/gmTestAccounts.sql to
@@ -156,6 +156,9 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard-AU.conf.sample,v $
-# Revision 1.1  2003-02-13 17:20:59  ncq
+# Revision 1.2  2003-02-13 17:23:31  ncq
+# - tailored description string to reflect purpose
+#
+# Revision 1.1  2003/02/13 17:20:59  ncq
 # - config file geared towards Australian GnuMed installations
 #
