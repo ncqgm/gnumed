@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.2 2003-08-18 23:34:28 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmXdtViewer.py,v 1.3 2003-08-20 22:52:12 shilbert Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -140,14 +140,40 @@ class gmXdtViewerPanel(wxPanel):
 		pat_selected = dlg.GetStringSelection()
 		_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
 		#anIdentity=string.split(pat_selected,':')
-		anIdentity = pat_selected
+		#anIdentity = pat_selected
 		#pat_id=anIdentity[0]
 		#aName=anIdentity[1]
 		# patient -- data ripping
 #	 	data = gmXdtToolsLib.getPatientContent(self.filename, anIdentity)
-		data = gmXdtToolsList.get_pat_data(self.filename, ID=, name=)
-		write data to file
-		self.filename = file
+		ID,name = string.split(pat_selected,':')
+		data = gmXdtToolsLib.get_pat_data(self.filename, ID, name)
+		# how many records were obtained for this patient ?
+		path,files = data
+		if len(files) == '0':
+			__show_error(
+				_('There apparently were no records for patient %s.\n' % ID+':'+name),
+				_('parsing XDT file')
+			)
+			return None
+		else:
+			if len(files)== '1':
+				self.filename= path +'/'+files[0]
+			else :
+				dlg = wxSingleChoiceDialog (
+					parent = NULL,
+					message = _("Please select the patient you want to display."),
+					caption = _("parsing patient-list for records" ),
+					choices = files,
+					style = wxOK | wxCANCEL
+				)
+				btn_pressed = dlg.ShowModal()
+				dlg.Destroy() 
+				# user cancelled
+				if btn_pressed == wxID_CANCEL:
+					return None
+				rec_selected = dlg.GetStringSelection()
+				_log.Log(gmLog.lData, 'selected [%s]' %rec_selected)
+				self.filename = path + '/' + rec_selected
 		return 1
 	#------------------------------------------------------------------------
 	def populate_list(self, aFile = None):
@@ -157,7 +183,7 @@ class gmXdtViewerPanel(wxPanel):
 		# sanity check
 		if not os.path.isfile(self.filename):
 			__show_error(
-				_('[%s] is not the name of a valid file.\nCannot parse XDT data from it.' % self.filename)
+				_('[%s] is not the name of a valid file.\nCannot parse XDT data from it.' % self.filename),
 				_('parsing XDT file')
 			)
 			return None
@@ -168,7 +194,7 @@ class gmXdtViewerPanel(wxPanel):
 		# no patients
 		if nr_pats == 0:
 			__show_error(
-				_('File [%s] does not contain any XDT formatted patient records. Aborting.' % self.filename)
+				_('File [%s] does not contain any XDT formatted patient records. Aborting.' % self.filename),
 				_('parsing XDT file')
 			)
 			return None
@@ -181,7 +207,7 @@ class gmXdtViewerPanel(wxPanel):
 					return None
 			else:
 				__show_error(
-					_('File [%s] contains more than one patient. Aborting.' % self.filename)
+					_('File [%s] contains more than one patient. Aborting.' % self.filename),
 					_('parsing XDT file')
 				)
 				return None
@@ -440,13 +466,17 @@ def __show_error(aMessage = None, aTitle = ''):
 	return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.2  2003-08-18 23:34:28  ncq
+# Revision 1.3  2003-08-20 22:52:12  shilbert
+# - squashed some of the obvious bugs
+# - initial testing for correct xdt structure
+#
+# Revision 1.2  2003/08/18 23:34:28  ncq
 # - cleanup, somewhat restructured to show better way of going about things
 #
 # Revision 1.1  2003/08/18 20:32:03  shilbert
-# now handles the case that xdt-file contains more than one patient
-# splits into individual records / per patient
-# asks for patient to display
+# - now handles the case that xdt-file contains more than one patient
+# - splits into individual records / per patient
+# - asks for patient to display
 #
 # Revision 1.8  2003/06/26 21:41:51  ncq
 # - fatal->verbose
