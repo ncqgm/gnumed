@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.34 2004-09-06 22:23:03 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmPlugin.py,v 1.35 2004-09-13 09:25:46 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -194,7 +194,7 @@ class cNotebookPluginOld(cNotebookPlugin):
 		# already raised ?
 		if self.gb['main.notebook.raised_plugin'] == self.__class__.__name__:
 			return True
-		cNotebookPlugin.Raise()
+		cNotebookPlugin.Raise(self)
 		return True
 
 #==================================================================
@@ -204,7 +204,7 @@ def raise_notebook_plugin(plugin_name = None):
 	"""plugin_name is a plugin internal name"""
 	gb = gmGuiBroker.GuiBroker()
 	try:
-		plugin = gb['horstspace.plugins'][plugin_name]
+		plugin = gb['horstspace.notebook.gui'][plugin_name]
 	except KeyError:
 		_log.LogException("cannot raise [%s], plugin not available" % plugin_name, sys.exc_info(), verbose=0)
 		return None
@@ -334,7 +334,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.34  2004-09-06 22:23:03  ncq
+# Revision 1.35  2004-09-13 09:25:46  ncq
+# - fix plugin raise code
+#
+# Revision 1.34  2004/09/06 22:23:03  ncq
 # - properly use setDBParam()
 #
 # Revision 1.33  2004/08/20 13:34:48  ncq
