@@ -5,7 +5,7 @@ This lib provides functions for working with XDT-files.
 MERGE INTO business/gmXdtObjects.py !!
 """
 #==============================================================
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -128,42 +128,8 @@ def split2singleRecords(aFile,ID,name):
 				continue
 		else:
 			continue
-			"""
-				#idflag = 'false'
-				_log.Log(gmLog.lData, "id flag false")	
-					#pat_ids.append(apatientID)
-					#patients_found = patients_found + 1
-					# extract patient name
-			#else:
-			if len(content) != '0' and idflag == 'true' and nameflag == 'true':
-				# ahh , list 'content' is not empty
-				dump2individualFile(content,ID,name)
-				_log.Log(gmLog.lData, "dumped content %s to new file" % content)
-				# now we need to empty it before next record starts
-				content=[]
-		
-		
-				
-		if field == '3101' and idflag == 'true':
-			# clear nameflag
-			nameflag = 'false'
-			pat_name = strippedline [7:]
-			if pat_name == name:
-				nameflag = 'true'
-				_log.Log(gmLog.lData, "both flags true")
-			else: 
-				#nameflag = 'false'
-				_log.Log(gmLog.lData, "name flag false")
-		# both flags set to true ? lets add the line then
-		if idflag and nameflag == 'true':
-			content.append(line)		
-			
-			#if pat_name not in pat_names:
-			#	pat_names.append(pat_name)					
-	#_log.Log(gmLog.lData, "patients found: %s" % patients_found)
-	#return pat_names
+	
 	# cleanup
-	"""
 	fileinput.close()
 #====================================================================
 def get_random_ID(aDir):
@@ -206,44 +172,17 @@ def check_for_previous_records(ID,name,aRecord):
 		# no, we will add him/her then 
 		_log.Log(gmLog.lData, "identity not yet in list" )
 		#_patlst.set(aGroup=anIdentity,aComment="list of filenames for patient's records")
-		print 'ouch'
 		files = aRecord
 		# update list of records for this patient
 		_patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")
-	
-	#except:
-		#_log.LogException('Cannot read records for selected patient from patient list: [%s].' %pat_lst_fname, sys.exc_info())
-		#__show_error(
-		#	aMessage = _('Cannot load record from patient list\n[%s].') %pat_lst_fname,
-		#	aTitle = _('loading record from patient list')
-		#)
-	#	return None
-	
-	#_log.Log(gmLog.lData, _patlst )
-	return 1
-#----------------------------------------
-# error handling
-#----------------------------------------
-def __show_error(aMessage = None, aTitle = ''):
-	# sanity checks
-	tmp = aMessage
-	if aMessage is None:
-		tmp = _('programmer forgot to specify error message')
-
-	tmp = tmp + _("\n\nPlease consult the error log for further information !")
-
-	dlg = wxMessageDialog(
-		NULL,
-		tmp,
-		aTitle,
-		wxOK | wxICON_ERROR
-	)
-	dlg.ShowModal()
-	dlg.Destroy()
 	return 1
 #==============================================================
 # $Log: gmXdtToolsLib.py,v $
-# Revision 1.3  2003-08-20 22:53:21  shilbert
+# Revision 1.4  2003-08-20 22:57:11  shilbert
+# - removed junk comments
+# - basically cleanup
+#
+# Revision 1.3  2003/08/20 22:53:21  shilbert
 # - better patient record detection routine
 # - fixed some obvious bugs
 #
