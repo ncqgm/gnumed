@@ -15,7 +15,7 @@ License: GNU Public License
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -250,9 +250,6 @@ class ParameterDefinition:
 
 	#---------------------------------------------------------------------
 	def isValid(self,aValue):
-#DEBUG
-#		_log.Log(gmLog.lInfo, "isValid %s - %s - %s" % (self.mName,self.mType,aValue))
-
 		if self.mType == "string":
 			return self.__isString(aValue)
 		elif self.mType == "str_array":
@@ -260,11 +257,12 @@ class ParameterDefinition:
 		elif self.mType == "numeric":
 			return self.__isNumeric(aValue)
 		else:
+			_log.Log (gmLog.lPanic, "isValid %s - %s %s" % (self.mName, self.mType, aValue))
 			return 0
 			
 	#---------------------------------------------------------------------
 	def __isString(self,aValue):
-		if type(aValue) == types.StringType:
+		if type(aValue) == types.StringType or type (s) == types.UnicodeType:
 			if self.mValidVals is None:
 				return 1
 			elif str(aValue) in (self.mValidVals):
@@ -273,10 +271,10 @@ class ParameterDefinition:
 	
 	#---------------------------------------------------------------------
 	def __isStringArray(self,aValue):
-	# value must be a list and all elements must be strings
+		# value must be a list and all elements must be strings
 		if type(aValue) == types.ListType:
 			for s in (aValue):
-				if not type(s) == types.StringType:
+				if not (type(s) == types.StringType or type (s) == types.UnicodeType):
 					return 0
 			return 1
 		return 0
@@ -898,7 +896,10 @@ def importDBSet(filename,aUser = None, aMachine = 'xxxDEFAULTxxx'):
 
 #=============================================================
 # $Log: gmConfigCommon.py,v $
-# Revision 1.2  2004-02-25 09:46:21  ncq
+# Revision 1.3  2004-03-04 01:38:49  ihaywood
+# Now correctly validates unicode strings
+#
+# Revision 1.2  2004/02/25 09:46:21  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.1  2004/02/25 09:30:13  ncq
