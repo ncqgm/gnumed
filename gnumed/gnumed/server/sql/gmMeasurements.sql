@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -244,7 +244,10 @@ create table lab_request (
 	lab_request_id text default null,
 	lab_rxd_when timestamp with time zone not null,
 	results_reported_when timestamp with time zone not null,
-	request_status text not null default 'preliminary',
+	request_status text
+		not null
+		default 'preliminary'
+		check (request_status in ('preliminary', 'final', 'complete', 'incomplete')),
 	is_pending boolean not null default true,
 	unique (fk_test_org, request_id)
 	-- FIXME: there really should be a constraint like that
@@ -270,6 +273,8 @@ comment on column lab_request.results_reported_when is
 comment on column lab_request.request_status is
 	'final, preliminary, complete, incomplete, etc.
 	 LDT: 8401';
+comment on column lab_request.is_pending is
+	'true if any (even partial) results are still pending';
 
 -- ====================================
 create table lnk_result2lab_req (
@@ -319,11 +324,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.18  2004-04-07 18:16:06  ncq
+-- Revision 1.19  2004-04-16 00:36:23  ncq
+-- - cleanup, constraints
+--
+-- Revision 1.18  2004/04/07 18:16:06  ncq
 -- - move grants into re-runnable scripts
 -- - update *.conf accordingly
 --
