@@ -5,7 +5,7 @@ This lib provides functions for working with XDT-files.
 MERGE INTO business/gmXdtObjects.py !!
 """
 #=====================================================================
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -97,11 +97,11 @@ def split_xdt_file(aFile,patlst,cfg):
 			hashes = check_for_previous_records(ID,name,patlst)
 			#_log.Log(gmLog.lData, "hashes %s"%hashes )
 			# is this new content ?
-			ahash = calculate_md5_for_content(content)
-			if ahash not in hashes: 
-				file_lst = dump2individualFile(content,cfg)
+			ahash = data2md5(content)
+			if ahash not in hashes:
+				pat_dir = cfg.get("xdt-viewer", "export-dir")
+				file_lst = write_xdt_pat_data(content, pat_dir)
 				content = [] 
-				#_log.Log(gmLog.lData, "emptied content" )
 				add_file_to_patlst(ID,name,patlst,file_lst,ahash)
 			else:
 				#_log.Log(gmLog.lData, "hashes match, not adding file %s"%ahash)
@@ -114,34 +114,27 @@ def split_xdt_file(aFile,patlst,cfg):
 	patlst.store()
 	return 1
 #=====================================================================	
-def calculate_md5_for_content(content):
-	ahash = md5.new()
-	for element in content:
-		ahash.update(element)
-	return ahash.hexdigest()
-
+def data2md5(content):
+	data_hash = md5.new()
+	map(data_hash.update, content)
+#	for element in content:
+#		ahash.update(element)
+	return data_hash.hexdigest()
 #=====================================================================
-def get_random_ID(aDir):
+def get_rand_fname(aDir):
 	# set up temp file environment for creating unique random directory
 	tempfile.tempdir = aDir
 	tempfile.template = ""
 	# create temp filename
 	tmpname = tempfile.mktemp(suffix = time.strftime(".%Y%m%d-%H%M%S", time.localtime()))
 	# extract name for dir
-	path, doc_ID = os.path.split(tmpname)
-	return doc_ID
+	path, fname = os.path.split(tmpname)
+	return fname
 #=====================================================================
-def dump2individualFile(content,cfg):
-	fname = []
-	# write record for this patient to new file
-	pat_dir = cfg.get("xdt-viewer", "export-dir")
-	# create unique filname and add it to a list
-	fname.append(get_random_ID(aDir=pat_dir))
-	pat_fname = os.path.join(pat_dir,fname[0])
-	# open the file
-	pat_file = open(pat_fname, "w")
-	map(pat_file.write,content)
-	# done
+def write_xdt_pat_data(data, aDir):
+	"""write record for this patient to new file"""
+	pat_file = open(os.path.join(aDir, get_rand_fname(aDir)), "w")
+	map(pat_file.write, data)
 	pat_file.close()
 	return fname
 #=====================================================================
@@ -150,22 +143,17 @@ def check_for_previous_records(ID,name,patlst):
 	hashes = []
 	# patient already in list ?
 	if anIdentity in patlst.getGroups():
-		_log.Log(gmLog.lData, "identity already in list" )
+		_log.Log(gmLog.lData, "identity already in list")
 		files = patlst.get(aGroup=anIdentity,anOption="files")
 		#file already in list ?
 		for line in files:
 			file,ahash=string.split(line,':')
 			hashes.append(ahash)
-	
 	else:
 		# no, we will add him/her then 
 		_log.Log(gmLog.lData, "identity not yet in list" )
-		add_pat_to_patlst(anIdentity,patlst)
-		#add_file_to_patlst(anIdentity,patlst,file_lst)
-	return hashes 
-#=====================================================================
-def add_pat_to_patlst(anIdentity,patlst):
-	patlst.set(aGroup=anIdentity,anOption="files",aValue = [], aComment="")
+		patlst.set(aGroup = anIdentity, anOption = 'files', aValue = [], aComment = '')
+	return hashes
 #=====================================================================
 def add_file_to_patlst(ID,name,patlst,file_lst,ahash):
 	anIdentity = str(ID)+':'+str(name)
@@ -178,7 +166,10 @@ def add_file_to_patlst(ID,name,patlst,file_lst,ahash):
 	patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")
 #=====================================================================
 # $Log: gmXdtToolsLib.py,v $
-# Revision 1.8  2003-08-24 10:19:21  shilbert
+# Revision 1.9  2003-08-24 11:58:50  ncq
+# - more renaming
+#
+# Revision 1.8  2003/08/24 10:19:21  shilbert
 # - does not dump to file any more if content exist in file from previous sessions
 #
 # Revision 1.7  2003/08/23 16:32:42  ncq
