@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.42 2004-01-26 20:08:16 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.43 2004-02-02 16:17:42 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -354,154 +354,6 @@ order by
 ;
 
 \unset ON_ERROR_STOP
-drop view v_patient_vaccinations;
-\set ON_ERROR_STOP 1
-
-create view v_patient_vaccinations as
-select
-	v.fk_patient as pk_patient,
-	v.id as pk_vaccination,
-	v.clin_when as date,
-	vreg.name as regime,
-	vind.description as indication,
-	vdef.is_booster as is_booster,
-	case when vdef.is_booster
-		then 0
-		else vdef.seq_no
-	end as seq_no,
-	vcine.trade_name as vaccine,
-	vcine.short_name as vaccine_short,
-	v.batch_no as batch_no,
-	v.site as site,
-	v.narrative,
-	v.fk_provider as pk_provider,
-	vcine.id as pk_vaccine,
-	vreg.id as pk_regime
-from
-	vaccination v,
-	vaccine vcine,
-	lnk_vacc2vacc_def lv2vd,
-	vacc_def vdef,
-	vacc_regime as vreg,
-	vacc_indication vind
-where
-	(v.id = lv2vd.fk_vaccination
-		and
-	vdef.id = lv2vd.fk_vacc_def)
-		and
-	v.fk_vaccine = vcine.id
-		and
-	vdef.fk_regime = vreg.id
-		and
-	vreg.fk_indication = vind.id
-;
-
---	case when
---		(not vdef1.is_booster)
---			and
---		(vdef1.seq_no = (select max(vdef2.seq_no) from vacc_def vdef2 where vdef2.fk_regime = vdef1.fk_regime group by vdef2.fk_regime))
---		then true
---		else false
---	end as is_last_shot,
-
-
-\unset ON_ERROR_STOP
-drop view v_pat_due_vaccs;
-drop view v_pat_overdue_vaccs;
-\set ON_ERROR_STOP 1
-
-create view v_pat_due_vaccs as
-select
-	identity.id as pk_patient,
-	vreg.name as regime,
-	vdef.is_booster,
-	case when vdef.is_booster
-		then 0
-		else vdef.seq_no
-	end as seq_no,
-	case when vdef.max_age_due is null
-		then (now() + '2 years'::interval)
-		else (identity.dob + vdef.max_age_due)
-	end as latest_due,
-	case when vdef.max_age_due is null
-		then '2 years'::interval
-		else age((identity.dob + vdef.max_age_due), now())
-	end as time_left,
-	vdef.min_age_due,
-	vdef.max_age_due,
-	vdef.min_interval,
-	coalesce(vdef.comment, '') as comment,
-	vdef.id as pk_vacc_def,
-	vreg.id as pk_regime
-from
-	identity,
-	vacc_def vdef,
-	vacc_regime vreg
-where
-	-- min_age < age < max_age
-	age(identity.dob) between vdef.min_age_due and coalesce(vdef.max_age_due, '115 years'::interval)
-		and
-	-- only vacc_defs not in lnk_vacc2vacc_def
---	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from lnk_vacc2vacc_def where fk_patient = identity.id)
-	vdef.id not in (
-		select
-			distinct on (fk_vacc_def) fk_vacc_def
-		from
-			lnk_vacc2vacc_def lv2vd,
-			vaccination v
-		where
-			v.id = lv2vd.fk_vaccination
-				and
-			v.fk_patient = identity.id
-	) and
-	vdef.fk_regime = vreg.id
-order by
-	vdef.max_age_due
-;
-
-create view v_pat_overdue_vaccs as
-select
-	identity.id as pk_patient,
-	vreg.name as regime,
-	vdef.is_booster,
-	case when vdef.is_booster
-		then 0
-		else vdef.seq_no
-	end as seq_no,
-	age(identity.dob + vdef.max_age_due) as amount_overdue,
-	vdef.min_age_due,
-	vdef.max_age_due,
-	vdef.min_interval,
-	coalesce(vdef.comment, '') as comment,
-	vdef.id as pk_vacc_def,
-	vreg.id as pk_regime
-from
-	identity,
-	vacc_def vdef,
-	vacc_regime vreg
-where
-	-- age > max_age
-	age(identity.dob) > coalesce(vdef.max_age_due, '115 years'::interval)
-		and
-	-- only vacc_defs not in lnk_vacc2vacc_def
---	vdef.id not in (select distinct on (fk_vacc_def) fk_vacc_def from vaccination where fk_patient = identity.id)
-	vdef.id not in (
-		select
-			distinct on (fk_vacc_def) fk_vacc_def
-		from
-			lnk_vacc2vacc_def lv2vd,
-			vaccination v
-		where
-			v.id = lv2vd.fk_vaccination
-				and
-			v.fk_patient = identity.id
-	) and
-	vdef.fk_regime = vreg.id
-order by
-	vdef.max_age_due
-;
-
-\unset ON_ERROR_STOP
 drop view v_pat_vacc4ind;
 \set ON_ERROR_STOP 1
 
@@ -515,7 +367,7 @@ select
 	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
 	v.site as site,
-	v.narrative,
+	coalesce(v.narrative, '') as narrative,
 	vind.id as pk_indication,
 	v.fk_provider as pk_provider,
 	vcine.id as pk_vaccine
@@ -532,6 +384,69 @@ where
 	lv2i.fk_indication = vind.id
 ;
 
+\unset ON_ERROR_STOP
+drop view v_pat_missing_vaccs;
+drop view v_pat_missing_boosters;
+\set ON_ERROR_STOP 1
+
+create view v_pat_missing_vaccs as
+select
+	vpv4i1.pk_patient as pk_patient,
+	vvr1.indication as indication,
+	vvr1.regime as regime,
+	vvr1.reg_comment as reg_comment,
+	vvr1.vacc_seq_no as seq_no,
+	vvr1.age_due_min as age_due_min,
+	vvr1.age_due_max as age_due_max,
+	vvr1.min_interval as min_interval,
+	vvr1.vacc_comment as vacc_comment,
+	vvr1.pk_indication as pk_indication,
+	vvr1.pk_recommended_by as pk_recommended_by
+from
+	v_pat_vacc4ind vpv4i1,
+	v_vacc_regimes vvr1
+where
+	vvr1.is_booster = false
+		and
+	vvr1.vacc_seq_no > (
+		select count(*)
+		from v_pat_vacc4ind vpv4i2
+		where
+			vpv4i2.pk_patient = vpv4i1.pk_patient
+				and
+			vpv4i2.indication = vvr1.indication
+	)
+;
+
+create view v_pat_missing_boosters as
+select
+	vpv4i1.pk_patient as pk_patient,
+	vvr1.indication as indication,
+	vvr1.regime as regime,
+	vvr1.reg_comment as reg_comment,
+	vvr1.vacc_seq_no as seq_no,
+	vvr1.age_due_min as age_due_min,
+	vvr1.age_due_max as age_due_max,
+	vvr1.min_interval as min_interval,
+	vvr1.vacc_comment as vacc_comment,
+	vvr1.pk_indication as pk_indication,
+	vvr1.pk_recommended_by as pk_recommended_by
+from
+	v_pat_vacc4ind vpv4i1,
+	v_vacc_regimes vvr1
+where
+	vvr1.is_booster = true
+		and
+	vvr1.min_interval < age (
+		(select max(vpv4i2.date)
+		 from v_pat_vacc4ind vpv4i2
+		 where
+			vpv4i2.pk_patient = vpv4i1.pk_patient
+				and
+			vpv4i2.indication = vpv4i1.indication
+		)
+	)
+;
 -- ==========================================================
 -- current encounter stuff
 \unset ON_ERROR_STOP
@@ -578,11 +493,10 @@ GRANT SELECT ON
 	v_patient_items,
 	v_i18n_curr_encounters,
 	v_i18n_patient_allergies,
-	v_vacc_regimes,
-	v_patient_vaccinations,
-	v_pat_due_vaccs,
-	v_pat_overdue_vaccs
+	v_vacc_regimes
 	, v_pat_vacc4ind
+	, v_pat_missing_vaccs
+	, v_pat_missing_boosters
 TO GROUP "gm-doctors";
 
 --GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -601,11 +515,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.42 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.43 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.42  2004-01-26 20:08:16  ncq
+-- Revision 1.43  2004-02-02 16:17:42  ncq
+-- - remove v_patient_vaccinations, v_pat_due_vaccs, v_pat_overdue_vaccs
+-- - add v_pat_missing_vaccs, v_pat_missing_boosters
+--
+-- Revision 1.42  2004/01/26 20:08:16  ncq
 -- - fk_recommended_by as pk_recommended_by
 --
 -- Revision 1.41  2004/01/26 18:26:04  ncq
