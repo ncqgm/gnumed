@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.22 2004-08-16 19:35:52 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.23 2004-10-19 23:27:11 sjtan Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -67,7 +67,7 @@ create function f_always_active_name() returns opaque as '
 BEGIN
 	if NEW.active = false then
 		raise exception ''Cannot delete/disable active name. Another name must be activated first.'';
-		return 1;
+		return OLD;
 	end if;
 	return NEW;
 END;
@@ -309,11 +309,15 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.22  2004-08-16 19:35:52  ncq
+-- Revision 1.23  2004-10-19 23:27:11  sjtan
+-- this came up as script stopping bug , when run inside a in-order
+-- concatenated monolithic sql script.
+--
+-- Revision 1.22  2004/08/16 19:35:52  ncq
 -- - added idx_lnk_pers2rel based on ideas by Aldfaer (Anne v.d.Ploeg)
 --
 -- Revision 1.21  2004/07/20 07:19:12  ncq
