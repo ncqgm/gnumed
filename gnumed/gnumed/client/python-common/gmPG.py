@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -145,7 +145,7 @@ class ConnectionPool:
 		"""Listen to 'signal' from backend in an asynchronous thread.
 		If 'signal' is received from database 'service', activate
 		the 'callback' function"""
-		
+		# FIXME: error handling
 		# get physical database for service
 		try:
 			backend = ConnectionPool.__service2db_map[service]
@@ -162,12 +162,13 @@ class ConnectionPool:
 				auth.GetUser(),
 				auth.GetPassword(),
 				auth.GetHost(),
-				auth.GetPort()
+				int(auth.GetPort())
 			)
 			ConnectionPool.__listeners[backend] = listener
 		# actually start listening
 		listener = ConnectionPool.__listeners[backend]
 		listener.register_callback(signal, callback)
+		return 1
 	#-----------------------------
 	def Unlisten(self, service, signal, callback):
 		# get physical database for service
@@ -175,7 +176,7 @@ class ConnectionPool:
 			backend = ConnectionPool.__service2db_map[service]
 		except KeyError:
 			backend = 0
-		print "... disconnecting %s from %s on %s (%s)" % (signal, callback, service, backend)
+		_log.Log(gmLog.lData, "disconnecting notification [%s] from service [%s] (id %s) from callback %s" % (signal, service, backend, callback))
 		if backend not in ConnectionPool.__listeners.keys():
 			return 1
 		listener = ConnectionPool.__listeners[backend]
@@ -682,7 +683,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.41  2003-04-28 13:23:53  ncq
+# Revision 1.42  2003-05-01 15:01:10  ncq
+# - port must be int in backend.listener()
+# - remove printk()s
+#
+# Revision 1.41  2003/04/28 13:23:53  ncq
 # - make backend listener shell work by committing after notifying
 #
 # Revision 1.40  2003/04/27 11:52:26  ncq
