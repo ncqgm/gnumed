@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.98 2004-09-17 20:28:05 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.99 2004-09-17 20:59:58 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -208,7 +208,7 @@ where
 		union
 
 select
-	cep.fk_patient as id_patient,
+	chi.id_patient as id_patient,
 	cep.description as description,
 	chi.description as health_issue,
 	cep.pk as pk_episode,
@@ -774,111 +774,6 @@ comment on view v_pat_missing_boosters is
 	 to the schedules a patient is on and the previously
 	 received vaccinations';
 
--- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_pat_missing_vaccs1;
-drop view v_pat_missing_boosters1;
-\set ON_ERROR_STOP 1
-
-create view v_pat_missing_vaccs1 as
-select
-	vpv4i0.pk_patient as pk_patient,
-	vvd4r0.indication as indication,
-	_(vvd4r0.indication) as l10n_indication,
-	vvd4r0.regime as regime,
-	vvd4r0.reg_comment as reg_comment,
-	vvd4r0.vacc_seq_no as seq_no,
-	case when vvd4r0.age_due_max is null
-		then (now() + coalesce(vvd4r0.min_interval, vvd4r0.age_due_min))
-		else ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvd4r0.age_due_max)
-	end as latest_due,
-	-- note that time_left ...
-	case when vvd4r0.age_due_max is null
-		then coalesce(vvd4r0.min_interval, vvd4r0.age_due_min)
-		else (((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvd4r0.age_due_max) - now())
-	end as time_left,
-	-- ... and amount_overdue are just the inverse of each other
-	case when vvd4r0.age_due_max is null
-		then coalesce(vvd4r0.min_interval, vvd4r0.age_due_min)
-		else (now() - ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvd4r0.age_due_max))
-	end as amount_overdue,
-	vvd4r0.age_due_min as age_due_min,
-	vvd4r0.age_due_max as age_due_max,
-	vvd4r0.min_interval as min_interval,
-	vvd4r0.vacc_comment as vacc_comment,
-	vvd4r0.pk_indication as pk_indication,
-	vvd4r0.pk_recommended_by as pk_recommended_by
-from
-	v_pat_vacc4ind vpv4i0,
-	v_vacc_defs4reg vvd4r0
-where
-	vvd4r0.is_booster = false
-		and
-	-- any vacc_def in regime where seq > ...
-	vvd4r0.vacc_seq_no > (
-		-- ... highest seq in given vaccs
-		select count(*)
-		from v_pat_vacc4ind vpv4i1
-		where
-			vpv4i1.pk_patient = vpv4i0.pk_patient
-				and
-			vpv4i1.indication = vvd4r0.indication
-	)
-;
-
--- FIXME: only list those that DO HAVE a previous vacc (max(date) is not null)
-create view v_pat_missing_boosters1 as
-select
-	vpv4i0.pk_patient as pk_patient,
-	vvd4r0.indication as indication,
-	_(vvd4r0.indication) as l10n_indication,
-	vvd4r0.regime as regime,
-	vvd4r0.reg_comment as reg_comment,
-	vvd4r0.vacc_seq_no as seq_no,
-	coalesce(
-		((select max(vpv4i12.date)
-		from v_pat_vacc4ind vpv4i12
-		where
-			vpv4i12.pk_patient = vpv4i0.pk_patient
-				and
-			vpv4i12.indication = vvd4r0.indication
-		) + vvd4r0.min_interval),
-		(now() - '1 day'::interval)
-	) as latest_due,
-	coalesce(
-		(now() - (
-			(select max(vpv4i12.date)
-			from v_pat_vacc4ind vpv4i12
-			where
-				vpv4i12.pk_patient = vpv4i0.pk_patient
-					and
-				vpv4i12.indication = vvd4r0.indication) + vvd4r0.min_interval)
-		),
-		'1 day'::interval
-	) as amount_overdue,
-	vvd4r0.age_due_min as age_due_min,
-	vvd4r0.age_due_max as age_due_max,
-	vvd4r0.min_interval as min_interval,
-	vvd4r0.vacc_comment as vacc_comment,
-	vvd4r0.pk_indication as pk_indication,
-	vvd4r0.pk_recommended_by as pk_recommended_by
-from
-	v_pat_vacc4ind vpv4i0,
-	v_vacc_defs4reg vvd4r0
-where
-	vvd4r0.is_booster is true
-		and
-	vvd4r0.min_interval < age (
-		(select max(vpv4i11.date)
-		 from v_pat_vacc4ind vpv4i11
-		 where
-			vpv4i11.pk_patient = vpv4i0.pk_patient
-				and
-			vpv4i11.indication = vpv4i0.indication
-		)
-	)
-;
-
 -- ==========================================================
 -- current encounter stuff
 \unset ON_ERROR_STOP
@@ -1209,11 +1104,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.98 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.99 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.98  2004-09-17 20:28:05  ncq
+-- Revision 1.99  2004-09-17 20:59:58  ncq
+-- - remove cruft
+-- - in v_pat_episodes UNION pull data from correct places ...
+--
+-- Revision 1.98  2004/09/17 20:28:05  ncq
 -- - PG 7.4 is helpful: fix UNION
 --
 -- Revision 1.97  2004/09/17 20:14:06  ncq
