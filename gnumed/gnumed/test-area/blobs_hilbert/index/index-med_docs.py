@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -64,7 +64,7 @@ class indexFrame(wxFrame):
 		self.__fill_pat_fields()
 
 		# repository base
-		self.repository = os.path.abspath(os.path.expanduser(_cfg.get("repositories", "to_index")))
+		self.repository = os.path.abspath(os.path.expanduser(_cfg.get("index", "repository")))
 
 		# items for phraseWheel
 		if not self._init_phrase_wheel():
@@ -596,14 +596,14 @@ class indexFrame(wxFrame):
 		# to other methods of getting the patient
 
 		# get patient data from BDT/XDT file
-		pat_file = os.path.abspath(os.path.expanduser(_cfg.get("metadata", "patient_file")))
-		pat_format = _cfg.get("metadata", "patient_format")
+		pat_file = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
+		pat_format = _cfg.get("index", "patient format")
 		self.myPatient = cPatient()
 		if not self.myPatient.loadFromFile(pat_format, pat_file):
 			_log.Log(gmLog.lPanic, "Cannot read patient from %s file [%s]" % (pat_format, pat_file))
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot load patient from %s file\n[%s]\nPlease consult the error log for details.' % (pat_format, pat_file)),
+				_('Cannot load patient from %s file\n[%s]\nPlease consult the error log for details.') % (pat_format, pat_file),
 				_('Error'),
 				wxOK | wxICON_ERROR
 			)
@@ -722,7 +722,7 @@ class indexFrame(wxFrame):
 	#----------------------------------------
 	def __keep_patient_file(self, aDir):
 		# keep patient file for import
-		tmp = os.path.abspath(os.path.expanduser(_cfg.get("metadata", "patient_file")))
+		tmp = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
 		old_name = os.path.split(tmp)[0]
 		new_name = os.path.join(aDir, old_name)
 		try:
@@ -792,9 +792,9 @@ class indexFrame(wxFrame):
 	def __unlock_for_import(self, aDir):
 		"""three-stage locking"""
 
-		indexing_file = os.path.join(aDir, _cfg.get("metadata", "now_indexing"))
-		can_index_file = os.path.join(aDir, _cfg.get("metadata", "can_index"))
-		can_import_file = os.path.join(aDir, _cfg.get("metadata", "can_import"))
+		indexing_file = os.path.join(aDir, _cfg.get("index", "lock file"))
+		can_index_file = os.path.join(aDir, _cfg.get("index", "checkpoint file"))
+		can_import_file = os.path.join(aDir, _cfg.get("import", "checkpoint file"))
 
 		# 1) set ready-for-import checkpoint
 		try:
@@ -818,9 +818,9 @@ class indexFrame(wxFrame):
 
 		i.e., whether we should worry about this directory at all
 		"""
-		indexing_file = os.path.join(aDir, _cfg.get("metadata", "now_indexing"))
-		can_index_file = os.path.join(aDir, _cfg.get("metadata", "can_index"))
-		cookie = _cfg.get("metadata", "indexing_cookie")
+		indexing_file = os.path.join(aDir, _cfg.get("index", "lock file"))
+		can_index_file = os.path.join(aDir, _cfg.get("index", "checkpoint file"))
+		cookie = _cfg.get("index", "cookie")
 
 		# 1) anyone indexing already ?
 		if os.path.exists(indexing_file):
@@ -855,9 +855,9 @@ class indexFrame(wxFrame):
 		  1) and 2) by two clients attempting to start indexing
 		  at the same time
 		"""
-		indexing_file = os.path.join(aDir, _cfg.get("metadata", "now_indexing"))
-		can_index_file = os.path.join(aDir, _cfg.get("metadata", "can_index"))
-		cookie = _cfg.get("metadata", "indexing_cookie")
+		can_index_file = os.path.join(aDir, _cfg.get("index", "checkpoint file"))
+		indexing_file = os.path.join(aDir, _cfg.get("index", "lock file"))
+		cookie = _cfg.get("index", "cookie")
 
 		# 1) anyone indexing already ?
 		if os.path.exists(indexing_file):
@@ -912,7 +912,10 @@ if __name__ == '__main__':
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.16  2002-09-28 15:59:33  ncq
+# Revision 1.17  2002-09-30 08:18:07  ncq
+# - config file cleanup
+#
+# Revision 1.16  2002/09/28 15:59:33  ncq
 # - keep patient file for import
 #
 # Revision 1.15  2002/09/22 18:37:58  ncq
