@@ -51,7 +51,7 @@ Usage:
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
@@ -503,7 +503,8 @@ def __open_default_logfile():
 
 	- we don't have a logger available yet
 	"""
-	cmd_line = ''
+	cmd_line = []
+	known_opts = []
 	loghandle = None
 	# long options only !
 	try:
@@ -513,7 +514,8 @@ def __open_default_logfile():
 
 	# config file given on command line ?
 	# 1) tuple(cmd_line) -> (known options, junk)
-	known_opts = cmd_line[0]
+	if len(cmd_line) > 0:
+		known_opts = cmd_line[0]
 	if len(known_opts) > 0:
 		# 2) sequence(known_opt) -> (opt 1, opt 2, ..., opt n)
 		first_opt = known_opts[0]
