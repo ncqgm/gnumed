@@ -27,8 +27,6 @@ def Login(max_attempts=3):
 	backend = None
 	#display the login dialog
 	broker = gmGuiBroker.GuiBroker ()
-	# CHANGED CODE Haywood 26/2/02
-	#: use global variable to find image file  
 	dlg = gmLoginDialog.LoginDialog(None, -1)
 	dlg.Centre(wxBOTH)
 	while not logged_in and attempts < max_attempts:
@@ -38,19 +36,23 @@ def Login(max_attempts=3):
 		if login is None:
 			#user cancelled
 			dlg.Destroy()
-			myLog.Log(gmLog.lInfo, _("user cancelled login dialog"))
+			myLog.Log(gmLog.lInfo, "user cancelled login dialog")
 			return None
-		myLog.Log(gmLog.lInfo, _("login attempt #") + str(attempts) + _(" of ") + str(max_attempts))
+		myLog.Log(gmLog.lInfo, "login attempt %s of %s" % (attempts, max_attempts))
 		#now try to connect to the backend
 		try:
 			backend = gmPG.ConnectionPool(login)
 			logged_in = true
-			myLog.Log(gmLog.lInfo, _("backend connection successfully established"))
+			myLog.Log(gmLog.lInfo, "backend connection successfully established")
 		except gmExceptions.ConnectionError, e:
-			attempts+=1
-			myLog.Log(gmLog.lWarn, _("backend connection failed"))
+			attempts += 1
+			exc = sys.exc_info()
 			if attempts < max_attempts:
-				wxMessageBox(_("Login failed because: %s\nPlease retry or cancel" % e))
+				myLog.LogException("backend connection failed", exc, fatal=0)
+				wxMessageBox(_("Unable to connect to database.\n(%s)\n\nPlease retry or cancel" % e))
+			else:
+				myLog.LogException("backend connection failed", exc, fatal=1)
+
 	dlg.Close()
 	dlg.Destroy()
 	return backend

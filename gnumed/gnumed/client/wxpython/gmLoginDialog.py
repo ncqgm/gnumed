@@ -427,6 +427,6 @@ if __name__ == '__main__':
 	if lp is None:
 		wxMessageBox(_("Dialog was cancelled by user"))
 	else:
-		wxMessageBox(_("You tried to log in as [%s] with password [%s]") % (lp.userlist[0], lp.password))
+		wxMessageBox(_("You tried to log in as [%s] with password [%s].") % (lp.userlist[0], lp.password))
 	dlg.Destroy()
 	app.MainLoop()
