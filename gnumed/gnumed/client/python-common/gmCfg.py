@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -487,9 +487,19 @@ class cCfgFile:
 			_log.Log(gmLog.lInfo, "No changed items: nothing to be stored.")
 			return 1
 
-		new_name = "%s.new" % self.cfgName
+		bak_name = "%s.tmp.bak" % self.cfgName
+		try:
+			os.remove(bak_name)
+		except:
+			_log.LogException("Problem backing up config file !", sys.exc_info(), fatal=0)
+
+		try:
+			shutil.copyfile(self.cfgName, bak_name)
+		except:
+			_log.LogException("Problem backing up config file !", sys.exc_info(), fatal=0)
 
 		# open new file for writing
+		new_name = "%s.new" % self.cfgName
 		new_file = open(new_name, "wb")
 
 		# file level comment
@@ -524,7 +534,7 @@ class cCfgFile:
 		new_file.close()
 		# copy new file to old file
 		shutil.copyfile(new_name, self.cfgName)
-		#os.remove(new_name)
+		os.remove(new_name)
 		return 1
 	#----------------------------
 	# internal methods
@@ -911,7 +921,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.30  2002-12-26 15:49:10  ncq
+# Revision 1.31  2003-01-04 12:17:05  ncq
+# - backup old config file before overwriting
+#
+# Revision 1.30  2002/12/26 15:49:10  ncq
 # - better comments
 #
 # Revision 1.29  2002/12/26 15:21:18  ncq
