@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -18,6 +18,7 @@ from gmPhraseWheel import *
 import gmLog
 gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 import gmCfg, gmI18N
+import docXML
 
 _log = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
@@ -53,6 +54,8 @@ class indexFrame(wxFrame):
 			raise ValueError
 		self._init_pat_fields()
 
+		# repository base
+		self.repository = os.path.expanduser(__cfg__.get("repositories", "to_index"))
 		# name of document description XML file
 		self.desc_file_name = __cfg__.get("metadata", "description")
 		# checkpoint file whether indexing can start
@@ -234,20 +237,19 @@ class indexFrame(wxFrame):
 	def _init_phrase_wheel(self):
 		"""Set up phrase wheel.
 
-		- directory names in repository correspond to identification
+		- directory names in self.repository correspond to identification
 		  strings on paper documents
 		- when starting to type an ident the phrase wheel must
 		  show matching directories
 		"""
 
 		# get document directories
-		repository = os.path.expanduser(__cfg__.get("repositories", "to_index"))
-		doc_dirs = os.listdir(repository)
+		doc_dirs = os.listdir(self.repository)
 
 		# generate list of choices
 		phrase_wheel_choices = []
 		for i in range(len(doc_dirs)):
-			full_dir = os.path.join(repository, doc_dirs[i])
+			full_dir = os.path.join(self.repository, doc_dirs[i])
 			# DON'T fail on missing checkpoint files here yet
 			# in order to facilitate maximum parallelity
 			if not os.path.exists(os.path.join(full_dir, self.can_index_file)):
@@ -271,7 +273,7 @@ class indexFrame(wxFrame):
 
 		self.doc_id_wheel.on_resize (None)
 	#--------------------------------
-	def _init_patient_fields(self):
+	def _init_pat_fields(self):
 		self.TBOX_first_name.SetValue(self.myPatient.firstnames)
 		self.TBOX_last_name.SetValue(self.myPatient.lastnames)
 		self.TBOX_dob.SetValue(self.myPatient.dob)
@@ -343,17 +345,6 @@ class indexFrame(wxFrame):
 		# forget all pages
 		self.doc_pages = []
 	#--------------------------------------------------------------------------
-	def UpdatePicList(self):
-		if len(self.doc_pages) == 0:
-			self.LBOX_doc_pages.Append(_('page')+'1')
-			self.doc_pages.append(_('page')+'1')
-		else:
-			lastPageInList=self.doc_pages[len(self.doc_pages)-1]
-			biggest_number_strg=lastPageInList.replace(_('page'),'')
-			biggest_number= int(biggest_number_strg) + 1
-			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
-			self.doc_pages.append(_('page') + `biggest_number`)
-	#--------------------------------------------------------------------------
 	def __load_pages(self):
 		# make sure to get the first line only :-)
 		curr_doc_id = self.doc_id_wheel.GetLineText(0)
@@ -370,16 +361,34 @@ class indexFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
-		repository = __cfg__.get("repositories", "to_index")
-		work_dir = os.path.join(repository, curr_doc_id)
-		_log.Log(gmLog.lData, 'working on [%s]' % work_dir)
+		work_dir = os.path.join(self.repository, curr_doc_id)
+		_log.Log(gmLog.lData, 'working in [%s]' % work_dir)
+
+		# open XML metadata file
+		fname = os.path.join(work_dir, self.desc_file_name)
+		try:
+			desc_file = open(fname, "r")
+		except IOError:
+			dlg = wxMessageDialog(self, 
+				_('Cannot access metadata file [%s].\nPlease see error log for details.' % fname),
+				_('Attention'),
+				wxOK | wxICON_INFORMATION
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			exc = sys.exc_info()
+			_log.LogException ('Cannot access metadata file [%s].\nPlease see error log for details.' % fname, exc)
+			return None
+
+
 
 
 				try:
 					#read self.desc_file_name
-					in_file = open(__cfg__.get("source", "repositories") + curr_doc_id + '/' + self.desc_file_name,"r")
-					xml_content = in_file.read()
-					in_file.close()
+					desc_filee = 
+					xml_content = desc_filee.read()
+					desc_filee.close()
+
 					xml_contentlist = string.split(xml_content,'\n')
 					runs=len(xml_contentlist)
 					x=0
@@ -413,6 +422,7 @@ class indexFrame(wxFrame):
 							x=x+1
 						except ValueError:
 							x=x+1
+
 					# has there been a prior index session with this data ?
 					if os.path.isfile(__cfg__.get("source", "repositories") + curr_doc_id + '/' + self.can_index_file):
 						x=0
@@ -466,21 +476,23 @@ class indexFrame(wxFrame):
 					else :
 						return
 					
-				except IOError:
-					dlg = wxMessageDialog(self, _('unable to hunt down XML-file'),_('Attention'), wxOK | wxICON_INFORMATION)
-					try:
-						dlg.ShowModal()
-					finally:
-						dlg.Destroy()
-
-
 #			else:
 #				dlg = wxMessageDialog(self, _('Could not fine any documents relating to this document#'),_('Attention'), wxOK | wxICON_INFORMATION)
 #				try:
 #					dlg.ShowModal()
 #				finally:
 #					dlg.Destroy()
-
+	#--------------------------------------------------------------------------
+	def UpdatePicList(self):
+		if len(self.doc_pages) == 0:
+			self.LBOX_doc_pages.Append(_('page')+'1')
+			self.doc_pages.append(_('page')+'1')
+		else:
+			lastPageInList=self.doc_pages[len(self.doc_pages)-1]
+			biggest_number_strg=lastPageInList.replace(_('page'),'')
+			biggest_number= int(biggest_number_strg) + 1
+			self.LBOX_doc_pages.Append(_('page') + `biggest_number`)
+			self.doc_pages.append(_('page') + `biggest_number`)
 	#--------------------------------
 	def updateGUIonLoadRecords(self):
 		self.TBOX_dob.AppendText(self.Geburtsdatum)
@@ -728,7 +740,7 @@ class indexFrame(wxFrame):
 				x=x+1
 			out_file.write ("</" + __cfg__.get("metadata", "document_tag") + ">")
 			out_file.close()
-			# copy XDT-file ( not the XML-file ) into repository directory
+			# copy XDT-file ( not the XML-file ) into self.repository directory
 			pat_file = __cfg__.get("metadata", "patient")
 			shutil.copy(os.path.expanduser(os.path.join(__cfg__.get("metadata", "location"), pat_file)),__cfg__.get("source", "repositories") + self.BefValue + '/')
 			# generate a file to tell import script that we are done here
