@@ -5,7 +5,7 @@ This lib provides functions for working with XDT-files.
 MERGE INTO business/gmXdtObjects.py !!
 """
 #=====================================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -70,7 +70,7 @@ def split_xdt_file(aFile,patlst,cfg):
 
 	# loop over patient records
 	for aline in record_start_lines:
-		# WHY +2 ?!?
+		# WHY +2 ?!? 
 		line = linecache.getline(aFile,aline+2)	
 		# remove trailing CR and/or LF
 		strippedline = string.replace(line,'\015','')
@@ -94,15 +94,32 @@ def split_xdt_file(aFile,patlst,cfg):
 			for tmp in range(startline,endline):							
 				content.append(linecache.getline(aFile,tmp))
 				_log.Log(gmLog.lData, "reading %s"%tmp )
-			file_lst = dump2individualFile(content,cfg)
-			check_for_previous_records(ID,name,file_lst,patlst) 
-			content = []
+			hashes = check_for_previous_records(ID,name,patlst)
+			#_log.Log(gmLog.lData, "hashes %s"%hashes )
+			# is this new content ?
+			ahash = calculate_md5_for_content(content)
+			if ahash not in hashes: 
+				file_lst = dump2individualFile(content,cfg)
+				content = [] 
+				#_log.Log(gmLog.lData, "emptied content" )
+				add_file_to_patlst(ID,name,patlst,file_lst,ahash)
+			else:
+				#_log.Log(gmLog.lData, "hashes match, not adding file %s"%ahash)
+				content = []
+			
 		else:
 			continue
 	# cleanup
 	fileinput.close()
 	patlst.store()
 	return 1
+#=====================================================================	
+def calculate_md5_for_content(content):
+	ahash = md5.new()
+	for element in content:
+		ahash.update(element)
+	return ahash.hexdigest()
+
 #=====================================================================
 def get_random_ID(aDir):
 	# set up temp file environment for creating unique random directory
@@ -128,42 +145,43 @@ def dump2individualFile(content,cfg):
 	pat_file.close()
 	return fname
 #=====================================================================
-def check_for_previous_records(ID,name,file_lst,patlst):
+def check_for_previous_records(ID,name,patlst):
 	anIdentity = str(ID)+':'+str(name)
+	hashes = []
 	# patient already in list ?
 	if anIdentity in patlst.getGroups():
 		_log.Log(gmLog.lData, "identity already in list" )
 		files = patlst.get(aGroup=anIdentity,anOption="files")
 		#file already in list ?
-		for file in file_lst:
-			if file in files:
-				continue
-		else: 
-			add_file_to_patlst(anIdentity,patlst,file_lst)
+		for line in files:
+			file,ahash=string.split(line,':')
+			hashes.append(ahash)
+	
 	else:
 		# no, we will add him/her then 
 		_log.Log(gmLog.lData, "identity not yet in list" )
 		add_pat_to_patlst(anIdentity,patlst)
-		add_file_to_patlst(anIdentity,patlst,file_lst)
-	return 1
+		#add_file_to_patlst(anIdentity,patlst,file_lst)
+	return hashes 
 #=====================================================================
 def add_pat_to_patlst(anIdentity,patlst):
 	patlst.set(aGroup=anIdentity,anOption="files",aValue = [], aComment="")
 #=====================================================================
-def add_file_to_patlst(anIdentity,patlst,file_lst):
-	patlst = patlst
-	files = _patlst.get(aGroup=anIdentity,anOption="files")
+def add_file_to_patlst(ID,name,patlst,file_lst,ahash):
+	anIdentity = str(ID)+':'+str(name)
+	#_patlst = patlst
+	files = patlst.get(aGroup=anIdentity,anOption="files")
 	#_log.Log(gmLog.lData, "files already there : %s" %files )
 	for file in file_lst:
-		files.append(file)
+		files.append(file + ':' + ahash)
 		_log.Log(gmLog.lData, "files now there : %s" %files )
 	patlst.set(aGroup=anIdentity,anOption="files",aValue = files, aComment="")
 #=====================================================================
-def hash_split_file():
-	md5.new()
-#=====================================================================
 # $Log: gmXdtToolsLib.py,v $
-# Revision 1.7  2003-08-23 16:32:42  ncq
+# Revision 1.8  2003-08-24 10:19:21  shilbert
+# - does not dump to file any more if content exist in file from previous sessions
+#
+# Revision 1.7  2003/08/23 16:32:42  ncq
 # - removed some extraneous assignments
 #
 # Revision 1.6  2003/08/23 13:20:34  shilbert
