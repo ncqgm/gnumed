@@ -21,7 +21,7 @@
 gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -52,9 +52,13 @@ if __name__ == "__main__":
 		sys.path.append(os.path.join(appPath, 'python-common'))
 	try:
 		import gmLog
+		#print "imported gmLog"
 		import gmGuiBroker
+		#print "imported gui broker"
 		import gmGuiMain
+		#print "imported gui main"
 		import gmI18N
+		#print "imported i18n"
 	except ImportError:
 		exc = sys.exc_info()
 		gmLog.gmDefLog.LogException ("Exception: Cannot load gmGuiMain", exc)
@@ -64,13 +68,13 @@ if __name__ == "__main__":
 
 	gb = gmGuiBroker.GuiBroker ()
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
-#<DEBUG>
-# console is Good(tm)
+	#<DEBUG>
+	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
-    gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
+	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
 	gmLog.gmDefLog.Log(gmLog.lInfo, _("set resource path to: ") + appPath)
-#</DEBUG>
+	#</DEBUG>
 	try:
 		#change into our working directory
 		#this does NOT affect the cdw in the shell from where gnumed is started!
