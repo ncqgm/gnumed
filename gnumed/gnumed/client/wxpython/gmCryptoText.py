@@ -36,6 +36,11 @@ the selected text segment.
 
 from wxPython.wx import *
 import string, rotor, binascii
+import gmI18N
+
+ID_POP_ENCRYPT = wxNewId()
+ID_POP_DECRYPT = wxNewId()
+ID_POP_PASSPHRASE = wxNewId()
 
 class gmTextctrlFileDropTarget(wxFileDropTarget):
     """ a generic text control widget that accepts dropped files """
@@ -99,14 +104,14 @@ class gmCryptoText(wxTextCtrl):
 
         #create a popup menu
         menu = wxMenu()
-        menu.Append(0, _("Encrypt"))
-        menu.Append(1, _("Decrypt"))
-        menu.Append(2, _("Set pass phrase"))
+        menu.Append(ID_POP_ENCRYPT, _("Encrypt"))
+        menu.Append(ID_POP_DECRYPT, _("Decrypt"))
+        menu.Append(ID_POP_PASSPHRASE, _("Set pass phrase"))
 
         #connect the events to event handler functions
-        EVT_MENU(self, 0, self.OnEncrypt)
-        EVT_MENU(self, 1, self.OnDecrypt)
-        EVT_MENU(self, 2, self.OnSetPassphrase)
+        EVT_MENU(self, ID_POP_ENCRYPT, self.OnEncrypt)
+        EVT_MENU(self, ID_POP_DECRYPT, self.OnDecrypt)
+        EVT_MENU(self, ID_POP_PASSPHRASE, self.OnSetPassphrase)
 
         #show the menu
         self.PopupMenu(menu, wxPoint(event.GetX(), event.GetY()))
@@ -149,7 +154,7 @@ class gmCryptoText(wxTextCtrl):
             self.passphrase = self.AskForPassphrase()
             if self.passphrase == None:
                 return
-    
+
         textselection, self.selectionStart, self.selectionEnd = \
             self.FuzzyScanSelection(self.selectionStart, self.selectionEnd, self.fuzzymargin)
         #is the selection tagged as encrypted ?
@@ -246,7 +251,7 @@ class gmCryptoText(wxTextCtrl):
 # for options like encryption, decryption, and setting of passphrase
 #############################################################################
 if __name__ == '__main__':
-	import gmI18N
+
 
 	app = wxPyWidgetTester(size = (400, 400))
 	#show the login panel in a main window
