@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/bootstrap-ng/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -45,8 +45,6 @@ _log.SetAllLogLevels(gmLog.lData)
 
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
-
-import gmUserSetup
 
 dbapi = None
 try:
@@ -75,6 +73,7 @@ from gmExceptions import ConstructorError
 _interactive = 0
 _bootstrapped_servers = {}
 _bootstrapped_dbs = {}
+_dbowner = None
 #==================================================================
 class user:
 	def __init__(self, anAlias = None, aPassword = None, aCfg = _cfg):
@@ -123,7 +122,7 @@ class db_server:
 		return None
 	#--------------------------------------------------------------
 	def __bootstrap(self):
-		self.superuser = user(anAlias = self.cfg.get(self.section, "super user"))
+		self.superuser = user(anAlias = self.cfg.get(self.section, "super user alias"))
 
 		# connect to template
 		if not self.__connect_to_template():
@@ -177,7 +176,7 @@ class db_server:
 			_log.LogException("cannot connect with DSN = [%s]" % dsn, sys.exc_info(), fatal=1)
 			return None
 
-		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.name)
+		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
 		return 1
 	#--------------------------------------------------------------
 	# procedural languages related
@@ -315,46 +314,34 @@ class db_server:
 		_log.Log(gmLog.lInfo, "User [%s] does not exist." % aUser)
 		return None
 	#--------------------------------------------------------------
-	def get_dbowner_password(self, aDB_Owner):
-		if self.dbowner_password is None:
-			self.dbowner_password = self.cfg.get("GnuMed defaults", "database owner password")
-			if self.dbowner_password is None:
-				if _interactive:
-					print "I need the password for the GnuMed database owner."
-					print "(user [%s] on [%s:%s])" % (aDB_Owner, self.alias, self.cfg.get(self.section, "port"))
-					self.dbowner_password = raw_input("Please type password: ")
-				else:
-					_log.Log(gmLog.lErr, "Cannot load GnuMed database owner password from config file.")
-					return None
-		return self.dbowner_password
-	#--------------------------------------------------------------
 	def __create_dbowner(self):
+		global _dbowner
+
 		# get owner
-		dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
-		
-		if dbowner is None:
+		if _dbowner is None:
+			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
+
+		if _dbowner is None:
 			_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
 			return None
 
 		cursor = self.conn.cursor()
 		# does this user already exist ?
-		if self.__user_exists(cursor, dbowner):
+		if self.__user_exists(cursor, _dbowner.name):
 			cursor.close()
 			return 1
 
-		self.get_dbowner_password(dbowner)
-
-		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB;" % (dbowner, self.dbowner_password)
+		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB;" % (_dbowner.name, _dbowner.password)
 		try:
 			cursor.execute(cmd)
 		except:
 			_log.Log(gmLog.lErr, ">>>[%s]<<< failed." % cmd)
-			_log.LogException("Cannot create GnuMed database owner [%s]." % dbowner, sys.exc_info(), fatal=1)
+			_log.LogException("Cannot create GnuMed database owner [%s]." % _dbowner.name, sys.exc_info(), fatal=1)
 			cursor.close()
 			return None
 
 		# paranoia is good
-		if not self.__user_exists(cursor, dbowner):
+		if not self.__user_exists(cursor, _dbowner.name):
 			cursor.close()
 			return None
 
@@ -457,22 +444,32 @@ class database:
 		return None
 	#--------------------------------------------------------------
 	def __bootstrap(self):
+		global _dbowner
+
 		# get owner
-		self.owner = user(anAlias = self.cfg.get(self.section, "owner alias"))
+		if _dbowner is None:
+			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
+
+		if _dbowner is None:
+			_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
+			return None
+
+		# get owner
+		self.owner = _dbowner
 
 		# connect as owner to template
 		if not self.__connect_owner_to_template():
-			_log.Log(gmLog.lError, "Cannot connect to template database.")
+			_log.Log(gmLog.lErr, "Cannot connect to template database.")
 			return None
 
 		# make sure db exists
 		if not self.__create_db():
-			_log.Log(gmLog.lError, "Cannot create database.")
+			_log.Log(gmLog.lErr, "Cannot create database.")
 			return None
 
 		# reconnect as owner to db
 		if not self.__connect_owner_to_db():
-			_log.Log(gmLog.lError, "Cannot connect to database.")
+			_log.Log(gmLog.lErr, "Cannot connect to database.")
 			return None
 
 		# import schema
@@ -501,7 +498,8 @@ class database:
 		except:
 			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), fatal=1)
 			return None
-		_log.Log(gmLog.lInfo, "successfully connected to database")
+		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % srv.template_db)
+		return 1
 	#--------------------------------------------------------------
 	def __connect_owner_to_db(self):
 		srv = self.server
@@ -525,7 +523,8 @@ class database:
 		except:
 			_log.LogException("Cannot connect with DSN = [%s]." % dsn, sys.exc_info(), fatal=1)
 			return None
-		_log.Log(gmLog.lInfo, "successfully connected to database")
+		_log.Log(gmLog.lInfo, "successfully connected to database [%s]" % self.name)
+		return 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
 		cmd = "SELECT datname FROM pg_database WHERE datname='%s';" % self.name
@@ -541,10 +540,10 @@ class database:
 		tmp = aCursor.rowcount
 		aCursor.close()
 		if tmp == 1:
-			_log.Log(gmLog.lInfo, "Database %s exists." % self.name)
+			_log.Log(gmLog.lInfo, "Database [%s] exists." % self.name)
 			return 1
 
-		_log.Log(gmLog.lInfo, "Database %s does not exist." % self.name)
+		_log.Log(gmLog.lInfo, "Database [%s] does not exist." % self.name)
 		return None
 	#--------------------------------------------------------------
 	def __create_db(self):
@@ -571,173 +570,253 @@ class database:
 		_log.Log(gmLog.lInfo, "Successfully created GnuMed database [%s]." % self.name)
 		return 1
 #==================================================================
+class gmService:
+	def __init__(self, aServiceAlias = None):
+		# sanity check
+		if aServiceAlias is None:
+			raise ConstructorError, "Need to know service name to install it."
+
+		self.alias = aServiceAlias
+		self.section = "service %s" % aServiceAlias
+	#--------------------------------------------------------------
+	def bootstrap(self):
+		_log.Log(gmLog.lInfo, "bootstrapping service [%s]" % self.alias)
+
+		# load service definition
+		database_alias = _cfg.get(self.section, "database alias")
+		if database_alias is None:
+			_log.Log(gmLog.lErr, "Need to know database name to install service [%s]." % self.alias)
+			return None
+
+		# bootstrap database
+		try:
+			database(aDB_alias = database_alias, aCfg = _cfg)
+		except:
+			_log.LogException("Cannot bootstrap service [%s]." % self.alias, sys.exc_info(), fatal = 1)
+			return None
+		self.db = _bootstrapped_dbs[database_alias]
+
+		# are we imported yet ?
+		result = self.__service_exists()
+		if result == 1:
+			_log.Log(gmLog.lWarn, "service [%s] already exists" % self.alias)
+			return 1
+		elif result == -1:
+			_log.Log(gmLog.lWarn, "error detecting status of service [%s]" % self.alias)
+			return None
+
+		# check PostgreSQL version
+		if not self.__verify_pg_version():
+			_log.Log(gmLog.lErr, "Wrong PostgreSQL version.")
+			return None
+
+		# import schema
+		if not self.__import_schema():
+			_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (self.alias, database_alias))
+			return None
+
+		return 1
+	#--------------------------------------------------------------
+	def __service_exists(self):
+		"""Do we exist in the database already ?
+
+		*  1 = yes, with correct version
+		*  0 = no, please import
+		* -1 = not sure: error or yes, but different version
+		"""
+		curs = self.db.conn.cursor()
+
+		# do we have version tracking available ?
+		cmd = "select exists(select relname from pg_class where relname='gm_services' limit 1);"
+		try:
+			curs.execute(cmd)
+		except:
+			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+			curs.close()
+			return -1
+		result = curs.fetchone()
+		if not result[0]:
+			# FIXME: this is a bit dangerous:
+			# if we don't find the gm_services table we assume it's
+			# OK to setup our service
+			_log.Log(gmLog.lInfo, "didn't find 'gm_services' table")
+			_log.Log(gmLog.lInfo, "assuming this is not a GnuMed database")
+			_log.Log(gmLog.lInfo, "hence assuming it's OK to install GnuMed services here")
+			curs.close()
+			return 0
+
+		# check if we got this service already
+		name = _cfg.get(self.section, "name")
+		if name is None:
+			_log.Log(gmLog.lErr, "Need to know service name.")
+			curs.close()
+			return -1
+		cmd = "select exists(select id from gm_services where name = '%s' limit 1);" % name
+		try:
+			curs.execute(cmd)
+		except:
+			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+		result = curs.fetchone()
+		if not result[0]:
+			_log.Log(gmLog.lInfo, "service [%s] not installed here yet" % name)
+			curs.close()
+			return 0
+
+		# check version
+		required_version = _cfg.get(self.section, "version")
+		if name is None:
+			_log.Log(gmLog.lErr, "Need to know service version.")
+			curs.close()
+			return -1
+		cmd = "select version, created from gm_services where name = '%s' limit 1);" % name
+		try:
+			curs.execute(cmd)
+		except:
+			_log.LogException(">>>%s<<< failed" % cmd, sys.exc_info(), fatal=1)
+		result = curs.fetchone()
+		existing_version = result[0][0]
+		created = result[0][1]
+		if existing_version == required_version:
+			_log.Log(gmLog.lInfo, "version [%s] of service [%s] already exists (created <%s>)" % (existing_version, name, created))
+			curs.close()
+			return 1
+		_log.Log(gmLog.lErr, "service [%s] exists (created <%s>) but version mismatch" % (name, created))
+		_log.Log(gmLog.lErr, "required: [%s]")
+		_log.Log(gmLog.lErr, "existing: [%s]")
+		curs.close()
+		return -1
+	#--------------------------------------------------------------
+	def __import_schema(self):
+		# load schema
+		schema_files = _cfg.get(self.section, "schema")
+		if schema_files is None:
+			_log.Log(gmLog.lErr, "Need to know schema definition to install service [%s]." % self.alias)
+			return None
+		# and import them
+		for file in schema_files:
+			if not self.__import_schema_file(file):
+				_log.Log(gmLog.lErr, "cannot import SQL schema file [%s]" % file)
+				return None
+		return 1
+	#--------------------------------------------------------------
+	def __import_schema_file(self, anSQL_file = None):
+		# sanity checks
+		if anSQL_file is None:
+			_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
+			return None
+		SQL_file = os.path.abspath(anSQL_file)
+		if not os.path.exists(SQL_file):
+			_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
+			return None
+
+		# -W = force password prompt
+		# -q = quiet
+		#cmd = 'psql -a -E -h "%s" -d "%s" -U "%s" -f "%s" >> /tmp/psql-import.log 2>&1' % (aHost, aDB, aUser, SQL_file)
+		#cmd = 'psql -q -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
+		#cmd = 'psql -a -E -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
+
+		old_path = os.getcwd()
+		path = os.path.dirname(SQL_file)
+		os.chdir(path)
+
+		cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (self.db.server.name, self.db.name, _dbowner.name, SQL_file)
+		_log.Log(gmLog.lInfo, "running [%s]" % cmd)
+		result = os.system(cmd)
+		_log.Log(gmLog.lInfo, "raw result: %s" % result)
+
+		os.chdir(old_path)
+
+		if os.WIFEXITED(result):
+			exitcode = os.WEXITSTATUS(result)
+			_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
+			if exitcode == 0:
+				_log.Log(gmLog.lInfo, "success")
+				return 1
+
+			if exitcode == 1:
+				_log.Log(gmLog.lErr, "failed: psql internal error")
+			elif exitcode == 2:
+				_log.Log(gmLog.lErr, "failed: database connection error")
+			elif exitcode == 3:
+				_log.Log(gmLog.lErr, "failed: psql script error")
+		else:
+			_log.Log(gmLog.lWarn, "aborted by signal")
+
+		return None
+	#--------------------------------------------------------------
+	def __verify_pg_version(self):
+		"""Verify database version information."""
+
+		required_version = _cfg.get(self.section, "postgres version")
+		if required_version is None:
+			_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
+			return None
+
+		existing_version = self.db.conn.version
+		if existing_version < required_version:
+			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (existing_version, required_version))
+			return None
+
+		_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % existing_version)
+		return 1
+	#--------------------------------------------------------------
+	def register(self):
+		# FIXME - register service
+		# a) in its own database
+		# b) in the distributed database
+		return 1
 #==================================================================
-def connect_to_db():
-	print "Connecting to PostgreSQL server as initial user ..."
-
-	# load database adapter
-
-
-	# load authentication information
-	global core_server
-	tmp = _cfg.get("core server", "name")
-	if not tmp:
-		_log.Log(gmLog.lErr, "Cannot load database host name from config file.")
-		tmp = "localhost"
-	core_server["host name"] = ""
-	if _cfg.get("installation", "interactive") == "yes":
-		core_server["host name"] = raw_input("host [%s]: " % tmp)
-	if core_server["host name"] == "":
-		core_server["host name"] = tmp
-
-	tmp = _cfg.get("core server", "port")
-	if not tmp.isdigit():
-		_log.Log(gmLog.lErr, "Cannot load database API port number from config file.")
-		tmp = 5432
-	core_server["port"] = raw_input("port [%s]: " % tmp)
-	if core_server["port"] == "":
-		core_server["port"] = tmp
-
-	global initial_database
-	tmp = _cfg.get("core server", "initial database")
-	if not tmp:
-		_log.Log(gmLog.lErr, "Cannot load initial database name from config file.")
-		tmp = "template1"
-	initial_database = raw_input("database [%s]: " % tmp)
-	if initial_database == "":
-		initial_database = tmp
-
-	global initial_user
-	tmp = _cfg.get("core server", "initial user")
-	if not tmp:
-		_log.Log(gmLog.lErr, "Cannot load database super-user from config file.")
-		tmp = "postgres"
-	initial_user["name"] = raw_input("user [%s]: " % tmp)
-	if initial_user["name"] == "":
-		initial_user["name"] = tmp
-
-	# get password from user
-	print "We still need a password to actually access the database."
-	print "(user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], initial_database, core_server["host name"], core_server["port"])
-	initial_user["password"] = raw_input("Please type password: ")
-
-	# log in
-	dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], initial_database, initial_user["name"], initial_user["password"])
-	try:
-		conn = dbapi.connect(dsn)
-	except:
-		exc = sys.exc_info()
-		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (initial_user["name"], initial_user["password"], initial_database, core_server["host name"], core_server["port"]), exc, fatal=1)
-		return None
-	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], initial_database, core_server["host name"], core_server["port"]))
-
-	print "Successfully connected."
-	return conn
+def bootstrap_services():
+	# get service list
+	services = _cfg.get("installation", "services")
+	if services is None:
+		exit_with_msg("Service list empty. Nothing to do here.")
+	# run through services
+	for service_alias in services:
+		service = gmService(service_alias)
+		if not service.bootstrap():
+			return None
+		if not service.register():
+			return None
+	return 1
 #------------------------------------------------------------------
-def reconnect_as_gm_owner():
-	print "Reconnecting to PostgreSQL server as GnuMed database owner ..."
-
-	global core_server
-	global initial_database
-
-	if not gmUserSetup.dbowner.has_key("name"):
-		_log.Log(gmLog.lErr, "Cannot connect without GnuMed database owner name.")
-		return None
-
-	if not gmUserSetup.dbowner.has_key("password"):
-		# get password from user
-		print "We need the password for the GnuMed database owner."
-		print "(user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], initial_database, core_server["host name"], core_server["port"])
-		gmUserSetup.dbowner["password"] = raw_input("Please type password: ")
-
-	# log in
+def exit_with_msg(aMsg = None):
+	if aMsg is not None:
+		print aMsg
+	print "Please see log file for details."
 	try:
-		dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], initial_database, gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"])
+		dbconn.close()
 	except:
-		_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
-		return None
-
-	try:
-		conn = dbapi.connect(dsn)
-	except:
-		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"], initial_database, core_server["host name"], core_server["port"]), sys.exc_info(), fatal=1)
-		return None
-	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], initial_database, core_server["host name"], core_server["port"]))
-
-	print "Successfully connected."
-	return conn
+		pass
+	_log.Log(gmLog.lErr, aMsg)
+	_log.Log(gmLog.lInfo, "shutdown")
+	sys.exit(1)
 #------------------------------------------------------------------
-def connect_to_core_db(aDB):
-	print "Connecting to GnuMed core database ..."
-
-	global core_server
-
-	if not gmUserSetup.dbowner.has_key("name"):
-		_log.Log(gmLog.lErr, "Cannot connect without GnuMed database owner name.")
-		return None
-
-	if not gmUserSetup.dbowner.has_key("password"):
-		# get password from user
-		print "We need the password for the GnuMed database owner."
-		print "(user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], aDB, core_server["host name"], core_server["port"])
-		gmUserSetup.dbowner["password"] = raw_input("Please type password: ")
-
-	# log in
-	try:
-		dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], aDB, gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"])
-	except:
-		_log.LogException("Cannot construct DSN !", sys.exc_info(), fatal=1)
-		return None
-
-	try:
-		conn = dbapi.connect(dsn)
-	except:
-		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"], aDB, core_server["host name"], core_server["port"]), sys.exc_info(), fatal=1)
-		return None
-	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (gmUserSetup.dbowner["name"], aDB, core_server["host name"], core_server["port"]))
-
-	print "Successfully connected."
-	return conn
+def show_msg(aMsg = None):
+	if aMsg is not None:
+		print aMsg
+	print "Please see log file for details."
 #==================================================================
+if __name__ == "__main__":
+	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
+	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
+
+	print "Bootstrapping GnuMed database system..."
+
+	tmp = _cfg.get("installation", "interactive")
+	if tmp == "yes":
+		_interactive = 1
+
+	# bootstrap services
+	if not bootstrap_services():
+		exit_with_msg("Cannot bootstrap services.")
+
+	_log.Log(gmLog.lInfo, "shutdown")
+	print "Done bootstrapping."
+else:
+	print "This currently is not intended to be used as a module."
+
 #==================================================================
-#------------------------------------------------------------------
-#------------------------------------------------------------------
-#------------------------------------------------------------------
-#------------------------------------------------------------------
-def import_schema_file(anSQL_file = None, aDB = None, aHost = None, aUser = None, aPassword = None):
-	# sanity checks
-	if anSQL_file is None:
-		_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
-		return None
-	SQL_file = os.path.abspath(anSQL_file)
-	if not os.path.exists(SQL_file):
-		_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
-		return None
-	path = os.path.dirname(SQL_file)
-	os.chdir(path)
-	if aDB is None:
-		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database.")
-		return None
-	if aHost is None:
-		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database host.")
-		return None
-	if aUser is None:
-		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database user.")
-		return None
-	if aPassword is None:
-		_log.Log(gmLog.lErr, "Cannot import schema without knowing the database user password.")
-		return None
-
-	# -W = force password prompt
-	# -q = quiet
-	#cmd = 'psql -a -E -h "%s" -d "%s" -U "%s" -f "%s" >> /tmp/psql-import.log 2>&1' % (aHost, aDB, aUser, SQL_file)
-	cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
-	_log.Log(gmLog.lInfo, "running >>>%s<<<" % cmd)
-
-	result = os.system(cmd)
-
-	#cmd = 'psql -q -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
-	#cmd = 'psql -a -E -W -h "%s" -d "%s" -U "%s" -f "%s"' % (aHost, aDB, aUser, SQL_file)
 #	pipe = popen2.Popen3(cmd, 1==1)
 #	pipe.tochild.write("%s\n" % aPassword)
 #	pipe.tochild.flush()
@@ -762,232 +841,18 @@ def import_schema_file(anSQL_file = None, aDB = None, aHost = None, aUser = None
 #	pipe.childerr.close()
 #	del pipe
 
-	_log.Log(gmLog.lInfo, "raw result: %s" % result)
-
-	if os.WIFEXITED(result):
-		exitcode = os.WEXITSTATUS(result)
-		_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
-		if exitcode == 0:
-			_log.Log(gmLog.lInfo, "success")
-			return 1
-
-		if exitcode == 1:
-			_log.Log(gmLog.lErr, "failed: psql internal error")
-		elif exitcode == 2:
-			_log.Log(gmLog.lErr, "failed: database connection error")
-		elif exitcode == 3:
-			_log.Log(gmLog.lErr, "failed: pSQL script error")
-	else:
-		_log.Log(gmLog.lWarn, "aborted by signal")
-		return None
-#------------------------------------------------------------------
-def push_schema_into_db(sql_cmds = None):
-	if sql_cmds is None:
-		_log.Log(gmLog.lErr, "cannot import schema without a schema definition")
-		return None
-	_log.Log(gmLog.lData, sql_cmds)
-	cursor = dbconn.cursor()
-	for cmd in sql_cmds:
-		try:
-			cursor.execute("%s;" % cmd)
-		except:
-			_log.LogException(">>>[%s;]<<< failed." % cmd, sys.exc_info(), fatal=1)
-			cursor.close()
-			return None
-	dbconn.commit()
-	cursor.close()
-	return 1
-#------------------------------------------------------------------
-def bootstrap_core_database():
-	print "\nDo you want to create a GnuMed core database on this server ?"
-	print "You will usually want to do this unless you are only\nrunning one particular service on this machine."
-	answer = None
-	while answer not in ["y", "n", "yes", "no"]:
-		answer = raw_input("Create GnuMed core database ? [y/n]: ")
-
-	if answer not in ["y", "yes"]:
-		_log.Log(gmLog.lInfo, "User did not want to create GnuMed core database on this machine.")
-		return 1
-
-	print "Bootstrapping GnuMed core database..."
-
-	global dbconn
-
-	# reconnect as GnuMed database owner
-	dbconn.close()
-	tmp = reconnect_as_gm_owner()
-	if tmp is None:
-		exit_with_msg("Cannot reconnect to database as GnuMed database owner.")
-	dbconn = tmp
-
-	# actually create the new core database
-	database = _cfg.get("GnuMed defaults", "core database name")
-	if not database:
-		_log.Log(gmLog.lErr, "Cannot load name of core GnuMed database from config file.")
-		database = "gnumed"
-	if not create_db(dbconn, database):
-		exit_with_msg("Cannot create GnuMed core database [%s] on this machine." % database)
-
-	# reconnect to new core database
-#	dbconn.close()
-#	tmp = connect_to_core_db(database)
-#	if tmp is None:
-#		exit_with_msg("Cannot connect to GnuMed core database.")
-#	dbconn = tmp
-
-	# get schema files
-	sql_files = _cfg.get("GnuMed defaults", "core database schema")
-	if sql_files is None:
-		_log.Log(gmLog.lWarn, "No schema definition files specified in config file !")
-		exit_with_msg("No schema files defined for GnuMed core database [%s]." % database)
-
-	# and import them
-	for file in sql_files:
-
-		if not import_schema_file(
-			anSQL_file = file,
-			aHost = core_server["host name"],
-			aDB = database,
-			aUser = gmUserSetup.dbowner["name"],
-			aPassword = gmUserSetup.dbowner["password"]
-		):
-			exit_with_msg("Cannot import SQL schema into GnuMed core database [%s]." % database)
-
-	print "Successfully bootstrapped GnuMed core database [%s]." % database
-	return 1
-#==================================================================
-#==================================================================
-def bootstrap_database(db_alias):
-	if _bootstrapped_dbs.has_key(db_alias):
-		return 1
-	else:
-		_bootstrapped_dbs[db_alias] = database(aDB_alias = db_alias, aCfg = _cfg)
-#------------------------------------------------------------------
-def get_db_conn(db_alias):
-	db_group = "database %s" % db_alias
-	server_alias = _cfg.get(db_group, "server alias")
-	if server_alias is None:
-		_log.Log(gmLog.lErr, "Need to know server name to connect to database [%s]." % db_alias)
-		return None
-
-	conn_key = "%s-%s"
-	if __db_conns.has_key(db_alias):
-		return __db_conns[db_alias]
-	else:
-		bootstrap_database(db_alias)
-
-	if __db_conns.has_key(db_alias):
-		return __db_conns[db_alias]
-	else:
-		_log.Log(gmLog.lErr, "Cannot connect to database [%s]." % db_alias)
-		return None
-#==================================================================
-def verify_pg_version(aServiceGroup = None, aConn = None):
-	"""Verify database version information."""
-
-	required_version = _cfg.get(aServiceGroup, "postgres version")
-	if required_version is None:
-		_log.Log(gmLog.lErr, "Cannot load minimum required PostgreSQL version from config file.")
-		return None
-
-	if aConn.version < required_version:
-		_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (aConn.version, required_version))
-		return None
-
-	_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % aConn.version)
-	return 1
-#------------------------------------------------------------------
-def bootstrap_service(aService = None):
-	_log.Log(gmLog.lInfo, "bootstrapping service [%s]" % aService)
-
-	# sanity check
-	if aService is None:
-		_log.Log(gmLog.lErr, "Need to know service name to install it.")
-		return None
-	service_group = "service %s" % aService
-
-	# load service definition
-	database_alias = _cfg.get(service_group, "database alias")
-	if database_alias is None:
-		_log.Log(gmLog.lErr, "Need to know database name to install service [%s]." % aService)
-		return None
-
-	# bootstrap database
-	try:
-		db = database(database_alias, _cfg)
-	except:
-		_log.LogException("Cannot bootstrap service [%s]." % aService, sys.exc_info(), fatal = 1)
-		return None
-
-	# check PostgreSQL version
-#	if not verify_pg_version(service_group, db.getConn()):
-#		_log.Log(gmLog.lErr, "Wrong PostgreSQL version.")
-#		return None
-
-	# import schema
-	schema_files = _cfg.get(service_group, "schema")
-	if schema_files is None:
-		_log.Log(gmLog.lErr, "Need to know schema definition to install service [%s]." % aService)
-		return None
-
-#	if not import_schema(conn, schema_files):
-#		_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (aService, database_alias))
-#		return None
-
-	# FIXME - register service
-	# a) in its own database
-	# b) in the distributed database
-	return 1
-#------------------------------------------------------------------
-def bootstrap_services():
-	# get service list
-	services = _cfg.get("installation", "services")
-	if services is None:
-		exit_with_msg("Service list empty. Nothing to do here.")
-	# run through services
-	for service in services:
-		if bootstrap_service(service) is None:
-			return None
-	return 1
-#==================================================================
-def exit_with_msg(aMsg = None):
-	if not (aMsg is None):
-		print aMsg
-	print "Please see log file for details."
-	try:
-		dbconn.close()
-	except:
-		pass
-	_log.Log(gmLog.lErr, aMsg)
-	_log.Log(gmLog.lInfo, "shutdown")
-	sys.exit(1)
-#------------------------------------------------------------------
-def show_msg(aMsg = None):
-	if not (aMsg is None):
-		print aMsg
-	print "Please see log file for details."
-#==================================================================
-if __name__ == "__main__":
-	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
-	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
-
-	print "Bootstrapping GnuMed database system..."
-
-	tmp = _cfg.get("installation", "interactive")
-	if tmp == "yes":
-		_interactive = 1
-
-	# bootstrap services
-	if not bootstrap_services():
-		exit_with_msg("Cannot bootstrap services.")
-
-	_log.Log(gmLog.lInfo, "shutdown")
-	print "Done bootstrapping."
-else:
-	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.4  2003-01-22 08:43:05  ncq
+# Revision 1.5  2003-01-22 22:46:46  ncq
+# - works apart from 3 problems:
+#   - psql against remote host may need passwords but
+#     there's no clean way to pass them in
+#   - since we verify the path of procedural language
+#     library files locally we will fail to install them
+# 	on a remote host
+#   - we don't yet store the imported schema's version
+#
+# Revision 1.4  2003/01/22 08:43:05  ncq
 # - use dsn_formatstring to iron out DB-API incompatibilities
 #
 # Revision 1.3  2003/01/21 01:11:09  ncq
