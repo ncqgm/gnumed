@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -206,13 +206,13 @@ class cDocument:
 
 		try:
 			# translate document type
-			cmd = "SELECT count(id) FROM doc_type WHERE name='%s'" % (self.__metadata['type'])
+			cmd = "SELECT count(id) FROM v_i18n_doc_type WHERE name='%s'" % (self.__metadata['type'])
 			cursor.execute(cmd)
 			if cursor.fetchone()[0] != 1:
 				_log.Log(gmLog.lErr, 'Document type "%s" is not valid for this database !' % (self.__metadata['type']))
 				cursor.close()
 				return None
-			cmd = "SELECT id FROM doc_type WHERE name='%s'" % (self.__metadata['type'])
+			cmd = "SELECT id FROM v_i18n_doc_type WHERE name='%s'" % (self.__metadata['type'])
 			cursor.execute(cmd)
 			type_id = cursor.fetchone()[0]
 
@@ -256,8 +256,7 @@ class cDocument:
 		except:
 			aConn.rollback()
 			cursor.close()
-			exc = sys.exc_info()
-			_log.LogException ("Exception: Cannot import document.", exc)
+			_log.LogException ("Exception: Cannot import document. Rolling back transactions.", sys.exc_info())
 			return (1==0)
 	#-----------------------------------
 	def exportDocFromGNUmed(self, aConn = None, aTempDir = None):
@@ -702,7 +701,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.26  2003-01-12 13:26:24  ncq
+# Revision 1.27  2003-01-24 12:29:33  ncq
+# - make aware of v_i18n_doc_type
+#
+# Revision 1.26  2003/01/12 13:26:24  ncq
 # - don't use exc = sys.exc_info() when inlined
 #
 # Revision 1.25  2003/01/05 13:42:52  ncq
