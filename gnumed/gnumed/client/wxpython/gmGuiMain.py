@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.85 2003-03-23 11:46:14 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmGuiMain.py,v 1.86 2003-03-24 17:15:05 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -46,7 +46,7 @@ email_logger = None
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
-from gmI18N import gmTimeformat, system_locale
+from gmI18N import gmTimeformat, system_locale, system_locale_level
 
 import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmPlugin
 #import handler_loader
@@ -557,18 +557,14 @@ class gmApp(wxApp):
 		_log.Log(gmLog.lData, "current database locale: [%s]" % db_lang)
 
 		# check if system and db language are different
-		if db_lang == system_locale:
+		if db_lang == system_locale_level['full']:
 			_log.Log(gmLog.lData, 'Database locale (%s) up to date.' % db_lang)
 			return 1
-		# trim '@variant' part
-		no_variant = system_locale.split('@', 1)[0]
-		if db_lang == no_variant:
-			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang_COUNTRY(@variant) level.' % (db_lang, system_locale))
+		if db_lang == system_locale_level['country']:
+			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at country level.' % (db_lang, system_locale))
 			return 1
-		# trim '_LANG@variant' part
-		no_country = system_locale.split('_', 1)[0]
-		if db_lang == no_country:
-			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at lang(_COUNTRY@variant) level.' % (db_lang, system_locale))
+		if db_lang == system_locale_level['language']:
+			_log.Log(gmLog.lData, 'Database locale (%s) matches system locale (%s) at language level.' % (db_lang, system_locale))
 			return 1
 
 		# no match: ask user
@@ -634,7 +630,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.85  2003-03-23 11:46:14  ncq
+# Revision 1.86  2003-03-24 17:15:05  ncq
+# - slightly speed up startup by using pre-calculated system_locale_level dict
+#
+# Revision 1.85  2003/03/23 11:46:14  ncq
 # - remove extra debugging statements
 #
 # Revision 1.84  2003/02/17 16:20:38  ncq
