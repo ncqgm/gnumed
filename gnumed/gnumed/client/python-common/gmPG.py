@@ -5,12 +5,12 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, time
-import traceback
+
 #gnumed specific modules
 import gmLog
 _log = gmLog.gmDefLog
@@ -588,8 +588,6 @@ def run_query(aCursor = None, aQuery = None, *args):
 		aCursor.execute(aQuery, *args)
 	except:
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = _query_logging_verbosity)
-		print sys.exc_info()[0], sys.exc_info()[1]
-		traceback.print_tb(sys.exc_info()[2])
 		return None
 	return 1
 #---------------------------------------------------
@@ -1009,7 +1007,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.83  2003-11-17 10:56:36  sjtan
+# Revision 1.84  2003-11-17 20:22:59  ncq
+# - remove print()
+#
+# Revision 1.83  2003/11/17 10:56:36  sjtan
 #
 # synced and commiting.
 #
