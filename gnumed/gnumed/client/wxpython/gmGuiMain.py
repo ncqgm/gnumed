@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.82 2003-02-13 08:21:18 ihaywood Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmGuiMain.py,v 1.83 2003-02-14 00:05:36 sjtan Exp $
+__version__ = "$Revision: 1.83 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -39,7 +39,7 @@ from wxPython.html import *
 import sys, time, os, cPickle, zlib
 
 import gmDispatcher, gmSignals, gmGuiBroker, gmPG, gmSQLSimpleSearch, gmSelectPerson, gmLog, gmPlugin, gmCfg
-import handler_loader
+#import handler_loader
 import images
 import images_gnuMedGP_Toolbar                 #bitmaps for use on the toolbar
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
@@ -634,7 +634,11 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.82  2003-02-13 08:21:18  ihaywood
+# Revision 1.83  2003-02-14 00:05:36  sjtan
+#
+# generated files more usable.
+#
+# Revision 1.82  2003/02/13 08:21:18  ihaywood
 # bugfix for MSW
 #
 # Revision 1.81  2003/02/12 23:45:49  sjtan
