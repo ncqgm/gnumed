@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -100,7 +100,7 @@ comment on TABLE _enum_encounter_type is
 	'these are the types of encounter';
 
 create view vi18n_enum_encounter_type as
-	select _enum_encounter_type.id, _(_enum_encounter_type.description)
+	select _enum_encounter_type.id, _(_enum_encounter_type.description) as description
 	from _enum_encounter_type;
 
 -- -------------------------------------------------------------------
@@ -448,11 +448,14 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.27  2003-04-18 13:30:35  ncq
+-- Revision 1.28  2003-04-25 12:32:39  ncq
+-- - view on encounter types needs "as description"
+--
+-- Revision 1.27  2003/04/18 13:30:35  ncq
 -- - add doc types
 -- - update comment on allergy.id_substance
 --
