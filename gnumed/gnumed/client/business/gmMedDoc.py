@@ -36,21 +36,126 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.19 2004-03-04 19:46:53 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmMedDoc.py,v 1.20 2004-03-07 23:49:54 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, tempfile, os, shutil, os.path
+import sys, tempfile, os, shutil, os.path, types
 from cStringIO import StringIO
-
-if __name__ == '__main__':
-	sys.path.append(os.path.join('..', 'pycommon'))
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
+#============================================================
+class cDocumentFolder:
 
+	def __init__(self, aPKey = None):
+		"""Fails if
+
+		- patient referenced by aPKey does not exist
+		"""
+		self.id_patient = aPKey			# == identity.id == primary key
+		if not self._pkey_exists():
+			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
+
+		# register backend notification interests
+		# (keep this last so we won't hang on threads when
+		#  failing this constructor for other reasons ...)
+#		if not self._register_interests():
+#			raise gmExceptions.ConstructorError, "cannot register signal interests"
+
+		_log.Log(gmLog.lData, 'Instantiated document folder for patient [%s].' % self.id_patient)
+	#--------------------------------------------------------
+	def __del__(self):
+		pass
+	#--------------------------------------------------------
+	# internal helper
+	#--------------------------------------------------------
+	def _pkey_exists(self):
+		"""Does this primary key exist ?
+
+		- true/false/None
+		"""
+		# patient in demographic database ?
+		cmd = "select exists(select id from identity where id = %s)"
+		result = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
+		if result is None:
+			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in demographic database' % self.id_patient)
+			return None
+		if len(result) == 0:
+			_log.Log(gmLog.lErr, "no patient [%s] in demographic database" % self.id_patient)
+			return None
+		# patient linked in our local documents database ?
+		cmd = "select exists(select pk from xlnk_identity where xfk_identity = %s)"
+		result = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+		if result is None:
+			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in documents database' % self.id_patient)
+			return None
+		if not result[0][0]:
+			_log.Log(gmLog.lInfo, "no patient [%s] in documents database" % self.id_patient)
+			cmd1 = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
+			cmd2 = "select currval('xlnk_identity_pk_seq')"
+			status = gmPG.run_commit('blobs', [
+				(cmd1, [self.id_patient, self.id_patient]),
+				(cmd2, [])
+			])
+			if status is None:
+				_log.Log(gmLog.lErr, 'cannot insert patient [%s] into documents database' % self.id_patient)
+				return None
+			if status != 1:
+				_log.Log(gmLog.lData, 'inserted patient [%s] into documents database with local id [%s]' % (self.id_patient, status[0][0]))
+		return (1==1)
+	#--------------------------------------------------------
+	# API
+	#--------------------------------------------------------
+	def get_mugshot_list(self, latest_only=1):
+		if latest_only:
+			cmd = "select pk_doc, pk_obj from v_latest_mugshot where pk_patient=%s"
+		else:
+			cmd = """
+				select dm.id, dobj.id
+				from
+					doc_med dm
+					doc_obj dobj
+				where
+					dm.type = (select id from doc_type where name='patient photograph') and
+					dm.patient_id=%s and
+					and dobj.doc_id = dm.id
+			"""
+		rows = gmPG.run_ro_query('blobs', cmd, None, self.id_patient)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot load mugshot list for patient [%s]' % self.id_patient)
+			return None
+		return rows
+	#--------------------------------------------------------
+	def get_doc_list(self, doc_type = None):
+		if doc_type is None:
+			cmd = "select id from doc_med where patient_id=%(ID)s"
+			args = {'ID': self.id_patient}
+		elif type(doc_type) == types.StringType:
+			cmd = """
+				select id
+				from doc_med
+				where
+					patient_id=%(ID)s and
+					type=(select id from doc_type where name=%(TYP)s)
+				"""
+			args = {'ID': self.id_patient, 'TYP': doc_type}
+		else:
+			cmd = """
+				select id
+				from doc_med
+				where
+					patient_id=%(ID)s and
+					type=%(TYP)s
+				"""
+			args = {'ID': self.id_patient, 'TYP': doc_type}
+		docs = gmPG.run_ro_query('blobs', cmd, None, args)
+		if docs is None:
+			_log.Log(gmLog.lErr, 'cannot load document list for patient [%s]' % self.id_patient)
+			return None
+		return docs
 #============================================================
 class gmMedObj:
 	def __init__(self, aPKey):
@@ -503,7 +608,10 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.19  2004-03-04 19:46:53  ncq
+# Revision 1.20  2004-03-07 23:49:54  ncq
+# - add cDocumentFolder
+#
+# Revision 1.19  2004/03/04 19:46:53  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.18  2004/03/03 14:41:49  ncq
