@@ -38,15 +38,12 @@
 from wxPython.wx import *
 from wxPython.stc import *
 from wxPython.html import *
-import wxPython.lib.wxpTag
-import string
-import gettext
-_ = gettext.gettext
 from wxPython.lib.splashscreen import SplashScreen
+import wxPython.lib.wxpTag
+
 import gmPG, gmGuiBroker
-import keyword
-import time
-import pg
+
+import keyword, time, pg, string
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
 darkbrown = '#841310'
@@ -517,10 +514,7 @@ class DrugDisplay(wxPanel):
 #==================================================
 
 if __name__ == "__main__":
+	import gmI18N
 	app = wxPyWidgetTester(size = (400, 300))
 	app.SetWidget(DrugDisplay, -1)
 	app.MainLoop()
-
-
-
-
