@@ -33,12 +33,14 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
-import gmLog
 
+from pyPgSQL import PgSQL
+
+import gmLog
 _log = gmLog.gmDefLog
 #=======================================================================================
 class cDocument:
@@ -111,7 +113,7 @@ class cDocument:
 			_log.Log(gmLog.lData, "document reference string: " + str(self.__metadata['reference']))
 
 		# document description
-		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "desc_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "aux_comment_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			_log.Log(gmLog.lErr, "Cannot load long document description.")
 		else:
@@ -119,7 +121,7 @@ class cDocument:
 			_log.Log(gmLog.lData, "long document description: " + str(self.__metadata['description']))
 
 		# list of data files
-		if not self.__read_img_list(DescFile, aBaseDir):
+		if not self.__read_img_list(DescFile, aBaseDir, aCfg, aSection):
 			_log.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
 			return None
 
@@ -134,10 +136,10 @@ class cDocument:
 			return 1
 	#-----------------------------------
 	def loadMetaDataFromGNUmed(self, aConn = None, aDocumentID = None):
-		"""Document meta data loader for GNUmed compatible database."""
+		"""Document meta data loader for GnuMed compatible database."""
 		# FIXME: error handling !
 
-		_log.Log(gmLog.lInfo, 'loading stage 1 (document) metadata from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'loading stage 1 (document) metadata from GnuMed compatible database')
 
 		# sanity checks
 		if aConn == None:
@@ -185,7 +187,7 @@ class cDocument:
 		return self.__metadata
 	#-----------------------------------
 	def importIntoGNUmed(self, aConn = None, aPatient = None):
-		_log.Log(gmLog.lInfo, 'importing document into GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'importing document into GnuMed compatible database')
 
 		# sanity checks
 		if aConn == None:
@@ -233,9 +235,11 @@ class cDocument:
 				img_data = img_data + "reference date:" + str(self.__metadata['date']) + "\n"
 				img_data = img_data + "external reference:" + str(self.__metadata['reference']) + "\n"
 				# and escape stuff so we can store it in a BYTEA field
-				img_data = self.__escapeByteA(img_data)
+				#img_data = self.__escapeByteA(img_data)
+				img_obj = PgSQL.PgBytea(img_data)
+				del img_data
 				# finally insert the data
-				cmd = "INSERT INTO doc_obj (doc_id, seq_idx, data) VALUES (currval('doc_med_id_seq'), '" + str(obj['index']) + "', '" + img_data + "')"
+				cmd = "INSERT INTO doc_obj (doc_id, seq_idx, data) VALUES (currval('doc_med_id_seq'),'%s', '%s')" % (str(obj['index']), str(img_obj))
 				cursor.execute(cmd)
 
 			# insert long document description if available
@@ -267,7 +271,7 @@ class cDocument:
 		  list of object IDs
 		- this will usually be accomplished by a previous call to loadMetaDataFromGNUmed()
 		"""
-		_log.Log(gmLog.lInfo, 'exporting document from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'exporting document from GnuMed compatible database')
 
 		# sanity checks
 		if aConn == None:
@@ -309,11 +313,11 @@ class cDocument:
 	def exportObjFromGNUmed(self, aConn = None, aTempDir = None, anObjID = None):
 		"""Export object into local file.
 
-		- self.__metadata['objects'] must hold a (potentieally empty)
+		- self.__metadata['objects'] must hold a (potentially empty)
 		  list of object IDs
 		- this will usually be accomplished by a previous call to loadMetaDataFromGNUmed()
 		"""
-		_log.Log(gmLog.lInfo, 'exporting object from GNUmed compatible database')
+		_log.Log(gmLog.lInfo, 'exporting object from GnuMed compatible database')
 
 		# sanity checks
 		if aConn == None:
@@ -325,7 +329,7 @@ class cDocument:
 			return None
 
 		if not self.__metadata.has_key('objects'):
-			_log.Log(gmLog.lErr, 'Cannot export object without object IDs.')
+			_log.Log(gmLog.lErr, 'Cannot export object without object ID list.')
 			return None
 
 		if not self.__metadata['objects'].has_key(anObjID):
@@ -347,7 +351,8 @@ class cDocument:
 		obj['file name'] = tempfile.mktemp()
 		aFile = open(obj['file name'], 'wb+')
 		# it would be a fatal error to see more than one result as oids are supposed to be unique
-		aFile.write(self.__unescapeByteA(cursor.fetchone()[0]))
+		#aFile.write(self.__unescapeByteA(cursor.fetchone()[0]))
+		aFile.write(cursor.fetchone().data)
 		aFile.close()
 		# close our connection
 		cursor.close()
@@ -370,7 +375,7 @@ class cDocument:
 	#-----------------------------------
 	# internal methods
 	#-----------------------------------
-	def __read_img_list(self, aDescFile = None, aBaseDir = None):
+	def __read_img_list(self, aDescFile = None, aBaseDir = None, aCfg = None, aSection = None):
 		"""Read list of image files from XML metadata file.
 
 		We assume the order of file names to correspond to the sequence of pages.
@@ -382,18 +387,19 @@ class cDocument:
 		self.__metadata['objects'] = {}
 
 		i = 1
+		tag_name = aCfg.get(aSection, "obj_tag")
 		# now read the xml file
 		for line in fileinput.input(aDescFile):
 			# is this a line we want ?
-			start_pos = string.find(line,'<object')
+			start_pos = string.find(line,'<%s' % tag_name)
 			if start_pos == -1:
 				continue
 
 			# yes, so check for closing tag
-			end_pos = string.find(line,'</object>')
+			end_pos = string.find(line,'</%s>' % tag_name)
 			if end_pos == -1:
 				# but we don't do multiline tags
-				_log.Log (gmLog.lErr, "Incomplete <object></object> line. We don't do multiline tags. Sorry.")
+				_log.Log (gmLog.lErr, "Incomplete <%s></%s> line. We don't do multiline tags. Sorry."  % (tag_name, tag_name))
 				return None
 
 			# extract filename
@@ -404,7 +410,7 @@ class cDocument:
 			tmp['file name'] = os.path.abspath(os.path.join(aBaseDir, file))
 			# this 'index' defines the order of objects in the document
 			tmp['index'] = i
-			# we must use imaginary oid's since we are reading from a file
+			# we must use imaginary oid's since we are reading from a file,
 			# this OID defines the object ID in the data store, this
 			# has nothing to do with the semantic order of objects
 			self.__metadata['objects'][i] = tmp
@@ -466,7 +472,7 @@ class cDocument:
 
 		# looped over all lines
 		if len(content) > 0:
-			_log.Log (gmLog.lData, "%s tag content succesfully read: %s" % (TagStart, str(content)))
+			_log.Log (gmLog.lData, "%s tag content successfully read: %s" % (TagStart, str(content)))
 			return content
 		else:
 			return None
@@ -686,7 +692,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.18  2002-09-17 01:07:27  ncq
+# Revision 1.19  2002-10-01 09:47:36  ncq
+# - sync, should sort of work
+#
+# Revision 1.18  2002/09/17 01:07:27  ncq
 # - fixed indentation typo
 #
 # Revision 1.17  2002/09/17 00:06:30  ncq

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -635,7 +635,7 @@ class indexFrame(wxFrame):
 		if not os.path.exists (fname):
 			_log.Log(gmLog.lErr, 'Cannot access metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
-				_('Cannot access metadata file\n[%s].\nPlease see error log for details.' % fname),
+				_('Cannot access metadata file\n[%s].\nPlease see error log for details.') % fname,
 				_('Error'),
 				wxOK | wxICON_ERROR
 			)
@@ -648,7 +648,7 @@ class indexFrame(wxFrame):
 		if not self.myDoc.loadImgListFromXML(fname, aDir):
 			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
-				_('Cannot load image list from metadata file\n[%s].\n\nPlease see error log for details.' % fname),
+				_('Cannot load image list from metadata file\n[%s].\n\nPlease see error log for details.') % fname,
 				_('Error'),
 				wxOK | wxICON_ERROR
 			)
@@ -912,7 +912,10 @@ if __name__ == '__main__':
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.17  2002-09-30 08:18:07  ncq
+# Revision 1.18  2002-10-01 09:47:36  ncq
+# - sync, should sort of work
+#
+# Revision 1.17  2002/09/30 08:18:07  ncq
 # - config file cleanup
 #
 # Revision 1.16  2002/09/28 15:59:33  ncq
