@@ -1,6 +1,4 @@
-#!/usr/bin/python
 #############################################################################
-#
 # gmGP_Immunisations.py
 # ----------------------------------
 #
@@ -8,24 +6,33 @@
 #
 # If you don't like it - change this code see @TODO!
 #
-# @author: Dr. Richard Terry
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
-#	    10.06.2002 rterry initial implementation, untested
-#           30.07.2002 rterry icons inserted in file, code cleaned up
+#	10.06.2002 rterry initial implementation, untested
+#	30.07.2002 rterry icons inserted in file, code cleaned up
 # @TODO:
-#	
-#      
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
+# $Id: gmGP_Immunisation.py,v 1.8 2003-02-07 12:18:14 ncq Exp $
+__version__ = "$Revision: 1.8 $"
+__author__ = "R.Terry, S.J.Tan"
 
 from wxPython.wx import *
+
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
-import gmPlugin, gmLog
+import gmPlugin
+
+import gmLog
+_log = gmLog.gmDefLog
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+_log.Log(gmLog.lData, __version__)
+
 
 ID_IMMUNISATIONLIST = wxNewId()
 ID_IMMUNISATIONS = wxNewId()
@@ -165,7 +172,7 @@ class ImmunisationPanel(wxPanel):
 	def OnSize (self, event):
 		w, h = event.GetSize ()
 		self.mainsizer.SetDimension (0, 0, w, h)
-#----------------------------------------------------------------------
+#======================================================================
 class gmGP_Immunisation(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
 
@@ -194,8 +201,15 @@ Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87'
 
 	def GetWidget (self, parent):
 		return ImmunisationPanel (parent, -1)
+#======================================================================
+# main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(ImmunisationPanel, -1)
 	app.MainLoop()
+#======================================================================
+# $Log: gmGP_Immunisation.py,v $
+# Revision 1.8  2003-02-07 12:18:14  ncq
+# - cvs metadata keywords
+#
