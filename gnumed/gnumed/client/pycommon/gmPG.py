@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -166,7 +166,7 @@ class ConnectionPool:
 	#-----------------------------
 	# connection API
 	#-----------------------------
-	def GetConnection(self, service = "default", readonly = 1, encoding = None, extra_verbose = None):
+	def GetConnection(self, service="default", readonly=1, encoding=None, extra_verbose=None):
 		"""Get a connection."""
 		# use default encoding if none given
 		if encoding is None:
@@ -940,7 +940,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.29 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.30 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1168,7 +1168,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.29  2004-09-20 21:09:10  ncq
+# Revision 1.30  2004-10-29 22:34:37  ncq
+# - cleanup
+#
+# Revision 1.29  2004/09/20 21:09:10  ncq
 # - use noop() idiom in table_exists()
 #
 # Revision 1.28  2004/09/13 09:33:07  ncq
