@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -12,9 +12,9 @@
 -- ===================================================================
 create table audit_mark (
 	pk_audit serial primary key,
-	row_version integer default 0,
-	modify_when timestamp with time zone check (modify_when=CURRENT_TIMESTAMP),
-	modify_by name check (modify_by=CURRENT_USER)
+	row_version integer not null default 0,
+	modify_when timestamp with time zone not null default CURRENT_TIMESTAMP,
+	modify_by name not null default CURRENT_USER
 );
 
 comment on table audit_mark is
@@ -34,10 +34,9 @@ create table audit_log (
 	orig_when timestamp with time zone not null,
 	orig_by name not null,
 	orig_tableoid oid not null,
-	modify_action varchar(6) check (modify_action in ('UPDATE', 'DELETE')),
-	modify_when timestamp with time zone check (modify_when=CURRENT_TIMESTAMP),
-	modify_by name check (modify_by=CURRENT_USER),
-	modify_why text not null
+	audit_action varchar(6) not null check (audit_action in ('UPDATE', 'DELETE')),
+	audit_when timestamp with time zone not null default CURRENT_TIMESTAMP,
+	audit_by name not null default CURRENT_USER
 );
 
 comment on table audit_log is
@@ -52,14 +51,12 @@ comment on column audit_log.orig_by is
 	'who committed the row to the original table';
 comment on column audit_log.orig_tableoid is
 	'the table oid of the original table, use this to identify the source table';
-comment on column audit_log.modify_action is
+comment on column audit_log.audit_action is
 	'either "update" or "delete"';
-comment on column audit_log.modify_when is
+comment on column audit_log.audit_when is
 	'when committed to this table for auditing';
-comment on column audit_log.modify_by is
+comment on column audit_log.audit_by is
 	'committed to this table for auditing by whom';
-comment on column audit_log.modify_why is
-	'why was the original row modified, e.g. "false data", "married", "moved", "typo", etc.';
 
 -- ===================================================================
 grant SELECT, UPDATE, INSERT, DELETE on
@@ -71,11 +68,14 @@ to group "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.2  2003-05-12 19:29:45  ncq
+-- Revision 1.3  2003-05-13 14:40:54  ncq
+-- - remove check constraints, they are done by triggers now
+--
+-- Revision 1.2  2003/05/12 19:29:45  ncq
 -- - first stab at real auditing
 --
 -- Revision 1.1  2003/05/12 14:14:53  ncq
