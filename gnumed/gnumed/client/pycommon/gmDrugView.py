@@ -37,9 +37,10 @@ class DrugView:
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
 		else:
 			# 
-			self.dbConfFile, match = gmCfg.getDBParam(currWorkplace,
-				option="DrugReferenceBrowser.%s.configfile" % aDatabaseName)
-		
+			self.dbConfFile, match = gmCfg.getDBParam(
+				workplace=currWorkplace,
+				option="DrugReferenceBrowser.%s.configfile" % aDatabaseName
+			)
 
 		_log.Log(gmLog.lInfo, "dbConfFile is [%s]" % str(self.dbConfFile))
 			
@@ -388,7 +389,10 @@ if __name__ == "__main__":
 
 #========================================================
 # $Log: gmDrugView.py,v $
-# Revision 1.4  2004-08-20 13:34:48  ncq
+# Revision 1.5  2004-09-18 13:52:41  ncq
+# - properly use setDBParam()
+#
+# Revision 1.4  2004/08/20 13:34:48  ncq
 # - getFirstMatchingDBSet() -> getDBParam()
 #
 # Revision 1.3  2004/07/19 11:50:42  ncq
