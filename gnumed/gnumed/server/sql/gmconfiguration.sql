@@ -1,14 +1,18 @@
--- structure of configuration database for gnumed
+--=====================================================================
+-- GnuMed distributed database configuration tables
+
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
+-- $Revision: 1.11 $
+
+-- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
--- Copyrigth by Dr. Horst Herb
+-- Copyright by Dr. Horst Herb
 -- This is free software in the sense of the General Public License (GPL)
 -- For details regarding GPL licensing see http://gnu.org
---
+
 -- last changes: 26.10.2001 hherb drastic simplification of entities and relationships
--- introduction ofg the new services
-
+-- introduction of the new services
 --=====================================================================
-
 CREATE TABLE db (
     id SERIAL PRIMARY KEY,
     name CHAR(35),
@@ -18,33 +22,34 @@ CREATE TABLE db (
     tty varchar(255) DEFAULT ''
 );
 
+-- the database with id == 0 is the "default" database
+
 COMMENT ON TABLE db IS
-'basic database information';
+	'information on where to find the databases known to GnuMed';
 
 COMMENT ON COLUMN db.name IS
-'name of the database';
+	'name of the database';
 
 COMMENT ON COLUMN db.port IS
-'port number of the server hosting this database';
+	'port number of the server hosting the database';
 
 COMMENT ON COLUMN db.host IS
-'host name or IP number of the server hosting this database';
+	'host name or IP number of the server hosting the database';
 
 GRANT SELECT ON db TO PUBLIC;
 
 --=====================================================================
-
 CREATE TABLE distributed_db (
 	id SERIAL PRIMARY KEY,
 	name char(35)
 );
 
 COMMENT ON TABLE distributed_db IS
-'Enumerates all possibly available distributed servers. Naming needs approval by gnumed administrators!';
+	'Enumerate all known GnuMed service names. Naming new services needs approval by GnuMed administrators !';
 
--- !I18N note to translators: do NOT change these values !!!
+-- i18N note to translators: do NOT change these values !!!
 
--- this service contains at least the basic gnumed configuration
+-- this service contains at least the basic GnuMed configuration
 INSERT INTO distributed_db(name) values('default');
 
 -- this service may be used for external audit trails and replication issues
@@ -78,13 +83,12 @@ INSERT INTO distributed_db(name) values('accounting');
 -- this servicecontains office related tables such as rosters and waiting room
 INSERT INTO distributed_db(name) values('office');
 
--- this service allows to manage gnumed client modules
+-- this service allows to manage GnuMed client modules
 INSERT INTO distributed_db(name) values('modules');
 
 GRANT SELECT ON distributed_db TO PUBLIC;
 
 --=====================================================
-
 CREATE TABLE config (
     id SERIAL PRIMARY KEY,
     profile CHAR(25) DEFAULT 'default',
@@ -98,47 +102,42 @@ CREATE TABLE config (
 );
 
 COMMENT ON TABLE config IS
-'minimal gnumed database configuration information';
+	'maps a service name to a database location for a particular user, includes user credentials for that database';
 
 COMMENT ON COLUMN config.profile IS
-'allows multiple profiles per user / pseudo user';
+	'allows multiple profiles per user / pseudo user; one user may have different configuration profiles depending on role, need and location';
 
 COMMENT ON COLUMN config.username IS
-'user name as used within the gnumed system';
+	'user name as used within the GnuMed system';
 
 COMMENT ON COLUMN config.ddb IS
-'reference to one of the allowed distrbuted servers';
+	'which GnuMed service are we mapping to a database here';
 
 COMMENT ON COLUMN config.db IS
-'reference to the implementation details of the distributed server';
+	'how to reach the database host for this service';
 
 COMMENT ON COLUMN config.crypt_pwd IS
-'password for user and database, encrypted';
+	'password for user and database, encrypted';
 
 COMMENT ON COLUMN config.crypt_algo IS
-'encryption algorithm used for password encryption';
+	'encryption algorithm used for password encryption';
 
 COMMENT ON COLUMN config.pwd_hash IS
-'hash of the unencrypted password';
+	'hash of the unencrypted password';
 
 COMMENT ON COLUMN config.hash_algo IS
-'algorithm used for password hashing';
+	'algorithm used for password hashing';
 
-COMMENT ON COLUMN config.profile IS
-'one user may have different configuration profiles depending on role, need and location';
-
-
+--=====================================================================
 CREATE TABLE queries (
 	id SERIAL PRIMARY KEY,
 	name char(40),
 	db INT REFERENCES DB,
 	query text
 );
-
-
-
-
-
-
-
-
+--=====================================================================
+-- $Log: gmconfiguration.sql,v $
+-- Revision 1.11  2002-09-27 00:35:03  ncq
+-- - janitorial work
+-- - comments for clarification
+--
