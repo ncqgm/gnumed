@@ -23,7 +23,7 @@
 --                BREAKS BACKWARDS COMPATIBILITY!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmidentity.sql,v $
--- $Id: gmidentity.sql,v 1.30 2003-02-14 10:36:37 ncq Exp $
+-- $Id: gmidentity.sql,v 1.31 2003-02-24 23:08:21 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -50,11 +50,11 @@ COMMENT ON TABLE audit_identity IS
 create table identity (
 	id serial primary key,
 	pupic char(24),
-	gender character(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
-	karyotype character(10) DEFAULT NULL,
-	dob timestamp with time zone,
+	gender varchar(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
+	karyotype character(10) default null,
+	dob timestamp with time zone not null,
 	cob char(2),
-	deceased timestamp with time zone NULL
+	deceased timestamp with time zone null
 ) inherits (audit_identity);
 
 
@@ -110,7 +110,7 @@ COMMENT ON COLUMN names.preferred IS
 
 -- IH: 9/3/02
 -- trigger function to ensure one name is active.
--- its behaviour is to set all other names to inactive when
+-- it's behaviour is to set all other names to inactive when
 -- a name is made active.
 
 CREATE FUNCTION check_active_name () RETURNS OPAQUE AS '
@@ -270,10 +270,16 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: gmidentity.sql,v $
--- Revision 1.30  2003-02-14 10:36:37  ncq
+-- Revision 1.31  2003-02-24 23:08:21  ncq
+-- - fix my own typos :-)
+-- - make dob constrained to NOT NULL
+-- - make gender varchar(2) instead of character(2) or
+--   else we end up with things like 'm ' which does not match 'm' !!
+--
+-- Revision 1.30  2003/02/14 10:36:37  ncq
 -- - break out default and test data into their own files, needed for dump/restore of dbs
 --
