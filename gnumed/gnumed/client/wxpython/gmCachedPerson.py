@@ -39,12 +39,13 @@ class CachedPerson(gmDBCache.CachedDBObject):
 		assert(self.cache.id is not None or id is not None)
 		return gmDBCache.CachedDBObject.get(self, id, by_reference, refresh_only)
 
-	def addresses(self, id):
+	def addresses_link(self, id):
 		cursor = self.cache.db.cursor()
-		cursor.execute("select id_address from identities_addresses where id_identity = %d" % id)
-		addresses = cursor.fetchall()
-		print "from identities_addresses: address  id s= ", addresses
-		return addresses
+		# changed from selecting id_address to id inorder to get type
+		cursor.execute("select id from identities_addresses where id_identity = %d" % id)
+		addresses_link = cursor.fetchall()
+		print "from identities_addresses: address_link  id s= ", addresses_link
+		return addresses_link
 
 	def dictresult(self, id=None):
 		if id is not None:

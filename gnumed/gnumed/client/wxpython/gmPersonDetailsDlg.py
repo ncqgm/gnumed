@@ -38,6 +38,11 @@ COUNTRY_COLUMN_MAX = 30
 class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 
 	def __init__(self, parent, id, guibroker=None, callbackbroker=None, dbbroker=None, name=_("PersonDetails")):
+		"""Initializes data structure and command buttons. 
+		   Zeroes Id and name/control/operation mappings
+		   sets up ui dependency between gender and title.  
+		"""
+
 		gmPersonDetails.PnlPersonDetails.__init__(self, parent, id)
 		gmPlugin.wxGuiPlugin.__init__(self, name, guibroker, callbackbroker, dbbroker)
 
@@ -58,6 +63,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		self.szrTop.SetSizeHints( parent )
 		self.personMapping = None
 		self.addressMapping = None
+		
 		self.__LoadCountries()
 		self.__setPersonId(None)
 		self.__setAddressId(None)
@@ -72,17 +78,24 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 
 		EVT_RADIOBOX( self.chGender, gmPersonDetails.ID_CHOICE_GENDER, self.genderChanged) 
 
+		self.invisibleMap = {} 
+
 
 
 	def titleChanged(self, event):
-		if event.GetString() in [ "Mr.", "Mstr."] :
+		""" change the gender to match the title
+		"""
+
+		if event.GetString() in [ _("Mr."), _("Mstr.")] :
 			self.chGender.SetStringSelection('m')
 		else:
-			if event.GetString() in ["Miss", "Mrs.", "Ms."]:
+			if event.GetString() in [_("Miss"), _("Mrs."), _("Ms.")]:
 				self.chGender.SetStringSelection('f')
 		event.Skip()
 
 	def genderChanged( self, event):
+		"""change the title to match the gender
+		"""
 		
 		g = event.GetString()
 		print "checking out radiobutton = ", g, event
@@ -113,6 +126,10 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		print "person id set to ",id	
 
 	def __LoadCountries(self):
+		"""loads the comboBox for countries with a part of the total list.
+			Selecting more will load next part of list into comboBox.	
+			implemented because Linux ui on gnome doesn't have scrollable
+			combo selection box. """
 		
 		countries = self.__GetCountries()
 		list = []
@@ -134,7 +151,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 				self.countryList = list
 				self.countryStart = 0
 				self.chCountry.Append("MORE")
-				EVT_CHOICE ( self.chCountry, -1, self.checkForPopup)
+				EVT_CHOICE ( self.chCountry, -1, self.checkForMore)
 			else:
 				for x in list:
 					self.chCountry.Append(x)
@@ -142,7 +159,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		self.chCountry.SetStringSelection("AUSTRALIA")
 
 # completely changed to just rotating the entries in the choice
-	def checkForPopup(self, event):
+	def checkForMore(self, event):
+		""" rotates the country list to the next part if MORE selected """
 		if (self.chCountry.GetStringSelection() == "MORE"):
 			self.countryStart += COUNTRY_COLUMN_MAX
 			if self.countryStart >= len(self.countryList):
@@ -175,6 +193,15 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		self.ClearData()
 
 	def OnSave(self, evt):
+		"""saves the data in the person and the address fields of the dialog, into the
+		database. First map the control values into a map, calling GetPersonMAp and GetAddressMap.
+		Then using map formatting of sql command strings to get relevant insert or update
+		sql statement. If no personId , then an insert statement is needed, otherwise 
+		a update statements. 
+		Updates and Inserts are done through view triggers for v_basic_person, v_basic_address,
+		see gmidentity.sql and gmgis.sql in sql directory for details. 
+		"""
+	
 		print evt.GetId()
 
 
@@ -191,13 +218,16 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 					values ('%(Title)s', '%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s', '%(Cob)s')"""%personMap)
 
 				
-				queries.append( """insert into v_basic_address(number, street, street2, city, state,  country, postcode, address_at )
-						values ( '%(Street No)s', '%(Street)s', '%(Address 1)s', trim(upper('%(City)s')),trim(upper('%(State)s')), '%(Country)s','%(Postcode)s' , '%(address At)s')"""%addressMap)
+				queries.append( """insert into v_basic_address(number, street, street2, city, state,  country, postcode )
+						values ( '%(Street No)s', '%(Street)s', '%(Address 1)s', trim(upper('%(City)s')),trim(upper('%(State)s')), '%(Country)s','%(Postcode)s' )"""%addressMap)
 
-				queries.append("""insert into identities_addresses (id_identity, id_address, address_source) select i.last_value,
-						a.last_value, CURRENT_USER from identity_id_seq i, address_id_seq a  """)	
+				queries.append("""insert into identities_addresses (id_identity, id_address, address_source ) select i.last_value,
+						a.last_value, CURRENT_USER from identity_id_seq i, address_id_seq a  """)
 
-				queries.append("""select currval('identity_id_seq'), currval('address_id_seq')""")
+				#also save the type in identities_addresses
+				queries.append ("""update identities_addresses set id_type=(select id from address_type ia where trim(lower(ia.name)) = trim(lower('%(address At)s'))) where identities_addresses.id = currval('identities_addresses_id_seq')""" % addressMap) 	
+
+				queries.append("""select currval('identity_id_seq'), currval('identities_addresses_id_seq')""")
 				try:
 					db = self.getDB()
 					db.commit()
@@ -336,22 +366,34 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 						{ 'name' : 'Area Code' , 'control' : self.tcAreacode},
 						{ 'name' : 'Phone number' , 'control' : self.tcPhonenumber},
 						{ 'name' : 'Phone Comment' , 'control' : self.tcPhoneComment},
-						{ 'name' : 'UrlCategory', 'control' : self.cbUrlCategory } 
+						{ 'name' : 'UrlCategory', 'control' : self.cbUrlCategory } ,
+						{ 'name' : 'addr_id', 'control': 'addr_id' , 'op': self.getInvisible }
 						
 					    ]
 		return self.addressMapping
 
 	def getChoiceSelection(self, choice, value = None):
+		"""sets and gets a wxChoice"""
 		if (value != None) :
 			choice.SetStringSelection(value)
 		return choice.GetStringSelection()
 
 	def getCountryChoice(self, choice, value = None):
+		"""sets and gets a country choice."""
 		if (value != None):
 			for x in self.countriesAll:
 				if (x[0] == value):
 					choice.SetStringSelection(x[1])
 		return choice.GetStringSelection()
+
+	def getInvisible( self, name, value = None):
+		"""sets and gets hidden attributes"""
+		if (value != None):
+			try:
+				self.invisibleMap[name] = value
+			except: 
+				print "error in getInvisible", name, value
+		return self.invisibleMap[name]
 
 	def __GetMap(self, list):
 		map = {}
@@ -418,6 +460,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 
 
 	def SetViaMapping( self, data, mapping):
+		 """sets a control either through default SetValue, or via a supplied operation in x['op']
+		 """
 
 		 print "trying to set with data = ", data, " *** mapping = ", mapping
 		 for x in mapping:
@@ -436,6 +480,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
                                         ctrl.SetValue( data[name].strip())
                         except Exception, errorStr:
                                 print "error in setting  ", x ,errorStr
+				t =  sys.exc_traceback
+				print t.tb_lineno , t.tb_lasti
 
 
 	def SetPersonData(self, person=None):
@@ -501,11 +547,11 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		print "On data update, Person ID =", id
 		#</DEBUG>
 		self.SetPersonData(self.__person.dictresult(id))
-		addresslist = self.__person.addresses(id)
+		addresslist = self.__person.addresses_link(id)
 		if len(addresslist) > 0:
-			print "address list = ", addresslist
-			homeaddress = addresslist[0]
-			self.SetAddressData(self.__address.dictresult(homeaddress[0]))
+			print "address link list = ", addresslist
+			homeaddress_link = addresslist[0]
+			self.SetAddressData(self.__address.dictresult(homeaddress_link[0]))
 
 	def OnSaveData(self, updateflag=0):
 		if updateflag:

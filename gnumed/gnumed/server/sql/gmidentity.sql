@@ -196,24 +196,6 @@ COMMENT ON COLUMN relation.started IS
 COMMENT ON COLUMN relation.ended IS
 'date when this relationship ended. Biological relationships do not end!';
 
-create table identities_addresses (
-	id serial primary key,
-	id_identity integer references identity,
-	id_address integer references address,
-	id_type int references address_type(id) default 1,
-) inherits (audit_identity);
-
-COMMENT ON TABLE identities_addresses IS
-'a many-to-many pivot table linking addresses to identities';
-
-COMMENT ON COLUMN identities_addresses.id_identity IS
-'identity to whom the address belongs';
-
-COMMENT ON COLUMN identities_addresses.id_address IS
-'address belonging to this identity';
-
-COMMENT ON COLUMN identities_addresses.id_type IS
-'type of this address (like home, work, parents, holidays ...)';
 
 create view v_basic_person as
 select

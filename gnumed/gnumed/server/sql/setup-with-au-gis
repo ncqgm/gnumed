@@ -1,7 +1,9 @@
-DB=gnumed6
+DB=gnumed7
+dropdb $DB
 createdb $DB 
 psql -f gnumed.sql $DB 
 psql -f gmconfiguration.sql $DB 
 psql -f gmidentity.sql $DB 
 psql -f gmgis.sql $DB 
+# gmgis MUST follow gmidentity now because of id_type in identities_addresses
 psql -f country.specific/au/postcodes.au.sql $DB 

@@ -189,6 +189,25 @@ END;' LANGUAGE 'plpgsql';
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+create table identities_addresses (
+        id serial primary key,
+        id_identity integer references identity,
+        id_address integer references address,
+        id_type int references address_type default 1,
+	address_source varchar(30)
+) inherits (audit_identity);
+
+COMMENT ON TABLE identities_addresses IS
+'a many-to-many pivot table linking addresses to identities';
+
+COMMENT ON COLUMN identities_addresses.id_identity IS
+'identity to whom the address belongs';
+
+COMMENT ON COLUMN identities_addresses.id_address IS
+'address belonging to this identity';
+
+COMMENT ON COLUMN identities_addresses.id_type IS
+'type of this address (like home, work, parents, holidays ...)';
 
 
 create view v_basic_address as
@@ -196,6 +215,7 @@ create view v_basic_address as
 -- implement it as a real table and create rules / triggers for insert,
 -- update and delete that will update the underlying tables accordingly
 select
+	ia.id as id, 
 	a.id as addr_id,
         s.country as country,
         s.code as state,
@@ -203,19 +223,22 @@ select
         u.name as city,
         a.number as number,
         str.name as street,
-        a.addendum as street2,
+        a.addendum as street2  ,
  	t.name as address_at
 
 from
+	identities_addresses ia, 
         address a,
         state s,
         urb u,
-        street str,
+        street str  ,
 	address_type t
-where
+where	
+	ia.id_address = a.id
+	and
         a.street = str.id
         and
-        t.id = a.addrtype
+        t.id = ia.id_type
         and
         str.id_urb = u.id
         and
@@ -254,7 +277,7 @@ END;' LANGUAGE 'plpgsql';
 
 drop rule insert_address;
 
-CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
+CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD 
         INSERT INTO address (id, street, number, addendum)
         VALUES ( nextval('address_id_seq'),
                   find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE
