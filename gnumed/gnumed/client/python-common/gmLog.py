@@ -1,4 +1,3 @@
-#! /usr/bin/python
 """GNUMed client log handling.
 
 All error logging, user notification and otherwise unhandled 
@@ -51,7 +50,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -765,7 +764,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.27  2002-11-18 02:23:01  ncq
+# Revision 1.28  2002-11-18 09:41:25  ncq
+# - removed magic #! interpreter incantation line to make Debian happy
+#
+# Revision 1.27  2002/11/18 02:23:01  ncq
 # - make it work with /var/log/...
 #
 # Revision 1.26  2002/11/18 00:18:12  ncq

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-#==================================================================
 """GnuMed configuration handling.
 
 Two sources of configuration information are supported:
@@ -50,7 +47,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -616,7 +613,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.25  2002-11-17 20:09:10  ncq
+# Revision 1.26  2002-11-18 09:41:25  ncq
+# - removed magic #! interpreter incantation line to make Debian happy
+#
+# Revision 1.25  2002/11/17 20:09:10  ncq
 # - always display __doc__ when called standalone
 #
 # Revision 1.24  2002/11/05 18:15:03  ncq

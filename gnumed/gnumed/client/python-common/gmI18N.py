@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 #===========================================================================
 # THIS NEEDS TO BE IMPORTED FIRST IN YOUR MODULES !
 #===========================================================================
@@ -57,7 +55,7 @@ entirely.
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -204,7 +202,10 @@ log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.19  2002-11-17 20:09:10  ncq
+# Revision 1.20  2002-11-18 09:41:25  ncq
+# - removed magic #! interpreter incantation line to make Debian happy
+#
+# Revision 1.19  2002/11/17 20:09:10  ncq
 # - always display __doc__ when called standalone
 #
 # Revision 1.18  2002/09/26 13:16:52  ncq

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """GnuMed command line options handling.
 
 All command line argument handling should go through this module.
@@ -45,7 +43,7 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string
@@ -153,7 +151,10 @@ else:
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.7  2002-11-17 20:09:10  ncq
+# Revision 1.8  2002-11-18 09:41:25  ncq
+# - removed magic #! interpreter incantation line to make Debian happy
+#
+# Revision 1.7  2002/11/17 20:09:10  ncq
 # - always display __doc__ when called standalone
 #
 # Revision 1.6  2002/09/30 10:58:27  ncq
