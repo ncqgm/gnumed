@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.95 2004-08-11 08:59:54 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.96 2004-08-16 19:31:49 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -461,6 +461,7 @@ where
 
 -- ==========================================================
 -- vaccination stuff
+-- -----------------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_vacc_regimes;
 \set ON_ERROR_STOP 1
@@ -471,12 +472,37 @@ select
 	vind.description as indication,
 	_(vind.description) as l10n_indication,
 	vreg.name as regime,
+	coalesce(vreg.comment, '') as comment,
+	vreg.fk_indication as pk_indication,
+	vreg.fk_recommended_by as pk_recommended_by
+from
+	vacc_regime vreg,
+	vacc_indication vind
+where
+	vreg.fk_indication = vind.id
+;
+
+comment on view v_vacc_regimes is
+	'all vaccination schedules known to the system';
+
+-- -----------------------------------------------------
+\unset ON_ERROR_STOP
+drop view v_vacc_defs4reg;
+\set ON_ERROR_STOP 1
+
+create view v_vacc_defs4reg as
+select
+	vreg.id as pk_regime,
+	vind.description as indication,
+	_(vind.description) as l10n_indication,
+	vreg.name as regime,
 	coalesce(vreg.comment, '') as reg_comment,
 	vdef.is_booster as is_booster,
-	case when vdef.is_booster
-		then 0
-		else vdef.seq_no
-	end as vacc_seq_no,
+--	case when vdef.is_booster
+--		then 999
+--		else vdef.seq_no
+--	end as vacc_seq_no,
+	vdef.seq_no as vacc_seq_no,
 	vdef.min_age_due as age_due_min,
 	vdef.max_age_due as age_due_max,
 	vdef.min_interval as min_interval,
@@ -496,6 +522,67 @@ order by
 	vacc_seq_no
 ;
 
+comment on view v_vacc_defs4reg is
+	'vaccination event definitions for all schedules known to the system';
+
+-- -----------------------------------------------------
+\unset ON_ERROR_STOP
+drop view v_vacc_regs4pat;
+\set ON_ERROR_STOP 1
+
+create view v_vacc_regs4pat as
+select
+	lp2vr.fk_patient as pk_patient,
+	vvr.indication as indication,
+	vvr.l10n_indication as l10n_indication,
+	vvr.regime as regime,
+	vvr.comment as comment,
+	vvr.pk_regime as pk_regime,
+	vvr.pk_indication as pk_indication,
+	vvr.pk_recommended_by as pk_recommended_by
+from
+	lnk_pat2vacc_reg lp2vr,
+	v_vacc_regimes vvr
+where
+	vvr.pk_regime = lp2vr.fk_regime
+;
+
+comment on view v_vacc_regs4pat is
+	'selection of configured vaccination schedules a patient is actually on';
+
+-- -----------------------------------------------------
+\unset ON_ERROR_STOP
+drop view v_vaccs_scheduled4pat;
+\set ON_ERROR_STOP 1
+
+create view v_vaccs_scheduled4pat as
+select
+	vvr4p.pk_patient as pk_patient,
+	vvr4p.indication as indication,
+	vvr4p.l10n_indication as l10n_indication,
+	vvr4p.regime as regime,
+	vvr4p.comment as reg_comment,
+	vvd4r.is_booster,
+	vvd4r.vacc_seq_no,
+	vvd4r.age_due_min,
+	vvd4r.age_due_max,
+	vvd4r.min_interval,
+	vvd4r.vacc_comment as vacc_comment,
+	vvr4p.pk_regime as pk_regime,
+	vvr4p.pk_indication as pk_indication,
+	vvr4p.pk_recommended_by as pk_recommended_by
+from
+	v_vacc_regs4pat vvr4p,
+	v_vacc_defs4reg vvd4r
+where
+	vvd4r.pk_regime = vvr4p.pk_regime
+;
+
+comment on view v_vaccs_scheduled4pat is
+	'vaccinations scheduled for a patient according
+	 to the vaccination schedules he/she is on';
+
+-- -----------------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_pat_vacc4ind;
 \set ON_ERROR_STOP 1
@@ -534,73 +621,196 @@ where
 	lv2i.fk_indication = vind.id
 ;
 
+comment on view v_pat_vacc4ind is
+	'vaccinations a patient has actually received for the various indications';
+
+-- -----------------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_pat_missing_vaccs;
-drop view v_pat_missing_boosters;
 \set ON_ERROR_STOP 1
 
 create view v_pat_missing_vaccs as
 select
-	vpv4i0.pk_patient as pk_patient,
-	vvr0.indication as indication,
-	_(vvr0.indication) as l10n_indication,
-	vvr0.regime as regime,
-	vvr0.reg_comment as reg_comment,
-	vvr0.vacc_seq_no as seq_no,
-	case when vvr0.age_due_max is null
-		then (now() + coalesce(vvr0.min_interval, vvr0.age_due_min))
-		else ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvr0.age_due_max)
+	vvs4p.pk_patient,
+	vvs4p.indication,
+	vvs4p.l10n_indication,
+	vvs4p.regime,
+	vvs4p.reg_comment,
+	vvs4p.vacc_seq_no as seq_no,
+	case when vvs4p.age_due_max is null
+		then (now() + coalesce(vvs4p.min_interval, vvs4p.age_due_min))
+		else ((select identity.dob from identity where identity.id=vvs4p.pk_patient) + vvs4p.age_due_max)
 	end as latest_due,
-	-- note that time_left and amount_overdue are just the inverse of each other
-	case when vvr0.age_due_max is null
-		then coalesce(vvr0.min_interval, vvr0.age_due_min)
-		else (((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvr0.age_due_max) - now())
+	-- note that ...
+	-- ... 1) time_left ...
+	case when vvs4p.age_due_max is null
+		then coalesce(vvs4p.min_interval, vvs4p.age_due_min)
+		else (((select identity.dob from identity where identity.id=vvs4p.pk_patient) + vvs4p.age_due_max) - now())
 	end as time_left,
-	case when vvr0.age_due_max is null
-		then coalesce(vvr0.min_interval, vvr0.age_due_min)
-		else (now() - ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvr0.age_due_max))
+	-- ... and 2) amount_overdue ...
+	case when vvs4p.age_due_max is null
+		then coalesce(vvs4p.min_interval, vvs4p.age_due_min)
+		else (now() - ((select identity.dob from identity where identity.id=vvs4p.pk_patient) + vvs4p.age_due_max))
 	end as amount_overdue,
-	vvr0.age_due_min as age_due_min,
-	vvr0.age_due_max as age_due_max,
-	vvr0.min_interval as min_interval,
-	vvr0.vacc_comment as vacc_comment,
-	vvr0.pk_indication as pk_indication,
-	vvr0.pk_recommended_by as pk_recommended_by
+	-- ... are just the inverse of each other
+	vvs4p.age_due_min,
+	vvs4p.age_due_max,
+	vvs4p.min_interval,
+	vvs4p.vacc_comment,
+	vvs4p.pk_regime,
+	vvs4p.pk_indication,
+	vvs4p.pk_recommended_by
+from
+	v_vaccs_scheduled4pat vvs4p
+where
+	vvs4p.is_booster is false
+		and
+	vvs4p.vacc_seq_no > (
+		select count(*)
+		from v_pat_vacc4ind vpv4i
+		where
+			vpv4i.pk_patient = vvs4p.pk_patient
+				and
+			vpv4i.indication = vvs4p.indication
+	)
+;
+
+comment on view v_pat_missing_vaccs is
+	'vaccinations a patient has not been given yet according
+	 to the schedules a patient is on and the previously
+	 received vaccinations';
+
+-- -----------------------------------------------------
+\unset ON_ERROR_STOP
+drop view v_pat_missing_boosters;
+\set ON_ERROR_STOP 1
+
+-- FIXME: only list those that DO HAVE a previous vacc (max(date) is not null)
+create view v_pat_missing_boosters as
+select
+	vvs4p.pk_patient,
+	vvs4p.indication,
+	vvs4p.l10n_indication,
+	vvs4p.regime,
+	vvs4p.reg_comment,
+	vvs4p.vacc_seq_no as seq_no,
+	coalesce(
+		((select max(vpv4i11.date)
+		  from v_pat_vacc4ind vpv4i11
+		  where
+			vpv4i11.pk_patient = vvs4p.pk_patient
+				and
+			vpv4i11.indication = vvs4p.indication
+		) + vvs4p.min_interval),
+		(now() - '1 day'::interval)
+	) as latest_due,
+	coalesce(
+		(now() - (
+			(select max(vpv4i12.date)
+			from v_pat_vacc4ind vpv4i12
+			where
+				vpv4i12.pk_patient = vvs4p.pk_patient
+					and
+				vpv4i12.indication = vvs4p.indication) + vvs4p.min_interval)
+		),
+		'1 day'::interval
+	) as amount_overdue,
+	vvs4p.age_due_min,
+	vvs4p.age_due_max,
+	vvs4p.min_interval,
+	vvs4p.vacc_comment,
+	vvs4p.pk_regime,
+	vvs4p.pk_indication,
+	vvs4p.pk_recommended_by
+from
+	v_vaccs_scheduled4pat vvs4p
+where
+	vvs4p.is_booster is true
+		and
+	vvs4p.min_interval < age (
+		(select max(vpv4i13.date)
+			from v_pat_vacc4ind vpv4i13
+			where
+				vpv4i13.pk_patient = vvs4p.pk_patient
+					and
+				vpv4i13.indication = vvs4p.indication
+		))
+;
+
+comment on view v_pat_missing_boosters is
+	'boosters a patient has not been given yet according
+	 to the schedules a patient is on and the previously
+	 received vaccinations';
+
+-- -----------------------------------------------------
+\unset ON_ERROR_STOP
+drop view v_pat_missing_vaccs1;
+drop view v_pat_missing_boosters1;
+\set ON_ERROR_STOP 1
+
+create view v_pat_missing_vaccs1 as
+select
+	vpv4i0.pk_patient as pk_patient,
+	vvd4r0.indication as indication,
+	_(vvd4r0.indication) as l10n_indication,
+	vvd4r0.regime as regime,
+	vvd4r0.reg_comment as reg_comment,
+	vvd4r0.vacc_seq_no as seq_no,
+	case when vvd4r0.age_due_max is null
+		then (now() + coalesce(vvd4r0.min_interval, vvd4r0.age_due_min))
+		else ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvd4r0.age_due_max)
+	end as latest_due,
+	-- note that time_left ...
+	case when vvd4r0.age_due_max is null
+		then coalesce(vvd4r0.min_interval, vvd4r0.age_due_min)
+		else (((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvd4r0.age_due_max) - now())
+	end as time_left,
+	-- ... and amount_overdue are just the inverse of each other
+	case when vvd4r0.age_due_max is null
+		then coalesce(vvd4r0.min_interval, vvd4r0.age_due_min)
+		else (now() - ((select identity.dob from identity where identity.id=vpv4i0.pk_patient) + vvd4r0.age_due_max))
+	end as amount_overdue,
+	vvd4r0.age_due_min as age_due_min,
+	vvd4r0.age_due_max as age_due_max,
+	vvd4r0.min_interval as min_interval,
+	vvd4r0.vacc_comment as vacc_comment,
+	vvd4r0.pk_indication as pk_indication,
+	vvd4r0.pk_recommended_by as pk_recommended_by
 from
 	v_pat_vacc4ind vpv4i0,
-	v_vacc_regimes vvr0
+	v_vacc_defs4reg vvd4r0
 where
-	vvr0.is_booster = false
+	vvd4r0.is_booster = false
 		and
 	-- any vacc_def in regime where seq > ...
-	vvr0.vacc_seq_no > (
+	vvd4r0.vacc_seq_no > (
 		-- ... highest seq in given vaccs
 		select count(*)
 		from v_pat_vacc4ind vpv4i1
 		where
 			vpv4i1.pk_patient = vpv4i0.pk_patient
 				and
-			vpv4i1.indication = vvr0.indication
+			vpv4i1.indication = vvd4r0.indication
 	)
 ;
 
 -- FIXME: only list those that DO HAVE a previous vacc (max(date) is not null)
-create view v_pat_missing_boosters as
+create view v_pat_missing_boosters1 as
 select
 	vpv4i0.pk_patient as pk_patient,
-	vvr0.indication as indication,
-	_(vvr0.indication) as l10n_indication,
-	vvr0.regime as regime,
-	vvr0.reg_comment as reg_comment,
-	vvr0.vacc_seq_no as seq_no,
+	vvd4r0.indication as indication,
+	_(vvd4r0.indication) as l10n_indication,
+	vvd4r0.regime as regime,
+	vvd4r0.reg_comment as reg_comment,
+	vvd4r0.vacc_seq_no as seq_no,
 	coalesce(
 		((select max(vpv4i12.date)
 		from v_pat_vacc4ind vpv4i12
 		where
 			vpv4i12.pk_patient = vpv4i0.pk_patient
 				and
-			vpv4i12.indication = vvr0.indication
-		) + vvr0.min_interval),
+			vpv4i12.indication = vvd4r0.indication
+		) + vvd4r0.min_interval),
 		(now() - '1 day'::interval)
 	) as latest_due,
 	coalesce(
@@ -610,23 +820,23 @@ select
 			where
 				vpv4i12.pk_patient = vpv4i0.pk_patient
 					and
-				vpv4i12.indication = vvr0.indication) + vvr0.min_interval)
+				vpv4i12.indication = vvd4r0.indication) + vvd4r0.min_interval)
 		),
 		'1 day'::interval
 	) as amount_overdue,
-	vvr0.age_due_min as age_due_min,
-	vvr0.age_due_max as age_due_max,
-	vvr0.min_interval as min_interval,
-	vvr0.vacc_comment as vacc_comment,
-	vvr0.pk_indication as pk_indication,
-	vvr0.pk_recommended_by as pk_recommended_by
+	vvd4r0.age_due_min as age_due_min,
+	vvd4r0.age_due_max as age_due_max,
+	vvd4r0.min_interval as min_interval,
+	vvd4r0.vacc_comment as vacc_comment,
+	vvd4r0.pk_indication as pk_indication,
+	vvd4r0.pk_recommended_by as pk_recommended_by
 from
 	v_pat_vacc4ind vpv4i0,
-	v_vacc_regimes vvr0
+	v_vacc_defs4reg vvd4r0
 where
-	vvr0.is_booster is true
+	vvd4r0.is_booster is true
 		and
-	vvr0.min_interval < age (
+	vvd4r0.min_interval < age (
 		(select max(vpv4i11.date)
 		 from v_pat_vacc4ind vpv4i11
 		 where
@@ -799,6 +1009,10 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
+\unset ON_ERROR_STOP
+drop view v_pat_narrative;
+\set ON_ERROR_STOP 1
+
 -- might be slow
 create view v_pat_narrative as
 select
@@ -857,12 +1071,12 @@ from
 -- =============================================
 -- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
-	clin_health_issue,
-	clin_health_issue_id_seq,
-	clin_episode,
-	clin_episode_id_seq,
-	last_act_episode,
-	last_act_episode_id_seq
+	clin_health_issue
+	, clin_health_issue_id_seq
+	, clin_episode
+	, clin_episode_id_seq
+	, last_act_episode
+	, last_act_episode_id_seq
 	, encounter_type
 	, encounter_type_pk_seq
 	, clin_encounter
@@ -897,6 +1111,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, vacc_def_id_seq
 	, vacc_regime
 	, vacc_regime_id_seq
+	, lnk_pat2vacc_reg
+	, lnk_pat2vacc_reg_pk_seq
 	, lnk_vacc2vacc_def
 	, lnk_vacc2vacc_def_pk_seq
 	, xlnk_identity
@@ -938,6 +1154,9 @@ GRANT SELECT ON
 	, v_patient_items
 	, v_pat_allergies
 	, v_vacc_regimes
+	, v_vacc_defs4reg
+	, v_vacc_regs4pat
+	, v_vaccs_scheduled4pat
 	, v_pat_vacc4ind
 	, v_pat_missing_vaccs
 	, v_pat_missing_boosters
@@ -958,11 +1177,24 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.95 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.96 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.95  2004-08-11 08:59:54  ncq
+-- Revision 1.96  2004-08-16 19:31:49  ncq
+-- - add comments to views
+-- - rewrite v_vacc_regimes to be distinct on fk_regime
+-- - add v_vacc_defs4reg to list vaccination events for all
+--   known schedules, this used to be v_vacc_regimes
+-- - add v_vacc_regs4pat to list schedules a given patient
+--   is on
+-- - add v_vaccs_scheduled4pat to list vaccination events
+--   that are scheduled for a patient according to the
+--   schedules that patient is on
+-- - rewrite v_pat_missing_vaccs/boosters based on the above
+-- - matching grants
+--
+-- Revision 1.95  2004/08/11 08:59:54  ncq
 -- - added v_pat_narrative by Carlos
 --
 -- Revision 1.94  2004/08/04 10:07:49  ncq
