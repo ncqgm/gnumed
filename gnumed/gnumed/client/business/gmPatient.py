@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.55 2004-09-02 00:37:49 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmPatient.py,v 1.56 2004-09-02 00:52:10 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -510,6 +510,14 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the id actually exists
 			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
+			# but might also be an external ID
+			tmp = raw.replace('#', '')
+			tmp = tmp.strip()
+			tmp = tmp.replace(' ', '*#DUMMY#*')
+			tmp = tmp.replace('\t', '*#DUMMY#*')
+			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
+			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '^%s'" % tmp])
+			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '%s'" % tmp])
 			return queries
 
 		# "#<di/git s/orc-hars>" - external ID (or PUPIC)
@@ -940,7 +948,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.55  2004-09-02 00:37:49  ncq
+# Revision 1.56  2004-09-02 00:52:10  ncq
+# - wait, #digits may still be an external ID search so allow for that
+#
+# Revision 1.55  2004/09/02 00:37:49  ncq
 # - it's ~*, not *~
 #
 # Revision 1.54  2004/09/01 21:57:55  ncq
