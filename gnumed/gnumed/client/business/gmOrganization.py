@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -777,7 +777,7 @@ class cCompositeOrgImpl1( cOrgImpl1):
 		if not cOrgImpl1._create(self):
 
 			return False
-		
+
 		return self._saveCompositeName()
 
 	def save(self):
@@ -847,7 +847,7 @@ class cCompositeOrgImpl1( cOrgImpl1):
 
 	
 		
-		
+
 
 		
 def get_comm_channels_data_for_org_ids( idList):	
@@ -882,7 +882,7 @@ def get_address_data_for_org_ids( idList):
 	ids = ", ".join( [ str(x) for x in idList]) 
 	cmd = """select l.id_org, number, street, city, postcode, state, country 
 			from v_basic_address v , lnk_org2address l 
-				where v.addr_id = l.id_address and 
+				where v.addr_id = l.id_address and
 				l.id_org in ( select id from org where id in (%s) ) """ % ids 
 	result = gmPG.run_ro_query( "personalia", cmd)
 	
@@ -925,531 +925,531 @@ def get_org_data_for_org_ids(idList):
 if __name__ == '__main__':
 	print "Please enter a write-enabled user e.g. _test-doc "
 
-def testListOrgs():
-	print "running test listOrg"
-	for (f,a) in get_test_data():
+	def testListOrgs():
+		print "running test listOrg"
+		for (f,a) in get_test_data():
+			h = cOrgImpl1()
+			h.set(*f)
+			h.setAddress(*a)
+			if not h.save():
+				print "did not save ", f
+
+		orgs = cOrgHelperImpl1().findAllOrganizations()
+
+		for org in orgs:
+			print "Found org ", org.get(), org.getAddress()
+			if not org.shallow_del():
+				print "Unable to delete above org"
+
+
+
+
+
+
+	def get_test_data():
+		"""test org data for unit testing in testOrg()"""
+		return [
+				( ["Box Hill Hospital", "", "", "Eastern", "hospital", "0398953333", "111-1111","bhh@oz", ""],  ["33", "Nelson Rd", "Box Hill", "3128", None , None] ),
+				( ["Frankston Hospital", "", "", "Peninsula", "hospital", "0397847777", "03784-3111","fh@oz", ""],  ["21", "Hastings Rd", "Frankston", "3199", None , None] )
+			]
+
+	def get_test_persons():
+		return { "Box Hill Hospital":
+				[
+				['Dr', 'Bill' , 'Smith', '123-4567', '0417 111 222'],
+				['Ms', 'Anita', 'Jones', '124-5544', '0413 222 444'],
+				['Dr', 'Will', 'Stryker', '999-4444', '0402 333 111']  ],
+			"Frankston Hospital":
+				[ [ "Dr", "Jason", "Boathead", "444-5555", "0403 444 2222" ],
+				[ "Mr", "Barnie", "Commuter", "222-1111", "0444 999 3333"],
+				[ "Ms", "Morita", "Traveller", "999-1111", "0222 333 1111"]] }
+
+	def testOrgPersons():
+		m = get_test_persons()
+		d  = dict(  [  (f[0] , (f, a)) for (f, a) in get_test_data() ] )
+		for orgName , personList in m.items():
+			_testOrgPersonRun( d[orgName][0], d[orgName][1], personList )
+
+
+
+
+	def _testOrgPersonRun(f1, a1, personList):
+		print "Using test data :f1 = ", f1, "and a1 = ", a1 , " and lp = ", personList
+		print "-" * 50
 		h = cOrgImpl1()
-		h.set(*f)
-		h.setAddress(*a)
+		h.set(*f1)
+		h.setAddress(*a1)
 		if not h.save():
-			print "did not save ", f
+			print "Unable to save org for person test"
+			h.shallow_del()
+			return False
+		# use gmDemographicRecord to convert person list
+		for lp in personList:
+			id = gmPatient.create_dummy_identity()
 
-	orgs = cOrgHelperImpl1().findAllOrganizations()
+			identity = gmDemographicRecord.cDemographicRecord_SQL(id)
 
-	for org in orgs:
-		print "Found org ", org.get(), org.getAddress()
-		if not org.shallow_del():
-			print "Unable to delete above org"
+			identity.addName(lp[1], lp[2], True)
+			identity.setTitle(lp[0])
+			identity.linkCommChannel( gmDemographicRecord.WORK_PHONE, lp[3])
+			identity.linkCommChannel( gmDemographicRecord.MOBILE, lp[4])
 
+			result , msg = h.linkPerson(identity)
+			print msg
 
+		m = h.getPersonMap()
 
+		if m== []:
+			print "NO persons were found unfortunately"
 
+		print """ TestOrgPersonRun got back for """
+		a = h.getAddress()
+		print h["name"], a["number"], a["street"], a["urb"], a["postcode"] , " phone=", h['phone']
 
+		for id, r in m.items():
+			print "\t",", ".join( [ " ".join(r.get_names().values()),
+						"work no=", r.getCommChannel(gmDemographicRecord.WORK_PHONE),
+						"mobile no=", r.getCommChannel(gmDemographicRecord.MOBILE)
+						] )
+			h.unlinkPerson(r)
 
-def get_test_data():
-	"""test org data for unit testing in testOrg()"""
-	return [
-			( ["Box Hill Hospital", "", "", "Eastern", "hospital", "0398953333", "111-1111","bhh@oz", ""],  ["33", "Nelson Rd", "Box Hill", "3128", None , None] ),
-			( ["Frankston Hospital", "", "", "Peninsula", "hospital", "0397847777", "03784-3111","fh@oz", ""],  ["21", "Hastings Rd", "Frankston", "3199", None , None] )
-		]
+			result = deletePerson(r.getID())
+			if result == None:
+				gmLog.gmDefLog.Log(gmLog.lErr, "FAILED TO CLEANUP PERSON %d" %r.getID() )
 
-def get_test_persons():
-	return { "Box Hill Hospital":
-			[
-			['Dr', 'Bill' , 'Smith', '123-4567', '0417 111 222'],
-			['Ms', 'Anita', 'Jones', '124-5544', '0413 222 444'],
-			['Dr', 'Will', 'Stryker', '999-4444', '0402 333 111']  ],
-		"Frankston Hospital":
-			 [ [ "Dr", "Jason", "Boathead", "444-5555", "0403 444 2222" ],
-			   [ "Mr", "Barnie", "Commuter", "222-1111", "0444 999 3333"],
-			   [ "Ms", "Morita", "Traveller", "999-1111", "0222 333 1111"]] }
 
-def testOrgPersons():
-	m = get_test_persons()
-	d  = dict(  [  (f[0] , (f, a)) for (f, a) in get_test_data() ] )
-	for orgName , personList in m.items():
-		_testOrgPersonRun( d[orgName][0], d[orgName][1], personList )
 
-
-
-
-def _testOrgPersonRun(f1, a1, personList):
-	print "Using test data :f1 = ", f1, "and a1 = ", a1 , " and lp = ", personList
-	print "-" * 50
-	h = cOrgImpl1()
-	h.set(*f1)
-	h.setAddress(*a1)
-	if not h.save():
-		print "Unable to save org for person test"
-		h.shallow_del()
-		return False
-	# use gmDemographicRecord to convert person list
-	for lp in personList:
-		id = gmPatient.create_dummy_identity()
-
-		identity = gmDemographicRecord.cDemographicRecord_SQL(id)
-
-		identity.addName(lp[1], lp[2], True)
-		identity.setTitle(lp[0])
-		identity.linkCommChannel( gmDemographicRecord.WORK_PHONE, lp[3])
-		identity.linkCommChannel( gmDemographicRecord.MOBILE, lp[4])
-
-		result , msg = h.linkPerson(identity)
-		print msg
-
-	m = h.getPersonMap()
-
-	if m== []:
-		print "NO persons were found unfortunately"
-
-	print """ TestOrgPersonRun got back for """
-	a = h.getAddress()
-	print h["name"], a["number"], a["street"], a["urb"], a["postcode"] , " phone=", h['phone']
-
-	for id, r in m.items():
-		print "\t",", ".join( [ " ".join(r.get_names().values()),
-					"work no=", r.getCommChannel(gmDemographicRecord.WORK_PHONE),
-					"mobile no=", r.getCommChannel(gmDemographicRecord.MOBILE)
-					] )
-		h.unlinkPerson(r)
-
-		result = deletePerson(r.getID())
-		if result == None:
-			gmLog.gmDefLog.Log(gmLog.lErr, "FAILED TO CLEANUP PERSON %d" %r.getID() )
-
-
-
-	if h.shallow_del():
-		print "Managed to dispose of org"
-	else:
-		print "unable to dispose of org"
-
-	return True
-
-def deletePerson(id):
-	cmds = [ ( "delete from lnk_identity2comm_chan where id_identity=%d"%id,[]),
-		("delete from names where id_identity=%d"%id,[]),
-		("delete from identity where id = %d"%id,[]) ]
-	result = gmPG.run_commit("personalia", cmds)
-	return result
-
-
-def testOrg():
-	"""runs a test of load, save , shallow_del  on items in from get_test_data"""
-	l = get_test_data()
-	results = []
-	for (f, a) in l:
-		result, obj =	_testOrgRun(f, a)
-		results.append( (result, obj) )
-	return results
-
-
-
-def _testOrgRun( f1, a1):
-
-	print """testing single level orgs"""
-	f = [ "name", "office", "subtype",  "memo", "category", "phone", "fax", "email","mobile"]
-	a = ["number", "street", "urb", "postcode", "state", "country"]
-	h = cOrgImpl1()
-
-	h.set(*f1)
-	h.setAddress(*a1)
-
-	print "testing get, getAddress"
-	print h.get()
-	print h.getAddressDict()
-
-	import sys
-	if not	h.save():
-		print "failed to save first time. Is an old test org needing manual removal?"
-		return False, h
-	print "saved pk =", h.getId()
-
-
-	pk = h.getId()
-	if h.shallow_del():
-		print "shallow deleted ", h['name']
-	else:
-		print "failed shallow delete of ", h['name']
-
-
-
-	h2 = cOrgImpl1()
-
-	print "testing load"
-
-	print "should fail"
-	if not h2.load(pk):
-		print "Failed as expected"
-
-	if h.save():
-		print "saved ", h['name'] , "again"
-	else:
-		print "failed re-save"
-		return False, h
-
-	h['fax'] = '222-1111'
-	print "using update save"
-
-	if h.save():
-		print "saved updated passed"
-		print "Test reload next"
-	else:
-		print "failed save of updated data"
-		print "continuing to reload"
-
-
-	if not h2.load(h.getId()):
-		print "failed load"
-		return False, h
-	print "reloaded values"
-	print h2.get()
-	print h2.getAddressDict()
-
-	print "** End of Test org"
-
-	if h2.shallow_del():
-		print "cleaned up"
-	else:
-		print "Test org needs to be manually removed"
-
-	return True, h2
-
-def clean_test_org():
-	l = get_test_data()
-	
-	names = [ "".join( ["'" ,str(org[0]), "'"] )  for ( org, address) in l]
-	names += [ "'John Hunter Hospital'", "'Belmont District Hospital'"]
-	nameList = ",".join(names)
-	categoryList = "'hospital'"
-
-	cmds = [ ( """create temp table del_org as 
-			select id  from org 
-			where description in(%s) or 
-			id_category in ( select id from org_category c 
-						where c.description in (%s))
-		""" % (nameList, categoryList), [] ),
-		("""create temp table del_identity as  
-		select id  from identity 
-		where id in 
-			( 
-				select id_identity from lnk_person_org_address 
-				where id_org in ( select id from del_org)
-			)""",[] ),
-		("""create temp table del_comm as 
-		(select id_comm from lnk_org2comm_channel where 
-			id_org in ( select id from del_org) 
-		) UNION
-		(select id_comm from lnk_identity2comm_chan where
-			id_identity in ( select id from del_identity)
-		)""", [] ), 
-		("""delete from names where id_identity in 
-				(select id from del_identity)""",[]), 
-		("""delete from lnk_person_org_address where 
-				id_org in (select id from del_org )""",[]), 
-		("""delete from lnk_person_org_address where 
-				id_identity in (select id from del_identity)""", []),
-		("""delete from lnk_org2comm_channel 
-		where id_org in (select id from del_org) """,[]),
-		("""delete from lnk_identity2comm_chan 
-				where id_identity in (select id from del_identity)""",[] ), 
-		("""delete from comm_channel where id in ( select id_comm from del_comm)""",[]),
-		("""delete from identity where id in (select id from del_identity)""",[] ),
-		("""delete from org where id in ( select id from del_org) """ , [] ),
-		("""drop table del_comm""",[]),
-		("""drop table del_identity""",[]),
-		("""drop table del_org""", [])
-				
-		]
-	result =  gmPG.run_commit("personalia", cmds) <> None
-
-	return result	
-
-
-def login_user_and_test(logintest, service = 'personalia', msg = "failed test" , use_prefix_rw= False):
-	""" tries to get and verify a read-write connection
-	 which has permission to write to org tables, so the test case
-	 can run.
-	 """
-	login2 = gmPG.request_login_params()
-
-	#login as the RW user
-	p = gmPG.ConnectionPool( login2)
-	if use_prefix_rw:
-		conn = p.GetConnection( service, readonly = 0)
-	else:
-		conn = p.GetConnection(service)
-	result = logintest(conn)
-
-	if result is False:
-		print msg
-
-	p.ReleaseConnection(service)	
-	return result, login2
-
-def test_rw_user(conn):
-	# test it is a RW user, by making a entry and deleting it
-	try:
-		c.reload("org_category")
-		cursor = conn.cursor()
-
-		cursor.execute("select last_value from org_id_seq")
-		[org_id_seq] = cursor.fetchone()
-
-		cursor.execute("""
-	insert into org ( description, id_category, id)
-	values ( 'xxxDEFAULTxxx', %d,
-	%d)
-		""" % ( c.getId('org_category', 'hospital') , org_id_seq + 1 ) )
-		cursor.execute("""
-	delete from org where id = %d""" % ( org_id_seq + 1) )
-	# make sure this exercise is committed, else a deadlock will occur
-		conn.commit()
-	except:
-		gmLog.gmDefLog.LogException("Test of Update Permission failed", sys.exc_info() )
-		return False
-	return True
-
-def test_admin_user(conn):
-	try:
-		cursor = conn.cursor()
-
-		cursor.execute("select last_value from org_category_id_seq")
-		[org_cat_id_seq] = cursor.fetchone()
-
-		cursor.execute("""
-	insert into org_category ( description, id)
-	values ( 'xxxDEFAULTxxx',%d)
-		""" %   (org_cat_id_seq + 1 ) )
-		cursor.execute("""
-	delete from org_category where description like 'xxxDEFAULTxxx' """ )
-	# make sure this exercise is committed, else a deadlock will occur
-		conn.commit()
-	except:
-		gmLog.gmDefLog.LogException("Test of Update Permission failed", sys.exc_info() )
-		return False
-	return True
-
-def login_rw_user():
-	return  login_user_and_test( test_rw_user, "login cannot update org", use_prefix_rw = True)
-
-
-def login_admin_user():
-	return  login_user_and_test( test_admin_user, "login cannot update org_category" )
-
-
-def create_temp_categories( categories = ['hospital']):
-	print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbowner' and  his password"
-	#get a admin login
-	for i in xrange(0, 4):
-		result ,tmplogin = login_admin_user()
-		if result:
-			break
-	if i == 4:
-		print "Failed to login"
-		return categories
-
-	# and save it , for later removal of test categories.
-	from Gnumed.pycommon import gmLoginInfo
-	adminlogin = gmLoginInfo.LoginInfo(*tmplogin.GetInfo())
-
-	#login as admin
-	p = gmPG.ConnectionPool( tmplogin)
-	conn = p.GetConnection("personalia")
-
-	# use the last value + 1 of the relevant sequence, but don't increment it
-	cursor = conn.cursor()
-
-	failed_categories = []
-	n =1
-	for cat in categories:
-		cursor.execute("select last_value from org_category_id_seq")
-		[org_cat_id_seq] = cursor.fetchone()
-
-		cursor.execute( "insert into org_category(description, id) values('%s', %d)" % (cat, org_cat_id_seq + n) )
-		cursor.execute("select id from org_category where description in ('%s')" % cat)
-
-		result =  cursor.fetchone()
-		if result == None or len(result) == 0:
-			failed_categories.append(cat)
-			print "Failed insert of category", cat
-			conn.rollback()
+		if h.shallow_del():
+			print "Managed to dispose of org"
 		else:
+			print "unable to dispose of org"
+
+		return True
+
+	def deletePerson(id):
+		cmds = [ ( "delete from lnk_identity2comm_chan where id_identity=%d"%id,[]),
+			("delete from names where id_identity=%d"%id,[]),
+			("delete from identity where id = %d"%id,[]) ]
+		result = gmPG.run_commit("personalia", cmds)
+		return result
+
+
+	def testOrg():
+		"""runs a test of load, save , shallow_del  on items in from get_test_data"""
+		l = get_test_data()
+		results = []
+		for (f, a) in l:
+			result, obj =	_testOrgRun(f, a)
+			results.append( (result, obj) )
+		return results
+
+
+
+	def _testOrgRun( f1, a1):
+
+		print """testing single level orgs"""
+		f = [ "name", "office", "subtype",  "memo", "category", "phone", "fax", "email","mobile"]
+		a = ["number", "street", "urb", "postcode", "state", "country"]
+		h = cOrgImpl1()
+
+		h.set(*f1)
+		h.setAddress(*a1)
+
+		print "testing get, getAddress"
+		print h.get()
+		print h.getAddressDict()
+
+		import sys
+		if not	h.save():
+			print "failed to save first time. Is an old test org needing manual removal?"
+			return False, h
+		print "saved pk =", h.getId()
+
+
+		pk = h.getId()
+		if h.shallow_del():
+			print "shallow deleted ", h['name']
+		else:
+			print "failed shallow delete of ", h['name']
+
+
+
+		h2 = cOrgImpl1()
+
+		print "testing load"
+
+		print "should fail"
+		if not h2.load(pk):
+			print "Failed as expected"
+
+		if h.save():
+			print "saved ", h['name'] , "again"
+		else:
+			print "failed re-save"
+			return False, h
+
+		h['fax'] = '222-1111'
+		print "using update save"
+
+		if h.save():
+			print "saved updated passed"
+			print "Test reload next"
+		else:
+			print "failed save of updated data"
+			print "continuing to reload"
+
+
+		if not h2.load(h.getId()):
+			print "failed load"
+			return False, h
+		print "reloaded values"
+		print h2.get()
+		print h2.getAddressDict()
+
+		print "** End of Test org"
+
+		if h2.shallow_del():
+			print "cleaned up"
+		else:
+			print "Test org needs to be manually removed"
+
+		return True, h2
+
+	def clean_test_org():
+		l = get_test_data()
+
+		names = [ "".join( ["'" ,str(org[0]), "'"] )  for ( org, address) in l]
+		names += [ "'John Hunter Hospital'", "'Belmont District Hospital'"]
+		nameList = ",".join(names)
+		categoryList = "'hospital'"
+
+		cmds = [ ( """create temp table del_org as
+				select id  from org
+				where description in(%s) or
+				id_category in ( select id from org_category c
+							where c.description in (%s))
+			""" % (nameList, categoryList), [] ),
+			("""create temp table del_identity as
+			select id  from identity
+			where id in
+				(
+					select id_identity from lnk_person_org_address
+					where id_org in ( select id from del_org)
+				)""",[] ),
+			("""create temp table del_comm as
+			(select id_comm from lnk_org2comm_channel where
+				id_org in ( select id from del_org)
+			) UNION
+			(select id_comm from lnk_identity2comm_chan where
+				id_identity in ( select id from del_identity)
+			)""", [] ),
+			("""delete from names where id_identity in
+					(select id from del_identity)""",[]),
+			("""delete from lnk_person_org_address where
+					id_org in (select id from del_org )""",[]),
+			("""delete from lnk_person_org_address where
+					id_identity in (select id from del_identity)""", []),
+			("""delete from lnk_org2comm_channel
+			where id_org in (select id from del_org) """,[]),
+			("""delete from lnk_identity2comm_chan
+					where id_identity in (select id from del_identity)""",[] ),
+			("""delete from comm_channel where id in ( select id_comm from del_comm)""",[]),
+			("""delete from identity where id in (select id from del_identity)""",[] ),
+			("""delete from org where id in ( select id from del_org) """ , [] ),
+			("""drop table del_comm""",[]),
+			("""drop table del_identity""",[]),
+			("""drop table del_org""", [])
+
+			]
+		result =  gmPG.run_commit("personalia", cmds) <> None
+
+		return result
+
+
+	def login_user_and_test(logintest, service = 'personalia', msg = "failed test" , use_prefix_rw= False):
+		""" tries to get and verify a read-write connection
+		which has permission to write to org tables, so the test case
+		can run.
+		"""
+		login2 = gmPG.request_login_params()
+
+		#login as the RW user
+		p = gmPG.ConnectionPool( login2)
+		if use_prefix_rw:
+			conn = p.GetConnection( service, readonly = 0)
+		else:
+			conn = p.GetConnection(service)
+		result = logintest(conn)
+
+		if result is False:
+			print msg
+
+		p.ReleaseConnection(service)
+		return result, login2
+
+	def test_rw_user(conn):
+		# test it is a RW user, by making a entry and deleting it
+		try:
+			c.reload("org_category")
+			cursor = conn.cursor()
+
+			cursor.execute("select last_value from org_id_seq")
+			[org_id_seq] = cursor.fetchone()
+
+			cursor.execute("""
+		insert into org ( description, id_category, id)
+		values ( 'xxxDEFAULTxxx', %d,
+		%d)
+			""" % ( c.getId('org_category', 'hospital') , org_id_seq + 1 ) )
+			cursor.execute("""
+		delete from org where id = %d""" % ( org_id_seq + 1) )
+		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
-		n += 1	
+		except:
+			gmLog.gmDefLog.LogException("Test of Update Permission failed", sys.exc_info() )
+			return False
+		return True
 
-	conn.commit()
-	p.ReleaseConnection('personalia')
-	return failed_categories, adminlogin
-
-def clean_org_categories(adminlogin = None, categories = ['hospital'], service='personalia'):
-
-	print"""
-
-	The temporary category(s) will now
-	need to be removed under an administrator login
-	e.g. gm-dbowner
-	Please enter login for administrator:
-	"""
-	if adminlogin is None:
-		for i in xrange(0, 4):
-			result, adminlogin = login_admin_user()
-			if  result:
-				break
-		if i == 4:
-			print "FAILED TO LOGIN"
-			return categories
-
-	p = gmPG.ConnectionPool(adminlogin)
-	conn = p.GetConnection(service)
-	failed_remove = []
-	for cat in categories:
+	def test_admin_user(conn):
 		try:
 			cursor = conn.cursor()
-			cursor.execute( "delete from  org_category where description in ('%s')"%cat)
+
+			cursor.execute("select last_value from org_category_id_seq")
+			[org_cat_id_seq] = cursor.fetchone()
+
+			cursor.execute("""
+		insert into org_category ( description, id)
+		values ( 'xxxDEFAULTxxx',%d)
+			""" %   (org_cat_id_seq + 1 ) )
+			cursor.execute("""
+		delete from org_category where description like 'xxxDEFAULTxxx' """ )
+		# make sure this exercise is committed, else a deadlock will occur
 			conn.commit()
-			cursor.execute("select id from org_category where description in ('%s')"%cat)
-			if cursor.fetchone() == None:
-				print "Succeeded in removing temporary org_category"
-			else:
-				print "*** Unable to remove temporary org_category"
-				failed_remove .append(cat)
 		except:
-			import sys
-			print sys.exc_info()[0], sys.exc_info()[1]
-			import traceback
-			traceback.print_tb(sys.exc_info()[2])
+			gmLog.gmDefLog.LogException("Test of Update Permission failed", sys.exc_info() )
+			return False
+		return True
 
-			failed_remove.append(cat)
-
-	conn = None
-	p.ReleaseConnection(service)
-	if failed_remove <> []:
-		print "FAILED TO REMOVE ", failed_remove
-	return failed_remove
-
-def test_CatFinder():
-	print "TESTING cCatFinder"
-
-	print """c = cCatFinder("org_category")"""
-	c = cCatFinder("org_category")
-
-	print c.getCategories("org_category")
-
-	print """c = cCatFinder("enum_comm_types")"""
-	c = cCatFinder("enum_comm_types")
-
-	l = c.getCategories("enum_comm_types")
-	print "testing getId()"
-	l2 = []
-	for x in l:
-		l2.append((x, c.getId("enum_comm_types", x)))
-	print l2
-
-	print """testing borg behaviour of cCatFinder"""
-
-	print c.getCategories("org_category")
+	def login_rw_user():
+		return  login_user_and_test( test_rw_user, "login cannot update org", use_prefix_rw = True)
 
 
-def help():
-	print """\nNB If imports not found , try:
-
-	change to gnumed/client directory , then
-
-	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py
-	"""
-	print
-	print "In the connection query, please enter"
-	print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
-	print
-	print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
-	print
-
-	print """You can get a sermon by running
-	export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py --sermon
-	"""
-	print """
-	Pre-requisite data in database is :
-	gnumed=# select * from org_category ;
-	id | description
-	----+-------------
-	1 | hospital
-	(1 row)
-
-	gnumed=# select * from enum_comm_types ;
-	id | description
-	----+-------------
-	1 | email
-	2 | fax
-	3 | homephone
-	4 | workphone
-	5 | mobile
-	6 | web
-	7 | jabber
-	(7 rows)
-	"""
-
-def sermon():
-			print"""
-	This test case shows how many things can go wrong , even with just a test case.
-	Problem areas include:
-	- postgres administration :  pg_ctl state, pg_hba.conf, postgres.conf  config files .
-	- schema integrity constraints : deletion of table entries which are subject to foreign keys, no input for no default value and no null value columns, input with duplicated values where unique key constraint applies to non-primary key columns, dealing with access control by connection identity management.
+	def login_admin_user():
+		return  login_user_and_test( test_admin_user, "login cannot update org_category" )
 
 
-	- efficiency trade-offs -e.g. using db objects for localising code with data and easier function call interface ( then hopefully, easier to program with) , vs. need to access many objects at once
-	without calling the backend for each object.
+	def create_temp_categories( categories = ['hospital']):
+		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbowner' and  his password"
+		#get a admin login
+		for i in xrange(0, 4):
+			result ,tmplogin = login_admin_user()
+			if result:
+				break
+		if i == 4:
+			print "Failed to login"
+			return categories
 
-	- error and exception handling - at what point in the call stack to handle an error.
-	Better to use error return values and log exceptions near where they occur, vs. wrapping inside try: except: blocks and catching typed exceptions.
+		# and save it , for later removal of test categories.
+		from Gnumed.pycommon import gmLoginInfo
+		adminlogin = gmLoginInfo.LoginInfo(*tmplogin.GetInfo())
+
+		#login as admin
+		p = gmPG.ConnectionPool( tmplogin)
+		conn = p.GetConnection("personalia")
+
+		# use the last value + 1 of the relevant sequence, but don't increment it
+		cursor = conn.cursor()
+
+		failed_categories = []
+		n =1
+		for cat in categories:
+			cursor.execute("select last_value from org_category_id_seq")
+			[org_cat_id_seq] = cursor.fetchone()
+
+			cursor.execute( "insert into org_category(description, id) values('%s', %d)" % (cat, org_cat_id_seq + n) )
+			cursor.execute("select id from org_category where description in ('%s')" % cat)
+
+			result =  cursor.fetchone()
+			if result == None or len(result) == 0:
+				failed_categories.append(cat)
+				print "Failed insert of category", cat
+				conn.rollback()
+			else:
+				conn.commit()
+			n += 1
+
+		conn.commit()
+		p.ReleaseConnection('personalia')
+		return failed_categories, adminlogin
+
+	def clean_org_categories(adminlogin = None, categories = ['hospital'], service='personalia'):
+
+		print"""
+
+		The temporary category(s) will now
+		need to be removed under an administrator login
+		e.g. gm-dbowner
+		Please enter login for administrator:
+		"""
+		if adminlogin is None:
+			for i in xrange(0, 4):
+				result, adminlogin = login_admin_user()
+				if  result:
+					break
+			if i == 4:
+				print "FAILED TO LOGIN"
+				return categories
+
+		p = gmPG.ConnectionPool(adminlogin)
+		conn = p.GetConnection(service)
+		failed_remove = []
+		for cat in categories:
+			try:
+				cursor = conn.cursor()
+				cursor.execute( "delete from  org_category where description in ('%s')"%cat)
+				conn.commit()
+				cursor.execute("select id from org_category where description in ('%s')"%cat)
+				if cursor.fetchone() == None:
+					print "Succeeded in removing temporary org_category"
+				else:
+					print "*** Unable to remove temporary org_category"
+					failed_remove .append(cat)
+			except:
+				import sys
+				print sys.exc_info()[0], sys.exc_info()[1]
+				import traceback
+				traceback.print_tb(sys.exc_info()[2])
+
+				failed_remove.append(cat)
+
+		conn = None
+		p.ReleaseConnection(service)
+		if failed_remove <> []:
+			print "FAILED TO REMOVE ", failed_remove
+		return failed_remove
+
+	def test_CatFinder():
+		print "TESTING cCatFinder"
+
+		print """c = cCatFinder("org_category")"""
+		c = cCatFinder("org_category")
+
+		print c.getCategories("org_category")
+
+		print """c = cCatFinder("enum_comm_types")"""
+		c = cCatFinder("enum_comm_types")
+
+		l = c.getCategories("enum_comm_types")
+		print "testing getId()"
+		l2 = []
+		for x in l:
+			l2.append((x, c.getId("enum_comm_types", x)))
+		print l2
+
+		print """testing borg behaviour of cCatFinder"""
+
+		print c.getCategories("org_category")
 
 
-	- test-case construction:  test data is needed often, and the issue
-	is whether it is better to keep the test data volatile in the test-case,
-	which handles both its creation and deletion, or to add it to test data
-	server configuration files, which may involve running backend scripts
-	for loading and removing test data.
+	def help():
+		print """\nNB If imports not found , try:
+
+		change to gnumed/client directory , then
+
+		export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py
+		"""
+		print
+		print "In the connection query, please enter"
+		print "a WRITE-ENABLED user e.g. _test-doc (not test-doc), and the right password"
+		print
+		print "Run the unit test with cmdline argument '--clean'  if trying to clean out test data"
+		print
+
+		print """You can get a sermon by running
+		export PYTHONPATH=$PYTHONPATH:../;python business/gmOrganization.py --sermon
+		"""
+		print """
+		Pre-requisite data in database is :
+		gnumed=# select * from org_category ;
+		id | description
+		----+-------------
+		1 | hospital
+		(1 row)
+
+		gnumed=# select * from enum_comm_types ;
+		id | description
+		----+-------------
+		1 | email
+		2 | fax
+		3 | homephone
+		4 | workphone
+		5 | mobile
+		6 | web
+		7 | jabber
+		(7 rows)
+		"""
+
+	def sermon():
+				print"""
+		This test case shows how many things can go wrong , even with just a test case.
+		Problem areas include:
+		- postgres administration :  pg_ctl state, pg_hba.conf, postgres.conf  config files .
+		- schema integrity constraints : deletion of table entries which are subject to foreign keys, no input for no default value and no null value columns, input with duplicated values where unique key constraint applies to non-primary key columns, dealing with access control by connection identity management.
+
+
+		- efficiency trade-offs -e.g. using db objects for localising code with data and easier function call interface ( then hopefully, easier to program with) , vs. need to access many objects at once
+		without calling the backend for each object.
+
+		- error and exception handling - at what point in the call stack to handle an error.
+		Better to use error return values and log exceptions near where they occur, vs. wrapping inside try: except: blocks and catching typed exceptions.
+
+
+		- test-case construction:  test data is needed often, and the issue
+		is whether it is better to keep the test data volatile in the test-case,
+		which handles both its creation and deletion, or to add it to test data
+		server configuration files, which may involve running backend scripts
+		for loading and removing test data.
 
 
 
-	- Database connection problems:
-	-Is the problem in :
-		- pg_ctl start -D  /...mydata-directory is wrong, and gnumed isn't existing there.
+		- Database connection problems:
+		-Is the problem in :
+			- pg_ctl start -D  /...mydata-directory is wrong, and gnumed isn't existing there.
 
-		- ..mydata-directory/pg_hba.conf
-			- can psql connect locally and remotely with the username and password.
-			- Am I using md5 authenentication and I've forgotten the password.
-				- I need to su postgres, alter pg_hba.conf to use trust for
-				the gnumed database, pg_ctl restart -D .., su normal_user,  psql gnumed, alter user my_username password 'doh'
-				- might be helpful: the default password for _test-doc is test-doc
+			- ..mydata-directory/pg_hba.conf
+				- can psql connect locally and remotely with the username and password.
+				- Am I using md5 authenentication and I've forgotten the password.
+					- I need to su postgres, alter pg_hba.conf to use trust for
+					the gnumed database, pg_ctl restart -D .., su normal_user,  psql gnumed, alter user my_username password 'doh'
+					- might be helpful: the default password for _test-doc is test-doc
 
-		- ../mydata-directory/postgres.conf
-			- tcp connect  flag isn't set to true
+			- ../mydata-directory/postgres.conf
+				- tcp connect  flag isn't set to true
 
-		- remote/local mixup :
-		a different set of user passwords on different hosts. e.g the password
-		for _test-doc is 'pass' on localhost and 'test-doc' for the serverhost.
-		- In the prompts for admin and user login, local host was used for one, and
-		remote host for the other
+			- remote/local mixup :
+			a different set of user passwords on different hosts. e.g the password
+			for _test-doc is 'pass' on localhost and 'test-doc' for the serverhost.
+			- In the prompts for admin and user login, local host was used for one, and
+			remote host for the other
 
 
 
-	- test data won't go away :
-	- 'hospital' category in org_category : the test case failed in a previous run
-	and the test data was left there; now the test case won't try to delete it
-	because it exists as a pre-existing category, so manually delete with psql.
+		- test data won't go away :
+		- 'hospital' category in org_category : the test case failed in a previous run
+		and the test data was left there; now the test case won't try to delete it
+		because it exists as a pre-existing category, so manually delete with psql.
 
-	- test-case failed unexpectedly, or break key was hit in the middle of a test-case run.
-		Soln: run with --clean option,
-			then delete temporary org_category  entries with psql.
+		- test-case failed unexpectedly, or break key was hit in the middle of a test-case run.
+			Soln: run with --clean option,
+				then delete temporary org_category  entries with psql.
 
-	- remote/local mixup: as above
+		- remote/local mixup: as above
 
-	"""
+		"""
 
 
 #============================================================
-if __name__ == "__main__":
+
 	_log.SetAllLogLevels(gmLog.lData)
 	import sys
 	testgui = False
@@ -1470,10 +1470,10 @@ if __name__ == "__main__":
 
 		if sys.argv[1] == "--help":
 			help()
-		
+
 		if sys.argv[1] =="--gui":
 			testgui = True
-			
+
 	print "*" * 50
 	print "RUNNING UNIT TEST of gmOrganization "
 
@@ -1481,7 +1481,7 @@ if __name__ == "__main__":
 	test_CatFinder()
 	tmp_category = False  # tmp_category means test data will need to be added and removed
 			# for  org_category .
-	
+
 	c = cCatFinder()
 	if not "hospital" in c.getCategories("org_category") :
 		print "FAILED in prerequisite for org_category : test categories are not present."
@@ -1525,8 +1525,8 @@ if __name__ == "__main__":
 				sys.exit(-1)
 			import os
 			print os.environ['PWD']
-		 	os.spawnl(os.P_WAIT, "/usr/bin/python", "/usr/bin/python","wxpython/gnumed.py", "--debug") 
-			
+		 	os.spawnl(os.P_WAIT, "/usr/bin/python", "/usr/bin/python","wxpython/gnumed.py", "--debug")
+
 			#os.popen2('python client/wxpython/gnumed.py --debug')
 
 			# run the test case
@@ -1560,7 +1560,11 @@ if __name__ == "__main__":
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.20  2004-05-28 15:13:53  sjtan
+# Revision 1.21  2004-05-29 08:22:07  sjtan
+#
+# indented to put all test code in __name__=__main__ block.
+#
+# Revision 1.20  2004/05/28 15:13:53  sjtan
 #
 # one level of sub orgs done ; can enter departments; category stays as hospital.
 #
