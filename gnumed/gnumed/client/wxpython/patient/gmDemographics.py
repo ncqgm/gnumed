@@ -443,6 +443,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
 		self.gb['modules.gui']['Patient'].Raise ()
+		
 
 	def RegisterInterests(self):
 		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
