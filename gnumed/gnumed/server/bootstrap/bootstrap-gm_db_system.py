@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -86,6 +86,9 @@ from gmExceptions import ConstructorError
 
 import gmAuditSchemaGenerator
 aud_gen = gmAuditSchemaGenerator
+
+import gmScoringSchemaGenerator
+score_gen = gmScoringSchemaGenerator
 
 _interactive = 0
 _bootstrapped_servers = {}
@@ -658,7 +661,6 @@ class database:
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
 		# get audit trail configuration
-
 		tmp = _cfg.get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
 		if tmp is not None:
@@ -670,7 +672,7 @@ class database:
 		if tmp is None:
 			return None
 		aud_gen.audit_trail_parent_table = tmp
-		
+
 		tmp = _cfg.get(self.section, 'audit trail table prefix')
 		if tmp is None:
 			return None
@@ -680,6 +682,7 @@ class database:
 		if tmp is None:
 			return None
 		aud_gen.audit_fields_table = tmp
+
 		# create auditing schema
 		curs = self.conn.cursor()
 		audit_schema = gmAuditSchemaGenerator.create_audit_schema(curs)
@@ -694,8 +697,46 @@ class database:
 		file.close()
 		# import auditing schema
 		if not _import_schema_file(anSQL_file = '/tmp/audit-trail-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
-			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
+			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
 			return None
+		try:
+			os.remove('/tmp/audit-trail-schema.sql')
+		except StandardError:
+			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
+		return 1
+	#--------------------------------------------------------------
+	def bootstrap_scoring(self):
+		# get configuration
+		tmp = _cfg.get(self.section, 'scoring table prefix')
+		if tmp is None:
+			return None
+		score_gen.scoring_table_prefix = tmp
+
+		tmp = _cfg.get(self.section, 'scoring fields table')
+		if tmp is None:
+			return None
+		score_gen.scoring_fields_table = tmp
+		# create scoring schema
+		curs = self.conn.cursor()
+		scoring_schema = score_gen.create_scoring_schema(curs)
+		curs.close()
+		if scoring_schema is None:
+			_log.Log(gmLog.lErr, 'cannot generate scoring schema for GnuMed database [%s]' % self.name)
+			return None
+		# write schema to file
+		file = open ('/tmp/scoring-schema.sql', 'wb')
+		for line in scoring_schema:
+			file.write("%s;\n" % line)
+		file.close()
+		# import scoring schema
+		if not _import_schema_file(anSQL_file = '/tmp/scoring-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
+			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
+			return None
+		try:
+			pass
+			os.remove('/tmp/scoring-schema.sql')
+		except StandardError:
+			_log.LogException('cannot remove scoring schema file [/tmp/scoring-schema.sql]', sys.exc_info(), verbose = 0)
 		return 1
 #==================================================================
 class gmService:
@@ -968,6 +1009,14 @@ def bootstrap_auditing():
 			return None
 	return 1
 #--------------------------------------------------------------
+def bootstrap_scoring():
+	"""bootstrap scoring in all bootstrapped databases"""
+	for db_key in _bootstrapped_dbs.keys():
+		db = _bootstrapped_dbs[db_key]
+		if not db.bootstrap_scoring():
+			return None
+	return 1
+#--------------------------------------------------------------
 def _import_schema(aSection = None, aSrv_name = None, aDB_name = None, aUser = None):
 	# load schema
 	schema_files = _cfg.get(aSection, "schema")
@@ -1110,13 +1159,14 @@ if __name__ == "__main__":
 	if not ask_for_confirmation():
 		exit_with_msg("Bootstrapping aborted by user.")
 
-	# bootstrap services
 	if not bootstrap_services():
 		exit_with_msg("Cannot bootstrap services.")
 
-	# bootstrap auditing
 	if not bootstrap_auditing():
 		exit_with_msg("Cannot bootstrap audit trail.")
+
+	if not bootstrap_scoring():
+		exit_with_msg("Cannot bootstrap scoring tables.")
 
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We probably succeeded."
@@ -1150,7 +1200,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.27  2003-10-09 14:53:09  ncq
+# Revision 1.28  2003-10-19 12:30:02  ncq
+# - add score schema generation
+# - remove generated schema files after successful import
+#
+# Revision 1.27  2003/10/09 14:53:09  ncq
 # - consolidate localhost and '' to mean UNIX domain socket connection
 #
 # Revision 1.26  2003/10/01 16:18:17  ncq
