@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.153 2004-06-23 20:53:30 ncq Exp $
-__version__ = "$Revision: 1.153 $"
+# $Id: gmGuiMain.py,v 1.154 2004-06-25 12:37:20 ncq Exp $
+__version__ = "$Revision: 1.154 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -29,12 +29,9 @@ import sys, time, os, cPickle, zlib
 
 from wxPython.wx import *
 
-from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker
+from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin
 from Gnumed.business import gmPatient
-
-if __name__ == '__main__':
-	from Gnumed.pycommon import gmI18N
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -770,7 +767,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.153  2004-06-23 20:53:30  ncq
+# Revision 1.154  2004-06-25 12:37:20  ncq
+# - eventually fix the import gmI18N issue
+#
+# Revision 1.153  2004/06/23 20:53:30  ncq
 # - don't break the i18n epydoc fixup, if you don't understand it then ask
 #
 # Revision 1.152  2004/06/22 07:58:47  ihaywood

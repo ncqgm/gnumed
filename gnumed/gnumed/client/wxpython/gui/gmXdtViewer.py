@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.15 2004-06-13 22:31:49 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmXdtViewer.py,v 1.16 2004-06-25 12:37:21 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, fileinput, string
@@ -30,10 +30,8 @@ from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.pycommon import gmLog
+from Gnumed.pycommon import gmLog, gmI18N
 from Gnumed.business.gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
-if __name__ == "__main__":
-	from Gnumed.pycommon import gmI18N
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -333,7 +331,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.15  2004-06-13 22:31:49  ncq
+# Revision 1.16  2004-06-25 12:37:21  ncq
+# - eventually fix the import gmI18N issue
+#
+# Revision 1.15  2004/06/13 22:31:49  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

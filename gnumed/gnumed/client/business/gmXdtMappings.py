@@ -5,11 +5,13 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.25 2004-06-20 15:38:58 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmXdtMappings.py,v 1.26 2004-06-25 12:37:20 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
+if __name__ == '__main__':
+	_ = lambda x:x
 #==============================================================
 xdt_id_map = {
 	# Turbomed fehlerhafte Feldkennungen ?
@@ -1347,7 +1349,10 @@ def xdt_8date2iso(date=None):
 	return '%s-%s-%s' % (date[-4:], date[2:4], date[:2])
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.25  2004-06-20 15:38:58  ncq
+# Revision 1.26  2004-06-25 12:37:20  ncq
+# - eventually fix the import gmI18N issue
+#
+# Revision 1.25  2004/06/20 15:38:58  ncq
 # - if epydoc can't handle a locally undefined _() it is broken
 #
 # Revision 1.24  2004/06/20 06:49:21  ihaywood

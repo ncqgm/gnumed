@@ -7,21 +7,20 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.51 2004-06-21 16:02:08 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmDemographicRecord.py,v 1.52 2004-06-25 12:37:19 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
 import sys, os.path, time
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider, gmI18N
 from Gnumed.business import gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-	from Gnumed.pycommon import gmI18N
 _log.Log(gmLog.lData, __version__)
 
 # 3rd party
@@ -912,7 +911,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.51  2004-06-21 16:02:08  ncq
+# Revision 1.52  2004-06-25 12:37:19  ncq
+# - eventually fix the import gmI18N issue
+#
+# Revision 1.51  2004/06/21 16:02:08  ncq
 # - cleanup, trying to make epydoc fix do the right thing
 #
 # Revision 1.50  2004/06/21 14:48:25  sjtan
