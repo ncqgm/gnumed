@@ -7,8 +7,8 @@ for which no translation is given.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/locale/dump-missing-db_translations.py,v $
-# $Id: dump-missing-db_translations.py,v 1.3 2004-05-22 11:50:55 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: dump-missing-db_translations.py,v 1.4 2005-03-31 20:11:22 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -44,15 +44,17 @@ if __name__ == '__main__':
 	dump = open('gnumed-db_translation.sql', 'wb')
 	dump.write('\unset ON_ERROR_STOP\n\n')
 	for row in rows:
-		dump.write('insert into i18n_translations (lang, orig, trans) values\n')
-		dump.write("\t('%s', '%s', '');\n" % (row[0], esc_str(row[1])))
+		dump.write("select i18n_upd_tx('%s', '%s', '');\n" % (row[0], esc_str(row[1])))
 	dump.write('\n\set ON_ERROR_STOP 1\n')
 	dump.close()
 	# cleanup
 	print "done"
 #============================================================
 # $Log: dump-missing-db_translations.py,v $
-# Revision 1.3  2004-05-22 11:50:55  ncq
+# Revision 1.4  2005-03-31 20:11:22  ncq
+# - use i18n_upd_tx()
+#
+# Revision 1.3  2004/05/22 11:50:55  ncq
 # - fix imports
 #
 # Revision 1.2  2004/01/12 17:15:18  ncq
