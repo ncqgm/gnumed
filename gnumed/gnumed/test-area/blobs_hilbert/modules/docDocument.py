@@ -37,7 +37,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -47,7 +47,7 @@ from pyPgSQL import PgSQL
 import gmLog
 _log = gmLog.gmDefLog
 
-import gmExceptions
+from gmExceptions import ConstructorError
 #=======================================================================================
 class cDocument:
 
@@ -760,7 +760,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.31  2003-01-26 16:46:15  ncq
+# Revision 1.32  2003-01-26 16:48:24  ncq
+# - correctly import ConstructorError
+#
+# Revision 1.31  2003/01/26 16:46:15  ncq
 # - retrieve objects in chunks if needed and supported
 #
 # Revision 1.30  2003/01/25 00:23:49  ncq
