@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.111 $
+-- $Revision: 1.112 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -133,7 +133,9 @@ create table clin_encounter (
 	fk_type integer
 		not null
 		default 1
-		references encounter_type(pk),
+		references encounter_type(pk)
+		on update cascade
+		on delete restrict,
 	description text
 		default '',
 	started timestamp with time zone
@@ -142,7 +144,6 @@ create table clin_encounter (
 	last_affirmed timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP
---	,state text default 'affirmed'
 );
 
 -- remote foreign keys
@@ -163,9 +164,6 @@ comment on column clin_encounter.description is
 	'descriptive name of this encounter, may change over time; if
 	 "xxxDEFAULTxxx" applications should display "<date> (<provider>)"
 	 plus some marker for "default"';
-
--- about the only reason for this table to exist is the id_type
--- field, otherwise one could just store the data in clin_root_item
 
 create table curr_encounter (
 	id serial primary key,
@@ -238,14 +236,83 @@ comment on column clin_root_item.narrative is
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
-create table clin_note (
+create table clin_rfe (
+	pk serial primary key,
+	unique(fk_encounter, narrative)
+) inherits (clin_root_item);
+
+-- this is Subjective/Anamnese
+alter table clin_rfe
+	alter column soap_cat set default 's';
+-- narrative == RFE must not be NULL
+alter table clin_rfe
+	add constraint rfe_not_null check(narrative is not null);
+
+select add_table_for_audit('clin_rfe');
+
+comment on table clin_rfe is
+	'stores Reasons For Encounter/Beratungsursachen/Beratungsanlass,
+	 there may be several per encounter but they are unique across
+	 encounter/narrative combinations';
+comment on column clin_rfe.clin_when is
+	'when did this RFE become known to the provider,
+	 often when the patient first talked to front-desk
+	 staff';
+comment on column clin_rfe.fk_encounter is
+	'the encounter this RFE belongs too';
+comment on column clin_rfe.fk_episode is
+	'the episode this RFE belongs too,
+	 this allows to differentiate multiple
+	 unrelated RFEs per encounter';
+comment on column clin_rfe.narrative is
+	'the actual RFE as voiced by the patient';
+
+-- --------------------------------------------
+-- AOE - assessment of encounter
+-- latest AOE per episode == active problem
+create table clin_aoe (
+	pk serial primary key,
+	unique(fk_encounter, narrative)
+) inherits (clin_root_item);
+
+-- this is Assessment/Beratungsergebnis
+alter table clin_aoe
+	alter column soap_cat set default 'a';
+-- narrative == AOE must not be NULL
+alter table clin_aoe
+	add constraint aoe_not_null check(narrative is not null);
+
+select add_table_for_audit('clin_aoe');
+
+comment on table clin_aoe is
+	'stores Assessment of Encounter/Beratungsergebnis,
+	 there may be several per encounter but they are
+	 unique across encounter/narrative combinations,
+	 the latest one per episode will be considered the
+	 active problem for that episode, at each encounter
+	 there must be exactly one AOE per distinct RFE
+	 where distinct means per-episode';
+comment on column clin_aoe.clin_when is
+	'when was this AOE decided on by the provider and patient';
+comment on column clin_aoe.fk_encounter is
+	'the encounter this AOE belongs too';
+comment on column clin_aoe.fk_episode is
+	'the episode this AOE belongs too';
+comment on column clin_aoe.narrative is
+	'the actual AOE as agreed upon by patient and provider';
+
+-- --------------------------------------------
+create table clin_narrative (
 	id serial primary key
 ) inherits (clin_root_item);
 
-select add_table_for_audit('clin_note');
+select add_table_for_audit('clin_narrative');
 
-comment on TABLE clin_note is
-	'Used to store clinical free text *not* associated with any other table.';
+comment on TABLE clin_narrative is
+	'Used to store clinical free text *not* associated
+	 with any other table. Can be used to implement
+	 a simple SOAP structure. Also other tags can be
+	 associated via link tables.';
 
 -- --------------------------------------------
 create table clin_aux_note (
@@ -901,11 +968,16 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.111 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.112 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.111  2004-06-26 23:45:50  ncq
+-- Revision 1.112  2004-06-30 15:43:52  ncq
+-- - clin_note -> clin_narrative
+-- - remove v_i18n_curr_encounter
+-- - add clin_rfe, clin_aoe
+--
+-- Revision 1.111  2004/06/26 23:45:50  ncq
 -- - cleanup, id_* -> fk/pk_*
 --
 -- Revision 1.110  2004/06/26 07:33:55  ncq

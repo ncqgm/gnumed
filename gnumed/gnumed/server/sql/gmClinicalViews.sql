@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.77 2004-06-28 15:04:31 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.78 2004-06-30 15:43:52 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -59,8 +59,8 @@ drop index idx_episode_h_issue;
 create index idx_cri_encounter on clin_root_item(fk_encounter);
 create index idx_cri_episode on clin_root_item(fk_episode);
 
-create index idx_clnote_encounter on clin_note(fk_encounter);
-create index idx_clnote_episode on clin_note(fk_episode);
+create index idx_clnarr_encounter on clin_narrative(fk_encounter);
+create index idx_clnarr_episode on clin_narrative(fk_episode);
 
 create index idx_clanote_encounter on clin_aux_note(fk_encounter);
 create index idx_clanote_episode on clin_aux_note(fk_episode);
@@ -126,31 +126,6 @@ where
 ;
 
 -- current ones
-\unset ON_ERROR_STOP
-drop view v_i18n_curr_encounters;
-\set ON_ERROR_STOP 1
-
-create view v_i18n_curr_encounters as
-select
-	cu_e.fk_encounter as pk_encounter,
-	cu_e.started as started,
-	cu_e.last_affirmed as last_affirmed,
-	cu_e.comment as status,
-	cl_e.fk_patient as pk_patient,
-	cl_e.fk_location as pk_location,
-	cl_e.fk_provider as pk_provider,
-	_(et.description) as type,
-	cl_e.description as description
-from
-	clin_encounter cl_e,
-	encounter_type et,
-	curr_encounter cu_e
-where
-	et.pk = cl_e.fk_type
-		and
-	cu_e.fk_encounter = cl_e.id
-;
-
 \unset ON_ERROR_STOP
 drop view v_most_recent_encounters;
 \set ON_ERROR_STOP 1
@@ -732,7 +707,9 @@ GRANT SELECT ON
 	, encounter_type
 	, clin_encounter
 	, curr_encounter
-	, clin_note
+	, clin_rfe
+	, clin_aoe
+	, clin_narrative
 	, clin_aux_note
 	, _enum_hx_type
 	, _enum_hx_source
@@ -770,9 +747,13 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_encounter,
 	clin_encounter_id_seq,
 	curr_encounter,
-	curr_encounter_id_seq,
-	clin_note,
-	clin_note_id_seq,
+	curr_encounter_id_seq
+	, clin_rfe
+	, clin_rfe_pk_seq
+	, clin_aoe
+	, clin_aoe_pk_seq,
+	clin_narrative,
+	clin_narrative_id_seq,
 	clin_aux_note,
 	clin_aux_note_pk_seq,
 	_enum_hx_type,
@@ -864,11 +845,16 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.77 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.78 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.77  2004-06-28 15:04:31  ncq
+-- Revision 1.78  2004-06-30 15:43:52  ncq
+-- - clin_note -> clin_narrative
+-- - remove v_i18n_curr_encounter
+-- - add clin_rfe, clin_aoe
+--
+-- Revision 1.77  2004/06/28 15:04:31  ncq
 -- - add pk_item to v_lab_requests
 --
 -- Revision 1.76  2004/06/28 12:38:30  ncq
