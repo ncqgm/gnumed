@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.132 2003-12-29 20:44:16 uid67323 Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gmGuiMain.py,v 1.133 2003-12-29 23:32:56 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -541,9 +541,6 @@ class gmTopLevelFrame(wxFrame):
 		User research indicates that in the title bar people want
 		the date of birth, not the age, so please stick to this
 		convention.
-
-		FIXME: we should go through the global patient cache object
-		       to get at the data we need
 		"""
 		if anActivity is not None:
 			self.title_activity = str(anActivity)
@@ -557,20 +554,11 @@ class gmTopLevelFrame(wxFrame):
 		else:
 			pat_str = _('no patient')
 
-
-		# try to find a meaningful name even if the current user
-		# has no staff entry
-		# should we issue a warning here ?
-		try:
-			display_name = _whoami.get_staff_name()
-		except:
-			try:
-				display_name = _whoami.get_db_account()
-			except:
-				display_name = ""
-
 		# generate title from template
-		title = "GnuMed [%s@%s] %s: %s" % (display_name, _whoami.get_workplace(), self.title_activity, pat_str)
+		# yes, we are fine crashing on getting an exception
+		# from get_staff_name() as that would mean something
+		# is badly broken, also we should've checked earlier
+		title = "GnuMed [%s@%s] %s: %s" % (_whoami.get_staff_name(), _whoami.get_workplace(), self.title_activity, pat_str)
 
 		# set it
 		self.SetTitle(title)
@@ -780,7 +768,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.132  2003-12-29 20:44:16  uid67323
+# Revision 1.133  2003-12-29 23:32:56  ncq
+# - reverted tolerance to missing db account <-> staff member mapping
+# - added comment as to why
+#
+# Revision 1.132  2003/12/29 20:44:16  uid67323
 # -fixed the bug that made gnumed crash if no staff entry was available for the current user
 #
 # Revision 1.131  2003/12/29 16:56:00  uid66147
