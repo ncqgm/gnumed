@@ -127,21 +127,21 @@ print "=> done"
 
 print "=> installing files"
 
-def process (fr, to):
+def process (from, to):
     if not os.access (to, os.F_OK):
         os.makedirs (to, 0755)
 
-    for i in os.listdir (fr):
+    for i in os.listdir (from):
         if i[-3:] == '.py':
             # it's source, compile it
-            py_compile.compile (join (fr, i), join (to, i+ 'c'))
+            py_compile.compile (join (from, i), join (to, i+ 'c'))
             if manifest:
                 manifest.write ("%s\n" % join (to, i+'c'))
         else:
-            if os.path.isdir (join (fr, i)):
-                process (join (fr, i), join (to, i))
+            if os.path.isdir (join (from, i)):
+                process (join (from, i), join (to, i))
             else:
-                shutil.copy (join (fr, i), join (to, i))
+                shutil.copy (join (from, i), join (to, i))
                 if manifest:
                     manifest.write ("%s\n" % join (to, i))
 
