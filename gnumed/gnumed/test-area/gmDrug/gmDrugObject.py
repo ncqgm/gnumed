@@ -15,7 +15,7 @@
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/gmDrugObject.py,v $      
-__version__ = "$Revision: 1.3 $"                                               
+__version__ = "$Revision: 1.4 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types
@@ -152,12 +152,14 @@ class Drug:
 				_log.Log(gmLog.lWarn,"query definition invalid in entry_group %s." % entry_group)
 				continue
 
-			# FIXME: we should expect a list here
+			# query is gonna be a list because of issues
+			# with special characters in simple string items
 			query = cfgSource.get(entry_group, "query")
 			if query is None or not type(query) == types.ListType:
 				_log.Log(gmLog.lWarn,"query definition invalid in entry_group %s." % entry_group)
 				continue
-            
+
+			# assume one query item per list
 			qstring = query[0]
 
 			qmappings = cfgSource.get(entry_group, "mappings")
@@ -242,7 +244,7 @@ class QueryGroupHandler:
 
 			# do the query
 			result = self.__mDBObject.Select(listonly=0)
-			# maybe we should raise an exception here
+			# maybe we should raise an exception here ?
 			if result is None:
 				return None
 			# get results
@@ -266,7 +268,7 @@ class QueryGroupHandler:
 					VarName = VarNames[col_idx]
 					# and cache the value
 					self.__mData[VarName] = col_val
-                    # increase column count
+					# increase column count
 					col_idx = col_idx + 1
 
 			else:
@@ -288,7 +290,7 @@ class QueryGroupHandler:
 #====================================================================================
 
 if __name__ == "__main__":
-    	import os.path
+	import os.path
 	tmp = os.path.join(os.path.expanduser("~"), ".gnumed", "amis.conf")
 	a = Drug(0, tmp)
 	x = a.GetData('brand')
@@ -306,7 +308,10 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.3  2002-10-23 22:41:54  hinnef
+# Revision 1.4  2002-10-24 13:04:18  ncq
+# - just add two silly comments
+#
+# Revision 1.3  2002/10/23 22:41:54  hinnef
 # more cleanup, fixed some bugs regarding variable mapping
 #
 # Revision 1.2  2002/10/22 21:18:11  ncq
