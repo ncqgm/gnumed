@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.13 2005-03-03 21:12:49 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmSOAPWidgets.py,v 1.14 2005-03-04 19:44:28 cfmoro Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -139,27 +139,27 @@ class cResizingSoapPanel(wx.wxPanel):
 			line = cSOAPLineDef()
 			line.label = _('Patient Request')
 			line.data['soap_cat'] = 's'
-			soap_lines.append()
+			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('History Taken')
 			line.data['soap_cat'] = 's'
-			soap_lines.append()
+			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('Findings')
 			line.data['soap_cat'] = 'o'
-			soap_lines.append()
+			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('Assessment')
 			line.data['soap_cat'] = 'a'
-			soap_lines.append()
+			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('Plan')
 			line.data['soap_cat'] = 'p'
-			soap_lines.append()
+			soap_lines.append(line)
 		else:
 			soap_lines = input_defs
 		self.__soap_text_editor = cResizingSoapWin (
@@ -255,12 +255,12 @@ class cResizingSoapPanel(wx.wxPanel):
 				issues = [self.__problem['pk_health_issue']],
 				soap_cats = [soap_cat]
 			)
-			try:
-				# FIXME: add more data such as doctor sig
-				label_txt = default_labels[narrative['soap_cat']]
-			except:
-				label_txt = narrative['soap_cat']
 			for narrative in narr_items:
+				try:
+					# FIXME: add more data such as doctor sig
+					label_txt = default_labels[narrative['soap_cat']]
+				except:
+					label_txt = narrative['soap_cat']				
 				line = cSOAPLineDef()
 				line.label = label_txt
 				line.text = narrative['narrative']
@@ -440,7 +440,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.13  2005-03-03 21:12:49  ncq
+# Revision 1.14  2005-03-04 19:44:28  cfmoro
+# Minor fixes from unit test
+#
+# Revision 1.13  2005/03/03 21:12:49  ncq
 # - some cleanups, switch to using data transfer classes
 #   instead of complex and unwieldy dictionaries
 #
