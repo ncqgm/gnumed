@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.27 2003-06-27 16:04:40 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmTmpPatient.py,v 1.28 2003-07-09 16:21:22 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -93,6 +93,10 @@ class gmPerson:
 		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.ID)
 	#--------------------------------------------------------
 	def __del__(self):
+		if _log is not None:
+			_log.Log(gmLog.lData, 'cleaning up after patient [%s]' % self.ID)
+#		if self.__db_cache.has_key('clinical record'):
+#			del self.__db_cache['clinical record']
 		if self.__dict__.has_key('_backend'):
 			self._backend.ReleaseConnection('personalia')
 	#--------------------------------------------------------
@@ -321,6 +325,7 @@ class gmCurrentPatient(cBorg):
 	There may be many instances of this but they all share state.
 	"""
 	def __init__(self, aPKey = None):
+		_log.Log(gmLog.lData, 'selection of patient [%s] requested' % aPKey)
 		# share state among all instances ...
 		cBorg.__init__(self)
 
@@ -335,9 +340,12 @@ class gmCurrentPatient(cBorg):
 			self.unlock()
 
 		# user wants to init or change us
+		# possibly change us, depending on PKey
 		if aPKey is not None:
-			# init
+			_log.Log(gmLog.lData, 'patient ID explicitely specified, trying to connect')
+			# init, no previous PKEY
 			if self.patient is None:
+				_log.Log(gmLog.lData, 'no previous patient')
 				try:
 					self.patient = gmPerson(aPKey)
 					# remote app must lock explicitly
@@ -345,8 +353,9 @@ class gmCurrentPatient(cBorg):
 					self.__send_selection_notification()
 				except:
 					_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
-			# change
+			# change to another PKEY
 			else:
+				_log.Log(gmLog.lData, 'patient change: [%s] -> [%s]' % (self.patient.ID, aPKey))
 				# are we really supposed to become someone else ?
 				if self.patient['ID'] != aPKey:
 					# yes, but CAN we ?
@@ -366,6 +375,12 @@ class gmCurrentPatient(cBorg):
 							# FIXME: maybe raise exception here ?
 					else:
 						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
+				# no, same patient, so do nothing
+				else:
+					_log.Log(gmLog.lData, 'same ID, no change needed')
+		# else do nothing which will return ourselves
+		else:
+			_log.Log(gmLog.lData, 'no patient ID specified, returning current patient')
 
 		return None
 	#--------------------------------------------------------
@@ -646,8 +661,8 @@ def create_patient(data):
 def _patient_selected(**kwargs):
 	print "received patient_selected notification"
 	print kwargs['kwds']
-	patient = gmCurrentPatient(kwargs['kwds']['ID'])
-	#adjust_data(kwargs)
+#	patient = gmCurrentPatient(kwargs['kwds']['ID'])
+#	adjust_data(kwargs)
 
 def adjust_data(kwargs):
 	map = kwargs['kwds']
@@ -666,6 +681,8 @@ if __name__ == "__main__":
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 	while 1:
 		pID = raw_input('a patient ID: ')
+		if pID == '-1':
+			break
 		try:
 			myPatient = gmCurrentPatient(aPKey = pID)
 		except:
@@ -680,15 +697,19 @@ if __name__ == "__main__":
 		print "med age", myPatient['medical age']
 		record = myPatient['clinical record']
 		print "EPR    ", record
-		print "allergy IDs", record['allergy IDs']
-		print "fails  ", myPatient['missing handler']
-		api = myPatient['API']
-		for call in api:
-			print "API call: %s (internally %s)" % (call['API call name'], call['internal name'])
-			print call['description']
+#		print "allergy IDs", record['allergy IDs']
+#		print "fails  ", myPatient['missing handler']
+		print "--------------------------------------"
+#		api = myPatient['API']
+#		for call in api:
+#			print "API call: %s (internally %s)" % (call['API call name'], call['internal name'])
+#			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.27  2003-06-27 16:04:40  ncq
+# Revision 1.28  2003-07-09 16:21:22  ncq
+# - better comments
+#
+# Revision 1.27  2003/06/27 16:04:40  ncq
 # - no ; in DB-API
 #
 # Revision 1.26  2003/06/26 21:28:02  ncq
