@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.4 2003-07-08 10:11:04 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPregCalc.py,v 1.5 2003-07-10 03:57:07 michaelb Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -335,8 +335,8 @@ class PregnancyFrame (wxFrame):
 				weeks_label=_('week')
 			else:
 				weeks_label=_('weeks')
-			txtgest_str = "%s %s, %s %s" % (gest_week, weeks_label, gest_day, days_label)
-#			txtgest_str=str(gest_week)+" "+weeks_label+", "+str(gest_day)+" "+days_label
+#			txtgest_str = "%s %s, %s %s" % (gest_week, weeks_label, gest_day, days_label)
+			txtgest_str=str(gest_week)+" "+weeks_label+", "+str(gest_day)+" "+days_label
 			self.txtgest.SetValue(txtgest_str)
 
 			# -----------------
@@ -413,7 +413,7 @@ class PregnancyFrame (wxFrame):
 		return date_str[:(time_loc-3)]
 
 	#-------------------------------------------
-	def OnSetfocus_lmp (self, event):
+	def OnSetFocus_lmp (self, event):
 		self.xfer_cal_date_to=LMP_FIELD
 		event.Skip()				# required so wxTextCtrl box is selected
 
@@ -476,7 +476,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.4  2003-07-08 10:11:04  ncq
+# Revision 1.5  2003-07-10 03:57:07  michaelb
+# bugfix - 'OnSetfocus_lmp' to 'OnSetFocus_lmp'
+#
+# Revision 1.4  2003/07/08 10:11:04  ncq
 # - lnmp -> lmp and some cleanup
 #
 # Revision 1.3  2003/07/07 22:20:48  michaelb
