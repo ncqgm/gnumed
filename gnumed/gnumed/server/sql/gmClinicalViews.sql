@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.102 2004-09-20 21:14:11 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.103 2004-09-22 14:12:19 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -267,6 +267,33 @@ create trigger TR_clin_item_mod
 		execute procedure f_announce_clin_item_mod()
 ;
 
+-- ---------------------------------------------
+-- protect from direct inserts/updates/deletes which the
+-- inheritance system can't handle properly
+\unset ON_ERROR_STOP
+drop rule clin_ritem_no_ins on clin_root_item cascade;
+drop rule clin_ritem_no_ins;
+drop rule clin_ritem_no_upd on clin_root_item cascade;
+drop rule clin_ritem_no_upd;
+drop rule clin_ritem_no_del on clin_root_item cascade;
+drop rule clin_ritem_no_del;
+\set ON_ERROR_STOP 1
+
+-- FIXME: those should actually use PL/pgSQL and raise
+--        an exception...
+create rule clin_ritem_no_ins as
+	on insert to clin_root_item
+	do instead nothing;
+
+create rule clin_ritem_no_upd as
+	on update to clin_root_item
+	do instead nothing;
+
+create rule clin_ritem_no_del as
+	on delete to clin_root_item
+	do instead nothing;
+
+-- ---------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_patient_items;
 \set ON_ERROR_STOP 1
@@ -1215,11 +1242,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.102 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.103 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.102  2004-09-20 21:14:11  ncq
+-- Revision 1.103  2004-09-22 14:12:19  ncq
+-- - add rules to protect clin_root_item from direct insert/update/delete,
+--   this prevents child table coherency issues
+--
+-- Revision 1.102  2004/09/20 21:14:11  ncq
 -- - remove cruft, fix grants
 -- - retire lnk_vacc2vacc_def for now as we seem to not need it
 --
