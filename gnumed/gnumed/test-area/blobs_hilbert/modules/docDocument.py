@@ -2,10 +2,38 @@
 
 """This module encapsulates document level operations.
 
+metadata layout:
+
+self.__metadata		{}
+ |
+ >- 'id'			""
+ |
+ >- 'type'			""
+ |
+ >- 'comment'		""
+ |
+ >- 'date'			""
+ |
+ >- 'reference'	""
+ |
+ >- 'description'	""
+ |
+ >- 'patient id'	""
+ |
+ `- 'objects'		{}
+  |
+  `- oid			{}
+   |
+   >- 'file name'	""
+   |
+   >- 'index'		""
+   |
+   `- 'comment' 	""
+
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -643,7 +671,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.16  2002-09-12 21:39:55  ncq
+# Revision 1.17  2002-09-17 00:06:30  ncq
+# - documented meta data layout
+#
+# Revision 1.16  2002/09/12 21:39:55  ncq
 # - several tweaks for displaying files
 #
 # Revision 1.15  2002/09/12 20:34:41  ncq
