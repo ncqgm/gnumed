@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############################################################################
 #
 # gmDrugDisplay_RT  Feedback: anything which is incorrect or ambiguous please
@@ -15,11 +14,8 @@
 #                   heavily commented for learning purposes by Dr. R Terry
 # @copyright: authors
 # @license: GPL (details at http://www.gnu.org)
-# @dependencies: wxPython (>= version 2.3.1)
 #
-#
-# @TODO: all testing and review by hhorst
-#	 decision of drug data source
+# @TODO:
 #	 decision of text display wigit
 #        why won't opening frame size be recognised
 #        put in testing for null field in Display_PI
@@ -27,12 +23,10 @@
 #        Need config file with:
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
+__version__ = "$Revision: 1.16 $"
+__author__ = "H.Herb, R.Terry, H.Berger"
 
-#===========================================================================
-# firstly in wxPython you have to import any modules we want to use, here
-# we import the 'lot' from wxPython and some specific ones from Python ie
-# time,
-#===========================================================================
 from wxPython.wx import *
 from wxPython.stc import *
 from wxPython.html import *
@@ -40,19 +34,6 @@ import wxPython.lib.wxpTag
 from wxPython.lib.splashscreen import SplashScreen
 
 import string
-import keyword
-import time
-import pdb
-import re
-import os.path
-
-# this can probably be deleted
-# location of our modules
-#if __name__ == "__main__":
-#	sys.path.append(os.path.join('.', 'modules'))
-
-if __name__ == "__main__":
-        from Gnumed.pycommon import gmI18N
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -61,9 +42,9 @@ if __name__ == "__main__":
 	# later on, when AmisBrowser is one foot in the door
 	# to German doctors we'll change this again
 	_log.SetAllLogLevels(gmLog.lData)
+	from Gnumed.pycommon import gmI18N
 
-from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmWhoAmI
-from Gnumed.pycommon.gmExceptions import *
+from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmWhoAmI, gmExceptions
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -92,9 +73,9 @@ ID_BUTTON_BOOKMARK = wxNewId()
 MODE_BRAND = 0
 MODE_GENERIC = 1
 MODE_INDICATION = 2
-MODE_ANY = 3	# search for brand name and generic name 
+MODE_ANY = 3	# search for brand name and generic name
 
-
+#============================================================
 class DrugDisplay(wxPanel):
 	"displays drug information in a convenience widget"
 
@@ -124,7 +105,7 @@ class DrugDisplay(wxPanel):
 			_log.Log(gmLog.lPanic,"No drug database specified. Aborting drug browser.")
 			# FIXME: we shouldn't directly call Close() on the parent
 #			parent.Close()
-			raise ConstructorError, "No drug database specified"
+			raise gmExceptions.ConstructorError, "No drug database specified"
 
                 # initialize interface to drug database.
 		# this will fail if backend or config files are not available
@@ -132,7 +113,7 @@ class DrugDisplay(wxPanel):
 			self.mDrugView=gmDrugView.DrugView(self.dbName)
 		except:
 			_log.LogException("Unhandled exception during DrugView API init.", sys.exc_info(), verbose = 0)
-			raise ConstructorError, "Couldn't initialize DrugView API"			
+			raise gmExceptions.ConstructorError, "Couldn't initialize DrugView API"
 #			return None
 						
 		self.mode = MODE_BRAND
@@ -635,15 +616,13 @@ else:
 
 		def GetWidget (self, parent):
 			return DrugDisplay (parent, -1)
-				
 
-# @change log:
-#       04.12.2001 hherb initial implementation, untested, uncomplete
-#	08.12.2001 rterry minor revisions to screen design, commenting
-#	05.09.2002 hherb DB-API 2.0 compliance
-
+#==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.15  2004-03-12 18:34:44  hinnef
+# Revision 1.16  2004-03-12 22:42:09  ncq
+# - I guess I've got obsessive-janitorial dysfunction
+#
+# Revision 1.15  2004/03/12 18:34:44  hinnef
 #  - fixed module import
 #
 # Revision 1.14  2003/12/29 17:00:20  uid66147
@@ -672,3 +651,7 @@ else:
 # Revision 1.4  2002/10/31 23:13:06  hinnef
 # added generic substance support, further improvements
 #
+# @change log:
+#       04.12.2001 hherb initial implementation, untested, uncomplete
+#	08.12.2001 rterry minor revisions to screen design, commenting
+#	05.09.2002 hherb DB-API 2.0 compliance
