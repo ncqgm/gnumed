@@ -14,7 +14,7 @@ set data using SetConfigData.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string,types, pickle
@@ -798,6 +798,7 @@ def exportDBSet(filename,aUser = None, aMachine = '__default__'):
 		
 	paramList = expConfigSource.getAllParamNames()
 	if paramList is None:
+		_log.Log(gmLog.lInfo, "DB-set [%s,%s]contained no data." % (aUser,aMachine))
 		return 0
 	text = ''
 	for param in (paramList):
@@ -813,7 +814,7 @@ def exportDBSet(filename,aUser = None, aMachine = '__default__'):
 			
 		file.write( "[%s]\ntype = %s\ndescription = %s\nvalue = %s\n\n" % \
 			(param,cType,description,value))
-	return 1
+	return len(paramList)
 	
 def importDBSet(filename,aUser = None, aMachine = '__default__'):
 	"""get config definitions from a file exported with 
@@ -839,7 +840,6 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 
 	importData = importFile.getCfg()
 	groups = importFile.getGroups()
-	print groups
 	# every group holds one parameter description
 	# group name = parameter name
 	for paramName in groups:
@@ -882,4 +882,10 @@ def importDBSet(filename,aUser = None, aMachine = '__default__'):
 			if s is None:
 				_log.Log(gmLog.lWarn, 
 					"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aMachine))		
-	return 1
+	return len(groups)
+
+#=============================================================
+# $Log: gmConfigCommon.py,v $
+# Revision 1.5  2003-10-02 20:02:28  hinnef
+# small fixes to import/exportDBSet
+#
