@@ -93,7 +93,7 @@ If CVS asks for a password, use a blank line. The module name is
 ><P
 >Qouting from GnuMed's CVS instruction</P
 ><P
->	"This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<EM
+>	This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<EM
 >gnumed</EM
 >]  you wish to check out must be specified as the modulename. When prompted for a password for anoncvs, simply press the Enter key.
 	    </P
@@ -109,25 +109,8 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->Source tree: cvs -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
-	</PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->Remeber to hit enter when it asks for a password. Then type:</P
-><TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
+>export CVS_RSH="ssh"
+cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 	</PRE
 ></FONT
 ></TD

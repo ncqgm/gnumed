@@ -16,8 +16,8 @@ REL="PREVIOUS"
 TITLE="Mandrake- GnuMed on Mandrake 9.1"
 HREF="mandrake.html"><LINK
 REL="NEXT"
-TITLE="RedHat (8.0)"
-HREF="redhat.html"></HEAD
+TITLE="Installing GNUMed on Mac OSX 10.3 (Panther)"
+HREF="mac-panther.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -59,7 +59,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="redhat.html"
+HREF="mac-panther.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -81,7 +81,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN444"
+NAME="AEN442"
 >2.5.1. System</A
 ></H2
 ><P
@@ -96,8 +96,8 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN447"
->2.5.2. Instaling Python and wxWindows</A
+NAME="AEN445"
+>2.5.2. Installing Python and wxWindows</A
 ></H2
 ><P
 >        Download the latest versions of MachoPython and wxPythonOSX from 
@@ -124,7 +124,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN454"
+NAME="AEN452"
 >2.5.3. Install mx extensions</A
 ></H2
 ><P
@@ -179,7 +179,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN464"
+NAME="AEN462"
 >2.5.4. Installing postgresql</A
 ></H2
 ><P
@@ -224,7 +224,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN472"
+NAME="AEN470"
 >2.5.5. Installing pypgsql</A
 ></H2
 ><P
@@ -332,7 +332,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN486"
+NAME="AEN484"
 >2.5.6. Download gnumed cvs</A
 ></H2
 ><P
@@ -348,32 +348,13 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+>export CVS_RSH="ssh"
+cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 		</PRE
 ></FONT
 ></TD
 ></TR
 ></TABLE
-><P
->		Just press 'return' when asked for a password. Then type
-		<TABLE
-BORDER="1"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="SCREEN"
->cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
-		</PRE
-></FONT
-></TD
-></TR
-></TABLE
->
-        </P
 ><P
 >		All the gnumed files will be downloaded to your hard drive.
         </P
@@ -383,7 +364,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN493"
+NAME="AEN489"
 >2.5.7. Configuring postgres for Gnumed</A
 ></H2
 ><P
@@ -428,7 +409,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="redhat.html"
+HREF="mac-panther.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -452,7 +433,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->RedHat (8.0)</TD
+>Installing GNUMed on Mac OSX 10.3 (Panther)</TD
 ></TR
 ></TABLE
 ></DIV

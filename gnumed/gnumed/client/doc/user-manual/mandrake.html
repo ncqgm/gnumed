@@ -94,7 +94,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN329"
+NAME="AEN327"
 >2.4.1. Package Installation</A
 ></H2
 ><P
@@ -110,8 +110,8 @@ TYPE="1"
 ><P
 >			Install postgresql (from the Mandrake CDs):
 			<A
-NAME="AEN336"
-HREF="#FTN.AEN336"
+NAME="AEN334"
+HREF="#FTN.AEN334"
 ><SPAN
 CLASS="footnote"
 >[1]</SPAN
@@ -249,8 +249,8 @@ COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >$ tar zxvf pyPgSQL-2.3.tar.gz<A
-NAME="AEN378"
-HREF="#FTN.AEN378"
+NAME="AEN376"
+HREF="#FTN.AEN376"
 ><SPAN
 CLASS="footnote"
 >[2]</SPAN
@@ -277,8 +277,8 @@ CLASS="SCREEN"
 ># Set this to 1 if you need to use your own settings
 USE_CUSTOM = 1
                   <A
-NAME="AEN382"
-HREF="#FTN.AEN382"
+NAME="AEN380"
+HREF="#FTN.AEN380"
 ><SPAN
 CLASS="footnote"
 >[3]</SPAN
@@ -309,8 +309,8 @@ CLASS="SCREEN"
 >$ python setup.py build
 	    $ python setup.py install
         <A
-NAME="AEN386"
-HREF="#FTN.AEN386"
+NAME="AEN384"
+HREF="#FTN.AEN384"
 ><SPAN
 CLASS="footnote"
 >[4]</SPAN
@@ -335,8 +335,8 @@ COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
 >$ cd test<A
-NAME="AEN390"
-HREF="#FTN.AEN390"
+NAME="AEN388"
+HREF="#FTN.AEN388"
 ><SPAN
 CLASS="footnote"
 >[5]</SPAN
@@ -366,7 +366,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN392"
+NAME="AEN390"
 >2.4.2. Get GnuMed source</A
 ></H2
 ><P
@@ -383,8 +383,8 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="SCREEN"
->$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
-$ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
+>$ export CVS_RSH="ssh"
+$ cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
 	  </PRE
 ></FONT
 ></TD
@@ -396,7 +396,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN396"
+NAME="AEN394"
 >2.4.3. Modify postgresql.conf</A
 ></H2
 ><TABLE
@@ -412,8 +412,8 @@ CLASS="SCREEN"
 >$ su
 # cd /var/lib/pgsql/data
 # vi postgresql.conf<A
-NAME="AEN399"
-HREF="#FTN.AEN399"
+NAME="AEN397"
+HREF="#FTN.AEN397"
 ><SPAN
 CLASS="footnote"
 >[6]</SPAN
@@ -429,7 +429,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN401"
+NAME="AEN399"
 >2.4.4. Modify "pg_hba.conf" found in
 	  "/var/lib/pgsql/data"</A
 ></H2
@@ -479,7 +479,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN406"
+NAME="AEN404"
 >2.4.5. Create db</A
 ></H2
 ><P
@@ -496,8 +496,8 @@ COLOR="#000000"
 CLASS="SCREEN"
 >$ su root
 	    # passwd postgres<A
-NAME="AEN410"
-HREF="#FTN.AEN410"
+NAME="AEN408"
+HREF="#FTN.AEN408"
 ><SPAN
 CLASS="footnote"
 >[7]</SPAN
@@ -632,7 +632,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN434"
+NAME="AEN432"
 >2.4.6. Set 'GNUMED_DIR' variable</A
 ></H2
 ><TABLE
@@ -676,7 +676,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN439"
+NAME="AEN437"
 >2.4.7. Running GnuMed:</A
 ></H2
 ><TABLE
@@ -711,8 +711,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN336"
-HREF="mandrake.html#AEN336"
+NAME="FTN.AEN334"
+HREF="mandrake.html#AEN334"
 ><SPAN
 CLASS="footnote"
 >[1]</SPAN
@@ -734,8 +734,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN378"
-HREF="mandrake.html#AEN378"
+NAME="FTN.AEN376"
+HREF="mandrake.html#AEN376"
 ><SPAN
 CLASS="footnote"
 >[2]</SPAN
@@ -755,8 +755,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN382"
-HREF="mandrake.html#AEN382"
+NAME="FTN.AEN380"
+HREF="mandrake.html#AEN380"
 ><SPAN
 CLASS="footnote"
 >[3]</SPAN
@@ -777,8 +777,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN386"
-HREF="mandrake.html#AEN386"
+NAME="FTN.AEN384"
+HREF="mandrake.html#AEN384"
 ><SPAN
 CLASS="footnote"
 >[4]</SPAN
@@ -800,8 +800,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN390"
-HREF="mandrake.html#AEN390"
+NAME="FTN.AEN388"
+HREF="mandrake.html#AEN388"
 ><SPAN
 CLASS="footnote"
 >[5]</SPAN
@@ -821,8 +821,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN399"
-HREF="mandrake.html#AEN399"
+NAME="FTN.AEN397"
+HREF="mandrake.html#AEN397"
 ><SPAN
 CLASS="footnote"
 >[6]</SPAN
@@ -842,8 +842,8 @@ ALIGN="LEFT"
 VALIGN="TOP"
 WIDTH="5%"
 ><A
-NAME="FTN.AEN410"
-HREF="mandrake.html#AEN410"
+NAME="FTN.AEN408"
+HREF="mandrake.html#AEN408"
 ><SPAN
 CLASS="footnote"
 >[7]</SPAN

@@ -13,8 +13,8 @@ REL="UP"
 TITLE="Installation"
 HREF="installation.html"><LINK
 REL="PREVIOUS"
-TITLE="Mac - GnuMED on MacOSX 10.2"
-HREF="mac.html"><LINK
+TITLE="Installing GNUMed on Mac OSX 10.3 (Panther)"
+HREF="mac-panther.html"><LINK
 REL="NEXT"
 TITLE="Windows"
 HREF="win9x.html"></HEAD
@@ -45,7 +45,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="mac.html"
+HREF="mac-panther.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -74,7 +74,7 @@ CLASS="SECT1"
 CLASS="SECT1"
 ><A
 NAME="REDHAT"
->2.6. RedHat (8.0)</A
+>2.7. RedHat (8.0)</A
 ></H1
 ><P
 >Author: Yudhvir Singh Sidhu, <A
@@ -95,16 +95,16 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN505"
->2.6.1. Introduction</A
+NAME="AEN587"
+>2.7.1. Introduction</A
 ></H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN507"
->2.6.1.1. General</A
+NAME="AEN589"
+>2.7.1.1. General</A
 ></H3
 ><P
 >		I divided gnumed installation in two parts: client-only and client + server. The division is important because the client install is relatively easier and you can use it to connect to a remote database and play with the screens. As you can tell, the database part is being called the server. Both installs require cvs download of the module "gnumed."
@@ -116,16 +116,16 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN510"
->2.6.2. Preparation</A
+NAME="AEN592"
+>2.7.2. Preparation</A
 ></H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN512"
->2.6.2.1. Notes</A
+NAME="AEN594"
+>2.7.2.1. Notes</A
 ></H3
 ><P
 >&#13;Download these files. If you have the RH 8.0 set of 5 cds, many of these files are on cds under the RPM directory. Get them together first, the order in which they are installed is important. I'll list that later.
@@ -141,8 +141,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN516"
->2.6.2.2. Prepare for Client</A
+NAME="AEN598"
+>2.7.2.2. Prepare for Client</A
 ></H3
 ><P
 ><P
@@ -177,8 +177,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN530"
->2.6.2.3. Prepare for Server</A
+NAME="AEN612"
+>2.7.2.3. Prepare for Server</A
 ></H3
 ><P
 ><P
@@ -209,8 +209,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN542"
->2.6.2.4. Create gnudb User Account</A
+NAME="AEN624"
+>2.7.2.4. Create gnudb User Account</A
 ></H3
 ><P
 >Log in as root and create the user account.</P
@@ -220,8 +220,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN545"
->2.6.2.5. Get gnumed via CVS</A
+NAME="AEN627"
+>2.7.2.5. Get gnumed via CVS</A
 ></H3
 ><P
 >You need not know anything about cvs, just run these commands as user gnumed:
@@ -258,16 +258,16 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN551"
->2.6.3. Installation</A
+NAME="AEN633"
+>2.7.3. Installation</A
 ></H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN553"
->2.6.3.1. General</A
+NAME="AEN635"
+>2.7.3.1. General</A
 ></H3
 ><P
 >If you are doing a clinet+server install the software should be loaded in the following order. <EM
@@ -292,9 +292,7 @@ TYPE="1"
 ><LI
 ><P
 >PostgreSQL Database server - load the libs first, then the database and lastly the server:
-	</P
-><P
-><P
+	<P
 ></P
 ><OL
 TYPE="a"
@@ -337,8 +335,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN580"
->2.6.3.2. Install Client</A
+NAME="AEN661"
+>2.7.3.2. Install Client</A
 ></H3
 ><P
 >Install the rpms in this order:
@@ -378,8 +376,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN596"
->2.6.3.3. Install Server</A
+NAME="AEN677"
+>2.7.3.3. Install Server</A
 ></H3
 ><P
 >Most people would not install just the server and <EM
@@ -420,16 +418,16 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN612"
->2.6.4. Configure Files and Setup Environment Parameters</A
+NAME="AEN693"
+>2.7.4. Configure Files and Setup Environment Parameters</A
 ></H2
 ><DIV
 CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN614"
->2.6.4.1. PYTHONPATH and GNUMED_DIR</A
+NAME="AEN695"
+>2.7.4.1. PYTHONPATH and GNUMED_DIR</A
 ></H3
 ><P
 ><EM
@@ -481,8 +479,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN628"
->2.6.4.2. pg_clog, postgres.conf and PGDATA</A
+NAME="AEN709"
+>2.7.4.2. pg_clog, postgres.conf and PGDATA</A
 ></H3
 ><P
 >&#13;<EM
@@ -560,8 +558,8 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN649"
->2.6.4.3. Shortcut Scripts mono and check_log, set password and Configure Files</A
+NAME="AEN730"
+>2.7.4.3. Shortcut Scripts mono and check_log, set password and Configure Files</A
 ></H3
 ><P
 >&#13;<EM
@@ -676,8 +674,8 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN677"
->2.6.5. Run Client</A
+NAME="AEN758"
+>2.7.5. Run Client</A
 ></H2
 ><P
 ><P
@@ -696,7 +694,7 @@ Mine is cd /home/gnumed/gnumed/gnumed/client/wxpython</P
 ></LI
 ><LI
 ><P
->Write an e mail to "Karsten" and request a hostname, a username, and a password and input them into the GUI. Under the "options" button, select "gnumed-public" and put in the hostname and leave the port as 5432. In the main GUI, input username and pasword.
+>Write an e mail to "Karsten" and request a hostname, a username, and a password and input them into the GUI. Under the "options" button, select "gnumed" and put in the hostname and leave the port as 5432. In the main GUI, input username and pasword.
 
 <EM
 >NOTE: If Karsten gives you "anydoc" as the username and password, he actually means any-doc for both fields. Also NOTE: You should be logged onto the net when you do this, I was user gnumed when I did it.</EM
@@ -744,8 +742,8 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN701"
->2.6.6. Run Server</A
+NAME="AEN782"
+>2.7.6. Run Server</A
 ></H2
 ><P
 ><P
@@ -836,7 +834,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="mac.html"
+HREF="mac-panther.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -864,7 +862,7 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Mac - GnuMED on MacOSX 10.2</TD
+>Installing GNUMed on Mac OSX 10.3 (Panther)</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"

@@ -821,7 +821,7 @@ $ python gnumed.py --debug
 		</para>
 	</sect2>
     <sect2>
-    	<title>Instaling Python and wxWindows</title>
+    	<title>Installing Python and wxWindows</title>
         <para>
         Download the latest versions of MachoPython and wxPythonOSX from 
         	<ulink url="http://sourceforge.net/project/showfiles.php?group_id=10718"><citetitle>Sourceforge</citetitle></ulink>
@@ -932,7 +932,146 @@ cvs -z3 -d:ext:anoncvs@subversions.gnu.org:/cvsroot/gnumed checkout gnumed
         See (<xref linkend="pgsql">).
 		</para>
 </sect2>
+</sect1>
 
+<sect1 id="mac-panther">
+<title>Installing GNUMed on Mac OSX 10.3 (Panther)</title>
+<para>
+There are a number of changes in MacOSX between Jaguar and Panther that 
+necessitate some changes to the installation procedure.
+</para>
+<orderedlist>
+<listitem><para>
+<emphasis>Mac Developer Tools (Xtools)</emphasis>
+</para>
+<para>Install the Developer tools which are on the disc called XTools.
+The default Easy Install is satisfactory.
+</para></listitem>
+<listitem><para>
+<emphasis>wxPython</emphasis></para>
+<para>
+The correct version of Python is included with Panther. However, you 
+need to install wxPython, which is a package that enables applications 
+written in Python to use the native GUI (In MacOSX case, that is called 
+aqua).
+</para><para>
+Download and install the latest version of the wxPython installer for 
+Panther from <ulink url="http://wxpython.sourceforge.net/download.php#binaries"><citetitle>SourceForge</citetitle></ulink>
+To test your installation, run the application 'RunDemo' in 
+<application>Applications&gt;wxPythonOSX-2.4.2.4-panther</application>
+</para></listitem>
+<listitem><para>
+<emphasis>Install postgresql</emphasis>, which is the database used by gnumed.</para>
+<para>A binary package and instructions for the Panther version are available 
+from <ulink url="http://www.entropy.ch/software/MacOSx/postgresql/"><citetitle>here</citetitle></ulink>
+</para><para>      
+Take note of the command required to start postgres - <screen>
+/usr/local/bin/pg_ctl -D /usr/local/pgsql/data -l postgres.log 
+start
+</screen></para>
+<para>
+If you want postgres to start at system startup, download the startup 
+application from the same page.
+</para></listitem>
+<listitem><para>
+
+<emphasis>Setting the Command Path</emphasis></para>
+<para>
+'/usr/local/bin' needs to be included in the command PATH, if not 
+already included.</para><para>
+In a terminal window, type</para><para>
+<screen>
+echo $PATH
+</screen></para><para>
+the result will be a list of directories seperated by colons, like this
+</para><para><screen>
+/bin:/sbin:/usr/bin:/usr/local/bin
+</screen></para><para>
+if '/usr/local/bin' is one of the directories, you can skip this 
+section.
+otherwise type</para><para><screen>
+echo "export PATH=$PATH:/usr/local/bin" >> ~/.bash_profile
+</screen></para><para>
+</para></listitem>
+<listitem><para>
+
+<emphasis> Python add-ons (new) (egenix and pyPgSQL)</emphasis></para>
+<para>
+The egenix extensions (Date/Time) and pypgsql (which allows python to 
+interface with postgresql) can be downloaded using the mac python 
+add-ons pack which you should download from <ulink url="http://homepages.cwi.nl/~jack/macpython/download.html"><citetitle>here</citetitle></ulink>
+</para><para>        
+Install the package, then open the Package Manager 
+(Applications>MacPython-2.3>Package Manager)
+In the File menu, select Open URL and type </para><para>
+http://undefined.org/python/pimp/darwin-7.2.0-Power_Macintosh.plist</para>
+<para>Select the file <application>egenix-mxbase</application> and click install, 
+<application>pyPgSQL</application> and click install
+</para></listitem>
+<listitem><para>
+
+<emphasis>Download gnumed</emphasis></para>
+<para>The gnumed files are downloaded from cvs.</para><para>
+Open a new terminal window and type</para><para><screen>
+     export CVS_RSH=ssh
+     export CVSROOT=:ext:anoncvs@savannah.gnu.org:/cvsroot/gnumed
+     cd &lt;some directory where you want the gnumed cvs checkout to go&gt;
+     cvs -z3 co gnumed OR cvs -z3 checkout gnumed (z3 is for compression)
+</screen></para><para>
+The gnumed cvs files will all be downlaoded to your computer.
+Repeat these commands to update these files at a later date.
+</para><para>
+Test setup so far: </para><para><screen>
+pythonw ~/gnumed/gnumed/client/wxpython/gnumed.py
+</screen></para><para>
+If all is well, the gnumed log in window will be displayed.
+You will not be able to log in as the gnumed postgres tables are not 
+yet set up.
+</para></listitem>
+<listitem><para>
+<emphasis>Install gnumed SQL tables</emphasis>
+</para><para>
+Go to the directory /server/bootstrap
+</para><para>
+<screen>
+     cd ~/gnumed/gnumed/server/bootstrap/
+</screen></para><para>
+Run the shell program redo-public.sh
+</para><para><screen>
+  	./redo-public.sh
+</screen></para><para>
+Answer yes to all the questions and enter the passwords as requested.
+The postgres password is the one you used when setting up postgres in 
+section 3.
+</para><para>
+The gm-dbowner password, if not already set, will be remembered when 
+you first enter it (so don't forget).
+</para></listitem>
+
+<listitem><para>
+<emphasis>Run Gnumed</emphasis>
+</para><para><screen>
+pythonw ~/gnumed/gnumed/client/wxpython/gnumed.py
+</screen></para><para>
+(Note - use pythonw rather than python for applications that use the 
+wxWindows gui)
+</para><para>
+The log in screen opens.</para><para>
+Click Options, and select from the pop-ups
+</para><para><screen>
+database - gnumed
+host - localhost
+port - 5432
+OK
+</screen></para><para>
+Log in to gnumed using username test-doc, password test-doc
+</para><para>
+All being well, a window opens tracking the modules as they are loaded, 
+and then a clinical screen.
+</para><para>
+Don't get too excited - wxPython on MacOSX  is slooooow, and somewhat 
+unstable, and there is nothing much to do in gnumed ...... yet.
+</orderedlist>
 </sect1>
 
 
