@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.9 2003-11-20 02:16:03 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmMatchProvider.py,v 1.10 2003-11-20 08:55:05 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -185,12 +185,11 @@ class cMatchProvider:
 		self.__learnNewItems = _true
 	#--------------------------------------------------------
 	def setContext (self, name, val):
-		""" sets values to provide context information
-		for matches. The matching code may ignore it depending
-		on it's exact implementation. names and values of the
-		context depend on what is being matched.
-		can pass a fixed value, in which case it is nt called,
-		but used in context as is (i.e a constant context)
+		"""Set value to provide context information	for matches.
+
+		The matching code may ignore it depending on its exact
+		implementation. Names and values of the context depend
+		on what is being matched.
 		"""
 		self._context_val[name] = val
 #------------------------------------------------------------
@@ -278,6 +277,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		return (_true, matches)
 	#--------------------------------------------------------
 	def setItems(self, items):
+		"""items must be a list of dicts. Each dict must have the keys (data, label, weight)"""
 		self.__items = items
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
@@ -375,34 +375,34 @@ class cMatchProvider_SQL(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		condition = "ilike"
+		operator = "ilike"
 		fragment = "%s%%" % aFragment
-		return self.__find_matches(condition, fragment)
+		return self.__find_matches(operator, fragment)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
-		condition = "~*"
+		operator = "~*"
 		fragment = "( %s)|(^%s)" % (aFragment, aFragment)
-		return self.__find_matches(condition, fragment)
+		return self.__find_matches(operator, fragment)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
-		condition = "ilike"
+		operator = "ilike"
 		fragment = "%%%s%%" % aFragment
-		return self.__find_matches(condition, fragment)
+		return self.__find_matches(operator, fragment)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
 		return self.getMatchesBySubstr('')
 	#--------------------------------------------------------
-	def __find_matches(self, search_condition, aFragment):
+	def __find_matches(self, search_operator, aFragment):
 		matches = []
 		for src in self.srcs:
 			curs = src['conn'].cursor()
 			# FIXME: deal with gmpw_score...
-			ctxt_where = ''
 			values = [aFragment]
-			# any extra conditions defined for this source ?
+			# process any extra conditions defined for this source
+			ctxt_where = ''
 			if src.has_key('extra conditions'):
 				# loop over name and condition for contexts
 				for ctxt_name, ctxt_condition in src['extra conditions'].iteritems():
@@ -421,7 +421,7 @@ class cMatchProvider_SQL(cMatchProvider):
 				src['column'],
 				src['table'],
 				src['column'],
-				search_condition,
+				search_operator,
 				ctxt_where
 			)
 			if not gmPG.run_query(curs, cmd, values):
@@ -453,7 +453,10 @@ class cMatchProvider_SQL(cMatchProvider):
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.9  2003-11-20 02:16:03  sjtan
+# Revision 1.10  2003-11-20 08:55:05  ncq
+# - some internal cleanup/renaming
+#
+# Revision 1.9  2003/11/20 02:16:03  sjtan
 #
 # make __context_val  in base class gmMatchProvider protected instead of class private, so subclasses can
 # access it.
