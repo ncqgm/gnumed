@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.74 $
+-- $Revision: 1.75 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -412,6 +412,7 @@ create table vaccination (
 -- Richard tells us that "refused" should go into progress note
 
 select add_table_for_audit('vaccination');
+select add_table_for_notifies('vaccination', 'vacc');
 
 -- remote foreign keys:
 select add_x_db_fk_def('vaccination', 'fk_patient', 'personalia', 'identity', 'id');
@@ -748,11 +749,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.74 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.75 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.74  2003-11-28 01:03:21  ncq
+-- Revision 1.75  2003-11-28 10:08:38  ncq
+-- - fix typos
+--
+-- Revision 1.74  2003/11/28 01:03:21  ncq
 -- - allow null in vacc_def.max_age_due so we can coalesce() in views
 --
 -- Revision 1.73  2003/11/26 23:20:43  ncq
