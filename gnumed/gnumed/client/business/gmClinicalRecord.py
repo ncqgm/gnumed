@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.81 2004-03-25 11:00:19 ncq Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmClinicalRecord.py,v 1.82 2004-03-27 22:18:43 ncq Exp $
+__version__ = "$Revision: 1.82 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -731,7 +731,7 @@ class cClinicalRecord:
 					where
 						id_patient=%s
 							and
-						modified_when=(select max(modified_when) where id_patient=%s))"""
+						modified_when=(select max(vpi.modified_when) from v_patient_items vpi where vpi.id_patient=%s))"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'no episodes in v_patient_items for patient [%s]' % self.id_patient)
@@ -752,7 +752,7 @@ class cClinicalRecord:
 					chi.id = cle.id_health_issue
 						and
 					cle.modified_when = (
-						select max(cle.modified_when)
+						select max(cle1.modified_when) from clin_episode cle1 where cle1.id=cle.id
 					)"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
@@ -1655,9 +1655,16 @@ if __name__ == "__main__":
 #			f.write(repr(row))
 #			f.write('\n')
 #	f.close()
+
+	gmPG.ConnectionPool().StopListeners()
+
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.81  2004-03-25 11:00:19  ncq
+# Revision 1.82  2004-03-27 22:18:43  ncq
+# - 7.4 doesn't allow aggregates in subselects which refer to outer-query
+#   columns only, therefor use explicit inner query from list
+#
+# Revision 1.81  2004/03/25 11:00:19  ncq
 # test get_lab_data()
 #
 # Revision 1.80  2004/03/23 17:32:59  ncq
