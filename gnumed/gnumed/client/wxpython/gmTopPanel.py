@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -234,7 +234,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		episodes = epr.get_episodes()
 		for episode in episodes:
 			self.combo_episodes.Append(episode['episode'], str(episode['id_episode']))
-		self.combo_episodes.SetValue(epr.episode['episode'])
+		self.combo_episodes.SetValue(epr.get_active_episode['episode'])
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -344,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.39  2004-05-28 09:03:54  shilbert
+# Revision 1.40  2004-05-29 22:19:56  ncq
+# - use get_active_episode()
+#
+# Revision 1.39  2004/05/28 09:03:54  shilbert
 # - fix sizer setup to enable it on wxMac
 #
 # Revision 1.38  2004/05/18 22:39:15  ncq
