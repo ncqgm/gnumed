@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -89,7 +89,11 @@ class wxBasePlugin (gmPlugin):
 		and zlib here and not in each and every plugin module which
 		should speed up plugin load time :-)
 		"""
-		icon_data = self.GetIconData()
+		# FIXME: load from config which plugin we want
+		# which_icon is a cookie stored on the backend by a config manager,
+		# it tells the plugin which icon to return data for,
+		which_icon = None
+		icon_data = self.GetIconData(which_icon)
 		if icon_data == None:
 			return None
 		else:
