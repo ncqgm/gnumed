@@ -22,19 +22,20 @@ public class InterfaceTransfer {
         this.aInterface = c;
         this.excludes = excludes;
         pds = Introspector.getBeanInfo(c).getPropertyDescriptors();
+        logger.info( this + " LOG LEVEL = " + logger.getLevel().getName());
     }
       
     public void transfer( Object from, Object to) throws Exception {
         if ( ! aInterface.isAssignableFrom(from.getClass())
             || ! aInterface.isAssignableFrom(to.getClass()) )
             throw new ClassCastException("MUST BE OF INTERFACE " + aInterface.getName() );
-        
+        logger.info( this + " LOG LEVEL = " + logger.getLevel().getName());
         for (int i = 0; i < pds.length; ++i) {
             if (java.util.Arrays.asList(excludes).contains(pds[i].getName()) )
                 continue;
-            logger.info("TRANSFERING FROM " + from.getClass() + " TO " + to.getClass() + " USING WRITE METHOD=" +pds[i].getName());
+            logger.finer("TRANSFERING  " + pds[i].getName() + " FROM " + from.getClass() + " TO " + to.getClass() + " USING WRITE METHOD=" +pds[i].getName());
             try {
-            logger.info("VALUE OF FROM attribute = " +  pds[i].getReadMethod().invoke(from, zeroArgs ) );
+            logger.finest("VALUE OF FROM attribute = " +  pds[i].getReadMethod().invoke(from, zeroArgs ) );
             } catch (Exception e) {
                 logger.info(e + " occuring when logging read from " + from);
             }

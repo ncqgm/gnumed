@@ -82,7 +82,20 @@ public class enum_social_id {
  */
     public void setName(String _name) {        
         name = _name;
-    } // end setName        
+    }
+    
+    public boolean equals(enum_social_id  esid) {
+        
+        return getId().equals(esid.getId());
+    }
+    
+    public boolean equals( Object other) {
+        if (other instanceof enum_social_id)
+            return equals( (enum_social_id) other);
+        return super.equals(other);
+    }
+    
+ // end setName        
 
 } // end enum_social_id
 

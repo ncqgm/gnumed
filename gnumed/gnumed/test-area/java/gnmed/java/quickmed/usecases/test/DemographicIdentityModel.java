@@ -50,8 +50,9 @@ public class DemographicIdentityModel implements  DemographicModel {
     private  static Method[] socialIdSetters = null;
     private  static Method[] addrTypeSetter =null;
     static {
-        logger = Logger.getLogger("DemographicIdentityModel");
-        logger.setLevel(Level.ALL);
+//        logger = Logger.getLogger("DemographicIdentityModel");
+        logger = Logger.global;
+//        logger.setLevel(logger.global.getLevel());
         //        logger.addHandler(new ConsoleHandler());
         try {
             socialIdSetters = new Method[] { enum_social_id.class.getMethod("setName", new Class[] { String.class}),
@@ -474,6 +475,12 @@ public class DemographicIdentityModel implements  DemographicModel {
         return new Date();
     }
     
+    String formatDate(Date d) {
+             return  shortestformat.format(d);
+       
+    }
+    
+    
     void setSocialIdentityAttr( social_identity si, Object val, boolean expiry) {
         if (expiry)
             si.setExpiry((Date) parseDate(val));
@@ -481,6 +488,31 @@ public class DemographicIdentityModel implements  DemographicModel {
             si.setNumber((String)val);
         logger.info(si.toString() + " set with " + val.toString() + "is expiry = " + new Boolean(expiry).toString());
     }
+    
+    social_identity findSocialIdentity( enum_social_id type ) {
+         social_identity sid = null;
+        identity id = getIdentity();
+        Collection c = id.getSocial_identitys();
+        Iterator j = c.iterator();
+        logger.info("THERE WERE " + c.size() + " Social Identities found. Looking for " + type.getId() + " "+type.getName());
+        while (j.hasNext()) {
+             sid = (social_identity) j.next();
+             try {
+            logger.finer("LOOKING AT SID "+ sid.getNumber() + sid.getEnum_social_id().getName() ); 
+             } catch (Exception e) {
+              logger.info("UNABLE to print " + sid);   
+             }
+            logger.info("checking at sid with type " + sid.getEnum_social_id());
+            if (sid.getEnum_social_id().equals(type)) {
+                logger.finer("RETURNING " + sid.getNumber() + sid.getEnum_social_id().getName());
+                return sid;
+            }
+        }
+        sid = new social_identity();
+        return sid;
+    }
+    
+   
     
     void setSocialIdentity( Object val, enum_social_id type, boolean expiry) {
         Iterator i = getIdentity().getSocial_identitys().iterator();
@@ -558,11 +590,11 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getMedicare() {
-        return "medicare";
+        return findSocialIdentity (medicare).getNumber();
     }
     
     public String getMedicareExpiry() {
-        return "MedicareExp";
+        return formatDate(findSocialIdentity ( medicare).getExpiry());
     }
     
     public String getMobilePhone() {
@@ -574,11 +606,11 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getPensioner() {
-        return "pensioner";
+        return findSocialIdentity( pension).getNumber();
     }
     
     public String getPensionerExpiry() {
-        return "pension exp";
+        return  formatDate(findSocialIdentity (pension).getExpiry());
         
     }
     
@@ -587,7 +619,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     public String getRecordNo() {
-        return "recordno";
+        return findSocialIdentity(recordNo).getNumber();
     }
     
     public String getSex() {
