@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.135 2005-03-21 20:10:20 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.136 2005-03-31 17:46:00 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -256,103 +256,6 @@ create trigger tr_episode_mod
 		execute procedure trf_announce_episode_mod()
 ;
 
-
--- any episode must have a name (at least when the transaction ends ...)
---\unset ON_ERROR_STOP
---drop trigger tr_epi_needs_name on clin_episode;
---drop function trf_epi_needs_name() cascade;
---drop function trf_epi_needs_name();
---\set ON_ERROR_STOP 1
-
---create function trf_epi_needs_name() returns opaque as '
---declare
---	final_epi_row RECORD;
---	msg text;
---	narr_pk integer;
---	narr_fk_episode integer;
---	narr_val text;
---begin
---	-- get final state of row
---	select into final_epi_row * from clin_episode where pk = NEW.pk;
---	-- was it deleted ?
---	if not found then
---		return NULL;
---	end if;
---	-- we must have a name
---	if final_epi_row.fk_clin_narrative is null then
---		msg := ''trf_epi_needs_name: episode ['' || final_epi_row.pk || '']: fk_clin_narrative cannot be NULL'';
---		raise exception ''%'', msg;
---	end if;
---	-- get our name
---	select into narr_pk, narr_fk_episode, narr_val
---		cn.pk, cn.fk_episode, cn.narrative
---		from clin_narrative cn
---		where cn.pk = final_epi_row.fk_clin_narrative;
---	-- it must exist
---	if not found then
---		msg := ''trf_epi_needs_name: episode [''
---		    || final_epi_row.pk || '']: fk_clin_narrative points to non-existing clin_narrative [''
---			|| final_epi_row.fk_clin_narrative || '']'';
---		raise exception ''%'', msg;
---	end if;
---	-- it must not be empty
---	if trim(narr_val) = '''' then
---		msg := ''trf_epi_needs_name: episode [''
---			|| final_epi_row.pk || '']: fk_clin_narrative [''
---			|| final_epi_row.fk_clin_narrative || '']: name must not be empty'';
---		raise exception ''%'', msg;
---	end if;
---	-- it must belong to us ...
---	-- (eg. check for cyclic referential integrity violation)
---	if narr_fk_episode <> final_epi_row.pk then
---		msg := ''trf_epi_needs_name: cyclic referential integrity violation: episode::fk_clin_narrative [''
---			|| final_epi_row.pk || ''::''
---			|| final_epi_row.fk_clin_narrative || ''] vs. narrative::fk_episode [''
---			|| narr_pk || ''::''
---			|| clin_narrative.fk_episode || '']'';
---		raise exception ''%'', msg;
---	end if;
---	return NULL;
---end;
---' language 'plpgsql';
-
--- the trick is to defer the trigger ...
---create constraint trigger tr_epi_needs_name
---	after insert or update
---	on clin_episode
---	initially deferred
---	for each row
---		execute procedure trf_epi_needs_name()
---;
-
-
--- pull in episode names from clin_narrative
---\unset ON_ERROR_STOP
---drop view v_named_episodes cascade;
---drop view v_named_episodes;
---\set ON_ERROR_STOP 1
-
---create view v_named_episodes as
---select
---	cep.fk_patient as pk_patient,
---	cn.soap_cat as soap_cat,
---	cn.narrative as description,
---	cep.is_open as is_open,
---	cn.is_rfe as is_rfe,
---	cn.is_aoe as is_aoe,
---	cep.pk as pk_episode,
---	cep.fk_health_issue as pk_health_issue,
---	cep.modified_when as modified_when,
---	cep.xmin as xmin_clin_episode,
---	cn.pk as pk_narrative
---from
---	clin_episode cep,
---	clin_narrative cn
---where
---	cn.pk = cep.fk_clin_narrative
---;
-
-
 \unset ON_ERROR_STOP
 drop view v_pat_episodes cascade;
 drop view v_pat_episodes;
@@ -369,6 +272,7 @@ select
 	cep.pk as pk_episode,
 	null as pk_health_issue,
 	cep.modified_when as episode_modified_when,
+	cep.modified_by as episode_modified_by,
 	cep.xmin as xmin_clin_episode
 from
 	clin_episode cep
@@ -387,6 +291,7 @@ select
 	cep.pk as pk_episode,
 	cep.fk_health_issue as pk_health_issue,
 	cep.modified_when as episode_modified_when,
+	cep.modified_by as episode_modified_by,
 	cep.xmin as xmin_clin_episode
 from
 	clin_episode cep, clin_health_issue chi
@@ -394,49 +299,6 @@ where
 	-- this should exclude all (fk_health_issue is Null) ?
 	cep.fk_health_issue=chi.id
 ;
-
---select
---	vnep.pk_patient as id_patient,
---	vnep.soap_cat as soap_cat,
---	vnep.description as description,
---	vnep.is_open as episode_open,
---	null as health_issue,
---	null as issue_active,
---	null as issue_clinically_relevant,
---	vnep.pk_episode as pk_episode,
---	null as pk_health_issue,
---	vnep.pk_narrative as pk_narrative,
---	vnep.modified_when as episode_modified_when,
---	vnep.xmin_clin_episode as xmin_clin_episode
---from
---	v_named_episodes vnep
---where
---	vnep.pk_health_issue is null
---
---		UNION ALL
-
---select
---	chi.id_patient as id_patient,
---	vnep.soap_cat as soap_cat,
---	case when vnep.description is null
---		then chi.description
---		else vnep.description
---	end as description,
---	vnep.is_open as episode_open,
---	chi.description as health_issue,
---	chi.is_active as issue_active,
---	chi.clinically_relevant as issue_clinically_relevant,
---	vnep.pk_episode as pk_episode,
---	vnep.pk_health_issue as pk_health_issue,
---	vnep.pk_narrative as pk_narrative,
---	vnep.modified_when as episode_modified_when,
---	vnep.xmin_clin_episode as xmin_clin_episode
---from
---	v_named_episodes vnep, clin_health_issue chi
---where
---	-- this should exclude all (fk_health_issue is Null) ?
---	vnep.pk_health_issue=chi.id
---;
 
 -- =============================================
 -- clin_root_item stuff
@@ -710,6 +572,8 @@ select
 	-- test_result
 	tr.fk_type as pk_test_type,
 	tr.fk_reviewer as pk_reviewer,
+	tr.modified_when,
+	tr.modified_by,
 	tr.xmin as xmin_test_result,
 	-- v_unified_test_types
 	vttu.pk_test_org,
@@ -738,6 +602,7 @@ drop view v_lab_requests;
 
 create view v_lab_requests as
 select
+	vpi.pk_patient as pk_patient,
 	lr.pk as pk_request,
 	torg.internal_name as lab_name,
 	lr.request_id as request_id,
@@ -753,13 +618,20 @@ select
 	lr.fk_requestor as pk_requestor,
 	lr.fk_encounter as pk_encounter,
 	lr.fk_episode as pk_episode,
+	vpi.pk_health_issue as pk_health_issue,
 	lr.pk_item as pk_item,
+	lr.modified_when as modified_when,
+	lr.modified_by as modified_by,
+	lr.soap_cat as soap_cat,
 	lr.xmin as xmin_lab_request
 from
 	lab_request lr,
-	test_org torg
+	test_org torg,
+	v_pat_items vpi
 where
 	lr.fk_test_org=torg.pk
+		and
+	vpi.pk_item = lr.pk_item
 ;
 
 comment on view v_lab_requests is
@@ -899,7 +771,9 @@ select
 	vpep.pk_health_issue as pk_health_issue,
 	a.fk_episode as pk_episode,
 	a.fk_encounter as pk_encounter,
-	a.xmin as xmin_allergy
+	a.xmin as xmin_allergy,
+	a.modified_when as modified_when,
+	a.modified_by as modified_by
 from
 	allergy a,
 	_enum_allergy_type at,
@@ -1057,6 +931,8 @@ select
 	vpep.pk_health_issue as pk_health_issue,
 	v.fk_episode as pk_episode,
 	v.fk_encounter as pk_encounter,
+	v.modified_when as modified_when,
+	v.modified_by as modified_by,
 	v.xmin as xmin_vaccination
 from
 	vaccination v,
@@ -1548,6 +1424,8 @@ select
 	vpi.pk_health_issue as pk_health_issue,
 
 	chxf.clin_when as clin_when,
+	chxf.modified_when as modified_when,
+	chxf.modified_by as modified_by,
 	chxf.fk_encounter as pk_encounter,
 	chxf.fk_episode as pk_episode,
 	chxf.narrative as relationship,
@@ -1585,6 +1463,8 @@ select
 	vpi.pk_health_issue as pk_health_issue,
 
 	chxf.clin_when as clin_when,
+	chxf.modified_when as modified_when,
+	chxf.modified_by as modified_by,
 	chxf.fk_encounter as pk_encounter,
 	chxf.fk_episode as pk_episode,
 	chxf.narrative as relationship,
@@ -1622,6 +1502,8 @@ select
 	vpn.pk_health_issue as pk_health_issue,
 
 	chxf.clin_when as clin_when,
+	chxf.modified_when as modified_when,
+	chxf.modified_by as modified_by,
 	chxf.fk_encounter as pk_encounter,
 	chxf.fk_episode as pk_episode,
 	chxf.narrative as relationship,
@@ -1689,27 +1571,23 @@ from
 -- =============================================
 -- *complete* narrative for searching
 \unset ON_ERROR_STOP
-drop view v_compl_narrative;
+drop view v_narrative4search;
 \set ON_ERROR_STOP 1
 
-create view v_compl_narrative as
--- soap items
+create view v_narrative4search as
+-- clin_root_items
 select
 	vpi.pk_patient as pk_patient,
-	cn.soap_cat as soap_cat,
-	cn.narrative as narrative,
-	cn.pk as src_pk,
+	vpi.soap_cat as soap_cat,
+	vpi.narrative as narrative,
+	vpi.pk_item as src_pk,
 	vpi.src_table as src_table
 from
-	clin_narrative cn,
 	v_pat_items vpi
 where
-	cn.pk_item = vpi.pk_item
-		and
-	trim(coalesce(cn.narrative, '')) != ''
+	trim(coalesce(vpi.narrative, '')) != ''
 
-		union
--- health issues
+union	-- health issues
 select
 	chi.id_patient as pk_patient,
 	'a' as soap_cat,
@@ -1721,8 +1599,7 @@ from
 where
 	trim(coalesce(chi.description, '')) != ''
 
-		union
--- encounters
+union	-- encounters
 select
 	cenc.fk_patient as pk_patient,
 	's' as soap_cat,
@@ -1734,8 +1611,7 @@ from
 where
 	trim(coalesce(cenc.description, '')) != ''
 
-	union
--- episodes
+union	-- episodes
 select
 	vpep.pk_patient as pk_patient,
 	's' as soap_cat,
@@ -1745,13 +1621,12 @@ select
 from
 	v_pat_episodes vpep
 
-union
--- family history
+union	-- family history
 select
 	vhxf.pk_patient as pk_patient,
 	vhxf.soap_cat as soap_cat,
 	vhxf.relationship || ' ('
-		|| vhxf.name_relative || ') / '
+		|| vhxf.name_relative || ') @ '
 		|| vhxf.age_noted || ': '
 		|| vhxf.condition
 	as narrative,
@@ -1762,10 +1637,257 @@ from
 
 ;
 
-comment on view v_compl_narrative is
+comment on view v_narrative4search is
 	'*complete* narrative for patients including
 	 health issue/episode/encounter descriptions,
 	 mainly for searching the narrative';
+
+
+-- =============================================
+-- complete narrative for display as a journal
+\unset ON_ERROR_STOP
+drop view v_emr_journal;
+\set ON_ERROR_STOP 1
+
+create view v_emr_journal as
+
+-- clin_narrative
+select
+	vpi.pk_patient as pk_patient,
+	cn.modified_when as modified_when,
+	cn.clin_when as clin_when,
+	case when ((select 1 from v_staff where db_user = cn.modified_by) is null)
+		then '<' || cn.modified_by || '>'
+		else (select sign from v_staff where db_user = cn.modified_by)
+	end as modified_by,
+	cn.soap_cat as soap_cat,
+	cn.narrative as narrative,
+	cn.fk_encounter as pk_encounter,
+	cn.fk_episode as pk_episode,
+	vpi.pk_health_issue as pk_health_issue,
+	cn.pk as src_pk,
+	'clin_narrative'::text as src_table
+from
+	v_pat_items vpi,
+	clin_narrative cn
+where
+	vpi.pk_item = cn.pk_item
+
+union	-- health issues
+select
+	chi.id_patient as pk_patient,
+	chi.modified_when as modified_when,
+	chi.modified_when as clin_when,
+	case when ((select 1 from v_staff where db_user = chi.modified_by) is null)
+		then '<' || chi.modified_by || '>'
+		else (select sign from v_staff where db_user = chi.modified_by)
+	end as modified_by,
+	'a' as soap_cat,
+	_('health issue') || ': ' || chi.description as narrative,
+	-1 as pk_encounter,
+	-1 as pk_episode,
+	chi.id as pk_health_issue,
+	chi.id as src_pk,
+	'clin_health_issue'::text as src_table
+from
+	clin_health_issue chi
+
+union	-- encounters
+select
+	cenc.fk_patient as pk_patient,
+	cenc.modified_when as modified_when,
+	-- FIXME: or last_affirmed ?
+	cenc.started as clin_when,
+	case when ((select 1 from v_staff where db_user = cenc.modified_by) is null)
+		then '<' || cenc.modified_by || '>'
+		else (select sign from v_staff where db_user = cenc.modified_by)
+	end as modified_by,
+	's' as soap_cat,
+	_('encounter') || ': ' || cenc.description as narrative,
+	cenc.id as pk_encounter,
+	-1 as pk_episode,
+	-1 as pk_health_issue,
+	cenc.id as src_pk,
+	'clin_encounter'::text as src_table
+from
+	clin_encounter cenc
+where
+	cenc.description is not null
+
+union	-- episodes
+select
+	vpep.pk_patient as pk_patient,
+	vpep.episode_modified_when as modified_when,
+	vpep.episode_modified_when as clin_when,
+	case when ((select 1 from v_staff where db_user = vpep.episode_modified_by) is null)
+		then '<' || vpep.episode_modified_by || '>'
+		else (select sign from v_staff where db_user = vpep.episode_modified_by)
+	end as modified_by,
+	's' as soap_cat,
+	_('episode') || ': ' || vpep.description as narrative,
+	-1 as pk_encounter,
+	vpep.pk_episode as pk_episode,
+	-1 as pk_health_issue,
+	vpep.pk_episode as src_pk,
+	'clin_episode'::text as src_table
+from
+	v_pat_episodes vpep
+
+union	-- family history
+select
+	vhxf.pk_patient as pk_patient,
+	vhxf.modified_when as modified_when,
+	vhxf.clin_when as clin_when,
+	case when ((select 1 from v_staff where db_user = vhxf.modified_by) is null)
+		then '<' || vhxf.modified_by || '>'
+		else (select sign from v_staff where db_user = vhxf.modified_by)
+	end as modified_by,
+	vhxf.soap_cat as soap_cat,
+	_(vhxf.relationship) || ' '
+		|| vhxf.name_relative || ' @ '
+		|| vhxf.age_noted || ': '
+		|| vhxf.condition
+	as narrative,
+	vhxf.pk_encounter as pk_encounter,
+	vhxf.pk_episode as pk_episode,
+	vhxf.pk_health_issue as pk_health_issue,
+	vhxf.pk_hx_family_item as src_pk,
+	'hx_family_item'::text as src_table
+from
+	v_hx_family vhxf
+
+union	-- vaccinations
+select
+	vpv4i.pk_patient as pk_patient,
+	vpv4i.modified_when as modified_when,
+	vpv4i.date as clin_when,
+	case when ((select 1 from v_staff where db_user = vpv4i.modified_by) is null)
+		then '<' || vpv4i.modified_by || '>'
+		else (select sign from v_staff where db_user = vpv4i.modified_by)
+	end as modified_by,
+	'p' as soap_cat,
+	_('vaccine') || ': ' || vpv4i.vaccine || '; '
+		|| _('batch no') || ': ' || vpv4i.batch_no || '; '
+		|| _('indication') || ': ' || vpv4i.l10n_indication || '; '
+		|| _('site') || ': ' || vpv4i.site || '; '
+		|| _('notes') || ': ' || vpv4i.narrative || ';'
+	as narrative,
+	vpv4i.pk_encounter as pk_encounter,
+	vpv4i.pk_episode as pk_episode,
+	vpv4i.pk_health_issue as pk_health_issue,
+	vpv4i.pk_vaccination as src_pk,
+	'vaccination'::text as src_table
+from
+	v_pat_vacc4ind vpv4i
+
+union -- allergies
+select
+	vpa.pk_patient as pk_patient,
+	vpa.modified_when as modified_when,
+	vpa.date as clin_when,
+	case when ((select 1 from v_staff where db_user = vpa.modified_by) is null)
+		then '<' || vpa.modified_by || '>'
+		else (select sign from v_staff where db_user = vpa.modified_by)
+	end as modified_by,
+	's' as soap_cat,	-- FIXME: pull in proper soap_cat
+	_('allergene') || ': ' || coalesce(vpa.allergene, '') || '; '
+		|| _('substance') || ': ' || vpa.substance || '; '
+		|| _('generic')   || ': ' || coalesce(vpa.generics, '') || '; '
+		|| _('ATC code')  || ': ' || coalesce(vpa.atc_code, '') || '; '
+		|| _('type')      || ': ' || vpa.l10n_type || '; '
+		|| _('reaction')  || ': ' || coalesce(vpa.reaction, '') || ';'
+	as narrative,
+	vpa.pk_encounter as pk_encounter,
+	vpa.pk_episode as pk_episode,
+	vpa.pk_health_issue as pk_health_issue,
+	vpa.pk_allergy as src_pk,
+	'allergy' as src_table
+from
+	v_pat_allergies vpa
+
+union	-- lab requests
+select
+	vlr.pk_patient as pk_patient,
+	vlr.modified_when as modified_when,
+	vlr.sampled_when as clin_when,
+	case when ((select 1 from v_staff where db_user = vlr.modified_by) is null)
+		then '<' || vlr.modified_by || '>'
+		else (select sign from v_staff where db_user = vlr.modified_by)
+	end as modified_by,
+	vlr.soap_cat as soap_cat,
+	_('lab') || ': ' || vlr.lab_name || '; '
+		|| _('sample ID') || ': ' || vlr.request_id || '; '
+		|| _('sample taken') || ': ' || vlr.sampled_when || '; '
+		|| _('status') || ': ' || vlr.l10n_request_status || '; '
+		|| _('notes') || ': ' || coalesce(vlr.progress_note, '') || ';'
+	as narrative,
+	vlr.pk_encounter as pk_encounter,
+	vlr.pk_episode as pk_epiode,
+	vlr.pk_health_issue as pk_health_issue,
+	vlr.pk_item as src_pk,
+	'lab_request' as src_table
+from
+	v_lab_requests vlr
+
+union	-- test results
+select
+	vtr.pk_patient as pk_patient,
+	vtr.modified_when as modified_when,
+	vtr.clin_when as clin_when,
+	case when ((select 1 from v_staff where db_user = vtr.modified_by) is null)
+		then '<' || vtr.modified_by || '>'
+		else (select sign from v_staff where db_user = vtr.modified_by)
+	end as modified_by,
+	vtr.soap_cat as soap_cat,
+	_('code') || ': ' || vtr.unified_code || '; '
+		|| _('name') || ': ' || vtr.unified_name || '; '
+		|| _('value') || ': ' || vtr.unified_val || ' ' || vtr.val_unit || ' ('
+--		|| coalesce(vtr.unified_target_min, -9999)::text || ' - '
+--		|| coalesce(vtr.unified_target_max, -9999)::text || ' / '
+		|| coalesce(vtr.unified_target_range, '?') || '); '
+		|| _('notes') || vtr.comment || ';'
+	as narrative,
+	vtr.pk_encounter as pk_encounter,
+	vtr.pk_episode as pk_episode,
+	vtr.pk_health_issue as pk_health_issue,
+	vtr.pk_test_result as src_pk,
+	'test_result' as src_table
+from
+	v_test_results vtr
+;
+
+comment on view v_emr_journal is
+	'patient narrative including health issue/episode/
+	 encounter descriptions, mainly for display as a journal';
+
+select i18n('health issue');
+select i18n('episode');
+select i18n('encounter');
+
+select i18n('vaccine');
+select i18n('batch no');
+select i18n('indication');
+select i18n('site');
+select i18n('notes');
+
+select i18n('allergene');
+select i18n('substance');
+select i18n('generic');
+select i18n('ATC code');
+select i18n('type');
+select i18n('reaction');
+
+select i18n('lab');
+select i18n('sample ID');
+select i18n('sample taken');
+select i18n('status');
+select i18n('notes');
+
+select i18n('code');
+select i18n('name');
+select i18n('value');
+
+--select i18n('');
 
 
 -- =============================================
@@ -1877,19 +1999,28 @@ grant select on
 	, v_pat_item_types
 	, v_types4item
 	, v_problem_list
-	, v_compl_narrative
---	, v_hx_family
+	, v_narrative4search
+	, v_emr_journal
+	, v_hx_family
 to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.135 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.136 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.135  2005-03-21 20:10:20  ncq
+-- Revision 1.136  2005-03-31 17:46:00  ncq
+-- - cleanup, remove dead code
+-- - add v_emr_journal
+-- - enhance several views to include modified_when/modified_by for v_emr_journal
+-- - improve v_pat_narrative
+-- - v_compl_narrative -> v_narrative4search
+-- - grants
+--
+-- Revision 1.135  2005/03/21 20:10:20  ncq
 -- - v_patient_items -> v_pat_items for consistency
 -- - add v_hx_family and include in v_compl_narrative
 --
