@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -190,12 +190,15 @@ and cfg_template.id = cfg_item.id_template limit 1;
 
 		return result[0]
 	#----------------------------
-	def set(self, machine = None, user = None, cookie = None, option = None, value = None, aRWConn = None):
+	def set(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None, value = None, aRWConn = None):
 		"""Set the value of a config option.
 
 		- inserts or updates value in the database
+		Note: you can't change the type of a parameter once it has been
+		created in the backend. If you want to change the type you will
+		have to delete the parameter and recreate it using the new type.
 		"""
-
+		# FIXME: user = None is not handled well
 		# sanity checks
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to store.")
@@ -263,6 +266,8 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			cookie_where = " and cookie=%s"
 			where_args.append (cookie)
 
+		# FIXME: we must check if template with same name and 
+		# different type exists -> error (wont find double entry on get())
 		# get id of option template
 		curs = aRWConn.cursor()
 		cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
@@ -284,6 +289,8 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			result = curs.fetchone()
 		template_id = result[0]
 
+		# FIXME: this does not always find the existing entry (in particular if user=None)
+		# reason: different handling of None in set() and get()
 		# do we need to insert a new option or update an existing one ?
 		if self.get(machine, user, cookie, option) is None:
 			# insert new option
@@ -357,6 +364,74 @@ and cfg_template.id = cfg_item.id_template limit 1;
 			return None
 
 		return result
+	#----------------------------
+	def delete(self, machine = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None, aRWConn = None):
+		"""
+		Deletes an option or a whole group.
+		Note you have to call store() in order to save
+		the changes.
+		"""
+		# sanity checks
+		if option is None:
+			_log.Log(gmLog.lErr, "Need to know which option to store.")
+			return None
+		if aRWConn is None:
+			_log.Log(gmLog.lErr, "Need rw connection to database to store the value.")
+			return None
+
+		cache_key = self.__make_key(machine, user, cookie, option)
+		
+		curs = aRWConn.cursor()
+
+		# get item id
+		item_id = self.getID(machine, user, cookie, option)
+		if item_id is None:
+			curs.close()
+			return None
+
+		# get template id, template type
+		cmd = "select id_template, type from cfg_item, cfg_template where cfg_item.id like %s and cfg_item.id_template = cfg_template.id limit 1;"
+		if gmPG.run_query(curs, cmd, item_id) is None:
+			curs.close()
+			return None
+		result = curs.fetchone()		
+		template_id, template_type = result
+
+		# check if this is the only reference to this template
+		# if yes, delete template, too
+		# here we assume that only 
+		cmd = "select id from cfg_item where id_template like %s;"
+		if gmPG.run_query(curs, cmd, template_id) is None:
+			curs.close()
+			return None
+		result = curs.fetchall()		
+		template_ref_count = len(result)
+
+		# delete option 
+		cmd = """
+		delete from cfg_%s where id_item=%s; 
+		delete from cfg_item where id='%s';""" % (template_type, item_id, item_id)
+		if gmPG.run_query(curs, cmd) is None:
+			curs.close()
+			return None
+
+		# delete template if last reference
+		if template_ref_count == 1:
+			cmd = "delete from cfg_template where id like %s;"
+			if gmPG.run_query(curs, cmd, template_id) is None:
+				curs.close()
+				return None
+		
+		# actually commit our stuff
+		aRWConn.commit()
+		curs.close()
+		
+		# delete cache entry for this parameter
+		if self.cache.has_key(cache_key):
+			del self.cache[cache_key]
+			
+		return 1		
+		
 	#----------------------------
 	def __make_key(self, machine, user, cookie, option):
 		return '%s-%s-%s-%s' % (machine, user, cookie, option)
@@ -587,6 +662,36 @@ class cCfgFile:
 
 		os.remove(new_name)
 		return 1
+	#----------------------------
+	def delete(self, aGroup = None, anOption = None):
+		"""
+		Deletes an option or a whole group.
+		Note that you have to call store() in order to save
+		the changes.
+		"""
+		# check if the group exists
+		if aGroup is not None:
+			if not self._cfg_data['groups'].has_key(aGroup):
+				_log.Log(gmLog.lWarn, 'group [%s] not found' % aGroup)
+				return None
+		else:
+			_log.Log(gmLog.lWarn, 'No group to delete specified.')
+			return None
+		
+		# now we know that the group exists
+		if anOption is None:
+			del self._cfg_data['groups'][aGroup]
+			return 1
+		else:			
+			group = self._cfg_data['groups'][aGroup]
+
+			if not group['options'].has_key(anOption):
+				_log.Log(gmLog.lWarn, 'option <%s> not found in group [%s]' % (anOption, aGroup))
+				return None
+			else:
+				del group['options'][anOption]
+		return 1
+
 	#----------------------------
 	# internal methods
 	#----------------------------
@@ -1021,6 +1126,12 @@ if __name__ == "__main__":
 		aList.append("val 1")
 		myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
 
+		myDBCfg.set(user = cfg_DEFAULT, option = "blatest", value = "xxx", aRWConn = conn)
+		print "blatest set to:", myDBCfg.get(machine = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
+		
+		myDBCfg.delete( user= cfg_DEFAULT, option = "blatest", aRWConn = conn)
+		print "after deletion blatest set to:", myDBCfg.get(machine = cfg_DEFAULT, user=cfg_DEFAULT,option = "blatest")
+		
 		conn.close()
 		
 		val,set = getFirstMatchingDBSet(machine = "test", cookie = "gui", 
@@ -1043,7 +1154,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.62  2003-09-24 10:32:13  ncq
+# Revision 1.63  2003-09-26 19:35:21  hinnef
+# - added delete() methods in cCfgFile and cCfgSQL, small fixes in cfgSQL.set()
+#
+# Revision 1.62  2003/09/24 10:32:13  ncq
 # - in _get_conf_name() we need to make std_dirs when aName is None,
 #   not aDir, also init base_name/base_dir to a known state
 #
