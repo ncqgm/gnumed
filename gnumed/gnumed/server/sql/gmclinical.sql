@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.94 $
+-- $Revision: 1.95 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -340,7 +340,7 @@ create table vaccine (
 		check(min_age > interval '0 seconds'),
 	max_age interval
 		default null
-		check((max_age is null) or (max_age > min_age)),
+		check((max_age is null) or (max_age >= min_age)),
 	last_batch_no text default null,
 	comment text,
 	unique (trade_name, short_name)
@@ -435,7 +435,7 @@ create table vacc_def (
 		check (min_age_due > '0 seconds'::interval),
 	max_age_due interval
 		default null
-		check ((max_age_due is null) or (max_age_due > min_age_due)),
+		check ((max_age_due is null) or (max_age_due >= min_age_due)),
 	min_interval interval
 		default null
 		check (
@@ -835,11 +835,14 @@ comment on table clin_history_editarea is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.94 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.95 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.94  2004-04-12 22:49:41  ncq
+-- Revision 1.95  2004-04-14 20:03:59  ncq
+-- - fix check constraints on intervals
+--
+-- Revision 1.94  2004/04/12 22:49:41  ncq
 -- - comments
 --
 -- Revision 1.93  2004/04/11 10:08:36  ncq
