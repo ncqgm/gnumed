@@ -75,7 +75,7 @@ class EditAreaPrompts(wxPanel):
 #----------------------------------------------------------
 class EditTextBoxes(wxPanel):
 	def __init__(self,parent,id,editareaprompts,section):
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = wxRAISED_BORDER)	
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = wxRAISED_BORDER|wxTAB_TRAVERSAL)	
 		self.SetBackgroundColour(wxColor(222,222,222))                         #background of whole panel
 		self.szr_edit_area = wxBoxSizer(wxVERTICAL)                         # vertical sizer for edit are (?need)
 		self.gs = wxGridSizer(len(editareaprompts), 1, 0, 0)                     # rows, cols, hgap, vgap
