@@ -24,11 +24,14 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__  = "R. Terry <rterry@gnumed.net>, H. Herb <hherb@gnumed.net>"
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.6  2003-01-14 20:18:57  ncq
+# Revision 1.7  2003-02-02 08:49:49  ihaywood
+# demographics being connected to database
+#
+# Revision 1.6  2003/01/14 20:18:57  ncq
 # - fixed setfont() problem
 #
 # Revision 1.5  2003/01/09 12:01:39  hherb
@@ -136,7 +139,10 @@ class AllergyPanel(wxPanel):
 
 
 	def RegisterInterests(self):
-		gmDispatcher.connect(self.UpdateAllergies, gmSignals.patient_selected())
+		# what is going on here?
+		# there is no meniton of view v_allergies anywhere else in the source tree!!!
+		# disconnected until gmclinical.sql catches up
+		#gmDispatcher.connect(self.UpdateAllergies, gmSignals.patient_selected())
 
 
 

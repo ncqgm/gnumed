@@ -25,6 +25,7 @@ from wxPython.wx import *
 from mx import DateTime
 import gmPlugin
 import gmGuiBroker
+import gmPatientNameQuery
 import gmLog, gmDispatcher, gmSignals
 import gmSQLListControl, gmDataPanelMixin
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
@@ -123,6 +124,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		# code to link up SQLListControl
 		self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=true, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
+		EVT_LIST_ITEM_SELECTED (self.patientslist, ID_PATIENTSLIST, self.OnPatient)
 		self.lbl_surname = BlueLabel(self,-1,"Surname")
 		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
 		self.lbl_preferredname = BlueLabel(self,-1,"Salutation")
@@ -369,13 +371,22 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.SetAutoLayout(true)
 		self.Show(false)
 
-	def RegisterInterests(self):
-		gmDispatcher.connect(self.OnSelected, gmSignals.PatientSelected())
 
+	def OnPatient (self, event):
+		pat_id = event.GetData ()
+		index = event.GetIndex ()
+		gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % pat_id)
+		pat_fname = self.patientslist.GetItem (index, 1).GetText ()
+		pat_lname = self.patientslist.GetItem (index, 0).GetText ()
+		pat_dob = self.patientslist.GetItem (index, 2).GetText ()
+		# load the demographic text controls
+		# send a signal to other objects
+		kwds = {'title':"", 'firstnames':pat_fname, 'lastnames':pat_lname, 'dob':pat_dob, 'ID':pat_id}
+		gmDispatcher.send (gmSignals.patient_selected (), sender='Terry Patient Selector', kwds=kwds )
 
-	def OnSelected (self, **kdws):
-		gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % str(kwds['ID']))
-
+	def FindPatient (self, name):
+		self.patientslist.SetQueryStr (gmPatientNameQuery.MakeQuery (name), service='personalia')
+		self.patientslist.RunQuery ()
 
 
 class gmDemographics(gmPlugin.wxBasePlugin):
@@ -420,11 +431,12 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.mwm = self.gb['patient.manager']
 		self.widget = PatientsPanel (self.mwm, self)
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
+		self.RegisterInterests ()
 		
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
 		self.gb['modules.gui']['Patient'].Raise ()
-		
+		self.widget.FindPatient (self.txt_findpatient.GetValue ())
 
 	def RegisterInterests(self):
 		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
