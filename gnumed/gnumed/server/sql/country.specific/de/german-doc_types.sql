@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 
 -- part of GnuMed
 -- GPL
@@ -30,6 +30,9 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summ
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary other', 'Entlassung sonstige');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary rehabilitation', 'Entlassung Reha');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary urology', 'Entlassung Uro');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary neurosurgery', 'Entlassung Neurochirurgie');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary ophthalmology', 'Entlassung Augen');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary ENT', 'Entlassung HNO');
 
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report internal', 'Arztbrief Innere');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report surgical', 'Arztbrief Chirurgie');
@@ -43,16 +46,22 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral repor
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report cardiology', 'Arztbrief Kardio');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report psychotherapy', 'Arztbrief Psychotherapie');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report oncology', 'Arztbrief Onkologie');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report pathology', 'Arztbrief Patho');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report neurosurgery', 'Arztbrief Neurochirurgie');
+
 --INSERT into _doc_type(name) values('Arztbrief Umweltmedizin');
 --INSERT into _doc_type(name) values('Arztbrief Mikrobiologie');
 --INSERT into _doc_type(name) values('Labor');
 
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.11  2003-06-11 14:03:44  ncq
+-- Revision 1.12  2003-07-20 09:39:04  ncq
+-- - more translations
+--
+-- Revision 1.11  2003/06/11 14:03:44  ncq
 -- - set encoding
 --
 -- Revision 1.10  2003/05/12 12:43:40  ncq
