@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.129 2005-03-01 20:40:10 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.130 2005-03-11 22:55:50 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -235,10 +235,10 @@ create trigger tr_episode_mod
 ;
 
 
--- an episode not linked to a health issue must have a
--- name (at least when the transaction ends ...)
+-- any episode must have a name (at least when the transaction ends ...)
 \unset ON_ERROR_STOP
 drop trigger tr_epi_needs_name on clin_episode;
+drop function trf_epi_needs_name() cascade;
 drop function trf_epi_needs_name();
 \set ON_ERROR_STOP 1
 
@@ -293,47 +293,6 @@ begin
 	return NULL;
 end;
 ' language 'plpgsql';
-
---create function trf_standalone_epi_needs_name() returns opaque as '
---declare
---	final_epi_row RECORD;
---	msg text;
---	narr_pk integer;
---	narr_fk_episode integer;
---begin
---	-- get final state of row
---	select into final_epi_row * from clin_episode where pk = NEW.pk;
---	-- was likely deleted
---	if not found then
---		return NULL;
---	end if;
---	-- if we do have a name it must belong to us ...
---	-- (eg. check for cyclic referential integrity violation)
---	if final_epi_row.fk_clin_narrative is not null then
---		select into narr_pk, narr_fk_episode cn.pk, cn.fk_episode
---			from clin_narrative cn
---			where cn.pk = final_epi_row.fk_clin_narrative;
---		if not found then
---			msg := ''trf_standalone_epi_needs_name: episode ['' || final_epi_row.pk || '']: ''
---			    || ''fk_clin_narrative points to non-existing clin_narrative ['' || final_epi_row.fk_clin_narrative || '']'';
---			raise exception ''%'', msg;
---		end if;
---		if narr_fk_episode <> final_epi_row.pk then
---			msg := ''trf_standalone_epi_needs_name: episode ['' || final_epi_row.pk || '']: ''
---			    || clin_narrative.fk_episode || '' ['' || narr_pk || '':'' || narr_fk_episode || ''] ''
---			    || ''must point to this episode if it is supposed to name it'';
---			raise exception ''%'', msg;
---		end if;
---		return NULL;
---	end if;
---	-- if linked to a health issue we do not have to have a name of our own ...
---	if final_epi_row.fk_health_issue is not null then
---		return NULL;
---	end if;
---	msg := ''trf_standalone_epi_needs_name: episode ['' || final_epi_row.pk || '']: fk_health_issue and fk_clin_narrative cannot both be NULL'';
---	raise exception ''%'', msg;
---end;
---' language 'plpgsql';
 
 -- the trick is to defer the trigger ...
 create constraint trigger tr_epi_needs_name
@@ -1368,12 +1327,16 @@ select
 	vpi.pk_health_issue as pk_health_issue,
 	cn.fk_episode as pk_episode,
 	cn.fk_encounter as pk_encounter,
+	vpe.pk_provider as pk_provider,
 	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
-	v_patient_items vpi
+	v_patient_items vpi,
+	v_pat_encounters vpe
 where
 	cn.pk_item = vpi.pk_item
+		and
+	vpi.pk_encounter = vpe.pk_encounter
 ;
 
 comment on view v_pat_narrative is
@@ -1617,11 +1580,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.129 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.130 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.129  2005-03-01 20:40:10  ncq
+-- Revision 1.130  2005-03-11 22:55:50  ncq
+-- - cleanup
+-- - carry over provider into narrative view
+--
+-- Revision 1.129  2005/03/01 20:40:10  ncq
 -- - require name for all episodes thereby fixing not being able to
 --   refetch unnamed episodes in the Python middleware
 --
