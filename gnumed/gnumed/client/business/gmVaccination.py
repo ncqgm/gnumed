@@ -1,12 +1,12 @@
 """GnuMed vaccination related business objects.
 
-license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.9 2004-06-28 12:18:52 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmVaccination.py,v 1.10 2004-08-20 13:19:52 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL"
 
 import types
 
@@ -255,7 +255,10 @@ if __name__ == '__main__':
 	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.9  2004-06-28 12:18:52  ncq
+# Revision 1.10  2004-08-20 13:19:52  ncq
+# - add license
+#
+# Revision 1.9  2004/06/28 12:18:52  ncq
 # - more id_* -> fk_*
 #
 # Revision 1.8  2004/06/26 07:33:55  ncq
