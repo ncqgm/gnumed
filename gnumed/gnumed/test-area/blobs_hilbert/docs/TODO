@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -20,7 +20,7 @@ index
 
 import
 ------
-- move/delete after successfull import !!
+- move/delete script for after successfull import
 
 viewer
 ------
