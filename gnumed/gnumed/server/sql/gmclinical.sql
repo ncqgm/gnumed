@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -23,11 +23,11 @@ create table audit_clinical (
 comment on table audit_clinical is 
 'ancestor table for auditing. Marks tables for automatic trigger generation';
 
+-- -------------------------------------------------------------------
 create table enum_clinical_encounters(
 	id SERIAL primary key,
 	description text
 )inherits (audit_clinical);
-
 
 INSERT INTO enum_clinical_encounters (description)
 	values (i18n('surgery consultation'));
@@ -55,8 +55,13 @@ INSERT INTO enum_clinical_encounters (description)
 COMMENT ON TABLE enum_clinical_encounters is
 'these are the types of encounter';
 
+-- -------------------------------------------------------------------
+create table clinical_encounter (
+	id serial primary key
+) inherits (audit_clinical);
 
-create table clinical_transaction(
+-- -------------------------------------------------------------------
+create table clinical_transaction (
 	id SERIAL primary key,
 	stamp timestamp with time zone,
 	duration interval,
@@ -67,20 +72,21 @@ create table clinical_transaction(
 ) inherits (audit_clinical);
 
 COMMENT ON TABLE clinical_transaction is
-'unique identifier for clinical encounter';
+	'unique identifier for clinical transaction';
 
 COMMENT ON COLUMN clinical_transaction.stamp is 
-'Date, time and timezone of the transaction.'; 
+	'Date, time and timezone of the transaction.'; 
 
 COMMENT ON COLUMN clinical_transaction.id_location is 
-'Location ID, in ?? gmoffice';
+	'Location ID, in ?? gmoffice';
 
 COMMENT ON COLUMN clinical_transaction.id_provider is 
-'ID of doctor/nurse/patient/..., in ?? gmoffice';
+	'ID of doctor/nurse/patient/..., in ?? gmoffice';
 
 COMMENT ON COLUMN clinical_transaction.id_patient is 
-'Patient''s ID, in gmidentity';
+	'Patient''s ID, in gmidentity';
 
+-- -------------------------------------------------------------------
 create table enum_clinical_history(
 	id SERIAL primary key,
 	description text
@@ -115,6 +121,7 @@ INSERT INTO enum_clinical_history (description)
 INSERT INTO enum_clinical_history (description)
 	values (i18n('other'));
 
+-- -------------------------------------------------------------------
 create table enum_info_sources
 (
 	id serial,
@@ -131,6 +138,7 @@ insert into enum_info_sources (description) values (i18n('carer'));
 insert into enum_info_sources (description) values (i18n('notes'));
 insert into enum_info_sources (description) values (i18n('correspondence'));
 
+-- -------------------------------------------------------------------
 create table clinical_history(
 	id SERIAL primary key,
 	id_enum_clinical_history int REFERENCES enum_clinical_history (id),
@@ -151,7 +159,7 @@ COMMENT ON COLUMN clinical_history.id_clinical_transaction is
 COMMENT ON COLUMN clinical_history.text is
 'The text typed by the doctor';
 
-
+-- -------------------------------------------------------------------
 create table enum_coding_systems (
 	id SERIAL primary key,
 	description text
@@ -178,7 +186,7 @@ INSERT INTO enum_coding_systems (description)
 INSERT INTO enum_coding_systems (description)
 	values (i18n('other'));
 
-
+-- -------------------------------------------------------------------
 create table coding_systems (
 	id SERIAL primary key,
 	id_enum_coding_systems int REFERENCES enum_coding_systems (id),
@@ -190,6 +198,7 @@ create table coding_systems (
 comment on table coding_systems is
 'The coding systems in this database.';
 
+-- -------------------------------------------------------------------
 create table clinical_diagnosis (
 	id SERIAL primary key,
 	id_clinical_transaction int  REFERENCES clinical_transaction (id),
@@ -216,6 +225,7 @@ comment on column clinical_diagnosis.id_coding_systems is
 comment on column clinical_diagnosis.text is
 'extra notes on the diagnosis';
 
+-- -------------------------------------------------------------------
 create table enum_confidentiality_level (
 	id SERIAL primary key,
 	description text
@@ -239,6 +249,7 @@ INSERT INTO enum_confidentiality_level (description)
 INSERT INTO enum_confidentiality_level (description)
 	values (i18n('treating doctor'));
 
+-- -------------------------------------------------------------------
 create table clinical_diagnosis_extra (
 	id SERIAL primary key,
 	id_clinical_diagnosis int REFERENCES clinical_diagnosis (id),
@@ -436,11 +447,14 @@ insert into enum_immunities (name) values ('tetanus');
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.14  2003-01-20 20:10:12  ncq
+-- Revision 1.15  2003-03-27 21:14:49  ncq
+-- - cleanup, started work on Dutch structure
+--
+-- Revision 1.14  2003/01/20 20:10:12  ncq
 -- - adapted to new i18n
 --
 -- Revision 1.13  2003/01/13 10:07:52  ihaywood
