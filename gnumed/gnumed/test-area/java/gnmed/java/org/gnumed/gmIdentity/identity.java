@@ -10,6 +10,11 @@ import org.gnumed.gmClinical.clin_encounter;
 import org.gnumed.gmClinical.clin_health_issue;
 import org.gnumed.gmGIS.identities_addresses;
 import org.gnumed.gmClinical.script_drug;
+import org.gnumed.gmClinical.clin_attribute;
+import org.gnumed.gmClinical.category_attribute;
+import org.gnumed.gmClinical.category_type;
+// for the find function.
+import org.gnumed.gmGIS.address_type;
 /**
  * <p>
  *
@@ -72,6 +77,10 @@ public class identity {
      */
     private Date deceased;
     
+     
+      public Collection clin_attribute = new java.util.HashSet(); // of type clin_attribute
+
+    
     ///////////////////////////////////////
     // associations
     
@@ -96,6 +105,40 @@ public class identity {
     
     public Collection names = new java.util.HashSet(); // of type Names
     Collection script_drug = new java.util.HashSet();
+    
+    /** Holds value of property mobile. */
+    private org.gnumed.gmGIS.telephone mobile;
+      public Collection social_identity = new java.util.HashSet(); // of type social_identity
+    
+      
+      /**
+       *@hibernate.set
+       *    inverse="true"
+       *@hibernate.collection-key
+       *    column="identity"
+       *@hibernate.collection-one-to-many
+       *    class="org.gnumed.gmIdentity.social_identity"
+       */
+  public Collection getSocial_identitys() {
+        return social_identity;
+    }
+  
+   /** Setter for property social_identitys.
+     * @param social_identitys New value of property social_identitys.
+     *
+     */
+    public void setSocial_identitys(Collection social_identitys) {}
+    
+    public void addSocial_identity(social_identity _social_identity) {
+        if (! this.social_identity.contains(_social_identity)) {
+            this.social_identity.add(_social_identity);
+            _social_identity.setIdentity(this);
+        }
+    }
+    public void removeSocial_identity(social_identity _social_identity) {
+        boolean removed = this.social_identity.remove(_social_identity);
+        if (removed) _social_identity.setIdentity((identity)null);
+    }
     ///////////////////////////////////////
     // access methods for associations
     
@@ -380,7 +423,76 @@ public class identity {
         id = _id;
     }
     
-  
+    /** Getter for property mobile.
+     * @return Value of property mobile.
+     *
+     *@hibernate.many-tp-one
+     */
+    public org.gnumed.gmGIS.telephone getMobile() {
+        return this.mobile;
+    }
+    
+    /** Setter for property mobile.
+     * @param mobile New value of property mobile.
+     *
+     */
+    public void setMobile(org.gnumed.gmGIS.telephone mobile) {
+        this.mobile = mobile;
+    }
+   
+    /**
+     *@hibernate.set
+     *@hibernate.collection-key
+     *  column="identity"
+     *@hibernate.collection-one-to-many
+     *  class="org.gnumed.gmClinical.clin_attribute"
+     */
+ public Collection getClin_attributes() {
+        return clin_attribute;
+    }
+    public void addClin_attribute(clin_attribute _clin_attribute) {
+        if (! this.clin_attribute.contains(_clin_attribute)) {
+            this.clin_attribute.add(_clin_attribute);
+            _clin_attribute.setIdentity(this);
+        }
+    }
+    public void removeClin_attribute(clin_attribute _clin_attribute) {
+        
+        boolean removed = this.clin_attribute.remove(_clin_attribute);
+        if (removed) _clin_attribute.setIdentity((identity)null);
+    }
+    
+    /** Setter for property clin_attributes.
+     * @param clin_attributes New value of property clin_attributes.
+     *
+     */
+    public void setClin_attributes(Collection clin_attributes) {
+        clin_attribute = clin_attributes;
+    }
+    
+    public category_attribute findCategoryAttribute(final category_type type) {
+        Iterator i = getClin_attributes().iterator();
+        while (i.hasNext()) {
+            Object o = i.next();
+            if ( ! ( o instanceof category_attribute))
+                continue;
+            category_attribute attr = (category_attribute) o;
+            if (attr.getCategory().getCategory_type().equals(type)) 
+                return attr;
+        }
+        return null;
+    }
+    
+    public identities_addresses findIdentityAddressByAddressType(final address_type a) {
+        Iterator i = getIdentities_addressess().iterator();
+        while (i.hasNext()) {
+            identities_addresses ia = (identities_addresses) i.next();
+            if (a.equals(ia.getAddress_type())  )
+                return ia;
+        }
+        return null;
+    }
+    
     // end setId
     
 } // end identity

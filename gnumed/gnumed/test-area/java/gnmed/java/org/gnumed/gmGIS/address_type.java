@@ -77,6 +77,13 @@ public class address_type {
         id = _id;
     } // end setId        
 
+    
+    public boolean equals(Object obj) {
+        if ( obj instanceof address_type) {
+            return  getName().equals(((address_type)obj).getName());
+        }
+        return super.equals(obj);
+    }
 } // end address_type
 
 

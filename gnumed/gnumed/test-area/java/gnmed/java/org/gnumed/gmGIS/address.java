@@ -49,6 +49,8 @@ public class address {
  */
     public street street; 
 
+    
+    Collection telephone= new java.util.HashSet();
 
    ///////////////////////////////////////
    // access methods for associations
@@ -128,6 +130,28 @@ public class address {
         addendum = _addendum;
     } // end setAddendum        
 
+     public Collection getTelephones() {
+        return telephone;
+    }
+    public void addTelephone(telephone _telephone) {
+        if (! this.telephone.contains(_telephone)) {
+            this.telephone.add(_telephone);
+            _telephone.setAddress(this);
+        }
+    }
+    public void removeTelephone(telephone _telephone) {
+        boolean removed = this.telephone.remove(_telephone);
+        if (removed) _telephone.setAddress((address)null);
+    }
+
+    /** Setter for property telephones.
+     * @param telephones New value of property telephones.
+     *
+     */
+    public void setTelephones(Collection telephones) {
+    telephone = telephones;
+    }    
+    
 } // end address
 
 

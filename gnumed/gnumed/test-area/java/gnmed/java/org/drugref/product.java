@@ -109,6 +109,9 @@ public class product {
     /** Holds value of property audit_id. */
     private Integer audit_id;
     
+    /** Holds value of property link_product_component. */
+    private link_product_component link_product_component;
+    
  // of type script_drug
 
 
@@ -355,7 +358,20 @@ public class product {
         this.audit_id = audit_id;
     }
     
+    /** Getter for property link_product_component.
+     * @return Value of property link_product_component.
+     *
+     */
+    public link_product_component getLink_product_component() {
+        return this.link_product_component;
+    }    
   
+    /** Setter for property link_product_component.
+     * @param link_product_component New value of property link_product_component.
+     *
+     */
+    public void setLink_product_component(link_product_component link_product_component) {
+    }    
     
  // end setId        
 
