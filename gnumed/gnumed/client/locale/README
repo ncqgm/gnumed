@@ -1,11 +1,11 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 locale/
 -------
 All the message catalogs live here.
 
-On a POSIX system file from here should be moved into
+On a POSIX system files from here should be moved into
 /usr/share/locale/... or the corresponding standard place.
 
 On Windows they must live right here relative to ../wxpython/
@@ -16,3 +16,11 @@ create_po_file.sh
 This is a convenience UNIX shell script that takes all
 Python source files below gnumed/client/ and aggregates
 them into one "gnumed.po" file.
+
+The resulting gnumed.po file needs to be filled in with
+translations and copied to the appropriate language directory
+
+ locale/<ISO_lang>/LC_MESSAGES/
+
+where <ISO_lang> stands for ISO code of the country the
+translation is intended for.
