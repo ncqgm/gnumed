@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -14,7 +14,7 @@ from wxPython.grid import *
 
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmPG, gmExceptions
 from Gnumed.business import gmPatient
-from Gnumed.wxpython import gmGuiHelpers, gmPlugin
+from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmLabWidgets
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 
 			# make lab record grid 
-			self.grid = cLabDataGrid(self, -1)
+			self.grid = gmLabWidgets.cLabDataGrid(self, -1)
 			self.grid.update()
 
 			# buttons
@@ -162,7 +162,7 @@ else:
 			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
 
 			# make grid
-			self.grid = cLabDataGrid(self, -1)
+			self.grid = gmLabWidgets.cLabDataGrid(self, -1)
 
 			# just one vertical sizer
 			sizer = wxBoxSizer(wxVERTICAL)
@@ -228,7 +228,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.13  2004-07-15 15:53:52  ncq
+# Revision 1.14  2004-07-15 16:04:05  ncq
+# - fixed missing relative import
+#
+# Revision 1.13  2004/07/15 15:53:52  ncq
 # - go back to notebook plugin
 # - big cleanup/refactoring, see wxpython/gmLabWidgets.py
 #
