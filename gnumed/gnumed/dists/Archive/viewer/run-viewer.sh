@@ -11,5 +11,5 @@
 
 python ./gmShowMedDocs.py \
 	--conf-file=/home/ncq/.gnumed/gnumed-archive.conf \
-	--text-domain=gnumed-archive \
+	--text-domain=gnumed \
 	--log-file=/var/log/gnumed/archive-view.log
