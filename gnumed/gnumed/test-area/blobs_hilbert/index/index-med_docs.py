@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -33,7 +33,6 @@ class indexFrame(wxFrame):
 	doc_pages = []
 	page = 0
 	selected_pic = ''
-	queryGeburtsdatum = ''
 	#---------------------------------------------------------------------------
 	def __init__(self, parent):
 
@@ -446,8 +445,6 @@ class indexFrame(wxFrame):
 			dlg.Destroy()
 			return None
 
-#		self.Geburtsdatum = self.rawGeburtsdatum[:4]  + '-' + self.rawGeburtsdatum[4:6] + '-' + self.rawGeburtsdatum[-2:]
-#		self.queryGeburtsdatum = self.rawGeburtsdatum
 		return 1
 	#----------------------------------------
 	def __fill_pat_fields(self):
@@ -522,13 +519,6 @@ class indexFrame(wxFrame):
 
 		# make sure to get the first line only :-)
 		curr_doc_dir = self.doc_id_wheel.GetLineText(0)
-		xml_fname = os.path.join(self.repository, curr_doc_dir, self.desc_file_name)
-
-		# read content of xml file
-		# FIXME: error checking, but shouldn't fail, really
-#		xml_file = open(xml_fname, "r")
-#		xml_content = xml_file.read()
-#		xml_file.close()
 
 		content = []
 
@@ -567,158 +557,52 @@ class indexFrame(wxFrame):
 
 		content.append('</%s>\n' % __cfg__.get("metadata", "document_tag"))
 
-		# delete old XML metadata file
+		# overwrite old XML metadata file
+		xml_fname = os.path.join(self.repository, curr_doc_dir, self.desc_file_name)
 		os.remove(xml_fname)
-		# create new XML metadata file
 		xml_file = open(xml_fname, "w")
 		# write content to it
 		map(xml_file.write, content)
 		xml_file.close()
 	#----------------------------------------
 	def __valid_input(self):
-		# FIXME: this is utter crap !!!
-
 		# check whether values for date of record, record type, short comment and extended comment
 		# have been filled in
 		date = self.TBOX_doc_date.GetLineText(0)
-		datechecklist = string.split(date,'-')
-		shortDescription=self.TBOX_desc_short.GetLineText(0)
-		DescriptionChoice=self.SelBOX_doc_type.GetSelection()
-		additionalComment=self.TBOX_desc_long.GetLineText(0)
+		datechecklist = string.split(date, '-')
+		shortDescription = self.TBOX_desc_short.GetLineText(0)
+		docType = self.SelBOX_doc_type.GetSelection()
 		# do some checking on the date
 		if date == _('please fill in'):
-			dlg = wxMessageDialog(self, _('You did not fill in a document date'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-				
+			msg = _('document date: missing')
 		elif len(date) != 10:
-			dlg = wxMessageDialog(self, _('document date invalid'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-				
+			msg = _('document date: must be 10 characters long')
 		elif len(datechecklist) != 3:
-			dlg = wxMessageDialog(self, _('date ( document date ) is invalid'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
+			msg = _('document date: invalid format\n\nvalid format: YYYY-MM-DD')
 		elif len(datechecklist[0]) != 4:
-			dlg = wxMessageDialog(self, _('date format ( year ) is invalid'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-				
+			msg = _('document date: year must be 4 digits')
 		elif int(datechecklist[0]) < 1900:
-			dlg = wxMessageDialog(self, _('given year is unlikely'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
+			msg = _('document date: document from before 1900 ?!?\n\nI want a copy !')
 		elif datechecklist[0] > time.strftime("%Y", time.localtime()):
-			dlg = wxMessageDialog(self, _('I will not accept future dates'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-				
+			msg = _('document date: no future !')
 		elif len(datechecklist[1]) != 2:
-			dlg = wxMessageDialog(self, _('date (month) invalid'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
+			msg = _('document date: month must be 2 digits')
 		elif len(datechecklist[2]) != 2:
-			dlg = wxMessageDialog(self, _('(day) invalid'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
-		elif int(datechecklist[1]) < 01 :
-			dlg = wxMessageDialog(self, _('month must be inbetween 01 and 12'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		elif int(datechecklist[1]) > 12 :
-			dlg = wxMessageDialog(self, _('month must be inbetween 01 and 12'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
-		elif int(datechecklist[2]) < 01 :
-			dlg = wxMessageDialog(self, _('day must be inbetween 01 and 31'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-				
-		elif int(datechecklist[2]) > 31 :
-			dlg = wxMessageDialog(self, _('day must be inbetween 01 and 31'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
-		elif shortDescription == _('please fill in'):
-			dlg = wxMessageDialog(self, _('You did not fill in a short comment'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
-		elif shortDescription == '':
-			dlg = wxMessageDialog(self, _('You did not fill in a short comment'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
-		elif DescriptionChoice == -1:
-			dlg = wxMessageDialog(self, _('You did not select a document type'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			try:
-				dlg.ShowModal()
-			finally:
-				dlg.Destroy()
-		
-		elif DescriptionChoice == 'please choose':
-			dlg = wxMessageDialog(self, _('You did not select a document type'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			dlg.ShowModal()
-			dlg.Destroy()
-		
-		elif additionalComment == '':
-			dlg = wxMessageDialog(self, _('please fill the box "additional comment"'),
-			  _('Attention'), wxOK | wxICON_INFORMATION)
-			dlg.ShowModal()
-			dlg.Destroy()
-
+			msg = _('document date: day must be 2 digits')
+		elif int(datechecklist[1]) not in range(1, 13):
+			msg = _('document date: month must be 1 to 12')
+		elif int(datechecklist[2]) not in range(1, 32):
+			msg = _('document date: day must be 1 to 31')
+		elif shortDescription == _('please fill in') or shortDescription == '':
+			msg = _('You must type a short document comment.')
+		elif docType == -1 or docType == 'please choose':
+			msg = _('You must select a document type.')
 		else:
 			return 1
+
+		dlg = wxMessageDialog(self, msg, _('data input error'), wxOK | wxICON_ERROR)
+		dlg.ShowModal()
+		dlg.Destroy()
 
 		return 0
 	#----------------------------------------
