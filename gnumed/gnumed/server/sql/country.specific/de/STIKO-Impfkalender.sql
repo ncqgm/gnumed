@@ -5,35 +5,21 @@
 -- Kinderärztliche Praxis (2002)
 -- Sonderheft "Impfen 2002"
 -- Kirchheim-Verlag Mainz
---
--- ICD-10-GM
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
-delete from lnk_vacc_def2regime;
 delete from vacc_def;
 delete from vacc_regime;
 
 ------------
 -- Masern --
 ------------
--- Impfzeitpunkte
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='measles'), 1, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='measles'), 2, '15 months'::interval, '23 months'::interval, '4 weeks'::interval);
-
--- in Impfplan eintragen
+-- Impfplan definieren
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
@@ -42,35 +28,31 @@ values (
 	'Masern-Impfung, meist in MMR-Kombination'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='measles') and seq_no = 1)
+	1,
+	'11 months'::interval,
+	'14 months'::interval,
+	'4 weeks'::interval
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='measles') and seq_no = 2)
+	2,
+	'15 months'::interval,
+	'23 months'::interval,
+	'4 weeks'::interval
 );
 
 -----------
 -- Mumps --
 -----------
--- Impfzeitpunkte
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='mumps'), 1, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='mumps'), 2, '15 months'::interval, '23 months'::interval, '4 weeks'::interval);
-
--- in Impfplan eintragen
+-- Impfplan definieren
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
@@ -79,35 +61,31 @@ values (
 	'Mumps-Impfung, meist in MMR-Kombination'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='mumps') and seq_no = 1)
+	1,
+	'11 months'::interval,
+	'14 months'::interval,
+	'4 weeks'::interval
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='mumps') and seq_no = 2)
+	2,
+	'15 months'::interval,
+	'23 months'::interval,
+	'4 weeks'::interval
 );
 
 ------------
 -- Röteln --
 ------------
--- Impfzeitpunkte
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='rubella'), 1, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='rubella'), 2, '15 months'::interval, '23 months'::interval, '4 weeks'::interval);
-
--- in Impfplan eintragen
+-- Impfplan definieren
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
@@ -116,67 +94,31 @@ values (
 	'Röteln-Impfung, meist in MMR-Kombination'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='rubella') and seq_no = 1)
+	1,
+	'11 months'::interval,
+	'14 months'::interval,
+	'4 weeks'::interval
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='rubella') and seq_no = 2)
+	2,
+	'15 months'::interval,
+	'23 months'::interval,
+	'4 weeks'::interval
 );
 
 -------------
 -- Tetanus --
 -------------
--- Impfzeitpunkte
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='tetanus'), 1, '2 months'::interval, '2 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='tetanus'), 2, '3 months'::interval, '3 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='tetanus'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='tetanus'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='tetanus'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='tetanus'), 6, '9 years'::interval, '17 years'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
-values (
-	(select id from vacc_indication where description='tetanus'),
-	-1,
-	'5 years'::interval,
-	'10 years'::interval,
-	true,
-	'10 years'::interval,
-	'nach 10 Jahren falls keine Verletzung, nach 7 Jahren bei kleinen Verletzungen, bei großen Verletzungen nach 5 Jahren'
-);
-
--- in Impfplan eintragen
+-- Impfplan definieren
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
@@ -185,108 +127,63 @@ values (
 	'Tetanus-Impfung, meist in DTaP- bzw. DT/Td-Kombination'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='tetanus') and seq_no = 1)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='tetanus') and seq_no = 2)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='tetanus') and seq_no = 3)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='tetanus') and seq_no = 4)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='tetanus') and seq_no = 5)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='tetanus') and seq_no = 6)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='tetanus') and is_booster = true)
-);
-
-----------------
--- Diphtherie --
-----------------
--- Impfzeitpunkte
+-- Impfzeitpunkte festlegen
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	1,
+	'2 months'::interval,
+	'2 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values (
+	currval('vacc_regime_id_seq'),
+	2,
+	'3 months'::interval,
+	'3 months'::interval,
+	'4 weeks'::interval
+);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	((select id from vacc_indication where description='diphtheria'), 1, '2 months'::interval, '2 months'::interval, '4 weeks'::interval);
+	(currval('vacc_regime_id_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	((select id from vacc_indication where description='diphtheria'), 2, '3 months'::interval, '3 months'::interval, '4 weeks'::interval);
+	(currval('vacc_regime_id_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	((select id from vacc_indication where description='diphtheria'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
+	(currval('vacc_regime_id_seq'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
 values
-	((select id from vacc_indication where description='diphtheria'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
+	(currval('vacc_regime_id_seq'), 6, '9 years'::interval, '17 years'::interval, '4 weeks'::interval);
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='diphtheria'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='diphtheria'),
-	6,
-	'9 years'::interval,
-	'17 years'::interval,
-	'4 weeks'::interval,
-	'Impfstoff mit reduziertem Toxoidgehalt (d) verwenden !'
-);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
-values (
-	(select id from vacc_indication where description='diphtheria'),
+	currval('vacc_regime_id_seq'),
 	-1,
 	'5 years'::interval,
 	'10 years'::interval,
 	true,
 	'10 years'::interval,
-	'Impfstoff mit reduziertem Toxoidgehalt (d) verwenden !'
+	'nach 10 Jahren falls keine Verletzung, nach 7 Jahren bei kleinen Verletzungen, bei großen Verletzungen nach 5 Jahren'
 );
 
--- in Impfplan eintragen
+----------------
+-- Diphtherie --
+----------------
+-- Impfplan definieren
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
@@ -295,63 +192,72 @@ values (
 	'Diphtherie-Impfung, meist in DTaP- bzw. DT/Td-Kombination'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 1, '2 months'::interval, '2 months'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 2, '3 months'::interval, '3 months'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 5, '4 years'::interval, '5 years'::interval, '4 weeks'::interval);
+
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='diphtheria') and seq_no = 1)
+	6,
+	'9 years'::interval,
+	'17 years'::interval,
+	'4 weeks'::interval,
+	'Impfstoff mit reduziertem Toxoidgehalt (d) verwenden !'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='diphtheria') and seq_no = 2)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='diphtheria') and seq_no = 3)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='diphtheria') and seq_no = 4)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='diphtheria') and seq_no = 5)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='diphtheria') and seq_no = 6)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='diphtheria') and is_booster = true)
+	-1,
+	'5 years'::interval,
+	'10 years'::interval,
+	true,
+	'10 years'::interval,
+	'Impfstoff mit reduziertem Toxoidgehalt (d) verwenden !'
 );
 
 ---------------
 -- Influenza --
 ---------------
--- Impfzeitpunkte
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+-- Impfplan definieren
+insert into vacc_regime
+	(fk_recommended_by, fk_indication, description)
 values (
+	1,
 	(select id from vacc_indication where description='influenza'),
+	'jährlich neu von WHO empfohlener Impfstoff'
+);
+
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+values (
+	currval('vacc_regime_id_seq'),
 	-1,
 	'18 years'::interval,
 	'-1'::interval,
@@ -360,30 +266,23 @@ values (
 	'jährlich neu von WHO empfohlener Impfstoff'
 );
 
--- in Impfplan eintragen
+------------------
+-- Pneumokokken --
+------------------
+-- Impfplan definieren (STIKO)
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
 	1,
-	(select id from vacc_indication where description='influenza'),
-	'jährlich neu von WHO empfohlener Impfstoff'
+	(select id from vacc_indication where description='pneumococcus'),
+	'Pneumokokken (ab 18, STIKO)'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
+-- Impfzeitpunkte (STIKO) festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
 	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='influenza') and is_booster = true)
-);
-
-------------------
--- Pneumokokken --
-------------------
--- Impfzeitpunkte
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
-values (
-	(select id from vacc_indication where description='pneumococcus'),
 	-1,
 	'18 years'::interval,
 	'-1'::interval,
@@ -392,52 +291,10 @@ values (
 	'Polysaccharid-Impfstoff'
 );
 
--- in Impfplan eintragen
-insert into vacc_regime
-	(fk_recommended_by, fk_indication, description)
-values (
-	1,
-	(select id from vacc_indication where description='pneumococcus'),
-	'Polysaccharid-Impfstoff'
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and is_booster = true)
-);
-
 ---------------
 -- Pertussis --
 ---------------
--- Impfzeitpunkte
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='pertussis'), 1, '2 months'::interval, '2 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='pertussis'), 2, '3 months'::interval, '3 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='pertussis'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='pertussis'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
-
-insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, min_interval)
-values
-	((select id from vacc_indication where description='pertussis'),	5, '9 years'::interval,	'17 years'::interval, '4 weeks'::interval);
-
--- in Impfplan eintragen
+-- Impfplan definieren
 insert into vacc_regime
 	(fk_recommended_by, fk_indication, description)
 values (
@@ -446,49 +303,43 @@ values (
 	'Pertussis-Impfung, oft in DTaP-Kombination'
 );
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pertussis') and seq_no = 1)
-);
+-- Impfzeitpunkte festlegen
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 1, '2 months'::interval, '2 months'::interval, '4 weeks'::interval);
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pertussis') and seq_no = 2)
-);
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 2, '3 months'::interval, '3 months'::interval, '4 weeks'::interval);
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pertussis') and seq_no = 3)
-);
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 3, '4 months'::interval, '4 months'::interval, '4 weeks'::interval);
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pertussis') and seq_no = 4)
-);
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'), 4, '11 months'::interval, '14 months'::interval, '4 weeks'::interval);
 
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pertussis') and seq_no = 5)
-);
+insert into vacc_def
+	(fk_regime, seq_no, min_age_due, max_age_due, min_interval)
+values
+	(currval('vacc_regime_id_seq'),	5, '9 years'::interval,	'17 years'::interval, '4 weeks'::interval);
 
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%STIKO-Impfkalender%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.5  2003-10-31 23:30:28  ncq
+-- Revision 1.6  2003-11-26 23:19:08  ncq
+-- - vacc_def now links to vacc_regime instead of vacc_indication
+--
+-- Revision 1.5  2003/10/31 23:30:28  ncq
 -- - cleanup
 --
 -- Revision 1.4  2003/10/26 09:41:03  ncq
