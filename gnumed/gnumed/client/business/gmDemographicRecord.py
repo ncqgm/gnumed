@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.37 2004-04-10 01:48:31 ihaywood Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmDemographicRecord.py,v 1.38 2004-04-11 10:15:56 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -180,28 +180,38 @@ class cDemographicRecord_SQL(cDemographicRecord):
 	#--------------------------------------------------------
 	def get_names(self, all=False):
 		if all:
-			cmd = "select firstnames, lastnames from names where id_identity=%s"
+			cmd = """
+				select n.firstnames, n.lastnames, i.title
+				from names n, identity i
+				where n.id_identity=%s and i.id=%s"""
 		else:
-			cmd = "select firstnames, lastnames from v_basic_person where i_id=%s"
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+			cmd = """
+				select vbp.firstnames, vbp.lastnames, i.title
+				from v_basic_person vbp, identity i
+				where vbp.i_id=%s and i.id=%s"""
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID, self.ID)
 		if rows is None:
 			return None
 		if len(rows) == 0:
-			rows = [['**?**', '**?**']]
+			name = {'first': '**?**', 'last': '**?**', 'title': '**?**'}
+			if all:
+				return [name]
+			return name
 		if all:
 			names = []
 			for row in rows:
-				names.append({'first': row[0], 'last': row[1]})
+				names.append({'first': row[0], 'last': row[1], 'title': row[2]})
 			return names
 		else:
-			return {'first': rows[0][0], 'last': rows[0][1]}
-	def getFullName (self):
-		cmd  = "select title, firstnames, lastnames from v_basic_person where i_id = %s"
-		r = gmPG.run_ro_query ('personalia', cmd, 0, self.ID)
-		if r:
-			return "%s %s %s" % (r[0][0], r[0][1], r[0][2])
-		else:
-			return _("Unknown")
+			return {'first': rows[0][0], 'last': rows[0][1], 'title': rows[0][2]}
+	#--------------------------------------------------------
+#	def getFullName (self):
+#		cmd  = "select title, firstnames, lastnames from v_basic_person where i_id = %s"
+#		r = gmPG.run_ro_query ('personalia', cmd, 0, self.ID)
+#		if r:
+#			return "%s %s %s" % (r[0][0], r[0][1], r[0][2])
+#		else:
+#			return _("Unknown")
 	#--------------------------------------------------------
 	def addName(self, firstname, lastname, activate = None):
 		"""Add a name and possibly activate it."""
@@ -855,7 +865,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.37  2004-04-10 01:48:31  ihaywood
+# Revision 1.38  2004-04-11 10:15:56  ncq
+# - load title in get_names() and use it superceding getFullName
+#
+# Revision 1.37  2004/04/10 01:48:31  ihaywood
 # can generate referral letters, output to xdvi at present
 #
 # Revision 1.36  2004/04/07 18:43:47  ncq

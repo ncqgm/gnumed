@@ -9,8 +9,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.11 2004-04-10 01:48:31 ihaywood Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmForms.py,v 1.12 2004-04-11 10:15:56 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -27,8 +27,7 @@ if __name__ == "__main__":
     _log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-
-# we make these assumptions about the assignment of form IDs on the backend.
+# FIXME: we make these assumptions about the assignment of form IDs on the backend.
 ID_STANDARD_REFERRAL=101
 ID_STANDARD_REFERRAL_EMAIL=102
 ID_STANDARD_SCRIPT = 201
@@ -208,9 +207,15 @@ def send_referral (recipient, channel, addr, text, flags):
 	patient = gmPatient.gmCurrentPatient ()
 	patient_demo = patient.get_demographic_record ()
 	params = {}
-	params['SENDER'] = sender.getFullName ()
-	params['PATIENTNAME'] = patient_demo.getFullName ()
-	params['RECIPIENT'] = recipient.getFullName ()
+#	params['SENDER'] = sender.getFullName ()
+	sname = sender.get_names()
+	params['SENDER'] = '%s %s %s' % (sname['title'], sname['first'], sname['last'])
+#	params['PATIENTNAME'] = patient_demo.getFullName ()
+	pname = patient_demo.get_names()
+	params['PATIENTNAME'] = '%s %s %s' % (pname['title'], pname['first'], pname['last'])
+#	params['RECIPIENT'] = recipient.getFullName ()
+	rname = recipient.get_names()
+	params['RECIPIENT'] = '%s %s %s' % (rname['title'], rname['first'], rname['last'])
 	params['DOB'] = patient_demo.getDOB ().Format ('%x')
 	params['PATIENTADDRESS'] = _("%(number)s %(street)s, %(urb)s %(postcode)s") % patient_demo.getAddresses ('home', 1)
 	params['TEXT'] = text
@@ -303,7 +308,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.11  2004-04-10 01:48:31  ihaywood
+# Revision 1.12  2004-04-11 10:15:56  ncq
+# - load title in get_names() and use it superceding getFullName
+#
+# Revision 1.11  2004/04/10 01:48:31  ihaywood
 # can generate referral letters, output to xdvi at present
 #
 # Revision 1.10  2004/03/12 15:23:36  ncq
