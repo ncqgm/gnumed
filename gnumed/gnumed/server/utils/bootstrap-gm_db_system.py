@@ -27,7 +27,7 @@ further details.
 # TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -724,13 +724,13 @@ class gmService:
 		# b) in the distributed database - DONE
 		# FIXME : We don't check for invalid service entries here 
 		# (e.g. multiple service aliases linking to the same internal gnumed service)
-		_log.Log(gmLog.lInfo, "Registering service [%s] (GnuMed internal name: [%s]." % (self.alias, self.name))
+		_log.Log(gmLog.lInfo, "Registering service [%s] (GnuMed internal name: [%s])." % (self.alias, self.name))
 
 		# note: this is not entirely safe
 		core_alias = _cfg.get(self.section, "registration database")
 		core_name = _cfg.get("database %s" % core_alias, "name")
 		try:
-			coreDB =_bootstrapped_dbs[core_name]
+			coreDB =_bootstrapped_dbs[core_alias]
 		except KeyError:
 			_log.Log(gmLog.lErr, 'Cannot register service. Database [%s] (%s) not bootstrapped.' % (core_alias, core_name))
 			return None
@@ -805,15 +805,15 @@ class gmService:
 					return None
 				# this should return None anymore
 				dbID = curs.fetchone()[0]
-
-			dbID = result[0]
+			else:
+				dbID = result[0]
 
 			# now we must link services to databases
 			# we can omit this procedure for all services residing on the core database
 			_log.Log(gmLog.lInfo, "Linking service [%s] to database [%s]." % (self.name,self.db.name))
 
 			# FIXME: check if username='' is correct
-			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s');" % ('',dbID[0],ddbID[0])
+			cmd = "INSERT INTO config (username,db,ddb) VALUES ('%s',%s,'%s');" % ('',dbID,ddbID)
 			try:
 				curs.execute(cmd)
 			except:
@@ -999,7 +999,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.21  2003-02-09 11:46:11  ncq
+# Revision 1.22  2003-02-11 17:11:41  hinnef
+# fixed some bugs in service.register()
+#
+# Revision 1.21  2003/02/09 11:46:11  ncq
 # - added core database option for registering services
 # - convenience function _run_query()
 #
