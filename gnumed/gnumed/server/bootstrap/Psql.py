@@ -57,17 +57,17 @@ class Psql:
 		"""
 		filename: a file, containg semicolon-separated SQL commands
 		"""
+		if os.access (filename, os.R_OK):
+			self.file = open(filename)
+		else:
+			_log.Log (gmLog.lErr, "cannot open file [%s]" % filename)
+			return 1
 		self.cmd = ''
 		self.lineno = 0
 		self.filename = filename
 		instring = 0
 		bracketlevel = 0
-		if os.access (filename, os.R_OK):
-			self.file = open(filename)
-		else:
-			_log.Log (gmLog.lErr, self.fmt_msg("cannot open file"))
-			return 1
-		for self.line in self.file.readlines ():
+		for self.line in self.file.readlines():
 			if len (self.line) > 0:
 				# process \ commands
 				if self.match (r"^\\echo (.*)"):
