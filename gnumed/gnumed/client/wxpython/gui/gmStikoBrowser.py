@@ -14,7 +14,7 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -157,7 +157,7 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_STIKOOPENFILE, 
 			images_for_gnumed_browser16_16.getfileopenBitmap(),
-			shortHelpString=_("Open File"),return StikoHtmlPanel (parent, self.gb['main.frame'])
+			shortHelpString=_("Open File"),
 			isToggle=True
 		)
 		EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
@@ -241,7 +241,10 @@ class gmStikoBrowser (gmPlugin.cNotebookPluginOld):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.16  2004-12-27 18:51:37  shilbert
+# Revision 1.17  2004-12-27 18:55:12  shilbert
+# - I should have tested the last commit :-) shame on me
+#
+# Revision 1.16  2004/12/27 18:51:37  shilbert
 # - converted spaces to tabs, hopefully this won't break it
 #
 # Revision 1.15  2004/08/04 17:16:02  ncq
