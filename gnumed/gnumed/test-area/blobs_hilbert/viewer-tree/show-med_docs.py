@@ -11,25 +11,29 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-#----------------------------------------------------------------------
+#================================================================
 import os.path, sys, os
-
 from wxPython.wx import *
 
 # location of our modules
-sys.path.append(os.path.join('.', 'modules'))
+if __name__ == '__main__':
+	sys.path.append(os.path.join('.', 'modules'))
+
+import gmLog
+_log = gmLog.gmDefLog
+
+if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+	import gmI18N
+
+import gmCfg
+_cfg = gmCfg.gmDefCfgFile
 
 from docPatient import cPatient, gm2long_gender_map
 from docDatabase import cDatabase
 import docMime, docDocument
-
-import gmLog, gmCfg, gmI18N
-#----------------------------------------------------------------------
-_log = gmLog.gmDefLog
-_cfg = gmCfg.gmDefCfgFile
-
 #----------------------------------------------------------------------
 #        self.tree = MyTreeCtrl(self, tID, wxDefaultPosition, wxDefaultSize,
 #                               wxTR_HAS_BUTTONS | wxTR_EDIT_LABELS# | wxTR_MULTIPLE
@@ -50,11 +54,11 @@ _cfg = gmCfg.gmDefCfgFile
 #        EVT_RIGHT_DOWN(self.tree, self.OnRightClick)
 #        EVT_RIGHT_UP(self.tree, self.OnRightUp)
 
+[	wxID_PNL_main,
+] = map(lambda _init_ctrls: wxNewId(), range(1))
+#================================================================
 class cDocTree(wxTreeCtrl):
-	"""
-	This wxTreeCtrl derivative displays a tree view of a Python namespace.
-	Anything from which the dir() command returns a non-empty list is a branch
-	in this tree.
+	"""This wxTreeCtrl derivative displays a tree view of stored medical documents.
 	"""
 
 	def __init__(self, parent, id, aPatient = None, aConn = None):
@@ -115,7 +119,7 @@ class cDocTree(wxTreeCtrl):
 				p = str(i) +  " "
 				c = str(obj['comment'])
 				if c == "None":
-					c = "no comment available"
+					c = _("no comment available")
 				tmp = _('page %s: \"%s\"')
 				label = tmp % (p[:2], c)
 				obj_node = self.AppendItem(doc_node, label)
@@ -175,94 +179,157 @@ class cDocTree(wxTreeCtrl):
 			dlg.Destroy()
 			return None
 		return 1
-#------------------------------------------------------------------------
-class MyFrame(wxFrame):
-	"""Very standard Frame class. Nothing special here!"""
+#== classes for standalone use ==================================
+if __name__ == '__main__':
 
-	def __init__(self):
-		if self.__connect_to_db() == None:
-			_log.Log (gmLog.lErr, "No need to work without being able to connect to database.")
-			return None
+	class cStandalonePanel(wxPanel):
 
-		aPat = self.__get_pat_data()
-		if aPat == None:
-			_log.Log (gmLog.lErr, "Cannot get patient data.")
-			return None
+		def __init__(self, parent, id):
+			if self.__connect_to_db() is None:
+				_log.Log (gmLog.lErr, "No need to work without being able to connect to database.")
+				raise AssertionError, "database connection needed"
 
-		# setup basic frame
-		wxFrame.__init__(self, None, -1, _("stored medical documents"), wxDefaultPosition, wxSize(800,500))
+			if self.__get_pat_data() is None:
+				_log.Log (gmLog.lErr, "Cannot load patient data.")
+				raise AssertionError, "Cannot load patient data."
 
-		# make split window
-		split_win = wxSplitterWindow(self, -1)
+			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+			self.SetTitle(_("stored medical documents"))
 
-		# make patient panel
-		title = "%s %s (%s), %s" % (aPat.firstnames, aPat.lastnames, gm2long_gender_map[aPat.gender], aPat.dob)
-		# FIXME: adjust font + bold + size
-		pat_panel = wxStaticText(split_win, -1, title, wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT)
+			# make patient panel
+			self.pat_panel = wxStaticText(
+				id = -1,
+				parent = self,
+				label = "%s %s (%s), %s" % (self.__patient.firstnames, self.__patient.lastnames, gm2long_gender_map[self.__patient.gender], self.__patient.dob),
+				style = wxALIGN_CENTER
+			)
+			self.pat_panel.SetFont(wxFont(25, wxSWISS, wxNORMAL, wxNORMAL, 0, ""))
 
-		# make document tree
-		tree = cDocTree(split_win, -1, aPat, self.__conn)
-		tree.SelectItem(tree.root)
+			# make document tree
+			self.tree = cDocTree(self, -1, self.__patient, self.__conn)
+			self.tree.SelectItem(self.tree.root)
 
-		# place widgets in window
-		split_win.SplitHorizontally(pat_panel, tree, 50)
-	#------------------------------------------------------------------------
-	def __del__(self):
-		self.DB.disconnect()
-	#--------------------------------------------------------------
-	def __connect_to_db(self):
-		# connect to DB
-		self.DB = cDatabase(_cfg)
-		if self.DB == None:
-			_log.Log (gmLog.lErr, "cannot create document database connection object")
-			return None
+			szr_main = wxBoxSizer(wxVERTICAL)
+			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
+			szr_main.Add(self.tree, 1, wxEXPAND, 9)
 
-		if self.DB.connect() == None:
-			_log.Log (gmLog.lErr, "cannot connect to document database")
-			return None
+			self.SetAutoLayout(1)
+			self.SetSizer(szr_main)
+			szr_main.Fit(self)
+			self.Layout()
+		#--------------------------------------------------------
+		def __del__(self):
+			self.DB.disconnect()
+		#--------------------------------------------------------
+		def __connect_to_db(self):
+			# connect to DB
+			self.DB = cDatabase(_cfg)
+			if self.DB is None:
+				_log.Log (gmLog.lErr, "cannot create document database connection object")
+				return None
 
-		self.__conn = self.DB.getConn()
-		return (1==1)
-	#--------------------------------------------------------------
-	def __get_pat_data(self):
-		"""Get data of patient for which to retrieve documents.
+			if self.DB.connect() is None:
+				_log.Log (gmLog.lErr, "cannot connect to document database")
+				return None
 
-		Presumably, this should be configurable so that different
-		client applications can provide patient data in their own way.
-		"""
-		# FIXME: error checking
-		pat_file = _cfg.get("viewer", "patient file")
-		pat_format = _cfg.get("viewer", "patient file format")
-		aPatient = cPatient()
-		# FIXME: the method of getting the patient should be configurable
-		# get patient data from BDT file
-		if not aPatient.loadFromFile(pat_format, os.path.abspath(os.path.expanduser(pat_file))):
-			_log.Log(gmLog.lErr, "problem with reading patient data from xDT file " + pat_file)
-			return None
+			self.__conn = self.DB.getConn()
+			return 1
+		#--------------------------------------------------------
+		def __get_pat_data(self):
+			"""Get data of patient for which to retrieve documents.
 
-		return aPatient
+			FIXME: Presumably, this should be configurable so that different
+			client applications can provide patient data in their own way.
+			"""
+			# FIXME: error checking
+			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
+			pat_format = _cfg.get("viewer", "patient file format")
+			self.__patient = cPatient()
+			# get patient data from BDT file
+			if not self.__patient.loadFromFile(pat_format, pat_file):
+				_log.Log(gmLog.lErr, "problem with reading patient data from xDT file " + pat_file)
+				self.__patient = None
+				return None
+			return 1
+#== classes for plugin use ======================================
+else:
+	class cTreePanel(wxPanel):
+
+		def __init__(self, parent, id, aConn = None, aPat = None):
+			# this should actually set up it's own connection, too
+			if aConn is None:
+				_log.Log(gmLog.lErr, "Cannot work without database connection.")
+				return None
+
+			# FIXME: actually this needs to connect to the currently selected patient
+			# FIXME: register interest in patient_changed signal, too
+			if aPat is None:
+				_log.Log(gmLog.lErr, "Cannot work without patient data.")
+				return None
+
+			# set up widgets
+			wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize)
+			#self.SetTitle(_("stored medical documents"))
+
+			# make document tree
+			self.tree = cDocTree(self, -1, aPat, aConn)
+			self.tree.SelectItem(self.tree.root)
+
+			sizer = wxBoxSizer(wxVERTICAL)
+			sizer.Add(self.tree, 1, wxEXPAND, 0)
+			self.SetAutoLayout(1)
+			self.SetSizer(sizer)
+			sizer.Fit(self)
+			self.Layout()
+		#--------------------------------------------------------
+		def __del__(self):
+			# FIXME: return service handle
+			#self.DB.disconnect()
+			pass
 #------------------------------------------------------------------
-class MyApp(wxApp):
-	"""This class is even less interesting than MyFrame."""
+#class MyApp(wxApp):
+#	"""This class is even less interesting than cTreePanel."""
 
-	def OnInit(self):
-		"""OnInit. Boring, boring, boring!"""
-		frame = MyFrame()
-		frame.Show(TRUE)
-		self.SetTopWindow(frame)
-		return TRUE
-#----------------------------------------------------------------
+#	def OnInit(self):
+#		"""OnInit. Boring, boring, boring!"""
+#		panel = cTreePanel()
+#		panel.Show(TRUE)
+#		self.SetTopWindow(panel)
+#		return TRUE
+#================================================================
 # MAIN
 #----------------------------------------------------------------
-_log.Log (gmLog.lInfo, "starting display handler")
-_log.SetAllLogLevels(gmLog.lData)
-
-if _cfg == None:
-	_log.Log(gmLog.lErr, "Cannot run without config file.")
-	sys.exit("Cannot run without config file.")
-
 if __name__ == '__main__':
-	app = MyApp(0)
-	app.MainLoop()
+	_log.Log (gmLog.lInfo, "starting display handler")
+
+	if _cfg == None:
+		_log.Log(gmLog.lErr, "Cannot run without config file.")
+		sys.exit("Cannot run without config file.")
+
+	application = wxPyWidgetTester(size=(640,480))
+	application.SetWidget(cStandalonePanel,-1)
+	application.MainLoop()
+
+	#app = MyApp(0)
+	#app.MainLoop()
+else:
+	import gmPlugin
+
+	#---------------------------------------------------------------
+	class gmShowMedDocs(gmPlugin.wxNotebookPlugin):
+		def name (self):
+			return "Show"
+
+		def GetWidget (self, parent):
+			return wxPanel (parent, -1)
+
+		def MenuInfo (self):
+			return ('tools', '&Show Documents')
 
 _log.Log (gmLog.lInfo, "closing display handler")
+#================================================================
+# $Log: show-med_docs.py,v $
+# Revision 1.10  2002-12-05 22:43:51  ncq
+# - changed to sizers
+# - prepared for plugin()
+#
