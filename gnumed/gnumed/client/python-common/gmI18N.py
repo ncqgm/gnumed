@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -100,7 +100,7 @@ def install_domain():
 	except IOError:
 		# most likely we didn't have a .mo file
 		exc = sys.exc_info()
-		log.LogException('Cannot install textdomain from standard locations.', exc, fatal=0)
+		log.LogException('Cannot install textdomain from standard POSIX locations.', exc, fatal=0)
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
@@ -121,10 +121,9 @@ def install_domain():
 
 	# 3) one level below path to binary
 	#    last resort for inferior operating systems such as DOS/Windows
-	loc_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 	#    strip one directory level
 	#    this is a rather neat trick :-)
-	loc_dir = os.path.normpath(os.path.join(loc_dir, '..', 'locale'))
+	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
@@ -135,10 +134,23 @@ def install_domain():
 			exc = sys.exc_info()
 			log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), exc, 0)
 	else:
-		# this should not happen at all
-		log.Log(gmLog.lWarn, "Huh ? Binary seems to be installed in a non-existant directory (%s) ?!? I'm scared but will try to face things." % (loc_dir))
+		log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
 
-	# 4) install a dummy translation class
+	# 4) in path to binary
+	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
+	#    sanity check (paranoia rulez)
+	if os.path.exists(loc_dir):
+		try:
+			gettext.install(text_domain, loc_dir)
+			return 1
+		except IOError:
+			# most likely we didn't have a .mo file
+			exc = sys.exc_info()
+			log.LogException('Cannot install textdomain from within path to binary [%s].' % (loc_dir), exc, 0)
+	else:
+		log.Log(gmLog.lWarn, "The application level locale directory [%s] does not exist. Cannot install textdomain from there." % (loc_dir))
+
+	# 5) install a dummy translation class
 	log.Log(gmLog.lWarn, "Falling back to NullTranslations class in despair.")
 	dummy = gettext.NullTranslations()
 	dummy.install()
