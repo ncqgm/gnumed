@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.33 2004-08-20 13:34:48 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPlugin.py,v 1.34 2004-09-06 22:23:03 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -285,7 +285,6 @@ def GetPluginLoadList(set):
 		# store plugin list for the current user/current workplace
 		gmCfg.setDBParam(
 			workplace = curr_workplace,
-			user = _whoami.get_db_account(),
 			option = 'plugin load order',
 			value = p_list,
 			cookie = str(set)
@@ -312,7 +311,6 @@ def GetPluginLoadList(set):
 	# store for current user/current workplace
 	gmCfg.setDBParam(
 		workplace = curr_workplace,
-		user = _whoami.get_db_account(),
 		option = 'plugin load order',
 		value = p_list,
 		cookie = str(set)
@@ -336,7 +334,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.33  2004-08-20 13:34:48  ncq
+# Revision 1.34  2004-09-06 22:23:03  ncq
+# - properly use setDBParam()
+#
+# Revision 1.33  2004/08/20 13:34:48  ncq
 # - getFirstMatchingDBSet() -> getDBParam()
 #
 # Revision 1.32  2004/08/04 17:16:02  ncq

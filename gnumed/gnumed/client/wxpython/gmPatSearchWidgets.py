@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.6 2004-09-02 00:40:13 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPatSearchWidgets.py,v 1.7 2004-09-06 22:22:15 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -354,14 +354,13 @@ and hit <ENTER>
 			workplace = _whoami.get_workplace(),
 			option = 'patient_search.always_dismiss_previous_patient'
 		)
-		if value is None:
+		if set is None:
 			gmCfg.setDBParam (
 				option = 'patient_search.always_dismiss_previous_patient',
 				value = False,
 				workplace = _whoami.get_workplace()
 			)
-
-		if value is not None:
+		else:
 			try: self.__always_dismiss_after_search = int(value)
 			except: pass
 		
@@ -723,7 +722,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.6  2004-09-02 00:40:13  ncq
+# Revision 1.7  2004-09-06 22:22:15  ncq
+# - properly use setDBParam()
+#
+# Revision 1.6  2004/09/02 00:40:13  ncq
 # - store option always_dismiss_previous_patient if not found
 #
 # Revision 1.5  2004/09/01 22:04:03  ncq
