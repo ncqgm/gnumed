@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -368,7 +368,7 @@ if __name__ == '__main__':
 				raise ConstructorError, "Problem getting patient ID from database. Aborting."
 
 			try:
-				self.__gm_pat = gmTmpPatient.gmPatient(aPKey = patient_ids[0][0])
+				self.__gm_pat = gmTmpPatient.gmPatient(aPKey = patient_ids[0])
 			except:
 				# this is an emergency
 				self.__show_error(
@@ -521,7 +521,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.9  2003-02-21 13:54:17  ncq
+# Revision 1.10  2003-02-24 23:14:53  ncq
+# - adapt to get_patient_ids actually returning a flat list of IDs now
+#
+# Revision 1.9  2003/02/21 13:54:17  ncq
 # - added even more likely and unlikely user warnings
 #
 # Revision 1.8  2003/02/20 01:25:18  ncq
