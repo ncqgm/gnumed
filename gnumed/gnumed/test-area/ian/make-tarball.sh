@@ -47,7 +47,6 @@ rm gmplNbSchedule.py # ditto
 rm gmDrugDisplay.py
 rm gmGuidelines.py
 rm gmOffice.py
-rm gmSingleBoxSoapPlugin.py
 rm gmPython.py
 rm gmSQL.py
 
