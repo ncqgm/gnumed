@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -515,6 +515,9 @@ class ConnectionPool:
 #---------------------------------------------------
 # database helper functions
 #---------------------------------------------------
+def noop(*args, **kargs):
+	pass
+#---------------------------------------------------
 def descriptionIndex(cursordescription):
 	"""returns a dictionary of row atribute names and their row indices"""
 	i=0
@@ -616,9 +619,6 @@ def run_query(aCursor=None, verbosity=None, aQuery=None, *args):
 #	t2 = time.time()
 #	print t2-t1, aQuery
 	return 1
-#---------------------------------------------------
-def noop(*args, **kargs):
-	pass
 #---------------------------------------------------
 def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
@@ -893,44 +893,54 @@ def table_exists(source, table):
 
 	source: cursor, connection or GnuMed service name
 	"""
-	manage_connection = 0
-	close_cursor = 1
+	close_conn = noop
+	close_curs = noop
+#	manage_connection = 0
+#	close_cursor = 1
 	# is it a cursor ?
 	if hasattr(source, 'fetchone') and hasattr(source, 'description'):
-		close_cursor = 0
+#		close_cursor = 0
 		curs = source
 	# is it a connection ?
 	elif (hasattr(source, 'commit') and hasattr(source, 'cursor')):
 		curs = source.cursor()
+		close_curs = curs.close
 	# take it to be a service name then
 	else:
-		manage_connection = 1
+#		manage_connection = 1
 		pool = ConnectionPool()
 		conn = pool.GetConnection(source)
 		if conn is None:
 			_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
 			return None
 		curs = conn.cursor()
+		close_conn = pool.ReleaseConnection
+		close_curs = curs.close
 
 	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
 	if not run_query(curs, None, cmd, table):
-		if close_cursor:
-			curs.close()
-		if manage_connection:
-			pool.ReleaseConnection(source)
+		close_curs()
+		close_conn(source)
+#		if close_cursor:
+#			curs.close()
+#		if manage_connection:
+#			pool.ReleaseConnection(source)
 		_log.Log(gmLog.lErr, 'cannot check for table [%s] in source [%s]' % (table, source))
 		return None
 
 	exists = curs.fetchone()[0]
-	if close_cursor:
-		curs.close()
-	if manage_connection:
-		pool.ReleaseConnection(source)
+	close_curs()
+	close_conn(source)
+
+#	if close_cursor:
+#		curs.close()
+#	if manage_connection:
+#		pool.ReleaseConnection(source)
 
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.28 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.29 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1158,7 +1168,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.28  2004-09-13 09:33:07  ncq
+# Revision 1.29  2004-09-20 21:09:10  ncq
+# - use noop() idiom in table_exists()
+#
+# Revision 1.28  2004/09/13 09:33:07  ncq
 # - axe backend options/tty support
 #
 # Revision 1.27  2004/09/06 22:19:28  ncq
