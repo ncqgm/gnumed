@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
+
+
 import smtpd, asyncore, sys
 from email import Parser
 import smtplib
 import urllib
 import getpass
 import string,re
+import ldap
 try:
     import GnuPGInterface
 except ImportError:
@@ -70,30 +73,61 @@ class wtKeysClass(GnuPGInterface.GnuPG):
     	
 	def lookupLocal(self,emailAddr):
 		print "checking local lookup %s" %keyholdersFile
+		keyholder={"message":"Not found","pgpKeyID":"","preferredEncryption":"","userCertificate":""}
 		try:
 			file=open(keyholdersFile,"r")
 			theString=file.read()
 			file.close()
-			theMatch="^"+emailAddr+",(?P<Timestamp>\w+),(?P<Name>[\w\s]+),(?P<Keypref>\w+),(?P<GPGKeyID>\w+),(?P<CAKeyID>\w+)"
+			theMatch="^"+emailAddr+",(?P<preferredEncryption>\w+),(?P<pgpKeyID>\w+),(?P<userCertificate>\w+)"
 			p=re.search(theMatch,theString,re.M)
-			return p
+			if p:
+				keyholder['message']='Found'
+				keyholder['pgpKeyID']=p.group('pgpKeyID')
+				keyholder['preferredEncryption']=p.group('preferredEncryption')
+				keyholder['userCertificate']=p.group('userCertificate')
+				
+				
+
 		except:
-			return "IOerror"
+			keyholder['message']="IO Error"
+		
+		return keyholder
 		
 	def lookupRemote(self,emailAddr):
-		print "checking remote lookup %s" %wtServer
-		wtserverString=wtServer+emailAddr
+		print "checking remote lookup %s for %s" %(ldapServer,emailAddr)
+		keyholder={"message":"Not found","pgpKeyID":"","preferredEncryption":"","userCertificate":"blank"}
+		searchScope = ldap.SCOPE_SUBTREE
+		retrieveAttributes = ['pgpKeyID','preferredEncryption']
+		searchFilter = "clinicalmail="+emailAddr
 		try:
-			page=urllib.urlopen(wtserverString)
-			theString=page.read()
-			page.close
-			theMatch="^"+emailAddr+",(?P<Timestamp>\w+),(?P<Name>[\w\s]+),(?P<Keypref>\w+),(?P<GPGKeyID>\w+),(?P<CAKeyID>\w+)"
-			p=re.search(theMatch,theString,re.M)
-			print "found %s" %theString
-			return p
-		except:
-			print "Unable to access wagtail server %s" % wtserverString
-			return "IOerror"
+			print searchFilter
+			l = ldap.open(ldapServer)
+			ldap_result_id = l.search(baseDN, searchScope, searchFilter, retrieveAttributes)
+			result_set = []
+			while 1:
+				result_type, result_data = l.result(ldap_result_id, 0)
+				print result_data
+				if (result_data == []):
+					break
+				else:
+					if result_type == ldap.RES_SEARCH_ENTRY:
+						try:
+							k=result_data[0][1]['preferredEncryption'][0] # used to check for fields
+							print "find"
+							keyholder['pgpKeyID']=result_data[0][1]['pgpKeyID'][0]
+							keyholder['preferredEncryption']=result_data[0][1]['preferredEncryption'][0]
+							#keyholder['userCertificate']=result_data[0][1]['userCertificate'][0]
+							keyholder['message']='found'
+							break
+						except:
+							pass
+				if keyholder['pgpKeyID']=="":
+					keyholder['message']="No Data"
+		except ldap.LDAPError, e:
+			print "Unable to access ldap server %s" %(ldapServer)
+			print e
+			keyholder['message']= "IOerror"
+		return keyholder
 	
 	def downloadGPG(self,keyID):
 		gnupg = GnuPGInterface.GnuPG()
@@ -127,36 +161,39 @@ class wtKeysClass(GnuPGInterface.GnuPG):
 		keyholder=self.lookupLocal(toAddr)
 		if keyholder=="IOerror":
 			returnText= "Local IOerror"
-		elif keyholder==None:   # not found in local lookup
+		elif keyholder['message']=="Not found":   # not found in local lookup
 			keyholder=self.lookupRemote(toAddr)
-			if keyholder=="IOerror":  #no access to remote lookup
+			if keyholder['message']=="IOerror":  #no access to remote lookup
 				returnText="Remote IOerror"
-			elif keyholder==None: # not found in remote lookup
-				returnText="Not in Wagtail"
-			else:                   # found remotely
+			elif keyholder['message']=="Not found": # not found in remote lookup
+				returnText="Address not Found"
+			elif keyholder['message']=="No data": # email address found but no KeyID
+				returnText="No KeyID for that address"
+			elif keyholder['message']=="found":                 # found remotely
 				# append local keyholders information
-				keyText=toAddr+","+keyholder.group('Timestamp')+","+keyholder.group('Name')+","+keyholder.group('Keypref')+","+keyholder.group('GPGKeyID')+","+keyholder.group('CAKeyID')+"\n"
+				print "Found remotely"
+				keyText=toAddr+","+keyholder['preferredEncryption']+","+keyholder['pgpKeyID']+","+keyholder['userCertificate']+"\n"
 				file=open(keyholdersFile,"a")
 				file.write(keyText)
 				file.close()
 				# download GPG key to local keychain
 				
-				if keyholder.group('GPGKeyID')>0:
-					self.downloadGPG(keyholder.group('GPGKeyID'))
-				if keyholder.group('CAKeyID')>0:	
-					self.downloadCA(keyholder.group('CAKeyID'))
+				if keyholder['pgpKeyID']>0:
+					self.downloadGPG(keyholder['pgpKeyID'])
+				#if keyholder['userCertificate']>0:	
+				#	self.downloadCA(keyholder['userCertificate'])
 				pref=1
-				keyID=keyholder.group('GPGKeyID')
-				if keyholder.group('Keypref')==2:
-					keyID=keyholder.group('CAKeyID')
+				keyID=keyholder['pgpKeyID']
+				if keyholder['preferredEncryption']==2:
+					keyID=keyholder['userCertificate']
 					pref=2
 		
 		else:   # found in local lookup
 			pref=1
-			keyID=keyholder.group('GPGKeyID')
-			if keyholder.group('Keypref')==2:   # GPG preferred
-				keyID=keyholder.group('CAKeyID')
-				pref=2
+			keyID=keyholder['pgpKeyID']
+			if keyholder['preferredEncryption']==1:   # GPG preferred
+				keyID=keyholder['userCertificate']
+				pref=1
 		return keyID,pref,returnText
 	
 	
@@ -164,6 +201,7 @@ class wtKeysClass(GnuPGInterface.GnuPG):
 	def encryptMessage(self,message,toAddr):
 		# get recepients preferred encryption and keyID
 		keyID,prefEnc,errorMsg=self.getKeyID(toAddr)
+		print "prefEnc is %i" %prefEnc
 		status=errorMsg
 		returnText=''
 		if keyID>0:     # key found
@@ -251,15 +289,21 @@ def wagLog(logName,logText):
 keyServer='www.keyserver.medicine.net.au'
 # setting default keyserver currently needs to be done within gpg config
 smtpServer='medicineau.net.au'
-wtServer="http://www.keyserver.medicine.net.au/wagtail/wagtailServer.php?email="
+ldapServer="www.ldap.medicine.net.au"
+baseDN = "dc=medicine,dc=net,dc=au"
 keyholdersFile="keyholders.wt"
+# make sure logFolder is created before running server
 logFolder="logs"
+# postings restricted to IP that begin with localNetwork
 localNetwork="127"
 smtpIP="localhost"
 smtpPort=8023
 
 
+
+
 gnupg = wtKeysClass()
+
 
 #This is the 2.2 way of running asyncronous servers
 server = OurServer((smtpIP, smtpPort),
