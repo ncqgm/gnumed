@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.10 2003-03-25 12:32:31 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmTmpPatient.py,v 1.11 2003-03-27 21:08:25 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -49,7 +49,9 @@ class gmPatient:
 		- patient referenced by aPKey does not exist.
 		"""
 		self.__backend = gmPG.ConnectionPool()
-		self.__defconn = self.__backend.GetConnection('personalia')
+		self.__defconn_ro = self.__backend.GetConnection('personalia')
+		if self.__defconn_ro is None:
+			raise gmExceptions.ConstructorError, "Cannot connect to database." % aPKey
 
 		self.ID = aPKey			# == identity.id == primary key
 		if not self.__pkey_exists():
@@ -75,6 +77,9 @@ class gmPatient:
 
 		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.ID)
 	#--------------------------------------------------------
+	def __del__(self):
+		self.__backend.ReleaseConnection('personalia')
+	#--------------------------------------------------------
 	def commit(self):
 		"""Do cleanups before dying.
 
@@ -95,12 +100,12 @@ class gmPatient:
 
 		- true/false/None
 		"""
-		curs = self.__defconn.cursor()
+		curs = self.__defconn_ro.cursor()
 		cmd = "select exists(select id from identity where id = %s);"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
-			curs.close
+			curs.close()
 			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info(), fatal=0)
 			return None
 		res = curs.fetchone()[0]
@@ -166,6 +171,9 @@ class gmPatient:
 
 		"""
 		blobs_conn = self.__backend.GetConnection('blobs')
+		if blobs_conn is None:
+			_log.Log(gmLog.lPanic, "Cannot connect to database.")
+			return None
 
 		curs = blobs_conn.cursor()
 		cmd = "SELECT id from doc_med WHERE patient_id=%s;"
@@ -193,7 +201,7 @@ class gmPatient:
 		return docs
 	#--------------------------------------------------------
 	def __getActiveName(self):
-		curs = self.__defconn.cursor()
+		curs = self.__defconn_ro.cursor()
 		cmd = "select firstnames, lastnames from v_basic_person where id = %s;"
 		try:
 			curs.execute(cmd, self.ID)
@@ -213,7 +221,7 @@ class gmPatient:
 			return result
 	#--------------------------------------------------------
 	def __getTitle(self):
-		curs = self.__defconn.cursor()
+		curs = self.__defconn_ro.cursor()
 		cmd = "select title from v_basic_person where id = %s;"
 		try:
 			curs.execute(cmd, self.ID)
@@ -260,6 +268,8 @@ def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 		# get connection
 		backend = gmPG.ConnectionPool()
 		conn = backend.GetConnection('personalia')
+		if conn is None:
+			raise ValueError, "Cannot connect to database."
 
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = conn.cursor()
@@ -336,68 +346,79 @@ def create_patient(data):
 	- not None: either newly created patient or existing patient
 	- None: failure
 	"""
+	backend = gmPG.ConnectionPool()
+	roconn = backend.GetConnection('personalia')
+	if roconn is None:
+		_log.Log(gmLog.lPanic, "Cannot connect to database.")
+		return None
 
 	# patient already in database ?
 	try:
-		pat_ids = get_patient_ids(cooked_search_terms = data)
-	except:
-		_log.Log(gmLog.lData, data)
-		_log.LogException('huh ?', sys.exc_info())
+		cmd = "SELECT exists(SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s');" % (data['first name'], data['last name'], data['dob'])
+	except KeyError:
+		_log.LogException('argument structure wrong: %s' % data, sys.exc_info())
 		return None
 
-	if pat_ids is not None:
-		_log.Log(gmLog.lData, "matching patient IDs: [%s]" % pat_ids)
-		if len(pat_ids) > 1:
-			_log.Log(gmLog.lErr, 'Several matching patients. Integrity violation. Aborting.')
+	rocurs = roconn.cursor()
+
+	if not gmPG.run_query(rocurs, cmd):
+		_log.Log(gmLog.lErr, 'Cannot check for patient existence.')
+		rocurs.close()
+		backend.ReleaseConnection('personalia')
+		return None
+	pat_exists = rocurs.fetchone()[0]
+
+	# insert new patient
+	if not pat_exists:
+		cmd =  "INSERT INTO v_basic_person (firstnames, lastnames, dob) \
+				VALUES ('%s', '%s', '%s');" % (
+					data['first name'],
+					data['last name'],
+					data['dob']
+				)
+		rwconn = backend.GetConnection('personalia', readonly = 0)
+		if rwconn is None:
+			_log.Log(gmLog.lPanic, "Cannot connect to database.")
+			rocurs.close()
+			backend.ReleaseConnection('personalia')
 			return None
-		else:
-			_log.Log(gmLog.lData, 'patient already in database')
-			pat = gmPatient(aPKey = pat_ids[0])
-			return pat
+		rwcurs = rwconn.cursor()
 
-	# data must have all keys since it survived get_patient_ids()
-	cmd =  "INSERT INTO v_basic_person (title, firstnames, lastnames, dob, cob, gender) \
-			VALUES ('%s', '%s', '%s', '%s', '%s', '%s');" % (
-				data['title'],
-				data['first name'],
-				data['last name'],
-				data['dob'],
-				data['cob'],
-				data['gender']
-			)
+		if not gmPG.run_query(rwcurs, cmd):
+			_log.Log(gmLog.lErr, 'Cannot insert patient.')
+			_log.Log(gmLog.lErr, data)
+			rwcurs.close()
+			rwconn.close()
+			rocurs.close()
+			backend.ReleaseConnection('personalia')
+			return None
 
-	# get connection
-	backend = gmPG.ConnectionPool()
-	conn = backend.GetConnection('personalia', readonly = 0)
-	# start our transaction (done implicitely by defining a cursor)
-	cursor = conn.cursor()
+		rwconn.commit()
+		rwcurs.close()
+		rwconn.close()
 
-	if not gmPG.run_query(cursor, cmd):
-		_log.Log(gmLog.lErr, 'Cannot insert patient.')
-		_log.Log(gmLog.lErr, data)
-		cursor.close()
-		conn.close()
+		_log.Log(gmLog.lData, 'patient successfully inserted')
+	else:
+		_log.Log(gmLog.lData, 'patient already in database')
+
+	# get patient ID
+	cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s';" % (data['first name'], data['last name'], data['dob'])
+	if not gmPG.run_query(rocurs, cmd):
+		rocurs.close()
+		backend.ReleaseConnection('personalia')
 		return None
+	pat_id = rocurs.fetchone()[0]
 
-	# get new patient's ID
-	cmd = "SELECT last_value FROM identity_id_seq;"
-	if not gmPG.run_query(cursor, cmd):
-		cursor.close()
-		conn.close()
-		return None
-	pat_id = cursor.fetchone()[0]
-	_log.Log(gmLog.lData, 'new patient ID: %s' % pat_id)
+	rocurs.close()
+	backend.ReleaseConnection('personalia')
 
-	# close connection
-	conn.commit()
-	cursor.close()
-	conn.close()
+	_log.Log(gmLog.lData, 'patient ID: %s' % pat_id)
 
 	# and init new patient object
 	try:
 		pat = gmPatient(aPKey = pat_id)
 	except:
-		_log.LogException('cannot init patient with ID [%s]' % pat_id, sys.exc_info())
+		_log.LogException('cannot init patient with ID [%s]' % pat_id, sys.exc_info(), fatal=1)
 		return None
 
 	return pat
@@ -433,7 +454,12 @@ else:
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.10  2003-03-25 12:32:31  ncq
+# Revision 1.11  2003-03-27 21:08:25  ncq
+# - catch connection errors
+# - create_patient rewritten
+# - cleanup on __del__
+#
+# Revision 1.10  2003/03/25 12:32:31  ncq
 # - create_patient helper
 # - __getTitle
 #
