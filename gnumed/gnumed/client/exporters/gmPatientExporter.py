@@ -3,16 +3,19 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.9 2004-06-23 22:06:48 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPatientExporter.py,v 1.10 2004-06-26 06:53:25 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
 import sys, traceback, string, types
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N
-from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab
+from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
+
+# 3rd party
+import mx.DateTime.Parser as mxParser
 
 if __name__ == "__main__":
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
@@ -33,7 +36,8 @@ class gmEmrExport:
 	Default constructor
 	"""
 	def __init__(self):
-		lab_new_encounter = True
+		self.outFile = None
+		self.lab_new_encounter = True
 	#--------------------------------------------------------
 	def get_vaccination_for_cell(self, vaccs, date, field, text = None):
 		"""
@@ -138,18 +142,6 @@ class gmEmrExport:
 				txt += '\t\n'    		
 					
 		return txt
-	#--------------------------------------------------------
-	def get_items_for_episode(self, emr, episode):
-	   """
-        Retrieves all clinical items for a concrete episode
-        emr - Patient's electronic clinical record
-        episode - Episode whose items are  to be obtained
-	   """
-	   items = []
-	   items.extend(emr.get_allergies(episodes = [episode['id_episode']]))
-	   items.extend(emr.get_vaccinations(episodes = [episode['id_episode']]))
-	   items.extend(emr.get_lab_results(episodes = [episode['id_episode']]))
-	   return items
     #--------------------------------------------------------
 	def get_encounters_for_items(self, emr, items):
 	    """
@@ -223,22 +215,73 @@ class gmEmrExport:
 	        self.lab_new_encounter = False
 	    return txt
 	#--------------------------------------------------------
-	def get_historical_tree(self, emr = None, since_val = None, until_val = None, encounters_val = None, episodes_val = None, issues_val = None):
+	def get_filtered_items(self, emr = None, since_val = None, until_val = None,
+                           encounters_list = None, episodes_list = None, issues_list = None):
+	    """
+            Retrieve patient clinical items filtered by multiple constraints
+            
+            emr - patient's electronic medical record
+            since_val - filters patient EMR clinical items by initial date
+            until_val - filters patient EMR clinical items by end date
+            encounters_list - filters patient EMR clinical items by encounters
+            episodes_list - filters patient EMR clinical items by episodes
+            issues_list - filters patient EMR clinical items by health issues
+	    """
+	    filtered_items = []
+	    filtered_items.extend(emr.get_allergies(since = since_val, until = until_val,
+            encounters = encounters_list, episodes = episodes_list, issues = issues_list))
+	    filtered_items.extend(emr.get_vaccinations(since = since_val, until = until_val,
+            encounters = encounters_list, episodes = episodes_list, issues = issues_list))
+	    filtered_items.extend(emr.get_lab_results(since = since_val, until = until_val,
+            encounters = encounters_list, episodes = episodes_list, issues = issues_list))
+	    return filtered_items
+	#--------------------------------------------------------
+	def get_set_for_field(self, list_values, field):
+	    """
+            Extract set of unique values of a desired field from list
+            
+            list_values - List of items to iterate
+            field - Field for which each unique value must be extracted
+	    """
+	    set_values = []
+	    for a_value in list_values:
+	        if a_value[field] not in set_values:
+	            set_values.append(a_value[field])
+	    return set_values
+	#--------------------------------------------------------
+	def get_historical_tree(self, emr = None, since_val = None, until_val = None, 
+	                        encounters_val = None, episodes_val = None, issues_val = None):
 	    """
 	    Dumps patient's historical in form of a tree of health issues
 	                                                    -> episodes
 	                                                       -> encounters
 	                                                          -> clinical items
 	    emr - patient's electronic medical record
+	    since_val - filters patient EMR clinical items by initial date
+	    until_val - filters patient EMR clinical items by end date
+	    encounters_val - filters patient EMR clinical items by encounters
+	    episodes_val - filters patient EMR clinical items by episodes
+	    issues_val - filters patient EMR clinical items by health issues
 	    """
-	    # FIXME filter by date range, issue, episode, encounter
+	    
+	    # Let's fetch all items compliant with constraints
+	    filtered_items = self.get_filtered_items(emr, since_val, until_val, encounters_val,
+            episodes_val, issues_val)
+	    # Extract from considered items related health issues
+	    filtered_issues = self.get_set_for_field(filtered_items, 'id_health_issue')
+	    # Extract from considered items related episodes
+	    filtered_episodes = self.get_set_for_field(filtered_items, 'id_episode')
+	    # Extract from considered items related encounters
+	    filtered_encounters = self.get_set_for_field(filtered_items, 'id_encounter')
+	    
+	    # All values fetched and filtered, we can begin with the tree
 	    txt = ''
-	    h_issues = emr.get_health_issues()
+	    h_issues = emr.get_health_issues(id_list = filtered_issues)
 	    for h_issue in h_issues:
 	        txt += '\n' + 3*' ' + 'Health Issue: ' + h_issue['description'] + '\n'
-	        for an_episode in emr.get_episodes(issues = [h_issue['id']]):
+	        for an_episode in emr.get_episodes(id_list =filtered_episodes, issues = [h_issue['id']]):
 	           txt += '\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n'
-	           items = self.get_items_for_episode(emr, an_episode)
+	           items =  filter(lambda item: item['id_episode'] in [an_episode['id_episode']], filtered_items)
 	           encounters = self.get_encounters_for_items(emr, items)
 	           for an_encounter in encounters:
                     self.lab_new_encounter = True
@@ -246,14 +289,8 @@ class gmEmrExport:
                     an_encounter['last_affirmed'].Format('%Y-%m-%d') + ' ' + \
                     an_encounter['description'] + '\n'
                     for an_item  in items:
-                        try:
-                            if an_item['id_encounter'] == an_encounter['pk_encounter']:
-                                txt += self.get_item_output(an_item)
-                        except:
-                            #traceback.print_exc(file=sys.stdout)
-                            # FIXME unify fk field names in views
-                            if an_item['pk_encounter'] == an_encounter['pk_encounter']:
-                                txt += self.get_item_output(an_item)
+                        if an_item['id_encounter'] == an_encounter['pk_encounter']:
+                            txt += self.get_item_output(an_item)
 	    return txt
 	#--------------------------------------------------------
 	def dump_clinical_record(self, patient, since_val = None, until_val = None, encounters_val = None, episodes_val = None, issues_val = None):
@@ -275,25 +312,19 @@ class gmEmrExport:
 				'Please check the log file for details.'
 			))
 			return None
-		txt =''
-		txt += "Overview:\n"
-		txt += "--------\n"
-		print txt
+		txt ='\n'
+		txt += 'Overview\n'
+		txt += '--------\n'
 		
-		txt = ''
 		txt += "1) Allergy status (for details, see below):\n\n"
 		for allergy in 	emr.get_allergies():
 			txt += "   " + allergy['descriptor'] + "\n"
 		txt += "\n"
-		print txt
 		
-		txt = ''
-		txt += "2) Vaccination status (* indicates booster):\n\n"
+		txt += "2) Vaccination status (* indicates booster):\n"
 		txt += self.get_vacc_table(emr)
-		print txt
 		
-		txt = ''
-		txt += "3) Historical:\n\n"
+		txt += "\n3) Historical:\n\n"
 		txt += self.get_historical_tree(emr, since_val, until_val, encounters_val, episodes_val, issues_val)
 		print txt
 
@@ -301,7 +332,32 @@ class gmEmrExport:
 			emr.cleanup()
 		except:
 			print "error cleaning up EMR"
+		return txt	
 	#--------------------------------------------------------
+	def dump_med_docs(self, patient = None):
+	    """
+            Dumps patient stored medical documents
+            
+            patient - Patient whose documentes are to be dumped
+	    """
+	    doc_folder = patient.get_document_folder()
+	    doc_ids = doc_folder.get_doc_list()
+	    txt = ''
+	    txt += '4) Medical documents: (date) reference - type "comment"\n'
+	    txt += '                         object - comment'
+	    for doc_id in doc_ids:
+	        med_doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
+	        doc_metadata = med_doc.get_metadata()
+	        txt += '\n\n' + 3*' ' + \
+	        '(' + doc_metadata['date'].Format('%Y-%m-%d') + ') ' + doc_metadata['reference'] +\
+	        ' - ' + doc_metadata['type']+ ' "' + doc_metadata['comment'] + '"'
+	        for objKey in doc_metadata['objects'].keys():
+	            txt += '\n' + 6*' ' + str(doc_metadata['objects'][objKey]['index']) + '-' +\
+	            doc_metadata['objects'][objKey]['comment']
+	    txt += '\n\n'
+	    print txt
+	    return txt
+	#--------------------------------------------------------    
 	def dump_demographic_record(self, all = False, patient = None):
 		"""
 		Dumps in ASCII format some basic patient's demographic data
@@ -316,58 +372,77 @@ class gmEmrExport:
 			))
 			return None
 
-		txt = 'DEMOGRAPHICS for patient:\n'
-		txt += '   ID: ' + dump['id'] + '\n'
+		txt = '\nDemographics'
+		txt += '\n------------\n'
+		txt += '   Id: ' + dump['id'] + '\n'
 		for name in dump['names']:
 			if dump['names'].index(name) == 0:
-				txt += '   NAME (Active): ' + name['first'] + ', ' + name['last'] + '\n'
+				txt += '   Name (Active): ' + name['first'] + ', ' + name['last'] + '\n'
 			else:
-				txt += '   NAME ' + dump['names'].index(name) + ': ' + name['first'] + ', ' +  name['last'] + '\n'
-		txt += '   GENDER: ' + dump['gender'] + '\n'
-		txt += '   TITLE: ' + dump['title'] + '\n'
-		txt += '   DOB: ' + dump['dob'] + '\n'
-		txt += '   MEDICAL AGE: ' + dump['mage'] + '\n'
+				txt += '   Name ' + dump['names'].index(name) + ': ' + name['first'] + ', ' +  name['last'] + '\n'
+		txt += '   Gender: ' + dump['gender'] + '\n'
+		txt += '   Title: ' + dump['title'] + '\n'
+		txt += '   Dob: ' + dump['dob'] + '\n'
+		txt += '   Medical age: ' + dump['mage'] + '\n'
 		addr_types = dump['addresses'].keys()
 		for addr_t in addr_types:
 			addr_lst = dump['addresses'][addr_t]
 			for address in addr_lst:
-				txt += '   ADDRESS (' + addr_t + '): ' + address + '\n'
+				txt += '   Address (' + addr_t + '): ' + address + '\n'
 		print(txt)
+		return txt
 #============================================================
 # main
 #------------------------------------------------------------
-def run():
+def run(export_tool):
 	patient = None
 	patient_id = None
-	export_tool = gmEmrExport()
 
 	while patient_id != 'bye':
 		# FIXME: ask for patient search string
-		patient_id = prompted_input("Patient ID (or 'bye' to exit) [12]: ", '12')
-		# FIXME: if empty: exit
 		# FIXME: if none/more than one found: warn, restart loop
 		# FIXME: if only one found: proceed with dump
+		patient_id = prompted_input("Patient ID (or 'bye' to exit) (eg. 12): ")
+		if patient_id is None or len(patient_id) == 0:
+		    break
 		if patient_id == 'bye':
 			break
-		since = prompted_input("Since (eg. 2001-01-01): ")
-		until = prompted_input("Until (eg. 2003-01-01): ")
+		file_name = prompted_input("Output file: (just press intro for display dump): ")
+		if file_name is not None and len(file_name) > 0:
+		    export_tool.outFile = open(file_name, 'w')
+		since = prompted_input("Since (eg. 2001-03-16): ")
+		until = prompted_input("Until (eg. 2003-03-16): ")
 		encounters = prompted_input("Encounters (eg. 1,2): ")
 		episodes = prompted_input("Episodes (eg. 3,4): ")
 		issues = prompted_input("Issues (eg. 5,6): ")
+		if not since is None:
+		    since = mxParser.DateFromString(since, formats= ['iso'])
+		if not until is None:
+		    until = mxParser.DateFromString(until, formats= ['iso'])
 		if not encounters is None:
 			encounters = string.split(encounters, ',')
+			encounters = map(lambda encounter: int(encounter), encounters)
 		if not episodes is None:
 			episodes = string.split(episodes, ',')
+			episodes = map(lambda episode: int(episode), episodes)
 		if not issues is None:
 			issues = string.split(issues,',')
+			issues = map(lambda issue: int(issue), issues)
 
 		patient = gmPatient.gmCurrentPatient(patient_id)
-		export_tool.dump_demographic_record(True, patient)
-		export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
-		# FIXME: dump document folder
-		# FIXME: date/document type/doc comment plus object comments
-		#print(patient.get_document_folder())
-
+		chunk = ''
+		chunk = export_tool.dump_demographic_record(True, patient)
+		if export_tool.outFile is not None:
+		    export_tool.outFile.write(chunk)
+		chunk = export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
+		if export_tool.outFile is not None:
+		    export_tool.outFile.write(chunk)
+		chunk = export_tool.dump_med_docs(patient)
+		if export_tool.outFile is not None:
+		    export_tool.outFile.write(chunk)
+		
+	if export_tool.outFile is not None:
+	    export_tool.outFile.close()
 	if patient is not None:
 		try:
 			patient.cleanup()
@@ -375,17 +450,20 @@ def run():
 			print "error cleaning up patient"
 #------------------------------------------------------------
 if __name__ == "__main__":
-	print "Gnumed Simple EMR ASCII Export Tool"
+	print "\n\nGnumed Simple EMR ASCII Export Tool"
 	print "==================================="
 
 	gmPG.set_default_client_encoding('latin1')
 	# make sure we have a connection
 	pool = gmPG.ConnectionPool()
+	export_tool = gmEmrExport()
 	# run main loop
 	try:
-		run()
+		run(export_tool)
 	except StandardError:
 		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+	if export_tool.outFile is not None and not export_tool.outFile.closed:
+	    export_tool.outFile.close()
 	try:
 		pool.StopListeners()
 	except:
@@ -393,7 +471,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.9  2004-06-23 22:06:48  ncq
+# Revision 1.10  2004-06-26 06:53:25  ncq
+# - id_episode -> pk_episode
+# - constrained by date range from Carlos
+# - dump documents folder, too, by Carlos
+#
+# Revision 1.9  2004/06/23 22:06:48  ncq
 # - cleaner error handling
 # - fit for further work by Carlos on UI interface/dumping to file
 # - nice stuff !
