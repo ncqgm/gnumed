@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -90,7 +90,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# left hand side
 		# - soap inputs panel
 		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
-		self.__soap_multisash = SOAPMultiSash.cSOAPMultiSash(self, PNL_soap_editors, -1)
+		self.__soap_multisash = SOAPMultiSash.cSOAPMultiSash(self.make_soap_editor, PNL_soap_editors, -1)
 		#self.__soap_multisash.SetController(self)		# what does this do ?
 		# - buttons
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
@@ -227,6 +227,23 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				if problem['pk_episode'] == emr_struct_element['pk_episode']:
 					result_problem = problem
 		return result_problem
+		
+	#--------------------------------------------------------
+	def make_soap_editor(self, parent = None):
+		"""
+		Factory method for the multisash widget.
+		Creates a new soap editor for the selected episode.
+		@param parent The parent of the soap editor to create
+		@type parent SOAPMultiSash.cMultiSashLeaf
+		"""
+		#if parent.soap_panel is not None:
+		#	parent.soap_panel.Destroy()
+		#	parent.soap_panel = None		
+		parent.soap_panel = gmSOAPWidgets.cResizingSoapPanel(parent, self.__selected_episode)
+		parent.soap_panel.MoveXY(2,2)
+		#self.__set_focus()
+		#parent.OnSize(None)		
+		
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -535,7 +552,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.13  2005-02-08 11:36:11  ncq
+# Revision 1.14  2005-02-09 20:19:58  cfmoro
+# Making soap editor made factory function outside SOAPMultiSash
+#
+# Revision 1.13  2005/02/08 11:36:11  ncq
 # - lessen reliance on implicit callbacks
 # - make things more explicit, eg Pythonic
 #

@@ -6,9 +6,9 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.26 2005-02-08 11:36:11 ncq Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.27 2005-02-09 20:19:58 cfmoro Exp $
 # License:	  wxWindows licensie
-# GnuMed customization (Carlos): 
+# GnuMed customization (Karsten, Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
 #		An instance of controller object is passed with DefaultChildClass,
 #		to allow problem and emr connection with each SOAP editor control,
@@ -30,20 +30,31 @@ from Gnumed.wxpython import gmSOAPWidgets
 class cSOAPMultiSash(wxWindow):
 	"""
 	Main multisash widget. Dynamically displays a stack of child widgets,
-	out SOAP input widgets.
+	out SOAP input widgets.	
 	"""
-	def __init__(self, data_provider, *_args,**_kwargs):
+	def __init__(self, content_factory = None, *_args,**_kwargs):
+		"""
+		Creates a new instance of cSOAPMultiSash
+		
+		@param content_factory Factory funtion responsible of instantiating the
+		leaf's content widget		
+		"""
 		print "----------------------------------------"
 		print self.__class__.__name__, "-> __init__()", id(self)
-		apply(wxWindow.__init__, (self,) + _args, _kwargs)
-#		self.data_provider = data_provider
+		apply(wxWindow.__init__, (self,) + _args, _kwargs)		
 		self.splitter = cMultiSashSplitter (
 			root_multi_sash_win = self,
 			parent = self,
 			pos = wxPoint(0,0),
-			size = self.GetSize()
+			size = self.GetSize(),
+			content_factory = content_factory
 		)
+		self.content_factory = content_factory
 		self.focussed_leaf = self.splitter.primary_leaf
+		# FIXME temporary workaround to detect the first editor
+		#       so just the current leaf content has to be replaced
+		#       If not, we have 2 closers for 1 editor	
+		self.is_first_leaf = True
 		EVT_SIZE(self,self._on_size)
 	#---------------------------------------------
 	# event handling
@@ -94,7 +105,13 @@ class cMultiSashSplitter(wxWindow):
 	Basic split windows container of the multisash widget.
 	Has references to two leafs or splitted windows (SOAP input widgets)
 	"""
-	def __init__(self, root_multi_sash_win, parent, pos, size, prev_leaf = None):
+	def __init__(self, root_multi_sash_win, parent, pos, size, prev_leaf = None, content_factory = None):
+		"""
+		Creates a new instance of cMultiSashSplitter
+		
+		@param content_factory Factory funtion responsible of instantiating the
+		leaf's content widget		
+		"""		
 		print "----------------------------------------"
 		print self.__class__.__name__, "-> __init__()", id(self)
 		wxWindow.__init__ (
@@ -106,13 +123,15 @@ class cMultiSashSplitter(wxWindow):
 			style = wxCLIP_CHILDREN
 		)
 		self.root_multi_sash_win = root_multi_sash_win
+		self.content_factory = content_factory
 		if prev_leaf is None:
 			print "prev_leaf is None"
 			self.primary_leaf = cMultiSashLeaf (
 				root_multi_sash_win = self.root_multi_sash_win,
 				parent = self,
 				pos = wxPoint(0,0),
-				size = self.GetSize()
+				size = self.GetSize(),
+				content_factory = content_factory
 			)
 		else:
 			print "prev_leaf available"
@@ -147,6 +166,15 @@ class cMultiSashSplitter(wxWindow):
 		print '%s (%s) -> AddLeaf()' % (self.__class__.__name__, id(self))
 		print "primary leaf: ", self.primary_leaf.__class__.__name__, id(self.primary_leaf)
 		print "secondary leaf:", self.secondary_leaf.__class__.__name__, id(self.secondary_leaf)
+		
+		# FIXME temporary workaround to detect the first editor
+		#       so just the current leaf content has to be replaced
+		#       If not, we have 2 closers for 1 editor
+		if self.root_multi_sash_win.is_first_leaf == True:
+			print "creating first leaf, just replace" 
+			self.root_multi_sash_win.is_first_leaf = False
+			return		
+			
 		if self.secondary_leaf is None:
 			print "adding secondary_leaf to *this* splitter instance"
 			self.direction = direction
@@ -167,7 +195,8 @@ class cMultiSashSplitter(wxWindow):
 				root_multi_sash_win = self.root_multi_sash_win,
 				parent = self,
 				pos = wxPoint(x,y),
-				size = wxSize(w1,h1)
+				size = wxSize(w1,h1),
+				content_factory = self.content_factory
 			)
 			self.primary_leaf.SetSize(wxSize(w2,h2))
 			self.secondary_leaf.resize()
@@ -190,7 +219,8 @@ class cMultiSashSplitter(wxWindow):
 			parent = self,
 			pos = caller.GetPosition(),
 			size = caller.GetSize(),
-			prev_leaf = caller
+			prev_leaf = caller,
+			content_factory = self.content_factory
 		)
 		if caller == self.primary_leaf:
 #			self.primary_leaf = cMultiSashSplitter (
@@ -356,6 +386,12 @@ class cMultiSashLeaf(wxWindow):
 	"""A leaf represent a split window, one instance of our SOAP input widget.
 	"""
 	def __init__(self, root_multi_sash_win, parent, pos, size, content_factory=None):
+		"""
+		Creates a new instance of cSOAPMultiLeaf
+		
+		@param content_factory Factory funtion responsible of instantiating the
+		leaf's content widget		
+		"""		
 		print "----------------------------------------"
 		print self.__class__.__name__, "-> __init__()", id(self)
 		wxWindow.__init__ (
@@ -721,20 +757,20 @@ class cMultiSashLeafContent(wxWindow):
 #		self.data_provider = data_provider
 #		self.__set_focus()
 
-	def MakeSoapEditor(self, episode = 'missing episode'):
-		"""
-		Destroys current widget (usually EmptyWidget, becouse no soap editors are
-		displayed at startup - no episode selected)
-		"""
+#	def MakeSoapEditor(self, episode = 'missing episode'):
+#		"""
+#		Destroys current widget (usually EmptyWidget, becouse no soap editors are
+#		displayed at startup - no episode selected)
+#		"""
 #		self.SetBackgroundColour(self.normalColour)
-		if self.soap_panel is not None:
-			self.soap_panel.Destroy()
+#		if self.soap_panel is not None:
+#			self.soap_panel.Destroy()
 #			self.soap_panel = None
 #		self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, self.data_provider.get_selected_episode())
-		self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, episode)
-		self.soap_panel.MoveXY(2,2)
+#		self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, episode)
+#		self.soap_panel.MoveXY(2,2)
 #		self.__set_focus()
-		self.OnSize(None)
+#		self.OnSize(None)
 
 	def MakeEmptyWidget(self):
 		"""
@@ -1064,7 +1100,10 @@ if __name__ == '__main__':
 	print "no test code, seemed to compile successfully"
 #============================================================
 # $Log: SOAPMultiSash.py,v $
-# Revision 1.26  2005-02-08 11:36:11  ncq
+# Revision 1.27  2005-02-09 20:19:58  cfmoro
+# Making soap editor made factory function outside SOAPMultiSash
+#
+# Revision 1.26  2005/02/08 11:36:11  ncq
 # - lessen reliance on implicit callbacks
 # - make things more explicit, eg Pythonic
 #
