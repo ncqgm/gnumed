@@ -19,10 +19,13 @@
 
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPgObject.py,v $      
-__version__ = "$Revision: 1.1 $"                                               
+__version__ = "$Revision: 1.2 $"                                               
 __author__ = "Horst Herb <hherb@gnumed.net>"
 # $Log: gmPgObject.py,v $
-# Revision 1.1  2002-10-23 14:34:43  hherb
+# Revision 1.2  2002-10-23 15:01:24  hherb
+# meta data caching now working
+#
+# Revision 1.1  2002/10/23 14:34:43  hherb
 # database row abstraction layer
 #
 
@@ -39,7 +42,7 @@ INNER JOIN pg_class ON pg_trigger.tgrelid = pg_class.oid
 INNER JOIN pg_type ON pg_trigger.tgtype = pg_type.oid 
 WHERE pg_class.relname = '%s'"""
 
-		
+_cached_tables = []		
 _table_metadata = {}
 _column_indices = {}
 _primarykeys = {}
@@ -87,6 +90,10 @@ def cache_table_info(con, table, cursor=None):
 	global _column_indices
 	global _primarykey
 	global _foreignkeys
+	global _cached_tables
+	
+	if table in _cached_tables:
+		return
 		
 	if cursor is None:
 		cursor = con.cursor()
@@ -99,7 +106,7 @@ def cache_table_info(con, table, cursor=None):
 	for i in range(len (cursor.description)):
 		index[cursor.description[i][0]] = i
 	_column_indices[table] = index
-		
+	_cached_tables.append(table)
 	
 
 class pgobject:
