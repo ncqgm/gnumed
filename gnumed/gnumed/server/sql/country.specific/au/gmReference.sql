@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -16,51 +16,41 @@
 insert into form_types (name) values ('radiology');
 insert into form_types (name) values ('pathology');
 insert into form_types (name) values ('vascular');
-
-
--- this form is for nice laTeX referral letters
--- accepts a dictionary of the following values
--- (all strings unless otherwise specified)
--- SENDER: the sender's name
--- SENDERADDRESS: [multiline]: the sender's address
--- RECIPIENT: the recipient's name
--- RECIPIENTADDRESS: you get the idea
--- PATIENTNAME
--- PATIENTADDRESS
--- DOB: the patient's date of birth
--- TEXT: free text of the clinical notes. Paragraphs marked by double lines
--- [integer] INCLUDEMEDS: nonzero if meds should be included
--- [string list] MEDNAME: names of medications
--- [string list] MEDFORM: form of medication
--- [string list] MEDDOSE: dose of medication
--- [integer] INCLUDEPASTHX: nonzero if past history is to be included
--- [string list] PASTHX: past history disgnoses
--- [string list] PASTHXBEGAN: when the diagnosis began  
+  
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
 (1,
  'Standard Referral', 'Standard specialist referral letter for AU', 1, 'L', 
  '\\documentclass{letter}
-\\address{ @SENDER \\\\ @SENDERADDRESS }
-\\signature{@SENDER }
+\\address{ @"%(title)s %(first)s %(last)s" % sender.get_names ()@ \\\\ 
+@"%(number)s %(street)s" % sender.getAddresses (''work'', 1)@ \\\\
+@"%(urb)s %(postcode)s" % sender.getAddresses (''work'', 1)@ \\\\}
+\\signature{ @"%(title)s %(first)s %(last)s" % sender.get_names ()@}
 \\begin{document}
-\\begin{letter}{@RECIPIENT \\\\ @RECIPIENTADDRESS }
-\\opening{Dear @RECIPIENT}
-\\textbf{Re:} @PATIENTNAME, DOB: @DOB, @PATIENTADDRESS 
+\\begin{letter}{@"%(title)s %(first)s %(last)s" % recipient.get_names ()@ \\\\ 
+@"%(number)s %(street)s" % recipient_address@ \\\\
+@"%(urb)s %(postcode)s" % recipient_address@ \\\\} }
 
-@TEXT
+\\opening{Dear @"%(title)s %(first)s %(last)s" % recipient.get_names ()@ }
 
-\\ifnum@INCLUDEMEDS>0
+\\textbf{Re:} @"%(first)s %(last)s" % patient.get_names ()@, 
+@"%(number)s %(street)s, %(urb)s %(postcode)s" % patient.getAddresses (''home'', 1)@, 
+DOB: @patient.getDOB ().Format (''%x'')@
+
+@text@
+
+\\ifnum@flags[''include_meds'']@>0
 \\textbf{Medications List}
+
 \\begin{tabular}{lll}
-@MEDNAME & @MEDFORM & @MEDDOSE \\\\
+@[[med[''drug''], med[''dose''], med[''direction'']] for med in clinical.getMedicationsList ()]@
 \\end{tabular}
 \\fi
 
-\\ifnum@INCLUDEPASTHX>0
+\\ifnum@flags[''include_pasthx'']@>0
 \\textbf{Disease List}
 
 \\begin{tabular}{ll}
-@PASTHX & @PASTHXBEGAN \\\\
+@[[phx[''diagnosis''], phx[''started'']] for phx in clinical.getPastHistory ()]@
 \\end{tabular}
 \\fi
 
@@ -74,29 +64,21 @@ insert into form_defs (pk, name_short, name_long, revision, engine, template) va
  'E-mail Referral', 'E-mail referral letter for Australia', 1, 'T',
 -- WARNING: no standard for this actually exists in AU!
 -- this is for demonstration purposes only 
-'To: @RECIPIENT <@RECIPIENTADDRESS>
-From: @SENDER <@SENDERADDRESS>
+'Re:  @"%(first)s %(last)s" % patient.get_names ()@ 
+      @"%(number)s %(street)s, %(urb)s %(postcode)s" % patient.getAddresses (''home'', 1)@, 
+      DOB: @patient.getDOB ().Format (''%x'')@
 
-Re: @PATIENT, @PATIENTADDRESS
+@text@
 
-@TEXT
+@(flags[''include_meds''] and "Medications") or ''''@
+@(flags[''include_meds''] and [[med[''drug''], med[''dose''], med[''direction'']] for med in clinical.getMedicationsList ()]) or ''''@
+
+@(flags[''include_phx''] and "Past History") or ''''@
+@(flags[''include_phx''] and [[phx[''diagnosis''], phx[''started'']] for phx in clinical.getPastHistory ()]) or ''''@
 ');
 
 
--- this is a form to print PBS scripts
--- note this requires the "a4form" LaTeX extension, in gnumed CVS under gnumed/test-area/ian/a4form.cls
--- parameters:
--- PRESCRIBERNO: prescriber's 6-digit HIC prescriber number
--- PRESCRIBERNAME: prescriber's full name and academic title
--- MEDICARENO: patient's medicare number
--- PATIENTNAME: patient's name
--- PATIENTADDRESS: patient's address (can have newlines)
--- [inetger] RPBS: nonzero if this a Repatriation script
--- [integer] BRAND: nonzero for no brand substitution
--- [string list] DRUG: list of drugs
--- [string list] FORM: drug strength and form
--- [string list] DOSE: frequency of taking
--- [string list] QUANTITY: quantity of drug 
+
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
 (3, 
 'PBS Script', 'Prescription using the standard form of the Pharmaceutical Benefits Scheme', 1, 'L',
@@ -107,46 +89,45 @@ insert into form_defs (pk, name_short, name_long, revision, engine, template) va
 
 \\begin{document}
 \\begin{page}
-\\text{25}{25}{80}{@PRESCRIBERNO}
-\\text{130}{25}{80}{@PRESCRIBERNO}
+\\text{25}{25}{80}{@sender.getExternalID ("Prescriber No.")@}
+\\text{130}{25}{80}{@sender.getExternalID ("Prescriber No.")@}
 
-\\text{35}{33}{80}{@MEDICARENO}
-\\text{140}{33}{80}{@MEDICARENO}
+\\text{35}{33}{80}{@patient.getExternalID ("Repat No.") or patient.getExternalID ("Medicare No.")@}
+\\text{140}{33}{80}{@patient.getExternalID ("Repat No.") or patient.@getExternalID ("Medicare No.")@}
+% use the Department of Veteran''s affairs number if available: these patients get extra benefits
 
-\\text{24}{57}{80}{@PATIENTNAME}
-\\text{129}{57}{80}{@PATIENTNAME}
+\\text{24}{57}{80}{@"%(first)s %(last)s" % patient.get_names ()@}
+\\text{129}{57}{80}{@"(first)s %(last)s" % patient.get_names ()@}
 
-\\text{15}{60}{80}{@PATIENTADDRESS}
-\\text{120}{60}{80}{@PATIENTADDRESS}
+\\text{15}{60}{80}{@"%(number)s %(street)s, %(urb)s %(postcode)s" % patient.getAddresses (''home'', 1)@}
+\\text{120}{60}{80}{@"%(number)s %(street)s, %(urb)s %(postcode)s" % patient.getAddresses (''home'', 1)@}
 
 \\text{9}{72}{50}{\\today}
 \\text{114}{72}{50}{\\today}
 
-\\ifnum@RPBS>0
-\\text{27}{77}{10}{X}
+\\ifnum@patient.getExternalID ("Repat No.") is not None@>0
+\\text{27}{77}{10}{X} % mark as RPBS script
 \\text{132}{77}{10}{X}
 \\else
-\\text{7}{77}{10}{X}
+\\text{7}{77}{10}{X} % ordinary PBS
 \\text{112}{77}{10}{X}
 \\fi
 
-\\ifnum@BRANDONLY>0
+\\ifnum@flags[''no_brand_substitution'']>0
 \\text{43}{74.5}{7}{X}
 \\text{148}{74.5}{7}{X}
 \\fi
 
 \\text{22.5}{84}{82.5}{
-@DRUG \\\\ \\hspace{0.5cm}@FORM \\\\ \hspace{0.7cm}@DOSE \\\\ \\hspace{0.7cm}@QUANTITY \\\\\
-
+% TODO: drugs business objects yet to be written
 \\vspace{1cm}
-\\hspace{1cm} @PRESCRIBERNAME
+\\hspace{1cm} @"%(title)s %(first)s %(last)s" % sender.get_names ()@
 }
 
 \\text{127.5}{84}{82.5}{
-@DRUG \\\\ \\hspace{0.5cm}@FORM \\\\ \hspace{0.7cm}@DOSE \\\\ \\hspace{0.7cm}@QUANTITY \\\\\
-
+% TODO: drugs business objects yet to be written
 \\vspace{1cm}
-\\hspace{1cm} @PRESCRIBERNAME
+\\hspace{1cm} @"%(title)s %(first)s %(last)s" % sender.get_names ()@
 }
 \\end{page}
 \\end{document}');
