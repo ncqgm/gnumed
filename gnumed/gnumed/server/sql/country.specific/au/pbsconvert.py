@@ -7,7 +7,8 @@ import pg
 
 db = pg.connect ("gmdrugs")
 
-todo = db.query ("SELECT id, fs FROM convert WHERE ! done").getresult ();
+todo = db.query ("SELECT id, fs FROM convert WHERE not done ORDER BY id").getresult ();
+
 
 for id, fs in todo:
     print "No: %d F. and S.: %s\n" % (id, fs)
@@ -24,7 +25,7 @@ for id, fs in todo:
             numsubst = 1
         else:
             numsubst = int (x)
-        for i in range (1, numsubst):
+        for i in range (1, numsubst+1):
             subst_amount = input ("Amount of Subst %d:" % i)
             unit = raw_input ("Unit of Subst %d:" % i)
             unit_id, = db.query ("SELECT id FROM drug_unit WHERE description='%s'" % unit).getresult ()[0]

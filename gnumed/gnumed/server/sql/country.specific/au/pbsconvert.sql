@@ -54,7 +54,7 @@ COPY "drug_presentation"  FROM stdin;
 12	paste	9	5
 13	solution	4	2
 14	bandage	9	5
-16	nasal spray	12	2	
+16	nasal spray	12	1
 17	bath oil	9	2
 18	dressing	9	4
 20	eye drops	7	2
