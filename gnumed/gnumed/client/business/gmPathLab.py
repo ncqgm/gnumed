@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.7 2004-04-21 15:27:38 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPathLab.py,v 1.8 2004-04-26 21:56:19 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -114,6 +114,17 @@ class cLabRequest(gmClinItem.cClinItem):
 			pk = data[0][0]
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPKey=pk)
+	#--------------------------------------------------------
+	def get_patient(self):
+		cmd = """
+			select vpi.id_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
+			from v_patient_items vpi, lab_request lr, v_basic_person vbp
+			where
+				vpi.id_item=lr.pk_item
+					and
+				vbp.i_id=vpi.id_patient"""
+		pat = gmPG.run_ro_query('historica', cmd)
+		return pat[0]
 #============================================================
 class cTestType(gmClinItem.cClinItem):
 	"""Represents one test result type."""
@@ -129,7 +140,7 @@ class cTestType(gmClinItem.cClinItem):
 				name=%(name)s,
 				comment=%(comment)s,
 				basic_unit=%(basic_unit)s
-			where id=%(id)"""
+			where id=%(id)s"""
 	]
 
 	_updatable_fields = [
@@ -190,6 +201,101 @@ class cTestType(gmClinItem.cClinItem):
 				value = data[0][0]
 		gmClinItem.cClinItem.__setitem__(self, attribute, value)
 #============================================================
+# convenience functions
+#------------------------------------------------------------
+def create_test_type(lab=None, code=None, unit=None, name=None):
+	"""Create or get test type.
+
+		- returns tuple (status, value)
+		- status:
+			True: a-ok
+			False: foobar
+			None: ambigous, user intervention required
+		- value if status is:
+			- True: test type primary key
+			- False: error message
+			- None: housekeeping todo primary key
+	"""
+	if None in [code, lab]:
+		_log.Log(gmLog.lErr, 'need <lab> and <code> to check for test type: %s:%s' % (lab, code))
+		return (False, 'argument error: %s:%s:%s' % (lab, code, unit))
+	# already there ?
+	cmd = """
+		select pk_test_type, test_name from v_test_org_profile
+		where internal_name=%s and test_code=%s
+		"""
+	rows = gmPG.run_ro_query('historica', cmd, None, lab, code)
+	# error
+	if rows is None:
+		_log.Log(gmLog.lErr, 'error checking test type existence [%s:%s] (%s [%s])' % (lab, code, name, unit))
+		return (False, 'cannot check test type existence')
+	# found
+	if len(rows) == 1:
+		# check <name>
+		if name is not None:
+			if name != rows[0][1]:
+				_log.Log(gmLog.lWarn, 'test type [%s:%s] found but long name is different (DB: %s, expected: %s)' % (lab, code, rows[0][1], name))
+				me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.8 $'
+				to = 'user'
+				prob = _('The test type already exists but the long name is different. '
+						'The test facility may have changed the descriptive name of this test.')
+				sol = _('Verify with facility and change the old descriptive name to the new one.')
+				ctxt = _('lab [%s], code [%s], expected long name [%s], existing long name [%s], unit [%s]') % (lab, code, name, rows[0][1], unit)
+				cat = 'lab'
+				status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
+				return (None, data)
+		return (True, rows[0][0])
+	# found but ambigous
+	if len(rows) > 1:
+		_log.Log(gmLog.lErr, 'several test types found for [%s:%s]: %s, this should not be possible' % (lab, code, rows))
+		me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.8 $'
+		to = 'user'
+		prob = _('More than one matching test type. This should be impossible.')
+		sol = _('Please check the test type definitions and possibly remove duplicates.')
+		ctxt = _('lab [%s], code [%s], long name [%s], unit [%s], primary keys %s') % (lab, code, name, unit, rows)
+		status, data = gmPG.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
+		return (None, data)
+	# not found, so create it
+	if unit is None:
+		_log.Log(gmLog.lErr, 'need <unit> to create test type: %s:%s:%s' % (lab, code, unit))
+		return (False, 'argument error: %s:%s:%s' % (lab, code, unit))
+	cols = []
+	val_snippets = []
+	vals = {}
+	# lab
+	cols.append('fk_test_org')
+	if type(lab) is types.IntType:
+		val_snippets.append('%(lab)s')
+		vals['lab'] = lab
+	else:
+		val_snippets.append('(select pk from test_org where internal_name=%(lab)s)')
+		vals['lab'] = str(lab)
+	# code
+	cols.append('code')
+	val_snippets.append('%(code)s')
+	vals['code'] = code
+	# unit
+	cols.append('basic_unit')
+	val_snippets.append('%(unit)s')
+	vals['unit'] = unit
+	# name
+	if name is not None:
+		cols.append('name')
+		val_snippets.append('%(name)s')
+		vals['name'] = name
+	# make query
+	col_clause = ','.join(cols)
+	val_clause = ','.join(val_snippets)
+	queries = []
+	cmd = "insert into test_type(%s) values (%s)" % (col_clause, val_clause)
+	queries.append((cmd, [vals]))
+	cmd = "select currval('test_type_id_seq')"
+	queries.append((cmd, []))
+	result, err = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, err)
+	return (True, result[0][0])
+#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -210,17 +316,22 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', lab_req[field]
 		print "updatable:", lab_req.get_updatable_fields()
+		print lab_req.get_patient()
 	#--------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
-	test_result()
+#	test_result()
 	test_request()
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.7  2004-04-21 15:27:38  ncq
+# Revision 1.8  2004-04-26 21:56:19  ncq
+# - add cLabRequest.get_patient()
+# - add create_test_type()
+#
+# Revision 1.7  2004/04/21 15:27:38  ncq
 # - map 8407 to string for ldt import
 #
 # Revision 1.6  2004/04/20 00:14:30  ncq
