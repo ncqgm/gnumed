@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.15 2003-05-14 22:07:13 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.16 2003-05-17 18:40:24 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -98,7 +98,7 @@ where
 -- ==========================================================
 -- allergy stuff
 \unset ON_ERROR_STOP
-drop trigger t_allergy_add_del on allergy;
+drop trigger zzt_allergy_add_del on allergy;
 drop function f_announce_allergy_add_del();
 \set ON_ERROR_STOP 1
 
@@ -109,7 +109,7 @@ begin
 end;
 ' language 'plpgsql';
 
-create trigger t_allergy_add_del
+create trigger zzt_allergy_add_del
 	after insert or delete on allergy
 	for each row execute procedure f_announce_allergy_add_del()
 ;
@@ -171,11 +171,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.15  2003-05-14 22:07:13  ncq
+-- Revision 1.16  2003-05-17 18:40:24  ncq
+-- - notify triggers should come last, so make them zz*
+--
+-- Revision 1.15  2003/05/14 22:07:13  ncq
 -- - adapt to changes in gmclinical.sql, particularly the narrative/item merge
 --
 -- Revision 1.14  2003/05/12 12:43:39  ncq
