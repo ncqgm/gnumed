@@ -18,13 +18,12 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.4 2003-05-25 04:43:15 sjtan Exp $
+# $Id: gmClinicalWindowManager.py,v 1.5 2003-05-26 12:07:12 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ =	"I.Haywood"
 
 from wxPython.wx import *
-import traceback
 import gmLog
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -213,9 +212,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 			try:
 				p.register()
 			except:
-				_log.LogException("file [%s] doesn't seem to be a plugin :\n%s\n" % ( plugin, traceback.format_tb(sys.exc_info()[2]) ),sys.exc_info() , fatal=0)
-				traceback.print_tb(sys.exc_info()[2])
-				traceback.print_exc()
+				_log.LogException("file [%s] doesn't seem to be a plugin" % (plugin), sys.exc_info() , fatal=1)
 		#self.panel.Show (0)
 		self.panel.DisplayDefault()
 		self.gb['toolbar.%s' % self.internal_name()].Realize()
@@ -231,7 +228,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		self.gb['modules.patient'][self.panel.GetVisiblePlugin()].Shown()
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.4  2003-05-25 04:43:15  sjtan
+# Revision 1.5  2003-05-26 12:07:12  ncq
+# - fatal=1 gives full tracebacks, no need for explicity
+#
+# Revision 1.4  2003/05/25 04:43:15  sjtan
 #
 # PropertySupport misuse for notifying Configurator objects during gui construction,
 # more debugging info
