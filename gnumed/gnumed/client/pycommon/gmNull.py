@@ -13,13 +13,13 @@ ordinary elements and the primitive Null value.
 Among the advantages of using Null objects are the following:
 
   - Superfluous conditional statements can be avoided 
-    by providing a first class object alternative for 
-    the primitive value None.
+	by providing a first class object alternative for 
+	the primitive value None.
 
   - Code readability is improved.
 
   - Null objects can act as a placeholder for objects 
-    with behaviour that is not yet implemented.
+	with behaviour that is not yet implemented.
 
   - Null objects can be replaced for any other class.
 
@@ -34,107 +34,144 @@ combinations of these words: Null, object, design and pattern.
 
 Dinu C. Gherman,
 August 2001
+
+For modifications see CVS changelog below.
+
+Karsten Hilbert
+July 2004
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmNull.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Dinu C. Gherman"
 __license__ = "GPL (details at http://www.gnu.org)"
 
 #==============================================================
 class cNull:
-    """A class for implementing Null objects.
+	"""A class for implementing Null objects.
 
-    This class ignores all parameters passed when constructing or 
-    calling instances and traps all attribute and method requests. 
-    Instances of it always (and reliably) do 'nothing'.
+	This class ignores all parameters passed when constructing or 
+	calling instances and traps all attribute and method requests. 
+	Instances of it always (and reliably) do 'nothing'.
 
-    The code might benefit from implementing some further special 
-    Python methods depending on the context in which its instances 
-    are used. Especially when comparing and coercing Null objects
-    the respective methods' implementation will depend very much
-    on the environment and, hence, these special methods are not
-    provided here.
-    """
+	The code might benefit from implementing some further special 
+	Python methods depending on the context in which its instances 
+	are used. Especially when comparing and coercing Null objects
+	the respective methods' implementation will depend very much
+	on the environment and, hence, these special methods are not
+	provided here.
+	"""
 
-    # object constructing
-    
-    def __init__(self, *args, **kwargs):
-        "Ignore parameters."
-        return None
+	_warn = False
 
-    # object calling
+	# object constructing
+	
+	def __init__(self, *args, **kwargs):
+		"Ignore parameters."
+		try:
+			cNull._warn = kwargs['warn']
+		except KeyError:
+			pass
+		return None
 
-    def __call__(self, *args, **kwargs):
-        "Ignore method calls."
-        return self
+	# object calling
 
-    # attribute handling
+	def __call__(self, *args, **kwargs):
+		"Ignore method calls."
+		if cNull._warn:
+			print "cNull.__call__()"
+		return self
 
-    def __getattr__(self, mname):
-        "Ignore attribute requests."
-        return self
+	# attribute handling
 
-    def __setattr__(self, name, value):
-        "Ignore attribute setting."
-        return self
+	def __getattr__(self, mname):
+		"Ignore attribute requests."
+		if cNull._warn:
+			print "cNull.__getattr__()"
+		return self
 
-    def __delattr__(self, name):
-        "Ignore deleting attributes."
-        return self
+	def __setattr__(self, name, value):
+		"Ignore attribute setting."
+		if cNull._warn:
+			print "cNull.__setattr__()"
+		return self
 
-    # misc.
+	def __delattr__(self, name):
+		"Ignore deleting attributes."
+		if cNull._warn:
+			print "cNull.__delattr__()"
+		return self
 
-    def __repr__(self):
-        "Return a string representation."
-        return "<Null>"
+	# misc.
 
-    def __str__(self):
-        "Convert to a string and return it."
-        return "Null"
+	def __repr__(self):
+		"Return a string representation."
+		if cNull._warn:
+			print "cNull.__repr__()"
+		return "<Null>"
+
+	def __str__(self):
+		"Convert to a string and return it."
+		if cNull._warn:
+			print "cNull.__str__()"
+		return "Null"
+
+	def __nonzero__(self):
+		if cNull._warn:
+			print "cNull.__nonzero__()"
+		return 0
 
 #==============================================================
 def test():
-    "Perform some decent tests, or rather: demos."
+	"Perform some decent tests, or rather: demos."
 
-    # constructing and calling
+	# constructing and calling
 
-    n = cNull()
-    n = cNull('value')
-    n = cNull('value', param='value')
+	n = cNull()
+	n = cNull('value')
+	n = cNull('value', param='value', warn=True)
 
-    n()
-    n('value')
-    n('value', param='value')
+	n()
+	n('value')
+	n('value', param='value')
 
-    # attribute handling
+	# attribute handling
 
-    n.attr1
-    n.attr1.attr2
-    n.method1()
-    n.method1().method2()
-    n.method('value')
-    n.method(param='value')
-    n.method('value', param='value')
-    n.attr1.method1()
-    n.method1().attr1
+	n.attr1
+	n.attr1.attr2
+	n.method1()
+	n.method1().method2()
+	n.method('value')
+	n.method(param='value')
+	n.method('value', param='value')
+	n.attr1.method1()
+	n.method1().attr1
 
-    n.attr1 = 'value'
-    n.attr1.attr2 = 'value'
+	n.attr1 = 'value'
+	n.attr1.attr2 = 'value'
 
-    del n.attr1
-    del n.attr1.attr2.attr3
+	del n.attr1
+	del n.attr1.attr2.attr3
 
-    # representation and conversion to a string
-    
-    assert repr(n) == '<Null>'
-    assert str(n) == 'Null'
+	# representation and conversion to a string
+	
+	assert repr(n) == '<Null>'
+	assert str(n) == 'Null'
+
+	# comparing
+	if n == '1':
+		pass
 #--------------------------------------------------------------
 if __name__ == '__main__':
-    test()
+	test()
 
 #==============================================================
 # $Log: gmNull.py,v $
-# Revision 1.1  2004-07-06 00:08:31  ncq
+# Revision 1.2  2004-07-21 07:51:47  ncq
+# - tabified
+# - __nonzero__ added
+# - if keyword argument 'warn' is True: warn on use of Null class
+#
+# Revision 1.1	2004/07/06 00:08:31	 ncq
 # - null design pattern from python cookbook
 #
