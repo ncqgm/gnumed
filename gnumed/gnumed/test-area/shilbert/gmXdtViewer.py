@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.10 2003-08-26 14:40:44 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmXdtViewer.py,v 1.11 2003-08-27 15:05:47 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -38,9 +38,8 @@ _log.Log(gmLog.lData, __version__)
 
 if __name__ == "__main__":
 	import gmI18N
-	import gmXdtToolsLib
-	
-import gmExceptions
+
+import gmExceptions, gmXdtObjects
 
 from gmGuiHelpers import gm_show_error
 
@@ -48,8 +47,6 @@ from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 
 from gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
-from gmXdtObjects import xdtPatient
-
 
 #=============================================================================
 class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
@@ -355,7 +352,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None , aCfg = None , apat
 	pat_selected = dlg.GetStringSelection()
 	_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
 	ID,name = string.split(pat_selected,':')
-	data = gmXdtToolsLib.get_pat_data(afile,ID,name,patdir = apatdir, patlst = apatlst)
+	data = gmXdtToolsLib.get_pat_files(afile,ID,name,patdir = apatdir, patlst = apatlst)
 	# how many records were obtained for this patient ?
 	path,files = data
 	# none
@@ -490,7 +487,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.10  2003-08-26 14:40:44  ncq
+# Revision 1.11  2003-08-27 15:05:47  ncq
+# - import gmXdtObjects
+#
+# Revision 1.10  2003/08/26 14:40:44  ncq
 # - some cleanup
 #
 # Revision 1.9  2003/08/24 10:16:45  shilbert
