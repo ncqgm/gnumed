@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -145,7 +145,12 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
-		self.szr_stacked_rows.Add((1, 3), 0, wxEXPAND)	# ??? (IMHO: space is at too much of a premium for such padding)
+		# FIXME: deuglify
+		# ??? (IMHO: space is at too much of a premium for such padding)
+		if wxPlatform == '__WXMAC__':
+			self.szr_stacked_rows.Add((1, 3), 0, wxEXPAND)
+		else:
+			self.szr_stacked_rows.Add(1, 3, 0, wxEXPAND)
 		self.szr_stacked_rows.Add(self.szr_top_row, 1, wxEXPAND)
 		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND | wxALL, 2)
 
@@ -233,8 +238,8 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			return None
 		episodes = epr.get_episodes()
 		for episode in episodes:
-			self.combo_episodes.Append(episode['episode'], str(episode['id_episode']))
-		self.combo_episodes.SetValue(epr.get_active_episode()['episode'])
+			self.combo_episodes.Append(episode['description'], str(episode['id_episode']))
+		self.combo_episodes.SetValue(epr.get_active_episode()['description'])
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -344,7 +349,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.41  2004-05-30 09:03:46  shilbert
+# Revision 1.42  2004-06-02 00:00:47  ncq
+# - make work on Mac AND 2.4.1 Linux wxWidgets
+# - correctly handle episode VOs
+#
+# Revision 1.41  2004/05/30 09:03:46  shilbert
 # - one more little fix regarding get_active_episode()
 #
 # Revision 1.40  2004/05/29 22:19:56  ncq
