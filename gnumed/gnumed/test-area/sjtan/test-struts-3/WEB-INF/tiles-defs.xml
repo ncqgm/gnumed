@@ -43,10 +43,7 @@
         </definition>
       
         <definition name="clinicalentry" page="/pages/main_2.jsp">
-            <put name="content" value="/pages/clinicalEntry.jsp" type="page"/>
-            
-            <put name="support" value="/pages/clinSummary.jsp" type="page"/>
-            
+             
         </definition>
       
         

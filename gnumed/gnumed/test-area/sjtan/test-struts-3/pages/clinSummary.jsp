@@ -10,10 +10,10 @@
     <title>Summary</title>
 
 <body>
+<a name="clinicalSummary" ></a>
     <h2>Summary</h2>  
-  
   <jsp:include page="./patient_detail_block.jsp"/>   
-    
+  <jsp:include page="./relative_url_javascript.jsp"/>  
     <h3>Problem List</h3>
     <table>
     <logic:iterate   id="healthIssue" 
@@ -27,23 +27,48 @@
             </tr>
     </logic:iterate>
     </table>
+     
     <h3>Clinical Episode</h3>
-     <table>
-    <logic:iterate   id="episode" 
+    
+    <bean:define id="identityId" name="healthRecord" property="healthSummary.identityId" />
+    <%String contextPath=org.apache.struts.util.RequestUtils.serverURL(request)+"/"
+        +request.getContextPath()+"/"+"ClinicalEdit.do?id="+identityId.toString();
+        request.setAttribute("contextPath", contextPath); %>
+  
+    <a   href="<%=request.getAttribute("contextPath")%>#pastNotes"> past notes </a>
+         
+    <table>
+     <logic:iterate   id="episode" 
             name="healthRecord" 
             property="healthSummary.clinEpisodes"
+            indexId="index"
             >
             <tr>
             <td>
-            <dt:format pattern="dd/mm/yy">
-            <bean:write name="episode" property="modified_when" format="dd/mm/yyyy hh:mm" />
-            </dt:format>
+             
+            <bean:write name="episode" property="modified_when" format="dd/MM/yyyy hh:mm" />
+            
             </td>
             <td><b>
             <bean:write name="episode" property="description" />
             </b>
             : issue is 
             <bean:write name="episode" property="healthIssue.description"/>
+            </td>
+            <td>
+            <a name='#episodeSummary<%=index%>'/>
+            items :
+            <nested:iterate id="item" name="episode"
+                property="rootItems"
+                        
+                        indexId="itemIndex"  >
+                   <bean:define    id="itemId"
+                        name="item" property="id"/> 
+                         
+                     <a href="<%=contextPath%>#itemDetail<%=itemId%>">
+                    <%=(itemIndex.intValue()+1)%> 
+                </a> |
+            </nested:iterate>
             </td>
             </tr>
     </logic:iterate>
@@ -100,64 +125,6 @@
     
      </logic:present>
      
-     <h2>Past Notes</h2>
-     
-    <table border='1'>
-    <logic:iterate id="encounter"
-                name="healthRecord"
-            property="healthSummary.encounters"
-              >
-    <tr>
-    <td>
-    <h4>
-    <bean:write name="encounter" property="started" format="dd/mm/yyyy hh:mm"/>
-    </h4>
-    </td>
-    <td>
-    <h5>
-    <bean:write name="encounter" property="description" />
-    </h5>
-    </td></tr>
-        <tr>
-        <td colspan='2'>
-        <table>
-        
-        <logic:iterate id="clin_narrative" name="encounter" property="narratives">
-        <tr>
-            <td>
-                <bean:write name="clin_narrative" property="clin_when" format="dd/mm/yyyy hh:mm"/>
-            </td>
-            <td>
-             <b>issue </b>
-             <bean:write name="clin_narrative" property="episode.healthIssue.description"/>
-            </td>
-        </tr>
-        <tr>
-        <td> 
-        <table><tr>
-       
-        <td>
-        <b>
-        
-        <bean:write name="clin_narrative" property="soapCat"/>
-        </b></td>
-        </tr><tr><td>
-            
-                <bean:write name="clin_narrative" property="episode.description"/>
-        
-        </td></tr></table>    
-        </td>
-       
-        
-        <td> 
-        <bean:write name="clin_narrative" property="narrative"/>
-        </td>
-        </tr>
-        </logic:iterate>
-        </table>
-    </tr>
-    </logic:iterate>
-    </table>
 </body>
 </html>
     

@@ -50,6 +50,7 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     public void setEpisode(ClinicalEpisode episode) {
         
         this.episode = episode;
+        episode.setRootItem(episode.getRootItemCount(), this);
     }
     
     public void setId(Long id) {

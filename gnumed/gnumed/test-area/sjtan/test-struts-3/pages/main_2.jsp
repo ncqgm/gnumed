@@ -46,16 +46,20 @@
      <table width='100%'>
      <tr>
        <td   valign='top'> 
-            <tiles:insert name="content"/> 
+            <jsp:include page="/pages/clinicalEntry.jsp"/>
        </td> 
         
         <td valign='top' > 
        
-            <tiles:insert name="support"/> 
+            <jsp:include page="/pages/clinSummary.jsp"/> 
         </td>
    
   </tr>
-        
+  <tr >
+  <td colspan='2' >
+    <jsp:include page="/pages/pastNotes.jsp"/> 
+  </td>
+  </tr>
 </table>
 
 <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>

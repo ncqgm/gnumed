@@ -16,6 +16,9 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
     private Long id;
     private java.util.Date modified_when;
     
+    private java.util.List rootItems = new java.util.ArrayList();
+    
+    
     /** Creates a new instance of ClinicalEpisodeImpl */
     public ClinicalEpisodeImpl1()  {
     }
@@ -50,6 +53,28 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
     
     public void setModified_when(java.util.Date modified_when) {
         this.modified_when = modified_when;
+    }
+    
+    
+    
+    public ClinRootItem getRootItem(int index) {
+        return (ClinRootItem) rootItems.get(index);
+    }    
+    
+    public void setRootItem(int index, ClinRootItem rootItem) {
+        if  ( rootItems.size() > index) {
+            rootItems.set(index, rootItem);
+        } else {
+            rootItems.add(rootItem);
+        }
+    }
+    
+    public int getRootItemCount() {
+        return rootItems.size();
+    }
+    
+    public java.util.List getRootItems() {
+        return rootItems;
     }
     
 }

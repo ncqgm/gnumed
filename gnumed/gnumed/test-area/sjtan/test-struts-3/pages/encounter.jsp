@@ -14,39 +14,7 @@ e.g. getNarrative(index) ...  id='narrative'
 <html>
 <head>
     <title>Encounter </title>
-
-    <script language='JavaScript' type='text/javascript' >
-    <!--
-    function getRelativeURL(hashUrl) {
-       return "<%=request.getContextPath()+"//ClinicalEdit.do?id="+((org.gnumed.testweb1.data.DemographicDetail)request.getAttribute("detail")).getId() %>" + hashUrl;
-    }
-    
-    function testCheckBox(sel) {
-        document.getElementById(sel).style.display="none";
-    }
-    function show(divName) {
-    
-    document.getElementById(divName).style.setAttribute("display", "block");
-         
-       
-    return true;
-            
-    }
-    
-    function hide(divName) {
-    if ( document.getElementById ) {
-    
-    var div = document.getElementById(divName);
-    if (div ) {
-    div.style.visibility="hidden";
-    return true;
-    }
-            
-    
-    }
-    //-->
-    </script>
-
+ 
 </head>
 <body>
 <h3> <bean:message key="encounter.entry.title"/> </h3>
@@ -117,10 +85,11 @@ e.g. getNarrative(index) ...  id='narrative'
         </td>
         </tr></table>
         
+  
         <logic:iterate id="narrative" name="clinicalUpdateForm" 
         property="encounter.narratives"   
          scope="request" indexId="index">
-            <a name='linkNarrative<%=index%>' </a>
+            <a name='linkNarrative<%=index%>'> </a>
             Narrative <%=index%>
             <table>
                 <tr>
@@ -166,18 +135,19 @@ e.g. getNarrative(index) ...  id='narrative'
                 
                 </td>
                    
+                
                 <td>
-                    <!--
-                    <a href="#e<%=index%>" onclick="var prefix='clinNarrative'; show(prefix, <%=index%>); return false;"
-                    >Show episode</a>
-                    <a href="#e<%=index%>" onclick="var prefix='clinNarrative'; hide(prefix, <%=index%>); return false;"
-                    >Hide</a>
-                    -->
-                    <a href="javascript:getRelativeURL('#linkNarrative<%=index%>')"
-                    onclick="document.getElementById('clinNarrative<%=index%>').style.display='block'; return true;" > show </a> 
-                   
-                    <a href="javascript:getRelativeURL('#linkNarrative<%=index%>')"
-                    onclick="document.getElementById('clinNarrative<%=index%>').style.display='none'; return true;" > hide </a> 
+                show 
+                <input type='checkbox' name="showNarrative<%=index%>" value='' 
+                    onchange="
+                    if (this.checked) {
+                        document.getElementById('clinNarrative<%=index%>').style.display='block'; 
+                        return true; 
+                    } else {  
+                        document.getElementById('clinNarrative<%=index%>').style.display='none'; 
+                        return true;
+                    } "
+                    />
                 </td>
                     
                 </tr>    
@@ -198,7 +168,7 @@ e.g. getNarrative(index) ...  id='narrative'
                             <bean:message key="narrative.notes" />
                         </td>
                         <td>
-                            <html:select name="narrative" property="soat_cat" value="s">
+                            <html:select name="narrative" property="soatCat" value="s">
                             <html:option key="s" value="s">S</html:option>
                              <html:option key="o" value="o">O</html:option>
                             <html:option key="a" value="a">A</html:option>

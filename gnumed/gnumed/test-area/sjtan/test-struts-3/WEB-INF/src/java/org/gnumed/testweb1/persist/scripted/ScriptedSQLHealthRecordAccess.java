@@ -61,8 +61,9 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         }
         
         */
+        Connection conn = null;
         try {
-            Connection conn = dataSource.getConnection();
+            conn = dataSource.getConnection();
             conn.setReadOnly(true);
             
             
@@ -111,7 +112,17 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             
         } catch (Exception e) {
             throw new org.gnumed.testweb1.persist.DataSourceException(e);
+        } finally {
+            if (conn != null) {
+                try {
+                conn.close();
+                } catch (SQLException se) {
+                     throw new org.gnumed.testweb1.persist.DataSourceException(se);
+                }
+            }
+                
         }
+        
     }
     
     private Map getVaccineMap() throws org.gnumed.testweb1.persist.DataSourceException {

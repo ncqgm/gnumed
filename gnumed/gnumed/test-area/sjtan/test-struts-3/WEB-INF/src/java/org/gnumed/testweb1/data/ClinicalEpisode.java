@@ -69,4 +69,26 @@ public interface ClinicalEpisode {
      */
     public void setModified_when(java.util.Date modified_when);
     
+    /**
+     * Indexed getter for property rootItem.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public ClinRootItem getRootItem(int index);
+    
+    /**
+     * Indexed setter for property rootItem.
+     * @param index Index of the property.
+     * @param rootItem New value of the property at <CODE>index</CODE>.
+     */
+    public void setRootItem(int index, ClinRootItem rootItem);
+    
+    public int getRootItemCount();
+    
+    /**
+     * Getter for property rootItems.
+     * @return Value of property rootItems.
+     */
+    public java.util.List getRootItems();
+    
 }
