@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -906,27 +906,6 @@ class scanFrame(wxPanel):
 			return None
 		f.close()
 		return 1
-
-#======================================================
-def _create_Barcode(options):
-	_log.Log(gmLog.lInfo, 'I tried to generate a barcode with these flags :'+"'" +options+"'")
-	os.system ("barcode" + " " + options)
-
-#def _print_Barcode():
-#	_create_Barcode()	
-######################################################################
-# Main
-#=====================================================================
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-	_ = lambda x:x
-	cmdline = sys.argv[1:]
-	print "testing gmBarcode"
-	print "============="
-	print "You gave me the following arguments on the command line:"
-	print cmdline
-	options = string.replace(string.replace(string.join(cmdline),'=',' '),'--','-')
-	print options
 #======================================================
 # main
 #------------------------------------------------------
@@ -954,7 +933,10 @@ else:
 			return (_('Tools'), _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.2  2002-10-08 20:54:26  ncq
+# Revision 1.3  2002-10-08 20:55:34  ncq
+# - sorry for the cruft
+#
+# Revision 1.2  2002/10/08 20:54:26  ncq
 # - clean up
 # - use GNU barcode via pipe
 #
