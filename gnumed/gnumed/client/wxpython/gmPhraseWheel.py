@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.28 2003-11-18 23:17:47 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPhraseWheel.py,v 1.29 2003-11-19 23:42:00 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -52,9 +52,7 @@ class cWheelTimer(wxTimer):
 			return None
 		else:
 			self.__callback = aCallback
-
 		self.__delay = aDelay
-
 		wxTimer.__init__(self)
 
 	def Notify(self):
@@ -95,7 +93,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.allow_multiple_phrases()
 		self.relevant_input = ''
 		self.data = None
-		self.input_was_selected = None
+		self.input_was_selected = _false
 		self.selection_only = selection_only
 		self._has_focus = _false
 
@@ -162,37 +160,37 @@ class cPhraseWheel (wxTextCtrl):
 			self.__real_matcher = None
 		self.__matcher.setContext (context, val)
 	#---------------------------------------------------------
-	def snap (self):
-		"""
-		This is called when the context is rich enough that
-		it is likely matching will return one or only
-		a few values. If there is only one value,
-		the phrasewheel will 'snap' to that value
-		"""
-		if self.__real_matcher:
+#	def snap (self):
+#		"""
+#		This is called when the context is rich enough that
+#		it is likely matching will return one or only
+#		a few values. If there is only one value,
+#		the phrasewheel will 'snap' to that value
+#		"""
+#		if self.__real_matcher:
 			# this should never happen, just in case
-			self.__matcher = self.__real_matcher
-			self.__real_matcher = None
-		matches = self.__matcher.getAllMatches ()
-		if len (matches) == 1:
-			self.data = matches[0]['data']
-			self.SetValue (matches[0]['label'])
-			self.input_was_selected = _true
-			for notify_listener in self.listener_callbacks:
+#			self.__matcher = self.__real_matcher
+#			self.__real_matcher = None
+#		matches = self.__matcher.getAllMatches ()
+#		if len (matches) == 1:
+#			self.data = matches[0]['data']
+#			self.SetValue (matches[0]['label'])
+#			self.input_was_selected = _true
+#			for notify_listener in self.listener_callbacks:
 				# get data associated with selected item
-				notify_listener(self.data)
-			self.notified_listeners = 1
-		if len (matches) > 1:
+#				notify_listener(self.data)
+#			self.notified_listeners = 1
+#		if len (matches) > 1:
 			# cache these results
-			self.__real_matcher = self.__matcher
-			self.__matcher = gmMatchProvider.cMatchProvider_FixedList(matches)
+#			self.__real_matcher = self.__matcher
+#			self.__matcher = gmMatchProvider.cMatchProvider_FixedList(matches)
 	#---------------------------------------------------------
-	def setNextFocus (self, focus):
+	def setNextFocus (self, aWidget):
 		"""
 		sets the next widget that recieves the focus
 		Can be any object with a method SetFocus ()
 		"""
-		self.addCallback (lambda x: x and focus.SetFocus ()) 
+		self.addCallback (lambda x: x and aWidget.SetFocus ()) 
 	#--------------------------------------------------------
 	def setDependent (self, wheel, context_var):
 		"""
@@ -388,13 +386,12 @@ class cPhraseWheel (wxTextCtrl):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
 
 		# dirty "selected" flag
-		self.input_was_selected = None
+		self.input_was_selected = _false
 
 		# if empty string then kill list dropdown window
 		# we also don't need a timer event then
 		if len(self.GetValue()) == 0:
 			self._hide_picklist()
-			# and kill timer lest there be a zombie of it running
 			self.__timer.Stop()
 		else:
 			# start timer for delayed match retrieval
@@ -436,8 +433,6 @@ class cPhraseWheel (wxTextCtrl):
 		# also, our picklist is refilled and sorted according to weight
 
 		# display list - but only if we have more than one match
-		# THAT isn't duplicated
-
 		if len(self.__currMatches) > 0:
 			# show it
 			self.on_resize (None)
@@ -535,7 +530,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.28  2003-11-18 23:17:47  ncq
+# Revision 1.29  2003-11-19 23:42:00  ncq
+# - cleanup, comment out snap()
+#
+# Revision 1.28  2003/11/18 23:17:47  ncq
 # - cleanup, fixed variable names
 #
 # Revision 1.27  2003/11/17 10:56:38  sjtan
