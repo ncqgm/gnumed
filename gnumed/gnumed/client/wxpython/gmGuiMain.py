@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-01-12 01:46:57 $
-# @version $Revision: 1.56 $ $Date: 2003-01-12 01:46:57 $ $Author: ncq $
+# @Date: $Date: 2003-01-12 17:31:10 $
+# @version $Revision: 1.57 $ $Date: 2003-01-12 17:31:10 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -240,8 +240,13 @@ class MainFrame(wxFrame):
 			myLog.Log(gmLog.lInfo,'running on an unknown platform')
 	#----------------------------------------------
 	def LoadPlugins(self, backend):
+		# get plugin list
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
+		if plugin_list is None:
+			_log.Log(gmLog.lWarn, "no plugins to load")
+			return 1
 		nr_plugins = len(plugin_list)
+
 		#  set up a progress bar
 		progress_bar = wxProgressDialog(
 			title = _("GnuMed: loading %s plugins") % nr_plugins,
@@ -250,23 +255,33 @@ class MainFrame(wxFrame):
 			parent = None,
 			style = wxPD_ELAPSED_TIME
 			)
+
 		#  and load them
 		last_plugin = ""
 		result = ""
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
+
 			progress_bar.Update(
 				idx,
-				_("previous: %s - %s\ncurrent (%s/%s): %s") % (last_plugin, result, (idx+1), nr_plugins, curr_plugin)
+				_("previous: %s - %s\ncurrent (%s/%s): %s") % (
+					last_plugin,
+					result,
+					(idx+1),
+					nr_plugins,
+					curr_plugin)
 			)
-			p = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
-			if p:
+
+			try:
+				p = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
+				p.register()
 				result = _("success")
-				p.register ()
-			else:
-				myLog.Log(gmLog.lInfo,'failed to load plugin %s' % curr_plugin)
+			except:
+				myLog.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
 				result = _("failed")
+
 			last_plugin = curr_plugin
+
 		progress_bar.Destroy()
 	#----------------------------------------------
 	def OnNotebook (self, event):
@@ -479,7 +494,10 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.56  2003-01-12 01:46:57  ncq
+# Revision 1.57  2003-01-12 17:31:10  ncq
+# - catch failing plugins better
+#
+# Revision 1.56  2003/01/12 01:46:57  ncq
 # - coding style cleanup
 #
 # Revision 1.55  2003/01/11 22:03:30  hinnef
