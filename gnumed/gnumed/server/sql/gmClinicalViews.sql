@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.66 2004-05-08 20:43:48 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.67 2004-05-11 01:34:51 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -236,61 +236,58 @@ where
 drop view v_results4lab_req;
 \set ON_ERROR_STOP 1
 
--- FIXME: refine using merged_test_types
 create view v_results4lab_req as
 select
 	vpep.id_patient as pk_patient,
-	tr.id as pk_result,
+	tr0.id as pk_result,
 	lr.clin_when as req_when,
 	lr.lab_rxd_when,
-	tr.clin_when as val_when,
+	tr0.clin_when as val_when,
 	lr.results_reported_when as reported_when,
-	coalesce(ttl.local_code, ttl.code) as unified_code,
-	coalesce(ttl.local_name, ttl.name) as unified_name,
-	ttl.code as lab_code,
-	ttl.name as lab_name,
-	case when coalesce(trim(both from tr.val_alpha), '') = ''
-		then tr.val_num::text
-		else case when tr.val_num is null
-			then tr.val_alpha
-			else tr.val_num::text || ' (' || tr.val_alpha || ')'
+	coalesce(ttl0.local_code, ttl0.code) as unified_code,
+	coalesce(ttl0.local_name, ttl0.name) as unified_name,
+	ttl0.code as lab_code,
+	ttl0.name as lab_name,
+	case when coalesce(trim(both from tr0.val_alpha), '') = ''
+		then tr0.val_num::text
+		else case when tr0.val_num is null
+			then tr0.val_alpha
+			else tr0.val_num::text || ' (' || tr0.val_alpha || ')'
 		end
 	end as unified_val,
-	tr.val_num,
-	tr.val_alpha,
-	tr.val_unit,
-	coalesce(tr.narrative, '') as progress_note_result,
+	tr0.val_num,
+	tr0.val_alpha,
+	tr0.val_unit,
+	coalesce(tr0.narrative, '') as progress_note_result,
 	coalesce(lr.narrative, '') as progress_note_request,
-	tr.val_normal_range,
-	tr.val_normal_min,
-	tr.val_normal_max,
-	tr.technically_abnormal as abnormal,
-	tr.clinically_relevant as relevant,
-	tr.note_provider,
+	tr0.val_normal_range,
+	tr0.val_normal_min,
+	tr0.val_normal_max,
+	tr0.technically_abnormal as abnormal,
+	tr0.clinically_relevant as relevant,
+	tr0.note_provider,
 	lr.request_status as request_status,
-	tr.norm_ref_group as ref_group,
+	tr0.norm_ref_group as ref_group,
 	lr.request_id,
 	lr.lab_request_id,
-	tr.material,
-	tr.material_detail,
-	tr.reviewed_by_clinician as reviewed,
-	tr.fk_reviewer as pk_reviewer,
-	tr.fk_type as pk_test_type,
+	tr0.material,
+	tr0.material_detail,
+	tr0.reviewed_by_clinician as reviewed,
+	tr0.fk_reviewer as pk_reviewer,
+	tr0.fk_type as pk_test_type,
 	lr.pk as pk_request,
 	lr.fk_test_org as pk_test_org,
 	lr.fk_requestor as pk_requestor
 from
-	(lnk_result2lab_req lr2lr inner join test_result tr1 on (lr2lr.fk_result=tr1.id)) tr
+	(lnk_result2lab_req lr2lr inner join test_result tr1 on (lr2lr.fk_result=tr1.id)) tr0
 		inner join
-	lab_request lr on (tr.fk_request=lr.pk),
+	lab_request lr on (tr0.fk_request=lr.pk),
 	v_pat_episodes vpep,
-	(test_type tt1 left outer join test_type_local ttl1 on (tt1.id=ttl1.fk_test_type)) ttl
+	(test_type tt1 left outer join test_type_local ttl1 on (tt1.id=ttl1.fk_test_type)) ttl0
 where
-	lr.is_pending=false
-		and
 	vpep.id_episode=lr.id_episode
 		and
-	ttl.id=tr.fk_type
+	ttl0.id=tr0.fk_type
 ;
 
 -- ==========================================================
@@ -524,6 +521,7 @@ where
 	)
 ;
 
+-- FIXME: only list those that DO HAVE a previous vacc (max(date) is not null)
 create view v_pat_missing_boosters as
 select
 	vpv4i0.pk_patient as pk_patient,
@@ -780,11 +778,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.66 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.67 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.66  2004-05-08 20:43:48  ncq
+-- Revision 1.67  2004-05-11 01:34:51  ncq
+-- - allow test results with lab_request.is_pending is True in v_results4lab_req
+--
+-- Revision 1.66  2004/05/08 20:43:48  ncq
 -- - eventually seem to have fixed latest_due/amount_overdue in v_pat_missing_boosters
 --
 -- Revision 1.65  2004/05/08 17:39:54  ncq
