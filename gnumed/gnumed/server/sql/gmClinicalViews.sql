@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.130 2005-03-11 22:55:50 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.131 2005-03-14 14:45:40 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -186,7 +186,6 @@ drop index idx_episode_issue;
 drop index idx_episode_valid_issue;
 create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not null;
 \set ON_ERROR_STOP 1
-
 create index idx_episode_issue on clin_episode(fk_health_issue);
 
 
@@ -236,99 +235,99 @@ create trigger tr_episode_mod
 
 
 -- any episode must have a name (at least when the transaction ends ...)
-\unset ON_ERROR_STOP
-drop trigger tr_epi_needs_name on clin_episode;
-drop function trf_epi_needs_name() cascade;
-drop function trf_epi_needs_name();
-\set ON_ERROR_STOP 1
+--\unset ON_ERROR_STOP
+--drop trigger tr_epi_needs_name on clin_episode;
+--drop function trf_epi_needs_name() cascade;
+--drop function trf_epi_needs_name();
+--\set ON_ERROR_STOP 1
 
-create function trf_epi_needs_name() returns opaque as '
-declare
-	final_epi_row RECORD;
-	msg text;
-	narr_pk integer;
-	narr_fk_episode integer;
-	narr_val text;
-begin
-	-- get final state of row
-	select into final_epi_row * from clin_episode where pk = NEW.pk;
-	-- was it deleted ?
-	if not found then
-		return NULL;
-	end if;
-	-- we must have a name
-	if final_epi_row.fk_clin_narrative is null then
-		msg := ''trf_epi_needs_name: episode ['' || final_epi_row.pk || '']: fk_clin_narrative cannot be NULL'';
-		raise exception ''%'', msg;
-	end if;
-	-- get our name
-	select into narr_pk, narr_fk_episode, narr_val
-		cn.pk, cn.fk_episode, cn.narrative
-		from clin_narrative cn
-		where cn.pk = final_epi_row.fk_clin_narrative;
-	-- it must exist
-	if not found then
-		msg := ''trf_epi_needs_name: episode [''
-		    || final_epi_row.pk || '']: fk_clin_narrative points to non-existing clin_narrative [''
-			|| final_epi_row.fk_clin_narrative || '']'';
-		raise exception ''%'', msg;
-	end if;
-	-- it must not be empty
-	if trim(narr_val) = '''' then
-		msg := ''trf_epi_needs_name: episode [''
-			|| final_epi_row.pk || '']: fk_clin_narrative [''
-			|| final_epi_row.fk_clin_narrative || '']: name must not be empty'';
-		raise exception ''%'', msg;
-	end if;
-	-- it must belong to us ...
-	-- (eg. check for cyclic referential integrity violation)
-	if narr_fk_episode <> final_epi_row.pk then
-		msg := ''trf_epi_needs_name: cyclic referential integrity violation: episode::fk_clin_narrative [''
-			|| final_epi_row.pk || ''::''
-			|| final_epi_row.fk_clin_narrative || ''] vs. narrative::fk_episode [''
-			|| narr_pk || ''::''
-			|| clin_narrative.fk_episode || '']'';
-		raise exception ''%'', msg;
-	end if;
-	return NULL;
-end;
-' language 'plpgsql';
+--create function trf_epi_needs_name() returns opaque as '
+--declare
+--	final_epi_row RECORD;
+--	msg text;
+--	narr_pk integer;
+--	narr_fk_episode integer;
+--	narr_val text;
+--begin
+--	-- get final state of row
+--	select into final_epi_row * from clin_episode where pk = NEW.pk;
+--	-- was it deleted ?
+--	if not found then
+--		return NULL;
+--	end if;
+--	-- we must have a name
+--	if final_epi_row.fk_clin_narrative is null then
+--		msg := ''trf_epi_needs_name: episode ['' || final_epi_row.pk || '']: fk_clin_narrative cannot be NULL'';
+--		raise exception ''%'', msg;
+--	end if;
+--	-- get our name
+--	select into narr_pk, narr_fk_episode, narr_val
+--		cn.pk, cn.fk_episode, cn.narrative
+--		from clin_narrative cn
+--		where cn.pk = final_epi_row.fk_clin_narrative;
+--	-- it must exist
+--	if not found then
+--		msg := ''trf_epi_needs_name: episode [''
+--		    || final_epi_row.pk || '']: fk_clin_narrative points to non-existing clin_narrative [''
+--			|| final_epi_row.fk_clin_narrative || '']'';
+--		raise exception ''%'', msg;
+--	end if;
+--	-- it must not be empty
+--	if trim(narr_val) = '''' then
+--		msg := ''trf_epi_needs_name: episode [''
+--			|| final_epi_row.pk || '']: fk_clin_narrative [''
+--			|| final_epi_row.fk_clin_narrative || '']: name must not be empty'';
+--		raise exception ''%'', msg;
+--	end if;
+--	-- it must belong to us ...
+--	-- (eg. check for cyclic referential integrity violation)
+--	if narr_fk_episode <> final_epi_row.pk then
+--		msg := ''trf_epi_needs_name: cyclic referential integrity violation: episode::fk_clin_narrative [''
+--			|| final_epi_row.pk || ''::''
+--			|| final_epi_row.fk_clin_narrative || ''] vs. narrative::fk_episode [''
+--			|| narr_pk || ''::''
+--			|| clin_narrative.fk_episode || '']'';
+--		raise exception ''%'', msg;
+--	end if;
+--	return NULL;
+--end;
+--' language 'plpgsql';
 
 -- the trick is to defer the trigger ...
-create constraint trigger tr_epi_needs_name
-	after insert or update
-	on clin_episode
-	initially deferred
-	for each row
-		execute procedure trf_epi_needs_name()
-;
+--create constraint trigger tr_epi_needs_name
+--	after insert or update
+--	on clin_episode
+--	initially deferred
+--	for each row
+--		execute procedure trf_epi_needs_name()
+--;
 
 
 -- pull in episode names from clin_narrative
-\unset ON_ERROR_STOP
-drop view v_named_episodes cascade;
-drop view v_named_episodes;
-\set ON_ERROR_STOP 1
+--\unset ON_ERROR_STOP
+--drop view v_named_episodes cascade;
+--drop view v_named_episodes;
+--\set ON_ERROR_STOP 1
 
-create view v_named_episodes as
-select
-	cep.fk_patient as pk_patient,
-	cn.soap_cat as soap_cat,
-	cn.narrative as description,
-	cep.is_open as is_open,
-	cn.is_rfe as is_rfe,
-	cn.is_aoe as is_aoe,
-	cep.pk as pk_episode,
-	cep.fk_health_issue as pk_health_issue,
-	cep.modified_when as modified_when,
-	cep.xmin as xmin_clin_episode,
-	cn.pk as pk_narrative
-from
-	clin_episode cep,
-	clin_narrative cn
-where
-	cn.pk = cep.fk_clin_narrative
-;
+--create view v_named_episodes as
+--select
+--	cep.fk_patient as pk_patient,
+--	cn.soap_cat as soap_cat,
+--	cn.narrative as description,
+--	cep.is_open as is_open,
+--	cn.is_rfe as is_rfe,
+--	cn.is_aoe as is_aoe,
+--	cep.pk as pk_episode,
+--	cep.fk_health_issue as pk_health_issue,
+--	cep.modified_when as modified_when,
+--	cep.xmin as xmin_clin_episode,
+--	cn.pk as pk_narrative
+--from
+--	clin_episode cep,
+--	clin_narrative cn
+--where
+--	cn.pk = cep.fk_clin_narrative
+--;
 
 
 \unset ON_ERROR_STOP
@@ -338,47 +337,83 @@ drop view v_pat_episodes;
 
 create view v_pat_episodes as
 select
-	vnep.pk_patient as id_patient,
-	vnep.soap_cat as soap_cat,
-	vnep.description as description,
-	vnep.is_open as episode_open,
+	cep.fk_patient as pk_patient,
+	cep.description as description,
+	cep.is_open as episode_open,
 	null as health_issue,
 	null as issue_active,
 	null as issue_clinically_relevant,
-	vnep.pk_episode as pk_episode,
+	cep.pk as pk_episode,
 	null as pk_health_issue,
-	vnep.pk_narrative as pk_narrative,
-	vnep.modified_when as episode_modified_when,
-	vnep.xmin_clin_episode as xmin_clin_episode
+	cep.modified_when as episode_modified_when,
+	cep.xmin as xmin_clin_episode
 from
-	v_named_episodes vnep
+	clin_episode cep
 where
-	vnep.pk_health_issue is null
+	cep.fk_health_issue is null
 
 		UNION ALL
 
 select
-	chi.id_patient as id_patient,
-	vnep.soap_cat as soap_cat,
-	case when vnep.description is null
-		then chi.description
-		else vnep.description
-	end as description,
-	vnep.is_open as episode_open,
+	chi.id_patient as pk_patient,
+	cep.description as description,
+	cep.is_open as episode_open,
 	chi.description as health_issue,
 	chi.is_active as issue_active,
 	chi.clinically_relevant as issue_clinically_relevant,
-	vnep.pk_episode as pk_episode,
-	vnep.pk_health_issue as pk_health_issue,
-	vnep.pk_narrative as pk_narrative,
-	vnep.modified_when as episode_modified_when,
-	vnep.xmin_clin_episode as xmin_clin_episode
+	cep.pk as pk_episode,
+	cep.fk_health_issue as pk_health_issue,
+	cep.modified_when as episode_modified_when,
+	cep.xmin as xmin_clin_episode
 from
-	v_named_episodes vnep, clin_health_issue chi
+	clin_episode cep, clin_health_issue chi
 where
 	-- this should exclude all (fk_health_issue is Null) ?
-	vnep.pk_health_issue=chi.id
+	cep.fk_health_issue=chi.id
 ;
+
+--select
+--	vnep.pk_patient as id_patient,
+--	vnep.soap_cat as soap_cat,
+--	vnep.description as description,
+--	vnep.is_open as episode_open,
+--	null as health_issue,
+--	null as issue_active,
+--	null as issue_clinically_relevant,
+--	vnep.pk_episode as pk_episode,
+--	null as pk_health_issue,
+--	vnep.pk_narrative as pk_narrative,
+--	vnep.modified_when as episode_modified_when,
+--	vnep.xmin_clin_episode as xmin_clin_episode
+--from
+--	v_named_episodes vnep
+--where
+--	vnep.pk_health_issue is null
+--
+--		UNION ALL
+
+--select
+--	chi.id_patient as id_patient,
+--	vnep.soap_cat as soap_cat,
+--	case when vnep.description is null
+--		then chi.description
+--		else vnep.description
+--	end as description,
+--	vnep.is_open as episode_open,
+--	chi.description as health_issue,
+--	chi.is_active as issue_active,
+--	chi.clinically_relevant as issue_clinically_relevant,
+--	vnep.pk_episode as pk_episode,
+--	vnep.pk_health_issue as pk_health_issue,
+--	vnep.pk_narrative as pk_narrative,
+--	vnep.modified_when as episode_modified_when,
+--	vnep.xmin_clin_episode as xmin_clin_episode
+--from
+--	v_named_episodes vnep, clin_health_issue chi
+--where
+--	-- this should exclude all (fk_health_issue is Null) ?
+--	vnep.pk_health_issue=chi.id
+--;
 
 -- =============================================
 -- clin_root_item stuff
@@ -399,7 +434,7 @@ begin
 		episode_id := NEW.fk_episode;
 	end if;
 	-- track back to patient ID
-	select into patient_id id_patient
+	select into patient_id pk_patient
 		from v_pat_episodes vpep
 		where vpep.pk_episode = episode_id
 		limit 1;
@@ -457,7 +492,7 @@ select
 		when 0 then false
 		else true
 	end as is_modified,
-	vpep.id_patient as id_patient,
+	vpep.pk_patient as pk_patient,
 	cri.pk_item as pk_item,
 	cri.fk_encounter as pk_encounter,
 	cri.fk_episode as pk_episode,
@@ -583,7 +618,7 @@ drop view v_test_results;
 create view v_test_results as
 select
 	-- v_pat_episodes
-	vpe.id_patient as pk_patient,
+	vpe.pk_patient as pk_patient,
 	-- test_result
 	tr.pk as pk_test_result,
 	-- unified
@@ -814,7 +849,7 @@ drop view v_pat_allergies;
 create view v_pat_allergies as
 select
 	a.id as pk_allergy,
-	vpep.id_patient as pk_patient,
+	vpep.pk_patient as pk_patient,
 	case when coalesce(trim(both from a.allergene), '') = ''
 		then a.substance
 		else a.allergene
@@ -1180,7 +1215,7 @@ drop view v_pat_diag;
 
 create view v_pat_diag as
 select
-	vpi.id_patient as pk_patient,
+	vpi.pk_patient as pk_patient,
 	cd.pk as pk_diag,
 	cd.fk_narrative as pk_narrative,
 	cn.clin_when as diagnosed_when,
@@ -1251,22 +1286,13 @@ where
 -- =============================================
 -- types of narrative
 
--- allow only one name per episode
---\unset ON_ERROR_STOP
---drop index idx_uniq_epi_name;
---create unique index idx_single_epi_name on clin_narrative(fk_episode) where is_episode_name is true;
---comment on index idx_single_epi_name is
---	'per fk_episode only one clin_narrative row can be marked is_episode_name = TRUE';
---\set ON_ERROR_STOP 1
-
-
 \unset ON_ERROR_STOP
 drop view v_pat_rfe;
 \set ON_ERROR_STOP 1
 
 create view v_pat_rfe as
 select
-	vpi.id_patient as pk_patient,
+	vpi.pk_patient as pk_patient,
 	cn.pk as pk_narrative,
 	cn.clin_when as clin_when,
 	cn.soap_cat as soap_cat,
@@ -1291,7 +1317,7 @@ drop view v_pat_aoe;
 
 create view v_pat_aoe as
 select
-	vpi.id_patient as pk_patient,
+	vpi.pk_patient as pk_patient,
 	cn.pk as pk_narrative,
 	cn.clin_when as clin_when,
 	cn.soap_cat as soap_cat,
@@ -1316,7 +1342,7 @@ drop view v_pat_narrative;
 -- might be slow
 create view v_pat_narrative as
 select
-	vpi.id_patient as pk_patient,
+	vpi.pk_patient as pk_patient,
 	cn.clin_when as date,
 	cn.soap_cat as soap_cat,
 	cn.narrative as narrative,
@@ -1351,7 +1377,7 @@ drop view v_compl_narrative;
 create view v_compl_narrative as
 -- soap items
 select
-	vpi.id_patient as pk_patient,
+	vpi.pk_patient as pk_patient,
 	cn.soap_cat as soap_cat,
 	cn.narrative as narrative,
 	cn.pk as src_pk,
@@ -1389,6 +1415,17 @@ from
 	clin_encounter cenc
 where
 	trim(coalesce(cenc.description, '')) != ''
+
+	union
+-- episodes
+select
+	vpep.pk_patient as pk_patient,
+	's' as soap_cat,
+	vpep.description as narrative,
+	vpep.pk_episode as src_pk,
+	'clin_episode' as src_table
+from
+	v_pat_episodes vpep
 ;
 
 comment on view v_compl_narrative is
@@ -1398,6 +1435,52 @@ comment on view v_compl_narrative is
 
 -- =============================================
 -- types of clin_root_item
+
+-- ---------------------------------------------
+-- custom referential integrity
+\unset ON_ERROR_STOP
+drop function f_rfi_type2item();
+drop trigger tr_rfi_type2item;
+\set ON_ERROR_STOP 1
+
+create function f_rfi_type2item() returns opaque as '
+declare
+	item_pk integer;
+	msg text;
+begin
+	-- does fk_item change at all ?
+	if TG_OP = ''UPDATE'' then
+		if NEW.fk_item = OLD.fk_item then
+			return NEW;
+		end if;
+	end if;
+	-- check referential integrity
+	select into dummy 1 from clin_root_item where pk_item=NEW.fk_item;
+	if not found then
+		msg := ''referential integrity violation: lnk_type2item.fk_item ['' || NEW.fk_item || ''] not in <clin_root_item.pk_item>'';
+		raise exception ''%'', msg;
+		return NULL;
+	end if;
+	return NEW;
+end;
+' language 'plpgsql';
+
+create trigger tr_rfi_type2item
+	after insert or update
+	on lnk_type2item
+	for each row
+		execute procedure f_rfi_type2item()
+;
+
+comment on function f_rfi_type2item() is
+	'function used to check referential integrity from
+	 lnk_type2item to clin_root_item with a custom trigger';
+
+--comment on trigger tr_rfi_type2item is
+--	'trigger to check referential integrity from
+--	 lnk_type2item to clin_root_item';
+
+-- ---------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_pat_item_types;
 \set ON_ERROR_STOP 1
@@ -1405,7 +1488,7 @@ drop view v_pat_item_types;
 create view v_pat_item_types as
 select
 	items.pk_item as pk_item,
-	items.id_patient as pk_patient,
+	items.pk_patient as pk_patient,
 	items.code as code,
 	items.narrative as narrative,
 	items.type as type
@@ -1414,6 +1497,7 @@ from
 		inner join clin_item_type cit on (lnkd_items.fk_type=cit.pk)) items
 ;
 
+-- ---------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_types4item;
 \set ON_ERROR_STOP 1
@@ -1431,6 +1515,99 @@ from
 ;
 
 -- =============================================
+-- family history
+
+-- ---------------------------------------------
+-- custom check constraint
+-- FIXME: finish
+--\unset ON_ERROR_STOP
+--drop function f_check_narrative_is_fHx();
+--drop trigger tr_check_narrative_is_fHx;
+--\set ON_ERROR_STOP 1
+
+--create function f_check_narrative_is_fHx() returns opaque as '
+--declare
+--	item_pk integer;
+--	msg text;
+--begin
+--	-- does fk_narrative change at all ?
+--	if TG_OP = ''UPDATE'' then
+--		if NEW.fk_narrative = OLD.fk_narrative then
+--			return NEW;
+--		end if;
+--	end if;
+--	-- is it typed fHx ?
+--	select into dummy 1 from v_pat_item_types vpit
+--	where
+--		vpit.pk_item = NEW.pk_item
+	
+	
+--	 lnk_type2item
+--	where
+--		fk_item = (select pk_item from clin_narrative where pk=NEW.fk_narrative)
+--			and
+--		fk_type = (select pk from clin_item_type )
+--	;
+--	if not found then
+--		msg := ''referential integrity violation: lnk_type2item.fk_item ['' || NEW.fk_item || ''] not in <clin_root_item.pk_item>'';
+--		raise exception ''%'', msg;
+--		return NULL;
+--	end if;
+--	return NEW;
+--end;
+--' language 'plpgsql';
+
+--create trigger tr_rfi_type2item
+--	after insert or update
+--	on lnk_type2item
+--	for each row
+--		execute procedure f_rfi_type2item()
+--;
+
+--comment on function f_rfi_type2item() is
+--	'function used to check referential integrity from
+--	 lnk_type2item to clin_root_item with a custom trigger';
+
+--comment on trigger tr_rfi_type2item is
+--	'trigger to check referential integrity from
+--	 lnk_type2item to clin_root_item';
+
+\unset ON_ERROR_STOP
+drop view v_hx_family;
+\set ON_ERROR_STOP 1
+
+create view v_hx_family as
+select
+	vbp.pk_identity as pk_patient,
+	vpn.soap_cat as soap_cat,
+	vpn.narrative as condition,
+	hxf.relationship as relationship,
+	_(hxf.relationship) as l10n_relationship,
+	case when hxf.fk_relative is null
+		then hxf.name_relative
+		else coalesce(vbp.lastnames, '') || ', ' || coalesce(vbp.firstnames, '')
+	end as name_relative,
+	case when hxf.fk_relative is null
+		then hxf.dob_relative
+		else vbp.dob
+	end as dob_relative,
+	hxf.age_noted as age_noted,
+	hxf.is_cause_of_death as is_cause_of_death,
+	hxf.age_of_death as age_of_death,
+	hxf.pk as pk_hx_family,
+	hxf.fk_narrative as pk_narrative,
+	hxf.fk_relative as pk_relative
+from
+	clin_hx_family hxf,
+	v_basic_person vbp,
+	v_pat_narrative vpn
+where
+	hxf.fk_narrative = vpn.pk_narrative
+		and
+	vpn.pk_patient = vbp.pk_identity
+;
+
+-- =============================================
 -- problem list
 
 \unset ON_ERROR_STOP
@@ -1439,7 +1616,7 @@ drop view v_problem_list;
 
 create view v_problem_list as
 select	-- all the episodes
-	vpep.id_patient as pk_patient,
+	vpep.pk_patient as pk_patient,
 	vpep.description as problem,
 	'episode' as type,
 	vpep.episode_open as problem_active,
@@ -1447,7 +1624,6 @@ select	-- all the episodes
 	vpep.pk_episode as pk_episode,
 	vpep.pk_health_issue as pk_health_issue
 from
---	clin_episode cep
 	v_pat_episodes vpep
 
 union	-- and
@@ -1462,7 +1638,6 @@ select	-- all the issues
 	chi.id as pk_health_issue
 from
 	clin_health_issue chi
-
 ;
 
 -- =============================================
@@ -1490,6 +1665,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin_narrative_pk_seq
 	, lnk_code2narr
 	, lnk_code2narr_pk_seq
+	, clin_hx_family
+	, clin_hx_family_pk_seq
 	, clin_diag
 	, clin_diag_pk_seq
 	, clin_aux_note
@@ -1544,9 +1721,8 @@ grant select, insert, update, delete on
 to group "gm-doctors";
 
 -- views
-GRANT SELECT ON
+grant select on
 	v_pat_encounters
-	, v_named_episodes
 	, v_pat_episodes
 	, v_pat_narrative
 	, v_patient_items
@@ -1574,17 +1750,28 @@ GRANT SELECT ON
 	, v_types4item
 	, v_problem_list
 	, v_compl_narrative
-TO GROUP "gm-doctors";
+	, v_hx_family
+to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.130 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.131 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.130  2005-03-11 22:55:50  ncq
+-- Revision 1.131  2005-03-14 14:45:40  ncq
+-- - episode naming much simplified hence simplified views
+-- - add episode name into v_compl_narrative
+-- - some id_patient -> pk_patient
+-- - v_hx_family and grants
+-- - apparently lnk_type2item cannot foreign key its fk_item to
+--   clin_root_item and expect to work with *child* tables of
+--   clin_root_item :-(  so add custom referential integrity trigger,
+--   this lacks on update/delete support, though, naturally
+--
+-- Revision 1.130  2005/03/11 22:55:50  ncq
 -- - cleanup
 -- - carry over provider into narrative view
 --
