@@ -1,7 +1,7 @@
 -- Project: GnuMed - public database table for phrase wheel SQL test
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPhraseWheelTest.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -30,6 +30,7 @@ create table gmpw_sql_test (
 create table score_gmpw_sql_test (
 	id serial primary key,
 	fk_gmpw_sql_test integer not null references gmpw_sql_test(id),
+	cookie text default null,
 	"user" name not null default CURRENT_USER,
 	score bigint not null default 0
 );
@@ -245,11 +246,14 @@ insert into gmpw_sql_test(phrase) values ('Nervenhyperregeneration [Narbenneurom
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmPhraseWheelTest.sql,v $';
-insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.2 $');
+insert into gm_schema_revision (filename, version) VALUES('$RCSfile: gmPhraseWheelTest.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmPhraseWheelTest.sql,v $
--- Revision 1.2  2003-10-07 22:27:27  ncq
+-- Revision 1.3  2003-10-09 15:22:14  ncq
+-- - added cookie field based on Hilmar's context tree suggestion
+--
+-- Revision 1.2  2003/10/07 22:27:27  ncq
 -- - grants
 -- - separate scoring table
 --
