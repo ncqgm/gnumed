@@ -1,7 +1,7 @@
 """GnuMed simple EMR text dump plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import sys
@@ -45,6 +45,10 @@ class gmDemographicsEditor(gmPlugin.wxNotebookPlugin):
 	#	if not self._verify_patient_avail():
 	#		return None
 		return 1
+
+	def newPatient(self):
+		self.panel.newPatient()
+
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -60,9 +64,9 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.1  2003-11-08 18:12:58  sjtan
+# Revision 1.3  2003-11-15 11:49:50  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# extra fields table appended in gmclinical.sql.
 #
 # Revision 1.1  2003/10/23 06:02:40  sjtan
 #

@@ -7,10 +7,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.5 2003-11-08 18:12:58 sjtan Exp $
+# $Id: gmPatient.py,v 1.6 2003-11-11 06:55:32 sjtan Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.5 2003-11-08 18:12:58 sjtan Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPatient.py,v 1.6 2003-11-11 06:55:32 sjtan Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -156,7 +156,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
-	_get_handler['demographics'] = get_demographic_record
+	_get_handler['demographic record'] = get_demographic_record
 	_get_handler['clinical record'] = _get_clinical_record
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
@@ -168,7 +168,7 @@ class gmCurrentPatient(cBorg):
 
 	There may be many instances of this but they all share state.
 	"""
-	def __init__(self, aPKey = None):
+	def __init__(self, aPKey = None, reload = 0):
 		_log.Log(gmLog.lData, 'selection of patient [%s] requested' % aPKey)
 		# share state among all instances ...
 		cBorg.__init__(self)
@@ -201,7 +201,7 @@ class gmCurrentPatient(cBorg):
 			else:
 				_log.Log(gmLog.lData, 'patient change: [%s] -> [%s]' % (self.patient['ID'], aPKey))
 				# are we really supposed to become someone else ?
-				if self.patient['ID'] != aPKey:
+				if self.patient['ID'] != aPKey or reload == 1:
 					# yes, but CAN we ?
 					if self.locked is None:
 						try:
@@ -218,7 +218,7 @@ class gmCurrentPatient(cBorg):
 							# FIXME: maybe raise exception here ?
 					else:
 						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
-				# no, same patient, so do nothing
+				# no, same patient, so do nothing  AND not reloading
 				else:
 					_log.Log(gmLog.lData, 'same ID, no change needed')
 		# else do nothing which will return ourselves
@@ -295,12 +295,18 @@ class gmCurrentPatient(cBorg):
 			return None
 #============================================================
 def create_dummy_identity():
-	cmd1 = "insert into identity(gender, dob) values('N/A', CURRENT_TIMESTAMP)"
+	cmd1 = "insert into v_basic_person ( lastnames, firstnames, title, gender, DOB) values( '?', '?', 'mr', 'm', now() )"
 	cmd2 = "select currval ('identity_id_seq')"
-	data = gmPG.run_commit ('personalia', [(cmd1, []), (cmd2, [])])
-	if data is None:
-		return None
-	return data[0][0]
+
+	pool = gmPG.ConnectionPool()
+	conn = pool.GetConnection('personalia', readonly = 0)
+	cursor = conn.cursor()
+	cursor.execute(cmd1)
+	conn.commit()
+	cursor.execute(cmd2) 
+	[id] = cursor.fetchone()
+	pool.ReleaseConnection( 'personalia')
+	return  id
 #============================================================
 # main/testing
 #============================================================
@@ -331,10 +337,12 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.5  2003-11-08 18:12:58  sjtan
+# Revision 1.6  2003-11-11 06:55:32  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# with patient create.
 #
+# Revision 1.6  2003/11/09 16:39:34  ncq
+# - get handler now 'demographic record', not 'demographics'
 #
 # Revision 1.5  2003/11/04 00:07:40  ncq
 # - renamed gmDemographics

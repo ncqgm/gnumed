@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.1 2003-11-08 18:12:58 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDemographicRecord.py,v 1.2 2003-11-11 06:55:32 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -41,12 +41,17 @@ def get_medical_age(dob):
 
 	age = mx.DateTime.Age(mx.DateTime.now(), dob)
 
+	_log.Log(gmLog.lInfo, str(age) )
+
 	if age.years > 0:
 		return "%sy%sm" % (age.years, age.months)
-	if age.weeks > 4:
-		return "%sm%sw" % (age.months, age.weeks)
-	if age.weeks > 1:
-		return "%sd" % age.days
+	try:
+		if age.weeks > 4:
+			return "%sm%sw" % (age.months, age.weeks)
+		if age.weeks > 1:
+			return "%sd" % age.days
+	except:
+		_log.LogException("age.weeks error", sys.exc_info() )
 	if age.days > 1:
 		return "%sd (%sh)" % (age.days, age.hours)
 	if age.hours > 3:
@@ -517,9 +522,9 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.1  2003-11-08 18:12:58  sjtan
+# Revision 1.2  2003-11-11 06:55:32  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# with patient create.
 #
 # Revision 1.2  2003/11/04 10:35:22  ihaywood
 # match providers in gmDemographicRecord

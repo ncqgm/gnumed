@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.1 2003-11-08 18:12:58 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDemographics.py,v 1.2 2003-11-11 06:55:32 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -185,12 +185,12 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		
 		self.txt_no= wxTextCtrl( self, 30, "")
 		self.txt_no.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
-		self.txt_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(), pos = wxDefaultPosition, size=wxDefaultSize )
+		self.txt_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wxDefaultPosition, size=wxDefaultSize )
 		self.txt_street.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 
-		self.txt_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= UrbMP(), pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
+		self.txt_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= UrbMP(), selectionOnly = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 
-		self.txt_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), pos = wxDefaultPosition, size=wxDefaultSize )
+		self.txt_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selectionOnly = 1,  pos = wxDefaultPosition, size=wxDefaultSize )
 
 		self.txt_birthdate = TextBox_BlackNormal(self,-1)
 		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
@@ -452,6 +452,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.input_fields['zip'].SetValue( myPatient.getPostcodeForUrbId(id )  )
 
 
+
 	def _address_selected( self, event):
 		self._update_address_fields_on_selection()
 
@@ -474,20 +475,76 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 				
 	def _save_btn_pressed(self, event):
 		self._save_data()
+
+	def setNewPatient(self, isNew):
+		self.newPatient = isNew
+
+	def newPatient(self):
+		self.setNewPatient(1)
+		self.__init_data()
+		import gmPatient
+		id = gmPatient.create_dummy_identity()
+		print "id = ", id
+		self.patient = gmPatient.gmCurrentPatient(id)
+		
+
 	
-	def _save_data(self):
-		self._save_addresses()
-		myPatient = self.get_demographic_record()
-	
+	def __init_data(self):
+		for k, w in self.input_fields.items():
+			try:
+				w.SetValue('')
+			except:
+				try:
+					w.SetValue(0)
+				except:
+					print "no cleared value for ", w
+					pass
+		
+		self.__update_address_types()
+
+	def get_input_value_map(self):
 		m = {}
 		for k, v in self.input_fields.items():
-			m[k] = v.GetValue()
+			try:
+				m[k] = v.GetValue()
+			except:
+				print sys.exc_info()[0]
+
+		return m	
+
+
+	def validate_fields(self):
+		m = self.get_input_value_map()
+		if  "" in [ m['firstname'].strip() , m['surname'].strip() ]:
+			raise Error("firstname and surname are required fields for identity")
+
+
+
+
+
+	
+	def _save_data(self):
+		try:
+			self.validate_fields()
+		except:
+			print sys.exc_info()[0]
+			return	
+	
+
+		self._save_addresses()
+	
+		m = self.get_input_value_map()
 			
-		myPatient.setActiveName(m['firstname'], m['surname'])		
+		myPatient = self.get_demographic_record()
+
+		myPatient.setActiveName(m['firstname'].strip(), m['surname'].strip())		
 		myPatient.setGender( m['sex'] )
 		myPatient.setDOB( m['birthdate'])
 		myPatient.setTitle( m['title'])
-		
+
+		self.setNewPatient(0)
+		gmDispatcher.send( gmSignals.patient_selected() )
+
 
 
 	
@@ -556,8 +613,8 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 	
 	def __get_address_types(self):
-		myPatient = self.get_demographic_record()
-		return myPatient.getAddressTypes()
+		import gmDemographicRecord
+		return gmDemographicRecord.getAddressTypes()
 
 	def __update_address_types(self):
 		m = self.input_fields
@@ -601,7 +658,9 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		return data	
 	
 	def _updateUI(self):
+		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
 		myPatient = self.get_demographic_record()
+		
 		print self, "GOT THIS"
 		print "ID       ", myPatient.getID ()
                 print "name     ", myPatient.getActiveName ()
@@ -625,7 +684,9 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.__update_address_types()
 
 		self.__update_addresses()
-			
+		
+		self._update_address_fields_on_selection()
+
 
 	def OnPatient (self, event):
 		pat_id = event.GetData ()
@@ -718,9 +779,9 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.1  2003-11-08 18:12:58  sjtan
+# Revision 1.2  2003-11-11 06:55:32  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# with patient create.
 #
 # Revision 1.1  2003/10/23 06:02:40  sjtan
 #

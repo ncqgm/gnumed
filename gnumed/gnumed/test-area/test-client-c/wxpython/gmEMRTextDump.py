@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.2 2003-10-27 14:01:26 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmEMRTextDump.py,v 1.3 2003-11-11 06:55:32 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -65,7 +65,7 @@ class gmEMRDumpPanel(wxPanel):
 				'Please check the log file for details.'
 			))
 			return None
-		dump = emr['text dump']
+		dump = emr.get_text_dump()
 		if dump is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
 			self.txt.SetValue(_(
@@ -122,13 +122,15 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.2  2003-10-27 14:01:26  sjtan
+# Revision 1.3  2003-11-11 06:55:32  sjtan
 #
-# syncing with main tree.
+# with patient create.
 #
-# Revision 1.1  2003/10/23 06:02:39  sjtan
+# Revision 1.4  2003/11/09 14:27:46  ncq
+# - clinical record has new API style
 #
-# manual edit areas modelled after r.terry's specs.
+# Revision 1.3  2003/10/26 01:36:13  ncq
+# - gmTmpPatient -> gmPatient
 #
 # Revision 1.2  2003/07/19 20:20:59  ncq
 # - use panel instead of scrolled window so it actually works nicely

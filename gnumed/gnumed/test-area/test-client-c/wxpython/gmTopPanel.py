@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmTopPanel.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -192,11 +192,11 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
-		age = self.curr_pat['demographics'].getMedicalAge ()
+		age = self.curr_pat['demographic record'].getMedicalAge ()
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
-		name = self.curr_pat['demographics'].getActiveName()
 		self.txt_age.SetValue(age)
+		name = self.curr_pat['demographic record'].getActiveName()
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
 		self._update_allergies()
 	#-------------------------------------------------------
@@ -205,11 +205,12 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
 		epr = self.curr_pat['clinical record']
-		allergy_names = epr['allergy names']
-		_log.Log(gmLog.lData, "allergy names: %s" % allergy_names)
+		allergies = epr.get_allergies(remove_sensitivities=1)
 		tmp = []
-		for allergy in allergy_names:
-			tmp.append(allergy['name'])
+		for allergy in allergies:
+			print "APPENDING ", allergy
+			#tmp.append(allergy['name'])   #temporary comment out, until get_allergies catches up
+			tmp.append(allergy[6])
 		data = string.join(tmp, ',')
 		if data == '':
 			# needed because GUI stuff can't be called from a thread (and that's
@@ -305,10 +306,18 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.2  2003-10-27 14:01:26  sjtan
+# Revision 1.3  2003-11-11 06:55:32  sjtan
 #
-# syncing with main tree.
+# with patient create.
 #
+# Revision 1.22  2003/11/09 17:33:27  shilbert
+# - minor glitch
+#
+# Revision 1.21  2003/11/09 17:31:13  shilbert
+# - ['demographics'] -> ['demographic record']
+#
+# Revision 1.20  2003/11/09 14:31:25  ncq
+# - new API style in clinical record
 # Revision 1.19  2003/10/26 18:04:01  ncq
 # - cleanup
 #

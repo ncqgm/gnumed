@@ -5,10 +5,10 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.2 2003-11-08 18:12:58 sjtan Exp $
+# $Id: gmPlugin.py,v 1.4 2003-11-15 11:49:49 sjtan Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.2 2003-11-08 18:12:58 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPlugin.py,v 1.4 2003-11-15 11:49:49 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -233,17 +233,14 @@ class wxNotebookPlugin (wxBasePlugin):
 		pat = gmTmpPatient.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional beep and an optional red backgound here
-			set_statustext = self.gb['main.statustext']
-			set_statustext(_('Cannot switch to [%s]: no patient selected') % self.name())
+			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
 		return 1
 	#-----------------------------------------------------
 	def _set_status_txt(self, txt):
-
 		set_statustext = self.gb['main.statustext']
 		set_statustext(txt)
 		return 1
-	
 	#-----------------------------------------------------
 	def Raise (self):
 		nbns = self.gb['main.notebook.plugins']
@@ -499,9 +496,12 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.2  2003-11-08 18:12:58  sjtan
+# Revision 1.4  2003-11-15 11:49:49  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# extra fields table appended in gmclinical.sql.
+#
+# Revision 1.60  2003/11/09 14:26:41  ncq
+# - if we have set_status_txt() do use it, too
 #
 # Revision 1.59  2003/11/08 10:48:36  shilbert
 # - added convenience function _set_status_txt()

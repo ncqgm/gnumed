@@ -1,15 +1,15 @@
-"""
-Base classes for match providers, which are used by business objects
-to give phrasewheels the ability to guess phrases
-"""
+"""Base classes for match providers.
 
-# Copyright (C) GNUMed developers
-#@copyright: GPL
+They are used by business objects to give
+phrasewheels the ability to guess phrases.
 
+Copyright (C) GNUMed developers
+license: GPL
+"""
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.3 2003-11-08 18:12:58 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMatchProvider.py,v 1.5 2003-11-15 11:49:49 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -413,7 +413,6 @@ class cMatchProvider_SQL(cMatchProvider):
 						vars.append (self.__context[context_var])
 			if src['extra conditions'].has_key ('default'):
 				content_where += " and (%s)" % src['extra conditions']['default']
-				
 						       
 			src_def = src
 			cmd = "select %s, %s from %s where %s %s %%s%s" % (

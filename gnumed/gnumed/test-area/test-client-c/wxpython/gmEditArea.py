@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.16 2003-11-08 18:12:58 sjtan Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmEditArea.py,v 1.18 2003-11-15 11:49:50 sjtan Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -907,7 +907,7 @@ class gmAllergyEditArea(gmEditArea):
 	#--------------------------------------------------------
 	def _save_data(self):
 		_print( "saving allergy data")
-		clinical = self.patient.get_clinical_record().get_allergies()
+		clinical = self.patient.get_clinical_record().get_allergies_manager()
 		if self.getDataId() == None:
 			id = clinical.create_allergy( self.get_fields_formatting_values() )
 			self.setDataId(id)
@@ -921,7 +921,7 @@ class gmAllergyEditArea(gmEditArea):
 	def _delete_data(self):
 		if self.getDataId() == None:
 			return
-		clinical = self.patient.get_clinical_record().get_allergies()
+		clinical = self.patient.get_clinical_record().get_allergies_manager()
 		clinical.delete_allergy( self.getDataId())
 		self._init_fields()
 
@@ -2181,9 +2181,9 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.16  2003-11-08 18:12:58  sjtan
+# Revision 1.18  2003-11-15 11:49:50  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# extra fields table appended in gmclinical.sql.
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #

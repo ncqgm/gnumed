@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -163,8 +163,8 @@ class AllergyPanel(wxPanel , PatientHolder ):
 		for j in xrange(0, len( list) ):
 			self.list_allergy.SetStringItem( i, j+1, list[j] )
 		
-	def UpdateAllergies(self):
-		#kwds = kwargs['kwds']
+
+	def UpdateAllergies(self, **kwargs):
 		try:
 			#epr = self.__pat['clinical record']
 			#allergies = epr['allergies']
@@ -191,23 +191,6 @@ class AllergyPanel(wxPanel , PatientHolder ):
 
 		return 1
 
-#		query = "select id, type, status, class, generic, reaction from v_allergies where id_identity =%s" % kwds['ID']
-		#try:
-#		db = gmPG.ConnectionPool().GetConnection('clinical')
-#		cursor = db.cursor()
-#		cursor.execute(query)
-#		rows = cursor.fetchall()
-		#except:
-		#	return
-#		for index in range(len(rows)):
-#			row=rows[index]
-#			key =row[0]
-#			self.list_allergy.InsertStringItem(index, row[1])
-#			self.list_allergy.SetItemData(index, key)
-#			for column in range(2, len(row)):
-#				self.list_allergy.SetStringItem(index, column, row[column])
-#		for column in range(len(row)-1):
-#			self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
 #----------------------------------------------------------------------
 class gmGP_Allergies (gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the allergies window"""
@@ -245,9 +228,9 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.9  2003-11-08 18:12:58  sjtan
+# Revision 1.11  2003-11-15 11:49:50  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# extra fields table appended in gmclinical.sql.
 #
 # Revision 1.3  2003/10/27 14:01:26  sjtan
 #
@@ -262,6 +245,11 @@ if __name__ == "__main__":
 # Revision 1.1  2003/10/23 06:02:40  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
+# Revision 1.16  2003/11/09 14:52:25  ncq
+# - use new API in clinical record
+#
+# Revision 1.15  2003/10/26 01:36:14  ncq
+# - gmTmpPatient -> gmPatient
 #
 # Revision 1.14  2003/06/03 14:28:33  ncq
 # - some cleanup, Syans work starts looking good

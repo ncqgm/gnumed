@@ -20,8 +20,8 @@ all signing all dancing GNUMed reference client.
 ############################################################################
 #<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.10 2003-11-08 18:12:58 sjtan Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmGuiMain.py,v 1.11 2003-11-11 06:55:32 sjtan Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -379,18 +379,17 @@ class gmTopLevelFrame(wxFrame):
 		#</DEBUG>
 		try:
 			epr = pat['clinical record']
+#<<<<<<< gmGuiMain.py
 			names = pat['active name']
+#=======
+			demos = pat['demographic record']
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
 
 		# make sure there's an encounter
 		status, encounter = epr.attach_to_encounter(forced = 0)
-#<<<<<<< gmGuiMain.py
-#		patient = "%s %s (%s)" % (names['first'], names['last'], pat['dob'])
-#=======
 		patient = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'))
-#>>>>>>> 1.120
 		# error ?
 		if status == -1:
 			msg = _(
@@ -432,11 +431,9 @@ class gmTopLevelFrame(wxFrame):
 		fname = names['first']
 		if len(fname) > 0:
 			fname = fname[:1]
-#<<<<<<< gmGuiMain.py
 #		patient = "%s %s.%s (%s) #%d" % (pat['title'], fname, names['last'], pat['dob'], int(pat['ID']))
 #=======
 		patient = "%s %s.%s (%s) #%d" % (demos.getTitle(), fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
-#>>>>>>> 1.120
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -854,9 +851,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.10  2003-11-08 18:12:58  sjtan
+# Revision 1.11  2003-11-11 06:55:32  sjtan
 #
-# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+# with patient create.
+#
+# Revision 1.122  2003/11/09 17:37:12  shilbert
+# - ['demographics'] -> ['demographic record']
 #
 # Revision 1.121  2003/10/31 23:23:17  ncq
 # - make "attach to encounter ?" dialog more informative

@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 import string, gmDispatcher, gmSignals
 from wxPython.wx import *
@@ -66,6 +66,31 @@ class DlgSelectPerson(SQLSimpleSearch):
 		self.sizerButtons.AddWindow( self.buttonMerge, 0, wxALIGN_CENTRE|wxALL, 2 )
 
 		self.sizerTopVertical.AddSizer( self.sizerButtons, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2 )
+
+		self.__connect_commands()
+
+	
+	def __connect_commands(self):
+		EVT_BUTTON( self.buttonNew, self.buttonNew.GetId(), self.__newButtonPressed)
+
+	
+	def __newButtonPressed(self, event):
+		self._newPatient()
+
+	
+	def _newPatient(self):
+		import gmGuiBroker
+
+		broker = gmGuiBroker.GuiBroker()
+
+		for x in broker['main.notebook.plugins']:
+			if str(x.__class__).find('gmDemographics') <> -1:
+				x.Raise()
+				x.newPatient()
+				return
+
+
+
 
 
 	def TransformQuery(self, searchexpr):

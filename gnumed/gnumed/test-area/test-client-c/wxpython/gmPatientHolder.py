@@ -38,7 +38,7 @@ class PatientHolder:
 		return self.get_clinical_record().get_past_history()
 
 	def get_allergies(self):
-		return self.get_clinical_record().get_allergies()
+		return self.get_clinical_record().get_allergies_manager()
 	
 	def _updateUI(self):
 		_print("please override _updateUI() in ", self.__class__.__name__)
