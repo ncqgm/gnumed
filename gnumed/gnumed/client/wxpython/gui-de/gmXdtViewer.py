@@ -1,9 +1,27 @@
 #!/usr/bin/env python
 
+"""GnuMed xDT viewer.
+
+TODO:
+
+- popup menu on right-click
+  - import this line
+  - import all lines like this
+  - search
+  - print
+  - ...
+- on plugin.receivefocus():
+     if not self.file_loaded:
+	 	load file
+
+- connect to gmDispatcher.patient_changed -> on signal check for patient file
+  and parse in thread
+
+"""
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui-de/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.1 2003-02-13 15:25:15 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmXdtViewer.py,v 1.2 2003-02-13 15:51:09 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys,os,fileinput,string,linecache
@@ -280,6 +298,9 @@ else:
 			return ('tools', _('&show BDT'))
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.1  2003-02-13 15:25:15  ncq
+# Revision 1.2  2003-02-13 15:51:09  ncq
+# - added TODO
+#
+# Revision 1.1  2003/02/13 15:25:15  ncq
 # - first version, works standalone only
 #
