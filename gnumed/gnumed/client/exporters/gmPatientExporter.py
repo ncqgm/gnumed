@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.35 2004-10-20 21:43:45 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmPatientExporter.py,v 1.36 2004-10-26 12:52:56 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -42,23 +42,6 @@ def prompted_input(prompt, default=None):
 #--------------------------------------------------------
 class cEmrExport:
     
-#    def __init__(self, patient = None):
-#       """
-#        Constructs a new instance of exporter
-#        
-#        patient - Patient whose EMR is to be exported
-#        """        
-#        self.__patient = patient
-#        # default constraints to None for complete emr dump
-#        self.__constraints = {
-#            'since': None,
-#            'until': None,
-#            'encounters': None,
-#            'episodes': None,
-#            'issues': None
-#        }        
-#        self.__target = None
-#        self.lab_new_encounter = True
     #--------------------------------------------------------                
     def __init__(self, constraints = None, fileout = None, patient = None):
         """
@@ -81,6 +64,7 @@ class cEmrExport:
         self.__target = fileout
         self.__patient = patient
         self.lab_new_encounter = True
+        
     #--------------------------------------------------------
     def set_constraints(self, constraints = None):
         """Sets exporter constraints.
@@ -99,12 +83,14 @@ class cEmrExport:
         else:
             self.__constraints = constraints
         return True
+        
     #--------------------------------------------------------
     def get_constraints(self):
         """
         Retrieve exporter constraints
         """
         return self.__constraints
+        
     #--------------------------------------------------------
     def set_patient(self, patient=None):
         """
@@ -116,12 +102,14 @@ class cEmrExport:
             _log.Log(gmLog.lErr, "can't set None patient for exporter")
             return
         self.__patient = patient
+        
     #--------------------------------------------------------
     def get_patient(self):
         """
             Retrieves patient whose data are to be dumped
         """
         return self.__patient
+        
     #--------------------------------------------------------
     def cleanup(self):
         """
@@ -170,12 +158,7 @@ class cEmrExport:
             else:
                 column_widths.append(date_length)  # date -> column width at least
             vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
-#        chart_rows += 1 # one extra row for last ###
-        
-        #print 'column widths: %s' %(column_widths)    
-        #print 'chart rows count: %s'  %(chart_rows)
-        #print 'vaccinations: %s' %(vaccinations)
-        
+                
         # patient dob in top of vaccination chart 
         txt = '\nDOB: %s' %(patient_dob.Format('%Y-%m-%d')) + '\n'       
         
@@ -212,7 +195,6 @@ class cEmrExport:
                 seq_no = vacc_regimes[col_index-1]['shots']
                 if row_index == seq_no: # had just ended scheduled vaccinations
                      txt += ending_str * column_widths[col_index] + '|'
-#                    txt += ending_str + (column_widths[col_index] - len(ending_str)) * ' ' + '|'
                 elif row_index < seq_no: # vaccination scheduled
                     try:
                         vacc_date = vaccinations[indication][row_index]['date'] # vaccination given                        
@@ -224,7 +206,6 @@ class cEmrExport:
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['age_due_min'] # FIXME 'age_due_min' not properly retrieved
                         else: # due any other than first shot
                             due_date = prev_displayed_date[col_index] + vaccinations4regimes[indication][row_index]['min_interval']
-                        #print 'Due date for vaccination #%s for %s: %s (age_due_min=%s)' %(row_index, indication, due_date.Format('%Y-%m-%d'), vaccinations4regimes[indication][0]['age_due_min'])
                         txt += '('+ due_date.Format('%Y-%m-%d') + ')' + (column_widths[col_index] - date_length) * ' ' + '|'
                         prev_displayed_date[col_index] = due_date
                 else: # not scheduled vaccination at that position
@@ -250,7 +231,6 @@ class cEmrExport:
                 all_vreg_boosters.append(given_boosters[len(given_boosters)-1]) # last of given boosters
             else:
                 all_vreg_boosters.append(None)
-        #print "all_vreg_boosters: %s" %(all_vreg_boosters)
 
         # next booster in schedule
         all_next_boosters = []
@@ -312,13 +292,12 @@ class cEmrExport:
             txt += column_width * '-' + '-'
         txt += '\n'                
 
-        #print txt
         self.__target.write(txt)        
         
     #--------------------------------------------------------
     def get_vacc_table(self):
         """
-        Iterate over patient scheduled regimes preparing vacc table dump
+        Iterate over patient scheduled regimes preparing vacc tables dump
         """        
         
         emr = self.__patient.get_clinical_record()
@@ -345,20 +324,6 @@ class cEmrExport:
             self.__dump_vacc_table(vacc_regimes)        
                             
     #--------------------------------------------------------
-    def get_encounters_for_items(self, items):
-        """
-            Extracts and retrieves encounters for a list of items
-            items - Items whose  encounters are to be obtained
-        """
-        emr = self.__patient.get_clinical_record()
-        encounter_ids = []
-        for an_item in items:
-            try :
-                encounter_ids.append(an_item['pk_encounter'])
-            except:
-                encounter_ids.append(an_item['pk_encounter'])
-        return emr.get_encounters(id_list = encounter_ids)
-    #--------------------------------------------------------
     def dump_item_fields(self, offset, item, field_list):
         """
             Dump information related to the fields of a clinical item
@@ -370,6 +335,7 @@ class cEmrExport:
         for a_field in field_list:
             txt += offset*' ' + a_field + ': ' + str(item[a_field]) + '\n'
         return txt
+        
     #--------------------------------------------------------
     def get_allergy_output(self, allergy, left_margin = 0):
         """
@@ -381,6 +347,7 @@ class cEmrExport:
         txt += left_margin*' ' + _('Allergy')  + ': \n'
         txt += self.dump_item_fields((left_margin+3), allergy, ['allergene', 'substance', 'generic_specific','l10n_type', 'definite', 'reaction'])
         return txt
+        
     #--------------------------------------------------------
     def get_vaccination_output(self, vaccination, left_margin = 0):
         """
@@ -392,6 +359,7 @@ class cEmrExport:
         txt += left_margin*' ' + _('Vaccination') + ': \n'
         txt += self.dump_item_fields((left_margin+3), vaccination, ['l10n_indication', 'vaccine', 'batch_no', 'site', 'narrative'])        
         return txt
+        
     #--------------------------------------------------------
     def get_lab_result_output(self, lab_result, left_margin = 0):
         """
@@ -404,6 +372,7 @@ class cEmrExport:
             txt += (left_margin)*' ' + _('Lab result') + ': \n'
         txt += (left_margin+3) * ' ' + lab_result['unified_name']  + ': ' + lab_result['unified_val']+ ' ' + lab_result['val_unit'] + ' (' + lab_result['material'] + ')' + '\n'
         return txt
+        
     #--------------------------------------------------------
     def get_item_output(self, item, left_margin = 0):
         """
@@ -420,6 +389,7 @@ class cEmrExport:
             txt += self.get_lab_result_output(item, left_margin)
             self.lab_new_encounter = False
         return txt
+        
     #--------------------------------------------------------
     def __fetch_filtered_items(self):
         """
@@ -449,7 +419,8 @@ class cEmrExport:
             encounters=self.__constraints['encounters'],
             episodes=self.__constraints['episodes'],
             issues=self.__constraints['issues']))
-        return filtered_items
+        self.__filtered_items = filtered_items
+        
     #--------------------------------------------------------
     def get_allergy_summary(self, allergy, left_margin = 0):
         """
@@ -460,6 +431,7 @@ class cEmrExport:
         txt = left_margin*' ' + _('Allergy') + ': ' + allergy['descriptor'] + ', ' + \
             allergy['reaction'] + '\n'
         return txt
+        
     #--------------------------------------------------------
     def get_vaccination_summary(self, vaccination, left_margin = 0):
         """
@@ -470,6 +442,7 @@ class cEmrExport:
         txt = left_margin*' ' + _('Vaccination') + ': ' + vaccination['l10n_indication'] + ', ' + \
             vaccination['narrative'] + '\n'
         return txt
+        
     #--------------------------------------------------------
     def get_lab_result_summary(self, lab_result, left_margin = 0):
         """
@@ -483,6 +456,7 @@ class cEmrExport:
                 lab_result['unified_name'] + '-> ' + lab_result['unified_val'] + \
                 ' ' + lab_result['val_unit']+ '\n' + '(' + lab_result['req_when'].Format('%Y-%m-%d') + ')'
         return txt
+        
     #--------------------------------------------------------
     def get_item_summary(self, item, left_margin = 0):
         """
@@ -500,32 +474,7 @@ class cEmrExport:
             txt += self.get_lab_result_summary(item, left_margin)
             self.lab_new_encounter = False
         return txt
-    #--------------------------------------------------------
-    def __get_set_for_field(self, field):
-        """
-            Extract set of unique values of a desired field from filtered items list
-            
-            field - Field for which each unique value must be extracted
-        """
-        set_values = []
-        for a_value in self.__filtered_items:
-            if a_value[field] not in set_values:
-                set_values.append(a_value[field])
-        return set_values
-    #--------------------------------------------------------
-    def __get_filtered_emr_data(self):
-        """
-        Obtains and configured main emr data collections
-        """
-        # Let's fetch all items compliant with constraints
-        self.__filtered_items = self.__fetch_filtered_items()
-        # Extract from considered items related health issues
-        self.__filtered_issues = self.__get_set_for_field('pk_health_issue')
-        # Extract from considered items related episodes
-        self.__filtered_episodes = self.__get_set_for_field('pk_episode')
-        # Extract from considered items related encounters
-        self.__filtered_encounters = self.__get_set_for_field('pk_encounter')
-        
+                                    
     #--------------------------------------------------------            
     def get_historical_tree(self, emr_tree):
         """
@@ -535,24 +484,26 @@ class cEmrExport:
         Encounter object is associated with item to allow displaying its information
         """
         # variable initialization
-        self.__get_filtered_emr_data()
+        self.__fetch_filtered_items()
         emr = self.__patient.get_clinical_record()
-        h_issues = emr.get_health_issues(id_list = self.__filtered_issues)
+        h_issues = emr.get_health_issues(id_list = self.__constraints['issues'])
         root_node = emr_tree.GetRootItem()
         # build the tree
-        for issue in h_issues:
-            issue_node =  emr_tree.AppendItem(root_node, issue['description'])
-            emr_tree.SetPyData(issue_node, issue)
-            for epi in emr.get_episodes(id_list=self.__filtered_episodes, issues = [issue['id']]):
-               episode_node =  emr_tree.AppendItem(issue_node, epi['description'])
-               emr_tree.SetPyData(episode_node, epi)
-
-               items =  filter(lambda item: item['pk_episode'] == epi['pk_episode'], self.__filtered_items)
-               encounters = self.get_encounters_for_items(items)
-               for enc in encounters:
-                    label = '%s:%s' % (enc['l10n_type'], enc['started'].Format('%Y-%m-%d'))
+        for a_health_issue in h_issues:
+            issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
+            emr_tree.SetPyData(issue_node, a_health_issue)
+            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
+            for an_episode in episodes:    
+               episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
+               emr_tree.SetPyData(episode_node, an_episode)
+               encounters = emr.get_encounters(since=self.__constraints['since'],
+                until=self.__constraints['until'], id_list=self.__constraints['encounters'],
+                episodes=[an_episode['pk_episode']], issues=[a_health_issue['id']])
+               for an_encounter in encounters:
+                    label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].Format('%Y-%m-%d'))
                     encounter_node = emr_tree.AppendItem(episode_node, label)
-                    emr_tree.SetPyData(encounter_node, enc)
+                    emr_tree.SetPyData(encounter_node, an_encounter)
+                    
     #--------------------------------------------------------  
     def dump_summary_info(self, left_margin = 0):
         """
@@ -572,7 +523,6 @@ class cEmrExport:
         """
         # fetch first and last encounters for the issue
         emr = self.__patient.get_clinical_record()
-        #print "dump_issue_info() - issue:", issue
         first_encounter = emr.get_first_encounter(issue_id = issue['id'])
         last_encounter = emr.get_last_encounter(issue_id = issue['id'])
         # dump info
@@ -599,7 +549,8 @@ class cEmrExport:
         txt += left_margin *' ' + 'Last treated: ' + last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M') + '\n' 
         if episode['description'] is not None and len(episode['description']) > 0:
             txt += left_margin *' ' + 'Description: ' + episode['description'] + '\n'
-        return txt                                        
+        return txt                                
+                
     #--------------------------------------------------------  
     def dump_encounter_info(self, episode, encounter, left_margin = 0):
         """
@@ -650,6 +601,7 @@ class cEmrExport:
             if an_item['pk_encounter'] == encounter['pk_encounter']:
                 txt += self.get_item_output(an_item, left_margin)
         return txt    
+        
     #--------------------------------------------------------  
     def dump_historical_tree(self):
         """Dumps patient's historical in form of a tree of health issues
@@ -660,23 +612,23 @@ class cEmrExport:
         """
 
         # fecth all values
-        self.__get_filtered_emr_data()
+        self.__fetch_filtered_items()
         emr = self.__patient.get_clinical_record()
 
         # dump clinically relevant items summary
         for an_item in self.__filtered_items:
             self.__target.write(self.get_item_summary(an_item, 3))
-            
-    
+                
         # begin with the tree
-
-        h_issues = emr.get_health_issues(id_list = self.__filtered_issues)
-        for h_issue in h_issues:
-            self.__target.write('\n' + 3*' ' + 'Health Issue: ' + h_issue['description'] + '\n')
-            for an_episode in emr.get_episodes(id_list=self.__filtered_episodes, issues = [h_issue['id']]):
+        h_issues = emr.get_health_issues(id_list = self.__constraints['issues'])
+        for a_health_issue in h_issues:
+            self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
+            episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
+            for an_episode in episodes:
                self.__target.write('\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n')
-               items =  filter(lambda item: item['pk_episode'] in [an_episode['pk_episode']], self.__filtered_items)
-               encounters = self.get_encounters_for_items(items)
+               encounters = emr.get_encounters(since=self.__constraints['since'],
+                until=self.__constraints['until'], id_list=self.__constraints['encounters'],
+                episodes=[an_episode['pk_episode']], issues=[a_health_issue['id']])
                for an_encounter in encounters:
                     # title
                     self.lab_new_encounter = True
@@ -690,6 +642,7 @@ class cEmrExport:
                         )
                     )
                     self.__target.write(self.dump_encounter_info(an_episode, an_encounter, 12))
+                    
     #--------------------------------------------------------
     def dump_clinical_record(self):
         """
@@ -750,6 +703,7 @@ class cEmrExport:
                     part['obj_comment'])
                 )
         self.__target.write('\n\n')
+        
     #--------------------------------------------------------    
     def dump_demographic_record(self, all = False):
         """
@@ -783,6 +737,7 @@ class cEmrExport:
             addr_lst = dump['addresses'][addr_t]
             for address in addr_lst:
                 self.__target.write('   Address (' + addr_t + '): ' + address + '\n')
+                
     #--------------------------------------------------------    
     def dump_constraints(self):
         """
@@ -825,6 +780,7 @@ class cEmrExport:
             self.__target.write('\nClinical items dump constraints\n')
             self.__target.write('-'*(len(head_txt)-2))
             self.__first_constraint = False
+            
 #============================================================
 # main
 #------------------------------------------------------------
@@ -834,6 +790,7 @@ def usage():
     """
     print 'usage: python gmPatientExporter [--fileout=<outputfilename>] [--conf-file=<file>] [--text-domain=<textdomain>]'
     sys.exit(0)
+    
 #------------------------------------------------------------
 def parse_constraints():
     """
@@ -870,6 +827,7 @@ def parse_constraints():
         constraints['issues'] = map(lambda issue: int(issue), constraints['issues'])
     
     return constraints
+    
 #------------------------------------------------------------                
 def run():
     """
@@ -945,9 +903,14 @@ if __name__ == "__main__":
     except:
         traceback.print_exc(file=sys.stdout)
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+        
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.35  2004-10-20 21:43:45  ncq
+# Revision 1.36  2004-10-26 12:52:56  ncq
+# - Carlos: fix conceptual bug by building top-down (eg. issue -> episode
+#   -> item) instead of bottom-up
+#
+# Revision 1.35  2004/10/20 21:43:45  ncq
 # - cleanup
 # - use allergy['descriptor']
 # - Format() dates
