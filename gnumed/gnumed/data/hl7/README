@@ -3,9 +3,18 @@
 This is an example of HL7 data as sent out by MediNet AU.
 It was kindly provided by Richard Terry.
 
+
+Pass_1-HL7_2.3-TEST_MSG-2003-10-30.xml
+--------------------------------------
+Example HL7 data as sent out by PathNet (British Columbia, Canada).
+Provided by Jim Busser.
+
 ========================================
 > $Log: README,v $
-> Revision 1.1  2005-03-02 22:58:41  ncq
+> Revision 1.2  2005-03-08 16:48:25  ncq
+> - add BC PathNet HL7 example
+>
+> Revision 1.1  2005/03/02 22:58:41  ncq
 > - initial checkin
 >
 >
