@@ -17,6 +17,9 @@
 --               and supporting external reference counting
 
 
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 -- any table that needs auditing MUST inherit audit_gis
 -- A python script (gmhistorian.py) generates automatically all triggers
@@ -49,7 +52,9 @@ COMMENT ON COLUMN country.code IS
 COMMENT ON COLUMN country.deprecated IS
 'date when this country ceased officially to exist (if applicable)';
 
--- =============================================
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 -- state codes. Any need for more than 3 characters?
 -- yes, at least in Germany we have up to 6
@@ -75,7 +80,9 @@ COMMENT ON COLUMN state.country IS
 COMMENT ON COLUMN country.deprecated IS
 'date when this state ceased officially to exist (if applicable)';
 
--- =============================================
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 create table urb (
         id serial primary key,
@@ -96,7 +103,9 @@ COMMENT ON COLUMN urb.postcode IS
 COMMENT ON COLUMN urb.name IS
 'the name of the city/town/dwelling';
 
--- =============================================
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 create table street (
         id serial primary key,
@@ -113,7 +122,9 @@ COMMENT ON COLUMN street.id_urb IS
 COMMENT ON COLUMN street.name IS
 'name of this street';
 
--- =============================================
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 create table address_type (
         id serial primary key,
@@ -128,7 +139,8 @@ INSERT INTO address_type(id, name) values(4,'holidays');
 INSERT INTO address_type(id, name) values(5,'temporary');
 
 
--- =============================================
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 create table address (
         id serial primary key,
@@ -139,10 +151,22 @@ create table address (
 ) inherits (audit_gis);
 
 
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- Other databases may reference to an address stored in this table.
+-- As Postgres does not allow (yet) cross database queries, we use
+-- external reference tables containing "external reference" counters
+-- in order to preserve referential integrity
+-- (no address shall be deleted as long as there is an external object
+-- referencing this address)
+
 create table address_external_ref (
         id int references address primary key,
         refcounter int default 0
 );
+
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 create view v_basic_address
@@ -180,6 +204,9 @@ where
 -- solution: function to auto-create street records on demand.
 
 
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 -- This function returns the id of street, BUT if the street does not
 -- exist, it is created.
 CREATE FUNCTION find_street (text, integer) RETURNS integer AS '
@@ -198,6 +225,10 @@ BEGIN
         END IF;
 END;' LANGUAGE 'plpgsql';
 
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
         INSERT INTO address (id, addrtype, street, number, addendum)
         VALUES ( nextval('address_id_seq'),
@@ -213,36 +244,79 @@ CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
                );
 
 
-CREATE FUNCTION decrease_refcount(INTEGER) RETURNS INTEGER AS'
-DECLARE
-        old_id ALIAS FOR $1;
-        rc RECORD;
-BEGIN
-        SELECT INTO rc *
-	FROM address_external_ref
-	WHERE old_id = rc.id;
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        IF FOUND THEN
-		IF rc.refcounter > 0 THEN
-			rc.refcounter := rc.refcounter-1
-			UPDATE address_external_id
-				SET refcounter := rc.refcounter
-				WHERE old_id = rc.id;
-			RETURN refcounter;
-		ELSE RETURN 0;
+-- increase the external reference counter for an address
+
+DROP FUNCTION increase_refcount(INTEGER);
+CREATE FUNCTION increase_refcount(INTEGER) RETURNS INTEGER AS'
+DECLARE
+        rc_id ALIAS FOR $1;
+	rc RECORD;
+	rcount INTEGER := 1;
+BEGIN
+	-- make sure this adddress really exists!
+	SELECT into rc id FROM address WHERE id = rc_id;
+	IF NOT found THEN
+		RAISE NOTICE ''Trying to increase external reference counter for non-existing address!'';
+		RETURN -1;
+	END IF;
+	-- now increase the old reference counter for this address
+        SELECT INTO rc * FROM address_external_ref WHERE id = rc.id;
+        IF found THEN
+		rcount := rc.refcounter+1;
+		UPDATE address_external_ref SET refcounter = rcount WHERE id = rc.id;
+	-- or create the reference counter if it didnt exist yet
         ELSE
-		RAISE NOTICE ''Cannot find any external reference for record'';
-	        RETURN 0,
+		INSERT INTO address_external_ref(id, refcounter) VALUES (rc_id, 1);
+		rcount := 1;
         END IF;
+	RETURN rcount;
 END;' LANGUAGE 'plpgsql';
 
 
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+-- decrease the external reference count for an address
+DROP FUNCTION decrease_refcount(INTEGER);
+CREATE FUNCTION decrease_refcount(INTEGER) RETURNS INTEGER AS'
+DECLARE
+        rc_id ALIAS FOR $1;
+        rc RECORD;
+	rcount  INTEGER;
+BEGIN
+        SELECT INTO rc * FROM address_external_ref WHERE id = rc_id;
+
+        IF FOUND THEN
+		IF rc.refcounter > 0 THEN
+			rcount := rc.refcounter -1;
+			UPDATE address_external_ref SET refcounter = rcount WHERE id = rc_id;
+		ELSE
+			rcount := 0;
+		END IF;
+        ELSE
+		RAISE NOTICE ''Cannot find any external reference for record'';
+	        rcount := -1;
+        END IF;
+	RETURN rcount;
+END;' LANGUAGE 'plpgsql';
+
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- deletes the basic address data as identified by it's unique id
+-- provided that there is no external reference left
 
 CREATE RULE delete_address AS ON DELETE TO v_basic_address DO INSTEAD
 	DELETE FROM address
 	WHERE (decrease_refcount(OLD.id) > 0)
 	AND address.id = OLD.id;
 
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- updates the basic address data as identified by it's unique id
 
 CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
        UPDATE address SET number = NEW.number, addendum = NEW.street2,
@@ -269,6 +343,10 @@ create table mapbook (
        name char (30)
 );
 
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 -- table for co-ordinate systems, such at latitude-longitude
 -- there are others, military, aviation and country-specific.
 -- GPS handsets can display several.
@@ -281,6 +359,10 @@ create table coordinate (
       -- theoretically this may be problematic with some systems due to the
       -- ellipsoid nature of the Earth, but in reality it is unlikely to matter
 );
+
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 create table address_info (
         address_id int references address(id),
@@ -295,9 +377,10 @@ create table address_info (
         comments text
 ) inherits (audit_gis);
 
--- =============================================
 
--- =============================================
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 -- Here come the ISO country codes ...
 COPY country FROM stdin;
 AF	AFGHANISTAN	\N
