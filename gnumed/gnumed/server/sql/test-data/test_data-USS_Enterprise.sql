@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -216,16 +216,16 @@ values (
 	'Gpt/l'
 );
 
-insert into test_type_local (code, name)
+insert into test_type_unified (code, name)
 values (
 	'WBC',
 	'leukocytes'
 );
 
-insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
 	currval('test_type_pk_seq'),
-	currval('test_type_local_pk_seq')
+	currval('test_type_unified_pk_seq')
 );
 
 -- RBC
@@ -239,16 +239,16 @@ values (
 	'Tpt/l'
 );
 
-insert into test_type_local (code, name)
+insert into test_type_unified (code, name)
 values (
 	'RBC',
 	'erythrocytes'
 );
 
-insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
 	currval('test_type_pk_seq'),
-	currval('test_type_local_pk_seq')
+	currval('test_type_unified_pk_seq')
 );
 
 -- PLT
@@ -262,16 +262,16 @@ values (
 	'Gpt/l'
 );
 
-insert into test_type_local (code, name)
+insert into test_type_unified (code, name)
 values (
 	'PLT',
 	'platelets'
 );
 
-insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
 	currval('test_type_pk_seq'),
-	currval('test_type_local_pk_seq')
+	currval('test_type_unified_pk_seq')
 );
 
 -- CRP
@@ -285,26 +285,29 @@ values (
 	'mg/l'
 );
 
-insert into test_type_local (code, name)
+insert into test_type_unified (code, name)
 values (
 	'CRP',
 	'C-reactive protein'
 );
 
-insert into lnk_ttype2local_type (fk_test_type, fk_test_type_local)
+insert into lnk_ttype2unified_type (fk_test_type, fk_test_type_unified)
 values (
 	currval('test_type_pk_seq'),
-	currval('test_type_local_pk_seq')
+	currval('test_type_unified_pk_seq')
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.14  2004-12-18 10:13:03  ncq
+-- Revision 1.15  2005-02-07 13:10:54  ncq
+-- - some lab tables changed so we need to keep up with that
+--
+-- Revision 1.14  2004/12/18 10:13:03  ncq
 -- - cleanup
 --
 -- Revision 1.13  2004/12/18 10:05:36  ncq
