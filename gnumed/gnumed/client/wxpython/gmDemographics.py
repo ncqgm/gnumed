@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.48 2004-10-20 11:20:10 sjtan Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmDemographics.py,v 1.49 2004-12-18 13:45:51 sjtan Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -247,59 +247,6 @@ class PatientsPanel(wx.wxPanel):
 		self.inList = 0
 		self.preferredListSashPos = 0.8
 		self.preferredDetailSashPos = 0.3
-		self.sashChangeAmount = 10
-		self.sashChangeTiming=200
-		self.thresholdSashChange =self.sashChangeAmount * 2 # should'nt be more than 2 
-		self.delay = 1500
-		self.timerInterval = 100
-		self.delayChange = 5
-		self.timer = wx.wxTimer(self, ID_CHECK_SPLIT)
-		wx.EVT_TIMER(self, ID_CHECK_SPLIT, self.onTimer)
-		wx.EVT_ENTER_WINDOW( self.patientListWin, self.mousEnteredListWin)
-		wx.EVT_ENTER_WINDOW( self.patientDetailWin, self.mousEnteredDetailWin)
-		self.lastDir = 0
-		self.change = 0
-		self.timer.Start(self.delay)
-
-	def mousEnteredListWin(self, event):
-		self.inList = 1
-	
-	def mousEnteredDetailWin(self, event):
-		self.inList = 0
-		
-
-
-	def onTimer(self, event):
-		if self.inList:
-			targetPos = self.preferredListSashPos *self.main_splitWindow.GetClientSizeTuple()[1]
-
-		else:
-			targetPos = self.main_splitWindow.GetClientSizeTuple()[1] - self.patientDetailWin.GetBestSize()[1] - 20
-			if targetPos < 10:
-				targetPos = 10
-
-		
-		
-		diff = targetPos - self.main_splitWindow.GetSashPosition()
-		if diff != 0:
-			dir = diff/abs(diff)
-		else:
-			dir = 0	
-
-	
-		if self.lastDir and dir <> self.lastDir:
-			self.lastDir = dir
-			self.timer.Start(self.delay) 
-			return
-				
-		if abs(diff) > self.thresholdSashChange:
-			self.timer.Start(self.timerInterval)
-			self.main_splitWindow.SetSashPosition(self.main_splitWindow.GetSashPosition() + self.sashChangeAmount * dir, True)
-		else:
-			self.timer.Start(self.delay)
-			self.lastDir = 0
-			
-		self.lastDir  = dir
 
 		
 
@@ -1281,7 +1228,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.48  2004-10-20 11:20:10  sjtan
+# Revision 1.49  2004-12-18 13:45:51  sjtan
+#
+# removed timer.
+#
+# Revision 1.48  2004/10/20 11:20:10  sjtan
 # restore imports.
 #
 # Revision 1.47  2004/10/19 21:34:25  sjtan
