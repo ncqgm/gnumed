@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.1 2004-08-08 23:54:37 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmHorstSpace.py,v 1.2 2004-08-18 08:17:40 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -46,9 +46,12 @@ class gmPluginLoadProgressBar (wx.wxProgressDialog):
 		gb = gmGuiBroker.GuiBroker()
 		png_fname = os.path.join(gb['gnumed_dir'], 'bitmaps', 'serpent.png')
 		icon = wxEmptyIcon()
-		icon.LoadFile(png_fname, wxBITMAP_TYPE_PNG)
+		try:
+			icon.LoadFile(png_fname, wxBITMAP_TYPE_PNG)
+		except:
+			_log.Log(gmLog.lWarn, 'wxIcon.LoadFile() not supported')
 		self.SetIcon(icon)
-		
+
 #==============================================================================
 class cHorstSpaceLayoutMgr(wx.wxPanel):
 	"""GnuMed inner-frame layout manager.
@@ -267,6 +270,9 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.1  2004-08-08 23:54:37  ncq
+# Revision 1.2  2004-08-18 08:17:40  ncq
+# - wxMac workaround for missing wxIcon.LoadFile()
+#
+# Revision 1.1  2004/08/08 23:54:37  ncq
 # - factored out Horst space layout manager
 #
