@@ -13,7 +13,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -111,14 +111,14 @@ class cSOAPControl(wx.wxPanel):
 		self.__A.next = self.__P
 		self.__P.prev = self.__A
 		self.__P.next = None
-		self.__soap_text_editor.AddWidget (self.__S, "Subjective")
+		self.__soap_text_editor.AddWidget (self.__S, gmSOAPimporter.soap_importer_SOAP_CATS[0])
 		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__O, "Objective")
+		self.__soap_text_editor.AddWidget (self.__O, gmSOAPimporter.soap_importer_SOAP_CATS[1])
 		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__A, "Assessment")
+		self.__soap_text_editor.AddWidget (self.__A, gmSOAPimporter.soap_importer_SOAP_CATS[2])
 		self.__soap_text_editor.Newline ()
-		self.__soap_text_editor.AddWidget (self.__P, "Plan")
-		self.__soap_text_editor.SetValues ({"Subjective":"sore ear", "Plan":"Amoxycillin"})
+		self.__soap_text_editor.AddWidget (self.__P, gmSOAPimporter.soap_importer_SOAP_CATS[3])
+		self.__soap_text_editor.SetValues ({gmSOAPimporter.soap_importer_SOAP_CATS[0]:"sore ear", gmSOAPimporter.soap_importer_SOAP_CATS[3]:"Amoxycillin"})
 		self.__soap_text_editor.ReSize ()
 		
 		# sizers for widgets
@@ -379,54 +379,27 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
 		# compose soap bundle
 		clin_ctx = {
-			gmSOAPimporter.cSOAPImporter._episode_id_key:vepisode_id,
-			gmSOAPimporter.cSOAPImporter._encounter_id_key: vencounter_id,
-			gmSOAPimporter.cSOAPImporter._staff_id_key: vstaff_id
+			gmSOAPimporter.soap_importer_EPISODE_ID_KEY:vepisode_id,
+			gmSOAPimporter.soap_importer_ENCOUNTER_ID_KEY: vencounter_id,
+			gmSOAPimporter.soap_importer_STAFF_ID_KEY: vstaff_id
 		}
 		bundle = []
-		# subjective
-		bundle.append(
-		{
-			gmSOAPimporter.cSOAPImporter._soap_cat_key:'s',
-			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
-			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Subjective'],
-			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,
-			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
-		}
-		)
-		# objective
-		bundle.append(
-		{
-			gmSOAPimporter.cSOAPImporter._soap_cat_key:'o',
-			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
-			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Objective'],
-			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,
-			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
-		}
-		)
-		# assesment
-		bundle.append(
-		{
-			gmSOAPimporter.cSOAPImporter._soap_cat_key:'a',
-			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
-			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Assessment'],
-			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,				  
-			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
-		}
-		)
-		# plan
-		bundle.append(
-		{
-			gmSOAPimporter.cSOAPImporter._soap_cat_key:'p',
-			gmSOAPimporter.cSOAPImporter._types_key:['Hx'],
-			gmSOAPimporter.cSOAPImporter._text_key:self.__selected_soap.GetSOAP().GetValues()['Plan'],
-			gmSOAPimporter.cSOAPImporter._clin_ctx_key:clin_ctx,
-			gmSOAPimporter.cSOAPImporter._struct_data_key:{}
-		}
-		)
+		# iterate over input keys
+		for input_key in self.__selected_soap.GetSOAP().GetValues().keys():
+			print "*** KEY: %s" % input_key
+			bundle.append(
+			{
+				gmSOAPimporter.soap_importer_SOAP_CAT_KEY:input_key,
+				gmSOAPimporter.soap_importer_TYPES_KEY:['Hx'],
+				gmSOAPimporter.soap_importer_TEXT_KEY:self.__selected_soap.GetSOAP().GetValues()[input_key],
+				gmSOAPimporter.soap_importer_CLIN_CTX_KEY:clin_ctx,
+				gmSOAPimporter.soap_importer_STRUCT_DATA_KEY:{}
+			}
+			)
+
 		# let's dump soap contents		   
 		importer = gmSOAPimporter.cSOAPImporter()
-		print bundle[0]
+		print "*** BUNDLE: %s" % bundle
 		importer.import_soap(bundle)
 				
 		# update buttons
