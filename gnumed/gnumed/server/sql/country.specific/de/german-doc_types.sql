@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 
 -- part of GnuMed
 -- GPL
@@ -32,6 +32,7 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summ
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary orthopaedic', 'Entlassung Ortho');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary other', 'Entlassung sonstige');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary rehabilitation', 'Entlassung Reha');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'discharge summary urology', 'Entlassung Uro');
 
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report internal', 'Arztbrief Innere');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report surgical', 'Arztbrief Chirurgie');
@@ -44,17 +45,22 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral repor
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report other', 'sonstiger Arztbrief');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report cardiology', 'Arztbrief Kardio');
 INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report psychotherapy', 'Arztbrief Psychotherapie');
+INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral report oncology', 'Arztbrief Onkologie');
 --INSERT into _doc_type(name) values('Arztbrief Umweltmedizin');
 --INSERT into _doc_type(name) values('Arztbrief Mikrobiologie');
 --INSERT into _doc_type(name) values('Labor');
 
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.8  2003-01-26 16:04:37  ncq
+-- Revision 1.9  2003-04-18 13:30:35  ncq
+-- - add doc types
+-- - update comment on allergy.id_substance
+--
+-- Revision 1.8  2003/01/26 16:04:37  ncq
 -- - example of how to add your own types
 --
 -- Revision 1.7  2003/01/20 20:05:41  ncq

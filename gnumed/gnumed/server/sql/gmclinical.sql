@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -237,7 +237,9 @@ comment on column allergy.substance is
 comment on column allergy.id_substance is
 	'data source specific opaque product identifier; must provide a link
 	 to a unique product/substance in the database in use; should follow
-	 the parseable convention of "<source>::<source version>::<identifier>"';
+	 the parseable convention of "<source>::<source version>::<identifier>",
+	 e.g. "MIMS::2003-1::190" for Zantac; it is left as an exercise to the
+	 application to know what to do with this information';
 comment on column allergy.generics is
 	'names of generic compounds if drug; brand names change/disappear, generic names do not';
 comment on column allergy.allergene is
@@ -446,11 +448,15 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.27 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.26  2003-04-17 20:20:11  ncq
+-- Revision 1.27  2003-04-18 13:30:35  ncq
+-- - add doc types
+-- - update comment on allergy.id_substance
+--
+-- Revision 1.26  2003/04/17 20:20:11  ncq
 -- - add source specific opaque substance/product identifier in table allergy
 --
 -- Revision 1.25  2003/04/12 15:34:49  ncq

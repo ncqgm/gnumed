@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.1 $ $Date: 2003-04-07 11:09:54 $ $Author: ncq $
+-- $Revision: 1.2 $ $Date: 2003-04-18 13:30:35 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -32,16 +32,22 @@ INSERT into doc_type(id, name) values(15, i18n('referral report radiology'));
 INSERT into doc_type(id, name) values(16, i18n('referral report other'));
 INSERT into doc_type(id, name) values(17, i18n('referral report cardiology'));
 INSERT into doc_type(id, name) values(18, i18n('referral report psychotherapy'));
+INSERT into doc_type(id, name) values(19, i18n('discharge summary urology'));
+INSERT into doc_type(id, name) values(20, i18n('referral report oncology'));
 
 -- your own doc types can only have ids between 100 and 200
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.1  2003-04-07 11:09:54  ncq
+-- Revision 1.2  2003-04-18 13:30:35  ncq
+-- - add doc types
+-- - update comment on allergy.id_substance
+--
+-- Revision 1.1  2003/04/07 11:09:54  ncq
 -- - separated out data inserts from schema definition
 --
