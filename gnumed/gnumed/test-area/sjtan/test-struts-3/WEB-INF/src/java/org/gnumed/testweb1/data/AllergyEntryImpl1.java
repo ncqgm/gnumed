@@ -10,12 +10,14 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public class AllergyEntryImpl1 implements AllergyEntry {
-    private boolean definite, selected = false;
+public class AllergyEntryImpl1 extends AllergyImpl1 implements AllergyEntry, EntryClinRootItem {
+    private boolean definite, entered;
     private String substance;
+    ClinWhenEntryAdapter adapter = new ClinWhenEntryAdapter(this);
     
     /** Creates a new instance of AllergyInputImpl1 */
     public AllergyEntryImpl1() {
+        setEntered(false);
     }
     
     public String getSubstance() {
@@ -34,13 +36,22 @@ public class AllergyEntryImpl1 implements AllergyEntry {
         this.substance = substance;
     }
     
-    public boolean isSelected() {
-        return selected;
-        
+   
+    
+    public String getClinWhenString() {
+        return adapter.getClinWhenString();
     }
     
-    public void setSelected(boolean selected) {
-        this.selected= selected;
+    public boolean isEntered() {
+        return entered;
+    }
+    
+    public void setClinWhenString(String clinWhenString) {
+        adapter.setClinWhenString(clinWhenString);
+    }
+    
+    public void setEntered(boolean entered) {
+        this.entered = entered;
     }
     
 }

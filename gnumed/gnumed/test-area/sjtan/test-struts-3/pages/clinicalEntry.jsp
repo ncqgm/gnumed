@@ -18,13 +18,11 @@
     <html:form action="/SaveClinical"> 
 
 
-            <jsp:include page="./encounter.jsp"/> 
-
-
-            <jsp:include page="./vaccinationEntry.jsp"/>
+            
  <%--
  --%>   
     <a name='submitEncounter' />
+    <div id="submitEncounter" style="display:block" />
         <table >
             <td>
                 <html:submit altKey="change.clinical" ><bean:message key="change.clinical"/></html:submit>
@@ -34,7 +32,18 @@
             </td>
             </tr>
         </table>
-
+    </div>
+    <table>
+    <tr>
+        <td>
+    <jsp:include page="./encounter_2.jsp"/> 
+        </td>
+    <tr>
+        <td>
+        <jsp:include page="./vaccinationEntry.jsp"/>
+        </td>
+    </tr>
+    </table>
     </html:form>
 
 </body>

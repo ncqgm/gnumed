@@ -10,7 +10,7 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public interface ClinRootItem {
+public interface ClinRootItem extends ClinWhenHolder {
     
     /**
      * Getter for property narrative.

@@ -10,8 +10,11 @@ package org.gnumed.testweb1.data;
  *
  * @author  sjtan
  */
-public class EntryClinNarrativeImpl1 extends ClinNarrativeImpl1 implements EntryClinRootItem, ClinWhenHolder {
+public class EntryClinNarrativeImpl1 extends ClinNarrativeImpl1 
+implements EntryClinRootItem, ClinWhenHolder {
     ClinWhenEntryAdapter adapter;
+    boolean entered;
+    
     /** Creates a new instance of EntryClinNarrativeImpl1 */
     public EntryClinNarrativeImpl1() {
         super();
@@ -24,6 +27,20 @@ public class EntryClinNarrativeImpl1 extends ClinNarrativeImpl1 implements Entry
     
     public void setClinWhenString(String clinWhenString) {
         adapter.setClinWhenString(clinWhenString);
+    }
+    
+    public boolean isEntered() {
+        return entered;
+    }
+    
+    public void setNarrative(String narrative) {
+        super.setNarrative(narrative);
+        if (narrative != null && narrative.trim().length() > 0 )
+        setEntered(true);
+    }
+    
+    public void setEntered(boolean entered) {
+        this.entered = entered;
     }
     
 }

@@ -20,18 +20,17 @@ import org.apache.commons.logging.*;
 public class DefaultDataObjectFactory implements DataObjectFactory {
     static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
    
-    public static int nEntryVaccs =10, nEntryMeds =20, nEntryNarratives=6, nEntryAllergies=5;
+    public static int nEntry = 20;
     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy" };
     public final static String[] factoryMethods = new String[] { "createEntryClinNarrative", "createMedication", "createVaccination", "createEntryAllergy" };
    
-    final static int[] nEntries = new int[] {nEntryNarratives, nEntryMeds, nEntryVaccs, nEntryAllergies };
-    
+     
     private  ClinicalEncounter loadEntryObjects( ClinicalEncounter ce) {
         log.info( ce + "BEING LOADED");
-        for (int i = 0; i < nEntries.length; ++i) {
+        for (int i = 0; i < itemTypes.length ; ++i) {
             try {
-                for (int j = 0; j < nEntries[i]; ++j) {
+                for (int j = 0; j < nEntry ; ++j) {
                     PropertyUtils.setIndexedProperty( ce, itemTypes[i], j, 
                     getClass().getMethod( factoryMethods[i], new Class[0] ).invoke( this, new Object[0] ) );
                 }
@@ -153,15 +152,12 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         ri.setEpisode(createEntryClinicalEpisode());
      }
     
-    public Allergy createEntryAllergy() {
-        Allergy a= createAllergy();
-        addEntryEpisode(a);
+    public AllergyEntry createEntryAllergy() {
+        AllergyEntry a= new AllergyEntryImpl1();
+        a.setEpisode(createEntryClinicalEpisode());
         return a;
     }
-    
-    public AllergyEntry createAllergyEntry() {
-        return new AllergyEntryImpl1();
-    }
+     
     
     
 }

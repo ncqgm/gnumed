@@ -24,4 +24,16 @@ public interface EntryClinRootItem extends ClinRootItem, ClinWhenEntryHolder {
      */
     public void setClinWhenString(String clinWhenString);
     
+    /**
+     * Getter for property entered.
+     * @return Value of property entered.
+     */
+    public boolean isEntered();
+    
+    /**
+     * Setter for property entered.
+     * @param entered New value of property entered.
+     */
+    public void setEntered(boolean entered);
+    
 }
