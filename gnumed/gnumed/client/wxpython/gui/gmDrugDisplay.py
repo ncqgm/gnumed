@@ -24,7 +24,7 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "H.Herb, R.Terry, H.Berger"
 
 from wxPython.wx import *
@@ -33,8 +33,7 @@ from wxPython.html import *
 import wxPython.lib.wxpTag
 from wxPython.lib.splashscreen import SplashScreen
 
-import string, gettext
-_ = gettext.gettext
+import string
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -43,6 +42,7 @@ if __name__ == "__main__":
 	# later on, when AmisBrowser is one foot in the door
 	# to German doctors we'll change this again
 	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
 from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmWhoAmI, gmExceptions
@@ -626,7 +626,10 @@ else:
 
 #==================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.18  2004-06-20 06:49:21  ihaywood
+# Revision 1.19  2004-06-20 16:50:51  ncq
+# - carefully fool epydoc
+#
+# Revision 1.18  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.17  2004/03/19 08:25:06  ncq

@@ -8,11 +8,11 @@ Status: blank screen
 
 # make this into GNUMed plugin
 
-import gettext
-_ = gettext.gettext
-
 from Gnumed.wxpython import gmPlugin
 from wxPython.wx import *
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 class gmOffice (gmPlugin.wxNotebookPlugin):
 
@@ -25,4 +25,4 @@ class gmOffice (gmPlugin.wxNotebookPlugin):
         return ("view", _("&Office"))
 
     def GetWidget (self, parent):
-        return wxPanel (parent, -1)
+        return wxPanel(parent, -1)

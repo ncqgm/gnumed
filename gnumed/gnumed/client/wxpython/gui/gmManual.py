@@ -12,12 +12,11 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.19 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmManual.py,v 1.20 2004-06-20 16:50:51 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
-import os, gettext
-_ = gettext.gettext
+import os
 
 from   wxPython.wx		   import *
 from   wxPython.html	   import *
@@ -27,10 +26,11 @@ from Gnumed.pycommon import gmLog, gmGuiBroker
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
 
 if __name__ == '__main__':
+	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 _manual_path = 'user-manual/index.html'
 
 ID_MANUALCONTENTS = wxNewId()
@@ -249,7 +249,10 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.19  2004-06-20 06:49:21  ihaywood
+# Revision 1.20  2004-06-20 16:50:51  ncq
+# - carefully fool epydoc
+#
+# Revision 1.19  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.18  2004/06/13 22:31:49  ncq

@@ -12,8 +12,7 @@ The manuals should reside where the manual_path points to
 @thanks: this code has been heavily "borrowed" from
          Robin Dunn's extraordinary wxPython sample
 """
-import os, gettext
-_ = gettext.gettext
+import os
 
 from   wxPython.wx         import *
 from   wxPython.html       import *

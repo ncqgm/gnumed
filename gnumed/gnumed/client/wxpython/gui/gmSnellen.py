@@ -5,15 +5,14 @@ author: Ian Haywood
 licence: GPL
 """
 
-import math, random, gettext
-import gettext
-_ = gettext.gettext
+import math, random
 
 from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog
 from Gnumed.wxpython import gmPlugin
 if __name__ == '__main__':
+	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
 ID_SNELLENMENU = wxNewId ()

@@ -15,12 +15,11 @@
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
-import sys, os, os.path, gettext
-_ = gettext.gettext
+import sys, os, os.path
 
 from   wxPython.wx         import *
 from   wxPython.html       import *
@@ -29,6 +28,7 @@ import wxPython.lib.wxpTag
 from Gnumed.pycommon import gmGuiBroker, gmLog
 from Gnumed.wxpython import gmPlugin, images_for_gnumed_browser16_16, images_gnuMedGP_Toolbar
 if __name__ == '__main__':
+	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 
 stiko_path = os.path.join("doc", "medical_knowledge", "de", "STIKO", "STI_NEU.htm")
@@ -245,7 +245,10 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.10  2004-06-20 06:49:21  ihaywood
+# Revision 1.11  2004-06-20 16:50:52  ncq
+# - carefully fool epydoc
+#
+# Revision 1.10  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.9  2004/06/13 22:31:49  ncq

@@ -1,19 +1,19 @@
-"""
+"""Notebook plugin showing patient specific lab data.
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
-import os.path, sys, os, re, string, random, gettext
-_ = gettext.gettext
+import os.path, sys, os, re, string, random
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x	# fool epydoc
 	from Gnumed.pycommon import gmI18N
 else:
 	from Gnumed.pycommon import gmGuiBroker
@@ -591,7 +591,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.10  2004-06-20 06:49:21  ihaywood
+# Revision 1.11  2004-06-20 16:50:51  ncq
+# - carefully fool epydoc
+#
+# Revision 1.10  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.9  2004/06/13 22:31:49  ncq

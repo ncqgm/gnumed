@@ -1,14 +1,14 @@
 # a simple wrapper for the cryptowidget
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
                  someone before me :-)>"
 
-import gettext
-_ = gettext.gettext
-
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 class gmPython (gmPlugin.wxNotebookPlugin):
     """
@@ -34,7 +34,10 @@ class gmPython (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmPython.py,v $
-# Revision 1.8  2004-06-20 06:49:21  ihaywood
+# Revision 1.9  2004-06-20 16:50:51  ncq
+# - carefully fool epydoc
+#
+# Revision 1.8  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.7  2004/03/09 00:22:13  shilbert

@@ -18,17 +18,19 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.18 2004-06-20 06:49:21 ihaywood Exp $
+# $Id: gmClinicalWindowManager.py,v 1.19 2004-06-20 16:50:51 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ =	"I.Haywood"
 
-import sys, gettext
-_ = gettext.gettext
+import sys
 
 from wxPython.wx import *
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmDispatcher
 from Gnumed.wxpython import gmPlugin, gmShadow
+
+if __name__ == '__main__':
+	_ = lambda x:x
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -239,7 +241,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.18  2004-06-20 06:49:21  ihaywood
+# Revision 1.19  2004-06-20 16:50:51  ncq
+# - carefully fool epydoc
+#
+# Revision 1.18  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.17  2004/06/13 22:31:48  ncq
