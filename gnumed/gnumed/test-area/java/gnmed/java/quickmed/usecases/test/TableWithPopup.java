@@ -14,7 +14,7 @@ import java.beans.*;
  * @author  sjtan
  */
 public class TableWithPopup extends javax.swing.JPanel {
-    
+    static int MENU_H_OFFSET = 20;
     /** Creates new form TableWithPopup */
     public TableWithPopup() {
         initComponents();
@@ -34,7 +34,7 @@ public class TableWithPopup extends javax.swing.JPanel {
         jTable1 = new javax.swing.JTable();
 
         add_jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, 0));
-        add_jMenuItem1.setText("add");
+        add_jMenuItem1.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("add"));
         add_jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addObjectAction(evt);
@@ -43,7 +43,7 @@ public class TableWithPopup extends javax.swing.JPanel {
 
         jPopupMenu1.add(add_jMenuItem1);
 
-        delete_jMenuItem2.setText("delete");
+        delete_jMenuItem2.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("delete"));
         delete_jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteObjectAction(evt);
@@ -110,7 +110,7 @@ public class TableWithPopup extends javax.swing.JPanel {
         //        System.out.println("GOT EVENT "+evt);
         if ( (evt.getButton() ==  evt.BUTTON3 || evt.getButton() ==  evt.BUTTON2 ) && !jPopupMenu1.isVisible() ) {
             jPopupMenu1.pack();
-            jPopupMenu1.show( this, evt.getX(), evt.getY());
+            jPopupMenu1.show( this, evt.getX() + MENU_H_OFFSET, evt.getY());
             //  System.out.println("SHOWING "+ jPopupMenu1);
         }
     }//GEN-LAST:event_mousePressedShowPopup
@@ -141,6 +141,7 @@ public class TableWithPopup extends javax.swing.JPanel {
     public void setModel( TableModel model) {
         jTable1.setModel(model);
         reconfigureColumns();
+        
     }
     
     
@@ -154,6 +155,9 @@ public class TableWithPopup extends javax.swing.JPanel {
         return jTable1;
     }
     
+    public void addMenuItem(Action action) {
+        jPopupMenu1.add(action);
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem add_jMenuItem1;

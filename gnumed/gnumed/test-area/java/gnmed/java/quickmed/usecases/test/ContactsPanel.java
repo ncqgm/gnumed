@@ -25,6 +25,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     
     
     
+    
     /** Creates new form JPanel */
     public ContactsPanel() {
         initComponents();
@@ -208,6 +209,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jScrollPane2 = new javax.swing.JScrollPane();
         resultjList1 = new javax.swing.JList();
         editButton = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
@@ -382,10 +384,19 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         jPanel2.add(editButton, gridBagConstraints);
+
+        jButton6.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("set_current_user"));
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.add(jButton6, new java.awt.GridBagConstraints());
 
         jTabbedPane1.addTab("tab2", jPanel2);
 
@@ -622,6 +633,14 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
     }//GEN-END:initComponents
 
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // Add your handling code here:
+        // temporary hack for script writing provider .
+        int ix =  resultjList1.getSelectedIndex();
+        if (ix >= 0)
+            Globals.setUserIdentity( resultjList1.getSelectedValue() );
+    }//GEN-LAST:event_jButton6ActionPerformed
+
     private void resultjList1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_resultjList1KeyPressed
         // Add your handling code here:
         if (evt.getKeyCode() == evt.VK_ENTER) { 
@@ -811,6 +830,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
@@ -862,6 +882,9 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     
     /** Utility field used by bound properties. */
     private java.beans.PropertyChangeSupport propertyChangeSupport =  new java.beans.PropertyChangeSupport(this);
+    
+    /** Holds value of property selectedUser. */
+    private identity selectedUser;
     
 //    static Class[] roleFilter = { identity_role.class };
     
@@ -1084,6 +1107,22 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         boolean oldProviderSelected = this.providerSelected;
         this.providerSelected = providerSelected;
         propertyChangeSupport.firePropertyChange("providerSelected", new Boolean(oldProviderSelected), new Boolean(providerSelected));
+    }
+    
+    /** Getter for property selectedUser.
+     * @return Value of property selectedUser.
+     *
+     */
+    public identity getSelectedUser() {
+        return this.selectedUser;
+    }
+    
+    /** Setter for property selectedUser.
+     * @param selectedUser New value of property selectedUser.
+     *
+     */
+    public void setSelectedUser(identity selectedUser) {
+        this.selectedUser = selectedUser;
     }
     
 }

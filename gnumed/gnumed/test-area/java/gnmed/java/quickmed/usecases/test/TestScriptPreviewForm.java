@@ -41,6 +41,7 @@ public class TestScriptPreviewForm extends javax.swing.JFrame {
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jPanel3 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -67,7 +68,9 @@ public class TestScriptPreviewForm extends javax.swing.JFrame {
             }
         });
 
-        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jPanel3.add(jPanel1, java.awt.BorderLayout.CENTER);
 
         jButton1.setText("test");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -76,7 +79,7 @@ public class TestScriptPreviewForm extends javax.swing.JFrame {
             }
         });
 
-        getContentPane().add(jButton1, java.awt.BorderLayout.NORTH);
+        jPanel3.add(jButton1, java.awt.BorderLayout.NORTH);
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
@@ -132,7 +135,9 @@ public class TestScriptPreviewForm extends javax.swing.JFrame {
         fontSizeTextField1.setText("jTextField1");
         jPanel2.add(fontSizeTextField1, new java.awt.GridBagConstraints());
 
-        getContentPane().add(jPanel2, java.awt.BorderLayout.SOUTH);
+        jPanel3.add(jPanel2, java.awt.BorderLayout.SOUTH);
+
+        getContentPane().add(jPanel3, java.awt.BorderLayout.CENTER);
 
         pack();
     }//GEN-END:initComponents
@@ -225,6 +230,7 @@ public class TestScriptPreviewForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JTextField splitWidthTextField1;
     private javax.swing.JTextField subsidizedOriginTextField;
     // End of variables declaration//GEN-END:variables

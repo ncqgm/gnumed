@@ -90,6 +90,7 @@ public class TestProblemView implements ProblemView , LimitedViewable, Removable
             setDiagnosis(diagnosis);
             return;
         }
+        logger.info("**** significantProblem = " + getSignificantProblem() + "type" + getSignificantProblem().getClass() );
         clin_diagnosis diagnosis =  getProblemManager().updateProblem( (identity)getIdentityRef().getRef(),
         getDate(), (disease_code) getSignificantProblem() , getDiagnosis());
         setDiagnosis(diagnosis);

@@ -239,7 +239,7 @@ public class TestGISManager {
     public address findExistingAddress( address a) {
         address a2 = null;
         Session sess = null;
-        if (a.getStreet().getId() == null)
+        if (a.getStreet() != null && a.getStreet().getId() == null)
             return a;
         try {
             sess =  getSession();
@@ -449,11 +449,12 @@ public class TestGISManager {
     
     street createStreet(String street,  urb urb) throws Exception {
         Session s= getSession();
+//        s.connection().commit();
         street st = new street();
         st.setName(street);
         st.setUrb(urb);
         s.save(st);
-        s.flush();
+//        s.flush();
         s.connection().commit();
         s.disconnect();
         logger.fine("CREATED STREET " + st.getName() + " in urb " + st.getUrb());

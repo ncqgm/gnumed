@@ -19,4 +19,17 @@ public class Globals {
     }
     
     public static final ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE);
+    
+    /** this is  a hack , until JAAS is tried out.
+     */
+    protected static Object userIdentity;
+    
+   public static Object getUserIdentity() {
+       return userIdentity;
+   }
+   
+   static void setUserIdentity(Object id) {
+    userIdentity = id;
+   }
+    
 }

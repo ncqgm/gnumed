@@ -191,9 +191,12 @@ public class AddressValidator {
         
         String noStr = getCombinedBuildingNumberString(building, number);
         address a = null;
+        try {
         logger.info("using info " + noStr + " street = " + street);
         logger.info("street info = " + street.getName() + street.getUrb());
-        
+        } catch (Exception e2) {
+            e2.printStackTrace();
+        }
         try {
            a = getGisManager().createOrFindAddress( noStr, street);
         } catch (Exception e) {

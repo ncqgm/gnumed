@@ -72,4 +72,28 @@ public interface DrugListView {
      */
     public void setLast(java.util.Date last);
     
+    /** Getter for property constructed.
+     * @return Value of property constructed.
+     *
+     */
+    public Object getConstructed();
+    
+    /** Setter for property constructed.
+     * @param constructed New value of property constructed.
+     *
+     */
+    public void setConstructed(Object constructed);
+    
+    /** Getter for property print.
+     * @return Value of property print.
+     *
+     */
+    public boolean isPrint();
+    
+    /** Setter for property print.
+     * @param print New value of property print.
+     *
+     */
+    public void setPrint(boolean print);
+    
 }

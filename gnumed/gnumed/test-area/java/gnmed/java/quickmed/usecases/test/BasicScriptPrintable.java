@@ -66,4 +66,5 @@ public interface BasicScriptPrintable {
      */
     public void setPatient(Object patient);
     
+    public BasicScriptFormLayoutAdjustable getAdjustableLayout();
 }

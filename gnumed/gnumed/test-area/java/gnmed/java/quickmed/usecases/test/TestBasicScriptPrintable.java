@@ -149,10 +149,10 @@ public class TestBasicScriptPrintable {
     }
     
     link_script_drug[] getTestScriptDrugs() {
-        String [] drugNames = { "salbutamol", "fluticasone", "prednisolone" };
-        String [] instructions = { "2 puffs 4/24 prn", "2 puffs bd", "1 daily for 3 days" };
-        double [] qtys = { (double) 2.0 , (double) 1.0, (double) 30 };
-        int[] repeats = { 5, 5, 0 };
+        String [] drugNames = { "salbutamol", "fluticasone", "prednisolone", "orlistat" };
+        String [] instructions = { "2 puffs 4/24 prn", "2 puffs bd", "1 daily for 3 days", "1 tds" };
+        double [] qtys = { (double) 2.0 , (double) 1.0, (double) 30 , (double) 30 };
+        int[] repeats = { 5, 5, 0, 5 };
         link_script_drug[] lsds = new link_script_drug[drugNames.length];
         for (int i = 0; i < drugNames.length; ++i) {
             try {

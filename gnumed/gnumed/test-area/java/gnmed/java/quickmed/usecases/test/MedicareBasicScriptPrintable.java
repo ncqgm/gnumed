@@ -20,7 +20,7 @@ import java.util.logging.*;
  *
  * @author  syan
  */
-public class MedicareBasicScriptPrintable implements BasicScriptPrintable {
+public class MedicareBasicScriptPrintable implements BasicScriptPrintable, BasicScriptFormLayoutAdjustable {
     public static final int DEFAULT_MAX_CHARS_ACROSS = 60;
     public static final int DEFAULT_SCRIPT_SPLIT_WIDTH = 400;
     public static final int DEFAULT_MAX_HEIGHT = 700;
@@ -61,15 +61,19 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable {
         }
         
         int getPublicPageCount() {
-            return     publicDrugs.size() / drugsPerPage;
+            return      getEnoughPages(publicDrugs.size() , drugsPerPage);
         }
-        
         int getPrivatePageCount() {
-            return privateDrugs.size()/drugsPerPage;
+            
+            return   getEnoughPages(privateDrugs.size() , drugsPerPage);
         }
         
         int getAuthorityPageCount() {
             return authorityDrugs.size();
+        }
+        
+         int getEnoughPages(int items, int perPage ) {
+            return (  items % perPage != 0 ? 1 : 0 )  +  items/perPage ;
         }
         
         public int getNumberOfPages() {
@@ -78,6 +82,10 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable {
         
         public java.awt.print.PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
             return format;
+        }
+        
+        public MedicareBasicScriptPrintable.MedicarePrintable getMedicarePrintable() {
+            return printable;
         }
         
         public java.awt.print.Printable getPrintable(int pageIndex) throws IndexOutOfBoundsException {
@@ -202,7 +210,7 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable {
         
     }
     
-    public static class MedicarePrintable implements Printable {
+    public static class MedicarePrintable implements Printable  {
         
         /** Holds value of property fontSize. */
         private int fontSize = 12;
@@ -513,6 +521,7 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable {
             this.splitWidth = splitWidth;
         }
         
+        
     }
     
     public java.awt.print.Pageable getPageable() {
@@ -560,11 +569,26 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable {
         for (int i = 0; i < l.size(); ++i) {
             if (l.get(i) instanceof link_script_drug) {
                 link_script_drug lsd = (link_script_drug) l.get(i);
-                if (lsd.getScript_drug().getPackage_size().getProduct().getSubsidized_productss().isEmpty() )
-                    medicarePageable.privateDrugs.add(lsd);
-                else
-                    medicarePageable.publicDrugs.add(lsd);
+                Logger.global.info( "lsd = " + lsd   );
+                try {
+                    
+                    Logger.global.info("lsd.script_drug=" + lsd.getScript_drug());
+                    Logger.global.info("lsd.script_drug.package_size=" + lsd.getScript_drug().getPackage_size() );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    if (lsd.getScript_drug().getPackage_size().getProduct().getSubsidized_productss().isEmpty() ) {
+                        medicarePageable.privateDrugs.add(lsd);
+                        continue;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
+                medicarePageable.publicDrugs.add(lsd);
             }
+            Logger.global.info("Medicare drugs = " + medicarePageable.publicDrugs.size() + " Private drugs = " + medicarePageable.privateDrugs.size() );
         }
         
     }
@@ -615,6 +639,67 @@ public class MedicareBasicScriptPrintable implements BasicScriptPrintable {
      */
     public void setFontSize(int fontSize) {
         medicarePageable.printable.setFontSize(fontSize);
+    }
+    
+    public BasicScriptFormLayoutAdjustable getAdjustableLayout() {
+        return this;
+    }
+    
+    public Point getOriginDate() {
+        return medicarePageable.getMedicarePrintable().getOriginDate();
+    }
+    
+    public Point getOriginDrugDetails() {
+        return medicarePageable.getMedicarePrintable().getOriginScriptDetail();
+    }
+    
+    public Point getOriginHealthNumber() {
+        return medicarePageable.getMedicarePrintable().getOriginMedicareNumber();
+    }
+    
+    public Point getOriginPatientDetail() {
+        return medicarePageable.getMedicarePrintable().getOriginPatientDetail();
+    }
+    
+    public Point getOriginProviderDetails() {
+        return medicarePageable.getMedicarePrintable().getOriginProviderDetail();
+    }
+    
+    public Point getOriginSignoff() {
+        return null;
+        //     return medicarePageable.getMedicarePrintable().get
+    }
+    
+    public Point getOriginSubsidized() {
+        return medicarePageable.getMedicarePrintable().getOriginSubsidized();
+    }
+    
+    public void setOriginDate(Point originDate) {
+        medicarePageable.getMedicarePrintable().setOriginDate(originDate);
+    }
+    
+    public void setOriginDrugDetails(Point originDrugDetails) {
+        medicarePageable.getMedicarePrintable().setOriginScriptDetail(originDrugDetails);
+    }
+    
+    
+    public void setOriginHealthNumber(Point originHealthNumber) {
+        medicarePageable.getMedicarePrintable().setOriginMedicareNumber(originHealthNumber);
+    }
+    
+    public void setOriginPatientDetail(Point originPatientDetail) {
+        medicarePageable.getMedicarePrintable().setOriginPatientDetail(originPatientDetail);
+    }
+    
+    public void setOriginProviderDetails(Point originProviderDetails) {
+        medicarePageable.getMedicarePrintable().setOriginProviderDetail(originProviderDetails);
+    }
+    
+    public void setOriginSignoff(Point originSignoff) {
+    }
+    
+    public void setOriginSubsidized(Point originSubsidized) {
+        medicarePageable.getMedicarePrintable().setOriginSubsidized(originSubsidized);
     }
     
 }

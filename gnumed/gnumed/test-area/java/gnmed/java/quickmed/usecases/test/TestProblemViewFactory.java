@@ -34,7 +34,14 @@ public class TestProblemViewFactory implements Factory {
         List list = new ArrayList();
         if (getIdRef() == null)
             return list;
-        Collection c = ((identity)getIdRef().getRef()).getClin_health_issues();
+        // hack for lazy initiliazation
+        identity id = (identity)getIdRef().getRef();
+//        ManagerReference ref = (ManagerReference)id.getPersister();
+//        if (ref == null)
+//            return new ArrayList();
+//        ref.getGISManager().getSession();
+        
+        Collection c =  id.getClin_health_issues();
         for (Iterator i = c.iterator(); i.hasNext(); ) {
             clin_health_issue issue = (clin_health_issue) i.next();
            List comps = issue.findComponentOfType(clin_diagnosis.class);

@@ -25,12 +25,14 @@ import org.gnumed.gmClinical.*;
  *
  */
 public class DummyDrugListView implements DrugListView, LimitedViewable, Removable {
-    final static String[] VIEWABLE = new String [] { "last","drug","directions", "qty","repeats" };
+    final static String[] VIEWABLE = new String [] { "print", "last","drug","directions", "qty","repeats" };
     private Date last = new Date();
     
     private String directions = "";
     
     private Object drug = "";
+    
+    private Object constructed;
     
     private Integer repeats = new Integer(0);
     
@@ -50,6 +52,7 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
     /** Holds value of property manager. */
     private TestScriptDrugManager manager;
     
+    private boolean printing;
     /** Creates a new instance of DummyDrugListVIew */
     public DummyDrugListView() {
     }
@@ -163,12 +166,14 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
          * replace this with a linked script later.
          */
         script script = new script();
-        link_script_drug lsd = new link_script_drug();
-        lsd.setRepeats(getRepeats());
+         
         try {
+            if (!getDrug().getClass().equals(package_size.class) ) 
+                return;
             package_size pz = (package_size) getDrug();
             Double qty = new Double(getQty().doubleValue());
-            script_drug sd = getManager().createOrUpdateScriptDrug(getIdentity(),  pz, qty, getDirections(), getRepeats(), script);
+            link_script_drug lsd = getManager().createOrUpdateScriptDrug(getIdentity(),  pz, qty, getDirections(), getRepeats(), script);
+            setConstructed(lsd);
             showIdentity();
         } catch (Exception e) {
             e.printStackTrace();
@@ -234,6 +239,20 @@ public class DummyDrugListView implements DrugListView, LimitedViewable, Removab
         return ((ManagerReference)getIdentity().getPersister()).getScriptDrugManager();
     }
     
+    public Object getConstructed() {
+       return  this.constructed;
+    }    
     
+    public void setConstructed(Object constructed) {
+         this.constructed = constructed;
+    }
+    
+    public boolean isPrint() {
+        return printing;
+    }
+    
+    public void setPrint(boolean print) {
+        printing = print;
+    }
     
 }

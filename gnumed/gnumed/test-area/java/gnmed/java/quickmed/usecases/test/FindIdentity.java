@@ -156,8 +156,13 @@ public class FindIdentity extends javax.swing.JDialog {
         // Add your handling code here:
         String s = (String) jComboBox1.getSelectedItem();
         String names[] = s.split(",");
+      
         try {
+               
             List ids = getManagerRef().getIdentityManager().findIdentityByNames(names[0].trim(), names.length > 1 ? names[1].trim() : "");
+            
+            // hack to reconnect session for lazy initialized collections
+            getManagerRef().getIdentityManager().getSession();
             jList1.setListData(ids.toArray());
         } catch (Exception e) {
             e.printStackTrace();

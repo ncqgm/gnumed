@@ -16,11 +16,11 @@ import org.gnumed.gmIdentity.identity;
  * @author  sjtan
  */
 public class Testgnmed1 extends javax.swing.JFrame {
-   
+    
     /** Creates new form Testgnmed1 */
     public Testgnmed1() {
         initComponents();
-          new Thread( new Runnable()  {
+        new Thread( new Runnable()  {
             public void run() {
                 try {
                     gnmed.test.HibernateInit.initAll();
@@ -62,6 +62,13 @@ public class Testgnmed1 extends javax.swing.JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 exitForm(evt);
+            }
+        });
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                formWindowGainedFocus(evt);
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
             }
         });
 
@@ -165,12 +172,18 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         pack();
     }//GEN-END:initComponents
-
+    
+    private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
+        // Add your handling code here:
+        if ( Globals.getUserIdentity() != null)
+            setTitle( ((org.gnumed.gmIdentity.identity)Globals.getUserIdentity()).findNames(0).toString() );
+    }//GEN-LAST:event_formWindowGainedFocus
+    
     private void closeMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeMenuItem2ActionPerformed
         // Add your handling code here:
         getFocusedFrame().doDefaultCloseAction();
     }//GEN-LAST:event_closeMenuItem2ActionPerformed
-
+    
     private void saveMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveMenuItemActionPerformed
         // Add your handling code here:
         if ( getFocusedFrame() instanceof PatientInnerFrame) {
@@ -178,7 +191,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
             patientFrame.saveIdentity();
         }
     }//GEN-LAST:event_saveMenuItemActionPerformed
-
+    
     private void referraljMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_referraljMenuItem2ActionPerformed
         // Add your handling code here:
         TestReferralInternalFrame frame = new TestReferralInternalFrame();
@@ -195,7 +208,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         desktopPane.add(frame);
         frame.setVisible(true);
         addWindowMenuItem(frame);
-         
+        
     }//GEN-LAST:event_jMenuItem1ActionPerformed
     
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
@@ -214,7 +227,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         Object[] selected = idFinder.getSelectedValues();
         for (int i = 0; i < selected.length; ++i) {
             PatientInnerFrame frame =createPatientInnerFrame( (identity) selected[i], idFinder.getManagerRef(), true);
-           
+            
             desktopPane.add(frame);
             frame.setVisible(true);
             addWindowMenuItem(frame);
@@ -247,7 +260,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
             setFocusedFrame( frame);
         }
     }
-    /** 
+    /**
      * saves any unsaved edited records by invoking a internalFrameClosing event  on
      * each internal frame
      */
@@ -257,9 +270,9 @@ public class Testgnmed1 extends javax.swing.JFrame {
         JInternalFrame frames[] = desktopPane.getAllFrames();
         for (int i = 0; i <  frames.length; ++i) {
             try {
-               
+                
                 frames[i].doDefaultCloseAction();
-               
+                
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -273,7 +286,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
         new Testgnmed1().show();
     }
     
-  
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenuItem closeMenuItem2;
@@ -322,7 +335,7 @@ public class Testgnmed1 extends javax.swing.JFrame {
          */
         public void actionPerformed(java.awt.event.ActionEvent e) {
             try {
-            frame.setIcon(false);
+                frame.setIcon(false);
             } catch (Exception ex)  {
                 ex.printStackTrace();
             }

@@ -116,7 +116,7 @@ public class identity {
     private org.gnumed.gmGIS.telephone mobile;
     private Collection social_identity = new java.util.HashSet(); // of type social_identity
     
-   
+    
     /** Holds value of property persister. */
     private Object persister;
     
@@ -134,6 +134,7 @@ public class identity {
     
     /**
      *@hibernate.set
+     * //     *      lazy="true"
      *    inverse="true"
      *    cascade="all"
      *@hibernate.collection-key
@@ -176,9 +177,9 @@ public class identity {
     
     /**
      *@hibernate.set
-     *  lazy="false"
      *  inverse="true"
      *  cascade="save-update"
+     * //     *  lazy="true"
      * @hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many
@@ -209,8 +210,8 @@ public class identity {
     
     /**
      *@hibernate.set
-     *      lazy="false"
      *      cascade="all"
+     ** //     *      lazy="true"
      * //     *      inverse="true"
      *@hibernate.collection-key
      *      column="identity"
@@ -242,9 +243,9 @@ public class identity {
     
     /**
      *@hibernate.set
-     *  lazy="false"
-     *  cascade="all"
+      *  cascade="all"
      *  inverse="true"
+     * //     *  lazy="true"
      *@hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many
@@ -477,6 +478,7 @@ public class identity {
     /**
      *@hibernate.set
      *  cascade="all"
+     * //     *  lazy="true"
      *@hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many
@@ -616,8 +618,8 @@ public class identity {
     
     
     
-    
     public String toString() {
+        
         sb.delete(0, sb.length());
         Names n =(Names) getNamess().iterator().next();
         Iterator i =  getIdentities_addressess().iterator();
@@ -632,14 +634,20 @@ public class identity {
             append("XY".equals(getKaryotype()) ? "male ": "female ");
             sb.
             append( getDob() != null ?  dateFormat.format(getDob()) : "");
-            if (ia != null && ia.getAddress() != null)
-                sb.append(" : ").append(ia.getAddress().getNumber()).
-                append(",").append(ia.getAddress().getStreet().getName()).
-                append(",").append(ia.getAddress().getStreet().getUrb().getName()).
-                append(",").append(ia.getAddress().getStreet().getUrb().getState().getName()).
-                append(",").
-                append(ia.getAddress().getStreet().getUrb().getPostcode()).
-                append(".");
+            if (ia != null && ia.getAddress() != null) {
+                try {
+                    sb.append(" : ").append(ia.getAddress().getNumber());
+                    sb.append(",").append(ia.getAddress().getStreet().getName());
+                    
+                    sb.append(",").append(ia.getAddress().getStreet().getUrb().getName()).
+                    append(",").append(ia.getAddress().getStreet().getUrb().getState().getName()).
+                    append(",").
+                    append(ia.getAddress().getStreet().getUrb().getPostcode()).
+                    append(".");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             
             return sb.toString();
         }

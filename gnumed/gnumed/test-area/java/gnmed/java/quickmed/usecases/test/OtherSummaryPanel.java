@@ -17,7 +17,7 @@ import org.gnumed.gmIdentity.*;
  *
  * @author  sjtan
  */
-public class OtherSummaryPanel extends javax.swing.JPanel {
+public class OtherSummaryPanel extends javax.swing.JPanel implements IdentityHolder {
     public static final int DATE_WIDTH=60;
     public static final int PREF_PROBLEM_WIDTH=300;
     public static final int NO_WIDTH=30;
@@ -28,34 +28,43 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     
     ListObjectTableModel drugModel, problemModel;
     PrescribeDialog dialog ;
-    Ref idRef = new Ref() {
+    private Ref idRef = new Idref();
+   
+    class Idref implements Ref {
+        
         public Object getRef() {
             return getIdentity();
         }
-    };
+        
+    }
+        
+    private Ref managerRef = new ManagerRef();
     
-    Ref managerRef = new Ref() {
+    class ManagerRef implements Ref {
+        
         public Object getRef() {
             return getIdentity().getPersister();
         }
-    };
+        
+    }
     
     /** Creates new form OtherSummaryPanel */
     public OtherSummaryPanel() {
         initComponents();
-//       setManagerReference(new SingleSessionManagerReference() );
+        //       setManagerReference(new SingleSessionManagerReference() );
         createDrugTableModel();
         createProblemTableModel();
         resizeManagementColumns();
         resizeProblemColumns();
         resizeDrugColumns();
+        addScriptPrintMenuItem();
     }
     
     void createDrugTableModel() {
         ListObjectTableModel model = new ListObjectTableModel();
         DummyDrugViewFactory factory = new DummyDrugViewFactory();
         factory.setIdentityRef( idRef );
-         
+        
         model.setFactory(factory);
         model.newObject();
         drugModel = model;
@@ -72,6 +81,9 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         l2.setDialog( new PrescribeDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class,
         OtherSummaryPanel.this), true , managerRef) );
         l2.setDialogColumn("drug");
+        
+        // extra stuff for printing
+        
     }
     
     void createProblemTableModel() {
@@ -115,14 +127,14 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
             getDrugColumnModel().getColumn(i).setPreferredWidth(NO_WIDTH);
             getDrugColumnModel().getColumn(i).setMaxWidth(NO_WIDTH * 2);
         }
-        getDrugColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
-        getDrugColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH);
+        getDrugColumnModel().getColumn(1).setPreferredWidth(DATE_WIDTH);
+        getDrugColumnModel().getColumn(1).setMaxWidth(DATE_WIDTH);
         
-        getDrugColumnModel().getColumn(1).setPreferredWidth(DRUG_WIDTH);
-        getDrugColumnModel().getColumn(1).setMaxWidth(DRUG_WIDTH + MAX_DIFF);
+        getDrugColumnModel().getColumn(2).setPreferredWidth(DRUG_WIDTH);
+        getDrugColumnModel().getColumn(2).setMaxWidth(DRUG_WIDTH + MAX_DIFF);
         
-        getDrugColumnModel().getColumn(2).setPreferredWidth(DIRECTIONS_WIDTH );
-        getDrugColumnModel().getColumn(2).setMaxWidth(DIRECTIONS_WIDTH + MAX_DIFF);
+        getDrugColumnModel().getColumn(3).setPreferredWidth(DIRECTIONS_WIDTH );
+        getDrugColumnModel().getColumn(3).setMaxWidth(DIRECTIONS_WIDTH + MAX_DIFF);
         
         
         
@@ -135,6 +147,12 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         
     }
     
+    
+    
+    
+    void addScriptPrintMenuItem() {
+        tableWithPopup1.addMenuItem(new PrintBasicScriptAction(tableWithPopup1.getTable()) );
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -510,9 +528,9 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         problemModel.newObject();
     }
     
-   
     
-  
+    
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -563,6 +581,6 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     /** Holds value of property identity. */
     private identity identity;
     
-  
+    
     
 }

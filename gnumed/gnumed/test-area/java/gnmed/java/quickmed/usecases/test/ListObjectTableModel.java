@@ -304,11 +304,25 @@ public class ListObjectTableModel  extends AbstractTableModel {
         add(getFactory().newInstance());
     }
     
+    static class CheckBoxCellRenderer implements TableCellRenderer {
+        JCheckBox box = new JCheckBox();
+        public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            box.setSelected( ((Boolean)value).booleanValue());
+            box.setFocusPainted(hasFocus);
+             return box;
+        }
+        
+    }
+    
     public void loadDefaultEditors( TableColumnModel model) {
         PropertyDescriptor[] pd = getColumnPropertyDescriptors();
         for (int i = 0; i < pd.length; ++i) {
             if (Date.class.isAssignableFrom(pd[i].getPropertyType()) )
                 model.getColumn(i).setCellEditor( new ShortDateCellEditor() );
+            if (pd[i].getPropertyType().equals(boolean.class) ) {
+                model.getColumn(i).setCellEditor(new DefaultCellEditor(new JCheckBox() ) );
+                model.getColumn(i).setCellRenderer(new ListObjectTableModel.CheckBoxCellRenderer() );
+            }
         }
     }
     

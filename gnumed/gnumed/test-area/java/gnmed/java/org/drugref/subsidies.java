@@ -68,17 +68,21 @@ public class subsidies {
    // access methods for associations
 
     /**
-     *@hibernate.set
-     *  inverse="true"
-     *@hibernate.collection-key
-     *  column="id_subsidy"
-     *@hibernate.collection-one-to-many
-     *  class="org.drugref.subsidized_products"
+//     *@hibernate.set
+//     *  inverse="true"
+//     *  lazy="true"
+//     *@hibernate.collection-key
+//     *  column="id_subsidy"
+//     *@hibernate.collection-one-to-many
+//     *  class="org.drugref.subsidized_products"
      */
     public Collection getSubsidized_productss() {
         return subsidized_products;
     }
     public void addSubsidized_products(subsidized_products _subsidized_products) {
+//        Object o = new Object();
+//        this.subsidized_products.add(o);
+//        this.subsidized_products.remove(o);
         if (! this.subsidized_products.contains(_subsidized_products)) {
             this.subsidized_products.add(_subsidized_products);
             _subsidized_products.setSubsidies(this);

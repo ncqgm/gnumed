@@ -68,7 +68,7 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
 
         pack();
     }//GEN-END:initComponents
-
+    
     private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
         // Add your handling code here:
         getPatientRelator().setClient(getIdentity());
@@ -88,13 +88,18 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
             ( (ManagerReference)summaryPanel1.getIdentity().getPersister()).setConnected(true);
             
         } catch (Exception e) {
-           System.out.println(e);
+            System.out.println(e);
         }
         gnmed.test.DomainPrinter.getInstance().printIdentity( System.out, summaryPanel1.getIdentity());
         try {
             ((ManagerReference)summaryPanel1.getIdentity().getPersister()).getIdentityManager().save(summaryPanel1.getIdentity());
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                ((ManagerReference) getIdentity().getPersister()).getIdentityManager().getSession().connection().rollback();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
         }
     }
     /** Getter for property identity.
@@ -182,9 +187,9 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
-
+    
     /** Holds value of property patientRelator. */
-    private ClientProviderRelatable patientRelator;    
+    private ClientProviderRelatable patientRelator;
     
     
 }

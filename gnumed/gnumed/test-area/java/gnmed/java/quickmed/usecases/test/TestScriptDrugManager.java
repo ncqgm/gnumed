@@ -65,18 +65,27 @@ public class TestScriptDrugManager {
         id.removeScript_drug(sd);
     }
     
-    public  script_drug createOrUpdateScriptDrug( identity id, package_size packageSize, Double qty,
+    public  link_script_drug createOrUpdateScriptDrug( identity id, package_size packageSize, Double qty,
     String directions, Integer repeats, script script ) throws Exception  {
         //try to update.
         // ************   Need to deal with multiple duplicate products as well.
+        
         script_drug sd = null;
         
         sd =  updateIdentityScriptDrug( id, packageSize , qty,directions,repeats, script);
         
         if (sd == null)
             sd =  createIdentityScriptDrug(id, packageSize , qty,directions,repeats, script);
-        
-        return sd;
+        link_script_drug lsd = new link_script_drug();
+        lsd.setScript(script);
+        lsd.setRepeats(repeats);
+        lsd.setScript_drug(sd);
+        try {
+            Logger.global.info("updated/created lsd = " + lsd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lsd;
     }
     
     

@@ -21,7 +21,7 @@ import org.gnumed.gmClinical.*;
 public class DummyDrugViewFactory implements Factory {
     
     /** Holds value of property identity. */
-    private identity identity;
+    private identity identity = new identity();
     
     /** Holds value of property identityRef. */
     private Ref identityRef;
