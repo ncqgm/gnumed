@@ -9,22 +9,20 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.132 2004-07-17 21:08:51 ncq Exp $
-__version__ = "$Revision: 1.132 $"
+# $Id: gmClinicalRecord.py,v 1.133 2004-08-11 09:01:27 ncq Exp $
+__version__ = "$Revision: 1.133 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # standard libs
 import sys, string, time, copy
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI
-if __name__ == "__main__":
-	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
-
 # 3rd party
 import mx.DateTime as mxDT
+
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI, gmI18N
+from Gnumed.business import gmPathLab, gmAllergy, gmVaccination, gmEMRStructItems, gmClinNarrative
+from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -63,7 +61,7 @@ class cClinicalRecord:
 		if not self.__load_default_health_issue():
 			raise gmExceptions.ConstructorError, "cannot activate default health issue for patient [%s]" % aPKey
 		duration = time.time() - t1
-		_log.Log(gmLog.lInfo, '__load_default_health_issue() took %s seconds' % duration)
+		_log.Log(gmLog.lData, '__load_default_health_issue() took %s seconds' % duration)
 		self.health_issue = self.default_health_issue
 
 		# what episode did we work on last time we saw this patient ?
@@ -72,7 +70,7 @@ class cClinicalRecord:
 		if not self.__load_last_active_episode():
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
 		duration = time.time() - t1
-		_log.Log(gmLog.lInfo, '__load_last_active_episode() took %s seconds' % duration)
+		_log.Log(gmLog.lData, '__load_last_active_episode() took %s seconds' % duration)
 
 		# load current or create new encounter
 		# FIXME: this should be configurable (for explanation see the method source)
@@ -80,7 +78,7 @@ class cClinicalRecord:
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 		duration = time.time() - t1
-		_log.Log(gmLog.lInfo, '__initiate_active_encounter() took %s seconds' % duration)
+		_log.Log(gmLog.lData, '__initiate_active_encounter() took %s seconds' % duration)
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -89,7 +87,7 @@ class cClinicalRecord:
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
 		duration = time.time() - t1
-		_log.Log(gmLog.lInfo, '_register_interests() took %s seconds' % duration)
+		_log.Log(gmLog.lData, '_register_interests() took %s seconds' % duration)
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
@@ -216,7 +214,7 @@ class cClinicalRecord:
 	def _clin_item_modified(self):
 		_log.Log(gmLog.lData, 'DB: clin_root_item modification')
 	#--------------------------------------------------------
-	# API
+	# Narrative API
 	#--------------------------------------------------------
 	def add_clin_narrative(self, note = '', soap_cat='s'):
 		if note.strip() == '':
@@ -232,6 +230,74 @@ class cClinicalRecord:
 			_log.Log(gmLog.lErr, str(data))
 			return None
 		return data
+	#--------------------------------------------------------
+	def get_clin_narrative(self, since=None, until=None, encounters=None,
+		episodes=None, issues=None, soap_cats=None, exclude_rfe_aoe=False):
+		"""
+            Get SOAP notes pertinent to this encounter.
+            
+			since
+				- initial date for narrative items
+			until
+				- final date for narrative items
+			encounters
+				- list of encounters whose narrative are to be retrieved
+			episodes
+				- list of episodes whose narrative are to be retrieved
+			issues
+				- list of health issues whose narrative are to be retrieved            
+			soap_cats
+				- list of SOAP categories of the narrative to be retrived
+			exclude_rfe_aoe
+				-  when True, filter out RFE and AOE narrative
+		"""
+		try:
+			self.__db_cache['narrative']
+		except KeyError:
+			self.__db_cache['narrative'] = []
+			cmd = "select pk_narrative from v_pat_narrative where pk_patient=%s order by date"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load narrative for patient [%s]' % self.id_patient)
+				del self.__db_cache['narrative']
+				return None
+			# Instantiate narrative items and keep cache
+			for row in rows:
+				try:
+					self.__db_cache['narrative'].append(gmClinNarrative.cNarrative(aPK_obj=row[0]))
+				except gmExceptions.ConstructorError:
+					_log.LogException('narrative error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
+#					_log.Log(gmLog.lInfo, 'better to report an error than rely on incomplete narrative information')
+					del self.__db_cache['narrative']
+					return None
+
+		if since is None \
+				and until is None \
+				and issues is None \
+				and episodes is None \
+				and encounters is None \
+				and soap_cats is None \
+				and not exclude_rfe_aoe:
+			return self.__db_cache['narrative']
+		# ok, lets's constrain our list
+		filtered_narrative = []
+		filtered_narrative.extend(self.__db_cache['narrative'])
+		if since is not None:
+			filtered_narrative = filter(lambda narr: narr['date'] >= since, filtered_narrative)
+		if until is not None:
+			filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
+		if issues is not None:
+			filtered_narrative = filter(lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
+		if episodes is not None:
+			filtered_narrative = filter(lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
+		if encounters is not None:
+			filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
+		if soap_cats is not None:
+			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
+		if exclude_rfe_aoe:
+			filtered_narrative = filter(lambda narr: True not in [narr['is_rfe'], narr['is_aoe']], filtered_narrative)
+
+		return filtered_narrative
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -1294,28 +1360,40 @@ def set_func_ask_user(a_func = None):
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
-	_ = lambda x:x
+	import traceback
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	gmPG.set_default_client_encoding('latin1')
 	try:
 		emr = cClinicalRecord(aPKey = 12)
+		
+		# lab results
 		lab = emr.get_lab_results()
 		lab_file = open('lab-data.txt', 'wb')
 		for lab_result in lab:
 			lab_file.write(str(lab_result))
 			lab_file.write('\n')
 		lab_file.close()
-	#	emr = record.get_text_dump()
-	#	print emr
-	#	vaccs = record.get_missing_vaccinations()
-	#	print vaccs['overdue']
-	#	print vaccs['boosters']
-	#	dump = record.get_text_dump()
-	#	if dump is not None:
-	#		keys = dump.keys()
-	#		keys.sort()
-	#		for aged_line in keys:
-	#			for line in dump[aged_line]:
-	#				print line
+		
+		# soap notes
+		narrative = emr.get_clin_narrative(
+			since = mxDT.DateTime(2000, 2, 18),
+			until = mxDT.DateTime(2010, 9, 18),
+			issues = [1],
+			episodes = [1],
+			encounters = [1,2],
+			soap_cats = ['s', 'p']
+		)
+		print '# of clinical notes:', str(len(narrative))
+		for a_narr in narrative:
+			print '%s - %s - %s - %s - %s - %s\n' % (
+				a_narr['date'].Format('%Y-%m-%d'),
+				str(a_narr['pk_health_issue']),
+				str(a_narr['pk_episode']),
+				str(a_narr['pk_encounter']),
+				a_narr['soap_cat'],
+				a_narr['narrative']
+			)
+			 
 	#	dump = record.get_missing_vaccinations()
 	#	f = open('vaccs.lst', 'wb')
 	#	if dump is not None:
@@ -1333,11 +1411,16 @@ if __name__ == "__main__":
 	#			f.write('\n')
 	#	f.close()
 	except:
+		traceback.print_exc(file=sys.stdout)
 		_log.LogException('unhandled exception', sys.exc_info(), verbose=1)
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.132  2004-07-17 21:08:51  ncq
+# Revision 1.133  2004-08-11 09:01:27  ncq
+# - Carlos-contributed get_clin_narrative() with usual filtering
+#   and soap_cat filtering based on v_pat_narrative
+#
+# Revision 1.132  2004/07/17 21:08:51  ncq
 # - gmPG.run_query() now has a verbosity parameter, so use it
 #
 # Revision 1.131  2004/07/06 00:11:11  ncq
