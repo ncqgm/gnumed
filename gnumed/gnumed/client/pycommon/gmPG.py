@@ -1,10 +1,20 @@
 """Broker for Postgres distributed backend connections.
 
 @copyright: author
+
+TODO: iterator/generator batch fetching:
+	- http://groups-beta.google.com/group/comp.lang.python/msg/7ff516d7d9387dad
+	- search Google for "Geneator/Iterator Nesting Problem - Any Ideas? 2.4"
+
+winner:
+def resultset_functional_batchgene rator(cursor, size=100):
+	for results in iter(lambda: cursor.fetchmany(size), []):
+		for rec in results:
+			yield rec
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1203,7 +1213,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.43 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.44 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1421,7 +1431,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.43  2005-01-31 12:57:36  ncq
+# Revision 1.44  2005-03-08 16:45:11  ncq
+# - add TODO item on iterator/generator-based row fetching
+#
+# Revision 1.43  2005/01/31 12:57:36  ncq
 # - get_col_indices() *before* curs.close()
 #
 # Revision 1.42  2005/01/31 09:32:34  ncq
