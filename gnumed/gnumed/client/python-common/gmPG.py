@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.89 $"
+__version__ = "$Revision: 1.90 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -138,6 +138,7 @@ class ConnectionPool:
 	#-----------------------------
 	def __init__(self, login=None, encoding=None):
 		"""parameter login is of type gmLoginInfo.LoginInfo"""
+		# if login data is given: re-establish connections
 		if login is not None:
 			self.__disconnect()
 		if ConnectionPool.__connected is None:
@@ -148,9 +149,10 @@ class ConnectionPool:
 			ConnectionPool.__connected = self.__setup_default_ro_conns(login)
 	#-----------------------------
 	def __del__(self):
-		for backend in ConnectionPool.__listeners.keys():
-			ConnectionPool.__listeners[backend].tell_thread_to_stop()
-			del ConnectionPool.__listeners[backend]
+		pass
+		# NOTE: do not kill listeners here which would mean to
+		# kill them when we throw away *any* ConnectionPool
+		# instance - not what we want
 	#-----------------------------
 	# connection API
 	#-----------------------------
@@ -294,6 +296,11 @@ class ConnectionPool:
 			del self.__listeners[backend]
 		except:
 			pass
+	#-----------------------------
+	def StopListeners(self):
+		for backend in ConnectionPool.__listeners.keys():
+			ConnectionPool.__listeners[backend].tell_thread_to_stop()
+			del ConnectionPool.__listeners[backend]
 	#-----------------------------
 	# misc API
 	#-----------------------------
@@ -468,47 +475,41 @@ class ConnectionPool:
 		else:
 			access_mode = 'READ WRITE'
 		_log.Log(gmLog.lData, "setting session to [%s] for %s@%s:%s" % (access_mode, login.GetUser(readonly), login.GetHost(), login.GetDatabase()))
-		cmd = 'set session characteristics as transaction %s ;'
+		cmd = 'set session characteristics as transaction %s' % access_mode
 		# activate when 7.4 is common
-#		if not run_query(curs, cmd, access_mode):
+		# once it is common abolish user/_user split
+#		if not run_query(curs, cmd):
 #			_log.Log(gmLog.lErr, 'cannot set connection characteristics to [%s]' % access_mode)
-			# FIXME: once 7.4 is minimum, close connection and return None here
+			# FIXME: once 7.4 is minimum, close connection and return None
 
 		conn.commit()
 		curs.close()
 		return conn
 	#-----------------------------
-	def __decrypt(self, crypt_pwd, crypt_algo, pwd):
-		"""decrypt the encrypted password crypt_pwd using the stated algorithm
-		and the given password pwd"""
-		#TODO!!!
-		pass
-	
-	#-----------------------------
 	def __disconnect(self, force_it=0):
-		"safe disconnect (respecting possibly active connections) unless the force flag is set"
-		###are we connected at all?
+		"""safe disconnect (respecting possibly active connections) unless the force flag is set"""
+		# are we connected at all?
 		if ConnectionPool.__connected is None:
-			###just in case
+			# just in case
 			ConnectionPool.__databases.clear()
 			return
-		#stop all background threads
+		# stop all background threads
 		for backend in self.__listeners.keys():
 			self.__listeners[backend].tell_thread_to_stop()
 			del self.__listeners[backend]
-		###disconnect from all databases
+		# disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
-			### check whether this connection might still be in use ...
+			# check whether this connection might still be in use ...
 			if ConnectionPool.__connections_in_use[key] > 0 :
-				###unless we are really mean :-(((
+				# unless we are really mean
 				if force_it == 0:
-					#let the end user know that shit is happening
+					# let the end user know that shit is happening
 					raise gmExceptions.ConnectionError, "Attempting to close a database connection that is still in use"
 			else:
-				###close the connection
+				# close the connection
 				ConnectionPool.__databases[key].close()
 
-		#clear the dictionary (would close all connections anyway)
+		# clear the dictionary (would close all connections anyway)
 		ConnectionPool.__databases.clear()
 		ConnectionPool.__connected = None
 
@@ -964,7 +965,7 @@ def run_notifications_debugger():
 	#-------------------------------
 
 	dbpool = ConnectionPool()
-	roconn = dbpool.GetConnection('default')
+	roconn = dbpool.GetConnection('default', extra_verbose=1)
 	rocurs = roconn.cursor()
 
 	# main shell loop
@@ -1000,9 +1001,9 @@ def run_notifications_debugger():
 			if args[0] == "ignore":
 				dbpool.Unlisten('default', sig_names[0], myCallback)
 			if args[0] == "send":
-				cmd = 'NOTIFY  %s ;'
-				print "... running >>>%s<<<" % (cmd % sig_names[0])
-				if not run_query(rocurs, cmd, sig_names[0]):
+				cmd = 'NOTIFY "%s"' % sig_names[0]
+				print "... running >>>%s<<<" % (cmd)
+				if not run_query(rocurs, cmd):
 					print "... error sending [%s]" % cmd
 				roconn.commit()
 			continue
@@ -1078,7 +1079,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.89  2004-01-12 13:12:07  ncq
+# Revision 1.90  2004-01-18 21:48:42  ncq
+# - some important comments on what to do and not to do where
+# - StopListeners()
+# - remove dead code, cleanup
+#
+# Revision 1.89  2004/01/12 13:12:07  ncq
 # - remove unhelpful phrases from PG < 7.4 error messages
 #
 # Revision 1.88  2004/01/09 23:50:25  ncq
