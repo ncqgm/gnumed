@@ -1,11 +1,12 @@
 """GnuMed single box SOAP notes plugin.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmSingleBoxSoapPlugin.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
-import gmLog, gmPlugin
-from gmSingleBoxSOAP import gmSingleBoxSOAPPanel
+from Gnumed.pycommon import gmLog
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython.gmSingleBoxSOAP import gmSingleBoxSOAPPanel
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -13,43 +14,46 @@ _log.Log(gmLog.lData, __version__)
 from wxPython.wx import *
 #================================================================
 class gmSingleBoxSoapPlugin(gmPlugin.wxNotebookPlugin):
-	tab_name = _("David's SOAP")
+    tab_name = _("David's SOAP")
 
-	def name (self):
-		return gmSingleBoxSoapPlugin.tab_name
+    def name (self):
+        return gmSingleBoxSoapPlugin.tab_name
 
-	def GetWidget (self, parent):
-		self.panel = gmSingleBoxSOAPPanel(parent, -1)
-		return self.panel
+    def GetWidget (self, parent):
+        self.panel = gmSingleBoxSOAPPanel(parent, -1)
+        return self.panel
 
-	def MenuInfo (self):
-		return ('tools', _("David's single box SOAP entry"))
+    def MenuInfo (self):
+        return ('tools', _("David's single box SOAP entry"))
 
-	def ReceiveFocus(self):
-		pass
+    def ReceiveFocus(self):
+        pass
 
-	def can_receive_focus(self):
-		# need patient
-		if not self._verify_patient_avail():
-			return None
-		return 1
+    def can_receive_focus(self):
+        # need patient
+        if not self._verify_patient_avail():
+            return None
+        return 1
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	# catch all remaining exceptions
-	try:
-		application = wxPyWidgetTester(size=(640,480))
-		application.SetWidget(cStandalonePanel,-1)
-		application.MainLoop()
-	except StandardError:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
-		# but re-raise them
-		raise
+    # catch all remaining exceptions
+    try:
+        application = wxPyWidgetTester(size=(640,480))
+        application.SetWidget(cStandalonePanel,-1)
+        application.MainLoop()
+    except StandardError:
+        _log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
+        # but re-raise them
+        raise
 
 #================================================================
 # $Log: gmSingleBoxSoapPlugin.py,v $
-# Revision 1.5  2003-11-17 10:56:41  sjtan
+# Revision 1.6  2004-03-08 23:34:27  shilbert
+# - adapt to new API from Gnumed.foo import bar
+#
+# Revision 1.5  2003/11/17 10:56:41  sjtan
 #
 # synced and commiting.
 #

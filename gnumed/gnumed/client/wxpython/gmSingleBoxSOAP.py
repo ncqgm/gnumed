@@ -7,126 +7,130 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.10 2004-02-25 09:46:22 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmSingleBoxSOAP.py,v 1.11 2004-03-08 23:35:10 shilbert Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
 
 if __name__ == "__main__":
-	sys.path.append ("../pycommon/")
-	import gmI18N
+    sys.path.append ("../pycommon/")
+    import gmI18N
 
-import gmDispatcher, gmPatient, gmSignals
+from Gnumed.pycommon import gmDispatcher, gmSignals
+from Gnumed.business import gmPatient 
 
-from gmExceptions import ConstructorError
+from Gnumed.pycommon.gmExceptions import ConstructorError
 from wxPython.wx import *
 
 wxID_BTN_save = wxNewId()
 wxID_BTN_discard = wxNewId()
 #============================================================
 class gmSingleBoxSOAP(wxTextCtrl):
-	"""if we separate it out like this it can transparently gain features"""
-	def __init__(self, *args, **kwargs):
-		wxTextCtrl.__init__(self, *args, **kwargs)
+    """if we separate it out like this it can transparently gain features"""
+    def __init__(self, *args, **kwargs):
+        wxTextCtrl.__init__(self, *args, **kwargs)
 #============================================================
 class gmSingleBoxSOAPPanel(wxPanel):
-	def __init__(self, *args, **kwargs):
-		#kwargs["style"] = wxDEFAULT_FRAME_STYLE
-		wxPanel.__init__(self, *args, **kwargs)
-		self.__do_layout()
+    def __init__(self, *args, **kwargs):
+        #kwargs["style"] = wxDEFAULT_FRAME_STYLE
+        wxPanel.__init__(self, *args, **kwargs)
+        self.__do_layout()
 
-		if not self.__register_events():
-			raise ConstructorError, 'cannot register interests'
+        if not self.__register_events():
+            raise ConstructorError, 'cannot register interests'
 
-		self.__pat = gmPatient.gmCurrentPatient()
-	#--------------------------------------------------------
-	def __do_layout(self):
-		# large box for free-text clinical notes
-		self.soap_box = gmSingleBoxSOAP(
-			self,
-			-1,
-			'',
-			style = wxTE_MULTILINE
-		)
-		# buttons below that
-		self.BTN_save = wxButton(self, wxID_BTN_save, _("save"))
-		self.BTN_save.SetToolTipString(_('save clinical note in EMR'))
-		self.BTN_discard = wxButton(self, wxID_BTN_discard, _("discard"))
-		self.BTN_discard.SetToolTipString(_('discard clinical note'))
-		szr_btns = wxBoxSizer(wxHORIZONTAL)
-		szr_btns.Add(self.BTN_save, 1, wxALIGN_CENTER_HORIZONTAL, 0)
-		szr_btns.Add(self.BTN_discard, 1, wxALIGN_CENTER_HORIZONTAL, 0)
-		# arrange widgets
-		szr_outer = wxStaticBoxSizer(wxStaticBox(self, -1, _("SOAP clinical notes")), wxVERTICAL)
-		szr_outer.Add(self.soap_box, 1, wxEXPAND, 0)
-		szr_outer.Add(szr_btns, 0, wxEXPAND, 0)
-		# and do layout
-		self.SetAutoLayout(1)
-		self.SetSizer(szr_outer)
-		szr_outer.Fit(self)
-		szr_outer.SetSizeHints(self)
-		self.Layout()
-	#--------------------------------------------------------
-	def __register_events(self):
-		# wxPython events
-		EVT_BUTTON(self.BTN_save, wxID_BTN_save, self._on_save_note)
-		EVT_BUTTON(self.BTN_discard, wxID_BTN_discard, self._on_discard_note)
+        self.__pat = gmPatient.gmCurrentPatient()
+    #--------------------------------------------------------
+    def __do_layout(self):
+        # large box for free-text clinical notes
+        self.soap_box = gmSingleBoxSOAP(
+            self,
+            -1,
+            '',
+            style = wxTE_MULTILINE
+        )
+        # buttons below that
+        self.BTN_save = wxButton(self, wxID_BTN_save, _("save"))
+        self.BTN_save.SetToolTipString(_('save clinical note in EMR'))
+        self.BTN_discard = wxButton(self, wxID_BTN_discard, _("discard"))
+        self.BTN_discard.SetToolTipString(_('discard clinical note'))
+        szr_btns = wxBoxSizer(wxHORIZONTAL)
+        szr_btns.Add(self.BTN_save, 1, wxALIGN_CENTER_HORIZONTAL, 0)
+        szr_btns.Add(self.BTN_discard, 1, wxALIGN_CENTER_HORIZONTAL, 0)
+        # arrange widgets
+        szr_outer = wxStaticBoxSizer(wxStaticBox(self, -1, _("SOAP clinical notes")), wxVERTICAL)
+        szr_outer.Add(self.soap_box, 1, wxEXPAND, 0)
+        szr_outer.Add(szr_btns, 0, wxEXPAND, 0)
+        # and do layout
+        self.SetAutoLayout(1)
+        self.SetSizer(szr_outer)
+        szr_outer.Fit(self)
+        szr_outer.SetSizeHints(self)
+        self.Layout()
+    #--------------------------------------------------------
+    def __register_events(self):
+        # wxPython events
+        EVT_BUTTON(self.BTN_save, wxID_BTN_save, self._on_save_note)
+        EVT_BUTTON(self.BTN_discard, wxID_BTN_discard, self._on_discard_note)
 
-		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_note)
-		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_note)
+        # client internal signals
+        gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_note)
+        gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_note)
 
-		return 1
-	#--------------------------------------------------------
-	# event handlers
-	#--------------------------------------------------------
-	def _on_save_note(self, event):
-		self._save_note()
-		event.Skip()
-	#--------------------------------------------------------
-	def _on_discard_note(self, event):
-		# FIXME: maybe ask for confirmation ?
-		self.soap_box.SetValue('')
-		event.Skip()
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def _save_note(self):
-		wxCallAfter(self.__save_note)
-	#--------------------------------------------------------
-	def __save_note(self):
-		# sanity checks
-		if self.__pat is None:
-			return 1
-		if not self.soap_box.IsModified():
-			return 1
-		note = self.soap_box.GetValue()
-		if string.strip(note) == '':
-			return 1
-		# now save note
-		emr = self.__pat['clinical record']
-		if emr is None:
-			_log.Log(gmLog.lErr, 'cannot access clinical record of patient')
-			return None
-		if not emr.add_clinical_note(note):
-			_log.Log(gmLog.lErr, 'error saving clinical note')
-			return None
-		else:
-			self.soap_box.SetValue('')
-			return 1
-		return 1
+        return 1
+    #--------------------------------------------------------
+    # event handlers
+    #--------------------------------------------------------
+    def _on_save_note(self, event):
+        self._save_note()
+        event.Skip()
+    #--------------------------------------------------------
+    def _on_discard_note(self, event):
+        # FIXME: maybe ask for confirmation ?
+        self.soap_box.SetValue('')
+        event.Skip()
+    #--------------------------------------------------------
+    # internal helpers
+    #--------------------------------------------------------
+    def _save_note(self):
+        wxCallAfter(self.__save_note)
+    #--------------------------------------------------------
+    def __save_note(self):
+        # sanity checks
+        if self.__pat is None:
+            return 1
+        if not self.soap_box.IsModified():
+            return 1
+        note = self.soap_box.GetValue()
+        if string.strip(note) == '':
+            return 1
+        # now save note
+        emr = self.__pat['clinical record']
+        if emr is None:
+            _log.Log(gmLog.lErr, 'cannot access clinical record of patient')
+            return None
+        if not emr.add_clinical_note(note):
+            _log.Log(gmLog.lErr, 'error saving clinical note')
+            return None
+        else:
+            self.soap_box.SetValue('')
+            return 1
+        return 1
 #============================================================
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
-	app = wxPyWidgetTester(size = (600, 600))
-	app.SetWidget(gmSingleBoxSOAPPanel, -1)
-	app.MainLoop()
+    app = wxPyWidgetTester(size = (600, 600))
+    app.SetWidget(gmSingleBoxSOAPPanel, -1)
+    app.MainLoop()
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.10  2004-02-25 09:46:22  ncq
+# Revision 1.11  2004-03-08 23:35:10  shilbert
+# - adapt to new API from Gnumed.foo import bar
+#
+# Revision 1.10  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.9  2004/02/05 23:49:52  ncq
