@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.3 2003-05-03 00:41:14 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmClinicalRecord.py,v 1.4 2003-05-03 14:11:22 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -114,7 +114,7 @@ class gmClinicalRecord:
 			# error: invalidate cache
 			del self.__db_cache['allergies']
 			# and tell others
-			gmDispatcher.send(signal = gmSignals.allergy_updated, sender = self.__class__.__name__)
+			gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 			return 1
 		result = curs.fetchone()
 		curs.close()
@@ -122,14 +122,14 @@ class gmClinicalRecord:
 		try:
 			nr_cached_allergies = len(self.__db_cache['allergies'])
 		except KeyError:
-			gmDispatcher.send(signal = gmSignals.allergy_updated, sender = self.__class__.__name__)
+			gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 			return 1
 		# no change for our patient ...
 		if result == nr_cached_allergies:
 			return 1
 		# else invalidate cache
 		del self.__db_cache['allergies']
-		gmDispatcher.send(signal = gmSignals.allergy_updated, sender = self.__class__.__name__)
+		gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
 #	def _patient_modified(self):
@@ -230,7 +230,6 @@ class gmClinicalRecord:
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['patient ID'] = _get_patient_ID
-#	_get_handler['allergies'] = _get_allergies
 #	_get_handler['allergy IDs'] = _get_allergies_list
 	_get_handler['allergy names'] = _get_allergy_names
 	_get_handler['allergies'] = _get_allergies
@@ -247,7 +246,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.3  2003-05-03 00:41:14  ncq
+# Revision 1.4  2003-05-03 14:11:22  ncq
+# - make allergy change signalling work properly
+#
+# Revision 1.3  2003/05/03 00:41:14  ncq
 # - fetchall() returns list, not dict, so handle accordingly in "allergy names"
 #
 # Revision 1.2  2003/05/01 14:59:24  ncq
