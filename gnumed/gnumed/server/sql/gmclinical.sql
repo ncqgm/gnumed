@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- license: GPL
 -- author: 
 
@@ -356,7 +356,9 @@ comment on table databases is
 create table script_drug
 (
 	id serial,
-	name varchar (100) default 'GENERIC',
+	name varchar (200) default 'GENERIC',
+	directions text,
+	adjuvant text,
 	xref_id varchar (100),
 	source integer references databases (id),
 	fluid_amount float,
@@ -365,8 +367,7 @@ create table script_drug
 	id_route integer references drug_routes (id),
 	id_form integer references drug_formulations (id),
 	prn boolean,
-	frequency integer,
-	time char check (time in ('m', 'n', '?'))
+	frequency integer
 );
 
 comment on table script_drug is
@@ -375,9 +376,8 @@ comment on column script_drug.xref_id is 'ID of the source database';
 comment on column script_drug.fluid_amount is 'if a fluid, the amount in each bottle/ampoule, etc.';
 comment on column script_drug.amount is 'for solid object (tablets, capsules) the number of objects, for fluids, the number of separate containers';
 comment on column script_drug.prn is 'true if "pro re nata" (= as required)';
-comment on column script_drug.time is
-'if frequency is 1, suggested time: m = mane, n= nocte, ? = don''t care';
-
+comment on column script_drug.directions is 'free text for directions, such as ''nocte'' etc';
+comment on column script_drug.adjuvant is 'free text describing adjuvants, such as ''orange-flavoured'' etc.';
 	
 create table constituents
 (
@@ -392,7 +392,9 @@ comment on table constituents is
 'the constituent substances of the various drugs';
 comment on column constituents.name is
 'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
-
+comment on column constituents.dose is
+'the amount of drug (if salt, the amount of active base substance, in a unit (see amount_unit above)';
+ 
 create table script
 (
 	id serial,
@@ -406,22 +408,39 @@ and multiple scripts in a transaction';
 create table link_script_drug
 (
 	id_drug integer references script_drug (id),
-	id_script integer references script (id)
+	id_script integer references script (id),
+	comment text
 );
 
 comment on table link_script_drug is
 'many-to-many table for drugs and prescriptions';
 
+-- =============================================
+
+create table enum_immunities
+(
+	id serial,
+	name text
+);
+
+comment on table enum_immunites is
+'list of diseases to which patient''s may have immunity. Same table must exist in gmdrugs';
+
+insert into enum_immunities (name) values ('tetanus');
 
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.12  2003-01-05 13:05:51  ncq
+-- Revision 1.13  2003-01-13 10:07:52  ihaywood
+-- add free comment strings to script.
+-- Start vaccination Hx tables
+--
+-- Revision 1.12  2003/01/05 13:05:51  ncq
 -- - schema_revision -> gm_schema_revision
 --
 -- Revision 1.11  2002/12/22 01:26:16  ncq
