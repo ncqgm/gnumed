@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib
@@ -92,7 +92,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.txt_age.SetBackgroundColour(bg_col)
 		self.szr_top_row.Add (self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
 		self.szr_top_row.Add (self.txt_age, 0, wxEXPAND | wxALL, 3)
-		#  - allergies (substances only like "makrolides, penicillins, eggs")
+		#  - allergies (substances only, like "makrolides, penicillins, eggs")
 		self.lbl_allergies = wxStaticText (self, -1, _("Allergies"), style = wxALIGN_CENTER_VERTICAL)
 		self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
@@ -212,17 +212,29 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		# events
 		EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
 		# client internal signals
-		gmDispatcher.connect(self._on_patient_selected, gmSignals.patient_selected())
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
 		age = self.curr_pat['medical age']
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		self.txt_age.SetValue(age)
-		print "should also update allergies now"
+		self._update_allergies()
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
+	#-------------------------------------------------------
+	def _update_allergies(self):
+		epr = self.curr_pat['clinical record']
+		names = epr['allergy names']
+		tmp = ''
+		for name in names:
+			tmp = tmp + ',' + name
+		if tmp == '':
+			self.txt_allergies.SetValue(_('no allergies recorded'))
+		else:
+			self.txt_allergies.SetValue(tmp)
 	#-------------------------------------------------------
 	# remote layout handling
 	#-------------------------------------------------------
@@ -311,7 +323,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.4  2003-04-28 12:05:21  ncq
+# Revision 1.5  2003-05-01 15:04:10  ncq
+# - connect allergies field to backend (need to filter out sensitivities, though)
+# - update allergies on patient selection
+# - listen to allergy change signal
+#
+# Revision 1.4  2003/04/28 12:05:21  ncq
 # - use plugin.internal_name(), cleaner logging
 #
 # Revision 1.3  2003/04/25 13:37:22  ncq
