@@ -2,8 +2,8 @@
 
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/patient_search/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.3 2003-03-25 01:39:46 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPatientSelector.py,v 1.4 2003-03-25 12:29:27 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -20,6 +20,9 @@ if __name__ == "__main__":
 import gmTmpPatient, gmDispatcher, gmSignals, gmPG
 
 from wxPython.wx import *
+#------------------------------------------------------------
+ID_LISTCTRL = wxNewId()
+
 #============================================================
 # write your own query generator and add it here
 #------------------------------------------------------------
@@ -47,7 +50,8 @@ def queries_default(raw = None):
 		return queries
 
 	# "<CHARS>" - single name part
-	if re.match("^(\s|\t)*[a-zA-Z]+(\s|\t)*$", raw):
+	# yes, I know (did you read the docs carefully ?)
+	if re.match("^(\s|\t)*[a-zA-ZäÄöÖüÜß]+(\s|\t)*$", raw):
 		tmp = raw.replace(' ', '')
 		tmp = tmp.replace('\t', '')
 		queries[1].append("SELECT id FROM v_basic_person WHERE lastnames  ILIKE '%s%%';" % tmp)
@@ -152,6 +156,151 @@ query_generator = {
 'de_DE@euro': queries_default
 }
 #============================================================
+class cPatientPickList(wxDialog):
+	def __init__(
+		self,
+		parent,
+		id = -1,
+		pos = wxPyDefaultPosition,
+		size = wxPyDefaultSize,
+	):
+		wxDialog.__init__(
+			self,
+			parent,
+			id,
+			_('please select a patient'),
+			pos,
+			size,
+			style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER
+		)
+
+		self._do_layout()
+		self.items = []
+
+		# set event handlers
+		#EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRL, self.OnItemCursor)
+		EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL, self._on_item_activated)
+
+		#EVT_BUTTON(self, ID_NEW, self.OnNew)
+		#EVT_BUTTON(self, wxID_OK, self.OnOk)
+		# FIXME: remove button, add evt char ESC
+		EVT_BUTTON(self, wxID_CANCEL, self._on_cancel)
+	#--------------------------------------------------------
+	def SetItems(self, items = [], col_labels = []):
+		# TODO: make selectable by 0-9
+
+		self.items = items
+
+		# set up columns
+		self.listctrl.ClearAll()
+		for col_idx in range(len(col_labels)):
+			self.listctrl.InsertColumn(col_idx, col_labels[col_idx])
+		# now add items
+		for row_idx in range(len(self.items)):
+			# set up item
+			row = self.items[row_idx]
+			# first column
+			try:
+				self.listctrl.InsertStringItem(row_idx, str(row[col_labels[0]]))
+			except KeyError:
+				_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
+				if self.items != []:
+					_log.Log(gmLog.lData, "item keys: %s" % row.keys())
+				else:
+					_log.Log(gmLog.lData, "item keys: None")
+				_log.Log(gmLog.lData, "labels   : %s" % col_labels)
+			# subsequent columns
+			for label in col_labels[1:]:
+				try:
+					self.listctrl.SetStringItem(row_idx, str(row[label]))
+				except KeyError:
+					_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
+					if self.items != []:
+						_log.Log(gmLog.lData, "item keys: %s" % row.keys())
+					else:
+						_log.Log(gmLog.lData, "item keys: None")
+					_log.Log(gmLog.lData, "labels   : %s" % col_labels)
+
+		# adjust column width
+		for col_idx in range(len(col_labels)):
+			self.listctrl.SetColumnWidth(col_idx, wxLIST_AUTOSIZE)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_item_activated(self, evt):
+		idx = evt.m_itemIndex
+		print "user activated item %s (double left-click or enter)" % idx
+		item = self.items[idx]
+		# the key "patient ID" is assumed to always exist
+		try:
+			self.EndModal(item['#'])
+		except KeyError:
+			_log.LogException('required key "#" missing, item keys: %s' % item.keys(), sys.exc_info())
+			self.EndModal(-1)
+	#--------------------------------------------------------
+	def _on_cancel(self, evt):
+		print "user cancelled dialog"
+		self.EndModal(-1)
+	#--------------------------------------------------------
+	# utility methods
+	#--------------------------------------------------------
+	def _do_layout(self):
+		self.szrMain = wxBoxSizer(wxVERTICAL)
+
+		# make list
+		self.listctrl = wxListCtrl(
+			parent = self,
+			id = ID_LISTCTRL,
+			pos = wxDefaultPosition,
+			size = wxSize(160,120),
+			style = wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_VRULES | wxVSCROLL | wxHSCROLL | wxSUNKEN_BORDER
+		)
+		# and place it
+		self.szrMain.AddWindow(self.listctrl, 1, wxGROW | wxALIGN_CENTER_VERTICAL, 5)
+
+		# make buttons
+		self.szrButtons = wxBoxSizer(wxHORIZONTAL)
+#		self.btnOK = wxButton (
+#			self,
+#			wxID_OK,
+#			_("&OK"),
+#			wxDefaultPosition,
+#			wxDefaultSize,
+#			0
+#		)
+#		self.szrButtons.AddWindow(self.btnOK, 1, wxALIGN_CENTRE, 5)
+
+#		self.btnNew = wxButton (
+#			self,
+#			ID_NEW,
+#			_("&New"),
+#			wxDefaultPosition,
+#			wxDefaultSize,
+#			0
+#		)
+#		self.szrButtons.AddWindow(self.btnNew, 1, wxALIGN_CENTRE, 5)
+
+		self.btnCancel = wxButton (
+			self,
+			wxID_CANCEL,
+			_("&Cancel"),
+			wxDefaultPosition,
+			wxDefaultSize,
+			0
+		)
+		self.szrButtons.AddWindow(self.btnCancel, 1, wxALIGN_CENTRE, 5)
+
+		# and place them
+		self.szrMain.AddSizer(self.szrButtons, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5)
+
+		self.SetAutoLayout(true)
+		self.SetSizer(self.szrMain)
+		self.szrMain.Fit(self)
+		self.szrMain.SetSizeHints(self)
+
+		#won't work on Windoze otherwise:
+		self.listctrl.SetFocus()
+#============================================================
 class cPatientSelector(wxTextCtrl):
 	"""Widget for smart search for patients."""
 	def __init__ (self, parent, id = -1, pos = wxDefaultPosition, size = wxDefaultSize):
@@ -181,8 +330,14 @@ class cPatientSelector(wxTextCtrl):
 		self.conn = self.backend.GetConnection('personalia')
 		# FIXME: error handling
 
+		self.prev_fragment = None
+		self.prev_ids = []
+
 		# set event handlers
 		# ------------------
+		# process some special chars
+		EVT_CHAR(self, self._on_char)
+
 		# validate upon losing focus but see the caveat in the handler
 		EVT_KILL_FOCUS (self, self._on_loose_focus)
 
@@ -191,11 +346,24 @@ class cPatientSelector(wxTextCtrl):
 
 		# evil user wants to resize widget
 		#EVT_SIZE (self, self.on_resize)
+	#--------------------------------------------------------
+	def SetActivePatient(self, anID = None):
+		if anID is None:
+			return None
+
+		kwargs = {
+			'ID': anID,
+			'signal': gmSignals.patient_selected(),
+			'sender': 'patient.selector'
+		}
+		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+		name = gmTmpPatient.gmDefPatient['active name']
+		self.SetValue(value = '%s, %s' % (name['last'], name['first']))
 
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
-	def _fetch_pat_data(self, query_list = None):
+	def _fetch_pat_ids(self, query_list = None):
 		if query_list is None:
 			_log.Log(gmLog.lErr, 'query tree empty')
 			return None
@@ -242,7 +410,7 @@ class cPatientSelector(wxTextCtrl):
 		if len(pat_data) == 0:
 			dlg = wxMessageDialog(
 				NULL,
-				_('Cannot find ANY matching patients !\nCurrently selected patient stays active.'),
+				_('Cannot find ANY matching patients !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)'),
 				_('selecting patient'),
 				wxOK | wxICON_INFORMATION
 			)
@@ -259,13 +427,79 @@ class cPatientSelector(wxTextCtrl):
 		# application which is NOT what we intend to achieve,
 		# however, this is the least ugly way of doing this due to
 		# certain vagaries of wxPython (see the Wiki)
+
+		# remember fragment
+		curr_fragment = self.GetValue()
+		if self.IsModified() and not re.match("^(\s|\t)*$", curr_fragment):
+			self.prev_fragment = curr_fragment
+
 		if gmTmpPatient.gmDefPatient is None:
 			self.SetValue(value = _('no active patient'))
 		else:
 			name = gmTmpPatient.gmDefPatient['active name']
 			self.SetValue(value = '%s, %s' % (name['last'], name['first']))
 	#--------------------------------------------------------
+	def _on_char(self, evt):
+		keycode = evt.GetKeyCode()
+		if evt.AltDown():
+
+			# ALT-L, ALT-P - list of previously active patients
+			if keycode in [ord('l'), ord('p')]:
+				if self.prev_ids == []:
+					return true
+				# generate item list
+				items = []
+				for ID in self.prev_ids:
+					row = {
+						'#': ID
+					}
+					items.append(row)
+				dlg = cPatientPickList(parent = self)
+				# define order of cols
+				labels = []
+				labels.append('#')
+				# set it
+				dlg.SetItems(items, labels)
+				# and show it
+				result = dlg.ShowModal()
+				if result == -1:
+					print "user cancelled selection dialog"
+				else:
+					# and make our selection known to others
+					self.SetActivePatient(result)
+				return true
+
+			# ALT-N
+			if keycode == ord('n'):
+				print "ALT-N not implemented yet"
+				print "should immediately jump to entering a new patient"
+				return true
+
+			# ALT-K
+			if keycode == ord('k'):
+				print "ALT-K not implemented yet"
+				print "should tell chipcard demon to read KVK and display list of cached KVKs"
+				return true
+
+		# cycling through previous fragments
+		#elif keycode == WXK_DOWN:
+			#print "<cursor-down> not implemented yet"
+			#print "should cycle through search fragment history"
+		elif keycode == WXK_UP:
+			#print "<cursor-up> not fully implemented yet"
+			#print "should cycle through search fragment history"
+			if self.prev_fragment is not None:
+				self.SetValue(self.prev_fragment)
+			return true
+
+		evt.Skip()
+	#--------------------------------------------------------
 	def _on_enter(self, evt):
+		# remember fragment
+		curr_fragment = self.GetValue()
+		if self.IsModified() and not re.match("^(\s|\t)*$", curr_fragment):
+			self.prev_fragment = curr_fragment
+
 		# generate queries
 		queries = self.generate_queries(self.GetValue())
 		print queries[1]
@@ -273,24 +507,25 @@ class cPatientSelector(wxTextCtrl):
 		print queries[3]
 
 		# get list of names
-		names = self._fetch_pat_data(queries)
-		if names is None or len(names) == 0:
+		ids = self._fetch_pat_ids(queries)
+		if ids is None or len(ids) == 0:
 			return true
 
-		if len(names) == 1:
+		if len(ids) == 1:
 			# and make our selection known to others
-			kwargs = {
-				'ID': names[0][0],
-				'signal': gmSignals.patient_selected(),
-				'sender': 'patient.selector'
-			}
-			gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+			self.SetActivePatient(ids[0][0])
 
-			name = gmTmpPatient.gmDefPatient['active name']
-			self.SetValue(value = '%s, %s' % (name['last'], name['first']))
+			# remember patient if not yet remembered
+			if ids[0][0] not in self.prev_ids:
+				self.prev_ids.append(ids[0][0])
+			# but only 10 of them
+			if len(self.prev_ids) > 10:
+				self.prev_ids.pop(0)
+
 		else:
-			print "need to implement selection from list"
-			print names
+			print "several matching patients:"
+			print ids
+			print "trying to pop up list for selection"
 #============================================================
 # main
 #------------------------------------------------------------
@@ -299,7 +534,7 @@ if __name__ == "__main__":
 	kwargs = {}
 	kwargs['ID'] = 1
 	kwargs['signal']= gmSignals.patient_selected()
-	kwargs['sender'] = 'patient.selector'
+	kwargs['sender'] = 'main'
 	gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
 
 	app = wxPyWidgetTester(size = (200, 40))
@@ -327,7 +562,10 @@ if __name__ == "__main__":
 #   - ESC cancels selection
 #   - number selects patient
 #
-# - hitting cursor-down (alt-L = List, alt-P = previous ?)
+# - hitting cursor-up/-down
+#   - cycle through history of last 10 search fragments
+#
+# - hitting alt-L = List, alt-P = previous
 #   - show list of previous ten patients prefixed with numbers
 #   - scrolling in list
 #   - ENTER selects patient
