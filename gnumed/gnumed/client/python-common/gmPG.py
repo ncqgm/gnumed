@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -547,7 +547,7 @@ def run_query(aCursor = None, aQuery = None, *args):
 			log_much = 1
 		else:
 			log_much = 0
-		_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose = log_much)
+		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = log_much)
 		return None
 	return 1
 #---------------------------------------------------
@@ -768,7 +768,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.62  2003-06-27 16:05:22  ncq
+# Revision 1.63  2003-07-05 12:55:58  ncq
+# - improved exception reporting on failing queries
+#
+# Revision 1.62  2003/06/27 16:05:22  ncq
 # - get_col_indices() helper to be used after a select
 #
 # Revision 1.61  2003/06/26 21:37:00  ncq
