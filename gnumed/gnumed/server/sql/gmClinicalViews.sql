@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.4 2003-04-30 23:30:29 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.5 2003-05-01 15:05:36 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -45,6 +45,24 @@ where
 ;
 
 -- ==========================================================
+-- allergy stuff
+\unset ON_ERROR_STOP
+drop trigger t_allergy_add_del on allergy;
+drop function f_announce_allergy_add_del();
+\set ON_ERROR_STOP 1
+
+create function f_announce_allergy_add_del() returns opaque as '
+begin
+	notify "allergy_add_del_db";
+end;
+' language 'plpgsql';
+
+create trigger t_allergy_add_del
+	after insert or delete on allergy
+	for each row execute procedure f_announce_allergy_add_del()
+;
+-- should really be "for each statement" but that isn't supported yet
+
 \unset ON_ERROR_STOP
 drop view v_i18n_patient_allergies;
 \set ON_ERROR_STOP 1
@@ -55,7 +73,7 @@ select
 	vpt.id_patient as id_patient,
 	a.id_clin_transaction as id_clin_transaction,
 	a.substance as substance,
-	a.id_substance as id_substance,
+	a.substance_code as substance_code,
 	a.generics as generics,
 	a.allergene as allergene,
 	a.atc_code as atc_code,
@@ -91,11 +109,15 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.4  2003-04-30 23:30:29  ncq
+-- Revision 1.5  2003-05-01 15:05:36  ncq
+-- - function/trigger to announce insertion/deletion of allergy
+-- - allergy.id_substance -> allergy.substance_code
+--
+-- Revision 1.4  2003/04/30 23:30:29  ncq
 -- - v_i18n_patient_allergies
 -- - new_allergy -> allergy_new
 --
