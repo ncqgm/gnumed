@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -38,7 +38,7 @@ commnames = dict( [ (v,k) for (k,v) in commtypes.items()] )
 
 workAddressType = 2 # seems constant for gnumed schema in any language
 
-addressTypes = gmDemographicRecord.getAddressTypes()
+#addressTypes = gmDemographicRecord.getAddressTypes()
 
 class cCatFinder(gmBorg.cBorg):
 
@@ -1076,6 +1076,7 @@ class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 			v = r.getCommChannel(id)
 			if v: d[k] = v
 
+		addressTypes = gmDemographicRecord.getAddressTypes()
 		address = r.getAddresses( addressTypes[workAddressType], firstonly=1)
 		a = self._address
 		#<DEBUG>
@@ -2022,7 +2023,11 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.28  2004-06-21 14:48:26  sjtan
+# Revision 1.29  2004-06-21 15:08:45  sjtan
+#
+# fixup for epydoc, remove global module scope database access.
+#
+# Revision 1.28  2004/06/21 14:48:26  sjtan
 #
 # restored some methods that gmContacts depends on, after they were booted
 # out from gmDemographicRecord with no home to go , works again ;
