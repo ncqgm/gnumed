@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -44,7 +44,7 @@ except ImportError:
 ] = map(lambda _init_ctrls: wxNewId(), range(8))
 #==================================================
 class scanFrame(wxFrame):
-	# a dict holding our objects
+	# a list holding our objects
 	acquired_pages = []
 	#----------------------------------------------
 	def __init__(self, parent):
@@ -441,7 +441,7 @@ class scanFrame(wxFrame):
 		self.TwainScanner.HideUI()
 
 		# and keep a reference
-		self.acquired_pages[len(self.acquired_pages)] = fname
+		self.acquired_pages.append(fname)
 		#update list of pages in GUI
 		self.__reload_LBOX_doc_pages()
 
