@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -57,7 +57,7 @@ create table log_state (
 create table urb (
 	id serial primary key,
 	id_state integer not null references state(id),
-	postcode varchar(12) not null default 'unknown',
+	postcode varchar(12) not null,
 	name text not null,
 	unique (id_state, postcode, name)
 ) inherits (audit_fields, audit_mark);
@@ -459,11 +459,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.4  2003-08-10 01:03:39  ncq
+-- Revision 1.5  2003-08-13 21:08:51  ncq
+-- - remove default "unknown" from urb.postcode
+--
+-- Revision 1.4  2003/08/10 01:03:39  ncq
 -- - better name link tables (lnk_a2b pattern)
 -- - urb.postcode constraint not null
 --
