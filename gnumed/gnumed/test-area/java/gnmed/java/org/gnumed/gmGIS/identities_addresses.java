@@ -24,7 +24,7 @@ public class identities_addresses {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
 /**
  * <p>
@@ -60,6 +60,7 @@ public class identities_addresses {
    // access methods for associations
    /**
     *@hibernate.many-to-one
+    *   cascade="none"
     */
     public address_type getAddress_type() {
         return address_type;
@@ -81,6 +82,7 @@ public class identities_addresses {
     
       /**
     *@hibernate.many-to-one
+     *  inverse="true"
     */
     public identity getIdentity() {
         return identity;
@@ -101,7 +103,7 @@ public class identities_addresses {
  * @hibernate.id
  *  generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -110,7 +112,7 @@ public class identities_addresses {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     } // end setId        
 
@@ -118,7 +120,7 @@ public class identities_addresses {
  * <p>
  * Represents ...
  * </p>
- * @hibernate.property
+ * //@hibernate.property
  */
     public String getAddress_source() {        
         return address_source;

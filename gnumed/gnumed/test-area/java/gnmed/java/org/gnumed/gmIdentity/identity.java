@@ -9,12 +9,13 @@ import java.util.Date;
 import org.gnumed.gmClinical.clin_encounter;
 import org.gnumed.gmClinical.clin_health_issue;
 import org.gnumed.gmGIS.identities_addresses;
-
+import org.gnumed.gmClinical.script_drug;
 /**
  * <p>
  *
  * </p>
  * @hibernate.class
+ *  proxy="org.gnumed.gmIdentity.identity"
  */
 public class identity {
     
@@ -94,12 +95,14 @@ public class identity {
     public Collection clin_encounter = new java.util.HashSet(); // of type clin_encounter
     
     public Collection names = new java.util.HashSet(); // of type Names
+    Collection script_drug = new java.util.HashSet();
     ///////////////////////////////////////
     // access methods for associations
     
     /**
      *@hibernate.set
-     *  lazy="false"
+     *  lazy="true"
+     *  inverse="true"
      *  cascade="save-update"
      * @hibernate.collection-key
      *  column="identity"
@@ -113,6 +116,7 @@ public class identity {
      * @param identities_addressess New value of property identities_addressess.
      *
      */
+    
     public void setIdentities_addressess(Collection identities_addressess) 
     {identities_addresses= identities_addressess;
     }    
@@ -130,8 +134,9 @@ public class identity {
     
     /**
      *@hibernate.set
-     *      lazy="true"
+     *      lazy="false"
      *      cascade="all"
+//     *      inverse="true"
      *@hibernate.collection-key
      *      column="identity"
      *@hibernate.collection-one-to-many
@@ -159,45 +164,44 @@ public class identity {
         boolean removed = this.clin_health_issue.remove(_clin_health_issue);
         if (removed) _clin_health_issue.setIdentity((identity)null);
     }
-//    
-//    /**
-//     *@hibernate.set
-//     *  lazy="true"
-//     *  cascade="delete"
-//     *
-//     *@hibernate.collection-key
-//     *  column="identity"
-//   //  *@hibernate.collection-index
-//    // *  column="encounter"
-//     *@hibernate.collection-one-to-many
-//     *  class="org.gnumed.gmClinical.clin_encounter"
-//     */
-//    public Collection getClin_encounters() {
-//        return clin_encounter;
-//    }
-//    
-//    /** Setter for property clin_encounters.
-//     * @param clin_encounters New value of property clin_encounters.
-//     *
-//     */
-//    public void setClin_encounters(Collection clin_encounters) {
-//        clin_encounter = clin_encounters;
-//    }
-//    public void addClin_encounter(clin_encounter _clin_encounter) {
-//        if (! this.clin_encounter.contains(_clin_encounter)) {
-//            this.clin_encounter.add(_clin_encounter);
-//            _clin_encounter.setProvider(this);
-//        }
-//    }
-//    public void removeClin_encounter(clin_encounter _clin_encounter) {
-//        boolean removed = this.clin_encounter.remove(_clin_encounter);
-//        if (removed) _clin_encounter.setProvider((identity)null);
-//    }
-//    
+    
+    /**
+     *@hibernate.set
+     *  lazy="false"
+     *  cascade="all"
+     *  inverse="true"
+     *@hibernate.collection-key
+     *  column="identity"
+     *@hibernate.collection-one-to-many
+     *  class="org.gnumed.gmClinical.clin_encounter"
+     */
+    public Collection getClin_encounters() {
+        return clin_encounter;
+    }
+    
+    /** Setter for property clin_encounters.
+     * @param clin_encounters New value of property clin_encounters.
+     *
+     */
+    public void setClin_encounters(Collection clin_encounters) {
+        clin_encounter = clin_encounters;
+    }
+    public void addClin_encounter(clin_encounter _clin_encounter) {
+        if (! this.clin_encounter.contains(_clin_encounter)) {
+            this.clin_encounter.add(_clin_encounter);
+            _clin_encounter.setIdentity(this);
+        }
+    }
+    public void removeClin_encounter(clin_encounter _clin_encounter) {
+        boolean removed = this.clin_encounter.remove(_clin_encounter);
+        if (removed) _clin_encounter.setIdentity((identity)null);
+    }
+    
     /**
      *
      * @hibernate.set
      *      cascade="save-update"
+//     *      inverse="true"
      * @hibernate.collection-key
      *  column="identity"
      * @hibernate.collection-one-to-many
@@ -224,6 +228,37 @@ public class identity {
         boolean removed = this.names.remove(names);
         if (removed) names.setIdentity((identity)null);
     }
+    
+    /**
+     *@hibernate.set
+     *  cascade="all"
+     *  lazy="false"
+      * @hibernate.collection-key
+     *  column="identity"
+     * @hibernate.collection-one-to-many
+     *  class="org.gnumed.gmClinical.script_drug"
+     */
+       public Collection getScript_drugs() {
+        return script_drug;
+    }
+    public void addScript_drug(script_drug _script_drug) {
+        if (! this.script_drug.contains(_script_drug)) {
+            this.script_drug.add(_script_drug);
+            _script_drug.setIdentity(this);
+        }
+    }
+    public void removeScript_drug(script_drug _script_drug) {
+        boolean removed = this.script_drug.remove(_script_drug);
+        if (removed) _script_drug.setIdentity((identity)null);
+    }
+      /** Setter for property script_drugs.
+     * @param script_drugs New value of property script_drugs.
+     *
+     */
+    public void setScript_drugs(Collection script_drugs) {
+        script_drug = script_drugs;
+    }    
+   
     
     ///////////////////////////////////////
     // operations
@@ -345,7 +380,7 @@ public class identity {
         id = _id;
     }
     
-   
+  
     // end setId
     
 } // end identity

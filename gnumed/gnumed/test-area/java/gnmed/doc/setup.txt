@@ -22,3 +22,9 @@ select * from disease_code;
 
 6. TestClinHealthIssue and higher test cases won't work without disease_code being loaded.
 
+7. to see if other drugref tables are loaded:
+    select count(*) from  ...   product, drug_element atc link_compound_generics  drug_routes drug_formulation
+                                generic_drug_name 
+                                 are needed to be loaded , for the TestScript test case.
+
+
