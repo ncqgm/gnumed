@@ -24,7 +24,7 @@ class SQLListControl(wxListCtrl):
 	"Intelligent list control able to display SQL query results in a formatted way"
 
 	__querystr = ''
-	__service = None
+	__service = 'default'
 	__status = None
 	__saved_stdout = None
 	__saved_stderr = None
@@ -111,15 +111,13 @@ class SQLListControl(wxListCtrl):
 		if self.__status is not None:
 			self.__status(txt)
 
-
-
 	def RunQuery(self):
 		if self.__querystr is None or self.__querystr == '':
 			#no need to process an empty query
 			return
 		self.RedirectOutput()
 		try:
-			gmLog.gmDefLog.Log (gmLog.lData,  "running query on service %s" % self.__servic)
+			gmLog.gmDefLog.Log (gmLog.lData,  "running query on service %s" % self.__service)
 			conn = gmPG.ConnectionPool().GetConnection(self.__service)
 			cursor = conn.cursor ()
 		except:
