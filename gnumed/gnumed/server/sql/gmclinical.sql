@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.155 $
+-- $Revision: 1.156 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -120,7 +120,9 @@ create table last_act_episode (
 	fk_episode integer
 		unique
 		not null
-		references clin_episode(pk),
+		references clin_episode(pk)
+		on update cascade
+		on delete cascade,
 	id_patient integer
 		unique
 		not null
@@ -160,6 +162,7 @@ create table clin_encounter (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
+	-- FIXME: probably remove this field ...
 	fk_provider integer,
 	fk_type integer
 		not null
@@ -170,7 +173,8 @@ create table clin_encounter (
 	fk_location integer,
 	source_time_zone interval,
 	description text
-		default null,
+		default null
+		check trim(both from coalesce(description, 'xxxDEFAULTxxx')) != '',
 	started timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP,
@@ -328,6 +332,17 @@ comment on column lnk_type2item.fk_item is
 -- ============================================
 -- specific EMR content tables: SOAP++
 -- --------------------------------------------
+-- soap cats
+create table soap_cat_ranks (
+	pk serial primary key,
+	rank integer
+		not null
+		check (rank in (1,2,3,4)),
+	soap_cat character(1)
+		not null
+		check (lower(soap_cat) in ('s', 'o', 'a', 'p'))
+);
+
 -- narrative
 create table clin_narrative (
 	pk serial primary key,
@@ -346,8 +361,8 @@ alter table clin_narrative add constraint rfe_is_subj
 	check ((is_rfe is false) or (is_rfe is true and soap_cat='s'));
 alter table clin_narrative add constraint aoe_is_assess
 	check ((is_aoe is false) or (is_aoe is true and soap_cat='a'));
-alter table clin_narrative add constraint narrative_not_empty
-	check (coalesce(trim(narrative), '') != '');
+alter table clin_narrative add constraint narrative_neither_null_nor_empty
+	check (trim(coalesce(narrative, '')) != '');
 
 select add_table_for_audit('clin_narrative');
 
@@ -486,8 +501,8 @@ create table clin_hx_family (
 		on delete restrict
 ) inherits (clin_root_item);
 
-alter table clin_hx_family add constraint narrative_not_empty
-	check (coalesce(trim(narrative), '') != '');
+alter table clin_hx_family add constraint narrative_neither_null_nor_empty
+	check (trim(coalesce(narrative, '')) != '');
 -- FIXME: constraint trigger has_type(fHx)
 
 select add_table_for_audit('clin_hx_family');
@@ -1199,11 +1214,17 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.155 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.156 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.155  2005-03-21 20:10:56  ncq
+-- Revision 1.156  2005-03-31 17:52:18  ncq
+-- - cleanup
+-- - add on update/delete
+-- - improve check constraint
+-- - add soap_cat_ranks
+--
+-- Revision 1.155  2005/03/21 20:10:56  ncq
 -- - improved family history tables, getting close now
 --
 -- Revision 1.154  2005/03/20 18:10:00  ncq
