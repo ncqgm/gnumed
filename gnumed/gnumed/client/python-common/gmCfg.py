@@ -47,7 +47,7 @@ permanent you need to call store() on the file object.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -481,6 +481,11 @@ class cCfgFile:
 	def store(self):
 		"""Store changed configuration in config file.
 
+		- first backup old config file in case we want to take
+		  back changes of content
+		- then create the new config file with a separate name
+		- only copy the new file to the old name if writing the
+		  new file succeeds
 		# FIXME: actually we need to reread the config file here before writing
 		"""
 		if not self._modified:
@@ -921,7 +926,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.31  2003-01-04 12:17:05  ncq
+# Revision 1.32  2003-01-04 12:19:04  ncq
+# - better comment
+#
+# Revision 1.31  2003/01/04 12:17:05  ncq
 # - backup old config file before overwriting
 #
 # Revision 1.30  2002/12/26 15:49:10  ncq
