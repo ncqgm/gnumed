@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -70,13 +70,13 @@ divisionTypes = [_('Head Office'),_('Branch'),_('Department')]
 #--------------------------------------------------
 class BlueLabel(wx.wxStaticText):
 	def __init__(self, parent, id, prompt):
-		wxStaticText.__init__(self,parent, id,prompt, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_LEFT)
+		wx.wxStaticText.__init__(self,parent, id,prompt, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_LEFT)
 		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
 		self.SetForegroundColour(wx.wxColour(0,0,131))
 
 class DarkBlueHeading(wx.wxStaticText):
 	def __init__(self, parent, id, prompt):
-		wxStaticText.__init__(self,parent, id,prompt, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_CENTER)
+		wx.wxStaticText.__init__(self,parent, id,prompt, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_CENTER)
 		self.SetFont(wx.wxFont(
 			pointSize = 12,
 			family = wx.wxSWISS,
@@ -91,22 +91,22 @@ class DarkBlueHeading(wx.wxStaticText):
 #------------------------------------------------------------
 class TextBox_RedBold(wx.wxTextCtrl):
 	def __init__ (self, parent, id): #, wx.wxDefaultPostion, wx.wxDefaultSize):
-		wxTextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
+		wx.wxTextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
 		self.SetForegroundColour(wx.wxColor(255,0,0))
 		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
 class TextBox_BlackNormal(wx.wxTextCtrl):
 	def __init__ (self, parent, id): #, wx.wxDefaultPostion, wx.wxDefaultSize):
-		wxTextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
+		wx.wxTextCtrl.__init__(self,parent,id,"", wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxSIMPLE_BORDER)
 		self.SetForegroundColour(wx.wxColor(0,0,0))
 		self.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
 
-class ContactsPanel(wx.wxPanel):
+class cContactsPanel(wx.wxPanel):
 	def __init__(self, parent,id):
-		wxPanel.__init__(self, parent, id, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxNO_BORDER|wxTAB_TRAVERSAL)
+		wx.wxPanel.__init__(self, parent, id, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxNO_BORDER| wx.wxTAB_TRAVERSAL)
 		#-----------------------------------------------------------------
 		#create top list box which will show organisations, employees, etc
 		#-----------------------------------------------------------------
-		self.list_organisations = wx.wxListCtrl(self, ID_ORGANISATIONSLIST,  wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.list_organisations = wx.wxListCtrl(self, ID_ORGANISATIONSLIST,  wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxLC_REPORT| wx.wxLC_NO_HEADER| wx.wxSUNKEN_BORDER)
 		self.list_organisations.SetForegroundColour(wx.wxColor(74,76,74))
 		self.list_organisations.SetFont(wx.wxFont(10, wx.wxSWISS, wx.wxNORMAL, wx.wxNORMAL, False, ''))
 		#----------------------------------------
@@ -170,13 +170,13 @@ class ContactsPanel(wx.wxPanel):
 		self.txt_org_name = TextBox_RedBold(self,-1)
 		self.txt_org_type = TextBox_RedBold(self,-1)       #head office, branch or department
 		#self.txt_org_number = TextBox_RedBold(self, -1)
-		self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wx.wxDefaultPosition, size=wxDefaultSize )
+		self.txt_org_street = cPhraseWheel( parent = self,id = -1 , aMatchProvider= StreetMP(),  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize )
 		self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxNORMAL, False, ''))
-		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wx.wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
-		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wx.wxDefaultPosition, size=wxDefaultSize)
+		self.txt_org_suburb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize , id_callback= self.__urb_selected)
+		self.txt_org_zip  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
 		self.txt_org_zip.setDependent (self.txt_org_suburb, 'postcode')
 	
-		#self.txt_org_street = wx.wxTextCtrl(self, 30,"", wx.wxDefaultPosition, wx.wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
+		#self.txt_org_street = wx.wxTextCtrl(self, 30,"", wx.wxDefaultPosition, wx.wxDefaultSize, style= wx.wxTE_MULTILINE| wx.wxNO_3D| wx.wxSIMPLE_BORDER)
 	
 		#self.txt_org_street.SetForegroundColour(wx.wxColor(255,0,0))
 		#self.txt_org_street.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
@@ -186,7 +186,7 @@ class ContactsPanel(wx.wxPanel):
 		self.txt_org_user1 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user2 = TextBox_BlackNormal(self,-1)
 		self.txt_org_user3 = TextBox_BlackNormal(self,-1)
-		self.txt_org_category = cPhraseWheel(parent = self, id = -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size=wxDefaultSize)
+		self.txt_org_category = cPhraseWheel(parent = self, id = -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wx.wxDefaultPosition, size= wx.wxDefaultSize)
 		#self.txt_pers_occupation = TextBox_BlackNormal(self,-1)
 		self.txt_org_phone = TextBox_BlackNormal(self,-1)
 		self.txt_org_fax = TextBox_BlackNormal(self,-1)
@@ -196,10 +196,10 @@ class ContactsPanel(wx.wxPanel):
 		self.txt_org_memo = wx.wxTextCtrl(self, 30,
 				"This company never pays its bills \n"
 				"Insist on pre-payment before sending report",
-				wxDefaultPosition, wx.wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
+				wx.wxDefaultPosition, wx.wxDefaultSize, style= wx.wxTE_MULTILINE| wx.wxNO_3D| wx.wxSIMPLE_BORDER)
 		self.txt_org_memo.SetInsertionPoint(0)
 		self.txt_org_memo.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxNORMAL, False, ''))
-		self.combo_type = wx.wxComboBox(self, ID_COMBOTYPE, "", wx.wxDefaultPosition, wx.wxDefaultSize,  divisionTypes , wx.wxCB_READONLY ) #wxCB_DROPDOWN)
+		self.combo_type = wx.wxComboBox(self, ID_COMBOTYPE, "", wx.wxDefaultPosition, wx.wxDefaultSize,  divisionTypes , wx.wxCB_READONLY ) # wx.wxCB_DROPDOWN)
 		self.combo_type.SetForegroundColour(wx.wxColor(255,0,0))
 		self.combo_type.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wxNORMAL, wx.wxBOLD,False,''))
 		#----------------------
@@ -250,7 +250,7 @@ class ContactsPanel(wx.wxPanel):
 		else:	
 			self.sizer_line0.Add(0,0,4)
 		
-		self.sizer_line0.Add(self.lbl_heading,40, wx.wxEXPAND|wxALIGN_CENTER)
+		self.sizer_line0.Add(self.lbl_heading,40, wx.wxEXPAND| wx.wxALIGN_CENTER)
 		
 		if wx.wxPlatform == '__WXMAC__':
 			self.sizer_line0.Add((0,0),48)
@@ -307,7 +307,7 @@ class ContactsPanel(wx.wxPanel):
 		self.sizer_line2_forfax.Add(self.txt_org_fax,36, wx.wxEXPAND)
 		self.sizer_line2_rightside.AddSizer(self.sizer_line2_forphone,2, wx.wxEXPAND)
 		self.sizer_line2_rightside.AddSizer(self.sizer_line2_forfax,2, wx.wxEXPAND)
-		self.sizer_line2.Add(self.lbl_org_street,4, wx.wxGROW|wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line2.Add(self.lbl_org_street,4, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line2.Add(self.txt_org_street,40, wx.wxEXPAND)
 		if wx.wxPlatform == '__WXMAC__':
 			self.sizer_line2.Add((0,0),4)
@@ -317,26 +317,26 @@ class ContactsPanel(wx.wxPanel):
 		#----------------------------------------------------
 		#line three:suburb, state, zip code, organisation fax
 		#----------------------------------------------------
-		self.sizer_line3.Add(self.lbl_org_suburb,4, wx.wxEXPAND|wxALIGN_CENTER_VERTICAL)
+		self.sizer_line3.Add(self.lbl_org_suburb,4, wx.wxEXPAND| wx.wxALIGN_CENTER_VERTICAL)
 		self.sizer_line3.Add(self.txt_org_suburb,40, wx.wxEXPAND)
 		if wx.wxPlatform == '__WXMAC__':
 			self.sizer_line3.Add((0,0),4)
 		else:
 			self.sizer_line3.Add(0,0,4)
-		self.sizer_line3.Add(self.lbl_org_email,8, wx.wxGROW|wxALIGN_CENTER_VERTICAL)
+		self.sizer_line3.Add(self.lbl_org_email,8, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL)
 		self.sizer_line3.Add(self.txt_org_email,36, wx.wxEXPAND)
 		#-----------------------------------------------
 		#line four: head office checkbox, email text box
 		#-----------------------------------------------
-		self.sizer_line4.Add(self.lbl_org_state,4, wx.wxEXPAND|wxALIGN_CENTER)
+		self.sizer_line4.Add(self.lbl_org_state,4, wx.wxEXPAND| wx.wxALIGN_CENTER)
 		self.sizer_line4.Add(self.txt_org_state,20, wx.wxEXPAND)
-		self.sizer_line4.Add(self.lbl_org_zip,10, wx.wxGROW|wxTOP,5)
+		self.sizer_line4.Add(self.lbl_org_zip,10, wx.wxGROW| wx.wxTOP,5)
 		self.sizer_line4.Add(self.txt_org_zip,10, wx.wxEXPAND)
 		if wx.wxPlatform == '__WXMAC__':
 			self.sizer_line4.Add((0,0),4)
 		else:
 			self.sizer_line4.Add(0,0,4)
-		self.sizer_line4.Add(self.lbl_org_internet,8, wx.wxGROW|wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line4.Add(self.lbl_org_internet,8, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line4.Add(self.txt_org_internet,36, wx.wxEXPAND)
 		#-----------------------------------------------
 		#line five: postal address checkbox, internet
@@ -350,7 +350,7 @@ class ContactsPanel(wx.wxPanel):
 			self.sizer_line5.Add((0,0),4)
 		else:
 			self.sizer_line5.Add(0,0,4)
-		self.sizer_line5.Add(self.lbl_org_mobile,8, wx.wxGROW|wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line5.Add(self.lbl_org_mobile,8, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line5.Add(self.txt_org_mobile,36, wx.wxEXPAND)
 		#-----------------------------------------------
 		#line six: checkbox branch mobile phone number
@@ -363,13 +363,13 @@ class ContactsPanel(wx.wxPanel):
 		#line seven: user1
 		#-----------------------------------------------
 		self.sizer_line7_user1 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line7_user1.Add(self.lbl_org_user1,4, wx.wxGROW|wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line7_user1.Add(self.lbl_org_user1,4, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7_user1.Add(self.txt_org_user1,18, wx.wxEXPAND)
 		self.sizer_line7_user2 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line7_user2.Add(self.lbl_org_user2,4, wx.wxGROW|wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line7_user2.Add(self.lbl_org_user2,4, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7_user2.Add(self.txt_org_user2,18, wx.wxEXPAND)
 		self.sizer_line7_user3 = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		self.sizer_line7_user3.Add(self.lbl_org_user3,4, wx.wxGROW|wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line7_user3.Add(self.lbl_org_user3,4, wx.wxGROW| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7_user3.Add(self.txt_org_user3,18, wx.wxEXPAND)
 		self.sizer_line7_right = wx.wxBoxSizer(wx.wxVERTICAL)
 		self.sizer_line7_right.AddSizer(self.sizer_line7_user1,0, wx.wxEXPAND)
@@ -377,7 +377,7 @@ class ContactsPanel(wx.wxPanel):
 		self.sizer_line7_right.AddSizer(self.sizer_line7_user3,0, wx.wxEXPAND)
 	
 	
-		self.sizer_line7.Add(self.lbl_org_memo,4, wx.wxEXPAND|wxALIGN_CENTER_VERTICAL,5)
+		self.sizer_line7.Add(self.lbl_org_memo,4, wx.wxEXPAND| wx.wxALIGN_CENTER_VERTICAL,5)
 		self.sizer_line7.Add(self.txt_org_memo,40, wx.wxEXPAND)
 		if wx.wxPlatform == '__WXMAC__':
 			self.sizer_line7.Add((0,0),4)
@@ -400,7 +400,7 @@ class ContactsPanel(wx.wxPanel):
 		self.nextsizer.Add(self.sizer_line6,0, wx.wxEXPAND)
 		self.nextsizer.Add(self.sizer_line7,0, wx.wxEXPAND)
 		self.mainsizer = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.mainsizer.AddSizer(self.nextsizer,1, wx.wxEXPAND|wxALL,10)
+		self.mainsizer.AddSizer(self.nextsizer,1, wx.wxEXPAND| wx.wxALL,10)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit
 		self.SetAutoLayout(True)
@@ -455,7 +455,7 @@ class ContactsPanel(wx.wxPanel):
 
 
 	def _connectDrag(self):
-		EVT_LIST_BEGIN_DRAG(self.list_organisations, self.list_organisations.GetId(), self._doDrag)
+		wx.EVT_LIST_BEGIN_DRAG(self.list_organisations, self.list_organisations.GetId(), self._doDrag)
 	
 	def _doDrag(self, event):
 		dragSource = wx.wxDropSource(self)
@@ -469,7 +469,7 @@ class ContactsPanel(wx.wxPanel):
 		
 
 	def _connectCutPaste(self):
-		EVT_KEY_DOWN(self.list_organisations, self._checkForCutPaste)
+		wx.EVT_KEY_DOWN(self.list_organisations, self._checkForCutPaste)
 
 	def _checkForCutPaste(self, keyEvent):
 		#print "control down is ", keyEvent.ControlDown()
@@ -524,7 +524,7 @@ class ContactsPanel(wx.wxPanel):
 
 	def _connect_list(self):
 		"""allow list selection to update the org edit area"""
-		EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
+		wx.EVT_LIST_ITEM_SELECTED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
 
 	def __urb_selected(self, id):
 		self.input_field['postcode'].SetValue (gmOrganization.getPostcodeForUrbId(id))
@@ -921,7 +921,7 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		return gmContacts.tab_name
 
 	def GetWidget (self, parent):
-		self._last_widget = ContactsPanel (parent, -1)
+		self._last_widget = cContactsPanel (parent, -1)
 		return self._last_widget
 
 	def MenuInfo (self):
@@ -978,11 +978,11 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		self.__connect_commands(tb)
 
 	def __connect_commands(self, toolbar):
-		EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.addOrg)
-		EVT_TOOL(toolbar, ID_EMPLOYEEADD, self.addEmployee)
-		EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.addBranchDept)
-		EVT_TOOL(toolbar, ID_ORGANISATIONDISPLAY, self.displayOrg)
-		EVT_TOOL(toolbar, ID_SAVE, self.saveOrg)
+		wx.EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.addOrg)
+		wx.EVT_TOOL(toolbar, ID_EMPLOYEEADD, self.addEmployee)
+		wx.EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.addBranchDept)
+		wx.EVT_TOOL(toolbar, ID_ORGANISATIONDISPLAY, self.displayOrg)
+		wx.EVT_TOOL(toolbar, ID_SAVE, self.saveOrg)
 
 	def addEmployee(self, event):
 		print "doEmployeeAdd"
@@ -1031,12 +1031,15 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 
 if __name__ == "__main__":
 	app = wx.wxPyWidgetTester(size = (800, 600))
-	app.SetWidget(ContactsPanel, -1)
+	app.SetWidget(cContactsPanel, -1)
 	app.MainLoop()
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.38  2004-07-24 16:11:52  ncq
+# Revision 1.39  2004-07-24 17:02:35  ncq
+# - some more wx.wx* fixes
+#
+# Revision 1.38  2004/07/24 16:11:52  ncq
 # - normalize wx import for use in 2.4 and 2.5
 # 	from wxPython import wx
 # 	sth = wx.wxSomething() etc.
