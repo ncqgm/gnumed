@@ -351,7 +351,7 @@ def inputWXLoginParams():
 	#OK, wxPython was already loaded. Let's launch the login dialog
 	#if wx was not initialized /no main App loop, an exception should be raised anyway
 	import gmLoginDialog
-	dlg = gmLoginDialog.LoginDialog(NULL, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
+	dlg = gmLoginDialog.LoginDialog(None, -1, png_bitmap = 'bitmaps/gnumedlogo.png')
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginParams()
 	#if user cancelled or something else went wrong, raise an exception
