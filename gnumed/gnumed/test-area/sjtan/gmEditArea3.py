@@ -1587,14 +1587,14 @@ class DemographicEditArea(EditArea2):
 	#	self.add("family", CMBx, newline = 1)
 	#	self.add("place", CMBx, newline = 1)
 		
-		self.add("street 1")
+		self.add("street 1", CMBx)  # by allowing Phrase wheel or combo box, addresses can be shared
 		self.add("street 2", newline=1)
 		self.add("suburb", CMBx, newline = 1)
 		self.add("state", CMBx)
 		self.add("postcode", CMBx, newline = 1)
 
-		self.add("home tel.")
-		self.add("work tel.", newline = 1)
+		self.add("home tel.", CMBx) #  phone numbers can also be shared across persons. But home and work are paired if selected.
+		self.add("work tel.", CMBx, newline = 1)
 
 		self.add("medicare no")
 		self.add("DVA no", newline = 1)
