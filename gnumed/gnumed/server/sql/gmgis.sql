@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.32 $
+-- $Revision: 1.33 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -49,9 +49,6 @@ COMMENT ON COLUMN country.code IS
 COMMENT ON COLUMN country.deprecated IS
 	'date when this country ceased officially to exist (if applicable)';
 
--- Here come the ISO country codes ...
--- \copy country from 'iso-country-codes.txt'
-
 -- ===================================================================
 -- state codes. Any need for more than 3 characters?
 -- yes, at least in Germany we have up to 6
@@ -79,7 +76,8 @@ create table urb (
 	id serial primary key,
 	statecode int references state(id),
 	postcode char(8),
-	name varchar(60)
+	name varchar(60),
+	constraint unique (statecode, postcode, name)
 ) inherits (audit_gis);
 
 -- this does not work in the UK! Seperate postcodes for each street
@@ -414,4 +412,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.33 $');

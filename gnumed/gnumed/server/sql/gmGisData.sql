@@ -21,6 +21,8 @@ INSERT INTO address_type(id, name) values(4, i18n('holidays'));
 INSERT INTO address_type(id, name) values(5, i18n('temporary'));
 
 -- ===================================================================
+-- here come the ISO country codes ...
+
 BEGIN WORK;
 insert into country(code, name) values('AF', i18n('AFGHANISTAN'));
 insert into country(code, name) values('AL', i18n('ALBANIA'));
@@ -252,11 +254,15 @@ COMMIT WORK;
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmGisData.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmGisData.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmGisData.sql,v $
--- Revision 1.2  2003-03-24 10:41:16  ncq
+-- Revision 1.3  2003-03-24 10:45:12  ncq
+-- - country codes moved to GisData
+-- - added constraint on table urb
+--
+-- Revision 1.2  2003/03/24 10:41:16  ncq
 -- - added ISO country codes
 --
 -- Revision 1.1  2003/02/14 10:46:17  ncq
