@@ -20,6 +20,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.gnumed.testweb1.data.HealthRecord01;
+import org.gnumed.testweb1.forms.ClinicalUpdateForm;
 /**
  *
  * @author  sjtan
@@ -36,6 +37,7 @@ public class ClinicalEditAction extends Action {
     HttpServletRequest request,
     HttpServletResponse response) {
          
+    	
         
         try {
             clinicalActionUtil.setRequestAttributes( servlet,  request,   form,  mapping ) ;

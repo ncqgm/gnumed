@@ -49,6 +49,8 @@ public class ClinicalSQLImpl1 implements ClinicalSQL ,
                 
     }
     
+    
+    
     public List getVaccines(Connection conn) throws SQLException {
         synchronized(this) {
             if (vaccines == null) {

@@ -41,6 +41,8 @@ public interface DataObjectFactory {
      public Vitals createVitals();
      HealthRecord01 createHealthRecord(HealthSummary01 hs);
      
+     public DrugRefConstructed createDrugRefConstructed();
+     
      public ClinicalEncounter createEntryClinicalEncounter();
      public ClinNarrative createEntryClinNarrative();
      public AllergyEntry createEntryAllergy();

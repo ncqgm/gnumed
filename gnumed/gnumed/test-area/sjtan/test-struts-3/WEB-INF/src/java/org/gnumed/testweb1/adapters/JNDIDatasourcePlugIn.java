@@ -36,12 +36,19 @@ public class JNDIDatasourcePlugIn implements PlugIn {
         try {
         Context ctx = new InitialContext();
         Context ctx2 = (Context) ctx.lookup(Constants.JNDI_ROOT);
-        DataSource src = (DataSource) ctx2.lookup(Constants.JNDI_REF_POOLED_CONNECTIONS);
-        actionServlet.getServletContext().setAttribute(Constants.POOLED_DATASOURCE,  src);
+        DataSource src = (DataSource) ctx2.lookup(Constants.JNDI_REF_POOLED_GNUMED_CONNECTIONS);
+        actionServlet.getServletContext().setAttribute(Constants.POOLED_DATASOURCE_GNUMED,  src);
         } catch(Exception e) {
-            throw new javax.servlet.ServletException("Unable to set servlet attribute for pooled datasource", e);
+            throw new javax.servlet.ServletException("Unable to set servlet attribute for pooled datasource to gnumed db", e);
         }
-        
+        try {
+        	  Context ctx = new InitialContext();
+              Context ctx2 = (Context) ctx.lookup(Constants.JNDI_ROOT);
+              DataSource src = (DataSource) ctx2.lookup(Constants.JNDI_REF_DRUGREF_CONNECTION);
+              actionServlet.getServletContext().setAttribute(Constants.POOLED_DATASOURCE_DRUGREF,  src);
+        }catch(Exception e) {
+            throw new javax.servlet.ServletException("Unable to set servlet attribute for pooled datasource to drugref db", e);
+        }
     }
     
 }

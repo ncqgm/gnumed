@@ -28,6 +28,7 @@ import org.gnumed.testweb1.persist.scripted.ClinicalSQL;
 import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
 import org.gnumed.testweb1.persist.scripted.ScriptedSQLClinicalAccess;
 import org.gnumed.testweb1.persist.scripted.ScriptedSQLDemographicDataAccess;
+import org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccess;
 /**
  *
  * @author  sjtan
@@ -58,33 +59,16 @@ public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
             Context ctx = new InitialContext();
             Context ctx2 = (Context) ctx.lookup(Constants.JNDI_ROOT);
             
-            DataSource dataSource = (DataSource) ctx2.lookup(Constants.JNDI_REF_POOLED_CONNECTIONS);
-            
-            
-            
-            
-            
+            DataSource dataSource = (DataSource) ctx2.lookup(Constants.JNDI_REF_POOLED_GNUMED_CONNECTIONS);
             log.info( this + " got " + dataSource);
             
-            PlugInConfig c0 = Util.findPluginConfig(moduleConfig, DataObjectFactoryPlugIn.class);
-            Map mapFactory = c0.getProperties();
-            
-            
-            
-            PlugInConfig c = Util.findPluginConfig(moduleConfig, this.getClass());
-            
-            Map map = c.getProperties();
-            
-            //        Enumeration k = actionServlet.getServletContext().getAttributeNames();
-            //        while (k.hasMoreElements() ) {
-            //               log.info("attribute="+ k.nextElement());
-            //.
-            //        }
-            
+            PlugInConfig dataFactoryPluginConfig = Util.findPluginConfig(moduleConfig, DataObjectFactoryPlugIn.class);
+            PlugInConfig pluginConfig = Util.findPluginConfig(moduleConfig, this.getClass());
+              
             DataObjectFactory factory = null;
             try {
                 String dataObjectFactoryClassName = 
-                    (String)mapFactory.get(Constants.Servlet.OBJECT_FACTORY);
+                    (String)dataFactoryPluginConfig.getProperties().get(Constants.Servlet.OBJECT_FACTORY);
                 
                 factory = (DataObjectFactory) Class.forName(dataObjectFactoryClassName).newInstance();
                 
@@ -97,86 +81,151 @@ public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
             ResourceBundle bundle = getResourceBundle(moduleConfig);
             
             try {
-                String demoImplClassName =
-                (String) map.get(Constants.Plugin.DEMOGRAPHIC_SQL_PROVIDER);
+            		initializeDemographicAccess(actionServlet, dataSource, pluginConfig  , factory, bundle);
                 
-                DemographicDetailSQL sqlScriptImpl =
-                (DemographicDetailSQL) Class.forName(demoImplClassName).newInstance();
-                
-                setResourceBundleUsing((ResourceBundleUsing)sqlScriptImpl, bundle);
-                setDataObjectFactory((DataObjectFactoryUsing)sqlScriptImpl, factory);
-                
-                ScriptedSQLDemographicDataAccess dbAccess = new ScriptedSQLDemographicDataAccess();
-                
-                dbAccess.setDataSource(dataSource);
-
-                dbAccess.setDemographicDetailSQL((DemographicDetailSQL) sqlScriptImpl);
-                      
-                actionServlet.getServletContext().setAttribute(Constants.Servlet.DEMOGRAPHIC_ACCESS , dbAccess );
-                
-                     
-            } catch (Exception e) {
+             } catch (Exception e) {
                 log.error( "UNABLE TO SET '" +
                 DemographicDataAccess.DEMOGRAPHIC_ACCESS  +
                 "' of servlet context", e);
             }
+             
              ScriptedSQLClinicalAccess scriptedClinicalAccess = null;
             try {
-                
-                String clinImplClassName=
-                    
-                        (String) map.get(Constants.Plugin.CLINICAL_SQL_PROVIDER);
-                
-                
-                ClinicalSQL clinSqlScriptImpl =
-                    
-                        (ClinicalSQL) Class.forName(clinImplClassName).newInstance();
-               
-                setResourceBundleUsing((ResourceBundleUsing) clinSqlScriptImpl, bundle);
-                
-                setDataObjectFactory((DataObjectFactoryUsing) clinSqlScriptImpl, factory);
-           
-            
-                scriptedClinicalAccess = new ScriptedSQLClinicalAccess();
-                scriptedClinicalAccess.setDataSource(dataSource);
-               scriptedClinicalAccess.setClinicalSQL(clinSqlScriptImpl);
-               actionServlet.getServletContext().
-               setAttribute(Constants.Servlet.CLINICAL_ACCESS , scriptedClinicalAccess);
+                  scriptedClinicalAccess = initializeClinicalAccess(actionServlet, dataSource, pluginConfig , factory, bundle);
                 
             } catch (Exception e) {
                 log.error(e);
             }
             
             try {
-                String implClassName =
-                (String) map.get(Constants.Plugin.HEALTH_RECORD_ACCESS_PROVIDER);
-                
-                
-                HealthRecordAccess01 healthRecordAccess = 
-                (HealthRecordAccess01) Class.forName(implClassName).newInstance();
-                log.info("implClassName for health record access" + implClassName);
-                 
-                healthRecordAccess.setDataSource(dataSource);
-                healthRecordAccess.setDataObjectFactory(factory);
-                healthRecordAccess.setClinicalDataAccess(scriptedClinicalAccess);
-                
-                actionServlet.getServletContext().setAttribute(Constants.Servlet.HEALTH_RECORD_ACCESS , healthRecordAccess);
-                
-                     
+            		initializeHealthRecordAccess(actionServlet, dataSource, pluginConfig  , factory, scriptedClinicalAccess);
+           
             } catch (Exception e) {
                 log.error( "UNABLE TO SET '" + "HealthRecordAccess"
                    +
                 "' of servlet context", e);
             }
-            
-            
-            
-            
+             
         } catch(Exception e) {
             throw new javax.servlet.ServletException("Unable to set servlet attribute for pooled datasource", e);
         }
     }
 
-	 
+	/**
+	 * @param actionServlet
+	 * @param dataSource
+	 * @param map
+	 * @param factory
+	 * @param bundle
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	private void initializeDemographicAccess(org.apache.struts.action.ActionServlet actionServlet, DataSource dataSource, 
+			PlugInConfig dataAccessPluginConfig, DataObjectFactory factory, ResourceBundle bundle) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		String demoImplClassName =
+		(String) dataAccessPluginConfig.getProperties().get(Constants.Plugin.DEMOGRAPHIC_SQL_PROVIDER);
+		
+		DemographicDetailSQL sqlScriptImpl =
+			(DemographicDetailSQL) Class.forName(demoImplClassName).newInstance();
+	
+		((ResourceBundleUsing)sqlScriptImpl).setResourceBundle(bundle);
+		
+		 ((DataObjectFactoryUsing)sqlScriptImpl).setDataObjectFactory( factory);
+		
+		ScriptedSQLDemographicDataAccess dbAccess = new ScriptedSQLDemographicDataAccess();
+		
+		dbAccess.setDataSource(dataSource);
+
+		dbAccess.setDemographicDetailSQL((DemographicDetailSQL) sqlScriptImpl);
+		      
+		actionServlet.getServletContext().setAttribute(Constants.Servlet.DEMOGRAPHIC_ACCESS , dbAccess );
+	}
+
+	/**
+	 * @param actionServlet
+	 * @param dataSource
+	 * @param map
+	 * @param factory
+	 * @param bundle
+	 * @return
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	private ScriptedSQLClinicalAccess initializeClinicalAccess(org.apache.struts.action.ActionServlet actionServlet, 
+				DataSource dataSource, PlugInConfig dataAccessPluginConfig, DataObjectFactory factory, ResourceBundle bundle) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		ScriptedSQLClinicalAccess scriptedClinicalAccess;
+		String clinImplClassName=
+		    
+		        (String) dataAccessPluginConfig.getProperties().get(Constants.Plugin.CLINICAL_SQL_PROVIDER);
+		
+		
+		ClinicalSQL clinSqlScriptImpl =
+		    
+		        (ClinicalSQL) Class.forName(clinImplClassName).newInstance();
+            
+		 ((ResourceBundleUsing) clinSqlScriptImpl).setResourceBundle( bundle);
+		
+		 ((DataObjectFactoryUsing) clinSqlScriptImpl).setDataObjectFactory(factory);
+         
+         
+		scriptedClinicalAccess = new ScriptedSQLClinicalAccess();
+		scriptedClinicalAccess.setDataSource(dataSource);
+            scriptedClinicalAccess.setClinicalSQL(clinSqlScriptImpl);
+            actionServlet.getServletContext().
+            setAttribute(Constants.Servlet.CLINICAL_ACCESS , scriptedClinicalAccess);
+		return scriptedClinicalAccess;
+	}
+
+	/**
+	 * @param actionServlet
+	 * @param dataSource
+	 * @param map
+	 * @param factory
+	 * @param scriptedClinicalAccess
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	private void initializeHealthRecordAccess(org.apache.struts.action.ActionServlet actionServlet, 
+			DataSource dataSource, PlugInConfig dataAccessPluginConfig,
+			DataObjectFactory factory, ScriptedSQLClinicalAccess scriptedClinicalAccess) 
+						throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		
+		String implClassName =
+		(String) dataAccessPluginConfig.getProperties().get(Constants.Plugin.HEALTH_RECORD_ACCESS_PROVIDER);
+		
+		
+		HealthRecordAccess01 healthRecordAccess = 
+		(HealthRecordAccess01) Class.forName(implClassName).newInstance();
+		log.info("implClassName for health record access" + implClassName);
+		 
+		healthRecordAccess.setDataSource(dataSource);
+		healthRecordAccess.setDataObjectFactory(factory);
+		healthRecordAccess.setClinicalDataAccess(scriptedClinicalAccess);
+		
+		actionServlet.getServletContext().setAttribute(Constants.Servlet.HEALTH_RECORD_ACCESS , healthRecordAccess);
+	}
+
+	 private void initializeDrugRefAccess(org.apache.struts.action.ActionServlet actionServlet, 
+			DataSource dataSource, PlugInConfig dataAccessPluginConfig,
+			DataObjectFactory factory, DrugRefAccess drugRefAccess) 
+						throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		
+		String implClassName =
+		(String) dataAccessPluginConfig.getProperties().get(Constants.Plugin.DRUG_REF_ACCESS_PROVIDER);
+		
+		
+		DrugRefAccess access = 
+		(DrugRefAccess) Class.forName(implClassName).newInstance();
+		log.info("implClassName for health record access" + implClassName);
+		 
+		access.setDataSource(dataSource);
+		access.setDataObjectFactory(factory);
+		 
+		actionServlet.getServletContext().setAttribute(Constants.Servlet.DRUGREF_ACCESS , access);
+	}
+
     
 }

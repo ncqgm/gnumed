@@ -73,7 +73,7 @@ public class ListJNDIContextAction extends Action {
         ActionMessages errors = new ActionMessages();
         
         try {
-            DataSource src =(DataSource) servlet.getServletContext().getAttribute(Constants.POOLED_DATASOURCE);
+            DataSource src =(DataSource) servlet.getServletContext().getAttribute(Constants.POOLED_DATASOURCE_GNUMED);
             
             if (src == null) {
                 
@@ -82,10 +82,10 @@ public class ListJNDIContextAction extends Action {
                 Context c1 = (Context) context.lookup(Constants.JNDI_ROOT);
                 listNamingContext(c1);
                 
-                src = (DataSource) c1.lookup(Constants.JNDI_REF_POOLED_CONNECTIONS);
+                src = (DataSource) c1.lookup(Constants.JNDI_REF_POOLED_GNUMED_CONNECTIONS);
                 log.info("got datasource "+ src);
                 
-                servlet.getServletContext().setAttribute(Constants.POOLED_DATASOURCE, src);
+                servlet.getServletContext().setAttribute(Constants.POOLED_DATASOURCE_GNUMED, src);
                 
             }
             Connection con = src.getConnection();

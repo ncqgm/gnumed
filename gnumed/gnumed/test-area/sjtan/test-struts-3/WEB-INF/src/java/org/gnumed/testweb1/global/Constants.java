@@ -18,9 +18,10 @@ public final class Constants {
     
     public final static String LOGIN_MODULE= "LoginModule";
     public final static String JNDI_ROOT="java:/comp/env";
-    public final static String JNDI_REF_POOLED_CONNECTIONS="/jdbc/gnumed";
-    public final static String POOLED_DATASOURCE="dataSource";
-    
+    public final static String JNDI_REF_POOLED_GNUMED_CONNECTIONS="/jdbc/gnumed";
+    public final static String JNDI_REF_DRUGREF_CONNECTION="/jdbc/drugref";
+    public final static String POOLED_DATASOURCE_GNUMED="dataSourceGnumed";
+    public final static String POOLED_DATASOURCE_DRUGREF="dataSourceDrugRef";
    
     public static final int HOME_ADDRESS_TYPE = 1;
     
@@ -28,7 +29,7 @@ public final class Constants {
         public final static String DEMOGRAPHIC_SQL_PROVIDER = "demographicSQLProvider";
         public final static String CLINICAL_SQL_PROVIDER = "clinicalSQLProvider";
         public final static String HEALTH_RECORD_ACCESS_PROVIDER = "healthRecordAccessProvider";
-   
+        public final static String DRUG_REF_ACCESS_PROVIDER = "drugRefAccessProvider";
     
     }
     
@@ -38,6 +39,7 @@ public final class Constants {
           public final static String HEALTH_RECORD_ACCESS= "healthRecordAccess";
          public final static String OBJECT_FACTORY="objectFactory";
     
+         public final static String DRUGREF_ACCESS= "drugRefAccess";
     }
     
     public static final  class Session {
@@ -48,13 +50,18 @@ public final class Constants {
         
         public static final String DEMOGRAPHIC_DETAIL_CURRENT = "detail";
         
+        public static final String TARGET_MEDICATION_ENTRY_INDEX="medEntryIndex";
+        
+        public static final String CURRENT_CLINICAL_FORM="currentClinicalForm";
     }
     
      public static final  class Request {
         public final static String PATIENT_ID="id";
         public final static String CLINICAL_UPDATE_FORM="clinicalUpdateForm";
     //    public final static String HEALTH_RECORD_DISPLAY="healthRecord";
-        
+        public final static String DRUG_NAME_PREFIX="drugNamePrefix";
+        public final static String DRUG_REF_CANDIDATES="drugRefCandidates";
+        public final static String MEDICATION_ENTRY_INDEX="medEntryIndex";
      }
      
      public static final class Schema {

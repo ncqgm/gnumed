@@ -209,6 +209,14 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
 		configureEntryItem(m, "prescription", "script", "medication done"	);
 		return m;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.gnumed.testweb1.data.DataObjectFactory#createDrugRefConstructed()
+	 */
+	public DrugRefConstructed createDrugRefConstructed() {
+		DrugRefConstructed c = new DrugRefImpl1();
+		return c;
+	}
     
     
 }

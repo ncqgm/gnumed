@@ -55,4 +55,57 @@
       <value>true</value>
     </parameter>
   </ResourceParams>
+  
+   <Resource auth="Container" name="jdbc/drugref" type="javax.sql.DataSource"/>
+  
+  <ResourceParams name="jdbc/drugref">
+    <parameter>
+      <name>factory</name>
+      <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+    </parameter>
+    <parameter>
+      <name>driverClassName</name>
+      <value>org.postgresql.Driver</value>
+    </parameter>
+    <parameter>
+      <name>url</name>
+      <value>jdbc:postgresql://127.0.0.1:5432/drugref</value>
+    </parameter>
+    <parameter>
+      <name>username</name>
+      <!--   <value>sjtan</value> -->
+      <value>_test-doc</value>
+    </parameter>
+    <parameter>
+      <name>password</name>
+      <!-- <value>monica</value> -->
+      <value>test-doc</value>
+    </parameter>
+    <parameter>
+      <name>maxActive</name>
+      <value>10</value>
+    </parameter>
+    <parameter>
+      <name>maxIdle</name>
+      <value>5</value>
+    </parameter>
+    <parameter>
+      <name>maxWait</name>
+      <value>-1</value>
+      <!-- negative maxWait means requestors block indefinitely on empty pool, until connection
+		returned to pool -->
+    </parameter>
+    <parameter>
+      <name>removeAbandoned</name>
+      <value>true</value>
+    </parameter>
+    <parameter>
+      <name>removeAbandonedTimeout</name>
+      <value>5</value>
+      <!-- too long a timeout , and things may freeze -->
+    </parameter>
+    <parameter>
+      <name>logAbandoned</name>
+      <value>true</value>
+    </parameter>
 </Context>

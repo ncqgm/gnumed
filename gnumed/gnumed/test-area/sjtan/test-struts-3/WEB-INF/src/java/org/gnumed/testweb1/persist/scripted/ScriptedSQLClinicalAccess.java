@@ -23,6 +23,8 @@ public class ScriptedSQLClinicalAccess implements ClinicalDataAccess {
     DataSource dataSource;
     ClinicalSQL sqlProvider;
     Map vaccMap;
+   
+    
     /** Creates a new instance of ScriptedSQLClinicalAccess */
     public ScriptedSQLClinicalAccess() {
     }

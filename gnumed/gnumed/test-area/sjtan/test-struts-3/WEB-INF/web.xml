@@ -87,10 +87,18 @@
     <taglib-uri>/tags/struts-tiles</taglib-uri>
     <taglib-location>/WEB-INF/lib/struts-tiles.tld</taglib-location>
   </taglib>
+  
 <!-- must be put here, the DBCP database pooled basic datasource -->
 <resource-ref>
- <description>postgres Datasource example</description>
+ <description>postgres gnumed access</description>
  <res-ref-name>jdbc/gnumed</res-ref-name>
+ <res-type>javax.sql.DataSource</res-type>
+ <res-auth>Container</res-auth>
+</resource-ref>
+
+<resource-ref>
+	<description>postgres drugref access</description>
+ <res-ref-name>jdbc/drugref</res-ref-name>
  <res-type>javax.sql.DataSource</res-type>
  <res-auth>Container</res-auth>
 </resource-ref>

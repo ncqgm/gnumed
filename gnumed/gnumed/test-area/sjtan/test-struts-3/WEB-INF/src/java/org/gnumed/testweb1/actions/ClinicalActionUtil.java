@@ -37,7 +37,7 @@ public class ClinicalActionUtil extends ActionUtil {
      * @param id
      * @return
      */
-    Long getIdFromRequest(HttpServletRequest request ) {
+    Long getIdFromRequestParameter(HttpServletRequest request ) {
         Long id = null;
         if (request.getParameter(Constants.Request.PATIENT_ID) != null)
             id = new Long(Long.parseLong( request.getParameter(Constants.Request.PATIENT_ID) ));
@@ -89,7 +89,15 @@ public class ClinicalActionUtil extends ActionUtil {
             request.getSession().setAttribute(Constants.Session.VACCINES, vaccines);
         }
     }
-    
+    /** 
+     * reloads the demographicRecord and healthRecord objects given a patient id
+     * found on the form or as a request attribute.
+     * @param servlet
+     * @param request
+     * @param form
+     * @param mapping
+     * @throws DataSourceException
+     */
     void setRequestAttributes(HttpServlet servlet, HttpServletRequest request,  ActionForm form,
     ActionMapping mapping )
     throws DataSourceException {
@@ -101,7 +109,7 @@ public class ClinicalActionUtil extends ActionUtil {
             id = new Long(( (ClinicalUpdateForm)form).getPatientId().longValue());
         }
         else {
-           id= getIdFromRequest( request);
+           id= getIdFromRequestParameter( request);
         }
         if (id != null && id.longValue() != (long) 0) {
             setDemographicDetailOnSession(servlet, request, id);

@@ -431,6 +431,13 @@
                
          </action>
          
+         <action
+         	path="/SearchDrug"
+		type = "org.gnumed.testweb1.actions.SearchDrugAction"
+		input="clinicalEditAgain"
+		>
+         	<forward name="showCandidateDrugs" path="showcandidatedrugs"/>
+         </action>
         
             
     <!-- sample input and input submit actions 
@@ -576,6 +583,9 @@
     />
     <set-property property="healthRecordAccessProvider"
     value = "org.gnumed.testweb1.persist.scripted.ScriptedSQLHealthRecordAccess"
+    />
+    <set-property property="drugRefAccessProvider"
+    value = "org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccessImpl"
     />
 
   </plug-in>
