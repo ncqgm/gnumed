@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.20 2005-01-17 19:56:10 cfmoro Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.21 2005-01-18 19:23:16 cfmoro Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -129,6 +129,7 @@ class cMultiSashSplitter(wxWindow):
 		"""
 		Construct a new leaf (split window, SOAP input widget)
 		"""
+		
 		print "Adding leaf %s %s %s" % (direction, caller, pos)		
 		# avoid creating duplicate SOAP input widgets for the same issue
 		# Leaf creation can be fired both by controller's new button or
@@ -207,14 +208,15 @@ class cMultiSashSplitter(wxWindow):
 			# we just hide SOAP input widget's contents when removing unique leaf
 			soap_widget = self.leaf1.content.soap_panel
 			soap_issue = soap_widget.GetProblem()			
-			if len(self.leaf1.content.childController.get_issues_with_soap()) > 0 and \
+			if len(self.leaf1.content.childController.get_managed_episodes()) > 0 and \
 				not soap_widget.IsSaved():
-				self.leaf1.content.childController.get_issues_with_soap().remove(soap_issue[1])			
-			soap_widget.ResetAndHide()
-			self.leaf1.creatorHor.Hide()
-			self.leaf1.closer.Hide()
-			if not self.leaf1.content.childController is None:
-					self.leaf1.content.childController.check_buttons()
+				self.leaf1.content.childController.get_managed_episodes().remove(soap_issue[1]['pk_episode'])
+			#soap_widget.ResetAndHide()
+			self.leaf1.content.MakeEmptyWidget()
+			#self.leaf1.creatorHor.Hide()
+			#self.leaf1.closer.Hide()
+			#if not self.leaf1.content.childController is None:
+			#		self.leaf1.content.childController.check_buttons()
 			return					  # we need to destroy any
 		parent = self.GetParent()	   # Another splitview
 		if parent == self.MultiSashWin:	# We'r at the root
@@ -375,10 +377,15 @@ class cMultiSashLeaf(wxWindow):
 		"""
 		self.content.SetNewController(self.MultiSashWin.childController)
 		
-	def MakeSoapEditor(self):
-		self.content.MakeSoapEditor()
-
 	def AddLeaf(self,direction,pos):
+		"""
+		Add a new widget to the stack
+		"""
+		# first editor, replace EmptyWidget
+		if isinstance(self.content.soap_panel, EmptyWidget):
+			self.content.MakeSoapEditor()
+			return
+			
 		if pos < 10: return
 		w,h = self.GetSizeTuple()
 		if direction == MV_VER:
@@ -411,6 +418,17 @@ class cMultiSashLeafContent(wxWindow):
 	We have one SOAP input widget and a reference to the controller
 	"""
 	def __init__(self, parent, childController):
+		"""
+		Create the contents for a leaf in the stack
+		
+		@param parent - Widget's parent
+		@type parent - MultiSashLeaf widget
+		
+		@param childController - Widget that register changes in the leaf,
+		provide them with data for the ui and perform some basic funcional
+		checks and behaviour control
+		@type childController - gmSoapPlugins.cMultiSashedSoapPanel
+		"""
 		w, h = self.CalcSize(parent)
 		wxWindow.__init__(
 			self,
@@ -420,37 +438,19 @@ class cMultiSashLeafContent(wxWindow):
 			size = wxSize(w,h),
 			style = wxCLIP_CHILDREN | wxSUNKEN_BORDER
 		)
-		print "Creating soap input widget, controller (%s)" % childController
-		# ui initialized and some issue selection, create SOAP input for the issue
+		
+		# basic variables
+		self.soap_panel = None
+		self.childController = childController
+		
+		# child widget creation
 		episode = childController.get_selected_episode()
 		if episode is None:
-			self.soap_panel = EmptyChild(self)
+			self.MakeEmptyWidget()
 		else:
-			self.soap_panel = gmSOAPWidgets.cResizingSoapPanel (
-				parent = self,
-				problem = episode
-			)
-			# FIXME: should this really happen here ?
-			childController.get_managed_episodes().append(episode['pk_episode'])
+			self.MakeSoapEditor()
 
-#		if childController is not None:
-#			self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, problem = childController.get_selected_episode())
-#			self.soap_panel.SetHealthIssue(childController.get_selected_issue())
-#			childController.get_managed_episodes().append(childController.get_selected_episode()['pk_episode'])
-#		else:
-#			# empty issue selection
-#			self.soap_panel = gmSOAPWidgets.cSoapPanel(self)
-
-		self.childController = childController
-		self.soap_panel.MoveXY(2,2)
-		self.normalColour = self.GetBackgroundColour()
-		self.selected=False
-		self.Select()
-
-#		# empty issue selection, ide unique SOAP input widget
-#		if childController is None:
-#			self.soap_panel.HideContents()
-
+		# event handling
 		EVT_SET_FOCUS(self,self.OnSetFocus)
 		EVT_CHILD_FOCUS(self,self.OnChildFocus)
 
@@ -470,14 +470,13 @@ class cMultiSashLeafContent(wxWindow):
 	def Select(self):
 		"""
 		Select leaf and reflect the change in controller.
-		"""		   
-		print "cMultiSashLeafContent.Select"
+		"""
+		# update ui
 		self.GetParent().MultiSashWin.UnSelect()
 		self.selected = True
 		self.SetBackgroundColour(wxColour(255,255,0)) # Yellow
 		self.Refresh()
-#		if not self.childController is None:
-#			self.childController.set_selected_leaf(self.GetParent(), self.soap_panel)
+		# update selected leaf in controller
 		self.childController.set_selected_leaf(self.GetParent(), self.soap_panel)
 
 	def CalcSize(self,parent):
@@ -510,12 +509,24 @@ class cMultiSashLeafContent(wxWindow):
 		Destroys current widget (usually EmptyWidget, becouse no soap editors are
 		displayed at startup - no episode selected)
 		"""
-		if self.soap_panel:
+		if not self.soap_panel is None:
 			self.soap_panel.Destroy()
 			self.soap_panel = None
 		self.soap_panel = gmSOAPWidgets.cResizingSoapPanel(self, self.childController.get_selected_episode())
 		self.soap_panel.MoveXY(2,2)
 		self.Select()
+		
+	def MakeEmptyWidget(self):
+		"""
+		Destroys current widget (usually soap editor, becouse no soap editors
+		displayed, eg. all removed)
+		"""		
+		if not self.soap_panel is None:
+			self.soap_panel.Destroy()
+			self.soap_panel = None
+		self.soap_panel = EmptyWidget(self)
+		self.soap_panel.MoveXY(2,2)
+		self.Select()		
 
 	def OnChildFocus(self,evt):
 		self.OnSetFocus(evt)
@@ -775,7 +786,7 @@ class MultiCloser(wxWindow):
 
 
 #============================================================
-class EmptyChild(wxWindow):
+class EmptyWidget(wxWindow):
 	"""
 	Empty default widget
 	"""

@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -175,7 +175,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			return False
 						
 		# if soap stack is empty, disable save, clear and remove buttons		
-		if isinstance(self.__selected_soap, SOAPMultiSash.EmptyChild) or self.__selected_soap.IsSaved():
+		if isinstance(self.__selected_soap, SOAPMultiSash.EmptyWidget) or self.__selected_soap.IsSaved():
 			self.__BTN_save.Enable(False)
 			self.__BTN_clear.Enable(False)
 			self.__BTN_remove.Enable(False)
@@ -192,7 +192,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__BTN_new.Enable(True)
 
 		# disabled save button when soap was dumped to backend
-		if not isinstance(self.__selected_soap, SOAPMultiSash.EmptyChild) and self.__selected_soap.IsSaved():
+		if not isinstance(self.__selected_soap, SOAPMultiSash.EmptyWidget) and self.__selected_soap.IsSaved():
 			self.__BTN_remove.Enable(True)
 	#--------------------------------------------------------	
 	def __allow_perform_action(self, action_id):
@@ -223,7 +223,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Configure enabled event signals
 		"""
 		# wxPython events
-		wx.EVT_LISTBOX(self.__problem_list, self.__problem_list.GetId(), self.__on_problem_selected)
+		wx.EVT_LISTBOX_DCLICK(self.__problem_list, self.__problem_list.GetId(), self.__on_problem_selected)
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
 		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
 		wx.EVT_BUTTON(self.__BTN_new, self.__BTN_new.GetId(), self.__on_new)
@@ -260,7 +260,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			return False
 
 		episode_id = self.__selected_episode[1]['pk_episode']
-		if episode_id  in self.__managed_episodes:
+		if episode_id not in self.__managed_episodes:
+			# create						
+			self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
+			self.__managed_episodes.append(episode_id)
+		else:
 			# FIXME find and focus
 			pass
 
@@ -322,22 +326,23 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		if not self.__allow_perform_action(self.__BTN_clear.GetId()):
 			return
 
-		print "Clear SOAP"
-		self.__selected_soap.ClearSOAP()
+		self.__selected_soap.Clear()
 
 	#--------------------------------------------------------
-	def __on_new(self, event):
+	def __on_new(self, evt):
 		"""
 		Create and display a new SOAP input widget on the stack
 		"""
+		pass
 		# security check
-		if not self.__allow_perform_action(self.__BTN_new.GetId()):
-			return
+		#if not self.__allow_perform_action(self.__BTN_new.GetId()):
+		#	return
 
-		print "New SOAP"
-		if isinstance(self.__selected_soap, SOAPMultiSash.EmptyChild):
-			self.__managed_episodes.append(self.__selected_episode[1]['pk_episode'])
-			self.__focussed_soap_editor.MakeSoapEditor()			
+		#print "New SOAP"
+		
+		#if isinstance(self.__selected_soap, SOAPMultiSash.EmptyWidget):
+		#	self.__managed_episodes.append(self.__selected_episode[1]['pk_episode'])
+		#	self.__focussed_soap_editor.MakeSoapEditor()
 		# first SOAP input widget is displayed by showing an empty hidden one
 		#if not self.__selected_soap is None and not self.__selected_soap.IsContentShown():
 #		#	self.__managed_episodes.append(self.__selected_episode[1])
@@ -352,7 +357,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			# FIXME: programmatically calculate height
 		#	self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
 
-		print "problems with soap: %s"%(self.__managed_episodes)
+		#print "problems with soap: %s"%(self.__managed_episodes)
 		
 		
 	#--------------------------------------------------------
