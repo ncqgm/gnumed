@@ -4,13 +4,13 @@
 
 @copyright: GPL
 """
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docPatient.py,v $
+__version__	= "$Revision: 1.3 $"
+__author__	= "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, string, fileinput
 
 import gmLog
-
-__author__	= "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__	= "$Revision: 1.2 $"
 __log__		= gmLog.gmDefLog
 
 _ = lambda x:x
@@ -54,17 +54,27 @@ class cPatient:
 	cob = "DE"
 	#-----------------------------------
 	def __init__(self):
-		pass
 		self.ID = None
+		self.__file_reader = {'xdt': self.__load_from_xdt}
 	#-----------------------------------
-	def getFromXDT (self, anXdtFile):
+	def loadFromFile (self, aType, aFileName):
+		"""Read the first patient from a file.
+
+		- aType lets you specify what type of file it is
+		"""
+		# sanity checks
+		if not self.__file_reader.has_key(aType):
+			__log__.Log(gmLog.lErr, 'No handler for file type \"%s\" available.' % aType)
+			__log__.Log(gmLog.lErr, 'Cannot retrieve patient from file \"%s\".' % aFileName)
+			return None
+		if not os.path.exists (aFileName):
+			__log__.Log(gmLog.lErr, "patient data file \"%s\" (type \"%s\") not found" % (aFileName, aType))
+			return None
+
+		return self.__file_reader[aType](aFileName)
+	#-----------------------------------
+	def __load_from_xdt (self, anXdtFile):
 		"""Read the _first_ patient from an xDT compatible file."""
-
-		# check for BDT patient data file
-		if not os.path.exists (anXdtFile):
-			__log__.Log(gmLog.lErr, "patient data file (xDT) '" + str(anXdtFile) + "' not found")
-			raise IOError, "patient data file (xDT) '" + str(anXdtFile) + "' not found"
-
 		tmpPat = {}
 
 		# read patient data
@@ -89,7 +99,6 @@ class cPatient:
 					data_found = data_found + 1
 					# leave this loop
 					break
-
 		# cleanup
 		fileinput.close()
 
@@ -225,13 +234,14 @@ class cPatient:
 #-----------------------------------
 if __name__ == "__main__":
 	# test framework if run by itself
+	__log__.SetAllLogLevels(gmLog.lData)
 
 	import sys
 	patfile = sys.argv[1]
 	__log__.Log(gmLog.lInfo, "reading patient data from xDT file " + patfile)
 
 	aPatient = cPatient()
-	if aPatient.getFromXDT(patfile):
+	if aPatient.loadFromFile("xdt", patfile):
 		print aPatient.firstnames
 		print aPatient.lastnames
 		print aPatient.dob
