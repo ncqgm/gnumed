@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.20 2003-06-03 14:05:05 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmClinicalRecord.py,v 1.21 2003-06-19 15:22:57 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -404,7 +404,7 @@ class gmClinicalRecord:
 			return None
 		rw_curs = rw_conn.cursor()
 		# by default new episodes belong to the __default__ health issue
-		cmd = "insert into clin_episode (self.id_health_issueue, description) values (%d, '%s');" % (self.id_default_health_issue, episode_name)
+		cmd = "insert into clin_episode (id_health_issue, description) values (%d, '%s');" % (self.id_default_health_issue, episode_name)
 		if not gmPG.run_query(rw_curs, cmd):
 			rw_curs.close()
 			rw_conn.close()
@@ -590,7 +590,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.20  2003-06-03 14:05:05  ncq
+# Revision 1.21  2003-06-19 15:22:57  ncq
+# - fix spelling error in SQL in episode creation
+#
+# Revision 1.20  2003/06/03 14:05:05  ncq
 # - start listening threads last in __init__ so we won't hang
 #   if anything else fails in the constructor
 #
