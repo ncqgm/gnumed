@@ -1,5 +1,4 @@
 
-#changes elegant Gnumed symlink import statements to rough-as-guts client
-# real path imports to suit cygwin proleterait python
+#changes import statements from Gnumed to client
+sed -e "s/from Gnumed/from client/g" -ibak `find ../.. -name "*.py"`
 
-sed -f cygwin.ed -ibak `find ../.. -name "*.py"`

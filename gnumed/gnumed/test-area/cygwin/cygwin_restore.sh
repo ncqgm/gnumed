@@ -1,9 +1,3 @@
-#restores the files recently sedded
-#BY SWAPPING
 
-for x in `find ../.. -name "*.pybak"` ;do
-	cp ${x%%pybak}py ${x%%pybak}tmp
-	cp  $x ${x%%pybak}py
-	mv ${x%%pybak}tmp $x
-done	
-
+#changes import statements from client to Gnumed
+sed -e "s/from client/from Gnumed/g"  -ibak `find ../.. -name "*.py"`
