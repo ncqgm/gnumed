@@ -31,15 +31,37 @@ class SchemaParser:
 		r = cu.fetchall()
 		return r
 
+	def get_attributes(self, table, foreign_keys = 0):
+		if foreign_keys:
+			fk_cmp = ''
+		else:
+			fk_cmp = 'not'
+
+		c = pgdb.connect("localhost:gnumed")
+		cu = c.cursor()
+		cu.execute("""
+		select attname from pg_attribute a, pg_class c where c.relfilenode = a.attrelid
+		and c.relname = '%s' and a.attnum > 0
+		and  a.attnum %s in ( select  pc.conkey[1] from pg_constraint pc where pc.contype='f' and pc.conrelid = c.relfilenode) 
+		and a.attname not in %s 
+		""" % (table, fk_cmp, str(tuple(['modified_by', 'modified_when', 'pk_audit', 'row_version']) )))
+		r = cu.fetchall()
+		l = [ x[0] for x in r]
+		return l
+		
+
 
 	def build(self):
-		"""builds the from tables listed in self.config.roots, by 
+		"""builds the document schema from tables listed in self.config.roots, by 
 		searching the foreign key constraints in pg_constraint, breadth first.
 		e.g. find all tables that have foreign keys to identity, or identity has 
 		foreign keys to . if not already in next level list of nodes,
 		then add to the next level list of nodes. Then step through the list 
-		and apply recursively the above steps.
+		and apply recursively the above steps. Only add nodes if they aren't on
+		a path being suppressed.
+		
 		This is done in  self.build_levels(list)
+		
 		Each node's next level of nodes are stored in a map:
 				self.next_level_map[node]=[next level nodes]
 		
@@ -75,8 +97,23 @@ class SchemaParser:
 			print
 
 	def print_map(self,  m , indent ):
-		for k, (tag,map) in m.items():
+		items = [(k, tag, map) for  k, (tag, map) in m.items()] 
+		def mycmp(x, y):
+			return cmp(x[1], y[1])
+			
+		items.sort( mycmp)
+		
+		for k, tag,map in items:
 			print '  ' * indent,tag, k
+			if self.config.show_attrs:
+				if self.config.show_attr_direction == 'h':
+					print '  ' * indent, '  ', self.get_attributes(k)
+				else:
+					l = self.get_attributes(k)
+					for x in l:
+						print '  ' * indent, '\t\t-', x
+				print
+			
 			self.print_map( map, indent+1)
 			if indent == 1:
 				print
@@ -91,8 +128,13 @@ class SchemaParser:
 		print "get model for ", node
 		print "\t\t is ", l
 		for x,tag in l:
-			if x in self.visited:
+			if tag =='-1(2)':
+				m[x] = (tag, {})
 				continue
+
+			if x in self.visited and not x in [ node for r,p,node in self.config.double_linked]:
+				continue
+			
 			if m.has_key(x):
 				m2 = self.get_model(x)
 				m[x]= (tag, m[x][1].update(m2))
@@ -145,12 +187,28 @@ class SchemaParser:
 				l.append((t, "<-") )
 
 		
+		repeat_fk = []
 		for t1, t2 in self.fks:
 			if node == t2 and not self.is_suppressed(node, t1):#and not self.next_level_map.has_key(t1):
 				l.append( (t1, "-*") )
 				
-			elif node == t1 and not self.is_suppressed(node, t2) and not self.next_level_map.has_key(t2):
-				l.append( (t2, "-1") )
+			elif node == t1 and not self.is_suppressed(node, t2):
+				if not self.next_level_map.has_key(t2):
+					print "adding link ", self.target, node, t2
+					l.append( (t2, "-1") )
+				else:
+					repeat_fk.append(t2)
+	
+		if repeat_fk <> []:
+			print "parent, node,REPEAT FK = ", self.target, node, repeat_fk
+			print "check against"
+			for x in self.config.double_linked:
+				print '\t\t\t', x
+		for x in repeat_fk:
+			for ( root, referer, referred) in self.config.double_linked:
+				if [self.target, node, x] == [ root, referer, referred]:
+					print "ALLOWING REPEAT FK", self.target, node, x
+					l.append((x, '-1(2)') )
 
 		
 				
@@ -187,6 +245,7 @@ class SchemaParser:
 class Config:
 	def __init__(self, lines):
 		self.external_fk = {}
+		self.double_linked = []
 		for l in lines:
 			#no indentation
 			l = l.strip()
@@ -253,7 +312,16 @@ class Config:
 					print "adding suppression ", root, parent, node
 					self.suppress.append( (root, parent, node) )
 					
+			elif name == 'show_attrs':
+				self.show_attrs = int( defn.strip() )
 			
+			elif name == 'show_attr_direction':
+				self.show_attr_direction= defn.strip()
+
+			elif name == 'double_linked':
+				l = [ x.strip() for x in defn.split(',') ]
+				for y in l:
+					self.double_linked.append( [ z.strip() for z in y.split('.') ] )
 			
 			
 	def __str__(self):
@@ -266,23 +334,35 @@ class Config:
 		
 		"\tlink tables are"+ str(self.link_tables),
 		
-		"\ttype tables are" + str(self.type_tables)
+		"\ttype tables are" + str(self.type_tables),
+
+		"\tsuppressed paths are (root, direct parent, node) ", str(self.suppress)
+		
 		]
 		return '\n'.join(l)
 
 if __name__ == '__main__':
 	config = """
-roots:	identity, org, xlnk_identity, form_instances, vacc_def
+roots:	identity, org, xlnk_identity
+#roots:, form_instances, vacc_def
 #hide:	xlnk_identity
 external_fk:	xlnk_identity.xfk_identity references identity
 link_tables:	lnk.*
 type_tables:	^.*enum.*,^.*type., ^.*category, occupation, marital_status, staff_role
-suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_root_item.clin_episode, identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type
+
+suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode,  identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type, org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan
+
+double_linked:	xlnk_identity.referral.xlnk_identity, identity.lnk_person2relative.identity, identity.lnk_job2person.occupation, xlnk_identity.lnk_result2lab_req.test_result, 	xlnk_identity.clin_root_item.clin_episode
+
+show_attrs:	0
+#show_attr_direction:	v
+show_attr_direction:	h
 
 """
 	l = config.split("\n")
 	configObject = Config(l)
-	#print configObject
+	print configObject
+	print "*"* 40
 	s = SchemaParser(configObject)
 	
 
