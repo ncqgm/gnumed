@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.14 2003-04-09 16:15:44 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmTmpPatient.py,v 1.15 2003-04-19 14:59:04 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -24,6 +24,9 @@ if __name__ == "__main__":
 _log.Log(gmLog.lData, __version__)
 
 import gmExceptions, gmPG, gmSignals, gmDispatcher
+
+# 3rd party
+import mx.DateTime as mxDateTime
 
 #============================================================
 gm2long_gender_map = {
@@ -236,7 +239,7 @@ class gmPerson:
 	def _get_medical_age(self):
 		curs = self._defconn_ro.cursor()
 		# FIXME: we need to be way more smart here !!
-		cmd = "select age(dob) from identity where id = %s;"
+		cmd = "select dob from identity where id = %s;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -247,8 +250,32 @@ class gmPerson:
 		curs.close()
 		if data is None:
 			return '??'
-		else:
-			return data[0]
+		dob = data[0]
+		now = mxDateTime.now()
+		age = now-dob
+		age = mxDateTime.Age(now, dob)
+		# >= 1 years -> years.months
+		if age.years > 0:
+			return "%sy %sm" % (age.years, age.months)
+		if age.weeks > 4:
+			return "%sm %sw" % (age.months, age.weeks)
+		if age.weeks > 1:
+			return "%sd" % age.days
+		if age.days > 1:
+			return "%sd (%sh)" % (age.days, age.hours)
+		if age.hours > 3:
+			return "%sh" % age.hours
+		if age.hours > 0:
+			return "%sh %sm" % (age.hours, age.minutes)
+		if age.minutes > 5:
+			return "%sm" % (age.minutes)
+		return "%sm %ss" % (age.minutes, age.seconds)
+
+#		if age.days > 731:
+#			format = ''
+#		if age.hours > 48:
+#			format = ''
+#		return age.strftime('%Y years %M months %d days')
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['document id list'] = _getMedDocsList
@@ -538,10 +565,15 @@ if __name__ == "__main__":
 		print "name   ", myPatient['active name']
 		print "doc ids", myPatient['document id list']
 		print "title  ", myPatient['title']
+		print "dob    ", myPatient['dob']
+		print "med age", myPatient['medical age']
 		print "fails  ", myPatient['missing handler']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.14  2003-04-09 16:15:44  ncq
+# Revision 1.15  2003-04-19 14:59:04  ncq
+# - attribute handler for "medical age"
+#
+# Revision 1.14  2003/04/09 16:15:44  ncq
 # - get handler for age
 #
 # Revision 1.13  2003/04/04 20:40:51  ncq
