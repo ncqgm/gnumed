@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.13 2004-02-04 00:57:24 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmPatient.py,v 1.14 2004-02-05 18:38:56 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -232,6 +232,12 @@ class gmCurrentPatient(cBorg):
 
 	def get_demographic_record(self):
 		return self.patient.get_demographic_record()
+
+	def get_ID(self):
+		if self.patient is None:
+			return None
+		else:
+			return self.patient.getID()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -259,6 +265,9 @@ class gmCurrentPatient(cBorg):
 	#--------------------------------------------------------
 	def unlock(self):
 		self.locked = None
+	#--------------------------------------------------------
+	def is_locked(self):
+		return self.locked
 	#--------------------------------------------------------
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
@@ -727,6 +736,30 @@ def create_dummy_identity():
 		return None
 	return data[0][0]
 #============================================================
+def set_active_patient(anID = None):
+	# argument error
+	if anID is None:
+		return None
+	pat = gmCurrentPatient()
+	# None if not connected
+	old_ID = pat.get_ID()
+	# nothing to do
+	if old_ID == anID:
+		return 1
+	# attempt to switch
+	try:
+		pat = gmCurrentPatient(anID)
+	except:
+		_log.LogException('error changing active patient', sys.exc_info())
+		return None
+	# who are we now ?
+	new_ID = pat.get_ID()
+	# nothing happened
+	if new_ID == old_ID:
+		_log.Log (gmLog.lErr, 'error changing active patient')
+		return None
+	return 1
+#============================================================
 # main/testing
 #============================================================
 if __name__ == "__main__":
@@ -766,7 +799,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.13  2004-02-04 00:57:24  ncq
+# Revision 1.14  2004-02-05 18:38:56  ncq
+# - add .get_ID(), .is_locked()
+# - set_active_patient() convenience function
+#
+# Revision 1.13  2004/02/04 00:57:24  ncq
 # - added UI-independant patient search logic taken from gmPatientSelector
 # - we can now have a console patient search field just as powerful as
 #   the GUI version due to it running the same business logic code
