@@ -27,7 +27,7 @@ further details.
 # TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -36,7 +36,20 @@ import sys, string, os.path, fileinput, os, time
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
 
-import gmLog
+try:
+	import gmLog
+except:
+	print """
+Please make sure there's a link 'modules' pointing
+to client/python-common/ so that we can load GnuMed
+Python modules.
+
+Also, if you want to use the standard config files
+you need a link 'sql' pointing to server/sql/
+
+Good luck !
+"""
+
 _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 
@@ -875,7 +888,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.17  2003-01-30 16:30:37  ncq
+# Revision 1.18  2003-01-30 18:47:04  ncq
+# - emit some half-cryptic utterance about the need for "modules"
+#   and "sql" links pointing to the appropriate places
+#
+# Revision 1.17  2003/01/30 16:30:37  ncq
 # - updated docstring, added TODO item
 #
 # Revision 1.16  2003/01/30 09:05:08  ncq
