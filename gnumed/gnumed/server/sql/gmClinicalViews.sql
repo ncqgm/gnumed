@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.119 2004-12-14 20:06:59 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.120 2004-12-15 10:48:32 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -294,6 +294,7 @@ select
 	null as issue_clinically_relevant,
 	vnep.pk_episode as pk_episode,
 	null as pk_health_issue,
+	vnep.pk_narrative as pk_narrative,
 	vnep.modified_when as episode_modified_when,
 	vnep.xmin_clin_episode as xmin_clin_episode
 from
@@ -317,6 +318,7 @@ select
 	chi.clinically_relevant as issue_clinically_relevant,
 	vnep.pk_episode as pk_episode,
 	vnep.pk_health_issue as pk_health_issue,
+	vnep.pk_narrative as pk_narrative,
 	vnep.modified_when as episode_modified_when,
 	vnep.xmin_clin_episode as xmin_clin_episode
 from
@@ -1599,11 +1601,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.119 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.120 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.119  2004-12-14 20:06:59  ncq
+-- Revision 1.120  2004-12-15 10:48:32  ncq
+-- - carry pk of narrative in episode views so business objects can
+--   update it (eg rename the episode)
+--
+-- Revision 1.119  2004/12/14 20:06:59  ncq
 -- - v_test_results.unified_target_* from val_target_* first or val_normal_* second
 --
 -- Revision 1.118  2004/12/06 21:09:38  ncq
