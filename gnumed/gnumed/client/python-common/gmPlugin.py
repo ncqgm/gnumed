@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback
@@ -213,6 +213,8 @@ def LoadPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	specific types: export/import filters, crypto algorithms
 	guibroker, dbbroker are broker objects provided
 	defaults are the default set of plugins to be loaded
+
+	FIXME: we should inform the user about failing plugins
 	"""
 	# we do need brokers, else we are useless
 	if guibroker is None:
