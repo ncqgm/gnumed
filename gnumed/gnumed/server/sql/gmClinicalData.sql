@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.17 2003-11-22 14:54:33 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.18 2003-12-29 15:29:45 uid66147 Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -166,6 +166,23 @@ insert into test_type (
 --);
 
 -- ===================================================================
+-- staff roles
+delete from staff_role;
+
+-- standard GP practice staff
+insert into staff_role (name) values (i18n('doctor'));
+insert into staff_role (name) values (i18n('practice nurse'));
+insert into staff_role (name) values (i18n('manager'));
+insert into staff_role (name) values (i18n('secretary'));
+insert into staff_role (name) values (i18n('X-ray assistant'));
+insert into staff_role (name) values (i18n('lab technician'));
+insert into staff_role (name) values (i18n('medical student'));
+insert into staff_role (name) values (i18n('student nurse'));
+insert into staff_role (name) values (i18n('trainee - secretary'));
+insert into staff_role (name) values (i18n('trainee - X-ray'));
+insert into staff_role (name) values (i18n('trainee - lab'));
+
+-- ===================================================================
 -- vaccination routes
 delete from vacc_route;
 
@@ -193,10 +210,14 @@ insert into vacc_indication (description) values (i18n('mumps'));
 insert into vacc_indication (description) values (i18n('rubella'));
 insert into vacc_indication (description) values (i18n('tetanus'));
 insert into vacc_indication (description) values (i18n('diphtheria'));
-insert into vacc_indication (description) values (i18n('influenza'));
-insert into vacc_indication (description) values (i18n('pneumococcus'));
 insert into vacc_indication (description) values (i18n('pertussis'));
+insert into vacc_indication (description) values (i18n('haemophilus influenzae b'));
+insert into vacc_indication (description) values (i18n('hepatitis B'));
+insert into vacc_indication (description) values (i18n('poliomyelitis'));
+insert into vacc_indication (description) values (i18n('influenza'));
 insert into vacc_indication (description) values (i18n('hepatitis A'));
+insert into vacc_indication (description) values (i18n('pneumococcus'));
+insert into vacc_indication (description) values (i18n('meningococcus C'));
 
 -- ===================================================================
 -- vaccination indication to disease code links
@@ -448,13 +469,64 @@ insert into lnk_vacc_ind2code
 values
 	((select id from vacc_indication where description='hepatitis A'), 'B15.9', 'ICD-10-GM');
 
+-- Meningococcus C
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.0+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.1+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.2', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.3', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.4', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.5+', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.8', 'ICD-10-GM');
+
+insert into lnk_vacc_ind2code
+	(fk_indication, code, coding_system)
+values
+	((select id from vacc_indication where description='meningococcus C'), 'A39.9', 'ICD-10-GM');
+
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.18 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.17  2003-11-22 14:54:33  ncq
+-- Revision 1.18  2003-12-29 15:29:45  uid66147
+-- - staff roles data
+-- - more vacc_indications
+-- - more vacc_indications -> disease codes
+--
+-- Revision 1.17  2003/11/22 14:54:33  ncq
 -- - add HepA vaccination indication
 --
 -- Revision 1.16  2003/11/17 11:14:53  sjtan
