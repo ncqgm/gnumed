@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.5 2005-03-29 07:25:39 ncq Exp $
+# $Id: gmI18N.py,v 1.6 2005-03-30 22:08:57 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -58,9 +58,13 @@ system_locale_level = {}
 # default is to use unicode conversion for gettext
 unicode_flag = 1
 if gmCLI.has_arg('--unicode-gettext'):
-	unicode_flag = gmCLI.arg['--unicode-gettext']
-if unicode_flag not in [0, 1]:
-	unicode_flag = 1
+	try:
+		unicode_flag = int(gmCLI.arg['--unicode-gettext'])
+		if unicode_flag not in [0, 1]:
+			unicode_flag = 1
+			raise Exception
+	except:
+		_log.Log(gmLog.lErr, 'cannot use [%s] as value for --unicode-gettext, must use 0 or 1' % gmCLI.arg['--unicode-gettext'])
 
 #===========================================================================
 def __split_locale_into_levels():
@@ -235,7 +239,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.5  2005-03-29 07:25:39  ncq
+# Revision 1.6  2005-03-30 22:08:57  ncq
+# - properly handle 0/1 in --unicode-gettext
+#
+# Revision 1.5  2005/03/29 07:25:39  ncq
 # - improve docs
 # - add unicode CLI switch to toggle unicode gettext use
 # - use std lib locale modules to get system locale
