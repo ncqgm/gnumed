@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.118 2004-06-14 06:36:51 ncq Exp $
-__version__ = "$Revision: 1.118 $"
+# $Id: gmClinicalRecord.py,v 1.119 2004-06-15 19:08:15 ncq Exp $
+__version__ = "$Revision: 1.119 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -47,11 +47,7 @@ class cClinicalRecord:
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
-		self._backend = gmPG.ConnectionPool()
-
-		self._ro_conn_clin = self._backend.GetConnection('historica')
-		if self._ro_conn_clin is None:
-			raise gmExceptions.ConstructorError, "cannot connect EMR of patient [%s] to service 'historica'" % aPKey
+		self._conn_pool = gmPG.ConnectionPool()
 
 		self.id_patient = aPKey			# == identity.id == primary key
 		if not self.__patient_exists():
@@ -91,13 +87,11 @@ class cClinicalRecord:
 	def cleanup(self):
 		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.id_patient)
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.id_patient)
-		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
+		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
-		self._backend.Unlisten(service = 'historica', signal = sig, callback = self.db_callback_vaccs_modified)
+		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self.db_callback_vaccs_modified)
 		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.id_patient)
-		self._backend.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
-
-		self._backend.ReleaseConnection('historica')
+		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._db_callback_allg_modified)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -168,13 +162,13 @@ class cClinicalRecord:
 	def _register_interests(self):
 		# backend notifications
 		sig = "%s:%s" % (gmSignals.vacc_mod_db(), self.id_patient)
-		if not self._backend.Listen('historica', sig, self.db_callback_vaccs_modified):
+		if not self._conn_pool.Listen('historica', sig, self.db_callback_vaccs_modified):
 			return None
 		sig = "%s:%s" % (gmSignals.allg_mod_db(), self.id_patient)
-		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._db_callback_allg_modified):
+		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._db_callback_allg_modified):
 			return None
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.id_patient)
-		if not self._backend.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
+		if not self._conn_pool.Listen(service = 'historica', signal = sig, callback = self._health_issues_modified):
 			return None
 		return 1
 	#--------------------------------------------------------
@@ -254,7 +248,8 @@ class cClinicalRecord:
 			'src_table'
 		]
 		cmd = "select %s from v_patient_items where id_patient=%%s order by src_table, age" % string.join(fields, ', ')
-		curs = self._ro_conn_clin.cursor()
+		ro_conn = self._conn_pool.GetConnection('historica')
+		curs = ro_conn.cursor()
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
 			curs.close()
@@ -354,6 +349,7 @@ class cClinicalRecord:
 				))
 				emr_data[age].append("----------------------------------------------------")
 		curs.close()
+		self._conn_pool.ReleaseConnection('historica')
 		return emr_data
 	#--------------------------------------------------------
 	def get_text_dump(self, since=None, until=None, encounters=None, episodes=None, issues=None):
@@ -449,7 +445,8 @@ class cClinicalRecord:
 			episode_map[episode['id_episode']] = episode['description']
 		emr_data = {}
 		# get item data from all source tables
-		curs = self._ro_conn_clin.cursor()
+		ro_conn = self._conn_pool.GetConnection('historica')
+		curs = ro_conn.cursor()
 		for src_table in items_by_table.keys():
 			item_ids = items_by_table[src_table].keys()
 			# we don't know anything about the columns of
@@ -522,6 +519,7 @@ class cClinicalRecord:
 				))
 				emr_data[age].append("----------------------------------------------------")
 		curs.close()
+		self._conn_pool.ReleaseConnection('historica')
 		return emr_data
 	#--------------------------------------------------------
 	def get_patient_ID(self):
@@ -638,7 +636,8 @@ class cClinicalRecord:
 		if issues is not None:
 			filtered_episodes = filter(lambda epi: epi['id_health_issue'] in issues, filtered_episodes)
 		if id_list is not None:
-			filtered_episodes = filter(lambda epi: epi['id'] in id_list, filtered_episodes)
+			ids = id_list
+			filtered_episodes = filter(lambda epi: epi['id'] in ids, filtered_episodes)
 		return filtered_episodes
 	#------------------------------------------------------------------
 	def add_episode(self, episode_name = 'xxxDEFAULTxxx', id_health_issue = None):
@@ -857,12 +856,12 @@ class cClinicalRecord:
 			return [[_('no vaccinations recorded'), '']]
 		return rows
 	#--------------------------------------------------------
-	def get_vaccinations(self, ID = None, indication_list = None, since=None, until=None, encounters=None, episodes=None, issues=None):
+	def get_vaccinations(self, ID = None, indications = None, since=None, until=None, encounters=None, episodes=None, issues=None):
 		"""Retrieves list of vaccinations the patient has received.
 
 		optional:
 		* ID - PK of the vaccinated indication
-		* indication_list - indications we want to retrieve vaccination
+		* indications - indications we want to retrieve vaccination
 			items for, must be primary language, not l10n_indication
         * since - initial date for allergy items
         * until - final date for allergy items
@@ -906,11 +905,11 @@ class cClinicalRecord:
 			filtered_shots = filter(lambda shot: shot['id_episode'] in episodes, filtered_shots)
  		if encounters is not None:
 			filtered_shots = filter(lambda shot: shot['id_encounter'] in encounters, filtered_shots)
-		if indication_list is not None and len(indication_list) > 0:
-			filtered_shots = filter(lambda shot: shot['indication'] in indication_list, filtered_shots)
+		if indications is not None and len(indications) > 0:
+			filtered_shots = filter(lambda shot: shot['indication'] in indications, filtered_shots)
 		return (filtered_shots)
 	#--------------------------------------------------------
-	def get_missing_vaccinations(self, indication_list = None):
+	def get_missing_vaccinations(self, indications = None):
 		try:
 			self.__db_cache['missing vaccinations']
 		except KeyError:
@@ -949,9 +948,9 @@ class cClinicalRecord:
 					except gmExceptions.ConstructorError:
 						_log.LogException('booster error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 		# if any filters ...
-		if indication_list is None:
+		if indications is None:
 			return self.__db_cache['missing vaccinations']
-		if len(indication_list) == 0:
+		if len(indications) == 0:
 			return self.__db_cache['missing vaccinations']
 		# ... apply them
 		filtered_shots = {
@@ -959,10 +958,10 @@ class cClinicalRecord:
 			'boosters': []
 		}
 		for due_shot in self.__db_cache['missing vaccinations']['due']:
-			if due_shot['indication'] in indication_list: #and due_shot not in filtered_shots['due']:
+			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['due']:
 				filtered_shots['due'].append(due_shot)
 		for due_shot in self.__db_cache['missing vaccinations']['boosters']:
-			if due_shot['indication'] in indication_list: #and due_shot not in filtered_shots['boosters']:
+			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['boosters']:
 				filtered_shots['boosters'].append(due_shot)
 		return filtered_shots
 	#--------------------------------------------------------
@@ -1277,7 +1276,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.118  2004-06-14 06:36:51  ncq
+# Revision 1.119  2004-06-15 19:08:15  ncq
+# - self._backend -> self._conn_pool
+# - remove instance level self._ro_conn_clin
+# - cleanup
+#
+# Revision 1.118  2004/06/14 06:36:51  ncq
 # - fix = -> == in filter(lambda ...)
 #
 # Revision 1.117  2004/06/13 08:03:07  ncq
