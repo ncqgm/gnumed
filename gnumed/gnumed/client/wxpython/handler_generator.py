@@ -194,17 +194,21 @@ from wxPython.wx import * """
 class %s_handler:
 
 	def create_handler(self, panel):
-		return %s_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
-""" % (name, name)
+""" % name
 		
 		for i in self.ids:
 			print i
@@ -224,7 +228,10 @@ class %s_handler:
 		for i in self.funcs:
 			print """
 	def %s( self, event):
-		pass""" % i
+		pass
+		if self.impl <> None:
+			self.impl.%s(self, event) 
+			""" % (i,i )
 			print """
 		print "%s received ", event
 			""" % i
