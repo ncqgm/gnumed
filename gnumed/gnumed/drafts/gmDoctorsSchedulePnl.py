@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -80,6 +80,7 @@ class DoctorsSchedulePnl(wxPanel):
 
 	def SelectDoctor(self, doctor_id):
 		self.doctor = doctor_id
+		self.schedule.SetDoctor(self.doctor)
 		cur = self.db.cursor()
 		cur.execute(preferred_interval_query % doctor_id)
 		try:
@@ -127,6 +128,7 @@ class DoctorsSchedulePnl(wxPanel):
 	def SetDate(self, date):
 		self.date = date
 		self.schedule.SetDate(date)
+		self.BlockDays(self.doctor)
 
 
 

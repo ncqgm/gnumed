@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -130,10 +130,12 @@ def DayOfWeek(date=None):
 	return current_day
 
 
+
 class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
-	def __init__(self, parent, hour_start=9, hour_end=18, session_interval=15, exclude=None, date=None, days=7, log=sys.stdout):
+	def __init__(self, parent, doctor_id=None, hour_start=9, hour_end=18, session_interval=15, exclude=None, date=None, days=7, log=sys.stdout):
 		wxGrid.__init__(self, parent, -1)
 		##wxGridAutoEditMixin.__init__(self)
+		self.doctor_id = doctor_id
 		self.log = log
 		self.days=days
 		self.hour_start = hour_start
@@ -178,6 +180,9 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		#EVT_GRID_EDITOR_CREATED(self, self.OnEditorCreated)
 
 
+	def SetDoctor(self, id):		
+		self.doctor_id = id
+
 	def MakeGrid(self):
 		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
 		self.timelabels = TimeLabels(self.hour_start, self.hour_end, self.session_interval, self.exclude)
@@ -191,20 +196,18 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 	def Recreate(self):
 		print "called recreate"
-		self.DeleteCols(0, self.GetNumberCols())
-		self.AppendCols(self.days)
-		self.DeleteRows(0, self.GetNumberRows())
-		self.AppendRows(len(self.timelabels))
-		#label the rows with default values
-		self.SetInterval()
-		#label the columns with default values
 		self.SetDate(self.Date)
-		self.SetColumnColours()
 
 
-	def SetInterval(self, start=9, end=18, interval=15, exclude="13:00-14:00"):
+	def SetInterval(self, start=None, end=None, interval=None, exclude=None):
+		if start is not None: self.hour_start = start
+		if end is not None: self.hour_end = end
+		if interval is not None: self.session_interval = interval
+		if exclude is not None: self.exclude=exclude
+
 		#label the rows
-		self.timelabels = TimeLabels(start=start, end=end, interval=interval, exclude=exclude)
+		self.timelabels = TimeLabels(start=self.hour_start, end=self.hour_end, 
+			interval=self.session_interval, exclude=self.exclude)
 		index=0
 		for index in range(len(self.timelabels)):
 			self.SetRowLabelValue(index, self.timelabels[index])
@@ -212,24 +215,18 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 	def SetColumnColours(self):
 		#mark today in special colours
-		print "Setting column colours"
-		normal_attr = wxGridCellAttr()
-		normal_attr.SetBackgroundColour(wxWHITE)
 		today_attr = wxGridCellAttr()
 		today_attr.SetBackgroundColour(self.clr_today)
-		selected_day_attr = wxGridCellAttr()
-		selected_day_attr.SetBackgroundColour(self.clr_selected_day)
 		now = time.time()
 		start = time.mktime(self.Date)
-		delta = now-start
+		delta = (now-start)/86400
 		is_current=0
-		print "delta", delta
 		if delta > 0 and delta < self.days:
-			#we are displaying the current week
+			#we are displaying the current week,
+			#so today must be the first day displayed
 			self.SetColAttr(0, today_attr)
 			is_current=1
-		#for column in range (0,self.days):
-		#	self.SetColAttr(column, selected_day_attr)
+
 
 
 
@@ -256,25 +253,59 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 			dow+=1
 
 
-	def SetDate(self,date):
+	def SetDate(self, date):
 		self.Date=date
+		#set the columns
+		self.DeleteCols(0, self.GetNumberCols())
+		self.AppendCols(self.days)
 		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
-		labels =  self.weekdaylabels
 		index=0
-		for index in range(len(labels)):
-			self.SetColLabelValue(index, labels[index])
+		for index in range(len(self.weekdaylabels)):
+			self.SetColLabelValue(index, self.weekdaylabels[index])
+		#set the rows
+		self.DeleteRows(0, self.GetNumberRows())
+		self.AppendRows(len(self.timelabels))
+		#label the rows with default values
+		self.SetInterval()
+		#label the columns with default values
 		self.SetColumnColours()
-
 		#dow = DayOfWeek(self.Date)
 		#scroll if neccessary so that the selected dat is visible
 		#self.MakeCellVisible(dow, 1)
 
+	def AddDays(self, days, date=None):
+		if date==None:
+			date=self.Date
+		start = time.mktime(date)
+		return(time.localtime(start+86400*days))
+
+	def GetCellDate(self, column):
+		date = self.Date
+		#delete hours, minutes, seconds - we only want the date, not the time
+		return self.AddDays(column, date)
+
+	def GetCellTime(self, row):
+		return self.GetRowLabelValue(row)
+		#parse time string in label (format hh:mm)
+		#hm = string.split(tstr, ":")
+		#return time in seconds
+		#return (int(hm[0])*360) + (int(hm[1])*60)
+
+
+
+	def GetCellDateTime(self, row, column):
+		datestr = time.strftime("%Y-%m-%d", self.GetCellDate(column))
+		timestr = self.GetCellTime(row)
+		tds = "%s %s" % (datestr, timestr)
+		print "tds", tds
+		return time.strptime(tds, "%Y-%m-%d %H:%M")
+
 
 	def AppointmentSelected(self, row, col):
-		day = self.weekdaylabels[col]
-		time = self.timelabels[row]
+		datetime=self.GetCellDateTime(row, col)
 		value = self.GetCellValue(row, col)
-		print "Appointment on %s at %s o'clock for %s" % (day, time, value)
+		dts = time.strftime("%Y-%m-%d %H:%M", datetime)
+		print "Appointment on %s for %s" % (dts, value)
 
 	def OnCellLeftClick(self, evt):
 		self.AppointmentSelected(evt.GetRow(), evt.GetCol())
@@ -417,6 +448,10 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 				self.SetCellValue(row+i, col, "%s%s, %s" % (incstr, surname, firstname))
 		else:
 			self.SetCellBackgroundColour(row, col, wxWHITE)
+		datetime=self.GetCellDateTime(row, col)
+		duration = self.session_interval + increment * self.session_interval
+		dts = time.strftime("%Y-%m-%d %H:%M", datetime)
+		print "%d min. ppointment made for % s on %s with Dr. [id=%d]" % (duration, value, dts, self.doctor_id)
 
 
 	def OnCellChange(self, evt):
@@ -430,6 +465,8 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		row = evt.GetRow()
 		col = evt.GetCol()
 		value = self.GetCellValue(row, col)
+		if value[0]=='+':
+			return
 		self.AppointmentMade(row, col, value)
 		#value = self.GetCellValue(evt.GetRow(), evt.GetCol())
 		#if value == 'no good':

@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -16,6 +16,10 @@ _ = gettext.gettext
 import gmDoctorsSchedulePnl
 
 ID_BTN_CALENDAR = wxNewId()
+ID_BTN_TODAY = wxNewId()
+ID_BTN_NEXTWEEK = wxNewId()
+ID_BTN_NEXTFORTNIGHT = wxNewId()
+ID_BTN_NEXTMONTH = wxNewId()
 ID_TEXTCTRL_WEEKSELECTION = wxNewId()
 
 class ScheduleAllDoctorsPnl(wxPanel):
@@ -42,19 +46,59 @@ class ScheduleAllDoctorsPnl(wxPanel):
 		self.SetDate()
 
 
-	def OnCalendar(self):
-		pass
-
 
 	def DateSelectionPanel(self, parent, sizer):
-		txt = wxStaticText( self, -1, _("Appointments for week:"), wxDefaultPosition, wxDefaultSize, 0 )
+		txt = wxStaticText( self, -1, _("Appointments for :"), wxDefaultPosition, wxDefaultSize, 0 )
 		sizer.AddWindow( txt, 0, wxALIGN_CENTER_VERTICAL, 5 )
-		self.tcWeekSelection = wxTextCtrl( parent, ID_TEXTCTRL_WEEKSELECTION, "", wxDefaultPosition, wxSize(80,-1), 0 )
-		sizer.AddWindow(self.tcWeekSelection, 0, wxALIGN_CENTER_VERTICAL, 5 )
+		self.tcDateSelection = wxTextCtrl( parent, ID_TEXTCTRL_WEEKSELECTION, "", wxDefaultPosition, wxSize(80,-1), 0 )
+		sizer.AddWindow(self.tcDateSelection, 0, wxALIGN_CENTER_VERTICAL, 5 )
+		#display appointments starting from today
+		self.btnToday = wxButton( self, ID_BTN_TODAY, "today", wxDefaultPosition, wxDefaultSize, 0 )
+		sizer.AddWindow( self.btnToday, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_VERTICAL, 5 )
+		EVT_BUTTON(self, ID_BTN_TODAY, self.OnBtnToday)
+		#make appoinment next week
+		self.btnNextWeek = wxButton( self, ID_BTN_NEXTWEEK, "next week", wxDefaultPosition, wxDefaultSize, 0 )
+		sizer.AddWindow( self.btnNextWeek, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_VERTICAL, 5 )
+		EVT_BUTTON(self, ID_BTN_NEXTWEEK, self.OnBtnNextWeek)
+		#make appoinment in a fortnight's time
+		self.btnNextFortnight = wxButton( self, ID_BTN_NEXTFORTNIGHT, "in a fortnight", wxDefaultPosition, wxDefaultSize, 0 )
+		sizer.AddWindow( self.btnNextFortnight, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_VERTICAL, 5 )
+		EVT_BUTTON(self, ID_BTN_NEXTFORTNIGHT, self.OnBtnNextFortnight)
+		#make appoinment in a month's time
+		self.btnNextMonth = wxButton( self, ID_BTN_NEXTMONTH, "in one month", wxDefaultPosition, wxDefaultSize, 0 )
+		sizer.AddWindow( self.btnNextMonth, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_VERTICAL, 5 )
+		EVT_BUTTON(self, ID_BTN_NEXTMONTH, self.OnBtnNextMonth)
+		#popup calendar
 		self.btnCalendar = wxButton( self, ID_BTN_CALENDAR, "Calendar", wxDefaultPosition, wxDefaultSize, 0 )
 		sizer.AddWindow( self.btnCalendar, 0, wxALIGN_BOTTOM|wxALIGN_CENTER_VERTICAL, 5 )
 		EVT_BUTTON(self, ID_BTN_CALENDAR, self.OnCalendar)
 
+
+		
+	def AddDays(self, days, date=None):
+		if date==None:
+			date=self.date
+		start = time.mktime(date)
+		return(time.localtime(start+86400*days))
+
+	def OnBtnToday(self, evt):
+		self.SetDate(time.localtime())
+
+
+	def OnBtnNextWeek(self, evt):
+		self.date = self.AddDays(7)
+		self.SetDate(self.date)
+
+	def OnBtnNextFortnight(self, evt):
+		self.date = self.AddDays(14)
+		self.SetDate(self.date)
+
+	def OnBtnNextMonth(self, evt):
+		self.date = self.AddDays(30)
+		self.SetDate(self.date)
+
+	def OnCalendar(self, evt):
+		pass
 
 	def SetDate(self, date=None):
 		self.date = date
