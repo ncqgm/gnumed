@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.18 2005-01-11 08:06:38 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmResizingWidgets.py,v 1.19 2005-03-03 21:14:24 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -181,6 +181,11 @@ class cPopupFrameNew(wx.wxFrame):
 #			self.originator.Embed ("%s: %s" % (self.embed_header, self.__widget.GetSummary()))
 #		self.Close()
 #====================================================================
+class cSTCval:
+	def __init__(self):
+		self.value = None
+		self.data = None
+#====================================================================
 class cResizingWindow(wx.wxScrolledWindow):
 	"""A vertically-scrolled window which allows subwindows
 	   to change their size, and adjusts accordingly.
@@ -231,7 +236,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		if label is None:
 			textbox = None
 		else:
-			textbox = wx.wxStaticText (self, -1, label, style=wx.wxALIGN_RIGHT)
+			textbox = wx.wxStaticText(self, -1, label, style=wx.wxALIGN_RIGHT)
 		# append to last line
 		self.__input_lines[-1].append({'ID': label, 'label': textbox, 'instance': widget})
 	#------------------------------------------------
@@ -284,6 +289,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		@type values: dictionary
 		@param values: keys are the labels, values are passed to SetValue()
 		"""
+		# FIXME: adapt to cSTCval
 		for line in self.__input_lines:
 			for widget in line:
 				if values.has_key(widget['ID']):
@@ -306,16 +312,17 @@ class cResizingWindow(wx.wxScrolledWindow):
 			for widget in line:
 				if widget['ID'] is None:
 					continue
+				result = cSTCval()
 				if isinstance(widget['instance'], cResizingSTC):
-					txt = widget['instance'].GetText()
-					data = widget['instance'].GetData()
-					vals[widget['ID']] = {'text': txt, 'data': data}
+					result.value = widget['instance'].GetText()
+					result.data = widget['instance'].GetData()
 				elif isinstance(widget['instance'], stc.wxStyledTextCtrl):
-					vals[widget['ID']] = widget['instance'].GetText()
+					result.value = widget['instance'].GetText()
 				elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
-					vals[widget['ID']] = widget['instance'].GetSelection()
+					result.selection = widget['instance'].GetSelection()
 				else:
-					vals[widget['ID']] = widget['instance'].GetValue()
+					result.value = widget['instance'].GetValue()
+				vals[widget['ID']] = result
 		return vals
 	#------------------------------------------------
 	def Clear (self):
@@ -528,7 +535,18 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		"""
 		self.__matcher = matcher
 	#------------------------------------------------
+	def SetData(self, data):
+		"""
+		Configures the data associated with this STC
+		@param data The associated data
+		@type data Any object
+		"""
+		self.__data = data
+	#------------------------------------------------
 	def GetData(self):
+		"""
+		Retrieves the data associated with this STC
+		"""
 		return self.__data
 	#------------------------------------------------
 	# event handlers
@@ -1103,7 +1121,11 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.18  2005-01-11 08:06:38  ncq
+# Revision 1.19  2005-03-03 21:14:24  ncq
+# - use cSTCval instead of complex dict
+# - apply Carlos' patch for progress note *editing*
+#
+# Revision 1.18  2005/01/11 08:06:38  ncq
 # - comment out self.completion for now
 #
 # Revision 1.17  2005/01/05 21:52:24  ncq
