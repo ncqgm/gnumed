@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2003-02-06 14:02:47 $
-# @version $Revision: 1.69 $ $Date: 2003-02-06 14:02:47 $ $Author: ncq $
+# @Date: $Date: 2003-02-07 05:13:59 $
+# @version $Revision: 1.70 $ $Date: 2003-02-07 05:13:59 $ $Author: sjtan $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.69 $"
+__version__ = "$Revision: 1.70 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -269,6 +269,7 @@ class MainFrame(wxFrame):
 		result = ""
 		for idx in range(len(plugin_list)):
 			curr_plugin = plugin_list[idx]
+			#print "\n\n\n\n%s\n\n\n",curr_plugin
 
 			progress_bar.Update(
 				idx,
@@ -283,6 +284,9 @@ class MainFrame(wxFrame):
 			try:
 				p = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
 				p.register()
+				#print p
+				#sys.exit(0)
+
 				result = _("success")
 			except:
 				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
@@ -614,15 +618,26 @@ def main():
 if __name__ == '__main__':
 	# console is Good(tm)
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
+#<<<<<<< gmGuiMain.py
+#	myLog.AddTarget(aLogTarget)
+#	myLog.Log(gmLog.lInfo, 'Starting up as main module.')
+	gb = gmGuiBroker.GuiBroker()
+	gb['gnumed_dir']= os.curdir+"/.."
+#=======
 	_log.AddTarget(aLogTarget)
 	_log.Log(gmLog.lInfo, 'Starting up as main module.')
+#>>>>>>> 1.69
 	main()
 
 _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.69  2003-02-06 14:02:47  ncq
+# Revision 1.70  2003-02-07 05:13:59  sjtan
+#
+# took out the myLog temporary so not broken when I'm running to see if hooks work.
+#
+# Revision 1.69  2003/02/06 14:02:47  ncq
 # - some more logging to catch the set_db_lang problem
 #
 # Revision 1.68  2003/02/06 12:44:06  ncq
