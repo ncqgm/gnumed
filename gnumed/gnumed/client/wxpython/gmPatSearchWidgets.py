@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.4 2004-08-29 23:15:58 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPatSearchWidgets.py,v 1.5 2004-09-01 22:04:03 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -480,7 +480,7 @@ and hit <ENTER>
 				if result > 0:
 					# and make our selection known to others
 					wx.wxBeginBusyCursor()
-					self.SetActivePatient(result)
+					self.SetActivePatient(anID = result)
 					wx.wxEndBusyCursor()
 				return True
 
@@ -541,7 +541,6 @@ and hit <ENTER>
 		start = time.time()
 		ids = self.__pat_searcher.get_patient_ids(curr_search_term)
 		duration = time.time() - start
-		_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
 
 		if ids is None:
 			wx.wxEndBusyCursor()
@@ -550,6 +549,8 @@ and hit <ENTER>
 				_('selecting patient')
 			)
 			return None
+
+		_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
 
 		if len(ids) == 0:
 			wx.wxEndBusyCursor()
@@ -588,7 +589,7 @@ and hit <ENTER>
 		picklist.Destroy()
 		for pat in pats_data:
 			if result == pat[0]:
-				self.SetActivePatient(result, pat)
+				self.SetActivePatient(anID=result, data=pat)
 				break
 
 		wx.wxEndBusyCursor()
@@ -715,7 +716,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.4  2004-08-29 23:15:58  ncq
+# Revision 1.5  2004-09-01 22:04:03  ncq
+# - cleanup
+# - code order change to avoid exception due to None-check after logging
+#
+# Revision 1.4  2004/08/29 23:15:58  ncq
 # - Richard improved the patient picklist popup
 # - plus cleanup/fixes etc
 #
