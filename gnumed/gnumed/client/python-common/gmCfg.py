@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -331,9 +331,9 @@ class cCfgSQL:
 			where_user = "cfg_item.owner like %s"
 			where_args.append(user)
 
-		cmd =	"select name, cookie, owner, type, description "
+		cmd =	("select name, cookie, owner, type, description "
 				"from cfg_template, cfg_item "
-				"where cfg_template.id = cfg_item.id_template and %s and %s" % (where_machine, where_user)
+				"where cfg_template.id = cfg_item.id_template and %s and %s" % (where_machine, where_user))
 
 		curs = self.conn.cursor()
         # retrieve option definition
@@ -988,7 +988,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.54  2003-07-21 19:18:06  ncq
+# Revision 1.55  2003-07-21 20:53:50  ncq
+# - fix string screwup
+#
+# Revision 1.54  2003/07/21 19:18:06  ncq
 # - use gmPG.run_query(), not home-brew
 # - kill gmPG.esc() use
 # - cleanup/comments
