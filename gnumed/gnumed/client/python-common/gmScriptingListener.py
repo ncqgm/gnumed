@@ -4,7 +4,7 @@ This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, SimpleXMLRPCServer, select
@@ -12,7 +12,7 @@ import gmDispatcher, gmLog, gmExceptions
 _log = gmLog.gmDefLog
 
 #=====================================================================
-class ScriptingListener:
+class cScriptingListener:
 	def __init__(self, port = 9999, macro_executor = None, poll_interval = 3):
 		if macro_executor is None:
 			raise gmExceptions.ConstructorError, "need macro executor object parameter"
@@ -95,6 +95,7 @@ class ScriptingListener:
 					self._server.handle_request()
 				except:
 					print "cannot serve RPC"
+					break
 				if self._quit_lock.acquire(0):
 					break
 				time.sleep(0.25)
@@ -121,13 +122,16 @@ if __name__ == "__main__":
 		def tell_time(self):
 			return time.asctime()
 	#-------------------------------
-	listener = ScriptingListener(macro_executor=runner(), port=9999)
+	listener = cScriptingListener(macro_executor=runner(), port=9999)
 	s = xmlrpclib.Server('http://localhost:9999')
 	t = s.tell_time()
 	print t
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.1  2004-02-02 21:58:20  ncq
+# Revision 1.2  2004-02-05 18:40:01  ncq
+# - quit thread if we can't handle_request()
+#
+# Revision 1.1  2004/02/02 21:58:20  ncq
 # - first cut
 #
