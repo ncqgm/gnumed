@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -368,11 +368,11 @@ class ContactsPanel(wxPanel):
           self.Show(true)
 
        def __urb_selected(self, urb_id):
-          print "urb_id", urb_id
+          #print "urb_id", urb_id
 	  gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], urb_id)
       	  pass
        def __postcode_selected(self, postcode):
-       	  print "postcode", postcode
+       	  #print "postcode", postcode
 	  gmDemographicRecord.setUrbPhraseWheelFromPostcode( self.input_fields['urb'], postcode)
       	  pass
 
@@ -440,7 +440,7 @@ class ContactsPanel(wxPanel):
 	  EVT_LIST_ITEM_ACTIVATED(self.list_organisations, self.list_organisations.GetId(), self._orgperson_selected)
 
        def _orgperson_selected(self, event):
-	  print "orgperson selected"
+	  #print "orgperson selected"
 	  ix = event.GetIndex()
 	  key = self.list_organisations.GetItemData(ix)
 	  org = self._helper.getFromCache(key)
@@ -449,12 +449,16 @@ class ContactsPanel(wxPanel):
 		  data = [ self.list_organisations.GetItem(ix,n).GetText() for n in xrange(0,5) ]
 		  
 		  org['name'] = data[0]
-		  
+		 
+		  #TODO remove this test filter
+		  if  data[3].lower().find('hospital') >= 0:  data[3] = 'hospital'
+
 		  org['category'] = data[3]
+		 
 		  org['phone'] = data[4]
 	
 	          try:
-			  
+
 			l = data[2].split(' ')
 			
 			# if no numerals in first token assume no address number
@@ -463,8 +467,14 @@ class ContactsPanel(wxPanel):
 			# if no numerals in last token asssume no postcode 	
 			if l[-1].isalpha():
 				l.append('')
+			
+			urb_start_idx = -2
+		
+			# scan back , UPPERCASE words assumed to be part of suburb name
+			while urb_start_idx > -len(l) and l[urb_start_idx-1].isupper():
+				urb_start_idx -= 1
 			if len (l) >= 4:
-				number , street, urb, postcode = l[0], ' '.join(l[1:-2]), l[-2], l[-1]
+				number , street, urb, postcode = l[0], ' '.join(l[1:urb_start_idx]), ' '.join(l[urb_start_idx:-1]), l[-1]
 		  		org.setAddress( number, street, urb, postcode, None, None )
 		  except:
 			  gmLog.gmDefLog.LogException("Unable to parse address", sys.exc_info() )
@@ -481,10 +491,10 @@ class ContactsPanel(wxPanel):
 		  
 		  if v == None: v = ''
 		  
-		  #TODO remove this test filter
-		  if n == 'category' and v.lower().find('hospital') >= 0:  v = 'hospital'
+		  	
 		  
 		  f[n].SetValue(v.strip())
+
 
 
 	  a = org.getAddress()
@@ -618,7 +628,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.20  2004-05-28 01:23:44  sjtan
+# Revision 1.21  2004-05-28 04:29:55  sjtan
+#
+# gui test case option; should setup/teardown ok if correct logins.
+#
+# Revision 1.20  2004/05/28 01:23:44  sjtan
 #
 # strip whitespace for org list display; update list when org edited and saved; move save button temporarily so visible in default client gui size.
 #

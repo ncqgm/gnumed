@@ -5,9 +5,10 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 
-from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
+from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
+
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmPatient 
@@ -15,6 +16,9 @@ from Gnumed.business import gmPatient
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
+print "Please enter a write-enabled user e.g. _test-doc "
+
+from Gnumed.pycommon import gmPG
 
 
 class cCatFinder(gmBorg.cBorg):
@@ -33,6 +37,7 @@ class cCatFinder(gmBorg.cBorg):
 		
 
 	def reload(self, categoryType):
+		self.__init__(categoryType)
 		result = gmPG.run_ro_query("personalia","select id, description from %s" % categoryType)
 		if result is None:
 			gmLog.gmDefLog(gmLog.lErr, "failed to load %s" % categoryType)
@@ -40,19 +45,21 @@ class cCatFinder(gmBorg.cBorg):
 		for (id, description) in result:
 			self.categories[categoryType]['toId'][description] = id
 			self.categories[categoryType]['toDescription'][id] = description
+		return self.categories[categoryType]	
+	
 
 		
 	def getId(self, categoryType, category):
-		return self.categories.get(categoryType, {}).get('toId',{}).get(category, None)
+		return self.categories.get(categoryType, self.reload(categoryType)).get('toId',{}).get(category, None)
 
 	def getCategory(self, categoryType, id):
-		return self.categories.get(categoryType, {}).get('toDescription',{}).get(id, "")
+		return self.categories.get(categoryType, self.reload(categoryType)).get('toDescription',{}).get(id, "")
 
 	def getCategories(self, categoryType):
-		return self.categories.get(categoryType,{}).get('toId',{}).keys()
+		return self.categories.get(categoryType, self.reload(categoryType)).get('toId',{}).keys()
 	
-cCatFinder('org_category')
-cCatFinder('enum_comm_types')
+#cCatFinder('org_category')
+#cCatFinder('enum_comm_types')
 
 
 class cOrg:
@@ -604,16 +611,19 @@ class cOrgImpl1(cOrg):
 				return False
 		if self.getId() is None:
 				return False
+		# c is any changed, m is what is current
 		if c.has_key('name') or c.has_key('category'):	
 			
 			#print "pk = ", self.getId()
 			#org = cOrganization(str(self.getId()))
 			cf = cCatFinder()
+			print "cCatFinder", cf.getCategories('org_category')
+			print "m['category']", m['category'], "cf.getId(.. = ", cf.getId('org_category', m['category'])
 			cmd = """
 				update org set description='%s' , 
 						id_category = %s where id = %s
-			 	""" % ( c['name'], 
-					str( cf.getId('org_category', c['category']) ),
+			 	""" % ( m['name'], 
+					str( cf.getId('org_category', m['category']) ),
 					str(self.getId())  ) 
 			result = gmPG.run_commit( "personalia", [ (cmd,[]  ) ] )
 			if result is None:
@@ -686,16 +696,6 @@ class cOrgImpl1(cOrg):
 		
 		return m
 			
-
-		
-				
-		
-		
-
-		
-		
-
-
 
 		
 def get_comm_channels_data_for_org_ids( idList):	
@@ -959,7 +959,9 @@ def _testOrgRun( f1, a1):
 
 def clean_test_org():
 	l = get_test_data()
+	
 	names = [ "".join( ["'" ,str(org[0]), "'"] )  for ( org, address) in l]
+	names += [ "'John Hunter Hospital'", "'Belmont District Hospital'"]
 	nameList = ",".join(names)
 
 	cmds = [ ( """create temp table del_org as select id  from org where description in(%s) """%nameList, [] ),
@@ -995,7 +997,9 @@ def clean_test_org():
 		("""drop table del_org""", [])
 				
 		]
-	return gmPG.run_commit("personalia", cmds) <> None
+	result =  gmPG.run_commit("personalia", cmds) <> None
+
+	return result	
 
 
 def login_user_and_test(logintest, service = 'personalia', msg = "failed test" , use_prefix_rw= False):
@@ -1284,9 +1288,12 @@ def sermon():
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 	import sys
+	testgui = False
 	if len(sys.argv) > 1:
 		if sys.argv[1] == '--clean':
 			result = clean_test_org()
+			p = gmPG.ConnectionPool()
+			p.ReleaseConnection('personalia')
 			if result:
 				print "probably succeeded in cleaning orgs"
 			else: 	print "failed to clean orgs"
@@ -1299,6 +1306,10 @@ if __name__ == "__main__":
 
 		if sys.argv[1] == "--help":
 			help()
+		
+		if sys.argv[1] =="--gui":
+			testgui = True
+			
 	print "*" * 50
 	print "RUNNING UNIT TEST of gmOrganization "
 
@@ -1344,6 +1355,16 @@ if __name__ == "__main__":
 					if login_rw_user():
 						break
 
+		if testgui:
+			if cCatFinder().getId('org_category','hospital') == None:
+				print "Needed to set up temporary org_category 'hospital"
+				sys.exit(-1)
+			import os
+			print os.environ['PWD']
+		 	os.spawnl(os.P_WAIT, "/usr/bin/python", "/usr/bin/python","wxpython/gnumed.py", "--debug") 
+			
+			#os.popen2('python client/wxpython/gnumed.py --debug')
+
 			# run the test case
 		results = testOrg()
 
@@ -1366,11 +1387,20 @@ if __name__ == "__main__":
 
 		# clean-up any temporary categories.
 	if tmp_category:
-		clean_org_categories(adminlogin)
-
+		try:
+			clean_org_categories(adminlogin)
+		except:
+			while(not login_rw_user()[0]):
+				pass
+			clean_test_org()
+			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.17  2004-05-28 01:20:14  sjtan
+# Revision 1.18  2004-05-28 04:29:53  sjtan
+#
+# gui test case option; should setup/teardown ok if correct logins.
+#
+# Revision 1.17  2004/05/28 01:20:14  sjtan
 #
 # cleanup script would probably work for comm_channel if left out org.del_shallow()
 # in test runs.
