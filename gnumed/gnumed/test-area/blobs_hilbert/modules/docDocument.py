@@ -33,7 +33,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os
@@ -355,6 +355,21 @@ class cDocument:
 		_log.Log(gmLog.lData, 'Meta data: %s' % self.__metadata)
 		return (1==1)
 	#-----------------------------------
+	def removeObject(self, anOID = None):
+		"""Remove an object from the metadata tree based on its object ID.
+
+		FIXME: this does not remove objects from the database
+		"""
+		try:
+			del self.__metadata['objects'][anOID]
+		except KeyError:
+			exc = sys.exc_info()
+			_log.LogException("Cannot remove object with oid=[%s]" % anOID, exc, fatal=0)
+			return None
+		return 1
+	#-----------------------------------
+	# internal methods
+	#-----------------------------------
 	def __read_img_list(self, aDescFile = None, aBaseDir = None):
 		"""Read list of image files from XML metadata file.
 
@@ -671,7 +686,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.17  2002-09-17 00:06:30  ncq
+# Revision 1.18  2002-09-17 01:07:27  ncq
+# - fixed indentation typo
+#
+# Revision 1.17  2002/09/17 00:06:30  ncq
 # - documented meta data layout
 #
 # Revision 1.16  2002/09/12 21:39:55  ncq
