@@ -7,16 +7,15 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.46 2003-11-17 11:32:46 sjtan Exp $
+# $Id: gmClinicalRecord.py,v 1.47 2003-11-17 11:34:22 sjtan Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.46 2003-11-17 11:32:46 sjtan Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmClinicalRecord.py,v 1.47 2003-11-17 11:34:22 sjtan Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, string
 import time
-import yaml
 import traceback
 
 if __name__ == "__main__":
@@ -968,7 +967,11 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.46  2003-11-17 11:32:46  sjtan
+# Revision 1.47  2003-11-17 11:34:22  sjtan
+#
+# no ref to yaml
+#
+# Revision 1.46  2003/11/17 11:32:46  sjtan
 #
 # print ... -> _log.Log(gmLog.lInfo ...)
 #
