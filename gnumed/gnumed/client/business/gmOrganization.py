@@ -5,87 +5,16 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmClinItem
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmPatient 
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-
-_cmd_template_fetch_payload = "select * from %s where id=%%s"
-
-
-class cOrgCategory(gmClinItem.cClinItem):
-	_cmd_fetch_payload = _cmd_template_fetch_payload % "org_category"
-	_cmds_store_payload = [
-		"""select 1 from org_category where id = %(id)s for update""",
-		"""update org_category set description=%(description)s where id=%(id)s"""
-	]
-	_updatable_fields= ["description"]
-
-
-class  cOrganization(gmClinItem.cClinItem):
-	SERVICE='personalia'
-	def update(self, map):
-		for (k,v) in map.items:
-			self.__setitem__(k,v)
-			
-	_cmd_fetch_payload = _cmd_template_fetch_payload % "org"
-	_cmds_store_payload = [
-		"""select 1 from org where id = %(id)s for update""",
-		"""update org set id_category=(%id_category)s , description =(%description)s where id=%(id)s"""
-		 
-	]
-	_updatable_fields= ["id_category", "description"]
-
-
-class cCommTypes(gmClinItem.cClinItem):
-	_cmd_fetch_payload = _cmd_template_fetch_payload % "enum_comm_types"
-	_cmds_store_payload=[
-		"""select 1 from enum_comm_types where id = %(id)s for update""",
-		"""update enum_comm_types set description= %(description)s where id=%(id)s"""
-	]
-	_updatable_fields=["description"]
-
-
-# FIXME: I am not sure this needs to be a full-blown clin item class
-class cCommChannel(gmClinItem.cClinItem):
-	_cmd_fetch_payload = _cmd_template_fetch_payload % "comm_channel"
-	_cmds_store_payload = [
-		"""select 1 from comm_channel where id = %(id)s for update""",
-		"""update comm_channel set id_type= %(id_type)s, set url=%(url)s where id=%(id)s"""
-	]
-	_updatable_fields = ["id_type", "url"]
-
-
-class cLnkPersonOrgAddress(gmClinItem.cClinItem):
-	_cmd_fetch_payload = _cmd_template_fetch_payload % "lnk_person_org_address"
-	_cmds_store_payload=[
-		"""select 1 lnk_person_org_address from where id = %(id)s for update""",
-		"""update lnk_person_org_address set
-			id_identity = %(id_identity)s,
-			id_address = %(id_address)s,
-			id_type = %(id_type)s,
-			id_org =%(id_org)s ,
-			id_occupation  =  %(id_occupation)s,
-			address_source = %(address_source)s 
-			where id=%(id)s"""
-	]
-	_updatable_fields=["id_identity", "id_address" , "id_type", 
-		"id_org" ,"id_occupation", "address_source"]
-
-	# FIXME: this doesn't belong here
-	def findByOrgId(id):
-		print "FIXME: this doesn't belong here"
-		print tmp
-#		cmds = """select id from lnk_person_org_address 
-#			where id_org = %s and id_identity = NULL
-#			"""
 
 
 class cCatFinder(gmBorg.cBorg):
@@ -967,19 +896,6 @@ Better to use error return values and log exceptions near where they occur, vs. 
 	- remote/local mixup: as above		
 
 """
-	
-
-
-	for n in xrange(1,8):
-		print "Test Fetch of CommType , id=",n
-		commType = cCommTypes(aPK_obj=n)
-		print commType
-		fields = commType.get_fields()
-		for f in fields:
-			print f,":", commType[f]
-		print "updateable : ", commType.get_updatable_fields()
-		print "-"*50
-
 	print "TESTING cCatFinder"
 
 	print """c = cCatFinder("org_category")"""
@@ -1168,7 +1084,11 @@ Better to use error return values and log exceptions near where they occur, vs. 
 			break
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.13  2004-05-24 21:09:01  ncq
+# Revision 1.14  2004-05-25 13:32:45  sjtan
+#
+# cleanup, obsolete removed.
+#
+# Revision 1.13  2004/05/24 21:09:01  ncq
 # - cleanup
 #
 # Revision 1.12  2004/05/24 05:49:59  sjtan
