@@ -2444,9 +2444,24 @@ should be del()ed after use, actually
 	
 </chapter>
 
-
     <chapter id=design>
     	<title> Design </title>
+
+	<sect1 id=resources>
+	<title>Resources</title>
+	<para>
+	Various design documents can be found at the following locations:
+	</para>
+	<itemizedlist>
+	<listitem><para><ulink url="http://gnumed.org/docs">
+	<citetitle>gnumed.org/docs</citetitle></ulink></para></listitem>
+	<listitem><para><ulink url="http://resmedicinae.sourceforge.net/analysis/index.html">
+	<citetitle>Resmedinae - Analysis document</citetitle></ulink></para></listitem>
+	<listitem><para><ulink url="http://gnumed.net/rterry/Index.htm">
+	<citetitle>Richard Terry's Design Principles</citetitle></ulink></para></listitem>
+	</itemizedlist>
+	</sect1>
+	
 	<sect1 id=db-architecture>
 	    <title>GNUMed Database Architecture</title>
 	    <para>
