@@ -7,11 +7,11 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
-import os.path, sys, os, re
+import os.path, sys, os, re, random
 # FIXME: debugging
 import time
 
@@ -32,7 +32,7 @@ _log.Log(gmLog.lInfo, __version__)
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
 
-[   wxID_PNL_main,
+[	wxID_LAB_GRID,
 	wxID_NB_LabJournal,
 	wxID_LBOX_pending_results,
 	wxID_PHRWH_labs,
@@ -41,8 +41,43 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_BTN_select_all,
 	wxID_BTN_mark_reviewed
 ] = map(lambda _init_ctrls: wxNewId(), range(8))
+#=========================================================
+class cLabDataGridCellRenderer(wxPyGridCellRenderer):
+    def __init__(self):
+        wxPyGridCellRenderer.__init__(self)
 
-#====================================
+    def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+        dc.SetBackgroundMode(wxSOLID)
+        dc.SetBrush(wxBrush(wxBLACK, wxSOLID))
+        dc.SetPen(wxTRANSPARENT_PEN)
+        dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+
+        dc.SetBackgroundMode(wxTRANSPARENT)
+        dc.SetFont(attr.GetFont())
+
+        text = grid.GetCellValue(row, col)
+        colors = [wxRED, wxWHITE, wxCYAN]
+        x = rect.x + 1
+        y = rect.y + 1
+        for ch in text:
+            dc.SetTextForeground(random.choice(colors))
+            dc.DrawText(ch, x, y)
+            w, h = dc.GetTextExtent(ch)
+            x = x + w
+            if x > rect.right - 5:
+                break
+
+
+    def GetBestSize(self, grid, attr, dc, row, col):
+        text = grid.GetCellValue(row, col)
+        dc.SetFont(attr.GetFont())
+        w, h = dc.GetTextExtent(text)
+        return wxSize(w, h)
+
+
+    def Clone(self):
+        return cLabDataGridCellRenderer()
+#=========================================================
 class cLabJournalCellRenderer(wxPyGridCellRenderer):
 	def __init__(self):
 		wxPyGridCellRenderer.__init__(self)
@@ -67,7 +102,7 @@ class cLabJournalCellRenderer(wxPyGridCellRenderer):
 			if x > rect.right - 5:
 				break
 
-#=======================================
+#=========================================================
 class cLabReviewGrid(wxGrid):
 	"""This wxGrid derivative displays lab data that has not yet been reviewed by a clinician.
 	"""
@@ -82,8 +117,7 @@ class cLabReviewGrid(wxGrid):
 			size = wxDefaultSize,
 			style= wxWANTS_CHARS
 			)
-
-#====================================
+#=========================================================
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
@@ -102,15 +136,14 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			pos = wxDefaultPosition
 		)
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
-
-#====================================
+#=========================================================
 # FIXME: is this really lab specific ?
 class cLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
 		wxListCtrl.__init__(self, parent, ID, pos, size, style)
 		wxListCtrlAutoWidthMixin.__init__(self)
 
-#====================================
+#=========================================================
 class cLabJournalNB(wxNotebook):
 	"""This wxNotebook derivative displays 'records still due' and lab-import related errors.
 	"""
@@ -635,10 +668,248 @@ class cLabJournalNB(wxNotebook):
 			self.fld_request_id.SetValue(nID)
 		# FIXME : this is needed so save_request_ID knows about the lab
 		self.lab =  data
+
+#=========================================================
+class cLabDataGrid(wxGrid):
+	"""This wxGrid derivative displays a grid view of stored lab data.
+	"""
+	def __init__(self, parent, id):
+		"""Set up our specialised grid.
+		"""
+		# get connection
+		self.__backend = gmPG.ConnectionPool()
+		self.__defconn = self.__backend.GetConnection('blobs')
+		if self.__defconn is None:
+			_log.Log(gmLog.lErr, "Cannot retrieve lab data without database connection !")
+			raise gmExceptions.ConstructorError, "cLabDataGrid.__init__(): need db conn"
+
+		# connect to config database
+		self.__dbcfg = gmCfg.cCfgSQL(
+			aConn = self.__backend.GetConnection('default'),
+			aDBAPI = gmPG.dbapi
+		)
 		
-#================================================================
+		wxGrid.__init__(
+			self,
+			parent,
+			id,
+			pos = wxDefaultPosition,
+			size = wxDefaultSize,
+			style= wxWANTS_CHARS
+			)
+		
+		self.curr_pat = gmPatient.gmCurrentPatient()
+
+		#EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
+		
+		# create new grid
+		self.DataGrid = self.CreateGrid(0, 0, wxGrid.wxGridSelectCells )
+		self.SetDefaultCellAlignment(wxALIGN_RIGHT,wxALIGN_CENTRE)
+		#renderer = apply(wxGridCellStringRenderer, ())
+		renderer = apply(cLabDataGridCellRenderer, ())
+		self.SetDefaultRenderer(renderer)
+		
+		# There is a bug in wxGTK for this method...
+		self.AutoSizeColumns(True)
+		self.AutoSizeRows(True)
+		# attribute objects let you keep a set of formatting values
+		# in one spot, and reuse them if needed
+		font = self.GetFont()
+		#font.SetWeight(wxBOLD)
+		attr = wxGridCellAttr()
+		attr.SetFont(font)
+		#attr.SetBackgroundColour(wxLIGHT_GREY)
+		attr.SetReadOnly(True)
+		#attr.SetAlignment(wxRIGHT, -1)
+		#attr.IncRef()
+		#self.SetLabelFont(font)
+	
+
+	# I do this because I don't like the default behaviour of not starting the
+	# cell editor on double clicks, but only a second click.
+	def OnLeftDClick(self, evt):
+		if self.CanEnableCellControl():
+			self.EnableCellEditControl()
+
+	#------------------------------------------------------------------------
+	def update(self):
+		if self.curr_pat['ID'] is None:
+			_log.Log(gmLog.lErr, 'need patient for update')
+			gmGuiHelpers.gm_show_error(
+				aMessage = _('Cannot load lab data.\nYou first need to select a patient.'),
+				aTitle = _('loading lab data')
+			)
+			return None
+
+		if self.__populate_grid() is None:
+			return None
+
+		return 1
+		
+	#------------------------------------------------------------------------
+	def __populate_grid(self):
+		# FIXME: check if patient changed at all
+		emr = self.curr_pat.get_clinical_record()
+		if emr is None:
+			# FIXME: error message
+			return None
+		# FIXME: there might be too many results to handle in memory
+		lab = emr.get_lab_results()
+
+		if lab is None or len(lab)==0:
+			name = self.curr_pat['demographic record'].get_names()
+			gmGuiHelpers.gm_show_error(
+				aMessage = _('Cannot find any lab data for patient\n[%s %s].') % (name['first'], name['last']),
+				aTitle = _('loading lab record list')
+				)
+			return None
+			
+		else:
+			dates, test_names = self.__compile_stats(lab)
+			# sort tests before pushing onto the grid 
+			"""	
+				1) check user's preferred way of sorting
+					none defaults to smart sorting
+				2) check if user defined lab profiles
+					- add a notebook tab for each profile
+					- postpone profile dependent stats until tab is selected
+				sort modes :
+					1: no profiles -> smart sorting only
+					2: profile -> smart sorting first
+					3: profile -> user defined profile order
+			
+			"""
+			#sort_mode = gmPatient.getsort_mode() # yet to be written
+			sort_mode = 1 # get real here :-)
+			
+			if sort_mode == 1:
+				"""
+				2) look at the the most recent date a test was performed on
+					move these tests to the top
+			
+				3) sort by runs starting with most recent date
+					a run is a series of consecutive dates a particular test was done on
+					sort by length of the runs
+					longest run will move to the top
+				"""
+				#test_count = {}
+				#test_types = self.__get_test_types(lab_ids)
+				#for id in test_types:
+				#	if test_types[id] in test_count.keys():
+				#		test_count[test_types[id]] = test_count[test_types[id]]+1
+				#	else:
+				#		test_count[test_types[id]] = 1
+				# try to be smart, sort tests by usage
+				#sorted = self.sort_by_value(test_count)
+				#sorted.reverse()
+				pass
+			else :
+				"""
+				set up notebook tab
+				"""
+				pass
+			
+			if sort_mode == 2:
+				"""
+				start with smart sorting tab
+				"""
+				pass
+			
+			if sort_mode == 3:
+				"""
+				get first user defined tab
+				"""
+				pass
+			
+			
+			# clear grid
+			self.ClearGrid()
+			# now add columns
+			if self.GetNumberCols() == 0:
+				self.AppendCols(len(dates))
+			
+				# set column labels
+				for i in range(len(dates)):
+					self.SetColLabelValue(i, dates[i])
+			
+			# add rows
+			if self.GetNumberRows() == 0:
+				self.AppendRows(len(test_names))
+			
+				# add labels
+				for i in range(len(test_names)):
+					self.SetRowLabelValue(i, test_names[i])
+			
+			#push data onto the grid
+			cells = []
+			for item in lab:
+				data = str(item['val_num'])
+				unit = str(item['val_unit'])
+				# get  x,y position for data item
+				x,y = self.__GetDataCell(item, xorder=dates, yorder=test_names)
+				tuple = []
+				tuple.append(str(x)+','+str(y))
+				if tuple in cells:
+					celldata = self.GetCellValue(int(x), int(y))
+					data = celldata+'\n'+ data + unit
+					self.SetCellValue(int(x), int(y), data)
+				
+				# you can set cell attributes for the whole row (or column)
+				#self.SetRowAttr(int(y), attr)
+				#self.SetColAttr(int(x), attr)
+				#self.SetCellRenderer(int(x), int(y), renderer)
+				else:
+					self.SetCellValue(int(x), int(y), data+unit)
+					"""same test might have been issued multiple times (same day)
+					 we keep reference of used cells 
+					 if a cell needs to be filled but already contains data we get the data and join the values
+					 this is crap but I don't know a better solution"""
+					cells.append(tuple)
+
+				self.AutoSize() 
+			return 1
+	
+	#------------------------------------------------------------------------		
+	def __compile_stats(self, lab_results=None):
+		# parse record for dates and tests
+		dates = []
+		test_names = []
+		for result in lab_results:
+			if result['val_when'].date not in dates:
+				dates.append(result['val_when'].date)
+			if result['unified_name'] not in test_names:
+				test_names.append(result['unified_name'])
+		dates.sort()
+		
+		return dates, test_names
+	#------------------------------------------------------------------------
+	def __GetDataCell(self, item=None, xorder=None, yorder=None):
+		x = xorder.index(item['val_when'].date)
+		y= yorder.index(item['unified_name'])
+		return (y,x)
+	#------------------------------------------------------------------------
+	#def sort_by_value(self, d=None):
+	#    """ Returns the keys of dictionary d sorted by their values """
+	#    items=d.items()
+	#    backitems=[ [v[1],v[0]] for v in items]
+	#    backitems.sort()
+	#    return [ backitems[i][1] for i in range(0,len(backitems))]
+	
+	#--------------------------------------------------------
+	def __on_right_click(self, evt):
+		pass
+		#evt.Skip()
+	#--------------------------------------------------------
+	#def __show_description(self, evt):
+	#    print "showing description"
+	#--------------------------------------------------------
+	#def __handle_obj_context(self, data):
+	#    print "handling object context menu"
+	#--------------------------------------------------------
+
+#=========================================================
 # MAIN
-#----------------------------------------------------------------
+#---------------------------------------------------------
 if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "starting lab journal")
 
@@ -657,8 +928,11 @@ if __name__ == '__main__':
 		raise
 	#gmPG.StopListeners()
 	_log.Log (gmLog.lInfo, "closing lab journal")
-#================================================================
+#=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.1  2004-07-15 15:03:41  ncq
+# Revision 1.2  2004-07-15 15:55:14  ncq
+# - include factored out code from gui/gmShowLab.py
+#
+# Revision 1.1  2004/07/15 15:03:41  ncq
 # - factored out from wxpython/gui/gmLabJournal.py
 #
