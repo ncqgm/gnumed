@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -32,8 +32,17 @@ import gmDispatcher, gmSignals, gmPG, gmPlugin, gmEditArea
 import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
+#<<<<<<< gmGP_Allergies.py
+import gmEditArea             #panel class holding editing prompts
+import gmPlugin
+import gmTmpPatient
+import gmLog
+
+_log = gmLog.gmDefLog
+#=======
 
 from wxPython.wx import *
+#>>>>>>> 1.11
 
 ID_ALLERGYLIST = wxNewId()
 ID_ALLERGIES = wxNewId ()
@@ -117,12 +126,36 @@ class AllergyPanel(wxPanel):
 		# what is going on here?
 		# there is no meniton of view v_allergies anywhere else in the source tree!!!
 		# disconnected until gmclinical.sql catches up
-		#gmDispatcher.connect(self.UpdateAllergies, gmSignals.patient_selected())
+		gmDispatcher.connect(self.UpdateAllergies, gmSignals.patient_selected())
+		gmDispatcher.connect(self.UpdateAllergies, gmSignals.allergy_updated())
 		pass
 
 
 	def UpdateAllergies(self, **kwargs):
-		kwds = kwargs['kwds']
+		try:
+			#kwds = kwargs['kwds']
+			patient = gmTmpPatient.gmCurrentPatient()
+			clinical = patient['clinical record']
+			allergies = clinical['allergies']
+			_log.Info("Allergies " + str(allergies) )
+			i = 0
+			self.list_allergy.DeleteAllItems()
+			for allergy in allergies:
+				self.list_allergy.InsertStringItem( i, allergy[6])
+				self.list_allergy.SetItemData( i, allergy[0] )
+				self.list_allergy.SetStringItem( i, 1, allergy[11] )
+				i = i + 1
+			for column in range(0,3):
+				self.list_allergy.SetColumnWidth(column, wxLIST_AUTOSIZE)
+				
+		
+		except:
+			_log.LogException( "problem in getting allergy list", sys.exc_info(), 4)
+		
+		return
+		
+		
+		
 		query = "select id, type, status, class, generic, reaction from v_allergies where id_identity =%s" % kwds['ID']
 		#try:
 		db = gmPG.ConnectionPool().GetConnection('clinical')
@@ -179,7 +212,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.11  2003-06-01 12:46:55  ncq
+# Revision 1.12  2003-06-01 12:55:58  sjtan
+#
+# sql commit may cause PortalClose, whilst connection.commit() doesnt?
+#
+# Revision 1.11  2003/06/01 12:46:55  ncq
 # - only add pathes if running as main so we don't obscure problems outside this module
 #
 # Revision 1.10  2003/06/01 01:47:33  sjtan

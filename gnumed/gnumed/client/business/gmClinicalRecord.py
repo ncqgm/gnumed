@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.7 2003-06-01 01:47:32 sjtan Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmClinicalRecord.py,v 1.8 2003-06-01 12:55:58 sjtan Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -40,7 +40,11 @@ class gmClinicalRecord:
 		- no connection to database possible
 		- patient referenced by aPKey does not exist
 		"""
+		self.transactionCursor = None
 		self._backend = gmPG.ConnectionPool()
+
+		# this connection may drop , so need to get fresh one
+		# from backend at each usage , IMHO
 		self._defconn_ro = self._backend.GetConnection('historica')
 		if self._defconn_ro is None:
 			raise gmExceptions.ConstructorError, "Cannot connect to database." % aPKey
@@ -65,6 +69,14 @@ class gmClinicalRecord:
 		self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 		if self.__dict__.has_key('_backend'):
 			self._backend.ReleaseConnection('historica')
+	
+	def getConnection(self):
+		return gmPG.ConnectionPool().GetConnection("historica")
+
+	def getCursor(self):
+		return self.getConnection().cursor()
+
+	
 	#--------------------------------------------------------
 	# cache handling
 	#--------------------------------------------------------
@@ -92,9 +104,11 @@ class gmClinicalRecord:
 		#curs = self._defconn_ro.cursor()
 		#cmd = "select exists(select id from identity where id = %s)" % self.id_patient
 		cmd = "select id from identity where id = %s" % self.id_patient
+		rows = None
 		try:
 			rows = self.execute(cmd, "Unable to check existence of id %s in identity" % self.id_patient)
 		except:
+			_log.LogException("Failed select id from identity", sys.exc_info(), 4)
 			pass
 		#------------------------------------	
 		# still has bug about portal closed.
@@ -121,7 +135,8 @@ class gmClinicalRecord:
 		return 1
 	#--------------------------------------------------------
 	def _allergy_added_deleted(self):
-		curs = self._defconn_ro.cursor()
+		#curs = self._defconn_ro.cursor()
+		curs = self.getCursor()
 		# did number of allergies change for our patient ?
 		cmd = "select count(id) from v_i18n_patient_allergies where id_patient='%s';" % self.id_patient
 		if not gmPG.run_query(curs, cmd):
@@ -178,7 +193,11 @@ class gmClinicalRecord:
 			return self.__db_cache['allergies']
 		except:
 			pass
-		curs = self._defconn_ro.cursor()
+			
+		#curs = self._defconn_ro.cursor()
+		# the connection can become stale
+		curs = self.getCursor()
+		
 		cmd = "select * from v_i18n_patient_allergies where id_patient='%s';" % self.id_patient
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
@@ -221,7 +240,10 @@ class gmClinicalRecord:
 		if transactions == '':
 			return self.__db_cache['allergy IDs']
 		cmd = "select id from v_i18n_allergy where id_clin_transaction in (%s);" % transactions
-		curs = self._defconn_ro.cursor()
+		#curs = self._defconn_ro.cursor()
+		# connection can become stale
+
+		curs = self.getCursor()
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load list of allergies for patient [%s]' % self.id_patient)
@@ -236,8 +258,9 @@ class gmClinicalRecord:
 	def create_allergy(self, map):
 		"""tries to add allergy to database : CUrrently id_type is not reading checkbox states (allergy or sensitivity)."""
 
+		self.beginTransaction()
+		
 		issue_id = self.ensure_health_issue_exists("allergy")
-		cmd = "commit"
 		episode_id = self.get_or_create_episode_for_issue(issue_id)
 		
 		if episode_id == 0:
@@ -255,7 +278,22 @@ class gmClinicalRecord:
 		cmd = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, definate ) values (%d, %d, %d,  '%s', '%s', '%s' )" % (1, encounter_id, episode_id, map["substance"], map["reaction"], map["definite"] )
 		self.execute( cmd, "unable to create allergy entry ", rollback = 1)
 
-		self.execute("commit", "unable to commit ", rollback = 1)
+		#idiosyncratic bug.
+		#seems like calling commit by sql doesn't commit the
+		#the connection properly, prematurely closing it?
+
+		#self.execute("commit", "unable to commit ", rollback = 1)
+
+		#_log.Info("after commit")
+
+		self.endTransaction()
+		_log.Info("after end Transaction")
+
+		#need to invalidate cache or add to it.
+		#del self.__db_cache("allergies")	
+		self._allergy_added_deleted()
+		# send signal to update listeners
+		#gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 		return 1
 		
 
@@ -335,19 +373,42 @@ class gmClinicalRecord:
 #-------------- convenience sql call interface ----------------------------------------
 	def execute(self, cmd, error_msg, rollback = 0):
 		_log.Info("Running query : %s" % cmd)
-		curs = self._defconn_ro.cursor()
+		curs = self.getTransactionCursor()
+		if curs == None:
+			curs = self.getCursor()
 		if not gmPG.run_query(curs, cmd):
 			if rollback and not gmPG.run_query(curs, "rollback"):
 				_log.Log(gm.lErr, "*****   Unable to rollback", sys.exc_info() )
-			curs.close()
 			_log.Log(gmLog.lErr, error_msg)
+			
 			return None
 
 		if self.is_update_command(cmd):
 			return []  # don't fetch from cursor	
 		rows = curs.fetchall()
-		curs.close()
+		if self.getTransactionCursor() == None:
+			curs.close()
+		
 		return rows
+
+	def beginTransaction(self):
+		"""I think the semantics is one connection is one
+		transaction context.  Save a connection for 
+		the transaction commit by calling connection.commit() """
+		self.transactionConnection = self.getConnection()
+		self.transactionCursor = self.transactionConnection.cursor()
+	
+	def endTransaction(self):
+		if self.transactionCursor <> None:
+			#self.transactionCursor.close()
+			self.transactionCursor.close()
+			self.transactionConnection.commit()
+			self.transactionConnection = None
+			self.transactionCursor = None
+
+	def getTransactionCursor(self):
+		return self.transactionCursor
+
 
 	def is_update_command(self, cmd):
 		return  string.find(string.lower(cmd), "insert") >= 0 or\
@@ -357,7 +418,9 @@ class gmClinicalRecord:
 	
 	#--------------------------------------------------------
 	def _get_clinical_transactions_list(self):
-		curs = self._defconn_ro.cursor()
+		#curs = self._defconn_ro.cursor()
+		# the above connection can die.
+		curs = self.getCursor()
 		cmd = "select id_transaction from v_patient_transactions where id_patient='%s';" % self.id_patient
 		if not gmPG.run_query(curs, cmd):
 			curs.close()
@@ -395,7 +458,11 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.7  2003-06-01 01:47:32  sjtan
+# Revision 1.8  2003-06-01 12:55:58  sjtan
+#
+# sql commit may cause PortalClose, whilst connection.commit() doesnt?
+#
+# Revision 1.7  2003/06/01 01:47:32  sjtan
 #
 # starting allergy connections.
 #

@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -83,7 +83,33 @@ class ConnectionPool:
 	#-----------------------------
 	# connection API
 	#-----------------------------
-	def GetConnection(self, service = "default", readonly = 1):
+	def GetConnection(self, service = "default", readonly = 1, checked = 1):
+		"""check connection is live"""
+		try:
+			conn =  self.GetConnectionUnchecked(  service, readonly)
+			cursor = conn.cursor()
+			if checked:
+				cursor.execute("select 1")
+			return conn
+		except:
+			_log.LogException("failed on check of cursor", sys.exc_info(), 4)
+			_log.Info("****** Trying a direct __pgconnect call")
+			try:
+				logininfo = self.GetLoginInfoFor("default")	
+				conn =  self.__pgconnect(logininfo, readonly )
+				cursor = conn.cursor()
+				cursor.execute("select 1")
+				cursor.close()
+				conn.commit()
+				return conn
+			except:
+				_log.LogException("failed __pgconnect", sys.exc_info(), 4)
+				
+				return  None
+		
+		
+
+	def GetConnectionUnchecked(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
 
 		logininfo = self.GetLoginInfoFor(service)
@@ -107,6 +133,7 @@ class ConnectionPool:
 				ConnectionPool.__connections_in_use['default'] = 1
 
 			return ConnectionPool.__databases['default']
+		
 	#-----------------------------
 	def ReleaseConnection(self, service):
 		"decrease reference counter of active connection"
@@ -701,7 +728,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.49  2003-06-01 12:21:25  ncq
+# Revision 1.50  2003-06-01 12:55:58  sjtan
+#
+# sql commit may cause PortalClose, whilst connection.commit() doesnt?
+#
+# Revision 1.49  2003/06/01 12:21:25  ncq
 # - re-enable listening to async backend notifies
 # - what do you mean "reactivate when needed" ?! this is used *already*
 #
