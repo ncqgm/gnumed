@@ -37,7 +37,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -46,20 +46,24 @@ from pyPgSQL import PgSQL
 
 import gmLog
 _log = gmLog.gmDefLog
+
+import gmExceptions
 #=======================================================================================
 class cDocument:
 
-	def __init__(self):
-		_log.Log(gmLog.lData, "Instantiated.")
-		self.__metadata = {}
-	#-----------------------------------
-	def loadMetaDataFromXML(self, aBaseDir = None, aCfg = None, aSection = None):
-		"""Load document metadata from XML file."""
+	def __init__(self, aCfg = None):
 		# sanity checks
 		if aCfg is None:
 			_log.Log(gmLog.lErr, "Parameter aCfg must point to a config parser object.")
-			return None
+			raise ConstructorError, "Need valid config parser pointer."
+		self.cfg = aCfg
 
+		_log.Log(gmLog.lData, "Instantiated.")
+		self.__metadata = {}
+	#-----------------------------------
+	def loadMetaDataFromXML(self, aBaseDir = None, aSection = None):
+		"""Load document metadata from XML file."""
+		# sanity checks
 		if not type(aSection) == type('a string'):
 			_log.Log(gmLog.lErr, "Parameter aSection must be a string.")
 			return None
@@ -71,7 +75,7 @@ class cDocument:
 			_log.Log(gmLog.lData, "working from directory '" + str(aBaseDir) + "'")
 
 		# check for Befund description file
-		desc_file_name = aCfg.get(aSection, "description")
+		desc_file_name = self.cfg.get(aSection, "description")
 		if not os.path.exists (os.path.join(aBaseDir, desc_file_name)):
 			_log.Log (gmLog.lErr, "skipping " + aBaseDir + "- no description file (" + desc_file_name + ") found")
 			return None
@@ -81,7 +85,7 @@ class cDocument:
 		self.__metadata = {}
 
 		# document type
-		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "type_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = self.cfg.get(aSection, "type_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			_log.Log(gmLog.lErr, "Cannot load document type.")
 			return None
@@ -90,7 +94,7 @@ class cDocument:
 			_log.Log(gmLog.lData, "Document type: " + str(self.__metadata['type']))
 
 		# document comment
-		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "comment_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = self.cfg.get(aSection, "comment_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			_log.Log(gmLog.lErr, "Cannot load document comment.")
 			return None
@@ -99,7 +103,7 @@ class cDocument:
 			_log.Log(gmLog.lData, "Document comment: " + str(self.__metadata['comment']))
 
 		# document reference date
-		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "date_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = self.cfg.get(aSection, "date_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			_log.Log(gmLog.lErr, "Cannot load document reference date.")
 			return None
@@ -108,7 +112,7 @@ class cDocument:
 			_log.Log(gmLog.lData, "document reference date: " + str(self.__metadata['date']))
 
 		# external reference string
-		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "ref_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = self.cfg.get(aSection, "ref_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			_log.Log(gmLog.lErr, "Cannot load document reference string.")
 			return None
@@ -117,7 +121,7 @@ class cDocument:
 			_log.Log(gmLog.lData, "document reference string: " + str(self.__metadata['reference']))
 
 		# document description
-		tmp = self.__get_from_xml(aTag = aCfg.get(aSection, "aux_comment_tag"), anXMLfile = DescFile)
+		tmp = self.__get_from_xml(aTag = self.cfg.get(aSection, "aux_comment_tag"), anXMLfile = DescFile)
 		if tmp == None:
 			_log.Log(gmLog.lErr, "Cannot load long document description.")
 		else:
@@ -125,16 +129,16 @@ class cDocument:
 			_log.Log(gmLog.lData, "long document description: " + str(self.__metadata['description']))
 
 		# list of data files
-		if not self.__read_img_list(DescFile, aBaseDir, aCfg, aSection):
+		if not self.__read_img_list(DescFile, aBaseDir, aSection):
 			_log.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
 			return None
 
 		return 1
 	#-----------------------------------
-	def loadImgListFromXML(self, aDescFile = None, aBaseDir = None, aCfg = None, aSection = None):
+	def loadImgListFromXML(self, aDescFile = None, aBaseDir = None, aSection = None):
 		# FIXME: sanity checks
 		# list of data files
-		if not self.__read_img_list(aDescFile, aBaseDir, aCfg, aSection):
+		if not self.__read_img_list(aDescFile, aBaseDir, aSection):
 			_log.Log(gmLog.lErr, "Cannot retrieve list of document data files.")
 			return None
 		else:
@@ -352,21 +356,66 @@ class cDocument:
 
 		# now get the object
 		obj = self.__metadata['objects'][anObjID]
+
+		# Windoze sucks: it can't transfer objects of arbitrary size,
+		# or maybe this is due to pyPgSQL,
+		# anyways, we need to split the transfer,
+		# only possible if postgres >= 7.2
+		if aConn.version < "7.2":
+			max_chunk_size = 0
+			_log.Log(gmLog.lWarn, 'PostgreSQL < 7.2 does not support substring() on bytea.')
+		else:
+			max_chunk_size = self.cfg.get("viewer", "export chunk size")
+			if max_chunk_size is None:
+				max_chunk_size = 0
+		_log.Log(gmLog.lData, "export chunk size is %s" % max_chunk_size)
+
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = aConn.cursor()
-		# retrieve object
-		cmd = "SELECT data FROM doc_obj WHERE oid='%s'" % (anObjID)
-		try:
-			cursor.execute(cmd)
-		except:
-			_log.LogException("cannot SELECT doc_obj", sys.exc_info())
-			return None
+
 		# cDocument.metadata->objects->file name
 		obj['file name'] = tempfile.mktemp()
 		aFile = open(obj['file name'], 'wb+')
-		# it would be a fatal error to see more than one result as oids are supposed to be unique
-		#aFile.write(self.__unescapeByteA(cursor.fetchone()[0]))
-		aFile.write(str(cursor.fetchone()[0]))
+
+		# a chunk size of 0 means: all at once
+		if (max_chunk_size == 0) or (obj['size'] < max_chunk_size):
+			_log.Log(gmLog.lInfo, "export chunk size is 0 or object size is less then chunk size")
+			# retrieve object
+			cmd = "SELECT data FROM doc_obj WHERE oid='%s'" % (anObjID)
+			try:
+				cursor.execute(cmd)
+			except:
+				_log.LogException("cannot SELECT doc_obj", sys.exc_info())
+				return None
+			# it would be a fatal error to see more than one result as oids are supposed to be unique
+			aFile.write(str(cursor.fetchone()[0]))
+		else:
+			needed_chunks, remainder = divmod(obj[size], max_chunk_size)
+			_log.Log(gmLog.lData, "need %s chunks" % needed_chunks)
+			# retrieve chunks
+			for chunk_id in range(needed_chunks):
+				_log.Log(gmLog.lData, "retrieving chunk %s" % chunk_id+1)
+				pos = (chunk_id*max_chunk_size) + 1
+				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE oid='%s'" % (pos, max_chunk_size, anObjID)
+				try:
+					cursor.execute(cmd)
+				except:
+					_log.LogException("cannot SELECT doc_obj chunk, try decreasing chunk size", sys.exc_info())
+					return None
+				# it would be a fatal error to see more than one result as oids are supposed to be unique
+				aFile.write(str(cursor.fetchone()[0]))
+			_log.Log(gmLog.lData, "retrieving trailing bytes after chunks")
+			if remainder > 0:
+				pos = (needed_chunks*max_chunk_size) + 1
+				cmd = "SELECT substring(data from %s for %s) FROM doc_obj WHERE oid='%s'" % (pos, remainder, anObjID)
+				try:
+					cursor.execute(cmd)
+				except:
+					_log.LogException("cannot SELECT doc_obj remainder", sys.exc_info())
+					return None
+				# it would be a fatal error to see more than one result as oids are supposed to be unique
+				aFile.write(str(cursor.fetchone()[0]))
+
 		aFile.close()
 		# close our connection
 		cursor.close()
@@ -389,7 +438,7 @@ class cDocument:
 	#-----------------------------------
 	# internal methods
 	#-----------------------------------
-	def __read_img_list(self, aDescFile = None, aBaseDir = None, aCfg = None, aSection = None):
+	def __read_img_list(self, aDescFile = None, aBaseDir = None, aSection = None):
 		"""Read list of image files from XML metadata file.
 
 		We assume the order of file names to correspond to the sequence of pages.
@@ -401,7 +450,7 @@ class cDocument:
 		self.__metadata['objects'] = {}
 
 		i = 1
-		tag_name = aCfg.get(aSection, "obj_tag")
+		tag_name = self.cfg.get(aSection, "obj_tag")
 		# now read the xml file
 		for line in fileinput.input(aDescFile):
 			# is this a line we want ?
@@ -711,7 +760,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.30  2003-01-25 00:23:49  ncq
+# Revision 1.31  2003-01-26 16:46:15  ncq
+# - retrieve objects in chunks if needed and supported
+#
+# Revision 1.30  2003/01/25 00:23:49  ncq
 # - get size of object with metadata
 #
 # Revision 1.29  2003/01/24 14:57:55  ncq
