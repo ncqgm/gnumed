@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -85,30 +85,28 @@ class ConnectionPool:
 	#-----------------------------
 	def GetConnection(self, service = "default", readonly = 1, checked = 1):
 		"""check connection is live"""
+		conn =  self.GetConnectionUnchecked(service, readonly)
 		try:
-			conn =  self.GetConnectionUnchecked(  service, readonly)
-			cursor = conn.cursor()
 			if checked:
-				cursor.execute("select 1")
-			return conn
-		except:
-			_log.LogException("failed on check of cursor", sys.exc_info(), 4)
-			_log.Data("****** Trying a direct __pgconnect call")
-			try:
-				logininfo = self.GetLoginInfoFor("default")	
-				conn =  self.__pgconnect(logininfo, readonly )
 				cursor = conn.cursor()
-				cursor.execute("select 1")
+				cursor.execute("select 1;")
 				cursor.close()
-				conn.commit()
+			return conn
+		except StandardError:
+			_log.LogException("connection is dead", sys.exc_info(), 4)
+			_log.Data("trying a direct connection via __pgconnect()")
+			logininfo = self.GetLoginInfoFor(service)
+			conn =  self.__pgconnect(logininfo, readonly)
+			try:
+				if checked:
+					cursor = conn.cursor()
+					cursor.execute("select 1;")
+					cursor.close()
 				return conn
 			except:
-				_log.LogException("failed __pgconnect", sys.exc_info(), 4)
-				
+				_log.LogException("connection is dead", sys.exc_info(), 4)
 				return  None
-		
-		
-
+	#-----------------------------
 	def GetConnectionUnchecked(self, service = "default", readonly = 1):
 		"""if a distributed service exists, return it - otherwise return the default server"""
 
@@ -116,6 +114,7 @@ class ConnectionPool:
 
 		# get new read-write connection
 		if not readonly:
+			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
 			return self.__pgconnect(logininfo, readonly = 0)
 
 		# return a cached read-only connection
@@ -507,6 +506,7 @@ def quickROQuery(query, service='default'):
 	cur.execute(query)
 	return cur.fetchall(), cur.description
 #---------------------------------------------------
+#---------------------------------------------------
 def run_query(aCursor = None, aCmd = None):
 	# FIXME: adapt to pyPgSQL style of %s
 
@@ -728,7 +728,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.51  2003-06-01 13:20:32  sjtan
+# Revision 1.52  2003-06-03 13:46:52  ncq
+# - some more fixes to Syans connection liveness check in GetConnection()
+#
+# Revision 1.51  2003/06/01 13:20:32  sjtan
 #
 # logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
 # with regular expression groups (maybe never).
