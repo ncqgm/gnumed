@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.11 2003-11-03 15:38:58 sjtan Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmEditArea.py,v 1.12 2003-11-04 00:32:33 sjtan Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -540,20 +540,80 @@ class gmEditArea( wxPanel):
 		EVT_BUTTON(self.btn_Save, wxID_BTN_Save, self._on_save_btn_pressed)
 		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
 		EVT_BUTTON(self.btn_Delete, wxID_BTN_Delete, self._on_delete_btn_pressed)
-
+		#self._register_dirty_editarea_listener()
+			
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_data)
-		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_data)
+		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._check_unsaved_data)
+		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._check_unsaved_data)
 		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._changePatient)
+		
 
 		return 1
+
+	def _register_dirty_editarea_listener(self):   # a different way of check dirty is to save the input field values
+		self.monitoring_dirty = 1
+		import inspect
+		for k, widget in self.input_fields.items():
+			#classes = inspect.getmro(widget)  # doesn't work because wx classes doesn't use mro scheme.
+			
+			#for c in classes:
+			#	if c.__name__ == 'wxTextCtrl':
+
+			if widget.__class__.__name__ in ['wxTextCtrl', 'cEditAreaField']:
+					print widget, ' is a wxTextCtrl'
+					EVT_TEXT( widget, widget.GetId(), self._mark_dirty)
+			if widget.__class__.__name__ in ['wxRadioButton']:
+					EVT_RADIOBUTTON(widget, widget.GetId(), self._mark_dirty)
+			if widget.__class__.__name__ in ['wxCheckBox' ]:
+					EVT_CHECKBOX(widget, widget.GetId(), self._mark_dirty)
+
+			
+	
+	def _mark_dirty(self, event):
+		event.Skip()
+		if self.monitoring_dirty:
+			print self, ' IS MARKED DIRTY'
+			self.dirty = 1
+		else:
+			print "not monitoring dirty"
+
 	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
 	def _on_save_btn_pressed(self, event):
 		print "SAVE button pressed"
-		self._save_data()
 		event.Skip()
+		self._pre_save_data()
+
+	def _check_unsaved_data(self, kwds):
+		self._pre_save_data()
+		self._init_fields()
+
+	def _pre_save_data(self):
+		#if not self.__dict__.has_key('dirty') or self.dirty == 0:
+		if not self.is_dirty():
+			print self, 'NOT SAVING BECAUSE UNCHANGED'
+			return
+		print "ATTEMPTING SAVE", self
+		self._save_data()
+
+	
+	def set_old_data( self, map):
+		self.old_data = map
+	
+	def is_dirty(self):
+		map = self.getInputFieldValues()
+		dirty = 0
+		for k,v in map.items():
+			if self.old_data.get(k, None) <>  v:
+				dirty = 1
+				print " field ", k, " WAS DIRTY WITH VALUE",v , " and old value",  self.old_data.get(k, None) 
+				break
+		print "IS DIRTY ", dirty		
+		return dirty	
+
+				
+
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
 		print "CLEAR button pressed"
@@ -568,8 +628,8 @@ class gmEditArea( wxPanel):
 
 	#--------------------------------------------------------
 	def _init_fields(self):
-		for k,v in self.get_init_values().items():
-			self.input_fields[k].SetValue(v)
+		self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
+		self.setInputFieldValues( self.get_init_values())
 		self.dataId = None
 		
 	#	_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
@@ -674,10 +734,16 @@ class gmEditArea( wxPanel):
 			newlines.append(szr)
 			i += 1
 		return newlines	
-		
+
+	def get_init_values(self):
+		map = {}
+		for k in self.input_fields.keys():
+			map[k] = ''
+		return map	
 
 
-	def setInputFieldValues(self, map, id ):
+	def setInputFieldValues(self, map, id = None ):
+		#self.monitoring_dirty = 0
 		for k,v in map.items():
 			field = self.input_fields.get(k, None)
 			if field == None:
@@ -686,11 +752,16 @@ class gmEditArea( wxPanel):
 				field.SetValue( str(v) )
 			except:
 				try:
+					if type(v) == type(''):
+						v = 0
+
 					field.SetValue( v)
 				except:
 					
 					print "field ", k, ":", sys.exc_info()[0]
 		self.setDataId(id)
+		#self.monitoring_dirty = 1
+		self.set_old_data(self.getInputFieldValues())
 	
 	def getDataId(self):
 		return self.dataId 
@@ -704,7 +775,9 @@ class gmEditArea( wxPanel):
 			values[k] = v.GetValue()
 		return values	
 
-	def getInputFieldValues(self, fields):
+	def getInputFieldValues(self, fields = None):
+		if fields == None:
+			fields = self.input_fields.keys()
 		values = {}
 		for f in fields:
 			try:
@@ -2049,9 +2122,9 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.11  2003-11-03 15:38:58  sjtan
+# Revision 1.12  2003-11-04 00:32:33  sjtan
 #
-# allergy CRUD.
+# should be able to swap to different patients; only saves on activating patient when any editarea data is different.
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #

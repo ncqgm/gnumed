@@ -95,6 +95,7 @@ class MultiColumnList( wxGrid):
 		return predictedRows
 
 	def SetData(self, map, maxRows = 8, fitClientSize = 0):
+		print self, " GOT DATA = ", map
 		self.SetDataItems( map.items(), maxRows, fitClientSize) 
 
 
@@ -102,7 +103,7 @@ class MultiColumnList( wxGrid):
 
 		self.GetTable().SetValue(0,0, 'AAAAAAAAAAAAAAAA')
 		if len(items) == 0:
-			items = ( 0, "")
+			items = [ [ 0, [""] ] ]
 		if fitClientSize :
 			predictedRows = self._getPredictedRows(items)
 		else:

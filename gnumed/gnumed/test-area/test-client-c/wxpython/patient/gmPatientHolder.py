@@ -2,6 +2,7 @@
 
 import gmDispatcher, gmSignals
 from gmPatient import gmCurrentPatient
+import sys, traceback
 
 
 class PatientHolder:
@@ -11,7 +12,12 @@ class PatientHolder:
 	def _setPatientModel( self, kwds):
 		print kwds
 		self.patient = gmCurrentPatient(kwds['ID'])
-		self._updateUI()
+		try:
+			self._updateUI()
+		except:
+			for i in xrange(0,1):
+				print sys.exc_info()[i]
+			traceback.print_tb( sys.exc_info()[2])
 	
 	def get_patient(self):
 		return self.patient
