@@ -1,0 +1,299 @@
+Hallo Karsten,
+Thank you for your detailed answer.
+I tried the  bootstrapping process again and it worked a little better, 
+but at last I was unable to install gnumed. Perhaps I should try it on a 
+linux machine, but at the moment don't have Linux on any computer any more.
+I downloaded the schema and tryed to install it via psql. With this 
+there were (at least) the following problems:
+First
+A pg_dump does not dump any groups and users. Thus , if a db schema 
+needs any users and groups to be installed, it should come with a 
+sql-script which will install those users and groups.
+Second
+PLpgsql could not be installed with gnumeds schema-dump, which resulted 
+in many errormessages. The reason seems to be that the pg_dump of gnumed 
+contains the following statement:
+
+CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
+    AS '/usr/lib/postgresql/plpgsql.so', 'plpgsql_call_handler'
+    LANGUAGE c;
+
+This will not work on any windows machine, at least if a nativ 
+PostgreSQL 8.01 is running.
+I don't know wether this was/is a bug.  The question is which version of 
+PostgreSQL was used to dump the gnumed-schema.
+A dump done with PostgreSQL 8.01 on Windows XP works around the problem 
+with the librarypath by using a variable $libdir instead of a Unix-like 
+path:
+CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
+    AS '$libdir/plpgsql', 'plpgsql_call_handler'
+    LANGUAGE c;
+
+By the way, Dezign for Databases reports that, Gnumed has 184 Tables 
+with 1024 Columns.
+This obvious complexity, together with the difficutly to get the backend 
+running (on Windows)  may be a bit deterrent for anybody who realy wants 
+to develop a GUI.
+
+Because of at least three bugs in the Dezign for Database Schema-import, 
+I can not produce a correct database schema at the moment. At least two 
+of this bugs can be worked arround with a filter, which is just a 
+question of time.
+I am a bit interested in Gnumed, since I have to write an appoint gui 
+(and backend) too in the next month's.
+But at the moment I have big enough problems with the new German denture 
+regulations.
+
+The RoteListe Windows CD  is  distributed free at least German dentists. 
+It has an active-x-interface which should be usable from within 
+wxPython  and it has the possibility to export data for prescriptions 
+into a file, which can be read by other applications.
+
+I do have LATEX forms for the German Kassenrezept and the 
+Arbeitsunfähigkeistbescheinigung.
+I attatch the texfiles. The worked with an Epson LQ630 Matrixprinter, 
+but should work on almost any printer after adjusting the 0 point. I 
+used the Latex picture envirement and set the lower left corner of the 
+KVK-Data-Frame as zero point.
+I should be clear, that the variable names within the stars ** should be 
+replaced via a python script.
+May be you can use them for Gnumed. I too have a form for private 
+invoices, using the DIN-letter and the long-table envirement. By this 
+one can write multi-page invoices. Notice that latex has to be called 
+more than once to get nice tables with longtable.
+My invoiceform  may be usefull for GPs too after some modification.
+As far as I can see, a search for *.tex in gnu med does not show 
+anything like this.
+I attach some more tex-files. elab_beleg.tex  is used to write dental 
+laboratory invoices for in office laboratory work. kvkdaten.tex and 
+kzvstempel.tex are modules used by several forms like the 
+Arbeistunfaehigkeisbescheiniugng und the and the prescription.
+
+Regards
+Christoph Becker
+
+Karsten Hilbert schrieb:
+
+>Christoph,
+>
+>  
+>
+>>After more than a year, again I did check out Gnumed, just to see how
+>>far it has grown.
+>>Here are some questions I asked myseld and some sugestions:
+>>    
+>>
+>thanks a lot for your effort !
+>
+>  
+>
+>>First:
+>>Why does Gnumed not have dumps of its database-schema and a pg_dump of 
+>>some testdata in the cvs?
+>>    
+>>
+>It is not in CVS because dumps are not our primary method of
+>setting up a database and thus dumps are secondary, generated
+>data which should not be in CVS.
+>
+>However, the point of your question is: Why are there no dumps
+>available ? This question is perfectly valid. The answer is
+>that I was to stupid up to now to see where they would be
+>useful even when Horst suggested having dumps available. The
+>reason I did not see the value was that I was focussed on
+>Horst's suggestion to use dumps for bootstrapping instead of
+>thinking further. They *are* of use for people who want to
+>tinker around with them.
+>
+>Due to your suggestion I enhanced our daily cron job such that
+>now we offer daily snapshot database dumps. There are now:
+>
+>http://salaam.homeunix.com/~ncq/gnumed/schema/...
+>
+>-> gm-data-dump.sql
+>-> gm-schema-dump.sql
+>-> gm-db-dump.tgz (a tar.gz of the first two)
+>
+>Those are also linked in the Wiki:
+>
+>http://salaam.homeunix.com/twiki/bin/view/Gnumed/DatabaseSchema
+>
+>However,
+>  
+>
+>>By this it would be a work of a minute or less 
+>>to have the Gnumed database in the running PostrgreSQL cluster, ready to
+>>inspect and evaluate the gnumed databasedesign.
+>>    
+>>
+>this may not work because unless all dependancies are
+>met the dump will not easily reload. Which the bootstrapping
+>scripts check for and rectify. Nonetheless, the dumps are there
+>for your pleasure.
+>
+>  
+>
+>>Instead anybody interested in Gnumed has to try to build a database
+>>schema with "bootstrap" skripts
+>>    
+>>
+>Wrong. Or why do you think we provide public database
+>access ?!?
+>
+>  
+>
+>>- which for me at least did not
+>>work. First I had to figure out, that I have to find the 'client'
+>>directory, copy it to my python's site-packages, rename 'client' to
+>>'Gnumed' and then insert an apporiate gnumed.pth file into
+>>site-packages. OK, there are other ways too, but why don't you have a
+>>skript doing this, or  at least a README/INSTALL, telling this?
+>>    
+>>
+>There are README/INSTALL files in the very root of the
+>CVS tree. They don't talk about setting up a new database
+>because that is not for people trying GnuMed first time
+>around. However, the files should talk about using the
+>public servers. They now do.
+>
+>  
+>
+>>Finally at least I could run a bootstrap.py which seemed to be the right
+>>one,
+>>    
+>>
+>No, and INSTALL tells you so.
+>
+>  
+>
+>>Second:
+>>Why does Gnumed not have a detailed graphical schema from its database?
+>>    
+>>
+>a) because there are no freely available graphical schema
+>   generators available
+>b) because no one voluntuered to regularly update graphical
+>   schema pictures with a manual tool
+>c) GnuMed DOES HAVE detailed graphical schema in several formats:
+>
+>   http://salaam.homeunix.com/twiki/bin/view/Gnumed/DatabaseSchema
+>
+>Please tell us how we can improve the situation so
+>people find it.
+>
+>
+>  
+>
+>>When I started with my dental application I got me a graphical
+>>database-designer-tool (http://www.datanamic.com), build the database 
+>>and the tool produced the PostgreSQL schema, by just a very few 
+>>mouse-clicks. I could import that schema into PostgreSQL and after some 
+>>trials I had a reasonable base to start with devoloping the GUI.
+>>    
+>>
+>Doing it that way does not allow to use advanced features of
+>PostgreSQL to the extent we (or at least I) want to.
+>
+>  
+>
+>>Then I stopped using the database-designer-tool and switched over to
+>>improve the database with EMACS in sql-Mode.
+>>    
+>>
+>OK, that would work. However, we are beyond that stage
+>already.
+>
+>  
+>
+>>Would I have to share the design of my database with others (as gnumed
+>>has to do if it will stay and grow)
+>>    
+>>
+>GnuMed has shared it's database schema from day -1.
+>
+>  
+>
+>>, the most natural thing would be to
+>>get the latest version of a reverseengineriong tool like importer script 
+>>from datanamic.com or a comparable reversenginering tool to produce a
+>>detailed picture/map of my database's design with the coresponding 
+>>graphical database design tool.
+>>    
+>>
+>Because someone would need to volunteer to keep this up to date.
+>
+>  
+>
+>>Yes, Gnumed may have such a tool with autodoc, at least to some degree.
+>>But if this works, why don't you have detailed maps and pictures of the
+>>database-schema as jpeg and/or pdf files on the website?
+>>    
+>>
+>a) we do
+>b) they are not as good yet as the commercial tools
+>
+>  
+>
+>>Gnumed at first should concentrate on delivering an easy to install and 
+>>easy to understand PostgreSQL database.
+>>    
+>>
+>It does to the degree possible.
+>
+>We even offer public access to a live, installed database
+>against which you can run any database reverse
+>engineering/graphical display tool YOU desire.
+>
+>  
+>
+>>That is to say,
+>>first offer zipped dumps in human readable text format wich can be imported in
+>>a running Postgresql-Cluster.
+>>    
+>>
+>We do. I doubt they will work as simply as you seem to
+>imagine. Because proper setup is more complex than you seem to
+>think.
+>
+>  
+>
+>>Zip the resulting dump and place it into the cvs-tree under 'dbschema'
+>>    
+>>
+>Such things do not belong into CVS unless they are the primary
+>database installtion source.
+>
+>  
+>
+>>second
+>>get you a database-reenginering tool and a graphical database designtool 
+>>to produce a detailed graphical map/picture of the the database and 
+>>place the maps/pictures as jepg and/or pdf files into the 'dbschema' 
+>>directory.
+>>    
+>>
+>This sounds like you are volunteering to keep it up to date ?
+>
+>Also such things do not belong into CVS. They belong onto a
+>web site (such as the Wiki).
+>
+>  
+>
+>>If I can get a working schema as pg_dump I can produce a gnumed schema 
+>>with dezign for Database and it's importer script, since I will update 
+>>to their new version.
+>>    
+>>
+>Feel free any day. You don't even need US to PROVIDE a dump to
+>you. Why not simply dump the public database onto your machine ?
+>Nevertheless, we now DO provide dumps, too.
+>
+>Christoph,
+>
+>thanks a lot for your detailed input upon which some
+>improvements have immediately been based.
+>
+>Karsten
+>  
+>
+

@@ -1,0 +1,54 @@
+\documentclass{praxisbrief2005}
+\usepackage {longtable}
+\LTchunksize=100
+% EMACS-coding: iso-latin-1
+%\pagestyle{headings}
+%\pagenumbering {arabic}
+%\markright{\leftline{*MitglTitel* *MitglVName* *MitglNamenzus* *MitglNName*
+%    \hfill \date
+%\hfill Seite \thepage}}}
+
+\begin{document}
+\date{*Rechnungsdatum*}
+%*MitglAdressAnrede*\\
+\begin{letter}{ *MitglAdressAnrede* *MitglTitel* *MitglVName*
+                *MitglNamenzus* *MitglNName*\\
+                *RechnungStr*\\\textbf{*RechnungPLZOrt*}}
+%\sign{*Rechnungsnr*}
+\subject{Rechnung über zahnärztliche/zahntechnische Leistungen\\
+\textbf{*Rechnungsnr*}}
+
+\opening{*MitglBriefAnrede*,}
+
+Für meine zahnärztlichen Bemühungen erlaube ich mir, gemäß GOZ vom 22.10.1987
+und GOÄ vom 1.1.1996, folgende Leistungen in Rechnung zu stellen:
+
+(Material- und Laborkosten werden nach § 3 bzw. § 9 GOZ berechnet)
+
+\textbf{Patient: *PatVName* *PatNName*}, *PatGebDat*
+Abrechnungszeitraum: *Behandlungsbeginn* bis *Behandlungsende* \\
+\textbf{Rechnungsbetrag: *Rechnungsbetrag* Euro}
+
+\begin{small}
+
+*Privatrechnung*
+\end{small}
+%\pagebreak[1]
+Ich bitte Sie, den fälligen Betrag von \textbf{*Rechnungsbetrag* Euro bis zum
+  *Zahlungsziel* } auf mein \\
+\textbf{Konto *Bankkonto*, bei der *Bank*, BLZ: *BankLZ*}\\ 
+zu überweisen.
+%Wenn Sie bar zahlen möchten, bitte ich den Betrag passend abgezählt, zusammen
+%mit dieser Rechnung mit zu bringen. 
+
+\closing{Ich danke für Ihr Vertrauen}
+\end{letter}
+\end{document}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: rechn_pv.tex
+%%% End:
+

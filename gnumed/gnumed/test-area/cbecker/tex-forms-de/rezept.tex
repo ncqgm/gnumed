@@ -1,0 +1,75 @@
+% Tex-Datei zum drucken des deuschen Kassenrezeptes
+% Author Christoph Becker, Dauner Str. 21, 53539 Kelberg, Germany
+% email: cgbecker@gmx.de
+% 4. Febr. 2005 
+% Prinziep:
+% Das gesamte Document besteht nur aus EINEM Bild bzw. 'picture'
+% Als Ursprungskoordinate wird die rechte untere Ecke 
+% des Rahmens mit den Versichertenkartenleistungen verwendet.
+% Die Ursprungskoordinate kann nicht an einem Papierrand liegen, weil
+% LATEX einen Seitenrand von 0 ignoriert. Von daher ist es besser bei
+% Formularen einen leicht erkennbaren Ursprungspunkt im Formular zu
+% benutzen. Der Ursprungspunkt wird als Schnittpunkt von oberem und
+% linkem Rand eingestellt. Die Bildgroesse kann (0,0) sein.
+% Alle Felder des Formulars werden als Bildelemente (vom Typ Text) plaziert 
+% (Siehe Helmut Kopka, Latex - Eine Einfuehrung, Bd 1, Kap. 6, Bilder
+% Alle Felder des Forumlars werden im Bezug auf die Ursprungskoordinate
+% des Bildes plaziert.
+% Der KZV- bzw. KV-Stempel wird mit einem Offset eingestellt, hier:  
+% \newcount\stempeloffsetx \stempeloffsetx=20
+% \newcount\stempeloffsety \stempeloffsety=-10
+% Dadurck kann der 'Stempel' durch einfaches Kopieren auch in andere
+% Kassenformulare uebernommen werden (AU, HKP usw.). Es muss dann lediglich
+% der Offset geaendert werden.
+%
+% Das Formular wurde auf einem EPSON 630 LQ-Nadeldrucker unter WindowsXP 
+% mit TeXnicCenter (auf der Miktex-Cd, sehr zu empfehlen) entwickelt.
+% wenn sich auf einem anderen Drucker oder unter Linux zeigt, dass die 
+% Ursprungskoordinate nicht stimmt, so kann diese ueber   
+% \oddsidemargin und \topmargin angepasst werden.
+% Das Einsetzen der realen Daten erfolgt z.B. ueber ein Pythonskript
+% welches die *Schluesselwoerter* sucht und gegen die jeweiligen Daten austauscht.
+
+% EMACS-coding: iso-latin-9-with-esc
+\documentclass[10pt,a5paper]{letter}
+% a6paper gibt es nicht
+\pagestyle{empty}
+\oddsidemargin61mm
+\topmargin27mm
+\headheight0mm
+\headsep0mm
+\topskip0mm
+\textwidth146mm
+\textheight104mm
+\footskip0mm
+\paperwidth148mm
+\paperheight105mm
+
+\newcount\rechterrand 
+\newcount\stempeloffsetx
+\newcount\stempeloffsety
+
+\begin{document}
+\setlength{\unitlength}{1mm}
+\begin{picture}(0,0)%(80,27) % x-Koordinate tut nichts zur Sache
+% y-Koordinate schiebt d. 'Bild' nach unten
+
+%\put(0,0){.+} %Ursprungskoordinate (Unterkante KVK-DatenBlock 
+\rechterrand=-77 %beliebig dicht am re Papierrand! 
+\stempeloffsetx=17
+\stempeloffsety=-10
+% KVK-Daten und ZA-Stempel einfuegen
+\input{kvkdaten.tex}
+\input{kzvstempel.tex}
+\put(\rechterrand,-10){*rp1*}
+\put(\rechterrand,-16){*rp2*}
+\put(\rechterrand,-22){*rp3*}
+\put(\rechterrand,-28){*rp4*}
+\end{picture}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: rezept.tex
+%%% End:
+
