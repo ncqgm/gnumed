@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.6 2004-04-18 17:51:28 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmClinItem.py,v 1.7 2004-04-18 18:50:36 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -30,7 +30,7 @@ class cClinItem:
 	- NO lazy fetching of fields
 	"""
 	#--------------------------------------------------------
-	def __init__(self, aPKey = None, **kwargs):
+	def __init__(self, aPKey = None):
 		self._is_modified = False
 		#<DEBUG>
 		# check descendants
@@ -39,14 +39,10 @@ class cClinItem:
 		self.__class__._updatable_fields
 		#</DEBUG>
 		self.pk = aPKey
-		if not self._pre_init(**kwargs):
-			raise gmExceptions.ConstructorError, "[%s]: cannot init" % self.__class__.__name__
 		if self.pk is None:
 			raise gmExceptions.ConstructorError, "[%s]: must have primary key" % self.__class__.__name__
 		if not self.refetch_payload():
 			raise gmExceptions.ConstructorError, "[%s:%s]: cannot load instance" % (self.__class__.__name__, self.pk)
-		if not self._post_init(**kwargs):
-			raise gmExceptions.ConstructorError, "[%s]: cannot init" % self.__class__.__name__
 	#--------------------------------------------------------
 	def __del__(self):
 		if self._is_modified:
@@ -72,14 +68,6 @@ class cClinItem:
 			raise KeyError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
 		self._payload[self._idx[attribute]] = value
 		self._is_modified = True
-		return True
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def _pre_init(self, **kwargs):
-		return True
-	#--------------------------------------------------------
-	def _post_init(self, **kwargs):
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -130,7 +118,10 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.6  2004-04-18 17:51:28  ncq
+# Revision 1.7  2004-04-18 18:50:36  ncq
+# - override __init__() thusly removing the unholy _pre/post_init() business
+#
+# Revision 1.6  2004/04/18 17:51:28  ncq
 # - it's surely helpful to be able to say <item>.is_modified() and know the status...
 #
 # Revision 1.5  2004/04/16 12:46:35  ncq

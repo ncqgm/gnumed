@@ -4,13 +4,13 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.3 2004-04-12 22:59:38 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPathLab.py,v 1.4 2004-04-18 18:50:36 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
 
-from Gnumed.pycommon import gmLog, gmPG
+from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -60,8 +60,6 @@ class cLabRequest(gmClinItem.cClinItem):
 		"""select 1 from lab_request where id=%(pk)s for update""",
 		"""update lab_request set
 				clin_when=%(clin_when)s,
---				id_encounter
---				id_episode
 				narrative=%(narrative)s,
 				request_id=%(request_id)s,
 				lab_request_id=%(lab_request_id)s,
@@ -71,6 +69,8 @@ class cLabRequest(gmClinItem.cClinItem):
 				is_pending=%(is_pending)s
 			where pk=%(pk)s"""
 		]
+#--				id_encounter
+#--				id_episode
 
 	_updatable_fields = [
 		'clin_when',
@@ -83,37 +83,35 @@ class cLabRequest(gmClinItem.cClinItem):
 		'is_pending'
 	]
 	#--------------------------------------------------------
-	def _pre_init(self, **kwargs):
-		if self.pk is not None:
-			return True
-		# sanity check
-		if None in [kwargs['req_id'], kwargs['lab']]:
-			_log.Log(gmLog.lErr, 'req_id and lab must be defined')
-			return False
-		# generate query
-		where_snippets = []
-		vals = {}
-		where_snippets.append('request_id=%(req_id)s')
-		vals['req_id'] = kwargs['req_id']
-		if type(kwargs['lab']) == types.IntType:
-			where_snippets.append('fk_test_org=%(lab)s')
-			vals['lab'] = kwargs['lab']
-		else:
-			where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
-			vals['lab'] = str(kwargs['lab'])
-		where_clause = ' and '.join(where_snippets)
-		cmd = "select pk from lab_request where %s" % where_clause
-		data = gmPG.run_ro_query('historica', cmd, None, vals)
-		# error
-		if data is None:
-			_log.Log(gmLog.lErr, 'error getting lab request for %s' % kwargs)
-			return False
-		# no such request
-		if len(data) == 0:
-			_log.Log(gmLog.lErr, 'no lab request for %s' % kwargs)
-			return False
-		self.pk = data[0][0]
-		return True
+	def __init__(self, aPKey=None, req_id=None, lab=None):
+		pk = aPKey
+		# no PK given, so find it from req_id and lab
+		if pk is None:
+			if None in [req_id, lab]:
+				raise gmExceptions.ConstructorError, 'req_id and lab must be defined (%s:%s)' % (lab, req_id)
+			# generate query
+			where_snippets = []
+			vals = {}
+			where_snippets.append('request_id=%(req_id)s')
+			vals['req_id'] = req_id
+			if type(lab) == types.IntType:
+				where_snippets.append('fk_test_org=%(lab)s')
+				vals['lab'] = lab
+			else:
+				where_snippets.append('fk_test_org=(select pk from test_org where internal_name=%(lab)s)')
+				vals['lab'] = str(lab)
+			where_clause = ' and '.join(where_snippets)
+			cmd = "select pk from lab_request where %s" % where_clause
+			data = gmPG.run_ro_query('historica', cmd, None, vals)
+			# error
+			if data is None:
+				raise gmExceptions.ConstructorError, 'error getting lab request for [%s:%s]' % (lab, req_id)
+			# no such request
+			if len(data) == 0:
+				raise gmExceptions.ConstructorError, 'no lab request for [%s:%s]' % (lab, req_id)
+			pk = data[0][0]
+		# instantiate class
+		gmClinItem.cClinItem.__init__(self, aPKey=pk)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -139,7 +137,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.3  2004-04-12 22:59:38  ncq
+# Revision 1.4  2004-04-18 18:50:36  ncq
+# - override __init__() thusly removing the unholy _pre/post_init() business
+#
+# Revision 1.3  2004/04/12 22:59:38  ncq
 # - add lab request
 #
 # Revision 1.2  2004/04/11 12:07:54  ncq
