@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.44 $ $Date: 2004-10-10 13:13:51 $ $Author: ihaywood $
+-- $Revision: 1.45 $ $Date: 2004-10-11 18:58:45 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -33,38 +33,28 @@ comment on table xlnk_identity is
 \set ON_ERROR_STOP 1
 -- =============================================
 CREATE TABLE doc_type (
-	id serial primary key,
+	pk serial primary key,
 	name text unique
 );
-
-CREATE TABLE queues (
-	pk serial primary key,
-	name text
-);
-
-COMMENT ON TABLE queues IS
-'the various states a document can be in as it traverses the GNUMed system, 
-this allows SQL views of document "queues" for faxing, emailing, doctor''s inboxes, etc.';
 
 -- =============================================
 CREATE TABLE doc_med (
 	id serial primary key,
-	reply_to integer references doc_med (id),
-	patient_id integer references xlnk_identity(xfk_identity) not null,
-	local_id integer references xlnk_identity(xfk_identity),
-	remote_id integer references xlnk_identity(xfk_identity),
-	fk_queue integer references queues (pk),
-	type integer references doc_type(id),
+	patient_id integer
+		not null
+		references xlnk_identity(xfk_identity)
+		on update cascade
+		on delete cascade,
+	type integer
+		not null
+		references doc_type(pk)
+		on update cascade
+		on delete restrict,
 	comment text,
-	fk_form_template integer, -- references gmReference.form_template (pk),
-	"date" timestamp with time zone default CURRENT_TIMESTAMP,
-	ext_ref text,
-	has_measure boolean,
-	fk_reviewer integer
-		default null
-		references xlnk_identity(xfk_identity),
-	request_rxd_when timestamp with time zone,
-	report_status text default 'final' check ((report_status in ('preliminary', 'partial', 'final'))
+	"date" timestamp with time zone
+		not null
+		default CURRENT_TIMESTAMP,
+	ext_ref text
 );
 
 COMMENT ON TABLE doc_med IS
@@ -72,44 +62,31 @@ COMMENT ON TABLE doc_med IS
 	 data objects such as several pages of a paper document';
 COMMENT ON COLUMN doc_med.patient_id IS
 	'the patient this document belongs to';
-COMMENT ON COLUMN doc_med.reply_to IS
-	'this document is a reply -- the reference to the original document';
 COMMENT ON COLUMN doc_med.type IS
 	'semantic type of document (not type of file or mime
 	 type), such as >referral letter<, >discharge summary<, etc.';
 COMMENT ON COLUMN doc_med.comment IS
 	'additional short comment such as "abdominal", "ward 3,
 	 Dr. Stein", etc.';
-COMMENT ON COLUMN doc_med.remote_id IS
-	'the remote entity (the sender for incoming documents, the recipient for outgoing documents)';
-COMMENT ON COLUMN doc_med.local_id IS
-	'the local entity (the receiver for incoming documents, the sender for outgoing documents)';
-COMMENT ON COLUMN doc_med.fk_form_template IS
-	'the form template, where this document is a GNUMed form, 
-	doc_obj stores the fields, doc_obj.comment is the 
-	field name';
 COMMENT ON COLUMN doc_med.date IS
 	'date of document content creation (such as exam date),
 	 NOT date of document creation or date of import; may
-	 be imprecise such as "7/99"
-	Path: LDT 8302';
+	 be imprecise such as "7/99"';
 COMMENT ON COLUMN doc_med.ext_ref IS
 	'external reference string of physical document,
 	 original paper copy can be found with this';
-COMMENT ON COLUMN doc_med.has_measure IS 'true if
-	measurement data (see gmMeasurement.sql) has been generated from this document';
-COMMENT ON med_doc.request_rxd_when IS
-	'For path and some other results, the date when the request was received. LDT 8301';  
-COMMENT ON med_doc.report_status IS
-	'If a report, whether final, preliminary, etc. LDT 8401';
 
 -- =============================================
 CREATE TABLE doc_obj (
 	id serial primary key,
-	doc_id integer references doc_med(id),
-	seq_idx integer,
+	doc_id integer
+		not null
+		references doc_med(id)
+		on update cascade
+		on delete restrict,
+	seq_idx integer
+		not null,
 	comment text,
-	mime text,
 	data bytea
 );
 
@@ -124,9 +101,6 @@ COMMENT ON COLUMN doc_obj.comment IS
 	 object, such as "page 1"';
 COMMENT ON COLUMN doc_obj.data IS
 	'actual binary object data';
-COMMENT ON COLUMN doc_obj.mime IS
-	'the MIME type of the object. Auto-detection of document types is cool,
-but falliable: encrypted PGP data looks a lot like plain text, for example';
 
 -- =============================================
 CREATE TABLE doc_desc (
@@ -146,7 +120,7 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.44 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.45 $');
 
 -- =============================================
 -- questions:
@@ -166,16 +140,9 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.44  2004-10-10 13:13:51  ihaywood
--- example of views to emulate the gmMeasurements tables
---
--- Revision 1.43  2004/10/10 06:34:12  ihaywood
--- Extended blobs to support basic document management:
--- keeping track of whose reviewed what, etc.
---
--- This duplicates the same functionality for path. results:
--- how can we integrate?
--- CVS ----------------------------------------------------------------------
+-- Revision 1.45  2004-10-11 18:58:45  ncq
+-- - rolled back Ian's changes but retained his comments
+-- - needs further thought before implementation
 --
 -- Revision 1.42  2004/09/20 21:12:42  ncq
 -- - constraint on doc_desc
