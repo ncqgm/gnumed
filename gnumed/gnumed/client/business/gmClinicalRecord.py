@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.156 2005-01-31 20:25:07 ncq Exp $
-__version__ = "$Revision: 1.156 $"
+# $Id: gmClinicalRecord.py,v 1.157 2005-02-02 19:55:26 cfmoro Exp $
+__version__ = "$Revision: 1.157 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -208,9 +208,13 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	def _db_callback_episodes_modified(self):
 		try:
-			del self.__db_cache['episodes']
+			del self.__db_cache['episodes']			
 		except KeyError:
 			pass
+		try:
+			del self.__db_cache['problems']			
+		except KeyError:
+			pass			
 		gmDispatcher.send(signal = gmSignals.episodes_updated(), sender = self.__class__.__name__)
 		return 1
 	#--------------------------------------------------------
@@ -1663,7 +1667,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.156  2005-01-31 20:25:07  ncq
+# Revision 1.157  2005-02-02 19:55:26  cfmoro
+# Delete problems cache on episodes modified callback method
+#
+# Revision 1.156  2005/01/31 20:25:07  ncq
 # - listen on episode changes, too
 #
 # Revision 1.155  2005/01/29 19:20:49  cfmoro
