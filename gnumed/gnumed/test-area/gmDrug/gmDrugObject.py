@@ -15,7 +15,7 @@
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/gmDrugObject.py,v $      
-__version__ = "$Revision: 1.4 $"                                               
+__version__ = "$Revision: 1.5 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types
@@ -39,6 +39,8 @@ class QueryGroup:
 	  for this the order of the returned column names map 1:1 onto the
 	  variable names
 	- mMappings holds the variables that should be mapped to the query.
+    - mInfos holds arbitrary infos (in a single string) about the query.
+      This can be used for format strings and so on.
 	- These three dictionaries are accessible from other objects.
 	- You must use addEntry to add entries to the dictionaries, though, 
 	  else the data will be written to the class as static variables.
@@ -54,6 +56,7 @@ class QueryGroup:
 			self.mVarNames[aEntry] = None
 			self.mQueryStrings[aEntry] = None
 			self.mMappings[aEntry] = None
+            
 #--------------------------------------------------------------------------
 class Drug:
 	"""High level API to access drug data"""
@@ -95,12 +98,15 @@ class Drug:
 		if fastInit:
 			self.getAllData()
 	#--------------------------------------------------------------------------
-	def GetData(self, groupName = None):
+	def GetData(self, groupName = None, refresh=0):
 		"""Get data of QueryGroupHandlers identified by groupName.
 
 		Returns None if the group does not exist or if the query was not
 		successful. Else it returns a dictionary containing all the variables
 		defined for this query.
+        If the query should be repeated instead of the cached data used, you will
+        have to set refresh to 1 (you should do this if some mapped variable was
+        changed).
 		"""
     	# return None if no sub object was named
 		if groupName is None:
@@ -108,15 +114,16 @@ class Drug:
 
 		if self.__mQueryGroupHandlers.has_key(groupName):
 			# get query group data
-			result = self.__mQueryGroupHandlers[groupName].getData()
+			result = self.__mQueryGroupHandlers[groupName].getData(refresh)
 			return result
 		else:
 			return None
 	#--------------------------------------------------------------------------
 	def GetAllData(self):
-		"""initialize and fetch data of all standard sub objects"""
+		"""fetch data of all standard sub objects"""
 		for s in self.__QueryGroupHandlers.keys():
 			self.GetData(s)
+
 	#--------------------------------------------------------------------------
 	def __getQueries(self):
 		"""get query strings and initialize query group objects"""
@@ -158,8 +165,7 @@ class Drug:
 			if query is None or not type(query) == types.ListType:
 				_log.Log(gmLog.lWarn,"query definition invalid in entry_group %s." % entry_group)
 				continue
-
-			# assume one query item per list
+            
 			qstring = query[0]
 
 			qmappings = cfgSource.get(entry_group, "mappings")
@@ -209,16 +215,23 @@ class QueryGroupHandler:
 		if aName != None:
 			self.__mObjectName = aName
 	#--------------------------------------------------------------------------
-	def getData(self):
+	def getData(self,refresh=0):
 		"""returns a dictionary of entry names and its values"""
-    	# if data has not been fetched until now, get the data from backend
-		if len(self.__mData) == 0 :
+		
+        # if data must be refreshed, clear data cache
+		if refresh == 1:
+			self.__mData = {}
+            
+		if len(self.__mData) == 0:
+			# if data has not been fetched until now, get the data from backend
 			if self.__fetchBackendData():
 				return self.__mData
 			else:
 				return None
-		# else return the data already available
-		return self.__mData
+		else:             
+			# else return the data already available
+			return self.__mData
+            
 	#--------------------------------------------------------------------------
 	def __fetchBackendData(self):
 		"""try to fetch data from backend"""
@@ -236,6 +249,7 @@ class QueryGroupHandler:
 				if var != '':
 					allVars.append(self.__mParent.mVars[var])
 
+#			print "QUERY ", self.__mQueries.mQueryStrings[queryName] % tuple(allVars)
 			# set query string
 			if len(allVars) > 0:
 				self.__mDBObject.SetSelectQuery(self.__mQueries.mQueryStrings[queryName] % tuple(allVars))
@@ -244,9 +258,11 @@ class QueryGroupHandler:
 
 			# do the query
 			result = self.__mDBObject.Select(listonly=0)
-			# maybe we should raise an exception here ?
+
+			# maybe we should raise an exception here
 			if result is None:
 				return None
+
 			# get results
 			VarNames = self.__mQueries.mVarNames[queryName]
 			VarNumMax = len(VarNames)
@@ -268,7 +284,7 @@ class QueryGroupHandler:
 					VarName = VarNames[col_idx]
 					# and cache the value
 					self.__mData[VarName] = col_val
-					# increase column count
+                    # increase column count
 					col_idx = col_idx + 1
 
 			else:
@@ -290,7 +306,7 @@ class QueryGroupHandler:
 #====================================================================================
 
 if __name__ == "__main__":
-	import os.path
+    	import os.path
 	tmp = os.path.join(os.path.expanduser("~"), ".gnumed", "amis.conf")
 	a = Drug(0, tmp)
 	x = a.GetData('brand')
@@ -308,7 +324,10 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.4  2002-10-24 13:04:18  ncq
+# Revision 1.5  2002-10-28 23:26:02  hinnef
+# first partially functional DrugReferenceBrowser version
+#
+# Revision 1.4  2002/10/24 13:04:18  ncq
 # - just add two silly comments
 #
 # Revision 1.3  2002/10/23 22:41:54  hinnef
