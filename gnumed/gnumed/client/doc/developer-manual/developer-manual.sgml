@@ -3088,8 +3088,8 @@ health issue
 	    changed what data when. GnuMed uses database level facilities
 	    to achieve that goal. Advantages are that SQL query parsing is
 	    left to the database engine, that the backend provides uniform
-	    auditing across any variety of client, and that data is moved
-	    locally which provides for reasonable speeds. Drawbacks are
+	    auditing across any variety of client, and that auditing data is
+	    moved locally which provides for reasonable speeds. Drawbacks are
 	    that audit trail data cannot be transferred remotely right away
 	    particularly conveniently and that this scheme is not foolproof
 	    against manipulation.
@@ -3103,7 +3103,7 @@ health issue
 	    	</para>
 		</sect2>
     	    <sect2>
-		<title>UPDATE/DELETE</title>
+		<title>UPDATE, DELETE</title>
 	    	<para>
 		On any of those two operations the original row version, data,
 		committer, timestamp and table OID are logged in the audit trail
@@ -3136,29 +3136,24 @@ health issue
     	    <sect2>
 		<title>How to add an audit trail to a table</title>
 	    	<para>
-		Any table that is supposed to be audited must inherit
-		from the audit marker table "audit_mark". In order for
-		auditing to actually work a corresponding audit trail
-		table must be created. Audit trail tables customarily
-		start with the prefix "log_" and must inherit from
-		the audit trail root table "audit_trail". Those
-		parameters are, of course, configurable. The audit
-		trail tables need not contain all the columns in the
-		audited table but they may not contain any additional
-		columns except for those inherited from the audit trail
-		root table.
+		Any table that is supposed to be audited must be marked
+		for auditing by calling the plpgsql function
+		"add_table_for_audit(table_name)". During bootstrapping
+		audit trail tables are auto-generated for all the tables
+		marked for auditing. It is also possible to manually
+		create audit trail tables in which case they need not
+		contain all the columns in the respective audited table
+		(but they must not have any extra columns). In case of
+		manually setting up audit trail tables make sure they
+		inherit from the root table "audit_trail".
 	    	</para>
 	    	<para>
 		During bootstrapping all marked tables that have a
 		corresponding audit trail table are prepared for
 		auditing. The necessary functions and triggers are
 		automatically generated and inserted into the database.
-		If you know of a dependable way of generating audit
-		trail tables from audited tables please contact the
-		author. Until then, audit trail tables must be pre-
-		defined just as the original tables but without any
-		constraints except for "not null" where appropriate.
-		There are some examples in server/sql/gmclinical.sql.
+		The audit trail tables will have the name of the
+		audited table prefixed with "log_".
 	    	</para>
 	    	<para>
 		Please read the source in <filename>
