@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -96,7 +96,7 @@ ln -vs ../../../Archive/import/run-importer.sh server/run-importer.sh
 ln -vs ../../../Archive/import/run-importer.bat server/run-importer.bat
 
 # installation/bootstrapping
-ln -vs ../../../server/bootstrap/bootstrap-gm_db_system.py server/bootstrap-gm_db_system.py
+ln -vs ../../../server/bootstrap/bootstrap_gm_db_system.py server/bootstrap_gm_db_system.py
 ln -vs ../../../server/bootstrap/bootstrap-archive.conf server/bootstrap-archive.conf
 ln -vs ../../../Archive/server/gmArchiveAccounts.sql server/gmArchiveAccounts.sql
 ln -vs ../../../Archive/server/install.sh server/install.sh

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/server/Attic/install.sh,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 echo "this must be run as root because we will put some links in /usr/bin/ and other places"
 
@@ -10,7 +10,7 @@ groupadd gnumed
 
 # boostrap database
 # FIXME: check returned result: 1 == failed
-./bootstrap-gm_db_system.py --conf-file=bootstrap-archive.conf
+./bootstrap_gm_db_system.py --conf-file=bootstrap-archive.conf
 
 # install modules
 install -v -g gnumed -m 0750 -d /usr/share/gnumed/modules/
@@ -46,7 +46,10 @@ echo "you should configure your system in /etc/gnumed/gnumed-archive.conf"
 
 #=============================================================
 # $Log: install.sh,v $
-# Revision 1.3  2003-04-18 16:38:17  ncq
+# Revision 1.4  2004-12-18 15:59:18  ncq
+# - more bootstrap-gm* to bootstrap_gm renamings
+#
+# Revision 1.3  2003/04/18 16:38:17  ncq
 # - better docs in remove*dirs
 # - install binaries on server
 # - text domain "gnumed" in run-viewer.bat
