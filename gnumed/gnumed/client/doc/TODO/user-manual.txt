@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.29 $
+# $Revision: 1.30 $
 ---------------------------------------------------
 Rules:
 ------
@@ -69,13 +69,6 @@ to add to the installation docs.
 Regards
 
 Richard
-
-
-_______________________________________________
-Gnumed-devel mailing list
-Gnumed-devel@gnu.org
-http://mail.gnu.org/mailman/listinfo/gnumed-devel
-
 
 ---------------------------------------------------
 michael.bonert@utoronto.ca	Wed Apr  2 23:21:21 EST 2003
