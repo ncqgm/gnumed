@@ -46,14 +46,15 @@ import pdb
 import re
 import os.path
 
+# this can probably be deleted
 # location of our modules
-if __name__ == "__main__":
-	sys.path.append(os.path.join('.', 'modules'))
+#if __name__ == "__main__":
+#	sys.path.append(os.path.join('.', 'modules'))
 
 if __name__ == "__main__":
-        import gmI18N
+        from Gnumed.pycommon import gmI18N
 
-import gmLog
+from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	# FIXME: standalone means diagnostics for now,
@@ -61,12 +62,11 @@ if __name__ == "__main__":
 	# to German doctors we'll change this again
 	_log.SetAllLogLevels(gmLog.lData)
 
-import gmPG, gmDrugView
-import gmCfg
+from Gnumed.pycommon import gmPG, gmDrugView, gmCfg, gmWhoAmI
+from Gnumed.pycommon.gmExceptions import *
+
 _cfg = gmCfg.gmDefCfgFile
-import gmWhoAmI
 _whoami = gmWhoAmI.cWhoAmI()
-from gmExceptions import *
 #============================================================
 # These constants are used when referring to menu items below
 #============================================================
@@ -622,9 +622,8 @@ else:
 	#=================================================
 	# make this into GNUMed plugin
 
-	import gmPlugin
-	import gmPG
-	import gmI18N
+	from Gnumed.pycommon import gmPG, gmI18N
+	from Gnumed.wxpython import gmPlugin
 
 	class gmDrugDisplay (gmPlugin.wxNotebookPlugin):
 	
@@ -644,7 +643,10 @@ else:
 #	05.09.2002 hherb DB-API 2.0 compliance
 
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.14  2003-12-29 17:00:20  uid66147
+# Revision 1.15  2004-03-12 18:34:44  hinnef
+#  - fixed module import
+#
+# Revision 1.14  2003/12/29 17:00:20  uid66147
 # - whoami adjustment
 #
 # Revision 1.13  2003/11/17 10:56:40  sjtan

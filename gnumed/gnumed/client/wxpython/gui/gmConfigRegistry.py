@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmCfg, gmWhoAmI
 # FIXME: change code to "gmConfigCommon.*"
-#from Gnumed.pycommon.gmConfigCommon import *
+from Gnumed.pycommon import gmConfigCommon
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers
 
 from wxPython.wx import *
@@ -384,7 +384,7 @@ class gmConfigEditorPanel(wxPanel):
 		self.mConfSources = {}
 
 		# if we pass no config file name, we get the default cfg file
-		cfgFileDefault = ConfigSourceFile("gnumed.conf")
+		cfgFileDefault = gmConfigCommon.ConfigSourceFile("gnumed.conf")
 		cfgFileName = cfgFileDefault.GetFullPath()
 		# if the file was not found, we display some error message
 		if cfgFileName is None:
@@ -393,13 +393,13 @@ class gmConfigEditorPanel(wxPanel):
 		self.mConfSources['FILE:%s' % cfgFileName] = cfgFileDefault
 
 		if not (self.currUser is None or self.currMachine is None) :
-			self.mConfSources['DB:CURRENT_USER_CURRENT_MACHINE'] = ConfigSourceDB('DB:CURRENT_USER_CURRENT_MACHINE',aMachine=self.currMachine)
+			self.mConfSources['DB:CURRENT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_CURRENT_MACHINE',aMachine=self.currMachine)
 		if not (self.currUser is None) :
-			self.mConfSources['DB:CURRENT_USER_DEFAULT_MACHINE'] = ConfigSourceDB('DB:CURRENT_USER_DEFAULT_MACHINE')
+			self.mConfSources['DB:CURRENT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_DEFAULT_MACHINE')
 		if not (self.currMachine is None) :
-			self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='xxxDEFAULTxxx',aMachine=self.currMachine)
+			self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='xxxDEFAULTxxx',aMachine=self.currMachine)
 		# this should always work
-		self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='xxxDEFAULTxxx')
+		self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='xxxDEFAULTxxx')
 		
 # main sizers
 		self.mainSizer = wxBoxSizer(wxHORIZONTAL)
@@ -490,7 +490,7 @@ class gmConfigEditorPanel(wxPanel):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	import gmPlugin
+	from Gnumed.pycommon import gmPlugin
 	_log.Log (gmLog.lInfo, "starting config browser")
 	
 	workplace = raw_input("Please enter a workplace name: ")
@@ -531,7 +531,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.15  2004-03-09 08:59:35  ncq
+# Revision 1.16  2004-03-12 18:33:02  hinnef
+#  - fixed module import
+#
+# Revision 1.15  2004/03/09 08:59:35  ncq
 # - cleanup imports
 #
 # Revision 1.14  2004/03/09 07:34:51  ihaywood
