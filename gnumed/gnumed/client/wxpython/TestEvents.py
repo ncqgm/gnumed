@@ -38,7 +38,7 @@ class TestEvents:
 
 	def checkClicked(self, evt):
 		try:
-			logger.Info( "Got check box " +  str(evt) +  "from object with id" + str(evt.GetId()) +  "obj=" + str(evt.GetEventObject()), 4 )
+			logger.Data( "Got check box " +  str(evt) +  "from object with id" + str(evt.GetId()) +  "obj=" + str(evt.GetEventObject()), 4 )
 		except:
 			logger.LogException("unable to get event", sys.exc_info())
 
@@ -49,7 +49,7 @@ class TestEvents:
 
 			section= evt.GetEventObject().owner.GetName()
 
-			logger.Info("Button with label " +  evt.GetEventObject().GetLabel() + " pressed : owner of buttons = " + evt.GetEventObject().owner.GetName() , 4)
+			logger.Data("Button with label " +  evt.GetEventObject().GetLabel() + " pressed : owner of buttons = " + evt.GetEventObject().owner.GetName() , 4)
 			
 			list = evt.GetEventObject().owner.input_fields
 			values = {} 
@@ -57,7 +57,7 @@ class TestEvents:
 				values[n] = str(f.GetValue())
 				
 			
-			logger.Info("Values of " + section + " are " + str(values), 4 )
+			logger.Data("Values of " + section + " are " + str(values), 4 )
 			
 
 			if section == "allergy":
@@ -77,7 +77,7 @@ class TestEvents:
 
 
 if __name__=="__main__":
-	logger.Info("Information")
+	logger.Data("Information")
 	try:
 		a
 	except:	

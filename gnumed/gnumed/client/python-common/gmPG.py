@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -93,7 +93,7 @@ class ConnectionPool:
 			return conn
 		except:
 			_log.LogException("failed on check of cursor", sys.exc_info(), 4)
-			_log.Info("****** Trying a direct __pgconnect call")
+			_log.Data("****** Trying a direct __pgconnect call")
 			try:
 				logininfo = self.GetLoginInfoFor("default")	
 				conn =  self.__pgconnect(logininfo, readonly )
@@ -728,7 +728,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.50  2003-06-01 12:55:58  sjtan
+# Revision 1.51  2003-06-01 13:20:32  sjtan
+#
+# logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
+# with regular expression groups (maybe never).
+#
+# Revision 1.50  2003/06/01 12:55:58  sjtan
 #
 # sql commit may cause PortalClose, whilst connection.commit() doesnt?
 #

@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -179,6 +179,9 @@ class cLogger:
 	def Info(self, aMsg, aRawnessFlag = lCooked):
 		"""Just a convenience wrapper for Log(gmLog.lInfo"""
 		self.Log(lInfo, aMsg, aRawnessFlag)
+	
+	def Data( self, aMsg, rawFlag = lCooked):
+		self.Log(lData, aMsg, rawFlag)
 	#---------------------------
 	def Log(self, aLogLevel, aMsg, aRawnessFlag = lUncooked):
 		"""Log a message.
@@ -775,7 +778,12 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.35  2003-05-27 13:52:54  ncq
+# Revision 1.36  2003-06-01 13:20:32  sjtan
+#
+# logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
+# with regular expression groups (maybe never).
+#
+# Revision 1.35  2003/05/27 13:52:54  ncq
 # - made var names in LogException() more descriptive
 # - changed fatal to verbose in LogException(), but kept backward compat with deprec warning
 #

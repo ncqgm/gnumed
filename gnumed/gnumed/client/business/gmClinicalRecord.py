@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.8 2003-06-01 12:55:58 sjtan Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmClinicalRecord.py,v 1.9 2003-06-01 13:20:32 sjtan Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -121,7 +121,9 @@ class gmClinicalRecord:
 			#curs.close()
 			return None
 		#row = curs.fetchone()
-		_log.Info("result of id check = " + str(rows) )
+		#<DEBUG>
+		_log.Data("result of id check = " + str(rows) )
+		#</DEBUG>
 		res = rows[0][0]
 		#curs.close()
 		return res
@@ -206,7 +208,9 @@ class gmClinicalRecord:
 		rows = curs.fetchall()
 		curs.close()
 		self.__db_cache['allergies'] = rows
-		_log.Info("gmClinicalRecord.db_cache['allergies'] set to "+str(rows))	
+		#<DEBUG>
+		_log.Data("gmClinicalRecord.db_cache['allergies'] set to "+str(rows))	
+		#</DEBUG>
 		return self.__db_cache['allergies']
 	#--------------------------------------------------------
 	def _get_allergy_names(self):
@@ -284,10 +288,14 @@ class gmClinicalRecord:
 
 		#self.execute("commit", "unable to commit ", rollback = 1)
 
-		#_log.Info("after commit")
+		#_log.Data("after commit")
 
 		self.endTransaction()
-		_log.Info("after end Transaction")
+		#<DEBUG>
+		_log.Data("after end Transaction")
+		#</DEBUG>
+		
+
 
 		#need to invalidate cache or add to it.
 		#del self.__db_cache("allergies")	
@@ -372,7 +380,9 @@ class gmClinicalRecord:
 
 #-------------- convenience sql call interface ----------------------------------------
 	def execute(self, cmd, error_msg, rollback = 0):
-		_log.Info("Running query : %s" % cmd)
+		#<DEBUG>
+		_log.Data("Running query : %s" % cmd)
+		#</DEBUG>
 		curs = self.getTransactionCursor()
 		if curs == None:
 			curs = self.getCursor()
@@ -458,7 +468,12 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.8  2003-06-01 12:55:58  sjtan
+# Revision 1.9  2003-06-01 13:20:32  sjtan
+#
+# logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
+# with regular expression groups (maybe never).
+#
+# Revision 1.8  2003/06/01 12:55:58  sjtan
 #
 # sql commit may cause PortalClose, whilst connection.commit() doesnt?
 #

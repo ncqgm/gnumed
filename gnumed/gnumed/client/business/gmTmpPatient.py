@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.20 2003-06-01 01:47:32 sjtan Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmTmpPatient.py,v 1.21 2003-06-01 13:20:32 sjtan Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -654,7 +654,7 @@ def adjust_data(kwargs):
 	map = kwargs['kwds']
 	map['active name']=  {'last':map['lastnames'], 'first': map['firstnames'] }
 	datePart = str(map['dob']).split(' ')[0]
-	_log.Info("date part = " + str(datePart))
+	_log.Data("date part = " + str(datePart))
 	datenums = str(datePart).split('-')
 	mxDob = mx.DateTime.DateTime( int(datenums[0]), int(datenums[1]), int(datenums[2]))
 
@@ -689,7 +689,12 @@ if __name__ == "__main__":
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.20  2003-06-01 01:47:32  sjtan
+# Revision 1.21  2003-06-01 13:20:32  sjtan
+#
+# logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
+# with regular expression groups (maybe never).
+#
+# Revision 1.20  2003/06/01 01:47:32  sjtan
 #
 # starting allergy connections.
 #

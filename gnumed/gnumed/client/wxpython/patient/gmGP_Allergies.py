@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -137,7 +137,7 @@ class AllergyPanel(wxPanel):
 			patient = gmTmpPatient.gmCurrentPatient()
 			clinical = patient['clinical record']
 			allergies = clinical['allergies']
-			_log.Info("Allergies " + str(allergies) )
+			_log.Data("Allergies " + str(allergies) )
 			i = 0
 			self.list_allergy.DeleteAllItems()
 			for allergy in allergies:
@@ -212,7 +212,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.12  2003-06-01 12:55:58  sjtan
+# Revision 1.13  2003-06-01 13:20:32  sjtan
+#
+# logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
+# with regular expression groups (maybe never).
+#
+# Revision 1.12  2003/06/01 12:55:58  sjtan
 #
 # sql commit may cause PortalClose, whilst connection.commit() doesnt?
 #
