@@ -7,8 +7,8 @@ typing clear-text clinical notes which are stored in clin_note.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.11 2004-03-08 23:35:10 shilbert Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmSingleBoxSOAP.py,v 1.12 2004-03-09 07:54:32 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -19,8 +19,8 @@ if __name__ == "__main__":
 
 from Gnumed.pycommon import gmDispatcher, gmSignals
 from Gnumed.business import gmPatient 
-
 from Gnumed.pycommon.gmExceptions import ConstructorError
+
 from wxPython.wx import *
 
 wxID_BTN_save = wxNewId()
@@ -83,7 +83,7 @@ class gmSingleBoxSOAPPanel(wxPanel):
     # event handlers
     #--------------------------------------------------------
     def _on_save_note(self, event):
-        self._save_note()
+        self.__save_note()
         event.Skip()
     #--------------------------------------------------------
     def _on_discard_note(self, event):
@@ -127,7 +127,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.11  2004-03-08 23:35:10  shilbert
+# Revision 1.12  2004-03-09 07:54:32  ncq
+# - can call __save_note() from button press handler directly
+#
+# Revision 1.11  2004/03/08 23:35:10  shilbert
 # - adapt to new API from Gnumed.foo import bar
 #
 # Revision 1.10  2004/02/25 09:46:22  ncq
