@@ -1,0 +1,12 @@
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
+# $Revision: 1.1 $
+---------------------------------------------------
+Rules:
+------
+- add material for the User Manual here if you don't want
+  to put it into the sgml code yourself
+- leave behind an email address
+- delete things if you incorporated them into the manual
+- please date it. Thanks
+---------------------------------------------------
+
