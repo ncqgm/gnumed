@@ -14,10 +14,10 @@ set data using SetConfigData.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "H.Berger,K.Hilbert"
 
-import sys, os, string,types
+import sys, os, string,types, pickle
 # location of our modules
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..','python-common'))
@@ -166,6 +166,12 @@ class ConfigSource:
 		"""
 		return self.mDataSource.GetConfigData(aParam)
 
+	#---------------------------------------------------------------------
+	def addConfigParam(self,aParam,aType,aValue,aDescription):
+		"""
+		Adds config new config parameter.
+		"""
+		return self.mDataSource.AddConfigParam(aParam,aType,aValue,aDescription)
 	#---------------------------------------------------------------------
 	def getRawName(self,aParam):
 		"""Get config data for a aParam."""
@@ -428,6 +434,9 @@ class ConfigData:
 	def getRawName(self):
 		pass
 
+	def AddConfigParam(self):
+		pass
+		
 	#---------------------------------------------------------------------
 	def getParamType(self,aParameterName = None):
 		"""
@@ -496,7 +505,7 @@ class ConfigDataDB(ConfigData):
 			result=ConfigDataDB._dbcfg.get(self.mMachine, self.mUser,cookie,name)
 		except:
 			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
-		
+			return None
 		return result
 		
 	#---------------------------------------------------------------------
@@ -519,12 +528,60 @@ class ConfigDataDB(ConfigData):
 			ConfigDataDB._backend.ReleaseConnection(service = "default")
 		except:
 			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
+			return None
+		return 1
+	#---------------------------------------------------------------------
+	# aType is not used so far. Do we need it ?
+	# TODO: maybe we could combine that with SetConfigData (the low level methods in gmCfg do add/update, anyways)
+	def AddConfigParam(self, aParameterName, aType = None ,aValue=None,aDescription = None):
+		"""
+		Adds a new config parameter. 
+		Note: You will have to re-read the cache (call GetAllNames())
+		in order to change this parameter afterwards.
+		"""
+		# make sure that the pameter does not exist yet
+		if self.mConfigData.has_key(aParameterName):
+			return None
+		
+		# now we have to split the parameter name into 
+		# option and cookie part
+		
+		pNameParts  = string.split(aParameterName,".")
+		# check if we have a cookie
+		if pNameParts[-1][0] == '_':
+			cookie = pNameParts[-1][1:]
+		else:
+			cookie = None
+		option = string.join(pNameParts[:-1],".")
+#		print "[%s, %s]" % (cookie, option)		
+		if option is None:
+			return None
+		# now actually write the new parameter
+		try:
+			rwconn = ConfigDataDB._backend.GetConnection(service = "default", readonly = 0)    
 
+			result=ConfigDataDB._dbcfg.set(	machine = self.mMachine, 
+							user = self.mUser,
+							cookie = cookie,
+							option = option,
+							value = aValue,
+							aRWConn = rwconn )
+			rwconn.close()		
+			ConfigDataDB._backend.ReleaseConnection(service = "default")
+		except:
+			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
+			return None
+		# now we should re-read the name cache in order to have 
+		# consistent data. Since we wont signal the frontend, we will
+		# have to do this manually in the fronend 
+
+		return 1
 	#---------------------------------------------------------------------
 	def getAllNames(self):
 		"""
 		fetch names and parameter data from backend. Returns list of
 		parameter names where cookie and real name are concatenated.
+		Refreshes the parameter cache, too.
 		"""
 		try:
 			result=ConfigDataDB._dbcfg.getAllParams(self.mUser,self.mMachine)
@@ -615,7 +672,7 @@ class ConfigDataFile(ConfigData):
 			result=self.__cfgfile.get(group,name)
 		except:
 			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
-		
+			return None
 		return result
 		
 	#---------------------------------------------------------------------
@@ -632,6 +689,30 @@ class ConfigDataFile(ConfigData):
 			self.__cfgfile.store()
 		except:
 			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
+			return None
+		return 1
+
+	#---------------------------------------------------------------------
+	def AddConfigParam(self, aParameterName, aType = None ,aValue=None, aDescription =None):
+		"""
+		Adds a new config parameter. 
+		"""
+		pNameParts  = string.split(aParameterName,".")
+		# check if we have a cookie
+		option = pNameParts[-1:][1:]
+		group = string.join(pNameParts[:-1],".")
+		if option is None or group is None:
+			return None
+
+		try:
+			result=self.__cfgfile.set(aGroup = group,
+						anOption = option,
+						aValue = aValue,
+						aComment = aDescription)
+			self.__cfgfile.store()
+		except:
+			_log.Log(gmLog.lErr, "Cannot set parameter value for [%s]" % aParameterName )
+			return None
 		return 1
 
 	#---------------------------------------------------------------------
@@ -695,26 +776,110 @@ class ConfigDataFile(ConfigData):
 
 
 #=========================================================================
-def exportDBSet(aUser = None, aMachine = '__default__'):
+def exportDBSet(filename,aUser = None, aMachine = '__default__'):
 	"""
 	Fetches a backend stored set of config options (defined by user and machine)
 	and returns it as a plain text file.
+	NOTE: This will not write "valid value" information, since this is only
+	hold in config definition files !
+	Returns: 1 for success, 0 if no parameters were found, None on failure.
 	"""
 	try:
 		expConfigSource = ConfigSourceDB("export",aUser,aMachine)
 	except:
 		_log.Log(gmLog.lErr, "Cannot open config set [%s@%s]." % (aUser,aMachine))
 		return None
-	
+		
+	try:
+		file = open(filename,"w")
+	except:
+		_log.Log(gmLog.lErr, "Cannot open output file %s." % (filename))
+		raise
+		
 	paramList = expConfigSource.getAllParamNames()
+	if paramList is None:
+		return 0
 	text = ''
 	for param in (paramList):
 		description = expConfigSource.getDescription(param)
 		cType = expConfigSource.getParamType(param)
 		value = expConfigSource.getConfigData(param)
-		part = "[%s]\ntype = %s\ndescription = %s\nvalue = %s\n\n" % \
-			(param,cType,description,value)
-		text = text + part
-
-	return text
+		# we try to dump human readable types as text, 
+		# all other as a 'pickled' string
+		if cType in ['string','numeric','str_array']:
+			valuestr = value
+		else:
+			valuestr = pickle.dumps(value)
+			
+		file.write( "[%s]\ntype = %s\ndescription = %s\nvalue = %s\n\n" % \
+			(param,cType,description,value))
+	return 1
 	
+def importDBSet(filename,aUser = None, aMachine = '__default__'):
+	"""get config definitions from a file exported with 
+	   exportDBSet()."""
+
+	# open configuration definition source
+	try:
+		importFile = gmCfg.cCfgFile(aFile = filename, \
+			flags= gmCfg.cfg_IGNORE_CMD_LINE)
+		# handle all exceptions including 'config file not found'
+	except:
+		exc = sys.exc_info()
+		_log.LogException("Unhandled exception while opening input file [%s]" % filename, exc,verbose=0)
+		return None
+
+	try:
+		importConfigSource = ConfigSourceDB("export",aUser,aMachine)
+	except:
+		_log.Log(gmLog.lErr, "Cannot open config set [%s@%s]." % (aUser,aMachine))
+		return None
+
+	existingParamList = importConfigSource.getAllParamNames()
+
+	importData = importFile.getCfg()
+	groups = importFile.getGroups()
+	print groups
+	# every group holds one parameter description
+	# group name = parameter name
+	for paramName in groups:
+		# ignore empty parameter names
+		if paramName == "":
+			continue
+		paramType = importFile.get(paramName, "type")			
+		if paramType is None:
+			continue
+
+		# parameter description - might differ from that stored 
+		# in backend tables (cfg_template)
+		paramDescription = importFile.get(paramName, "description")
+		if paramDescription is None:
+			continue
+
+
+		paramValueStr = importFile.get(paramName, "value")
+		if paramDescription is None:
+			continue
+		else:
+			if paramType in ['string','numeric','str_array']:
+				paramValue = eval(paramValueStr)
+			else:
+				paramValue = pickle.loads(paramValueStr)
+		# TODO: check if the parameter already exists with different type
+		if existingParamList is not None and paramName in (existingParamList):
+			if not importConfigSource.getParamType(paramName) == paramType:
+				# if yes, print a warning
+				# you will have to delete that parameter before
+				# storing a different type
+				_log.Log(gmLog.lWarn,
+				"Cannot store config parameter [%s]: different type stored already." % paramName)
+			else:
+				# same type -> store new value	
+				s=importConfigSource.setConfigData(paramName,paramValue)
+		else:
+			# add new entry to parameter definition dictionary
+			s=importConfigSource.addConfigParam(paramName,paramType,paramValue,paramDescription)
+			if s is None:
+				_log.Log(gmLog.lWarn, 
+					"Cannot store config parameter [%s] to set [%s@%s]." % (paramName,aUser,aMachine))		
+	return 1
