@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-11-13 10:07:25 $
-# @version $Revision: 1.50 $ $Date: 2002-11-13 10:07:25 $ $Author: ncq $
+# @Date: $Date: 2002-11-30 11:09:55 $
+# @version $Revision: 1.51 $ $Date: 2002-11-30 11:09:55 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -218,20 +218,20 @@ class MainFrame(wxFrame):
 		self.guibroker['main.notebook.numbers'][nb_no].Shown ()
 	#----------------------------------------------
 	def RegisterEvents(self):
-		#register events we want to react to
+		"""register events we want to react to"""
+		# wxPython events
 		EVT_IDLE(self, self.OnIdle)
 		EVT_CLOSE(self, self.OnClose)
 		EVT_ICONIZE(self, self.OnIconize)
 		EVT_MAXIMIZE(self, self.OnMaximize)
+
+		# intra-client signals
 		gmDispatcher.connect(self.OnPatientChanged, gmSignals.patient_selected())
 	#----------------------------------------------		
 	def OnPatientChanged(self, **kwargs):
-		print "gmGuiMain acknowledges that patient has changed"
 		kwds = kwargs['kwds']
-		patient = "%(title)s %(firstnames)s %(lastnames)s (%(dob)s) #%(ID)d" % (kwds)
+		patient = "%(title)s %(firstnames)s %(lastnames)s (%(dob)10.10s) #%(ID)d" % (kwds)
 		self.updateTitle(aPatient = patient)
-		#title= "Active patient: %(title)s %(firstnames)s %(lastnames)s, d.o.b. %(dob)s, ID=%(ID)d" % (kwds)
-		#self.SetTitle(title)
 	#----------------------------------------------
 	def OnAbout(self, event):
 		" A simple 'about' dialog box"
@@ -347,7 +347,7 @@ class MainFrame(wxFrame):
 			self.title_user = str(aUser)
 
 		# generate title from template
-		title = _("GnuMed [%s@%s] %s: %s") % (self.title_user, self.guibroker['workplace_name'], self.title_activity, self.title_patient)
+		title = "GnuMed [%s@%s] %s: %s" % (self.title_user, self.guibroker['workplace_name'], self.title_activity, self.title_patient)
 
 		# set it
 		self.SetTitle(title)
@@ -405,7 +405,11 @@ myLog.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.50  2002-11-13 10:07:25  ncq
+# Revision 1.51  2002-11-30 11:09:55  ncq
+# - refined title bar
+# - comments
+#
+# Revision 1.50  2002/11/13 10:07:25  ncq
 # - export updateTitle() via guibroker
 # - internally set title according to template
 #
