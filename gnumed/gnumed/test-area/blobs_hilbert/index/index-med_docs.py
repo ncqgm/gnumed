@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -721,7 +721,7 @@ class indexFrame(wxPanel):
 		fname = os.path.split(tmp)[1]
 		new_name = os.path.join(aDir, fname)
 		try:
-			shutils.copyfile(tmp, new_name)
+			shutil.copyfile(tmp, new_name)
 		except:
 			exc = sys.exc_info()
 			_log.LogException("Cannot copy patient data file.", exc, fatal=1)
@@ -919,7 +919,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.22  2002-12-09 23:06:11  ncq
+# Revision 1.23  2002-12-13 10:39:30  ncq
+# - fixed shutils -> shutil
+#
+# Revision 1.22  2002/12/09 23:06:11  ncq
 # - test for loaded pages before saving document
 #
 # Revision 1.21  2002/12/02 03:28:16  ncq
