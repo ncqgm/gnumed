@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -123,8 +123,6 @@ create table test_result (
 	fk_type integer
 		not null
 		references test_type(id),
-
-	val_when timestamp with time zone not null default CURRENT_TIMESTAMP,
 	val_num float,
 	val_alpha text,
 	val_unit text,
@@ -136,29 +134,32 @@ create table test_result (
 	note_provider text,
 	material text,
 	material_detail text,
-
-	reviewed_by_clinician bool default false,
-	fk_clinician integer,
+	reviewed_by_clinician bool
+		not null
+		default false,
+	fk_reviewer integer
+		default null
+		references xlnk_identity(xfk_identity)
+		check(((reviewed_by_clinician is false) and (fk_reviewer is null)) or (fk_reviewer is not null)),
 	clinically_relevant bool
 		default null
 		check (((reviewed_by_clinician=false) and (clinically_relevant is null)) or (clinically_relevant is not null))
 ) inherits (clin_root_item);
 
--- note_clinician provided as narrative by clin_root_item
-
 select add_table_for_audit('test_result');
-
--- remote foreign keys
 select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
--- FIXME: should actually point to staff.pk
-select add_x_db_fk_def('test_result', 'fk_clinician', 'personalia', 'identity', 'id');
 
-COMMENT ON TABLE test_result is 
+COMMENT ON TABLE test_result is
 	'the results of a single measurement';
+-- FIXME: housekeeping sanity script:
+comment on column test_result.clin_when is
+	'the time when this result was actually obtained,
+	 if this is a lab result this should be between
+	 lab_request.clin_when and lab_request.results_reported_when';
+comment on column test_result.narrative is
+	'clinical comment, progress note';
 comment on column test_result.fk_type is
 	'the type of test this result is from';
-comment on column test_result.val_when is
-	'the timestamp when the result was actually produced';
 comment on column test_result.val_num is
 	'numeric value if any';
 comment on column test_result.val_alpha is
@@ -200,7 +201,7 @@ comment on column test_result.reviewed_by_clinician is
 	 set by any read access but may follow specific
 	 business rules such as "set as SEEN when treating/
 	 requesting doctor has reviewed the item"';
-comment on column test_result.fk_clinician is
+comment on column test_result.fk_reviewer is
 	'who has reviewed the item';
 comment on column test_result.clinically_relevant is
 	'whether this result is considered relevant clinically,
@@ -231,6 +232,8 @@ create table lab_request (
 --	unique (fk_patient, request_id)
 ) inherits (clin_root_item);
 
+comment on column lab_request.clin_when is
+	'when where the samples for this request taken';
 comment on column lab_request.request_id IS
 	'ID this request had when sent to the lab
 	 LDT: 8310';
@@ -322,11 +325,15 @@ to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.15  2004-03-18 18:30:14  ncq
+-- Revision 1.16  2004-03-23 02:33:13  ncq
+-- - comments/constraints/references on test_result, also result_when -> clin_when
+-- - v_results4lab_req, v_test_org_profile, grants
+--
+-- Revision 1.15  2004/03/18 18:30:14  ncq
 -- - constraint on test_result.clinically_relevant
 --
 -- Revision 1.14  2004/03/18 10:01:10  ncq

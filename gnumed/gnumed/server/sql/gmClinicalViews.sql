@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.46 2004-03-19 10:55:40 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.47 2004-03-23 02:33:13 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -190,41 +190,118 @@ order by
 ;
 
 -- ==========================================================
+-- tests stuff
+
+--\unset ON_ERROR_STOP
+--drop view v_test_result;
+--\set ON_ERROR_STOP 1
+
+--create view v_test_result as
+--	select
+--		tr.id as id_result,
+--		vpep.id_patient as id_patient,
+--		vpep.id_health_issue as id_health_issue,
+--		tr.id_episode as id_episode,
+--		tr.id_encounter as id_encounter,
+--		tr.fk_type as pk_type,
+--		tr.clin_when as result_when,
+--		tt.code as test_code,
+--		tt.name as test_name,
+--		tr.val_num as value_num,
+--		tr.val_alpha as value_alpha,
+--		tr.val_unit as value_unit,
+--		tr.technically_abnormal as technically_abnormal,
+--		tr.val_normal_min as normal_min,
+--		tr.val_normal_max as normal_max,
+--		tr.val_normal_range as normal_range,
+--		tr.note_provider as comment_provider,
+--		tr.reviewed_by_clinician as reviewed,
+--		tr.fk_reviewer as pk_reviewer,
+--		tr.clinically_relevant as clinically_relevant,
+--		tr.narrative as comment_doc
+--	from
+--		test_result tr,
+--		test_type tt,
+--		v_patient_episodes vpep
+--	where
+--		tr.fk_type = tt.id
+--			AND
+--		tr.id_episode = vpep.id_episode
+--;
+
 \unset ON_ERROR_STOP
-drop view v_test_result;
+drop view v_test_org_profile;
 \set ON_ERROR_STOP 1
 
-create view v_test_result as
-	select
-		tr.id as id_result,
-		vpep.id_patient as id_patient,
-		vpep.id_health_issue as id_health_issue,
-		tr.id_episode as id_episode,
-		tr.id_encounter as id_encounter,
-		tr.fk_type as pk_type,
-		tr.val_when as result_when,
-		tt.code as test_code,
-		tt.name as test_name,
-		tr.val_num as value_num,
-		tr.val_alpha as value_alpha,
-		tr.val_unit as value_unit,
-		tr.technically_abnormal as technically_abnormal,
-		tr.val_normal_min as normal_min,
-		tr.val_normal_max as normal_max,
-		tr.val_normal_range as normal_range,
-		tr.note_provider as comment_provider,
-		tr.reviewed_by_clinician as seen_by_doc,
-		tr.fk_clinician as pk_doc_seen,
-		tr.clinically_relevant as clinically_relevant,
-		tr.narrative as comment_doc
-	from
-		test_result tr,
-		test_type tt,
-		v_patient_episodes vpep
-	where
-		tr.fk_type = tt.id
-			AND
-		tr.id_episode = vpep.id_episode
+create view v_test_org_profile as
+select
+	torg.pk as pk_test_org,
+	torg.fk_org as pk_org,
+	torg.internal_name,
+	torg.comment as org_comment,
+	tt.code as test_code,
+	tt.coding_system,
+	tt.name as test_name,
+	tt.comment as test_comment,
+	tt.basic_unit
+from
+	test_org torg,
+	test_type tt
+where
+	tt.fk_test_org=torg.pk
+;
+
+
+\unset ON_ERROR_STOP
+drop view v_results4lab_req;
+\set ON_ERROR_STOP 1
+
+-- FIXME: refine using merged_test_types
+create view v_results4lab_req as
+select
+	vpep.id_patient as pk_patient,
+	tr.id as pk_result,
+	lr.clin_when as req_when,
+	lr.lab_rxd_when,
+	tr.clin_when as val_when,
+	lr.results_reported_when as reported_when,
+	tt.code,
+	tt.name,
+	tr.val_num,
+	tr.val_alpha,
+	tr.val_unit,
+	coalesce(tr.narrative, '') as progress_note_result,
+	coalesce(lr.narrative, '') as progress_note_request,
+	tr.val_normal_range,
+	tr.val_normal_min,
+	tr.val_normal_max,
+	tr.technically_abnormal as abnormal,
+	tr.clinically_relevant as relevant,
+	tr.note_provider,
+	lr.request_status as request_status,
+	tr.norm_ref_group as ref_group,
+	lr.request_id,
+	lr.lab_request_id,
+	tr.material,
+	tr.material_detail,
+	tr.reviewed_by_clinician as reviewed,
+	tr.fk_reviewer as pk_reviewer,
+	tr.fk_type as pk_test_type,
+	lr.pk as pk_request,
+	lr.fk_test_org as pk_test_org,
+	lr.fk_requestor as pk_requestor
+from
+	(lnk_result2lab_req lr2lr inner join test_result tr1 on (lr2lr.fk_result=tr1.id)) tr
+		inner join
+	lab_request lr on (tr.fk_request=lr.pk),
+	v_patient_episodes vpep,
+	test_type tt
+where
+	lr.is_pending=false
+		and
+	vpep.id_episode=lr.id_episode
+		and
+	tt.id=tr.fk_type
 ;
 
 -- ==========================================================
@@ -502,7 +579,6 @@ create trigger at_curr_encounter_upd
 	for each row execute procedure f_curr_encounter_force_upd()
 ;
 -- should really be "for each statement" but that isn't supported yet by PostgreSQL
-
 -- =============================================
 GRANT SELECT ON
 	v_i18n_enum_encounter_type,
@@ -514,6 +590,8 @@ GRANT SELECT ON
 	, v_pat_missing_vaccs
 	, v_pat_missing_boosters
 	, v_most_recent_encounters
+	, v_results4lab_req
+	, v_test_org_profile
 TO GROUP "gm-doctors";
 
 --GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -532,11 +610,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.46 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.47 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.46  2004-03-19 10:55:40  ncq
+-- Revision 1.47  2004-03-23 02:33:13  ncq
+-- - comments/constraints/references on test_result, also result_when -> clin_when
+-- - v_results4lab_req, v_test_org_profile, grants
+--
+-- Revision 1.46  2004/03/19 10:55:40  ncq
 -- - remove allergy.reaction -> use clin_root_item.narrative instead
 --
 -- Revision 1.45  2004/03/12 23:15:04  ncq
