@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -299,8 +299,8 @@ class db_server:
 			return None
 
 		# insert some users if so desired
-		if not _import_schema(aSection = self.section, anAlias = self.alias, aDB = self.template_db):
-			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db.name))
+		if not _import_schema(aSection = self.section, aSrv_name = self.name, aDB_name = self.template_db):
+			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
 			return None
 
 		return 1
@@ -616,7 +616,7 @@ class gmService:
 			return None
 
 		# import schema
-		if not _import_schema(aSection = self.section, anAlias = self.alias, aDB = self.db):
+		if not _import_schema(aSection = self.section, aSrv_name = self.db.server.name, aDB_name = self.db.name):
 			_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (self.alias, database_alias))
 			return None
 
@@ -727,20 +727,20 @@ def bootstrap_services():
 			return None
 	return 1
 #--------------------------------------------------------------
-def _import_schema(aSection = None, anAlias = None, aDB = None):
+def _import_schema(aSection = None, aSrv_name = None, aDB_name = None):
 	# load schema
 	schema_files = _cfg.get(aSection, "schema")
 	if schema_files is None:
-		_log.Log(gmLog.lErr, "Need to know schema definition to install service [%s]." % anAlias)
+		_log.Log(gmLog.lErr, "Need to know schema definition to install it.")
 		return None
 	# and import them
 	for file in schema_files:
-		if not _import_schema_file(file, aDB):
+		if not _import_schema_file(anSQL_file = file, aSrv = aSrv_name, aDB = aDB_name):
 			_log.Log(gmLog.lErr, "cannot import SQL schema file [%s]" % file)
 			return None
 	return 1
 #--------------------------------------------------------------
-def _import_schema_file(anSQL_file = None, aDB = None):
+def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None):
 	# sanity checks
 	if anSQL_file is None:
 		_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
@@ -760,7 +760,7 @@ def _import_schema_file(anSQL_file = None, aDB = None):
 	path = os.path.dirname(SQL_file)
 	os.chdir(path)
 
-	cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (aDB.server.name, aDB.name, _dbowner.name, SQL_file)
+	cmd = 'psql -q -h "%s" -d "%s" -U "%s" -f "%s"' % (aSrv, aDB, _dbowner.name, SQL_file)
 	_log.Log(gmLog.lInfo, "running [%s]" % cmd)
 	result = os.system(cmd)
 	_log.Log(gmLog.lInfo, "raw result: %s" % result)
@@ -878,7 +878,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.15  2003-01-30 07:55:01  ncq
+# Revision 1.16  2003-01-30 09:05:08  ncq
+# - it finally works as advertised
+#
+# Revision 1.15  2003/01/30 07:55:01  ncq
 # - yet another spurious self
 #
 # Revision 1.14  2003/01/30 07:52:02  ncq
