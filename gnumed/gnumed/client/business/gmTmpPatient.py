@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.8 2003-02-18 02:41:54 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmTmpPatient.py,v 1.9 2003-02-21 16:42:02 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -236,8 +236,46 @@ def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 	exception	- failure
 	"""
 	if cooked_search_terms is not None:
-		data = cooked_search_terms
+		where_clause = _make_where_from_cooked(cooked_search_terms)
 
+		if where_clause is None:
+			raise ValueError, "Cannot make WHERE clause."
+
+		# get connection
+		backend = gmPG.ConnectionPool()
+		conn = backend.GetConnection('personalia')
+
+		# start our transaction (done implicitely by defining a cursor)
+		cursor = conn.cursor()
+		cmd = "SELECT id FROM v_basic_person WHERE %s;" % where_clause
+		try:
+			cursor.execute(cmd)
+		except:
+			_log.LogException('>>>%s<<< failed' % (cmd % where_clause), sys.exc_info())
+			cursor.close()
+			backend.ReleaseConnection('personalia')
+			raise
+		pat_ids = cursor.fetchall()
+		cursor.close()
+		backend.ReleaseConnection('personalia')
+
+		if pat_ids is None:
+			_log.Log(gmLog.lInfo, "No matching patients.")
+		else:
+			_log.Log(gmLog.lData, "matching patient IDs: [%s]" % pat_ids)
+
+		return pat_ids
+
+	if raw_search_terms is not None:
+		_log.Log(gmLog.lErr, 'getting patient IDs by raw search terms not implemented yet')
+		raise ValueError, "Making WHERE clause from raw input not implemented."
+
+	_log.Log(gmLog.lErr, 'Cannot get patient IDs with neither raw nor cooked search terms !')
+	return None
+#------------------------------------------------------------
+def _make_where_from_cooked(cooked_search_terms = None):
+	data = cooked_search_terms
+	try:
 		if data['case sensitive'] is None:
 			like = 'ilike'
 		else:
@@ -268,40 +306,13 @@ def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 			where_gender = ''
 		else:
 			where_gender = "gender = '%s'" % data['gender']
-
-		where_clause = ' AND '.join((where_fname, where_lname, where_dob, where_gender))
-
-		# get connection
-		backend = gmPG.ConnectionPool()
-		conn = backend.GetConnection('personalia')
-
-		# start our transaction (done implicitely by defining a cursor)
-		cursor = conn.cursor()
-		cmd = "SELECT id FROM v_basic_person WHERE %s;" % where_clause
-		try:
-			cursor.execute(cmd)
-		except:
-			_log.LogException('>>>%s<<< failed' % (cmd % where_clause), sys.exc_info())
-			cursor.close()
-			backend.ReleaseConnection('personalia')
-			raise
-		pat_ids = cursor.fetchall()
-		cursor.close()
-		backend.ReleaseConnection('personalia')
-
-		if pat_ids is None:
-			_log.Log(gmLog.lInfo, "No matching patients.")
-		else:
-			_log.Log(gmLog.lData, "matching patient IDs: [%s]" % pat_ids)
-
-		return pat_ids
-
-	if raw_search_terms is not None:
-		_log.Log(gmLog.lErr, 'getting patient IDs by raw search terms not implemented yet')
+	except KeyError:
+		_log.Log(gmLog.lErr, data)
+		_log.LogException('invalid argument data structure')
 		return None
 
-	_log.Log(gmLog.lErr, 'Cannot get patient IDs with neither raw nor cooked search terms !')
-	return None
+	return ' AND '.join((where_fname, where_lname, where_dob, where_gender))
+#------------------------------------------------------------
 #------------------------------------------------------------
 def _patient_selected(**kwargs):
 	global gmDefPatient
@@ -332,7 +343,10 @@ else:
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.8  2003-02-18 02:41:54  ncq
+# Revision 1.9  2003-02-21 16:42:02  ncq
+# - better error handling on query generation
+#
+# Revision 1.8  2003/02/18 02:41:54  ncq
 # - helper function get_patient_ids, only structured search term search implemented so far
 #
 # Revision 1.7  2003/02/17 16:16:13  ncq
