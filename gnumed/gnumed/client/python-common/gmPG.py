@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -558,9 +558,74 @@ def request_login_params():
 #==================================================================
 # Main
 #==================================================================
+def run_notifications_debugger():
+	#-------------------------------
+	def myCallback(**kwds):
+		sys.stdout.flush()
+		print "\n=== myCallback: got called ==="
+		print kwds
+	#-------------------------------
+
+	dbpool = ConnectionPool()
+	roconn = dbpool.GetConnection('default')
+	rocurs = roconn.cursor()
+
+	# main shell loop
+	print "PostgreSQL backend listener debug shell"
+	while 1:
+		print "---------------------------------------"
+		typed = raw_input("=> ")
+		args = typed.split(' ')
+		# mothing typed ?
+		if len(args) == 0:
+			continue
+		# help
+		if args[0] in ('help', '?'):
+			print "known commands"
+			print "--------------"
+			print "'listen' - start listening to a signal"
+			print "'ignore' - stop listening to a signal"
+			print "'send'   - send a signal"
+			print "'quit', 'exit', 'done' - well, chicken out"
+			continue
+		# exit
+		if args[0] in ('quit', 'exit', 'done'):
+			break
+		# signal stuff
+		if args[0] in ("listen", "ignore", "send"):
+			typed = raw_input("signal name: ")
+			sig_names = typed.split(' ')
+			# mothing typed ?
+			if len(sig_names) == 0:
+				continue
+			if args[0] == "listen":
+				dbpool.Listen('default', sig_names[0], myCallback)
+			if args[0] == "ignore":
+				dbpool.Unlisten('default', sig_names[0], myCallback)
+			if args[0] == "send":
+				cmd = 'NOTIFY "%s";' % sig_names[0]
+				print "... running >>>%s<<<" % cmd
+				if not run_query(rocurs, cmd):
+					print "... error sending [%s]" % cmd
+			continue
+		print 'unknown command [%s]' % typed
+
+	# clean up
+	print "please wait a second or two for threads to sync and die"
+	dbpool.StopListeningThread('default')
+	rocurs.close()
+	roconn.close()
+	dbpool.ReleaseConnection('default')
+#------------------------------------------------------------------
 if __name__ == "__main__":
 	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 	_ = lambda x:x
+
+	print "Do you want to test the backend notification code ?"
+	yes_no = raw_input('y/n: ')
+	if yes_no == 'y':
+		run_notifications_debugger()
+		sys.exit()
 
 	dbpool = ConnectionPool()
 	### Let's see what services are distributed in this system:
@@ -616,7 +681,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.39  2003-04-27 11:37:46  ncq
+# Revision 1.40  2003-04-27 11:52:26  ncq
+# - added notifications debugger shell in test environment
+#
+# Revision 1.39  2003/04/27 11:37:46  ncq
 # - heaps of cleanup, __service_mapping -> __service2db_map, cdb -> cfg_db
 # - merge _ListenTo and _StartListeningThread into Listen()
 # - add Unlisten()
