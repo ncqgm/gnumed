@@ -139,15 +139,17 @@ class gmPastHistory(gmClinicalPart):
 	def create_history(self, (fields, formatting, values)  ):
    	    conn = self._backend.GetConnection('historica', readonly = 0)
 	    try:
-		self._create_history(conn, (fields, formatting, values) )
+		id = self._create_history(conn, fields, formatting, values )
 		conn.commit()
 		curs.close()
 	    except:
 		   conn.rollback()
 		   self.traceback()
+
+	    return id   
 		
 
-	def _create_history(self, conn,  (fields, formatting, values)  ):
+	def _create_history(self, conn,  fields, formatting, values  ):
 		self._history_input_to_store( values)
 		cmd="insert into clin_history ( narrative, id_type, id_episode, id_encounter) values('%s', 1, %d, %d )" 
 		params =( self.get_narrative(values) , self.id_episode(), self.id_encounter() )
@@ -163,6 +165,7 @@ class gmPastHistory(gmClinicalPart):
 	#	self.setDataId(id)
 
 	#	self.editarea_insert_data( conn, fields, formatting, values)
+	
 
 		return id
 
@@ -175,19 +178,38 @@ class gmPastHistory(gmClinicalPart):
 		
    	    conn = self._backend.GetConnection('historica', readonly = 0)
 	    try:
-		    self._update_history( conn, (fields, formatting, values), ix )	
+		    self._update_history( conn, fields, formatting, values, ix )	
 		    conn.commit()
 		    self.update_local_history(ix, values)
 	    except:
 		   conn.rollback()
 		   self.traceback()
 
+	def delete_history( self, id):
+   	    conn = self._backend.GetConnection('historica', readonly = 0)
+	    try:
+		    self._delete_history( conn, id )	
+		    conn.commit()
+		    self.delete_local_history( id)
+	    except:
+		   conn.rollback()
+		   self.traceback()
 
-	def _update_history( self, conn, (fields, formatting, values), ix ):
+	def _delete_history(self, conn, id):
+		cmd = "delete from clin_history where id = %d" % id
+		cu = conn.cursor()
+		print cmd
+		cu.execute(cmd)
+
+
+
+
+	def _update_history( self, conn, fields, formatting, values, ix ):
 		self._history_input_to_store(values)
 		cmd = "update clin_history set  narrative='%s', id_type= 1, id_episode=%d, id_encounter=%d where id = %d"
 		params = ( self.get_narrative(values) , self.id_episode(), self.id_encounter() , ix)
 		curs = conn.cursor()
+		print "using ", cmd , " and params ", params
 		curs.execute( cmd % params)
 	#	self.editarea_update_data( conn, fields, formatting, values)
 		curs.close()
@@ -222,11 +244,21 @@ class gmPastHistory(gmClinicalPart):
 									hi.id_patient = %d
 									"""
 		params = self.id_patient()
-									
-		conn = self._backend.GetConnection('historica', readonly = 1)
-		curs = conn.cursor()
-		curs.execute( cmd % params)
-		fetched_items = curs.fetchall()
+		print "self.id_patient=", params
+		try:
+			conn = self._backend.GetConnection('historica', readonly = 0)
+			curs = conn.cursor()
+			curs.execute( cmd % params)
+			fetched_items = curs.fetchall()
+			curs.close()
+		except:
+			fetched_items=[]
+			import sys, traceback
+			e = sys.exc_info()
+			print e[0], e[1]
+			traceback.print_tb(e[2])
+			
+
 		list = []
 
 		map_keys = [ 'condition', 'age', 'active', 'significant', 'confidential', 'operation', 'both','left', 'right', 'none', 'notes1', 'notes2' , 'progress']	
@@ -248,6 +280,14 @@ class gmPastHistory(gmClinicalPart):
 				pair[1] = map
 				gmDispatcher.send( gmSignals.clin_history_updated())
 				break
+		
+	def delete_local_history( self, id):
+		for pair in self.past:
+			if pair[0] == id:
+				self.past.remove(pair)	
+				gmDispatcher.send( gmSignals.clin_history_updated())
+				break
+
 
 			
 	def _add_to_local_history(self, id, map):
@@ -263,22 +303,22 @@ class gmPastHistory(gmClinicalPart):
 
 	
 	def filter_history(self, key, range, list = [], includeAsDefault = 0):
-		#print "filtering with ", key, " in ", range
+		print "filtering with ", key, " in ", range
 		
 		l = []
 		for id, map in list:
-			#print "checking ", map.get(key, None) 
+			print "checking ", map.get(key, None) 
 			if map.get(key , None) in range:
-				#print "key ", key, " value is in ", range
+				print "key ", key, " value is in ", range
 				l.append( (id,map) )
 			elif includeAsDefault  and not map.has_key(key): 
-				#print "key ", key, "is not in range ", range, " but included as default."
+				print "key ", key, "is not in range ", range, " but included as default."
 				l.append( (id,map) )
 			else:
-				#print "key ", key, "is not in range ", range, " and not included."
+				print "key ", key, "is not in range ", range, " and not included."
 				pass
 				
-		#print " got filtered history ", l		
+		print " got filtered history ", l		
 		return l
 
 	def get_accepted_history(self):

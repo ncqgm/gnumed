@@ -20,8 +20,8 @@ all signing all dancing GNUMed reference client.
 ############################################################################
 #<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.6 2003-11-04 00:32:33 sjtan Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmGuiMain.py,v 1.9 2003-11-06 02:06:26 sjtan Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -404,13 +404,13 @@ class gmTopLevelFrame(wxFrame):
 			msg = _(
 				'There is a recent encounter recorded for\n'
 				'"%s".\n'
-				'It was started %s\n'
-				'and last affirmed %s.\n'
-				'The last known activity was\n'
-				'"%s".\n\n'
+				'started : %s\n'
+				'affirmed: %s\n'
+				'type: %s\tstatus: %s\n'
+				'description: %s\n\n'
 				'Do you want to reactivate this encounter ?\n'
 				'Hitting "No" will start a new one.'
-			) % (patient, encounter['started'], encounter['affirmed'], encounter['comment'])
+			) % (patient, encounter['type'], encounter['started'], encounter['affirmed'], encounter['status'], encounter['comment'])
 			result = self.__show_question(msg, _('recording patient encounter'))
 			# attach to existing
 			if result == wxID_YES:
@@ -853,9 +853,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.6  2003-11-04 00:32:33  sjtan
+# Revision 1.9  2003-11-06 02:06:26  sjtan
 #
-# should be able to swap to different patients; only saves on activating patient when any editarea data is different.
+# ui test fixes.
+#
+# Revision 1.121  2003/10/31 23:23:17  ncq
+# - make "attach to encounter ?" dialog more informative
 #
 # Revision 1.120  2003/10/27 15:53:10  ncq
 # - getDOB has changed

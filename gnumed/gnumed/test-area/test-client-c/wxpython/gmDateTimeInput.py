@@ -7,8 +7,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.1 2003-10-23 06:02:39 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDateTimeInput.py,v 1.2 2003-11-05 14:56:32 sjtan Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, re, string
@@ -155,22 +155,23 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 		return [tmp]
 #==================================================
 class gmDateInput(gmPhraseWheel.cPhraseWheel):
-	def __init__(self, *args, **kwargs):
+	def __init__(self,parent, id = -1, value = "",   pos = wxDefaultPosition, size = wxDefaultSize, style = 0):
 		matcher = cMatchProvider_Date()
 		matcher.setWordSeparators('xxx_do_not_separate_words_xxx')
 #		matcher.setIgnoredChars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 		matcher.setThresholds(aWord = 998, aSubstring = 999)
+		
+		if value == "":
+			value = self.__default_text = _('enter date here')
 
-		if not kwargs.has_key('id_callback'):
-			kwargs['id_callback'] =  self.__selected
-		kwargs['aMatchProvider'] = matcher
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		gmPhraseWheel.cPhraseWheel.__init__(self, parent, id, value,  pos, size,  style, matcher, id_callback= self.__selected)
+		wxTextCtrl.__init__(self, parent, id, value , pos, size,  style)
+
+
 		self.allow_multiple_phrases(None)
 		
 		self.__display_format = _('%Y-%m-%d')
-		self.__default_text = _('enter date here')
 
-		self.SetValue(self.__default_text)
 		self.SetSelection (-1,-1)
 
 		EVT_CHAR(self, self.__on_char)
@@ -321,7 +322,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.1  2003-10-23 06:02:39  sjtan
+# Revision 1.2  2003-11-05 14:56:32  sjtan
+# *** empty log message ***
+#
+# Revision 1.1  2003/10/23 06:02:39  sjtan
 #
 # manual edit areas modelled after r.terry's specs.
 #

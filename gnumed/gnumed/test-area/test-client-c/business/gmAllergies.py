@@ -115,7 +115,7 @@ class gmAllergies( gmClinicalPart):
 				self.escape_str_quote(v['reaction']),
 				v['generic_specific'], v['definite']
 			 ]
-		print params
+		self._print( params)
 		return params
 	
 	def create_allergy( self, ( fields, formatting, values) ):
@@ -126,7 +126,8 @@ class gmAllergies( gmClinicalPart):
 			self.update_local_allergies( ix, values)
 		except:
 			conn.rollback()
-			self.traceback()
+			self._traceback()
+			return None
 		return ix	
 	
 	def _create_allergy( self,conn, ( fields, formatting, values) ):
@@ -151,18 +152,21 @@ class gmAllergies( gmClinicalPart):
 			self.update_local_allergies( ix, values)
 		except:
 			conn.rollback()
-			self.traceback()
+			self._traceback()
 	
 	def delete_allergy( self, ix):
 		conn = self._backend.GetConnection('historica', readonly = 0)
 		try:
 			cu = conn.cursor()
-			cu.execute('delete from allergy where id = %d' % ix)
+			cmd = 'delete from allergy where id = %d' % ix
+			cu.execute(cmd)
+			self._print( cmd)
 			conn.commit()
 			cu.close()
 			
 		except:
 			conn.rollback()
+			self._traceback()
 			return 0
 
 		del self.get_allergy_items()[ix]
@@ -171,7 +175,9 @@ class gmAllergies( gmClinicalPart):
 	
 	def _update_allergy( self,conn, fields, formatting, values, ix):
 		statement = self._get_update_statement( values, ix)
-		print statement
+
+		self._print(statement)
+		
 		cu = conn.cursor()
 		cu.execute(statement)
 		cu.close()

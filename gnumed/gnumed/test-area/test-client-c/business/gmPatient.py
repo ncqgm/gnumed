@@ -7,8 +7,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.1 2003-10-27 14:01:26 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmPatient.py,v 1.5 2003-11-08 18:12:58 sjtan Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmPatient.py,v $
+# $Id: gmPatient.py,v 1.5 2003-11-08 18:12:58 sjtan Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -18,7 +20,7 @@ if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
 # start logging
-import gmLog, gmDemographics
+import gmLog, gmDemographicRecord
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
@@ -132,7 +134,7 @@ class gmPerson:
 		try:
 			# FIXME: we need some way of setting the type of backend such that
 			# to instantiate the correct type of demographic record class
-			self.__db_cache['demographic record'] = gmDemographics.gmDemographicRecord_SQL(aPKey = self.__ID)
+			self.__db_cache['demographic record'] = gmDemographicRecord.gmDemographicRecord_SQL(aPKey = self.__ID)
 		except StandardError:
 			_log.LogException('cannot instantiate demographic record for person [%s]' % self.__ID, sys.exc_info())
 			return None
@@ -329,9 +331,13 @@ if __name__ == "__main__":
 #			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.1  2003-10-27 14:01:26  sjtan
+# Revision 1.5  2003-11-08 18:12:58  sjtan
 #
-# syncing with main tree.
+# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
+#
+#
+# Revision 1.5  2003/11/04 00:07:40  ncq
+# - renamed gmDemographics
 #
 # Revision 1.4  2003/10/26 17:35:04  ncq
 # - conceptual cleanup

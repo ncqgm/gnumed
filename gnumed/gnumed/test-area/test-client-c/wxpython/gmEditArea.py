@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.12 2003-11-04 00:32:33 sjtan Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmEditArea.py,v 1.13 2003-11-05 14:56:32 sjtan Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -368,8 +368,9 @@ class gmEditArea( wxPanel):
 		self._postInit()
 		
 		self.dataId  = None
+		self.oldData = {} 
 
-		self._out_yaml()
+		#self._out_yaml()
 
 		self.Show(true)
 
@@ -550,6 +551,9 @@ class gmEditArea( wxPanel):
 
 		return 1
 
+#-------NOT USED , obsolete dirty check mechanism
+#-------------------------------------------------------------------------------------------------------------
+
 	def _register_dirty_editarea_listener(self):   # a different way of check dirty is to save the input field values
 		self.monitoring_dirty = 1
 		import inspect
@@ -577,13 +581,8 @@ class gmEditArea( wxPanel):
 		else:
 			print "not monitoring dirty"
 
-	#--------------------------------------------------------
-	# handlers
-	#--------------------------------------------------------
-	def _on_save_btn_pressed(self, event):
-		print "SAVE button pressed"
-		event.Skip()
-		self._pre_save_data()
+#----------DIRTY DATA CHECK: checks original loaded data with current input values , and sets dirty if any changes
+#----------------------------------------------------------------------------------------------------------------------			
 
 	def _check_unsaved_data(self, kwds):
 		self._pre_save_data()
@@ -595,6 +594,7 @@ class gmEditArea( wxPanel):
 			print self, 'NOT SAVING BECAUSE UNCHANGED'
 			return
 		print "ATTEMPTING SAVE", self
+
 		self._save_data()
 
 	
@@ -612,7 +612,38 @@ class gmEditArea( wxPanel):
 		print "IS DIRTY ", dirty		
 		return dirty	
 
+
+
+	def _pre_delete_data(self):
+
+		if self.is_dirty():
+			# maybe add confirm delete dialog here.
+			pass
+
+		self._delete_data()
+		self._init_fields()
+		
+	def _default_init_fields(self):
+		#self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
+		self.setInputFieldValues( self._get_init_values())
+		self.dataId = None
+
+	def _get_init_values(self):
+		map = {}
+		for k in self.input_fields.keys():
+			map[k] = ''
+		return map	
+
+
 				
+
+	#--------------------------------------------------------
+	# handlers
+	#--------------------------------------------------------
+	def _on_save_btn_pressed(self, event):
+		print "SAVE button pressed"
+		event.Skip()
+		self._pre_save_data()
 
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
@@ -624,17 +655,18 @@ class gmEditArea( wxPanel):
 	def _on_delete_btn_pressed(self, event):
 		print "DELETE button pressed"
 		event.Skip()
-		self._delete_data()
+		self._pre_delete_data()
 
+	
+	
 	#--------------------------------------------------------
 	def _init_fields(self):
-		self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
-		self.setInputFieldValues( self.get_init_values())
-		self.dataId = None
-		
+		self._default_init_fields()
+
 	#	_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
 	#	_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 	#	raise AttributeError
+	
 	#--------------------------------------------------------
 	
 	def _save_data(self):
@@ -647,6 +679,9 @@ class gmEditArea( wxPanel):
 		_log.Log(gmLog.lErr, 'programmer forgot to define _delete_fields() for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
+
+
+#-------------------------------------------------------------------------------------------------------------
 
 	def _changePatient( self, kwds):
 		from gmPatient import gmCurrentPatient
@@ -661,6 +696,9 @@ class gmEditArea( wxPanel):
 	def _setPatientModel(self, patient):
 		print self, "received", patient
 		self.patient = patient
+
+	def get_demographic_record(self):
+		return self.patient.get_demographic_record()
 	
 	def _updateUI(self):
 		print "you may want to override _updateUI for " , self.__class__.__name__
@@ -735,11 +773,6 @@ class gmEditArea( wxPanel):
 			i += 1
 		return newlines	
 
-	def get_init_values(self):
-		map = {}
-		for k in self.input_fields.keys():
-			map[k] = ''
-		return map	
 
 
 	def setInputFieldValues(self, map, id = None ):
@@ -764,10 +797,12 @@ class gmEditArea( wxPanel):
 		self.set_old_data(self.getInputFieldValues())
 	
 	def getDataId(self):
+		print "data id ", self.dataId
 		return self.dataId 
 
 	def setDataId(self, id):
 		self.dataId = id
+	
 
 	def _getInputFieldValues(self):
 		values = {}
@@ -859,7 +894,7 @@ class gmAllergyEditArea(gmEditArea):
 		'generic_specific' : 0
 		}
 	
-	def get_init_values(self):
+	def _get_init_values(self):
 		return gmAllergyEditArea.__init_values
 
 	#--------------------------------------------------------
@@ -1088,7 +1123,7 @@ class gmPastHistoryEditArea(gmEditArea):
 	def _ageKillFocus( self, event):	
 		# skip first, else later failure later in block causes widget to be unfocusable
 		event.Skip()	
-		birthyear = self.patient.get_demographic_record().getBirthYear()
+		birthyear = self.get_demographic_record().getBirthYear()
 		try :
 			year = birthyear + int(self.input_fields['age'].GetValue().strip() )
 			self.input_fields['year'].SetValue( str (year) )
@@ -1097,7 +1132,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		
 	def _yearKillFocus( self, event):	
 		event.Skip()	
-		birthyear = self.patient.get_demographic_record().getBirthYear()
+		birthyear = self.get_demographic_record().getBirthYear() 
 		try:
 			age = int(self.input_fields['year'].GetValue().strip() ) - birthyear
 			self.input_fields['age'].SetValue( str (age) )
@@ -1161,18 +1196,27 @@ class gmPastHistoryEditArea(gmEditArea):
 			"none" : 1
 			}
 
-	def get_init_values(self):
+	def _get_init_values(self):
 		return gmPastHistoryEditArea.__init_values
 		
 		
 	def _save_data(self):
 		clinical = self.patient.get_clinical_record().get_past_history()
 		if self.getDataId() == None:
-			clinical.create_history( self.get_fields_formatting_values() )
-			print "called clinical.create_history"	
+			id = clinical.create_history( self.get_fields_formatting_values() )
+			self.setDataId(id)
+			print "called clinical.create_history; saved id = ", id	
 			return
 
 		clinical.update_history( self.get_fields_formatting_values(), self.getDataId() )
+
+	def _delete_data(self):
+		if self.getDataId() == None:
+			return
+		
+		clinical = self.patient.get_clinical_record().get_past_history()
+		clinical.delete_history( self.getDataId())
+		self.setDataId(None)
 
 		
 
@@ -2122,9 +2166,8 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.12  2003-11-04 00:32:33  sjtan
-#
-# should be able to swap to different patients; only saves on activating patient when any editarea data is different.
+# Revision 1.13  2003-11-05 14:56:32  sjtan
+# *** empty log message ***
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #

@@ -9,8 +9,10 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.4 2003-10-27 14:01:26 sjtan Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmPatientSelector.py,v 1.7 2003-11-06 02:06:26 sjtan Exp $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmPatientSelector.py,v $
+# $Id: gmPatientSelector.py,v 1.7 2003-11-06 02:06:26 sjtan Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -23,7 +25,7 @@ import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK, gmDemographics
+import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK
 
 from wxPython.wx import *
 
@@ -990,9 +992,16 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.4  2003-10-27 14:01:26  sjtan
+# Revision 1.7  2003-11-06 02:06:26  sjtan
+#
+# ui test fixes.
+#
+# Revision 1.4  2003/10/27 14:01:26  sjtan
 #
 # syncing with main tree.
+#
+# Revision 1.21  2003/11/04 00:22:46  ncq
+# - remove unneeded import
 #
 # Revision 1.20  2003/10/26 17:42:51  ncq
 # - cleanup

@@ -6,9 +6,15 @@ API crystallize from actual use in true XP fashion.
 license: GPL
 """
 #============================================================
+<<<<<<< gmDemographics.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.1 2003-10-27 14:01:26 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDemographics.py,v 1.4 2003-11-06 02:06:26 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
+=======
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmDemographics.py,v $
+# $Id: gmDemographics.py,v 1.4 2003-11-06 02:06:26 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
+>>>>>>> 1.6
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -192,8 +198,11 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 	def getID(self):
 		return self.ID
 	#--------------------------------------------------------
-	def getDOB(self, aFormat = 'DD.MM.YYYY'):
-		cmd = "select to_char(dob, '%s') from identity where %s" % (aFormat, "id=%s")
+	def getDOB(self, aFormat = None):
+		if aFormat is None:
+			cmd = "select dob from identity where id=%s"
+		else:
+			cmd = "select to_char(dob, '%s') from identity where %s" % (aFormat, "id=%s")
 		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
 		if data is None:
 			return ''
@@ -401,8 +410,8 @@ if __name__ == "__main__":
 		print "ID       ", myPatient.getID ()
 		print "name     ", myPatient.getActiveName ()
 		print "title    ", myPatient.getTitle ()
-		print "dob      ", myPatient.getDOB ()
-		print "med age  ", myPatient.getMedicalAge ()
+		print "dob      ", myPatient.getDOB (aFormat = 'DD.MM.YYYY')
+		print "med age  ", myPatient.getMedicalAge()
 		adr_types = getAddressTypes()
 		print "adr types", adr_types
 		for type_name in adr_types:
@@ -410,10 +419,23 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.1  2003-10-27 14:01:26  sjtan
+# Revision 1.4  2003-11-06 02:06:26  sjtan
+#
+# ui test fixes.
+#
+<<<<<<< gmDemographics.py
+# Revision 1.1  2003/10/27 14:01:26  sjtan
 #
 # syncing with main tree.
 #
+=======
+# Revision 1.6  2003/10/31 23:21:20  ncq
+# - remove old history
+#
+# Revision 1.5  2003/10/27 15:52:41  ncq
+# - if aFormat is None in getDOB() return datetime object, else return formatted string
+#
+>>>>>>> 1.6
 # Revision 1.4  2003/10/26 17:35:04  ncq
 # - conceptual cleanup
 # - IMHO, patient searching and database stub creation is OUTSIDE
@@ -443,140 +465,4 @@ if __name__ == "__main__":
 # Revision 1.39  2003/09/23 19:38:03  ncq
 # - cleanup
 # - moved GetAddressesType out of patient class - it's a generic function
-#
-# Revision 1.38  2003/09/23 12:49:56  ncq
-# - reformat, %d -> %s
-#
-# Revision 1.37  2003/09/23 12:09:26  ihaywood
-# Karsten, we've been tripping over each other again
-#
-# Revision 1.36  2003/09/23 11:31:12  ncq
-# - properly use ro_run_query()s returns
-#
-# Revision 1.35  2003/09/22 23:29:30  ncq
-# - new style run_ro_query()
-#
-# Revision 1.34  2003/09/21 12:46:30  ncq
-# - switched most ro queries to run_ro_query()
-#
-# Revision 1.33  2003/09/21 10:37:20  ncq
-# - bugfix, cleanup
-#
-# Revision 1.32  2003/09/21 06:53:40  ihaywood
-# bugfixes
-#
-# Revision 1.31  2003/09/17 11:08:30  ncq
-# - cleanup, fix type "personaliaa"
-#
-# Revision 1.30  2003/09/17 03:00:59  ihaywood
-# support for local inet connections
-#
-# Revision 1.29  2003/07/19 20:18:28  ncq
-# - code cleanup
-# - explicitely cleanup EMR when cleaning up patient
-#
-# Revision 1.28  2003/07/09 16:21:22  ncq
-# - better comments
-#
-# Revision 1.27  2003/06/27 16:04:40  ncq
-# - no ; in DB-API
-#
-# Revision 1.26  2003/06/26 21:28:02  ncq
-# - fatal->verbose, %s; quoting bug
-#
-# Revision 1.25  2003/06/22 16:18:34  ncq
-# - cleanup, send signal prior to changing the active patient, too
-#
-# Revision 1.24  2003/06/19 15:24:23  ncq
-# - add is_connected check to gmCurrentPatient to find
-#   out whether there's a live patient record attached
-# - typo fix
-#
-# Revision 1.23  2003/06/01 14:34:47  sjtan
-#
-# hopefully complies with temporary model; not using setData now ( but that did work).
-# Please leave a working and tested substitute (i.e. select a patient , allergy list
-# will change; check allergy panel allows update of allergy list), if still
-# not satisfied. I need a working model-view connection ; trying to get at least
-# a basically database updating version going .
-#
-# Revision 1.22  2003/06/01 13:34:38  ncq
-# - reinstate remote app locking
-# - comment out thread lock for now but keep code
-# - setting gmCurrentPatient is not how it is supposed to work (I think)
-#
-# Revision 1.21  2003/06/01 13:20:32  sjtan
-#
-# logging to data stream for debugging. Adding DEBUG tags when work out how to use vi
-# with regular expression groups (maybe never).
-#
-# Revision 1.20  2003/06/01 01:47:32  sjtan
-#
-# starting allergy connections.
-#
-# Revision 1.19  2003/04/29 15:24:05  ncq
-# - add _get_clinical_record handler
-# - add _get_API API discovery handler
-#
-# Revision 1.18  2003/04/28 21:36:33  ncq
-# - compactify medical age
-#
-# Revision 1.17  2003/04/25 12:58:58  ncq
-# - dynamically handle supplied data in create_patient but added some sanity checks
-#
-# Revision 1.16  2003/04/19 22:54:46  ncq
-# - cleanup
-#
-# Revision 1.15  2003/04/19 14:59:04  ncq
-# - attribute handler for "medical age"
-#
-# Revision 1.14  2003/04/09 16:15:44  ncq
-# - get handler for age
-#
-# Revision 1.13  2003/04/04 20:40:51  ncq
-# - handle connection errors gracefully
-# - let gmCurrentPatient be a borg but let the person object be an attribute thereof
-#   instead of an ancestor, this way we can safely do __init__(aPKey) where aPKey may or
-#   may not be None
-#
-# Revision 1.12  2003/03/31 23:36:51  ncq
-# - adapt to changed view v_basic_person
-#
-# Revision 1.11  2003/03/27 21:08:25  ncq
-# - catch connection errors
-# - create_patient rewritten
-# - cleanup on __del__
-#
-# Revision 1.10  2003/03/25 12:32:31  ncq
-# - create_patient helper
-# - __getTitle
-#
-# Revision 1.9  2003/02/21 16:42:02  ncq
-# - better error handling on query generation
-#
-# Revision 1.8  2003/02/18 02:41:54  ncq
-# - helper function get_patient_ids, only structured search term search implemented so far
-#
-# Revision 1.7  2003/02/17 16:16:13  ncq
-# - document list -> document id list
-#
-# Revision 1.6  2003/02/11 18:21:36  ncq
-# - move over to __getitem__ invoking handlers
-# - self.format to be used as an arbitrary format string
-#
-# Revision 1.5  2003/02/11 13:03:44  ncq
-# - don't change patient on patient not found ...
-#
-# Revision 1.4  2003/02/09 23:38:21  ncq
-# - now actually listens patient selectors, commits old patient and
-#   inits the new one if possible
-#
-# Revision 1.3  2003/02/08 00:09:46  ncq
-# - finally starts being useful
-#
-# Revision 1.2  2003/02/06 15:40:58  ncq
-# - hit hard the merge wall
-#
-# Revision 1.1  2003/02/01 17:53:12  ncq
-# - doesn't do anything, just to show people where I am going
 #
