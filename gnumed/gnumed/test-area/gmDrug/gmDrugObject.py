@@ -10,16 +10,15 @@
 # @dependencies: nil
 #
 # @TODO: Almost everything
-# - replace ID by 'mapping' using WHERE xxx=ID ?
 ############################################################################
 
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/gmDrugObject.py,v $      
-__version__ = "$Revision: 1.2 $"                                               
+__version__ = "$Revision: 1.3 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
-import sys, string, os.path
+import sys, string, types
 import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -76,21 +75,19 @@ class Drug:
 			except:
 				exc = sys.exc_info()
 				_log.LogException("Failed to initialize ConnectionPool handle.", exc, fatal=1)
-				# FIXME: Hilmar, do you intend to reraise the exception here ?
+				# reraise the exception here
 				raise
 
 		# get queries from configuration source (currently only files are supported)
 		if queryCfgSource is None:
 			_log.Log(gmLog.lWarn, "No query configuration source specified")
-			# FIXME: Hilmar, you probably mean to return an error here ?
-			#return
+			# we want to return an error here 
 			# in that case we'll have to raise an exception... can't return
 			# anything else than None from an __init__ method
 			raise TypeError, "No query configuration source specified"
 		else:
 			self.__mQueryCfgSource = queryCfgSource
 			if not self.__getQueries():
-				# FIXME: same here, I guess
 				raise IOError, "cannot load queries"
 
 		# try to fetch all data at once if fastInit is true 
@@ -145,7 +142,7 @@ class Drug:
 			if gtype != 'query':
 				continue
 
-			qname = cfgSource.get(entry_group, "query name")
+			qname = cfgSource.get(entry_group, "querygroup")
 			if qname is None:
 				_log.Log(gmLog.lWarn,"query definition invalid in entry_group %s." % entry_group)
 				continue
@@ -156,10 +153,12 @@ class Drug:
 				continue
 
 			# FIXME: we should expect a list here
-			qstring = cfgSource.get(entry_group, "query")
-			if qstring is None:
+			query = cfgSource.get(entry_group, "query")
+			if query is None or not type(query) == types.ListType:
 				_log.Log(gmLog.lWarn,"query definition invalid in entry_group %s." % entry_group)
 				continue
+            
+			qstring = query[0]
 
 			qmappings = cfgSource.get(entry_group, "mappings")
 			if qmappings is None:
@@ -227,24 +226,25 @@ class QueryGroupHandler:
 
 		# cycle through query strings and get data
 		for queryName in self.__mQueries.mQueryStrings.keys():
-
 			# get variable mappings
 			mappings = self.__mQueries.mMappings[queryName]
 			allVars = []
 			for var in mappings:
 				# get variables from parent
 				if var != '':
-					allVars = allVars + [self.__mParent.mVars[var]]
+					allVars.append(self.__mParent.mVars[var])
 
 			# set query string
 			if len(allVars) > 0:
-				self.__mDBObject.SetSelectQuery(self.__mQueries.mQueryStrings[queryName] % allVars)
+				self.__mDBObject.SetSelectQuery(self.__mQueries.mQueryStrings[queryName] % tuple(allVars))
 			else:
 				self.__mDBObject.SetSelectQuery(self.__mQueries.mQueryStrings[queryName])
 
 			# do the query
 			result = self.__mDBObject.Select(listonly=0)
-
+			# maybe we should raise an exception here
+			if result is None:
+				return None
 			# get results
 			VarNames = self.__mQueries.mVarNames[queryName]
 			VarNumMax = len(VarNames)
@@ -253,15 +253,12 @@ class QueryGroupHandler:
 				if not self.__mData.has_key(vn):
 					self.__mData[vn] = []
 
-			# FIXME: THIS IS ONE FRIGGIN' MESS OF POORLY DOCUMENTED CODE
-			# I hope I got the stuff right
-
 			# if we got just one row in the result
 			if len(result) == 1:
-				row = result[0]
-				col_idx = 0
-				cols_avail = len(row)
-				for col_val in row:
+				row = result[0]     # the row we fetched
+				col_idx = 0         # column counter
+				cols_avail = len(row)   # number of available columns in row
+				for col_val in row:     # loop through all columns
 					# don't try to map more columns than we have variable name mappings for
 					if col_idx > VarNumMax:
 						break
@@ -269,19 +266,20 @@ class QueryGroupHandler:
 					VarName = VarNames[col_idx]
 					# and cache the value
 					self.__mData[VarName] = col_val
+                    # increase column count
 					col_idx = col_idx + 1
-				return 1
 
-			# if multiple rows in result
-			for row in result[:]:
-				col_idx = 0
-				cols_avail = len(row)
-				for col_val in row:
-					if col_idx > VarNumMax:
-						break
-					VarName = VarNames[col_idx]
-					self.__mData[VarName].append(col_val)
-					col_idx = col_idx + 1
+			else:
+            	# if multiple rows in result
+				for row in result[:]:
+					col_idx = 0
+					cols_avail = len(row)
+					for col_val in row:
+						if col_idx > VarNumMax:
+							break
+						VarName = VarNames[col_idx]
+						self.__mData[VarName].append(col_val)
+						col_idx = col_idx + 1
 
 		# return TRUE if everything went right
 		return 1
@@ -290,7 +288,7 @@ class QueryGroupHandler:
 #====================================================================================
 
 if __name__ == "__main__":
-
+    	import os.path
 	tmp = os.path.join(os.path.expanduser("~"), ".gnumed", "amis.conf")
 	a = Drug(0, tmp)
 	x = a.GetData('brand')
@@ -300,12 +298,18 @@ if __name__ == "__main__":
 		print "Query wasn't successful."
 
 	print "-----------------------------------------------------"
-	y = a.GetData('brand_all')
+	a.mVars['ID']="3337631600"
+	y=a.GetData('product_info')
 	print y
-	print len(x['brandname'])
+#	y = a.GetData('brand_all')
+#	print y
+#	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.2  2002-10-22 21:18:11  ncq
+# Revision 1.3  2002-10-23 22:41:54  hinnef
+# more cleanup, fixed some bugs regarding variable mapping
+#
+# Revision 1.2  2002/10/22 21:18:11  ncq
 # - fixed massive whitespace lossage
 # - sprinkled some comments throughout
 # - killed a few levels of indentation
