@@ -74,7 +74,7 @@ CLASS="SECT1"
 ><A
 NAME="I18N"
 ></A
->3.5. Internationalization / Localization</H1
+>3.6. Internationalization / Localization</H1
 ><P
 >	Supplied by Karsten Hilbert, &#60;Karsten.Hilbert@gmx.net&#62; GnuMed i18n/L10n coordinator
 	</P
@@ -91,9 +91,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN171"
+NAME="AEN189"
 ></A
->3.5.1. date/time localization</H2
+>3.6.1. date/time localization</H2
 ><P
 >	In gmI18N.py there's a string called gmTimeFormat which holds
 	the standard way of formatting a date as a string. The string
@@ -112,9 +112,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN174"
+NAME="AEN192"
 ></A
->3.5.2. icon localization</H2
+>3.6.2. icon localization</H2
 ><P
 >	Icon image data for plugins is located in the corresponding
 	plugin source file. The icon a user wants to load is referenced
@@ -138,9 +138,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN177"
+NAME="AEN195"
 ></A
->3.5.3. GUI text localization</H2
+>3.6.3. GUI text localization</H2
 ><P
 >	The GNU gettext system is used to provide a user interface
 	translated into the local language. Currently only the
@@ -158,9 +158,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN180"
+NAME="AEN198"
 ></A
->3.5.4. How to translate the GnuMed UI</H2
+>3.6.4. How to translate the GnuMed UI</H2
 ><P
 >	Those are the rough steps to get GnuMed translated
 	into your language:
@@ -180,9 +180,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN183"
+NAME="AEN201"
 ></A
->3.5.5. Creating a *.po file</H2
+>3.6.5. Creating a *.po file</H2
 ><P
 >	With
 <TABLE
@@ -236,9 +236,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN187"
+NAME="AEN205"
 ></A
->3.5.6. Creating a *.mo file</H2
+>3.6.6. Creating a *.mo file</H2
 ><P
 >	With 
 <TABLE
@@ -266,9 +266,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN191"
+NAME="AEN209"
 ></A
->3.5.7. Installation of translated messages</H2
+>3.6.7. Installation of translated messages</H2
 ><P
 >	On a POSIX system (Linux, BSD, MacOSX, CygWin) the
 	$LANG-gnumed.mo file should be moved into
@@ -296,9 +296,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN194"
+NAME="AEN212"
 ></A
->3.5.8. Coding I18N</H2
+>3.6.8. Coding I18N</H2
 ><P
 >Hardcoded error strings meant for developers / debugging are in English. All other 
 	      strings MUST be translateable, that is called as a gettext function. To achieve this, 
@@ -350,10 +350,6 @@ print "this can't be translated and should thus not be written this way"</PRE
 ></TABLE
 >
 	      </P
-><P
->           Additional note: "&#38;" often refers to menu item shortcuts . You should keep those 
-           but make them unique to the menu in your target language.
-          </P
 ></DIV
 ></DIV
 ><DIV

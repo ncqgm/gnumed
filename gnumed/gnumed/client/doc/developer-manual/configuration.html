@@ -12,8 +12,8 @@ REL="UP"
 TITLE="Coding Guidelines"
 HREF="guidelines.html"><LINK
 REL="PREVIOUS"
-TITLE="DEBUGGING/LOGGING"
-HREF="debugging.html"><LINK
+TITLE="SQL hacking guidelines"
+HREF="sql.html"><LINK
 REL="NEXT"
 TITLE="Internationalization / Localization"
 HREF="i18n.html"></HEAD
@@ -44,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="debugging.html"
+HREF="sql.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -74,7 +74,7 @@ CLASS="SECT1"
 ><A
 NAME="CONFIGURATION"
 ></A
->3.4. Gnumed Configuration</H1
+>3.5. Gnumed Configuration</H1
 ><P
 >	Gnumed uses two sources of configuration information:
 	   - INI-style configuration files
@@ -92,9 +92,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN112"
+NAME="AEN130"
 ></A
->3.4.1. Standard configuration file</H2
+>3.5.1. Standard configuration file</H2
 ><P
 >	Currently the default configuration file holds the following information:
 	<TABLE
@@ -144,9 +144,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN116"
+NAME="AEN134"
 ></A
->3.4.2. Database configuration tables</H2
+>3.5.2. Database configuration tables</H2
 ><P
 >    	Table 'db' holds the information on databases known to gnumed. The database that has id=0 is always the default database,
 	that is the database used to log in to the backend at the start of gnumed (=the one the configuration tables are stored on).
@@ -340,9 +340,9 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN154"
+NAME="AEN172"
 ></A
->3.4.3. Setting up a service</H2
+>3.5.3. Setting up a service</H2
 ><DIV
 CLASS="PROCEDURE"
 ><OL
@@ -376,7 +376,7 @@ CLASS="SCREEN"
 ></LI
 ><LI
 ><P
->	    Store the parameters to access the database in table 'db':</P
+>	    Link database to service in table 'config':</P
 ><P
 ><TABLE
 BORDER="1"
@@ -421,7 +421,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="debugging.html"
+HREF="sql.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -449,7 +449,7 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->DEBUGGING/LOGGING</TD
+>SQL hacking guidelines</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"

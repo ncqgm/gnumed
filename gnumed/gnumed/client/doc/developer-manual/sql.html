@@ -1,7 +1,7 @@
 <HTML
 ><HEAD
 ><TITLE
->Prescription Dialog</TITLE
+>SQL hacking guidelines</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
@@ -9,14 +9,14 @@ REL="HOME"
 TITLE="GNUMed"
 HREF="index.html"><LINK
 REL="UP"
-TITLE=" Design "
-HREF="design.html"><LINK
+TITLE="Coding Guidelines"
+HREF="guidelines.html"><LINK
 REL="PREVIOUS"
-TITLE="Pharmaceutical Reference Browser"
-HREF="drug-browser.html"><LINK
+TITLE="Debugging/Logging"
+HREF="debugging.html"><LINK
 REL="NEXT"
-TITLE="Appointment book"
-HREF="appointment-book.html"></HEAD
+TITLE="Gnumed Configuration"
+HREF="configuration.html"></HEAD
 ><BODY
 CLASS="SECT1"
 BGCOLOR="#FFFFFF"
@@ -44,7 +44,7 @@ WIDTH="10%"
 ALIGN="left"
 VALIGN="bottom"
 ><A
-HREF="drug-browser.html"
+HREF="debugging.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -52,13 +52,13 @@ ACCESSKEY="P"
 WIDTH="80%"
 ALIGN="center"
 VALIGN="bottom"
->Chapter 5. Design</TD
+>Chapter 3. Coding Guidelines</TD
 ><TD
 WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="appointment-book.html"
+HREF="configuration.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -72,108 +72,77 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="PRESCRIPTION"
+NAME="SQL"
 ></A
->5.9. Prescription Dialog</H1
-><DIV
-CLASS="SECT2"
-><H2
-CLASS="SECT2"
-><A
-NAME="AEN817"
-></A
->5.9.1. Short Description</H2
+>3.4. SQL hacking guidelines</H1
 ><P
->		Dialog used for writing a prescription. Shows additional information about prescribed drug.
-		</P
-></DIV
-><DIV
-CLASS="SECT2"
-><H2
-CLASS="SECT2"
-><A
-NAME="AEN820"
-></A
->5.9.2. Data Shown/Accessible</H2
+>When you modify the SQL scripts which create backend tables please
+         follow these rules:</P
 ><P
 ></P
 ><UL
 ><LI
 STYLE="list-style-type: opencircle"
 ><P
->Class of Drug []</P
+>don't use "\copy from stdin"
+  					(reason: will kill server installation tools)
+                </P
 ></LI
 ><LI
 STYLE="list-style-type: opencircle"
 ><P
->Generic Name []</P
+>don't use "COPY from 'a file' unless importing 
+                really large datasets - and those should be imported entirely
+  				separate from the schema definition import (reason: won't work 
+                non-local to the DB server)
+                </P
 ></LI
 ><LI
 STYLE="list-style-type: opencircle"
 ><P
->Brand Name []</P
+>always include gmSchemaRevision.sql in your schema
+  				definition files (see the file for instructions)</P
 ></LI
 ><LI
 STYLE="list-style-type: opencircle"
 ><P
->Strength []</P
+>normalize</P
 ></LI
 ><LI
 STYLE="list-style-type: opencircle"
 ><P
->Direction []</P
+>keep things generic</P
 ></LI
 ><LI
 STYLE="list-style-type: opencircle"
 ><P
->Indication (what is the drug prescribed for) []</P
-></LI
-><LI
-STYLE="list-style-type: opencircle"
-><P
->Repeats []</P
-></LI
-><LI
-STYLE="list-style-type: opencircle"
-><P
->Quantity []</P
-></LI
-><LI
-STYLE="list-style-type: opencircle"
-><P
->Regulatory information []</P
+>split things into general and country-specific parts
+                </P
 ></LI
 ></UL
-></DIV
-><DIV
-CLASS="SECT2"
-><H2
-CLASS="SECT2"
-><A
-NAME="AEN841"
-></A
->5.9.3. Functionality</H2
 ><P
-></P
-><UL
-><LI
-STYLE="list-style-type: opencircle"
-><P
->Link to drug database.</P
-></LI
-></UL
-></DIV
-><DIV
-CLASS="SECT2"
-><H2
-CLASS="SECT2"
-><A
-NAME="AEN846"
-></A
->5.9.4. Internals / Additional Information</H2
-><P
->	    </P
-></DIV
+>            Each GnuMed database has a table "schema_revision". Doing a
+			<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><FONT
+COLOR="#000000"
+><PRE
+CLASS="PROGRAMLISTING"
+>            select * from schema_revision
+            </PRE
+></FONT
+></TD
+></TR
+></TABLE
+>
+			will show you which version of which SQL file was imported
+			into this database (as long as they adhere to the GnuMed
+			SQL hacking guidelines).
+			</P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -191,7 +160,7 @@ WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
 ><A
-HREF="drug-browser.html"
+HREF="debugging.html"
 ACCESSKEY="P"
 >Prev</A
 ></TD
@@ -209,7 +178,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="appointment-book.html"
+HREF="configuration.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -219,13 +188,13 @@ ACCESSKEY="N"
 WIDTH="33%"
 ALIGN="left"
 VALIGN="top"
->Pharmaceutical Reference Browser</TD
+>Debugging/Logging</TD
 ><TD
 WIDTH="34%"
 ALIGN="center"
 VALIGN="top"
 ><A
-HREF="design.html"
+HREF="guidelines.html"
 ACCESSKEY="U"
 >Up</A
 ></TD
@@ -233,7 +202,7 @@ ACCESSKEY="U"
 WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
->Appointment book</TD
+>Gnumed Configuration</TD
 ></TR
 ></TABLE
 ></DIV

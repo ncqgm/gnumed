@@ -155,6 +155,14 @@ chmod +x ~/bin/ssh_cvs
 
   <chapter id=guidelines>
     <title>Coding Guidelines</title>
+
+    <sect1 id=cvs-guidelines>
+      <title>CVS Guidelines</title>
+      <para>Always test before you check in (yes, I have been guilty of not heeding 
+      my own advice, sorry)
+      </para>
+    </sect1>
+
     <sect1 id=documentation>
       <title>Comments. Documenting Code</title>
       <sect2>
@@ -196,15 +204,8 @@ self-explanatory.</para>
       </sect2>
     </sect1>
 
-    <sect1 id=cvs-guidelines>
-      <title>CVS Guidelines</title>
-      <para>Always test before you check in (yes, I have been guilty of not heeding 
-      my own advice, sorry)
-      </para>
-    </sect1>
-
     <sect1 id=debugging>
-        <title>DEBUGGING/LOGGING</title>
+        <title>Debugging/Logging</title>
     	<para>Place markers before/after logging statements that can be commented out
 	 once things work like this:
 <screen>
@@ -212,6 +213,43 @@ self-explanatory.</para>
 gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
 #&lt;/DEBUG&gt;
 </screen>
+    </sect1>
+
+    <sect1 id=SQL>
+        <title>SQL hacking guidelines</title>
+    	<para>When you modify the SQL scripts which create backend tables please
+         follow these rules:</para>
+
+    		<itemizedlist mark=opencircle>
+				<listitem><para>don't use "\copy from stdin"
+  					(reason: will kill server installation tools)
+                </para></listitem>
+
+				<listitem><para>don't use "COPY from 'a file' unless importing 
+                really large datasets - and those should be imported entirely
+  				separate from the schema definition import (reason: won't work 
+                non-local to the DB server)
+                </para></listitem>
+
+				<listitem><para>always include gmSchemaRevision.sql in your schema
+  				definition files (see the file for instructions)</para></listitem>
+
+				<listitem><para>normalize</para></listitem>
+
+				<listitem><para>keep things generic</para></listitem>
+
+				<listitem><para>split things into general and country-specific parts
+                </para></listitem>
+			</itemizedlist>
+            <para>
+            Each GnuMed database has a table "schema_revision". Doing a
+			<ProgramListing>
+            select * from schema_revision
+            </ProgramListing>
+			will show you which version of which SQL file was imported
+			into this database (as long as they adhere to the GnuMed
+			SQL hacking guidelines).
+			</para>
     </sect1>
 
     <sect1 id=configuration>
@@ -383,7 +421,7 @@ insert into db VALUES (&lt;db_id&gt;,'database_name', &lt;port&gt; , &lt;host&gt
 	    </para></step>
 	    
 	    <step><para>
-	    Store the parameters to access the database in table 'db':</para>
+	    Link database to service in table 'config':</para>
 	    <para>
 <screen>
 insert into config VALUES ('','','username', &lt;distributed_db_id&gt; , &lt;db_id&gt;) ;
