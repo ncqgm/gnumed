@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.59 2003-11-08 10:48:36 shilbert Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmPlugin.py,v 1.60 2003-11-09 14:26:41 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -231,17 +231,14 @@ class wxNotebookPlugin (wxBasePlugin):
 		pat = gmPatient.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional beep and an optional red backgound here
-			set_statustext = self.gb['main.statustext']
-			set_statustext(_('Cannot switch to [%s]: no patient selected') % self.name())
+			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
 			return None
 		return 1
 	#-----------------------------------------------------
 	def _set_status_txt(self, txt):
-
 		set_statustext = self.gb['main.statustext']
 		set_statustext(txt)
 		return 1
-	
 	#-----------------------------------------------------
 	def Raise (self):
 		nbns = self.gb['main.notebook.plugins']
@@ -496,7 +493,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.59  2003-11-08 10:48:36  shilbert
+# Revision 1.60  2003-11-09 14:26:41  ncq
+# - if we have set_status_txt() do use it, too
+#
+# Revision 1.59  2003/11/08 10:48:36  shilbert
 # - added convenience function _set_status_txt()
 #
 # Revision 1.58  2003/10/26 01:38:06  ncq
