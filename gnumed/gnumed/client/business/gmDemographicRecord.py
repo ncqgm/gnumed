@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.52 2004-06-25 12:37:19 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmDemographicRecord.py,v 1.53 2004-07-26 14:34:49 sjtan Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -705,8 +705,8 @@ EMAIL=1
 FAX=2
 HOME_PHONE=3
 WORK_PHONE=4
-WEB=5
-MOBILE=6
+MOBILE=5
+WEB=6
 JABBER=7
 #----------------------------------------------------------------
 
@@ -911,7 +911,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.52  2004-06-25 12:37:19  ncq
+# Revision 1.53  2004-07-26 14:34:49  sjtan
+#
+# numbering correction from labels in gmDemograpics.
+#
+# Revision 1.52  2004/06/25 12:37:19  ncq
 # - eventually fix the import gmI18N issue
 #
 # Revision 1.51  2004/06/21 16:02:08  ncq
