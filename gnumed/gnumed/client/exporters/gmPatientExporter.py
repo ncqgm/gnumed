@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.32 2004-10-11 19:53:41 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPatientExporter.py,v 1.33 2004-10-12 10:52:40 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -23,9 +23,6 @@ import mx.DateTime as mxDT
 from Gnumed.pycommon import gmLog, gmPG, gmI18N, gmCLI, gmCfg, gmExceptions, gmNull
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab, gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
-
-if __name__ == "__main__":
-    gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -131,34 +128,31 @@ class cEmrExport:
             Exporter class cleanup code
         """
         pass
-
+        
     #--------------------------------------------------------
-    def get_vacc_table(self):
+    def __dump_vacc_table(self, vacc_regimes):
         """
         Retrieves string containg ASCII vaccination table
-        """        
+        """                
         
         emr = self.__patient.get_clinical_record()
         
         # patient dob
         patient_dob = mxParser.DateFromString(self.__patient.get_demographic_record().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
         date_length = len(patient_dob.Format('%Y-%m-%d')) + 2 # (YYYY-mm-dd)
-        # vaccination regimes
-        vacc_regimes = emr.get_scheduled_vaccination_regimes()
+
         # dictionary of pairs indication : scheduled vaccination
         vaccinations4regimes = {}
         for a_vacc_regime in vacc_regimes:
-            indication = a_vacc_regime[0] # vaccination regime indication
+            indication = a_vacc_regime['indication']
             vaccinations4regimes[indication] = emr.get_scheduled_vaccinations(indications=[indication])
         # vaccination regimes count
         chart_columns = len(vacc_regimes)
         # foot headers
         foot_headers = ['last booster', 'next booster']        
         # string for both: ending of vaccinations; non boosters needed
-#        ending_str = '###'
         ending_str = '='
         
-        # FIXME multiple tables when so many indications (don't fit in width)
         # chart row count, columns width and vaccination dictionary of pairs indication : given shot
         column_widths = []
         chart_rows = -1
@@ -169,14 +163,14 @@ class cEmrExport:
                 temp = len(foot_header)
         column_widths.append(temp)        
         for a_vacc_regime in vacc_regimes:
-            if a_vacc_regime[2] > chart_rows: # seq no -> row count 
-                chart_rows = a_vacc_regime[2] 
-            if (len(a_vacc_regime[1])) > date_length: # l10n indication -> column width
-                column_widths.append(len(a_vacc_regime[1])) 
+            if a_vacc_regime['shots'] > chart_rows: # max_seq  -> row count 
+                chart_rows = a_vacc_regime['shots']
+            if (len(a_vacc_regime['l10n_indication'])) > date_length: # l10n indication -> column width
+                column_widths.append(len(a_vacc_regime['l10n_indication'])) 
             else:
                 column_widths.append(date_length)  # date -> column width at least
-            vaccinations[a_vacc_regime[0]] = emr.get_vaccinations(indications=[a_vacc_regime[0]]) # given shots 4 indication
-        chart_rows += 1 # one extra row for last ###
+            vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
+#        chart_rows += 1 # one extra row for last ###
         
         #print 'column widths: %s' %(column_widths)    
         #print 'chart rows count: %s'  %(chart_rows)
@@ -194,7 +188,7 @@ class cEmrExport:
         txt += column_widths[0] * ' ' + '|'
         col_index = 1
         for a_vacc_regime in vacc_regimes:
-            txt +=  a_vacc_regime[1] + (column_widths[col_index] - len(a_vacc_regime[1])) * ' ' + '|'
+            txt +=  a_vacc_regime['l10n_indication'] + (column_widths[col_index] - len(a_vacc_regime['l10n_indication'])) * ' ' + '|'
             col_index += 1
         txt +=  '\n'
         # bottom ---- header line
@@ -214,8 +208,8 @@ class cEmrExport:
             txt += row_header + (column_widths[0] - len(row_header)) * ' ' + '|'
                         
             for col_index in range(1, chart_columns+1):
-                indication =vacc_regimes[col_index-1][0] 
-                seq_no = vacc_regimes[col_index-1][2]
+                indication =vacc_regimes[col_index-1]['indication']
+                seq_no = vacc_regimes[col_index-1]['shots']
                 if row_index == seq_no: # had just ended scheduled vaccinations
                      txt += ending_str * column_widths[col_index] + '|'
 #                    txt += ending_str + (column_widths[col_index] - len(ending_str)) * ' ' + '|'
@@ -239,15 +233,15 @@ class cEmrExport:
             for column_width in column_widths: # ------ separator line
                 txt += column_width * '-' + '-'
             txt += '\n'
-            
-                        
+                                    
         # scheduled vaccination boosters (date retrieving)
         all_vreg_boosters = []                
-        for vaccs4indication in vaccinations.values(): # iterate over vaccinations by indication
+        for a_vacc_regime in vacc_regimes:
+            vaccs4indication = vaccinations[a_vacc_regime['indication']] # iterate over vaccinations by indication
             given_boosters = [] # will contain given boosters for current indication
             for a_vacc in vaccs4indication:
                 try:
-                     if a_vacc['is booster']:
+                     if a_vacc['is_booster']:
                          given_boosters.append(a_vacc)
                 except:
                     # not a booster
@@ -256,7 +250,7 @@ class cEmrExport:
                 all_vreg_boosters.append(given_boosters[len(given_boosters)-1]) # last of given boosters
             else:
                 all_vreg_boosters.append(None)
-        #print all_vreg_boosters
+        #print "all_vreg_boosters: %s" %(all_vreg_boosters)
 
         # next booster in schedule
         all_next_boosters = []
@@ -264,13 +258,14 @@ class cEmrExport:
             all_next_boosters.append(None)
         # scheduled vaccination boosters (displaying string)
         cont = 0
-        for vaccs in vaccinations4regimes.values():
-            if vaccs[len(vaccs)-1]['vacc_seq_no'] is not None: # booster is not scheduled/needed
-                all_vreg_boosters[cont] = ending_str
-                all_next_boosters[cont] = ending_str
+        for a_vacc_regime in vacc_regimes:
+            vaccs = vaccinations4regimes[a_vacc_regime['indication']]        
+            if vaccs[len(vaccs)-1]['is_booster'] == False: # booster is not scheduled/needed
+                all_vreg_boosters[cont] = ending_str * column_widths[cont+1]
+                all_next_boosters[cont] = ending_str * column_widths[cont+1]
             else:
-                indication = vacc_regimes[cont][0]
-                if len(vaccinations[indication]) > vacc_regimes[cont][2]: # boosters given
+                indication = vacc_regimes[cont]['indication']
+                if len(vaccinations[indication]) > vacc_regimes[cont]['shots']: # boosters given
                     all_vreg_boosters[cont] = vaccinations[indication][len(vaccinations[indication])-1]['date'].Format('%Y-%m-%d') # show last given booster date
                     scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
                     booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                                        
@@ -278,7 +273,7 @@ class cEmrExport:
                         all_next_boosters[cont] = '<(' + booster_date.Format('%Y-%m-%d') + ')>' # next booster is due
                     else:
                         all_next_boosters[cont] = booster_date.Format('%Y-%m-%d')
-                elif len(vaccinations[indication]) == vacc_regimes[cont][2]: # just finished vaccinations, begin boosters
+                elif len(vaccinations[indication]) == vacc_regimes[cont]['shots']: # just finished vaccinations, begin boosters
                     all_vreg_boosters[cont] = column_widths[cont+1] * ' '
                     scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
                     booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                    
@@ -290,10 +285,7 @@ class cEmrExport:
                     all_vreg_boosters[cont] = column_widths[cont+1] * ' '  # unfinished schedule
                     all_next_boosters[cont] = column_widths[cont+1] * ' '
             cont += 1
-                     
-        #print all_vreg_boosters
-        #print all_next_boosters
-        
+                             
         # given boosters
         foot_header = foot_headers[0]
         col_index = 0
@@ -321,8 +313,37 @@ class cEmrExport:
         txt += '\n'                
 
         #print txt
-        self.__target.write(txt)
-                    
+        self.__target.write(txt)        
+        
+    #--------------------------------------------------------
+    def get_vacc_table(self):
+        """
+        Iterate over patient scheduled regimes preparing vacc table dump
+        """        
+        
+        emr = self.__patient.get_clinical_record()
+        
+        # vaccination regimes
+        all_vacc_regimes = emr.get_scheduled_vaccination_regimes()
+        # Configurable: vacc regimes per displayed table
+        # FIXME: option, post 0.1 ?
+        max_regs_per_table = 4
+
+        # Iterate over patient scheduled regimes dumping in tables of 
+        # max_regs_per_table regimes per table
+        reg_count = 0
+        vacc_regimes = []
+        for total_reg_count in range(0,len(all_vacc_regimes)):
+            if reg_count%max_regs_per_table == 0:
+                if len(vacc_regimes) > 0:
+                    self.__dump_vacc_table(vacc_regimes)
+                vacc_regimes = []
+                reg_count = 0
+            vacc_regimes.append(all_vacc_regimes[total_reg_count])
+            reg_count += 1
+        if len(vacc_regimes) > 0:
+            self.__dump_vacc_table(vacc_regimes)        
+                            
     #--------------------------------------------------------
     def get_encounters_for_items(self, items):
         """
@@ -721,9 +742,9 @@ class cEmrExport:
             )
             parts = doc.get_parts()
             for part in parts:
-                self.__target.write('\n      %s - ' % (
-                    obj['seq_idx'],
-                    obj['obj_comment'])
+                self.__target.write('\n      %s - %s' % (
+                    part['seq_idx'],
+                    part['obj_comment'])
                 )
         self.__target.write('\n\n')
     #--------------------------------------------------------    
@@ -899,9 +920,10 @@ def run():
             
 #------------------------------------------------------------
 if __name__ == "__main__":
-    
+    gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+
     print "\n\nGnumed Simple EMR ASCII Export Tool"
-    print "==================================="
+    print     "==================================="
 
     if gmCLI.has_arg('--help'):
         usage()
@@ -922,7 +944,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.32  2004-10-11 19:53:41  ncq
+# Revision 1.33  2004-10-12 10:52:40  ncq
+# - improve vaccinations handling
+#
+# Revision 1.32  2004/10/11 19:53:41  ncq
 # - document classes are now VOs
 #
 # Revision 1.31  2004/09/29 19:13:37  ncq
