@@ -34,8 +34,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.33 2003-02-09 18:55:47 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmLoginDialog.py,v 1.34 2003-03-31 00:17:43 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 
 from wxPython.wx import *
 import os.path, time
@@ -47,14 +47,14 @@ _log = gmLog.gmDefLog
 # dummy class, to be used as a structure for login parameters
 #############################################################################
 
-class LoginParameters:
+class cLoginParameters:
 	"""dummy class, to be used as a structure for login parameters"""
 
 	def __init__(self):
 		self.userlist = ['gnumed', 'guest']
 		self.password = ''
-		self.databaselist = ['gnumed', 'demograph', 'gis', 'pharma']
-		self.hostlist= ['localhost']
+		self.databaselist = ['gnumed', 'gm-archive']
+		self.hostlist= ['localhost', '127.0.0.1']
 		self.portlist = ['5432']
 		self.backendoptionlist = ['']
 #############################################################################
@@ -88,15 +88,14 @@ class LoginPanel(wxPanel):
 		#if the dialog is closed manually, login should be cancelled
 		self.cancelled = true
 
-		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
+		# true if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
 
-		#get some default login parameter settings in case the configuration file is empty
-		self.loginparams = loginparams or LoginParameters()
-		#if we didn't override the standard parameters, load them from the configuration file
-		
+		# if no login params supplied get default ones or from config file
 		if loginparams is None:
-			self.__log_settings()
+			self.__load_login_params()
+		else:
+			self.loginparams = loginparams
 
 		self.topsizer = wxBoxSizer(wxVERTICAL)
 
@@ -217,30 +216,29 @@ class LoginPanel(wxPanel):
 	#----------------------------
 	# internal helper methods
 	#----------------------------
-	def __log_settings(self):
+	def __load_login_params(self):
 		"""Load parameter settings from standard configuration file"""
+		self.loginparams = cLoginParameters()
 
-		self.loginparams.userlist = _cfg.get('backend', 'logins')
-		if not self.loginparams.userlist:
-			self.loginparams.userlist = ['guest']
+		tmp = _cfg.get('backend', 'logins')
+		if tmp is not None:
+			self.loginparams.userlist = tmp
 
-		self.loginparams.password = ''
+		tmp = _cfg.get('backend', 'databases')
+		if tmp is not None:
+			self.loginparams.databaselist = tmp
 
-		self.loginparams.databaselist = _cfg.get('backend', 'databases')
-		if not self.loginparams.databaselist:
-			self.loginparams.databaselist = ['gnumed']
+		tmp = _cfg.get('backend', 'hosts')
+		if tmp is not None:
+			self.loginparams.hostlist = tmp
 
-		self.loginparams.hostlist = _cfg.get('backend', 'hosts')
-		if not self.loginparams.hostlist:
-			self.loginparams.hostlist = ['localhost']
+		tmp = _cfg.get('backend', 'ports')
+		if tmp is not None:
+			self.loginparams.portlist = tmp
 
-		self.loginparams.portlist = _cfg.get('backend', 'ports')
-		if not self.loginparams.portlist:
-			self.loginparams.portlist = ['5432']
-
-		self.loginparams.backendoptionlist = _cfg.get('backend', 'options')
-		if not self.loginparams.backendoptionlist:
-			self.loginparams.backendoptionlist = ['']
+		tmp = _cfg.get('backend', 'options')
+		if tmp is not None:
+			self.loginparams.backendoptionlist = tmp
 	#----------------------------
 	def save_settings(self):
 		return
@@ -605,7 +603,11 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.33  2003-02-09 18:55:47  ncq
+# Revision 1.34  2003-03-31 00:17:43  ncq
+# - started cleanup/clarification
+# - made saving of values work again
+#
+# Revision 1.33  2003/02/09 18:55:47  ncq
 # - make comment less angry
 #
 # Revision 1.32  2003/02/08 00:32:30  ncq
