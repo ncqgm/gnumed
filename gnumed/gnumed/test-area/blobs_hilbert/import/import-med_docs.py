@@ -25,7 +25,7 @@ from docDocument import cDocument
 from docDatabase import cDatabase
 #######################################################
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 __log__ = gmLog.gmDefLog
 __cfg__ = gmCfg.gmDefCfg
@@ -36,15 +36,16 @@ def import_from_dir(aDir):
 	__log__.Log (gmLog.lInfo, "importing from repository sub dir " + aDir)
 
 	# look for checkpoint file whether frontend action on this dir is complete
-	checkpoint_file = __cfg__.get("metadata", "checkpoint")
+	checkpoint_file = __cfg__.get("import", "checkpoint")
 	if not os.path.exists (os.path.join(aDir, checkpoint_file)):
 		__log__.Log (gmLog.lErr, "skipping " + aDir + ": semaphore file '" + checkpoint_file + "' not found")
 		return None
 
 	# get patient data from BDT file
-	pat_file = __cfg__.get("metadata", "patient")
+	pat_file = __cfg__.get("import", "pat_file")
+	pat_format = __cfg__.get("import", "pat_format")
 	aPatient = cPatient()
-	if not aPatient.loadFromFile("xdt", os.path.join(aDir, pat_file)):
+	if not aPatient.loadFromFile(pat_format, os.path.join(aDir, pat_file)):
 		__log__.Log(gmLog.lErr, "Skipping \"%s\": problem with reading patient data from xDT file \"%s\"" % (aDir, pat_file))
 		return None
 
@@ -70,7 +71,7 @@ def import_from_dir(aDir):
 	return (1==1)
 #------------------------------------------
 def standalone():
-	REPOSITORIES = string.split(__cfg__.get("source", "repositories"))
+	REPOSITORIES = string.split(__cfg__.get("import", "repositories"))
 	for REPOSITORY in REPOSITORIES:
 		__log__.Log (gmLog.lInfo, "importing from repository " + REPOSITORY)
 		# get the list of document directories in the repository
