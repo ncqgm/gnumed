@@ -13,8 +13,8 @@ It features combo boxes which "remember" any number of previously entered settin
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.45 2004-05-26 20:35:23 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmLoginDialog.py,v 1.46 2004-05-28 09:09:34 shilbert Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 
 import os.path, time, cPickle, zlib,types
@@ -89,13 +89,13 @@ class LoginPanel(wxPanel):
 		self.paramsbox = wxStaticBox( self, -1, paramsbox_caption, style=wxALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
 		self.paramsbox.SetForegroundColour(wxColour(35, 35, 142))
+		# on wxMac there seems to be no faceName option so don't use it
 		self.paramsbox.SetFont(wxFont(
 			pointSize = 12,
 			family = wxSWISS,
 			style = wxNORMAL,
 			weight = wxBOLD,
-			underline = false,
-			faceName = ''
+			underline = false
 		))
 		self.pboxgrid = wxFlexGridSizer( 4, 2, 5, 5 )
 		self.pboxgrid.AddGrowableCol( 1 )
@@ -572,7 +572,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.45  2004-05-26 20:35:23  ncq
+# Revision 1.46  2004-05-28 09:09:34  shilbert
+# - remove faceName option from wxFont on wxMac or else no go
+#
+# Revision 1.45  2004/05/26 20:35:23  ncq
 # - don't inherit from LoginDialog in OptionWindow, it barks on MacOSX
 #
 # Revision 1.44  2004/04/24 12:46:35  ncq
