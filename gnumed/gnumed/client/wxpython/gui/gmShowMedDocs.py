@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
 
-import gmPG
+import gmPG, gmGuiBroker
 import gmTmpPatient, gmMedDoc
 from gmExceptions import ConstructorError
 
@@ -104,7 +104,7 @@ class cDocTree(wxTreeCtrl):
 		return 1
 	#------------------------------------------------------------------------
 	def __populate_tree(self):
-		# FIXME: patient changed at all ?
+		# FIXME: check if patient changed at all ?
 
 		# clean old tree
 		if not self.root is None:
@@ -116,11 +116,12 @@ class cDocTree(wxTreeCtrl):
 		self.SetItemHasChildren(self.root, FALSE)
 
 		# read documents from database
-		self.doc_list = self.pat.getMedDocsList()
+		self.doc_list = self.pat['document list']
 		if self.doc_list is None:
+			name = self.pat['active name']
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot find any documents for this patient.\n"%s"') % self.pat.getActiveName('$first$ $last$' ),
+				_('Cannot find any documents for the patient\n[%s %s].') % (name['first'], name['last']),
 				_('searching patient documents'),
 				wxOK | wxICON_ERROR
 			)
@@ -225,10 +226,14 @@ class cDocTree(wxTreeCtrl):
 
 		# but do everything with objects
 		_log.Log(gmLog.lData, "User selected object %s from document %s" % (node_data['id'], node_data['doc_id']))
-		exp_base = os.path.abspath(os.path.expanduser(self.__dbcfg.get(
+		exp_base = self.__dbcfg.get(
 			machine = gb['workplace_name'],
 			option = "doc export dir",
-		)))
+		)
+		if exp_base is None:
+			exp_base = ''
+		else:
+			exp_base = os.path.abspath(os.path.expanduser(exp_base))
 		if not os.path.exists(exp_base):
 			_log.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
 		else:
@@ -340,8 +345,6 @@ if __name__ == '__main__':
 		def __get_pat_data(self):
 			"""Get data of patient for which to retrieve documents.
 
-			FIXME: Presumably, this should be configurable so that different
-			client applications can provide patient data in their own way.
 			"""
 			# FIXME: error checking
 			pat_file = os.path.abspath(os.path.expanduser(_cfg.get("viewer", "patient file")))
@@ -429,7 +432,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.2  2003-02-09 23:41:09  ncq
+# Revision 1.3  2003-02-11 18:26:16  ncq
+# - fix exp_base buglet in OnActivate
+#
+# Revision 1.2  2003/02/09 23:41:09  ncq
 # - reget doc list on receiving focus thus being able to react to selection of a different patient
 #
 # Revision 1.1  2003/02/09 20:07:31  ncq
