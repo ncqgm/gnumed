@@ -30,19 +30,19 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 import sys, string, os.path, fileinput, os, time, getpass
 
 # location of our modules, try hard to find modules
-if os.path.exists (os.path.join ('.', 'modules')): 
+if os.path.exists (os.path.join ('.', 'modules')):
 	sys.path.append(os.path.join('.', 'modules'))
 if os.path.exists ('/usr/share/gnumed/client/python-common'):
 	sys.path.append ('/usr/share/gnumed/client/python-common')
 if os.path.exists ('../../client/python-common'):
-	sys.path.append (os.path.abspath ('../../client/python/common'))
+	sys.path.append (os.path.abspath ('../../client/python-common'))
 if os.path.exists (os.path.expandvars ('$GNUMED_DIR/client/python-common')):
 	sys.path.append (os.path.expandvars ('$GNUMED_DIR/client/python-common'))
 
@@ -53,9 +53,6 @@ except:
 Please make sure there's a link 'modules' pointing
 to client/python-common/ so that we can load GnuMed
 Python modules.
-
-Also, if you want to use the standard config files
-you need a link 'sql' pointing to server/sql/
 
 Good luck !
 """
@@ -348,6 +345,11 @@ class db_server:
 			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
 			return None
 
+#		# insert some users if so desired
+#		if not _import_schema(aSection = self.section, aSrv_name = self.name, aDB_name = self.template_db, aUser = self.superuser.name):
+#			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
+#			return None
+
 		return 1
 	#--------------------------------------------------------------
 	def __user_exists(self, aCursor, aUser):
@@ -536,6 +538,11 @@ class database:
 			_log.Log(gmLog.lErr, "Cannot connect to database.")
 			return None
 
+#		# import schema
+#		if not _import_schema(aSection = self.section, aSrv_name = self.server.name, aDB_name = self.name, aUser = self.owner.name):
+#			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
+#			return None
+
 		# import schema
 		if not _import_schema(self.section, self.conn):
 			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
@@ -696,6 +703,7 @@ class database:
 		# create auditing schema
 		curs = self.conn.cursor()
 		audit_schema = gmAuditSchemaGenerator.create_audit_schema(curs)
+		curs.close()
 		if audit_schema is None:
 			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GnuMed database [%s]' % self.name)
 			return None
@@ -704,12 +712,14 @@ class database:
 		for line in audit_schema:
 			file.write("%s;\n" % line)
 		file.close()
-		curs.close ()
+
 		# import auditing schema
+#		if not _import_schema_file(anSQL_file = '/tmp/audit-trail-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
 		psql = Psql.Psql (self.conn)
 		if psql.run ('/tmp/audit-trail-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import audit schema definition for database [%s]" % (self.name))
 			return None
+
 		try:
 			os.remove('/tmp/audit-trail-schema.sql')
 		except StandardError:
@@ -737,17 +747,20 @@ class database:
 		# create scoring schema
 		curs = self.conn.cursor()
 		scoring_schema = score_gen.create_scoring_schema(curs)
+		curs.close()
 		if scoring_schema is None:
 			_log.Log(gmLog.lErr, 'cannot generate scoring schema for GnuMed database [%s]' % self.name)
 			return None
+
 		# write schema to file
 		file = open ('/tmp/scoring-schema.sql', 'wb')
 		for line in scoring_schema:
 			file.write("%s;\n" % line)
 		file.close()
-		curs.close ()
-		psql = Psql.Psql (self.conn)
+
 		# import scoring schema
+#		if not _import_schema_file(anSQL_file = '/tmp/scoring-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
+		psql = Psql.Psql (self.conn)
 		if psql.run('/tmp/scoring-schema.sql') != 0:
 			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
 			return None
@@ -799,6 +812,7 @@ class gmService:
 			return None
 
 		# import schema
+#		if not _import_schema(aSection = self.section, aSrv_name = self.db.server.name, aDB_name = self.db.name, aUser = _dbowner.name):
 		if not _import_schema(self.section, self.db.conn):
 			_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (self.alias, database_alias))
 			return None
@@ -900,7 +914,7 @@ class gmService:
 
 		_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % existing_version)
 		return 1
-        #-------------------------------------------------------------------------------------
+	#--------------------------------------------------------------
 	def register(self):
 		# FIXME - register service
 		# a) in its own database - TODO
@@ -1079,32 +1093,98 @@ def ask_for_confirmation():
 		else:
 			return None
 	return 1
-	#--------------------------------------------------------------
+#--------------------------------------------------------------
 def _import_schema (aSection, aConn):
 	# load schema
 	schema_files = _cfg.get(aSection, "schema")
 	if schema_files is None:
 		_log.Log(gmLog.lErr, "Need to know schema definition to install it.")
 		return None
+
+	schema_base_dir = _cfg.get(aSection, "schema base directory")
+	if schema_base_dir is None:
+		_log.Log(gmLog.lWarn, "no schema files base directory specified")
+		# look for base dirs for schema files
+		if os.path.exists (os.path.join ('.', 'sql')):
+			schema_base_dir = '.'
+		if os.path.exists ('../sql'):
+			schema_base_dir = '..'
+		if os.path.exists ('/usr/share/gnumed/server/sql'):
+			schema_base_dir = '/usr/share/gnumed/server'
+		if os.path.exists (os.path.expandvars('$GNUMED_DIR/server/sql')):
+			schema_base_dir = os.path.expandvars('$GNUMED_DIR/server')
+
 	# and import them
-	# look for base dirs for schema files
-	if os.path.exists (os.path.join ('.', 'sql')):
-		basedir = '.'
-	if os.path.exists ('../sql'):
-	       	basedir = '..'
-	if os.path.exists ('/usr/share/gnumed/server/sql'):
-		basedir = '/usr/share/gnumed/server'
-	if os.path.exists (os.path.expandvars ('$GNUMED_DIR/server/sql')):
-		basedir = os.path.expandvars ('$GNUMED_DIR/server') 
 	psql = Psql.Psql (aConn)
 	for file in schema_files:
-		if psql.run (os.path.join (basedir, file)) == 0:
-			_log.Log (gmLog.lInfo, 'successfully imported [%s]' % file)
+		the_file = os.path.join(schema_base_dir, file)
+#		if _import_schema_file(anSQL_file = the_file, aSrv = aSrv_name, aDB = aDB_name, aUser = aUser):
+		if psql.run(the_file) == 0:
+			_log.Log (gmLog.lInfo, 'successfully imported SQL schema file [%s]' % the_file)
 		else:
-			_log.Log (gmLog.lErr, 'failed to load [%s]' % file)
+			_log.Log (gmLog.lErr, 'failed to import SQL schema file [%s]' % the_file)
 			return None
 	return 1
-	#---------------------------------------------------------------
+#--------------------------------------------------------------
+#def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None):
+	# sanity checks
+#	if anSQL_file is None:
+#		_log.Log(gmLog.lErr, "Cannot import schema without schema file.")
+#		return None
+#	SQL_file = os.path.abspath(anSQL_file)
+#	if not os.path.exists(SQL_file):
+#		_log.Log(gmLog.lErr, "Schema file [%s] does not exist." % SQL_file)
+#		return None
+
+#	old_path = os.getcwd()
+#	path = os.path.dirname(SQL_file)
+#	os.chdir(path)
+
+	# (at, 11.6.2003)
+	# The following psql call has to be done as user aUser (= gm-dbowner)
+	# Because we can not ask for a password while non-interactive install
+	# authenitification method in /etc/postgresql/pg_hba.conf has to be set
+	# to TRUST.  This can be done via the following line:
+	#    local   gnumed-test  @gmTemplate1User.list                  trust
+	# This requires a file /var/lib/postgres/data/gmTemplate1User.list containing
+	# at least gm-dbowner
+	# From `man psql`: If you omit the host name, psql will connect
+	#                  via a Unix domain socket to a server on the
+	#                  local host.
+	# This seems to be necessary under Debian GNU/Linux because
+	# otherwise the authentification fails
+	# We have to leave out the -h option here ...
+#	if aSrv in ['localhost', '']:
+#		srv_arg = ''
+#	else:
+#		srv_arg = '-h "%s"' % aSrv
+
+#	cmd = 'LC_CTYPE=UTF-8 psql -q %s -d "%s" -U "%s" -f "%s"' % (srv_arg, aDB, aUser, SQL_file)
+
+#	_log.Log(gmLog.lInfo, "running [%s]" % cmd)
+#	result = os.system(cmd)
+#	_log.Log(gmLog.lInfo, "raw result: %s" % result)
+
+#	os.chdir(old_path)
+
+	# this seems to make trouble under pure Win2k (not CygWin, that is)
+#	if os.WIFEXITED(result):
+#		exitcode = os.WEXITSTATUS(result)
+#		_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
+#		if exitcode == 0:
+#			_log.Log(gmLog.lInfo, "success")
+#			return 1
+
+#		if exitcode == 1:
+#			_log.Log(gmLog.lErr, "failed: psql internal error")
+#		elif exitcode == 2:
+#			_log.Log(gmLog.lErr, "failed: database connection error")
+#		elif exitcode == 3:
+#			_log.Log(gmLog.lErr, "failed: psql script error")
+#	else:
+#		_log.Log(gmLog.lWarn, "aborted by signal")
+
+#	return None
 #------------------------------------------------------------------
 def exit_with_msg(aMsg = None):
 	if aMsg is not None:
@@ -1181,7 +1261,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.34  2003-11-02 10:11:17  ihaywood
+# Revision 1.35  2003-11-02 11:28:43  ncq
+# - merge with Ian's changes:
+#   - support "schema base directory" in config file
+#   - re-add commented out old _import_schema_file code, we can drop it later
+#
+# Revision 1.34  2003/11/02 10:11:17  ihaywood
 # Psql in Python
 #
 # Revision 1.33  2003/10/26 18:03:28  ncq
