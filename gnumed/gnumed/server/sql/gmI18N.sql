@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.14 2003-06-10 09:58:11 ncq Exp $
+-- $Id: gmI18N.sql,v 1.15 2003-12-29 15:40:42 uid66147 Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -16,8 +16,8 @@
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
--- =============================================
 
+-- =============================================
 create table i18n_curr_lang (
 	id serial primary key,
 	owner name default CURRENT_USER unique not null,
@@ -30,7 +30,7 @@ comment on table i18n_curr_lang is
 -- =============================================
 create table i18n_keys (
 	id serial primary key,
-	orig text unique
+	orig text unique not null
 );
 
 comment on table i18n_keys is
@@ -41,9 +41,9 @@ comment on table i18n_keys is
 -- =============================================
 create table i18n_translations (
 	id serial primary key,
-	lang varchar(10),
-	orig text,
-	trans text,
+	lang varchar(10) not null,
+	orig text not null,
+	trans text not null,
 	unique (lang, orig)
 );
 create index idx_orig on i18n_translations(orig);
@@ -150,11 +150,28 @@ comment on function set_curr_lang(text, name) is
 	 the second argument if translations are available';
 
 -- =============================================
+\unset ON_ERROR_STOP
+drop view v_missing_translations;
+\set ON_ERROR_STOP 1
+
+create view v_missing_translations as
+select
+	icl.lang,
+	ik.orig
+from
+	(select distinct on (lang) lang from i18n_curr_lang) as icl,
+	i18n_keys ik
+where
+	ik.orig not in (select orig from i18n_translations)
+;
+
+-- =============================================
 -- there's most likely no harm in granting select to all
 GRANT SELECT on
-	i18n_curr_lang,
-	i18n_keys,
-	i18n_translations
+	i18n_curr_lang
+	, i18n_keys
+	, i18n_translations
+	, v_missing_translations
 TO group "gm-public";
 
 -- users need to be able to change this
@@ -166,11 +183,15 @@ TO group "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.14  2003-06-10 09:58:11  ncq
+-- Revision 1.15  2003-12-29 15:40:42  uid66147
+-- - added not null
+-- - added v_missing_translations
+--
+-- Revision 1.14  2003/06/10 09:58:11  ncq
 -- - i18n() inserts strings into i18n_keys, not _(), fix comment to that effect
 --
 -- Revision 1.13  2003/05/12 12:43:39  ncq
