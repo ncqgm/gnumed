@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.18 2003-06-03 13:49:06 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.19 2003-06-22 16:23:35 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -148,6 +148,46 @@ where
 	at.id=a.id_type
 ;
 
+-- ==========================================================
+-- current encounter stuff
+\unset ON_ERROR_STOP
+drop trigger at_curr_encounter_ins on curr_encounter;
+drop function f_curr_encounter_force_ins();
+
+drop trigger at_curr_encounter_upd on curr_encounter;
+drop function f_curr_encounter_force_upd();
+\set ON_ERROR_STOP 1
+
+create function f_curr_encounter_force_ins() returns opaque as '
+begin
+	NEW.started := CURRENT_TIMESTAMP;
+	NEW.last_affirmed := CURRENT_TIMESTAMP;
+	return NEW;
+end;
+' language 'plpgsql';
+
+create trigger at_curr_encounter_ins
+	before insert on curr_encounter
+	for each row execute procedure f_curr_encounter_force_ins()
+;
+-- should really be "for each statement" but that isn't supported yet by PostgreSQL
+
+create function f_curr_encounter_force_upd() returns opaque as '
+begin
+	NEW.id_patient := OLD.id_patient;
+	NEW.id_encounter := OLD.id_encounter;
+	NEW.started := OLD.started;
+	NEW.last_affirmed := CURRENT_TIMESTAMP;
+	return NEW;
+end;
+' language 'plpgsql';
+
+create trigger at_curr_encounter_upd
+	before update on curr_encounter
+	for each row execute procedure f_curr_encounter_force_upd()
+;
+-- should really be "for each statement" but that isn't supported yet by PostgreSQL
+
 -- =============================================
 GRANT SELECT ON
 	"v_i18n_enum_encounter_type",
@@ -171,11 +211,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.18  2003-06-03 13:49:06  ncq
+-- Revision 1.19  2003-06-22 16:23:35  ncq
+-- - curr_encounter tracking triggers + grants
+--
+-- Revision 1.18  2003/06/03 13:49:06  ncq
 -- - reorder v_patient_episodes/*_items for clarity
 --
 -- Revision 1.17  2003/06/01 11:38:12  ncq
