@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.5 2005-01-28 18:05:56 cfmoro Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmEMRStructWidgets.py,v 1.6 2005-01-29 18:01:20 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -61,20 +61,18 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 		@param pk_health_issue Id of the health issue to select the episode for
 		@type pk_health_issue integer
 		"""
-		# build ui	
+		# build ui
 		wx.wxDialog.__init__(self, parent, id, title, pos, size, style)
 		self.__episode_picker = cEpisodePicker(self, -1, action_txt, pk_health_issue)
 		self.Fit()
 		# event handling
 		wx.EVT_CLOSE(self, self.__on_close)
-				
 	#--------------------------------------------------------
 	def get_selected_episode(self):
 		"""
 		Retrieve the selected episode
 		"""
 		return self.__episode_picker.get_selected_episode()
-		
 	#--------------------------------------------------------
 	def __on_close(self, evt):
 		"""
@@ -82,7 +80,6 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 		window system's closer (usually X)
 		"""
 		self.EndModal(dialog_CANCELLED)
-		
 #============================================================
 class cEpisodePicker(wx.wxPanel):
 	"""
@@ -292,12 +289,17 @@ class cEpisodePicker(wx.wxPanel):
 			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s:%s]' % (description, soap_cat))
 			return False
 		
-		print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(),self.__CHC_soap_cat.GetStringSelection())		
-		# FIXME self.__emr.add_episode(episode_name= , pk_health_issue=self.__pk_health_issue, soap_cat= self.__CHC_soap_cat.GetStringSelection())
-		self.__selected_episode = 'FIXME: create new episode'
+		print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(), self.__CHC_soap_cat.GetStringSelection())		
+		# FIXME 
+		self.__selected_episode = self.__emr.add_episode (
+			episode_name = self.__PRW_description.GetValue(),
+			pk_health_issue = self.__pk_health_issue,
+			soap_cat = self.__CHC_soap_cat.GetStringSelection()
+		)
+#		self.__selected_episode = 'FIXME: create new episode'
+		print self.__selected_episode
 		self.GetParent().EndModal(dialog_OK)
 		event.Skip()
-		
 	#--------------------------------------------------------
 	# Public API
 	#--------------------------------------------------------	
@@ -627,6 +629,9 @@ def askForPatient():
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
+
+	_log.SetAllLogLevels(gmLog.lData)
+	_log.Log (gmLog.lInfo, "starting EMR struct editor...")
 	
 	ID_EPISODE_SELECTOR = wx.wxNewId()
 	ID_EPISODE_EDITOR = wx.wxNewId()
@@ -682,9 +687,13 @@ if __name__ == '__main__':
 				Test episode selector dialog
 				"""
 				pk_issue = self.__emr.get_health_issues()[0]['id']
-				episode_selector = cEpisodeSelectorDlg(None, -1,
-				'Episode selector test', _('Add episode and start progress note'),
-				pk_health_issue = pk_issue)
+				episode_selector = cEpisodeSelectorDlg(
+					None,
+					-1,
+					'Episode selector test',
+					_('Add episode and start progress note'),
+					pk_health_issue = pk_issue
+				)
 				retval = episode_selector.ShowModal() # Shows it
 				
 				if retval == dialog_OK:
@@ -726,9 +735,6 @@ if __name__ == '__main__':
 	import sys
 	from Gnumed.pycommon import gmCfg, gmPG
 
-	_log.SetAllLogLevels(gmLog.lData)
-	_log.Log (gmLog.lInfo, "starting EMR struct editor...")
-
 	_cfg = gmCfg.gmDefCfgFile	 
 	if _cfg is None:
 		_log.Log(gmLog.lErr, "Cannot run without config file.")
@@ -768,7 +774,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.5  2005-01-28 18:05:56  cfmoro
+# Revision 1.6  2005-01-29 18:01:20  ncq
+# - some cleanup
+# - actually create new episodes
+#
+# Revision 1.5  2005/01/28 18:05:56  cfmoro
 # Implemented episode picker and episode selector dialogs and widgets
 #
 # Revision 1.4  2005/01/24 16:57:38  ncq
