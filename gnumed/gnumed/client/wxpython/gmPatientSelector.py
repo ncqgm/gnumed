@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.22 2003-11-07 20:44:11 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmPatientSelector.py,v 1.23 2003-11-09 17:29:22 shilbert Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -734,7 +734,7 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 	#--------------------------------------------------------
 	def _display_name(self):
 		if self.curr_pat.is_connected():
-			name = self.curr_pat['demographics'].getActiveName()
+			name = self.curr_pat['demographic record'].getActiveName()
 			self.SetValue('%s, %s' % (name['last'], name['first']))
 		else:
 			self.SetValue(_('no active patient'))
@@ -993,7 +993,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.22  2003-11-07 20:44:11  ncq
+# Revision 1.23  2003-11-09 17:29:22  shilbert
+# - ['demographics'] -> ['demographic record']
+#
+# Revision 1.22  2003/11/07 20:44:11  ncq
 # - some cleanup
 # - listen to patient_selected by other widgets
 #
