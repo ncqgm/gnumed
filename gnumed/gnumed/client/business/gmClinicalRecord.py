@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.77 2004-03-20 19:41:59 ncq Exp $
-__version__ = "$Revision: 1.77 $"
+# $Id: gmClinicalRecord.py,v 1.78 2004-03-23 02:29:24 ncq Exp $
+__version__ = "$Revision: 1.78 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -22,14 +22,15 @@ if __name__ == "__main__":
 
 # start logging
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI
-_log = gmLog.gmDefLog
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lData, __version__)
-
-_whoami = gmWhoAmI.cWhoAmI()
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+from Gnumed.pycommon.gmPyCompat import *
 
 import mx.DateTime as mxDT
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lData, __version__)
+_whoami = gmWhoAmI.cWhoAmI()
 
 # in AU the soft timeout better be 4 hours as of 2004
 _encounter_soft_ttl = mxDT.TimeDelta(hours=4)
@@ -1284,6 +1285,61 @@ order by amount_overdue
 		self.id_encounter = anID
 		return 1
 	#------------------------------------------------------------------
+	# lab data API
+	#------------------------------------------------------------------
+	# FIXME: date range, episode, encounter, issue, test filter
+	def get_lab_data(self):
+		try:
+			return self.__db_cache['lab']
+		except KeyError:
+			pass
+		self.__db_cache['lab'] = {}
+		cmd = """
+			select
+				vr4lr.pk_result,
+				vr4lr.req_when,
+				vr4lr.lab_rxd_when,
+				vr4lr.val_when,
+				vr4lr.reported_when,
+				vr4lr.code,
+				vr4lr.name,
+				vr4lr.val_num,
+				vr4lr.val_alpha,
+				vr4lr.val_unit,
+				vr4lr.progress_note_result,
+				vr4lr.progress_note_request,
+				vr4lr.val_normal_range,
+				vr4lr.val_normal_min,
+				vr4lr.val_normal_max,
+				vr4lr.abnormal,
+				vr4lr.relevant,
+				vr4lr.note_provider,
+				vr4lr.request_status,
+				vr4lr.ref_group,
+				vr4lr.request_id,
+				vr4lr.lab_request_id,
+				vr4lr.material,
+				vr4lr.material_detail,
+				vr4lr.reviewed,
+				vr4lr.pk_reviewer,
+				vr4lr.pk_test_type,
+				vr4lr.pk_request,
+				vr4lr.pk_test_org,
+				vr4lr.pk_requestor
+			from
+				v_results4lab_req vr4lr
+			where
+				vr4lr.pk_patient=%s
+			order by
+				vr4lr.req_when
+		"""
+		rows, idx = gmPG.run_ro_query('historica', cmd, True, self.id_patient)
+		if rows is None:
+			return None
+		self.__db_cache['lab']['data'] = rows
+		self.__db_cache['lab']['idx'] = idx
+		return self.__db_cache['lab']
+	#------------------------------------------------------------------
 	# unchecked stuff
 	#------------------------------------------------------------------
 	# trial: allergy panel
@@ -1393,11 +1449,13 @@ def set_func_ask_user(a_func = None):
 if __name__ == "__main__":
 	_ = lambda x:x
 	gmPG.set_default_client_encoding('latin1')
-	record = cClinicalRecord(aPKey = 11)
-	vaccs = record.get_due_vaccinations()
-	print vaccs['due']
-	print vaccs['overdue']
-	print vaccs['boosters']
+	record = cClinicalRecord(aPKey = 12)
+	lab = record.get_lab_data()
+	for lab_result in lab['data']:
+		print lab_result
+#	vaccs = record.get_due_vaccs()
+#	print vaccs['overdue']
+#	print vaccs['boosters']
 #	dump = record.get_text_dump()
 #	if dump is not None:
 #		keys = dump.keys()
@@ -1423,7 +1481,12 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.77  2004-03-20 19:41:59  ncq
+# Revision 1.78  2004-03-23 02:29:24  ncq
+# - cleanup import/add pyCompat
+# - get_lab_data()
+# - unit test
+#
+# Revision 1.77  2004/03/20 19:41:59  ncq
 # - gmClin* cClin*
 #
 # Revision 1.76  2004/03/19 11:55:38  ncq
