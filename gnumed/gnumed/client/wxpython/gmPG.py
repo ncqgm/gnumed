@@ -325,6 +325,16 @@ def getBackendName():
 	return __backend
 
 
+def prompted_input(prompt, default=None):
+	try:
+		res = raw_input(prompt)
+	except:
+		return default
+	if res == '':
+		return default
+	return res
+
+
 
 def inputTMLoginParams():
 	"""text mode input request of database login parameters"""
@@ -334,16 +344,10 @@ def inputTMLoginParams():
 		database = raw_input("database [gnumed] : ")
 		if database == '':
 		    database = 'gnumed'
-		user = raw_input("user name : ")
-		password = raw_input("password : ")
-		host = raw_input("host [localhost] : ")
-		if host == '':
-		    host = 'localhost'
-		port = raw_input("port [5432] : ")
-		if port == '':
-		    port = 5432
-		else:
-			port = int(port)
+		user = prompted_input("user name : ", '')
+		password = prompted_input("password : ",'')
+		host = prompted_input("host [localhost] : ", 'localhost')
+		port = prompted_input("port [5432] : ", 5432)
 		login.SetInfo(user, password, dbname=database, host=host, port=port)
 	except:
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
