@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.3 2004-04-24 12:57:30 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPatientExporter.py,v 1.4 2004-04-24 13:35:33 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -31,6 +31,35 @@ class gmEmrExport:
 	def __init__(self):
 		pass
 	#--------------------------------------------------------
+	def get_vacc_table(self,emr):
+		vaccinations = emr.get_vaccinations()
+		vacc_indications = emr.get_vaccinated_indications()[1]
+		# Order indications by name
+		vacc_indications.sort()
+		# Vaccination items are fetched ordered by date
+		# Get list of vaccination dates
+		vacc_dates = []
+		for a_vacc in vaccinations:
+			a_date = a_vacc['date'].Format('%Y-%m-%d')
+			if not a_date in vacc_dates:
+				vacc_dates.append(a_date)
+		# Dictionary date_position_index -> vaccination_vo
+		txt= '\t|'
+		for a_date in vacc_dates:
+			txt+= str(a_date) + "\t|"
+		txt += '\n'
+		for an_indication in vacc_indications:
+			vaccs4ind = emr.get_vaccinations(indication_list = [an_indication])
+			print "indications: " + str(an_indication) + "\nvaccs: " + str(vaccs4ind)
+			row_column = 0
+			txt+= an_indication[1] + "\t|"
+			for a_shot in vaccs4ind:
+				shot_column = vacc_dates.index(a_shot['date'])
+				txt += '\t|'*(shot_column - row_column) + str(a_shot['batch_no']) + '\t\t|'
+				row_column = shot_column
+			txt += '\n'
+		return txt
+	#--------------------------------------------------------	
 	def dump_clinical_record(self, patient, since_val = None, until_val = None, encounters_val = None, episodes_val = None, issues_val = None):
 		emr = patient.get_clinical_record()
 		if emr is None:
@@ -48,23 +77,22 @@ class gmEmrExport:
 		for allergy in 	emr.get_allergies():
 			txt += "   -" + allergy['descriptor'] + "\n"
 		txt += "\n"
+
 		txt += "2)Vaccination status:\n"
 		txt += "   .Vaccination indications:\n"
-		vaccinations, idx = emr.get_vaccinations()
-		for a_vacc in vaccinations:
-			txt += "      "
-			txt += str(a_vacc[idx['date']]) + ", "
-			txt += a_vacc[idx['indication']] + ", "
-			txt += a_vacc[idx['vaccine']] + "\n"
-			due_vaccinations = emr.get_due_vaccinations()
-			txt += "   .Due vaccinations:\n"
-			for a_vacc in due_vaccinations['due']:
-				if a_vacc is not None:
-					txt += str(a_vacc) + "\n"
-			txt += "   .Overdue vaccinations:\n"
-			for a_vacc in due_vaccinations['overdue']:
-				if a_vacc is not None:
-					txt += str(a_vacc) + "\n"
+		txt += self.get_vacc_table(emr)
+
+		due_vaccinations = emr.get_due_vaccinations()
+		txt += "   .Due vaccinations:\n"
+		for a_vacc in due_vaccinations['due']:
+			if a_vacc is not None:
+				txt += str(a_vacc) + "\n"
+
+		txt += "   .Overdue vaccinations:\n"
+		for a_vacc in due_vaccinations['overdue']:
+			if a_vacc is not None:
+				#txt += str(a_vacc) + "\n"
+				pass
 		print(txt)
 	#--------------------------------------------------------
 	def dump_demographic_record(self, all = False):
@@ -133,7 +161,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.3  2004-04-24 12:57:30  ncq
+# Revision 1.4  2004-04-24 13:35:33  ncq
+# - vacc table update
+#
+# Revision 1.3  2004/04/24 12:57:30  ncq
 # - stop db listeners on exit
 #
 # Revision 1.2  2004/04/20 13:00:22  ncq
