@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.71 2004-02-14 00:37:10 ihaywood Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmClinicalRecord.py,v 1.72 2004-02-17 04:04:34 ihaywood Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -115,7 +115,7 @@ class gmClinicalRecord:
 		if result is None:
 			_log.Log(gmLog.lErr, 'unable to check for patient [%s] existence in clinical database' % self.id_patient)
 			return None
-		if not result:
+		if not result[0][0]:
 			_log.Log(gmLog.lInfo, "no patient [%s] in clinical database" % self.id_patient)
 			cmd1 = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
 			cmd2 = "select currval('xlnk_identity_pk_seq')"
@@ -1331,7 +1331,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.71  2004-02-14 00:37:10  ihaywood
+# Revision 1.72  2004-02-17 04:04:34  ihaywood
+# fixed patient creation refeential integrity error
+#
+# Revision 1.71  2004/02/14 00:37:10  ihaywood
 # Bugfixes
 # 	- weeks = days / 7
 # 	- create_new_patient to maintain xlnk_identity in historica

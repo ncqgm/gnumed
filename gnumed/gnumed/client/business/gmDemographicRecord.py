@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.16 2004-02-14 00:37:10 ihaywood Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmDemographicRecord.py,v 1.17 2004-02-17 04:04:34 ihaywood Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -196,7 +196,7 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 #		gmPG.run_commit ('personalia', [(cmd, [title, name_id ])])
 #		cmd = "update names set active= true where id = %s"
 			#reactivate the row after the data is set
-		return gmPG.run_commit ('personalia', [(cmd, [self.ID])])
+		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
 	#--------------------------------------------------------
 	def getID(self):
 		return self.ID
@@ -313,6 +313,43 @@ where
 			'street': r[idx['street']],
 			'urb': r[idx['city']],
 			'postcode': r[idx['postcode']]
+		} for r in rows]
+	#---------------------------------------------------------
+	def getAllAddresses(self):
+		"""
+		Returns all addresses of all types
+		"""
+		cmd = """
+select
+	vba.addr_id,
+	vba.number,
+	vba.street,
+	vba.city,
+	vba.postcode,
+	at.name
+from
+	v_basic_address vba,
+	lnk_person2address lp2a,
+	address_type at
+where
+	lp2a.id_address = vba.addr_id
+	        and
+	lp2a.id_type = at.id
+		and
+	lp2a.id_identity = %s
+"""
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+		if rows is None:
+			return None
+		if len(rows) == 0:
+			return None
+		return [{
+			'ID': r[idx['addr_id']],
+			'number': r[idx['number']],
+			'street': r[idx['street']],
+			'urb': r[idx['city']],
+			'postcode': r[idx['postcode']],
+			'type': r[idx['name']]
 		} for r in rows]
 	#--------------------------------------------------------
 	def unlinkAddress (self, ID):
@@ -594,7 +631,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.16  2004-02-14 00:37:10  ihaywood
+# Revision 1.17  2004-02-17 04:04:34  ihaywood
+# fixed patient creation refeential integrity error
+#
+# Revision 1.16  2004/02/14 00:37:10  ihaywood
 # Bugfixes
 # 	- weeks = days / 7
 # 	- create_new_patient to maintain xlnk_identity in historica
