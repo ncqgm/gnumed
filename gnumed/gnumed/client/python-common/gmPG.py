@@ -26,8 +26,8 @@
 
 """gmConnectionPool - Broker for Postgres distributed backend connections
 """
-__version__ = "$Revision: 1.4 $"
-__author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
+__version__ = "$Revision: 1.5 $"
+__author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys
@@ -171,11 +171,11 @@ class ConnectionPool:
 	def __pgconnect(self, login):
 		"connect to a postgres backend as specified by login object; return a connection object"
 
+		dsn = ""
+
 		if isPGDB:
 			dsn, hostport = login.GetPGDB_DSN()
-			print "api is pgdb"
 		else:
-			print "other api"
 			dsn = login.GetDBAPI_DSN()
 			hostport = "0"
 		try:

@@ -15,8 +15,8 @@
 # @TODO: Almost everything, most prominently translations
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.2 $"
-__author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
+__version__ = "$Revision: 1.3 $"
+__author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 #---------------------------------------------------------------------------
 import gettext, getopt, sys, os.path
 import gmLog
