@@ -23,7 +23,7 @@ public class address {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
 /**
  * <p>
@@ -79,7 +79,7 @@ public class address {
  *@hibernate.id
  *  generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -88,7 +88,7 @@ public class address {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     } // end setId        
 

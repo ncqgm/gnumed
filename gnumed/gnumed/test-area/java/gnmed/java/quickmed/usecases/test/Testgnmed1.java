@@ -8,13 +8,14 @@ package quickmed.usecases.test;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.*;
 import org.gnumed.gmIdentity.identity;
 
 /**
  *
  * @author  sjtan
  */
-public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder {
+public class Testgnmed1 extends javax.swing.JFrame {
     
     /** Creates new form Testgnmed1 */
     public Testgnmed1() {
@@ -22,7 +23,7 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
         new Thread( new Runnable()  {
             public void run() {
                 try {
-                gnmed.test.HibernateInit.initAll();
+                    gnmed.test.HibernateInit.initAll();
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.exit(-3);
@@ -50,6 +51,7 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
         copyMenuItem = new javax.swing.JMenuItem();
         pasteMenuItem = new javax.swing.JMenuItem();
         deleteMenuItem = new javax.swing.JMenuItem();
+        windowMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         contentMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
@@ -116,6 +118,9 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
 
         menuBar.add(editMenu);
 
+        windowMenu.setText("Window");
+        menuBar.add(windowMenu);
+
         helpMenu.setText("Help");
         contentMenuItem.setText("Contents");
         helpMenu.add(contentMenuItem);
@@ -143,11 +148,11 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
     
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
         // Add your handling code here:
-//        if (idFinder == null)
-            idFinder= new FindIdentity((Frame)SwingUtilities.getAncestorOfClass(Frame.class,  this), true);
-      idFinder.setLocationRelativeTo(desktopPane);
-      idFinder.setLocation(desktopPane.getWidth()/3, desktopPane.getHeight()/3);
-            idFinder.show();
+        //        if (idFinder == null)
+        idFinder= new FindIdentity((Frame)SwingUtilities.getAncestorOfClass(Frame.class,  this), true);
+        idFinder.setLocationRelativeTo(desktopPane);
+        idFinder.setLocation(desktopPane.getWidth()/3, desktopPane.getHeight()/3);
+        idFinder.show();
         
         Object[] selected = idFinder.getSelectedValues();
         for (int i = 0; i < selected.length; ++i) {
@@ -155,6 +160,7 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
             frame.setIdentity((identity) selected[i]);
             desktopPane.add(frame);
             frame.setVisible(true);
+            addWindowMenuItem(frame);
         }
         
     }//GEN-LAST:event_openMenuItemActionPerformed
@@ -165,8 +171,29 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
     
     /** Exit the Application */
     private void exitForm(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_exitForm
+        saveInternalFrameEditing();
         System.exit(0);
     }//GEN-LAST:event_exitForm
+    
+    
+    /** 
+     * saves any unsaved edited records by invoking a internalFrameClosing event  on
+     * each internal frame
+     */
+    public void saveInternalFrameEditing() {
+        // bug : don't use desktopPane.getAllFrames() as the ongoing variable.
+        // need this variable reference as each frame closes will change the referemced value of desktopPane.getAllFrames()
+        JInternalFrame frames[] = desktopPane.getAllFrames();
+        for (int i = 0; i <  frames.length; ++i) {
+            try {
+               
+                frames[i].doDefaultCloseAction();
+               
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     
     /**
      * @param args the command line arguments
@@ -175,14 +202,7 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
         new Testgnmed1().show();
     }
     
-    public void addIdentity(org.gnumed.gmIdentity.identity identity) {
-        PatientInnerFrame frame = new PatientInnerFrame();
-    }
-    
-    public org.gnumed.gmIdentity.identity[] getIdentities() {
-        return null;
-    }
-    
+  
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenuItem contentMenuItem;
@@ -200,6 +220,7 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
+    private javax.swing.JMenu windowMenu;
     // End of variables declaration//GEN-END:variables
     /**
      * list of patient frames.
@@ -207,4 +228,58 @@ public class Testgnmed1 extends javax.swing.JFrame  implements IdentitiesHolder 
     java.util.List frameList = new ArrayList();
     
     FindIdentity idFinder;
+    
+    /**
+     * the action of selecting a window from the window menu.
+     */
+    static class WindowShowAction extends AbstractAction {
+        JInternalFrame frame;
+        public WindowShowAction(JInternalFrame frame) {
+            super(frame.getTitle());
+            this.frame = frame;
+        }
+        
+        /** deiconifies and brings the window to front.
+         */
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            try {
+            frame.setIcon(false);
+            } catch (Exception ex)  {
+                ex.printStackTrace();
+            }
+            
+            frame.toFront();
+        }
+        
+    }
+    
+    
+    /**
+     *removes the menuitem associated with the given frame
+     */
+    class MenuItemRemovalOnInnerFrameCloseListener extends InternalFrameAdapter {
+        JMenuItem item;
+        public MenuItemRemovalOnInnerFrameCloseListener(JMenuItem item) {
+            this.item = item;
+        }
+        public void internalFrameClosed(InternalFrameEvent evt) {
+            windowMenu.remove(item);
+        }
+    }
+    
+    
+    /**
+     * adds a menuItem for the new internal frame on the window menu, and a listener for removing the
+     * menu item when the frame closes.
+     */
+    void addWindowMenuItem(JInternalFrame frame) {
+        
+        Action action = new Testgnmed1.WindowShowAction(frame);
+        action.setEnabled(true);
+        frame.addInternalFrameListener( new Testgnmed1.MenuItemRemovalOnInnerFrameCloseListener( windowMenu.add(action)) );
+        
+    }
+    
+    
+    
 }

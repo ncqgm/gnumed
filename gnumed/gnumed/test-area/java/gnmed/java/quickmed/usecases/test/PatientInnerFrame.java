@@ -98,10 +98,29 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
             Iterator j =  getIdentity().getNamess().iterator();
             if ( j.hasNext()) {
                 Names n = (Names) j.next();
-               setTitle( n.getFirstnames() +" "+ n.getLastnames()+ ", " + ResourceBundle.getBundle(TERMS).getString("medical_record"));
+                
+                StringBuffer sb = new StringBuffer();
+                
+                sb.append(n.getFirstnames() ).append(' ').append( n.getLastnames()).
+                append(' ').append(ResourceBundle.getBundle(TERMS).getString("born") ).
+                append(' ').
+                append(java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM)
+                .format(getIdentity().getDob()) ).
+                append(", ").
+                append( ResourceBundle.getBundle(TERMS).getString("medical_record") );
+                
+               setTitle(sb.toString());
             }
         }
     }
+    
+//    
+//    public String getTitle() {
+//        if (getIdentity() != null) {
+//            
+//        }
+//        return ResourceBundle.getBundle(TERMS).getString("medical_record");
+//    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;

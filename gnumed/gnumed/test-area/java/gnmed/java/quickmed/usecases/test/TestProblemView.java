@@ -16,7 +16,8 @@ import org.gnumed.gmClinical.clin_diagnosis;
  *
  *converts between view and domain for clinical problems / clinical diagnosis.
  */
-public class TestProblemView implements ProblemView , LimitedViewable {
+public class TestProblemView implements ProblemView , LimitedViewable, Removable {
+    static java.util.logging.Logger logger =  java.util.logging.Logger.global;
     final static String[] LIMITED_VIEW = new String[] { "date", "significantProblem" };
     
     Object problem = "";
@@ -58,7 +59,7 @@ public class TestProblemView implements ProblemView , LimitedViewable {
     
     public String[] getLimitedView() {
         return LIMITED_VIEW;
-    }    
+    }
     
     /** Getter for property identityRef.
      * @return Value of property identityRef.
@@ -77,6 +78,7 @@ public class TestProblemView implements ProblemView , LimitedViewable {
     }
     
     void updateIdentity() {
+        logger.info("updating with " + getDate() + " and sign prob="+ getSignificantProblem());
         if (!isUpdating() )
             return;
         if (getDiagnosis() == null && !(getSignificantProblem() instanceof String)) {
@@ -85,9 +87,9 @@ public class TestProblemView implements ProblemView , LimitedViewable {
             setDiagnosis(diagnosis);
             return;
         }
-         clin_diagnosis diagnosis = TestProblemManager.instance().updateProblem( (identity)getIdentityRef().getRef(),
-            getDate(), (disease_code) getSignificantProblem() , getDiagnosis());
-         setDiagnosis(diagnosis);
+        clin_diagnosis diagnosis = TestProblemManager.instance().updateProblem( (identity)getIdentityRef().getRef(),
+        getDate(), (disease_code) getSignificantProblem() , getDiagnosis());
+        setDiagnosis(diagnosis);
     }
     
     /** Getter for property updating.
@@ -119,13 +121,28 @@ public class TestProblemView implements ProblemView , LimitedViewable {
      *
      */
     public void setDiagnosis(clin_diagnosis diagnosis) {
+        if ( this.diagnosis != null && this.diagnosis.getText().equals(diagnosis.getText()))
+            return;
         this.diagnosis = diagnosis;
         try {
             setDate((Date) DateFormat.getDateInstance(DateFormat.SHORT).parse(diagnosis.getApprox_start()));
         } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                setDate((Date) new java.text.SimpleDateFormat("yyyy").parse(diagnosis.getApprox_start()));
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
         }
         setSignificantProblem(diagnosis.getCode_ref().getDisease_code());
+      
+    }
+    
+    public void remove() {
+        try {
+            TestProblemManager.instance().removeDiagnosis( (identity)getIdentityRef().getRef(), getDiagnosis());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
 }

@@ -18,10 +18,11 @@ import org.gnumed.gmIdentity.*;
  * @author  sjtan
  */
 public class OtherSummaryPanel extends javax.swing.JPanel {
-    public static final int DATE_WIDTH=70;
+    public static final int DATE_WIDTH=60;
     public static final int PREF_PROBLEM_WIDTH=300;
     public static final int NO_WIDTH=30;
-    public static final int MAX_DIFF=100;
+    
+    public static final int MAX_DIFF=1000;
     public static final int DRUG_WIDTH = 200;
     public static final int DIRECTIONS_WIDTH = 200;
     
@@ -52,7 +53,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         drugModel = model;
         
         tableWithPopup1.setModel(model);
-        model.loadDefaultEditors(tableWithPopup1.getTable().getColumnModel());
+        model.loadDefaultEditors(getDrugColumnModel());
         
         //DefaultRenderer DOESN'T SEEM TO WORK THE WAY I THINK IT SHOOULD
         tableWithPopup1.getTable().setDefaultRenderer(java.util.Date.class, new ShortDateCellRenderer());
@@ -72,7 +73,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         model.setFactory(factory);
         model.newObject();
         tableWithPopup2.setModel(model);
-        model.loadDefaultEditors(tableWithPopup2.getTable().getColumnModel());
+        model.loadDefaultEditors(getProblemColumnModel());
         SelectionDialogListObjectTableModelLinker l2 = new SelectionDialogListObjectTableModelLinker();
         l2.setTable( tableWithPopup2.getTable());
         l2.setDialog( new ProblemDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class,
@@ -80,28 +81,40 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         l2.setDialogColumn("significantProblem");
         problemModel = model;
     }
-    //    javax.swing.table.TableColumn getDrugTableColumn( String name) {
-    //        ListObjectTableModel model = (ListObjectTableModel) tableWithPopup1.getModel();
-    //        return tableWithPopup1.getTable().getColumnModel().getColumn(model.getColumnByName(name));
-    //    }
-    //
-    protected void resizeProblemColumns() {
-        tableWithPopup2.getTable().getColumnModel().getColumn(0).setPreferredWidth(NO_WIDTH);
-        tableWithPopup2.getTable().getColumnModel().getColumn(1).setPreferredWidth(PREF_PROBLEM_WIDTH);
-        tableWithPopup2.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH);
-        tableWithPopup2.getTable().getColumnModel().getColumn(0).setMinWidth(DATE_WIDTH /4);
-        tableWithPopup2.getTable().getColumnModel().getColumn(1).setMaxWidth(PREF_PROBLEM_WIDTH +MAX_DIFF/3);
-        
+    
+    
+    protected TableColumnModel getProblemColumnModel() {
+        return tableWithPopup2.getTable().getColumnModel();
     }
+    
+    protected TableColumnModel getDrugColumnModel() {
+        return     tableWithPopup1.getTable().getColumnModel();
+    }
+    
+    protected void resizeProblemColumns() {
+        getProblemColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
+        getProblemColumnModel().getColumn(1).setPreferredWidth(PREF_PROBLEM_WIDTH);
+        getProblemColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH);
+        getProblemColumnModel().getColumn(0).setMinWidth(DATE_WIDTH /4);
+        getProblemColumnModel().getColumn(1).setMaxWidth(PREF_PROBLEM_WIDTH +MAX_DIFF/3);
+    }
+    
+    
+    
     protected void resizeDrugColumns() {
-        tableWithPopup1.getTable().getColumnModel().getColumn(0).setPreferredWidth(NO_WIDTH);
-        tableWithPopup1.getTable().getColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH);
         
-        tableWithPopup1.getTable().getColumnModel().getColumn(1).setPreferredWidth(DRUG_WIDTH);
-        tableWithPopup1.getTable().getColumnModel().getColumn(1).setMaxWidth(DRUG_WIDTH + MAX_DIFF);
+        for (int i = 0; i < tableWithPopup1.getTable().getColumnCount(); ++i) {
+            getDrugColumnModel().getColumn(i).setPreferredWidth(NO_WIDTH);
+            getDrugColumnModel().getColumn(i).setMaxWidth(NO_WIDTH * 2);
+        }
+        getDrugColumnModel().getColumn(0).setPreferredWidth(DATE_WIDTH);
+        getDrugColumnModel().getColumn(0).setMaxWidth(DATE_WIDTH);
         
-        tableWithPopup1.getTable().getColumnModel().getColumn(2).setPreferredWidth(DIRECTIONS_WIDTH );
-        tableWithPopup1.getTable().getColumnModel().getColumn(2).setMaxWidth(DIRECTIONS_WIDTH + MAX_DIFF);
+        getDrugColumnModel().getColumn(1).setPreferredWidth(DRUG_WIDTH);
+        getDrugColumnModel().getColumn(1).setMaxWidth(DRUG_WIDTH + MAX_DIFF);
+        
+        getDrugColumnModel().getColumn(2).setPreferredWidth(DIRECTIONS_WIDTH );
+        getDrugColumnModel().getColumn(2).setMaxWidth(DIRECTIONS_WIDTH + MAX_DIFF);
         
         
         

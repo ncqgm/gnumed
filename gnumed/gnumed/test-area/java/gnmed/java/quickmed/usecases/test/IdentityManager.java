@@ -34,13 +34,13 @@ public class IdentityManager {
      IdentityManager() {
     }
     
-    public void save(identity identity) throws Exception  {
+    public void save(identity id ) throws Exception  {
       
            Session sess =  gnmed.test.HibernateInit.openSession();
-           if (identity.getId() == null)
-             sess.save(identity);
+           if (id .getId() == null)
+             sess.save(id );
            else
-               sess.update(identity);
+               sess.update(id );
            sess.flush();
            sess.connection().commit();
            sess.close();

@@ -43,12 +43,12 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     
     
-    static Logger logger;
-    static ResourceBundle bundle = ResourceBundle.getBundle("SummaryTerms");
+    final static Logger logger;
+    final static ResourceBundle bundle = ResourceBundle.getBundle("SummaryTerms");
     
     
-    private static Method[] socialIdSetters = null;
-    private static Method[] addrTypeSetter =null;
+    private  static Method[] socialIdSetters = null;
+    private  static Method[] addrTypeSetter =null;
     static {
         logger = Logger.getLogger("DemographicIdentityModel");
         logger.setLevel(Level.ALL);
@@ -66,27 +66,45 @@ public class DemographicIdentityModel implements  DemographicModel {
             System.exit(-1);
         }
     }
-    static DateFormat shortestformat = new SimpleDateFormat("MM/yy");
+    final static DateFormat shortestformat = new SimpleDateFormat("MM/yy");
     
     
     
-    static enum_telephone_role home = createOrFindEnumTelephone( bundle.getString("home"));
-    static  enum_telephone_role work= createOrFindEnumTelephone( bundle.getString("work"));
-    static enum_telephone_role mobile = createOrFindEnumTelephone( bundle.getString("mobile"));
-    static enum_telephone_role nok = createOrFindEnumTelephone( bundle.getString("nok"));
-    static enum_social_id pension = createOrFindEnumSocialId(bundle.getString("pension") , 2);
-    static enum_social_id medicare =createOrFindEnumSocialId(bundle.getString("medicare"), 1);
-    static enum_social_id recordNo = createOrFindEnumSocialId(bundle.getString("record_no"), 3);
-    static address_type homeAddress = createOrFindAddressType(bundle.getString("home"));
+    final static enum_telephone_role home = createOrFindEnumTelephone( bundle.getString("home"));
+    final static  enum_telephone_role work= createOrFindEnumTelephone( bundle.getString("work"));
+    final static enum_telephone_role mobile = createOrFindEnumTelephone( bundle.getString("mobile"));
+    final static enum_telephone_role nok = createOrFindEnumTelephone( bundle.getString("nok"));
+    final static enum_social_id pension = createOrFindEnumSocialId(bundle.getString("pension") , 2);
+    final static enum_social_id medicare =createOrFindEnumSocialId(bundle.getString("medicare"), 1);
+    final static enum_social_id recordNo = createOrFindEnumSocialId(bundle.getString("record_no"), 3);
+    final static address_type homeAddress = createOrFindAddressType(bundle.getString("home"));
     
     static Map mapMarital ;
-    static category_type maritalStatus = createOrFindCategoryType( bundle.getString("marital_status") );
-    static category married = createOrFindCategory( bundle.getString("married"), maritalStatus);
-    static  category unmarried = createOrFindCategory( bundle.getString("unmarried"), maritalStatus);
-    static    category divorced = createOrFindCategory( bundle.getString("divorced"), maritalStatus);
-    static   category widowed = createOrFindCategory( bundle.getString("widowed"), maritalStatus);
-    static category unknown = createOrFindCategory( bundle.getString("unknown"), maritalStatus);
-    static category [] maritalList = new category[] { married, unmarried, divorced, widowed };
+      static category_type maritalStatus = createOrFindCategoryType( bundle.getString("marital_status") );
+    
+      static category_type ABO = createOrFindCategoryType( bundle.getString("ABO") );
+    
+    
+      static category_type rhesus = createOrFindCategoryType( bundle.getString("rhesus") );
+    
+    
+    
+    final static category married = createOrFindCategory( bundle.getString("married"), maritalStatus);
+    final static  category unmarried = createOrFindCategory( bundle.getString("unmarried"), maritalStatus);
+    final static    category divorced = createOrFindCategory( bundle.getString("divorced"), maritalStatus);
+    final static   category widowed = createOrFindCategory( bundle.getString("widowed"), maritalStatus);
+    final static category unknown = createOrFindCategory( bundle.getString("unknown"), maritalStatus);
+    final static category [] maritalList = new category[] { married, unmarried, divorced, widowed };
+    
+    
+    final static category A = createOrFindCategory( bundle.getString("A"), ABO);
+    final static  category B = createOrFindCategory( bundle.getString("B"), ABO);
+    final static    category AB = createOrFindCategory( bundle.getString("AB"), ABO);
+    final static   category O = createOrFindCategory( bundle.getString("O"), ABO);
+    final static category rhPos = createOrFindCategory( bundle.getString("positive"), rhesus);
+    final static category rhNeg = createOrFindCategory( bundle.getString("negative"), rhesus);
+    final static category [] ABOList = new category[] {A, B, AB, O };
+    final static category [] rhesusList = new category[] {rhPos, rhNeg };
     
     /** Holds value of property byteStream. */
     private ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -126,7 +144,7 @@ public class DemographicIdentityModel implements  DemographicModel {
      *  Precondition: objects must be the same class or inherit from the same class as the class from
      *  which the getter method comes from.
      */
-    public static Map createMap( Method keyGetter, List list) {
+    public  static Map createMap( Method keyGetter, List list) {
         Map map = new HashMap();
         for (int i = 0; i < list.size(); ++i) {
             try {
@@ -140,7 +158,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     
     /** finds an entity with a particular attribute, or creates it
      */
-    public static Object createOrFindEntity( String query,final  Object[] params, Type[] types,
+    public  static Object createOrFindEntity( String query,final  Object[] params, Type[] types,
     Class targetClass, Method[] paramSetters) throws Exception  {
         Object newObject = null;
         Session s = null;
@@ -177,62 +195,96 @@ public class DemographicIdentityModel implements  DemographicModel {
         //        return newObject;
     }
     
+    
+    static category_type createAndSaveCategoryType  (Session sess, String type) throws Exception {
+        category_type c = new category_type();
+        c.setName(type);
+        sess.save(c);
+        sess.flush();
+        sess.connection().commit();
+        logger.info("SAVED CATEGORY_TYPE = " + c.getId() + " " +c.getName());
+        return c;
+    }
+    
     static category_type createOrFindCategoryType( String type) {
+        category_type c = null;
+        Session sess = null;
         try {
-            return (category_type) createOrFindEntity(
-            "from org.gnumed.gmClinical.category_type as t where t.name= ?",
-            new Object[] { type  },
-            new Type[] { Hibernate.STRING },
-            category_type.class,
-            new Method[] { category_type.class.getMethod("setName", new Class[] { String.class } ) }
+            sess =  HibernateInit.openSession();
+            List l = sess.find("select ct from category_type ct where ct.name like ?",
+            type,  Hibernate.STRING
             );
             
+            if (l.size() == 0 )
+                c = createAndSaveCategoryType(sess,   type);
+            else
+                c = (category_type) l.get(0);
         } catch (Exception e) {
+            
             e.printStackTrace();
-            category_type t = new category_type();
-            t.setName(type);
-            return t;
+            
+        }finally {
+            try {
+                sess.close();
+            }
+            catch (Exception e2) {
+                e2.printStackTrace();
+            }
         }
+        return c;
+    }
+    
+    static category createAndSaveCategory( Session sess, String type, category_type superType )throws Exception {
+        category c = new category();
+        c.setName(type);
+        c.setCategory_type(superType);
+        sess.save(c);
+        sess.flush();
+        
+        sess.connection().commit();
+        return c;
     }
     
     static category createOrFindCategory( String type, category_type superType ) {
+        category c = null;
+        Session sess = null;
         try {
-            category t = (category) createOrFindEntity(
-            "from org.gnumed.gmClinical.category  as t where t.name= ? and t.category_type.name = ?",
-            new Object[] { type , superType.getName() },
-            new Type[] { Hibernate.STRING, Hibernate.STRING},
-            category.class ,
-            new Method[] { category.class.getMethod("setName", new Class[] { String.class } ) }
+            sess =  HibernateInit.openSession();
+            List l = sess.find("select c from category c where c.name like ? and c.category_type.id = ?",
+            new Object[] { type, superType.getId() } ,
+            new Type[] { Hibernate.STRING, Hibernate.LONG }
             );
-            t.setCategory_type(superType);
-            Session sess = HibernateInit.openSession();
-            sess.update(t);
-            sess.flush();
-            sess.connection().commit();
-            sess.close();
-            return t;
+            
+            if (l.size() == 0 )
+                c = createAndSaveCategory(sess,   type, superType);
+            else
+                c = (category) l.get(0);
         } catch (Exception e) {
+            
             e.printStackTrace();
-            category  t = new category();
-            t.setName(type);
-            t.setCategory_type(superType);
-            return t;
+            
+        }finally {
+            try {
+                sess.close();
+            }
+            catch (Exception e2) {
+                e2.printStackTrace();
+            }
         }
+        return c;
     }
     
     static address_type createOrFindAddressType( String type) {
         try {
-            return (address_type) createOrFindEntity(
-            "from org.gnumed.gmGIS.address_type as t where t.name = ?",
-            new Object[] { type  },
-            new Type[] { Hibernate.STRING },
-            address_type.class,
-            addrTypeSetter  );
+        return (address_type) createOrFindEntity(
+        "from a in class address_type where a.name = ? ",
+        new Object[] { type },
+        new Type[] { Hibernate.STRING }  , address_type.class,
+        addrTypeSetter );
         } catch (Exception e) {
-            e.printStackTrace();
-            address_type atype = new address_type();
-            atype.setName(type);
-            return atype;
+            address_type a = new address_type();
+            a.setName(type);
+            return a;
         }
     }
     
@@ -317,7 +369,7 @@ public class DemographicIdentityModel implements  DemographicModel {
     //    }
     
     
-    public static boolean isStateString(String state) {
+    public  static boolean isStateString(String state) {
         try {
             Session s = HibernateInit.openSession();
             String v = state.toUpperCase().trim() ;
@@ -546,7 +598,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         return  getIdentity().findTelephoneByRole(work).getNumber();
     }
     
-    static Pattern addressPattern =
+    final static Pattern addressPattern =
     Pattern.compile("\\s*(\\d+|\\d+\\w?|\\d+\\W+\\d+)[,|\\s]+([\\w|\\s]+)[,|\\s]+(\\D+)[,|\\s]*(\\d+)?");
     
     /** Holds value of property lastAddressString. */
@@ -647,7 +699,7 @@ public class DemographicIdentityModel implements  DemographicModel {
             else logger.info("street found ");
             s.setUrb( urb );
             s.setName(street);
-           logger.info( "street="  + s.getUrb().getName() + " : " + s.getName());
+            logger.info( "street="  + s.getUrb().getName() + " : " + s.getName());
             return s;
             
         } catch (Exception e) {
@@ -669,7 +721,7 @@ public class DemographicIdentityModel implements  DemographicModel {
         
         address a = getAddressWithNumber(number);
         a.setStreet(street);
-//        getIdentity().setIdentityAddress(homeAddress, a);
+        //        getIdentity().setIdentityAddress(homeAddress, a);
         TestGISManager.instance().updateAddress(getIdentity(), homeAddress, a);
         //    getUiModel().setAddress(getAddress());
     }
@@ -731,28 +783,6 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     
-    public Object getMaritalStatus() {
-        category_attribute a = getIdentity().findCategoryAttribute(maritalStatus);
-        if ( a == null)
-            return bundle.getString("unknown");
-        return a.getCategory().getName();
-    }
-    
-    public void setMaritalStatus(Object maritalStatus) {
-        category c = (category ) maritalStatus;
-        if (c == null)
-            c = unmarried;
-        logger.info(" category  returned " + c);
-        if (getIdentity() == null)
-            throw new RuntimeException("IDENTITY SHOULD EXIST");
-        if (getIdentity().findCategoryAttribute(c.getCategory_type() ) == null) {
-            category_attribute a = new category_attribute();
-            a.setCategory(c);
-            getIdentity().addClin_attribute(a);
-            return;
-        }
-        getIdentity().findCategoryAttribute(c.getCategory_type()).setCategory(c);
-    }
     
     
     public void setHomeTelephone(String homeTelephone) {
@@ -908,4 +938,71 @@ public class DemographicIdentityModel implements  DemographicModel {
         this.lastAddress = lastAddress;
     }
     
+    
+    public Object getMaritalStatus() {
+        return findAttribute( maritalStatus);
+        
+    }
+    
+    public void setMaritalStatus(Object marital) {
+        setAttribute(marital  );
+    }
+    
+    
+    public Object getAbo() {
+        return findAttribute(ABO);
+    }
+    
+    public void setAbo(Object abo) {
+        setAttribute(abo );
+    }
+    
+    public Object getRhesus() {
+        return findAttribute(rhesus);
+    }
+    
+    public void setRhesus(Object rh) {
+        setAttribute(rh );
+    }
+    
+    public Object[] getABOList() {
+        return ABOList;
+    }
+    
+    
+    
+    public Object[] getRhesusList() {
+        return rhesusList;
+    }
+    
+    
+    /**
+     * sets a category on the identity
+     */
+    void setAttribute( Object attribute) {
+        
+        category c = null;
+        if (attribute instanceof category)
+            c= (category ) attribute;
+        if (c == null)
+            return;
+        
+        logger.info(" category  returned " + c);
+        if (getIdentity() == null)
+            throw new RuntimeException("IDENTITY SHOULD EXIST");
+        if (getIdentity().findCategoryAttribute(c.getCategory_type() ) == null) {
+            category_attribute a = new category_attribute();
+            a.setCategory(c);
+            getIdentity().addClin_attribute(a);
+            return;
+        }
+        getIdentity().findCategoryAttribute(c.getCategory_type()).setCategory(c);
+    }
+    
+    Object findAttribute( category_type type) {
+        category_attribute a = getIdentity().findCategoryAttribute(type);
+        if ( a == null)
+            return bundle.getString("unknown");
+        return a.getCategory();
+    }
 }

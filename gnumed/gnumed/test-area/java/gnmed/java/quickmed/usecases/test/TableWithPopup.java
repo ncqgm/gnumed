@@ -44,6 +44,12 @@ public class TableWithPopup extends javax.swing.JPanel {
         jPopupMenu1.add(add_jMenuItem1);
 
         delete_jMenuItem2.setText("delete");
+        delete_jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteObjectAction(evt);
+            }
+        });
+
         jPopupMenu1.add(delete_jMenuItem2);
 
         setLayout(new java.awt.BorderLayout());
@@ -76,6 +82,16 @@ public class TableWithPopup extends javax.swing.JPanel {
         add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
+
+    private void deleteObjectAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteObjectAction
+        // Add your handling code here:
+         if ( jTable1.getModel()  instanceof ListObjectTableModel) {
+            ListObjectTableModel model = (ListObjectTableModel) jTable1.getModel();
+            int row = jTable1.getSelectedRow();
+            model.remove(row);
+            
+        }
+    }//GEN-LAST:event_deleteObjectAction
     
     private void addObjectAction(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addObjectAction
         // Add your handling code here:

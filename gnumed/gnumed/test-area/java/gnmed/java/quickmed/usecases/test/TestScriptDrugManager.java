@@ -53,6 +53,10 @@ public class TestScriptDrugManager {
         return l;
     }
     
+    public void removeScriptDrug( identity id, script_drug sd) {
+        id.removeScript_drug(sd);
+    }
+    
     public void createIdentityScriptDrug(identity id,package_size p, Double qty,
     String instructions, Integer repeats, script script) throws Exception {
         script_drug sd = new script_drug();

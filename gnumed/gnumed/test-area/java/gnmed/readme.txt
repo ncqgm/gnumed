@@ -38,7 +38,7 @@ why important? past history and drugs don't work without this data.
 THE MOST IMPORTANT THING IS THE USER CONNECTION IDENTITY IN 
 THE START OF THE SCRIPT. EITHER CHANGE IHAYWOOD TO THE APPROPRIATE
 USER WITH GRANTED PERMISSIONS, OR CREATE THE USER IHAYWOOD WITH 
-GRANTED PERMISSIONS.
+GRANTED PERMISSIONS. 
 
 
 3. can't connect to database.
@@ -71,6 +71,12 @@ possible problems:
 
 	- create the relevant user. grant all for testing purposes
 	to public schema.
+            - the error message when trying to create tables will be 
+                no namespace for table xxxxx.
+            - this means the connecting user specified in the hibernate.properties file
+            has not been granted table creating permission in the database being used.
+            psql into the database , and grant access.
 
 
-
+        
+        

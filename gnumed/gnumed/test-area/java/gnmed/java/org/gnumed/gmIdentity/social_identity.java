@@ -24,7 +24,7 @@ public class social_identity {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
 /**
  * <p>
@@ -90,7 +90,7 @@ public class social_identity {
  * @hibernate.id
  *  generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -99,7 +99,7 @@ public class social_identity {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     } // end setId        
 

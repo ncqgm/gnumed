@@ -19,6 +19,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="delete"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteObjectAction"/>
+          </Events>
         </MenuItem>
       </SubComponents>
     </Menu>

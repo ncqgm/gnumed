@@ -34,7 +34,7 @@ public class telephone {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
    ///////////////////////////////////////
    // associations
@@ -154,7 +154,7 @@ public class telephone {
  * @hibernate.id
  *  generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -163,7 +163,7 @@ public class telephone {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     }
     
@@ -171,7 +171,7 @@ public class telephone {
     public final static telephone NULL ;
     static {
         NULL = new telephone();
-        NULL.setId( new Integer(0));
+        NULL.setId( new Long(0));
         NULL.setNumber("");
     }
  // end setId        

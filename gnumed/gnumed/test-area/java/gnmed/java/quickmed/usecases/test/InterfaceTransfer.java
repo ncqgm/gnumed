@@ -32,6 +32,12 @@ public class InterfaceTransfer {
         for (int i = 0; i < pds.length; ++i) {
             if (java.util.Arrays.asList(excludes).contains(pds[i].getName()) )
                 continue;
+            logger.info("TRANSFERING FROM " + from.getClass() + " TO " + to.getClass() + " USING WRITE METHOD=" +pds[i].getName());
+            try {
+            logger.info("VALUE OF FROM attribute = " +  pds[i].getReadMethod().invoke(from, zeroArgs ) );
+            } catch (Exception e) {
+                logger.info(e + " occuring when logging read from " + from);
+            }
             try {
                 pds[i].getWriteMethod().invoke(
                 to, new Object[] { 

@@ -71,7 +71,7 @@
         <echo message="Application built. Hello ${hello}!"/>
     </target>
 
-    <target depends="init, compile, xdocletToHibernate" description="Try running it." name="test">
+    <target depends="init, compile" description="Try running it." name="test">
         <java classname="gnmed.test.TestGmIdentity" failonerror="true" fork="true">
             <classpath path="./lib">
                 <pathelement location="."/>
@@ -125,7 +125,7 @@
             </classpath>
     	</java>
     </target>
-    <target depends="init, xdocletToHibernate, compile" name="testLoadPostcode">
+    <target depends="init,  compile" name="testLoadPostcode">
         <java classname="gnmed.test.TestCSVLoader" failonerror="true" fork="true">
             <classpath path="./lib">
                 <pathelement location="."/>

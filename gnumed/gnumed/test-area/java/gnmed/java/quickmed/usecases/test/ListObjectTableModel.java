@@ -98,8 +98,10 @@ public class ListObjectTableModel  extends AbstractTableModel {
                 Method m = type.getMethod("decode", new Class[] { String.class } );
                 value =  m.invoke(type, new Object[] { value });
             }
-            java.util.logging. Logger.global.info("INVOKING ON " + o + " With Value=" + value +
-            "with method " + pd.getWriteMethod().getName() );
+            logger.info("o is type" + o.getClass() + " beanClass is " + getBeanClass() + ":INVOKING ON " + o + " With Value=" + value +
+            "with method " + pd.getWriteMethod().getName() + " type ="+pd.getPropertyType());
+//            System.out.println(" invoking with value = " + value + " on " + o + " using write method="+
+//                pd.getWriteMethod().getName() + " for " );
             Object oldValue = pd.getReadMethod().invoke( o, new Object[0]);
             pd.getWriteMethod().invoke(o, new Object[] { value } );
             setLastProperty(pd.getName());
@@ -187,6 +189,11 @@ public class ListObjectTableModel  extends AbstractTableModel {
     
     public void setVisibleProperties( Class beanClass, String[] propertyNames) throws Exception {
         setBeanClass(beanClass);
+        
+        logger.info("SETTING BEAN CLASS TO " + beanClass.getName() );
+        for (int i = 0; i < propertyNames.length; ++i) {
+            logger.info(" PROP NAME = " + propertyNames[i] );
+        }
         
         PropertyDescriptor[] pds = Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
         Map map = new HashMap();
@@ -364,4 +371,11 @@ public class ListObjectTableModel  extends AbstractTableModel {
         this.defaultEditorsLoaded = defaultEditorsLoaded;
     }
     
+    public Object remove(int row) {
+        Object o = getList().remove(row);
+        if (o instanceof Removable)
+            ( (Removable)o).remove();
+        fireTableDataChanged();   
+        return o;
+    }
 }

@@ -234,4 +234,40 @@ public interface DemographicModel {
      */
     public Object[] getMaritalList();
     
+    /** Getter for property abo.
+     * @return Value of property abo.
+     *
+     */
+    public Object getAbo();
+    
+    /** Setter for property abo.
+     * @param abo New value of property abo.
+     *
+     */
+    public void setAbo(Object abo);
+    
+    /** Getter for property rhesus.
+     * @return Value of property rhesus.
+     *
+     */
+    public Object getRhesus();
+    
+    /** Setter for property rhesus.
+     * @param rhesus New value of property rhesus.
+     *
+     */
+    public void setRhesus(Object rhesus);
+    
+    /** Getter for property ABOList.
+     * @return Value of property ABOList.
+     *
+     */
+    public Object[] getABOList();
+    
+    /** Getter for property rhesusList.
+     * @return Value of property rhesusList.
+     *
+     */
+    public Object[] getRhesusList();
+    
 }

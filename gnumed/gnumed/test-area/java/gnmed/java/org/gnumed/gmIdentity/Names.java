@@ -24,7 +24,7 @@ public class Names {
  * Represents ...
  * </p>
  */
-    private Integer id; 
+    private Long id; 
 
 /**
  * <p>
@@ -96,7 +96,7 @@ public class Names {
  * @hibernate.id
  *      generator-class="hilo"
  */
-    public Integer getId() {        
+    public Long getId() {        
         return id;
     } // end getId        
 
@@ -105,7 +105,7 @@ public class Names {
  * Represents ...
  * </p>
  */
-    public void setId(Integer _id) {        
+    public void setId(Long _id) {        
         id = _id;
     } // end setId        
 

@@ -43,6 +43,10 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         // internationalized
         maritalComboBox3.removeAllItems();
         maritalComboBox3.setModel( new DefaultComboBoxModel(getMaritalList()));
+        ABOComboBox4.removeAllItems();
+        ABOComboBox4.setModel( new DefaultComboBoxModel(getABOList()));
+        rhesusComboBox5.removeAllItems();
+        rhesusComboBox5.setModel( new DefaultComboBoxModel(getRhesusList()));
     }
     /** This method is called from within the constructor to
      * initialize the form.
@@ -612,20 +616,20 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         add(jPanel2, gridBagConstraints);
 
     }//GEN-END:initComponents
-
+    
     private void addressFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_addressFieldKeyReleased
         // Add your handling code here:
-         getModel().setAddress(addressField.getText());
+        getModel().setAddress(addressField.getText());
     }//GEN-LAST:event_addressFieldKeyReleased
-
+    
     private void addressFieldInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_addressFieldInputMethodTextChanged
         // Add your handling code here:
-       
+        
     }//GEN-LAST:event_addressFieldInputMethodTextChanged
     
     private void sexComboBox2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_sexComboBox2ItemStateChanged
         // Add your handling code here:
-       getModel(). setSex((String)sexComboBox2.getSelectedItem());
+        getModel(). setSex((String)sexComboBox2.getSelectedItem());
     }//GEN-LAST:event_sexComboBox2ItemStateChanged
     
     private void sexComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sexComboBox2ActionPerformed
@@ -819,7 +823,7 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     
     public void controllerInit() {
         try {
-         transferer =new InterfaceTransfer(DemographicModel.class, new String[] {"class","model", "identity" } );
+            transferer =new InterfaceTransfer(DemographicModel.class, new String[] {"class","model", "identity" } );
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -835,42 +839,6 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
         demographicModel.setUiModel(this);
         setModel(demographicModel);
     }
-//    
-//    void addDocumentListenerToAllTextComponents( DocumentListener docListener) {
-//        
-//        Collection comps = ComponentCollector.collectType(javax.swing.text.JTextComponent.class, this);
-//        Iterator i = comps.iterator();
-//        while(i.hasNext()) {
-//            javax.swing.text.JTextComponent comp = (javax.swing.text.JTextComponent ) i.next();
-//            
-//            javax.swing.text.Document doc = comp.getDocument();
-//            doc.addDocumentListener(docListener);
-//            doc.putProperty(doc.TitleProperty, comp.getName());
-//            logger.log(Level.INFO, "associated " + docListener +" to "+doc + "of "+comp);
-//            
-//        }
-//        
-//    }
-//    void addChangeListenerToAllJSpinners( ChangeListener listener) {
-//        Collection comps = ComponentCollector.collectType(javax.swing.JSpinner.class, this);
-//        Iterator i = comps.iterator();
-//        while(i.hasNext()) {
-//            JSpinner spinner = (JSpinner) i.next();
-//            //            spinner.getModel().addChangeListener(listener);
-//            spinner.addChangeListener(listener);
-//        }
-//        
-//    }
-//    
-//    void  addItemListenerToAllItemSelectable( ItemListener listener) {
-//        Collection comps = ComponentCollector.collectType(java.awt.ItemSelectable.class, this);
-//        Iterator i = comps.iterator();
-//        while(i.hasNext()) {
-//            ItemSelectable s = (ItemSelectable) i.next();
-//            s.addItemListener(listener);
-//        }
-//        
-//    }
     
     public String getAddress() {
         return addressField.getText();
@@ -1014,7 +982,10 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     }
     
     public void setMaritalStatus(Object maritalStatus){
+        maritalComboBox3.setEditable(true);
         maritalComboBox3.setSelectedItem(maritalStatus);
+        
+        maritalComboBox3.setEditable(false);
     }
     
     /** Getter for property identity.
@@ -1071,6 +1042,36 @@ public class DemographicPanel extends javax.swing.JPanel implements DemographicM
     
     public Object[] getMaritalList() {
         return getModel().getMaritalList();
+    }
+    
+    public Object getAbo() {
+        return ABOComboBox4.getSelectedItem();
+    }
+    
+    public void setAbo(Object abo) {
+        ABOComboBox4.setEditable(true);
+        ABOComboBox4.setSelectedItem(abo);
+        ABOComboBox4.setEditable(false);
+    }
+    
+    public Object getRhesus() {
+        return rhesusComboBox5.getSelectedItem();
+    }
+    
+    public void setRhesus(Object rhesus) {
+        rhesusComboBox5.setEditable(true);
+        rhesusComboBox5.setSelectedItem(rhesus);
+        rhesusComboBox5.setEditable(false);
+    }
+    
+    public Object[] getABOList() {
+        return getModel().getABOList();
+    }
+    
+    
+    
+    public Object[] getRhesusList() {
+          return getModel().getRhesusList();
     }
     
 }

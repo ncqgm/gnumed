@@ -72,13 +72,41 @@ public class TestProblemManager {
     
     public clin_diagnosis createDiagnosis(  Date date, disease_code code) {
         clin_diagnosis diagnosis = new clin_diagnosis();
-         diagnosis.setApprox_start(formatter.format(date));
+        setDiagnosisValues( diagnosis, date, code);
+        return diagnosis;
+    }
+    
+    
+    /**
+     *may need to tidy and remove old links as well
+     */
+    void setDiagnosisValues( clin_diagnosis diagnosis, Date date, disease_code code) {
+           diagnosis.setApprox_start(formatter.format(date));
            diagnosis.setText(code.getDescription());
+           code_ref oldref = diagnosis.getCode_ref();
           code_ref ref = new code_ref();
           ref.setDisease_code(code);
           diagnosis.setCode_ref(ref);
-          return diagnosis;
+          
     }
+    
+    
+    /** 
+     * simplistic removal of diagnosis;     Should probably be implemented with a non-active flag
+     */
+    public void removeDiagnosis( identity id, clin_diagnosis diagnosis) throws Exception {
+        Iterator i = id.getClin_health_issues().iterator();
+        while (i.hasNext()) {
+             clin_health_issue issue = (clin_health_issue) i.next();
+             if (issue.getClin_issue_components().contains(diagnosis) ) {
+                    id.removeClin_health_issue(issue);
+//                    IdentityManager.instance().save(id);
+                    return;
+             }
+        }
+    }
+    
+    
     
     public clin_diagnosis updateProblem( identity id, Date date, disease_code code , clin_diagnosis oldDiagnosis) {
         Collection c = id.getClin_health_issues();
@@ -86,10 +114,8 @@ public class TestProblemManager {
         while(i.hasNext()) {
             clin_health_issue issue = (clin_health_issue) i.next();
             if (issue.getClin_issue_components().contains(oldDiagnosis) ) {
-                issue.removeClin_issue_component(oldDiagnosis);
-                clin_diagnosis d = createDiagnosis(date, code);
-                issue.addClin_issue_component(d);
-                return d;
+                 setDiagnosisValues(oldDiagnosis, date, code);
+                 return oldDiagnosis;
             }
         }
         return createProblem(id, date, code);

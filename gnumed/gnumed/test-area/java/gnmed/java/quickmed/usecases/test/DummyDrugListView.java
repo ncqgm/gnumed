@@ -17,7 +17,7 @@ import org.gnumed.gmClinical.*;
  * @author  sjtan
  *
  */
-public class DummyDrugListView implements DrugListView, LimitedViewable {
+public class DummyDrugListView implements DrugListView, LimitedViewable, Removable {
     final static String[] VIEWABLE = new String [] { "last","drug","directions", "qty","repeats" };
     private Date last = new Date();
     
@@ -37,6 +37,8 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
     
     /** Holds value of property updating. */
     private boolean updating = true;
+    
+    private script_drug script_drug;
     
     /** Creates a new instance of DummyDrugListVIew */
     public DummyDrugListView() {
@@ -189,11 +191,16 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
         setDrug(sd.getPackage_size());
         setQty(new Integer(sd.getQty().intValue() ));
         setDirections(sd.getDirections());
-        try {
+        try {if (sd.getLink_script_drugs().iterator().hasNext()) 
             setRepeats(  ( (link_script_drug)sd.getLink_script_drugs().iterator().next()).getRepeats());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        this.script_drug = sd;
+    }
+    
+    public script_drug getScriptDrug() {
+        return script_drug;
     }
     
     /** Getter for property isUpdating.
@@ -210,6 +217,10 @@ public class DummyDrugListView implements DrugListView, LimitedViewable {
      */
     public void setUpdating(boolean updating) {
         this.updating = updating;
+    }
+    
+    public void remove() {
+        TestScriptDrugManager.instance().removeScriptDrug( getIdentity(), getScriptDrug());
     }
     
 }

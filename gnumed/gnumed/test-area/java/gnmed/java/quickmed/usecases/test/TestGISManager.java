@@ -167,59 +167,115 @@ public class TestGISManager {
         return found;
     }
     
-    /**
-     *  updates the address of the identity for a particular type.
-     *  currently, just clears old address references, but might
-     *have an active flag on identities_address instead to remember
-     *old addresses.
-     */
-    public identity updateAddress( identity id, address_type type, address newAddress) {
+   
+    public address findExistingAddress( address a) {
+        address a2 = null;
         Session sess = null;
-        identities_addresses ia = null;
+        if (a.getStreet().getId() == null)
+            return a;
         try {
-              sess =  HibernateInit.openSession();
-              Iterator j = sess.iterate( "select ia from identity i inner join i.identities_addressess ia where "+
-              "i.id = ? and ia.address_type.name like ?",
-              new Object[] { id.getId(), type.getName() },
-              new Type[] { Hibernate.INTEGER, Hibernate.STRING } );
-              if (j.hasNext()) {
-                  ia = (identities_addresses) j.next();
-                  sess.delete( ia.getAddress());
-                   ia.setAddress(newAddress);
-                  sess.flush();
-                  sess.update(ia);
-                  
-                  // the logic can be changed to just delete the old address
-                  // and then call id.setIdentityAddress
-                  
-              } else 
-                  id.setIdentityAddress(type, newAddress);
-              // the default operation is to forget the old addresses 
-              while (j.hasNext()) {
-                sess.delete(j.next());
-              }
-             
-               sess.flush();
-               sess.connection().commit();
-//              ia = new identities_addresses();
-//              ia.setAddress(newAddress);
-//              ia.setAddress_type(type);
-//              id.addIdentities_addresses(ia);
-////              sess.save(ia);
-//              sess.flush();
-//              sess.update(id);
-//              sess.flush();
-//              sess.connection().commit();
+             sess =  HibernateInit.openSession();
+              Iterator j = sess.iterate( "select a from address a where a.number like ? "+
+                              "a.street.id = ? ", new Object[] { a.getNumber(), a.getStreet().getId() },
+                                                  new Type[] { Hibernate.STRING, Hibernate.LONG } );
+              
+              if (j.hasNext())  
+                   a2 = (address)j.next();
+            
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             try {
             sess.close();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
         }
-        return id;
-        
+        return a2 != null ? a2: a;
     }
+    
+    address substituteExistingAddress( address a) {
+        address a2 = findExistingAddress(a);
+        if (a2 != null)
+            return a2;
+        return a;
+    }
+    
+    /**
+     *  updates the address of the identity for a particular type.
+     *  currently, just clears old address references, but might
+     *have an active flag on identities_address instead to remember
+     *old addresses. This version doesn't update the db straight away.
+     */
+    public identity updateAddress( identity id, address_type type, address newAddress) {
+        address address = substituteExistingAddress( newAddress);
+        Iterator j = id.getIdentities_addressess().iterator();
+        while (j.hasNext()) {
+            identities_addresses ia = (identities_addresses) j.next();
+            if ( ia.getAddress_type().equals(type)) {
+                ia.setAddress(address);
+                return id;
+            }
+        }
+        identities_addresses ia2 = new identities_addresses();
+        ia2.setAddress_type(type);
+        ia2.setAddress(address);
+        id.addIdentities_addresses(ia2);
+        return id;
+    }
+                
+        
+//        Session sess = null;
+//        identities_addresses ia = null;
+//        try {
+//              sess =  HibernateInit.openSession();
+//              Iterator j = sess.iterate( "select ia from identity i inner join i.identities_addressess ia where "+
+//              "i.id = ? and ia.address_type.name like ?",
+//              new Object[] { id.getId(), type.getName() },
+//              new Type[] { Hibernate.INTEGER, Hibernate.STRING } );
+//              if (j.hasNext()) {
+//                  ia = (identities_addresses) j.next();
+////                  sess.delete( ia.getAddress());
+////                  
+////                  ia.setAddress(null);
+////                  sess.flush();
+//                 
+//                  sess.evict(ia.getAddress());
+//                  ia.setAddress(newAddress);
+//                   sess.update(ia);
+//                  
+//                  // the logic can be changed to just delete the old address
+//                  // and then call id.setIdentityAddress
+//                  
+//              } else 
+//                  id.setIdentityAddress(type, newAddress);
+//              // the default operation is to forget the old addresses 
+//              while (j.hasNext()) {
+//                sess.delete(j.next());
+//              }
+//             
+//               sess.flush();
+//               sess.connection().commit();
+////              ia = new identities_addresses();
+////              ia.setAddress(newAddress);
+////              ia.setAddress_type(type);
+////              id.addIdentities_addresses(ia);
+//////              sess.save(ia);
+////              sess.flush();
+////              sess.update(id);
+////              sess.flush();
+////              sess.connection().commit();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//            sess.close();
+//            } catch (Exception e2) {
+//                e2.printStackTrace();
+//            }
+//        }
+//        return id;
+//        
+//    }
 }
