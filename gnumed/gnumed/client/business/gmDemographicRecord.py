@@ -7,13 +7,12 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.48 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmDemographicRecord.py,v 1.49 2004-06-20 15:38:00 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
-import sys, os.path, time, gettext
-_ = gettext.gettext
+import sys, os.path, time
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
 from Gnumed.business import gmMedDoc
@@ -22,6 +21,7 @@ from Gnumed.pycommon.gmPyCompat import *
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x	# ugly hack to please epydoc
 	from Gnumed.pycommon import gmI18N
 _log.Log(gmLog.lData, __version__)
 
@@ -914,7 +914,14 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.48  2004-06-20 06:49:21  ihaywood
+# Revision 1.49  2004-06-20 15:38:00  ncq
+# - remove import gettext/_ = gettext.gettext
+# - import gmI18N handles that if __main__
+# - else the importer of gmDemographicRecord has
+#   to handle setting _
+# - this is the Right Way as per the docs !
+#
+# Revision 1.48  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.47  2004/06/17 11:36:12  ihaywood
