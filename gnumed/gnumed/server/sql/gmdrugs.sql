@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.25 $ $Date: 2002-11-23 13:31:41 $ $Author: ncq $
+-- $Revision: 1.26 $ $Date: 2002-11-25 01:13:26 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.25  2002-11-23 13:31:41  ncq
+-- Revision 1.26  2002-11-25 01:13:26  ihaywood
+-- table link_drug_indication resurrected
+--
+-- Revision 1.25  2002/11/23 13:31:41  ncq
 -- - added schema revision tracking
 --
 -- Revision 1.24  2002/11/23 01:41:05  ihaywood
@@ -404,10 +407,16 @@ comment on column adverse_effects.description is
 -- some examples
 insert into adverse_effects (severity, description) values (1, 'pruritis');
 insert into adverse_effects (severity, description) values (1, 'nausea');
-insert into adverse_effects (severity, description) values (1, 'postural hypotension');
-insert into adverse_effects (severity, description) values (2, 'hepatitis');
-insert into adverse_effects (severity, description) values (2, 'renal failure');
-insert into adverse_effects (severity, description) values (2, 'ototoxicity');
+insert into adverse_effects (severity, description) values (2, 'postural hypotension');
+insert into adverse_effects (severity, description) values (3, 'hepatitis');
+insert into adverse_effects (severity, description) values (3, 'renal failure');
+insert into adverse_effects (severity, description) values (3, 'ototoxicity');
+insert into adverse_effects (severity, description) values (2, 'drowsiness');
+insert into adverse_effects (severity, description) values (2, 'tremor');
+insert into adverse_effects (severity, description) values (3, 'confusion');
+insert into adverse_effects (severity, description) values (3, 'psychosis');
+insert into adverse_effects (severity, description) values (3, 'ototoxicity');
+
 
 
 create table link_drug_adverse_effects(
@@ -459,8 +468,8 @@ comment on table link_drug_interactions is
 create table link_drug_disease_interactions(
 	id serial,
 	id_drug integer references drug_element(id),
-	diseasecode varchar (20) references disease_code(code),
-	id_interaction integer references interactions(id),
+	id_disease_code integer references disease_code(id),
+	id_interaction integer references interactions (id),
 	comment text
 );
 comment on table link_drug_disease_interactions is
@@ -628,24 +637,41 @@ comment on column subsidized_products.condition is
 create table link_dosage_indication(
 	id serial primary key,
 	id_drug_dosage integer references drug_dosage (id),
-	diseasecode varchar (20) references disease_code (code),
+	id_disease_code integer references disease_code (id),
 	comment text,
 	line integer
 );
 
 create index idx_dosage_indication on link_dosage_indication(id_drug_dosage);
-create index idx_indication_dosage on link_dosage_indication(diseasecode);
+create index idx_indication_dosage on link_dosage_indication(id_disease_code);
 comment on table link_dosage_indication is
 'many to many pivot table linking drug dosages and indications';
-comment on column link_dosage_indication.diseasecode is
+comment on column link_dosage_indication.id_disease_code is
 'link to the disease code';
 comment on column link_dosage_indication.line is 
+'the line (first-line, second-line) of this drug for this indication'; 
+
+create table link_drug_indication(
+	id serial primary key,
+	id_drug integer references drug_element (id),
+	id_disease_code integer references disease_code (id),
+	comment text,
+	line integer
+);
+
+create index idx_drug_indication on link_drug_indication(id_drug);
+create index idx_indication_drug on link_drug_indication(id_disease_code);
+comment on table link_drug_indication is
+'many to many pivot table linking whole drugs and indications';
+comment on column link_drug_indication.id_disease_code is
+'link to the disease code';
+comment on column link_drug_indication.line is 
 'the line (first-line, second-line) of this drug for this indication'; 
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.25 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.26 $')
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such

@@ -71,8 +71,8 @@ comment on column audit.why is 'explanation of the change';
 --this is signed.
 
 --PL/Python trigger to update audit table.
-drop trigger element_trig on drug_element;
-drop function audit_func ();
+--drop trigger element_trig on drug_element;
+--drop function audit_func ();
 
 create function audit_func () returns opaque as '
 import StringIO
@@ -146,11 +146,9 @@ comment on function audit_func () is 'Python trigger function to create audit en
 create trigger element_trig after insert or update or delete on drug_element 
 for each row execute procedure audit_func ();
 
-insert into drug_element (description) values ('chop');
-
--- groups of users
-create group contributors;
-create group browsers;
+-- groups of users -- superuser must do this!
+--create group contributors;
+--create group browsers;
 
 grant all on audit to group contributors;
 grant all on drug_dosage to group contributors;
@@ -178,6 +176,7 @@ grant all on manufacturer to contributors;
 grant all on info_reference to contributors;
 grant all on interactions to contributors;
 grant all on adverse_effects to contributors;
+grant all on package_size to contributors;
 
 grant select on audit to group browsers;
 grant select on drug_dosage to group browsers;
@@ -201,11 +200,13 @@ grant select on drug_information to group browsers;
 grant select on drug_element to group browsers;
 grant select on conditions to group browsers;
 grant select on available to group browsers;
-grant select on manufacturer to browsers;
-grant select on info_reference to browsers;
-grant select on interactions to browsers;
-grant select on adverse_effects to browsers;
+grant select on manufacturer to group browsers;
+grant select on info_reference to group browsers;
+grant select on interactions to group browsers;
+grant select on adverse_effects to group browsers;
+grant select on package_size to group browsers;
 
+grant select on disease_code to public;
 grant select on code_systems to public;
 grant select on drug_flags to public;
 grant select on drug_formulations to public;
