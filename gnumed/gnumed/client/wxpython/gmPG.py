@@ -42,7 +42,7 @@ class ConnectionPool:
 
 		#first, connect to the configuration server
 		cdb = self.__pgconnect(login)
-		if cbd is None:
+		if cdb is None:
 			return
 		else:
 			ConnectionPool.__connected = 1
