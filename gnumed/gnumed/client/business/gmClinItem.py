@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.5 2004-04-16 12:46:35 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmClinItem.py,v 1.6 2004-04-18 17:51:28 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -84,6 +84,9 @@ class cClinItem:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
+	def is_modified(self):
+		return self._is_modified
+	#--------------------------------------------------------
 	def get_fields(self):
 		return self._idx.keys()
 	#--------------------------------------------------------
@@ -127,7 +130,10 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.5  2004-04-16 12:46:35  ncq
+# Revision 1.6  2004-04-18 17:51:28  ncq
+# - it's surely helpful to be able to say <item>.is_modified() and know the status...
+#
+# Revision 1.5  2004/04/16 12:46:35  ncq
 # - set is_modified=False after save_payload
 #
 # Revision 1.4  2004/04/16 00:00:59  ncq
