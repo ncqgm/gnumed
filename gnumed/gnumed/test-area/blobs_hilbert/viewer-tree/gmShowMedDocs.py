@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -99,7 +99,7 @@ class cDocTree(wxTreeCtrl):
 			_log.Log(gmLog.lInfo, "Making document tree for patient with ID %s" % result[1])
 
 		# read documents from database
-		self.doc_list = aPatient.getDocsFromGNUmed(self.__conn)
+		self.doc_list = aPatient.getDocsFromGNUmed(self.__conn, _cfg)
 		if self.doc_list is None:
 			_log.Log(gmLog.lErr, "Cannot find any documents.")
 			dlg = wxMessageDialog(
@@ -379,7 +379,10 @@ else:
 			return ('tools', _('&Show Documents'))
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.7  2003-01-25 00:21:42  ncq
+# Revision 1.8  2003-01-26 17:00:18  ncq
+# - support chunked object retrieval
+#
+# Revision 1.7  2003/01/25 00:21:42  ncq
 # - show nr of bytes on object in metadata :-)
 #
 # Revision 1.6  2003/01/24 14:57:32  ncq
