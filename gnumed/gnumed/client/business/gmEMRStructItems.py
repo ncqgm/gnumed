@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -367,7 +367,15 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 			_log.Log(gmLog.lErr, 'cannot determine patient from encounter [%s]' % encounter_id)
 			return (False, 'unable to create episode')
 		id_patient = rows[0][0]
+	
+	# since cEpisode gets from rows from v_pat_episodes and v_pat_episodes gets from v_named_episode
+	# unnamed episodes cannot be refetched, so assigned a default episode name if episode_name is None.
+	#FIXME
+	if episode_name is None:
+		episode_name = "unlinked episode"
+		
 	# already there ?
+	
 	if episode_name is not None:
 		episode_name = str(episode_name)
 		try:
@@ -397,6 +405,9 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
 	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
+
+	_log.Log(gmLog.lInfo, "queries=%s, success=%s, data=%s" % ( queries, success, data) )
+
 	if not success:
 		_log.Log(gmLog.lErr, 'cannot create episode: %s' % data)
 		err, msg = data
@@ -407,7 +418,7 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 	try:
 		episode = cEpisode(aPK_obj = pk)
 	except gmExceptions.ConstructorError:
-		_log.LogException('cannot instantiate episode [%s]' % pk, sys.exc_info, verbose=0)
+		_log.LogException('cannot instantiate episode [%s]' % pk, sys.exc_info(), verbose=0)
 		return (False, _('internal error, check log'))
 	return (True, episode)
 #-----------------------------------------------------------
@@ -589,7 +600,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.35  2005-01-31 12:58:24  ncq
+# Revision 1.36  2005-02-20 10:30:49  sjtan
+#
+# unnamed episodes cannot be refetched.
+#
+# Revision 1.35  2005/01/31 12:58:24  ncq
 # - episode.rename() finally works
 #
 # Revision 1.34  2005/01/31 09:35:28  ncq
