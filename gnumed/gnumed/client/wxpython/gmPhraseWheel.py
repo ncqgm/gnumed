@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.25 2003-11-09 02:24:42 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmPhraseWheel.py,v 1.26 2003-11-09 14:28:30 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -162,9 +162,9 @@ class cPhraseWheel (wxTextCtrl):
 		if len (matches) == 1:
 			self.data = matches[0]['data']
 			self.SetValue (matches[0]['label'])
-			for call in self.listener_callbacks:
+			for notify_listener in self.listener_callbacks:
 				# get data associated with selected item
-				call (self.data)
+				notify_listener(self.data)
 			self.notified_listeners = 1
 		if len (matches) > 1:
 			# cache these results
@@ -483,7 +483,6 @@ if __name__ == '__main__':
 				ww2 = cPhraseWheel(
 					parent = frame,
 					id = -1,
-					#id_callback = clicked,
 					pos = (50, 250),
 					size = (180, 30),
 					aMatchProvider = mp2
@@ -498,7 +497,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.25  2003-11-09 02:24:42  ncq
+# Revision 1.26  2003-11-09 14:28:30  ncq
+# - cleanup
+#
+# Revision 1.25  2003/11/09 02:24:42  ncq
 # - added Syans "input was selected from list" state flag to avoid unnecessary list
 #   drop downs
 # - variable name cleanup
