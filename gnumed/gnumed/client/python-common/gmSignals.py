@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -35,10 +35,15 @@ def allergy_updated():
 	"""Announce allergy cache update to interested parties."""
 	return 'allergy_updated'
 
+
 # vaccinations
-def vaccination_updated():
+def vaccinations_updated():
 	"""Announce vaccination cache update to interested parties."""
-	return 'vaccination_updated'
+	return 'vaccinations_updated'
+
+def vacc_mod_db():
+	"""table vaccination"""
+	return 'vacc_mod_db'
 
 
 def health_issue_change_db():
@@ -137,7 +142,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.13  2003-12-02 01:59:19  ncq
+# Revision 1.14  2003-12-29 16:33:59  uid66147
+# - vaccinations related signals
+#
+# Revision 1.13  2003/12/02 01:59:19  ncq
 # - cleanup, add vaccination_updated()
 #
 # Revision 1.12  2003/11/17 10:56:37  sjtan
