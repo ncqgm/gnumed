@@ -6,25 +6,22 @@ This device is made by Bayer Diagnostics.
 """
 #========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/device-drivers/Clinitek50.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL (details at http://gnu.org/)"
 
 # stock python
 import sys, os.path, time, string
 
-if __name__ == '__main__':
-	sys.path.append('../client/pycommon/')
+# 3rd party
+import serial, mx.DateTime as mxDT
 
-import gmLog
+from Gnumed.pycommon import gmLog, gmExceptions, gmSerialTools
+
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-
-import gmExceptions, gmSerialTools
-
-# 3rd party
-import serial, mx.DateTime as mxDT
 
 #========================================================
 class cClinitek50:
@@ -45,7 +42,7 @@ class cClinitek50:
 	known_good_dev_revs = ('  ', 'A ')
 	known_good_sw_versions = ('01.00', '01.02')
 	known_stix_types = ('MULTISTIX 10 SG',)
-	time_format = '%H%M'				# this seems fixed in firmware as opposed to the date format
+	time_format = '%H%M'				# this seems hardcoded in firmware as opposed to the date format
 
 	def __init__(self, aPort = 0, aDateFormat = '%y%m%d'):
 		"""Setup low level driver and check attached device."""
@@ -268,7 +265,10 @@ if __name__ == '__main__':
 
 #========================================================
 # $Log: Clinitek50.py,v $
-# Revision 1.6  2004-02-25 09:46:35  ncq
+# Revision 1.7  2004-07-03 17:16:50  ncq
+# - cleanup, import fixes
+#
+# Revision 1.6  2004/02/25 09:46:35  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.5  2004/01/06 23:18:52  ncq
