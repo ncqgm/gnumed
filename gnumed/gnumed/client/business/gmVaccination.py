@@ -3,12 +3,12 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.14 2004-10-20 21:42:28 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmVaccination.py,v 1.15 2004-10-27 12:11:59 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import types
+import types, copy
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmI18N, gmPG
 from Gnumed.business import gmClinItem
@@ -21,7 +21,7 @@ class cVaccination(gmClinItem.cClinItem):
 	"""Represents one vaccination event.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_pat_vacc4ind
+		select *, NULL as is_booster, -1 as seq_no from v_pat_vacc4ind
 		where pk_vaccination=%s
 		order by date desc"""
 
@@ -43,39 +43,45 @@ class cVaccination(gmClinItem.cClinItem):
 		'pk_provider',
 		'vaccine',
 		'site',
-		'batch_no'
+		'batch_no',
+		# the following two are updatable via __setitem__
+		# API but not persisted via _cmds_store_payload
+		'is_booster',
+		'seq_no'
 	]
 	#--------------------------------------------------------
-	def set_booster_status(self, is_booster=None):
-		if is_booster is None:
-			return False
+	def _init_from_row_data(self, row=None):
+		"""Make sure we have is_booster/seq_no when loading from row data."""
+		gmClinItem.cClinItem._init_from_row_data(self, row=row)
 		try:
-			self._payload[self._idx['is_booster']] = is_booster
+			idx = self._idx['is_booster']
 		except KeyError:
-			self._idx['is_booster'] = len(self._payload)
-			self._payload.append(is_booster)
-		if is_booster:
-			self.set_seq_no(seq_no = -1)
-		return True
-	#--------------------------------------------------------
-	def set_seq_no(self, seq_no=None):
-		int(seq_no)
+			idx = len(self._payload)
+			self._payload.append(False)
+			# make local copy so we can safely modify it, but from
+			# self._idx which is row['idx'] with possible modifications
+			self._idx = copy.copy(self._idx)
+			self._idx['is_booster'] = idx
 		try:
-			self._payload[self._idx['seq_no']] = seq_no
+			idx = self._idx['seq_no']
 		except KeyError:
-			self._idx['seq_no'] = len(self._payload)
-			self._payload.append(seq_no)
-		if seq_no > 0:
-			self.set_booster_status(is_booster=False)
-		return True
+			idx = len(self._payload)
+			self._payload.append(False)
+			self._idx = copy.copy(self._idx)
+			self._idx['seq_no'] = -1
 	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		gmClinItem.cClinItem.__setitem__(self, attribute, value)
+		if attribute in ['is_booster', 'seq_no']:
+			self._is_modified = False
+#	#--------------------------------------------------------
 #	def get_next_shot_due(self):
-		"""
-		Retrieves next shot due date
-		"""
-		# FIXME: this will break due to not being initialized
+#		"""
+#		Retrieves next shot due date
+#		"""
+#		# FIXME: this will break due to not being initialized
 #		return self.__next_shot_due
-	#--------------------------------------------------------
+#	#--------------------------------------------------------
 #	def set_next_shot_due(self, next_shot_due):
 #		"""
 #		Sets next shot due date
@@ -194,10 +200,10 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
 	if (rows is None) or (len(rows) == 0):
 		_log.Log(gmLog.lErr, 'error checking episode [%s] <-> encounter [%s] consistency' % (episode_id, encounter_id))
-		return (None, _('internal error, check log'))
+		return (False, _('internal error, check log'))
 	if len(rows) > 1:
 		_log.Log(gmLog.lErr, 'episode [%s] and encounter [%s] belong to more than one patient !?!' % (episode_id, encounter_id))
-		return (None, _('consistency error, check log'))
+		return (False, _('consistency error, check log'))
 	# insert new vaccination
 	queries = []
 	if type(vaccine) == types.IntType:
@@ -211,16 +217,14 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	# get PK of inserted row
 	cmd = "select currval('vaccination_id_seq')"
 	queries.append((cmd, []))
-
 	result, msg = gmPG.run_commit('historica', queries, True)
-	if result is None:
-		return (None, msg)
-
+	if (result is None) or (len(result) == 0):
+		return (False, msg)
 	try:
 		vacc = cVaccination(aPK_obj = result[0][0])
 	except gmExceptions.ConstructorError:
 		_log.LogException('cannot instantiate vaccination' % (result[0][0]), sys.exc_info, verbose=0)
-		return (None, _('internal error, check log'))
+		return (False, _('internal error, check log'))
 
 	return (True, vacc)
 #--------------------------------------------------------
@@ -374,7 +378,14 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.14  2004-10-20 21:42:28  ncq
+# Revision 1.15  2004-10-27 12:11:59  ncq
+# - add is_booster/seq_no as pseudo columns to _cmd_fetch_payload so
+#   __init_from_pk() automagically creates all the right things
+# - enhance _init_from_row_data() to construct those fields if need be
+# - make __setitem__ aware of is_booster/seq_no being pseudo columns
+#   that do not affect _is_modified
+#
+# Revision 1.14  2004/10/20 21:42:28  ncq
 # - fix faulty appending on repeated use of set_booster_status/set_seq_no()
 #
 # Revision 1.13  2004/10/18 11:35:42  ncq
