@@ -375,6 +375,9 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			itemsAttached = saveVaccinationsCollection(encounter, summary,
 					nonFatalExceptions, conn, itemsAttached);
 			
+			itemsAttached = saveMedicationCollection(encounter, summary,
+					nonFatalExceptions, conn, itemsAttached);
+			
 			if (itemsAttached == 0) {
 				conn.rollback();
 				Statement stmt = conn.createStatement();

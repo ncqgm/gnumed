@@ -103,7 +103,7 @@
 
 
     <!-- Create binary distribution -->
-    <target name="dist"
+    <target name="dist" depends="compile"
 	    description="Create binary distribution">
 
       <delete dir="${distpath.project}"/>

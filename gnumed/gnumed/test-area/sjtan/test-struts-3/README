@@ -15,7 +15,10 @@ Brief steps:
 3. CONFIGURE- check configuration in ./war-context.xml and ./META-INF/context.xmll have the correct database names and user names
 for gnumed and drug-ref. Ensure the users' have access permissions. The first time the app is run, v_drugref1 will
 be created as a view in drugref, and if the user is not the owner, than permissions to this view need to be set manually
-using psql (at the moment). 
+using psql (at the moment).  
+
+In the script set_perms_drugref.sh, match the users listed in the script with the users in context.xml then run it using sh.
+
 
 4. CONFIGURE , COMPILE - run *copy_lib.sh* , after editing it and ensuring it's paths are correct,
  then run *ant* in ./WEB-INF/src to compile and to create a gnumes-test-war.war in ./dist .
