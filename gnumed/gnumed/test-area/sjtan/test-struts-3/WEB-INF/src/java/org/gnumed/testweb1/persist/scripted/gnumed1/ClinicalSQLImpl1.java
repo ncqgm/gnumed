@@ -43,7 +43,7 @@ public class ClinicalSQLImpl1 implements ClinicalSQL ,
                 vaccines = new java.util.ArrayList();
                 while (rs.next() ) {
                     Vaccine vaccine  = getDataObjectFactory()
-                    .createVaccine(rs.getString(2), rs.getString(3), rs.getBoolean(5),  rs.getString(4));
+                    .createVaccine(new Integer(rs.getInt(1)), rs.getString(2), rs.getString(3), rs.getBoolean(5),  rs.getString(4));
                     vaccines.add(vaccine);
                 }
     }

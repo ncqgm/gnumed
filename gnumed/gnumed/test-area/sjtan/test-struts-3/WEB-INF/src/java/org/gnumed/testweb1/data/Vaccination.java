@@ -11,18 +11,18 @@ package org.gnumed.testweb1.data;
  * @author  sjtan
  */
 public interface Vaccination {
-    
+    public Vaccine getVaccine();
     /**
      * Getter for property tradeName.
      * @return Value of property tradeName.
      */
-    public String getSiteGiven();
+    public String getSite();
     
     /**
      * Setter for property tradeName.
      * @param tradeName New value of property tradeName.
      */
-    public void setSiteGiven(String tradeName);
+    public void setSite(String site);
     
     /**
      * Getter for property shortName.

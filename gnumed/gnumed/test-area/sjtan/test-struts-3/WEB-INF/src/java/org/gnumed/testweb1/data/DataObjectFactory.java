@@ -5,13 +5,34 @@
  */
 
 package org.gnumed.testweb1.data;
-
+import java.util.Map;
 /**
  *
  * @author  sjtan
  */
 public interface DataObjectFactory {
     DemographicDetail createDemographicDetail();
-    Vaccine createVaccine( String tradeName, String shortName, boolean isLive, String lastBatchNo ) ;
     
+    
+    
+    Vaccine createVaccine(Integer id, String tradeName, String shortName, boolean isLive, 
+        String lastBatchNo ) ;
+    
+    
+    public Vaccination createVaccination(Long id, Integer vacc_id, 
+    String siteGiven, String batchNo, 
+    java.sql.Timestamp ts , Map vaccines) ;
+     
+    HealthIssue createHealthIssue( PatientIdentifiable pi, String description );
+    
+    ClinicalEncounter createClinicalEncounter( );
+     
+     public Allergy createAllergy();
+     public Vaccination createVaccination();
+     public ClinNarrative createClinNarrative();
+     public Medication createMedication();
+     public HealthIssue createHealthIssue();
+     public ClinicalEpisode createClinicalEpisode();
+     
+     HealthRecord01 createHealthRecord(HealthSummary01 hs);
 }

@@ -38,11 +38,12 @@ public class DefaultVaccine extends Object implements Serializable, Vaccine {
         propertySupport = new PropertyChangeSupport(this);
     }
     
-    public DefaultVaccine( String tradeName, String shortName, boolean isLive, String lastBatchNo) {
+    public DefaultVaccine( Integer id, String tradeName, String shortName, boolean isLive, String lastBatchNo) {
         this.tradeName = tradeName;
         this.shortName = shortName;
         this.isLive = isLive;
         this.lastBatchNo = lastBatchNo;
+        this.id = id;
         
     }
     
@@ -104,8 +105,8 @@ public class DefaultVaccine extends Object implements Serializable, Vaccine {
         this.lastBatchNo = lastBatchNo;
     }
     
-    final static DefaultVaccine nullVaccine;
+    final static  Vaccine nullVaccine;
     static {
-        nullVaccine = new DefaultVaccine("","",false,"");
+        nullVaccine = new DefaultVaccine( new Integer(0) ,"","",false,"");
     }
 }

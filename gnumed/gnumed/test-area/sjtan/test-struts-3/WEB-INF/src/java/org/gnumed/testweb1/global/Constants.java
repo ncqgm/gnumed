@@ -27,6 +27,7 @@ public final class Constants {
     public static final class Plugin {
         public final static String DEMOGRAPHIC_SQL_PROVIDER = "demographicSQLProvider";
         public final static String CLINICAL_SQL_PROVIDER = "clinicalSQLProvider";
+        public final static String HEALTH_RECORD_ACCESS_PROVIDER = "healthRecordAccessProvider";
    
     
     }
@@ -34,6 +35,7 @@ public final class Constants {
     public static final class Servlet {
         public final static String DEMOGRAPHIC_ACCESS= "demographicAccess";
          public final static String CLINICAL_ACCESS= "clinicalAccess";
+          public final static String HEALTH_RECORD_ACCESS= "healthRecordAccess";
          public final static String OBJECT_FACTORY="objectFactory";
     
     }
@@ -48,6 +50,8 @@ public final class Constants {
         public final static String PATIENT_ID="id";
         public final static String DEMOGRAPHIC_DETAIL_DISPLAY = "detail";
         public final static String CLINICAL_UPDATE_FORM="clinicalUpdateForm";
+        public final static String HEALTH_RECORD_DISPLAY="healthRecord";
+        
      }
     
 }

@@ -88,22 +88,22 @@
             </td>
             <td>
                 <bean:message key="encounter.time"/>
-                <html:text  property="encounter.dateString"/>
+                <html:text name="clinicalUpdateForm" property="encounter.started"/>
             </td>
             <td>
                 <bean:message key="encounter.location"/>
-                <html:select  property="encounter.location" >
+                <html:select  name="clinicalUpdateForm" property="encounter.location" >
                     <html:option value="1">consulting room </html:option>
                     <html:option value="2">nursing home </html:option>
                 </html:select>
             </td>
             </tr>
         </table>
-            
-        <logic:iterate id="episode" name="clinicalUpdateForm" 
-            property="encounter.episodes" scope="request"
+         
+        <logic:iterate id="clinNarrative" name="clinicalUpdateForm" 
+            property="encounter.narrative" scope="request"
             indexId="index" >
-            <a name='linkEpisode<%=index%>' </a>
+            <a name='linkNarrative<%=index%>' </a>
             <table>
                 <tr>
                 
@@ -120,11 +120,11 @@
                                 document.getElementById('txtNewHealthIssue<%=index%>').style.display='none';
                             }
                             return true;"
-                 value='1' title='new health issue'/></td>               
+                 value='1' title='create health issue'/></td>               
                 <td>
                 <div id="sel<%=index%>">
                 
-                    <nested:select name="episode" property="clinHealthIssue" indexed="true" value="0"
+                    <nested:select name="clinNarrative" property="healthIssueName" indexed="true" value="0"
                         onchange=""
                         >
                         <html:option value="0">not selected</html:option>
@@ -138,7 +138,7 @@
                 <div id="txtNewHealthIssue<%=index%>" style="display:none" >
                     
                                 New Health Issue:
-                                <html:text name="episode" property="clinHealthIssue" indexed="true"/>
+                                <html:text name="clinNarrative" property="healthIssueName" indexed="true"/>
                         
                 
                 </div>
@@ -146,24 +146,24 @@
                 </td>
                    
                 <td>
-                    <!-- 
-                    <a href="#e<%=index%>" onclick="var prefix='episode'; show(prefix, <%=index%>); return false;"
+                    <!--
+                    <a href="#e<%=index%>" onclick="var prefix='clinNarrative'; show(prefix, <%=index%>); return false;"
                     >Show episode</a>
-                    <a href="#e<%=index%>" onclick="var prefix='episode'; hide(prefix, <%=index%>); return false;"
+                    <a href="#e<%=index%>" onclick="var prefix='clinNarrative'; hide(prefix, <%=index%>); return false;"
                     >Hide</a>
                     -->
-                    <a href="javascript:getRelativeURL('#linkEpisode<%=index%>')"
-                    onclick="document.getElementById('episode<%=index%>').style.display='block'; return true;" > show </a> 
+                    <a href="javascript:getRelativeURL('#linkNarrative<%=index%>')"
+                    onclick="document.getElementById('clinNarrative<%=index%>').style.display='block'; return true;" > show </a> 
                    
-                    <a href="javascript:getRelativeURL('#linkEpisode<%=index%>')"
-                    onclick="document.getElementById('episode<%=index%>').style.display='none'; return true;" > hide </a> 
+                    <a href="javascript:getRelativeURL('#linkNarrative<%=index%>')"
+                    onclick="document.getElementById('clinNarrative<%=index%>').style.display='none'; return true;" > hide </a> 
                 </td>
                     
                 </tr>    
                 
             </table>
                 
-            <div id='episode<%=index%>' style='display:<%=(String)((index.intValue() == 0)? "block":"none")%>'  >   
+            <div id='clinNarrative<%=index%>' style='display:<%=(String)((index.intValue() == 0)? "block":"none")%>'  >   
               
                 <table> 
                     
@@ -174,7 +174,7 @@
                     </tr>
                     <tr>
                     <td COLSPAN='2'>
-                        <html:textarea  name="episode" property="notes" rows="6" cols="40" indexed="true"/>
+                        <html:textarea  name="clinNarrative" property="narrative" rows="6" cols="40" indexed="true"/>
                     </td>
                     </tr>
                 </table>

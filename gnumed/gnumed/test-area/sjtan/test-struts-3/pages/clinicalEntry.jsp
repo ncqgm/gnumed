@@ -13,9 +13,10 @@
 <html:errors/>
 </b></p>
 </div>
-
-<jsp:include page="./encounter.jsp"/>
-<%--  --%>
+<jsp:include page="./clinSummary.jsp"/>
+<%--
+<jsp:include page="./encounter.jsp"/> 
+--%>
 <jsp:include page="./vaccinationEntry.jsp"/>
 
 

@@ -6,12 +6,15 @@
 
 package org.gnumed.testweb1.data;
 import org.gnumed.testweb1.global.Util;
+import java.util.Map;
 /**
  *
  * @author  sjtan
  */
-public class DefaultVaccination implements Vaccination {
+public class DefaultVaccination extends ClinRootItemImpl1 implements Vaccination, ClinRootItem {
     
+    private Vaccine vaccine;
+  
     /**
      * Holds value of property dateGivenString.
      */
@@ -35,10 +38,20 @@ public class DefaultVaccination implements Vaccination {
     private String batchNo;
     
     /** Creates a new instance of Vaccination */
-    public DefaultVaccination() {
+    public DefaultVaccination( ) {
         dateGivenString = Util.getShortNowString(false);
+       
     }
     
+    public DefaultVaccination(Long id, Integer vacc_id, 
+    String siteGiven, String batchNo, 
+    java.sql.Timestamp ts , Map vaccines) {
+        this.id = id;
+        this.vaccine = (Vaccine) vaccines.get( vacc_id);
+        this.siteGiven = siteGiven;
+        this.batchNo =batchNo;
+        setDateGivenString( ts.toString());
+    }
     /**
      * Getter for property dateGivenString.
      * @return Value of property dateGivenString.
@@ -59,7 +72,7 @@ public class DefaultVaccination implements Vaccination {
      * Getter for property siteGiven.
      * @return Value of property siteGiven.
      */
-    public String getSiteGiven() {
+    public String getSite() {
         return this.siteGiven;
     }
     
@@ -67,7 +80,7 @@ public class DefaultVaccination implements Vaccination {
      * Setter for property siteGiven.
      * @param siteGiven New value of property siteGiven.
      */
-    public void setSiteGiven(String siteGiven) {
+    public void setSite(String siteGiven) {
         this.siteGiven = siteGiven;
     }
     
@@ -92,7 +105,7 @@ public class DefaultVaccination implements Vaccination {
      * @return Value of property vaccineGiven.
      */
     public String getVaccineGiven() {
-        return this.vaccineGiven;
+        return vaccine == null ? this.vaccineGiven : vaccine.getShortName();
     }
     
     /**
@@ -117,6 +130,33 @@ public class DefaultVaccination implements Vaccination {
      */
     public void setBatchNo(String batchNo) {
         this.batchNo = batchNo;
+    }
+
+    
+    public Vaccine getVaccine() {
+        return vaccine;
+    }
+     
+    public String getHealthIssueName() {
+        String retValue;
+        
+        retValue = super.getHealthIssueName();
+        return retValue;
+    }    
+    
+    public void setHealthIssueName(String healthIssueName) {
+        super.setHealthIssueName(healthIssueName);
+    }
+    
+    public java.util.Date getClin_when() {
+        java.util.Date retValue;
+        
+        retValue = super.getClin_when();
+        return retValue;
+    }
+    
+    public void setClin_when(java.util.Date clin_when) {
+        super.setClin_when(clin_when);
     }
     
 }

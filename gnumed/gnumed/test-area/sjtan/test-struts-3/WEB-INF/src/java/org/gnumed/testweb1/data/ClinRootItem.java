@@ -40,13 +40,13 @@ public interface ClinRootItem {
      * Getter for property soapCat.
      * @return Value of property soapCat.
      */
-    public String getSoapCat();
+    public char getSoapCat();
     
     /**
      * Setter for property soapCat.
      * @param soapCat New value of property soapCat.
      */
-    public void setSoapCat(String soapCat);
+    public void setSoapCat(char soapCat);
     
     /**
      * Getter for property encounter.
@@ -71,5 +71,41 @@ public interface ClinRootItem {
      * @param episode New value of property episode.
      */
     public void setEpisode(ClinicalEpisode episode);
+    
+    /**
+     * Getter for property pk.
+     * @return Value of property pk.
+     */
+    public Integer getPk();
+    
+    /**
+     * Setter for property pk.
+     * @param pk New value of property pk.
+     */
+    public void setPk(Integer pk);
+    
+    /**
+     * Getter for property healthIssueName.
+     * @return Value of property healthIssueName.
+     */
+    public String getHealthIssueName();
+    
+    /**
+     * Setter for property healthIssueName.
+     * @param healthIssueName New value of property healthIssueName.
+     */
+    public void setHealthIssueName(String healthIssueName);
+    
+    /**
+     * Getter for property clin_when.
+     * @return Value of property clin_when.
+     */
+    public java.util.Date getClin_when();
+    
+    /**
+     * Setter for property clin_when.
+     * @param clin_when New value of property clin_when.
+     */
+    public void setClin_when(java.util.Date clin_when);
     
 }

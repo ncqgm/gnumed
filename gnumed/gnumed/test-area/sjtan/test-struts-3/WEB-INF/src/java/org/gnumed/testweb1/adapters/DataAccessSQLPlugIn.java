@@ -34,6 +34,7 @@ import org.gnumed.testweb1.persist.scripted.ScriptedSQLDemographicDataAccess;
 import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
 import org.gnumed.testweb1.persist.scripted.ClinicalSQL;
 import org.gnumed.testweb1.persist.scripted.ScriptedSQLClinicalAccess;
+import org.gnumed.testweb1.persist.HealthRecordAccess01;
 
 import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
 import org.gnumed.testweb1.persist.ResourceBundleUsing;
@@ -133,19 +134,16 @@ public class DataAccessSQLPlugIn implements PlugIn {
                 dbAccess.setDataSource(dataSource);
 
                 dbAccess.setDemographicDetailSQL((DemographicDetailSQL) sqlScriptImpl);
-                
-                
-                
-                
+                      
                 actionServlet.getServletContext().setAttribute(Constants.Servlet.DEMOGRAPHIC_ACCESS , dbAccess );
                 
-                
+                     
             } catch (Exception e) {
                 log.error( "UNABLE TO SET '" +
                 DemographicDataAccess.DEMOGRAPHIC_ACCESS  +
                 "' of servlet context", e);
             }
-            
+             ScriptedSQLClinicalAccess scriptedClinicalAccess = null;
             try {
                 
                 String clinImplClassName=
@@ -162,7 +160,7 @@ public class DataAccessSQLPlugIn implements PlugIn {
                 setDataObjectFactory((DataObjectFactoryUsing) clinSqlScriptImpl, factory);
            
             
-                ScriptedSQLClinicalAccess scriptedClinicalAccess = new ScriptedSQLClinicalAccess();
+                scriptedClinicalAccess = new ScriptedSQLClinicalAccess();
                 scriptedClinicalAccess.setDataSource(dataSource);
                scriptedClinicalAccess.setClinicalSQL(clinSqlScriptImpl);
                actionServlet.getServletContext().
@@ -170,6 +168,28 @@ public class DataAccessSQLPlugIn implements PlugIn {
                 
             } catch (Exception e) {
                 log.error(e);
+            }
+            
+            try {
+                String implClassName =
+                (String) map.get(Constants.Plugin.HEALTH_RECORD_ACCESS_PROVIDER);
+                
+                
+                HealthRecordAccess01 healthRecordAccess = 
+                (HealthRecordAccess01) Class.forName(implClassName).newInstance();
+                log.info("implClassName for health record access" + implClassName);
+                 
+                healthRecordAccess.setDataSource(dataSource);
+                healthRecordAccess.setDataObjectFactory(factory);
+                healthRecordAccess.setClinicalDataAccess(scriptedClinicalAccess);
+                
+                actionServlet.getServletContext().setAttribute(Constants.Servlet.HEALTH_RECORD_ACCESS , healthRecordAccess);
+                
+                     
+            } catch (Exception e) {
+                log.error( "UNABLE TO SET '" + "HealthRecordAccess"
+                   +
+                "' of servlet context", e);
             }
             
             

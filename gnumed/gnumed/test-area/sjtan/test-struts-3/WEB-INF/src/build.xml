@@ -1,17 +1,17 @@
-<project name="blank" basedir="../" default="all">
+<project name="blank" basedir="../" default="compile">
 
-    <property name="lib.path" value="./lib"/>
+	<property name="lib.path" value="./lib"/>
 
     <!-- Local system paths -->
     <property name="servlet.jar" value="${lib.path}/servlet-api.jar"/>
     <property name="jdbc20ext.jar" value="/javasoft/lib/jdbc2_0-stdext.jar"/>
         <!-- NOTE: If "dist" target is used, a local
              "projects/lib" directory will be utilized or created -->
-    <property name="distpath.project" value="../dist"/>
+    <property name="distpath.project" value="../../dist"/>
 
     <!-- Project settings -->
     <property name="project.title" value="Gnumed WebClient test "/>
-    <property name="project.distname" value="test-struts-3"/>
+    <property name="project.distname" value="test-struts-2"/>
     <property name="project.version" value="0.1"/>
 
 
@@ -27,6 +27,7 @@
         <pathelement path ="${lib.path}/commons-digester.jar"/>
         <pathelement path ="${lib.path}/struts.jar"/>
         <pathelement path ="${lib.path}/servlet-api.jar"/>
+        <pathelement path ="${lib.path}/postgresql.jar"/>
 	<pathelement path ="${lib.path}/commons-logging.jar"/>
         <pathelement path ="classes"/>
         <pathelement path ="${classpath}"/>

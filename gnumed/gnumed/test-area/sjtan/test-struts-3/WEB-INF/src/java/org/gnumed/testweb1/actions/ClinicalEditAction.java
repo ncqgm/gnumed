@@ -40,6 +40,10 @@ import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.persist.ClinicalDataAccess;
 import org.gnumed.testweb1.persist.DemographicDataAccess;
 
+import org.gnumed.testweb1.persist.HealthRecordAccess01;
+
+import org.gnumed.testweb1.data.HealthRecord01;
+
 import org.gnumed.testweb1.data.DemographicDetail;
 import org.gnumed.testweb1.data.Vaccine;
 
@@ -105,7 +109,15 @@ public class ClinicalEditAction extends Action {
                 DemographicDetail detail = demoDataAccess.findDemographicDetailById(id);
                 request.setAttribute(Constants.Request.DEMOGRAPHIC_DETAIL_DISPLAY, detail);
                 
-               
+             
+                HealthRecordAccess01 healthRecordAccess = (HealthRecordAccess01)
+                servlet.getServletContext().getAttribute( 
+                    Constants.Servlet.HEALTH_RECORD_ACCESS);
+                
+                HealthRecord01 healthRecord = healthRecordAccess.findHealthRecordByIdentityId(id.longValue());
+                logHealthIssues(healthRecord);
+                request.setAttribute(Constants.Request.HEALTH_RECORD_DISPLAY, healthRecord);
+                
               //  log.info("CLIN FORM ID IS " + BeanUtils.getSimpleProperty(form, "id"));
                 
             }
@@ -117,6 +129,7 @@ public class ClinicalEditAction extends Action {
             
             
         } catch (Exception e) {
+            e.printStackTrace();
             Util.setScopedMappingAttribute(request, mapping, form);
             log.info(e);
             ActionError error = new ActionError(e.toString(), e);
@@ -126,5 +139,12 @@ public class ClinicalEditAction extends Action {
         }
         
         return mapping.findForward("successLoadClinical");
+    }
+    
+    private void logHealthIssues(   HealthRecord01 healthRecord) {
+        List l = healthRecord.getHealthSummary().getHealthIssues();
+        log.info("got health issues " + l + " size = " + ( (l == null)? "null" : Integer.toString(l.size())));
+        
+    
     }
 }

@@ -100,7 +100,7 @@ public class ClinicalSaveAction extends Action {
                     log.info("GOT " + v + " which was empty");
                 } else {
                     log.info("GOT vaccineGiven" + v.getVaccineGiven() + " on " + v.getDateGivenString()
-                    + " batch no =" +v.getBatchNo() + " , and site given = " + v.getSiteGiven());
+                    + " batch no =" +v.getBatchNo() + " , and site given = " + v.getSite());
                 }
                 
                 

@@ -51,11 +51,27 @@ public class DataObjectFactoryPlugIn implements PlugIn {
             Object factory = Class.forName(implClassName).newInstance();
             actionServlet.getServletContext().setAttribute(Constants.Servlet.OBJECT_FACTORY, factory);
             log.info ("Set Servlet context attribute "+ Constants.Servlet.OBJECT_FACTORY);
+            
+           
         } catch (Exception e) {
             log.error( "UNABLE TO SET '" + Constants.Servlet.OBJECT_FACTORY + "' of servlet context", e);
         }
         
         
+        //TODO
+        // move this somewhere better
+        
+        try {
+            
+            Object factory = Class.forName(implClassName).newInstance();
+            org.gnumed.testweb1.forms.ClinicalUpdateForm.setDataObjectFactory((org.gnumed.testweb1.data.DataObjectFactory) factory);
+                
+            log.info ("Set clinical update form "+ Constants.Servlet.OBJECT_FACTORY);
+            
+           
+        } catch (Exception e) {
+            log.error( "UNABLE TO SET '" + Constants.Servlet.OBJECT_FACTORY + "' of clinical update form class", e);
+        }
     }
     
 }

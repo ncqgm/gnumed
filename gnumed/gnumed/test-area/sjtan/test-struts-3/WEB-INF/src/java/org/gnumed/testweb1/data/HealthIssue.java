@@ -40,12 +40,26 @@ public interface HealthIssue {
      * Getter for property clinicalEpisodes.
      * @return Value of property clinicalEpisodes.
      */
-    public ClinicalEpisode[] getClinicalEpisodes();
+    public ClinicalEpisode[] getClinicalEpisodes(); 
     
     /**
      * Setter for property clinicalEpisodes.
      * @param clinicalEpisodes New value of property clinicalEpisodes.
      */
     public void setClinicalEpisodes(ClinicalEpisode[] clinicalEpisodes);
+    
+    /**
+     * Indexed getter for property clinicalEpisode.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public ClinicalEpisode getClinicalEpisode(int index);
+    
+    /**
+     * Indexed setter for property clinicalEpisode.
+     * @param index Index of the property.
+     * @param clinicalEpisode New value of the property at <CODE>index</CODE>.
+     */
+    public void setClinicalEpisode(int index, ClinicalEpisode clinicalEpisode);
     
 }

@@ -5,7 +5,7 @@
  */
 
 package org.gnumed.testweb1.data;
-
+import java.util.List;
 /**
  *
  * @author  sjtan
@@ -72,4 +72,73 @@ public interface ClinicalEncounter {
      */
     public void setEncounterType(String encounterType);
     
+    /**
+     * Indexed getter for property vaccination.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public Vaccination getVaccination(int index);
+    
+    /**
+     * Indexed setter for property vaccination.
+     * @param index Index of the property.
+     * @param vaccination New value of the property at <CODE>index</CODE>.
+     */
+    public void setVaccination(int index, Vaccination vaccination);
+    
+    /**
+     * Indexed getter for property allergy.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public Allergy getAllergy(int index);
+    
+    /**
+     * Indexed setter for property allergy.
+     * @param index Index of the property.
+     * @param allergy New value of the property at <CODE>index</CODE>.
+     */
+    public void setAllergy(int index, Allergy allergy);
+    
+    /**
+     * Indexed getter for property medication.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public Medication getMedication(int index);
+    
+    /**
+     * Indexed setter for property medication.
+     * @param index Index of the property.
+     * @param medication New value of the property at <CODE>index</CODE>.
+     */
+    public void setMedication(int index, Medication medication);
+    
+    /**
+     * Getter for property location.
+     * @return Value of property location.
+     */
+    public String getLocation();
+    
+    /**
+     * Setter for property location.
+     * @param location New value of property location.
+     */
+    public void setLocation(String location);
+    
+    /**
+     * Indexed getter for property narrative.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public ClinNarrative getNarrative(int index);
+    
+    public List getNarratives();
+    /**
+     * Indexed setter for property narrative.
+     * @param index Index of the property.
+     * @param narrative New value of the property at <CODE>index</CODE>.
+     */
+    public void setNarrative(int index, ClinNarrative narrative);
+    public void sortRootItems(final java.util.Comparator comparator) ;
 }

@@ -559,6 +559,9 @@
     <set-property property="clinicalSQLProvider" 
             value = "org.gnumed.testweb1.persist.scripted.gnumed1.ClinicalSQLImpl1"
     />
+    <set-property property="healthRecordAccessProvider"
+    value = "org.gnumed.testweb1.persist.scripted.ScriptedSQLHealthRecordAccess"
+    />
 
   </plug-in>
   

@@ -45,4 +45,28 @@ public interface ClinicalEpisode {
      */
     public void setId(Long id);
     
+    /**
+     * Getter for property healthIssue.
+     * @return Value of property healthIssue.
+     */
+    public HealthIssue getHealthIssue();
+    
+    /**
+     * Setter for property healthIssue.
+     * @param healthIssue New value of property healthIssue.
+     */
+    public void setHealthIssue(HealthIssue healthIssue);
+    
+    /**
+     * Getter for property modified_when.
+     * @return Value of property modified_when.
+     */
+    public java.util.Date getModified_when();
+    
+    /**
+     * Setter for property modified_when.
+     * @param modified_when New value of property modified_when.
+     */
+    public void setModified_when(java.util.Date modified_when);
+    
 }

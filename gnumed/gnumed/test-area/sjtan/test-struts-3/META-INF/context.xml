@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<Context crossContext="true" debug="5" docBase="/home/sjtan/projects/gnumed3/gnumed/gnumed/test-area/sjtan/test-struts-3" path="/test-struts-3" reloadable="true" scope="session">
+<!-- path="/test-struts-2" docBase="/home/sjtan/projects/test-struts-2" -->
+<Context crossContext="true" debug="5" docBase="/home/sjtan/projects/test-struts-2" path="/test-struts-2" reloadable="true" scope="session">
   <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_DBTest_log." suffix=".txt" timestamp="true"/>
   <Resource auth="Container" name="jdbc/gnumed" type="javax.sql.DataSource"/>
   <ResourceParams name="jdbc/gnumed">
@@ -22,7 +22,7 @@
     </parameter>
     <parameter>
       <name>password</name>
-      <value>pass</value>
+      <value>monica</value>
     </parameter>
     <parameter>
       <name>maxActive</name>

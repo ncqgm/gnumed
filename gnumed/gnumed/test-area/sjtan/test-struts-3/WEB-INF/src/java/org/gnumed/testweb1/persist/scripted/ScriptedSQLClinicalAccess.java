@@ -11,8 +11,10 @@ import org.gnumed.testweb1.global.Util;
 import org.gnumed.testweb1.persist.DataSourceException;
 
 import javax.sql.DataSource;
-
+import org.gnumed.testweb1.data.Vaccine;
 import org.gnumed.testweb1.data.Vaccination;
+import java.util.Map;
+import java.util.Iterator;
 /**
  *
  * @author  sjtan
@@ -21,18 +23,34 @@ public class ScriptedSQLClinicalAccess implements ClinicalDataAccess {
     
     DataSource dataSource;
     ClinicalSQL sqlProvider;
+    Map vaccMap;
     /** Creates a new instance of ScriptedSQLClinicalAccess */
     public ScriptedSQLClinicalAccess() {
     }
     
     public java.util.List getVaccines() throws DataSourceException {
         try {
-         return sqlProvider.getVaccines(getDataSource().getConnection());
+            return sqlProvider.getVaccines(getDataSource().getConnection());
         } catch (Exception e) {
             throw new DataSourceException( Util.getStaceTraceN(e, 8));
         }
         
-    }    
+    }
+    
+    public Map getVaccineMap() throws DataSourceException {
+        if ( vaccMap == null) {
+            vaccMap = new java.util.HashMap();
+            Iterator i = getVaccines().iterator();
+            while (i.hasNext()) {
+                Vaccine v = (Vaccine)i.next();
+                System.err.println("VACCINE=" + v.getTradeName() + " id =" + v.getId());
+                vaccMap.put(v.getId(), v);
+                
+            }
+            
+        }
+        return vaccMap;
+    }
     
     public void setClinicalSQL( ClinicalSQL sqlProvider) {
         this.sqlProvider = sqlProvider;

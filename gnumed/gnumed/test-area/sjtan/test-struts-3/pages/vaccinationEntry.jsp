@@ -15,6 +15,8 @@
  
 <head><title>JSP Page</title></head>
 <body>
+<h2> <bean:message key="vacc.entry.heading"/> </h2>
+
     <logic:present name="vaccines" scope="session">
         <b> Got to here </b>
         
@@ -50,7 +52,7 @@
                         <html:text name="vaccination" property="batchNo" indexed="true" size="6"/>
                     
                         <bean:message key="vacc.site.given"/>
-                        <html:text name="vaccination" property="siteGiven" indexed="true" size="6"/>
+                        <html:text name="vaccination" property="site" indexed="true" size="6"/>
                     </td>
                    
                     </tr>

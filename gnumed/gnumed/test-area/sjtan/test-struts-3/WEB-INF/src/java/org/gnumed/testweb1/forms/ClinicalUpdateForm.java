@@ -13,8 +13,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.beanutils.BeanUtils;
 import org.gnumed.testweb1.data.DefaultVaccination;
-import org.gnumed.testweb1.data.Encounter;
-
+import org.gnumed.testweb1.data.ClinicalEncounterImpl1;
+import org.gnumed.testweb1.data.ClinicalEncounter;
+import org.gnumed.testweb1.data.DataObjectFactory;
 /**
  *
  * @author  sjtan
@@ -25,16 +26,23 @@ public class ClinicalUpdateForm extends ActionForm {
     Vaccination[] vaccinations ;
     String test;
     Log log = LogFactory.getLog(this.getClass());
+   
+    static DataObjectFactory factory;
+    
+    public static void setDataObjectFactory(DataObjectFactory _factory ) {
+        factory = _factory;
+        
+    }
     
     /**
      * Holds value of property encounter.
      */
-    private Encounter encounter;
+    private ClinicalEncounter encounter;
     
     /** Creates a new instance of ClinicalUpdateForm */
     public ClinicalUpdateForm() {
         initVaccinations();
-        setEncounter( new Encounter());
+        setEncounter( new ClinicalEncounterImpl1(10, 40, 10, 10, factory ));
     }
     
     private void initVaccinations() {
@@ -83,7 +91,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * Getter for property encounter.
      * @return Value of property encounter.
      */
-    public Encounter getEncounter() {
+    public ClinicalEncounter getEncounter() {
         return this.encounter;
     }
     
@@ -91,7 +99,7 @@ public class ClinicalUpdateForm extends ActionForm {
      * Setter for property encounter.
      * @param encounter New value of property encounter.
      */
-    public void setEncounter(Encounter encounter) {
+    public void setEncounter(ClinicalEncounter encounter) {
         this.encounter = encounter;
     }
     

@@ -6,6 +6,7 @@
 
 package  org.gnumed.testweb1.persist;
 import java.util.List;
+import java.util.Map;
 import org.gnumed.testweb1.persist.DataSourceException;
 import org.gnumed.testweb1.data.Vaccination;
 /**
@@ -14,5 +15,6 @@ import org.gnumed.testweb1.data.Vaccination;
  */
 public interface ClinicalDataAccess {
     public List getVaccines() throws DataSourceException;
+    public Map getVaccineMap() throws DataSourceException;
     public void updateVaccinations(Long patientId, Vaccination[] vaccinations) throws DataSourceException;
 }
