@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.104 2004-05-28 15:11:32 ncq Exp $
-__version__ = "$Revision: 1.104 $"
+# $Id: gmClinicalRecord.py,v 1.105 2004-05-28 15:46:28 ncq Exp $
+__version__ = "$Revision: 1.105 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -210,7 +210,7 @@ class cClinicalRecord:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
 		cmd = "insert into clin_note(id_encounter, id_episode, narrative) values (%s, %s, %s)"
-		return gmPG.run_commit('historica', [(cmd, [self.__encounter['id'], self.episode['id'], note])])
+		return gmPG.run_commit('historica', [(cmd, [self.__encounter['id'], self.__episode['id'], note])])
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -568,6 +568,9 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# episodes API
 	#--------------------------------------------------------
+	def get_active_episode(self):
+		return self.__episode
+	#--------------------------------------------------------
 	def get_episodes(self, id_list=None):
 		"""Fetches from backend patient episodes.
 		"""
@@ -700,11 +703,11 @@ class cClinicalRecord:
 				return False
 			episode.set_active()
 
-		self.episode = episode
+		self.__episode = episode
 		# load corresponding health issue
-		self.health_issue = self.get_health_issues(id_list=[self.episode['id_health_issue']])
+		self.health_issue = self.get_health_issues(id_list=[self.__episode['id_health_issue']])
 		if self.health_issue is None:
-			_log.Log(gmLog.lErr, 'cannot activate health issue linked from episode [%s], using default' % str(self.episode))
+			_log.Log(gmLog.lErr, 'cannot activate health issue linked from episode [%s], using default' % str(self.__episode))
 			self.health_issue = self.default_health_issue
 
 		return True
@@ -944,7 +947,7 @@ class cClinicalRecord:
 		"""Creates a new vaccination entry in backend."""
 		return gmVaccination.create_vaccination(
 			patient_id = self.id_patient,
-			episode_id = self.episode['id'],
+			episode_id = self.__episode['id'],
 			encounter_id = self.__encounter['id'],
 			vaccine = vaccine
 		)
@@ -1130,7 +1133,7 @@ class cClinicalRecord:
 		if encounter_id is None:
 			encounter_id = self.__encounter['id']
 		if episode_id is None:
-			episode_id = self.episode['id']
+			episode_id = self.__episode['id']
 		status, data = gmPathLab.create_lab_request(
 			lab=lab,
 			req_id=req_id,
@@ -1162,7 +1165,7 @@ insert into allergy (
 	%s, %s, %s, %s, %s, %s
 )
 """
-		gmPG.run_query (rw_curs, cmd, 1, self.__encounter['id'], self.episode['id'], allergy["substance"], allergy["reaction"], allergy["definite"])
+		gmPG.run_query (rw_curs, cmd, 1, self.__encounter['id'], self.__episode['id'], allergy["substance"], allergy["reaction"], allergy["definite"])
 		rw_curs.close()
 		rw_conn.commit()
 		rw_conn.close()
@@ -1188,7 +1191,7 @@ insert into allergy (
 		%s, %s, %s, %s
 		)
 		"""
-		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['id'], self.episode['id'], text, form_id])])
+		return gmPG.run_commit (cursor, [(cmd, [self.__encounter['id'], self.__episode['id'], text, form_id])])
 
 #============================================================
 # convenience functions
@@ -1264,7 +1267,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.104  2004-05-28 15:11:32  ncq
+# Revision 1.105  2004-05-28 15:46:28  ncq
+# - get_active_episode()
+#
+# Revision 1.104  2004/05/28 15:11:32  ncq
 # - get_active_encounter()
 #
 # Revision 1.103  2004/05/27 13:40:21  ihaywood
