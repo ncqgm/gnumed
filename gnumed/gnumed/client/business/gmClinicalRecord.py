@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.98 2004-05-22 11:46:15 ncq Exp $
-__version__ = "$Revision: 1.98 $"
+# $Id: gmClinicalRecord.py,v 1.99 2004-05-22 12:42:53 ncq Exp $
+__version__ = "$Revision: 1.99 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -596,38 +596,34 @@ class cClinicalRecord:
 		return filtered_episodes
 	#------------------------------------------------------------------
 	def add_episode(self, episode_name = 'xxxDEFAULTxxx', id_health_issue = None):
-		"""Add episode 'episode_name'.
+		"""Add episode 'episode_name' for a patient's health issue.
 
-		- returns ID of episode
+		- id_health_issue - given health issue PK
+		- episode_name - episode name
+
 		- adds default episode if no name given
+		- silently returns if episode already exists
 		"""
-		# anything to do ?
-		cmd = "select id_episode from v_pat_episodes where id_patient=%s and episode=%s limit 1"
-		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, episode_name)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot check if episode [%s] exists for patient [%s]' % (episode_name, self.id_patient))
-			return None
-		# episode already exists
-		if len(rows) != 0:
-			return rows[0][0]
-
-		# episode does not exist yet so create it
-		# no health issue given -> use active health issue
+		try:
+			self.__db_cache['episodes']
+		except KeyError:
+			self.get_episodes()
 		if id_health_issue is None:
-			id_health_issue = self.health_issue['id']
-		cmd1 = "insert into clin_episode (id_health_issue, description) values (%s, %s)"
-		cmd2 = "select currval('clin_episode_id_seq')"
-		rows = gmPG.run_commit('historica', [
-			(cmd1, [id_health_issue, episode_name]),
-			(cmd2, [])
-		])
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot insert episode [%s] for patient [%s]' % (episode_name, self.id_patient))
+			id_health_issue = self.health_issue['ID']
+		# already there ?
+		for episode in self.__db_cache['episodes']:
+			if episode['episode'] == episode_name:
+				if episode['id_health_issue'] == id_health_issue
+					return episode
+				else:
+					_log.Log(gmLog.lErr, 'episode [%s] already exists for patient [%s]' % (episode_name, self.id_patient))
+					_log.Log(gmLog.lErr, 'cannot change health issue link from [%s] to [%s]' % (episode['id_health_issue'], id_health_issue))
+		# no, try to create it
+		success, episode = gmEMRStructItems.create_episode(id_patient=self.id_patient, id_health_issue=id_health_issue, episode_name=episode_name)
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.id_patient, id_health_issue))
 			return None
-		if len(rows) == 0:
-			_log.Log(gmLog.lErr, 'cannot obtain id of last episode insertion')
-			return None
-		return rows[0][0]
+		return episode
 	#--------------------------------------------------------
 	def __load_last_active_episode(self):
 		# check if there's an active episode
@@ -1227,7 +1223,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.98  2004-05-22 11:46:15  ncq
+# Revision 1.99  2004-05-22 12:42:53  ncq
+# - add create_episode()
+# - cleanup add_episode()
+#
+# Revision 1.98  2004/05/22 11:46:15  ncq
 # - some cleanup re allergy signal handling
 # - get_health_issue_names doesn't exist anymore, so use get_health_issues
 #

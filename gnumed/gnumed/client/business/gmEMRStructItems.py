@@ -3,10 +3,10 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
-import types
+import types, sys
 
 from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
@@ -67,6 +67,22 @@ class cEpisode(gmClinItem.cClinItem):
 		'episode',
 		'id_health_issue'
 	]
+	#--------------------------------------------------------
+	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
+		pk = aPK_obj
+		if pk is None:
+			cmd = "select id_episode from v_pat_episodes where id_patient=%s and episode=%s limit 1"
+			rows = gmPG.run_ro_query('historica', cmd, None, id_patient, name)
+			if rows is None:
+				raise gmExceptions.ConstructorError, 'error getting episode for [%s:%s]' % (id_patient, name)
+			if len(rows) == 0:
+				raise gmExceptions.NoSuchClinItemError, 'no episode for [%s:%s]' % (id_patient, name)
+			pk = rows[0][0]
+		# instantiate class
+		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+	#--------------------------------------------------------
+	def get_patient(self):
+		return self._payload[self._idx['id_patient']]
 	#--------------------------------------------------------
 	def set_active(self):
 		cmd1 = """
@@ -156,6 +172,36 @@ def create_health_issue(patient_id=None, description='xxxDEFAULTxxx'):
 		return (False, _('internal error, check log'))
 	return (True, h_issue)
 #-----------------------------------------------------------
+def create_episode(id_patient = None, id_health_issue = None, episode_name='xxxDEFAULTxxx'):
+	"""Creates a new episode for a given patient's health issue.
+
+    id_patient - patient PK
+	id_health_issue - given health issue PK
+	episode_name - health issue name
+	"""
+	# already there ?
+	try:
+		episode = cEpisode(id_patient=id_patient, episode_name=episode_name)
+		return (True, episode)
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+	# insert new episode
+	queries = []
+	cmd = "insert into clin_episode (id_health_issue, description) values (%s, %s)"
+	queries.append((cmd, [id_health_issue, episode_name]))
+	# get PK of inserted row
+	cmd = "select currval('clin_episode_id_seq')"
+	queries.append((cmd, []))
+	result, msg = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, msg)
+	try:
+		episode = cEpisode(aPK_obj = result[0][0])
+	except gmExceptions.ConstructorError:
+		_log.LogException('cannot instantiate episode [%s]' % (result[0][0]), sys.exc_info, verbose=0)
+		return (False, _('internal error, check log'))
+	return (True, episode)
+#-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, description=None, enc_type=None):
 	"""Creates a new encounter for a patient.
 
@@ -242,7 +288,11 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.7  2004-05-18 22:36:52  ncq
+# Revision 1.8  2004-05-22 12:42:54  ncq
+# - add create_episode()
+# - cleanup add_episode()
+#
+# Revision 1.7  2004/05/18 22:36:52  ncq
 # - need mx.DateTime
 # - fix fields updatable in episode
 # - fix delete action in episode.set_active()
