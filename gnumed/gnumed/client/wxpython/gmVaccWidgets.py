@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.2 2004-07-17 21:11:47 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmVaccWidgets.py,v 1.3 2004-07-18 20:12:03 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -265,7 +265,7 @@ class cImmunisationsPanel(wxPanel):
 			choices = [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
-		self.LBOX_vaccinated_indications.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.LBOX_vaccinated_indications.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 
 		# right list: when an indication has been selected on the left
 		# display the corresponding vaccinations on the right
@@ -275,7 +275,7 @@ class cImmunisationsPanel(wxPanel):
 			choices = [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
-		self.LBOX_given_shots.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
+		self.LBOX_given_shots.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 
 		szr_MiddleLists = wxBoxSizer(wxHORIZONTAL)
 		szr_MiddleLists.Add(self.LBOX_vaccinated_indications, 4,wxEXPAND)
@@ -292,7 +292,7 @@ class cImmunisationsPanel(wxPanel):
 			choices= [],
 			style = wxLB_HSCROLL | wxLB_NEEDED_SB | wxSUNKEN_BORDER
 		)
-		self.LBOX_missing_shots.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.LBOX_missing_shots.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		# alert caption
 		pnl_BottomCaption = gmTerryGuiParts.cAlertCaption(self, -1, _('  Alerts  '))
 
@@ -310,7 +310,7 @@ class cImmunisationsPanel(wxPanel):
 
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit (self)
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
 
 		self.__register_interests()
 	#----------------------------------------------------
@@ -367,7 +367,7 @@ class cImmunisationsPanel(wxPanel):
 		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
 			label = '%s: %s' % (shot['date'].Format('%m/%Y'), shot['vaccine'])
-			data = shot['id']
+			data = shot['pk_vaccination']
 			self.LBOX_given_shots.Append(label, data)
 	#----------------------------------------------------
 	def __reset_ui_content(self):
@@ -463,7 +463,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.2  2004-07-17 21:11:47  ncq
+# Revision 1.3  2004-07-18 20:12:03  ncq
+# - vacc business object primary key is named pk_vaccination in view
+#
+# Revision 1.2  2004/07/17 21:11:47  ncq
 # - use gmTerryGuiParts
 #
 # Revision 1.1  2004/07/15 23:16:20  ncq
