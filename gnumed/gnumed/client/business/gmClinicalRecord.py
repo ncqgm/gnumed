@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.69 2004-02-02 23:02:40 ncq Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmClinicalRecord.py,v 1.70 2004-02-12 23:39:33 ihaywood Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -808,11 +808,11 @@ class gmClinicalRecord:
 				seq_no,
 				case when age_due_max is null
 					then (now() + '2 years'::interval)
-					else (timestamp(%s) + age_due_max)
+					else (%s::timestamp + age_due_max)
 				end as latest_due,
 				case when age_due_max is null
 					then '2 years'::interval
-					else age((timestamp(%s) + age_due_max), now())
+					else age(%s::timestamp + age_due_max)
 				end as time_left,
 				vacc_comment,
 				age_due_min,
@@ -825,7 +825,7 @@ class gmClinicalRecord:
 			where
 				pk_patient=%s
 					and
-				age(timestamp(%s)) between age_due_min and coalesce(age_due_max, '115 years'::interval)
+				age(%s::timestamp) between age_due_min and coalesce(age_due_max, '115 years'::interval)
 			order by time_left
 		"""
 		vaccs = gmPG.run_ro_query('historica', cmd, None, pat_dob, pat_dob, self.id_patient, pat_dob)
@@ -843,7 +843,7 @@ class gmClinicalRecord:
 				regime,
 				reg_comment,
 				seq_no,
-				age(timestamp(%s) + age_due_max) as amount_overdue,
+				age(%s::timestamp + age_due_max) as amount_overdue,
 				vacc_comment,
 				age_due_min,
 				age_due_max,
@@ -855,7 +855,7 @@ class gmClinicalRecord:
 			where
 				pk_patient=%s
 					and
-				age(%s) > coalesce(age_due_max, '115 years'::interval)
+				age(%s::timestamp) > coalesce(age_due_max, '115 years'::interval)
 			order by amount_overdue
 		"""
 		vaccs = gmPG.run_ro_query('historica', cmd, None, pat_dob, self.id_patient, pat_dob)
@@ -1330,7 +1330,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.69  2004-02-02 23:02:40  ncq
+# Revision 1.70  2004-02-12 23:39:33  ihaywood
+# fixed parse errors on vaccine queries (I'm using postgres 7.3.3)
+#
+# Revision 1.69  2004/02/02 23:02:40  ncq
 # - it's personalia, not demographica
 #
 # Revision 1.68  2004/02/02 16:19:03  ncq
