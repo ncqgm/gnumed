@@ -2,8 +2,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.1 2003-07-03 15:27:08 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmEMRTextDump.py,v 1.2 2003-07-19 20:20:59 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -16,59 +16,50 @@ import gmDispatcher, gmTmpPatient, gmSignals
 
 from gmExceptions import ConstructorError
 from wxPython.wx import *
-
 #============================================================
-class gmScrolledEMRTextDump(wxScrolledWindow):
-	def __init__(self, parent):
-		wxScrolledWindow.__init__(
-			self,
-			parent,
-			-1
-		)
+class gmEMRDumpPanel(wxPanel):
+	def __init__(self, *args, **kwargs):
+		wxPanel.__init__(self, *args, **kwargs)
+		self.__do_layout()
 
-		self.txt = wxStaticText(
+		if not self.__register_events():
+			raise ConstructorError, 'cannot register interests'
+
+		self.__pat = gmTmpPatient.gmCurrentPatient()
+	#--------------------------------------------------------
+	def __do_layout(self):
+		self.txt = wxTextCtrl(
 			self,
 			-1,
 			_('No EMR data loaded.'),
-#			style = wxALIGN_LEFT
+			style = wxTE_MULTILINE | wxTE_READONLY 
 		)
-#		 | wxST_NO_AUTORESIZE
-		szr_vbox_main = wxBoxSizer(wxVERTICAL)
-		szr_vbox_main.Add(self.txt, 0, wxCENTER | wxALL, 5)
-
-		# The following is all that is needed to integrate the sizer and the
-		# scrolled window.  In this case we will only support vertical scrolling.
-		self.SetSizer(szr_vbox_main)
-		self.EnableScrolling(0, 1)
-		self.SetScrollRate(0, 20)
-		szr_vbox_main.SetVirtualSizeHints(self)
-
-		if not self.__register_events():
-			raise ConstructorError, 'cannot register signal interests'
-		# scroll back to top after initial events
-		wxCallAfter(self.Scroll, 0, 0)
+		# arrange widgets
+		szr_outer = wxStaticBoxSizer(wxStaticBox(self, -1, _("EMR text dump")), wxVERTICAL)
+		szr_outer.Add(self.txt, 1, wxEXPAND, 0)
+		# and do layout
+		self.SetAutoLayout(1)
+		self.SetSizer(szr_outer)
+		szr_outer.Fit(self)
+		szr_outer.SetSizeHints(self)
+		self.Layout()
 	#--------------------------------------------------------
 	def __register_events(self):
-		# wxPython events
-#		EVT_BUTTON(self.BTN_save, wxID_BTN_save, self._on_save_note)
-#		EVT_BUTTON(self.BTN_discard, wxID_BTN_discard, self._on_discard_note)
-
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._retrieve_EMR_text)
-
-		return 1		
+		return 1
 	#--------------------------------------------------------
 	def _retrieve_EMR_text(self):
 		pat = gmTmpPatient.gmCurrentPatient()
 		# this should not really happen
 		if not pat.is_connected():
 			_log.Log(gmLog.lErr, 'no active patient, cannot get EMR text dump')
-			self.txt.SetLabel(_('Currently there is no active patient. Cannot retrieve EMR text.'))
+			self.txt.SetValue(_('Currently there is no active patient. Cannot retrieve EMR text.'))
 			return None
 		emr = pat['clinical record']
 		if emr is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
-			self.txt.SetLabel(_(
+			self.txt.SetValue(_(
 				'An error occurred while retrieving a text\n'
 				'dump of the EMR for the active patient.\n\n'
 				'Please check the log file for details.'
@@ -77,7 +68,7 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 		dump = emr['text dump']
 		if dump is None:
 			_log.Log(gmLog.lErr, 'cannot get EMR text dump')
-			self.txt.SetLabel(_(
+			self.txt.SetValue(_(
 				'An error occurred while retrieving a text\n'
 				'dump of the EMR for the active patient.\n\n'
 				'Please check the log file for details.'
@@ -89,10 +80,52 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 		for age in keys:
 			for line in dump[age]:
 				txt = txt + "%s\n" % line
-		self.txt.SetLabel(txt)
+		self.txt.SetValue(txt)
 		return 1
 #============================================================
+class gmScrolledEMRTextDump(wxScrolledWindow):
+	def __init__(self, parent):
+		wxScrolledWindow.__init__(
+			self,
+			parent,
+			-1
+		)
+
+#		self.txt = wxStaticText(
+#			self,
+#			-1,
+#			_('No EMR data loaded.'),
+#			style = wxST_NO_AUTORESIZE
+#			style = wxALIGN_LEFT
+#		)
+		self.txt = wxTextCtrl(
+			self,
+			-1,
+			_('No EMR data loaded.'),
+			style = wxTE_MULTILINE | wxTE_READONLY 
+		)
+		szr_vbox_main = wxBoxSizer(wxVERTICAL)
+		szr_vbox_main.Add(self.txt, 0, wxEXPAND | wxCENTER | wxALL, 5)
+
+		self.SetAutoLayout(1)
+		self.SetSizer(szr_vbox_main)
+		szr_vbox_main.Fit(self)
+		szr_vbox_main.SetSizeHints(self)
+		szr_vbox_main.SetVirtualSizeHints(self)
+		self.Layout()
+
+		# scroll back to top after initial events
+		self.EnableScrolling(0, 1)
+		self.SetScrollRate(0, 20)
+		wxCallAfter(self.Scroll, 0, 0)
+
+
+#============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.1  2003-07-03 15:27:08  ncq
-# - first chekin
+# Revision 1.2  2003-07-19 20:20:59  ncq
+# - use panel instead of scrolled window so it actually works nicely
+# - maybe later put panel inside scrolled window...
+# - code cleanup
 #
+# Revision 1.1  2003/07/03 15:27:08  ncq
+# - first chekin
