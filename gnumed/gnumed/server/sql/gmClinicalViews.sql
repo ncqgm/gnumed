@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.100 2004-09-18 00:19:24 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.101 2004-09-18 13:49:32 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -75,16 +75,6 @@ create index idx_tres_episode on test_result(fk_episode);
 
 create index idx_lreq_encounter on lab_request(fk_encounter);
 create index idx_lreq_episode on lab_request(fk_episode);
-
-
-\unset ON_ERROR_STOP
-drop index idx_episode_issue;
-
-drop index idx_episode_valid_issue;
-create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not None;
-\set ON_ERROR_STOP 1
-
-create index idx_episode_issue on clin_episode(fk_health_issue);
 
 -- =============================================
 -- narrative
@@ -187,6 +177,15 @@ where
 	)
 ;
 -- =============================================
+-- episodes stuff
+
+\unset ON_ERROR_STOP
+drop index idx_episode_issue;
+drop index idx_episode_valid_issue;
+create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_health_issue is not None;
+\set ON_ERROR_STOP 1
+create index idx_episode_issue on clin_episode(fk_health_issue);
+
 \unset ON_ERROR_STOP
 drop view v_pat_episodes cascade;
 drop view v_pat_episodes;
@@ -236,7 +235,7 @@ where
 -- clin_root_item stuff
 \unset ON_ERROR_STOP
 drop trigger TR_clin_item_mod on clin_root_item;
-drop function F_announce_clin_item_mod();
+drop function f_announce_clin_item_mod();
 \set ON_ERROR_STOP 1
 
 create function F_announce_clin_item_mod() returns opaque as '
@@ -265,7 +264,7 @@ create trigger TR_clin_item_mod
 	after insert or delete or update
 	on clin_root_item
 	for each row
-		execute procedure F_announce_clin_item_mod()
+		execute procedure f_announce_clin_item_mod()
 ;
 
 \unset ON_ERROR_STOP
@@ -975,6 +974,7 @@ where
 comment on view v_pat_narrative is
 	'patient SOAP narrative';
 
+
 -- *complete* narrative for searching
 \unset ON_ERROR_STOP
 drop view v_compl_narrative;
@@ -1003,7 +1003,7 @@ select
 	'a' as soap_cat,
 	chi.description as narrative,
 	chi.id as src_pk,
-	'clin_narrative' as src_table
+	'clin_health_issue' as src_table
 from
 	clin_health_issue chi
 where
@@ -1012,15 +1012,15 @@ where
 		union
 -- episodes
 select
-	cep.fk_patient as pk_patient,
+	vpep.id_patient as pk_patient,
 	'a' as soap_cat,
-	cep.description as narrative,
-	cep.pk as src_pk,
+	vpep.description as narrative,
+	vpep.pk_episode as src_pk,
 	'clin_episode' as src_table
 from
-	clin_episode cep
+	v_pat_episodes vpep
 where
-	trim(coalesce(cep.description, '')) != ''
+	trim(coalesce(vpep.description, '')) != ''
 
 		union
 -- encounters
@@ -1219,11 +1219,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.100 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.101 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.100  2004-09-18 00:19:24  ncq
+-- Revision 1.101  2004-09-18 13:49:32  ncq
+-- - fix missing patient pk in v_compl_narrative
+--
+-- Revision 1.100  2004/09/18 00:19:24  ncq
 -- - add v_compl_narrative
 -- - add v_problem_list
 -- - include is_significant in v_pat_episodes
