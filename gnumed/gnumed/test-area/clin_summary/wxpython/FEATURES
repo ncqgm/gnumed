@@ -12,3 +12,30 @@ popup disappears when moves out. A bit mouse dependent.
  Key focus on part -not implemented yet - Could also respond to receiving focus? if just using keyboard.
 
 
+Differences in sql:
+
+uses a revocation table which stores the  auditing id of revoked rows in all tables sharing
+a root auditing table. 
+
+advantages
+ - easier to program 
+This lets updating by insert statements for both  new, edit and delete
+cases, and the same insert statement is used. Edit and delete just means the previous record's
+audit id is added to the revocation table.
+
+Disadvantages :
+-  can lead to a lot of obsolete records in the tables. This happens with
+the names table in the mainstream development. Possible solution might be to automate a
+periodic cull of old records into archive tables by selecting on those records whose audit id are
+ present in the revocation table.  
+     - makes the database vulnerable to attack on one table. Instead of trying to mess
+up each table which has a active field,  could just delete one table , the revocation table,
+and knowledge of which records are obsolete are lost.
+
+- the primary key no longer is the id field of a table, but the audit_id and the id of the table.
+This piece of wierdness probably has a lot of implications that makes this scheme undesirable.
+eg?
+
+
+  
+
