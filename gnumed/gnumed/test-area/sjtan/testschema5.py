@@ -1,6 +1,6 @@
 import pgdb
 import re
-
+import sys
 
 
 class SchemaParser:
@@ -96,6 +96,11 @@ class SchemaParser:
 			print
 			print
 
+
+	def getModel(self):
+		return self.model
+
+
 	def print_map(self,  m , indent ):
 		items = [(k, tag, map) for  k, (tag, map) in m.items()] 
 		def mycmp(x, y):
@@ -150,14 +155,17 @@ class SchemaParser:
 			return
 		next_level = []
 		for x,tag in node_list:
+			print "checking x", x
 			if self.is_suppressed('', x) and x <> self.target:
+				print "suppressing ", x
 				continue
 			if x in self.next_level_map.keys():
+				print x, "already in ", self.next_level_map.keys()
 				continue
 
-			if self.is_type_table(x):
-				continue
-
+			#if self.is_type_table(x):
+			#	continue
+			print "searching x", x
 
 			next_level_for_x = self.find_next_level_nodes(x)
 			self.next_level_map[x] = next_level_for_x
@@ -197,13 +205,14 @@ class SchemaParser:
 					print "adding link ", self.target, node, t2
 					l.append( (t2, "-1") )
 				else:
+					print "** repeated fk =", t2
 					repeat_fk.append(t2)
 	
-		if repeat_fk <> []:
-			print "parent, node,REPEAT FK = ", self.target, node, repeat_fk
-			print "check against"
-			for x in self.config.double_linked:
-				print '\t\t\t', x
+		#if repeat_fk <> []:
+		#	print "parent, node,REPEAT FK = ", self.target, node, repeat_fk
+		#	print "check against"
+		#	for x in self.config.double_linked:
+		#		print '\t\t\t', x
 		for x in repeat_fk:
 			for ( root, referer, referred) in self.config.double_linked:
 				if [self.target, node, x] == [ root, referer, referred]:
@@ -341,8 +350,7 @@ class Config:
 		]
 		return '\n'.join(l)
 
-if __name__ == '__main__':
-	config = """
+config = """
 roots:	identity, org, xlnk_identity, clin_root_item
 #roots:, form_instances, vacc_def
 #hide:	xlnk_identity
@@ -350,7 +358,7 @@ external_fk:	xlnk_identity.xfk_identity references identity
 link_tables:	lnk.*
 type_tables:	^.*enum.*,^.*type., ^.*category, occupation, marital_status, staff_role
 
-suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode,  identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type, org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, 		clin_root_item.test_org.xlnk_identity, clin_root_item.test_result.xlnk_identity, clin_root_item.lab_request.xlnk_identity, clin_root_item.referral.xlnk_identity, clin_root_item.vaccination.xlnk_identity, clin_root_item..last_act_episode, clin_root_item.clin_health_issue.xlnk_identity
+suppress:	 xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode,  identity..org, vacc_def..xlnk_identity, xlnk_identity.test_org.test_type, org.lnk_person_org_address.identity, org.lnk_person_org_address.occupation, identity.comm_channel.lnk_org2comm_channel, org.comm_channel.lnk_identity2comm_chan, 		clin_root_item.test_org.xlnk_identity, clin_root_item.test_result.xlnk_identity, clin_root_item.lab_request.xlnk_identity, clin_root_item.referral.xlnk_identity, clin_root_item.vaccination.xlnk_identity, clin_root_item..last_act_episode, clin_root_item.clin_health_issue.xlnk_identity
 
 double_linked:	xlnk_identity.referral.xlnk_identity, identity.lnk_person2relative.identity, identity.lnk_job2person.occupation, xlnk_identity.lnk_result2lab_req.test_result, 	xlnk_identity.clin_root_item.clin_episode
 
@@ -359,8 +367,17 @@ show_attrs:	0
 show_attr_direction:	h
 
 """
+
+if __name__ == '__main__':
 	l = config.split("\n")
 	configObject = Config(l)
+
+	if len(sys.argv) > 1:
+		for x in sys.argv:
+			if x == '-showattr':
+				configObject.show_attrs = 1
+	
+
 	print configObject
 	print "*"* 40
 	s = SchemaParser(configObject)
