@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.53 2004-08-24 19:15:42 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmPatient.py,v 1.54 2004-09-01 21:57:55 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -347,7 +347,7 @@ class cPatientSearcher_SQL:
 				except KeyError:
 					self.__generate_queries = self.__query_generators['default']
 		# make a cursor
-#		self.conn = gmPG.ConnectionPool().GetConnection('personalia', extra_verbose=gmPyCompat.True)
+#		self.conn = gmPG.ConnectionPool().GetConnection('personalia', extra_verbose=True)
 		self.conn = gmPG.ConnectionPool().GetConnection('personalia')
 		self.curs = self.conn.cursor()
 	#--------------------------------------------------------
@@ -454,22 +454,31 @@ class cPatientSearcher_SQL:
 		normalized = normalized.replace(u'ß', u'(ß|sz|ss|s)')
 
 		# common soundalikes
-		# - René, Desiré, ...
-		normalized = normalized.replace(u'é', u'(é|e|è)')
-		normalized = normalized.replace(u'è', u'(è|e|é)')
-		# FIXME: how to sanely replace t -> th ?
-		normalized = normalized.replace('Th', '(Th|T)')
-		normalized = normalized.replace('th', '(th|t)')
-		# FIXME: how to prevent replacing (f|v|ph) -> (f|(v|f|ph)|ph) ?
-#		normalized = normalized.replace('v','(v|f|ph)')
-#		normalized = normalized.replace('f','(f|v|ph)')
-#		normalized = normalized.replace('ph','(ph|f|v)')
+		# - René, Desiré, Inés ...
+		normalized = normalized.replace(u'é', u'*#DUMMY#*')
+		normalized = normalized.replace(u'è', u'*#DUMMY#*')
+		normalized = normalized.replace(u'*#DUMMY#*', u'(é|e|è|ä|ae)')
+		# FIXME: missing i/a/o - but uncommon in German
+		normalized = normalized.replace('v', '*#DUMMY#*')
+		normalized = normalized.replace('f', '*#DUMMY#*')
+		normalized = normalized.replace('ph','*#DUMMY#*')	# now, this is *really* specific for German
+		normalized = normalized.replace('*#DUMMY#*', '(v|f|ph)')
 
-		# apostrophes et al
-		normalized = normalized.replace('"', """("|'|`|-|\s)*""")
-		normalized = normalized.replace('`', """("|'|`|-|\s)*""")
-		normalized = normalized.replace("'", """("|'|`|-|\s)*""")
+		# silent characters
+		normalized = normalized.replace('Th','*#DUMMY#*')
+		normalized = normalized.replace('T', '*#DUMMY#*')
+		normalized = normalized.replace('*#DUMMY#*', '(Th|T)')
+		normalized = normalized.replace('th', '*#DUMMY#*')
+		normalized = normalized.replace('t', '*#DUMMY#*')
+		normalized = normalized.replace('*#DUMMY#*', '(th|t)')
+
+		# apostrophes, hyphens et al
+		normalized = normalized.replace('"', '*#DUMMY#*')
+		normalized = normalized.replace("'", '*#DUMMY#*')
+		normalized = normalized.replace('`', '*#DUMMY#*')
+		normalized = normalized.replace('*#DUMMY#*', """("|'|`|*#DUMMY#*|\s)*""")
 		normalized = normalized.replace('-', """(-|\s)*""")
+		normalized = normalized.replace('|*#DUMMY#*|', '|-|')
 
 		if aggressive == 1:
 			pass
@@ -489,21 +498,31 @@ class cPatientSearcher_SQL:
 		# "<digits>" - GnuMed patient ID or DOB
 		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
 			tmp = raw.strip()
-			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id ILIKE '%s%%'" % tmp])
+			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
 			queries.append(["SELECT i_id FROM v_basic_person WHERE dob='%s'::timestamp" % raw])
 			return queries
 
-		# "#<di git s orc hars>" - GnuMed patient ID or external ID
-		if re.match("^(\s|\t)*#.+$", raw):
-			tmp = raw.replace(' ', '')
-			tmp = tmp.replace('\t', '')
+		# "#<di git  s>" - GnuMed patient ID
+		if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
+			tmp = raw.strip()
 			tmp = tmp.replace('#', '')
+			tmp = tmp.replace(' ', '')
+			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the id actually exists
 			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
+			return queries
 
-#			tmp = tmp.replace(' ')
-#			queries.append(["select id_identity from lnk_identity2ext_id where norm_external_id *~ '^%s$'" % tmp])
-#			queries.append(["SELECT i_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+		# "#<di/git s/orc-hars>" - external ID (or PUPIC)
+		if re.match("^(\s|\t)*#.+$", raw):
+			tmp = raw.strip()
+			tmp = tmp.replace('#', '')
+			tmp = tmp.replace(' ', '*#DUMMY#*')
+			tmp = tmp.replace('\t', '*#DUMMY#*')
+			tmp = tmp.replace('-', '*#DUMMY#*')
+			tmp = tmp.replace('/', '*#DUMMY#*')
+			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
+			queries.append(["select id_identity from lnk_identity2ext_id where external_id *~ '^%s'" % tmp])
+			queries.append(["select id_identity from lnk_identity2ext_id where external_id *~ '%s'" % tmp])
 			return queries
 
 		# "<d igi ts>" - DOB or patient ID
@@ -921,7 +940,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.53  2004-08-24 19:15:42  ncq
+# Revision 1.54  2004-09-01 21:57:55  ncq
+# - make search GnuMed primary key work
+# - add search for arbitrary external ID via "#..."
+# - fix regexing in __normalize() to avoid nested replacements
+#
+# Revision 1.53  2004/08/24 19:15:42  ncq
 # - __normalize_soundalikes() -> __normalize() + improve (apostrophy/hyphen)
 #
 # Revision 1.52  2004/08/24 14:27:06  ncq
