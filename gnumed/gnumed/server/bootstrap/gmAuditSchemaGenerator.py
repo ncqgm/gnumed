@@ -16,7 +16,7 @@ not have any constraints.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -31,7 +31,6 @@ if __name__ == "__main__" :
 	_log.SetAllLogLevels(gmLog.lData)
 
 import gmPG
-
 
 #==================================================================
 # return all tables inheriting from another table
@@ -48,51 +47,84 @@ WHERE pg_class.oid in (
 );"""
 
 # return all attributes and their data types for a given table
+#	format_type(a.atttypid, a.atttypmod)
 query_table_attributes = """SELECT
-	a.attname,
-	format_type(a.atttypid, a.atttypmod)
+	pga.attname
 FROM
-	pg_class pgc, pg_attribute a
+	pg_class pgc, pg_attribute pga
 WHERE
 	pgc.relname = '%s'
 		AND
-	a.attnum > 0
+	pga.attnum > 0
 		AND
-	a.attrelid = pgc.oid
-ORDER BY a.attnum;"""
+	pga.attrelid = pgc.oid
+ORDER BY pga.attnum;"""
 
-# drop trigger
+query_pkey_name = """SELECT
+	pga.attname
+FROM
+	(pg_attribute pga inner join pg_index pgi on (pga.attrelid=pgi.indrelid))
+WHERE
+	pga.attnum=pgi.indkey[0]
+		and
+	pgi.indisprimary is true
+		and
+	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = '%s');"""
+
+
 drop_trigger = "DROP TRIGGER %s ON %s;"
+drop_function = "DROP FUNCTION %s();"
 
-# create trigger for a given table
-create_trigger = """CREATE TRIGGER %s
-	BEFORE UPDATE OR DELETE
+trigger_insert = """CREATE TRIGGER %s
+	BEFORE INSERT
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s;"""
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
-# drop function
-drop_function = "DROP FUNCTION %s(text);"
+trigger_update = """CREATE TRIGGER %s
+	BEFORE UPDATE
+	ON %s
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
 
-# create function
-create_function = """CREATE FUNCTION %s(text) RETURNS OPAQUE AS '
-DECLARE
-	reason alias for $1;
+trigger_delete = """CREATE TRIGGER %s
+	BEFORE DELETE
+	ON %s
+	FOR EACH ROW EXECUTE PROCEDURE %s();"""
+
+function_insert = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
-	-- explicitely increment row version counter
+	NEW.row_version := 0;
+	NEW.modify_when := CURRENT_TIMESTAMP;
+	NEW.modify_by := CURRENT_USER;
+	return NEW;
+END;' LANGUAGE 'plpgsql';"""
+
+function_update = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+BEGIN
 	NEW.row_version := OLD.row_version + 1;
+	NEW.modify_when := CURRENT_TIMESTAMP;
+	NEW.modify_by := CURRENT_USER;
 	INSERT INTO %s (
-		-- auditing metadata
-		orig_version, orig_when, orig_by, orig_tableoid, modify_action, modify_why,
-		-- table content
+		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
 	) VALUES (
-		-- auditing metadata
-		OLD.row_version, OLD.modify_when, OLD.modify_by, TG_RELID, TG_OP, reason,
-		-- table content
+		OLD.row_version, OLD.modify_when, OLD.modify_by, TG_RELID, TG_OP,
 		%s
 	);
 	return NEW;
-END' LANGUAGE 'plpgsql';"""
+END;' LANGUAGE 'plpgsql';"""
+
+function_delete = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
+BEGIN
+	INSERT INTO %s (
+		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
+		%s
+	) VALUES (
+		OLD.row_version, OLD.modify_when, OLD.modify_by, TG_RELID, TG_OP,
+		%s
+	);
+	return OLD;
+END;' LANGUAGE 'plpgsql';"""
+
 #------------------------------------------------------------------
 def get_children(aCursor, aTable):
 	"""Return all descendants of aTable.
@@ -111,7 +143,10 @@ def get_attributes(aCursor, aTable):
 	if not gmPG.run_query(aCursor, cmd):
 		_log.Log(gmLog.lErr, 'cannot get column attributes for table %s' % aTable)
 		return None
-	rows = aCursor.fetchall()
+	data = aCursor.fetchall()
+	rows = []
+	for row in data:
+		rows.append(row[0])
 	return rows
 #------------------------------------------------------------------
 def create_logging_table(aCursor, aTable):
@@ -125,35 +160,65 @@ def create_logging_table(aCursor, aTable):
 		return None
 	result = aCursor.fetchone()
 	if not result[0]:
-		schema.append('DROP TABLE "%s";' % logging_table)
 		schema.append('CREATE TABLE "%s" () INHERITS (audit_log);' % logging_table)
 		schema.append('')
 	return schema
 #------------------------------------------------------------------
-def create_trigfunc(aCursor, aTable, audit_prefix="log_"):
-	logged_table = aTable
-	logging_table = 'log_%s' % logged_table
-	funcname = 'f_%s%s' % (audit_prefix, logged_table)
-	trigname = 'tr_%s%s' % (audit_prefix, logged_table)
+def create_trigfunc(aCursor, aChildTable, aParentTable = 'audit_mark', audit_prefix = 'log_'):
+	logged_table = aChildTable
+	logging_table = '%s%s' % (audit_prefix, logged_table)
 
-	schema = []
-
-	# function
-	schema.append(drop_function % funcname)
 	attributes = get_attributes(aCursor, logged_table)
+	audit_attributes = get_attributes(aCursor, aParentTable)
 	fields = []
 	values = []
 	for attribute in attributes:
-		fields.append(attribute[0])
-		values.append('OLD.%s' % attribute[0])
+		if attribute in audit_attributes:
+			continue
+		fields.append(attribute)
+		values.append('OLD.%s' % attribute)
 	fields_clause = string.join(fields, ', ')
 	values_clause = string.join(values, ', ')
-	schema.append(create_function % (funcname, logging_table, fields_clause, values_clause))
+
+	schema = []
+
+	# insert
+	func_name_insert = 'f_ins_%s' % (logged_table)
+	trigger_name_insert = 't_ins_%s' % (logged_table)
+
+	schema.append(drop_function % func_name_insert)
+	schema.append(function_insert % (func_name_insert))
 	schema.append('')
 
-	# trigger
-	schema.append(drop_trigger % (trigname, funcname))
-	schema.append(create_trigger % (trigname, logged_table, funcname))
+	schema.append(drop_trigger % (trigger_name_insert, logged_table))
+	schema.append(trigger_insert % (trigger_name_insert, logged_table, func_name_insert))
+	schema.append('')
+
+	# update
+	func_name_update = 'f_upd_%s' % (logged_table)
+	trigger_name_update = 't_upd_%s' % (logged_table)
+
+	schema.append(drop_function % func_name_update)
+	schema.append(function_update % (func_name_update, logging_table, fields_clause, values_clause))
+	schema.append('')
+
+	schema.append(drop_trigger % (trigger_name_update, logged_table))
+	schema.append(trigger_update % (trigger_name_update, logged_table, func_name_update))
+	schema.append('')
+
+	# delete
+	func_name_delete = 'f_del_%s' % (logged_table)
+	trigger_name_delete = 't_del_%s' % (logged_table)
+
+	schema.append(drop_function % func_name_delete)
+	schema.append(function_delete % (func_name_delete, logging_table, fields_clause, values_clause))
+	schema.append('')
+
+	schema.append(drop_trigger % (trigger_name_delete, logged_table))
+	schema.append(trigger_delete % (trigger_name_delete, logged_table, func_name_delete))
+	schema.append('')
+
+	# disallow delete/update on auditing table
 
 	return schema
 #------------------------------------------------------------------
@@ -199,7 +264,11 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.1  2003-05-12 20:57:19  ncq
+# Revision 1.2  2003-05-13 14:39:11  ncq
+# - separate triggers/functions for insert/update/delete
+# - seems to work now
+#
+# Revision 1.1  2003/05/12 20:57:19  ncq
 # - audit schema generator
 #
 #
