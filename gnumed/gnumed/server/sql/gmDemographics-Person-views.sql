@@ -5,13 +5,13 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.1 2003-08-02 10:46:03 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.2 2003-10-19 13:01:20 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
 drop index idx_identity_dob;
-drop idx_names_last_first;
-drop idx_names_firstnames;
+drop index idx_names_last_first;
+drop index idx_names_firstnames;
 \set ON_ERROR_STOP 1
 
 create index idx_identity_dob on identity(dob);
@@ -139,11 +139,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.1  2003-08-02 10:46:03  ncq
+-- Revision 1.2  2003-10-19 13:01:20  ncq
+-- - add omitted "index"
+--
+-- Revision 1.1  2003/08/02 10:46:03  ncq
 -- - rename schema files by service
 --
 -- Revision 1.2  2003/05/12 12:43:39  ncq
