@@ -1,9 +1,14 @@
-!!!!! This is partially outdated !!!!!
+# $Revision: 1.2 $
 
-# $Revision: 1.1 $
+1) on-site module position locations
 
->> 2) on-site module install position
->>  - where to put modules on deployment sites
+- Python modules in site-packages/Gnumed/
+- docs in /usr/share/doc/gnumed/
+- resources in /usr/lib/gnumed/
+- user data in ~/gnumed/
+- user config in ~/.gnumed/
+- system config in /etc/gnumed/
+- shell wrappers in /usr/bin/
 
 CVS areas:
 
@@ -18,23 +23,15 @@ CVS areas:
    directory can easily be detected automatically at runtime so
    that the user can choose freely).
 
-CVS:main://doc -> /usr/share/gnumed/doc/
- - link there from /usr/share/doc/packages/gnumed/ or whatever is LSB
-
-CVS:main://lib/python/ -> /usr/share/gnumed/lib/python/
- - client-independant, general python modules
- - python programs then do 'system.path.append("/usr/share/gnumed/lib/python/")'
+outdated but some good ideas:
 
 CVS:main://default-client/ -> /usr/share/gnumed/default-client/
  - one such directory for each client
  - default-client/lang/ = po files
- - default-client/gui/ = GUI plugins (see test_area/terry/
+ - default-client/gui/ = GUI plugins (see test_area/terry/)
  - client specific modules live here, too
  - symlink /usr/bin/gnumed to /usr/bin/share/gnumed/<my-preferred-client>/client-binary
 
 CVS:main://server/ -> server stuff only
  - server/sql/ = about the same as now
  - server/tools/ = housekeeping scripts, etc.
-
-"test_area"
------------
