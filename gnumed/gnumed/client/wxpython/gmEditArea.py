@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.57 2004-01-26 22:15:32 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmEditArea.py,v 1.58 2004-02-02 22:28:23 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -600,10 +600,11 @@ class gmEditArea(wxPanel):
 		if self.data_ID is None:
 			print "must be new entry"
 			self._save_new_entry()
+			self.set_data()
 		else:
 			print "must be modified entry"
 			self._save_modified_entry()
-#		self._pre_save_data()
+			self.set_data()
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
 		# FIXME: check for unsaved data
@@ -2321,7 +2322,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.57  2004-01-26 22:15:32  ncq
+# Revision 1.58  2004-02-02 22:28:23  ncq
+# - OK now inits the edit area as per Richard's specs
+#
+# Revision 1.57  2004/01/26 22:15:32  ncq
 # - don't duplicate "Serial #" label
 #
 # Revision 1.56  2004/01/26 18:25:07  ncq
