@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.5 2005-01-11 08:12:39 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmSOAPWidgets.py,v 1.6 2005-01-13 14:28:07 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -15,7 +15,7 @@ from wxPython import wx
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.wxpython import gmRegetMixin, gmResizingWidgets
+from Gnumed.wxpython import gmResizingWidgets
 from Gnumed.business import gmPatient
 
 _log = gmLog.gmDefLog
@@ -50,7 +50,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 			self.AddWidget (widget=input_field, label=input_label)
 			self.Newline()
 			input_fields.append(input_field)
-		# tab navigation between input fields
+		# setup tab navigation between input fields
 		for field_idx in range(len(input_fields)):
 			# previous
 			try:
@@ -72,7 +72,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 class cResizingSoapPanel(wx.wxPanel):
 	"""
 	Basic note panel. It provides gmResizingWindows based editor
-	and a staticText that displays the which problem its current note is related to.
+	and a staticText that displays which problem its current note is related to.
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, problem=None):
@@ -360,7 +360,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.5  2005-01-11 08:12:39  ncq
+# Revision 1.6  2005-01-13 14:28:07  ncq
+# - cleanup
+#
+# Revision 1.5  2005/01/11 08:12:39  ncq
 # - fix a whole bunch of bugs from moving to main trunk
 #
 # Revision 1.4  2005/01/10 20:14:02  cfmoro
