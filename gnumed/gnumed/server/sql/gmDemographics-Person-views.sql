@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.8 2003-11-26 23:54:51 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.9 2003-12-01 22:11:26 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -44,7 +44,6 @@ BEGIN
 --	tmp := ''identity:'' || NEW.id_identity || '',id:'' || NEW.id || '',name:'' || NEW.firstnames || '' '' || NEW.lastnames;
 --	raise notice ''uniq_active_name: [%]'', tmp;
 	if NEW.active = true then
-		raise notice ''active is true'';
 		update names set active = false where id_identity = NEW.id_identity and active = true;
 		return NEW;
 	end if;
@@ -174,11 +173,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.8  2003-11-26 23:54:51  ncq
+-- Revision 1.9  2003-12-01 22:11:26  ncq
+-- - remove a raise notice
+--
+-- Revision 1.8  2003/11/26 23:54:51  ncq
 -- - lnk_vaccdef2reg does not exist anymore
 --
 -- Revision 1.7  2003/11/23 23:37:09  ncq
