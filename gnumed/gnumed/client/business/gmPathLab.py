@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.9 2004-05-02 22:56:36 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPathLab.py,v 1.10 2004-05-03 12:50:34 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types
@@ -235,7 +235,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		if name is not None:
 			if name != rows[0][1]:
 				_log.Log(gmLog.lWarn, 'test type [%s:%s] found but long name is different (DB: %s, expected: %s)' % (lab, code, rows[0][1], name))
-				me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.9 $'
+				me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.10 $'
 				to = 'user'
 				prob = _('The test type already exists but the long name is different. '
 						'The test facility may have changed the descriptive name of this test.')
@@ -248,7 +248,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	# found but ambigous
 	if len(rows) > 1:
 		_log.Log(gmLog.lErr, 'several test types found for [%s:%s]: %s, this should not be possible' % (lab, code, rows))
-		me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.9 $'
+		me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.10 $'
 		to = 'user'
 		prob = _('More than one matching test type. This should be impossible.')
 		sol = _('Please check the test type definitions and possibly remove duplicates.')
@@ -300,9 +300,9 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	req = None
 	try:
 		req = cLabRequest(lab=lab, req_id=req_id)
-	except ConstructorError, msg:
+	except gmExceptions.ConstructorError, msg:
 		# either not found or operational error
-		_log.LogException(msg, sys.exc_info(), verbose=0)
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		if msg.startswith('error getting lab request'):
 			return (False, msg)
 	# found
@@ -311,7 +311,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.9 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.10 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -335,8 +335,8 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		return (False, err)
 	try:
 		req = cLabRequest(aPKey=result[0][0])
-	except ConstructorError, msg:
-		_log.LogException(msg, sys.exc_info(), verbose=0)
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
 #============================================================
@@ -371,7 +371,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.9  2004-05-02 22:56:36  ncq
+# Revision 1.10  2004-05-03 12:50:34  ncq
+# - relative imports
+# - str()ify some things
+#
+# Revision 1.9  2004/05/02 22:56:36  ncq
 # - add create_lab_request()
 #
 # Revision 1.8  2004/04/26 21:56:19  ncq
