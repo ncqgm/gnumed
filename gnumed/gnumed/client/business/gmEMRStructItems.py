@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -283,7 +283,7 @@ class cProblem(gmClinItem.cClinItem):
 		try:
 			episode = cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
 		except gmExceptions.ConstructorError:
-			_log.LogException('cannot get encounter', sys.exc_info())
+			_log.LogException('cannot get episode', sys.exc_info())
 			return None		
 		return episode
 #============================================================
@@ -505,7 +505,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.43  2005-03-17 21:46:23  cfmoro
+# Revision 1.44  2005-03-17 21:59:35  cfmoro
+# Fixed log comment
+#
+# Revision 1.43  2005/03/17 21:46:23  cfmoro
 # Simplified cEpisode.rename function
 #
 # Revision 1.42  2005/03/17 21:14:45  cfmoro
