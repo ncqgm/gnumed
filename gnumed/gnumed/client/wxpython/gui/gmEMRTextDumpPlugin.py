@@ -1,11 +1,11 @@
 """GnuMed simple EMR text dump plugin
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmEMRTextDumpPlugin.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import gmLog, gmPlugin
-from gmEMRTextDump import gmScrolledEMRTextDump
+from gmEMRTextDump import gmEMRDumpPanel
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
@@ -19,7 +19,7 @@ class gmEMRTextDumpPlugin(gmPlugin.wxNotebookPlugin):
 		return gmEMRTextDumpPlugin.tab_name
 
 	def GetWidget (self, parent):
-		self.panel = gmScrolledEMRTextDump(parent)
+		self.panel = gmEMRDumpPanel(parent, -1)
 		return self.panel
 
 	def MenuInfo (self):
@@ -49,6 +49,9 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRTextDumpPlugin.py,v $
-# Revision 1.1  2003-07-03 15:26:26  ncq
+# Revision 1.2  2003-07-19 20:22:22  ncq
+# - use panel now, not scrolled window anymore
+#
+# Revision 1.1  2003/07/03 15:26:26  ncq
 # - first checkin
 #
