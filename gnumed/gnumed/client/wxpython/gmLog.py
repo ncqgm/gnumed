@@ -41,7 +41,7 @@ Usage:
 @copyright: GPL
 """
 
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, time, traceback, os.path, atexit, os, string
@@ -553,11 +553,32 @@ else:
     gmDefLog = cLogger()
     # this needs Python 2.x
     atexit.register(myExitFunc)
+#---------------------------------------------------------------
+# sample code for inclusion in your project
+#---------------------------------------------------------------
+# near the top do this:
+# (this is all you need if you write a module)
 
+"""
+import gmLog
+__log__ = gmLog.gmDefLog
+
+"""
+
+# then, somewhere in your __main__ do this:
+# (this you would need if you write the main part of the program)
+
+"""
+# make a _real_ log target
+loghandle = gmLog.cLogTargetFile (gmLog.lData, 'XX-log-import.log', "a")
+# and tell the default logger to also use that
+__log__.AddTarget(loghandle)
+__log__.Log (gmLog.lInfo, "starting up")
+
+"""
 #---------------------------------------------------------------
 # random ideas and TODO
 #
-# target email
 # target wxPython
 # target DB-API
 #
