@@ -4,7 +4,7 @@ This module implements threaded listening for scripting.
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmScriptingListener.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, SimpleXMLRPCServer, select
@@ -123,13 +123,16 @@ if __name__ == "__main__":
 			return time.asctime()
 	#-------------------------------
 	listener = cScriptingListener(macro_executor=runner(), port=9999)
-	s = xmlrpclib.Server('http://localhost:9999')
+	s = xmlrpclib.ServerProxy('http://localhost:9999')
 	t = s.tell_time()
 	print t
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmScriptingListener.py,v $
-# Revision 1.2  2004-02-05 18:40:01  ncq
+# Revision 1.3  2004-02-05 23:46:21  ncq
+# - use serverproxy() instead of server() as is recommended
+#
+# Revision 1.2  2004/02/05 18:40:01  ncq
 # - quit thread if we can't handle_request()
 #
 # Revision 1.1  2004/02/02 21:58:20  ncq
