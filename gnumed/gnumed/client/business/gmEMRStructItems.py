@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -129,6 +129,10 @@ class cEncounter(gmClinItem.cClinItem):
 	def set_active(self, staff_id=None):
 		"""Set the enconter as the active one.
 
+		"Setting active" means making sure the encounter
+		row has the youngest "last_affirmed" timestamp of
+		all encounter rows for this patient.
+
 		staff_id - Provider's primary key
 		"""
 		cmd = """update clin_encounter set
@@ -141,6 +145,28 @@ class cEncounter(gmClinItem.cClinItem):
 			_log.Log(gmLog.lErr, str(msg))
 			return False
 		return True
+	#--------------------------------------------------------
+	def get_RFEs(self, episodes=None):
+		"""Get RFEs pertinent to this encounter.
+
+		episodes: list of episodes to filter by
+		"""
+		vals = {'enc': self.pk_obj}
+		if episodes is None:
+			cmd = """select narrative from clin_rfe where fk_encounter=%(enc)s"""
+		else:
+			# ugly hack
+			if len(episodes) == 1:
+				cmd = """select narrative from clin_rfe where fk_encounter=%(enc)s and fk_episode=%(epi)s"""
+				vals['epi'] = episodes[0]
+			else:
+				cmd = """select narrative from clin_rfe where fk_encounter=%(enc)s and fk_episode in %(epi)s"""
+				vals['epi'] = episodes
+		data = gmPG.run_ro_query('historica', cmd, None, vals)
+		if data is None:
+			_log.Log(gmLog.lErr, 'cannot get RFEs for encounter [%s] (episodes: [%s]' % (self.pk_obj, episodes))
+			return None
+		return data
 	#--------------------------------------------------------
 	def set_attached_to(self, staff_id=None):
 #		"""Attach staff/provider to the encounter.
@@ -303,7 +329,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.18  2004-06-26 23:45:50  ncq
+# Revision 1.19  2004-06-30 20:34:37  ncq
+# - cEncounter.get_RFEs()
+#
+# Revision 1.18  2004/06/26 23:45:50  ncq
 # - cleanup, id_* -> fk/pk_*
 #
 # Revision 1.17  2004/06/26 07:33:55  ncq
