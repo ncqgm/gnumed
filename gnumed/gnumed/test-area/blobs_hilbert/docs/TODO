@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/TODO,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 -------------------------------------------------
 Erledigte Dinge löschen !
 
@@ -15,6 +15,7 @@ viewer
  internationalize
  > Windoof-Test mit Win-Standard-Programm und Irfanview
  > sort objects by sequence index
+ move view() to docDocument viewer code
 
 import
 ------
@@ -23,28 +24,27 @@ import
 
 scan
 ----
-- internationalize
-- save data
+- internationalize on Windows
+- test consecutive IDs
+- unify show_ID()
 
-[scan]
-doc_id_mode = random|sequential
-seq_file = /usr/mnt/gnumed/archiv/last-doc-id.dat
-
--> vor abspeichern zum Bestätigen/Ändern anzeigen, wenn sequential mode
 -> vor eigentlichen abspeichern paginiernummer nochmal gegen Verzeichnisse prüfen
-
 
 index
 -----
- internationalize
+ internationalize on Windows
  delete page
+ move view() to docDocument viewer code
 
 =====================================================
 post-1.0
 ========
+- rewrite for sizers
+- integrate as plugin with GnuMed
+- integrate into GnuMed messaging infrastructure
+
 index
 -----
-- ugly: use sizers
 - reload phrase wheel after completing a dir
 - quit button
 - Funktion Seiten umsortieren fertigstellen
