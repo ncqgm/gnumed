@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -317,10 +317,13 @@ def UnloadPlugin (set, name):
 #==================================================================
 # Main
 #------------------------------------------------------------------
-log(__version__)
+log(gmLog.lData, __version__)
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.23  2002-09-26 13:08:51  ncq
+# Revision 1.24  2002-09-26 13:10:43  ncq
+# - silly ommitance
+#
+# Revision 1.23  2002/09/26 13:08:51  ncq
 # - log version on import
 # - TODO -> FIXME
 #
