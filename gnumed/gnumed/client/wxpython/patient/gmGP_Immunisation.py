@@ -139,8 +139,8 @@ class ImmunisationPanel(wxPanel):
 		#e.g. would contain say information re the penicillins
 		#--------------------------------------------------------------------------------------
 		self.missing_immunisations_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,"Missing Immunisations")
-		self.missingimmunisationtxt = wxTextCtrl(self,-1, "Schedule: Pneumococcal - no vaccination recorded",size=(200, 100), style=wxTE_MULTILINE)
-		self.missingimmunisationtxt.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.missingimmunisation_listbox = wxListBox(self,-1,size=(200, 100), choices= [ "Schedule: Pneumococcal - no vaccination recorded"], style=wxLB_SINGLE)
+		self.missingimmunisation_listbox.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		#----------------------------------------
 		#add an alert caption panel to the bottom
 		#----------------------------------------
@@ -155,7 +155,7 @@ class ImmunisationPanel(wxPanel):
 		self.mainsizer.Add(self.sizer_divider_schedule_vaccinegiven,0,wxEXPAND)
 		self.mainsizer.Add( self.sizer_schedule_vaccine,4,wxEXPAND)
 		self.mainsizer.Add(self.missing_immunisations_subheading,0,wxEXPAND)
-		self.mainsizer.Add(self.missingimmunisationtxt,4,wxEXPAND)
+		self.mainsizer.Add(self.missingimmunisation_listbox,4,wxEXPAND)
 		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
 		self.SetSizer(self.mainsizer)
 		self.mainsizer.Fit (self)
