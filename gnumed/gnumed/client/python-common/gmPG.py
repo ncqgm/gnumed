@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -97,10 +97,9 @@ class ConnectionPool:
 			_log.Log(gmLog.lData, "requesting RW connection to service [%s] for %s" % (service, user))
 			#</DEBUG>
 			# and actually get a new connections
-			try:
-				return self.__pgconnect(logininfo)
-			except:
-				_log.LogException("Cannot open RW connection to service [%s] for %s." % (service, user), sys.exc_info(), fatal=1)
+			conn = self.__pgconnect(logininfo, readonly)
+			if conn is None:
+				_log.Log(gmLog.lErr, "Cannot open RW connection to service [%s] for %s." % (service, user))
 				return None
 		# make sure we use "user" for read-only connections
 		else:
@@ -323,11 +322,14 @@ class ConnectionPool:
 			ConnectionPool.__connections_in_use[service] = 0
 			dblogin = self.GetLoginInfoFor(service,login)
 			# update 'Database Broker' dictionary
-			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
+			conn = self.__pgconnect(dblogin)
+			if conn is None:
+				raise gmExceptions.ConnectionError, _('Cannot connect to database with:\n\n[%s]') % login.GetInfoStr()
+			ConnectionPool.__databases[service] = conn
 		cursor.close()
 		return ConnectionPool.__connected
 	#-----------------------------	
-	def __pgconnect(self, login):
+	def __pgconnect(self, login, readonly=1):
 		"""connect to a postgres backend as specified by login object; return a connection object"""
 		dsn = ""
 		hostport = ""
@@ -340,13 +342,36 @@ class ConnectionPool:
 
 		try:
 			if _isPGDB:
-				db = dbapi.connect(dsn, host=hostport)
+				conn = dbapi.connect(dsn, host=hostport)
 			else:
-				db = dbapi.connect(dsn)
-			return db
+				conn = dbapi.connect(dsn)
 		except StandardError:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), fatal = 1)
-			raise
+			return None
+
+		# set the default characteristics of our sessions
+		cmd = 'set session characteristics as transaction isolation level SERIALIZABLE;'
+		curs = conn.cursor()
+		if not run_query(curs, cmd):
+			cur.close()
+			conn.close()
+			_log.Log(gmLog.lErr, 'cannot set connection characteristics to "serializable"')
+			return None
+
+		#  this needs >= 7.4
+		if readonly:
+			access_mode = 'READ ONLY'
+		else:
+			access_mode = 'READ WRITE'
+		cmd2 = 'set session characteristics as transaction %s;' % access_mode
+
+		if not run_query(curs, cmd2):
+			_log.Log(gmLog.lErr, 'cannot set connection characteristics to "read write" or "read only"')
+			# FIXME: once 7.4 is minimum, close connection and return None here
+
+		conn.commit()
+		curs.close()
+		return conn
 	#-----------------------------
 	def __decrypt(self, crypt_pwd, crypt_algo, pwd):
 		"""decrypt the encrypted password crypt_pwd using the stated algorithm
@@ -695,7 +720,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.45  2003-05-05 15:23:39  ncq
+# Revision 1.46  2003-05-17 09:49:10  ncq
+# - set default transaction isolation level to serializable
+# - prepare for 7.4 read-only/read-write support on connections
+#
+# Revision 1.45  2003/05/05 15:23:39  ncq
 # - close cursor as early as possible in GetLoginInfoFor()
 #
 # Revision 1.44  2003/05/05 14:08:19  hinnef
