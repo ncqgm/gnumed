@@ -24,7 +24,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 
@@ -68,8 +68,18 @@ if __name__ == "__main__":
 	def callback(id):
 		print "\nSignal received, id = %s" % str(id)
 		
+	class TestWidget:
+		def __init__(self):
+			gmDispatcher.connect(self.Update, patient_selected())
+		def Update(self, id):
+			print "widget updates itself with id=%s" % str(id)
+		
 	the_id =100
 	print "Registering interest in signal %s" % popup_notice()
 	gmDispatcher.connect(callback, popup_notice())
 	print "Sending signal %s with parameter %d" % (popup_notice(), the_id)
 	gmDispatcher.send(popup_notice(), id=the_id)
+	print "\nCreating an instance of a widget updating itself on signal %s" % patient_selected()
+	tw = TestWidget()
+	print "Sending signal %s with parameter %d" % (patient_selected(), the_id+1)
+	gmDispatcher.send(patient_selected(), id=the_id+1)

@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -78,16 +78,25 @@ class ConnectionPool:
 
 	#a dictionary with lists of databases; dictionary key is the name of the service
 	__databases = {}
+	
 	#a dictionary mapping the physical databases to the services; key is service name
 	__service_mapping = {}
+	
 	#number of connections in use for each service (for reference counting purposes)
 	__connections_in_use = {}
+	
 	#variable used to check whether a first connection has been initialized yet or not  yet
 	__connected = None
+	
 	#a dictionary mapping notification requests to physical databases
 	__listeners = {}
-	#-----------------------------
+	
+	#a dictionary mapping all backend listening threads to database id
+	__threads = {}
+	
+	#gmLoginInfo.LoginInfo instance
 	__login = None
+	
 	
 	def __init__(self, login=None):
 		"""parameter login is of type gmLoginInfo.LoginInfo"""
@@ -142,46 +151,39 @@ class ConnectionPool:
 		### check what physical database the service belongs to
 		id = ConnectionPool.service_mapping[service]
 		### since we need only one listening thread per database
-		if id not in ConnectionPool.__listeners.keys():
-			StartListeningThread(service);
+		if id not in ConnectionPool.__threads.keys():
+			ConnectionPool.__threads[id] = StartListeningThread(self.__login);
 		signals = ConnectionPool.__listeners[id]
 		### no point in listening more than once per signal
 		### (backend would rejecy the request anyway)
 		if signal not in signals:
-			self._ListenTo(service, signal)
-		### hook up our internal message dispatching system with the signal
-		gmDispatcher.connect(callback, signal)
-		
+			self._ListenTo(service, signal, callback)
+			ConnectionPool.__listeners[id].append(signal)
+	
 	#-----------------------------
 	
-	def _ListenTo(self, service, signal):
+	def _ListenTo(self, service, signal, callback):
 		"Tell the backend to notify us asynchronously on 'signal'"
-		con= self.GetConnection(service)
-		cur= con.cursor()
-		cur.execute('listen %s' % signal)
+		id = ConnectionPool.service_mapping[service]
+		ConnectionPool.__threads[id].RegisterCallback(callback, signal)
+		
+		
+	def StartListeningThread(self, service):
+		backend = self.__service_mapping[service]
+		l = gmLoginInfo.LoginInfo()
+		if backend not in self.__threads.keys():
+			self.__threads[backend] = gmBackendListener.BackendListener(l.GetDatabase(), \
+			l.GetUser(), l.GetPassword(), l.GetHost(), l.GetPort())
+	
+		
+	def StopListeningThread(self, service):
+		backend = self.__service_mapping[service]	
+		try:
+			self.__threads[backend].Stop()
+		except:
+			pass
 		
 	
-	def StartListeningThread(self, service):
-		pass
-	
-	def ListeningThread(self, cnx, service, lock):
-		while 1:
-			ready_sockets = select.select([cnx.socket], [], [], 1.0)[0]
-			if len(ready_sockets):
-				cnx.consumeInput()
-				note = cnx.notifies()
-				while note:
-					sys.stdout.flush()
-					sys.stdout.write(
-						"ASYNC NOTICE of '%s' from backend pid %d recieved\n" %
-						(note.relname, note.be_pid))
-					lock.acquire()
-					try:
-						gmDispatcher.send(note.relname, sender=service)
-					finally:
-						lock.release()
-					note = cnx.notifies()
-
 		
 	#-----------------------------
 	

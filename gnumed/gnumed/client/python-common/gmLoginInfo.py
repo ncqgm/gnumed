@@ -155,6 +155,7 @@ class LoginInfo:
 		self.__opt= ""
 		self.__tty = ""
 		self.__profile = 'default'
+		
 
 #====================================================================
 if __name__ == "__main__" :
