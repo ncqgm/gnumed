@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.33 2003-11-18 17:52:37 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.34 2003-11-26 23:54:51 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -341,14 +341,11 @@ select
 from
 	vacc_regime vreg,
 	vacc_indication vind,
-	lnk_vacc_def2regime lvd2r,
 	vacc_def vdef
 where
+	vreg.id = vdef.fk_regime
+		and
 	vreg.fk_indication = vind.id
-		and
-	vreg.id = lvd2r.fk_regime
-		and
-	vdef.id = lvd2r.fk_vacc_def
 order by
 	indication,
 	vacc_seq_no
@@ -366,6 +363,7 @@ select
 	vcine.trade_name as vaccine,
 	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
+	vreg.description as regime,
 	vind.description as indication,
 	vdef1.is_booster as is_booster,
 	case when vdef1.is_booster
@@ -373,7 +371,7 @@ select
 		else vdef1.seq_no
 	end as seq_no,
 	case when 
-		(vdef1.seq_no = (select max(vdef2.seq_no) from vacc_def vdef2 where vdef2.fk_indication = vdef1.fk_indication group by vdef2.fk_indication))
+		(vdef1.seq_no = (select max(vdef2.seq_no) from vacc_def vdef2 where vdef2.fk_regime = vdef1.fk_regime group by vdef2.fk_regime))
 			and
 		(not vdef1.is_booster)
 		then true
@@ -385,13 +383,16 @@ from
 	vaccination v,
 	vaccine vcine,
 	vacc_def vdef1,
-	vacc_indication vind
+	vacc_indication vind,
+	vacc_regime vreg
 where
 	v.fk_vaccine = vcine.id
 		and
 	v.fk_vacc_def = vdef1.id
 		and
-	vdef1.fk_indication = vind.id
+	vdef1.fk_regime = vreg.id
+		and
+	vreg.fk_indication = vind.id
 ;
 
 -- ==========================================================
@@ -460,11 +461,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.33  2003-11-18 17:52:37  ncq
+-- Revision 1.34  2003-11-26 23:54:51  ncq
+-- - lnk_vaccdef2reg does not exist anymore
+--
+-- Revision 1.33  2003/11/18 17:52:37  ncq
 -- - clin_date -> clin_when in v_patient_items
 --
 -- Revision 1.32  2003/11/16 19:34:29  ncq

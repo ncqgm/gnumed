@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Prevenar.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -28,9 +28,9 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	1,
 	'2 months'::interval,
 	'6 months'::interval,
@@ -40,9 +40,9 @@ values (
 );
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	2,
 	'3 months'::interval,
 	'7 months'::interval,
@@ -52,9 +52,9 @@ values (
 );
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	3,
 	'4 months'::interval,
 	'8 months'::interval,
@@ -64,44 +64,15 @@ values (
 );
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	4,
 	'1 year'::interval,
 	'2 years'::interval,
 	false,
 	'8 months'::interval,
 	'<6 Monate, Hersteller'
-);
-
--- und in Impfplan eintragen
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 1)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 2)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 3)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 4)
 );
 
 --------------------------------------
@@ -118,9 +89,9 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	1,
 	'7 months'::interval,
 	'11 months'::interval,
@@ -130,9 +101,9 @@ values (
 );
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	2,
 	'8 months'::interval,
 	'12 months'::interval,
@@ -142,37 +113,15 @@ values (
 );
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	3,
 	'1 year'::interval,
 	'2 years'::interval,
 	false,
 	'1 month'::interval,
 	'7-11 Monate, Hersteller'
-);
-
--- und in Impfplan eintragen
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 1)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 2)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 3)
 );
 
 ---------------------------------------
@@ -189,9 +138,9 @@ values (
 
 -- Impfzeitpunkte definieren
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	1,
 	'12 months'::interval,
 	'23 months'::interval,
@@ -201,9 +150,9 @@ values (
 );
 
 insert into vacc_def
-	(fk_indication, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
+	(fk_regime, seq_no, min_age_due, max_age_due, is_booster, min_interval, comment)
 values (
-	(select id from vacc_indication where description='pneumococcus'),
+	currval('vacc_regime_id_seq'),
 	2,
 	'14 months'::interval,
 	'25 months'::interval,
@@ -212,29 +161,17 @@ values (
 	'12-23 Monate, Hersteller'
 );
 
--- und in Impfplan eintragen
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 1)
-);
-
-insert into lnk_vacc_def2regime
-	(fk_regime, fk_vacc_def)
-values (
-	currval('vacc_regime_id_seq'),
-	(select id from vacc_def where fk_indication = (select id from vacc_indication where description='pneumococcus') and seq_no = 2)
-);
-
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%Impfplan-Prevenar%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-Prevenar.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: Impfplan-Prevenar.sql,v $
--- Revision 1.2  2003-11-26 00:12:19  ncq
+-- Revision 1.3  2003-11-26 23:54:51  ncq
+-- - lnk_vaccdef2reg does not exist anymore
+--
+-- Revision 1.2  2003/11/26 00:12:19  ncq
 -- - fix fk_recommended_by value
 --
 -- Revision 1.1  2003/11/26 00:10:45  ncq

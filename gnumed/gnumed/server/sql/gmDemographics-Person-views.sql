@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.7 2003-11-23 23:37:09 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.8 2003-11-26 23:54:51 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -24,14 +24,9 @@ create index idx_names_firstnames on names(firstnames);
 -- rules/triggers/functions on table "names"
 
 \unset ON_ERROR_STOP
-drop rule uniq_active_name;
+-- allow only unique names
+create unique index idx_uniq_active_name on names(id_identity) where active = true;
 \set ON_ERROR_STOP 1
-
---create rule uniq_active_name as
---	on update to names where NEW.active = true DO INSTEAD (
---		update names set active = false where id_identity = NEW.id_identity;
---		update names set active = true where id = NEW.id;
---	);
 
 -- IH: 9/3/02
 -- trigger function to ensure only one name is active
@@ -49,6 +44,7 @@ BEGIN
 --	tmp := ''identity:'' || NEW.id_identity || '',id:'' || NEW.id || '',name:'' || NEW.firstnames || '' '' || NEW.lastnames;
 --	raise notice ''uniq_active_name: [%]'', tmp;
 	if NEW.active = true then
+		raise notice ''active is true'';
 		update names set active = false where id_identity = NEW.id_identity and active = true;
 		return NEW;
 	end if;
@@ -178,11 +174,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.7  2003-11-23 23:37:09  ncq
+-- Revision 1.8  2003-11-26 23:54:51  ncq
+-- - lnk_vaccdef2reg does not exist anymore
+--
+-- Revision 1.7  2003/11/23 23:37:09  ncq
 -- - names.title -> identity.title
 -- - yet another go at uniq_active_name triggers
 --
