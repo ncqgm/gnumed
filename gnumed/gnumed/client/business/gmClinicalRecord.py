@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.164 2005-03-14 14:27:21 ncq Exp $
-__version__ = "$Revision: 1.164 $"
+# $Id: gmClinicalRecord.py,v 1.165 2005-03-14 18:16:52 cfmoro Exp $
+__version__ = "$Revision: 1.165 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -751,12 +751,19 @@ class cClinicalRecord:
 		"""Add episode 'episode_name' for a patient's health issue.
 
 		- silently returns if episode already exists
-		"""
-		success, episode = gmEMRStructItems.create_episode (
-			pk_health_issue = pk_health_issue,
-			episode_name = episode_name,
-			patient_id = self.pk_patient
-		)
+		"""		
+		if pk_health_issue is None:
+			# create unattached episode for the current patient
+			success, episode = gmEMRStructItems.create_episode (
+				episode_name = episode_name,
+				patient_id = self.pk_patient
+			)
+		else:
+			# create episode for given health issue			
+			success, episode = gmEMRStructItems.create_episode (
+				pk_health_issue = pk_health_issue,
+				episode_name = episode_name
+			)			
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.pk_patient, pk_health_issue))
 			return None
@@ -1687,7 +1694,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.164  2005-03-14 14:27:21  ncq
+# Revision 1.165  2005-03-14 18:16:52  cfmoro
+# Create episode according to only_standalone_epi_has_patient backend constraint
+#
+# Revision 1.164  2005/03/14 14:27:21  ncq
 # - id_patient -> pk_patient
 # - rewrite add_episode() work with simplified episode naming
 #
