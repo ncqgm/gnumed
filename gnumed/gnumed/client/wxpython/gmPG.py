@@ -10,6 +10,7 @@
 # @dependencies: pg, gmLoginInfo
 # @change log:
 #	25.10.2001 hherb first draft, untested
+#	29.10.2001 hherb crude functionality achieved (works ! (sortof))
 #
 # @TODO: Almost everything
 ############################################################################
@@ -40,12 +41,12 @@ class ConnectionPool:
 
 		if login==None and ConnectionPool.__connected is None:
 			self.LogError(_("FATAL ERROR: can't connect to configuration database"))
-			return 0
+			return None
 
 		#first, connect to the configuration server
 		cdb = self.__pgconnect(login)
 		if cdb is None:
-			return
+			return None
 		else:
 			ConnectionPool.__connected = 1
 
@@ -90,6 +91,8 @@ class ConnectionPool:
 			except:pass
 			#update 'Database Broker' dictionary
 			ConnectionPool.__databases[service] = self.__pgconnect(dblogin)
+
+			return ConnectionPool.__connected
 
 
 
@@ -137,7 +140,7 @@ class ConnectionPool:
 			ConnectionPool.__databases[key].close()
 		#clear the dictionary
 		ConnectionPool.__databases.clear()
-		ConnectionPool.__connected = 0
+		ConnectionPool.__connected = None
 
 
 	def GetConnection(self, service):
@@ -159,6 +162,7 @@ class ConnectionPool:
 		print msg
 
 
+### test function for this module: simple start as "main" module
 if __name__ == "__main__":
 	try:
 		db = raw_input("which database hosts the gnumed configuration? [gnumed]: ")
