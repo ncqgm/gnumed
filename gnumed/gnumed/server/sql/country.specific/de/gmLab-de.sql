@@ -3,7 +3,12 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmLab-de.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
+-- =============================================
+
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
 -- =============================================
 CREATE TABLE lab_test_GNR (
 	test_id integer references lab_test,
@@ -19,3 +24,14 @@ COMMENT ON COLUMN lab_test_GNR.EBM is "GNR according to EBM (Einheitlicher Bewer
 COMMENT ON COLUMN lab_test_GNR.GOA_88 is "GNR according to GOAe '88 (GebuehrenOrdnung für Aerzte) for Privatpatienten (privately insured patients)";
 COMMENT ON COLUMN lab_test_GNR.GOA_96 is "GNR according to GOAe '96 (GebuehrenOrdnung für Aerzte) for Privatpatienten (privately insured patients)";
 COMMENT ON COLUMN lab_test_GNR.BG_GOA is "GNR according to GOAe (GebuehrenOrdnung für Aerzte) for Berufsgenossenschaften (sector specific job related health insurance)";
+
+-- =============================================
+-- do simple revision tracking
+\i gmSchemaRevision.sql
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmLab-de.sql,v $', '$Revision: 1.2 $')
+
+-- =============================================
+-- $Log: gmLab-de.sql,v $
+-- Revision 1.2  2002-11-16 01:09:57  ncq
+-- - revision tracking
+--
