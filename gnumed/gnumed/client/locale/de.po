@@ -1,0 +1,797 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gnumed 0.1\n"
+"POT-Creation-Date: Sun Jul 28 16:34:34 2002\n"
+"PO-Revision-Date: 2002-08-05 18:36+0200\n"
+"Last-Translator: Christian Axel Herda <dc.herda@t-online.de>\n"
+"Language-Team: deutsch <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.3\n"
+"X-Generator: KBabel 0.9.6\n"
+
+#: ../wxpython/gmLogin.py:41
+msgid "user cancelled login dialog"
+msgstr "Abbruch des Login-Dialog`s durch Benutzer"
+
+#: ../wxpython/gmPersonDetailsDlg.py:55
+msgid "&Save"
+msgstr "&Speichern"
+
+#: ../wxpython/gui/gmDrugDisplay.py:226
+msgid "Actions"
+msgstr "Aktionen"
+
+#: ../wxpython/gui/gmSQL.py:128
+msgid "Results"
+msgstr "Ergebnisse"
+
+#: ../wxpython/gmLoginDialog.py:206
+msgid "database"
+msgstr "Datenbank"
+
+#: ../python-common/gmPG.py:159
+msgid "Not GNUMed database"
+msgstr "Keine GNUMed Datenbank"
+
+#: ../wxpython/gmCryptoText.py:157
+msgid "This is not correctly encrypted text!"
+msgstr "Dies ist kein korrekt entschlüsselter Text"
+
+#: ../wxpython/gmUserAdmin.py:65
+msgid "First Name: "
+msgstr "Vorname: "
+
+#: ../wxpython/gmLoginDialog.py:404
+msgid "Login"
+msgstr "Login"
+
+#: ../wxpython/gmSelectPerson.py:42
+msgid "&Select"
+msgstr "&Auswahl"
+
+#: ../wxpython/gmLabels.py:35 ../wxpython/gmLabels.py:36
+#: ../wxpython/gmLabels.py:41 ../wxpython/gmLabels.py:44
+#: ../wxpython/gmLabels.py:45
+msgid "date"
+msgstr "Datum"
+
+#: ../wxpython/patient/gmCalcPreg.py:40
+msgid "Pregnancy Calculator"
+msgstr "Schwangerschaftsrechner"
+
+#: ../wxpython/gmLabels.py:42 ../wxpython/gmLoginDialog.py:193
+msgid "user"
+msgstr "Benutzer"
+
+#: ../wxpython/gui/gmDrugDisplay.py:207
+msgid "Indication"
+msgstr "Indikation"
+
+#: ../wxpython/gmUserAdmin.py:132
+msgid "User Administration"
+msgstr "Benutzerverwaltung"
+
+#: ../python-common/gmI18N.py:156
+msgid "%Y-%m-%d  %H:%M:%S"
+msgstr "%Y-%m-%d  %H:%M:%S"
+
+#: ../wxpython/gui/gmDrugDisplay.py:226
+msgid "Adverse reactions"
+msgstr "unerwünschte Reaktionen"
+
+#: ../wxpython/gmLoginDialog.py:213
+msgid "host"
+msgstr "host"
+
+#: ../wxpython/patient/gmDemographics.py:449
+msgid "Gender"
+msgstr "Geschlecht"
+
+#: ../wxpython/gmLabels.py:41
+msgid "reason"
+msgstr "Grund"
+
+#: ../wxpython/gmPersonDetails.py:258 ../wxpython/gmPersonDetails.py:283
+msgid "A&dd"
+msgstr "&Hinzufügen"
+
+#: ../wxpython/gmPersonDetailsDlg.py:58
+msgid "&Delete"
+msgstr "&Löschen"
+
+#: ../wxpython/gui/gmSnellen.py:423
+msgid " OK "
+msgstr " OK "
+
+#: ../wxpython/gmPersonDetailsDlg.py:56
+msgid "&Undo"
+msgstr "&Rückgängig"
+
+#: ../wxpython/gmLabels.py:38
+msgid "valid"
+msgstr "sicher"
+
+#: ../wxpython/gmCryptoText.py:104
+msgid "Set pass phrase"
+msgstr "Passwort einsetzen"
+
+#: ../wxpython/gmUserAdmin.py:94
+msgid "Read"
+msgstr "Lesen"
+
+#: ../wxpython/gui/gmDrugDisplay.py:226
+msgid "Description"
+msgstr "Beschreibung"
+
+#: ../wxpython/gmLabels.py:39
+msgid "strength"
+msgstr "Stärke"
+
+#: ../wxpython/gmPersonDetails.py:268
+msgid "email / URL for"
+msgstr "e-mail / URL für"
+
+#: ../wxpython/gmUserAdmin.py:120
+msgid "Commit Changes"
+msgstr "Änderungen ausführen"
+
+#: ../wxpython/gui/gmDrugDisplay.py:226
+msgid "Composition"
+msgstr "Zusammensetzung"
+
+#: ../wxpython/gui/gmDrugDisplay.py:227
+msgid "Presentation"
+msgstr "Darstellung"
+
+#: ../wxpython/gmLabels.py:37
+msgid "at"
+msgstr "in, zu, um, bei, mit, auf?"
+
+#: ../wxpython/gmPersonDetails.py:79 ../wxpython/gmPersonDetailsDlg.py:71
+#: ../wxpython/gmPersonDetailsDlg.py:73 ../wxpython/gmPersonDetailsDlg.py:169
+msgid "Mr."
+msgstr "Herr"
+
+#: ../wxpython/gmLogin.py:51
+msgid "backend connection failed"
+msgstr "Hintergrundverbindung fehlgeschlagen?"
+
+#: ../wxpython/patient/gmDemographics.py:449
+msgid "Date of birth"
+msgstr "Geburtsdatum"
+
+#: ../wxpython/gmPersonDetails.py:102
+msgid "preferred"
+msgstr "bevorzugt"
+
+#: ../wxpython/gmCryptoText.py:102
+msgid "Encrypt"
+msgstr "Entschlüsseln"
+
+#: ../wxpython/gui/gmSnellen.py:411
+msgid "Alphabet: "
+msgstr "Alphabet: "
+
+#: ../python-common/gmPG.py:373
+msgid "The wx GUI framework hasn't been initialized yet!"
+msgstr "Das wx GUI Anwendungspaket ist bis jetzt noch nicht initialisiert worden!"
+
+#: ../wxpython/gmLabels.py:34
+msgid "called"
+msgstr "genannt"
+
+#: ../wxpython/gmPersonDetails.py:79 ../wxpython/gmPersonDetailsDlg.py:72
+#: ../wxpython/gmPersonDetailsDlg.py:172
+msgid "Miss"
+msgstr "Frau"
+
+#: ../wxpython/gmLabels.py:35 ../wxpython/gmLabels.py:36
+#: ../wxpython/gmLabels.py:40 ../wxpython/gmLabels.py:44
+#: ../wxpython/gmLabels.py:45
+msgid "problem"
+msgstr "Problem"
+
+#: ../wxpython/gmUserAdmin.py:41
+msgid "User's Info"
+msgstr "Benutzer Info"
+
+#: ../wxpython/gmGuiMain.py:344
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ../wxpython/gmLoginDialog.py:186
+msgid "Login Parameters"
+msgstr "Login Parameter"
+
+#: ../wxpython/gui/gmDrugDisplay.py:227
+msgid "Storage"
+msgstr "Speicherung"
+
+#: ../wxpython/gmPersonDetails.py:138
+msgid "pre&v. names"
+msgstr "vorherige &Namen? Mädchennamen?"
+
+#: ../wxpython/patient/gmDemographics.py:449
+msgid "Family name"
+msgstr "Familienname"
+
+#: ../wxpython/gui/gmDrugDisplay.py:227
+msgid "Precautions"
+msgstr "Warnhinweise, Vorsichtsmaßnahmen?"
+
+#: ../wxpython/gmPersonDetails.py:232
+msgid "phone at"
+msgstr "anrufen bei"
+
+#: ../wxpython/gui/gmDrugDisplay.py:227
+msgid "Indications"
+msgstr "Indikationen"
+
+#: ../wxpython/gui/gmDrugDisplay.py:235
+msgid "&Display"
+msgstr "A&nzeigen"
+
+#: ../wxpython/gmGuiMain.py:385
+msgid ""
+"Login attempt unsuccesful\n"
+"Can't run GNUMed without database connection"
+msgstr ""
+"Login Versuch gescheitert\n"
+"GNUMed kann nicht ohne Datenbankverbindung ausgeführt werden"
+
+#: ../wxpython/gmLabels.py:34
+msgid "firstnames"
+msgstr "Vornamen"
+
+#: ../wxpython/gmLoginDialog.py:248
+msgid "&Help"
+msgstr "H&ilfe"
+
+#: ../wxpython/gmPersonDetails.py:79 ../wxpython/gmPersonDetailsDlg.py:73
+#: ../wxpython/gmPersonDetailsDlg.py:172
+msgid "Ms."
+msgstr "Frau"
+
+#: ../wxpython/gui/gmDrugDisplay.py:203
+msgid "Brand name"
+msgstr "Handelsname"
+
+#: ../wxpython/gmLogin.py:43
+msgid " of "
+msgstr "von"
+
+#: ../wxpython/gmPersonNotebook.py:44
+msgid "Search"
+msgstr "Suche"
+
+#: ../wxpython/gmGuiMain.py:198
+msgid ""
+"Message from GNUMed:\n"
+"Please write a nice About box!"
+msgstr ""
+"Nachricht von GNUMed:\n"
+"später"
+
+#: ../wxpython/gmLoginDialog.py:242
+msgid "Save current entries in configuration file"
+msgstr "Sichern von aktuellen Einträgen in Konfigurations-Datei"
+
+#: ../python-common/gmPG.py:253
+msgid "Attempting to close a database connection that is still in use"
+msgstr "Versuch eine Datenbankverbindung zu schliessen, welche noch in Anwendung ist"
+
+#: ../wxpython/gui/gmDrugDisplay.py:170
+msgid "Enter the name of the drug you are interested in"
+msgstr "Wählen Sie den Namen des Medikamentes das sie interessiert"
+
+#: ../wxpython/gmLabels.py:40
+msgid "Date"
+msgstr "Datum"
+
+#: ../wxpython/gmLabels.py:34 ../wxpython/gmPersonDetails.py:126
+msgid "d.o.b"
+msgstr "date of birth? Geburtsdatum?"
+
+#: ../wxpython/gmPersonDetails.py:132
+msgid "c.o.b"
+msgstr "country of birth? Geburtsland?"
+
+#: ../wxpython/gui/gmSnellen.py:270
+msgid "Symbol"
+msgstr "Symbol"
+
+#: ../wxpython/gmLabels.py:42
+msgid "Timestamp"
+msgstr "Zeitmarke"
+
+#: ../wxpython/gmLabels.py:34
+msgid "city"
+msgstr "Stadt"
+
+#: ../wxpython/gui/gmDrugDisplay.py:205
+msgid "Generic name"
+msgstr "Freiname? Generika?"
+
+#: ../python-common/gmPG.py:144
+msgid "Could not connect to configuration database  backend!"
+msgstr "Eine Verbindung zur Konfigurationsdatenbank kann nicht hergestellt werden!"
+
+#: ../wxpython/gui/gmSnellen.py:406
+msgid "Screen Width (cm): "
+msgstr "Bildschirmbreite (cm): "
+
+#: ../wxpython/gmPersonDetails.py:235
+msgid "different phone numbers like \"home\", \"work\" \"fax home\", ..."
+msgstr "unterschiedliche Telefonnummern wie \"privat\", \"geschäftlich\" \"Fax privat\",..."
+
+#: ../python-common/gmPG.py:231
+msgid ""
+"Connection to database failed. \n"
+"DSN was [%s], host:port was [%s]"
+msgstr ""
+"Verbindung zur Datenbank ist fehlgeschlagen\n"
+"DNS war (%s), host port war (%s)"
+
+#: ../wxpython/gmPersonDetails.py:164 ../wxpython/gmSelectPerson.py:51
+msgid "&Add"
+msgstr "&Hinzufügen"
+
+#: ../wxpython/gmUserAdmin.py:95
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: ../wxpython/gmLogin.py:43
+msgid "login attempt #"
+msgstr "Login Versuch #"
+
+#: ../wxpython/gmPersonDetails.py:270
+msgid "private"
+msgstr "privat"
+
+#: ../wxpython/gmLabels.py:37 ../wxpython/gmLabels.py:38
+#: ../wxpython/gmPersonDetails.py:246
+msgid "number"
+msgstr "Anzahl"
+
+#: ../wxpython/gmPersonDetails.py:172
+msgid "address"
+msgstr "Adresse"
+
+#: ../wxpython/gmLoginDialog.py:428
+msgid "Dialog was cancelled by user"
+msgstr "Dialog wurde vom Benutzer abgebrochen"
+
+#: ../wxpython/gmLabels.py:38
+msgid "issuer"
+msgstr "Erziehungsberechtigter???"
+
+#: ../wxpython/gmPersonDetails.py:277
+msgid "an email address, web address, etc."
+msgstr "eine E-mail-Adresse, Internet-Adresse, etc."
+
+#: ../wxpython/gui/gmDrugDisplay.py:198
+msgid "Search by"
+msgstr "Suche durch"
+
+#: ../wxpython/gui/gmDrugDisplay.py:171
+msgid "&Bookmark"
+msgstr "L&esezeichen"
+
+#: ../wxpython/gui/gmSQL.py:104
+msgid "Query"
+msgstr "Anfrage"
+
+#: ../wxpython/gmSelectPerson.py:54
+msgid "&Merge"
+msgstr "&Zusammenschließen??"
+
+#: ../wxpython/gui/gmSnellen.py:415
+msgid "Mirror"
+msgstr "Spiegel"
+
+#: ../wxpython/gmPersonNotebook.py:47
+msgid "Details"
+msgstr "Details"
+
+#: ../wxpython/gmCryptoText.py:179
+msgid "Please enter your pass phrase:"
+msgstr "Bitte geben Sie Ihr Passwort ein:"
+
+#: ../wxpython/gmLoginDialog.py:254
+msgid "&Cancel"
+msgstr "A&bbrechen"
+
+#: ../wxpython/gmUserAdmin.py:67
+msgid "Last Name: "
+msgstr "Nachname:"
+
+#: ../wxpython/gmUserAdmin.py:97
+msgid "Delete"
+msgstr "Löschen"
+
+#: ../wxpython/gmLabels.py:34
+msgid "urid"
+msgstr "??"
+
+#: ../wxpython/gui/gmDrugDisplay.py:233
+msgid "&Prescribe"
+msgstr "&Vorschrift"
+
+#: ../wxpython/gmGuiMain.py:323
+msgid "GNUMed had an error. You can file a bug report here via e-mail."
+msgstr "GNUMed hat einen Fehler. Sie können einen Fehler-Bericht per e-mail versenden."
+
+#: ../wxpython/gmLoginDialog.py:386
+msgid "Sorry, not implemented yet!"
+msgstr "Entschuldigung, derzeit nicht eingebunden!"
+
+#: ../wxpython/gmGuiMain.py:96 ../wxpython/gmGuiMain.py:149
+msgid "You are logged in as [%s]"
+msgstr "Sie sind als (%s) eingeloggt"
+
+#: ../wxpython/gmCryptoText.py:179
+msgid "Pass phrase expired"
+msgstr "Passwort abgelaufen"
+
+#: ../wxpython/gui/gmSnellen.py:268
+msgid "Greek"
+msgstr "Griechisch"
+
+#: ../wxpython/gui/gmSQL.py:110
+msgid "&Run query"
+msgstr "Ab&frage starten"
+
+#: ../wxpython/gui/gmDrugDisplay.py:166
+msgid "   Find   "
+msgstr "   Finden   "
+
+#: ../wxpython/gmLabels.py:39
+msgid "Drug"
+msgstr "Medikament"
+
+#: ../wxpython/gmPersonDetails.py:259
+msgid "Add another phone number"
+msgstr "Fügen Sie eine andere Telefonnummer zu"
+
+#: ../wxpython/gmPersonDetails.py:79
+msgid "Prof."
+msgstr "Prof."
+
+#: ../wxpython/gmLabels.py:41
+msgid "timeframe"
+msgstr "Zeitrahmen"
+
+#: ../wxpython/gmPersonDetails.py:205
+msgid "state"
+msgstr "Land"
+
+#: ../wxpython/gui/gmSnellen.py:401
+msgid "Screen Height (cm): "
+msgstr "Bildschirmhöhe (cm): "
+
+#: ../wxpython/gui/gmDrugDisplay.py:201
+msgid "Any"
+msgstr "Irgendeine"
+
+#: ../python-common/gmPG.py:134 ../python-common/gmPG.py:360
+#: ../python-common/gmPG.py:383
+msgid "Can't connect to database without login information!"
+msgstr "Ohne Login-Informationen kann keine Verbindung zur Datenbank aufgebaut werden!"
+
+#: ../wxpython/gui/gmSnellen.py:269
+msgid "Four Es"
+msgstr "??"
+
+#: ../wxpython/gmGuiMain.py:388
+msgid "GNUMed client"
+msgstr "GNUMed client"
+
+#: ../wxpython/gui/gmSnellen.py:268
+msgid "Latin"
+msgstr "Latein"
+
+#: ../wxpython/gui/gmSQL.py:113
+msgid "&Clear query"
+msgstr "Abfage &löschen"
+
+#: ../wxpython/gui/gmSnellen.py:389
+msgid "16 inch"
+msgstr "16 inch"
+
+#: ../wxpython/gmLoginDialog.py:220
+msgid "port"
+msgstr "port"
+
+#: ../wxpython/gui/gmSQL.py:117
+msgid "Tables in database  /  Feedback"
+msgstr "Tabellen in Datenbank  /  Rückmeldung"
+
+#: ../wxpython/gmPersonDetails.py:160 ../wxpython/gmPersonDetails.py:234
+msgid "home"
+msgstr "privat"
+
+#: ../wxpython/gmPersonDetails.py:79
+msgid "Dr."
+msgstr "Dr."
+
+#: ../wxpython/gmLogin.py:48
+msgid "backend connection successfully established"
+msgstr "Hintergrundverbindung erfolgreich hergestellt"
+
+#: ../wxpython/gmPersonDetails.py:79 ../wxpython/gmPersonDetailsDlg.py:72
+#: ../wxpython/gmPersonDetailsDlg.py:169
+msgid "Mstr."
+msgstr "Herr"
+
+#: ../wxpython/gmLabels.py:34 ../wxpython/gmPersonDetails.py:188
+msgid "street"
+msgstr "Straße"
+
+#: ../wxpython/gmLabels.py:37
+msgid "device"
+msgstr "Gerät"
+
+#: ../wxpython/gui/gmDrugDisplay.py:226
+msgid "Contraindications"
+msgstr "Kontraindikationen"
+
+#: ../wxpython/gmPersonDetails.py:142
+msgid "pho&tos"
+msgstr "&Fotos"
+
+#: ../wxpython/gmLoginDialog.py:236
+msgid "&Login"
+msgstr "L&ogin"
+
+#: ../wxpython/gmSQLSimpleSearch.py:53
+msgid "&Search"
+msgstr "S&uche"
+
+#: ../wxpython/gmPersonDetails.py:240
+msgid "areacode"
+msgstr "Postleitzahl"
+
+#: ../wxpython/gmGuiMain.py:230
+msgid "Close this GNUMed client"
+msgstr "Schliessen Sie diesen GNUMed client"
+
+#: ../wxpython/gui/gmSnellen.py:397
+msgid "Snellen Chart Setup"
+msgstr "Snellen Chart setup ??"
+
+#: ../wxpython/gui/gmManual.py:108 ../wxpython/gui/gmManual.py:113
+msgid "ManualHtmlWindow: No more items in history!\n"
+msgstr "???\n"
+
+#: ../wxpython/gmSelectPerson.py:45
+msgid "&Edit"
+msgstr "Bea&rbeiten"
+
+#: ../wxpython/gui/gmSnellen.py:418
+msgid ""
+"Control Snellen chart using mouse:\n"
+"left-click increases text\n"
+"right-click decreases text\n"
+"double-click ends"
+msgstr ""
+"Bedienung der Snellen Chart mit Maus ?\n"
+"Links Click vergrößert den Text\n"
+"Rechts-Click verkleinert den Text\n"
+"Doppel-Click beendet"
+
+#: ../wxpython/gmUserAdmin.py:56
+msgid "Select"
+msgstr "Auswahl"
+
+#: ../wxpython/gmLoginDialog.py:227
+msgid "backend options"
+msgstr "????"
+
+#: ../wxpython/gmLoginDialog.py:241
+msgid "&Save conf."
+msgstr "Sichern der &Einstellungen"
+
+#: ../wxpython/gmPersonDetails.py:217
+msgid "country"
+msgstr "Land"
+
+#: ../wxpython/gmGuiMain.py:198
+msgid "About GNUMed"
+msgstr "Über GNUMed"
+
+#: ../wxpython/gmPersonDetails.py:156
+msgid "Address at"
+msgstr "Adresse bei"
+
+#: ../wxpython/gmCryptoText.py:103
+msgid "Decrypt"
+msgstr "Entschlüsseln"
+
+#: ../wxpython/gmPersonDetails.py:114
+msgid "gender"
+msgstr "Geschlecht"
+
+#: ../wxpython/gmLabels.py:38
+msgid "Card type"
+msgstr "Kartentyp"
+
+#: ../wxpython/gmGuiMain.py:340
+msgid "OK"
+msgstr "OK"
+
+#: ../wxpython/gmGuiMain.py:333 ../wxpython/gmPersonDetails.py:252
+msgid "comment"
+msgstr "Kommentar"
+
+#: ../wxpython/gmGuiMain.py:230
+msgid "E&xit\tAlt-X"
+msgstr "E&xit\tAlt-X"
+
+#: ../wxpython/gmPersonDetails.py:199
+msgid "city/town"
+msgstr "Stadt"
+
+#: ../wxpython/gmLoginDialog.py:200
+msgid "password"
+msgstr "Passwort"
+
+#: ../wxpython/gui/gmSnellen.py:389
+msgid "14 inch"
+msgstr "14 inch"
+
+#: ../wxpython/gmUserAdmin.py:43
+msgid "User's Permissions"
+msgstr "Zugriffsrechte des Benutzers"
+
+#: ../wxpython/gmLoginDialog.py:430
+msgid "You tried to log in as [%s] with password [%s]"
+msgstr "Sie haben versucht sich als (%s) mit dem Passwort (%s) ein zu loggen"
+
+#: ../wxpython/gmPersonDetails.py:96
+msgid "a.k.a."
+msgstr "???"
+
+#: ../wxpython/gmPersonDetails.py:79 ../wxpython/gmPersonDetailsDlg.py:71
+#: ../wxpython/gmPersonDetailsDlg.py:172
+msgid "Mrs."
+msgstr "Frau"
+
+#: ../wxpython/gmLabels.py:42
+msgid "log message"
+msgstr "Einwahlnachricht"
+
+#: ../wxpython/gmPersonDetailsDlg.py:38
+msgid "PersonDetails"
+msgstr "Personalien"
+
+#: ../wxpython/gmLabels.py:34
+msgid "lastname"
+msgstr "Nachname"
+
+#: ../wxpython/gmUserAdmin.py:40
+msgid "User's Login"
+msgstr "Benutzer Login"
+
+#: ../wxpython/gmPersonDetails.py:275
+msgid "URL"
+msgstr "URL"
+
+#: ../wxpython/gmLogin.py:53
+msgid ""
+"Login failed because: %s\n"
+"Please retry or cancel"
+msgstr ""
+"Login fehlgeschlagen weil: %s\n"
+"Bitte versuchen Sie es erneut oder brechen Sie ab"
+
+#: ../wxpython/gui/gmDrugDisplay.py:227
+msgid "Interactions"
+msgstr "Interaktionen"
+
+#: ../wxpython/gmUserAdmin.py:74
+msgid "Password: "
+msgstr "Passwort: "
+
+#: ../wxpython/gui/gmDrugDisplay.py:237
+msgid "&Print"
+msgstr "&Drucken"
+
+#: ../wxpython/gmLabels.py:35 ../wxpython/gmLabels.py:40
+msgid "resolved"
+msgstr ""
+
+#: ../wxpython/gmUserAdmin.py:96
+msgid "Change"
+msgstr "Wechsel"
+
+#: ../wxpython/gmPersonDetailsDlg.py:57 ../wxpython/gmSelectPerson.py:48
+msgid "&New"
+msgstr "&Neu"
+
+#: ../wxpython/gmLabels.py:35 ../wxpython/gmLabels.py:36
+msgid "treatment"
+msgstr "Behandlung"
+
+#: ../wxpython/patient/gmDemographics.py:449
+msgid "First name"
+msgstr "Vorname"
+
+#: ../wxpython/gmPersonDetails.py:84
+msgid "given name(s)"
+msgstr "Rufname(n) "
+
+#: ../wxpython/gmPersonDetails.py:161
+msgid "Categorize this address (i.e. \"home\", \"work\", \"holidays\")"
+msgstr "ordnen Sie die Adresse zu (z.B. \"privat\", \"geschäftlich\", \"Urlaub\")"
+
+#: ../wxpython/gmPersonDetails.py:77
+msgid "title"
+msgstr "Titel"
+
+#: ../wxpython/gui/gmManual.py:119
+msgid "HTML Source"
+msgstr ""
+
+#: ../wxpython/gmSQLSimpleSearch.py:56
+msgid "&Case insensitive"
+msgstr "&Fall oberflächlich"
+
+#: ../wxpython/gui/gmSnellen.py:371
+msgid "Snellen Chart"
+msgstr "Snellen Chart"
+
+#: ../wxpython/gmGuiMain.py:328
+msgid "your e-mail"
+msgstr "Ihre e-mail-Adresse"
+
+#: ../wxpython/gui/gmDrugDisplay.py:227
+msgid "Dose & administration"
+msgstr "Dosierung & Einnahmeanweisung"
+
+#: ../wxpython/gmPersonDetails.py:211
+msgid "postcode"
+msgstr "Postleitzahl"
+
+#: ../wxpython/gmGuiMain.py:318
+msgid "GNUmed error reporting"
+msgstr "GNUMed Fehlerbericht"
+
+#: ../wxpython/gmPersonDetails.py:90
+msgid "surname(s)"
+msgstr "Zuname(n)"
+
+#: ../wxpython/gmLabels.py:39
+msgid "dose"
+msgstr "Dosierung"
+
+#: ../wxpython/gui/gmSnellen.py:424
+msgid " Cancel "
+msgstr " Abbrechen "
+
+#: ../wxpython/gmLabels.py:43
+msgid "text"
+msgstr "Text"
+
+#: ../wxpython/gui/gmSnellen.py:269
+msgid "Cyrillic"
+msgstr "Kyrillisch"
+
+#: ../wxpython/gui/gmSQL.py:97
+msgid "Service"
+msgstr "Service"
+
+#: ../wxpython/gmLabels.py:43 ../wxpython/gmLabels.py:44
+#: ../wxpython/gmLabels.py:45
+msgid "code"
+msgstr "Code"
+
+#: ../wxpython/gmPersonDetails.py:182
+msgid "no."
+msgstr "Nr."
+

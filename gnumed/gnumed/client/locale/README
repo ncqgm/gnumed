@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/README,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 locale/
 -------
@@ -11,21 +11,21 @@ On a POSIX system files from here should be moved into
 On Windows they must live right here relative to ../wxpython/
 so that gmI18N can find them regardless.
 
-create_po_file.sh
------------------
-This is a convenience UNIX shell script that takes all
-Python source files below the directory given as the
-first command line argument and aggregates
-them into one "*.po" file named after the second argument.
+create-gnumed_pot.sh
+--------------------
+You guessed it.
 
-The resulting *.po file needs to be filled in with
-translations and copied to the appropriate language directory
+This is a convenience shell script for UNIX that takes all
+Python source files and creates a current gnumed.pot file
+containing all current strings for translation. It then merges
+this new file with a repository files containing the already
+translated strings or it creates such a repository file.
+
+The resulting ${LANG}.po file needs to be filled in with
+more translations, compiled into gnumed.mo and moved to the
+appropriate language directory
 
  locale/<ISO_lang>/LC_MESSAGES/
 
-where <ISO_lang> stands for ISO code of the country the
+where <ISO_lang> stands for the ISO code of the country the
 translation is intended for.
-
-To create a *.po file for GNUmed run it like this:
-
- create_po_file.sh /my/path/to/gnumed/client/ gnumed
