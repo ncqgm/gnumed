@@ -63,12 +63,12 @@ even if the query itself succeeds.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.4 2004-11-03 22:30:35 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmBusinessDBObject.py,v 1.5 2004-12-17 16:15:36 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import sys, copy
+import sys, copy, types, inspect
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
 from Gnumed.pycommon.gmPyCompat import *
@@ -83,7 +83,7 @@ class cBusinessDBObject:
 	- instances ARE ASSUMED TO EXIST in the database
 	- PK construction (aPK_obj): DOES verify its existence on instantiation
 	                             (fetching data fails)
-	- Row construction (row_data): allowed by using a dict of pairs
+	- Row construction (row): allowed by using a dict of pairs
 	                               field name: field value (PERFORMANCE improvement)
 	- does NOT verify FK target existence
 	- does NOT create new entries in the database
@@ -110,7 +110,8 @@ class cBusinessDBObject:
 		self.__class__._updatable_fields
 		self.__class__._service
 		#</DEBUG>
-		self._payload = []
+		self._payload = []		# the cache for backend object values (mainly table fields)
+		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj=aPK_obj)
@@ -172,26 +173,55 @@ class cBusinessDBObject:
 		return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
+		# use try: except: as it is faster and we want this as fast as possible
+		# 1) backend payload cache
 		try:
 			return self._payload[self._idx[attribute]]
 		except KeyError:
+			pass
+		# 2) cached extension method results ...
+		try:
+			return self._ext_cache[attribute]		# FIXME: when do we evict this cache ?
+		except KeyError:
+			pass
+		# 3) getters providing extensions
+		getter = getattr(self, 'get_%s' % attribute, None)
+		if not callable(getter):
 			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
 			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self._idx.keys())))
-			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute)
+			_log.Log(gmLog.lWarn, '[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
+			methods = filter(lambda x: x[0].startswith('get_'), inspect.getmembers(self, inspect.ismethod))
+			_log.Log(gmLog.lWarn, '[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
+			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+		self._ext_cache[attribute] = getter()
+		return self._ext_cache[attribute]
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-		if attribute not in self.__class__._updatable_fields:
-			_log.Log(gmLog.lWarn, '[%s]: unsettable attribute: <%s>' % (self.__class__.__name__, attribute))
-			_log.Log(gmLog.lWarn, '[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-			raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: attribute <%s> not settable' % (self.__class__.__name__, attribute)
-		try:
-			self._idx[attribute]
-		except KeyError:
-			_log.Log(gmLog.lWarn, '[%s]: invalid attribute: <%s>' % (self.__class__.__name__, attribute))
+		# 1) backend payload cache
+		if attribute in self.__class__._updatable_fields:
+			try:
+				self._payload[self._idx[attribute]] = value
+				self._is_modified = True
+				return True
+			except KeyError:
+				pass
+		# 2) setters providing extensions
+		setter = getattr(self, "set_%s" % attribute, None)
+		if not callable(setter):
+			_log.Log(gmLog.lWarn, '[%s]: unsettable/invalid attribute: <%s>' % (self.__class__.__name__, attribute))
 			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
-		self._payload[self._idx[attribute]] = value
-		self._is_modified = True
+			_log.Log(gmLog.lWarn, '[%s]: no setter method [set_%s]' % (self.__class__.__name__, attribute))
+			methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
+			_log.Log(gmLog.lWarn, '[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
+			raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: cannot set [%s]' % (self.__class__.__name__, attribute)
+		try:
+			del self._ext_cache[attribute]
+		except KeyError:
+			pass
+		if type(value) is types.TupleType:
+			setter(*value)
+		else:
+			setter(value)
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -303,10 +333,36 @@ class cBusinessDBObject:
 #============================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
+	#--------------------------------------------------------
+	class cTestObj(cBusinessDBObject):
+		_cmd_fetch_payload = None
+		_cmds_lock_rows_for_update = None
+		_cmds_store_payload = None
+		_updatable_fields = []
+		_service = None
+		#----------------------------------------------------
+		def get_something(self):
+			pass
+		#----------------------------------------------------
+		def set_something(self):
+			pass
+	#--------------------------------------------------------
+	data = {
+		'pk_field': 'bogus_pk',
+		'idx': {'bogus_pk': 0, 'bogus_field': 1},
+		'data': [-1, 'bogus_data']
+	}
+	obj = cTestObj(row=data)
+#	print obj['wrong_field']
+	obj['wrong_field'] = 1
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.4  2004-11-03 22:30:35  ncq
+# Revision 1.5  2004-12-17 16:15:36  ncq
+# - add extension method result caching as suggested by Ian
+# - I maintain a bad feeling due to cache eviction policy being murky at best
+#
+# Revision 1.4  2004/11/03 22:30:35  ncq
 # - improved docs
 # - introduce class level SQL query _cmds_lock_rows_for_update
 # - rewrite save_payload() to use that via gmPG.run_commit2()
