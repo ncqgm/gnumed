@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.28 2004-09-06 18:55:09 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPatientExporter.py,v 1.29 2004-09-10 10:39:01 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -432,7 +432,7 @@ class cEmrExport:
                episode_node =  emr_tree.AppendItem(issue_node, epi['description'])
                emr_tree.SetPyData(episode_node, epi)
 
-               items =  filter(lambda item: item['pk_episode'] = epi['pk_episode'], self.__filtered_items)
+               items =  filter(lambda item: item['pk_episode'] == epi['pk_episode'], self.__filtered_items)
                encounters = self.get_encounters_for_items(items)
                for enc in encounters:
                     label = '%s:%s' % (enc['l10n_type'], enc['started'].Format('%Y-%m-%d'))
@@ -826,7 +826,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.28  2004-09-06 18:55:09  ncq
+# Revision 1.29  2004-09-10 10:39:01  ncq
+# - fixed assignment that needs to be comparison == in lambda form
+#
+# Revision 1.28  2004/09/06 18:55:09  ncq
 # - a bunch of cleanups re get_historical_tree()
 #
 # Revision 1.27  2004/09/01 21:59:01  ncq
