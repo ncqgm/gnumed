@@ -18,10 +18,9 @@ The application framework and main window of the
 all signing all dancing GNUMed reference client.
 """
 ############################################################################
-#<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.125 2003-11-19 01:01:17 shilbert Exp $
-__version__ = "$Revision: 1.125 $"
+# $Id: gmGuiMain.py,v 1.126 2003-11-19 01:22:24 ncq Exp $
+__version__ = "$Revision: 1.126 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -380,12 +379,7 @@ class gmTopLevelFrame(wxFrame):
 		#</DEBUG>
 		try:
 			epr = pat['clinical record']
-			
 			demos = pat['demographic record']
-#<<<<<<< gmGuiMain.py
-			names = demos.getActiveName()
-
-			
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
@@ -393,18 +387,16 @@ class gmTopLevelFrame(wxFrame):
 		# make sure there's an encounter
 		status, encounter = epr.attach_to_encounter(forced = 0)
 
-		#check for deprecated interface
-		if names == None:
-			names = pat.get_demographic_record().getActiveName()
+		names = demos.getActiveName()
+		pat_string = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'))
 
-		patient = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'))
 		# error ?
 		if status == -1:
 			msg = _(
 				'Can neither attach to an existing encounter\n'
 				'nor create a new one for patient\n'
 				'"%s".'
-			) % patient
+			) % pat_string
 			self.__show_error(msg, _('recording patient encounter'))
 		# ambigous ?
 		elif status == 0:
@@ -418,7 +410,7 @@ class gmTopLevelFrame(wxFrame):
 				'description: %s\n\n'
 				'Do you want to reactivate this encounter ?\n'
 				'Hitting "No" will start a new one.'
-			) % (patient, encounter['type'], encounter['started'], encounter['affirmed'], encounter['status'], encounter['comment'])
+			) % (pat_string, encounter['type'], encounter['started'], encounter['affirmed'], encounter['status'], encounter['comment'])
 			result = self.__show_question(msg, _('recording patient encounter'))
 			# attach to existing
 			if result == wxID_YES:
@@ -430,19 +422,15 @@ class gmTopLevelFrame(wxFrame):
 					msg = _(
 						'Cannot create new encounter for patient\n'
 						'"%s".'
-					) % patient
+					) % pat_string
 					self.__show_error(msg, _('recording patient encounter'))
 		#elif 1:
 			#success
 
 		# update window title
-		fname = names['first']
-		if len(fname) > 0:
-			fname = fname[:1]
-#		patient = "%s %s.%s (%s) #%d" % (pat['title'], fname, names['last'], pat['dob'], int(pat['ID']))
-#=======
-		patient = "%s %s.%s (%s) #%d" % (demos.getTitle(), fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
-		self.updateTitle(aPatient = patient)
+		fname = names['first'][:1]
+		pat_string = "%s %s.%s (%s) #%d" % (demos.getTitle()[:4], fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
+		self.updateTitle(aPatient = pat_string)
 	#----------------------------------------------
 	def OnAbout(self, event):
 		import gmAbout
@@ -859,7 +847,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.125  2003-11-19 01:01:17  shilbert
+# Revision 1.126  2003-11-19 01:22:24  ncq
+# - some cleanup, some local vars renamed
+#
+# Revision 1.125  2003/11/19 01:01:17  shilbert
 # - fix for new demographic API got lost
 #
 # Revision 1.124  2003/11/17 10:56:38  sjtan
