@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -211,7 +211,7 @@ select
 	u.name as city,
 	a.number as number,
 	str.name as street,
-	a.addendum as street2,
+	a.addendum as street2
 from
 	address a,
 	state s,
@@ -223,9 +223,9 @@ where
 		and
 	str.id_urb = u.id
 		and
-	u.statecode = s.id;
+	u.statecode = s.id
 		and
-	ia.id_address = a.id;
+	ia.id_address = a.id
 		and
 	ia.id_type = 1; -- home address
 
@@ -421,4 +421,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.29 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.30 $');
