@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.40 2005-02-20 08:32:51 sjtan Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmPatientExporter.py,v 1.41 2005-03-20 17:48:38 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -383,6 +383,8 @@ class cEmrExport:
         """
             Retrieve patient clinical items filtered by multiple constraints
         """
+        if not self.__patient.is_connected():
+            return False
         emr = self.__patient.get_clinical_record()
         filtered_items = []
         filtered_items.extend(emr.get_allergies(
@@ -408,7 +410,7 @@ class cEmrExport:
             episodes=self.__constraints['episodes'],
             issues=self.__constraints['issues']))
         self.__filtered_items = filtered_items
-        
+        return True
     #--------------------------------------------------------
     def get_allergy_summary(self, allergy, left_margin = 0):
         """
@@ -472,7 +474,12 @@ class cEmrExport:
         Encounter object is associated with item to allow displaying its information
         """
         # variable initialization
-        self.__fetch_filtered_items()
+        # this protects the emrBrowser from locking up in a paint event, e.g. in
+        # some configurations which want to use emrBrowser, but don't stop tabbing
+        # to emr browser when no patient selected. the effect is to displace a cNull instance
+        # which is a sane representation when no patient is selected.
+        if not self.__fetch_filtered_items():
+            return
         emr = self.__patient.get_clinical_record()
         h_issues = emr.get_health_issues(id_list = self.__constraints['issues'])
         root_node = emr_tree.GetRootItem()
@@ -883,7 +890,10 @@ if __name__ == "__main__":
         
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.40  2005-02-20 08:32:51  sjtan
+# Revision 1.41  2005-03-20 17:48:38  ncq
+# - add two sanity checks by Syan
+#
+# Revision 1.40  2005/02/20 08:32:51  sjtan
 #
 # indentation syntax error.
 #
