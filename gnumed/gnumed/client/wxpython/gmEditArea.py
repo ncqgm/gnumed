@@ -100,7 +100,50 @@ class EditTextBoxes(wxPanel):
                 elif section == gmSECTION_CLINICALNOTES:
 		      pass
 	        elif section == gmSECTION_FAMILYHISTORY:
-		      pass
+		      self.txt_familymembername = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymemberrelationship = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymembercondition = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymemberconditioncomment = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymemberage_onset = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymembercaused_death = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymemberage_death = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymemberprogressnotes = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.txt_familymemberdate_of_birth = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
+		      self.rb_familymember_conditionconfidential = wxRadioButton(self, 32, " Confidential ", wxDefaultPosition,wxDefaultSize)
+		      self.btn_familymembernextcondition = wxButton(self,-1,"Next Condition")
+		      self.lbl_familymember_DOB = EditAreaPromptLabel(self,-1,"  Date of Birth  ")
+		      self.lbl_familymember_age_of_death = EditAreaPromptLabel(self,-1,"  Age of Death  ")
+		      self.sizer_line1.Add(self.txt_familymembername,4,wxEXPAND)
+		      self.sizer_line1.Add(self.lbl_familymember_DOB,2,wxEXPAND)
+		      self.sizer_line1.Add(self.txt_familymemberdate_of_birth,4,wxEXPAND)
+		      self.sizer_line2.Add(self.txt_familymemberrelationship,4,wxEXPAND)
+		      self.sizer_line2.Add(self.lbl_familymember_age_of_death,2,wxEXPAND)
+		      self.sizer_line2.Add(self.txt_familymemberage_death,4,wxEXPAND)
+		      self.sizer_line3.Add(self.txt_familymembercondition, 6,wxEXPAND)
+		      self.sizer_line3.Add(self.rb_familymember_conditionconfidential, 4,wxEXPAND)
+		      #self.sizer_line4.Add(self.txt_familymemberconditioncomment, 1,wxEXPAND)
+		      self.sizer_line5.Add(self.txt_familymemberage_onset, 1,wxEXPAND)
+		      self.sizer_line5.Add(2,2,8)
+		      self.sizer_line6.Add(self.txt_familymembercaused_death, 1,wxEXPAND)
+		      self.sizer_line6.Add(2,2,8)
+		      self.sizer_line7.Add(self.txt_familymemberprogressnotes, 1,wxEXPAND)
+		      self.sizer_line8.AddSpacer(10,0,0)
+		      self.sizer_line8.Add(self.btn_familymembernextcondition,0,wxEXPAND|wxALL,1)
+		      self.sizer_line8.Add(2,1,5)
+		      self.sizer_line8.Add(self.btnOK,1,wxEXPAND|wxALL,1)
+	              self.sizer_line8.Add(self.btnClear,1,wxEXPAND|wxALL,1)  
+		      
+		       
+		     
+		      self.gs.Add(self.sizer_line1,0,wxEXPAND)
+		      self.gs.Add(self.sizer_line2,0,wxEXPAND)
+		      self.gs.Add(self.sizer_line3,0,wxEXPAND)
+		      self.gs.Add(self.txt_familymemberconditioncomment,0,wxEXPAND)
+		      self.gs.Add(self.sizer_line5,0,wxEXPAND)
+		      self.gs.Add(self.sizer_line6,0,wxEXPAND)
+		      self.gs.Add(self.txt_familymemberprogressnotes,0,wxEXPAND)
+		      self.gs.Add(self.sizer_line8,0,wxEXPAND)
+		      
 	        elif section == gmSECTION_PASTHISTORY:
 		      self.txt_condition = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
                       self.rb_sideleft = wxRadioButton(self, 32, " (L) ", wxDefaultPosition,wxDefaultSize)
