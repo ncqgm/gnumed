@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.32 2004-03-05 11:22:35 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPatientSelector.py,v 1.33 2004-03-12 13:23:41 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -49,8 +49,11 @@ def pat_expand_default(curs = None, ID_list = None):
 	# - been here this Quartal
 	# ...
 	# Note: this query must ALWAYS return the ID in field 0
-	cmd = "SELECT i_id, n_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY') FROM v_basic_person WHERE i_id in (%s) and n_id in (%s)" % \
-		(string.join(map(lambda x:str(x[0]), ID_list), ','), string.join(map(lambda x:str(x[1]), ID_list), ','))
+	cmd = """
+		SELECT i_id, n_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
+		FROM v_basic_person
+		WHERE i_id in (%s) and n_id in (%s)
+		""" % (string.join(map(lambda x:str(x[0]), ID_list), ','), string.join(map(lambda x:str(x[1]), ID_list), ','))
 
 	if not gmPG.run_query(curs, cmd):
 		_log.Log(gmLog.lErr, 'Cannot fetch patient data.')
@@ -544,7 +547,7 @@ if __name__ == "__main__":
 # -----
 # >> 3. There are countries in which people have more than one
 # >> (significant) lastname (spanish-speaking countries are one case :), some
-# >> asiatic countries might be another one).
+# >> asian countries might be another one).
 # -> we need per-country query generators ...
 
 # search case sensitive by default, switch to insensitive if not found ?
@@ -576,7 +579,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.32  2004-03-05 11:22:35  ncq
+# Revision 1.33  2004-03-12 13:23:41  ncq
+# - cleanup
+#
+# Revision 1.32  2004/03/05 11:22:35  ncq
 # - import from Gnumed.<pkg>
 #
 # Revision 1.31  2004/03/04 19:47:06  ncq
