@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.9 2003-02-15 14:21:49 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmManual.py,v 1.10 2003-02-15 14:39:59 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import sys, os
@@ -86,8 +86,6 @@ class ManualHtmlPanel(wxPanel):
         self.SetSizer(self.box)
         self.SetAutoLayout(true)
 
-        self.OnShowDefault(None)
-
 
     def ShowTitle(self, title):
         self.infoline.Clear()
@@ -131,57 +129,122 @@ class ManualHtmlPanel(wxPanel):
         self.printer.PrintFile(self.html.GetOpenedPage())
 #===========================================================
 class gmManual (gmPlugin.wxNotebookPlugin):
-    """
-    Plugin to encapsulate the manual window
-    """
-    def name (self):
-        return _('Manual')
+	"""
+	Plugin to encapsulate the manual window
+	"""
+	def name (self):
+		return _('Manual')
 
-    def MenuInfo (self):
-        return ('help', '&Manual')
+	def MenuInfo (self):
+		return ('help', '&Manual')
 
-    def GetWidget (self, parent):
-        return ManualHtmlPanel (parent, self.gb['main.frame'])
+	def GetWidget (self, parent):
+		self.HtmlPanel = ManualHtmlPanel (parent, self.gb['main.frame'])
+		return self.HtmlPanel
 
-    def DoToolbar (self, tb, widget):
-	tool1 = tb.AddTool(ID_MANUALCONTENTS, images_for_gnumed_browser16_16.getcontentsBitmap(),
-			   shortHelpString="Gnumed Manual Contents", isToggle=true)
-	EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
-      	tool1 = tb.AddTool(ID_MANUALOPENFILE, images_for_gnumed_browser16_16.getfileopenBitmap(),
-				shortHelpString="Open File", isToggle=true)
-	EVT_TOOL (tb, ID_MANUALOPENFILE, widget.OnLoadFile)
-	tool1 = tb.AddTool(ID_MANUALBACK, images_for_gnumed_browser16_16.get1leftarrowBitmap(),
-				shortHelpString="Back", isToggle=false)
-	EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
-	tool1 = tb.AddTool(ID_MANUALFORWARD, images_for_gnumed_browser16_16.get1rightarrowBitmap(),
-				shortHelpString="Forward", isToggle=true)
-	EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
-	tool1 = tb.AddTool(ID_MANUALRELOAD, images_for_gnumed_browser16_16.getreloadBitmap(),
-				shortHelpString="Re-load", isToggle=true)
-	tb.AddSeparator()
-	tool1 = tb.AddTool(ID_MANUALHOME, images_for_gnumed_browser16_16.getgohomeBitmap(),
-				shortHelpString="Home", isToggle=true)
-	EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
-	tb.AddSeparator()
-	tool1 = tb.AddTool(ID_MANUALBABELFISH, images_for_gnumed_browser16_16.getbabelfishBitmap(),
-				shortHelpString="Translate text", isToggle=false)
-	#EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
-	tb.AddSeparator()
-	tool1 = tb.AddTool(ID_MANUALBOOKMARKS, images_for_gnumed_browser16_16.getbookmarkBitmap(),
-				shortHelpString="Bookmarks", isToggle=true)
-	#EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
-	tool1 = tb.AddTool(ID_MANUALADDBOOKMARK, images_for_gnumed_browser16_16.getbookmark_addBitmap(),
-				shortHelpString="Add Bookmark", isToggle=true)
-	#EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
-	tool1 = tb.AddTool(ID_VIEWSOURCE, images_for_gnumed_browser16_16.getviewsourceBitmap(),
-				shortHelpString="View Source", isToggle=true)
-	EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
-	tool1=tb.AddTool(ID_MANUALPRINTER, images_for_gnumed_browser16_16.getprinterBitmap(),
-				shortHelpString="Print Page", isToggle=true)
-	EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint)	
+	def ReceiveFocus(self):
+		self.HtmlPanel.OnShowDefault(None)
+
+	def DoToolbar (self, tb, widget):
+		tool1 = tb.AddTool(
+			ID_MANUALCONTENTS,
+			images_for_gnumed_browser16_16.getcontentsBitmap(),
+			shortHelpString="Gnumed Manual Contents",
+			isToggle=true
+		)
+		EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
+
+#		tool1 = tb.AddTool(
+#			ID_MANUALOPENFILE,
+#			images_for_gnumed_browser16_16.getfileopenBitmap(),
+#			shortHelpString="Open File",
+#			isToggle=true
+#		)
+#		EVT_TOOL (tb, ID_MANUALOPENFILE, widget.OnLoadFile)
+
+		tool1 = tb.AddTool(
+			ID_MANUALBACK,
+			images_for_gnumed_browser16_16.get1leftarrowBitmap(),
+			shortHelpString="Back",
+			isToggle=false
+		)
+		EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
+
+		tool1 = tb.AddTool(
+			ID_MANUALFORWARD,
+			images_for_gnumed_browser16_16.get1rightarrowBitmap(),
+			shortHelpString="Forward",
+			isToggle=true
+		)
+		EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
+
+		tool1 = tb.AddTool(
+			ID_MANUALRELOAD,
+			images_for_gnumed_browser16_16.getreloadBitmap(),
+			shortHelpString="Reload",
+			isToggle=true
+		)
+
+		tb.AddSeparator()
+
+		tool1 = tb.AddTool(
+			ID_MANUALHOME,
+			images_for_gnumed_browser16_16.getgohomeBitmap(),
+			shortHelpString="Home",
+			isToggle=true
+		)
+		EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
+
+		tb.AddSeparator()
+
+		tool1 = tb.AddTool(
+			ID_MANUALBABELFISH,
+			images_for_gnumed_browser16_16.getbabelfishBitmap(),
+			shortHelpString="Translate text",
+			isToggle=false
+		)
+		#EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
+
+		tb.AddSeparator()
+
+		tool1 = tb.AddTool(
+			ID_MANUALBOOKMARKS,
+			images_for_gnumed_browser16_16.getbookmarkBitmap(),
+			shortHelpString="Bookmarks",
+			isToggle=true
+		)
+		#EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
+
+		tool1 = tb.AddTool(
+			ID_MANUALADDBOOKMARK,
+			images_for_gnumed_browser16_16.getbookmark_addBitmap(),
+			shortHelpString="Add Bookmark",
+			isToggle=true
+		)
+		#EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
+
+#		tool1 = tb.AddTool(
+#			ID_VIEWSOURCE,
+#			images_for_gnumed_browser16_16.getviewsourceBitmap(),
+#			shortHelpString="View Source",
+#			isToggle=true
+#		)
+#		EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
+
+		tool1 = tb.AddTool(
+			ID_MANUALPRINTER,
+			images_for_gnumed_browser16_16.getprinterBitmap(),
+			shortHelpString = _("Print Manual Page"),
+			isToggle=true
+		)
+		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint)	
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.9  2003-02-15 14:21:49  ncq
+# Revision 1.10  2003-02-15 14:39:59  ncq
+# - cleanup
+# - comment out a few "un-needed" buttons
+#
+# Revision 1.9  2003/02/15 14:21:49  ncq
 # - on demand loading of Manual
 # - further pluginization of showmeddocs
 #
