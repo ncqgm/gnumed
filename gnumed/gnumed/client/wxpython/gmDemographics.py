@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.19 2004-03-27 04:37:01 ihaywood Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmDemographics.py,v 1.20 2004-05-19 11:16:09 sjtan Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -248,7 +248,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 
 		self.txt_urb = cPhraseWheel( parent = self,id = -1 , aMatchProvider= MP_urb_by_zip(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize , id_callback= self.__urb_selected)
 
-		self.txt_postcode  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize )
+		self.txt_postcode  = cPhraseWheel( parent = self,id = -1 , aMatchProvider= PostcodeMP(), selection_only = 1,  pos = wxDefaultPosition, size=wxDefaultSize , id_callback =self.__postcode_selected)
 
 		self.txt_birthdate = TextBox_BlackNormal(self,-1)
 		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
@@ -495,9 +495,37 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 	def __urb_selected(self, id):
 		try:
 			self.input_fields['postcode'].SetValue( gmDemographicRecord.getPostcodeForUrbId(id )  )
+			self.input_fields['postcode'].input_was_selected = 1		
 		except:
 			_log.LogException ('failed on set postcode', sys.exc_info (), verbose=0)
 
+	def __postcode_selected(self, pk):
+		postcode = pk
+		try:
+			pwheel = self.input_fields['urb']
+			#this checks for "clearing the postcode"
+			# as the gesture that unsets the urb widget's postcode
+			# context. 
+			if postcode == "":
+				print "unset urb context"
+				pwheel.setContext("postcode", "%")
+				return
+			urbs = gmDemographicRecord.getUrbsForPostcode(postcode)	
+			if urbs <> None and len(urbs)  > 0:
+				pwheel.SetValue( urbs[0])
+				pwheel.input_was_selected = 1
+			#FIXME: once the postcode context is set, 
+			# the urb phrasewheel will only return urbs with
+			# the same postcode. These can be viewed by clearing
+			# the urb widget. ?How to unset the postcode context,
+			# some gui gesture ? clearing the postcode
+			#(To view all the urbs for a set context, 
+			# put a "*" in the urb box and activate the picklist.)
+				
+			pwheel.setContext("postcode", postcode)
+		except:
+			_log.LogException ('failed on set urb', sys.exc_info (), verbose=0)
+			
 
 	def _address_selected( self, event):
 		self._update_address_fields_on_selection()
@@ -795,7 +823,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.19  2004-03-27 04:37:01  ihaywood
+# Revision 1.20  2004-05-19 11:16:09  sjtan
+#
+# allow selecting the postcode for restricting the urb's picklist, and resetting
+# the postcode for unrestricting the urb picklist.
+#
+# Revision 1.19  2004/03/27 04:37:01  ihaywood
 # lnk_person2address now lnk_person_org_address
 # sundry bugfixes
 #

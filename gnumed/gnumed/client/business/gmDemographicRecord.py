@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.39 2004-04-15 09:46:56 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmDemographicRecord.py,v 1.40 2004-05-19 11:16:08 sjtan Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -716,6 +716,17 @@ def getPostcodeForUrbId( urb_id):
 	if len(data) == 0:
 		return ''
 	return data[0][0]
+
+#----------------------------------------------------------------
+def getUrbsForPostcode( pcode):
+	cmd = "select name from urb where postcode = %s"
+	data = gmPG.run_ro_query('personalia', cmd, None, pcode)
+	if data is None:
+		return ""
+	if len(data) == 0:
+		return ""
+	return [ x[0] for x in data]
+	
 #----------------------------------------------------------------
 class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of valid postcodes,
@@ -725,6 +736,13 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 		# we search two tables here, as in some jurisdictions (UK, Germany, US)
 		# postcodes are tied to streets or small groups of streets,
 		# and in others (Australia) postcodes refer to an entire town
+
+		# reviewers' comments:
+		# - pk this will be the data return to the id_callback() function passed 
+		#   as  gmPhrasewheel.__init__ last parameter , so the event data  will be 
+		#   the postcode for urb or street , not the id of those tables.
+		#   This is in the cMatchProvider.__findMatches code.
+
 		source = [{
 			'column':'postcode',
 			'pk':'postcode',
@@ -746,7 +764,10 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of streets
 
-	accepts "urb" and "postcode" contexts
+	accepts "urb" and "postcode" contexts  
+		e.g.
+			using cMatchProvider_SQL's  self.setContext("urb",...) 
+					
 	"""
 	def __init__ (self):
 		source = [{
@@ -865,7 +886,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.39  2004-04-15 09:46:56  ncq
+# Revision 1.40  2004-05-19 11:16:08  sjtan
+#
+# allow selecting the postcode for restricting the urb's picklist, and resetting
+# the postcode for unrestricting the urb picklist.
+#
+# Revision 1.39  2004/04/15 09:46:56  ncq
 # - cleanup, get_lab_data -> get_lab_results
 #
 # Revision 1.38  2004/04/11 10:15:56  ncq
