@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.107 $
+-- $Revision: 1.108 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -549,7 +549,7 @@ comment on column allergy_state.has_allergy is
 	'patient allergenic state:
 	 - null: unknown, not asked, no data available
 	 - -1: unknown, asked, no data obtained
-	 - 0:  known, asked, has no allergies
+	 - 0:  known, asked, has no known allergies
 	 - 1:  known, asked, does have allergies
 	';
 
@@ -574,9 +574,10 @@ create table allergy (
 	definite boolean default false
 ) inherits (clin_root_item);
 
-select add_table_for_audit('allergy');
-
 -- narrative provided by clin_root_item
+
+select add_table_for_audit('allergy');
+select add_table_for_notifies('allergy', 'allg');
 
 comment on table allergy is
 	'patient allergy details';
@@ -861,11 +862,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.107 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.108 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.107  2004-05-08 17:37:08  ncq
+-- Revision 1.108  2004-05-22 11:54:18  ncq
+-- - cleanup signal handling on allergy table
+--
+-- Revision 1.107  2004/05/08 17:37:08  ncq
 -- - *_encounter_type -> encounter_type
 --
 -- Revision 1.106  2004/05/02 19:24:02  ncq

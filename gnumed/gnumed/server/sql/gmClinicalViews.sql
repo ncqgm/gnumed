@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.67 2004-05-11 01:34:51 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.68 2004-05-22 11:54:23 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -329,42 +329,6 @@ create trigger TR_h_issues_modified
 
 -- ==========================================================
 -- allergy stuff
-\unset ON_ERROR_STOP
-drop trigger TR_allergy_add_del on allergy;
-drop function F_announce_allergy_add_del();
-\set ON_ERROR_STOP 1
-
-create function F_announce_allergy_add_del() returns opaque as '
-declare
-	episode_id integer;
-	patient_id integer;
-begin
-	-- get episode ID
-	if TG_OP = ''INSERT'' then
-		episode_id := NEW.id_episode;
-	else
-		episode_id := OLD.id_episode;
-	end if;
-	-- track back to patient ID
-	select into patient_id id_patient
-		from v_pat_episodes vpep
-		where vpep.id_episode = episode_id
-		limit 1;
-	-- now, execute() the NOTIFY
-	execute ''notify "allergy_add_del_db:'' || patient_id || ''"'';
-	return NULL;
-end;
-' language 'plpgsql';
-
-create trigger TR_allergy_add_del
-	after insert or delete
-	on allergy
-	for each row
-		execute procedure F_announce_allergy_add_del()
-;
--- should really be "for each statement" but that isn't supported yet by PostgreSQL
--- or maybe not since then we won't be able to separate affected patients in UPDATEs
-
 \unset ON_ERROR_STOP
 drop view v_pat_allergies;
 \set ON_ERROR_STOP 1
@@ -778,11 +742,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.67 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.68 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.67  2004-05-11 01:34:51  ncq
+-- Revision 1.68  2004-05-22 11:54:23  ncq
+-- - cleanup signal handling on allergy table
+--
+-- Revision 1.67  2004/05/11 01:34:51  ncq
 -- - allow test results with lab_request.is_pending is True in v_results4lab_req
 --
 -- Revision 1.66  2004/05/08 20:43:48  ncq
