@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.97 2004-09-17 20:14:06 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.98 2004-09-17 20:28:05 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -212,7 +212,8 @@ select
 	cep.description as description,
 	chi.description as health_issue,
 	cep.pk as pk_episode,
-	cep.fk_health_issue as pk_health_issue
+	cep.fk_health_issue as pk_health_issue,
+	cep.modified_when as episode_modified_when
 from
 	clin_episode cep, clin_health_issue chi
 where
@@ -1208,11 +1209,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.97 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.98 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.97  2004-09-17 20:14:06  ncq
+-- Revision 1.98  2004-09-17 20:28:05  ncq
+-- - PG 7.4 is helpful: fix UNION
+--
+-- Revision 1.97  2004/09/17 20:14:06  ncq
 -- - curr_medication -> clin_medication + propagate
 -- - partial index on clin_episode.fk_health_issue where fk_health_issue not null
 -- - index on clin_medication.discontinued where discontinued not null
