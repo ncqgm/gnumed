@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.162 2005-03-01 20:48:46 ncq Exp $
-__version__ = "$Revision: 1.162 $"
+# $Id: gmClinicalRecord.py,v 1.163 2005-03-10 19:49:34 cfmoro Exp $
+__version__ = "$Revision: 1.163 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -873,10 +873,13 @@ where
 	#--------------------------------------------------------
 	# problems API
 	#--------------------------------------------------------
-	def get_problems(self):
+	def get_problems(self, episodes = None, issues = None):
 		"""
 		Retrieve patient's problems: problems are the sum of issues w/o episodes,
 		issues w/ episodes and episodes w/o issues
+		
+		episodes - Episodes' PKs to filter problems by
+		issues - Health issues' PKs to filter problems by
 		"""
 		try:
 			self.__db_cache['problems']
@@ -900,7 +903,17 @@ where
 				except gmExceptions.ConstructorError:
 					_log.LogException('problem error on [%s] for patient [%s]' % (row, self.pk_patient), sys.exc_info(), verbose=0)
 					
-		return self.__db_cache['problems']
+		if episodes is None and issues is None:
+			return self.__db_cache['problems']
+		# ok, let's filter problem list
+		filtered_problems = []
+		filtered_problems.extend(self.__db_cache['problems'])
+		if issues is not None:
+			filtered_problems = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_problems)
+		if episodes is not None:
+			filtered_problems = filter(lambda epi: epi['pk_episode'] in episodes, filtered_problems)
+		print filtered_problems
+		return filtered_problems
 		
 	#--------------------------------------------------------
 	# health issues API
@@ -1676,7 +1689,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.162  2005-03-01 20:48:46  ncq
+# Revision 1.163  2005-03-10 19:49:34  cfmoro
+# Added episodes and issues constraints to get_problem
+#
+# Revision 1.162  2005/03/01 20:48:46  ncq
 # - rearrange __init__ such that encounter is set up before episode
 # - fix handling in __load_last_active_episode()
 #
