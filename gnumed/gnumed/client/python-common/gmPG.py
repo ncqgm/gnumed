@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.67 $"
+__version__ = "$Revision: 1.68 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -274,7 +274,7 @@ class ConnectionPool:
 			return dblogin
 		# actually fetch parameters for db where service
 		# is located from config DB
-		cfg_db = ConnectionPool.__databases['config']
+		cfg_db = ConnectionPool.__databases['default']
 		cursor = cfg_db.cursor()
 		cmd = "select name, host, port, opt, tty from db where id = %s ;"
 		if not run_query(cursor, cmd, srvc_id):
@@ -327,12 +327,12 @@ class ConnectionPool:
 		ConnectionPool.__connected = 1
 
 		# this is the default gnumed server now
-		ConnectionPool.__databases['config'] = cfg_db
+#		ConnectionPool.__databases['config'] = cfg_db
 		ConnectionPool.__databases['default'] = cfg_db
 		
 		# preload all services with database id 0 (default)
 		cursor = cfg_db.cursor()
-		cmd = "select name from distributed_db;"
+		cmd = "select name from distributed_db"
 		if not run_query(cursor, cmd):
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load service names from configuration database")
@@ -342,7 +342,7 @@ class ConnectionPool:
 
 		# establish connections to all servers we need
 		# according to configuration database
-		cmd = "select * from config where profile=%s ;"
+		cmd = "select * from config where profile=%s"
 		if not run_query(cursor, cmd, login.GetProfile()):
 			cursor.close()
 			raise gmExceptions.ConnectionError("cannot load user profile [%s] from database" % login.GetProfile())
@@ -574,7 +574,7 @@ def run_query(aCursor = None, aQuery = None, *args):
 def get_col_indices(aCursor = None):
 	# sanity checks
 	if aCursor is None:
-		_log.Log(gmLog.lErr, 'need cursor to run query')
+		_log.Log(gmLog.lErr, 'need cursor to get column indices')
 		return None
 	if aCursor.description is None:
 		_log.Log(gmLog.lErr, 'no result description available: cursor unused or last query did not select rows')
@@ -585,6 +585,33 @@ def get_col_indices(aCursor = None):
 		col_indices[col_desc[0]] = col_index
 		col_index += 1
 	return col_indices
+#---------------------------------------------------
+_query_pkey_name = """SELECT
+	pga.attname
+FROM
+	(pg_attribute pga inner join pg_index pgi on (pga.attrelid=pgi.indrelid))
+WHERE
+	pga.attnum=pgi.indkey[0]
+		and
+	pgi.indisprimary is true
+		and
+	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
+
+def get_pkey(aCursor = None, aTable = None):
+	# sanity checks
+	if aCursor is None:
+		_log.Log(gmLog.lErr, 'need cursor to determine primary key')
+		return None
+	if aTable is None:
+		_log.Log(gmLog.lErr, 'need table name for which to determine primary key')
+
+	if not run_query(aCursor, _query_pkey_name, aTable):
+		_log.Log(gmLog.lErr, 'cannot determine primary key')
+		return -1
+	result = aCursor.fetchone()
+	if result is None:
+		return None
+	return result[0]
 #---------------------------------------------------
 def getBackendName():
 	return __backend
@@ -787,15 +814,19 @@ if __name__ == "__main__":
 	print "start psql in another window connect to gnumed"
 	print "and type 'notify test'; if everything works,"
 	print "a message [Backend notification received!] should appear\n"
-	dbpool.Listen('config', 'test', TestCallback)
+	dbpool.Listen('default', 'test', TestCallback)
 	time.sleep(20)
-	dbpool.StopListener('config')
+	dbpool.StopListener('default')
 	print "Requesting write access connection:"
-	con = dbpool.GetConnection('config', readonly=0)
+	con = dbpool.GetConnection('default', readonly=0)
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.67  2003-08-13 14:07:43  ncq
+# Revision 1.68  2003-08-17 18:02:33  ncq
+# - don't handle service "config" different from the others
+# - add helper get_pkey()
+#
+# Revision 1.67  2003/08/13 14:07:43  ncq
 # - removed some dead code
 #
 # Revision 1.66  2003/07/21 20:55:39  ncq
