@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.170 2004-08-20 13:34:48 ncq Exp $
-__version__ = "$Revision: 1.170 $"
+# $Id: gmGuiMain.py,v 1.171 2004-09-05 14:47:24 ncq Exp $
+__version__ = "$Revision: 1.171 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -95,7 +95,6 @@ class gmTopLevelFrame(wx.wxFrame):
  			self.layout_style = 'status_quo'
  			gmCfg.setDBParam (
 				workplace = _whoami.get_workplace(),
-				user = _whoami.get_db_account(),
 				option = 'main.window.layout_style',
 				value = self.layout_style
 			)
@@ -230,7 +229,6 @@ class gmTopLevelFrame(wx.wxFrame):
 			desired_width = def_width
 			gmCfg.setDBParam(
 				workplace = _whoami.get_workplace(),
-				user = _whoami.get_db_account(),
 				option = 'main.window.width',
 				value = desired_width
 			)
@@ -241,7 +239,6 @@ class gmTopLevelFrame(wx.wxFrame):
  			desired_height = def_height
 			gmCfg.setDBParam(
 				workplace = _whoami.get_workplace(),
-				user = _whoami.get_db_account(),
 				option = 'main.window.height',
 				value = desired_height
 			)
@@ -461,13 +458,11 @@ class gmTopLevelFrame(wx.wxFrame):
 		_log.Log(gmLog.lInfo, 'GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
 		gmCfg.setDBParam(
 			workplace = _whoami.get_workplace(),
-			user = _whoami.get_db_account(),
 			option = 'main.window.width',
 			value = curr_width
 		)
 		gmCfg.setDBParam(
 			workplace = _whoami.get_workplace(),
-			user = _whoami.get_db_account(),
 			option = 'main.window.height',
 			value = curr_height
 		)
@@ -475,7 +470,6 @@ class gmTopLevelFrame(wx.wxFrame):
 		if self.bar_width != 210:
 			gmCfg.setDBParam(
 				workplace = _whoami.get_workplace(),
-				user = _whoami.get_db_account(),
 				option = 'main.window.sidebar_width',
 				value = self.bar_width
 			)
@@ -797,7 +791,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.170  2004-08-20 13:34:48  ncq
+# Revision 1.171  2004-09-05 14:47:24  ncq
+# - fix setDBParam() calls
+#
+# Revision 1.170  2004/08/20 13:34:48  ncq
 # - getFirstMatchingDBSet() -> getDBParam()
 #
 # Revision 1.169  2004/08/11 08:15:06  ncq
