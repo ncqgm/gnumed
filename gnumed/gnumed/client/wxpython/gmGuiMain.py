@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.110 2003-06-26 22:28:50 ncq Exp $
-__version__ = "$Revision: 1.110 $"
+# $Id: gmGuiMain.py,v 1.111 2003-07-07 08:34:31 ihaywood Exp $
+__version__ = "$Revision: 1.111 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -267,8 +267,11 @@ class gmTopLevelFrame(wxFrame):
 			try:
 				plugin = gmPlugin.InstPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend)
 				_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
-				plugin.register()
-				result = _("success")
+				if plugin:
+					plugin.register()
+					result = _("success")
+				else:
+					_log.Log (gmLog.lErr, "plugin [%s] not loaded as no object, see errors above" % curr_plugin)
 			except:
 				_log.LogException('failed to load plugin %s' % curr_plugin, sys.exc_info())
 				result = _("failed")
@@ -806,7 +809,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.110  2003-06-26 22:28:50  ncq
+# Revision 1.111  2003-07-07 08:34:31  ihaywood
+# bugfixes on gmdrugs.sql for postgres 7.3
+#
+# Revision 1.110  2003/06/26 22:28:50  ncq
 # - need to define self.nb before using it
 # - reordered __init__ for clarity
 #

@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.31 2003-07-05 13:44:12 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmClinicalRecord.py,v 1.32 2003-07-07 08:34:31 ihaywood Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -352,6 +352,7 @@ class gmClinicalRecord:
 			del self.__db_cache['allergies']
 			return None
 		rows = curs.fetchall()
+		print "getting allergies %s" % rows
 		curs.close()
 		self.__db_cache['allergies'] = rows
 		#<DEBUG>
@@ -364,7 +365,9 @@ class gmClinicalRecord:
 		try:
 			self.__db_cache['allergies']
 		except KeyError:
-			if not self._get_allergies():
+			if self._get_allergies() is None:
+				# remember empty list will return false
+				# even though this is what we get with no allergies
 				_log.Log(gmLog.lErr, "Could not load allergies")
 				return data
 		for allergy in self.__db_cache['allergies']:
@@ -753,35 +756,33 @@ class gmClinicalRecord:
 	def create_allergy(self, map):
 		"""tries to add allergy to database."""
 
-		self.beginTransaction()
+		#self.beginTransaction()
 
-		if self.id_encounter == 0:
-			self.execute("rollback", "rolling back because of invalid encounter id = 0")
-			return 0
-
+		# IH: we need to use a read-write connection for this
+		rw_conn = self._backend.GetConnection('historica', readonly = 0)
+		if rw_conn is None:
+			_log.Log(gmLog.lErr, 'cannot connect to service [historica]')
+			return None
+		rw_curs = rw_conn.cursor()
 		# definite misspelled in older SQL scripts so try both
-		cmd_part = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, %s)"
-
 		# FIXME: id_type hardcoded, not reading checkbox states (allergy or sensitivity)
-		value_part = " values (%d, %d, %d, '%s', '%s', '%s' )" % (1, self.id_encounter, self.id_episode, map["substance"], map["reaction"], map["definite"])
-		cmd1 = cmd_part % "definite"  + value_part
-		cmd2 = cmd_part % "definate"  + value_part
-		if self.execute(cmd1, "insert allergy failed with defin*I*te ", rollback = 0 ) is None:
-			# remove this if really upto date
-			self.execute(cmd2, "insert allergy failed with defin*A*te", rollback = 1)
+		# the definate/definite confusion is ended:
+		# users should be using the latest database!!!
+		cmd = """
+insert into
+allergy(id_type, id_encounter, id_episode,  substance, reaction, definite)
+values
+(%d, %d, %d, '%s', '%s', '%s' )
+""" % (1, self.id_encounter, self.id_episode, map["substance"], map["reaction"],
+		 map["definite"])
+		gmPG.run_query (rw_curs, cmd)
+		rw_curs.close ()
+		rw_conn.commit ()
 
-		#idiosyncratic bug.
-		#seems like calling commit by sql doesn't commit the
-		#the connection properly, prematurely closing it?
-		# this may well be true but why not using the conn.commit()
-		# provided by the DB-API ?
-		#self.execute("commit", "unable to commit ", rollback = 1)
-
-		self.endTransaction()
+		#self.endTransaction()
 		#<DEBUG>
 		_log.Data("after end Transaction")
 		#</DEBUG>
-		
 		return 1
 	#------------------------------------------------------------------
 	# convenience sql call interface
@@ -861,7 +862,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.31  2003-07-05 13:44:12  ncq
+# Revision 1.32  2003-07-07 08:34:31  ihaywood
+# bugfixes on gmdrugs.sql for postgres 7.3
+#
+# Revision 1.31  2003/07/05 13:44:12  ncq
 # - modify -> modified
 #
 # Revision 1.30  2003/07/03 15:20:55  ncq

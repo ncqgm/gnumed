@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.35 $ $Date: 2003-05-05 10:02:10 $ $Author: ihaywood $
+-- $Revision: 1.36 $ $Date: 2003-07-07 08:34:31 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.35  2003-05-05 10:02:10  ihaywood
+-- Revision 1.36  2003-07-07 08:34:31  ihaywood
+-- bugfixes on gmdrugs.sql for postgres 7.3
+--
+-- Revision 1.35  2003/05/05 10:02:10  ihaywood
 -- minor updates
 --
 -- Revision 1.34  2003/04/19 06:25:12  ihaywood
@@ -148,22 +151,6 @@ create table disease_code (
 
 comment on table disease_code is
 	'holds actual coding systems';
-
--- ===========================================
-create table ATC (
-	code varchar(8) primary key,
-	src char check (src in ('p', 's')),
-	description text
-) inherits (audit_drugs);
-
-comment on table ATC is
-	'ATC coding of drugs ("nordic system") as maintained by the WHO';
-comment on column ATC.code is
-	'The original ATC code';
-comment on column ATC.src is
-	'p=primary source, s=secondary source';
-comment on column ATC.description is
-	'clear text description of the ATC code';
 
 -- ===========================================
 create table drug_units (
@@ -317,7 +304,7 @@ comment on column drug_warning.code is
 -- ===========================================
 create table information_topic
 (
-	id serial,
+	id serial unique,
 	title varchar (60),
 	target char check (target in ('h', 'p'))
 );
@@ -414,7 +401,7 @@ comment on function get_drug_name (integer) is
 
 -- ===========================================
 create table drug_dosage(
-	id serial,
+	id serial primary key,
 	id_drug integer references drug_element (id),
 	id_drug_warning_categories integer references drug_warning_categories(id) default NULL,
 	id_info_reference integer references info_reference(id),
@@ -452,7 +439,6 @@ comment on column substance_dosage.dosage_max is
 
 -- ===========================================
 create table link_drug_class(
-	id serial,
 	id_drug integer references drug_element(id),
 	id_class integer references drug_element(id)
 ) inherits (audit_drugs);
@@ -464,7 +450,6 @@ comment on table link_drug_class is
 
 -- ===========================================
 create table link_drug_warning(
-	id serial,
 	id_drug integer references drug_element(id),
 	id_warning integer references drug_warning(id)
 ) inherits (audit_drugs);
@@ -487,7 +472,7 @@ comment on table link_drug_information is
 
 -- ===========================================
 create table severity_level (
-	id serial,
+	id serial primary key,
 	description varchar (100),
 	comment text
 ) inherits (audit_drugs);
@@ -528,7 +513,6 @@ insert into adverse_effects (severity, description) values (3, 'psychosis');
 
 -- ===========================================
 create table link_drug_adverse_effects(
-	id serial,
 	id_drug integer references drug_element(id),
 	id_adverse_effect integer references adverse_effects(id),
 	frequency char check(frequency in ('c', 'i', 'r')),
@@ -573,7 +557,7 @@ comment on table link_drug_interactions is
 
 -- ===========================================
 create table link_drug_disease_interactions(
-	id serial,
+	id serial primary key,
 	id_drug integer references drug_element(id),
 	id_disease_code integer references disease_code(id),
 	id_interaction integer references interactions (id),
@@ -627,7 +611,7 @@ comment on table link_product_component  is
 
 -- ===========================================
 create table drug_flags (
-	id serial,
+	id serial primary key,
 	description varchar (100)
 );
 
@@ -721,10 +705,10 @@ comment on column subsidies.name is
 	'description of the subsidy (like PBS or RPBS in Australia)';
 
 insert into subsidies (iso_countrycode, name, comment) values ('au', 'PBS', 'Pharmaceutical Benefits Schedule');
-
+insert into subsidies (iso_countrycode, name, comment) values ('au', 'RPBS', 'Repatriation (i.e. war veteran''s) Pharmaceutical Benefits Schedule');
 -- ===========================================
 create table conditions (
-	id serial,
+	id serial primary key,
 	comment text,
 	title varchar (60),
 	id_subsidy integer references subsidies (id),
@@ -744,7 +728,7 @@ comment on column conditions.id_drug is
 
 -- ===========================================
 create table subsidized_products(
-	id serial,
+	id serial primary key,
 	id_product integer references product(id),
 	id_subsidy integer references subsidies(id),
 	quantity integer default 1,
@@ -809,7 +793,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.36 $');
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such

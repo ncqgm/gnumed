@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -211,7 +211,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		age = self.curr_pat['medical age']
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
+		name = self.curr_pat['active name']
 		self.txt_age.SetValue(age)
+		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
 		self._update_allergies()
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
@@ -320,7 +322,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.14  2003-06-26 21:40:29  ncq
+# Revision 1.15  2003-07-07 08:34:31  ihaywood
+# bugfixes on gmdrugs.sql for postgres 7.3
+#
+# Revision 1.14  2003/06/26 21:40:29  ncq
 # - fatal->verbose
 #
 # Revision 1.13  2003/06/26 04:18:40  ihaywood

@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.14 2003-07-03 15:22:19 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmPatientSelector.py,v 1.15 2003-07-07 08:34:31 ihaywood Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -445,7 +445,7 @@ class cPatientPickList(wxDialog):
 		id = -1,
 		title = _('please select a patient'),
 		pos = (-1, -1),
-		size = (320, 240),
+		size = (600, 400),
 	):
 		wxDialog.__init__(
 			self,
@@ -988,7 +988,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.14  2003-07-03 15:22:19  ncq
+# Revision 1.15  2003-07-07 08:34:31  ihaywood
+# bugfixes on gmdrugs.sql for postgres 7.3
+#
+# Revision 1.14  2003/07/03 15:22:19  ncq
 # - removed unused stuff
 #
 # Revision 1.13  2003/06/29 14:08:02  ncq
