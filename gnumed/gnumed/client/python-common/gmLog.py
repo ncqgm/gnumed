@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -181,9 +181,10 @@ class cLogger:
 		- if Rawness == lCooked non-printables < 32 (space) will be mapped to their name in ASCII
 		- FIXME: this should be a Unicode mapping
 		"""
-		tmp = ""
+		tmp = aMsg
 		# are we in for work ?
 		if self.__targets is not None:
+			# handle types somewhat intelligently
 			if type(aMsg) != type(tmp):
 				tmp = str(aMsg)
 			# cook it ?
