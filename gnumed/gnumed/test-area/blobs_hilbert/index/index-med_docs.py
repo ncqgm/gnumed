@@ -1,9 +1,21 @@
 #!/usr/bin/python
-
+#=====================================================
+# TODO:
+#  - if no xDT file found
+#    * browse GnuMed patient database
+#    * allow patient data input
+#  - cancel-quit button
+#  - pluginize with GnuMed
+#  - load external file(s) (fax, digicam etc.)
+#  - wxDateEntry() mit ordentlichem Validator
+#  - Funktion Seiten umsortieren fertigstellen
+#  - phrasewheel on Kurzkommentar
+#=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL"
 
 from wxPython.wx import *
 from wxPython.lib.anchors import LayoutAnchors
@@ -941,11 +953,15 @@ else:
 			return ('tools', '&Index Documents')
 
 #======================================================
-# this line is a replacement for gmPhraseWhell just in case it doesn't work 
+# this line is a replacement for gmPhraseWheel just in case it doesn't work 
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.26  2003-01-14 22:11:27  ncq
+# Revision 1.27  2003-03-01 14:40:10  ncq
+# - added extensive TODO
+# - added explicit license statement !!
+#
+# Revision 1.26  2003/01/14 22:11:27  ncq
 # - reloads phrase wheel after save
 #
 # Revision 1.25  2002/12/29 00:54:02  ncq
