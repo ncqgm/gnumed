@@ -8,7 +8,7 @@ search for FIXME to find places to fix
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/test/Attic/test-export.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #######################################################
 # modules
@@ -24,7 +24,7 @@ from docDatabase import cDatabase
 import docMime
 
 myDB = None
-myCfg = gmCfg.gmDefCfg
+myCfg = gmCfg.gmDefCfgFile
 myDocList = None
 # get a convenient handle for the default logger
 __log__ = gmLog.gmDefLog
