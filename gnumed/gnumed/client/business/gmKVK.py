@@ -1,3 +1,4 @@
+# -*- coding: latin-1 -*-
 """GnuMed German KVK objects.
 
 These objects handle German patient cards (KVK).
@@ -6,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.4 2004-02-25 09:46:20 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmKVK.py,v 1.5 2004-03-02 10:21:10 ihaywood Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -280,7 +281,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmKVK.py,v $
-# Revision 1.4  2004-02-25 09:46:20  ncq
+# Revision 1.5  2004-03-02 10:21:10  ihaywood
+# gmDemographics now supports comm channels, occupation,
+# country of birth and martial status
+#
+# Revision 1.4  2004/02/25 09:46:20  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.3  2003/11/17 10:56:34  sjtan

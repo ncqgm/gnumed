@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.10 2004-02-25 09:46:21 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmDemographics.py,v 1.11 2004-03-02 10:21:10 ihaywood Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -28,8 +28,7 @@ from mx import DateTime
 import gmPlugin
 import gmGuiBroker
 import gmPatientNameQuery
-import gmLog, gmDispatcher, gmSignals
-import gmSQLListControl, gmDataPanelMixin
+import gmLog, gmDispatcher, gmSignals, gmI18N
 from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
 import cPickle, zlib
 from string import *
@@ -39,7 +38,7 @@ import gmPatientHolder
 import time
 
 from gmPhraseWheel import cPhraseWheel
-from gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP
+from gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP, OccupationMP, CountryMP
 import gmDemographicRecord, gmPatient
 
 import gmLog
@@ -115,11 +114,10 @@ class TextBox_BlackNormal(wxTextCtrl):
 
 
 #------------------------------------------------------------
-class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.PatientHolder):
+class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 	#def __init__(self, parent, plugin, id=wxNewId ()):
 	def __init__(self, parent, id= -1):
 		wxPanel.__init__(self, parent, id ,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
-		gmDataPanelMixin.DataPanelMixin.__init__(self)
 		gmPatientHolder.PatientHolder.__init__(self)
 		self.gb = gmGuiBroker.GuiBroker ()
 		try:
@@ -127,15 +125,13 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		except:
 			self.mwm = {}
 		self.to_delete = []
-	#	self.plugin = plugin
-		# controls on the top toolbar are available via plugin.foo
+		self.addr_cache = []
+		self.gendermap = {'m':_('Male'), 'f':_("Female"), '?':_("Unknown")}
+		self.comm_channel_names = gmDemographicRecord.getCommChannelTypes ()
+		self.marital_status_types = gmDemographicRecord.getMaritalStatusTypes ()
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,[],wxLB_SINGLE)
-		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
+		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		self.addresslist.SetForegroundColour(wxColor(180,182,180))
-		# code to link up SQLListControl
-		# this has all been superseded several times over!!!
-		#self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=true, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-		#self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.lbl_surname = BlueLabel(self,-1,"Surname")
 		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
 		self.lbl_preferredname = BlueLabel(self,-1,"Salutation")
@@ -152,12 +148,12 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.lbl_nextofkin = BlueLabel(self,-1,"")
 		self.lbl_addressNOK = BlueLabel(self,-1,"Next of Kin")
 		self.lbl_relationship = BlueLabel(self,-1,"Relationship")
-		self.lbl_homephone = BlueLabel(self,-1,"Home Phone")
-		self.lbl_workphone = BlueLabel(self,-1,"Work Phone")
-		self.lbl_fax = BlueLabel(self,-1,"Fax")
-		self.lbl_email = BlueLabel(self,-1,"Email")
-		self.lbl_web = BlueLabel(self,-1,"Web")
-		self.lbl_mobile = BlueLabel(self,-1,"Mobile")
+		self.lbl_homephone = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.HOME_PHONE])
+		self.lbl_workphone = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.WORK_PHONE])
+		self.lbl_fax = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.FAX])
+		self.lbl_email = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.EMAIL])
+		self.lbl_web = BlueLabel(self,-1,self.comm_channel_names[gmDemographicRecord.WEB])
+		self.lbl_mobile = BlueLabel(self,-1, self.comm_channel_names[gmDemographicRecord.MOBILE])
 		self.lbl_line6gap = BlueLabel(self,-1,"")
 		self.titlelist = ['Mr', 'Mrs', 'Miss', 'Mst', 'Ms', 'Dr', 'Prof']
           	self.combo_relationship = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, ['Father','Mother'], wxCB_DROPDOWN)
@@ -183,17 +179,10 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 		self.txt_birthdate = TextBox_BlackNormal(self,-1)
 		self.combo_maritalstatus = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize,
-						      ['single','married'], wxCB_DROPDOWN)
-		self.txt_occupation = TextBox_BlackNormal(self,-1)
-		self.txt_countryofbirth = TextBox_BlackNormal(self,-1)
+						      self.marital_status_types, wxCB_DROPDOWN | wxCB_READONLY)
+		self.txt_occupation = cPhraseWheel (parent=self, id = -1, aMatchProvider = OccupationMP (), pos = wxDefaultPosition, size=wxDefaultSize)
+		self.txt_country = cPhraseWheel (parent=self, id = -1, aMatchProvider = CountryMP (), pos = wxDefaultPosition, size=wxDefaultSize)
 		self.btn_browseNOK = wxButton(self,-1,"Browse NOK") #browse database to pick next of Kin
-	#	self.txt_nameNOK = wxTextCtrl(self, 30,
-	#				      "Peter Smith \n"
-	#				      "22 Lakes Way \n"
-	#				      "Valentine 2280",
-	#				      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
-	#	self.txt_nameNOK.SetInsertionPoint(0)
-	#	self.txt_nameNOK.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		self.lb_nameNOK = wxListBox( self, 30)
 		self.txt_homephone = TextBox_BlackNormal(self,-1)
 		self.txt_workphone = TextBox_BlackNormal(self,-1)
@@ -327,7 +316,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		self.sizer_line2_right.Add(self.txt_occupation,6,wxEXPAND)
 		#line3 - country of birth (use word wheel later)
 		self.sizer_line3_right.Add(self.lbl_birthplace,2,wxALIGN_CENTER_VERTICAL,0)
-		self.sizer_line3_right.Add(self.txt_countryofbirth,6,wxEXPAND)
+		self.sizer_line3_right.Add(self.txt_country,6,wxEXPAND)
 		#line 4 - next of kin + browse for next of kin
 		self.sizer_line4_right.Add(self.lbl_nextofkin, 2,wxALIGN_CENTER_VERTICAL,0)
 		self.sizer_line4_right.Add(self.btn_browseNOK,2, wxALIGN_CENTER_VERTICAL)
@@ -455,7 +444,10 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 			myPatient.unlinkAddress (ID)
 				
 	def _save_btn_pressed(self, event):
-		self._save_data()
+		try:
+			self._save_data()
+		except:
+			_log.LogException ('failed on save data', sys.exc_info (), verbose=0)
 
 	def setNewPatient(self, isNew):
 		self._newPatient = isNew
@@ -467,15 +459,14 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		gmPatient.gmCurrentPatient(id)
 	
 	def __init_data(self):
-		for k, w in self.input_fields.items():
+		for k, w in self.input_fields.items(): 
 			try:
-				w.SetValue('')
+				w.SetValue('') # just looking at this makes my eyes water (IH)
 			except:
 				try:
 					w.SetValue(0)
 				except:
 					pass
-		
 		self.__update_address_types()
 		self.to_delete = [] # list of addresses to unlink
 		self.addr_cache = []
@@ -493,21 +484,30 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 	
 	def _save_data(self):
-		try:
-			self.value_map = self.get_input_value_map ()
-			self.validate_fields()
-			self._save_addresses()
-			myPatient = self.patient.get_demographic_record()
+		m = self.input_fields
+		self.value_map = self.get_input_value_map ()
+		self.validate_fields()
+		self._save_addresses()
+		myPatient = self.patient.get_demographic_record()
+		if m['firstname'].IsModified () or m['surname'].IsModified ():
 			myPatient.addName(self.value_map['firstname'].strip(), self.value_map['surname'].strip(), activate=1)
+		if self.value_map['sex'] != self.old_gender:
 			myPatient.setGender( self.value_map['sex'] )
+		if m['occupation'].IsModified ():
+			myPatient.setOccupation (self.value_map['occupation'])
+		if self.old_status != self.value_map['maritalstatus']:
+			myPatient.setMaritalStatus (self.value_map['maritalstatus'])
+		if m['birthdate'].IsModified ():
 			myPatient.setDOB( self.value_map['birthdate'])
+		if m['country'].IsModified ():
+			myPatient.setCOB (self.value_map['country'])
+		if self.value_map['title'] != self.old_title:
 			myPatient.setTitle( self.value_map['title'])
-			self.setNewPatient(0)
-			gmDispatcher.send( gmSignals.patient_selected(), { 'id':  myPatient.getID() } )
-		except:
-			_log.LogException ('error saving data', sys.exc_info (), verbose = 0)
-
-
+		for str, const in [('fax', gmDemographicRecord.FAX), ('homephone', gmDemographicRecord.HOME_PHONE), ('workphone', gmDemographicRecord.WORK_PHONE), ('mobile', gmDemographicRecord.MOBILE), ('web', gmDemographicRecord.WEB), ('email', gmDemographicRecord.EMAIL)]:
+			if m[str].IsModified ():
+				myPatient.linkCommChannel (const, self.value_map[str])
+		self.setNewPatient(0)
+		
 	def _del_button_pressed (self, event):
 		# do we really want this?
 		pass
@@ -589,18 +589,16 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 
 	def __update_nok(self):
 		"""this function is disabled until further notice. see l = []"""
-		myPatient = self.get_patient()
+		myPatient = self.patient.get_demographic_record ()
 		#l = myPatient.get_relatives()
 		l = [] # disabled for the time being
 		l2 = []
 		for m in l:
 			s = """%-12s   - %s %s, %s, %s %s""" % (m['description'], m['firstnames'], m['lastnames'], m['gender'], _('born'), time.strftime('%d/%m/%Y', get_time_tuple(m['dob']) )  )
-			l2.append( {'str':s, 'id':m['id'] } )
-		
-		f = self.input_fields
-		f['nameNOK'].Clear()
+			l2.append( {'str':s, 'id':m['id'] } ) 
+		self.lb_nameNOK.Clear()
 		for data in l2:	
-			f['nameNOK'].Append( data['str'], data['id'] )
+			self.lb_nameNOK.Append( data['str'], data['id'] )
 	
 	def _updateUI(self):
 		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
@@ -612,6 +610,7 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		if title == None:
 			title = ''
 		m['title'].SetValue( title )
+		self.old_title = title
 		dob = myPatient.getDOB()
 		#mx date time object will not convert to int() sometimes, but always printable,
 		# so parse it as a string , and extract into a 9-sequence time value, and then convert
@@ -619,7 +618,18 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin, gmPatientHolder.Pa
 		t = [ int(x) for x in  str(dob).split(' ')[0].split('-') ] + [0,0,0, 0,0,0 ]
 		t = time.strftime('%d/%m/%Y', t)
 		m['birthdate'].SetValue(t)
-		m['sex'].SetValue( myPatient.getGender() )
+		m['country'].SetValue (myPatient.getCOB () or '')
+		self.old_status = myPatient.getMaritalStatus ()
+		m['maritalstatus'].SetSelection (m['maritalstatus'].FindString (self.old_status))
+		m['occupation'].SetValue (myPatient.getOccupation () or '')
+		self.old_gender = myPatient.getGender ()
+		m['sex'].SetValue( self.old_gender )
+		m['email'].SetValue (myPatient.getCommChannel (gmDemographicRecord.EMAIL) or '')
+		m['fax'].SetValue (myPatient.getCommChannel (gmDemographicRecord.FAX) or '')
+		m['homephone'].SetValue (myPatient.getCommChannel (gmDemographicRecord.HOME_PHONE) or '')
+		m['workphone'].SetValue (myPatient.getCommChannel (gmDemographicRecord.WORK_PHONE) or '')
+		m['web'].SetValue (myPatient.getCommChannel (gmDemographicRecord.WEB) or '')
+		m['mobile'].SetValue (myPatient.getCommChannel (gmDemographicRecord.MOBILE) or '')
 		self.__update_address_types()
 		self.__update_addresses()
 		self.__update_nok()
@@ -698,7 +708,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.10  2004-02-25 09:46:21  ncq
+# Revision 1.11  2004-03-02 10:21:10  ihaywood
+# gmDemographics now supports comm channels, occupation,
+# country of birth and martial status
+#
+# Revision 1.10  2004/02/25 09:46:21  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.9  2004/02/18 06:30:30  ihaywood

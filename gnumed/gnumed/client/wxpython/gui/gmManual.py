@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.14 2004-02-25 09:46:22 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmManual.py,v 1.15 2004-03-02 10:21:10 ihaywood Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import sys, os
@@ -37,7 +37,7 @@ import gmGuiBroker, gmPlugin
 import images_for_gnumed_browser16_16
 import images_gnuMedGP_Toolbar
 
-_manual_path = 'doc/user-manual/index.html'
+_manual_path = 'user-manual/index.html'
 
 ID_MANUALCONTENTS = wxNewId()
 ID_MANUALBACK = wxNewId()
@@ -66,7 +66,10 @@ class ManualHtmlPanel(wxPanel):
 		self.frame = frame
 		# get base directory for manuals from broker
 		# Ideally this should be something like "/usr/doc/gnumed/"
-		self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
+		self.docdir = os.path.join (gmGuiBroker.GuiBroker ()['gnumed_dir'], 'doc')
+		if not os.access (self.docdir, os.F_OK):
+			self.docdir = '/usr/share/doc/gnumed'
+			# try standard location
 		self.printer = wxHtmlEasyPrinting()
 
 		self.box = wxBoxSizer(wxVERTICAL)
@@ -248,7 +251,11 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.14  2004-02-25 09:46:22  ncq
+# Revision 1.15  2004-03-02 10:21:10  ihaywood
+# gmDemographics now supports comm channels, occupation,
+# country of birth and martial status
+#
+# Revision 1.14  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.13  2003/11/17 10:56:40  sjtan

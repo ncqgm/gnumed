@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.23 2004-02-26 17:19:59 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmDemographicRecord.py,v 1.24 2004-03-02 10:21:09 ihaywood Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -76,7 +76,7 @@ class gmDemographicRecord:
 	def getCommChannel (self, type):
 		raise gmExceptions.PureVirtualFunction ()
 
-	def setCommChannel (self, type, comm):
+	def linkCommChannel (self, type, comm):
 		raise gmExceptions.PureVirtualFunction ()
 
 	def getMedicalAge(self):
@@ -87,6 +87,7 @@ class gmDemographicRecord:
 class gmDemographicRecord_SQL (gmDemographicRecord):
 	"""Represents the demographic data of a patient.
 	"""
+	
 	def __init__(self, aPKey = None):
 		"""Fails if
 
@@ -105,6 +106,8 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 			#raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
 
 		_log.Log(gmLog.lData, 'instantiated demographic record for patient [%s]' % self.ID)
+
+				
 	#--------------------------------------------------------
 	def cleanup(self):
 		"""Do cleanups before dying.
@@ -220,7 +223,67 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 	def setDOB (self, dob):
 		cmd = "update identity set dob = %s where id = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [dob, self.ID])])
-	#--------------------------------------------------------
+	#---------------------------------------------------------------------
+	def getCOB (self):
+		cmd = "select country.name from country, identity where country.code = identity.cob and identity.id = %s"
+		data = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
+		return data and data[0][0]
+	#--------------------------------------------------------------------
+	def setCOB (self, cob):
+		cmd = "update identity set cob = (select code from country where name = %s) where id = %s"
+		return gmPG.run_commit ('personalia', [(cmd, [cob, self.ID])])
+	#----------------------------------------------------------------------
+	def getMaritalStatus (self):
+		cmd = "select name from marital_status, identity where marital_status.id = identity.id_marital_status and identity.id = %s"
+		data = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
+		return data and data[0][0]
+	#--------------------------------------------------------------------
+	def setMaritalStatus (self, cob):
+		cmd = "update identity set id_marital_status = (select id from marital_status where name = %s) where id = %s"
+		return gmPG.run_commit ('personalia', [(cmd, [cob, self.ID])])
+	#---------------------------------------------------------------------
+	def getOccupation (self):
+		"""
+		Currently we do not support more than one occupation
+		"""
+		cmd = "select o.name from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s"
+		data = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
+		return data and data[0][0]
+	#--------------------------------------------------------------------
+	def setOccupation (self, occupation):
+		# does occupation already exist ?
+		cmd = "select o.id from occupation o where o.name = %s"
+		data = gmPG.run_ro_query ('personalia', cmd, None, occupation)
+		# error
+		if data is None:
+			_log(gmLog.lErr, 'cannnot check for occupation')
+			return None
+		# none found
+		if len(data) == 0:
+			cmd1 = "insert into occupation (name) values (%s)"
+			cmd2 = "select currval('occupation_id_seq')"
+			data = gmPG.run_commit ('personalia', [
+				(cmd1, [occupation]),
+				(cmd2, [])
+			])
+			if (data is None) or (len(data) == 0):
+				_log.Log(gmLog.lErr, 'cannot add occupation details')
+				return None
+
+		id_occupation = data[0][0]
+		# delete pre-existing link as required
+		cmd1 = """
+		delete from
+			lnk_job2person
+		where
+			id_identity = %s"""
+		# creating new link
+		cmd2 = """insert into lnk_job2person (id_identity, id_occupation) values (%s, %s)"""
+		return gmPG.run_commit ('personalia', [
+			(cmd1, [self.ID]),
+			(cmd2, [self.ID, id_occupation])
+		])
+	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
 select
@@ -309,9 +372,9 @@ where
 				%s""" % addr_where
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, vals)
 		if rows is None:
-			return None
+			return []
 		if len(rows) == 0:
-			return None
+			return []
 		return [{
 			'ID': r[idx['addr_id']],
 			'number': r[idx['number']],
@@ -390,17 +453,16 @@ where
 			]
 		)
 	#------------------------------------------------------------
-	# FIXME: should be called linkCommChannel
 	# FIXME: should we support named channel types, too ?
-	def setCommChannel (self, channel_type, url):
+	def linkCommChannel (self, channel_type, url):
 		"""Links a comm channel with a patient. Adds it first if needed.
 
 		(phone no., email, etc.).
 		channel_type is an ID as returned from getCommChannelTypeID()
-		"""
+		"""	
 		# does channel already exist ?
 		cmd = "select cc.id from comm_channel cc where cc.id_type = %s and cc.url = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, channel_type, url)
+		data = gmPG.run_ro_query ('personalia', cmd, None, channel_type, url)
 		# error
 		if data is None:
 			_log(gmLog.lErr, 'cannnot check for comm channel details')
@@ -418,61 +480,52 @@ where
 				return None
 
 		id_channel = data[0][0]
-
 		# delete pre-existing link as required
 		cmd1 = """
 		delete from
-			lnk_person2comm_channel lp2cc
+			lnk_person2comm_channel
 		where
-			lp2cc.id_identity = %s
+			id_identity = %s
 				and
 			exists(
 				select 1
 				from comm_channel cc
-				where cc.id_type = %s and cc.id = lp2cc.id_comm)"""
+				where cc.id_type = %s and cc.id = id_comm)"""
 		# creating new link
-		cmd2 = """insert into lnk_person2comm_channel (id_type, id_identity, id_comm) values (%s, %s, %s)"""
+		cmd2 = """insert into lnk_person2comm_channel (id_identity, id_comm) values (%s, %s)"""
 		return gmPG.run_commit ('personalia', [
 			(cmd1, [self.ID, channel_type]),
-			(cmd2, [channel_type, self.ID, id_channel])
+			(cmd2, [self.ID, id_channel])
 		])
 	#-------------------------------------------------------------
-	def getCommChannelTypeID (self, type=None):
-		"""Gets the ID for a particular comm type.
-
-		None returns a list of [ID, type] available
-		"""
-		if type is None:
-			return gmPG.run_ro_query ('personalia', 'select id, description from enum_comm_types')
-		data = gmPG.run_ro_query('personalia', 'select id from enum_comm_types where description = %s', type)
-		return data or data[0][0]
-	#-------------------------------------------------------------
-	def getCommChannel (self, ID=None):
+	def getCommChannel (self, channel=None):
 		"""
 		Gets the comm channel url, given its type ID
 		If ID default, a mapping of all IDs and urls
 		"""
-		if ID is None:
-			cmd = """
-				select cc.id_type, cc.url
-				from comm_channel cc, lnk_person2comm_channel lp2cc
-				where cc.id=lp2cc.id_comm and lp2cc.id_identity = %s"""
-			return dict (gmPG.run_ro_query ('personalia', cmd, self.ID))
-
-		cmd = """
-			select cc.url
-			from comm_channel cc, lnk_person2comm_channel lp2cc
-			where cc.id_type=%s and lp2cc.id_identity=%s and lp2cc.id_comm=cc.id
-		"""
-		data = gmPG.run_ro_query ('personalia', cmd, ID, self.ID)
-		return data or data[0][0]
-	#--------------------------------------------------------------------
+		if channel:
+			data = gmPG.run_ro_query ('personalia', """
+			select cc.url from comm_channel cc, lnk_person2comm_channel lp2cc where
+			cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
+			""", None, channel, self.ID)
+			return data and data[0][0]
+		else:
+			data = gmPG.run_ro_query ('personalia', """
+			select cc.id_type, cc.url
+			from
+			comm_channel cc,
+			lnk_person2comm_channel lp2cc
+			where
+			cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
+			""", None, self.ID)
+			return dict (data)
+	#----------------------------------------------------------------------
 	def getMedicalAge(self):
 		dob = self.getDOB()
 		if dob is None:
 			return '??'
 		return dob2medical_age(dob)
-	#------------------------------------------------------------
+	#----------------------------------------------------------------------
 	def add_external_ID(self, external_id = None, description = None):
 		if external_id is None:
 			_log.Log(gmLog.lErr, 'need external ID to add it')
@@ -531,19 +584,36 @@ def getAddressTypes():
 	"""Gets a simple list of address types."""
 	row_list = gmPG.run_ro_query('personalia', "select name from address_type")
 	if row_list is None:
-		return None
+		return []
 	if len(row_list) == 0:
-		return None
+		return []
+	return [row[0] for row in row_list]
+#----------------------------------------------------------------
+def getMaritalStatusTypes():
+	"""Gets a simple list of types of marital status."""
+	row_list = gmPG.run_ro_query('personalia', "select name from marital_status")
+	if row_list is None:
+		return []
+	if len(row_list) == 0:
+		return []
 	return [row[0] for row in row_list]
 #----------------------------------------------------------------
 def getCommChannelTypes():
-	"""Gets the list of comm channels"""
-	row_list = gmPG.run_ro_query('personalia', "select description from enum_comm_types")
+	"""Gets the dictionary of ID->comm channels"""
+	row_list = gmPG.run_ro_query('personalia', "select id, description from enum_comm_types")
 	if row_list is None:
 		return None
 	if len (row_list) == 0:
 		return None
-	return [row[0] for row in row_list]
+	return dict (row_list)
+
+EMAIL=1
+FAX=2
+HOME_PHONE=3
+WORK_PHONE=4
+WEB=5
+MOBILE=6
+JABBER=7
 #----------------------------------------------------------------
 def guess_state_country( urb, postcode):
 	"""parameters are urb.name, urb.postcode;
@@ -587,14 +657,14 @@ class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 			'limit':10,
 			'table':'urb',
 			'extra conditions':{'urb':'id = %s', 'default':'postcode is not null'}
-			, 'service': 'demographica'
+			, 'service': 'personalia'
 			},{
 			'column':'postcode',
 			'table':'street',
 			'limit':10,
 			'pk':'postcode',
 			'extra conditions':{'urb':'id_urb = %s', 'street': 'id = %s', 'default':'postcode is not null'}
-			, 'service': 'demographica'
+			, 'service': 'personalia'
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 			
@@ -606,7 +676,7 @@ class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 	"""
 	def __init__ (self):
 		source = [{
-			'service': 'demographica',
+			'service': 'personlia',
 			'table': 'street',
 			'column': 'name',
 			'limit': 10,
@@ -624,13 +694,42 @@ class MP_urb_by_zip (gmMatchProvider.cMatchProvider_SQL):
 	"""
 	def __init__ (self):
 		source = [{
-			'service': 'demographica',
+			'service': 'personalia',
 			'table': 'urb',
 			'column': 'name',
 			'limit': 15,
 			'extra conditions': {'postcode': '(postcode = %s or postcode is null)'}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
+
+class CountryMP (gmMatchProvider.cMatchProvider_SQL):
+	"""
+	Returns a list of countries
+	"""
+	def __init__ (self):
+		source = [{
+			'service':'personalia',
+			'table':'country',
+			'pk':'code',
+			'column':'name',
+			'limit':5
+			}]
+		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
+
+class OccupationMP (gmMatchProvider.cMatchProvider_SQL):
+	"""
+	Returns a list of occupations
+	"""
+	def __init__ (self):
+		source = [{
+			'service':'personalia',
+			'table':'occupation',
+			'pk':'id',
+			'column':'name',
+			'limit':7
+			}]
+		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
+		
 #------------------------------------------------------------
 # FIXME: do we REALLY need this ?
 def get_time_tuple(faultyMxDateObject):
@@ -677,7 +776,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.23  2004-02-26 17:19:59  ncq
+# Revision 1.24  2004-03-02 10:21:09  ihaywood
+# gmDemographics now supports comm channels, occupation,
+# country of birth and martial status
+#
+# Revision 1.23  2004/02/26 17:19:59  ncq
 # - setCommChannel: arg channel -> channel_type
 # - setCommChannel: we need to read currval() within
 #   the same transaction as the insert to get consistent

@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.32 2004-02-25 09:46:22 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPhraseWheel.py,v 1.33 2004-03-02 10:21:10 ihaywood Exp $
+__version__ = "$Revision: 1.33 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -86,6 +86,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.input_was_selected = _false
 		self.selection_only = selection_only
 		self._has_focus = _false
+		self._is_modified  = _false
 
 		self.listener_callbacks = []
 		self.notified_listeners = _false
@@ -142,6 +143,13 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	def getData (self):
 		return self.data
+	#-------------------------------------------------------
+	def SetValue (self, value):
+		wxTextCtrl.SetValue (self, value)
+		self._is_modified = _false
+	#-------------------------------------------------------
+	def IsModified (self):
+		return wxTextCtrl.IsModified (self) or self._is_modified
 	#--------------------------------------------------------
 	def setContext (self, context, val):
 		if self.__real_matcher:
@@ -286,10 +294,10 @@ class cPhraseWheel (wxTextCtrl):
 		# update our display
 		selection_idx = self._picklist.GetSelection()
 		if self.__handle_multiple_phrases:
-			self.SetValue('%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
+			wxTextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
 		else:
-			self.SetValue(self._picklist.GetString(selection_idx))
-
+			wxTextCtrl.SetValue(self, self._picklist.GetString(selection_idx))
+		self._is_modified = _true
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
 		# and tell the listeners about the user's selection
@@ -518,7 +526,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.32  2004-02-25 09:46:22  ncq
+# Revision 1.33  2004-03-02 10:21:10  ihaywood
+# gmDemographics now supports comm channels, occupation,
+# country of birth and martial status
+#
+# Revision 1.32  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
 #
 # Revision 1.31  2004/01/12 13:14:39  ncq
