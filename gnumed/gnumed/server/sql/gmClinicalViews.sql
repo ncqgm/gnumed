@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.87 2004-07-05 17:47:13 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.88 2004-07-05 18:46:51 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -787,10 +787,10 @@ GRANT SELECT ON
 	, curr_encounter
 	, clin_narrative
 	, clin_aux_note
-	, _enum_hx_type
+--	, _enum_hx_type
 --	, _enum_hx_source
 --	, clin_history
-	, clin_physical
+--	, clin_physical
 	, _enum_allergy_type
 	, allergy
 	, allergy_state
@@ -827,14 +827,14 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_narrative_pk_seq,
 	clin_aux_note,
 	clin_aux_note_pk_seq,
-	_enum_hx_type,
-	_enum_hx_type_id_seq,
-	_enum_hx_source,
-	_enum_hx_source_id_seq,
+--	_enum_hx_type,
+--	_enum_hx_type_id_seq,
+--	_enum_hx_source,
+--	_enum_hx_source_id_seq,
 --	clin_history,
 --	clin_history_id_seq,
-	clin_physical,
-	clin_physical_id_seq,
+--	clin_physical,
+--	clin_physical_id_seq,
 	_enum_allergy_type,
 	_enum_allergy_type_id_seq,
 	allergy,
@@ -917,11 +917,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.87 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.88 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.87  2004-07-05 17:47:13  ncq
+-- Revision 1.88  2004-07-05 18:46:51  ncq
+-- - fix grants
+--
+-- Revision 1.87  2004/07/05 17:47:13  ncq
 -- - v_rfe/aoe -> v_pat_rfe/aoe
 --
 -- Revision 1.86  2004/07/04 16:31:09  ncq
