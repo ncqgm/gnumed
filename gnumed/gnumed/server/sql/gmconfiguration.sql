@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -132,11 +132,14 @@ CREATE TABLE queries (
 	query text
 );
 --=====================================================================
-GRANT SELECT ON db, distributed_db, config TO GROUP group "gm-public";
+GRANT SELECT ON db, distributed_db, config TO GROUP "gm-public";
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.14  2002-11-01 16:35:38  ncq
+-- Revision 1.15  2002-11-01 16:53:27  ncq
+-- - still errors in here, darn it !
+--
+-- Revision 1.14  2002/11/01 16:35:38  ncq
 -- - still some grant errors lurking
 --
 -- Revision 1.13  2002/11/01 16:11:07  ncq
