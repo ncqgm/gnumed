@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.26 2003-04-28 12:14:40 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmDemographics.py,v 1.27 2003-11-22 02:01:17 ihaywood Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -410,6 +410,8 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.mwm.RegisterWholeScreen(self.internal_name(), self.widget)
 		self.set_widget_reference(self.widget)
 		self.RegisterInterests ()
+	def Shown (self):
+		pass
 	#--------------------------------------------------------		
 	def OnTool (self, event):
 		pass
@@ -420,6 +422,7 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 	def RegisterInterests(self):
 		pass
 #		gmDispatcher.connect(self.OnSelected, gmSignals.patient_selected())
+
 
 	def OnSelected (self, **kwargs):
 		pass
@@ -464,7 +467,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.26  2003-04-28 12:14:40  ncq
+# Revision 1.27  2003-11-22 02:01:17  ihaywood
+# added Shown () function to please ClinicalWindowManager
+#
+# Revision 1.26  2003/04/28 12:14:40  ncq
 # - use .internal_name()
 #
 # Revision 1.25  2003/04/25 11:15:58  ncq
