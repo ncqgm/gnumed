@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.26 2004-05-25 13:29:20 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPathLab.py,v 1.27 2004-05-26 15:45:25 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -294,7 +294,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.26 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.27 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -364,7 +364,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	try:
 		req = cLabRequest(lab=lab, req_id=req_id)
 	except gmExceptions.NoSuchClinItemError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.Log(gmLog.lInfo, '%s: will try to create lab request' % str(msg))
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -374,7 +374,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.26 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.27 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -418,8 +418,8 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 		# exists already, so fail
 		_log.Log(gmLog.lErr, 'cannot create test result, it exists already: %s' % str(tres))
 		return (None, tres)
-	except gmExceptions.NoSuchClinItemError, msg:
-		_log.Log(gmLog.lData, 'test result not found, as expected, will create it')
+	except gmExceptions.NoSuchClinItemError:
+		_log.Log(gmLog.lData, 'test result not found - as expected, will create it')
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -499,6 +499,53 @@ def get_pending_requests(limit=250):
 		except gmExceptions.ConstructorError:
 			_log.LogException('skipping pending lab request [%s]' % row[0], sys.exc_info(), verbose=0)
 	return (too_many, requests)
+#------------------------------------------------------------
+def get_next_request_ID(lab=None, incrementor_func=None):
+	"""Get logically next request ID for given lab.
+
+	- lab either test_org PK or test_org.internal_name
+	- incrementor_func:
+	  - if not supplied the next ID is guessed
+	  - if supplied it is applied to the most recently used ID
+	"""
+	if type(lab) == types.IntType:
+		lab_snippet = '%s'
+	else:
+		lab_snippet = '(select pk from test_org where internal_name=%s)'
+		lab = str(lab)
+	cmd =  """
+		select request_id
+		from lab_request lr0
+		where lr0.clin_when = (
+			select max(lr1.clin_when)
+			from lab_request lr1
+			where lr1.fk_test_org=%s
+		)""" % lab_snippet
+	rows = gmPG.run_ro_query('historica', cmd, None, lab)
+	if rows is None:
+		_log.Log(gmLog.lWarn, 'error getting most recently used request ID for lab [%s]' % lab)
+		return ''
+	if len(rows) == 0:
+		return ''
+	most_recent = rows[0][0]
+	# apply supplied incrementor
+	if incrementor_func is not None:
+		try:
+			next = incrementor_func(most_recent)
+		except TypeError:
+			_log.Log(gmLog.lErr, 'cannot call incrementor function [%s]' % str(incrementor_func))
+			return most_recent
+		return next
+	# try to be smart ourselves
+	for pos in range(len(most_recent)):
+		header = most_recent[:pos]
+		trailer = most_recent[pos:]
+		try:
+			return '%s%s' % (header, str(int(trailer) + 1))
+		except ValueError:
+			header = most_recent[:-1]
+			trailer = most_recent[-1:]
+			return '%s%s' % (header, chr(ord(trailer) + 1))
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -561,7 +608,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.26  2004-05-25 13:29:20  ncq
+# Revision 1.27  2004-05-26 15:45:25  ncq
+# - get_next_request_ID()
+#
+# Revision 1.26  2004/05/25 13:29:20  ncq
 # - order unreviewed results by pk_patient
 #
 # Revision 1.25  2004/05/25 00:20:47  ncq
