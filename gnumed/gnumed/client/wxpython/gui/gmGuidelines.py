@@ -151,10 +151,10 @@ class gmGuidelines (gmPlugin.wxNotebookPlugin):
     Plugin to encapsulate the manual window
     """
     def name (self):
-        return 'Guidelines'
+        return _('Guidelines')
 
     def MenuInfo (self):
-        return ('view', _('&Guidelines'))
+        return ('reference', _('&Guidelines'))
 
     def GetWidget (self, parent):
         return GuidelinesHtmlPanel (parent, self.gb['main.frame'])

@@ -31,8 +31,8 @@
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
-# $Id: gmDrugDisplay.py,v 1.8 2003-02-09 10:19:44 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmDrugDisplay.py,v 1.9 2003-04-01 12:29:29 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 
 #===========================================================================
 # firstly in wxPython you have to import any modules we want to use, here
@@ -558,12 +558,15 @@ else:
 			return "MIMS"
 
 		def MenuInfo (self):
-			return ("view", "&MIMS")
+			return ("reference", _("&drugs (MIMS)"))
 
 		def GetWidget (self, parent):
 			return DrugDisplay (parent, -1)
 #===========================================================================
 # $Log: gmDrugDisplay.py,v $
-# Revision 1.8  2003-02-09 10:19:44  ncq
+# Revision 1.9  2003-04-01 12:29:29  ncq
+# - i18n + moved to menu "reference"
+#
+# Revision 1.8  2003/02/09 10:19:44  ncq
 # - cvs metadata keywords
 #
