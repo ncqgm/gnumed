@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #############################################################################
 #
 # gmDrugDisplay - displays drug information in a convenience widget
@@ -16,7 +16,6 @@
 "displays drug information in a convenience widget"
 
 from wxPython.wx import *
-
 import gettext
 _ = gettext.gettext
 

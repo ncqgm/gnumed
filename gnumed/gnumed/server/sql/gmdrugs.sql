@@ -40,12 +40,14 @@ CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
 CREATE TABLE class (
        id SERIAL PRIMARY KEY,
        name varchar (60),
+	pharmacology TEXT,
        superclass INTEGER REFERENCES class (id)
 );
 
 CREATE TABLE substance (
 	id SERIAL PRIMARY KEY,
 	name  varchar(60),
+	pharmacology TEXT,
 	class INTEGER REFERENCES class (id)
 );
 
@@ -109,7 +111,6 @@ COMMENT ON table drug_route IS
 'Examples: oral, i.m., i.v., s.c.';
 
 
-
 -- =============================================
 -- each 'type' of drug, like 'tablet', or 'capsule'
 
@@ -128,7 +129,6 @@ CREATE TABLE drug_presentation (
 
 CREATE TABLE indication (
        id SERIAL PRIMARY KEY,
-       diseasecode char[8],
        --drug INTEGER REFERENCES drug_package (id),
        route INTEGER REFERENCES drug_route (id),
        unit INTEGER REFERENCES drug_units (id),
@@ -147,7 +147,7 @@ CREATE TABLE indication (
 -- paediatric dosing can be automatically calculated.		          
 
 -- =============================================
--- This table corresponds to each line in the Yellow Book.
+-- This table corresponds to each line in the PBS Yellow Book.
 -- The manufacturer is linked to the strengths and pack sizes that they offer.
 
 CREATE TABLE drug_package (
