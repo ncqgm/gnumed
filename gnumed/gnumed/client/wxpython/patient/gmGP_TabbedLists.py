@@ -27,8 +27,8 @@
 #        remove non-used imports from below this text
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_TabbedLists.py,v $
-# $Id: gmGP_TabbedLists.py,v 1.16 2003-04-23 09:20:32 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmGP_TabbedLists.py,v 1.17 2003-05-03 02:20:24 michaelb Exp $
+__version__ = "$Revision: 1.17 $"
 
 from wxPython.wx import *
 #from wxPython.gizmos import *
@@ -74,7 +74,7 @@ class Notebook(wxNotebook):
 	#print 'x_global', pt_global.x, 'y_global', pt_global.y		#test
 
 	x, y = evt.GetPosition()					# clean-up --- pt_local = x,y (?)
-        if(self.tip_area1.Inside(x,y)):
+        if(self.tip_area1.Inside(wxPoint(x,y))):
             if(self.tip_shown!=1):
                 tipwin1=wxTipWindow(self, _('Prescriptions'))
                 tipwin1.SetBoundingRect(wxRect(1+pt_global.x,1+pt_global.y,30,30))
@@ -82,7 +82,7 @@ class Notebook(wxNotebook):
                 tipwin1.Move(pt) # position tool tip
                 self.tip_shown=1 # avoid tool tip flashing
 
-        elif(self.tip_area2.Inside(x,y)):
+        elif(self.tip_area2.Inside(wxPoint(x,y))):
             if(self.tip_shown!=2):
                 tipwin2=wxTipWindow(self, _('Requests'))
                 tipwin2.SetBoundingRect(wxRect(32+pt_global.x,1+pt_global.y,31,30))
@@ -90,7 +90,7 @@ class Notebook(wxNotebook):
                 tipwin2.Move(pt)
 		self.tip_shown=2
 
-        elif(self.tip_area3.Inside(x,y)):
+        elif(self.tip_area3.Inside(wxPoint(x,y))):
             if(self.tip_shown!=3):
                 tipwin3=wxTipWindow(self, _('Measurements'))
                 tipwin3.SetBoundingRect(wxRect(63+pt_global.x,1+pt_global.y,31,30))
@@ -98,7 +98,7 @@ class Notebook(wxNotebook):
                 tipwin3.Move(pt)
                 self.tip_shown=3
 
-        elif(self.tip_area4.Inside(x,y)):
+        elif(self.tip_area4.Inside(wxPoint(x,y))):
             if(self.tip_shown!=4):
                 tipwin4=wxTipWindow(self, _('Referrals'))
                 tipwin4.SetBoundingRect(wxRect(94+pt_global.x,1+pt_global.y,31,30))
@@ -106,7 +106,7 @@ class Notebook(wxNotebook):
                 tipwin4.Move(pt)
                 self.tip_shown=4
 
-        elif(self.tip_area5.Inside(x,y)):
+        elif(self.tip_area5.Inside(wxPoint(x,y))):
             if(self.tip_shown!=5):
                 tipwin5=wxTipWindow(self, _('Recalls and Reviews'))
                 tipwin5.SetBoundingRect(wxRect(125+pt_global.x,1+pt_global.y,31,30))
@@ -114,7 +114,7 @@ class Notebook(wxNotebook):
                 tipwin5.Move(pt)
                 self.tip_shown=5
 
-        elif(self.tip_area6.Inside(x,y)):
+        elif(self.tip_area6.Inside(wxPoint(x,y))):
             if(self.tip_shown!=6):
                 tipwin6=wxTipWindow(self, _('Inbox'))
                 tipwin6.SetBoundingRect(wxRect(156+pt_global.x,1+pt_global.y,31,30))
@@ -338,7 +338,10 @@ if __name__ == "__main__":
  
 #=====================================================================
 # $Log: gmGP_TabbedLists.py,v $
-# Revision 1.16  2003-04-23 09:20:32  ncq
+# Revision 1.17  2003-05-03 02:20:24  michaelb
+# bug fix: make wxPython 2.4.0.7's wxRect:Inside happy
+#
+# Revision 1.16  2003/04/23 09:20:32  ncq
 # - reordered arguments and removed keywords from Tabbed Lists to work
 #   around difference betwee 2.0.4.1 to 2.0.4.7
 #
