@@ -1,29 +1,18 @@
-#############################################################################
-#
-# gmSignals.py: factory functions returning GnuMed internal signal strings
-# ---------------------------------------------------------------------------
-#
-# @author: Dr. Horst Herb
-# @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: pg, gmLoginInfo
-# @change log:
-#	08.09.2002 hherb first draft, untested
-#
-# @TODO: testing
-############################################################################
+"""gmSignals - factory functions returning GnuMed internal signal strings. 
+
+This helps to avoid that  simple typographic mistakes result in messages
+not being dispatched. It would allow to do messenging house keeping as well.
+
+@copyright: author
+@license: GPL (details at http://www.gnu.org)
+"""
 # This source code is protected by the GPL licensing scheme.
 # Details regarding the GPL are available at http://www.gnu.org
 # You may use and share it as long as you don't deny this right
 # to anybody else.
-
-"""gmSignals - factory functions returning GnuMed internal signal strings. 
-This helps to avoid that  simple typographic mistakes result in messages
-not being dispatched. It would allow to do messenging house keeping as well.
-"""
-
+#=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -45,6 +34,12 @@ def allergy_add_del_db():
 def allergy_updated():
 	"""Announce allergy cache update to interested parties."""
 	return 'allergy_updated'
+
+# vaccinations
+def vaccination_updated():
+	"""Announce vaccination cache update to interested parties."""
+	return 'vaccination_updated'
+
 
 def health_issue_change_db():
 	"""Announce health issue row insert/update/delete in backend.
@@ -142,7 +137,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.12  2003-11-17 10:56:37  sjtan
+# Revision 1.13  2003-12-02 01:59:19  ncq
+# - cleanup, add vaccination_updated()
+#
+# Revision 1.12  2003/11/17 10:56:37  sjtan
 #
 # synced and commiting.
 #
@@ -192,3 +190,5 @@ if __name__ == "__main__":
 # Revision 1.3  2002/09/10 07:41:27  ncq
 # - added changelog keyword
 #
+# @change log:
+#	08.09.2002 hherb first draft, untested
