@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types
@@ -12,7 +12,10 @@ from Gnumed.pycommon import gmLog, gmPG, gmExceptions
 from Gnumed.business import gmClinItem
 from Gnumed.pycommon.gmPyCompat import *
 
-gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
+import mx.DateTime as mxDT
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
 #============================================================
 class cHealthIssue(gmClinItem.cClinItem):
 	"""Represents one health issue.
@@ -56,18 +59,19 @@ class cEpisode(gmClinItem.cClinItem):
 	_cmds_store_payload = [
 		"""select 1 from clin_episode where id=%(id)s for update""",
 		"""update clin_episode set
-				description=%(description)s,
+				description=%(episode)s,
 				id_health_issue=%(id_health_issue)s
 			where id=%(id)s"""
 		]
-
 	_updatable_fields = [
-		'description',
+		'episode',
 		'id_health_issue'
 	]
 	#--------------------------------------------------------
 	def set_active(self):
-		cmd1 = "delete from last_act_episode where id_patient=%s"
+		cmd1 = """
+			delete from last_act_episode
+			where id_patient=(select id_patient from clin_health_issue where id=%s)"""
 		cmd2 = """
 			insert into last_act_episode(id_episode, id_patient)
 			values (%s,	(select id_patient from clin_health_issue where id=%s))"""
@@ -114,7 +118,7 @@ class cEncounter(gmClinItem.cClinItem):
 					fk_provider=%s,
 					last_affirmed=now()
 				where id=%s"""
-		success, msg = gmPG.run_commit('historica', [(cmd, [staff_id, self.pk_obj])])
+		success, msg = gmPG.run_commit('historica', [(cmd, [staff_id, self.pk_obj])], True)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
 			_log.Log(gmLog.lErr, str(msg))
@@ -171,21 +175,23 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 		enc_type = 'chart review'
 	# insert new encounter
 	queries = []
-	if type(enc_type) == types.IntType:
-		cmd = """
-			insert into clin_encounter (
-				fk_patient, fk_location, fk_provider, description, fk_type
-			) values (
-				%s, -1, %s, %s,	coalesce((select id from encounter_type where description=%s), 0)
-			)"""
-	else:
+	try:
+		enc_type = int(enc_type)
 		cmd = """
 			insert into clin_encounter (
 				fk_patient, fk_location, fk_provider, description, fk_type
 			) values (
 				%s, -1, %s, %s,	%s
 			)"""
-	queries.append((cmd, [fk_patient, fk_provider, description, str(enc_type)]))
+	except ValueError:
+		enc_type = str(enc_type)
+		cmd = """
+			insert into clin_encounter (
+				fk_patient, fk_location, fk_provider, description, fk_type
+			) values (
+				%s, -1, %s, %s,	coalesce((select id from encounter_type where description=%s), 0)
+			)"""
+	queries.append((cmd, [fk_patient, fk_provider, description, enc_type]))
 	cmd = "select currval('clin_encounter_id_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
@@ -236,7 +242,12 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.6  2004-05-18 20:35:42  ncq
+# Revision 1.7  2004-05-18 22:36:52  ncq
+# - need mx.DateTime
+# - fix fields updatable in episode
+# - fix delete action in episode.set_active()
+#
+# Revision 1.6  2004/05/18 20:35:42  ncq
 # - cleanup
 #
 # Revision 1.5  2004/05/17 19:02:26  ncq
