@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.13 $ $Date: 2002-11-01 16:11:07 $ $Author: ncq $
+-- $Revision: 1.14 $ $Date: 2002-11-08 15:53:11 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -76,8 +76,22 @@ CREATE TABLE "doc_desc" (
 COMMENT ON TABLE "doc_desc" is 'A textual description of the content such as a result summary. Several of these may belong to one document object.';
 
 -- =============================================
-GRANT SELECT ON "doc_desc", "doc_obj", "doc_med", "doc_type", "doc_med_external_ref" TO GROUP "gm-doctors";
-GRANT SELECT, INSERT, UPDATE, DELETE ON "doc_desc", "doc_obj", "doc_med", "doc_type", "doc_med_external_ref" TO GROUP "_gm-doctors";
+GRANT SELECT ON
+	"doc_desc",
+	"doc_obj",
+	"doc_med",
+	"doc_type",
+	"doc_med_external_ref"
+TO GROUP "gm-doctors";
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	"doc_desc",
+	"doc_obj",
+	"doc_med",
+	"doc_med_id_seq",
+	"doc_type",
+	"doc_med_external_ref"
+TO GROUP "_gm-doctors";
 
 -- =============================================
 -- questions:

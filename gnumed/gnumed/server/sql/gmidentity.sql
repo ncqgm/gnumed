@@ -259,8 +259,21 @@ FOR EACH ROW EXECUTE PROCEDURE delete_names ();
 -- FIXME: until proper permissions system is developed,
 -- otherwise new users  can spend hours wrestling with
 -- postgres permissions
-GRANT SELECT ON names, identity, v_basic_person TO GROUP "gm-doctors";
-GRANT SELECT, INSERT, UPDATE, DELETE ON v_basic_person TO GROUP "_gm-doctors";
+GRANT SELECT ON
+	names,
+	identity,
+	identity_id_seq,
+	v_basic_person,
+	audit_identity_audit_id_seq
+TO GROUP "gm-doctors";
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON
+	names,
+	names_id_seq,
+	identity_id_seq,
+	v_basic_person,
+	audit_identity_audit_id_seq
+TO GROUP "_gm-doctors";
 
 -- ==========================================================
 -- insert some example people
