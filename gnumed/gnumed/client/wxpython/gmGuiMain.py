@@ -19,8 +19,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.165 2004-07-24 17:21:49 ncq Exp $
-__version__ = "$Revision: 1.165 $"
+# $Id: gmGuiMain.py,v 1.166 2004-07-28 15:40:05 ncq Exp $
+__version__ = "$Revision: 1.166 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -42,6 +42,7 @@ _whoami = gmWhoAmI.cWhoAmI()
 email_logger = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+_log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.wxVERSION_STRING)
 
 encoding = _cfg.get('backend', 'client encoding')
 gmPG.set_default_client_encoding(encoding)
@@ -1027,7 +1028,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.165  2004-07-24 17:21:49  ncq
+# Revision 1.166  2004-07-28 15:40:05  ncq
+# - log wxWidgets version
+#
+# Revision 1.165  2004/07/24 17:21:49  ncq
 # - some cleanup, also re from wxPython import wx
 # - factored out Horst space layout manager into it's own
 #   wxPanel child class
