@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -519,6 +519,8 @@ else:
 	_whoami = gmWhoAmI.cWhoAmI()
 
 	class gmConfigRegistry(gmPlugin.cNotebookPlugin):
+		"""Class to load this module from an environment that wants a notebook plugin
+		"""
 		def name (self):
 			return _("Setup")
 
@@ -532,9 +534,21 @@ else:
 
 		def MenuInfo (self):
 			return ('tools', _('&ConfigRegistry'))
+			
+	def Setup(parent):
+		"""Wrapper to load this module from an environment that wants a panel
+		"""
+		currUser = _whoami.get_db_account()
+		workplace = _whoami.get_workplace()
+		return gmConfigEditorPanel(parent,currUser,workplace)
+
+
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.27  2005-03-06 14:54:19  ncq
+# Revision 1.28  2005-03-17 20:29:47  hinnef
+# added Setup method for Richard-Space
+#
+# Revision 1.27  2005/03/06 14:54:19  ncq
 # - szr.AddWindow() -> Add() such that wx2.5 works
 # - 'demographic record' -> get_identity()
 #
