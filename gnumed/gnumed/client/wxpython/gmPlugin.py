@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.22 2004-06-26 23:09:22 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmPlugin.py,v 1.23 2004-07-15 05:17:43 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -250,11 +250,10 @@ def GetPluginLoadList(set):
 	 b) scan directly
 	 c) store in database
 	"""
+	curr_machine = _whoami.get_workplace()
 
-	currentMachine = _whoami.get_workplace()
-
-	p_list,match = gmCfg.getFirstMatchingDBSet(
-		machine = currentMachine,
+	p_list, match = gmCfg.getFirstMatchingDBSet(
+		machine = curr_machine,
 		cookie = str(set),
 		option = 'plugin load order'
 	)
@@ -268,38 +267,33 @@ def GetPluginLoadList(set):
 		aDBAPI = gmPG.dbapi
 	)
 
-	# check result
 	if p_list is not None:
-		# if found for this user on this machine
+		# found plugin load list for this user/this machine
 		if match == 'CURRENT_USER_CURRENT_MACHINE':
-			# we have already a plugin list stored for this
-			# user/machine combination
 			db.ReleaseConnection(service = "default")
 			return p_list
-		else: # all other cases of user/machine pairing
-			# store the plugin list found for the current user
-			# on the current machine
-			rwconn = db.GetConnection(service = "default", readonly = 0)
-			dbcfg.set(
-				machine = currentMachine,
-				option = 'plugin load order',
-				value = p_list,
-				cookie = str(set),
-				aRWConn = rwconn
-			)
-			rwconn.close()
-			db.ReleaseConnection(service = "default")
-			return p_list
+		# all other cases of user/machine pairing:
+		# store plugin list for the current user/current machine
+		rwconn = db.GetConnection(service = "default", readonly = 0)
+		dbcfg.set(
+			machine = curr_machine,
+			option = 'plugin load order',
+			value = p_list,
+			cookie = str(set),
+			aRWConn = rwconn
+		)
+		rwconn.close()
+		db.ReleaseConnection(service = "default")
+		return p_list
 
-	_log.Log(gmLog.lWarn, "No plugin load order stored in database. Trying local config file.")
+	_log.Log(gmLog.lInfo, "No plugin load order stored in database. Trying local config file.")
 
 	# search in plugin directory
-	# FIXME: in the future we might ask the backend where plugins are
 	plugin_conf_name = os.path.join(gb['gnumed_dir'], 'wxpython', set, 'plugins.conf')
 	try:
 		fCfg = gmCfg.cCfgFile(aFile = plugin_conf_name)
 	except:
-		_log.LogException("Can't load plugin load order config file.", sys.exc_info(), verbose=0)
+		_log.LogException('cannot open plugin load order config file [%s]' % plugin_conf_name, sys.exc_info(), verbose=0)
 		fCfg = None
 
 	# load from file
@@ -308,37 +302,35 @@ def GetPluginLoadList(set):
 
 	# parse directory directly
 	if p_list is None:
-		_log.Log(gmLog.lWarn, "Config file [%s] does not contain the plugin load order !" % plugin_conf_name)
-		_log.Log(gmLog.lData, "*** Scanning plugin directory directly.")
-
-		files = os.listdir(os.path.join(gb['gnumed_dir'], 'wxpython', set))
-
-		_log.Log(gmLog.lData, "the path from set=%s parameter gnumed_dir=%s is %s"% ( set, gb['gnumed_dir'], os.path.join(gb['gnumed_dir'], 'wxpython', set) ) )
-
-		_log.Log(gmLog.lData, "returned this file list %s" % ("\n".join(files)))
+		_log.Log(gmLog.lInfo, "[%s] does not contain plugin load order" % plugin_conf_name)
+		search_path = os.path.join(gb['gnumed_dir'], 'wxpython', set)
+		files = os.listdir(search_patch)
+		_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (set, gb['gnumed_dir']))
+		_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
+		_log.Log(gmLog.lData, "files found: %s" % str(files))
 		p_list = []
 		for file in files:
 			if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
-				p_list.append (file[:-3])
+				p_list.append(file[:-3])
+		if (len(p_list) == 0):
+			_log.Log(gmLog.lErr, 'cannot find plugins by scanning plugin directory ?!?')
+			db.ReleaseConnection(service = "default")
+			return None
 
-	if (len(p_list) > 0):
-		# set for default user on this machine
-		_log.Log(gmLog.lInfo, "Storing default plugin load order in database.")
-		rwconn = db.GetConnection(service = "default", readonly = 0)
-		dbcfg.set(
-			machine = currentMachine,
-			user = 'xxxDEFAULTxxx',
-			option = 'plugin load order',
-			value = p_list,
-			cookie = str(set),
-			aRWConn = rwconn
-		)
-		rwconn.close()
-	else:
-		p_list = None
+	# set for default user on this machine
+	_log.Log(gmLog.lInfo, "Storing default plugin load order in database.")
+	rwconn = db.GetConnection(service = "default", readonly = 0)
+	dbcfg.set(
+		machine = curr_machine,
+		user = 'xxxDEFAULTxxx',
+		option = 'plugin load order',
+		value = p_list,
+		cookie = str(set),
+		aRWConn = rwconn
+	)
+	rwconn.close()
 
-	_log.Log(gmLog.lData, "*** THESE ARE THE PLUGINS FROM gmPlugin.GetPluginList")
-	_log.Log(gmLog.lData, "%s" % "\n *** ".join(p_list))
+	_log.Log(gmLog.lData, "plugin load list: %s" % str(p_list))
 	db.ReleaseConnection(service = "default")
 	return p_list
 #------------------------------------------------------------------
@@ -357,7 +349,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.22  2004-06-26 23:09:22  ncq
+# Revision 1.23  2004-07-15 05:17:43  ncq
+# - better/correct logging in GetPluginLoadList()
+#
+# Revision 1.22  2004/06/26 23:09:22  ncq
 # - better comments
 #
 # Revision 1.21  2004/06/25 14:39:35  ncq
