@@ -52,7 +52,7 @@ the tuples returned are all selected rows
 
 to get the attribute labels, call gmSQLWindow.GetLabels()"""
 
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -60,7 +60,7 @@ __copyright__ = __author__
 
 from wxPython.wx import *
 import sys
-import gmPG, gmLabels, gmGuiBroker, gmSQLListControl, gmPlugin
+import gmPG, gmLabels, gmGuiBroker, gmSQLListControl, gmPlugin, gmLog
 import images_gnuMedGP_Toolbar
 
 

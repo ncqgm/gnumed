@@ -45,6 +45,7 @@ import keyword
 import time
 import pg
 import pdb
+import gmLog
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
 darkbrown = '#841310'
@@ -154,7 +155,7 @@ class DrugDisplay(wxPanel):
 					insertstring = str(field)
 										#append it as a new line in your scrolling multiline WTextCtrl
 				#self.SetStatusText(insertstring, 1)
-		print "got the issue date"
+		gmLog.gmDefLog.Log (gmLog.lData, "got the issue date")
 		return true
 
 	def GuiElements_Init(self):
@@ -367,12 +368,12 @@ class DrugDisplay(wxPanel):
 		# fields needed to format a HTML output of the product information
 		#-----------------------------------------------------------------
 		querytext = "Select DISTINCT * from manxxdat where mancode = " + str(mancode)
-		print 'starting to read database.....'
-		print 'sending query.....'
-		print querytext
+		gmLog.gmDefLog.Log (gmLog.lData,  'starting to read database.....')
+		gmLog.gmDefLog.Log (gmLog.lData,  'sending query.....')
+		gmLog.gmDefLog.Log (gmLog.lData,  querytext)
 		query = self.db.query(querytext)
 		result = query.dictresult()
-		print 'results obtained'	
+		gmLog.gmDefLog.Log (gmLog.lData,  'results obtained')
 		#----------------------------------------------------------------------
 		# Set this drug name to the combobox text, and add it to the combo list
 		#----------------------------------------------------------------------
@@ -459,7 +460,7 @@ class DrugDisplay(wxPanel):
 		return true
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 	def TransferDataToWindow(self):
-		print "Transfer data to Window"
+		gmLog.gmDefLog.Log (gmLog.lData,  "Transfer data to Window")
 		return true
 
 	def TransferDataFromWindow(self):
@@ -468,7 +469,7 @@ class DrugDisplay(wxPanel):
 
 	# handler implementations for DrugDisplay
 
-	def OnPrint(self, event):
+	def OnPrint (self, event):
 		#this code does not work properly
 		self.printer.PrintText(pitext)
 		print "printing frame"
@@ -490,7 +491,7 @@ class DrugDisplay(wxPanel):
 
 	def OnJumpToSelected(self, event):
 		# can't figure out how to get this to work!
-		print "selection made"
+		gmLog.gmDef.Log (gmLog.lData, "selection made")
 		tagname = self.listbox_jumpto.GetString(self.listbox_jumpto.GetSelection())
 		print  tagname
 		self.html_viewer.LoadPage('#' + tagname)

@@ -21,7 +21,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -118,16 +118,17 @@ if __name__ == "__main__":
 				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
 				  variables are set correctly.")
 
+	#<DEBUG>
+	# console is Good(tm)
+	aLogTarget = gmLog.cLogTargetConsole(gmLog.lErr)
+	gmLog.gmDefLog.AddTarget(aLogTarget)
 	if gmCLI.has_arg("--debug"):
 		print "Activating verbose output for debugging."
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+	elif gmCLI.has_arg ("--quiet"):
+		gmLog.gmDefLog.SetAllLogLevels(gmLog.lErr)
 	else:
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
-
-	#<DEBUG>
-	# console is Good(tm)
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
-	gmLog.gmDefLog.AddTarget(aLogTarget)
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 	#</DEBUG>
 
@@ -141,9 +142,6 @@ if __name__ == "__main__":
 	except ImportError:
 		exc = sys.exc_info()
 		gmLog.gmDefLog.LogException ("Exception: Cannot load modules.", exc)
-		sys.exit("CRITICAL ERROR: Can't find modules to load ! - Program halted.\n \
-				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment variables\n \
-				  are set correctly.")
 
 	gb = gmGuiBroker.GuiBroker ()
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
@@ -154,7 +152,7 @@ if __name__ == "__main__":
 		os.chdir(appPath)
 	except:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException('Exception: cannot change into resource directory ' + appPath, exc)
+		gmLog.gmDefLog.LogException('Exception: cannot change into resource directory ' + appPath, exc, fatal=0)
 		# let's try going on anyways
 
 	# run gnumed and intercept _all_ exceptions (but reraise them ...)
@@ -162,7 +160,7 @@ if __name__ == "__main__":
 		call_main()
 	except:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc)
+		gmLog.gmDefLog.LogException ("Exception: Unhandled exception encountered.", exc, fatal=0)
 		raise
 
 	#<DEBUG>

@@ -26,6 +26,7 @@ import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headi
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea             #panel class holding editing prompts and text boxes
 import gmPlugin
+import gmLog
 import images_gnuMedGP_Toolbar
 ID_IMMUNISATIONLIST = wxNewId()
 ID_IMMUNISATIONS = wxNewId()
@@ -114,7 +115,7 @@ class ImmunisationPanel(wxPanel):
 	  items = scheduledata.items()
 	  for x in range(len(items)):
 	      key, data = items[x]
-	      print items[x]
+	      gmLog.gmDefLog.Log (gmLog.lData, items[x])
 	      #print x, data[0],data[1],data[2]
 	      self.disease_schedule_list.InsertStringItem(x, data[0])
 	      #self.disease_schedule_list.SetStringItem(x, 1, data[1])

@@ -1,6 +1,6 @@
 
 from wxPython.wx import *
-
+import gmLog
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
 gmSECTION_CLINICALNOTES = 3
@@ -91,7 +91,7 @@ class EditTextBoxes(wxPanel):
 		self.btnOK = wxButton(self,-1,"Ok")
 		self.btnClear = wxButton(self,-1,"Clear")
 		self.btnOKsizer = wxBoxSizer(wxHORIZONTAL)
-		print "before if statements"
+		gmLog.gmDefLog.Log ( "before if statements")
 		if section == gmSECTION_SUMMARY:
 		      pass
 	        elif section == gmSECTION_DEMOGRAPHICS:
@@ -164,9 +164,9 @@ class EditTextBoxes(wxPanel):
 		
 	        
 		elif section == gmSECTION_ALLERGIES:
-		      print "section allergies"
+		      gmLog.gmDefLog.Log ( "section allergies")
 		      #self.sizer = wxGridSizer (len(prompt_array),1,2,2)    
-		      print len(editareaprompts)
+		      gmLog.gmDefLog.Log ( len(editareaprompts))
 		      self.text1 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text2 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text3 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
@@ -193,7 +193,7 @@ class EditTextBoxes(wxPanel):
 		      self.gs.Add(self.text5,0,wxEXPAND)
 		      self.gs.Add(self.sizer_line6,0,wxEXPAND)				
 		elif section == gmSECTION_SCRIPT:
-		      print "in script section now"
+		      gmLog.gmDefLog.Log ( "in script section now")
 		      self.text1 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text2 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
 		      self.text3 = EditAreaTextBox(self,-1,wxDefaultPosition,wxDefaultSize)
@@ -260,7 +260,7 @@ class EditTextBoxes(wxPanel):
 		      pass
 		     
 		else:
-			      print "not section allergies"
+			      gmLog.gmDefLog.Log ( "not section allergies")
 			      
 	        
 		self.szr_edit_area.Add(self.gs,1,wxEXPAND)

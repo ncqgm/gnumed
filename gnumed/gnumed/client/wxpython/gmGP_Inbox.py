@@ -1,5 +1,5 @@
 from wxPython.wx import *
-
+import gmLog
 Inboxdata = {
 1 : ("Pathology", "5 unread results (Douglas Pathology)"),
 2 : ("Radiology", "1 Xray of femur (Newcastle radiology)"),
@@ -21,7 +21,9 @@ class Inbox(wxPanel):
 	items = Inboxdata.items()
 	for x in range(len(items)):
             key, data = items[x]
-	    print items[x]
+            #<DEBUG>
+	    gmLog.gmDefLog.Log (gmLog.lData, items[x])
+            #</DEBUG>
 	    #print x, data[0],data[1]
 	    list_inbox.InsertStringItem(x, data[0])
             list_inbox.SetStringItem(x, 1, data[1])

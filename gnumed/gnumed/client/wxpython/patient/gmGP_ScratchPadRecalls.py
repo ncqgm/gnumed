@@ -1,5 +1,5 @@
 from wxPython.wx import *
-import gmPlugin, gmShadow, gmConf
+import gmPlugin, gmShadow, gmConf, gmLog
 
 scratchpaddata = {
 1 : ("01/12/2001", "check BP next visit"),
@@ -38,7 +38,7 @@ class ScratchPadRecalls(wxPanel):
 	items = scratchpaddata.items()
 	for x in range(len(items)):
             key, data = items[x]
-	    print items[x]
+	    gmLog.gmDefLog.Log (gmLog.lData, items[x])
 	    #print x, data[0],data[1]
 	    list_scratchpad.InsertStringItem(x, data[0])
             list_scratchpad.SetStringItem(x, 1, data[1])
@@ -61,7 +61,9 @@ class ScratchPadRecalls(wxPanel):
 	items = recalldata.items()
 	for x in range(len(items)):
             key, data = items[x]
-	    print items[x]
+            #<DEBUG>
+	    gmLog.gmDefLog.Log (gmLog.lData,  items[x])
+            #</DEBUG>
 	    #print x, data[0],data[1]
 	    list_recalls.InsertStringItem(x, data[0])
             list_recalls.SetStringItem(x, 1, data[1])

@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-25 09:17:09 $
-# @version $Revision: 1.31 $ $Date: 2002-07-25 09:17:09 $ $Author: ncq $
+# @Date: $Date: 2002-07-28 12:23:16 $
+# @version $Revision: 1.32 $ $Date: 2002-07-28 12:23:16 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -382,7 +382,7 @@ class gmApp(wxApp):
 		self.__backend = gmLogin.Login()
 		if self.__backend == None:
 			# _("Login attempt unsuccesful\nCan't run GNUMed without database connetcion")
-			myLog.Log(gmLog.lPanic, _("Login attempt unsuccesful\nCan't run GNUMed without database connection"))
+			myLog.Log(gmLog.lWarn, _("Login attempt unsuccesful\nCan't run GNUMed without database connection"))
 			return false
 		#create the main window
 		frame = MainFrame(None, -1, _('GNUMed client'), size=(300,200))
@@ -419,7 +419,7 @@ def main_with_talkback():
 	#---------------------------------------------
 
 	# "bug-gnumed@gnu.org", anSMTPServer = "fencepost.gnu.org"
-	_email_logger = gmLog.cLogTargetEMail (gmLog.lErr, aFrom = "GNUMed client", aTo = "gnumed-bugs@gmx.net", anSMTPServer = "mail.gmx.net")
+	_email_logger = gmLog.cLogTargetEMail (gmLog.lInfo, aFrom = "GNUMed client", aTo = "gnumed-bugs@gmx.net", anSMTPServer = "mail.gmx.net")
 	myLog.AddTarget (_email_logger)
 
 	# run normal main() but catch all exceptions and reraise them

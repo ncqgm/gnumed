@@ -32,7 +32,7 @@ from wxPython.stc import *
 import keyword
 import time
 import images #bitmaps for column headers of lists
-import gmPlugin, gmShadow, gmConf
+import gmPlugin, gmShadow, gmConf, gmLog
 import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin   
 scriptdata = {
@@ -142,7 +142,9 @@ class TabbedLists(wxPanel): #, wxColumnSorterMixin):
 	items = scriptdata.items()
 	for x in range(len(items)):
             key, data = items[x]
-	    print items[x]
+	    #<DEBUG>
+            gmLog.gmDefLog.Log (gmLog.lData, items[x])
+            #</DEBUG>
 	    #print x, data[0],data[1],data[2]
 	    self.List_Script.InsertStringItem(x, data[0])
             self.List_Script.SetStringItem(x, 1, data[1])

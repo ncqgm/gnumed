@@ -85,12 +85,12 @@ class SQLListControl(wxListCtrl):
 			if self.__stderr is not None:
 				sys.stderr = self.__stderr
 		except:
-			print "can't redirect stderr"
+			gmLog.gmDefLog.Log (gmLog.lData,  "can't redirect stderr")
 		try:
 			if self.__stdout is not None:
 				sys.stdout = self.__stdout
 		except:
-			print "can't redirect stdout"
+			gmLog.gmDefLog.Log (gmLog.lData,  "can't redirect stdout")
 
 
 
@@ -119,11 +119,11 @@ class SQLListControl(wxListCtrl):
 			return
 		self.RedirectOutput()
 		try:
-			print "running query on service ", self.__service
+			gmLog.gmDefLog.Log (gmLog.lData,  "running query on service %s" % self.__servic)
 			conn = gmPG.ConnectionPool().GetConnection(self.__service)
 			cursor = conn.cursor ()
 		except:
-			print "Exception thrown when trying to connect to backend in RunQuery()"
+			gmLog.gmDefLog.Log (gmLog.lErr,  "Exception thrown when trying to connect to backend in RunQuery()")
 			self.RestoreOutput()
 			return
 
@@ -143,7 +143,7 @@ class SQLListControl(wxListCtrl):
 
 		t2 = time.time()
 		if self.__feedback:
-			print "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, cursor.rowcount, t2-t1)
+			gmLog.gmDefLog.Log (gmLog.lData,  "Query [%s] returned %d tuples in %3.3f sec\n\n" % (self.__querystr, cursor.rowcount, t2-t1))
 
 		#set list control labels depending on the returned fields, unless manually overridden
 
