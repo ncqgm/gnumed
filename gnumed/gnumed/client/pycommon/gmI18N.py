@@ -39,22 +39,30 @@ related environment variables (in this order):
  - LC_MESSAGES
  - LANG
 
-@license: GPL (details at http://www.gnu.org)
-@copyright: author
+@copyright: authors
 """
-#---------------------------------------------------------------------------
+#===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
-############################################################################
+__license__ = "GPL (details at http://www.gnu.org)"
 
 import gettext, sys, os.path, string, os, re
 import gmLog, gmCLI
+
 _log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
+# semaphore to make sure __install_domain() is
+# only called once regardless of how many times
+# we are imported
+__domain_installed = 0
 
 system_locale = ''
 system_locale_level = {}
-#---------------------------------------------------------------------------
+#===========================================================================
 def __split_locale_into_levels():
 	"""Split locale into language, country and variant parts.
 
@@ -71,9 +79,10 @@ def __split_locale_into_levels():
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 #---------------------------------------------------------------------------
 def __get_system_locale():
-
+	"""Get system locale from environment."""
 	global system_locale
 	global system_locale_level
+
 	env_key = 'LANGUAGE'
 	if os.environ.has_key(env_key):
 		system_locale = os.environ[env_key]
@@ -142,7 +151,7 @@ def __install_domain():
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
-	_log.Log(gmLog.lData, 'Looking behind environment variable $(%s).' % env_key)
+	_log.Log(gmLog.lData, 'looking at environment variable $(%s)' % env_key)
 	if os.environ.has_key(env_key):
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], "locale"))
 		_log.Log(gmLog.lData, '$(%s) = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
@@ -157,14 +166,14 @@ def __install_domain():
 		else:
 			_log.Log(gmLog.lWarn, 'Custom location [%s] does not exist. Cannot install textdomain from there.' % (loc_dir))
 	else:
-		_log.Log(gmLog.lInfo, "Environment variable %s is not set." % env_key)
+		_log.Log(gmLog.lInfo, "environment variable $(%s) not set" % env_key)
 
 	# 3) one level below path to binary
 	#    last resort for inferior operating systems such as DOS/Windows
 	#    strip one directory level
 	#    this is a rather neat trick :-)
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
-	_log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
+	_log.Log(gmLog.lData, 'looking near binary install directory [%s]' % loc_dir)
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
@@ -179,7 +188,7 @@ def __install_domain():
 
 	# 4) in path to binary
 	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
-	_log.Log(gmLog.lData, 'Looking in application level directory [%s].' % loc_dir)
+	_log.Log(gmLog.lData, 'looking in binary install directory [%s]' % loc_dir)
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
@@ -197,25 +206,14 @@ def __install_domain():
 	# this shouldn't fail
 	dummy = gettext.NullTranslations()
 	dummy.install()
-#---------------------------------------------------------------------------
+	return 1
+#===========================================================================
 # Main
 #---------------------------------------------------------------------------
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-	print "======================================================================"
-	print __doc__
-	print "======================================================================"
-
-_log.Log(gmLog.lData, __version__)
-
 __get_system_locale()
-__install_domain()
-
-if __name__ == "__main__":
-	print "system locale: [%s]" % system_locale
-	print "levels:", system_locale_level
-
-# we can now safely set up a bunch of variables
+if not __domain_installed:
+	__install_domain()
+	__domain_installed = 1
 
 # gmTimeFormat is used to define a standard way of
 # displaying a date as a string,
@@ -223,12 +221,23 @@ if __name__ == "__main__":
 # this way this variable can be used as a crude
 # means of date formatting localization
 gmTimeformat = _("%Y-%m-%d  %H:%M:%S")
-
 _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
+
+if __name__ == "__main__":
+	print "======================================================================"
+	print __doc__
+	print "======================================================================"
+	print "authors:", __author__
+	print "license:", __license__, "; version:", __version__
+	print "system locale: ", system_locale, "; levels:", system_locale_level
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-06-25 07:11:15  ncq
+# - make gmI18N self-aware (eg. remember installing _())
+#   so we should be able to safely import gmI18N anywhere
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.29  2003/11/17 10:56:36  sjtan
