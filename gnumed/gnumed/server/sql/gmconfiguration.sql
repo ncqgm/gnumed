@@ -2,16 +2,14 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
+
 -- Copyright by Dr. Horst Herb
 -- This is free software in the sense of the General Public License (GPL)
 -- For details regarding GPL licensing see http://gnu.org
-
--- last changes: 26.10.2001 hherb drastic simplification of entities and relationships
--- introduction of the new services
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -236,11 +234,14 @@ GRANT select, insert, update, delete on
 to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.27 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.26  2003-10-26 23:02:22  hinnef
+-- Revision 1.27  2003-10-27 13:54:05  ncq
+-- - cleanup
+--
+-- Revision 1.26  2003/10/26 23:02:22  hinnef
 -- - changed config param name length to 80
 --
 -- Revision 1.25  2003/07/27 22:01:48  ncq
@@ -294,3 +295,6 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfigura
 -- Revision 1.11  2002/09/27 00:35:03  ncq
 -- - janitorial work
 -- - comments for clarification
+
+-- last changes: 26.10.2001 hherb drastic simplification of entities and relationships
+-- introduction of the new services
