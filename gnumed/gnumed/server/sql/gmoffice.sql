@@ -9,10 +9,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.2 $ $Date: 2002-12-06 08:50:52 $ $Author: ihaywood $
+-- $Revision: 1.3 $ $Date: 2002-12-14 08:12:22 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.2  2002-12-06 08:50:52  ihaywood
+-- Revision 1.3  2002-12-14 08:12:22  ihaywood
+-- New prescription tables in gmclinical.sql
+--
+-- Revision 1.2  2002/12/06 08:50:52  ihaywood
 -- SQL internationalisation, gmclinical.sql now internationalised.
 --
 -- Revision 1.1  2002/12/03 02:50:19  ihaywood
@@ -80,20 +83,24 @@ insert into papersizes (name, length, width) values ('ledger',43.18, 27.94);
 
 create table forms
 (
+	id serial,
 	iso_countrycode char (2),
+	inforce date,
 	type char check (type in ('s', 'p', 'r', 'a', 'w', 'u')),
-	name varchar (50),
+	name varchar (100) unique,
 	id_papersize integer references papersizes (id),
-	pages integer,
-	fontsize integer check (fontsize > 8 and fontsize < 50)
-	font char check (font in ('t', 'g', 'r'),
-	bold boolean
+	fontsize integer check (fontsize > 8 and fontsize < 50),
+	default boolean
 );
 
-comment on table forms is 'the various forms used in practive.';
-comment on column forms.iso_coutrycode is 
-'the two letter counry code of the country in which this form is used.';
 
+comment on column forms.inforce is 
+'date on which this table came into force.';
+comment on table forms is 'the various forms used in practive.';
+comment on column forms.iso_countrycode is 
+'the two letter counry code of the country in which this form is used.';
+comment on column forms.default is
+'true if this form is the default in its type';
 comment on column forms.type is '
 the type of the form. This determines the variables accessible to
 the form queries (see below).
@@ -109,12 +116,6 @@ comment on column forms.name is
 
 comment on column forms.id_papersize is
 'papersize A4, etc.';
-
-comment on column forms.font is
-'t = typewriter, g = gothic (i.e sans-serif) r=roman';
-
-comment on column forms.bold is
-'true if font bold';
 
 create table queries
 (
@@ -154,6 +155,7 @@ create table formfield
 	id_form integer references forms (id),
 	x integer,
 	y integer,
+	page integer,
 	id_query integer references queries (id),
 	wraparound integer
 );
@@ -161,21 +163,6 @@ create table formfield
 comment on column formfield.x is 'x-cordinate unit 720/inch, O left paper edge';
 comment on column formfield.y is 'y-cordinate unit 720/inch, o top paper edge';
 comment on column formfield.wraparound is 'wraparound for text, unit 720/inch';
-
-create table printers
-(
-	name varchar (50) unique,
-	x_offset integer,
-	y_offset integer,
-	x_scale float,
-	y_scale float
-);
-
-comment on table printers is
-'conversion parameters to adjust physical location of the form fields
-into logical units. Postscript tends to stick to 720/inch, counting from the 
-paper edges, but some printers seem to force a small offset.
-On Windows, of course, all bets are off!';
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -206,25 +193,25 @@ insert into billing_scheme (name, iso_countrycode) values ('WorkCover', 'au');
 
 create table prices
 (
-	id_consult integer schedule (id),
-	id_scheme integer billing_scheme (id),
+	id_consult integer references schedule (id),
+	id_scheme integer references billing_scheme (id),
 	patient float,
 	bulkbill float
 );
  
-comment on column patient is
+comment on column prices.patient is
 'the amount of money paid by the patient';
- comment on column bulkbill is
+ comment on column prices.bulkbill is
 'the amount billed directly (bulk-billed) to the payor';
 
-create accounts
+create table accounts
 (
 	id serial,
 	name varchar (50),
 	extra integer
 );
 
-alter table add column parent integer references accounts (id);
+alter table accounts add column parent integer references accounts (id);
 -- Warning: translate, but DON'T alter the order!!!
 insert into accounts (name) values ('Assets');
 insert into accounts (name) values ('Liabilities');
@@ -248,12 +235,12 @@ create table ledger
 create table consults
 (
 	start timestamp,
-	finish timestamp
+	finish timestamp,
 	id_location integer,
 	id_doctor integer,
 	id_patient integer,
 	id_type integer references schedule (id),
-	id_scheme integer references scheme (id)
+	id_scheme integer references billing_scheme (id)
 );
 
 

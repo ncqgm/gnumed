@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- license: GPL
 -- author: 
 
@@ -55,6 +55,7 @@ COMMENT ON TABLE enum_clinical_encounters is
 create table clinical_transaction(
 	id SERIAL primary key,
 	stamp timestamp with time zone,
+	length duration,
 	id_location int,
 	id_doctor int,  
 	id_patient int, 
@@ -259,14 +260,171 @@ comment on column episode.id_patient is
 comment on column episode.name is
 	'descriptive name of this episode, may change over time';
 
+
+-- ============================================
+-- Drug related tables
+
+
+-- These tables are pasted from gmdrugs.sql, how do we otherwise
+-- deal with this?
+
+create table drug_units (
+	id serial primary key,
+	unit varchar(30)
+);
+comment on table drug_units is
+'(SI) units used to quantify/measure drugs';
+comment on column drug_units.unit is
+'(SI) units used to quantify/measure drugs like "mg", "ml"';
+insert into drug_units(unit) values('ml');
+insert into drug_units(unit) values('mg');
+insert into drug_units(unit) values('mg/ml');
+insert into drug_units(unit) values('mg/g');
+insert into drug_units(unit) values('U');
+insert into drug_units(unit) values('IU');
+insert into drug_units(unit) values('each');
+insert into drug_units(unit) values('mcg');
+insert into drug_units(unit) values('mcg/ml');
+insert into drug_units(unit) values('IU/ml');
+insert into drug_units(unit) values('day');
+
+create table drug_formulations(
+	id serial primary key,
+	description varchar(60),
+	comment text
+);
+comment on table drug_formulations is
+'presentations or formulations of drugs like "tablet", "capsule" ...';
+comment on column drug_formulations.description is
+'the formulation of the drug, such as "tablet", "cream", "suspension"';
+
+--I18N!
+insert into drug_formulations(description) values ('tablet');
+insert into drug_formulations(description) values ('capsule');
+insert into drug_formulations(description) values ('syrup');
+insert into drug_formulations(description) values ('suspension');
+insert into drug_formulations(description) values ('powder');
+insert into drug_formulations(description) values ('cream');
+insert into drug_formulations(description) values ('ointment');
+insert into drug_formulations(description) values ('lotion');
+insert into drug_formulations(description) values ('suppository');
+insert into drug_formulations(description) values ('solution');
+insert into drug_formulations(description) values ('dermal patch');
+insert into drug_formulations(description) values ('kit');
+
+
+create table drug_routes (
+	id serial primary key,
+	description varchar(60),
+	abbreviation varchar(10),
+	comment text
+);
+comment on table drug_routes is
+'administration routes of drugs';
+comment on column drug_routes.description is
+'administration route of a drug like "oral", "sublingual", "intravenous" ...';
+
+--I18N!
+insert into drug_routes(description, abbreviation) values('oral', 'o.');
+insert into drug_routes(description, abbreviation) values('sublingual', 's.l.');
+insert into drug_routes(description, abbreviation) values('nasal', 'nas.');
+insert into drug_routes(description, abbreviation) values('topical', 'top.');
+insert into drug_routes(description, abbreviation) values('rectal', 'rect.');
+insert into drug_routes(description, abbreviation) values('intravenous', 'i.v.');
+insert into drug_routes(description, abbreviation) values('intramuscular', 'i.m.');
+insert into drug_routes(description, abbreviation) values('subcutaneous', 's.c.');
+insert into drug_routes(description, abbreviation) values('intraarterial', 'art.');
+insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
+
+
+create table databases
+(
+	id serial,
+	name varchar (50),
+	published date
+);
+
+insert into databases (name, published) values ('MIMS', '1/1/02');
+insert into databases (name, published) values ('AMIS', '1/1/02');
+insert into databases (name, published) values ('AMH', '1/1/02');
+
+comment on table databases is
+'different drug databases';
+
+
+
+create table script_drug
+(
+	id serial,
+	name varchar (100) default 'GENERIC',
+	xref_id varchar (100),
+	source integer references databases (id),
+	fluid_amount float,
+	amount_unit integer references drug_units (id),
+	amount integer,
+	id_route integer references drug_routes (id),
+	id_form integer references drug_formulations (id),
+	prn boolean,
+	frequency integer,
+	time char check (time in ('m', 'n', '?'))
+);
+
+comment on table script_drug is
+'table for different prexcriptions';
+comment on column script_drug.xref_id is 'ID of the source database';
+comment on column script_drug.fluid_amount is 'if a fluid, the amount in each bottle/ampoule, etc.';
+comment on column script_drug.amount is 'for solid object (tablets, capsules) the number of objects, for fluids, the number of separate containers';
+comment on column script_drug.prn is 'true if "pro re nata" (= as required)';
+comment on column script_drug.time is
+'if frequency is 1, suggested time: m = mane, n= nocte, ? = don't care';
+
+	
+create table constituents
+(
+	id serial,
+	name varchar (100),
+	dose float,
+	dose_unit integer references drug_units (id),
+	id_drug integer references script_drug (id)
+);
+
+comment on table constituents is
+'the constituent substances of the various drugs';
+comment on column constituents.name is
+'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
+
+create table script
+(
+	id serial,
+	id_transaction integer references clinical_transaction (id)
+);
+
+comment on table script is
+'one row for each physical prescription printed. Can have multiple drugs on a script, 
+and multiple scripts in a transaction';
+
+create table link_script_drug
+(
+	id_drug references script_drug (id),
+	id_script references script (id)
+);
+
+comment on table link_script_drug is
+'many-to-many table for drugs and prescriptions';
+
+
+
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.8 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.8  2002-12-06 08:50:51  ihaywood
+-- Revision 1.9  2002-12-14 08:12:22  ihaywood
+-- New prescription tables in gmclinical.sql
+--
+-- Revision 1.8  2002/12/06 08:50:51  ihaywood
 -- SQL internationalisation, gmclinical.sql now internationalised.
 --
 -- Revision 1.7  2002/12/05 12:45:43  ncq
