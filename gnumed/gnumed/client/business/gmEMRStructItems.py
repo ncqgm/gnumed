@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -159,7 +159,7 @@ class cEncounter(gmClinItem.cClinItem):
 			return None
 		rfes = []
 		for row in rows:
-		    rfes.append(cRFE(aPK_obj=row[0]))
+		    rfes.append(gmClinNarrative.cRFE(aPK_obj=row[0]))
 		return rfes
 	#--------------------------------------------------------
 	def get_aoes(self):
@@ -175,7 +175,7 @@ class cEncounter(gmClinItem.cClinItem):
 			return None
 		aoes = []
 		for row in rows:
-		  aoes.append(cAOE(aPK_obj=row[0]))
+		  aoes.append(gmClinNarrative.cAOE(aPK_obj=row[0]))
 		return aoes
 	#--------------------------------------------------------
 	def set_attached_to(self, staff_id=None):
@@ -359,7 +359,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.20  2004-07-04 13:24:31  ncq
+# Revision 1.21  2004-07-04 15:09:40  ncq
+# - when refactoring need to fix imports, too
+#
+# Revision 1.20  2004/07/04 13:24:31  ncq
 # - add cRFE/cAOE
 # - use in get_rfes(), get_aoes()
 #
