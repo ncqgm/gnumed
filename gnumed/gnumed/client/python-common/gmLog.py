@@ -51,12 +51,12 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
 # use getopt directly, instead
-import sys, time, traceback, os.path, os, string, getopt
+import sys, time, traceback, os.path, os, string, getopt, stat
 #, atexit
 
 # safely import SYSLOG, currently POSIX only
@@ -765,7 +765,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.26  2002-11-18 00:18:12  ncq
+# Revision 1.27  2002-11-18 02:23:01  ncq
+# - make it work with /var/log/...
+#
+# Revision 1.26  2002/11/18 00:18:12  ncq
 # - conform to Debian/FHS/LSB idea of where to place log files (/var/log/base/)
 # - will slightly increase startup on Windows/DOS
 # - admin must still create /var/log/base/ and assign appropriate rights to users
