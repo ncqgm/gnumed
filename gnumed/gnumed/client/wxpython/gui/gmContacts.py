@@ -8,12 +8,13 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
 from Gnumed.pycommon import gmLog
 from wxPython.wx import *
+import wx
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
@@ -389,10 +390,19 @@ class ContactsPanel(wxPanel):
 	  return [ v[0], 'no office', 'no dept'] + v[1:]
   	
        def add_org(self, org):
+	  try:     
+	  	key = int(org.getId())
+	  except:
+		  print "org has no key. ? Failure in saving org ? non-existent org category"
+		  print "if testing, try insert org_category(description) values('hospital')"
+		  print "in a admin psql session, substitute 'hospital' for whatever category"
+
+		  gmLog.gmDefLog.LogException("failed to save org %s with id %s" %(org['name'], str(org.getId()) ) , sys.exc_info() )
+		  return False
+		  
 	  a = org.getAddress()
 	  o = org.get()
-	  data = [ o['name'],"", " ".join( [a.get('number',''), a.get('street',''), a.get('urb',''), a.get('postcode','')]), o.get('category',''), o.get('phone', '') ]
-	  key = int(org.getId())
+	  data = [ o['name'],"", " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')]), o.get('category',''), o.get('phone', '') ]
 	  x = self.list_organisations.GetItemCount()
 	  
 	  self._insert_org_data( x, key, data)
@@ -414,7 +424,7 @@ class ContactsPanel(wxPanel):
 	  orgs = cOrgHelperImpl1().findAllOrganizations()
 	  for org in orgs:
 		  self.add_org(org)
-
+		 
        def _insert_example_data(self):
 	  items = organisationsdata.items()
 	  for i in xrange(0,len(items)):
@@ -474,14 +484,14 @@ class ContactsPanel(wxPanel):
 		  #TODO remove this test filter
 		  if n == 'category' and v.lower().find('hospital') >= 0:  v = 'hospital'
 		  
-		  f[n].SetValue(v)
+		  f[n].SetValue(v.strip())
 
 
 	  a = org.getAddress()
-	  s = a.get('number','') + ' ' + a.get('street','') 
+	  s = a.get('number','').strip() + ' ' + a.get('street','').strip()
 	  f['street'] .SetValue(s.strip())
-	  f['urb'] .SetValue(a.get('urb','') )
-	  f['postcode'] .SetValue( a.get('postcode',''))
+	  f['urb'] .SetValue(a.get('urb','').strip() )
+	  f['postcode'] .SetValue( str(a.get('postcode','')).strip())
 
        def getCurrent(self):
 	       return self._current
@@ -523,23 +533,25 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 				shortHelpString=_("Display Persons"), isToggle=false)
 	      tool1 = tb.AddTool(ID_ORGANISATIONADD, images_contacts_toolbar16_16.getorganisation_addBitmap(),
 				shortHelpString=_("Add an Organisation"),)
+
+	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
+				shortHelpString=_("Save Record"),)
 	      tool1 = tb.AddTool(ID_BRANCHDEPTADD, images_contacts_toolbar16_16.getbranch_addBitmap(),
 				shortHelpString=_("Add Branch or Department"),)
 	      tool1 = tb.AddTool(ID_EMPLOYEEADD, images_contacts_toolbar16_16.getemployeesBitmap(),
 				shortHelpString=_("Add an Employee"),)
 	      tool1 = tb.AddTool(ID_PERSONADD, images_contacts_toolbar16_16.getperson_addBitmap(),
 				shortHelpString=_("Add Person"),)
-              tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+              #tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+
+
+	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+	      
               tool1 = tb.AddTool(ID_RELOAD, images_contacts_toolbar16_16.getreloadBitmap(),
 				shortHelpString=_("Refresh Display"),)
               
 	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 	      
-	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
-	      
-	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
-				shortHelpString=_("Save Record"),)
-              
 	      tool1 = tb.AddTool(ID_SEARCHSPECIFIC, images_contacts_toolbar16_16.getfind_specificBitmap(),
 				shortHelpString=_("Find Specific Records in Contacts Database"),)
               tool1 = tb.AddTool(ID_SORTA_Z, images_contacts_toolbar16_16.getsort_A_ZBitmap(),
@@ -577,7 +589,7 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		org = w.getCurrent()
 		if org is None:
 			org = w.getOrgHelper().create()
-		org = w.getOrgHelper().create()
+			w.setCurrent(org)
 		o = w.get_org_values()
 		a = w.get_address_values()
 		org.set(*o)
@@ -587,6 +599,8 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		org.save()
 		if isNew:
 			w.add_org(org)
+		else:
+			w.load_all_orgs() # refresh after saving
 		
         def addBranchDept(self, event):
 		print "doBranchDeptAdd"
@@ -604,7 +618,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.19  2004-05-26 18:21:38  sjtan
+# Revision 1.20  2004-05-28 01:23:44  sjtan
+#
+# strip whitespace for org list display; update list when org edited and saved; move save button temporarily so visible in default client gui size.
+#
+# Revision 1.19  2004/05/26 18:21:38  sjtan
 #
 # add org , save  toolbar buttons linked,  list select linked, needs testing,
 # must have 'hospital' if table org_category.
