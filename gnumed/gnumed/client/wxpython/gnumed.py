@@ -1,14 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #############################################################################
 # gnumed - launcher for the main gnumed GUI client module
 # ---------------------------------------------------------------------------
 #
 # @copyright: author
-# @dependencies:
-# @change log:
-#	01.03.2002 hherb first draft, untested
-#
-# @TODO: Almost everything
 ############################################################################
 # This source code is protected by the GPL licensing scheme.
 # Details regarding the GPL are available at http://www.gnu.org
@@ -31,12 +26,12 @@ Command line arguments:
  Run the client and upon exiting run a talkback client where
  you can enter a comment and send the log off to the bug hunters.
  Very useful when used in conjunction with --debug.
---text-domain=<a_text_domain>
+--text-domain=<a text domain>
  Set this to change the name of the language file to be loaded.
  Note, this does not change the directory the file is searched in,
  only the name of the file where messages are loaded from. The
  standard textdomain is, of course, "gnumed.mo".
---log-file=<a_log_file>
+--log-file=<a log file>
  Use this to change the name of the log file.
  See gmLog.py to find out where the standard log file would
  end up.
@@ -46,7 +41,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -266,7 +261,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.54  2003-06-01 12:28:23  ncq
+# Revision 1.55  2003-06-19 15:29:20  ncq
+# - spelling, cleanup
+#
+# Revision 1.54  2003/06/01 12:28:23  ncq
 # - fatal now "verbose" in LogException, use it
 #
 # Revision 1.53  2003/06/01 01:47:33  sjtan
@@ -316,3 +314,5 @@ else:
 # Revision 1.40  2002/09/08 23:31:09  ncq
 # - really fail on failing to load a module
 #
+# @change log:
+#	01.03.2002 hherb first draft, untested
