@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythoncv
 
 """GnuMed xDT viewer.
 
@@ -20,8 +20,8 @@ TODO:
 """
 #=============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/shilbert/Attic/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.8 2003-08-24 09:24:13 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmXdtViewer.py,v 1.9 2003-08-24 10:16:45 shilbert Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, string, fileinput, linecache
@@ -39,9 +39,7 @@ _log.Log(gmLog.lData, __version__)
 if __name__ == "__main__":
 	import gmI18N
 	import gmXdtToolsLib
-	import gmCfg
-	_cfg = gmCfg.gmDefCfgFile
-
+	
 import gmExceptions
 
 from gmGuiHelpers import gm_show_error
@@ -52,11 +50,7 @@ from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidt
 from gmXdtMappings import xdt_id_map, xdt_map_of_content_maps
 from gmXdtObjects import xdtPatient
 
-# get export-dir
-pat_dir = _cfg.get("xdt-viewer", "export-dir")
-pat_lst_fname = _cfg.get("xdt-viewer", "patient-list")
-# is there a patient list already ?
-_patlst = gmCfg.cCfgFile(aPath = pat_dir ,aFile = pat_lst_fname, flags = 2)
+
 #=============================================================================
 class gmXdtListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
@@ -268,7 +262,7 @@ class gmXdtViewerPanel(wxPanel):
 		self.list.SetDimensions(0, 0, w, h)
 
 #======================================================
-def _preprocess_file(afile):
+def _preprocess_file(afile,aCfg,apatlst,apatdir):
 	# file valid ?
 	if not os.path.isfile(afile):
 		gm_show_error (
@@ -291,14 +285,12 @@ def _preprocess_file(afile):
 	selected_pat_file = afile
 	if nr_pats > 1:
 		# standalone allows multiple-patient files
-		selected_pat_file = _split_and_select_pat(pats, afile)
+		selected_pat_file = _split_and_select_pat(pats, afile, aCfg , apatlst, apatdir)
 		if selected_pat_file is None:
 			return None
 	return selected_pat_file
 #---------------------
-def _split_and_select_pat(pats_in_file = None, afile = None):
-	patlst = _patlst
-	cfg = _cfg
+def _split_and_select_pat(pats_in_file = None, afile = None , aCfg = None , apatlst = None, apatdir = None):
 	# plugin handles single-patient files only
 	if __name__ != '__main__':
 		gm_show_error (
@@ -334,7 +326,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 
 	# user wants to split file by patient
 	
-	if not gmXdtToolsLib.split_xdt_file(afile,patlst,cfg):
+	if not gmXdtToolsLib.split_xdt_file(afile,apatlst,aCfg):
 		gm_show_error (
 			_('Cannot split XDT file [%s] by patient.\nShowing file as is.'),
 			_('parsing XDT file'),
@@ -364,7 +356,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 	pat_selected = dlg.GetStringSelection()
 	_log.Log(gmLog.lData, 'selected [%s]' % pat_selected)
 	ID,name = string.split(pat_selected,':')
-	data = gmXdtToolsLib.get_pat_data(afile,ID,name,patdir = pat_dir, patlst = _patlst)
+	data = gmXdtToolsLib.get_pat_data(afile,ID,name,patdir = apatdir, patlst = apatlst)
 	# how many records were obtained for this patient ?
 	path,files = data
 	# none
@@ -380,7 +372,7 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 		return 1
 	dlg = wxSingleChoiceDialog (
 		parent = NULL,
-		message = _("Please select the patient you want to display."),
+		message = _("Please select the record you want to display."),
 		caption = _("parsing patient-list for records" ),
 		choices = files,
 		style = wxOK | wxCANCEL
@@ -390,19 +382,34 @@ def _split_and_select_pat(pats_in_file = None, afile = None):
 	# user cancelled
 	if btn_pressed == wxID_CANCEL:
 		return None
-	rec_selected = dlg.GetStringSelection()
-	_log.Log(gmLog.lData, 'selected [%s]' % rec_selected)
-	afile = path + '/' + rec_selected
+	# show file(s)
+	fname,ahash = string.split(dlg.GetStringSelection(),':')
+	_log.Log(gmLog.lData, 'selected [%s]' % fname)
+	afile = path + '/' + fname
 	return afile
 #======================================================
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
 	import gmCLI
+	import gmCfg
 	#---------------------
 	# set up dummy app
 	class TestApp (wxApp):
-		def OnInit (self):	
+		def OnInit (self):
+			if not gmCLI.has_arg('--conf-file'):
+				gm_show_error (
+				_('No config file given on command line.\n\nFormat: --conf-file=<file>'),
+				_('loading config file'),
+				gmLog.lInfo
+				)
+				return 0
+			aCfg = gmCfg.gmDefCfgFile
+			# get export-dir
+			apatdir = aCfg.get("xdt-viewer", "export-dir")
+			pat_lst_fname = aCfg.get("xdt-viewer", "patient-list")
+			# is there a patient list already ?
+			apatlst = gmCfg.cCfgFile(aPath = apatdir ,aFile = pat_lst_fname, flags = 2)
 			# has the user manually supplied a config file on the command line ?
 			if not gmCLI.has_arg('--xdt-file'):
 				gm_show_error (
@@ -412,8 +419,9 @@ if __name__ == '__main__':
 				)
 				return 0
 			# yes -> verify it
-			fname = _preprocess_file(gmCLI.arg['--xdt-file'])
+			fname = _preprocess_file(gmCLI.arg['--xdt-file'],aCfg,apatlst,apatdir)
 			if fname is None:
+			
 				return None
 			# OK -> show it
 			frame = wxFrame (
@@ -481,7 +489,10 @@ else:
 			return 1
 #=============================================================================
 # $Log: gmXdtViewer.py,v $
-# Revision 1.8  2003-08-24 09:24:13  ncq
+# Revision 1.9  2003-08-24 10:16:45  shilbert
+# - now checks whether content is new or already exists as file from previuos sessions
+#
+# Revision 1.8  2003/08/24 09:24:13  ncq
 # - make it work with single-patient files in standalone mode
 #
 # Revision 1.7  2003/08/23 13:23:29  shilbert
