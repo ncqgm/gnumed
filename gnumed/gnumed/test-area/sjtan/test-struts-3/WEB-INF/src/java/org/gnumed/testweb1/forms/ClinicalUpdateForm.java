@@ -31,7 +31,7 @@ import sun.security.action.GetBooleanAction;
  * @author  sjtan
  */
 public class ClinicalUpdateForm extends  /*org.apache.struts.action.ActionForm */
-                                    ValidatorActionForm
+                                    BaseClinicalUpdateForm
 {
     static int updateBatch = 5;
  
@@ -68,12 +68,17 @@ public class ClinicalUpdateForm extends  /*org.apache.struts.action.ActionForm *
         
     }
     
+    public ClinicalUpdateForm(DataObjectFactory factory) {
+        setEncounter(factory.createEntryClinicalEncounter() );
+        setDataObjectFactory(factory);
+    }
     
     
     
     /** Creates a new instance of ClinicalUpdateForm */
     public ClinicalUpdateForm(DataObjectFactory factory, Integer id) {
-        this();
+        
+        this(factory);
         setPatientId(id);
         
         

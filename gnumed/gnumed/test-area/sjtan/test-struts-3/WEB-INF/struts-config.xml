@@ -2,7 +2,7 @@
 
 <!DOCTYPE struts-config PUBLIC
           "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
-          "http://jakarta.apache.org/dtds/struts-config_1_1.dtd">
+          "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
 
 
 
@@ -356,6 +356,8 @@
         
         <action path="/ClinEntry" forward="encounterEntry"/>
         
+        <action path="/ClinEntry2" forward="encounterEntry2"/>
+        
         <action path="/GetDemoEntry" forward="/DemographicEdit.do"/>
         
         <action path="/Testdb" forward="testdb"/>
@@ -439,14 +441,25 @@
               <forward name="successClinicalEditAgain" path="windowclose"/> 
          </action>
         
-        
+         
+         <action
+            path="/ClinicalEdit2"
+            type="org.gnumed.testweb1.actions.ClinicalEditAction"
+            attribute="clinicalUpdateForm"
+            
+            scope="request"
+            >
+            <!-- <forward name="successLoadClinical" path="clinicalentry"/>
+            -->
+            <forward name="successLoadClinical" path="clinicalentry"/>
+        </action>
         
          
            <!-- stuff for the version2 clinicalUpdateForm --> 
         <action
             path="/ClinicalEdit2"
             type="org.gnumed.testweb1.actions.ClinicalEditAction"
-            attribute="clinicalUpdateForm"
+            attribute="clinicalUpdateForm2"
             scope="request"
             >
             <!-- <forward name="successLoadClinical" path="clinicalentry"/>
@@ -614,9 +627,19 @@
   </plug-in>
   
   <plug-in className="org.gnumed.testweb1.adapters.DataObjectFactoryPlugIn">
+    
     <set-property
         property="objectFactory"
         value="org.gnumed.testweb1.data.DefaultDataObjectFactory"/>
+    
+    <set-property    
+        property="formFactory"
+        value="org.gnumed.testweb1.forms.ClinicalFormFactory1"/>
+        
+    <set-property
+    	property="formFactoryEpisodeCount"
+    	value="8" />
+    
   </plug-in>
   
   <plug-in className="org.gnumed.testweb1.adapters.JNDIDatasourcePlugIn"/>

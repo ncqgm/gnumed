@@ -50,6 +50,8 @@ public final class Constants {
         public final static String DRUGREF_ACCESS= "drugRefAccess";
         
         public static int DEFAULT_NUMBER_OF_CLIN_ITEMS = 8;
+        public static final String FORM_FACTORY = "formFactory";
+        public static final String FORM_FACTORY_EPISODE_COUNT="formFactoryEpisodeCount";
     }
     
     public static final  class Session {

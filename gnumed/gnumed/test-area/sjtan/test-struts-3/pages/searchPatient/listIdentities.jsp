@@ -45,6 +45,30 @@
    
     </html-el:link>
     
+    <html-el:link  
+        href="javascript: void('');" 
+        onclick="
+            var id=${detail.id};
+            var popup=open('/gnumed-test-war/ClinicalEdit2.do?id='+id,
+            '', 'width=900, height=800, scrollbars=yes');
+            popup.moveTo(50,50);
+            "
+            >
+        <bean:message key="clinical.edit"/> 2
+   
+    </html-el:link><html-el:link  
+        href="javascript: void('');" 
+        onclick="
+            var id=${detail.id};
+            var popup=open('/gnumed-test-war/ClinicalEdit.do?id='+id,
+            '', 'width=900, height=800, scrollbars=yes');
+            popup.moveTo(50,50);
+            "
+            >
+        <bean:message key="clinical.edit"/>
+   
+    </html-el:link>
+    
     </td>
     <td><b> <bean:write name="detail" property="id"/> </b> </td>
     <td colspan='4'>

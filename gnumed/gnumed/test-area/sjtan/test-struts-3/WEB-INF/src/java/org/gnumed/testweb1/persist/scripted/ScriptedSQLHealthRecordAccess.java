@@ -407,7 +407,8 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 			
 			linkNarratives(encounter,summary, nonFatalExceptions, conn, newIssues);
 			
-			itemsAttached += saveNamedEpisodes(encounter, nonFatalExceptions, conn ,newIssues);
+			itemsAttached += saveNamedEpisodes(encounter, summary,
+			        	nonFatalExceptions, conn ,newIssues);
 
 			
 			itemsAttached += saveNarrativesCollection(encounter, summary,
@@ -465,12 +466,13 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 
 	/**
      * @param encounter
+	 * @param summary
      * @param nonFatalExceptions
      * @param conn
 	 * @param newIssues
      * @return
      */
-    private int saveNamedEpisodes(ClinicalEncounter encounter, List nonFatalExceptions, Connection conn, Map newIssues) throws DataSourceException, SQLException{
+    private int saveNamedEpisodes(ClinicalEncounter encounter, HealthSummary01 summary, List nonFatalExceptions, Connection conn, Map newIssues) throws DataSourceException, SQLException{
         // TODO Auto-generated method stub
         List savedNamedEpisodes = new ArrayList();
         List narratives = encounter.getNarratives();
@@ -484,10 +486,8 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
             }
             
             HealthIssue issue =  n.getEpisode().getHealthIssue();
-            if (issue.getId() == null) {
-                continue;
-            }
-            n.setEpisode(findOrCreateEpisode(conn,issue, n.getEpisode(), newIssues.get(issue.getDescription())!= null));
+          
+            n.setEpisode(findOrCreateEpisode(conn,summary, n.getEpisode(), newIssues.get(issue.getDescription())!= null));
             newIssues.remove(issue.getDescription());
             savedNamedEpisodes.add(n.getEpisode());
             
@@ -900,16 +900,37 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
      */
     private void insertNamingNarrativeWithIdentityId(Connection conn, String narrativeText, Long identityId) throws SQLException {
         String identityIdString = Integer.toString(identityId.intValue());
-        insertNamingNarrativeWithIdStr(conn, narrativeText, identityIdString , "null", null);
+        insertNamingNarrativeWithIdStr(getDeferredConstraintStatement(conn), null, narrativeText, identityIdString , "null", null);
     }
     
-    public void insertNamingNarrativeWithEpisodeDescriptionAndHealthIssueId( Connection conn, ClinicalEpisode e, boolean isNewHealthIssue) throws SQLException  {
-        String identityIdString = "( select id_patient from clin_health_issue issue, clin_episode episode" +
-        		"  where " +
-        		" issue.id = episode.fk_health_issue  and episode.pk = " +
-        		e.getId().toString() + " )";
-        insertNamingNarrativeWithIdStr(conn, e.getDescription(),"null", e.getHealthIssue().getId().toString(), ( isNewHealthIssue? e.getEarliestRootItem().getClin_when(): null) );
+    public void insertNamingNarrativeWithEpisodeDescriptionAndHealthIssueId( Connection conn, HealthSummary01 summary, ClinicalEpisode e, boolean isNewHealthIssue) throws DataSourceException,SQLException  {
+//        String identityIdString = "( select id_patient from clin_health_issue issue, clin_episode episode" +
+//        		"  where " +
+//        		" issue.id = episode.fk_health_issue  and episode.pk = " +
+//        		e.getId().toString() + " )";
+        Statement deferredStatement = getDeferredConstraintStatement(conn);
+        
+        if (e.getId() == null ) {
+            linkEpisodeHealthIssue(conn, summary, e);
+            e = insertEpisode(conn,e.getHealthIssue(), e);
+        }
+        String identityIdString = summary.getIdentityId().toString();
+        insertNamingNarrativeWithIdStr(deferredStatement, e.getId(), e.getDescription(),"null", e.getHealthIssue().getId().toString(), ( isNewHealthIssue? e.getEarliestRootItem().getClin_when(): null) );
     }
+    /**
+     * @param conn
+     * @param summary
+     * @param e
+     * @throws SQLException
+     */
+    private void linkEpisodeHealthIssue(Connection conn, HealthSummary01 summary, ClinicalEpisode e) throws SQLException {
+        if (e.getHealthIssue().getId() == null) {
+            HealthIssue issue = findExistingHealthIssue(e.getHealthIssue().getDescription(), summary);
+            
+            e.getHealthIssue().setId(issue != null ? issue.getId() : new Long(insertNewHealthIssue(conn,e.getHealthIssue().getDescription(), summary).longValue()));
+        }
+    }
+
     /**
      * @param conn
      * @param narrativeText
@@ -918,19 +939,18 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
      * @param date
      * @throws SQLException
      */
-    private void insertNamingNarrativeWithIdStr(Connection conn, String narrativeText, String identityIdString, String healthIssueIdString, Date date) throws SQLException {
-        conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-        
-        Statement c = conn.createStatement();
-        
-        c.execute("commit;begin"); // required on salaam for some reason.
-        
-        c.executeUpdate("set constraints rfi_fk_clin_narrative deferred");
-        
+    private void insertNamingNarrativeWithIdStr(Statement c, Long episodeId, String narrativeText, String identityIdString, String healthIssueIdString, Date date) throws SQLException {
+       if (episodeId == null) {
         c.executeUpdate("insert into clin_episode " +
                         "(fk_health_issue,  fk_patient, fk_clin_narrative) " +
                         "values ("+ healthIssueIdString +", " + identityIdString + " , nextval('clin_narrative_pk_seq')) ");
-         c.executeUpdate("insert into clin_narrative " +
+    	} else {
+    	    c.executeUpdate("update clin_episode set fk_health_issue = "+healthIssueIdString+"" +
+    	    		", fk_patient = "+ identityIdString + "" +
+    	    				", fk_clin_narrative  =  nextval('clin_narrative_pk_seq')" +
+    	    				" where pk= " + episodeId.toString());
+    	}
+       c.executeUpdate("insert into clin_narrative " +
                         "(pk,  fk_episode, fk_encounter, narrative, soap_cat) " +
                         "values(" +
                         "currval('clin_narrative_pk_seq')," +
@@ -944,11 +964,25 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
                         				") ," +
                         "  '"+narrativeText+"', 'a' )");
          if (date != null) {
-             PreparedStatement stmt = conn.prepareStatement("update clin_narrative set clin_when = ? where pk=currval('clin_narrative_pk_seq')");
+             PreparedStatement stmt = c.getConnection().prepareStatement("update clin_narrative set clin_when = ? where pk=currval('clin_narrative_pk_seq')");
          		stmt.setTimestamp(1,new Timestamp( date.getTime() ) );
          		stmt.execute();
          }
-        conn.commit();
+        c.getConnection().commit();
+    }
+
+    /**
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    private Statement getDeferredConstraintStatement(Connection conn) throws SQLException {
+        Statement c = conn.createStatement();
+        
+        c.execute("commit;begin"); // required on salaam for some reason.
+        
+        c.executeUpdate("set constraints rfi_fk_clin_narrative deferred");
+        return c;
     }
 
     private int saveMedicationCollection(ClinicalEncounter encounter,
@@ -1001,12 +1035,12 @@ throws SQLException, DataSourceException {
 //	}
 
 	private ClinicalEpisode findOrCreateEpisode(Connection conn,
-			HealthIssue issue, ClinicalEpisode candidateEpisode , boolean isNewHealthIssue)
+			HealthSummary01 summary, ClinicalEpisode candidateEpisode , boolean isNewHealthIssue)
 			throws DataSourceException, SQLException {
 	    
 		if (candidateEpisode.getId() == null ) {
-		    candidateEpisode = insertEpisode(conn, issue, candidateEpisode);
-			insertEpisodeDescriptionNarrative( conn, candidateEpisode, isNewHealthIssue);
+		  //  candidateEpisode = insertEpisode(conn, issue, candidateEpisode);
+			insertEpisodeDescriptionNarrative( conn, summary, candidateEpisode, isNewHealthIssue);
 		}
 		return candidateEpisode;
 
@@ -1015,15 +1049,16 @@ throws SQLException, DataSourceException {
 	/**
  * @param candidateEpisode
 	 * @param conn TODO
+	 * @param summary
  */
-private void insertEpisodeDescriptionNarrative( Connection conn ,ClinicalEpisode candidateEpisode, boolean isFirstForHealthIssue) {
+private void insertEpisodeDescriptionNarrative( Connection conn ,HealthSummary01 summary, ClinicalEpisode candidateEpisode, boolean isFirstForHealthIssue) {
     // TODO Auto-generated method stub
     try {
         if (!isNamedEpisode(candidateEpisode)) {
             setDefaultEpisodeName(candidateEpisode);
         }
         
-        insertNamingNarrativeWithEpisodeDescriptionAndHealthIssueId(conn , candidateEpisode,isFirstForHealthIssue);
+        insertNamingNarrativeWithEpisodeDescriptionAndHealthIssueId(conn , summary, candidateEpisode,isFirstForHealthIssue);
         
         
     } catch (Exception e) {
@@ -1109,7 +1144,7 @@ private void insertEpisodeDescriptionNarrative( Connection conn ,ClinicalEpisode
 		
 	    HealthIssue issue = findOrCreateHealthIssue(conn, item
 				, summary);
-		ClinicalEpisode episode = findOrCreateEpisode(conn, issue, item
+		ClinicalEpisode episode = findOrCreateEpisode(conn, summary, item
 				.getEpisode(), isNewIssue);
 		episode.setHealthIssue(issue);
 		item.setEpisode(episode);

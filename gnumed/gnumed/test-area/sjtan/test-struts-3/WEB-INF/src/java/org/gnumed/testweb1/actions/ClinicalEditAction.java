@@ -27,7 +27,7 @@ import org.gnumed.testweb1.data.HealthRecord01;
  * this action sets the form , demographic, and health record objects
  */
 public class ClinicalEditAction extends Action {
-	ClinicalActionUtil clinicalActionUtil = new ClinicalActionUtil();
+	ClinicalActionUtil clinicalActionUtil = ClinicalActionUtil.instance();
 
 	/** Creates a new instance of ClinicalEditAction */
 	public ClinicalEditAction() {

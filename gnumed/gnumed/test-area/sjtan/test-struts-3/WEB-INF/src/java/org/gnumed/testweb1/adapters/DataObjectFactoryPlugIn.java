@@ -12,9 +12,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.PlugIn;
 import org.apache.struts.config.PlugInConfig;
+import org.apache.struts.upload.FormFile;
 import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.global.Constants;
 import org.gnumed.testweb1.global.Util;
+import org.gnumed.testweb1.forms.ClinicalFormFactory1;
+import org.gnumed.testweb1.forms.IClinicalFormFactory;
 /**
  *
  * @author  sjtan
@@ -48,9 +51,10 @@ public class DataObjectFactoryPlugIn extends BasicPlugin implements PlugIn {
     public void init(org.apache.struts.action.ActionServlet actionServlet, org.apache.struts.config.ModuleConfig moduleConfig) throws javax.servlet.ServletException {
         
         DataObjectFactory factory = null;
+        IClinicalFormFactory formFactory = null;
         try {
             factory = (DataObjectFactory)
-            Class.forName( getFactoryClassName(moduleConfig) ).newInstance();
+            Class.forName( getPluginConfigValue(moduleConfig, Constants.Servlet.OBJECT_FACTORY) ).newInstance();
             
             factory.setBundle(getResourceBundle(moduleConfig));
             
@@ -63,33 +67,30 @@ public class DataObjectFactoryPlugIn extends BasicPlugin implements PlugIn {
             log.error( "UNABLE TO SET '" + Constants.Servlet.OBJECT_FACTORY + "' of servlet context", e);
         }
         
-        
-        //TODO
-        // move this somewhere better
+       
         
         try {
-            
-             org.gnumed.testweb1.forms.ClinicalUpdateForm.setDataObjectFactory((org.gnumed.testweb1.data.DataObjectFactory) factory);
-                
-            log.info ("Set clinical update form "+ Constants.Servlet.OBJECT_FACTORY);
-            
-           
+            formFactory = (IClinicalFormFactory) Class.forName(getPluginConfigValue(moduleConfig, Constants.Servlet.FORM_FACTORY) ).newInstance();
+            formFactory.setDataObjectFactory(factory);
+           formFactory.setEntryEpisodeCount(Integer.parseInt(getPluginConfigValue(moduleConfig, Constants.Servlet.FORM_FACTORY_EPISODE_COUNT)));
+            actionServlet.getServletContext().setAttribute(Constants.Servlet.FORM_FACTORY, formFactory);
         } catch (Exception e) {
-            log.error( "UNABLE TO SET '" + Constants.Servlet.OBJECT_FACTORY + "' of clinical update form class", e);
+            // TODO: handle exception
         }
     }
 
     /**
      * @param moduleConfig
+     * @param stringFactoryName TODO
      * @return
      */
-    private String getFactoryClassName(org.apache.struts.config.ModuleConfig moduleConfig) {
+    private String getPluginConfigValue(org.apache.struts.config.ModuleConfig moduleConfig, String stringFactoryName) {
         PlugInConfig c = Util.findPluginConfig(moduleConfig, this.getClass());
         Map map = c.getProperties();
         
         logProperties(map);
         
-        String implClassName =(String) map.get(Constants.Servlet.OBJECT_FACTORY);
+        String implClassName =(String) map.get(stringFactoryName);
         return implClassName;
     }
     

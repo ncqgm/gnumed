@@ -7,6 +7,8 @@
 package org.gnumed.testweb1.data;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import org.gnumed.testweb1.data2.EntryClinicalEpisode;
 /**
  *
  * @author  sjtan
@@ -48,6 +50,8 @@ public interface DataObjectFactory {
      public AllergyEntry createEntryAllergy();
      public EntryVitals createEntryVitals();
      public EntryMedication createEntryMedication();
+     
+    
      
      public void setBundle(ResourceBundle bundle);
      public ResourceBundle getBundle();

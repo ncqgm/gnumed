@@ -224,7 +224,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
                     
                 }
             }
-            log.info(issue+ " "+issue.getDescription() + " has " + issue.getClinicalEpisodes().length + " episodes.");
+            log.info(issue+ " "+issue.getDescription() + " has " + (issue.getClinicalEpisodes()!=null? issue.getClinicalEpisodes().length : 0) + " episodes.");
         }
     }
 
