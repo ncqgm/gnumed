@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.65 2004-03-28 04:09:31 ihaywood Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmEditArea.py,v 1.66 2004-03-28 11:09:04 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1479,132 +1479,6 @@ class gmVaccinationEditArea(gmEditArea):
 		except KeyError: pass
 		return 1
 #====================================================================
-class gmMeasurementEditArea(gmEditArea):
-
-	T= 'type'
-	D= 'date'
-	V= 'value'
-	C= 'comment'
-	P= 'progress_notes'
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'measurement')
-		except gmExceptions.ConstructorError:
-			stacktrace()
-
-			_log.LogExceptions('cannot instantiate measurement edit area', sys.exc_info(),4)
-			raise
-
-
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making measurement lines")
-		lines = []
-		self.txt_type = cEditAreaField(parent)
-		self.txt_date = cEditAreaField(parent)
-		self.txt_value = cEditAreaField(parent)
-		self.txt_comment = cEditAreaField(parent)
-		self.txt_progressnotes= cEditAreaField(parent)
-		
-		lines.append(self.txt_type)
-		lines.append(self.txt_date)
-		lines.append(self.txt_value)
-		lines.append(self.txt_comment)
-		lines.append(self.txt_progressnotes)
-		lines.append(self._make_standard_buttons(parent))
-
-		c = gmMeasurementEditArea
-		self.input_fields = {
-			c.T : self.txt_type,
-			c.D : self.txt_date ,
-			c.V : self.txt_value,
-			c.C : self.txt_comment,
-			c.P : self.txt_progressnotes
-		}
-
-		return lines
-
-	def get_field_formatting_values(self):
-		c = gmMeasurementEditArea
-		fields = [ c.T, c.D, c.V, c.C, c.P , 'id_measurement']
-		values = self.getInputFieldValues(fields)
-		s , n = "'%s'", "%d"
-		formatting =  { c.T:s, c.D:s, c.V:n, c.C:s, c.P:s }
-		values['id_measurement'] = self.getDataId()
-		return fields, formatting, values
-
-	def _save_data(self):
-		return 1
-
-
-#====================================================================
-class gmPrescriptionEditArea(gmEditArea):
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'prescription')
-		except gmExceptions.ConstructorError:
-			stacktrace()
-
-			_log.LogExceptions('cannot instantiate prescription edit area', sys.exc_info(),4)
-			raise
-
-
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making prescription lines")
-		lines = []
-		self.txt_problem = cEditAreaField(parent)
-		self.txt_class = cEditAreaField(parent)
-		self.txt_generic = cEditAreaField(parent)
-		self.txt_brand = cEditAreaField(parent)
-		self.txt_strength= cEditAreaField(parent)
-		self.txt_directions= cEditAreaField(parent)
-		self.txt_for = cEditAreaField(parent)
-		self.txt_progress = cEditAreaField(parent)
-		
-		lines.append(self.txt_problem)
-		lines.append(self.txt_class)
-		lines.append(self.txt_generic)
-		lines.append(self.txt_brand)
-		lines.append(self.txt_strength)
-		lines.append(self.txt_directions)
-		lines.append(self.txt_for)
-		lines.append(self.txt_progress)
-		lines.append(self._make_standard_buttons(parent))
-		self.input_fields = {
-			"problem": self.txt_problem,
-			"class" : self.txt_class,
-			"generic" : self.txt_generic,
-			"brand" : self.txt_brand,
-			"strength": self.txt_strength,
-			"directions": self.txt_directions,
-			"for" : self.txt_for,
-			"progress": self.txt_progress
-
-		}
-
-		return self._makeExtraColumns( parent, lines)
-
-
-# This makes gmPrescriptionEditArea more adaptable to different nationalities special requirements.
-# ( well, it could be.)
-# to change at runtime, do 
-
-#             gmPrescriptionEditArea.extraColumns  = [ one or more columnListInfo ]  
-
-#    each columnListInfo  element describes one column,
-#    where columnListInfo is    a  list of 
-#  		tuples of 	[ inputMap name,  widget label, widget class to instantiate from]
-
-#gmPrescriptionEditArea.extraColumns = [  basicPrescriptionExtra ]
-#gmPrescriptionEditArea.extraColumns = [  auPrescriptionExtra ]
-	
-	
-	def _save_data(self):
-		return 1
-	
-
-#====================================================================
 class gmReferralEditArea(gmEditArea):
 		
 	def __init__(self, parent, id): 
@@ -1749,7 +1623,6 @@ class gmReferralEditArea(gmEditArea):
 			self.fld_address.Append ("%s: %s" % (_("FAX"), fax))
 		if email:
 			self.fld_address.Append ("%s: %s" % (_("E-MAIL"), email))
-		
 
 	def _save_new_entry(self):
 		"""
@@ -1758,6 +1631,134 @@ class gmReferralEditArea(gmEditArea):
 		if not self.recipient:
 			raise gmExceptions.InvalidInputException (_('must have a recipient'))
 
+
+#====================================================================
+#====================================================================
+# unconverted edit areas below
+#====================================================================
+class gmMeasurementEditArea(gmEditArea):
+
+	T= 'type'
+	D= 'date'
+	V= 'value'
+	C= 'comment'
+	P= 'progress_notes'
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'measurement')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate measurement edit area', sys.exc_info(),4)
+			raise
+
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making measurement lines")
+		lines = []
+		self.txt_type = cEditAreaField(parent)
+		self.txt_date = cEditAreaField(parent)
+		self.txt_value = cEditAreaField(parent)
+		self.txt_comment = cEditAreaField(parent)
+		self.txt_progressnotes= cEditAreaField(parent)
+		
+		lines.append(self.txt_type)
+		lines.append(self.txt_date)
+		lines.append(self.txt_value)
+		lines.append(self.txt_comment)
+		lines.append(self.txt_progressnotes)
+		lines.append(self._make_standard_buttons(parent))
+
+		c = gmMeasurementEditArea
+		self.input_fields = {
+			c.T : self.txt_type,
+			c.D : self.txt_date ,
+			c.V : self.txt_value,
+			c.C : self.txt_comment,
+			c.P : self.txt_progressnotes
+		}
+
+		return lines
+
+	def get_field_formatting_values(self):
+		c = gmMeasurementEditArea
+		fields = [ c.T, c.D, c.V, c.C, c.P , 'id_measurement']
+		values = self.getInputFieldValues(fields)
+		s , n = "'%s'", "%d"
+		formatting =  { c.T:s, c.D:s, c.V:n, c.C:s, c.P:s }
+		values['id_measurement'] = self.getDataId()
+		return fields, formatting, values
+
+	def _save_data(self):
+		return 1
+
+
+#====================================================================
+class gmPrescriptionEditArea(gmEditArea):
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'prescription')
+		except gmExceptions.ConstructorError:
+			stacktrace()
+
+			_log.LogExceptions('cannot instantiate prescription edit area', sys.exc_info(),4)
+			raise
+
+
+	#----------------------------------------------------------------
+	def _make_edit_lines(self, parent):
+		_log.Log(gmLog.lData, "making prescription lines")
+		lines = []
+		self.txt_problem = cEditAreaField(parent)
+		self.txt_class = cEditAreaField(parent)
+		self.txt_generic = cEditAreaField(parent)
+		self.txt_brand = cEditAreaField(parent)
+		self.txt_strength= cEditAreaField(parent)
+		self.txt_directions= cEditAreaField(parent)
+		self.txt_for = cEditAreaField(parent)
+		self.txt_progress = cEditAreaField(parent)
+		
+		lines.append(self.txt_problem)
+		lines.append(self.txt_class)
+		lines.append(self.txt_generic)
+		lines.append(self.txt_brand)
+		lines.append(self.txt_strength)
+		lines.append(self.txt_directions)
+		lines.append(self.txt_for)
+		lines.append(self.txt_progress)
+		lines.append(self._make_standard_buttons(parent))
+		self.input_fields = {
+			"problem": self.txt_problem,
+			"class" : self.txt_class,
+			"generic" : self.txt_generic,
+			"brand" : self.txt_brand,
+			"strength": self.txt_strength,
+			"directions": self.txt_directions,
+			"for" : self.txt_for,
+			"progress": self.txt_progress
+
+		}
+
+		return self._makeExtraColumns( parent, lines)
+
+
+# This makes gmPrescriptionEditArea more adaptable to different nationalities special requirements.
+# ( well, it could be.)
+# to change at runtime, do 
+
+#             gmPrescriptionEditArea.extraColumns  = [ one or more columnListInfo ]  
+
+#    each columnListInfo  element describes one column,
+#    where columnListInfo is    a  list of 
+#  		tuples of 	[ inputMap name,  widget label, widget class to instantiate from]
+
+#gmPrescriptionEditArea.extraColumns = [  basicPrescriptionExtra ]
+#gmPrescriptionEditArea.extraColumns = [  auPrescriptionExtra ]
+	
+	
+	def _save_data(self):
+		return 1
 
 #====================================================================
 class gmRecallEditArea(gmEditArea):
@@ -2021,8 +2022,6 @@ class EditTextBoxes(wxPanel):
 		elif section == gmSECTION_REQUESTS:
 			pass
 		elif section == gmSECTION_MEASUREMENTS:
-			pass
-		elif section == gmSECTION_REFERRALS:
 			pass
 		elif section == gmSECTION_RECALLS:
 			pass
@@ -2397,7 +2396,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.65  2004-03-28 04:09:31  ihaywood
+# Revision 1.66  2004-03-28 11:09:04  ncq
+# - some cleanup
+#
+# Revision 1.65  2004/03/28 04:09:31  ihaywood
 # referrals can now select an address from pick list.
 #
 # Revision 1.64  2004/03/10 12:56:01  ihaywood
