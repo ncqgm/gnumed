@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-09-08 23:17:37 $
-# @version $Revision: 1.39 $ $Date: 2002-09-08 23:17:37 $ $Author: ncq $
+# @Date: $Date: 2002-09-09 00:52:55 $
+# @version $Revision: 1.40 $ $Date: 2002-09-09 00:52:55 $ $Author: ncq $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -142,13 +142,33 @@ class MainFrame(wxFrame):
 		self.guibroker['main.notebook'] = self.nb
 		# set change in toolbar
 		EVT_NOTEBOOK_PAGE_CHANGED (self.nb, ID_NOTEBOOK, self.OnNotebook)
-		self.vbox.Add (self.nb, 10, wxEXPAND|wxALL, 1)
-		# this dictionary relates plugins to the notebook
+		self.vbox.Add (self.nb, 10, wxEXPAND | wxALL, 1)
+
+		# load plugins
+		#  this dictionary relates plugins to the notebook
 		self.guibroker['main.notebook.numbers'] = {}
-		for plugin in gmPlugin.GetAllPlugins ('gui'):
-			gmPlugin.LoadPlugin ('gui', plugin,
-						guibroker = self.guibroker,
-						dbbroker = backend)
+		plugin_list = gmPlugin.GetAllPlugins('gui')
+		#  set up a progress bar
+		progress_bar = wxProgressDialog(
+			title = _("GnuMed: loading plugins"),
+			message = _("loading list of plugins"),
+			maximum = len(plugin_list),
+			parent = self,
+			style = wxPD_APP_MODAL | wxPD_ELAPSED_TIME
+			)
+		#  and load them
+		last_plugin = ""
+		result = ""
+		for idx in range(len(plugin_list)):
+			curr_plugin = plugin_list[idx]
+			progress_bar.Update(idx, _("previous: %s - %s\ncurrent : %s" % (last_plugin, result, curr_plugin)))
+			if gmPlugin.LoadPlugin ('gui', curr_plugin, guibroker = self.guibroker, dbbroker = backend):
+				result = "success"
+			else:
+				result = "failed"
+			last_plugin = curr_plugin
+		progress_bar.Destroy()
+
 		self.SetStatusText(_("You are logged in as [%s]") % user)
 		self.tb.ReFit ()
 		self.SetSizer( self.vbox )
@@ -365,6 +385,9 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.39  2002-09-08 23:17:37  ncq
+# Revision 1.40  2002-09-09 00:52:55  ncq
+# - show progress bar on plugin load :-)
+#
+# Revision 1.39  2002/09/08 23:17:37  ncq
 # - removed obsolete reference to gmLogFrame.py
 #
