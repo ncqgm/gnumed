@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.6 2005-01-13 14:28:07 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmSOAPWidgets.py,v 1.7 2005-01-17 19:55:28 cfmoro Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -83,8 +83,9 @@ class cResizingSoapPanel(wx.wxPanel):
 			health problem name, may be issue or episode name,
 			for clarity let's assume there cannot be a SOAP editor w/o a problem
 		"""
-		if problem is None or len(problem) == 0:
-			raise gmExceptions.ConstructorError, 'invalid health problem [%s]' % str(problem)
+		if problem is None:
+			raise gmExceptions.ConstructorError, 'Cannot contruct soap editor for  problem [%s]' % str(problem)
+			#problem = 'bogus'
 		self.__problem = problem
 		# do layout
 		wx.wxPanel.__init__ (self,
@@ -112,7 +113,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.SetSizerAndFit(self.__soap_control_sizer)
 
 		# display health problem
-		txt = '#%s: %s'%(self.__problem[0]+1, self.__problem[1]['description'])
+		txt = '#%s: %s'%(self.__problem[0]+1, self.__problem[1]['problem'])
 		self.__set_heading(txt)
 
 		# flag indicating saved state
@@ -346,7 +347,7 @@ if __name__ == "__main__":
 
 	try:
 		app = wx.wxPyWidgetTester(size=(300,300))
-		app.SetWidget(cResizingSoapPanel, (0, {'description': 'cold/cough'}))
+		app.SetWidget(cResizingSoapPanel, (0, {'problem': 'cold/cough'}))
 		app.MainLoop()
 		del app
 
@@ -360,7 +361,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.6  2005-01-13 14:28:07  ncq
+# Revision 1.7  2005-01-17 19:55:28  cfmoro
+# Adapted to receive cProblem instances for SOAP edition
+#
+# Revision 1.6  2005/01/13 14:28:07  ncq
 # - cleanup
 #
 # Revision 1.5  2005/01/11 08:12:39  ncq
