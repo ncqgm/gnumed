@@ -263,10 +263,10 @@ public class ClinicalUpdateForm extends ActionForm {
             ClinRootItem n = (ClinRootItem) narratives[i];
             log.info("ALLERGY ENTRY BEING CHECKED" +  allergyEntry[i] + ": substance=" + allergyEntry[i].getSubstance());
             log.info("copying from " + n);
-            if ( j >= allergies.size()) {
+            if ( i >= allergies.size()) {
                 continue;
             }
-            Allergy a = (Allergy) allergies.get(j++);
+            Allergy a = (Allergy) allergies.get(i);
                 
             if (allergyEntry[i].isSelected() ) {
                 log.debug("allergy "+ i + " is NOT EMPTY");
@@ -274,7 +274,7 @@ public class ClinicalUpdateForm extends ActionForm {
                     BeanUtils.copyProperties(a, allergyEntry[i] );
                     BeanUtils.copyProperties(a,n);
                     
-                   n.setId(new Long(-1));
+                   n.setId(new Long((long)-1));
                 } catch (Exception e) {
                     log.error(e.getLocalizedMessage(), e);
                     
@@ -291,13 +291,13 @@ public class ClinicalUpdateForm extends ActionForm {
     void alterAllergyMarkedNarratives() {
         for ( int i = 0; i < narratives.length ; ++i) {
             
-            ClinNarrative n = ( ClinNarrative) narratives[i];
-            if (n.getId() != null && n.getId().intValue() == -1) {
+            ClinRootItem n = ( ClinRootItem) narratives[i];
+            if (n.getId() != null && n.getId().longValue() == (long)-1) {
                 String title = "ALLERGY:" + getAllergyEntry(i).getSubstance() + " definite:" +
                 String.valueOf( getAllergyEntry(i).isDefinite()) + ".  \n";
-                n.setNarrative(title + n.getNarrative() != null ? n.getNarrative(): "");
-                log.info("ALLERGY COPIED TO NARRATIVE:" + i + getAllergyEntry(i).getSubstance());
-                n.setId(null);
+                n.setNarrative(title + ( n.getNarrative() != null ? n.getNarrative(): ""));
+                log.info("ALLERGY COPIED TO NARRATIVE:" + i + " narrative is " + n.getNarrative() );
+                n.setId(new Long(0) );
             }
             
             
