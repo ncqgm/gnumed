@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.119 2003-10-26 17:39:00 ncq Exp $
-__version__ = "$Revision: 1.119 $"
+# $Id: gmGuiMain.py,v 1.120 2003-10-27 15:53:10 ncq Exp $
+__version__ = "$Revision: 1.120 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -390,7 +390,7 @@ class gmTopLevelFrame(wxFrame):
 
 		# make sure there's an encounter
 		status, encounter = epr.attach_to_encounter(forced = 0)
-		patient = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB())
+		patient = "%s %s (%s)" % (names['first'], names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'))
 		# error ?
 		if status == -1:
 			msg = _(
@@ -432,7 +432,7 @@ class gmTopLevelFrame(wxFrame):
 		fname = names['first']
 		if len(fname) > 0:
 			fname = fname[:1]
-		patient = "%s %s.%s (%s) #%d" % (demos.getTitle(), fname, names['last'], demos.getDOB(), int(pat['ID']))
+		patient = "%s %s.%s (%s) #%d" % (demos.getTitle(), fname, names['last'], demos.getDOB(aFormat = 'DD.MM.YYYY'), int(pat['ID']))
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -850,7 +850,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.119  2003-10-26 17:39:00  ncq
+# Revision 1.120  2003-10-27 15:53:10  ncq
+# - getDOB has changed
+#
+# Revision 1.119  2003/10/26 17:39:00  ncq
 # - cleanup
 #
 # Revision 1.118  2003/10/26 11:27:10  ihaywood
