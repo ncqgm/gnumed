@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.8 2004-06-20 18:50:53 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPatientExporter.py,v 1.9 2004-06-23 22:06:48 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -12,12 +12,13 @@ import sys, traceback, string, types
 
 from Gnumed.pycommon import gmLog, gmPG, gmI18N
 from Gnumed.business import gmClinicalRecord, gmPatient, gmAllergy, gmVaccination, gmPathLab
-if __name__ == "__main__":
-	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 from Gnumed.pycommon.gmPyCompat import *
 
+if __name__ == "__main__":
+	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
+
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
 #============================================================
 def prompted_input(prompt, default=None):
@@ -301,7 +302,7 @@ class gmEmrExport:
 		except:
 			print "error cleaning up EMR"
 	#--------------------------------------------------------
-	def dump_demographic_record(self, all = False):
+	def dump_demographic_record(self, all = False, patient = None):
 		"""
 		Dumps in ASCII format some basic patient's demographic data
 		"""
@@ -335,60 +336,69 @@ class gmEmrExport:
 #============================================================
 # main
 #------------------------------------------------------------
+def run():
+	patient = None
+	patient_id = None
+	export_tool = gmEmrExport()
+
+	while patient_id != 'bye':
+		# FIXME: ask for patient search string
+		patient_id = prompted_input("Patient ID (or 'bye' to exit) [12]: ", '12')
+		# FIXME: if empty: exit
+		# FIXME: if none/more than one found: warn, restart loop
+		# FIXME: if only one found: proceed with dump
+		if patient_id == 'bye':
+			break
+		since = prompted_input("Since (eg. 2001-01-01): ")
+		until = prompted_input("Until (eg. 2003-01-01): ")
+		encounters = prompted_input("Encounters (eg. 1,2): ")
+		episodes = prompted_input("Episodes (eg. 3,4): ")
+		issues = prompted_input("Issues (eg. 5,6): ")
+		if not encounters is None:
+			encounters = string.split(encounters, ',')
+		if not episodes is None:
+			episodes = string.split(episodes, ',')
+		if not issues is None:
+			issues = string.split(issues,',')
+
+		patient = gmPatient.gmCurrentPatient(patient_id)
+		export_tool.dump_demographic_record(True, patient)
+		export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
+		# FIXME: dump document folder
+		# FIXME: date/document type/doc comment plus object comments
+		#print(patient.get_document_folder())
+
+	if patient is not None:
+		try:
+			patient.cleanup()
+		except:
+			print "error cleaning up patient"
+#------------------------------------------------------------
 if __name__ == "__main__":
 	print "Gnumed Simple EMR ASCII Export Tool"
-	print "==============================="
-
-	print "Info and confirmation (PENDING)"
+	print "==================================="
 
 	gmPG.set_default_client_encoding('latin1')
 	# make sure we have a connection
-	gmPG.ConnectionPool()
-	export_tool = gmEmrExport()
-	patient = None
-
+	pool = gmPG.ConnectionPool()
+	# run main loop
 	try:
-		while 1:
-			patient_id = prompted_input("Patient ID (or 'bye' to exit) [14]: ", '14')
-			if patient_id == 'bye':
-				if patient is not None:
-					try:
-						patient.cleanup()
-					except:
-						print "error cleaning up patient"
-				sys.exit(0)
-			patient = gmPatient.gmCurrentPatient(patient_id)
-			since = prompted_input("Since (eg. 2001-01-01): ")
-			until = prompted_input("Until (eg. 2003-01-01): ")
-			encounters = prompted_input("Encounters (eg. 1,2): ")
-			episodes = prompted_input("Episodes (eg. 3,4): ")
-			issues = prompted_input("Issues (eg. 5,6): ")
-			if not encounters is None:
-				encounters = string.split(encounters, ',')
-			if not episodes is None:
-				episodes = string.split(episodes, ',')
-			if not issues is None:
-				issues = string.split(issues,',')
-			export_tool.dump_demographic_record(True)
-			export_tool.dump_clinical_record(patient, since_val=since, until_val=until ,encounters_val=encounters, episodes_val=episodes, issues_val=issues)
-			#print(patient.get_document_folder())
-			try:
-				patient.cleanup()
-			except:
-				print "error cleaning up patient"
-	except SystemExit:
-		print "Normally exited, bye"
+		run()
+	except StandardError:
+		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+	try:
+		pool.StopListeners()
 	except:
-		traceback.print_exc(file=sys.stdout)
-		if patient is not None:
-			try:
-				patient.cleanup()
-			except:
-				print "error cleaning up patient"
-		sys.exit(1)
+		_log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
+
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.8  2004-06-20 18:50:53  ncq
+# Revision 1.9  2004-06-23 22:06:48  ncq
+# - cleaner error handling
+# - fit for further work by Carlos on UI interface/dumping to file
+# - nice stuff !
+#
+# Revision 1.8  2004/06/20 18:50:53  ncq
 # - some exception catching, needs more cleanup
 #
 # Revision 1.7  2004/06/20 18:35:07  ncq
