@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.5 2004-09-06 18:57:27 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmEMRBrowser.py,v 1.6 2004-10-31 00:37:13 cfmoro Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -46,6 +46,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__do_layout()
 		self.__register_interests()
 		self.__reset_ui_content()
+
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""
@@ -107,7 +108,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			txt = self.__exporter.dump_encounter_info(episode=epi, encounter=sel_item_obj)
 
 		elif (isinstance(sel_item_obj, gmEMRStructItems.cEpisode)):
-			header = _('Episode\n=======\n\n%s')
+			header = _('Episode\n=======\n\n')
 			txt = self.__exporter.dump_episode_info(episode=sel_item_obj)
 
 		elif (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
@@ -129,20 +130,14 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Fills UI with data.
 		"""
 		self.__reset_ui_content()
-		if self.__refresh_tree():
+		if self.refresh_tree():
 			return True
 		return False
+		
 	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __reset_ui_content(self):
-		"""
-		Clear all information displayed in browser (tree and details area)
-		"""
-		self.__emr_tree.DeleteAllItems()
-		self.__narr_TextCtrl.Clear()
-	#--------------------------------------------------------
-	def __refresh_tree(self):
+	# public API
+	#--------------------------------------------------------		
+	def refresh_tree(self):
 		"""
 		Updates EMR browser data
 		"""
@@ -164,6 +159,16 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# FIXME: error handling
 		return True
+
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __reset_ui_content(self):
+		"""
+		Clear all information displayed in browser (tree and details area)
+		"""
+		self.__emr_tree.DeleteAllItems()
+		self.__narr_TextCtrl.Clear()
 	#--------------------------------------------------------
 #	def set_patient(self, patient):
 #		"""
@@ -239,10 +244,10 @@ if __name__ == '__main__':
 		# display standalone browser
 		application = wx.wxPyWidgetTester(size=(800,600))
 		emr_browser = cEMRBrowserPanel(application.frame, -1)
-#		emr_browser.set_patient(patient)
+#		emr_browser.set_patient(patient)		
+		emr_browser.refresh_tree()
 		
 		application.frame.Show(True)
-		emr_browser.__refresh_tree()
 		application.MainLoop()
 		
 		# clean up
@@ -265,7 +270,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.5  2004-09-06 18:57:27  ncq
+# Revision 1.6  2004-10-31 00:37:13  cfmoro
+# Fixed some method names. Refresh function made public for easy reload, eg. standalone. Refresh browser at startup in standalone mode
+#
+# Revision 1.5  2004/09/06 18:57:27  ncq
 # - Carlos pluginized the lot ! :-)
 # - plus some fixes/tabified it
 #
