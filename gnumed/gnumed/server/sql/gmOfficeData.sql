@@ -1,0 +1,49 @@
+-- GnuMed office related/administrative data
+
+-- This is free software in the sense of the General Public License (GPL)
+-- For details regarding GPL licensing see http://gnu.org
+
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmOfficeData.sql,v $
+-- $Revision: 1.1 $ $Date: 2004-03-09 23:58:56 $ $Author: ncq $
+-- ===================================================================
+-- force terminate + exit(3) on errors if non-interactive
+\set ON_ERROR_STOP 1
+
+-- ===================================================================
+-- forms handling
+-- ===================================================================
+-- target classes
+insert into form_target_classes (name) values (_('printer'));
+insert into form_target_classes (name) values (_('fax'));
+insert into form_target_classes (name) values (_('email'));
+
+-- ===================================================================
+-- billing schemes
+insert into billing_scheme (name, iso_countrycode) values ('Bulk-billed Medicare', 'au');
+insert into billing_scheme (name, iso_countrycode) values ('Private Billing', 'au');
+insert into billing_scheme (name, iso_countrycode) values ('Veteran''s Affairs', 'au');
+insert into billing_scheme (name, iso_countrycode) values ('WorkCover', 'au');
+
+-- ===================================================================
+-- Warning: translate, but DON'T alter the order!!!
+insert into accounts (name) values ('Assets');
+insert into accounts (name) values ('Liabilities');
+insert into accounts (parent, name) values (1, 'Accounts Recievable');
+insert into accounts (parent, name) values (2, 'Accounts Payable');
+insert into accounts (parent, name) values (2, 'Capital'); 
+insert into accounts (parent, name) values (3, 'Patients');
+insert into accounts (parent, name) values (4, 'Tax');
+insert into accounts (parent, name) values (4, 'Wages'); 
+insert into accounts (parent, name) values (1, 'Cash');
+insert into accounts (parent, name) values (1, 'Inventory');
+
+-- ===================================================================
+-- do simple schema revision tracking
+delete from gm_schema_revision where filename='$RCSfile: gmOfficeData.sql,v $';
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmOfficeData.sql,v $', '$Revision: 1.1 $');
+
+-- ===================================================================
+-- $Log: gmOfficeData.sql,v $
+-- Revision 1.1  2004-03-09 23:58:56  ncq
+-- - first version
+--
