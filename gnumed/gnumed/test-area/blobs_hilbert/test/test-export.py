@@ -7,6 +7,9 @@ search for FIXME to find places to fix
 
 @copyright: GPL
 """
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/test/Attic/test-export.py,v $
+__version__ = "$Revision: 1.3 $"
+__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #######################################################
 # modules
 import sys, os.path
@@ -19,16 +22,13 @@ from docPatient import cPatient
 from docDocument import cDocument, cPatientDocumentList
 from docDatabase import cDatabase
 import docMime
-#------------------------------------------
+
 myDB = None
 myCfg = gmCfg.gmDefCfg
 myDocList = None
 # get a convenient handle for the default logger
 __log__ = gmLog.gmDefLog
-__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.2 $"
-#------------------------------------------
-#------------------------------------------
+#######################################################
 def selectPatient():
 	# read patient id's from database
 	cmd = "SELECT id, firstnames, lastnames FROM v_basic_person LIMIT 10"
@@ -57,32 +57,38 @@ def selectDocument(aPatientID = None):
 	if aPatientID == None:
 		__log__.Log(gmLog.lErr, "Cannot retrieve documents without knowing the patient !")
 		return None
-	# read document IDs from database
-	metadata = myDocList.getList(aPatientID)
-	if len(metadata) == 0:
-		__log__.Log(gmLog.lErr, "No documents found for this patient (ID = %s)." % aPatientID)
+
+	pat = cPatient()
+	pat.setID(aPatientID)
+
+	# read documents from database
+	docs = pat.getDocsFromGNUmed(myDB.getConn())
+	if docs == None:
+		__log__.Log(gmLog.lErr, "No documents found for patient (ID = %s)." % aPatientID)
 		return None
 
 	# display documents
 	print "Showing documents for this patient."
 	print "-------+------------+---------------------------+-------+----------"
-	print "     # | ref date   | comment                   |  type | reference"
+	print "    ID | ref date   | comment                   |  type | reference"
 	print "-------+------------+---------------------------+-------+----------"
-	for i in range(len(metadata)):
-		obj = metadata[i]
-		print "%6s | %10s | %25s | %5s | %10s" % (i, obj['date'][:10], obj['comment'][:25], obj['type'], obj['reference'][:10])
+	for doc_id in docs.keys():
+		doc = docs[doc_id]
+		md = doc.getMetaData()
+		print "%6s | %10s | %25s | %5s | %10s" % (doc_id, md['date'][:10], md['comment'][:25], md['type'], md['reference'][:10])
 	print "-------+------------+---------------------------+-------+----------"
 
 	# let user select one
 	print "Please select a document for export !\n"
-	docidx = raw_input("document #: ").strip()
-	if docidx.isdigit():
-		return metadata[int(docidx)]['id']
+	sel_id = raw_input("document ID: ").strip()
+	if sel_id.isdigit():
+		return sel_id
 	else:
 		return None
 #------------------------------------------
 # Main
 #------------------------------------------
+__log__.SetAllLogLevels(gmLog.lData)
 __log__.Log (gmLog.lInfo, "starting export")
 
 if __name__ == "__main__":
@@ -107,14 +113,23 @@ if __name__ == "__main__":
 
 	patid = selectPatient()
 	if patid != None:
-		myDocList = cPatientDocumentList(myDB.getConn())
 		docid = selectDocument(patid)
 		if docid != None:
 			print "OK, loading document with id", docid
-			metadata = myDocList.getDocument(myCfg.get("export", "target"), aDocumentID=docid)
+			doc = cDocument()
+			doc.loadMetaDataFromGNUmed(myDB.getConn(), docid)
+			if doc == None:
+				print "Cannot load metadata."
+				sys.exit()
+			if not doc.exportDocFromGNUmed(myDB.getConn(), myCfg.get("export", "target")):
+				print "Cannot export document from GNUmed."
+				sys.exit()
+
 			print "We could now hand over the data to a viewer:"
+			metadata = doc.getMetaData()
 			print metadata
-			for obj in metadata['objects']:
+			for oid in metadata['objects'].keys():
+				obj = metadata['objects'][oid]
 				print "----------------------------------------"
 				fname = obj['file name']
 				mime_type = docMime.guess_mimetype(fname)
