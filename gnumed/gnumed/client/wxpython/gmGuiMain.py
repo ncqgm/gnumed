@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.172 2004-09-06 22:21:08 ncq Exp $
-__version__ = "$Revision: 1.172 $"
+# $Id: gmGuiMain.py,v 1.173 2004-09-13 09:36:43 ncq Exp $
+__version__ = "$Revision: 1.173 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -82,9 +82,9 @@ class gmTopLevelFrame(wx.wxFrame):
 		)
 
 		#initialize the gui broker
-		self.guibroker = gmGuiBroker.GuiBroker()
-		self.guibroker['EmergencyExit'] = self._clean_exit
-		self.guibroker['main.frame'] = self
+		self.__gb = gmGuiBroker.GuiBroker()
+		self.__gb['EmergencyExit'] = self._clean_exit
+		self.__gb['main.frame'] = self
 		_log.Log(gmLog.lData, 'workplace is >>>%s<<<' % _whoami.get_workplace())
 		# get plugin layout style
 		self.layout_style, set1 = gmCfg.getDBParam(
@@ -115,16 +115,16 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		self.SetupStatusBar()
 		self.SetStatusText(_("You are logged in as [%s].") % _whoami.get_db_account())
-		self.guibroker['main.statustext'] = self.SetStatusText
+		self.__gb['main.statustext'] = self.SetStatusText
 
 		# set window title via template
-		if gmCLI.has_arg('--slave'):
+		if self.__gb['main.slave_mode']:
 			self.__title_template = _('Slave GnuMed [%s@%s] %s: %s')
 		else:
 			self.__title_template = 'GnuMed [%s@%s] %s: %s'
 		self.updateTitle(anActivity = _("idle"))
 		#  let others have access, too
-		self.guibroker['main.SetWindowTitle'] = self.updateTitle
+		self.__gb['main.SetWindowTitle'] = self.updateTitle
 
 		# set window icon
 		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
@@ -135,7 +135,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.__setup_platform()
 		self.__setup_main_menu()
 		self.acctbl = []
-		self.guibroker['main.accelerators'] = self.acctbl
+		self.__gb['main.accelerators'] = self.acctbl
 
 		#---------------------
 		# create the "top row"
@@ -143,7 +143,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		# important patient data is always displayed there
 		# - top panel with toolbars
 		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
-		self.guibroker['main.top_panel'] = self.top_panel
+		self.__gb['main.top_panel'] = self.top_panel
 
 		#----------------------
 		# create layout manager
@@ -162,7 +162,7 @@ class gmTopLevelFrame(wx.wxFrame):
 			self.LayoutMgr = wxPanel (self, -1)
 			self.imagelist = wxImageList (16, 16)
 			self.nb = wxNotebook (self.LayoutMgr, ID_NOTEBOOK, size = wxSize(320,240))
-			self.guibroker['main.notebook'] = self.nb
+			self.__gb['main.notebook'] = self.nb
 			self.nb.SetImageList (self.imagelist)
 			self.leftbox = wxSashLayoutWindow (
 				self.LayoutMgr,
@@ -180,7 +180,7 @@ class gmTopLevelFrame(wx.wxFrame):
 			#==========
 
 		# this list relates plugins to the notebook
-		self.guibroker['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
+		self.__gb['main.notebook.plugins'] = []	# (used to be called 'main.notebook.numbers')
 
 		self.__register_events()
 		# this flag prevents pointless repaeated reloading of accelerator table during startup
@@ -195,7 +195,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		#-------------------------------
 		self.vbox = wxBoxSizer(wxVERTICAL)
 		#self.vbox.SetMinSize(wxSize(320,240))
-		self.guibroker['main.vbox'] = self.vbox
+		self.__gb['main.vbox'] = self.vbox
 		# position in main sizer but:
 		# - we want this to NOT grow vertically, hence proportion = 0
 		# - but then proportion 10 for the layout manager does
@@ -279,27 +279,27 @@ class gmTopLevelFrame(wx.wxFrame):
 		"""
 		# create main menu
 		self.mainmenu = wxMenuBar()
-		self.guibroker['main.mainmenu'] = self.mainmenu
+		self.__gb['main.mainmenu'] = self.mainmenu
 		# menu "File"
 		self.menu_file = wxMenu()
 		self.menu_file.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
 		EVT_MENU(self, ID_EXIT, self.OnFileExit)
-		self.guibroker['main.filemenu'] = self.menu_file
+		self.__gb['main.filemenu'] = self.menu_file
 		# FIXME: this isn't really appropriate
 		self.mainmenu.Append(self.menu_file, _("&File"));
 		# menu "View"
 		self.menu_view = wxMenu()
-		self.guibroker['main.viewmenu'] = self.menu_view
+		self.__gb['main.viewmenu'] = self.menu_view
 		self.mainmenu.Append(self.menu_view, _("&View"));
 
 		# menu "Tools"
 		self.menu_tools = wxMenu()
-		self.guibroker['main.toolsmenu'] = self.menu_tools
+		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"));
 
 		# menu "Reference"
 		self.menu_reference = wxMenu()
-		self.guibroker['main.referencemenu'] = self.menu_reference
+		self.__gb['main.referencemenu'] = self.menu_reference
 		self.mainmenu.Append(self.menu_reference, _("&Reference"));
 
 		# menu "Help"
@@ -307,7 +307,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.menu_help.Append(ID_ABOUT, _("About GnuMed"), "")
 		EVT_MENU (self, ID_ABOUT, self.OnAbout)
 		self.menu_help.AppendSeparator()
-		self.guibroker['main.helpmenu'] = self.menu_help
+		self.__gb['main.helpmenu'] = self.menu_help
 		self.mainmenu.Append(self.menu_help, "&Help");
 
 		# and activate menu structure
@@ -583,29 +583,27 @@ class gmTopLevelFrame(wx.wxFrame):
 #==============================================================================
 class gmApp(wxApp):
 
-	__backend = None
-	__guibroker = None
-	#----------------------------------------------
 	def OnInit(self):
+		# create a GUI element dictionary that
+		# will be static and alive as long as app runs
+		self.__guibroker = gmGuiBroker.GuiBroker()
+
 		self.__setup_platform()
 
-		# check for proper slave-mode command line syntax
-		if gmCLI.has_arg('--slave'):
-			cookie = gmCLI.arg['--slave']
-			if cookie == '':
+		# check for slave mode
+		self.__guibroker['main.slave_mode'] = _cfg.get('workplace', 'slave mode')
+		if self.__guibroker['main.slave_mode']:
+			self.__guibroker['main.slave_personality'] = _cfg.get('workplace', 'slave personality')
+			if not self.__guibroker['main.slave_personality']:
 				msg = _(
-					'Slave mode was requested by "--slave". However,\n'
-					'no cookie was specified. Clients need to use that\n'
-					'cookie to be able to attach to GnuMed.\n\n'
-					'Please provide a cookie using the following syntax:\n'
-					' --slave <cookie>'
+					'Slave mode requested but personality not set.\n\n'
+					'(The personality must be set so that clients can\n'
+					'find the appropriate GnuMed instance to attach to.)\n\n'
+					'Set slave personality in config file !'
 				)
 				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
 				return False
-
-		# create a static GUI element dictionary that
-		# will be static and alive as long as app runs
-		self.__guibroker = gmGuiBroker.GuiBroker()
+			_log.Log(gmLog.lInfo, 'assuming slave mode personality [%s]' % self.__guibroker['main.slave_personality'])
 
 		# connect to backend (implicitely runs login dialog)
 		from Gnumed.wxpython import gmLogin
@@ -645,18 +643,15 @@ class gmApp(wxApp):
 		frame.Show(True)
 
 		# last but not least: start macro listener if so desired
-		if gmCLI.has_arg('--slave'):
+		if self.__guibroker['main.slave_mode']:
 			from Gnumed.pycommon import gmScriptingListener
 			from Gnumed.wxpython import gmMacro
-			macro_executor = gmMacro.cMacroPrimitives(cookie)
-			if gmCLI.has_arg('--port'):
-				port = gmCLI.arg['--port']
-				if port == '':
-					port = 9999
-			else:
+			macro_executor = gmMacro.cMacroPrimitives(self.__guibroker['main.slave_personality'])
+			port = _cfg.get('workplace', 'xml-rpc port')
+			if not port:
 				port = 9999
 			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
-			_log.Log(gmLog.lInfo, 'listening for macros on port [%s] with cookie [%s]' % (port, cookie))
+			_log.Log(gmLog.lInfo, 'listening for commands on port [%s]' % port)
 
 		return True
 	#----------------------------------------------
@@ -798,7 +793,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.172  2004-09-06 22:21:08  ncq
+# Revision 1.173  2004-09-13 09:36:43  ncq
+# - cleanup
+# - --slave -> 'main.slave_mode'
+#
+# Revision 1.172  2004/09/06 22:21:08  ncq
 # - properly use setDBParam()
 # - store sidebar.width if not found
 #
