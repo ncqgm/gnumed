@@ -1,7 +1,7 @@
 -- Project: GnuMed - database housekeeping TODO tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmHousekeeping.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -18,15 +18,16 @@
 create table housekeeping_todo (
 	pk serial primary key,
 	reported_when timestamp with time zone not null default CURRENT_TIMESTAMP,
-	reported_by text not null,
+	reported_by text not null default CURRENT_USER,
 	reported_to text
 		not null
 		default 'admin'
 		check (reported_to in ('user', 'admin')),
 	problem text not null,
-	solution text,
-	context text,
-	category text not null
+	solution text default null,
+	context text default null,
+	category text not null,
+	cookie text default null
 );
 
 comment on table housekeeping_todo is
@@ -49,6 +50,11 @@ comment on column housekeeping_todo.context is
 comment on column housekeeping_todo.category is
 	'a category for the condition, this is used
 	 for filtering, too';
+comment on column housekeeping_todo.cookie is
+	'stores arbitrary information related to the condition,
+	 mostly used for semantic duplicates detection, eg.
+	 do not report on a single problem more than once in
+	 subsequent runs of, say, an import script';
 
 -- =============================================
 GRANT select, insert ON
@@ -65,11 +71,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmHousekeeping.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmHousekeeping.sql,v $
--- Revision 1.4  2004-04-26 09:40:11  ncq
+-- Revision 1.5  2004-04-27 15:19:45  ncq
+-- - add cookie
+--
+-- Revision 1.4  2004/04/26 09:40:11  ncq
 -- - add context/category to todo table
 --
 -- Revision 1.3  2004/04/19 12:47:49  ncq
