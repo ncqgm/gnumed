@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -60,7 +60,7 @@ create trigger TR_%(sig)s_mod
 #------------------------------------------------------------------
 def create_notification_schema(aCursor):
 	cmd = "select table_name, notification_name from notifying_tables";
-	if gmPG.run_query(aCursor, cmd) is None:
+	if gmPG.run_query(aCursor, None, cmd) is None:
 		return None
 	rows = aCursor.fetchall()
 	if len(rows) == 0:
@@ -101,7 +101,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.7  2004-06-28 13:31:17  ncq
+# Revision 1.8  2004-07-17 21:23:49  ncq
+# - run_query now has verbosity argument, so use it
+#
+# Revision 1.7  2004/06/28 13:31:17  ncq
 # - really fix imports, now works again
 #
 # Revision 1.6  2004/06/28 13:23:20  ncq

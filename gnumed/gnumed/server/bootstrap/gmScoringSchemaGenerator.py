@@ -11,7 +11,7 @@ neccessary scoring tables automatically.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/gmScoringSchemaGenerator.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -57,7 +57,7 @@ def scoring_table_schema(aCursor, table2score):
 #------------------------------------------------------------------
 def create_scoring_schema(aCursor):
 	cmd = "select table_name from scored_tables";
-	if gmPG.run_query(aCursor, cmd) is None:
+	if gmPG.run_query(aCursor, None, cmd) is None:
 		return None
 	rows = aCursor.fetchall()
 	if len(rows) == 0:
@@ -110,7 +110,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmScoringSchemaGenerator.py,v $
-# Revision 1.4  2004-06-28 13:31:18  ncq
+# Revision 1.5  2004-07-17 21:23:49  ncq
+# - run_query now has verbosity argument, so use it
+#
+# Revision 1.4  2004/06/28 13:31:18  ncq
 # - really fix imports, now works again
 #
 # Revision 1.3  2004/06/28 13:23:20  ncq

@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -150,7 +150,7 @@ grant insert on %s to group "gm-public" """
 def get_columns(aCursor, aTable):
 	"""Return column attributes of table
 	"""
-	if not gmPG.run_query(aCursor, query_table_attributes, aTable):
+	if not gmPG.run_query(aCursor, None, query_table_attributes, aTable):
 		_log.Log(gmLog.lErr, 'cannot get columns for table [%s]' % aTable)
 		return None
 	data = aCursor.fetchall()
@@ -160,7 +160,7 @@ def get_columns(aCursor, aTable):
 	return rows
 #------------------------------------------------------------------
 def get_col_defs(aCursor, aTable):
-	if not gmPG.run_query(aCursor, query_table_col_defs, aTable):
+	if not gmPG.run_query(aCursor, None, query_table_col_defs, aTable):
 		_log.Log(gmLog.lErr, 'cannot get column definitions for table [%s]' % aTable)
 		return None
 	data = aCursor.fetchall()
@@ -179,7 +179,7 @@ def audit_trail_table_schema(aCursor, table2audit):
 
 	# does the audit trail target table exist ?
 	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
-	if not gmPG.run_query(aCursor, cmd, audit_trail_table):
+	if not gmPG.run_query(aCursor, None, cmd, audit_trail_table):
 		_log.Log(gmLog.lErr, 'cannot check existance of table %s' % audit_trail_table)
 		return None
 	table_exists = aCursor.fetchone()[0]
@@ -261,7 +261,7 @@ def trigger_schema(aCursor, audited_table):
 def create_audit_schema(aCursor):
 	# get list of all marked tables
 	cmd = "select table_name from audited_tables";
-	if gmPG.run_query(aCursor, cmd) is None:
+	if gmPG.run_query(aCursor, None, cmd) is None:
 		return None
 	rows = aCursor.fetchall()
 	if len(rows) == 0:
@@ -317,7 +317,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.21  2004-06-28 13:31:17  ncq
+# Revision 1.22  2004-07-17 21:23:49  ncq
+# - run_query now has verbosity argument, so use it
+#
+# Revision 1.21  2004/06/28 13:31:17  ncq
 # - really fix imports, now works again
 #
 # Revision 1.20  2004/06/28 13:23:20  ncq
