@@ -1,3 +1,9 @@
+__version__ = "$Revision: 1.2 $"
+
+__author__ = "Dr. Horst Herb <hherb@gnumed.net>"
+__license__ = "GPL"
+__copyright__ = __author__
+
 from wxPython.wx import *
 from wxPython.grid import *
 #from wxPython.lib.mixins.grid import wxGridAutoEditMixin
@@ -287,11 +293,47 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
                            (evt.GetTopLeftCoords(), evt.GetBottomRightCoords()))
         evt.Skip()
 
+
+    def ParseAppEntry(self, value):
+        """parses the contents of a cell: see function AppointmentMade()
+        for an explanation of the parsing results"""
+
+        firstname=None; surname=None; increment=0
+        sl = string.split(value, " ")
+        try:
+            surname=sl[0]
+            if surname[0]=='+' and len(surname)>1: surname=surname[1:]
+            increment = string.count(sl[1], '+')
+            if increment < 1:
+                firstname=sl[1]
+                increment=string.count(sl[2], '+')
+            print 'increment is',increment
+        except:
+            pass
+        return surname, firstname, increment
+
+
+
     def AppointmentMade(self, row, col, value):
+        """This function parses the contents of a grid cell. It expects
+        at least one character sequence which is interpreted as part of a surname.
+        If enother character sequence separated by a space is eoncountered,
+        it is interpreted as part of a given name. Any '+' found separated
+        by a space from either surname or surname and given name will
+        increment the length of the appoinment (number of '+' times the
+        preferred time increment of the chosen doctor)"""
+
         if  value is not None and value != '':
-            self.SetCellBackgroundColour(row, col, self.clr_appointed)
+            surname, firstname, increment = self.ParseAppEntry(value)
+            for i in range(increment+1):
+                print 'i=', i
+                self.SetCellBackgroundColour(row+i, col, self.clr_appointed)
+                if i > 0: incstr = '+'
+                else: incstr=''
+                self.SetCellValue(row+i, col, "%s%s, %s" % (incstr, surname, firstname))
         else:
             self.SetCellBackgroundColour(row, col, wxWHITE)
+
 
     def OnCellChange(self, evt):
         self.log.write("OnCellChange: (%d,%d) %s\n" %
@@ -305,9 +347,9 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
         col = evt.GetCol()
         value = self.GetCellValue(row, col)
         self.AppointmentMade(row, col, value)
-        value = self.GetCellValue(evt.GetRow(), evt.GetCol())
-        if value == 'no good':
-            self.moveTo = evt.GetRow(), evt.GetCol()
+        #value = self.GetCellValue(evt.GetRow(), evt.GetCol())
+        #if value == 'no good':
+        #    self.moveTo = evt.GetRow(), evt.GetCol()
 
 
     def OnIdle(self, evt):

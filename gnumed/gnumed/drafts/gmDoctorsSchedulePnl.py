@@ -1,3 +1,9 @@
+__version__ = "$Revision: 1.2 $"
+
+__author__ = "Dr. Horst Herb <hherb@gnumed.net>"
+__license__ = "GPL"
+__copyright__ = __author__
+
 from wxPython.wx import *
 from wxPython.calendar import *
 from wxPython.utils import *
@@ -5,6 +11,7 @@ from wxPython.utils import *
 import gettext
 _ = gettext.gettext
 
+import gmPG
 import gmScheduleGrid
 
 ID_COMBO_STAFF = wxNewId()
@@ -13,6 +20,8 @@ class DoctorsSchedulePnl(wxPanel):
 	def __init__(self, parent, doctor = None):
 		wxPanel.__init__(self, parent, -1)
 
+		self.dbpool=gmPG.ConnectionPool()
+		self.db = self.dbpool.GetConnection('personalia')
 		self.doctor=doctor
 
 		self.szrMain = wxBoxSizer(wxVERTICAL)

@@ -1,3 +1,9 @@
+__version__ = "$Revision: 1.2 $"
+
+__author__ = "Dr. Horst Herb <hherb@gnumed.net>"
+__license__ = "GPL"
+__copyright__ = __author__
+
 from wxPython.wx import *
 from wxPython.calendar import *
 from wxPython.utils import *
