@@ -3,9 +3,11 @@
 # created by gmCfg because no other config file could be found,
 # please check the docs that came with the software
 # to find out what options you can set in here
+#
+# this file should live in ~/.gnumed/gnumed.conf
 # -------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/Attic/gnumed.conf.example,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 [backend]
 
@@ -46,6 +48,9 @@ name = default workplace
 
 # -------------------------------------------------------------
 # $Log: gnumed.conf.example,v $
-# Revision 1.1  2003-06-14 23:01:08  ncq
+# Revision 1.2  2003-06-14 23:02:48  ncq
+# - added comment on deployment location
+#
+# Revision 1.1  2003/06/14 23:01:08  ncq
 # - as per Debian's request
 #
