@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -45,6 +45,12 @@ def ParseTimeInterval(interval):
 		h,m = string.split(str, ":")
 		res.append((int(h), int(m)))
 	return res
+
+def IsoDate(datetime=None):
+	if datetime is None:
+		datetime = time.localtime()
+	return time.strftime("%Y-%m-%d", datetime)
+
 
 def GenerateExcludedTimes(excluded, interval=15):
 	"""returns a list of time strings in the format 'hh:mm'
@@ -117,7 +123,7 @@ def DayOfWeekLabels(date=None, days=7):
 	labels = []
 	index = dow
 	for day in range(days):
-		lbl = "%s\n%s" % (days_of_week[index], 
+		lbl = "%s\n%s" % (days_of_week[index],
 			time.strftime("%d/%m/%y", time.localtime(start_day)) )
 		labels.append(lbl)
 		index+=1
@@ -154,6 +160,10 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		self.session_interval = session_interval
 		self.exclude = exclude
 		self.moveTo = None
+		self.idx_date2column={}
+		self.idx_column2date={}
+		self.idx_time2row={}
+		self.idx_row2time={}
 		if date is None:
 			self.Date = time.localtime()
 		else:
@@ -193,19 +203,29 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		#EVT_GRID_EDITOR_CREATED(self, self.OnEditorCreated)
 
 		EVT_KEY_DOWN(self,self.OnKeyDown)
-		
+
 
 	def DateToColumn(self, date):
 		"""returns column representing a given date
 		IF that column is actually displayed currently,
 		else return the first displayed column"""
+		sd = self.Date
 		start = time.mktime(self.Date)
 		wanted = time.mktime(date)
 		delta = (wanted-start)/86400
-		if delta > 0 and delta < self.days :
+		if delta > 0 and delta <= self.days :
+			print "Delta = %d" % delta
 			return delta
 		else:
+			"Print date out of displayed range"
 			return 0
+
+	def ISODateToColumn(self, iso_date):
+		"""see DateToColumn; accepts a ISO formatted date string as parameter"""
+		#print iso_date
+		print "ISODateToColumn", iso_date
+		return self.DateToColumn(time.strptime(iso_date, "%Y-%m-%d"))
+
 
 	def TimeToRow(self, date):
 		"""returns the row number closest to the current time"""
@@ -226,6 +246,10 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		if index>=len(self.timelabels):
 			index = len(self.timelabels)-1
 		return index
+
+	def ISOTimeToRow(self, iso_time):
+		"""see TimeToRow; accepts a ISO formatted time string as parameter"""
+		return self.TimeToRow(time.strptime(iso_time, "%H:%M:%S"))
 
 
 	def GoToDateTime(self, datetime=None):
@@ -258,8 +282,20 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		self.doctor_id = id
 
 	def MakeGrid(self):
+
 		self.weekdaylabels = DayOfWeekLabels(self.Date, self.days)
+
+		for column in range(self.days):
+			date = IsoDate(self.AddDays(column))
+			self.idx_date2column[date] = column
+			self.idx_column2date[column] = date
+
 		self.timelabels = TimeLabels(self.hour_start, self.hour_end, self.session_interval, self.exclude)
+
+		for row in range(len(self.timelabels)):
+			self.idx_time2row[self.timelabels[row]]=row
+			self.idx_row2time[row]=self.timelabels[row]
+
 		self.CreateGrid(len(self.timelabels), len(self.weekdaylabels))
 
 		#label the rows with default values
@@ -346,6 +382,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		#dow = DayOfWeek(self.Date)
 		#scroll if neccessary so that the selected dat is visible
 		#self.MakeCellVisible(dow, 1)
+		self.UpdateData()
 
 	def AddDays(self, days, date=None):
 		if date==None:
@@ -401,6 +438,10 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 	def OnAddPatient(self, evt):
 		print "Add patient"
 
+		
+	def OnCancelAppoinment(self, evt):
+		print "Appoinment cancelled"
+
 	def OnCellRightClick(self, evt):
 		row = evt.GetRow()
 		col = evt.GetCol()
@@ -410,18 +451,20 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 		#create a popup menu
 		menu = wxMenu()
-		menu.Append(0, _("Arrived"))
-		menu.Append(1, _("Seen"))
-		menu.Append(2, _("Bill"))
-		menu.Append(3, _("Bulk bill"))
-		menu.Append(4, _("Add Patient"))
+		menu.Append(0, _("A%rrived"))
+		menu.Append(1, _("&Seen"))
+		menu.Append(2, _("B&ill"))
+		menu.Append(3, _("B&ulk bill"))
+		menu.Append(4, _("&Add Patient"))
+		menu.Append(5, _("&Cancel Appointment"))
 
 		#connect the events to event handler functions
 		EVT_MENU(self, 0, self.OnPatientArrived)
 		EVT_MENU(self, 1, self.OnPatientSeen)
 		EVT_MENU(self, 2, self.OnBillPatient)
-		EVT_MENU(self, 2, self.OnBulkBillPatient)
-		EVT_MENU(self, 2, self.OnAddPatient)
+		EVT_MENU(self, 3, self.OnBulkBillPatient)
+		EVT_MENU(self, 4, self.OnAddPatient)
+		EVT_MENU(self, 5, self.OnCancelAppointment)
 
 		#show the menu
 		self.PopupMenu(menu, wxPoint(crect.x, crect.y))
@@ -542,6 +585,35 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		else:
 			return self.ChoosePatient(result)
 
+	def UpdateCell(self, date, time, duration, patient):
+		row = self.idx_time2row[time[:-3]]
+		col = self.idx_date2column[date]
+		pstr = "%s, %s" % (patient["lastnames"], patient["firstnames"])
+		print "Updating date [%s] time [%s] row %d, col %d, patient [%s]" % (date, time, row, col, pstr)
+		self.SetCellValue(row, col, pstr)
+
+
+
+	def UpdateData(self):
+		if self.doctor_id is None:
+			return
+		query = "select * from booked_appointment where id_staff = %d \
+		         and date >= '%s' and date < '%s'" \
+			% ( int(self.doctor_id), \
+			   IsoDate(self.Date), \
+			   IsoDate(self.AddDays(self.days, self.Date)) )
+		print query
+		patquery = "select * from v_basic_person where id = %d"
+		cur = self.db.cursor() #for the appointment
+		pc = self.db.cursor() #for the patient
+		cur.execute(query)
+		dates = cur.fetchall()
+		index = gmPG.cursorIndex(cur)
+		for date in dates:
+			pc.execute(patquery % int(date[index["id_patient"]]))
+			(patient, ) = gmPG.dictResult(pc)
+			print "Attempting to update: ", date[index["date"]], date[index["time"]], date[index["booked_duration"]]
+			self.UpdateCell(date[index["date"]], date[index["time"]], date[index["booked_duration"]], patient)
 
 
 	def AppointmentMade(self, row, col, value):
@@ -571,11 +643,18 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		duration = self.session_interval + increment * self.session_interval
 
 		dts = time.strftime("%Y-%m-%d %H:%M", datetime)
-		print "%d min. Appointment made for % s on %s with Dr. [id=%d]" % (duration, value, dts, self.doctor_id)
+		#print "%d min. Appointment made for % s on %s with Dr. [id=%d]" % (duration, value, dts, self.doctor_id)
 		cur = self.db.cursor()
 		query = "insert into booked_appointment(id_patient, id_staff, date, time, booked_duration) \
-		        values(%d, %d, '%s', '%s', %d)" %
-			(int (patient["id"]), int(self.doctor_id), time.strftime
+		        values(%d, %d, '%s', '%s', %d)" % \
+			(int (patient["id"]),
+			 int(self.doctor_id),
+			 time.strftime("%Y-%m-%d", datetime),
+			 time.strftime("%H:%M", datetime),
+			 duration)
+		print query
+		cur.execute(query)
+		cur.execute("COMMIT")
 
 
 	def OnCellChange(self, evt):
