@@ -39,8 +39,8 @@ class PureVirtualFunction(Exception):
 	def __init__(self, errmsg=None):
 		if errmsg is not None:
 			self.errmsg=errmsg
-	else:
-		self.errmsg="Attempt to call a pure virtual function!")
+		else:
+			self.errmsg="Attempt to call a pure virtual function!"
 
 	def __str__(self):
 		return errmsg
