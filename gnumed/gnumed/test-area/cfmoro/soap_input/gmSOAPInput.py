@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -50,7 +50,7 @@ Planlist = [{'label':'pencillin V', 'data':1, 'weight':1},
 		
 class cSOAPControl(wx.wxPanel):
 	
-	def __init__(self, parent, health_issue):
+	def __init__(self, parent):
 	
 		# panel (super) initialization
 		wx.wxPanel.__init__ (self,
@@ -62,7 +62,8 @@ class cSOAPControl(wx.wxPanel):
 		)
 		
 		# soap's health issue heading
-		self.soap_label = wx.wxStaticText(self, -1, health_issue['description'])
+		self.soap_label = wx.wxStaticText(self, -1, "Select issue and press 'New'")
+		self.health_issue = None
 		
 		# soap rich and smart text editor
 		# FIXME currently copied form SOAP2.py
@@ -106,8 +107,17 @@ class cSOAPControl(wx.wxPanel):
 		"""
 		Sets health issue SOAP editor
 		"""
-		self.soap_label.SetLabel(health_issue['description'])
+		self.health_issue = health_issue
+		if self.health_issue is None:
+			self.soap_label.SetLabel("Select issue and press 'New'")
+		else:
+			self.soap_label.SetLabel(health_issue['description'])
 		
+	def GetHealthIssue(self):
+		"""
+		Sets health issue SOAP editor
+		"""
+		return self.health_issue
 		
 	def GetSOAP(self):
 		"""
@@ -166,8 +176,10 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.soap_panel = wx.wxPanel(self.soap_emr_splitter,-1)
 		# SOAP multisash
 		self.soap_multisash = SOAPMultiSash.cSOAPMultiSash(self.soap_panel, -1)
-		self.selected_issue = {"description":"Select issue and press 'New'"}
+		self.selected_issue = None
 		self.soap_multisash.SetDefaultChildClassAndControllerObject(cSOAPControl,self)
+		self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().Hide()
+		self.soap_multisash.GetSelectedLeaf().UnSelect()
 		# SOAP action buttons
 		self.save_button = wx.wxButton(self.soap_panel, -1, "&Save")
 		self.clear_button = wx.wxButton(self.soap_panel, -1, "&Clear")
@@ -257,10 +269,15 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		print "New SOAP"
 		# FIXME only when unique and empty SOAP
-		selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
-		selected_soap_panel.SetHealthIssue(self.selected_issue)
-		# FIXME calculate height
-		self.soap_multisash.GetSelectedLeaf().AddLeaf(SOAPMultiSash.MV_VER, 200)
+		selected_leaf = self.soap_multisash.GetSelectedLeaf()
+		if selected_leaf.GetSOAPPanel().GetHealthIssue() is None:
+		#selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
+			selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
+			selected_leaf.GetSOAPPanel().Show()
+			
+		else:
+			# FIXME calculate height
+			selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 200)
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):

@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.5 2004-11-21 20:10:14 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.6 2004-11-23 00:26:25 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -130,7 +130,10 @@ class wxMultiSplit(wxWindow):
     def DestroyLeaf(self,caller):
         if not self.view2:              # We will only have 2 windows if
             print "Removing first leaf" 
-	    self.view1.detail.child.SetHealthIssue({"description":"Select issue and press 'New'"})
+	    self.view1.detail.child.SetHealthIssue(None)
+	    self.view1.detail.child.Hide()
+	    self.view1.detail.UnSelect()
+	    
 	    return                      # we need to destroy any
         parent = self.GetParent()       # Another splitview
         if parent == self.multiView:    # We'r at the root
@@ -296,7 +299,8 @@ class MultiClient(wxWindow):
                           style = wxCLIP_CHILDREN | wxSUNKEN_BORDER)
         print "Creating view object  (%s), controller (%s)"%(childCls,childController)
         if not childController is None:
-                self.child = childCls(self,childController.get_selected_issue())
+                self.child = childCls(self)
+		self.child.SetHealthIssue(childController.get_selected_issue())
         else:
                 self.child = childCls(self)
         self.childController = childController
@@ -313,7 +317,9 @@ class MultiClient(wxWindow):
             self.SetBackgroundColour(self.normalColour)
             self.Refresh()
 
-    def Select(self):
+    def Select(self):    
+        if not self.child.IsShown():
+		return
         self.GetParent().multiView.UnSelect()	
 	self.GetParent().multiView.SetSelectedLeaf(self.GetParent())
         self.selected = True
@@ -340,7 +346,9 @@ class MultiClient(wxWindow):
             self.childController.Destroy()
             self.childController = None
 	print "Instantiating SOAP control"
-	self.child = childCls(self, childController.get_selected_issue())
+	self.child = childCls(self)
+	if not childController.get_selected_issue() is None:
+		self.child.SetHealthIssue(childController.get_selected_issue())
 	self.childController = childController
         self.child.MoveXY(2,2)
 	self.Select()
