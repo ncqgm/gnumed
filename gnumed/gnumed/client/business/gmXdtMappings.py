@@ -4,8 +4,8 @@ This maps XDT fields in various ways.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.16 2004-03-20 19:45:49 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmXdtMappings.py,v 1.17 2004-04-19 12:43:44 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL"
 
@@ -581,8 +581,8 @@ xdt_id_map = {
 	'8000':'Satzidentifikation >>===============',
 	#Satzlänge
 	'8100':'Satzlänge',
-	#Befundart -- nur bei header 6200 --
-	'8401':'Befundart',
+	# Befundstatus -- nur bei header 6200/8202 --
+	'8401':'Befundstatus',
 	#Geräte- bzw. Verfahrensspezifisches Kennfeld -- nur bei header 6200 --
 	'8402':'Gerätespezifisches Kennfeld',
 	#Test-Ident -- nur bei header 6200 --
@@ -913,13 +913,23 @@ xdt_Allgemeine_Heilbehandlung_durch_map = {
 xdt_AU_3Tage_map = {
 	'1':'angekreuzt'
 }
-# Befundart 
-xdt_Befundart_map = {
-	'E':'(kompletter) Endbefund',
-	'T':'Teilbefund',
-	'V':'(kompletter) Vorbefund',
-	'A':'Archivbefund'
+# 8401: Befundstatus
+xdt_Befundstatus_map = {
+	'E': '(kompletter) Endbefund',
+	'T': 'Teilbefund',
+	'V': '(kompletter) Vorbefund',
+	'A': 'Archivbefund',
+	'N': 'Nachforderung'
 }
+
+map_Befundstatus_xdt2gm = {
+	'E': 'final',
+	'T': 'partial',
+	'V': 'preliminary',
+	'A': 'final',
+	'N': 'final'
+}
+
 # Teststatus : 8418
 xdt_Teststatus_map = {
 	'B':'bereits berichtet',
@@ -1303,7 +1313,7 @@ xdt_map_of_content_maps = {
 	'6293': kvdt_Diagnosensicherheit_map,
 	'6294': kvdt_Seitenlokalisation_map,
 	'8000': xdt_packet_type_map,
-	'8401': xdt_Befundart_map,
+	'8401': xdt_Befundstatus_map,
 	'8418': xdt_Teststatus_map,
 	'8443': xdt_Resistenzmethode_map,
 	'8447': xdt_Resistenzinterpretation_map,
@@ -1314,7 +1324,10 @@ xdt_map_of_content_maps = {
 }
 #==============================================================
 # $Log: gmXdtMappings.py,v $
-# Revision 1.16  2004-03-20 19:45:49  ncq
+# Revision 1.17  2004-04-19 12:43:44  ncq
+# - add Befundstatus mapping xdt <-> GnuMed
+#
+# Revision 1.16  2004/03/20 19:45:49  ncq
 # - rename gender map
 #
 # Revision 1.15  2003/11/19 12:30:22  shilbert
