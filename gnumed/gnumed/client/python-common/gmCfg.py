@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -309,6 +309,39 @@ class cCfgSQL:
 		self.cache[cache_key] = value
 
 		return 1
+#-------------------------------------------
+	def getAllParams(self, user = None, machine = '__default__'):
+		"""Get names of all stored parameters for a given machine/(user)/cookie-key.
+		This will be used by the ConfigEditor object to create a parameter tree.
+		"""
+        
+		# if no machine given: any machine
+		where_machine = " and cfg_item.machine like '%s'" % machine
+
+		# if no user given: current db user
+		# but check for "_user", too, due to ro/rw conn interaction
+		if user is None:
+			where_user = " (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
+		else:
+			where_user = "  cfg_item.owner like '%s'" % user
+
+		curs = self.conn.cursor()
+
+        # retrieve option definition
+		if self.__run_query(curs, "select name,cookie,owner,type,description from cfg_template,cfg_item where %s%s and cfg_template.id = cfg_item.id_template;" % (where_user, where_machine)) is None:
+			curs.close()
+			return None
+
+#		result should contain a list of strings
+		result = curs.fetchall()
+		_log.Log(gmLog.lInfo, 'RESULT [%s@%s]: %s' % (user,machine,str(result)))
+		if result is None:
+			curs.close()
+			_log.Log(gmLog.lInfo, 'No parameters stored for [%s@%s] in config database' % (user,machine))
+			return None
+		curs.close()
+
+		return result
 	#----------------------------
 	def __make_key(self, machine, user, cookie, option):
 		return '%s-%s-%s-%s' % (machine, user, cookie, option)
@@ -939,7 +972,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.46  2003-04-14 07:45:47  ncq
+# Revision 1.47  2003-05-10 18:45:52  hinnef
+# - added getAllParams for use in gmConfigRegistry
+#
+# Revision 1.46  2003/04/14 07:45:47  ncq
 # - better temp names in cfgFile.store()
 #
 # Revision 1.45  2003/03/31 00:26:46  ncq
