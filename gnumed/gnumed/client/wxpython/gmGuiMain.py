@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.112 2003-07-21 21:05:56 ncq Exp $
-__version__ = "$Revision: 1.112 $"
+# $Id: gmGuiMain.py,v 1.113 2003-09-03 17:32:41 hinnef Exp $
+__version__ = "$Revision: 1.113 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -38,6 +38,9 @@ email_logger = None
 
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
+
+import gmWhoAmI                                                                 
+_whoami = gmWhoAmI.cWhoAmI()
 
 import gmPG
 encoding = _cfg.get('backend', 'client encoding')
@@ -520,7 +523,7 @@ class gmTopLevelFrame(wxFrame):
 			self.title_user = str(aUser)
 
 		# generate title from template
-		title = "GnuMed [%s@%s] %s: %s" % (self.title_user, self.guibroker['workplace_name'], self.title_activity, self.title_patient)
+		title = "GnuMed [%s@%s] %s: %s" % (self.title_user, _whoami.getMachine(), self.title_activity, self.title_patient)
 
 		# set it
 		self.SetTitle(title)
@@ -812,7 +815,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.112  2003-07-21 21:05:56  ncq
+# Revision 1.113  2003-09-03 17:32:41  hinnef
+# make use of gmWhoAmI
+#
+# Revision 1.112  2003/07/21 21:05:56  ncq
 # - actually set database client encoding from config file, warn if missing
 #
 # Revision 1.111  2003/07/07 08:34:31  ihaywood
