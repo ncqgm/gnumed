@@ -20,7 +20,23 @@ import re
 stack = []
 _port = 9000
 
-
+from getopt import *
+optlist,remaining = getopt( sys.argv[1:], "h")
+for (opt, value) in optlist:
+	print "option ", opt, value
+	if opt == '-h':
+		print """
+	USAGE:
+		python analyse_sql3.py  filename  > server.py    
+	
+		where filename is  the sql file or path to file: e.g ../sql/gmclinical.sql
+		output is to stdout so in the above example
+		server.py will contain the server code . 
+		Note some output is directed to stderr as part
+		of feedback for debugging.
+		
+		"""
+		sys.exit(0)
 
 
 "do some processing on the line. Accumulate results in state variables."
