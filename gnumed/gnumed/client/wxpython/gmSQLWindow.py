@@ -43,7 +43,7 @@
 "generic SQL query dialog"
 
 from wxPython.wx import *
-import types, time
+import sys, types, time
 import gmPG, gmLabels, gmGuiBroker
 
 import gettext
@@ -57,6 +57,14 @@ ID_BUTTON_CLEARRESULTS = wxNewId()
 ID_TEXTCTRL_QUERYRESULTS = wxNewId()
 ID_LISTCTRLQUERYRESULT = wxNewId()
 
+class RedirectToTextctrl:
+	"helper class to allow redirection of stdout/stderr to a text control widget"
+	def __init__(self, widget):
+		self.widget=widget
+	def write(self, s):
+		self.widget.AppendText(s)
+
+
 class SQLWindow(wxPanel):
 
 	def __init__(self, parent, id,
@@ -65,15 +73,23 @@ class SQLWindow(wxPanel):
 		wxPanel.__init__(self, parent, id, pos, size, style)
 
 		self.CallbackOnSelected = None
-		self.lables = []
+		self.labels = []
 		self.broker = gmGuiBroker.GuiBroker()
 
 		self.topsizer = wxBoxSizer( wxVERTICAL )
+		self.topHsizer = wxBoxSizer( wxHORIZONTAL )
+
+		self.staticServiceBox = wxStaticBox( self, -1, _("Service") )
+		self.serviceHsizer = wxStaticBoxSizer( self.staticServiceBox, wxHORIZONTAL )
+		self.topHsizer.AddSizer( self.serviceHsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 )
+
+		self.choiceService = wxChoice( self, -1, wxDefaultPosition, wxSize(80,-1), choices = ['config'])
+		self.serviceHsizer.AddWindow( self.choiceService, 1, wxALIGN_CENTRE|wxALL, 5 )
 
 		self.staticQueryBox = wxStaticBox( self, -1, _("Query") )
 		self.inputHsizer = wxStaticBoxSizer( self.staticQueryBox, wxHORIZONTAL )
 
-		self.comboQueryInput = wxComboBox( self, ID_COMBO_QUERY, "", wxDefaultPosition, wxSize(140,-1), [], wxCB_DROPDOWN )
+		self.comboQueryInput = wxComboBox( self, ID_COMBO_QUERY, "", wxDefaultPosition, wxSize(200,-1), [], wxCB_DROPDOWN )
 		self.inputHsizer.AddWindow( self.comboQueryInput, 1, wxALIGN_CENTRE|wxALL, 5 )
 
 		self.buttonRunQuery = wxButton( self, ID_BUTTON_RUNQUERY, _("&Run query"), wxDefaultPosition, wxDefaultSize, 0 )
@@ -82,10 +98,9 @@ class SQLWindow(wxPanel):
 		self.buttonClearQuery = wxButton( self, ID_BUTTON_CLEARQUERY, _("&Clear query"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.inputHsizer.AddWindow( self.buttonClearQuery, 0, wxALIGN_CENTRE|wxALL, 5 )
 
-		self.buttonClearResults = wxButton( self, ID_BUTTON_CLEARRESULTS, _("Clear &results"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.inputHsizer.AddWindow( self.buttonClearResults, 0, wxALIGN_CENTRE|wxALL, 5 )
+		self.topHsizer.AddSizer( self.inputHsizer, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 0 )
+		self.topsizer.AddSizer( self.topHsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
-		self.topsizer.AddSizer( self.inputHsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		self.staticResultsBox = wxStaticBox( self, -1, _("Results") )
 		self.resultsVsizer = wxStaticBoxSizer( self.staticResultsBox, wxVERTICAL )
@@ -97,6 +112,8 @@ class SQLWindow(wxPanel):
 		self.resultsVsizer.AddWindow( self.listQueryResults, 3, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		self.topsizer.AddSizer( self.resultsVsizer, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+
+		self.ListServices()
 
 		set_sizer=true
 		if set_sizer == true:
@@ -110,10 +127,20 @@ class SQLWindow(wxPanel):
 		# WDR: handler declarations for gmSQLWin
 		EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRLQUERYRESULT, self.OnResultSelected)
 		EVT_COMBOBOX(self, ID_COMBO_QUERY, self.OnTextEntered)
-		EVT_BUTTON(self, ID_BUTTON_CLEARRESULTS, self.OnClearResults)
 		EVT_BUTTON(self, ID_BUTTON_CLEARQUERY, self.OnClearQuery)
 		EVT_BUTTON(self, ID_BUTTON_RUNQUERY, self.OnRunQuery)
 
+
+
+	def ListServices(self):
+		try:
+			conn = gmPG.ConnectionPool().GetConnection('config')
+		except:
+			messagewidget.AppendText("Backend connection failed.")
+			return
+		services = conn.query("select name from db").getresult()
+		for service in services:
+			self.choiceService.Append(service[0])
 
 
 
@@ -127,10 +154,6 @@ class SQLWindow(wxPanel):
 		wxLogMessage("SQL Window: OnTextEntered")
 
 
-	def OnClearResults(self, event):
-		self.textQueryResults.Clear()
-		self.listQueryResults().ClearAll()
-
 	def OnClearQuery(self, event):
 		self.comboQueryInput.SetValue('')
 
@@ -139,15 +162,23 @@ class SQLWindow(wxPanel):
 		resultwidget = self.listQueryResults
 		querystr = self.comboQueryInput.GetValue()
 		try:
-			conn = gmPG.ConnectionPool().GetConnection('default')
+			conn = gmPG.ConnectionPool().GetConnection(self.choiceService.GetStringSelection())
 		except:
 			messagewidget.AppendText("Backend connection failed.")
 			return
 
-   		#time needed for database AND gui handling
+		#clear results from previous query
+		self.listQueryResults.ClearAll()
+		#time needed for database AND gui handling
         	t1f = time.time()
         	#time needed for database query
         	t1 = time.time()
+
+		#redirect console output and stderr to our log/text widget
+		saved_stdout = sys.stdout
+		saved_stderr = sys.stderr
+		sys.stdout = RedirectToTextctrl(messagewidget)
+		sys.stderr = RedirectToTextctrl(messagewidget)
 
 		query = conn.query(querystr)
 		queryresult = query.getresult()
@@ -171,13 +202,18 @@ class SQLWindow(wxPanel):
                 		colcount +=1
             		rowcount +=1
 
-		#adjust column width accorcing to the query results
+		#adjust column width according to the query results
 		for w in range(0, len(query.listfields())):
 			resultwidget.SetColumnWidth(w, wxLIST_AUTOSIZE)
 		# get the main window's status line "set" function:
 		status = self.broker['main.statustext']
 		t2f = time.time()
 		status("%d records found; retrieved and displayed in %1.3f sec." % (query.ntuples(), t2f-t1f))
+
+		#restore standard output
+		sys.stderr = saved_stderr
+		sys.stdout = saved_stdout
+
 
 
 
