@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -60,12 +60,6 @@ INSERT INTO distributed_db(name) values('personalia');
 -- this service contains patient's medical histories
 INSERT INTO distributed_db(name) values('historica');
 
--- this service stores external downloadable results such as pathology
---INSERT INTO distributed_db(name) values('extresults');
-
--- this service contains all correspondence (letters, emails)
---INSERT INTO distributed_db(name) values('correspondence');
-
 -- this service provides all pharmaceutical information
 -- eg. drugref.org, mainly
 INSERT INTO distributed_db(name) values('pharmaceutica');
@@ -77,19 +71,9 @@ INSERT INTO distributed_db(name) values('reference');
 -- this service takes care of large (>= 2MB )binary objects
 INSERT INTO distributed_db(name) values('blobs');
 
--- this service holds all the administrative data
--- for the practice
+-- this service holds all the administrative data for the
+-- practice: forms queue, roster, waiting room, billing etc.
 insert into distributed_db(name) values('administrivia');
-
--- this services provides all tables for accounting purposes
---INSERT INTO distributed_db(name) values('accounting');
-
--- this servicecontains office related tables such as rosters and waiting room
---INSERT INTO distributed_db(name) values('office');
-
--- this service allows to manage GnuMed client modules
--- either in "config" or "administrivia"
---INSERT INTO distributed_db(name) values('modules');
 
 --=====================================================
 CREATE TABLE config (
@@ -234,11 +218,14 @@ GRANT select, insert, update, delete on
 to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.29 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.28  2004-01-06 23:44:40  ncq
+-- Revision 1.29  2004-03-10 00:06:20  ncq
+-- - remove stale service defs
+--
+-- Revision 1.28  2004/01/06 23:44:40  ncq
 -- - __default__ -> xxxDEFAULTxxx
 --
 -- Revision 1.27  2003/10/27 13:54:05  ncq
