@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -83,7 +83,7 @@ class cConfTree(wxTreeCtrl):
 		# init new tree
 		self.root = self.AddRoot(self.rootLabel, -1, -1)
 		self.SetPyData(self.root, {'type': 'root', 'name': self.rootLabel})
-		self.SetItemHasChildren(self.root, FALSE)
+		self.SetItemHasChildren(self.root, False)
 
 		# now get subtrees for four maingroups (see __init__)
 
@@ -96,14 +96,14 @@ class cConfTree(wxTreeCtrl):
 			self.SetPyData(node, {'type': 'defaultSubtree', 'name': nodeDescription})
 			# don't add empty subtrees, just display their subtree root node
 			if subTree is None:
-				self.SetItemHasChildren(node, FALSE)
+				self.SetItemHasChildren(node, False)
 				continue
 			else:
 				self.__addSubTree(node,subTree)
 				self.SortChildren(node)
-				self.SetItemHasChildren(node, TRUE)
+				self.SetItemHasChildren(node, True)
 						
-		self.SetItemHasChildren(self.root, TRUE)
+		self.SetItemHasChildren(self.root, True)
 		self.SortChildren(self.root)
 		# and uncollapse
 		self.Expand(self.root)
@@ -127,7 +127,7 @@ class cConfTree(wxTreeCtrl):
 		childrenList = aSubTree[1].keys()
 		if childrenList is None:
 			return None
-		self.SetItemHasChildren(aNode, TRUE)
+		self.SetItemHasChildren(aNode, True)
 
 		# add every child as new node, add child-subtrees as subtree
 		# reiterating this method
@@ -138,7 +138,7 @@ class cConfTree(wxTreeCtrl):
 #			_log.Log(gmLog.lInfo, "Node: %s Name: %s" % (str(aNode),nodeName) )
 			node = self.AppendItem(aNode, nodeName)
 			self.SetPyData(node, nodeEntry[0])
-			self.SetItemHasChildren(node, FALSE)
+			self.SetItemHasChildren(node, False)
 			# now add subTrees
 			if not nodeEntry[1] == {}:
 				self.__addSubTree(node,nodeEntry)
@@ -304,7 +304,7 @@ class cConfTree(wxTreeCtrl):
 		(item,flags) = self.HitTest(position)
 #DEBUG
 		_log.Log(gmLog.lInfo, "clicked item (%s %s)" % (str(item),str(flags)))
-#		if flags & (wxTREE_HITTEST_ONITEMLABEL) == TRUE:
+#		if flags & (wxTREE_HITTEST_ONITEMLABEL) == True:
 		self.SelectItem(item)
 
 
@@ -535,7 +535,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.22  2004-07-19 11:50:43  ncq
+# Revision 1.23  2004-07-24 10:27:22  ncq
+# - TRUE/FALSE -> True/False so Python doesn't barf
+#
+# Revision 1.22  2004/07/19 11:50:43  ncq
 # - cfg: what used to be called "machine" really is "workplace", so fix
 #
 # Revision 1.21  2004/07/15 07:57:20  ihaywood
