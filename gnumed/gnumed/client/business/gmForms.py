@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.19 2004-06-05 12:41:39 ihaywood Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmForms.py,v 1.20 2004-06-08 00:56:39 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -108,7 +108,7 @@ class gmFormEngine:
 			"""
 			queries.append((cmd, [key, params[key]]))
 		# - get inserted PK
-		queries.append("select currval ('form_instances_pk_seq')")
+		queries.append(("select currval ('form_instances_pk_seq')", []))
 		status, err = gmPG.run_commit(link_obj, queries, True)
 		if status is None:
 			_log.Log(gmLog.lErr, 'failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
@@ -359,7 +359,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.19  2004-06-05 12:41:39  ihaywood
+# Revision 1.20  2004-06-08 00:56:39  ncq
+# - even if we don't need parameters we need to pass an
+#   empty param list to gmPG.run_commit()
+#
+# Revision 1.19  2004/06/05 12:41:39  ihaywood
 # some more comments for gmForms.py
 # minor change to gmReferral.py: print last so bugs don't waste toner ;-)
 #
