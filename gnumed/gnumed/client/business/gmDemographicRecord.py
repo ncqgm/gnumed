@@ -7,36 +7,33 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.32 2004-03-20 17:53:15 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmDemographicRecord.py,v 1.33 2004-03-20 19:43:16 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
 import sys, os.path, time
 
-if __name__ == "__main__":
-	sys.path.append(os.path.join('..', 'pycommon'))
-
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
 from Gnumed.business import gmMedDoc
 
 _log = gmLog.gmDefLog
-if __name__ == "__main__":
+if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-	_ = lambda x:x
+	from Gnumed.pycommon import gmI18N
 _log.Log(gmLog.lData, __version__)
 
 # 3rd party
 import mx.DateTime as mxDT
 
 #============================================================
-gm2long_gender_map = {
+map_gender_gm2long = {
 	'm': _('male'),
 	'f': _('female')
 }
 #============================================================
 # virtual ancestor class, SQL and LDAP descendants
-class gmDemographicRecord:
+class cDemographicRecord:
 	def getActiveName (self):
 		raise gmExceptions.PureVirtualFunction()
 
@@ -90,7 +87,7 @@ class gmDemographicRecord:
 
 #============================================================
 # may get preloaded by the waiting list
-class gmDemographicRecord_SQL (gmDemographicRecord):
+class cDemographicRecord_SQL(cDemographicRecord):
 	"""Represents the demographic data of a patient.
 	"""
 	
@@ -816,7 +813,7 @@ if __name__ == "__main__":
 		if pID == '-1':
 			break
 		try:
-			myPatient = gmDemographicRecord_SQL(aPKey = pID)
+			myPatient = cDemographicRecord_SQL(aPKey = pID)
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
@@ -833,7 +830,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.32  2004-03-20 17:53:15  ncq
+# Revision 1.33  2004-03-20 19:43:16  ncq
+# - do import gmI18N, we need it
+# - gm2long_gender_map -> map_gender_gm2long
+# - gmDemo* -> cDemo*
+#
+# Revision 1.32  2004/03/20 17:53:15  ncq
 # - cleanup
 #
 # Revision 1.31  2004/03/15 15:35:45  ncq
