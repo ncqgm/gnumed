@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.92 2003-04-03 13:50:21 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmGuiMain.py,v 1.93 2003-04-04 20:43:47 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -56,6 +56,7 @@ import gmGuiElement_HeadingCaptionPanel        #panel class to display top headi
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
+import gmTmpPatient
 #from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
 # widget IDs
@@ -330,8 +331,9 @@ class MainFrame(wxFrame):
 		gmDispatcher.connect(self.OnPatientChanged, gmSignals.patient_selected())
 	#----------------------------------------------
 	def OnPatientChanged(self, **kwargs):
-		kwds = kwargs['kwds']
-		patient = "%(title)s %(firstnames)s %(lastnames)s (%(dob)s) #%(ID)d" % (kwds)
+		pat = gmTmpPatient.gmCurrentPatient()
+		names = pat['active name']
+		patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], pat['ID'])
 		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
@@ -644,7 +646,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.92  2003-04-03 13:50:21  ncq
+# Revision 1.93  2003-04-04 20:43:47  ncq
+# - take advantage of gmCurrentPatient()
+#
+# Revision 1.92  2003/04/03 13:50:21  ncq
 # - catch more early results of connection failures ...
 #
 # Revision 1.91  2003/04/01 15:55:24  ncq
