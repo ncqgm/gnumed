@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.34 2004-03-20 19:44:50 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmPatient.py,v 1.35 2004-03-23 15:04:59 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -150,6 +150,12 @@ class gmPerson:
 			return None
 		return self.__db_cache['document folder']
 	#--------------------------------------------------------
+	def export_data(self):
+		data = {}
+		emr = self.get_clinical_record()
+		data['clinical'] = emr.get_text_dump()
+		return data
+	#--------------------------------------------------------
 	def _get_API(self):
 		API = []
 		for handler in gmPerson._get_handler.keys():
@@ -235,21 +241,26 @@ class gmCurrentPatient(gmBorg.cBorg):
 			_log.Log(gmLog.lData, 'no patient ID specified, returning current patient')
 
 		return None
-
+	#--------------------------------------------------------
 	def get_clinical_record(self):
 		return self.patient.get_clinical_record()
-
+	#--------------------------------------------------------
 	def get_demographic_record(self):
 		return self.patient.get_demographic_record()
-
+	#--------------------------------------------------------
 	def get_document_folder(self):
 		return self.patient.get_document_folder()
-
+	#--------------------------------------------------------
 	def get_ID(self):
 		if self.patient is None:
 			return None
 		else:
 			return self.patient.getID()
+	#--------------------------------------------------------
+	def export_data(self):
+		if self.patient is None:
+			return None
+	    return self.patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
 # using more threads in the frontend
@@ -879,7 +890,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.34  2004-03-20 19:44:50  ncq
+# Revision 1.35  2004-03-23 15:04:59  ncq
+# - merge Carlos' constraints into get_text_dump
+# - add gmPatient.export_data()
+#
+# Revision 1.34  2004/03/20 19:44:50  ncq
 # - do import gmI18N
 # - only fetch i_id in queries
 # - revert to returning flat list of ids from get_patient_ids, must have been Syan fallout, I assume

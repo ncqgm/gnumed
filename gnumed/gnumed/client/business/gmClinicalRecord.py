@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.78 2004-03-23 02:29:24 ncq Exp $
-__version__ = "$Revision: 1.78 $"
+# $Id: gmClinicalRecord.py,v 1.79 2004-03-23 15:04:59 ncq Exp $
+__version__ = "$Revision: 1.79 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -233,8 +233,7 @@ class cClinicalRecord:
 			_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
 			return None
 	#--------------------------------------------------------
-	# FIXME: date range
-	def get_text_dump(self):
+	def get_text_dump_old(self):
 		# don't know how to invalidate this by means of
 		# a notify without catching notifies from *all*
 		# child tables, the best solution would be if
@@ -242,7 +241,7 @@ class cClinicalRecord:
 		# of ancestor tables, but oh well,
 		# until then the text dump will not be cached ...
 		try:
-			return self.__db_cache['text dump']
+			return self.__db_cache['text dump old']
 		except KeyError:
 			pass
 		# not cached so go get it
@@ -285,6 +284,172 @@ class cClinicalRecord:
 			episode_map = {}
 		emr_data = {}
 		# get item data from all source tables
+		for src_table in items_by_table.keys():
+			item_ids = items_by_table[src_table].keys()
+			# we don't know anything about the columns of
+			# the source tables but, hey, this is a dump
+			if len(item_ids) == 0:
+				_log.Log(gmLog.lInfo, 'no items in table [%s] ?!?' % src_table)
+				continue
+			elif len(item_ids) == 1:
+				cmd = "select * from %s where pk_item=%%s order by modified_when" % src_table
+				if not gmPG.run_query(curs, cmd, item_ids[0]):
+					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
+					# skip this table
+					continue
+			elif len(item_ids) > 1:
+				cmd = "select * from %s where pk_item in %%s order by modified_when" % src_table
+				if not gmPG.run_query(curs, cmd, (tuple(item_ids),)):
+					_log.Log(gmLog.lErr, 'cannot load items from table [%s]' % src_table)
+					# skip this table
+					continue
+			rows = curs.fetchall()
+			table_col_idx = gmPG.get_col_indices(curs)
+			# format per-table items
+			for row in rows:
+				# FIXME: make this get_pkey_name()
+				pk_item = row[table_col_idx['pk_item']]
+				view_row = items_by_table[src_table][pk_item]
+				age = view_row[view_col_idx['age']]
+				# format metadata
+				try:
+					episode_name = episode_map[view_row[view_col_idx['id_episode']]]
+				except:
+					episode_name = view_row[view_col_idx['id_episode']]
+				try:
+					issue_name = issue_map[view_row[view_col_idx['id_health_issue']]]
+				except:
+					issue_name = view_row[view_col_idx['id_health_issue']]
+
+				if not emr_data.has_key(age):
+					emr_data[age] = []
+
+				emr_data[age].append(
+					_('%s: encounter (%s)') % (
+						view_row[view_col_idx['clin_when']],
+						view_row[view_col_idx['id_encounter']]
+					)
+				)
+				emr_data[age].append(_('health issue: %s') % issue_name)
+				emr_data[age].append(_('episode     : %s') % episode_name)
+				# format table specific data columns
+				# - ignore those, they are metadata, some
+				#   are in v_patient_items data already
+				cols2ignore = [
+					'pk_audit', 'row_version', 'modified_when', 'modified_by',
+					'pk_item', 'id', 'id_encounter', 'id_episode'
+				]
+				col_data = []
+				for col_name in table_col_idx.keys():
+					if col_name in cols2ignore:
+						continue
+					emr_data[age].append("=> %s:" % col_name)
+					emr_data[age].append(row[table_col_idx[col_name]])
+				emr_data[age].append("----------------------------------------------------")
+				emr_data[age].append("-- %s from table %s" % (
+					view_row[view_col_idx['modified_string']],
+					src_table
+				))
+				emr_data[age].append("-- written %s by %s" % (
+					view_row[view_col_idx['modified_when']],
+					view_row[view_col_idx['modified_by']]
+				))
+				emr_data[age].append("----------------------------------------------------")
+		curs.close()
+		return emr_data
+	#--------------------------------------------------------
+	def get_text_dump(self, since=None, until=None, encounters=None, episodes=None, issues=None):
+		# don't know how to invalidate this by means of
+		# a notify without catching notifies from *all*
+		# child tables, the best solution would be if
+		# inserts in child tables would also fire triggers
+		# of ancestor tables, but oh well,
+		# until then the text dump will not be cached ...
+		try:
+			return self.__db_cache['text dump']
+		except KeyError:
+			pass
+		# not cached so go get it
+		# -- get the data --
+		fields = [
+			'age',
+			"to_char(modified_when, 'YYYY-MM-DD @ HH24:MI') as modified_when",
+			'modified_by',
+			'clin_when',
+			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
+			'id_item',
+			'id_encounter',
+			'id_episode',
+			'id_health_issue',
+			'src_table'
+		]
+		select_from = "select %s from v_patient_items" % ', '.join(fields)
+		# handle constraint conditions
+		where_snippets = []
+		params = {}
+		where_snippets.append('id_patient=%(pat_id)s')
+		params['pat_id'] = self.id_patient
+		if not since is None:
+			where_snippets.append('clin_when >= %(since)s')
+			params['since'] = since
+		if not until is None:
+			where_snippets.append('clin_when <= %(until)s')
+			params['until'] = until
+		# FIXME: these are interrelated, eg if we constrain encounter
+		# we automatically constrain issue/episode, so handle that
+		# encounters
+		if not encounters is None and len(encounters) > 0:
+			params['enc'] = encounters
+			if len(encounters) > 1:
+				where_snippets.append('id_encounter in %(enc)s')
+			else:
+				where_snippets.append('id_encounter=%(enc)s')
+		# episodes
+		if not episodes is None and len(episodes) > 0:
+			params['epi'] = episodes
+			if len(episodes) > 1:
+				where_snippets.append('id_episode in %(epi)s')
+			else:
+				where_snippets.append('id_episode=%(epi)s')
+		# health issues
+		if not issues is None and len(issues) > 0:
+			params['issue'] = issues
+			if len(issues) > 1:
+				where_snippets.append('id_health_issue in %(issue)s')
+			else:
+				where_snippets.append('id_health_issue=%(issue)s')
+
+		where_clause = ' and '.join(where_snippets)
+		order_by = 'order by src_table, age'
+		cmd = "%s where %s %s" % (select_from, where_clause, order_by)
+
+		print "QUERY: " + cmd
+		rows, view_col_idx = gmPG.run_ro_query('historica', cmd, 1, params)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot load item links for patient [%s]' % self.id_patient)
+			return None
+
+		# -- sort the data --
+		# FIXME: by issue/encounter/episode, eg formatting
+		# aggregate by src_table for item retrieval
+		items_by_table = {}
+		for item in rows:
+			src_table = item[view_col_idx['src_table']]
+			id_item = item[view_col_idx['id_item']]
+			if not items_by_table.has_key(src_table):
+				items_by_table[src_table] = {}
+			items_by_table[src_table][id_item] = item
+
+		# get mapping for issue/episode IDs
+		issue_map = self.get_health_issue_names()
+		if issue_map is None:
+			issue_map = {}
+		episode_map = self.get_episodes()
+		if episode_map is None:
+			episode_map = {}
+		emr_data = {}
+		# get item data from all source tables
+		curs = self._ro_conn_clin.cursor()
 		for src_table in items_by_table.keys():
 			item_ids = items_by_table[src_table].keys()
 			# we don't know anything about the columns of
@@ -1453,6 +1618,8 @@ if __name__ == "__main__":
 	lab = record.get_lab_data()
 	for lab_result in lab['data']:
 		print lab_result
+	emr = record.export_emr()
+	print emr
 #	vaccs = record.get_due_vaccs()
 #	print vaccs['overdue']
 #	print vaccs['boosters']
@@ -1481,7 +1648,11 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.78  2004-03-23 02:29:24  ncq
+# Revision 1.79  2004-03-23 15:04:59  ncq
+# - merge Carlos' constraints into get_text_dump
+# - add gmPatient.export_data()
+#
+# Revision 1.78  2004/03/23 02:29:24  ncq
 # - cleanup import/add pyCompat
 # - get_lab_data()
 # - unit test
