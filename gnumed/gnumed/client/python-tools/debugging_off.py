@@ -22,8 +22,8 @@
 # @author: Karsten Hilbert
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @Date: $Date: 2002-03-21 09:10:56 $
-# @version $Revision: 1.1 $ $Date: 2002-03-21 09:10:56 $ $Author: ncq $
+# @Date: $Date: 2002-03-21 12:15:50 $
+# @version $Revision: 1.2 $ $Date: 2002-03-21 12:15:50 $ $Author: ncq $
 ###############################################################
 
 import string, sys, fileinput
@@ -42,11 +42,13 @@ for line in fileinput.input(inplace=1, backup='.bak1'):
 
     # find start of tagged debugging
     if string.find(tmp, "#<DEBUG>", 0, 8) == 0:
-	print '"""' + line
+	left, right = string.split(line, '#<DEBUG>', 1)
+	print left + '"""#<DEBUG>' + right
 
     # find end of tagged debugging
     elif string.find(tmp, "#</DEBUG>", 0, 9) == 0:
-	print line + '"""'
+	left, right = string.split(line, '#</DEBUG>', 1)
+	print left + '#</DEBUG>"""' + right
 
     else:
 	print line
