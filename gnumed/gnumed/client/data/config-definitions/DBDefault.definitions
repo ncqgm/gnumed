@@ -8,3 +8,7 @@ version=0.01
 type = str_array
 description = These are the modules that are loaded in the main GUI or patient notebook.This list was created automatically on the first run by gnumed from the modules available in the client/wxpython/gui/ and gui/patient folder. You can delete or add modules at your choice.
 
+[main.window.size]
+type = str_array
+description = Size of the GnuMed main window in pixels. (first line - width, second line - height).Please note that you still have to add the window border size to get the final size.
+
