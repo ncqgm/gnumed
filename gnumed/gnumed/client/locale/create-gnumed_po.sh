@@ -5,7 +5,7 @@
 # - first arg should be ISO language code
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/create-gnumed_po.sh,v $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # what language are we working on
 LANGNAME="$1"
@@ -26,6 +26,7 @@ echo "merging current source strings with old translations for language ${LANGNA
 if [ -f "${LANGNAME}.po" ]; then
 	msgmerge -v -o gnumed-${LANGNAME}.po ${LANGNAME}.po ${POTNAME}
 	mv -vf gnumed-${LANGNAME}.po ${LANGNAME}.po
+	rm -vf ${POTNAME}
 else
 	mv -vf ${POTNAME} ${LANGNAME}.po
 fi;
