@@ -26,7 +26,7 @@ myDocList = None
 # get a convenient handle for the default logger
 __log__ = gmLog.gmDefLog
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 #------------------------------------------
 #------------------------------------------
 def selectPatient():
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 				print "file		: %s" % fname
 				print "comment	: %s" % obj['comment']
 				print "mime type: %s" % mime_type
-				print "view cmd : %s" % docMime.get_viewer_cmd(mime_type, fname)
+				print "view cmd	: %s" % docMime.get_viewer_cmd(mime_type, fname)
 
 	myDB.disconnect()
 
