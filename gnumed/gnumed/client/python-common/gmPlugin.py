@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.47 2003-02-24 12:35:55 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPlugin.py,v 1.48 2003-04-05 01:09:03 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -256,7 +256,7 @@ class wxPatientPlugin (wxBasePlugin):
 	"""
 	def register (self):
 		wxBasePlugin.register (self)
-		self.mwm = self.gb['patient.manager']
+		self.mwm = self.gb['clinical.manager']
 		if gmGuiBroker.config['main.shadow']:
 			shadow = gmShadow.Shadow (self.mwm, -1)
 			widget = self.GetWidget (shadow)
@@ -267,7 +267,7 @@ class wxPatientPlugin (wxBasePlugin):
 			self.mwm.RegisterLeftSide (self.name (), self.GetWidget (self.mwm))
 		icon = self.GetIcon ()
 		if icon is not None:
-			tb2 = self.gb['toolbar.Patient']
+			tb2 = self.gb['toolbar.%s' % _('Clinical')]
 			#tb2.AddSeparator()
 			self.tool_id = wxNewId ()
 			tool1 = tb2.AddTool(
@@ -277,7 +277,7 @@ class wxPatientPlugin (wxBasePlugin):
 			)
 			EVT_TOOL (tb2, self.tool_id, self.OnTool)
 		menuname = self.name ()
-		menu = self.gb['patient.submenu']
+		menu = self.gb['clinical.submenu']
 		self.menu_id = wxNewId ()
 		menu.Append (self.menu_id, menuname)
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
@@ -299,7 +299,7 @@ class wxPatientPlugin (wxBasePlugin):
 		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
 		if self.GetIcon () is not None:
-			tb2 = self.gb['toolbar.Patient Window']
+			tb2 = self.gb['toolbar.%s' % _('Clinical')]
 			tb2.DeleteTool (self.tool_id)
 		del self.gb['modules.patient'][self.name ()]
 	#-----------------------------------------------------
@@ -513,7 +513,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.47  2003-02-24 12:35:55  ncq
+# Revision 1.48  2003-04-05 01:09:03  ncq
+# - forgot that one in the big patient -> clinical clean up
+#
+# Revision 1.47  2003/02/24 12:35:55  ncq
 # - renamed some function local variables to further my understanding of the code
 #
 # Revision 1.46  2003/02/17 16:18:29  ncq
