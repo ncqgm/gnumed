@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -78,16 +78,15 @@ WHERE
 
 #==================================================================
 # SQL statements for auditing setup script
-# - remember to keep ";"s at the end !
 #------------------------------------------------------------------
-drop_trigger = "DROP TRIGGER %s ON %s ;"
-drop_function = "DROP FUNCTION %s();"
+drop_trigger = "DROP TRIGGER %s ON %s"
+drop_function = "DROP FUNCTION %s()"
 
 # insert
 template_insert_trigger = """CREATE TRIGGER %s
 	BEFORE INSERT
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
+	FOR EACH ROW EXECUTE PROCEDURE %s()"""
 
 template_insert_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -95,13 +94,13 @@ BEGIN
 	NEW.modify_when := CURRENT_TIMESTAMP;
 	NEW.modify_by := CURRENT_USER;
 	return NEW;
-END;' LANGUAGE 'plpgsql';"""
+END;' LANGUAGE 'plpgsql'"""
 
 # update
 template_update_trigger = """CREATE TRIGGER %s
 	BEFORE UPDATE
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
+	FOR EACH ROW EXECUTE PROCEDURE %s()"""
 
 template_update_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -116,13 +115,13 @@ BEGIN
 		%s
 	);
 	return NEW;
-END;' LANGUAGE 'plpgsql';"""
+END;' LANGUAGE 'plpgsql'"""
 
 # delete
 template_delete_trigger = """CREATE TRIGGER %s
 	BEFORE DELETE
 	ON %s
-	FOR EACH ROW EXECUTE PROCEDURE %s();"""
+	FOR EACH ROW EXECUTE PROCEDURE %s()"""
 
 template_delete_function = """CREATE FUNCTION %s() RETURNS OPAQUE AS '
 BEGIN
@@ -134,7 +133,7 @@ BEGIN
 		%s
 	);
 	return OLD;
-END;' LANGUAGE 'plpgsql';"""
+END;' LANGUAGE 'plpgsql'"""
 
 #------------------------------------------------------------------
 def get_children(aCursor, aTable):
@@ -162,7 +161,7 @@ def audit_trail_table_exists(aCursor, table2audit, audit_prefix = 'log_'):
 	audit_trail_table = '%s%s' % (audit_prefix, table2audit)
 
 	# does the audit trail target table exist ?
-	cmd = "SELECT exists(select oid FROM pg_class where relname = %s );"
+	cmd = "SELECT exists(select oid FROM pg_class where relname = %s)"
 	if not gmPG.run_query(aCursor, cmd, audit_trail_table):
 		_log.Log(gmLog.lErr, 'cannot check existance of table %s' % audit_trail_table)
 		return None
@@ -273,11 +272,14 @@ if __name__ == "__main__" :
 
 	file = open ('audit-triggers.sql', 'wb')
 	for line in schema:
-		file.write("%s\n" % line)
+		file.write("%s;\n" % line)
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.12  2003-07-05 12:29:57  ncq
+# Revision 1.13  2003-07-05 12:53:29  ncq
+# - actually use ";"s correctly (verified)
+#
+# Revision 1.12  2003/07/05 12:29:57  ncq
 # - just a bit of cleanup
 #
 # Revision 1.11  2003/07/05 12:26:01  ncq

@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -669,7 +669,7 @@ class database:
 		# write schema to file
 		file = open ('/tmp/audit-triggers.sql', 'wb')
 		for line in audit_schema:
-			file.write("%s\n" % line)
+			file.write("%s;\n" % line)
 		file.close()
 		# import auditing schema
 		if not _import_schema_file(anSQL_file = '/tmp/audit-triggers.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
@@ -1128,7 +1128,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.18  2003-06-27 08:52:14  ncq
+# Revision 1.19  2003-07-05 12:53:29  ncq
+# - actually use ";"s correctly (verified)
+#
+# Revision 1.18  2003/06/27 08:52:14  ncq
 # - remove extra ; in SQL statements
 #
 # Revision 1.17  2003/06/12 08:43:57  ncq
