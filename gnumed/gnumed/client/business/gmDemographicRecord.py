@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.11 2003-11-22 14:44:17 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmDemographicRecord.py,v 1.12 2003-11-23 14:02:40 sjtan Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -167,15 +167,8 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 			activate_str = 'true'
 		else:
 			activate_str = 'false'
-		cmd = "update names set active = true, firstnames = %s, lastnames = %s where id_identity = %s"
-		return gmPG.run_commit ('personalia', [(cmd, [self.ID, firstname, lastname, activate_str])])
+		gmPG.run_commit ('personalia', [(cmd, [self.ID, firstname, lastname, activate_str])]) 
 
-	# keep this until the above is shown to work reliably
-#	def setActiveName (self, firstnames, lastnames):
-		#empirically works.
-		#do an insert to change the name, the old name becomes inactive anyway with the trigger.
-#		cmd = "insert into  names ( firstnames , lastnames , title,  id_identity ) values( %s , %s ,'',  %s)"
-#		gmPG.run_commit ('personalia', [(cmd, [firstnames, lastnames, self.ID]) ])
 	#---------------------------------------------------------	
 	def getTitle(self):
 		cmd = "select title from v_basic_person where i_id = %s"
@@ -190,14 +183,22 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 	#--------------------------------------------------------
 	def setTitle (self, title):
 		# only set title on active name
-		cmd = "update names set title = %s where id_identity = %s and active = true"
-		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
 
-		# keep until above is proven
-		# empirically, this works; updating the name twice, then setting it active.
-#		cmd = "update names set title = %s  where id = (select max(id) from names where id_identity = %s)"
-#		cmd2 = "update names set active = true where id = (select max(id) from names where id_identity = %s)"
-#		gmPG.run_commit ('personalia', [(cmd, [title, self.ID]), (cmd, [title, self.ID]),  (cmd2, [self.ID])])
+		cmd = "select id from names where id_identity = %s and active = true"
+		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
+		if data is None or len(data) == 0:
+			print "NO ACTIVE TITLE FOUND"
+			return None
+		name_id = data[0][0]
+		cmd = "update names set active = false where id = %s" 
+			# setting the active row false but remember its id: a row with  active = false won't fire the 
+			# trigger(s) causing side effects.
+		gmPG.run_commit ('personalia', [(cmd, [name_id ])])
+		cmd = "update names set title = %s  where id = %s"
+		gmPG.run_commit ('personalia', [(cmd, [title, name_id ])])
+		cmd = "update names set active= true where id = %s"
+			#reactivate the row after the data is set
+		return gmPG.run_commit ('personalia', [(cmd, [ name_id ])])
 	#--------------------------------------------------------
 	def getID(self):
 		return self.ID
@@ -567,7 +568,12 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.11  2003-11-22 14:44:17  ncq
+# Revision 1.12  2003-11-23 14:02:40  sjtan
+#
+# by setting active=false first, then updating values, side effects from triggers can be avoided; see also
+# F_active_name trigger function in server sql script,which fires only if new.active = true .
+#
+# Revision 1.11  2003/11/22 14:44:17  ncq
 # - setTitle now only operates on active names and also doesn't set the name
 #   to active which would trigger the trigger
 #
