@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -57,7 +57,7 @@ import os.path, fileinput, string, sys, shutil
 from types import *
 
 # gnumed modules
-from Gnumed.pycommon import gmLog
+import gmLog
 _log = gmLog.gmDefLog
 
 _gmPG = None
@@ -478,18 +478,22 @@ class cCfgFile:
 
 	_modified = None
 	#----------------------------
-	def __init__(self, aPath = None, aFile = None, flags = 0):
+	def __init__(self, aPath = None, aFile = None, flags = 0, aContents = None):
 		"""Init ConfigFile object. For valid combinations of these
 		parameters see above. Raises a ConfigError exception if
 		no config file could be found. 
 		"""
 		self._cfg_data = {}
-		# get conf file name
-		if not self.__get_conf_name(aPath, aFile, flags):
-			raise IOError, "cannot find config file"
-		# load config file
-		if not self.__parse_conf_file():
-			raise SyntaxError, "cannot parse config file"
+		if aContents:
+			if not self.__parse_conf (aContents.split ("\n")):
+				raise SyntaxError, "cannot parse config file"
+		else:
+			# get conf file name
+			if not self.__get_conf_name(aPath, aFile, flags):
+				raise IOError, "cannot find config file"
+			# load config file
+			if not self.__parse_conf_file():
+				raise SyntaxError, "cannot parse config file"
 	#----------------------------
 	# API - access config data
 	#----------------------------
@@ -826,6 +830,10 @@ class cCfgFile:
 
 		_log.Log(gmLog.lData, "parsing config file [%s]" % self.cfgName)
 
+		return self.__parse_conf (fileinput.input(self.cfgName))
+
+	#-------------------------------------------------
+	def __parse_conf (self, conf_file):
 		self._cfg_data['groups'] = {}
 
 		curr_group = None
@@ -833,7 +841,7 @@ class cCfgFile:
 		in_list = None
 		comment_buf = []
 		file_comment_buf = []
-		for line in fileinput.input(self.cfgName):
+		for line in conf_file:
 			# remove trailing CR and/or LF
 			line = string.replace(line,'\015','')
 			line = string.replace(line,'\012','')
@@ -1213,7 +1221,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.4  2004-06-19 18:55:44  shilbert
+# Revision 1.5  2004-06-22 07:58:47  ihaywood
+# minor bugfixes
+# let gmCfg cope with config files that are not real files
+#
+# Revision 1.4  2004/06/19 18:55:44  shilbert
 # - fixes for various import statements
 #
 # Revision 1.3  2004/02/26 14:32:46  ncq
