@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.32 $ $Date: 2003-02-14 00:42:33 $ $Author: ncq $
+-- $Revision: 1.33 $ $Date: 2003-02-26 23:02:53 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -50,14 +50,16 @@ create view v_i18n_doc_type (id, name) as
 		doc_type
 	;
 
+-- this should include: distinct on _(doc_type.name) or some such
+
 -- =============================================
 CREATE TABLE "doc_med" (
 	"id" serial primary key,
 	"patient_id" integer references identity not null,
-	"type" integer references doc_type(id) not null,
-	"comment" character varying(60) not null,
+	"type" integer references doc_type(id),
+	"comment" character varying(60),
 	"date" timestamp with time zone,
-	"ext_ref" character varying (40) not null
+	"ext_ref" character varying (40)
 );
 
 COMMENT ON TABLE "doc_med" IS
@@ -83,7 +85,7 @@ CREATE TABLE "doc_med_external_ref" (
 -- =============================================
 CREATE TABLE "doc_obj" (
 	"id" serial primary key,
-	"doc_id" integer references doc_med(id),
+	"doc_id" integer references doc_med(id) not null,
 	"seq_idx" integer,
 	"comment" character varying(30),
 	"data" bytea
@@ -128,7 +130,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- questions:
