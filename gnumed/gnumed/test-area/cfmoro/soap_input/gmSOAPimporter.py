@@ -30,7 +30,10 @@ This script is designed for importing GnuMed SOAP input "bundle".
 
         -'data':
             - this is a dictionary with additional data
-            - the keys to this dictionary are the "..." parts of the [:...:]
+            - 'clin_contex' is the key or a dictionary containing clinical
+              context information, required to properly create clinical items.
+              Its 'episode_id' must always be supplied.
+            - the other keys to this dictionary are the "..." parts of the [:...:]
               found in 'text' (see above)
             - the values will be dicts themselves with the keys
               'type' and 'data':
@@ -39,7 +42,7 @@ This script is designed for importing GnuMed SOAP input "bundle".
             - 'data' is a dict of fields depending on 'type'
 """
 #===============================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -53,7 +56,7 @@ if __name__ == '__main__':
     else:
         gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
 
-from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N
+from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N, gmWhoAmI
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.business import gmClinNarrative, gmPatient, gmVaccination
 
@@ -67,10 +70,23 @@ class cSOAPImporter:
     Main SOAP importer class
     """
     
+    _soap_key = "soap"
+    _types_key = "types"
+    _text_key = "text"
+    _data_key = "data"
+    _clin_ctx_key = "clin_context"
+    _type_key = "type"
+    _episode_id_key = "episode_id"
+    _encounter_id_key = "encounter_id"
+    _staff_id_key = "staff_id"
+    # key pattern: any string between [: and :]. Any of chars in '[:]'
+    # are forbidden in the key string
+    _key_pattern = "\[:.[^:\[\]]*:\]"    
+    
     #-----------------------------------------------------------
     def __init__(self):
                         
-        self._pat = gmPatient.gmCurrentPatient()
+        self._pat = gmPatient.gmCurrentPatient()        
             
     #-----------------------------------------------------------
     def import_soap(self, bundle=None):
@@ -138,11 +154,21 @@ class cSOAPImporter:
         @type empty_keys: type dict
         """
 
+        # obtain clinical context information
+        vepisode_id = soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._episode_id_key]        
         # FIXME unify
         # obtain active encounter and episode
         emr = self._pat.get_clinical_record()
-        active_encounter = emr.get_active_encounter()
-        active_episode = emr.get_active_episode()
+        vencounter_id = ''
+        vstaff_id = ''
+        if soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key].has_key(cSOAPImporter._encounter_id_key):
+        	vencounter_id = soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._encounter_id_key]
+        else:
+        	vencounter_id = emr.get_active_encounter()['pk_encounter']
+        if soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key].has_key(cSOAPImporter._staff_id_key):
+        	vstaff_id = soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._staff_id_key]
+        else:
+        	vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
 
         # extract useful key lists
         text_keys = entry_keys['text_keys']
@@ -158,15 +184,15 @@ class cSOAPImporter:
         for text_key in text_keys:
         	if text_key in empty_keys:
         		continue
-        	type = soap_entry['data'][text_key]['type']
-        	data = soap_entry['data'][text_key]['data']
+        	type = soap_entry[cSOAPImporter._data_key][text_key][cSOAPImporter._type_key]
+        	data = soap_entry[cSOAPImporter._data_key][text_key][cSOAPImporter._data_key]
         	if type == 'vaccination':
         		#gmVaccination.createVaccination(patient_id= self._pat.GetID(),
-        		#episode_id=active_episode['pk_episode'], encounter_id=active_encounter['pk_encounter'],
-        		#staff_id=data['staff_id'], vaccine=data['vaccine'])
-        		print "Creating vaccination: [%s]" % data
+        		#episode_id=vepisode_id, encounter_id=vencounter_id,
+        		#staff_id=vstaff_id, vaccine=data['vaccine'])
+        		print "Creating vaccination [%s]. Episode [%s]. Encounter [%s]. Staff id [%s]" % (data, vepisode_id, vencounter_id, vstaff_id)
         	else:
-        		_log.Log(gmLog.lErr, 'cannot create clinical item of unknown type [%s] for soap entry [%s]' % (type,soap_entry))
+        		_log.Log(gmLog.lErr, 'cannot create clinical item of unknown type [%s] for soap entry [%s]' % (type,soap_entry, vepisode_id, vencounter_id, vstaff_id))
         	               
     #-----------------------------------------------------------
     def _parse_embedded_keys(self, soap_entry):
@@ -180,15 +206,11 @@ class cSOAPImporter:
         """
 
         # parse out embedded keys as are
-        txt = soap_entry['text']    
-        # key pattern: any string between [: and :]. Any of chars in '[:]'
-        # are forbidden in the key string
-        key_pattern = "\[:.[^:\[\]]*:\]"
-        embedded_keys = re.findall(key_pattern, txt)
-        print embedded_keys
+        txt = soap_entry[cSOAPImporter._text_key]    
+        embedded_keys = re.findall(cSOAPImporter._key_pattern, txt)
         # clean pattern from embedded keys
         embedded_keys = map(lambda key: key.replace("[:","").replace(":]",""), embedded_keys)
-        _log.Log(gmLog.lInfo, "parsed out embedded keys [%s] from soap entry text[%s]" % (embedded_keys, soap_entry['text']))
+        _log.Log(gmLog.lInfo, "parsed out embedded keys [%s] from soap entry text[%s]" % (embedded_keys, soap_entry[cSOAPImporter._text_key]))
         
         return embedded_keys
                 
@@ -211,7 +233,7 @@ class cSOAPImporter:
         # keys embedded in text
         text_keys = self._parse_embedded_keys(soap_entry)
         # additional data
-        data = soap_entry['data']
+        data = soap_entry[cSOAPImporter._data_key]
                 
         # check empty keys
         for a_key in text_keys:
@@ -220,6 +242,8 @@ class cSOAPImporter:
         
         # check lonely data
         for a_key in data.keys():
+        	if a_key == cSOAPImporter._clin_ctx_key:
+        		continue
         	if a_key not in text_keys:
         		lonely_data.append(a_key)        
             
@@ -239,16 +263,20 @@ class cSOAPImporter:
         @type soap_entry: dictionary with keys 'soap', 'types', 'text', 'data'        
         """
 
-        # FIXME unify
-        # obtain active encounter and episode
+        # obtain clinical context information
+        vepisode_id = soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._episode_id_key]
         emr = self._pat.get_clinical_record()
-        active_encounter = emr.get_active_encounter()
-        active_episode = emr.get_active_episode()
+        vencounter_id = ''
+        vstaff_id = ''
+        if soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key].has_key(cSOAPImporter._encounter_id_key):
+        	vencounter_id = soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key][cSOAPImporter._encounter_id_key]
+        else:
+        	vencounter_id = emr.get_active_encounter()['pk_encounter']
         
         # create narrative row
-        #stat, narr = gmClinNarrative.create_clin_narrative(narrative = soap_entry['text'],
-        #soap_cat = soap_entry['soap'], episode_id= active_episode['pk_episode'], encounter_id=active_encounter['pk_encounter'])
-        print "Created soap row: %s - %s" % (soap_entry['text'], soap_entry['soap'])
+        #stat, narr = gmClinNarrative.create_clin_narrative(narrative = soap_entry[cSOAPImporter._text_key],
+        #soap_cat = soap_entry[cSOAPImporter._soap_key], episode_id= vepisode_id, encounter_id=vencounter_id)
+        print "Created soap row: %s - %s. Episode: %s. Encounter: %s" % (soap_entry[cSOAPImporter._text_key], soap_entry[cSOAPImporter._soap_key],vepisode_id, vencounter_id)
         stat = True
         
         return stat
@@ -263,7 +291,8 @@ class cSOAPImporter:
         @type soap_entry: dictionary with keys 'soap', 'types', 'text', 'data'
         """
         
-        must_keys = ['soap', 'types', 'text', 'data']
+        must_keys = [cSOAPImporter._soap_key, cSOAPImporter._types_key,
+        cSOAPImporter._text_key, cSOAPImporter._data_key]
         
         # verify soap entry contains all must have keys
         for a_must_key in must_keys:
@@ -283,8 +312,29 @@ class cSOAPImporter:
         tmp = self._verify_text(soap_entry)
         if not tmp:
             result = False
+        tmp = self._verify_clin_ctx(soap_entry)
+        if not tmp:
+            result = False            
              
         return result
+        
+    #-----------------------------------------------------------
+    def _verify_clin_ctx(self, soap_entry):
+        """
+        Perform clinical context key check of a supplied SOAP entry
+        
+        @param soap_entry: dictionary containing information related to one
+                           SOAP input
+        @type soap_entry: dictionary with keys 'soap', 'types', 'text', 'data'
+        """
+               
+        
+        if not soap_entry[cSOAPImporter._data_key].has_key(cSOAPImporter._clin_ctx_key) or \
+        not soap_entry[cSOAPImporter._data_key][cSOAPImporter._clin_ctx_key].has_key(cSOAPImporter._episode_id_key):
+            _log.Log(gmLog.lErr, 'adecuate clinical contex must be supplied under key [%s] in soap entry data dictionary [%s]' % 
+            (cSOAPImporter._clin_ctx_key, soap_entry))
+            return False
+        return True
 
     #-----------------------------------------------------------
     def _verify_soap(self, soap_entry):
@@ -298,7 +348,7 @@ class cSOAPImporter:
         
         # FIXME fetch from backend
         soap_cats = ['s','o','a','p']
-        if not soap_entry['soap'] in soap_cats:
+        if not soap_entry[cSOAPImporter._soap_key] in soap_cats:
             _log.Log(gmLog.lErr, 'bad clin_narrative.soap_cat in supplied soap entry [%s]' % 
             soap_entry)
             return False
@@ -316,7 +366,7 @@ class cSOAPImporter:
         
         # FIXME fetch from backend
         allowed_types = ['Hx']
-        for input_type in soap_entry['types']:
+        for input_type in soap_entry[cSOAPImporter._types_key]:
             if not input_type in allowed_types:
                 _log.Log(gmLog.lErr, 'bad clin_item_type.type in supplied soap entry [%s]' % 
                 soap_entry)
@@ -333,7 +383,7 @@ class cSOAPImporter:
         @type soap_entry: dictionary with keys 'soap', 'types', 'text', 'data'
         """
                 
-        text = soap_entry['text']
+        text = soap_entry[cSOAPImporter._text_key]
         if text is None or len(text) == 0:
             _log.Log(gmLog.lErr, 'empty clin_narrative.narrative in supplied soap entry [%s]' % 
                 soap_entry)
@@ -421,35 +471,51 @@ if __name__ == '__main__':
         # now import
         importer = cSOAPImporter()
         bundle = [
-            {'soap':'s',
-             'types':['Hx'],
-             'text':'Test subjective narrarive',
-             'data': {}
+            {cSOAPImporter._soap_key:'s',
+             cSOAPImporter._types_key:['Hx'],
+             cSOAPImporter._text_key:'Test subjective narrarive',
+             cSOAPImporter._data_key: {
+                      cSOAPImporter._clin_ctx_key:{       
+                                         cSOAPImporter._episode_id_key:'1'
+                                                  }
+                                      }
             },
-            {'soap':'o',
-             'types':['Hx'],
-             'text':'Test objective narrative',
-             'data': {}
+            {cSOAPImporter._soap_key:'o',
+             cSOAPImporter._types_key:['Hx'],
+             cSOAPImporter._text_key:'Test objective narrative',
+             cSOAPImporter._data_key: {
+                      cSOAPImporter._clin_ctx_key:{       
+                                         cSOAPImporter._episode_id_key:'1'
+                                                  }
+                                      }             
             },
-            {'soap':'a',
-             'types':['Hx'],
-             'text':'Test assesment narrative',
-             'data': {}
+            {cSOAPImporter._soap_key:'a',
+             cSOAPImporter._types_key:['Hx'],
+             cSOAPImporter._text_key:'Test assesment narrative',
+             cSOAPImporter._data_key: {
+                      cSOAPImporter._clin_ctx_key:{       
+                                         cSOAPImporter._episode_id_key:'1'
+                                                  }
+                                      }                         
             },
-            {'soap':'p',
-             'types':['Hx'],
-             'text':'Test plan narrarive. [:tetanus:]. [:pneumoniae:]',
-             'data': {'tetanus': {
-                                         'type':'vaccination',
-                                         'data': {
-                                                     'vaccine':'tetanus',
-                                                     'staff_id':'1'
+            {cSOAPImporter._soap_key:'p',
+             cSOAPImporter._types_key:['Hx'],
+             cSOAPImporter._text_key:'Test plan narrarive. [:tetanus:]. [:pneumoniae:]',
+             cSOAPImporter._data_key: {
+                      cSOAPImporter._clin_ctx_key: {       
+                                         cSOAPImporter._episode_id_key:'1',
+                                         cSOAPImporter._encounter_id_key:'1',
+                                         cSOAPImporter._staff_id_key:'1'
+                                 },                          
+                      'tetanus': {
+                                         cSOAPImporter._type_key:'vaccination',
+                                         cSOAPImporter._data_key: {
+                                                     'vaccine':'tetanus'
                                      }           },
                       'pneumoniae': {
-                                         'type':'vaccination',
-                                         'data': {
-                                                     'vaccine':'pneumoniae',
-                                                     'staff_id':'1'
+                                         cSOAPImporter._type_key:'vaccination',
+                                         cSOAPImporter._data_key: {
+                                                     'vaccine':'pneumoniae'
                                      }           }
                      }
             }                                    

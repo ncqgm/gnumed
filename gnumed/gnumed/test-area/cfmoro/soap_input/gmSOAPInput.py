@@ -13,7 +13,7 @@
         -Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -21,13 +21,14 @@ import os.path, sys
 
 from wxPython import wx
 
-from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
+from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals, gmWhoAmI
 from Gnumed.business import gmEMRStructItems, gmPatient
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
 
-import SOAP2, SOAPMultiSash, gmSOAPimporter
+import SOAP2, SOAPMultiSash
+from gmSOAPimporter import cSOAPImporter
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -370,13 +371,57 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
         if not self._allow_perform_action(self._save_button.GetId()):
             return
     
-        #FIXME initial development implementation. Refactor.
+        #FIXME initial development implementation. Refactor and update
+        vepisode_id = self._emr.get_active_episode()['pk_episode']
+        vencounter_id = self._emr.get_active_episode()['pk_episode']
+        vstaff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
         bundle = []
-        bundle.append({'soap':'s', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Subjective'], 'data':''})
-        bundle.append({'soap':'o', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Objective'], 'data':''})
-        bundle.append({'soap':'a', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Assessment'], 'data':''})
-        bundle.append({'soap':'p', 'types':['Hx'], 'text':self._selected_soap.GetSOAP().GetValues()['Plan'], 'data':''})                        
-        importer = gmSOAPimporter.cSOAPImporter()
+        bundle.append(
+           {cSOAPImporter._soap_key:'s',
+            cSOAPImporter._types_key:['Hx'],
+            cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Subjective'],
+            cSOAPImporter._data_key:{
+                      cSOAPImporter._clin_ctx_key:{       
+                                         cSOAPImporter._episode_id_key:vepisode_id
+                                                  }
+                   }
+           }
+        )
+        bundle.append(
+           {cSOAPImporter._soap_key:'o',
+            cSOAPImporter._types_key:['Hx'],
+            cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Objective'],
+            cSOAPImporter._data_key:{
+                      cSOAPImporter._clin_ctx_key:{       
+                                         cSOAPImporter._episode_id_key:vepisode_id
+                                                  }
+                   }
+           }
+        )
+        bundle.append(
+           {cSOAPImporter._soap_key:'a',
+            cSOAPImporter._types_key:['Hx'],
+            cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Assessment'],
+            cSOAPImporter._data_key:{
+                      cSOAPImporter._clin_ctx_key:{       
+                                         cSOAPImporter._episode_id_key:vepisode_id
+                                                  }
+                   }
+           }
+        )
+        bundle.append(
+           {cSOAPImporter._soap_key:'p',
+            cSOAPImporter._types_key:['Hx'],
+            cSOAPImporter._text_key:self._selected_soap.GetSOAP().GetValues()['Plan'],
+            cSOAPImporter._data_key:{
+                      cSOAPImporter._clin_ctx_key:{       
+                                         cSOAPImporter._episode_id_key:vepisode_id
+                                                  }
+                   }
+           }
+        )                
+        importer = cSOAPImporter()
+        print bundle[0]
         importer.import_soap(bundle)
                 
         self._selected_soap.SetSaved(True)
