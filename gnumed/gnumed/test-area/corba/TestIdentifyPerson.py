@@ -62,7 +62,7 @@ def _test_find_candidates_spec(idp , specTraits):
 			for selector in traitSelectSeq:
 				print selector.trait.name, selector.trait.value.value(), selector.weight
 
-		confidence_threshold = 0.9
+		confidence_threshold = 0.5
 
 		candidates, candidateIterator = idp.find_candidates(traitSelectSeq, [PersonIdService.PERMANENT], confidence_threshold, n/2, n/2, specTraits  )
 

@@ -13,7 +13,7 @@ import threading, thread, traceback, time
 from  PersonIdTestUtils import *
 from SqlTraits import *
 import string
-
+import difflib
 
 class IdentifyPerson_i(PersonIdService__POA.IdentifyPerson, StartIdentificationComponent):
 	"""an implementation of identifyPerson , using gnumed for a backend.
@@ -33,6 +33,8 @@ class IdentifyPerson_i(PersonIdService__POA.IdentifyPerson, StartIdentificationC
 	def _optimize_calltime_by_sql_prepare(self):
 		con = self.connector.getConnection()
 		self.preparedStatements = {}
+
+
 	def find_candidates(self,
 		traitSelectorSeq ,
 		IdStateSeq,
@@ -107,7 +109,7 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 			frag = "strpos(%s, $%d) > 0" % (field, i )
 			if debug:
 				print "weight , threshold ", weight, SqlTraits.weight_OR_threshold
-			if weight < SqlTraits.weight_OR_threshold:
+			if weight < confidence_threshold:
 				and_frags.append(frag)
 			else:
 				or_frags.append(frag)
@@ -115,9 +117,14 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 			funclist = SqlTraits.idPerson_field_filters.get(field,[])
 			for f in funclist:
 				value = f(value)
+
+			if debug:
+				print "field = ", value
 			values.append(value)
 			used_fields.append(field)
 
+		#filtered_selectProfile =get_tagged_profile_from_row( values, [ (f) for f in used_fields ])
+		#print "After filtering ", brief_profile(filtered_selectProfile)
 		or_part = ' or '.join(or_frags)
 		and_part = ' and '.join(and_frags)
 		if or_part == '':
@@ -159,19 +166,24 @@ adherence. This is in part because fuzzy semantics cannot be measured.
 
 		#stmt = "select %s from (%s) as i where %s" % ( ",".join(field_list), sql_traits, " or ".join(frags) )
 
-		result = cursor.fetchmany(sequence_max)
+		result = cursor.fetchall()
+
 		print "number of initial candidates", len(result)
 		candidateSeq  , confidences = [], []
 		for r in result:
 			tprofile = get_tagged_profile_from_row( r, cursor.description )
-			if confidence_threshold > 0.1:
-				confidence, full_match_ratio = calculate_confidence( tprofile.profile, traitSelectorSeq)
-				confidences.append( (confidence, full_match_ratio ))
-				if confidence < confidence_threshold and full_match_ratio -  confidence_threshold > 0.1:
-					continue
-			candidate = PersonIdService.Candidate(tprofile.id,     max( confidence , full_match_ratio ), tprofile.profile)
+		#	if confidence_threshold > 0.1:
+		#		confidence, full_match_ratio = calculate_confidence( tprofile.profile, traitSelectorSeq)
+		#		confidences.append( (confidence, full_match_ratio ))
+		#		if confidence < confidence_threshold and full_match_ratio -  confidence_threshold > 0.1:
+		#			continue
+			confidence = calculate_confidence(tprofile.profile, traitSelectorSeq)
+			if confidence < confidence_threshold:
+				continue
+			candidate = PersonIdService.Candidate(tprofile.id, confidence , tprofile.profile)
 			candidateSeq.append(candidate)
-
+			if len(candidateSeq) > sequence_max:
+				break
 		print "number of screened candidates", len(candidateSeq)
 
 		if '-stats' in sys.argv:
@@ -195,25 +207,39 @@ def calculate_confidence( profile, traitSelectorSeq):
 		if map.has_key(trait.name):
 			tSelector = map[trait.name]
 			v1, v2 =  tSelector.trait.value.value().strip('^ ') , trait.value.value().strip('^ ')
-			if len(v1) > 0 and (v2.lower().find(v1.lower()) >= 0):
-
+			matches =  difflib.get_close_matches(v1,[v2], 1, tSelector.weight)
+			print "Matches for ", trait.name,"weight", tSelector.weight, " are ", matches
+			if matches <> None and matches <> []:
 				if v1 == v2:
 					full_matches += 1
-				weightings.append(tSelector.weight * float(len(v1) / len(v2)))
+				weightings.append(tSelector.weight * len(v1) )
 				total_weight += tSelector.weight
-			total_data_len += len(v2)
-	if len(weightings) == 0: return 0.05, 0.05
+			total_data_len += tSelector.weight * len(v2)
+	if len(weightings) == 0: return 0.05
 	def sum(x,y): return x + y
 	tot = reduce( sum, weightings)
 	if total_weight < 0.05 :
 		total_weight = 1.0
- 	confidence = tot #* full_matches ? don't need full_matches because accounted for length ratio .
+ 	confidence = tot /total_data_len #* full_matches ? don't need full_matches because accounted for length ratio .
 	if show_confidence:
 		print "\n***********\nconfidence for :"
 		print "\tSelector=", brief_selector(traitSelectorSeq)
 		print "\tCandidate=", brief_profile(profile)
 		print "\t\tconfidence = ", confidence,"\n************\n"
-	return confidence, full_matches / len(weightings)
+	#return full_matches / len(weightings)
+	return confidence
 
+
+	def _find_candidates_1 (self,
+		traitSelectorSeq ,
+		IdStateSeq,
+		confidence_threshold,
+		sequence_max,
+		iterator_max,
+		specifiedTraits ):
+		"""This implementation of find candidates does :
+		1) match
+		"""
+		pass
 
 

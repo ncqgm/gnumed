@@ -314,8 +314,9 @@ def catchExceptions (method, *params):
 	try:
 		method(*params)
 	except:
+		#raise
 		e = sys.exc_info()
-		print e[0], e[1]
+		print e, e[0], e[1]
 		traceback.print_tb(e[2])
 
 def trace_caller():

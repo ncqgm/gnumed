@@ -58,11 +58,14 @@ class IdMgr_i (PersonIdService__POA.IdMgr, StartIdentificationComponent):
 				[new_id] = self._do_register_new_ids( [p])
 				ids.append(new_id)
 			else:
-				max_conf, theOne = 0.0, None
+				max_conf, theOnes = 0.0, []
+
 				for c in candidateSeq:
+					if abs(c.confidence - max_conf) <0.001 :
+						theOnes.append(c.id)
 					if c.confidence > max_conf:
-						theOne , max_conf = c, c.confidence
-				ids.append( theOne)
+						theOnes  , max_conf = [c.id], c.confidence
+				ids.extend( theOnes)
 		return ids
 
 	def register_new_ids(self, new_profiles):
@@ -140,7 +143,7 @@ def get_existing_profile_seq_indexes( component, profiles):
 	return violating_sequence_indexes
 
 
-def getExistingCandidateSeq(component, p, confidence_threshold = 0.9):
+def getExistingCandidateSeq(component, p, confidence_threshold = 0.8):
 	traitSelectorSeq = getTraitSelectorSeqFromProfile(p, defaultWeight=0.2)
 	iperson = component._get_identify_person()
 	candidateSeq , iterator = iperson.find_candidates(traitSelectorSeq, [PersonIdService.PERMANENT], confidence_threshold , 100, 10, PersonIdService.SpecifiedTraits(PersonIdService.ALL_TRAITS, [] ) )

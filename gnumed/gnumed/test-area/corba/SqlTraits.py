@@ -12,9 +12,12 @@ global HOME_PHONE_TYPE, BUSINESS_PHONE_TYPE
 HOME_PHONE_TYPE = 1
 BUSINESS_PHONE_TYPE =2
 
-MAX_TRAITS_RETURNED  = 10000
+MAX_TRAITS_RETURNED  = 1000000
 
 NO_DEFAULTS_CONFIDENCE_THRESHOLD = 0.8
+
+global URBS_UPPER
+URBS_UPPER = 1
 
 global hl7
 hl7 = HL7Version2_3
@@ -70,7 +73,7 @@ to_trait_map = { 'id': (s[0], 0),
 	 }
 
 global idPerson_field_filters
-idPerson_field_filters = { 'gender': [string.lower] }
+idPerson_field_filters = { 'gender': [string.lower], 'state' : [string.upper], 'urb': [string.upper] }
 
 in_trait_map = {
 
@@ -84,14 +87,14 @@ default_weight_map = {
 	'gender': 0.1 ,
 	'country_code' : 0.1,
 	'datetimeofbirth': 0.8,
-	'lastnames': 0.6,
-	'firstnames': 0.6,
+	'lastnames': 0.8,
+	'firstnames': 0.8,
 	'number':0.6,
 	'street':0.4,
 	'urb_name': 0.3,
 	'state': 0.1,
 	'postcode': 0.3,
-	'home_telephone' : 0.8
+	'home_telephone' : 0.7
 	}
 global weight_OR_threshold
 weight_OR_threshold = 0.5
@@ -193,7 +196,17 @@ expected_hl7_fieldcount = {
 	hl7.PATIENT_NAME: 6
 	}
 
-def get_tagged_profile_from_row(row, desc, traitspec_map = to_trait_map, index_map = None, idName = 'id'	) :
+def get_tagged_profile_from_row(row, desc, traitspec_map = to_trait_map, index_map = None, idName = 'id') :
+	if index_map == None:
+		index_map = get_field_index_map(desc)
+
+	if not index_map.has_key('id') and not index_map.has_key(idName):
+		raise UserException('No Id')
+
+	return PersonIdService.TaggedProfile( str(row[index_map[idName]]) ,get_profile_from_row( row, desc, traitspec_map , index_map ))
+
+
+def get_profile_from_row(row, desc, traitspec_map = to_trait_map, index_map = None) :
 
 	"""gets a PersonIdService.TaggedProfile from a  row in a select from a traits
 	view.
@@ -218,6 +231,11 @@ def get_tagged_profile_from_row(row, desc, traitspec_map = to_trait_map, index_m
 		else:	list[pos] = str(row[i]).strip()
 
 		traitMap[n] = list
+
+	newMap = _pad_with_expected_number_of_separators(traitMap)
+	return trait_map_to_profile(newMap)
+
+def _pad_with_expected_number_of_separators( traitMap):
 	newMap = {}
 	global expected_hl7_fieldcount
 	for k,v in traitMap.items():
@@ -227,9 +245,7 @@ def get_tagged_profile_from_row(row, desc, traitspec_map = to_trait_map, index_m
 			v.extend( [''] * (n_fields - len(v) ))
 		#create the trait value e.g. 'Smith^John^Jo^Mr^^^'
 		newMap[k] = '^'.join(v)
-
-	return PersonIdService.TaggedProfile( str(row[index_map[idName]]) ,trait_map_to_profile( newMap) )
-
+	return newMap
 
 def merge_tagged_profiles( tprofiles):
 	"""merges the tprofiles into a set sequence of unique profiles. Multiple tagged_profiles
@@ -295,8 +311,14 @@ def get_field_list_and_traitname_list(specifiedTraits):
 	if 'id ' not in field_list:
 		field_list.append('id')
 	if debug:
-		print "field_list is ", field_list
+		print  "field_list is ", field_list
 	return field_list, traits
+
+
+def check_for_special_trait_processing(traitname, fieldvalueList):
+	if traitname == hl7.PATIENT_ADDRESS:
+		fieldvalueList = preprocess_address( fieldvalueList)
+	return fieldvalueList
 
 def get_field_weighted_value_map( traitSelectorSeq, confidence_threshold = 0.8):
 	"""gets a map of sql field name: (value, weight for value) from a traitSelectorSeq, which is a sequence of (trait, weight) """
@@ -309,13 +331,18 @@ def get_field_weighted_value_map( traitSelectorSeq, confidence_threshold = 0.8):
 			continue
 
 		fields = trait_to_sql_trait_field.get(trait.name, [])
-		print trait.name, " fields = ", fields
+		check_for_special_trait_processing( trait.name , fields)
+		if debug:
+			print trait.name, " fields = ", fields
 		l = [ x.strip() for x in v.value().split('^') ]
+		weights = []
 		for i in xrange( 0, min( len(l), len(fields) )):
 			if l[i].strip() == '':
-				continue
+				weight = 0.01
+			
 
 			if weight < 0.05 : # exclude non weights
+				weights.append(weight)
 				continue
 			weight_limit =default_weight_map.get(fields[i], 0.1)
 			# FIXME: this will mask out low weightings for normally high
@@ -323,9 +350,16 @@ def get_field_weighted_value_map( traitSelectorSeq, confidence_threshold = 0.8):
 			if weight < weight_limit and confidence_threshold <= NO_DEFAULTS_CONFIDENCE_THRESHOLD:
 				weight = weight_limit
 
+			if debug:
+				print "field ", fields[i], "weight = ", weight, "weight_limit", weight_limit
+			weights.append(weight)
 
-			print "field ", fields[i], "weight = ", weight, "weight_limit", weight_limit
-			field_value_map[fields[i]] = ( l[i], weight)
+		l = check_for_special_trait_processing( trait.name, l)
+
+		for i in xrange (0, min(len(l), len(fields) )):
+			if weights[i] < 0.05:
+				continue
+			field_value_map[fields[i]] = ( l[i], weights[i])
 
 	return field_value_map
 
@@ -432,7 +466,7 @@ def do_profile_update(pu, conn):
 			#"select gis database on l[5]"
 
 			s1 = "delete from lnk_person2address where id_identity = %s and id_type = 1"
-			s2_findUrb = "select urb.id from urb, state where state.id = urb.id_state and urb.name = '%s' and (urb.postcode = '%s' or state.code = '%s'  or state.name='%s' )"
+			s2_findUrb = "select urb.id from urb, state where state.id = urb.id_state and upper(urb.name) = upper('%s') and (urb.postcode = '%s' or state.code = '%s'  or upper(state.name)=upper('%s') )"
 
 			s3_findStreet = "select street.id, urb.id from street ,urb , state where street.id_urb = urb.id and urb.id_state = state.id and street.name ='%s' and ( street.id_urb = %d or   urb.postcode = '%s' or (street.postcode = '%s' and state.name = '%s' ))"
 			s3b1_insertStreet = "insert into street( name, id_urb) values( '%s', %d)"
@@ -455,7 +489,8 @@ def do_profile_update(pu, conn):
 			cursor.execute(s3_findStreet % ( l[1] ,urb_id,l[5], l[5], l[4] ))
 			res = cursor.fetchall()
 
-
+			if URBS_UPPER:
+				l[4] = l[4].upper()
 
 			if len(res) > 0 :
 				street_id, urb_id = res[0][0], res[0][1]
@@ -606,9 +641,11 @@ def isCapitalized(s):
 def preprocess_address( l):
 	l = filter( lambda(x): x <> '' , l)
 	if len( l) < 5:
-		l.extend( [''] * (len(l) -5))
+		l.extend( [''] * (5 - len(l)))
+
 	if not is_mostly_numeric( l[0] ):
 		i = 0
+		last_mostly_numeric = -1
 		for w in l[0].split(' '):
 			if is_mostly_numeric(w):
 				last_mostly_numeric = i

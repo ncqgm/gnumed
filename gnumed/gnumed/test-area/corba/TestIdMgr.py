@@ -40,7 +40,7 @@ def __getTestProfiles(idMgr):
 
 	# street^otherDesignation^city^state^postcode^country^_^_
 	#  ( _ is space)
-	a = "123 Black Rd^^Blacktown^Vic^3183^au^"
+	a = "123 Black Rd^^BLACKTOWN^NSW^2148^AU^"
 
 	#    yyyymmddhhmmss
 	b = "19650227123000"
@@ -66,29 +66,35 @@ def _test_find_or_register_id(idMgr):
 	if idList == idList2:
 		print "PASS: find_or_create_ids() doesn't duplicate id"
 
-	map = SqlTraits.get_trait_map(idMgr, firstname='Paulle', middle='', lastname='Smithy',suffix='',  street='22 Victor Rd', otherDesignation='', city='Vermont South', state='Vic', postcode='3334', country='Australia',
+	map = SqlTraits.get_trait_map(idMgr, firstname='Paulle', middle='', lastname='Smithy',suffix='',  street='22 Victor Rd', otherDesignation='', city='Vermont South', state='Vic', postcode='3133', country='Au',
 	dobDay=20, dobMonth=11, dobYear=1952, sex='M', phoneCountryCode='65', phoneNumber='0394445555')
 
 	profile2 = trait_map_to_profile(map)
 
 	idList3 = idMgr.find_or_register_ids([profile, profile2])
+	global profile_id, profile2_id
+	profile_id = idList3[0]
+	profile2_id = idList3[1]
+
 	idList4 = idMgr.find_or_register_ids([profile, profile2])
 	#print idList3
 	#print idList4
 	idList3.sort()
-	global profile_id, profile2_id
-	profile_id = idList3[0]
-	profile2_id = idList3[1]
+
 
 	idList4.sort()
 	for label, list in [ ("first", idList3), ("second", idList4) ]:
 		print "id list returned by ", label, " call of find_or_register_ids(profile, profile2) is", list
 
-	if (len(idList3) == 2 and idList3==idList4):
+	if ( idList3==idList4):
 		print "PASS: find_or_create_ids() is repeatable for a sequence of 2 profiles, returning the same id set"
+	if idList3 > 2:
+		print "INTEGRITY problem: there are ", max(len(idList3), len(idList4) ) , " identities with the same traits"
 	else:
-		if (len(idList3) ==2 and idList3 <> idList4):
+		if  idList3 <> idList4:
 			print "Different id set returned after repeating call to find_or_create_ids()"
+			print "idList3 = ", idList3
+			print "idList4 = ", idList4
 		print "FAIL** repeated operation of find_or_create_ids() failed"
 		ask_continue()
 
@@ -158,10 +164,11 @@ def _test_register_these_ids(idMgr):
 	then test if the operation succeeds when ids are new."""
 	print "\nTESTING register_these_ids with old profiles"
 	global profile, profile2
+	#global profile_id, profile2_id
 	global profile_id, profile2_id
 	global debug
 
-	tp = PersonIdService.TaggedProfile( profile_id, profile)
+	tp = PersonIdService.TaggedProfile(profile_id, profile)
 
 	tp2 = PersonIdService.TaggedProfile( profile2_id, profile2)
 
@@ -248,6 +255,8 @@ def _test_merge_ids(idMgr):
 		print "ids of tagged profiles were",  tp_idList
 
 	print"\nTESTING merge_ids() using recently construct tagged_profile sequence: the last tagged_profile's id will be the preferred id for the other profiles."
+	global deactivated_ids
+	deactivated_ids = []
 	ms_list = []
 	for tp in tp_list[0:-1]:
 		ms = PersonIdService.MergeStruct(tp.id, sid)
@@ -262,7 +271,7 @@ def _test_merge_ids(idMgr):
 	if filter(lambda(idInfo): idInfo.preferred_id == sid, result) == result:
 		print "PASS: all preferred ids refer to ", sid
 
-	global deactivated_ids
+
 	deactivated_ids = [ idInfo.id for idInfo in result]
 	deactivated_ids.sort()
 

@@ -128,4 +128,3 @@ if __name__== "__main__":
 	doTest(testIdMgr)
 	doTest(testIdentifyPerson)
 	doTest(testProfileAccess)
-	doTest(testIdentifyPerson)
