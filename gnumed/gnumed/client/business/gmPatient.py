@@ -1,4 +1,4 @@
-"""GnuMed temporary patient object.
+"""GnuMed patient objects.
 
 This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
@@ -7,19 +7,18 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.12 2004-01-18 21:43:00 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPatient.py,v 1.13 2004-02-04 00:57:24 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, time
+import sys, os.path, time, re, string
 
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 
 # start logging
-import gmLog, gmDemographicRecord
-
+import gmLog
 _log = gmLog.gmDefLog
 
 if __name__ == "__main__":
@@ -27,7 +26,7 @@ if __name__ == "__main__":
 
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord, gmI18N
+import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord, gmI18N, gmDemographicRecord
 
 #============================================================
 # may get preloaded by the waiting list
@@ -295,12 +294,436 @@ class gmCurrentPatient(cBorg):
 		else:
 			return None
 #============================================================
+class cPatientSearcher_SQL:
+	"""UI independant i18n aware patient searcher."""
+	def __init__(self):
+		# list more generators here once they are written
+		self.__query_generators = {
+			'default': self.__generate_queries_de,
+			'de': self.__generate_queries_de
+		}
+		# set locale dependant query handlers
+		# - generator
+		try:
+			self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['full']]
+		except KeyError:
+			try:
+				self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['country']]
+			except KeyError:
+				try:
+					self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['language']]
+				except KeyError:
+					self.__generate_queries = self.__query_generators['default']
+		# make a cursor
+		self.conn = gmPG.ConnectionPool().GetConnection('personalia')
+		self.curs = self.conn.cursor()
+	#--------------------------------------------------------
+	def __del__(self):
+		try:
+			self.curs.close()
+		except: pass
+		try:
+			self.conn.close()
+		except: pass
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	def get_patient_ids(self, a_search_term = None, a_locale = None):
+		# handle temporary change of locale
+		if a_locale is not None:
+			print "temporary change of locale on patient search not implemented"
+			_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
+		# generate queries
+		if a_search_term is None:
+			_log.Log(gmLog.lErr, 'need search term')
+			return None
+		query_lists = self.__generate_queries(a_search_term)
+		# anything to do ?
+		if query_lists is None:
+			_log.Log(gmLog.lErr, 'query tree empty')
+			return None
+		if len(query_lists) == 0:
+			_log.Log(gmLog.lErr, 'query tree empty')
+			return None
+
+		# collect IDs here
+		pat_ids = []
+		# cycle through query levels
+		for query_list in query_lists:
+			_log.Log(gmLog.lData, "running %s" % query_list)
+			# try all queries at this query level
+			for cmd in query_list:
+				rows = gmPG.run_ro_query(self.curs, cmd)
+				if rows is None:
+					_log.Log(gmLog.lErr, 'cannot fetch patient IDs')
+				else:
+					pat_ids.extend(rows)
+			# if we got patients don't try more query levels
+			if len(pat_ids) > 0:
+				break
+
+		return pat_ids
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __make_sane_caps(self, aName = None):
+		"""Make user input suitable for case-sensitive matching.
+
+		- this mostly applies to names
+		- it will be correct in "most" cases
+
+		- "beckert"  -> "Beckert"
+		- "mcburney" -> "Mcburney" (probably wrong but hard to be smart about it)
+		- "mcBurney" -> "McBurney" (try to preserve effort put in by the user)
+		- "McBurney" -> "McBurney"
+		"""
+		if aName is None:
+			return None
+		else:
+			return aName[:1].upper() + aName[1:]
+	#--------------------------------------------------------
+	def __normalize_soundalikes(self, aString = None, aggressive = 0):
+		"""Transform some characters into a regex for their sound-alikes."""
+		if aString is None:
+			return None
+		if len(aString) == 0:
+			return aString
+
+		# umlauts
+		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|E)')
+		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe)')
+		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue)')
+		normalized = normalized.replace(u'ä', u'(ä|ae|e)')
+		normalized = normalized.replace(u'ö', u'(ö|oe)')
+		normalized = normalized.replace(u'ü', u'(ü|ue|y)')
+		normalized = normalized.replace(u'ß', u'(ß|sz|ss)')
+		# common soundalikes
+		# - René, Desiré, ...
+		normalized = normalized.replace(u'é', u'(é|e)')
+		# FIXME: how to sanely replace t -> th ?
+		normalized = normalized.replace('Th', '(Th|T)')
+		normalized = normalized.replace('th', '(th|t)')
+		# FIXME: how to prevent replacing (f|v|ph) -> (f|(v|f|ph)|ph) ?
+		#normalized = normalized.replace('v','(v|f|ph)')
+		#normalized = normalized.replace('f','(f|v|ph)')
+		#normalized = normalized.replace('ph','(ph|f|v)')
+
+		if aggressive == 1:
+			pass
+			# some more here
+		return normalized
+	#--------------------------------------------------------
+	# write your own query generator and add it here:
+	# use compile() for speedup
+	# must escape strings before use !!
+	# ORDER BY !
+	# FIXME: what about "< 40" ?
+
+	def __make_simple_query(self, raw):
+		"""Compose queries if search term seems unambigous."""
+		queries = []
+
+		# "<ZIFFERN>" - patient ID or DOB
+		if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
+			tmp = raw.replace(' ', '')
+			tmp = tmp.replace('\t', '')
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
+			return queries
+
+		# "#<ZIFFERN>" - patient ID
+		if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
+			tmp = raw.replace(' ', '')
+			tmp = tmp.replace('\t', '')
+			tmp = tmp.replace('#', '')
+			# this seemingly stupid query ensures the id actually exists
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id = '%s'" % tmp])
+#			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			return queries
+
+		# "<Z I  FF ERN>" - DOB or patient ID
+		if re.match("^(\d|\s|\t)+$", raw):
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw])
+			tmp = raw.replace(' ', '')
+			tmp = tmp.replace('\t', '')
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp])
+			return queries
+
+		# "<Z(.|/|-/ )I  FF ERN>" - DOB
+		if re.match("^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw):
+			tmp = raw.replace(' ', '')
+			tmp = tmp.replace('\t', '')
+			# apparently not needed due to PostgreSQL smarts...
+			#tmp = tmp.replace('-', '.')
+			#tmp = tmp.replace('/', '.')
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
+			return queries
+
+		# "*|$<...>" - DOB
+		if re.match("^(\s|\t)*(\*|\$).+$", raw):
+			tmp = raw.replace('*', '')
+			tmp = tmp.replace('$', '')
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp])
+			return queries
+
+		return None
+	#--------------------------------------------------------
+	def __generate_queries_de(self, a_search_term = None):
+		if a_search_term is None:
+			return []
+
+		# check to see if we get away with a simple query ...
+		queries = self.__make_simple_query(a_search_term)
+		if queries is not None:
+			return queries
+
+		# no we don't
+		queries = []
+
+		# replace Umlauts
+		no_umlauts = self.__normalize_soundalikes(a_search_term)
+
+		# "<CHARS>" - single name part
+		# yes, I know, this is culture specific (did you read the docs ?)
+		if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", a_search_term):
+			# there's no intermediate whitespace due to the regex
+			tmp = no_umlauts.strip()
+			# assumption: this is a last name
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~* '^%s'" % tmp])
+			# assumption: this is a first name
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s'" % self.__make_sane_caps(tmp)])
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s'" % tmp])
+			# name parts anywhere in name
+			queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s'" % tmp])
+			return queries
+
+		# try to split on (major) part separators
+		parts_list = re.split(",|;", no_umlauts)
+
+		# only one "major" part ? (i.e. no ",;" ?)
+		if len(parts_list) == 1:
+			# re-split on whitespace
+			sub_parts_list = re.split("\s*|\t*", no_umlauts)
+
+			# parse into name/date parts
+			date_count = 0
+			name_parts = []
+			for part in sub_parts_list:
+				# any digit signifies a date
+				# FIXME: what about "<40" ?
+				if re.search("\d", part):
+					date_count = date_count + 1
+					date_part = part
+				else:
+					name_parts.append(part)
+
+			# exactly 2 words ?
+			if len(sub_parts_list) == 2:
+				# no date = "first last" or "last first"
+				if date_count == 0:
+					# assumption: first last
+					queries.append(
+						[
+						 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]))
+						]
+					)
+					queries.append([
+						 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
+					])
+					# assumption: last first
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]))
+					])
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
+					])
+					# name parts anywhere in name - third order query ...
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
+					])
+					return queries
+				# FIXME: either "name date" or "date date"
+				_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % a_search_term)
+				return queries
+
+			# exactly 3 words ?
+			if len(sub_parts_list) == 3:
+				# special case: 3 words, exactly 1 of them a date, no ",;"
+				if date_count == 1:
+					# assumption: first, last, dob - first order
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[0]), self.__make_sane_caps(name_parts[1]), date_part)
+					])
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
+					])
+					# assumption: last, first, dob - second order query
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (self.__make_sane_caps(name_parts[1]), self.__make_sane_caps(name_parts[0]), date_part)
+					])
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[1], name_parts[0], date_part)
+					])
+					# name parts anywhere in name - third order query ...
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
+					])
+					return queries
+				# FIXME: "name name name" or "name date date"
+				_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % a_search_term)
+				return queries
+
+			# FIXME: no ',;' but neither "name name" nor "name name date"
+			_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % a_search_term)
+			return queries
+
+		# more than one major part (separated by ';,')
+		else:
+			# parse into name and date parts
+			date_parts = []
+			name_parts = []
+			name_count = 0
+			for part in parts_list:
+				# any digits ?
+				if re.search("\d+", part):
+					# FIXME: parse out whitespace *not* adjacent to a *word*
+					date_parts.append(part)
+				else:
+					tmp = part.strip()
+					tmp = re.split("\s*|\t*", tmp)
+					name_count = name_count + len(tmp)
+					name_parts.append(tmp)
+
+			wheres = []
+			# first, handle name parts
+			# special case: "<date(s)>, <name> <name>, <date(s)>"
+			if (len(name_parts) == 1) and (name_count == 2):
+				# usually "first last"
+				wheres.append([
+					"firstnames ~ '^%s'" % self.__make_sane_caps(name_parts[0][0]),
+					"lastnames ~ '^%s'"  % self.__make_sane_caps(name_parts[0][1])
+				])
+				wheres.append([
+					"firstnames ~* '^%s'" % name_parts[0][0],
+					"lastnames ~* '^%s'" % name_parts[0][1]
+				])
+				# but sometimes "last first""
+				wheres.append([
+					"firstnames ~ '^%s'" % self.__make_sane_caps(name_parts[0][1]),
+					"lastnames ~ '^%s'"  % self.__make_sane_caps(name_parts[0][0])
+				])
+				wheres.append([
+					"firstnames ~* '^%s'" % name_parts[0][1],
+					"lastnames ~* '^%s'" % name_parts[0][0]
+				])
+				# or even substrings anywhere in name
+				wheres.append([
+					"firstnames || lastnames ~* '%s'" % name_parts[0][0],
+					"firstnames || lastnames ~* '%s'" % name_parts[0][1]
+				])
+
+			# special case: "<date(s)>, <name(s)>, <name(s)>, <date(s)>"
+			elif len(name_parts) == 2:
+				# usually "last, first"
+				wheres.append([
+					"firstnames ~ '^%s'" % string.join(map(self.__make_sane_caps, name_parts[1]), ' '),
+					"lastnames ~ '^%s'"  % string.join(map(self.__make_sane_caps, name_parts[0]), ' ')
+				])
+				wheres.append([
+					"firstnames ~* '^%s'" % string.join(name_parts[1], ' '),
+					"lastnames ~* '^%s'" % string.join(name_parts[0], ' ')
+				])
+				# but sometimes "first, last"
+				wheres.append([
+					"firstnames ~ '^%s'" % string.join(map(self.__make_sane_caps, name_parts[0]), ' '),
+					"lastnames ~ '^%s'"  % string.join(map(self.__make_sane_caps, name_parts[1]), ' ')
+				])
+				wheres.append([
+					"firstnames ~* '^%s'" % string.join(name_parts[0], ' '),
+					"lastnames ~* '^%s'" % string.join(name_parts[1], ' ')
+				])
+				# or even substrings anywhere in name
+				wheres.append([
+					"firstnames || lastnames ~* '%s'" % string.join(name_parts[0], ' '),
+					"firstnames || lastnames ~* '%s'" % string.join(name_parts[1], ' ')
+				])
+
+			# big trouble - arbitrary number of names
+			else:
+				# FIXME: deep magic, not sure of rationale ...
+				if len(name_parts) == 1:
+					for part in name_parts[0]:
+						wheres.append([
+							"firstnames || lastnames ~* '%s'" % part
+						])
+						wheres.append([
+							"firstnames || lastnames ~* '%s'" % part
+						])
+				else:
+					tmp = []
+					for part in name_parts:
+						tmp.append(string.join(part, ' '))
+					for part in tmp:
+						wheres.append([
+							"firstnames || lastnames ~* '%s'" % part
+						])
+						wheres.append([
+							"firstnames || lastnames ~* '%s'" % part
+						])
+
+			# secondly handle date parts
+			# FIXME: this needs a considerable smart-up !
+			if len(date_parts) == 1:
+				if len(wheres) > 0:
+					wheres[0].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+				else:
+					wheres.append([
+						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0]
+					])
+				if len(wheres) > 1:
+					wheres[1].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+				else:
+					wheres.append([
+						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0]
+					])
+			elif len(date_parts) > 1:
+				if len(wheres) > 0:
+					wheres[0].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+					wheres[0].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1])
+				else:
+					wheres.append([
+						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0],
+						"date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1]
+					])
+				if len(wheres) > 1:
+					wheres[1].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
+					wheres[1].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
+				else:
+					wheres.append([
+						"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0],
+						"date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1]
+					])
+
+			# and finally generate the queries ...
+			for where_clause in wheres:
+				if len(where_clause) > 0:
+					queries.append([
+						"SELECT i_id, n_id FROM v_basic_person WHERE %s" % string.join(where_clause, ' AND ')
+					])
+				else:
+					queries.append([])
+			return queries
+
+		return []
+#============================================================
 def create_dummy_identity():
 	cmd1 = "insert into identity(gender, dob) values('?', CURRENT_TIMESTAMP)"
 	cmd2 = "select currval('identity_id_seq')"
 
 	data = gmPG.run_commit('personalia', [(cmd1, []), (cmd2, [])])
 	if data is None:
+		_log.Log(gmLog.lPanic, 'failed to create dummy identity')
 		return None
 	return data[0][0]
 #============================================================
@@ -308,15 +731,30 @@ def create_dummy_identity():
 #============================================================
 if __name__ == "__main__":
 	#gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
+	searcher = cPatientSearcher_SQL()
+	p_data = None
 	while 1:
-		pID = raw_input('a patient ID: ')
-		if pID == '-1':
+		while 1:
+			p_data = raw_input('patient data: ')
+			if p_data == '-1':
+				break
+			p_ids = searcher.get_patient_ids(p_data)
+			if p_ids is None:
+				print "error searching matching patients"
+			else:
+				if len(p_ids) == 1:
+					break
+				if len(p_ids) > 1:
+					print "more than one matching patient found:", p_ids
+				else:
+					print "no matching patient found"
+		if p_data == '-1':
 			break
 		try:
-			myPatient = gmCurrentPatient(pID)
+			myPatient = gmCurrentPatient(p_ids[0][0])
 		except:
-			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
-			print "patient", pID, "can not be set up"
+			_log.LogException('Unable to set up patient with ID [%s]' % p_ids, sys.exc_info())
+			print "patient", p_ids, "can not be set up"
 			continue
 		print "ID       ", myPatient['ID']
 		demos = myPatient['demographic record']
@@ -325,15 +763,16 @@ if __name__ == "__main__":
 		print "doc ids  ", myPatient['document id list']
 		emr = myPatient['clinical record']
 		print "EMR      ", emr
-#		print "fails  ", myPatient['missing handler']
 		print "--------------------------------------"
-#		api = myPatient['API']
-#		for call in api:
-#			print "API call: %s (internally %s)" % (call['API call name'], call['internal name'])
-#			print call['description']
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.12  2004-01-18 21:43:00  ncq
+# Revision 1.13  2004-02-04 00:57:24  ncq
+# - added UI-independant patient search logic taken from gmPatientSelector
+# - we can now have a console patient search field just as powerful as
+#   the GUI version due to it running the same business logic code
+# - also fixed _make_simple_query() results
+#
+# Revision 1.12  2004/01/18 21:43:00  ncq
 # - speed up get_clinical_record()
 #
 # Revision 1.11  2004/01/12 16:21:03  ncq
