@@ -1,6 +1,6 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.6 2004-07-18 19:37:45 ncq Exp $
-$Revision: 1.6 $
+$Id: TODO,v 1.7 2005-01-12 12:41:52 ncq Exp $
+$Revision: 1.7 $
 ====================================================
 
 gmCfg
@@ -179,3 +179,13 @@ Richard space INBOX
 --------------------
 lab link
  - Standard ASTM E1394-91 (frei: Datenaustausch-Formate zwischen Laborgeräten und PC-Systemen)
+
+--------------------
+2.0:
+- move to psycopg
+	- only if it supports NOTIFY/LISTEN
+	- pyPgSQL is not well-maintained
+- schema:
+	- define groups as "treatment team"
+	- grant access to treatment teams
+	- hide data from unrelated treatment teams
