@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -74,27 +74,27 @@ DOB: @patient.getDOB ().Format (''%x'')@
 \\end{letter}
 \\end{document}');
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 1, 'Addressee', 'addressee', 
   'Person the referral is sent to', 
   6,
   NULL, 1);
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 1, 'Address', 'address', 
   'Address to mail to', 
   7,
   NULL, 2);
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 1, 'Text', 'text', 
   'Text of referral', 
   4,
   NULL, 3);
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 1, 'Include medications', 'incl_meds', 
   '', 
   3,
   NULL, 4);
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 1, 'Include past history', 'incl_phx', 
   '', 
   3,
@@ -117,7 +117,7 @@ insert into form_defs (fk_type, country, name_short, name_long, revision, engine
 \\text{130}{25}{80}{@user[''ext_ids'']["Prescriber No."]@}
 
 \\text{35}{33}{80}{@(patient[''ext_ids''].has_key ("Repat No.") and patient[''ext_ids''][''Repat No.'']) or patient[''ext_ids'']["Medicare No."]@}
-\\text{140}{33}{80}{@(patient.[['ext_ids''].has_key (''Repat No.''] and patient[''ext_ids'']["Repat No."]) or patient[''ext_ids'']["Medicare No."]@}
+\\text{140}{33}{80}{@(patient.[[''ext_ids''].has_key (''Repat No.''] and patient[''ext_ids'']["Repat No."]) or patient[''ext_ids'']["Medicare No."]@}
 % use the Department of Veteran''s affairs number if available: these patients get extra benefits
 
 \\text{24}{57}{80}{@"%(first)s %(last)s" % patient.get_names ()@}
@@ -156,12 +156,12 @@ insert into form_defs (fk_type, country, name_short, name_long, revision, engine
 \\end{page}
 \\end{document}');
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 2, 'Items', 'drug_list', 
   'Drugs to be prescribed', 
   8,
   NULL, 1);
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 2, 'Brand only', 'brand', 
   'Brand-subsitution by pharmacist forbidden', 
   3,
@@ -267,62 +267,62 @@ DOB: & @patient.getDOB ().Format (''%x'')@ \\\\
 \\end{document}
 ');
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Request', 'request', 
   'The services requested', 
   4,
   NULL, 1);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Clinical Notes', 'clinical_notes', 
   '', 
   4,
   NULL, 2);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Therapy', 'therapy', 
   'Description of patient''s current therapy', 
   4,
   NULL, 3);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Patient Instructions', 'instructions', 
   'Instructions for the Patient', 
   4,
   NULL, 4);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Routine', 'routine', 
   'Routine request', 
   3,
   NULL, 5);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Urgent', 'urgent', 
   '', 
   3, NULL, 6);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Fax result', 'fax_result', 
   '', 
   3, NULL, 7);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Phone result', 'phone_result', 
   '', 
   3, NULL, 8);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Pensioner', 'pensioner', 
   'Patient is a pensioner (i.e. asking referree for discount)', 
   3, NULL, 9);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Referral pads', 'referral_pad', 
   '', 
   3, NULL, 10);
 
-insert into form_fields (fk_form, long_name, internal_name, help, fk_type, param, display_order ) values
+insert into form_fields (fk_form, long_name, template_placeholder, help, fk_type, param, display_order ) values
 ( 3, 'Type', 'type', 
   'The clinical discipline of the referree', 
   2, 'Pathology
