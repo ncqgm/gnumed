@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.57 2005-02-03 20:19:16 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmTopPanel.py,v 1.58 2005-04-03 20:13:35 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -22,7 +22,7 @@ _log.Log(gmLog.lInfo, __version__)
 
 ID_BTN_pat_demographics = wxNewId()
 ID_CBOX_consult_type = wxNewId()
-ID_CBOX_episode = wxNewId()
+#ID_CBOX_episode = wxNewId()
 ID_BMITOOL = wxNewId()
 ID_BMIMENU = wxNewId()
 ID_PREGTOOL = wxNewId()
@@ -117,8 +117,8 @@ class cMainTopPanel(wxPanel):
 
 		# - bottom row
 		# .----------------------------------------------------------.
-		# | plugin toolbar | bmi | edc | episode  | encounter | lock |
-		# |                |     |     | selector | type sel  |      |
+		# | plugin toolbar | bmi | edc |          | encounter | lock |
+		# |                |     |     |          | type sel  |      |
 		# `----------------------------------------------------------'
 		#self.tb_lock.AddControl(wxStaticBitmap(self.tb_lock, -1, getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 
@@ -161,21 +161,21 @@ class cMainTopPanel(wxPanel):
 		self.btn_preg.SetToolTip(wxToolTip(_("Pregnancy Calculator")))
 		self.szr_bottom_row.Add(self.btn_preg, 0, wxEXPAND | wxBOTTOM, 3)
 
-		# episode selector
-		# FIXME: handle input -> new episode
-		# FIXME: should be cEpisodeSelector class
-		self.combo_episodes = wxComboBox (
-			self,
-			ID_CBOX_episode,
-			'',
-			wxPyDefaultPosition,
-			wxPyDefaultSize,
-			[],
-			wxCB_DROPDOWN
-		)
-		tt = wxToolTip(_('choose problem to work on\nsubsequent input is attached to the corresponding episode'))
-		self.combo_episodes.SetToolTip(tt)
-		self.szr_bottom_row.Add(self.combo_episodes, 3, wxEXPAND, 0)
+#		# episode selector
+#		# FIXME: handle input -> new episode
+#		# FIXME: should be cEpisodeSelector class
+#		self.combo_episodes = wxComboBox (
+#			self,
+#			ID_CBOX_episode,
+#			'',
+#			wxPyDefaultPosition,
+#			wxPyDefaultSize,
+#			[],
+#			wxCB_DROPDOWN
+#		)
+#		tt = wxToolTip(_('choose problem to work on\nsubsequent input is attached to the corresponding episode'))
+#		self.combo_episodes.SetToolTip(tt)
+#		self.szr_bottom_row.Add(self.combo_episodes, 3, wxEXPAND, 0)
 		# consultation type selector
 		self.combo_consultation_type = wxComboBox (
 			self,
@@ -273,8 +273,8 @@ class cMainTopPanel(wxPanel):
 		tools_menu.Append(ID_PREGMENU, _("EDC"), _("Pregnancy Calculator"))
 		EVT_MENU(main_frame, ID_PREGMENU, self._on_show_Preg_Calc)
 
-		# - episode selector
-		EVT_COMBOBOX(self, ID_CBOX_episode, self._on_episode_selected)
+#		# - episode selector
+#		EVT_COMBOBOX(self, ID_CBOX_episode, self._on_episode_selected)
 
 		# - lock button
 		EVT_BUTTON(self, ID_LOCKBUTTON, self._on_lock)
@@ -302,18 +302,18 @@ class cMainTopPanel(wxPanel):
 		pc.Centre(wxBOTH)
 		pc.Show(1)
 	#----------------------------------------------
-	def _on_episode_selected(self, evt):
-		epr = self.curr_pat.get_clinical_record()
-		if epr is None:
-			return None
-		ep_name = evt.GetString()
-		if not epr.set_active_episode(ep_name):
-			gmGuiHelpers.gm_show_error (
-				_('Cannot activate episode [%s].\n'
-				  'Leaving previous one activated.' % ep_name),
-				_('selecting active episode'),
-				gmLog.lErr
-			)
+#	def _on_episode_selected(self, evt):
+#		epr = self.curr_pat.get_clinical_record()
+#		if epr is None:
+#			return None
+#		ep_name = evt.GetString()
+#		if not epr.set_active_episode(ep_name):
+#			gmGuiHelpers.gm_show_error (
+#				_('Cannot activate episode [%s].\n'
+#				  'Leaving previous one activated.' % ep_name),
+#				_('selecting active episode'),
+#				gmLog.lErr
+#			)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
 		# needed because GUI stuff can't be called from a thread (and that's
@@ -329,15 +329,15 @@ class cMainTopPanel(wxPanel):
 		self.txt_age.SetValue(age)
 		self.patient_selector.SetValue(ident['description'])
 
-		# update episode selector
-		self.combo_episodes.Clear()
-		epr = self.curr_pat.get_clinical_record()
-		if epr is None:
-			return None
-		episodes = epr.get_episodes()
-		for episode in episodes:
-			self.combo_episodes.Append(episode['description'], str(episode['pk_episode']))
-		self.combo_episodes.SetValue(epr.get_active_episode()['description'])
+#		# update episode selector
+#		self.combo_episodes.Clear()
+#		epr = self.curr_pat.get_clinical_record()
+#		if epr is None:
+#			return None
+#		episodes = epr.get_episodes()
+#		for episode in episodes:
+#			self.combo_episodes.Append(episode['description'], str(episode['pk_episode']))
+#		self.combo_episodes.SetValue(epr.get_active_episode()['description'])
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -452,7 +452,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.57  2005-02-03 20:19:16  ncq
+# Revision 1.58  2005-04-03 20:13:35  ncq
+# - episode selector in top panel didn't help very much as we
+#   always work on several episodes - just as the patient suffers
+#   several problems at once
+#
+# Revision 1.57  2005/02/03 20:19:16  ncq
 # - get_demographic_record() -> get_identity()
 #
 # Revision 1.56  2005/02/01 10:16:07  ihaywood
