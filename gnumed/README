@@ -1,11 +1,19 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/README,v $
-$Revision: 1.3 $
+$Revision: 1.4 $
 
 Welcome to the GnuMed CVS tree !
 
 To check if you have installed all the components
 necessary to run GnuMed use:
 	check-prerequites.sh
+
+
+Documentation is in:
+	gnumed/client/doc/
+Particularly (including installation instructions):
+	gnumed/client/doc/user-manual/index.html
+Also:
+	http://hherb.com/cgi-bin/twiki/view/Gnumed/
 
 
 If you want to look at the frontend code go to:
@@ -20,14 +28,10 @@ If you want to set up your own database see:
 	gnumed/server/bootstrap/*
 
 
-Documentation is in:
-	gnumed/client/doc/
-
-
 Enjoy, join the mailing list, ask questions, develop and use !
 
 
-Karsten Hilbert, M.D.
+Karsten Hilbert, MD
 
 GnuMed i18n coordinator
 Karsten.Hilbert@gmx.net
