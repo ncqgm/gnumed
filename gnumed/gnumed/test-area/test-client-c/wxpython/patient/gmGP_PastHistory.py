@@ -38,6 +38,8 @@ from gmPatientHolder import PatientHolder
 
 from gmListCtrlMapper import gmListCtrlMapper
 
+import gmMultiColumnList
+
 ID_SIGNIFICANTPASTHISTORYLIST = wxNewId()
 ID_ACTIVEPROBLEMLIST = wxNewId()
 gmSECTION_PASTHISTORY = 5
@@ -107,23 +109,25 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
 		#
 		#--------------------------------------------------------------------------------------
-		self.significant_problem_list = wxListCtrl(self, ID_SIGNIFICANTPASTHISTORYLIST,  wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		#self.significant_problem_list = wxListCtrl(self, ID_SIGNIFICANTPASTHISTORYLIST,  wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.significant_problem_list = gmMultiColumnList.MultiColumnList(self, -1)
 		self.significant_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		self.active_problem_list = wxListCtrl(self, ID_ACTIVEPROBLEMLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.active_problem_list.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		#---------------------------------------------------------	  
 		# add some dummy data to the significant past problem list
 		#---------------------------------------------------------
-		self.significant_problem_list.InsertColumn(0, _("year onset"))
-		self.significant_problem_list.InsertColumn(1, _("Condition"))
-		self.significant_problem_list.InsertColumn(2, _("Notes"))
+		#self.significant_problem_list.InsertColumn(0, _("year onset"))
+		#self.significant_problem_list.InsertColumn(1, _("Condition"))
+		#self.significant_problem_list.InsertColumn(2, _("Notes"))
 		#-------------------------------------------------------------------------
 		#loop through the significanthistorydata array and add to the list control
 		#note the different syntax for the first coloum of each row
 		#i.e. here > self.significant_problem_list.InsertStringItem(x, data[0])!!
 		#--------------------------------------------------------------------------
-		self.significant_mapper = gmListCtrlMapper(self.significant_problem_list)
-		self.significant_mapper.SetData( significanthistorydata)
+		#self.significant_mapper = gmListCtrlMapper(self.significant_problem_list)
+		#self.significant_mapper.SetData( significanthistorydata)
+		self.significant_problem_list.SetData( significanthistorydata)
 		#items = significanthistorydata.items()
 		#for x in range(len(items)):
 		#	key, data = items[x]
@@ -132,7 +136,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		#	self.significant_problem_list.SetStringItem(x, 1, data[1])
 		#	self.significant_problem_list.SetItemData(x, key)
 		#	self.significant_problem_list.SetColumnWidth(0, wxLIST_AUTOSIZE)
-		self.significant_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
+		#self.significant_problem_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#------------------------------------------------	  
 		#add some dummy data to the active problems list
 		#------------------------------------------------
@@ -192,8 +196,8 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		significant_past = clinical.get_significant_past_history()
 		active_hx = clinical.get_active_history()
 		self.active_mapper.SetData(  self._get_list_map( active_hx) )
-		self.significant_mapper.SetData( self._get_list_map( significant_past) )
-
+		#self.significant_mapper.SetData( self._get_list_map( significant_past) )
+		self.significant_problem_list.SetData( self._get_list_map( significant_past), fitClientSize = 1 )
 
 	
 	def _get_list_map(self, clin_history_list):

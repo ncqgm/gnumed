@@ -9,8 +9,8 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.2 2003-10-25 08:29:40 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmGP_Immunisation.py,v 1.3 2003-10-26 13:06:42 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -168,7 +168,7 @@ class ImmunisationPanel(wxPanel, PatientHolder):
 		self.schedule_vaccine_given_list.SetColumnWidth(1, wxLIST_AUTOSIZE)
 		#--------------------------------------------------------------------------------------
 		pnl_MiddleCaption3 = DividerCaptionPanel(self, -1, _("Missing Immunisations"))
-		epr = self.pat['clinical record']
+#		epr = self.pat['clinical record']
 #		missing_shots = epr['vaccination status']
 		# FIXME: get list of due vaccs, too, and highlight those
 		self.LBOX_missing_shots = wxListBox(
@@ -246,7 +246,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.2  2003-10-25 08:29:40  sjtan
+# Revision 1.3  2003-10-26 13:06:42  sjtan
+#
+# multi column self adjusting widget for many past significant history items.
+#
+# Revision 1.2  2003/10/25 08:29:40  sjtan
 #
 # uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
 # yaml serializer to store editarea data in  narrative text field of clin_root_item until
