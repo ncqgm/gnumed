@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.5 2005-02-01 19:14:10 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPerson.py,v 1.6 2005-02-01 19:27:56 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -33,13 +33,13 @@ class cPerson:
 	# handlers for __getitem__
 	_get_handler = {}
 
-	def __init__(self, demo_record = None):
-		if not isinstance (demo_record, gmDemographicRecord.cIdentity):
+	def __init__(self, identity = None):
+		if not isinstance (identity, gmDemographicRecord.cIdentity):
 			# assume to be an identity.pk then
-			demo_record = cIdentity (aPK_obj = int(demo_record))
+			identity = cIdentity (aPK_obj = int(identity))
 
-		self.__ID = demo_record['id']  	# == identity.id == primary key
-		self.__db_cache = {'demographic record': demo_record}
+		self.__ID = identity['id']  	# == identity.id == primary key
+		self.__db_cache = {'demographic record': identity}
 
 		# register backend notification interests ...
 		if not self._register_interests():
@@ -354,11 +354,11 @@ class cPatientSearcher_SQL:
 	# public API
 	#--------------------------------------------------------
 	def get_persons(self, search_term = None, a_locale = None, search_dict = None):
-		demo_recs = self.get_demos(search_term, a_locale, search_dict)
-		if demo_recs is None:
-			return demo_recs
+		identities = self.get_demos(search_term, a_locale, search_dict)
+		if identities is None:
+			return None
 		else:
-			return [cPerson(demo_record = demo_rec) for demo_rec in demo_recs]
+			return [cPerson(identity = ident) for ident in identities]
 	#--------------------------------------------------------
 	def get_demos(self, search_term = None, a_locale = None, search_dict = None):
 		"""Get patient demographic objects for given parameters.
@@ -953,29 +953,10 @@ if __name__ == "__main__":
 		myPatient = ask_for_patient()
 		if myPatient is None:
 			break
-#		while 1:
-#			p_data = raw_input('patient data: ')
-#			if p_data == '-1':
-#				break
-#			p_ids = searcher.get_persons(p_data)
-#			if p_ids is None:
-#				print "error searching matching patients"
-#			else:
-#				if len(p_ids) == 1:
-#					break
-#				if len(p_ids) > 1:
-#					print "more than one matching patient found:", p_ids
-#				else:
-#					print "no matching patient found"
-#		if p_data == '-1':
-#			break
-#		try:
-#			myPatient = gmCurrentPatient(p_ids[0])
-#		except:
-#			continue
 		print "ID       ", myPatient['id']
 		demos = myPatient.get_demographic_record()
 		print "demogr.  ", demos
+		print "get_names() apparently missing ?"
 #		print "name     ", demos.get_names(1)
 		print "doc ids  ", myPatient['document id list']
 		emr = myPatient.get_clinical_record()
@@ -984,7 +965,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.5  2005-02-01 19:14:10  ncq
+# Revision 1.6  2005-02-01 19:27:56  ncq
+# - more renaming, I think we are getting there, if you think about it it
+#   seems "demographic record" really is "identity"
+#
+# Revision 1.5  2005/02/01 19:14:10  ncq
 # - cleanup, internal renaming for consistency
 # - reallow cPerson to be instantiated with PK but retain main instantiation mode with cIdentity
 # - smarten up gmCurrentPatient() and re-add previous speedups
