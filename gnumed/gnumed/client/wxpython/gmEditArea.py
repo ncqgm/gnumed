@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.64 2004-03-10 12:56:01 ihaywood Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmEditArea.py,v 1.65 2004-03-28 04:09:31 ihaywood Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -267,6 +267,7 @@ class cEditAreaField(wxTextCtrl):
 		_decorate_editarea_field(self)
 #====================================================================
 #====================================================================
+
 class gmEditArea(wxPanel):
 	def __init__(self, parent, id, aType = None):
 		# sanity checks
@@ -389,14 +390,15 @@ class gmEditArea(wxPanel):
 		vszr = wxBoxSizer(wxVERTICAL)
 		lines = self.fields.keys()
 		lines.sort()
+		self.field_line_szr = {}
 		for line in lines:
-			szr_line = wxBoxSizer(wxHORIZONTAL)
+			self.field_line_szr[line] = wxBoxSizer(wxHORIZONTAL)
 			positions = self.fields[line].keys()
 			positions.sort()
 			for pos in positions:
 				field, weight = self.fields[line][pos]
-				szr_line.Add(field, weight, wxEXPAND)
-			vszr.Add(szr_line, self.prompts[line][2], flag = wxEXPAND) # use same lineweight as prompts
+				self.field_line_szr[line].Add(field, weight, wxEXPAND)
+			vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wxEXPAND) # use same lineweight as prompts
 		# put them on the panel
 		parent.SetSizer(vszr)
 		vszr.Fit(parent)
@@ -605,9 +607,7 @@ class gmEditArea(wxPanel):
 		# - check if we've got data to save
 		# - save it
 		# remember to use wxCallAfter()
-		pass
-#		self._updateUI()
-#		self._init_fields()
+		self.set_data ()
 
 
 
@@ -1612,6 +1612,8 @@ class gmReferralEditArea(gmEditArea):
 			gmEditArea.__init__(self, parent, id, aType = 'referral')
 		except gmExceptions.ConstructorError:
 			_log.LogException('cannot instantiate referral edit area', sys.exc_info(), verbose=0)
+		self.data_ID = None # we don't use this in this widget
+		self.recipient = None
 
 	def _define_prompts(self):
 		self._add_prompt (line = 1, label = _ ("Specialty"))
@@ -1648,12 +1650,7 @@ class gmReferralEditArea(gmEditArea):
 			widget = self.fld_name,
 			weight = 1
 			)
-		self.fld_address = gmPhraseWheel.cPhraseWheel (
-			parent = parent,
-			id = -1,
-			aMatchProvider = gmDemographicRecord.OccupationMP (),
-			style = wxSIMPLE_BORDER
-			)
+		self.fld_address = wxComboBox (parent, -1, style = wxCB_READONLY)
 		#_decorate_editarea_field (self.fld_address)
 		self._add_field (
 			line = 3,
@@ -1662,7 +1659,7 @@ class gmReferralEditArea(gmEditArea):
 			weight = 1
 			)
 		self.fld_specialty.setDependent (self.fld_name, "occupation")
-		self.fld_name.setDependent (self.fld_address, "identity")
+		self.fld_name.addCallback (self.setAddresses)
 		# flags line
 		self.fld_med = wxCheckBox (parent, -1, _("Meds"), style=wxNO_BORDER)
 		self._add_field (
@@ -1721,8 +1718,45 @@ class gmReferralEditArea(gmEditArea):
 		)
 		return 1
 
-	def _save_data(self):
-		return 1
+	def set_data (self):
+		"""
+		Doesn't accept any value as this doesn't make sense for this edit area
+		"""
+		self.fld_specialty.SetValue ('')
+		self.fld_name.SetValue ('')
+		self.fld_address.Clear ()
+		self.fld_med.SetValue (0)
+		self.fld_fhx.SetValue (0)
+		self.fld_active.SetValue (0)
+		self.fld_past.SetValue (0)
+		self.fld_social.SetValue (0)
+		self.fld_habits.SetValue (0)
+		self.fld_text.SetValue ('')
+		self.recipient = None
+
+	def setAddresses (self, id):
+		"""
+		Set the available addresses for the selected identity
+		"""
+		self.recipient = gmDemographicRecord.cDemographicRecord_SQL (id)
+		self.fld_address.Clear ()
+		self.addr = self.recipient.getAddresses ('work')
+		for i in self.addr:
+			self.fld_address.Append (_("%(number)s %(street)s, %(urb)s %(postcode)s") % i, i['ID'])
+		fax = self.recipient.getCommChannel (gmDemographicRecord.FAX)
+		email  = self.recipient.getCommChannel (gmDemographicRecord.EMAIL)
+		if fax:
+			self.fld_address.Append ("%s: %s" % (_("FAX"), fax))
+		if email:
+			self.fld_address.Append ("%s: %s" % (_("E-MAIL"), email))
+		
+
+	def _save_new_entry(self):
+		"""
+		We are always saving a "new entry" here because data_ID is always None
+		"""
+		if not self.recipient:
+			raise gmExceptions.InvalidInputException (_('must have a recipient'))
 
 
 #====================================================================
@@ -2363,7 +2397,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.64  2004-03-10 12:56:01  ihaywood
+# Revision 1.65  2004-03-28 04:09:31  ihaywood
+# referrals can now select an address from pick list.
+#
+# Revision 1.64  2004/03/10 12:56:01  ihaywood
 # fixed sudden loss of main.shadow
 # more work on referrals,
 #

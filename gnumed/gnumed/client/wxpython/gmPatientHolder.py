@@ -11,11 +11,11 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.10 2004-03-27 04:37:01 ihaywood Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPatientHolder.py,v 1.11 2004-03-28 04:09:31 ihaywood Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "R.Terry, SJ Tan"
 
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
 from Gnumed.business.gmPatient import gmCurrentPatient
 from Gnumed.wxpython import gmGuiHelpers
 import sys
