@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -154,7 +154,7 @@ create table cfg_template (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(20) NOT NULL DEFAULT 'must set this !',
 	type VARCHAR (20) references cfg_type_enum (name),
-	cfg_group VARCHAR (20) not null default 'default',
+	cfg_group VARCHAR (20) not null default '__default__',
 	description TEXT NOT NULL DEFAULT 'programmer is an avid Camel Book Reader'
 );
 
@@ -172,11 +172,10 @@ comment on column cfg_template.description is
 -- ======================================================
 create table cfg_item (
 	id SERIAL PRIMARY KEY,
-
 	id_template INTEGER REFERENCES cfg_template (id),
 	owner varchar (30) not null default CURRENT_USER,
-	machine VARCHAR (40) not null default 'default',
-	cookie VARCHAR (40) not null default 'default'
+	machine VARCHAR (40) not null default '__default__',
+	cookie VARCHAR (40) not null default '__default__'
 );
 
 comment on table cfg_item is
@@ -217,24 +216,32 @@ GRANT SELECT ON
 	cfg_template,
 	cfg_item,
 	cfg_string,
+	cfg_str_array,
 	cfg_numeric
 TO GROUP "gm-public";
 
 GRANT select, insert, update, delete on
 	cfg_type_enum,
 	cfg_template,
+	cfg_template_id_seq,
 	cfg_item,
+	cfg_item_id_seq,
 	cfg_string,
+	cfg_str_array,
 	cfg_numeric
 to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.20 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.21 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.20  2002-12-26 15:44:42  ncq
+-- Revision 1.21  2003-01-05 10:07:15  ncq
+-- - default "__default__"
+-- - adjusted ACLs
+--
+-- Revision 1.20  2002/12/26 15:44:42  ncq
 -- - added string array
 --
 -- Revision 1.19  2002/12/01 13:53:09  ncq
