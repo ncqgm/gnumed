@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.167 2005-03-20 16:47:26 ncq Exp $
-__version__ = "$Revision: 1.167 $"
+# $Id: gmClinicalRecord.py,v 1.168 2005-03-23 18:30:40 ncq Exp $
+__version__ = "$Revision: 1.168 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -345,7 +345,7 @@ class cClinicalRecord:
 			'pk_health_issue',
 			'src_table'
 		]
-		cmd = "select %s from v_patient_items where pk_patient=%%s order by src_table, age" % string.join(fields, ', ')
+		cmd = "select %s from v_pat_items where pk_patient=%%s order by src_table, age" % string.join(fields, ', ')
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
 		if not gmPG.run_query(curs, None, cmd, self.pk_patient):
@@ -425,7 +425,7 @@ class cClinicalRecord:
 				emr_data[age].append(_('episode     : %s') % episode_name)
 				# format table specific data columns
 				# - ignore those, they are metadata, some
-				#   are in v_patient_items data already
+				#   are in v_pat_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'fk_encounter', 'fk_episode'
@@ -475,7 +475,7 @@ class cClinicalRecord:
 			'pk_health_issue',
 			'src_table'
 		]
-		select_from = "select %s from v_patient_items" % ', '.join(fields)
+		select_from = "select %s from v_pat_items" % ', '.join(fields)
 		# handle constraint conditions
 		where_snippets = []
 		params = {}
@@ -594,7 +594,7 @@ class cClinicalRecord:
 				emr_data[age].append(_('episode     : %s') % episode_name)
 				# format table specific data columns
 				# - ignore those, they are metadata, some
-				#   are in v_patient_items data already
+				#   are in v_pat_items data already
 				cols2ignore = [
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'fk_encounter', 'fk_episode', 'pk'
@@ -791,19 +791,19 @@ select pk
 from clin_episode
 where pk=(
 	select distinct on(pk_episode) pk_episode
-	from v_patient_items
+	from v_pat_items
 	where
 		pk_patient=%s
 			and
 		modified_when=(
 			select max(vpi.modified_when)
-			from v_patient_items vpi
+			from v_pat_items vpi
 			where vpi.pk_patient=%s
 		)
 	)"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, self.pk_patient)
 			if rows is None:
-				_log.Log(gmLog.lErr, 'error getting most recent episode from v_patient_items for patient [%s]' % self.pk_patient)
+				_log.Log(gmLog.lErr, 'error getting most recent episode from v_pat_items for patient [%s]' % self.pk_patient)
 			else:
 				if len(rows) != 0:
 					try:
@@ -919,7 +919,19 @@ where
 			filtered_problems = filter(lambda epi: epi['pk_episode'] in episodes, filtered_problems)
 		print filtered_problems
 		return filtered_problems
+	#--------------------------------------------------------
+	def problem2episode(self, problem):
+		"""
+		Retrieve the cEpisode instance equivalent to the given problem.
+		The problem's type attribute must be 'episode'
 		
+		@param problem: The problem to retrieve its related episode for
+		@type problem: A gmEMRStructItems.cProblem instance
+		"""
+		if problem['type'] != 'episode':
+			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (problem['problem'], problem['type']))
+			return None
+		return self.get_episodes(id_list=[problem['pk_episode']])[0]
 	#--------------------------------------------------------
 	# health issues API
 	#--------------------------------------------------------
@@ -965,7 +977,19 @@ where
 			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (health_issue_name, self.pk_patient))
 			return None
 		return issue
-
+	#--------------------------------------------------------
+	def problem2issue(self, problem):
+		"""
+		Retrieve the cIssue instance equivalent to the given problem.
+		The problem's type attribute must be 'issue'.
+		
+		@param problem: The problem to retrieve the corresponding issue for
+		@type problem: A gmEMRStructItems.cProblem instance
+		"""
+		if problem['type'] != 'issue':
+			_log.Log(gmLog.lErr, 'cannot convert non issue problem to issue: problem [%s] type [%s]' % (problem['problem'], problem['type']))
+			return None
+		return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
@@ -1416,7 +1440,7 @@ where
 				issues.append(issues[0])
 			cmd = """
 select distinct pk_encounter
-from v_patient_items
+from v_pat_items
 where pk_health_issue in %s and pk_patient = %s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(issues), self.pk_patient))
 			if rows is None:
@@ -1429,7 +1453,7 @@ where pk_health_issue in %s and pk_patient = %s"""
 				episodes.append(episodes[0])
 			cmd = """
 select distinct pk_encounter
-from v_patient_items
+from v_pat_items
 where pk_episode in %s and pk_patient = %s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, (tuple(episodes), self.pk_patient))
 			if rows is None:
@@ -1565,19 +1589,6 @@ where pk_episode in %s and pk_patient = %s"""
 			return None
 		return data
 	#------------------------------------------------------------------
-	def problem2episode(self, problem):
-		"""
-		Retrieve the cEpisode instance equivalent to the given problem.
-		The problem's type attribute must be 'episode'
-		
-		@param problem: The problem to retrieve its related episode for
-		@type problem: A gmEMRStructItems.cProblem instance
-		"""
-		if problem['type'] != 'episode':
-			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (problem['problem'], problem['type']))
-			return None
-		return self.get_episodes(id_list=[problem['pk_episode']])[0]
-	#------------------------------------------------------------------
 	# unchecked stuff
 	#------------------------------------------------------------------
         def store_referral (self, cursor, text, form_id):
@@ -1709,7 +1720,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.167  2005-03-20 16:47:26  ncq
+# Revision 1.168  2005-03-23 18:30:40  ncq
+# - v_patient_items -> v_pat_items
+# - add problem2issue()
+#
+# Revision 1.167  2005/03/20 16:47:26  ncq
 # - cleanup
 #
 # Revision 1.166  2005/03/17 21:15:29  cfmoro
