@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -27,8 +27,10 @@ class cHealthIssue(gmClinItem.cClinItem):
 	_cmds_store_payload = [
 		"""update clin_health_issue set
 				description=%(description)s
-			where id=%(id)s"""
+			where id=%(id)s""",
+		"""select xmin from clin_health_issue where id=%(id)s"""
 	]
+	_xmins_refetch_col_pos = {0: 'xmin'}
 	_updatable_fields = [
 		'description'
 	]
@@ -54,7 +56,7 @@ class cEpisode(gmClinItem.cClinItem):
 	"""
 	_cmd_fetch_payload = """select *, xmin_clin_episode from v_pat_episodes where pk_episode=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_episode where pk=%(pk)s and xmin=%(xmin_clin_episode)s for update"""
+		"""select 1 from clin_episode where pk=%(pk_episode)s and xmin=%(xmin_clin_episode)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update clin_episode set
@@ -62,8 +64,10 @@ class cEpisode(gmClinItem.cClinItem):
 				fk_patient=%(pk_patient)s,
 				is_open=%(episode_open)s,
 				fk_clin_narrative=%(pk_narrative)s
-			where pk=%(pk)s"""
+			where pk=%(pk_episode)s""",
+		"""select xmin_clin_episode from v_pat_episode where pk_episode=%(pk_episode)"""
 	]
+	_xmins_refetch_col_pos = {0: 'xmin_clin_episode'}
 	_updatable_fields = [
 		'pk_health_issue',
 		'pk_patient',
@@ -121,8 +125,10 @@ class cEncounter(gmClinItem.cClinItem):
 				pk_location=%(pk_location)s,
 				pk_provider=%(pk_provider)s,
 				pk_type=%(pk_type)s
-			where id=%(pk_encounter)s"""
+			where id=%(pk_encounter)s""",
+		"""select xmin_clin_encounter from v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
+	_xmins_refetch_col_pos = {0: 'xmin_clin_encounter'}
 	_updatable_fields = [
 		'description',
 		'started',
@@ -401,7 +407,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.26  2004-12-15 10:42:09  ncq
+# Revision 1.27  2004-12-20 16:45:49  ncq
+# - gmBusinessDBObject now requires refetching of XMIN after save_payload
+#
+# Revision 1.26  2004/12/15 10:42:09  ncq
 # - cClinEpisode not handles the fields properly
 #
 # Revision 1.25  2004/12/15 10:28:11  ncq

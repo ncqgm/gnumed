@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.16 2004-11-03 22:32:34 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmVaccination.py,v 1.17 2004-12-20 16:45:49 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -35,8 +35,10 @@ class cVaccination(gmClinItem.cClinItem):
 				fk_vaccine=(select id from vaccine where trade_name=%(vaccine)s),
 				site=%(site)s,
 				batch_no=%(batch_no)s
-			where id=%(pk_vaccination)s"""
+			where id=%(pk_vaccination)s""",
+		"""select xmin_vaccination from v_pat_vacc4ind where pk_vaccination=%(pk_vaccination)s"""
 		]
+	_xmins_refetch_col_pos = {0: 'xmin_vaccination'}
 	_updatable_fields = [
 		'date',
 		'narrative',
@@ -122,7 +124,8 @@ class cMissingVaccination(gmClinItem.cClinItem):
 				seq_no=%(seq_no)s		
 			order by amount_overdue)"""
 	_cmds_lock_rows_for_update = []
-	_cmds_store_payload = []
+	_cmds_store_payload = ["""select 1"""]
+	_xmins_refetch_col_pos = {}
 	_updatable_fields = []
 	#--------------------------------------------------------
 	def is_overdue(self):
@@ -147,7 +150,8 @@ class cMissingBooster(gmClinItem.cClinItem):
 			indication=%(indication)s
 		order by amount_overdue"""
 	_cmds_lock_rows_for_update = []
-	_cmds_store_payload = []
+	_cmds_store_payload = ["""select 1"""]
+	_xmins_refetch_col_pos = {}
 	_updatable_fields = []
 #============================================================
 class cScheduledVaccination(gmClinItem.cClinItem):
@@ -155,7 +159,8 @@ class cScheduledVaccination(gmClinItem.cClinItem):
 	"""
 	_cmd_fetch_payload = """select * from v_vaccs_scheduled4pat where pk_vacc_def=%s"""
 	_cmds_lock_rows_for_update = []
-	_cmds_store_payload = []
+	_cmds_store_payload = ["""select 1"""]
+	_xmins_refetch_col_pos = {}
 	_updatable_fields = []
 #============================================================
 class cVaccinationRegime(gmClinItem.cClinItem):
@@ -173,8 +178,10 @@ class cVaccinationRegime(gmClinItem.cClinItem):
 				fk_recommended_by=%(pk_recommended_by)s,
 				fk_indication=(select id from vacc_indication where description=%(indication)s),
 				comment=%(comment)s
-			where id=%(pk_regime)s"""
+			where id=%(pk_regime)s""",
+		"""select xmin_vacc_regime from v_vacc_regimes where pk_regime=%(pk_regime)s"""
 	]
+	_xmins_refetch_col_pos = {0: 'xmin_vacc_regime'}
 	_updatable_fields = [
 		'regime',
 		'pk_recommended_by',
@@ -372,7 +379,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.16  2004-11-03 22:32:34  ncq
+# Revision 1.17  2004-12-20 16:45:49  ncq
+# - gmBusinessDBObject now requires refetching of XMIN after save_payload
+#
+# Revision 1.16  2004/11/03 22:32:34  ncq
 # - support _cmds_lock_rows_for_update in business object base class
 #
 # Revision 1.15  2004/10/27 12:11:59  ncq

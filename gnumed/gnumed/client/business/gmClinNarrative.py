@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -21,7 +21,7 @@ class cDiag(gmClinItem.cClinItem):
 	_cmd_fetch_payload = """select *, xmin_clin_diag, xmin_clin_narrative from v_pat_diag where pk_diag=%s"""
 	_cmds_lock_rows_for_update = [
 		"""select 1 from clin_diag where pk=%(pk_diag)s and xmin=%(xmin_clin_diag)s for update""",
-		"""select 1 from clin_narrative where pk=%(pk_diagnosis)s and xmin=%(xmin_clin_narrative)s for update"""
+		"""select 1 from clin_narrative where pk=%(pk_diag)s and xmin=%(xmin_clin_narrative)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update clin_diag set
@@ -34,8 +34,11 @@ class cDiag(gmClinItem.cClinItem):
 			where pk=%(pk_diag)s""",
 		"""update clin_narrative set
 				narrative=%(diagnosis)s
-			where pk=%(pk_diagnosis)s"""
+			where pk=%(pk_diag)s""",
+		"""select xmin_clin_diag, xmin_clin_narrative from v_pat_diag where pk_diag=%s(pk_diag)s"""
 		]
+
+	_xmins_refetch_col_pos = {0: 'xmin_clin_diag', 1: 'xmin_clin_narrative'}
 
 	_updatable_fields = [
 		'diagnosis',
@@ -92,7 +95,7 @@ class cNarrative(gmClinItem.cClinItem):
 	_cmd_fetch_payload = """
 		select *, xmin_clin_narrative from v_pat_narrative where pk_narrative=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_narrative where pk=%(pk)s and xmin=%(xmin_clin_narrative)s for update"""
+		"""select 1 from clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update clin_narrative set
@@ -101,8 +104,11 @@ class cNarrative(gmClinItem.cClinItem):
 				is_rfe=%(is_rfe)s::boolean,
 				is_aoe=%(is_aoe)s::boolean,
 				soap_cat=lower(%(soap_cat))
-			where pk=%(pk_narrative)s"""
+			where pk=%(pk_narrative)s""",
+		"""select xmin_clin_narrative from v_pat_narrative where pk_narrative=%(pk_narrative)s"""
 		]
+
+	_xmins_refetch_col_pos = {0: 'xmin_clin_narrative'}
 
 	_updatable_fields = [
 		'narrative',
@@ -151,8 +157,10 @@ class cRFE(gmClinItem.cClinItem):
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(clin_when)s
-			where pk=%(pk_narrative)s"""
+			where pk=%(pk_narrative)s""",
+		"""select xmin_clin_narrative from v_pat_rfe where pk_narrative=%(pk_narrative)s"""
 	]
+	_xmins_refetch_col_pos = {0: 'xmin_clin_narrative'}
 	_updatable_fields = [
 		'narrative',
 		'clin_when'
@@ -171,8 +179,10 @@ class cAOE(gmClinItem.cClinItem):
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(clin_when)s
-			where pk=%(pk_narrative)s"""
+			where pk=%(pk_narrative)s""",
+		"""select xmin_clin_narrative from v_pat_aoe where pk_narrative=%(pk_narrative)s"""
 	]
+	_xmins_refetch_col_pos = {0: 'xmin_clin_narrative'}
 	_updatable_fields = [
 		'narrative',
 		'clin_when'
@@ -317,7 +327,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.9  2004-11-03 22:32:34  ncq
+# Revision 1.10  2004-12-20 16:45:49  ncq
+# - gmBusinessDBObject now requires refetching of XMIN after save_payload
+#
+# Revision 1.9  2004/11/03 22:32:34  ncq
 # - support _cmds_lock_rows_for_update in business object base class
 #
 # Revision 1.8  2004/09/25 13:26:35  ncq
