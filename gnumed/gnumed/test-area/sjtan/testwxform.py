@@ -210,7 +210,7 @@ class wxPanelAndListFormBuilder1(FormBuilder):
 			scrollWin.SetScrollRate(40, 40)
 			scrollWin.EnableScrolling(True, True)
 			sizerClass, params = self.notebookPageSizers.get(subFormName, self.notebookPageSizers['default']) 
-			if 'Factory' in sizerClass.__name__:
+			if sizerClass.__name__.find('Factory') != -1:
 				sizer = sizerClass(*params)
 				sz = sizer.getSizer()
 			else:
