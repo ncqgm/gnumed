@@ -18,13 +18,13 @@
 # @change log:
 #      
 #
-# @TODO: all testing and review 
+# @TODO: all testing and review
 #        bmi input boxes are not set to re-size
 #	 just about evrything
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -121,13 +121,9 @@ class BMI_Colour_Scale(wxWindow):
 class BMICalc_Panel(wxPanel):
 	def __init__(self, parent, id):
 
-		# initializations	- TODO clean-up (some of these variables can be eliminated)
-		self.height=''
-		self.mass=''		# some people incorrectly call this "weight"
+		# initializations
 		self.low_norm_mass=''	# mass for given height if BMI=20
 		self.upp_norm_mass=''	# mass for given height if BMI=25
-		self.loss=''		# mass to lose
-		self.goal=''		# a more ideal mass
 
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER | wxTAB_TRAVERSAL)
 		#------------------------------
@@ -152,11 +148,11 @@ class BMICalc_Panel(wxPanel):
 		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
-		self.txtheight = wxTextCtrl(self,-1,"",size=(100,20))			###
+		self.txtheight = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtheight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 
-		EVT_TEXT(self, self.txtheight.GetId(), self.EvtText_Height)
-		EVT_SET_FOCUS(self.txtheight, self.OnSetFocus_Height)
+		EVT_TEXT(self, self.txtheight.GetId(), self.EvtText_height)
+		EVT_SET_FOCUS(self.txtheight, self.OnSetFocus_height)
 		EVT_CHAR(self.txtheight, self.EvtChar_height)
 
 		szr_height = wxBoxSizer(wxHORIZONTAL)
@@ -164,13 +160,13 @@ class BMICalc_Panel(wxPanel):
 		szr_height.Add(label, 1, wxALIGN_CENTRE_VERTICAL, 0)
 		szr_height.Add(self.txtheight, 1, wxALIGN_CENTRE_VERTICAL | wxEXPAND, 0)
 		#------------------------------
-		#sizer holding the mass stuff
+		#sizer holding the mass stuff -- some people incorrectly call this stuff "weight"
 		#------------------------------
 		label = wxStaticText(self,-1,_("Mass (kg)"),size = (20,20))
 		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
-		self.txtmass = wxTextCtrl(self,-1,"",size=(100,20))				###
+		self.txtmass = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtmass.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 
 		EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
@@ -189,7 +185,7 @@ class BMICalc_Panel(wxPanel):
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
-  		self.txtbmi = wxTextCtrl(self,-1,"",size=(100,20), style = wxTE_READONLY)	###
+  		self.txtbmi = wxTextCtrl(self,-1,"",size=(100,20), style = wxTE_READONLY)
 		self.txtbmi.Enable(false)
 		self.txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 
@@ -208,7 +204,7 @@ class BMICalc_Panel(wxPanel):
 		#-----------------------------------------------------
 		#put a slider control under the bmi colour range scale
 		#-----------------------------------------------------
-		self.slider = wxSlider(self, -1, 0, 15, 34, wxPoint(30, 60),
+		self.slider = wxSlider(self, -1, 15, 15, 34, wxPoint(30, 60),
 					wxSize(324, -1),
 					wxSL_HORIZONTAL | wxSL_AUTOTICKS | wxSL_LABELS )
 		self.slider.SetTickFreq(1, 1)
@@ -241,7 +237,7 @@ class BMICalc_Panel(wxPanel):
 		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
-		self.txtgoal= wxTextCtrl(self,-1,"",size=(100,20))			###
+		self.txtgoal= wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 
 		EVT_TEXT(self, self.txtgoal.GetId(), self.EvtText_goal)
@@ -259,7 +255,7 @@ class BMICalc_Panel(wxPanel):
 		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,131))
 
-		self.txtloss= wxTextCtrl(self,-1,"",size=(100,20))			###
+		self.txtloss= wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 
 		EVT_TEXT(self, self.txtloss.GetId(), self.EvtText_loss)
@@ -301,7 +297,7 @@ class BMICalc_Panel(wxPanel):
 	#-----------------------------------------
 	# event handlers
 	#-----------------------------------------
-	def OnSetFocus_Height(self, event):
+	def OnSetFocus_height(self, event):
 		self.focus=1
 		event.Skip()
 	#-----------------------------------------
@@ -317,25 +313,20 @@ class BMICalc_Panel(wxPanel):
 		self.focus=5
 		event.Skip()
 	#-----------------------------------------
-	def EvtText_Height(self, event):
+	def EvtText_height(self, event):
 		if(self.focus==1):
-			self.height=event.GetString()
 			self.calc_ideal_mass_range()
 			self.CalcBMI()
 	#-----------------------------------------
 	def EvtText_mass(self, event):
 		if(self.focus==2):
-			self.mass=event.GetString()
 			self.CalcBMI()
 	#-----------------------------------------
-	def EvtText_goal(self, event):
+	def EvtText_goal(self, event):	# TODO -- rounding of self.txtgoal and self.txtloss
 		if(self.focus==4):
-			self.goal=event.GetString()
-
-			if(self.goal!=''):
+			if(self.txtgoal.GetValue()!=''):
 				try:
-					self.loss=str(eval(self.mass)-eval(self.goal))
-					self.txtloss.SetValue(self.loss)
+					self.txtloss.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtgoal.GetValue())))
 					self.CalcNEWBMI()
 				except:
 					pass	# error handling
@@ -346,10 +337,9 @@ class BMICalc_Panel(wxPanel):
 		if(self.focus==5):
 			self.loss=event.GetString()
 
-			if(self.loss!=''):
+			if(self.txtloss.GetValue()!=''):
 				try:
-					self.goal=str(eval(self.mass)-eval(self.loss))
-					self.txtgoal.SetValue(self.goal)
+					self.txtgoal.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtloss.GetValue())))
 					self.CalcNEWBMI()
 				except:
 					pass	# error handling
@@ -358,8 +348,8 @@ class BMICalc_Panel(wxPanel):
 	#-----------------------------------------
 	def calc_ideal_mass_range(self):
 		try:
-			self.low_norm_mass=20.*((eval(self.height)/100.)**2)
-			self.upp_norm_mass=25.*((eval(self.height)/100.)**2)
+			self.low_norm_mass=20.*((eval(self.txtheight.GetValue())/100.)**2)
+			self.upp_norm_mass=25.*((eval(self.txtheight.GetValue())/100.)**2)
 			print self.low_norm_mass, self.upp_norm_mass	# test
 
 			# FIXME - display upp_norm_mass & low_norm_mass
@@ -368,81 +358,42 @@ class BMICalc_Panel(wxPanel):
 			pass 	# error handling
 	#-----------------------------------------
 	def CalcBMI(self):
-		if(self.height=='' or self.mass==''):
+		if(self.txtheight.GetValue()=='' or self.txtmass.GetValue()==''):
 			self.txtbmi.SetValue('')
 		else:
 			try:
-				self.BMI=round(eval(self.mass)/((eval(self.height)/100.)**2),1)
-				self.txtbmi.SetValue(str(self.BMI))
+				self.txtbmi.SetValue(str(round(eval(self.txtmass.GetValue())/((eval(self.txtheight.GetValue())/100.)**2),1)))
 
 				# initialize slider
-				self.NEWBMI=round(eval(self.mass)/((eval(self.height)/100.)**2),0)
+				# round twice -- so slider value is the rounded value of "txtbmi" ***
+				self.NEWBMI=round(round(eval(self.txtmass.GetValue())/((eval(self.txtheight.GetValue())/100.)**2),1),0)
 				self.slider.SetValue(self.NEWBMI)
 
-				# FIX ME
-				"""
-				if the self.height==168 and the self.mass==86
-					self.txtbmi = 30.5
-					self.newbmi = 30   <-- LOOKS WRONG (when compared w/ self.txtbmi)
-				WHY?
-					true BMI = 30.470521541950113 <-- What appears to be
-									  an error is a result of rounding!
-
-					SOLUTIONS?
-						-increase BMI slider resolution 	<-- think this should be considered away
-						-fudge rounding of slider to match	<-- don't like
-				"""
+				# *** If values are entered into loss or goal the BMI slider slider values don't always match the
+				#     calculated BMI values in self.txtbmi (due to rounding)  -- FIX ME
+				#
+				#     e.g.
+				# 	if self.txtheight==168 && self.txtmass==86 && self.txtgoal==86
+				#		then self.txtbmi=30.5  BUT self.slider=30
+				#
+				#     MORE DETAILS IN OLDER VERSION OF gmBMICalc.py
 			except:
 				pass	# error handling
 	#-----------------------------------------
 	def CalcNEWBMI(self):
-		self.NEWBMI=round(eval(self.goal)/((eval(self.height)/100.)**2),0)
+		self.NEWBMI=round(eval(self.txtgoal.GetValue())/((eval(self.txtheight.GetValue())/100.)**2),0)
 		self.slider.SetValue(self.NEWBMI)
 	#-----------------------------------------
 	def SLIDER_EVT(self, event):
 		self.NEWBMI=self.slider.GetValue()
 		try:
-			self.goal=str(self.NEWBMI*(eval(self.height)/100.)**2)
-			self.loss=str(eval(self.mass)-eval(self.goal))
-
-			# display values
-			self.txtgoal.SetValue(self.goal)
-			self.txtloss.SetValue(self.loss)
+			self.txtgoal.SetValue(str(self.NEWBMI*(eval(self.txtheight.GetValue())/100.)**2))
+			self.txtloss.SetValue(str(eval(self.txtmass.GetValue())-eval(self.txtgoal.GetValue())))
 		except:
 			pass 	# error handling
 	#-----------------------------------------
-	# Tabbing with 'Enter'
-
-	# COULD THIS BE CODED MORE ELEGANTLY? - YOU CAN PLEASE KARSTEN
-
-	# IDEA I TRIED FOLLOWS... IT DOESN'T WORK... DON'T HAVE ANY OTHER IDEAS CURRENTLY
-	"""
-	EVT_CHAR(self.txtheight, self.EvtChar)
-	EVT_CHAR(self.txtgoal, self.EvtChar)
-	et cetera
-
-	*** SNIP ***
-
-	# Tabbing with 'Enter'
-	def EvtChar(self, event):
-		print 'key hit:', event.GetKeyCode()
-                if(event.GetKeyCode()==13):
-			if(self.focus==1): 			# height -> mass
-				self.txtmass.SetFocus()
-			if(self.focus==2):			# mass -> slider
-				self.slider.SetFocus()
-			if(self.focus==3):			# slider -> mass
-				self.txtgoal.SetFocus()
-			if(self.focus==4):			# goal -> loss
-				self.txtloss.SetFocus()
-			if(self.focus==5):			# loss -> height
-				self.txtheight.SetFocus()
-                else:
-                         event.Skip()
-	"""
-
+	# Moving between fields with the 'Enter' key
 	def EvtChar_height(self, event):
-		#print 'key hit:', event.GetKeyCode()	# test
                 if(event.GetKeyCode()==13):		# height -> mass
 			self.txtmass.SetFocus()
                 else:
@@ -471,7 +422,6 @@ class BMICalc_Panel(wxPanel):
 			self.txtheight.SetFocus()
                 else:
                          event.Skip()
-
 
 #-------------------------------------------------------------------
 #Creates all the sizers necessary to hold the top two menu's, picture
@@ -562,20 +512,17 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 
 	#-----------------------------------------
 	def EvtReset(self, event):
-		# reset variables - TODO clean-up (some of these variables can be eliminated)
-		self.pnl_bmi.height=''
-		self.pnl_bmi.mass=''
+		# reset variables
 		self.pnl_bmi.low_norm_mass=''
 		self.pnl_bmi.upp_norm_mass=''
-		self.pnl_bmi.loss=''
-		self.pnl_bmi.goal=''
 
-		# Make some of these global?
+		# reset textbox & slider
 		self.pnl_bmi.txtheight.SetValue('')
 		self.pnl_bmi.txtmass.SetValue('')
 		self.pnl_bmi.txtbmi.SetValue('')
 		self.pnl_bmi.txtgoal.SetValue('')
 		self.pnl_bmi.txtloss.SetValue('')
+		self.pnl_bmi.slider.SetValue(0)
 
 	#-----------------------------------------
 	def EvtPrint(self, event):
@@ -669,7 +616,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.19  2003-04-22 05:10:11  michaelb
+# Revision 1.20  2003-04-26 03:32:30  michaelb
+# misc. clean-up, elimination of variables that can be done without
+#
+# Revision 1.19  2003/04/22 05:10:11  michaelb
 # reset button now works, initialization of BMI slider on entry of mass & height, something Karsten won't like ('tabbing' w/ enter), TODO/FIXME comments
 #
 # Revision 1.18  2003/04/20 22:47:06  ncq
