@@ -51,7 +51,7 @@ Usage:
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 import sys, time, traceback, os.path, atexit, os, string, getopt
@@ -212,6 +212,8 @@ class cLogger:
 			tbs = traceback.format_exception(t, v, tb)
 			for key in self.__targets.keys():
 				self.__targets[key].writeMsg(lPanic, aMsg)
+				self.__targets[key].writeMsg(lPanic, "exception type : %s" % t)
+				self.__targets[key].writeMsg(lPanic, "exception value: %s" % v)
 				for line in tbs:
 					self.__targets[key].writeMsg(lPanic, reduce(lambda x, y: x+y, (map(self.__char2AsciiName, list(line)))))
 	#---------------------------
