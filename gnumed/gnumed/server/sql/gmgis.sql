@@ -5,27 +5,15 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.38 $
+-- $Revision: 1.39 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
--- any table that needs auditing MUST inherit audit_gis
--- A python script (gmhistorian.py) generates automatically all triggers
--- and tables neccessary to allow versioning and audit trail keeping of
--- these tables
-create table audit_gis (
-	audit_id serial primary key
-);
-
-COMMENT ON TABLE audit_gis IS
-	'not for direct use - must be inherited by all auditable tables';
-
--- ===================================================================
 -- country codes as per ISO 3166-1
--- no versioning / check sum neccessary, as this table
--- only uses original ISO data (= reference verifiable any time)
+-- no auditing neccessary, as this table only uses
+-- original ISO data (= reference verifiable any time)
 create table country (
 	code char(2) unique primary key,
 	name varchar(80) NOT NULL,
@@ -50,7 +38,7 @@ create table state (
         name varchar(60),
         deprecated date default null,
         unique (code, country)
-) inherits (audit_gis);
+) inherits (audit_mark);
 
 COMMENT ON TABLE state IS
 	'state codes (country specific)';
@@ -68,7 +56,7 @@ create table urb (
 	postcode varchar(12),
 	name varchar(60) not null,
 	unique (id_state, postcode, name)
-) inherits (audit_gis);
+) inherits (audit_mark);
 
 -- this does not work in the UK! Seperate postcodes for each street,
 -- Same in Germany ! Postcodes can be valid for:
@@ -95,7 +83,7 @@ create table street (
 	name varchar(128),
 	postcode varchar(12),
 	unique(id_urb, name)
-) inherits (audit_gis);
+) inherits (audit_mark);
 
 COMMENT ON TABLE street IS
 	'street names, specific for distinct "urbs"';
@@ -110,7 +98,7 @@ COMMENT ON COLUMN street.postcode IS
 create table address_type (
 	id serial primary key,
 	name char(10) NOT NULL
-) inherits (audit_gis);
+) inherits (audit_mark);
 
 -- ===================================================================
 create table address (
@@ -118,7 +106,7 @@ create table address (
 	street int references street(id),
 	number char(10),
 	addendum text
-) inherits (audit_gis);
+) inherits (audit_mark);
 
 -- ===================================================================
 -- Other databases may reference to an address stored in this table.
@@ -394,7 +382,7 @@ create table address_info (
         id_map integer references mapbook (id),
         howto_get_there text,
         comments text
-) inherits (audit_gis);
+) inherits (audit_mark);
 
 -- this refers to a SQL point type. This would allow us to do
 -- interesting queries, like, how many patients live within
@@ -402,11 +390,14 @@ create table address_info (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.38 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.39 $');
 
 -- =============================================
 -- $Log: gmgis.sql,v $
--- Revision 1.38  2003-05-12 12:43:39  ncq
+-- Revision 1.39  2003-06-03 09:50:32  ncq
+-- - prepare for move to standard auditing
+--
+-- Revision 1.38  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
