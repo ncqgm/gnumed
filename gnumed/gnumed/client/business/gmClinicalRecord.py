@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.128 2004-07-02 00:20:54 ncq Exp $
-__version__ = "$Revision: 1.128 $"
+# $Id: gmClinicalRecord.py,v 1.129 2004-07-05 22:23:38 ncq Exp $
+__version__ = "$Revision: 1.129 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -59,25 +59,37 @@ class cClinicalRecord:
 		self.__db_cache = {}
 
 		# make sure we have a xxxDEFAULTxxx health issue
+		t1 = time.time()
 		if not self.__load_default_health_issue():
 			raise gmExceptions.ConstructorError, "cannot activate default health issue for patient [%s]" % aPKey
+		duration = time.time() - t1
+		_log.Log(gmLog.lInfo, '__load_default_health_issue() took %s seconds' % duration)
 		self.health_issue = self.default_health_issue
 
 		# what episode did we work on last time we saw this patient ?
 		# also load corresponding health issue
+		t1 = time.time()
 		if not self.__load_last_active_episode():
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
+		duration = time.time() - t1
+		_log.Log(gmLog.lInfo, '__load_last_active_episode() took %s seconds' % duration)
 
 		# load current or create new encounter
 		# FIXME: this should be configurable (for explanation see the method source)
+		t1 = time.time()
 		if not self.__initiate_active_encounter():
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
+		duration = time.time() - t1
+		_log.Log(gmLog.lInfo, '__initiate_active_encounter() took %s seconds' % duration)
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
 		#  failing this constructor for other reasons ...)
+		t1 = time.time()
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
+		duration = time.time() - t1
+		_log.Log(gmLog.lInfo, '_register_interests() took %s seconds' % duration)
 
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
@@ -85,6 +97,7 @@ class cClinicalRecord:
 		pass
 	#--------------------------------------------------------
 	def cleanup(self):
+		self.__episode.set_active()
 		_log.Log(gmLog.lData, 'cleaning up after clinical record for patient [%s]' % self.id_patient)
 		sig = "%s:%s" % (gmSignals.health_issue_change_db(), self.id_patient)
 		self._conn_pool.Unlisten(service = 'historica', signal = sig, callback = self._health_issues_modified)
@@ -681,17 +694,17 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	def __load_last_active_episode(self):
 		# check if there's an active episode
+		episode = None
 		cmd = "select fk_episode from last_act_episode where id_patient=%s limit 1"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
-			return None
-		episode = None
-		if len(rows) != 0:
-			try:
-				episode = gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
-			except gmExceptions.ConstructorError, msg:
-				_log.Log(str(msg), sys.exc_info(), verbose=0)
+			_log.Log(gmLog.lErr, 'error reading last_act_episode for patient [%s]' % self.id_patient)
+		else:
+			if len(rows) != 0:
+				try:
+					episode = gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
+				except gmExceptions.ConstructorError, msg:
+					_log.Log(str(msg), sys.exc_info(), verbose=0)
 
 		# no last_active_episode recorded, so try to find the
 		# episode with the most recently modified clinical item
@@ -755,7 +768,6 @@ class cClinicalRecord:
 			episode = result
 
 		self.__episode = episode
-		self.__episode.set_active()
 		# load corresponding health issue
 		self.health_issue = self.get_health_issues(id_list=[self.__episode['pk_health_issue']])
 		if self.health_issue is None:
@@ -1318,7 +1330,12 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.128  2004-07-02 00:20:54  ncq
+# Revision 1.129  2004-07-05 22:23:38  ncq
+# - log some timings to find time sinks
+# - get_clinical_record now takes between 4 and 11 seconds
+# - record active episode at clinical record *cleanup* instead of startup !
+#
+# Revision 1.128  2004/07/02 00:20:54  ncq
 # - v_patient_items.id_item -> pk_item
 #
 # Revision 1.127  2004/06/30 20:33:40  ncq
