@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.114 $
+-- $Revision: 1.115 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -284,38 +284,38 @@ comment on TABLE clin_aux_note is
 
 -- --------------------------------------------
 -- --------------------------------------------
-create table _enum_hx_type (
-	id serial primary key,
-	description varchar(128) unique not null
-);
+--create table _enum_hx_type (
+--	id serial primary key,
+--	description varchar(128) unique not null
+--);
 
-comment on TABLE _enum_hx_type is
-	'types of history taken during a clinical encounter';
-
--- --------------------------------------------
-create table _enum_hx_source (
-	id serial primary key,
-	description varchar(128) unique not null
-);
-
-comment on table _enum_hx_source is
-	'sources of clinical information: patient, relative, notes, correspondence';
+--comment on TABLE _enum_hx_type is
+--	'types of history taken during a clinical encounter';
 
 -- --------------------------------------------
-create table clin_history (
-	id serial primary key,
-	id_type integer not null references _enum_hx_type(id),
-	id_source integer REFERENCES _enum_hx_source(id)
-) inherits (clin_root_item);
+--create table _enum_hx_source (
+--	id serial primary key,
+--	description varchar(128) unique not null
+--);
+
+--comment on table _enum_hx_source is
+--	'sources of clinical information: patient, relative, notes, correspondence';
+
+-- --------------------------------------------
+--create table clin_history (
+--	id serial primary key,
+--	id_type integer not null references _enum_hx_type(id),
+--	id_source integer REFERENCES _enum_hx_source(id)
+--) inherits (clin_root_item);
 
 -- narrative provided by clin_root_item
 
-comment on TABLE clin_history is
-	'narrative details of history taken during a clinical encounter';
-comment on COLUMN clin_history.id_type is
-	'the type of history taken';
-comment on COLUMN clin_history.id_source is
-	'who provided the details of this entry';
+--comment on TABLE clin_history is
+--	'narrative details of history taken during a clinical encounter';
+--comment on COLUMN clin_history.id_type is
+--	'the type of history taken';
+--comment on COLUMN clin_history.id_source is
+--	'who provided the details of this entry';
 
 -- --------------------------------------------
 create table clin_physical (
@@ -917,11 +917,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.114 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.115 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.114  2004-07-02 15:00:10  ncq
+-- Revision 1.115  2004-07-05 18:13:22  ncq
+-- - fold tables into clin_narrative
+--
+-- Revision 1.114  2004/07/02 15:00:10  ncq
 -- - bring rfe/aoe/diag/coded_diag tables/views up to snuff and use them
 --
 -- Revision 1.113  2004/07/02 00:28:53  ncq
