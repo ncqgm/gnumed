@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -193,7 +193,6 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		soap_editor = gmSOAPWidgets.cResizingSoapPanel(self, self.__selected_episode)
 		return soap_editor
-
 	#--------------------------------------------------------
 	def __get_displayed_episodes(self):
 		"""
@@ -220,8 +219,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel) and \
 			content.GetProblem()['pk_episode'] == episode_id:
 				a_leaf.Select()
-				break
-
+				return
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -293,6 +291,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		if episode_id not in self.__get_displayed_episodes():
 			# create new leaf always on bottom
 			successful, errno = self.__soap_multisash.add_content(content = self.__make_soap_editor())
+			# FIXME: actually, one would have to check errno but there is only one error number so far
 			if not successful:
 				msg = _('Cannot open progress note editor for\n\n'
 						'[%s]\n\n'
@@ -302,13 +301,12 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		else:
 			self.__focus_episode(episode_id)
 			# FIXME: find and focus
-			#msg = _(
-			#	'There already is a progress note editor open for\n'
-			#	'[%s]\n\n'
-			#	'We are lacking code to focus that editor yet.'
-			#) % problem['problem']
-			#gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
-
+#			msg = _(
+#				'There already is a progress note editor open for\n'
+#				'[%s]\n\n'
+#				'We are lacking code to focus that editor yet.'
+#			) % problem['problem']
+#			gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
 		self.__update_button_state()
 	#--------------------------------------------------------	
 	def __on_patient_selected(self):
@@ -506,7 +504,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.20  2005-02-21 23:44:59  cfmoro
+# Revision 1.21  2005-02-22 18:22:31  ncq
+# - cleanup
+#
+# Revision 1.20  2005/02/21 23:44:59  cfmoro
 # Commented out New button. Focus editor when trying to add and existing one. Clean ups
 #
 # Revision 1.19  2005/02/21 11:52:37  cfmoro
