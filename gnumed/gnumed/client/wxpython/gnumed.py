@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.40 $"
+__version__ = "$Revision: 1.41 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -135,10 +135,6 @@ if __name__ == "__main__":
 				  Please check whether your PYTHONPATH and/or GNUMED_DIR environment\n \
 				  variables are set correctly.")
 
-	# console is Good(tm)
-	aLogTarget = gmLog.cLogTargetConsole(gmLog.lErr)
-	gmLog.gmDefLog.AddTarget(aLogTarget)
-
 	if gmCLI.has_arg('--talkback'):
 		# email logger as a loop device
 		email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GNUmed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
@@ -157,6 +153,12 @@ if __name__ == "__main__":
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lErr)
 	else:
 		gmLog.gmDefLog.SetAllLogLevels(gmLog.lInfo)
+
+	# console is Good(tm)
+	# but only for Panics and important messages
+	aLogTarget = gmLog.cLogTargetConsole(gmLog.lPanic)
+	gmLog.gmDefLog.AddTarget(aLogTarget)
+
 
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 	gmLog.gmDefLog.Log(gmLog.lData, "resource path: " + appPath)
@@ -211,6 +213,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.40  2002-09-08 23:31:09  ncq
+# Revision 1.41  2002-11-03 13:22:20  ncq
+# - phase 1: raise log level of console logger to lPanic only
+# - gives a lot less confusing output
+#
+# Revision 1.40  2002/09/08 23:31:09  ncq
 # - really fail on failing to load a module
 #
