@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmReference.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Ian Haywood
 
@@ -16,7 +16,73 @@
 insert into form_types (name) values ('radiology');
 insert into form_types (name) values ('pathology');
 insert into form_types (name) values ('vascular');
-  
+-- Variables to be passed to the forms engine for these 3 are
+-- +-----------------+-------------------------------------------------+
+-- | demo            | the patient's gmDemographicRecord.cPerson object|
+-- +-----------------+-------------------------------------------------+
+-- | codes           | a list of strings: request codes                |
+-- |                 | (coding system TBA)                             |
+-- +-----------------+-------------------------------------------------+
+-- | request         | the free text request, with modality and        |
+-- |                 | anatomic region for study                       |
+-- +-----------------+-------------------------------------------------+
+-- | notes           | free text clinical notes                        |
+-- +-----------------+-------------------------------------------------+
+-- | clinical        | the patient's cClinicalRecord object            |
+-- +-----------------+-------------------------------------------------+
+-- | instructions    | patient's special instructions                  |
+-- +-----------------+-------------------------------------------------+
+insert into form_types (name) values ('workplace sick certificate');
+-- +-----------------+-------------------------------------------------+
+-- | demo            | the patient's gmDemographicRecord.cPerson object|
+-- +-----------------+-------------------------------------------------+
+-- | commence        | date on which [we declare] the patient fell ill |
+-- +-----------------+-------------------------------------------------+
+-- | return_to_work  | date on which the patient can return to work    |
+-- +-----------------+-------------------------------------------------+
+-- | full_duties     | date on which full duties can re-commence       |
+-- +-----------------+-------------------------------------------------+
+-- | restriction     | if full_duties != return_to_work, a free text   |
+-- |                 | description of the work restrictions            |
+-- +-----------------+-------------------------------------------------+
+-- | max_weight      | a float, further to the above, maximum weight to|
+-- |                 | be lifted, in kilos                             |
+-- +-----------------+-------------------------------------------------+
+insert into form_types (name) values ('vaccination report');
+-- +-----------------+-------------------------------------------------+
+-- | begin_date      | the first date of the report period             |
+-- +-----------------+-------------------------------------------------+
+-- | last_date       | the last date of the report period              |
+-- |                 | (the form script will use special methods       |
+-- |                 | on gmClinicalRecord to grab the vaccines and    |
+-- |                 | patient IDs)                                    |
+-- +-----------------+-------------------------------------------------+
+insert into form_types (name) values ('referral');
+-- +-----------------+-------------------------------------------------+
+-- | demo            | the patient's gmDemographicRecord.cPerson object|
+-- +-----------------+-------------------------------------------------+
+-- | notes           | free text clinical notes                        |
+-- +-----------------+-------------------------------------------------+
+-- | clinical        | the patient's cClinicalRecord object            |
+-- +-----------------+-------------------------------------------------+
+-- | recipient       | the gmDemographicRecord.cPerson or cOrg of the  | 
+-- |                 | referral recipient                              |
+-- +-----------------+-------------------------------------------------+
+-- | meds            | flag, true to include med list (which is grabbed|
+-- |                 | from the cClinicalRecord)                       |
+-- +-----------------+-------------------------------------------------+
+-- | past_history    | flag, true to include the past history (which is|
+-- |                 | grabbed from the cClinicalRecord)               |
+-- +-----------------+-------------------------------------------------+
+insert into form_types (name) values ('prescription');
+-- +-----------------+-------------------------------------------------+
+-- | demo            | the patient's gmDemographicRecord.cPerson object|
+-- +-----------------+-------------------------------------------------+
+-- | meds            | a list of cMedication objects                   |
+-- +-----------------+-------------------------------------------------+
+-- | clinical        | the patient's cClinicalRecord object            |
+-- +-----------------+-------------------------------------------------+
+
 insert into form_defs (pk, name_short, name_long, revision, engine, template) values
 (1,
  'Standard Referral', 'Standard specialist referral letter for AU', 1, 'L', 

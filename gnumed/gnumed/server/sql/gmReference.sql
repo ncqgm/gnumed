@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -161,21 +161,26 @@ comment on column papersizes.size is '(cm, cm)';
 -- form templates
 
 create table form_types (
-	pk serial primary key,
-	name text
+	name text unique,
+	pk serial primary key
 );
 
 comment on table form_types is 'types of forms which are available,
-gnerally by purpose (radilogy, pathology, sick leave, etc.)';
+generally by purpose (radiology, pathology, sick leave, etc.)
+The form type determines the names and types of variables passed to
+the form engine to create this form.';
+
 
 create table form_defs (
 	pk serial primary key,
 	fk_type integer references form_types (pk),
+	country varchar (3),
+	locale text,
 	name_short text not null,
 	name_long text not null,
 	revision text not null,
 	template text,
-	engine char default 'T' not null check (engine in ('T', 'L')),
+	engine char default 'T' not null check (engine in ('T', 'L', 'H')),
 	in_use boolean not null default true,
 	electronic boolean not null default false,
 	flags varchar (100) [],
@@ -202,7 +207,8 @@ comment on column form_defs.engine is
 	'the business layer forms engine used
 	 to process this form, currently:
 	 - T: plain text
-	 - L: LaTeX';
+	 - L: LaTeX
+	 - H: HL7';
 comment on column form_defs.in_use is
 	'whether this template is currently actively
 	 used in a given practice';
@@ -259,11 +265,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.12  2004-06-26 23:43:51  ncq
+-- Revision 1.13  2004-12-15 12:14:08  ihaywood
+-- couple of extra fields and comments
+--
+-- Revision 1.12  2004/06/26 23:43:51  ncq
 -- - added unique() in ref_source
 -- - atc_* tables
 --
