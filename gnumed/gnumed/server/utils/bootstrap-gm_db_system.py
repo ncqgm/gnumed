@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -107,18 +107,18 @@ def connect_to_db():
 
 	# get password from user
 	print "We still need a password to actually access the database."
-	print "(user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], database, core_server["host name"], core_server["port"])
+	print "(user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], initial_database, core_server["host name"], core_server["port"])
 	initial_user["password"] = raw_input("Please type password: ")
 
 	# log in
-	dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], database, initial_user["name"], initial_user["password"])
+	dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], initial_database, initial_user["name"], initial_user["password"])
 	try:
-		conn = PgSQL.connect(dsn)
+		conn = dbapi.connect(dsn)
 	except:
 		exc = sys.exc_info()
-		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (initial_user["name"], initial_user["password"], database, core_server["host name"], core_server["port"]), exc, fatal=1)
+		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (initial_user["name"], initial_user["password"], initial_database, core_server["host name"], core_server["port"]), exc, fatal=1)
 		return None
-	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], database, core_server["host name"], core_server["port"]))
+	_log.Log(gmLog.lInfo, "successfully connected to database (user [%s] in db [%s] on [%s:%s])" % (initial_user["name"], initial_database, core_server["host name"], core_server["port"]))
 
 	print "Successfully connected."
 	return conn
@@ -142,7 +142,7 @@ def reconnect_as_gm_owner():
 	# log in
 	dsn = "%s:%s:%s:%s:%s" % (core_server["host name"], core_server["port"], initial_database, gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"])
 	try:
-		conn = PgSQL.connect(dsn)
+		conn = dbapi.connect(dsn)
 	except:
 		_log.LogException("Cannot connect (user [%s] with pwd [%s] in db [%s] on [%s:%s])." % (gmUserSetup.dbowner["name"], gmUserSetup.dbowner["password"], initial_database, core_server["host name"], core_server["port"]), sys.exc_info(), fatal=1)
 		return None
@@ -280,7 +280,8 @@ def bootstrap_procedural_languages():
 
 	for lang in lang_list:
 		if not install_lang(lib_dirs, lang):
-			exit_with_msg("Error installing procedural language [%s]." % lang)
+			print "Error installing procedural language [%s]." % lang
+			#exit_with_msg("Error installing procedural language [%s]." % lang)
 
 	return 1
 #------------------------------------------------------------------
@@ -321,12 +322,15 @@ def bootstrap_core_database():
 		_log.Log(gmLog.lErr, "Cannot load name of core GnuMed database from config file.")
 		database = "gnumed"
 
-	# create main database
 	if db_exists(database):
 		return 1
 
+	# create main database
 	cursor = dbconn.cursor()
-	cmd = 'create database "%s"' % database
+	# FIXME: we need to pull this nasty trick of ending and restarting
+	# the current transaction to work around pgSQL automatically associating
+	# cursors with transactions
+	cmd = 'commit; create database "%s"; begin' % database
 	try:
 		cursor.execute(cmd)
 	except:
@@ -335,16 +339,23 @@ def bootstrap_core_database():
 	dbconn.commit()
 	cursor.close()
 
+	if not db_exists(database):
+		return None
+	_log.Log(gmLog.lInfo, "Successfully created GnuMed core database [%s]." % database)
+
 	# reconnect to main database as database owner
 
+	print "Successfully bootstrapped GnuMed core database [%s]." % database
 	return 1
 #==================================================================
 def exit_with_msg(aMsg = None):
 	if not (aMsg is None):
 		print aMsg
 	print "Please see log file for details."
-	if not dbconn is None:
+	try:
 		dbconn.close()
+	except:
+		pass
 	_log.Log(gmLog.lErr, aMsg)
 	_log.Log(gmLog.lInfo, "shutdown")
 	sys.exit(1)
@@ -388,7 +399,11 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.4  2002-11-01 14:06:53  ncq
+# Revision 1.5  2002-11-01 15:17:44  ncq
+# - need to wrap "create database" in "commit; ...; begin;" to work
+#   around auto-transactions in pyPgSQL
+#
+# Revision 1.4  2002/11/01 14:06:53  ncq
 # - another typo
 #
 # Revision 1.3  2002/11/01 14:05:39  ncq

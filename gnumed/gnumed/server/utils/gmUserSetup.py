@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/gmUserSetup.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -38,6 +38,8 @@ import sys, string, os.path
 
 import gmLog
 _log = gmLog.gmDefLog
+
+_log.Log(gmLog.lData, __version__)
 
 import gmCfg
 _cfg = gmCfg.gmDefCfgFile
@@ -71,7 +73,9 @@ def user_exists(aCursor, aUser):
 	return None
 #------------------------------------------------------------------
 def create_superuser(aConn, aCfg):
-	superuser = aCfg.get("defaults", "gnumed database owner")
+	global dbowner
+
+	superuser = aCfg.get("GnuMed defaults", "gnumed database owner")
 	if not superuser:
 		_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
 		return None
@@ -79,7 +83,9 @@ def create_superuser(aConn, aCfg):
 	# does this user already exist ?
 	if user_exists(cursor, superuser):
 		cursor.close()
+		dbowner["name"] = superuser
 		return 1
+
 	# get password for super user
 	print "We need a password for the GnuMed standard superuser [%s]." % superuser
 	password = raw_input("Please type password: ")
@@ -92,7 +98,6 @@ def create_superuser(aConn, aCfg):
 		cursor.close()
 		return None
 
-	global dbowner
 	dbowner["name"] = superuser
 	dbowner["password"] = password
 	# paranoia is good
@@ -149,7 +154,7 @@ def create_user(aCursor, aUser, aCfg):
 #------------------------------------------------------------------
 def create_users(aCfg = None, aSection = None, aConn = None):
 	if aSection is None:
-		section = "defaults"
+		section = "GnuMed defaults"
 	else:
 		section = aSection
 
@@ -204,7 +209,7 @@ def create_group(aCursor, aGroup):
 #------------------------------------------------------------------
 def create_groups(aCfg = None, aSection = None, aConn = None):
 	if aSection is None:
-		section = "defaults"
+		section = "GnuMed defaults"
 	else:
 		section = aSection
 
@@ -347,7 +352,11 @@ def create_test_structure(aConn = None, aCfg = None):
 #	print "Please rewrite this as a plugin for GnuMed !"
 #==================================================================
 # $Log: gmUserSetup.py,v $
-# Revision 1.1  2002-10-31 22:59:19  ncq
+# Revision 1.2  2002-11-01 15:17:44  ncq
+# - need to wrap "create database" in "commit; ...; begin;" to work
+#   around auto-transactions in pyPgSQL
+#
+# Revision 1.1  2002/10/31 22:59:19  ncq
 # - tests environment, bootstraps users, bootstraps procedural languages
 # - basically replaces gnumed.sql and setup-users.py
 #
