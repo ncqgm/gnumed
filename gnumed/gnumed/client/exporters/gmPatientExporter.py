@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.46 2005-04-03 09:27:25 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmPatientExporter.py,v 1.47 2005-04-03 20:08:18 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -493,9 +493,13 @@ class cEmrExport:
             for an_episode in episodes:       
                episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
                emr_tree.SetPyData(episode_node, an_episode)
-               encounters = emr.get_encounters(since=self.__constraints['since'],
-                until=self.__constraints['until'], id_list=self.__constraints['encounters'],
-                episodes=[an_episode['pk_episode']], issues=[a_health_issue['id']])
+               encounters = emr.get_encounters (
+                   since = self.__constraints['since'],
+                   until = self.__constraints['until'],
+                   id_list = self.__constraints['encounters'],
+                   episodes = [an_episode['pk_episode']],
+                   issues = [a_health_issue['id']]
+               )
                for an_encounter in encounters:
                     label = '%s:%s' % (an_encounter['l10n_type'], an_encounter['started'].Format('%Y-%m-%d'))
                     encounter_node = emr_tree.AppendItem(episode_node, label)
@@ -622,7 +626,7 @@ class cEmrExport:
         # unlinked episodes
         unlinked_episodes = emr.get_episodes(issues = [None])
         if len(unlinked_episodes) > 0:
-            h_issues.insert(0, {'description':_('DEFAULT ISSUE'), 'id':None})        
+            h_issues.insert(0, {'description':_('episodes w/o health issues'), 'id':None})        
         for a_health_issue in h_issues:
             self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
@@ -732,45 +736,6 @@ class cEmrExport:
         #    addr_lst = ident['addresses'][addr_t]
         #    for address in addr_lst:
         #        self.__target.write('    Address (' + addr_t + '): ' + address + '\n')
-    #--------------------------------------------------------
-    def dump_emr_gui(self, parent):
-        """
-        Dump the patient's EMR from GUI client
-        @param parent - The parent widget
-        @type parent - A wxWindow instance        
-        """
-        from wxPython import wx
-        from Gnumed.wxpython import gmGuiHelpers
-        # sanity check
-        if parent is None:
-            _log.Log(gmLog.lErr, 'cannot dump emr in gui mode with parent widget [%s]' % parent)
-            return
-        # get file name
-        # - via file select dialog        
-        aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
-        aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
-        dlg = wx.wxFileDialog(
-            parent = parent,
-            message = _("Save patient's EMR as..."),
-            defaultDir = aDefDir,
-            defaultFile = '%s-%s.txt' % (_('emr-export'), self.__patient.get_identity()['description']),
-            wildcard = aWildcard,
-            style = wx.wxSAVE
-        )
-        choice = dlg.ShowModal()
-        fname = dlg.GetPath()
-        dlg.Destroy()        
-        if choice == wx.wxID_OK:
-            _log.Log(gmLog.lData, 'selected [%s]' % fname)
-            output_file = open(fname, 'wb')
-            self.set_output_file(output_file)
-            # Dump patient EMR sections
-            self.dump_constraints()
-            self.dump_demographic_record(True)
-            self.dump_clinical_record()
-            self.dump_med_docs()
-            output_file.close()
-            gmGuiHelpers.gm_show_info('EMR successfully exported to file: %s' % fname, _('emr_dump'), gmLog.lInfo)        
     #--------------------------------------------------------
     def dump_constraints(self):
         """
@@ -919,7 +884,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.46  2005-04-03 09:27:25  ncq
+# Revision 1.47  2005-04-03 20:08:18  ncq
+# - GUI stuff does not belong here (eg move to gmEMRBrowser which is to become gmEMRWidgets, eventually)
+#
+# Revision 1.46  2005/04/03 09:27:25  ncq
 # - better wording
 #
 # Revision 1.45  2005/04/02 21:37:27  cfmoro
