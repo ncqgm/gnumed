@@ -170,6 +170,28 @@ create table address_external_ref (
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+-- finds the state for a given postcode in a given country
+DROP function find_state(text, text);
+CREATE FUNCTION find_state (text, text) RETURNS text AS '
+DECLARE
+        pcode ALIAS FOR $1;
+	ccode ALIAS FOR $2;
+        s RECORD;
+	retval text := NULL;
+BEGIN
+        SELECT INTO s * FROM state WHERE id =
+	(SELECT statecode from urb where postcode like pcode||''%'' limit 1)
+	AND country=ccode;
+        IF FOUND THEN
+           retval := s.code;
+        END IF;
+	RETURN retval;
+END;' LANGUAGE 'plpgsql';
+
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 create view v_basic_address as
 -- if you suffer from performance problems when selecting from this view,
 -- implement it as a real table and create rules / triggers for insert,
