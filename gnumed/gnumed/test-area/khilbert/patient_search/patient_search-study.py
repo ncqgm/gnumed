@@ -7,7 +7,7 @@ def generate_queries(raw):
 	queries = []
 
 	# "+<...>" - DOD date of death
-	elif re.match("^(\s|\t)*\+.+$", raw):
+	if re.match("^(\s|\t)*\+.+$", raw):
 		print "supposedly d.o.d."
 		print " will return:"
 		print "  1) patient based on d.o.d."
@@ -16,90 +16,6 @@ def generate_queries(raw):
 		queries.append("... where date_trunc('day', identity.deceased) like (select timestamp '%s');" % tmp)
 		return queries
 
-	else:
-		print "- this is a more complicated pattern"
-		print "- we don't expect patient IDs in complicated patterns"
-		print "- hence, any digits signify a date"
-
-		# try to split on (major) part separators
-		parts_list = re.split(",|;", raw)
-
-
-
-		# parse into name and date parts
-		date_parts = []
-		name_parts = []
-		name_count = 0
-		for part in parts_list:
-			# any digits ?
-			if re.search("\d+", part):
-				# FIXME: parse out whitespace *not* adjacent to a *word*
-				date_parts.append(part)
-			else:
-				tmp = part.strip()
-				tmp = re.split("\s*|\t*", tmp)
-				name_count = name_count + len(tmp)
-				name_parts.append(tmp)
-
-		print "total names:", name_count
-		print "name parts :", name_parts
-		print "date parts :", date_parts
-
-		where1 = []
-		where2 = []
-		where3 = []
-		if (len(name_parts) == 1) and (name_count == 2):
-			# if "karsten hilbert" -> "karsten" is usually first name,
-			# so check this version first
-			where1.append("firstnames ilike '%s%%'" % name_parts[0][0])
-			where1.append("lastnames ilike '%s%%'"  % name_parts[0][1])
-
-			where2.append("firstnames ilike '%s%%'" % name_parts[0][1])
-			where2.append("lastnames ilike '%s%%'"  % name_parts[0][0])
-
-			where3.append("firstnames || lastnames ilike '%%%s%%'" % name_parts[0][0])
-			where3.append("firstnames || lastnames ilike '%%%s%%'" % name_parts[0][1])
-		elif len(name_parts) == 2:
-			# if "hilbert, karsten" -> "hilbert" is usually last name,
-			# so check this version first
-			where1.append("firstnames ilike '%s%%'" % string.join(name_parts[1], ' '))
-			where1.append("lastnames ilike '%s%%'" % string.join(name_parts[0], ' '))
-
-			where2.append("firstnames ilike '%s%%'" % string.join(name_parts[0], ' '))
-			where2.append("lastnames ilike '%s%%'" % string.join(name_parts[1], ' '))
-
-			where3.append("firstnames || lastnames ilike '%%%s%%'" % string.join(name_parts[0], ' '))
-			where3.append("firstnames || lastnames ilike '%%%s%%'" % string.join(name_parts[1], ' '))
-		else:
-			# big trouble - arbitrary name part information
-			print "uh oh - arbitrary name parts"
-
-			if len(name_parts) == 1:
-				for part in name_parts[0]:
-					where1.append("firstnames || lastnames ilike '%%%s%%'" % part)
-					where2.append("firstnames || lastnames ilike '%%%s%%'" % part)
-			else:
-				tmp = []
-				for part in name_parts:
-					tmp.append(string.join(part, ' '))
-				for part in tmp:
-					where1.append("firstnames || lastnames ilike '%%%s%%'" % part)
-					where2.append("firstnames || lastnames ilike '%%%s%%'" % part)
-
-		if len(date_parts) == 1:
-			where1.append("date_trunc('day', dob) like (select timestamp '%s')" % date_parts[0])
-			where2.append("date_trunc('day', dob) like (select timestamp '%s')" % date_parts[0])
-		elif len(date_parts) > 1:
-			where1.append("date_trunc('day', dob) like (select timestamp '%s')" % date_parts[0])
-			where1.append("date_trunc('day', identity.deceased) like (select timestamp '%s'" % date_parts[1])
-
-			where2.append("date_trunc('day', dob) like (select timestamp '%s')" % date_parts[0])
-			where2.append("date_trunc('day', identity.deceased) like (select timestamp '%s')" % date_parts[1])
-
-		queries.append("... where %s" % string.join(where1, ' and '))
-		queries.append("... where %s" % string.join(where2, ' and '))
-		queries.append("... where %s" % string.join(where3, ' and '))
-		return queries
 #------------------------------------------------------------------
 def tokenize(raw):
 	# "#<ZIFFERN>" format: patient ID
@@ -200,16 +116,8 @@ while 1:
 #Same in Thailand. Are you saying nickname use is so prominent
 #in Australia that Australian docs will want to be able to type
 #the nickname to pull up the record at the time the patient
-#comes in ? Remember, I am not trying to build the ultimate
-#find-any-patient widget. I am trying to deal with the common
-#situation, e.g. when a patient presents to the front desk. I
-#want to be able to type
+#comes in ?
 
-#"Karsten Hilbert"
-#"HIlbert, karsten"
-#"karsten, hilbert"
-#"kars, hilb"
-#"hilb; karsten, 23.10.74"
 
 #and always come up with a reasonable list of suggestions with
 #myself on top. This will catch 99% of the cases. We commonly
