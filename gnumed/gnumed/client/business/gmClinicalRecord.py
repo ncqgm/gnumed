@@ -7,10 +7,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.45 2003-11-17 10:56:33 sjtan Exp $
+# $Id: gmClinicalRecord.py,v 1.46 2003-11-17 11:32:46 sjtan Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.45 2003-11-17 10:56:33 sjtan Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmClinicalRecord.py,v 1.46 2003-11-17 11:32:46 sjtan Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -338,8 +338,8 @@ class gmClinicalRecord:
 					data.append(allergy)
 		else:
 			data = self.__db_cache['allergies']
-		print "allergy data = ", data
-		print "allergy col_idx = " ,col_idx
+		_print("allergy data = ", data)
+		_print("allergy col_idx = " ,col_idx)
 		return data
 	#--------------------------------------------------------
 	def get_allergy_names(self, remove_sensitivities = None):
@@ -557,7 +557,7 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot insert health issue [%s] for patient [%s]' % (health_issue_name, self.id_patient))
-			print "insert"
+			_print("insert")
 			return None
 		# get ID of insertion
 		cmd = "select currval('clin_health_issue_id_seq')"
@@ -565,7 +565,7 @@ where
 			rw_curs.close()
 			rw_conn.close()
 			_log.Log(gmLog.lErr, 'cannot obtain id of last health issue insertion')
-			print "find currval"
+			_print("find currval")
 			return None
 		id_issue = rw_curs.fetchone()[0]
 		# and commit our work
@@ -880,14 +880,14 @@ class gmClinicalPart:
 		id = self.patient.id_encounter
 		if id == None:
 			status, result =  self.patient.attach_to_encounter(forced = 1)
-			print "GOT ", status, result, " from attach_to_encounter"
+			_print("GOT ", status, result, " from attach_to_encounter")
 
-		print "id_encounter=", id		
+		_print("id_encounter=", id		)
 
 		return id		
 
 	def id_episode(self):
-		print "id_episode", self.patient.id_episode
+		_print("id_episode", self.patient.id_episode)
 		return self.patient.id_episode
 
 
@@ -900,7 +900,7 @@ class gmClinicalPart:
 	def _traceback(self, msg = "_traceback()"):
 		import gmLog
 		gmLog.gmDefLog.LogException(msg, sys.exc_info(), verbose=1)
-		#print sys.exc_info()[0], sys.exc_info()[1]
+		#_print(sys.exc_info()[0], sys.exc_info()[1])
 		#traceback.print_tb(sys.exc_info()[2])
 
 	def _print(self, *kargs):
@@ -922,7 +922,7 @@ class gmClinicalPart:
 			import gmLog
 			gmLog.gmDefLog.Log(gmLog.lInfo, msg)
 		except:
-			print list
+			_print(list)
 	
 	
 	def validate_not_null( self, values, fields):
@@ -939,13 +939,16 @@ class gmClinicalPart:
 				try:
 					map[fields[i]] = row[i+1]
 				except:
-					print "ERROR at i = ", i , " len(fields) ", len(fields) , "len(row)", len(row)
+					_print("ERROR at i = ", i , " len(fields) ", len(fields) , "len(row)", len(row))
 			all_map[row[0]]= map	
 
 		return all_map	
 				
-			
-
+		
+	
+def _print( *kwds, **kargs):
+	list = [ str(x) for x in kwds]
+	_log.Log(gmLog.lInfo, " ".join(list))
 
 			
 # main
@@ -959,13 +962,17 @@ if __name__ == "__main__":
 		keys.sort()
 		for aged_line in keys:
 			for line in dump[aged_line]:
-				print line
+				_print(line)
 	import time
 	time.sleep(3)
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.45  2003-11-17 10:56:33  sjtan
+# Revision 1.46  2003-11-17 11:32:46  sjtan
+#
+# print ... -> _log.Log(gmLog.lInfo ...)
+#
+# Revision 1.45  2003/11/17 10:56:33  sjtan
 #
 # synced and commiting.
 #
@@ -977,7 +984,7 @@ if __name__ == "__main__":
 #
 # Revision 1.44  2003/11/16 19:30:26  ncq
 # - use clin_when in clin_root_item
-# - pretty print EMR text dump
+# - pretty _print(EMR text dump)
 #
 # Revision 1.43  2003/11/11 20:28:59  ncq
 # - get_allergy_names(), reimplemented
