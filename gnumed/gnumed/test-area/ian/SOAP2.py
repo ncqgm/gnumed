@@ -1,7 +1,7 @@
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/ian/SOAP2.py,v $
-# $Id: SOAP2.py,v 1.6 2004-11-09 11:19:47 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: SOAP2.py,v 1.7 2004-11-09 11:20:59 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Ian Haywood"
 __license__ = 'Ian, please add license'
 
@@ -534,7 +534,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: SOAP2.py,v $
-# Revision 1.6  2004-11-09 11:19:47  ncq
+# Revision 1.7  2004-11-09 11:20:59  ncq
+# - just silly cleanup
+#
+# Revision 1.6  2004/11/09 11:19:47  ncq
 # - if we know that parent of ResizingSTC must be
 #   ResizingWindow we can test for it
 # - added some CVS keywords
@@ -542,31 +545,29 @@ if __name__ == '__main__':
 #   area, just a logical one where people want to use it !
 #   IOW we will keep gmEditArea around as it IS a good design !
 #
-#
-#
-#----------------------------
+#----------------------------------------------------------------
 # revision 1.5
 # date: 2004/11/09 02:05:20;  author: ihaywood;  state: Exp;  lines: +106 -100
 # crashes less often now, the one stickler is clicking on the
 # auto-completion list causes a segfault.
 #
 # This is becoming a candidate replacement for cEditArea
-# ----------------------------
+#
 # revision 1.4
 # date: 2004/11/08 09:36:28;  author: ihaywood;  state: Exp;  lines: +86 -77
 # fixed the crashing bu proper use of wxSize.SetItemMinSize (when all else
 # fails, read the docs ;-)
-# ----------------------------
+#
 # revision 1.3
 # date: 2004/11/08 07:07:29;  author: ihaywood;  state: Exp;  lines: +108 -22
 # more fun with semicolons
 # popups too: having a lot of trouble with this, many segfaults.
-# ----------------------------
+#
 # revision 1.2
 # date: 2004/11/02 11:55:59;  author: ihaywood;  state: Exp;  lines: +198 -19
 # more feaures, including completion box (unfortunately we can't use the
 # one included with StyledTextCtrl)
-# ----------------------------
+#
 # revision 1.1
 # date: 2004/10/24 13:01:15;  author: ihaywood;  state: Exp;
 # prototypical SOAP editor, secondary to Sebastian's comments:
