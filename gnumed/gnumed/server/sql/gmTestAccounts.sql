@@ -8,7 +8,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmTestAccounts.sql,v $
--- $Id: gmTestAccounts.sql,v 1.9 2003-10-07 11:14:25 ncq Exp $
+-- $Id: gmTestAccounts.sql,v 1.10 2004-01-10 02:02:03 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -27,14 +27,14 @@ drop user "test-doc";
 CREATE USER "test-doc"
 	WITH PASSWORD 'test-doc'
 	IN GROUP "gm-doctors", "gm-public"
-	VALID UNTIL '2003-12-31'
+	VALID UNTIL '2004-12-31'
 ;
 
 drop user "_test-doc";
 CREATE USER "_test-doc"
 	WITH PASSWORD 'test-doc'
 	IN GROUP "gm-doctors", "_gm-doctors", "gm-public"
-	VALID UNTIL '2003-12-31'
+	VALID UNTIL '2004-12-31'
 ;
 
 -- ===================================================
@@ -42,14 +42,14 @@ drop user "test-nurse";
 CREATE USER "test-nurse"
 	WITH PASSWORD 'test-nurse'
 	IN GROUP "gm-staff_medical", "gm-public"
-	VALID UNTIL '2003-12-31'
+	VALID UNTIL '2004-12-31'
 ;
 
 drop user "_test-nurse";
 CREATE USER "_test-nurse"
 	WITH PASSWORD 'test-nurse'
 	IN GROUP "gm-staff_medical", "_gm-staff_medical", "gm-public"
-	VALID UNTIL '2003-12-31'
+	VALID UNTIL '2004-12-31'
 ;
 
 -- ===================================================
@@ -57,14 +57,14 @@ drop user "test-secretary";
 CREATE USER "test-secretary"
 	WITH PASSWORD 'test-secretary'
 	IN GROUP "gm-staff_office", "gm-public"
-	VALID UNTIL '2003-12-31'
+	VALID UNTIL '2004-12-31'
 ;
 
 drop user "_test-secretary";
 CREATE USER "_test-secretary"
 	WITH PASSWORD 'test-secretary'
 	IN GROUP "gm-staff_office", "_gm-staff_office", "gm-public"
-	VALID UNTIL '2003-12-31'
+	VALID UNTIL '2004-12-31'
 ;
 
 -- ===================================================
@@ -72,7 +72,10 @@ CREATE USER "_test-secretary"
 
 -- ===================================================
 -- $Log: gmTestAccounts.sql,v $
--- Revision 1.9  2003-10-07 11:14:25  ncq
+-- Revision 1.10  2004-01-10 02:02:03  ncq
+-- - revalidate test accounts until end of 2004
+--
+-- Revision 1.9  2003/10/07 11:14:25  ncq
 -- - try to make Debian happy
 --
 -- Revision 1.8  2003/06/14 11:42:45  ncq
