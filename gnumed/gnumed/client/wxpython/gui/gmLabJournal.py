@@ -25,7 +25,7 @@ from Gnumed.pycommon import gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider
 from Gnumed.business import gmPatient, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
-
+from Gnumed.wxpython import checkboxOn, checkboxOff, imagestest
 # 3rd party
 from wxPython.wx import *
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
@@ -61,10 +61,14 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
 #====================================
 class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
+	#BEGIN_EVENT_TABLE(gmLabIDListCtrl, wxListCtrl)
+	#	EVT_LEFT_DOWN(gmLabIDListCtrl, self.OnMouseEvent)
+	#END_EVENT_TABLE()
+	
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
 		wxListCtrl.__init__(self, parent, ID, pos, size, style)
 		wxListCtrlAutoWidthMixin.__init__(self)
-
+		
 	def AppendColouredItem(self, sLabel = None): 
 		NewItem = wxListItem()
 		NewItem.SetMask(wxLIST_MASK_TEXT);
@@ -75,7 +79,7 @@ class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 		NewItem.SetBackgroundColour(wxColour(235, 235, 235));
 
 		#self.InsertItem(NewItem)
-		return NewItem
+		#return NewItem
 #====================================
 class cLabJournalNB(wxNotebook):
 	"""This wxNotebook derivative displays 'records still due' and lab-import related errors.
@@ -89,7 +93,7 @@ class cLabJournalNB(wxNotebook):
 			aConn = pool.GetConnection('default'),
 			aDBAPI = gmPG.dbapi
 		)
-
+		
 		wxNotebook.__init__(
 			self,
 			parent,
@@ -136,6 +140,7 @@ class cLabJournalNB(wxNotebook):
 	def __init_SZR_due (self):
 
 		vbszr = wxBoxSizer( wxVERTICAL )
+		hbszr = wxBoxSizer( wxHORIZONTAL )
 		
 		self.lab_label = wxStaticText(
 			name = 'lablabel',
@@ -149,8 +154,10 @@ class cLabJournalNB(wxNotebook):
 		self.lab_wheel.on_resize (None)
 		self.lab_wheel.addCallback(self.on_lab_selected)
 
-		vbszr.AddWindow(self.lab_label, 0, wxALIGN_CENTER | wxALL, 5)
-		vbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.AddWindow(self.lab_label, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr.AddWindow(self.lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
+		
+		vbszr.AddWindow(hbszr,0, wxALIGN_LEFT | wxALL, 5)
 		
 		self.req_id_label = wxStaticText(
 			name = 'req_id_label',
@@ -169,8 +176,12 @@ class cLabJournalNB(wxNotebook):
 			0
 			)
 
-		vbszr.AddWindow(self.req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
-		vbszr.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5 )
+		hbszr2 = wxBoxSizer( wxHORIZONTAL )
+		
+		hbszr2.AddWindow(self.req_id_label, 0, wxALIGN_CENTER | wxALL, 5)
+		hbszr2.AddWindow(self.fld_request_id, 0, wxALIGN_CENTER| wxALL, 5 )
+		
+		vbszr.AddWindow(hbszr2,0, wxALIGN_LEFT | wxALL, 5)
 
 		# -- "save request id" button -----------
 		self.BTN_save_request_ID = wxButton(
@@ -231,17 +242,23 @@ class cLabJournalNB(wxNotebook):
 			size=wxDefaultSize,
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)
+		
+		# image list for panel
+		self.il = wxImageList(16, 16)
+		self.idx1 = self.il.Add(imagestest.getSmilesBitmap())
+		self.review_Ctrl.SetImageList(self.il, wxIMAGE_LIST_SMALL)
 
 		vbszr.AddWindow(self.review_Ctrl, 1, wxEXPAND | wxALIGN_CENTER | wxALL, 5)
 
-		self.review_Ctrl.InsertColumn(0, _("patient name"))
-		self.review_Ctrl.InsertColumn(1, _("dob"))
-		self.review_Ctrl.InsertColumn(2, _("date"))
-		self.review_Ctrl.InsertColumn(3, _("analysis"))
-		self.review_Ctrl.InsertColumn(4, _("result"))
-		self.review_Ctrl.InsertColumn(5, _("range"))
-		self.review_Ctrl.InsertColumn(6, _("info provided by lab"))
-
+		self.review_Ctrl.InsertColumn(0, _(" "))
+		self.review_Ctrl.InsertColumn(1, _("patient name"))
+		self.review_Ctrl.InsertColumn(2, _("dob"))
+		self.review_Ctrl.InsertColumn(3, _("date"))
+		self.review_Ctrl.InsertColumn(4, _("analysis"))
+		self.review_Ctrl.InsertColumn(5, _("result"))
+		self.review_Ctrl.InsertColumn(6, _("range"))
+		self.review_Ctrl.InsertColumn(7, _("info provided by lab"))
+		
 		return vbszr
 	#------------------------------------------------------------------------
 	def OnLeftDClick(self, evt):
@@ -312,38 +329,43 @@ class cLabJournalNB(wxNotebook):
 
 		for result in data:
 			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
+			
+			# -- put checkbox in first column
+			self.review_Ctrl.InsertImageItem(index = item_idx, imageIndex=self.idx1)
+			self.review_Ctrl.SetColumnWidth(0, wxLIST_AUTOSIZE)
+
 			# abnormal ? -> display in red
 			if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
 				item = self.review_Ctrl.GetItem(item_idx)
 				item.SetTextColour(wxRED)
 				self.review_Ctrl.SetItem(item)
 			# patient name
-#			#id = result['pk_patient']
 			name, dobobj = self.__get_pat4result(result)
-			self.review_Ctrl.SetStringItem(index = item_idx, col=0, label=name)
-			self.review_Ctrl.SetStringItem(index = item_idx, col=1, label=dobobj.date)
+			self.review_Ctrl.SetStringItem(index = item_idx, col=1, label=name)
+			self.review_Ctrl.SetStringItem(index = item_idx, col=2, label=dobobj.date)
 			# when rxd
-			self.review_Ctrl.SetStringItem(index = item_idx, col=2, label=result['lab_rxd_when'].date)
+			self.review_Ctrl.SetStringItem(index = item_idx, col=3, label=result['lab_rxd_when'].date)
 			# test name
-			self.review_Ctrl.SetStringItem(index = item_idx, col=3, label=result['unified_name'])
+			self.review_Ctrl.SetStringItem(index = item_idx, col=4, label=result['unified_name'])
 			# result including unit
 			# FIXME: what about val_unit empty ?
-			self.review_Ctrl.SetStringItem(index = item_idx, col=4, '%s %s' % (label=result['unified_val'], result['val_unit']))
+			self.review_Ctrl.SetStringItem(item_idx, 5, '%s %s' % (result['unified_val'], result['val_unit']))
 			# normal range
 			if not result['val_normal_range'] is None:
-				self.review_Ctrl.SetStringItem(index = item_idx, col=5, label=result['val_normal_range'])
-			else:
-				self.review_Ctrl.SetStringItem(index = item_idx, col=5, label='')
-			# notes from provider 
-			if not result['note_provider'] is None:
-				self.review_Ctrl.SetStringItem(index = item_idx, col=6, label=result['note_provider'])
+				self.review_Ctrl.SetStringItem(index = item_idx, col=6, label=result['val_normal_range'])
 			else:
 				self.review_Ctrl.SetStringItem(index = item_idx, col=6, label='')
+			# notes from provider 
+			if not result['note_provider'] is None:
+				self.review_Ctrl.SetStringItem(index = item_idx, col=7, label=result['note_provider'])
+			else:
+				self.review_Ctrl.SetStringItem(index = item_idx, col=7, label='')
 
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
+			#self.review_Ctrl.GetItemCount()
 			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
-			self.review_Ctrl.SetStringItem(index = item_idx, col=6, label=_('more results available for review'))
+			self.review_Ctrl.SetStringItem(index= item_idx, col=6, label=_('more results available for review'))
 	#------------------------------------------------------------------------
 	def __get_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
@@ -660,7 +682,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.14  2004-05-25 13:26:49  ncq
+# Revision 1.15  2004-05-26 11:07:04  shilbert
+# - gui layout changes
+#
+# Revision 1.14  2004/05/25 13:26:49  ncq
 # - cleanup
 #
 # Revision 1.13  2004/05/25 08:15:20  shilbert
