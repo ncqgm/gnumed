@@ -3,7 +3,7 @@
 """
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re, string
@@ -101,10 +101,10 @@ class cLabDataGrid(wxGrid):
 					'1' == '1'
 				else:
 					dates.append(instance['val_when'].date)
-				if instance['lab_name'] in test_names:
+				if instance['unified_name'] in test_names:
 					'1'== '1'
 				else:
-					test_names.append(instance['lab_name'])
+					test_names.append(instance['unified_name'])
 			dates.sort()
 			print dates
 			print test_names
@@ -169,7 +169,7 @@ class cLabDataGrid(wxGrid):
 	def __GetDataCell(self, item=None, xorder=None, yorder=None):
 		#fixme: get real for x
 		x = xorder.index(item['val_when'].date)
-		y= yorder.index(item['lab_name'])
+		y= yorder.index(item['unified_name'])
 		return (y,x)
 	#------------------------------------------------------------------------
 	#def sort_by_value(self, d=None):
@@ -470,6 +470,9 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.1  2004-04-15 09:45:31  ncq
+# Revision 1.2  2004-04-15 09:52:22  shilbert
+# - display unified_name instead of lab_name as requested by ncq
+#
+# Revision 1.1  2004/04/15 09:45:31  ncq
 # - first functional version, still ugly
 #
