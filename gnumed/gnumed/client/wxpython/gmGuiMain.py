@@ -20,8 +20,8 @@ all signing all dancing GNUMed reference client.
 ############################################################################
 #<<<<<<< gmGuiMain.py
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.124 2003-11-17 10:56:38 sjtan Exp $
-__version__ = "$Revision: 1.124 $"
+# $Id: gmGuiMain.py,v 1.125 2003-11-19 01:01:17 shilbert Exp $
+__version__ = "$Revision: 1.125 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -380,10 +380,12 @@ class gmTopLevelFrame(wxFrame):
 		#</DEBUG>
 		try:
 			epr = pat['clinical record']
-#<<<<<<< gmGuiMain.py
-			names = pat['active name']
-#=======
+			
 			demos = pat['demographic record']
+#<<<<<<< gmGuiMain.py
+			names = demos.getActiveName()
+
+			
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
 			return None
@@ -857,7 +859,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.124  2003-11-17 10:56:38  sjtan
+# Revision 1.125  2003-11-19 01:01:17  shilbert
+# - fix for new demographic API got lost
+#
+# Revision 1.124  2003/11/17 10:56:38  sjtan
 #
 # synced and commiting.
 #
