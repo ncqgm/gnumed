@@ -1,6 +1,21 @@
 Aknowledgements:
-:
+- java and java related trademarks are registered trademarks of Sun in US and other countries.
+- work from drugref by Ian Heywood and Horst Herb.
+- work from gnumed postgres schema by Karsten Hilbert , Ian Heywood and Horst Herb. ( see gnumed.org for contacts).
 
+
+
+Newer Notes on setup (6/10/2004):
+
+The dist ant build task was fixed to copy a war file specific META-INF/context.xml file , which uses
+a relative file path in tomcat to ../webapps/gnumed-test-war  , so now the application should work
+if the ant dist tasks work. Just drop the  dist/gnumed-test-war.war  package in the webapps directory of tomcat.
+(which is supposed to be how it works).  However, all the stuff about setting up postgres, gnumed on postgres using
+redo-max.sh,  getting the packages for java sdk 1.4+,  ant , tomcat 5+ and struts-1.2.4 still has been done, and
+modifying copy_libs.sh to point to the path's for tomcat and struts still needs to be done and run, and postgres still
+needs to be running.
+
+If the old way is preferred, then the new tomcat application name is /gnumed-test-web . vs. /gnumed-test-war for the war drop-in.
 
 
 Notes on CVS:
@@ -107,13 +122,49 @@ as places to put the postgres jar file.
 
 before running tomcat. This creates the roles of admin and manager. The manager role is the most important.
 
+6. the file META-INF/context.xml and META-INF/war-context.xmll has the right username and password to connect
+to the postgres gnumed database locally.
+
+eg. from context.xml
+
+ <ResourceParams name="jdbc/gnumed">
+    <parameter>
+      <name>factory</name>
+      <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+    </parameter>
+    <parameter>
+      <name>driverClassName</name>
+      <value>org.postgresql.Driver</value>
+    </parameter>
+    <parameter>
+      <name>url</name>
+      <value>jdbc:postgresql://127.0.0.1:5432/gnumed</value>
+    </parameter>
+    <parameter>
+      <name>username</name>
+      <value>sjtan</value>
+    </parameter>
+    <parameter>
+      <name>password</name>
+      <value>mypassword</value>
+    </parameter>
+
+e.g. change to 'sjtan' to _test-doc , and 'password' to test-doc
+if this will work.
+
+** Please change 
+	** ./war-context.xml **  
+as well if the postgres config parameters are changed, 
+as this allows the war packed application to work when
+dropped into ${your-tomcat-base-directory}/webapps. ( i.e. no manager config)
+  
 
 
-6. Set the right context path in the  META-INF/context.xml  configuration file.
+7. Set the right context path in the  META-INF/context.xml  configuration file.
 
 In the 3rd line,
 
-<Context crossContext="true" debug="5" docBase="/home/sjtan/projects/test-struts-3" path="/test-struts-3" reloadable="true" scope="session">
+<Context crossContext="true" debug="5" docBase="/home/sjtan/projects/test-struts-3" path="/gnumed-test-web" reloadable="true" scope="session">
 
 change /home/sjtan/projects/test-struts-3  to where this directory resides, 
 e.g. /home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3
@@ -122,19 +173,18 @@ hint: test that it is the path by selecting the docBase string, and then on the 
 
 
 
-
-7. compile by changing to /WEB-INF/src where the build.xml file is , and typing 'ant'.
-
-
-8. start tomcat, by going to {tomcat-basedir}/bin/   and typing 'catalina.sh debug' , followed by 'run' at the '>' prompt.
+8. compile by changing to /WEB-INF/src where the build.xml file is , and typing 'ant'.
 
 
-9. go to http://localhost:8080  to see if tomcat ran.
+9. start tomcat, by going to {tomcat-basedir}/bin/   and typing 'catalina.sh debug' , followed by 'run' at the '>' prompt.
 
-10. go to http://localhost:8080/manager ; if step 5. works, then the user name 'tomcat', password 'tomcat' should give
+
+10. go to http://localhost:8080  to see if tomcat ran.
+
+11. go to http://localhost:8080/manager ; if step 5. works, then the user name 'tomcat', password 'tomcat' should give
 the manager page.
 
-11. Point tomcat to the context.xml file of step 6.
+12. Point tomcat to the context.xml file of step 6.
 In the box on the manager page which says: -
 
 Deploy directory or WAR file located on server
@@ -143,9 +193,6 @@ Deploy directory or WAR file located on server
 e.g. put the URL as 
 	file:/home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
 
-this is mine:
-
-file:/home/sjtan/projects/gnumed3/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
 
 generally , it's 
 
@@ -158,9 +205,9 @@ i.e whatever  is the URL file path to the file edited in step 6. ( note the sing
 ( For some reason, the application doesn't work as a drop-in war file yet, perhaps something to do with the pooled 
 database connections and tomcat mediating it ).
 
-When the deploy button is pressed, there should be an OK - test-struts-2 deployed message, 
+When the deploy button is pressed, there should be an OK - gnumed-test-web deployed message, 
 
-12. Using the demographics application:   go to http://localhost:8080/test-struts-3
+13. Using the demographics application:  e.g.  go to http://localhost:8080/gnumed-test-web
 click login.
 the user name  "admin" , password "password"  is the only login.
 From the login page, a new patient can be created or patient search is done. 

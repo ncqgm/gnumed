@@ -7,11 +7,15 @@
     <property name="jdbc20ext.jar" value="/javasoft/lib/jdbc2_0-stdext.jar"/>
         <!-- NOTE: If "dist" target is used, a local
              "projects/lib" directory will be utilized or created -->
-    <property name="distpath.project" value="../../dist"/>
+    <property name="distpath.project" value="../dist"/>
 
     <!-- Project settings -->
     <property name="project.title" value="Gnumed WebClient test "/>
-    <property name="project.distname" value="test-struts-2"/>
+    <!-- this is the application name for debug deployment. Everytime the application is recompiled,
+    the tomcat will detect this, and redeploy. Neat! -->
+    <property name="project.distname" value="gnumed-test-web"/>
+    <!-- a separate war drop-in applicatiion name is used for testing each deployment method -->
+    <property name="project.warname" value="gnumed-test-war"/>
     <property name="project.version" value="0.1"/>
 
 
@@ -108,14 +112,27 @@
       <copy
         file="${distpath.project}/${project.distname}.jar"
         todir="${distpath.project}"/>
+      <copy
+	file="../META-INF/context.xml"
+	tofile="../backup-context.xml"/>
+      <copy
+	file="../war-context.xml"
+	tofile="../META-INF/context.xml"
+	/>
+
 
       <war
         basedir="../"
-        warfile="${distpath.project}/${project.distname}.war"
+        warfile="${distpath.project}/${project.warname}.war"
         webxml="web.xml">
-        <exclude name="${distpath.project}/${project.distname}.war"/>
+        <exclude name="${distpath.project}/${project.warname}.war"/>
        </war>
-
+	 	
+      <copy
+	file="../backup-context.xml"
+	tofile="../META-INF/context.xml"
+	/>
+       
     </target>
 
 
