@@ -70,8 +70,8 @@ class AllergyPanel(wxPanel):
 	  #now create the editarea specific for allergies
 	  #----------------------------------------------
           self.editarea = gmEditArea_1h.EditArea(self,-1,allergyprompts,gmSECTION_ALLERGY)
-          self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
-	  self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
+          #self.dummypanel2 = wxPanel(self,-1,wxDefaultPosition,wxDefaultSize,0)
+	  #self.dummypanel2.SetBackgroundColour(wxColor(222,222,222))
           #-----------------------------------------------
           #add the divider headings below the editing area
           #-----------------------------------------------
@@ -141,9 +141,9 @@ class AllergyPanel(wxPanel):
           self.mainsizer.Add(self.allergypanelheading,0,wxEXPAND)
           self.mainsizer.Add(self.dummypanel,1,wxEXPAND)
           self.mainsizer.Add(self.editarea,6,wxEXPAND)
-          self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
+          #self.mainsizer.Add(self.dummypanel2,1,wxEXPAND)
           self.mainsizer.Add(self.sizer_divider_drug_generic,0,wxEXPAND)
-          self.mainsizer.Add(self.list_allergy,4,wxEXPAND)
+          self.mainsizer.Add(self.list_allergy,5,wxEXPAND)
           self.mainsizer.Add(self.classtext_subheading,0,wxEXPAND)
           self.mainsizer.Add(self.classtxt,4,wxEXPAND)
           #self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
@@ -168,6 +168,8 @@ class gmGP_Allergies (gmPlugin.wxSmallPagePlugin):
 
     def GetWidget (self, parent):
            return AllergyPanel (parent, -1)
+
+
 	  
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
@@ -175,3 +177,4 @@ if __name__ == "__main__":
 	app.MainLoop()
            
  
+

@@ -65,7 +65,8 @@ scriptprompts = {
 
 class PrescriptionPanel (wxPanel):
      def __init__(self,parent, id):
-          wxPanel.__init__(self,parent, id)
+          #wxPanel.__init__(self,parent, id)
+	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
           #--------------------
           #add the main heading
           #--------------------
@@ -187,6 +188,8 @@ class gmGP_Prescriptions (gmPlugin.wxSmallPagePlugin):
 
     def GetWidget (self, parent):
          return  PrescriptionPanel (parent, -1)
+
+
           
 class App(wxApp):
      def OnInit(self):
@@ -201,3 +204,4 @@ class App(wxApp):
 if __name__ == "__main__":
     app = App(0)
     app.MainLoop()#!/usr/bin/python
+

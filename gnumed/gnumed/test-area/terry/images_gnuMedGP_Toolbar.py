@@ -280,7 +280,7 @@ def getToolbar_HomeImage():
     return wxImageFromBitmap(getToolbar_HomeBitmap())
 
 #----------------------------------------------------------------------
-def getToolbar_ImmunizationsData():
+def getToolbar_ImmunisationData():
     return cPickle.loads(zlib.decompress(
 'x\xdam\xd0\xb1\n\xc3 \x10\x06\xe0\xdd\xa7\xf8!\x83\x9d~"\x85\xe2\xdcH^\xc0\
 \xc55d\xacC\xdf\x7f\xeai\x0czX9\x90\xff\xf3\x04\xbdG\xfe:\x13\xad{A\xea\tg\
@@ -288,11 +288,11 @@ def getToolbar_ImmunizationsData():
 \x91\xc0\x84E\xe7NQ\x85\xd2\xc4\xb2\x8fH\xb2\xda\x88L\xa9iG\xb1\xa2\n\xab%}}\
 4\x8d\xcd\x14\xde\xd6\xf1~\xce\x80T?\xbdP\x1b\xdaL\xff f\xe4\x0f?YF\x88' ))
 
-def getToolbar_ImmunizationsBitmap():
-    return wxBitmapFromXPMData(getToolbar_ImmunizationsData())
+def getToolbar_ImmunisationBitmap():
+    return wxBitmapFromXPMData(getToolbar_ImmunisationData())
 
-def getToolbar_ImmunizationsImage():
-    return wxImageFromBitmap(getToolbar_ImmunizationsBitmap())
+def getToolbar_ImmunisationImage():
+    return wxImageFromBitmap(getToolbar_ImmunisationBitmap())
 
 #----------------------------------------------------------------------
 def getToolbar_ManData():
@@ -548,4 +548,5 @@ def getToolbar_VerticalSeparatorBitmap():
 
 def getToolbar_VerticalSeparatorImage():
     return wxImageFromBitmap(getToolbar_VerticalSeparatorBitmap())
+
 
