@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.29 2004-07-19 13:54:25 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPlugin.py,v 1.30 2004-07-19 16:17:55 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re
@@ -279,6 +279,7 @@ def GetPluginLoadList(set):
 	_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
 
 	# parse plugin directory
+	gb = gmGuiBroker.GuiBroker()
 	search_path = os.path.join(gb['gnumed_dir'], 'wxpython', set)
 	files = os.listdir(search_path)
 	_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (set, gb['gnumed_dir']))
@@ -319,7 +320,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.29  2004-07-19 13:54:25  ncq
+# Revision 1.30  2004-07-19 16:17:55  ncq
+# - missing GuiBroker reference added
+#
+# Revision 1.29  2004/07/19 13:54:25  ncq
 # - simplify getPluginLoadList()
 #
 # Revision 1.28  2004/07/19 11:50:43  ncq
