@@ -5,11 +5,11 @@
 # Licence: GPL
 
 import sys, os, string, re
-sys.path.append ('/home/ian/gnumed/gnumed/client/python-common')
+sys.path.append ('../../client/python-common')
 import gmLog
 _log = gmLog.gmDefLog
 
-
+#===================================================================
 def shellrun (cmd):
 	"""
 	runs the shell command and returns a string
@@ -27,7 +27,7 @@ def shell (str):
 	return re.sub (r"`(.*)`", shellrun, str)
 	
 
-
+#===================================================================
 class Psql:
 
 	def __init__ (self, conn):
@@ -149,6 +149,7 @@ class Psql:
 								#gmLog.gmDefLog.Log (gmLog.lData, self.cmd)
 								curs.close ()
 							except StandardError, error:
+								_log.LogException('>>>%s<<< failed' % self.cmd, sys.exc_info(), verbose=0)
 								if re.match (r"^NOTICE:.*", str(error)):
 									_log.Log (gmLog.lWarn, self.fmt_msg(error))
 								else:
@@ -168,16 +169,11 @@ class Psql:
 def shell (str):
 	return re.sub ("`(.*)`", shellrun, str)
 
-
-
-
+#===================================================================
 # testing code
 if __name__ == '__main__':
 	from pyPgSQL import PgSQL
-	conn = PgSQL.connect (host = '127.0.0.1', user='ian', database = 'tester')
+	conn = PgSQL.connect (user='gm-dbowner', database = 'gnumed')
 	psql = Psql (conn)
-	import pdb
-	psql.run ('/home/ian/my_gnumed/testsql')
-	#else:
-	 #	 conn.rollback ()
+	psql.run (sys.argv[1])
 	conn.close ()
