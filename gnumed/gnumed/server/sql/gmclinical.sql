@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.76 $
+-- $Revision: 1.77 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -251,7 +251,7 @@ comment on column vacc_indication.description is
 -- --------------------------------------------
 create table lnk_vacc_ind2code (
 	id serial primary key,
-	fk_indication integer not null references vacc_indication(id),
+	fk_indication integer not null references vacc_indication(id) on delete cascade on update cascade,
 	code text not null,
 	coding_system text not null,
 	unique (fk_indication, code, coding_system)
@@ -325,8 +325,8 @@ comment on column vaccine.last_batch_no is
 -- --------------------------------------------
 create table lnk_vaccine2inds (
 	id serial primary key,
-	fk_vaccine integer not null references vaccine(id),
-	fk_indication integer not null references vacc_indication(id),
+	fk_vaccine integer not null references vaccine(id) on delete cascade on update cascade,
+	fk_indication integer not null references vacc_indication(id) on delete cascade on update cascade,
 	unique (fk_vaccine, fk_indication)
 );
 
@@ -338,8 +338,9 @@ comment on table lnk_vaccine2inds is
 create table vacc_regime (
 	id serial primary key,
 	fk_recommended_by integer,
-	fk_indication integer not null references vacc_indication(id),
-	description text unique not null
+	fk_indication integer not null references vacc_indication(id) on update cascade,
+	description text unique not null,
+	unique(fk_recommended_by, fk_indication, description)
 ) inherits (audit_fields);
 
 select add_table_for_audit('vacc_regime');
@@ -360,7 +361,7 @@ comment on column vacc_regime.description is
 -- --------------------------------------------
 create table vacc_def (
 	id serial primary key,
-	fk_regime integer not null references vacc_regime(id),
+	fk_regime integer not null references vacc_regime(id) on delete cascade on update cascade,
 	-- FIXME: specific constraint: null if (is_booster == true) else > 0
 	is_booster boolean not null default false,
 	seq_no integer not null,
@@ -749,11 +750,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.76 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.77 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.76  2003-12-01 22:13:19  ncq
+-- Revision 1.77  2003-12-02 00:06:54  ncq
+-- - add on update/delete actions on vacc* tables
+--
+-- Revision 1.76  2003/12/01 22:13:19  ncq
 -- - default null on max_age_due
 --
 -- Revision 1.75  2003/11/28 10:08:38  ncq
