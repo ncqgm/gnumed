@@ -75,8 +75,8 @@ class gmConfigEditorPanel(wxPanel):
 	
 	def Populate(self):
 		self.splitterwindow = wxSplitterWindow(self, -1)
-        	self.splitterwindow_right_pane = wxPanel(self.splitterwindow, -1)
-        	self.splitterwindow_left_pane = wxPanel(self.splitterwindow, -1)
+		self.splitterwindow_right_pane = wxPanel(self.splitterwindow, -1)
+		self.splitterwindow_left_pane = wxPanel(self.splitterwindow, -1)
 		self.splitterwindow.SplitVertically(self.splitterwindow_left_pane, self.splitterwindow_right_pane,sashPosition = -100)
 		self.parent_notebook = wxNotebook(self.splitterwindow_left_pane, -1, style=wxTAB_TRAVERSAL)
 		self.CtrlsContainer = []
@@ -185,13 +185,13 @@ if __name__ == '__main__':
 	# set up dummy app
 	class TestApp (wxApp):
 		def OnInit (self):
-				
+			aFilename = None
+			# no config file found so far
 			if _cfg is None:
-				_log.Log(gmLog.lData, "No configfile given on command line. Format: --conf-file=<file>")
-				# get file name
-				# - via file select dialog
-				aWildcard = "%s (*.conf)|*.conf|%s (*.*)|*.*" % (_("config file"), _("all files"))
-				aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', "gnumed")))
+				_log.Log(gmLog.lData, "No config file found. Use command line option --conf-file=<file name>")
+				# get file name via file select dialog
+				aWildcard = "%s (*.conf)|*.conf|%s (*.*)|*.*" % (_("config files"), _("all files"))
+				aDefDir = os.path.abspath(os.path.expanduser('~'))
 				dlg = wxFileDialog(
 					parent = NULL,
 					message = _("Choose a config file"),
@@ -201,29 +201,21 @@ if __name__ == '__main__':
 					style = wxOPEN | wxFILE_MUST_EXIST
 				)
 				if dlg.ShowModal() == wxID_OK:
-					fname = dlg.GetPath()
+					aFilename = dlg.GetPath()
 				dlg.Destroy()
-				_log.Log(gmLog.lData, 'selected [%s]' % fname)
+				_log.Log(gmLog.lData, 'selected [%s]' % aFilename)
+				tmp = gmCfg.cCfgFile(aFile=aFilename)
+			else:
+				tmp = _cfg
 
-				aFilename = fname
-				
-				
-			try:
-				tmp=gmCfg.cCfgFile(aFile=aFilename)
-			except StandardError:
-				_log.LogException('Unhandled exception.', sys.exc_info(), fatal=1)
-				raise
-				
 			frame = wxFrame(
 				parent=NULL,
 				id = -1,
 				title = _("configfile editor"),
 				size = wxSize(800,600)
 			)
-						
-				
-			pnl = gmConfigEditorPanel(frame,aCfg=tmp)
 
+			pnl = gmConfigEditorPanel(frame,aCfg=tmp)
 			pnl.Populate()
 			frame.Show(1)
 			return 1
@@ -247,17 +239,20 @@ else:
 			return self.viewer
 
 		def MenuInfo (self):
-			return ('tools', _('&config file edit'))
+			return ('tools', _('&configuration'))
 
 		def ReceiveFocus(self):
-			
 
-			self.viewer.filename = fname
-			self.viewer.Populate()
+#			self.viewer.filename = fname
+#			self.viewer.Populate()
 			return 1
 
+#===========================================
 # $Log: gmConfigeditor.py,v $
-# Revision 1.9  2003-04-14 20:47:04  shilbert
+# Revision 1.10  2003-04-15 02:31:13  ncq
+# - some cleanup
+#
+# Revision 1.9  2003/04/14 20:47:04  shilbert
 # - reworked layout, asks for file if none given
 #
 # Revision 1.8  2003/04/14 10:06:07  ncq
