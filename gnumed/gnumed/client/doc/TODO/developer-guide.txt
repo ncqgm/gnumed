@@ -1,10 +1,11 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.2 $
+$Revision: 1.3 $
 --------------------------------------------------------------
 Rules:
 ------
 - add material for the Developer's Guide here if you don't want
   to put it into the sgml code yourself
 - leave behind an email address
+- Please date it. Thanks
 - delete things if you incorporated them into the guide
 --------------------------------------------------------------
