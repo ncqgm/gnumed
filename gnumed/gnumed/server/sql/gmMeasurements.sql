@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -101,7 +101,7 @@ create table measurement_result (
 	comment_provider text,
 	comment_clinician text,
 	technically_abnormal bool,
-	clinically_abnormal bool,
+	clinically_relevant bool,
 );
 -- date/time measurement was taken is in clinical_transaction->date
 COMMENT ON TABLE  measurement_result is 
@@ -111,7 +111,7 @@ COMMENT ON TABLE  measurement_result is
 create table measurement_result_lab (
 	id_sample varchar(25) NOT NULL default 'not available',
 	id_sampler integer references identity,
-	lab_abnormal_tag character(5)		-- this is according to LDT
+	abnormal_tag character(5)		-- this is according to LDT
 );
 
 comment on table measurement_result_lab is
@@ -120,7 +120,7 @@ comment on column measurement_result_lab.id_sample IS
 	'ID this sample had in the lab or when sent to the lab';
 comment on column measurement_result_lab.id_sampler IS
 	'who took the sample';
-comment on column measurement_result_lab.lab_abnormal_tag IS
+comment on column measurement_result_lab.abnormal_tag IS
 	'tag attached by the lab whether value is considered pathological';
 
 -- ====================================
@@ -215,11 +215,15 @@ comment on column measurement_result_lab.lab_abnormal_tag IS
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.1 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.1  2002-12-31 00:03:47  ncq
+-- Revision 1.2  2003-01-01 18:10:23  ncq
+-- - changed to new i18n
+-- - some field names more precise
+--
+-- Revision 1.1  2002/12/31 00:03:47  ncq
 -- - merged gmLab and gmMeasure by Christof for more generic measurements storage
 -- - gmLab deprecated
 --

@@ -1,56 +1,82 @@
--- blob tables for GNUmed
+-- BLOB tables for GNUmed
 
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.18 $ $Date: 2002-12-05 23:15:52 $ $Author: ncq $
+-- $Revision: 1.19 $ $Date: 2003-01-01 18:10:23 $ $Author: ncq $
 
 -- ===================================================================
+-- do fixed string i18n()ing
+\i gmI18N.sql
+
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- =============================================
-CREATE TABLE "doc_type" (
+CREATE TABLE "_doc_type" (
 	"id" serial primary key,
-	"name" character varying(40)
+	"name" character varying(40) unique
 );
 
-INSERT INTO doc_type(id, name) values(1,'discharge summary internal');		-- <i18n>
-INSERT INTO doc_type(id, name) values(2,'discharge summary surgical');		-- <i18n>
-INSERT INTO doc_type(id, name) values(3,'discharge summary psychiatric');	-- <i18n>
-INSERT INTO doc_type(id, name) values(4,'discharge summary neurological');	-- <i18n>
-INSERT INTO doc_type(id, name) values(5,'discharge summary orthopaedic');	-- <i18n>
-INSERT INTO doc_type(id, name) values(6,'discharge summary other');			-- <i18n>
+-- English
+INSERT into _doc_type(name) values(_('discharge summary internal'));
+INSERT into _doc_type(name) values(_('discharge summary surgical'));
+INSERT into _doc_type(name) values(_('discharge summary psychiatric'));
+INSERT into _doc_type(name) values(_('discharge summary neurological'));
+INSERT into _doc_type(name) values(_('discharge summary orthopaedic'));
+INSERT into _doc_type(name) values(_('discharge summary other'));
 
-INSERT INTO doc_type(id, name) values(7,'referral report internal');		-- <i18n>
-INSERT INTO doc_type(id, name) values(8,'referral report surgical');		-- <i18n>
-INSERT INTO doc_type(id, name) values(9,'referral report ENT');				-- <i18n>
-INSERT INTO doc_type(id, name) values(10,'referral report eye');			-- <i18n>
-INSERT INTO doc_type(id, name) values(11,'referral report urology');		-- <i18n>
-INSERT INTO doc_type(id, name) values(12,'referral report orthopaedic');	-- <i18n>
-INSERT INTO doc_type(id, name) values(13,'referral report neuro');			-- <i18n>
-INSERT INTO doc_type(id, name) values(14,'referral report radiology');		-- <i18n>
-INSERT INTO doc_type(id, name) values(15,'referral report other');			-- <i18n>
+INSERT into _doc_type(name) values(_('referral report internal'));
+INSERT into _doc_type(name) values(_('referral report surgical'));
+INSERT into _doc_type(name) values(_('referral report ENT'));
+INSERT into _doc_type(name) values(_('referral report eye'));
+INSERT into _doc_type(name) values(_('referral report urology'));
+INSERT into _doc_type(name) values(_('referral report orthopaedic'));
+INSERT into _doc_type(name) values(_('referral report neuro'));
+INSERT into _doc_type(name) values(_('referral report radiology'));
+INSERT into _doc_type(name) values(_('referral report other'));
+INSERT into _doc_type(name) values(_('referral report cardiology'));
+INSERT into _doc_type(name) values(_('referral report psychotherapy'));
 
 -- add any number of types here, this is just to give you an idea
+
+-- =============================================
+create view v_i18n_doc_type as
+	select
+		dt.id, tr.trans as name
+	from
+		"_doc_type" as dt,
+		i18n_translations as tr,
+		i18n_curr_lang as lcurr
+	where
+		lcurr.owner = CURRENT_USER::varchar
+			and
+		tr.lang = lcurr.lang
+	;
 
 -- =============================================
 CREATE TABLE "doc_med" (
 	"id" serial primary key,
 	"patient_id" integer references identity not null,
-	"type" integer references doc_type(id) not null,
+	"type" integer references v_i18n_doc_type(id) not null,
 	"comment" character varying(60) not null,
 	"date" character varying(20) not null,
 	"ext_ref" character varying (40) not null
 );
 
-COMMENT ON TABLE "doc_med" IS 'a medical document object possibly containing several data objects such as several pages of a paper document';
-COMMENT ON COLUMN doc_med.patient_id IS 'the patient this document belongs to';
-COMMENT ON COLUMN doc_med.type IS 'semantic type of document (not type of file or mime type), such as >referral letter<, >discharge summary<, etc.';
-COMMENT ON COLUMN doc_med.comment IS 'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
-COMMENT ON COLUMN doc_med.date IS 'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
-COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical document, original paper copy can be found with this';
+COMMENT ON TABLE "doc_med" IS
+	'a medical document object possibly containing several data objects such as several pages of a paper document';
+COMMENT ON COLUMN doc_med.patient_id IS
+	'the patient this document belongs to';
+COMMENT ON COLUMN doc_med.type IS
+	'semantic type of document (not type of file or mime type), such as >referral letter<, >discharge summary<, etc.';
+COMMENT ON COLUMN doc_med.comment IS
+	'additional short comment such as "abdominal", "ward 3, Dr. Stein", etc.';
+COMMENT ON COLUMN doc_med.date IS
+	'date of document content creation (such as exam date), NOT date of document creation or date of import; may be imprecise such as "7/99"';
+COMMENT ON COLUMN doc_med.ext_ref IS
+	'external reference string of physical document, original paper copy can be found with this';
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
@@ -66,7 +92,7 @@ CREATE TABLE "doc_obj" (
 	"data" bytea
 );
 
-COMMENT ON TABLE "doc_obj" IS 'several of these may form a medical document such as multiple scanned pages/images';
+COMMENT ON TABLE "doc_obj" IS 'possibly several of these form a medical document such as multiple scanned pages/images';
 COMMENT ON COLUMN doc_obj.seq_idx IS 'index of this object in the sequence of objects for this document';
 COMMENT ON COLUMN doc_obj.comment IS 'optional tiny comment for this object, such as "page 1"';
 COMMENT ON COLUMN doc_obj.data IS 'actual binary object data';
@@ -84,7 +110,8 @@ GRANT SELECT ON
 	"doc_desc",
 	"doc_obj",
 	"doc_med",
-	"doc_type",
+	"_doc_type",
+	"v_i18n_doc_type",
 	"doc_med_external_ref"
 TO GROUP "gm-doctors";
 
@@ -93,14 +120,15 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"doc_obj",
 	"doc_med",
 	"doc_med_id_seq",
-	"doc_type",
+	"_doc_type",
+	"v_i18n_doc_type",
 	"doc_med_external_ref"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.18 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- questions:
