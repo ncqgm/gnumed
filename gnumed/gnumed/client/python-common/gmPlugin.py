@@ -13,8 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.46 2003-02-17 16:18:29 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmPlugin.py,v 1.47 2003-02-24 12:35:55 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -191,10 +191,10 @@ class wxNotebookPlugin (wxBasePlugin):
 
 		# and put ourselves into the menu structure if so
 		if self.MenuInfo ():
-			menuset, menuname = self.MenuInfo ()
-			menu = self.gb['main.%smenu' % menuset]
-			self.menu_id = wxNewId ()
-			menu.Append (self.menu_id, menuname, self.name ())
+			menu_name, menu_item = self.MenuInfo ()
+			menu = self.gb['main.%smenu' % menu_name]
+			self.menu_id = wxNewId()
+			menu.Append (self.menu_id, menu_item, self.name())
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 		# so notebook can find this widget
 		self.gb['main.notebook.plugins'].append (self)
@@ -513,7 +513,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.46  2003-02-17 16:18:29  ncq
+# Revision 1.47  2003-02-24 12:35:55  ncq
+# - renamed some function local variables to further my understanding of the code
+#
+# Revision 1.46  2003/02/17 16:18:29  ncq
 # - fix whitespace on comments
 #
 # Revision 1.45  2003/02/13 12:58:05  sjtan
