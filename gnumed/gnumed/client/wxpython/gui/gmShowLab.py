@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -13,7 +13,7 @@ from wxPython.wx import *
 from wxPython.grid import * 
 
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmPG, gmExceptions
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin, gmLabWidgets
 
 _log = gmLog.gmDefLog
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 				'gender': self.__xdt_pat['gender']
 			}
 			# find matching patient IDs
-			searcher = gmPatient.cPatientSearcher_SQL()
+			searcher = gmPerson.cPatientSearcher_SQL()
 			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
 			if patient_ids is None or len(patient_ids)== 0:
 				gmGuiHelpers.gm_show_error(
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 				raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
 
 			try:
-				gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
+				gm_pat = gmPerson.gmCurrentPatient(aPKey = patient_ids[0])
 			except:
 				# this is an emergency
 				gmGuiHelpers.gm_show_error(
@@ -226,7 +226,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.15  2004-08-04 17:16:02  ncq
+# Revision 1.16  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.15  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old

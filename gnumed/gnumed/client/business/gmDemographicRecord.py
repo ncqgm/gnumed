@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.54 2004-08-18 09:05:07 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmDemographicRecord.py,v 1.55 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -358,7 +358,7 @@ where
 			} for r in data ]
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type = 'parent'):
-		from Gnumed.business.gmPatient import create_dummy_identity
+		from Gnumed.business.gmPerson import create_dummy_identity
 		# create new relative
 		id_new_relative = create_dummy_identity()
 		relative = gmPerson(id_new_relative)
@@ -910,7 +910,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.54  2004-08-18 09:05:07  ncq
+# Revision 1.55  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.54  2004/08/18 09:05:07  ncq
 # - just some cleanup, double-check _ is defined for epydoc
 #
 # Revision 1.53  2004/07/26 14:34:49  sjtan

@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin_Patient.py,v $
-# $Id: gmPlugin_Patient.py,v 1.2 2004-07-24 17:21:49 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPlugin_Patient.py,v 1.3 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -17,7 +17,7 @@ from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWho
 from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
 
-gmPatient = None
+gmPerson = None
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _whoami = gmWhoAmI.cWhoAmI()
@@ -181,7 +181,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin_Patient.py,v $
-# Revision 1.2  2004-07-24 17:21:49  ncq
+# Revision 1.3  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.2  2004/07/24 17:21:49  ncq
 # - some cleanup, also re from wxPython import wx
 # - factored out Horst space layout manager into it's own
 #   wxPanel child class

@@ -5,10 +5,10 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
-from Gnumed.business import gmDemographicRecord, gmPatient
+from Gnumed.business import gmDemographicRecord, gmPerson
 from Gnumed.pycommon.gmPyCompat import *
 
 import inspect
@@ -1172,7 +1172,7 @@ class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 			
 
 	def _create(self):
-		id = gmPatient.create_dummy_identity()
+		id = gmPerson.create_dummy_identity()
 		if id is None:
 			return False
 		self._record = gmDemographicRecord.cDemographicRecord_SQL(id)
@@ -1348,7 +1348,7 @@ if __name__ == '__main__':
 		identity.linkCommChannel( gmDemographicRecord.MOBILE, data[4])
 
 	def getTestIdentityUsingDirectDemographicRecord( data, org):
-		id = gmPatient.create_dummy_identity()
+		id = gmPerson.create_dummy_identity()
 		identity = gmDemographicRecord.cDemographicRecord_SQL(id)
 		_setIdentityTestData(identity, data)
 		return identity
@@ -2022,7 +2022,10 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.31  2005-01-12 14:47:48  ncq
+# Revision 1.32  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.31  2005/01/12 14:47:48  ncq
 # - in DB speak the database owner is customarily called dbo, hence use that
 #
 # Revision 1.30  2004/06/21 16:01:55  ncq

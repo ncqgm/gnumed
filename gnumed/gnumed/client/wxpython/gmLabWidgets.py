@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -21,7 +21,7 @@ from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidt
 from wxPython.grid import *
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider, gmGuiBroker
-from Gnumed.business import gmPatient, gmClinicalRecord, gmPathLab
+from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -162,7 +162,7 @@ class cLabJournalNB(wxNotebook):
 			0
 		)
 
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 
 		self.__do_layout_requests_page()
 		self.__do_layout_errors_page()
@@ -691,7 +691,7 @@ class cLabDataGrid(wxGrid):
 			style= wxWANTS_CHARS
 			)
 		
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 
 		#EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
 		
@@ -770,7 +770,7 @@ class cLabDataGrid(wxGrid):
 			
 		dates, test_names = self.__compile_stats(results)
 		# sort tests before pushing onto the grid 
-		#sort_mode = gmPatient.getsort_mode() # yet to be written
+		#sort_mode = gmPerson.getsort_mode() # yet to be written
 		sort_mode = 1 # get real here :-)
 			
 		if sort_mode == 1:
@@ -865,7 +865,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.7  2004-10-27 12:18:19  ncq
+# Revision 1.8  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.7  2004/10/27 12:18:19  ncq
 # - insignificant cleanup
 #
 # Revision 1.6  2004/10/20 21:47:24  ncq

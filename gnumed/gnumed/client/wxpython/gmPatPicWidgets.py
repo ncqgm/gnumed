@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.6 2004-10-11 20:18:17 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPatPicWidgets.py,v 1.7 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -22,7 +22,7 @@ import mx.DateTime as mxDT
 
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmGuiBroker, gmLog, gmI18N
-from Gnumed.business import gmMedDoc, gmPatient
+from Gnumed.business import gmMedDoc, gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -42,7 +42,7 @@ class cPatientPicture(wx.wxStaticBitmap):
 	"""
 	def __init__(self, parent, id, width=50, height=54):
 		self.__fallback_pic_name = os.path.join(gmGuiBroker.GuiBroker()['resource dir'], 'bitmaps', 'empty-face-in-bust.png')
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 		# just in case
 		wx.wxImage_AddHandler(wx.wxPNGHandler())
 		wx.wxImage_AddHandler(wx.wxJPEGHandler())
@@ -181,7 +181,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.6  2004-10-11 20:18:17  ncq
+# Revision 1.7  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.6  2004/10/11 20:18:17  ncq
 # - GnuMed now sports a patient pic in the top panel
 # - not loaded when changing patient (rather reverting to empty face)
 # - use right-click context menu "refresh photo" manually

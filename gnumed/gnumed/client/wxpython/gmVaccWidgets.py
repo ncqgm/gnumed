@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.12 2004-12-15 22:14:21 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmVaccWidgets.py,v 1.13 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,7 +17,7 @@ from wxPython.wx import *
 import mx.DateTime as mxDT
 
 from Gnumed.wxpython import gmEditArea, gmPhraseWheel, gmTerryGuiParts, gmRegetMixin
-from Gnumed.business import gmPatient, gmVaccination
+from Gnumed.business import gmPerson, gmVaccination
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmExceptions, gmMatchProvider
 
 _log = gmLog.gmDefLog
@@ -260,7 +260,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, parent,id):
 		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 		# do this here so "import cImmunisationsPanel from gmVaccWidgets" works
 		self.ID_VaccinatedIndicationsList = wxNewId()
 		self.ID_VaccinationsPerRegimeList = wxNewId()
@@ -523,7 +523,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.12  2004-12-15 22:14:21  ncq
+# Revision 1.13  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.12  2004/12/15 22:14:21  ncq
 # - convert to new style edit area
 #
 # Revision 1.11  2004/10/27 12:16:54  ncq

@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.9 2005-01-28 18:35:42 cfmoro Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmSOAPWidgets.py,v 1.10 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -16,7 +16,7 @@ from wxPython import wx
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.wxpython import gmResizingWidgets
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -241,7 +241,7 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 	def __init__(self, *args, **kwargs):
 		wx.wxPanel.__init__(self, *args, **kwargs)
 		self.__do_layout()
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 		if not self.__register_events():
 			raise gmExceptions.ConstructorError, 'cannot register interests'
 	#--------------------------------------------------------
@@ -367,7 +367,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.9  2005-01-28 18:35:42  cfmoro
+# Revision 1.10  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.9  2005/01/28 18:35:42  cfmoro
 # Removed problem idx number
 #
 # Revision 1.8  2005/01/18 13:38:24  ncq

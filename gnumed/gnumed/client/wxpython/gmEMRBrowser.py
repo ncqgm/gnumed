@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.6 2004-10-31 00:37:13 cfmoro Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmEMRBrowser.py,v 1.7 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -13,7 +13,7 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPatient
+from Gnumed.business import gmEMRStructItems, gmPerson
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -40,7 +40,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
 
 		self.__do_layout()
@@ -198,7 +198,7 @@ def askForPatient():
 	"""
 	
 	# Variable initializations
-	pat_searcher = gmPatient.cPatientSearcher_SQL()
+	pat_searcher = gmPerson.cPatientSearcher_SQL()
 
 	# Ask patient to dump and set in exporter object
 	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
@@ -212,7 +212,7 @@ def askForPatient():
 		prompted_input("Various patients match the query term. Press any key to continue.")
 		return None
 	patient_id = search_ids[0]
-	patient = gmPatient.gmCurrentPatient(patient_id)
+	patient = gmPerson.gmCurrentPatient(patient_id)
 	return patient
 	
 #================================================================
@@ -270,7 +270,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.6  2004-10-31 00:37:13  cfmoro
+# Revision 1.7  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.6  2004/10/31 00:37:13  cfmoro
 # Fixed some method names. Refresh function made public for easy reload, eg. standalone. Refresh browser at startup in standalone mode
 #
 # Revision 1.5  2004/09/06 18:57:27  ncq

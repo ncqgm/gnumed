@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.175 2004-10-01 13:17:35 ncq Exp $
-__version__ = "$Revision: 1.175 $"
+# $Id: gmGuiMain.py,v 1.176 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.176 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -26,7 +26,7 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmTopPanel, gmPlugin, gmHorstSpace
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPerson
 from Gnumed.pycommon.gmPyCompat import *
 
 _cfg = gmCfg.gmDefCfgFile
@@ -419,7 +419,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		wxCallAfter(self.__on_patient_selected, **kwargs)
 	#----------------------------------------------
 	def __on_patient_selected(self, **kwargs):
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		try:
 			pat.get_clinical_record()
 			pat['demographic record']
@@ -518,7 +518,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		if anActivity is not None:
 			self.title_activity = str(anActivity)
 
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		if pat.is_connected():
 			demos = pat.get_demographic_record()
 			names = demos.get_names()
@@ -797,7 +797,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.175  2004-10-01 13:17:35  ncq
+# Revision 1.176  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.175  2004/10/01 13:17:35  ncq
 # - eventually do what was intended on slave_mode != 1
 #
 # Revision 1.174  2004/10/01 11:49:59  ncq

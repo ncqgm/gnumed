@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys
@@ -19,7 +19,7 @@ import os.path, sys
 from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.business import gmPatient, gmMedDoc
+from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers, gmMedDocWidgets
 
 _log = gmLog.gmDefLog
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 			}
 
 			# find matching patient IDs
-			searcher = gmPatient.cPatientSearcher_SQL()
+			searcher = gmPerson.cPatientSearcher_SQL()
 			patient_ids = searcher.get_patient_ids(search_dict = cooked_search_terms)
 			if patient_ids is None or len(patient_ids) == 0:
 				gmGuiHelpers.gm_show_error(
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 				raise gmExceptions.ConstructorError, "Problem getting patient ID from database. Aborting."
 
 			try:
-				gm_pat = gmPatient.gmCurrentPatient(aPKey = patient_ids[0])
+				gm_pat = gmPerson.gmCurrentPatient(aPKey = patient_ids[0])
 			except:
 				# this is an emergency
 				gmGuiHelpers.gm_show_error(
@@ -165,7 +165,7 @@ if __name__ == '__main__':
 else:
 	from Gnumed.wxpython import gmPlugin, gmRegetMixin, images_Archive_plugin, images_Archive_plugin1
 	from Gnumed.pycommon import gmDispatcher, gmSignals
-	from Gnumed.business import gmPatient
+	from Gnumed.business import gmPerson
 
 	wxID_TB_BTN_show_page = wxNewId()
 
@@ -259,7 +259,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing display handler")
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.58  2004-10-17 15:53:55  ncq
+# Revision 1.59  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.58  2004/10/17 15:53:55  ncq
 # - cleanup
 #
 # Revision 1.57  2004/10/17 00:05:36  sjtan

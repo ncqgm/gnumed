@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.54 2004-10-17 16:01:44 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmTopPanel.py,v 1.55 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -13,7 +13,7 @@ import sys, os.path
 from wxPython.wx import *
 
 from Gnumed.pycommon import gmGuiBroker, gmPG, gmSignals, gmDispatcher, gmLog, gmCLI
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers, gmBMIWidgets, gmPregWidgets, gmPatPicWidgets, gmPatSearchWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -50,7 +50,7 @@ class cMainTopPanel(wxPanel):
 
 		# init plugin toolbars dict
 		self.subbars = {}
-		self.curr_pat = gmPatient.gmCurrentPatient()
+		self.curr_pat = gmPerson.gmCurrentPatient()
 
 		# and actually display ourselves
 		self.SetAutoLayout(True)
@@ -453,7 +453,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.54  2004-10-17 16:01:44  ncq
+# Revision 1.55  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.54  2004/10/17 16:01:44  ncq
 # - the FIXME said DEuglify, not MORE
 #
 # Revision 1.53  2004/10/16 22:42:12  sjtan

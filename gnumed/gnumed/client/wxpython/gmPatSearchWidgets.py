@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.10 2004-10-20 12:40:55 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPatSearchWidgets.py,v 1.11 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -21,7 +21,7 @@ import sys, os.path, time, string, re
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmWhoAmI, gmCfg
-from Gnumed.business import gmPatient, gmKVK
+from Gnumed.business import gmPerson, gmKVK
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -293,7 +293,7 @@ class cPatientPickList(wx.wxDialog):
 class cPatientSelector(wx.wxTextCtrl):
 	"""Widget for smart search for patients."""
 	def __init__ (self, parent, id = -1, pos = wx.wxPyDefaultPosition, size = wx.wxPyDefaultSize):
-		self.curr_pat = gmPatient.gmCurrentPatient()
+		self.curr_pat = gmPerson.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
 		# them being handed over to the next control
@@ -325,7 +325,7 @@ and hit <ENTER>
 		self._display_name()
 
 		# FIXME: set query generator
-		self.__pat_searcher = gmPatient.cPatientSearcher_SQL()
+		self.__pat_searcher = gmPerson.cPatientSearcher_SQL()
 
 		# - retriever
 		try:
@@ -386,7 +386,7 @@ and hit <ENTER>
 		wx.wxCallAfter(self._display_name)
 	#--------------------------------------------------------
 	def SetActivePatient(self, anID = None, data = None):
-		if not gmPatient.set_active_patient(anID):
+		if not gmPerson.set_active_patient(anID):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 
@@ -723,7 +723,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.10  2004-10-20 12:40:55  ncq
+# Revision 1.11  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.10  2004/10/20 12:40:55  ncq
 # - some cleanup
 #
 # Revision 1.9  2004/10/20 07:49:45  sjtan

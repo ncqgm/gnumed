@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.38 2004-11-21 20:56:14 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPlugin.py,v 1.39 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,7 +17,7 @@ from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWho
 from Gnumed.wxpython import gmShadow
 from Gnumed.pycommon.gmPyCompat import *
 
-gmPatient = None
+gmPerson = None
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -120,12 +120,12 @@ class cNotebookPlugin:
 
 		- convenience method for your can_receive_focus() handlers
 		"""
-		global gmPatient
-		if gmPatient is None:
-			from Gnumed.business import gmPatient as _gmPatient
-			gmPatient = _gmPatient
+		global gmPerson
+		if gmPerson is None:
+			from Gnumed.business import gmPerson as _gmPerson
+			gmPerson = _gmPerson
 		# fail if no patient selected
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		if not pat.is_connected():
 			# FIXME: people want an optional red backgound here
 			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
@@ -331,7 +331,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.38  2004-11-21 20:56:14  ncq
+# Revision 1.39  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.38  2004/11/21 20:56:14  ncq
 # - remove cruft
 #
 # Revision 1.37  2004/10/14 12:14:51  ncq

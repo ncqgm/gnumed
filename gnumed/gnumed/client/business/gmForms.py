@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.26 2004-08-20 13:19:06 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmForms.py,v 1.27 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -20,7 +20,7 @@ from Gnumed.pycommon import gmLog, gmPG, gmWhoAmI, gmCfg, gmExceptions, gmMatchP
 from Gnumed.pycommon.gmPyCompat import *
 if __name__ == "__main__":
 	from Gnumed.pycommon import gmI18N
-from Gnumed.business import gmDemographicRecord, gmPatient
+from Gnumed.business import gmDemographicRecord, gmPerson
 
 # start logging
 _log = gmLog.gmDefLog
@@ -39,7 +39,7 @@ class gmFormEngine:
 		self.template = template
 		self.flags = flags
 		self.pk_def = pk_def
-		self.patient = gmPatient.gmCurrentPatient ()
+		self.patient = gmPerson.gmCurrentPatient ()
 		self.whoami = gmWhoAmI.cWhoAmI ()
 		self.workplace = self.whoami.get_workplace ()
 
@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.26  2004-08-20 13:19:06  ncq
+# Revision 1.27  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.26  2004/08/20 13:19:06  ncq
 # - use getDBParam()
 #
 # Revision 1.25  2004/07/19 11:50:42  ncq

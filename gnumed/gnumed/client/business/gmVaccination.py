@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.18 2005-01-02 19:55:30 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmVaccination.py,v 1.19 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -273,7 +273,7 @@ def put_patient_on_schedule(patient_id=None, regime=None):
 		* patient_id = Patient's PK
 		* regime_id = regime object or Vaccination regime's PK
 	"""
-	# FIXME: add method schedule_vaccination_regime() to gmPatient.cPerson
+	# FIXME: add method schedule_vaccination_regime() to gmPerson.cPerson
 	if isinstance(regime, cVaccinationRegime):
 		reg_id = regime['pk_regime']
 	else:
@@ -374,7 +374,10 @@ if __name__ == '__main__':
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.18  2005-01-02 19:55:30  ncq
+# Revision 1.19  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.18  2005/01/02 19:55:30  ncq
 # - don't need _xmins_refetch_col_pos anymore
 #
 # Revision 1.17  2004/12/20 16:45:49  ncq

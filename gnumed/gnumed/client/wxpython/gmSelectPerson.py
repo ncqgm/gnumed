@@ -16,7 +16,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSelectPerson.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 
 import string
 from wxPython.wx import *
@@ -100,11 +100,11 @@ class DlgSelectPerson(SQLSimpleSearch):
 	def _addPatient(self):
 		#pass
 		id = self.GetData()
-		#print id	
-		import gmPatient
-		patient = gmPatient.gmPerson(id)
+		#print id
+		import gmPerson
+		patient = gmPerson.gmPerson(id)
 		newId = patient.link_new_relative()
-		#newPatient = gmPatient.gmPerson(newId)
+		#newPatient = gmPerson.gmPerson(newId)
 		#new_demographics = newPatient.get_demographic_record()
 		#old_demographics = patient.get_demographic_record()
 		#new_demographics.copyAddresses(old_demographics)
@@ -113,7 +113,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 			print "GOT no new patient"
 			return
 		# FIXME: are we sure of the ramifications here ?
-		gmPatient.gmCurrentPatient(newId)
+		gmPerson.gmCurrentPatient(newId)
 		x = self.__getDemographicsWidget()
 		x.Raise()
 

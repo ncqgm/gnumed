@@ -2,14 +2,14 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRTextDump.py,v $
-# $Id: gmEMRTextDump.py,v 1.11 2004-06-13 22:31:48 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmEMRTextDump.py,v 1.12 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
 
 from Gnumed.pycommon import gmLog, gmSignals, gmDispatcher, gmExceptions
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPerson
 from Gnumed.pycommon.gmPyCompat import *
 
 from wxPython.wx import *
@@ -51,7 +51,7 @@ class gmEMRDumpPanel(wxPanel):
 		# FIXME: if has_focus ...
 	#--------------------------------------------------------
 	def populate(self):
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		# this should not really happen
 		if not pat.is_connected():
 			_log.Log(gmLog.lErr, 'no active patient, cannot get EMR text dump')
@@ -123,7 +123,10 @@ class gmScrolledEMRTextDump(wxScrolledWindow):
 
 #============================================================
 # $Log: gmEMRTextDump.py,v $
-# Revision 1.11  2004-06-13 22:31:48  ncq
+# Revision 1.12  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.11  2004/06/13 22:31:48  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

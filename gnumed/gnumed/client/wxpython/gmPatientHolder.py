@@ -8,12 +8,12 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.15 2004-04-20 00:17:55 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPatientHolder.py,v 1.16 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog, gmExceptions
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 import sys
 from wxPython.wx import *
@@ -25,7 +25,7 @@ class PatientHolder:
 		gmDispatcher.connect(self._on_activating_patient, gmSignals.activating_patient())
 		# new patient has been selected
 		gmDispatcher.connect(self._on_patient_selected, gmSignals.patient_selected())
-		self.patient = gmPatient.gmCurrentPatient()
+		self.patient = gmPerson.gmCurrentPatient()
 	#------------------------------------------------
 	def _on_patient_selected( self, **kwds):
 		try:
@@ -71,7 +71,10 @@ class PatientHolder:
 
 #====================================================
 # $Log: gmPatientHolder.py,v $
-# Revision 1.15  2004-04-20 00:17:55  ncq
+# Revision 1.16  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.15  2004/04/20 00:17:55  ncq
 # - allergies API revamped, kudos to Carlos
 #
 # Revision 1.14  2004/04/11 10:09:38  ncq

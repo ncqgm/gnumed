@@ -45,8 +45,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.3 2004-12-20 09:51:28 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmSOAPimporter.py,v 1.4 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -59,7 +59,7 @@ import mx.DateTime as mxDT
 # GnuMed
 from Gnumed.pycommon import gmLog, gmCLI, gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N, gmWhoAmI
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmClinNarrative, gmPatient, gmVaccination
+from Gnumed.business import gmClinNarrative, gmPerson, gmVaccination
 
 _log = gmLog.gmDefLog
 _cfg = gmCfg.gmDefCfgFile
@@ -86,7 +86,7 @@ class cSOAPImporter:
 	
 	#-----------------------------------------------------------
 	def __init__(self):
-		self.__pat = gmPatient.gmCurrentPatient()		
+		self.__pat = gmPerson.gmCurrentPatient()		
 	#-----------------------------------------------------------
 	# external API
 	#-----------------------------------------------------------
@@ -308,7 +308,7 @@ if __name__ == '__main__':
 		"""
 
 		# Variable initializations
-		pat_searcher = gmPatient.cPatientSearcher_SQL()
+		pat_searcher = gmPerson.cPatientSearcher_SQL()
 
 		# Ask patient
 		patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
@@ -323,7 +323,7 @@ if __name__ == '__main__':
 			prompted_input("Various patients match the query term. Press any key to continue.")
 			return None
 		patient_id = search_ids[0]
-		patient = gmPatient.gmCurrentPatient(patient_id)
+		patient = gmPerson.gmCurrentPatient(patient_id)
 
 		return patient
 	#------------------------------------------------------------
@@ -409,7 +409,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.3  2004-12-20 09:51:28  ncq
+# Revision 1.4  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.3  2004/12/20 09:51:28  ncq
 # - tie constants to bundle not importer re naming
 #
 # Revision 1.2  2004/12/19 18:41:55  cfmoro

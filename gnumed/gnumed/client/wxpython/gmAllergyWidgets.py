@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -13,7 +13,7 @@ from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmExceptions
 from Gnumed.wxpython import gmEditArea, gmDateTimeInput, gmTerryGuiParts, gmRegetMixin
-from Gnumed.business import gmPatient, gmAllergy
+from Gnumed.business import gmPerson, gmAllergy
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -233,7 +233,7 @@ class cAllergyPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__do_layout()
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 		self.__register_interests()
 		self.__reset_ui_content()
 	#----------------------------------------------------
@@ -344,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.5  2004-12-15 21:55:00  ncq
+# Revision 1.6  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.5  2004/12/15 21:55:00  ncq
 # - adapt to cleanly separated old/new style edit area
 #
 # Revision 1.4  2004/10/27 12:17:22  ncq

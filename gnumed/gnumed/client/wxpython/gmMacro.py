@@ -6,13 +6,13 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
 
 from Gnumed.pycommon import gmLog, gmI18N, gmGuiBroker, gmExceptions
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers, gmPlugin
 
 _log = gmLog.gmDefLog
@@ -38,7 +38,7 @@ class cMacroPrimitives:
 		self.__auth_cookie = None
 		self._get_source_personality = None
 		self.__user_done = False
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 	#-----------------------------------------------------------------
 	# public API
 	#-----------------------------------------------------------------
@@ -71,7 +71,7 @@ class cMacroPrimitives:
 		return 1
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.15 $" % self.__class__.__name__
+		return "%s $Revision: 1.16 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -111,7 +111,7 @@ class cMacroPrimitives:
 		if self.__pat.is_locked():
 			_log.Log(gmLog.lErr, 'patient is already locked')
 			return (0, _('already locked into a patient'))
-		searcher = gmPatient.cPatientSearcher_SQL()
+		searcher = gmPerson.cPatientSearcher_SQL()
 		if type(search_params) == types.DictType:
 			pat_id = searcher.get_patient_ids(search_dict=search_params)
 		else:
@@ -123,7 +123,7 @@ class cMacroPrimitives:
 		# FIXME: let user select patient
 		if len(pat_id) > 1:
 			return (0, _('several matching patients found for [%s]/%s') % (search_term, search_dict))
-		if not gmPatient.set_active_patient(pat_id[0]):
+		if not gmPerson.set_active_patient(pat_id[0]):
 			return (0, _('cannot activate patient [%s] (%s/%s)') % (pat_id[0], search_term, search_dict))
 		self.__pat.lock()
 		self.__pat_lock_cookie = str(random.random())
@@ -216,7 +216,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.15  2004-09-13 09:38:29  ncq
+# Revision 1.16  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.15  2004/09/13 09:38:29  ncq
 # - allow to wait for user interaction in controlled GnuMed instance
 #   despite having to use wxCallAfter by waiting on a semaphore
 #

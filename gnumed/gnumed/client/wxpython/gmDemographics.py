@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.49 2004-12-18 13:45:51 sjtan Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmDemographics.py,v 1.50 2005-01-31 10:37:26 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,7 +24,7 @@ from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidt
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator
 from Gnumed.pycommon import  gmGuiBroker, gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
-from Gnumed.business import gmDemographicRecord, gmPatient
+from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
 _log = gmLog.gmDefLog
@@ -1030,8 +1030,8 @@ class PatientDetailWindow(wx.wxPanel):
 
 		self.setNewPatient(1)
 		self.__init_data()
-		id = gmPatient.create_dummy_identity()
-		gmPatient.gmCurrentPatient(id)
+		id = gmPerson.create_dummy_identity()
+		gmPerson.gmCurrentPatient(id)
 
 	def __init_data(self):
 		 #IAN TO RECONNECT
@@ -1228,7 +1228,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.49  2004-12-18 13:45:51  sjtan
+# Revision 1.50  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.49  2004/12/18 13:45:51  sjtan
 #
 # removed timer.
 #

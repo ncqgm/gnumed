@@ -1,7 +1,7 @@
 """GnuMed medical document handling widgets.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMedDocWidgets.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, re
@@ -9,7 +9,7 @@ import os.path, sys, re
 from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog, gmI18N, gmCfg, gmWhoAmI, gmPG, gmMimeLib, gmExceptions
-from Gnumed.business import gmPatient, gmMedDoc
+from Gnumed.business import gmPerson, gmMedDoc
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -39,7 +39,7 @@ class cDocTree(wxTreeCtrl):
 		"""
 		wxTreeCtrl.__init__(self, parent, id, style=wxTR_NO_BUTTONS)
 		self.root = None
-		self.__pat = gmPatient.gmCurrentPatient()
+		self.__pat = gmPerson.gmCurrentPatient()
 
 		self.__register_events()
 
@@ -308,7 +308,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmMedDocWidgets.py,v $
-# Revision 1.9  2004-10-17 15:57:36  ncq
+# Revision 1.10  2005-01-31 10:37:26  ncq
+# - gmPatient.py -> gmPerson.py
+#
+# Revision 1.9  2004/10/17 15:57:36  ncq
 # - after pat.get_documents():
 #   1) separate len(docs) == 0 from docs is None
 #   2) only the second really is an error
