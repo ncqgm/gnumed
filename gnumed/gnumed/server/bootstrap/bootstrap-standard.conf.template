@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.20 $
+version = $Revision: 1.21 $
 
 #----------------------------------
 [installation]
@@ -191,10 +191,12 @@ $procedural languages$
 # where to look for dynamic libraries for procedural languages
 # - we can safely list any directories here that we come
 #   across on any distribution
+# - newer PostgreSQL versions use $libdir for portability
 # - the first match will be used
 # - reorder the list if you want to force a particular
 #   directory to be used for a particular language
 language library dirs = $language library dirs$
+$libdir/
 /usr/lib/postgresql/
 /usr/lib/postgresql/lib/
 /usr/lib/pgsql/
@@ -270,7 +272,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.20  2005-01-12 14:47:48  ncq
+# Revision 1.21  2005-03-03 21:34:56  ncq
+# - add $libdir and comment
+#
+# Revision 1.20  2005/01/12 14:47:48  ncq
 # - in DB speak the database owner is customarily called dbo, hence use that
 #
 # Revision 1.19  2004/12/06 21:12:01  ncq
