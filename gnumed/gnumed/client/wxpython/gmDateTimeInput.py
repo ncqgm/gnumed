@@ -7,8 +7,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.4 2003-10-02 20:51:12 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmDateTimeInput.py,v 1.5 2003-10-06 17:49:40 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, re, string
@@ -284,7 +284,7 @@ class gmTimeInput(wxTextCtrl):
 # main
 #--------------------------------------------------
 if __name__ == '__main__':
-	import gmI18N
+	_ = lambda x:x
 	#----------------------------------------------------
 	def clicked (data):
 		print "Selected :%s" % data
@@ -321,7 +321,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.4  2003-10-02 20:51:12  ncq
+# Revision 1.5  2003-10-06 17:49:40  ncq
+# - remove dependancy on gmI18N on standalone test run
+#
+# Revision 1.4  2003/10/02 20:51:12  ncq
 # - add alt-XX shortcuts, move __* to _*
 #
 # Revision 1.3  2003/09/30 18:47:47  ncq
