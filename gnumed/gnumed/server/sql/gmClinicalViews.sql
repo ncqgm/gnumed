@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.114 2004-11-24 15:39:33 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.115 2004-11-26 12:18:04 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -189,6 +189,44 @@ create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_h
 \set ON_ERROR_STOP 1
 
 create index idx_episode_issue on clin_episode(fk_health_issue);
+
+
+-- auto-create clin_narrative row on insert into clin_episode
+\unset ON_ERROR_STOP
+drop trigger tr_name_new_episode on clin_episode;
+drop function trf_name_new_episode();
+\set ON_ERROR_STOP 1
+
+create function trf_name_new_episode() returns opaque as '
+declare
+	clin_narr_insert text;
+begin
+	-- generate insert query
+	clin_narr_insert := ''
+insert into clin_narrative (
+	fk_episode,
+	soap_cat,
+	narrative,
+	is_episode_name
+) values (''
+	|| ''''NEW.pk'''' || '',
+	''''s'''',
+	''''by_trigger_on_insert'''',
+	''''true''''::boolean
+)'';
+	-- execute insert query
+	EXECUTE clin_narr_insert;
+	return NULL;
+end;
+' language 'plpgsql';
+
+create trigger tr_name_new_episode
+	after insert
+	on clin_episode
+	for each row
+		execute procedure trf_name_new_episode()
+;
+
 
 -- pull in episode names from clin_narrative
 \unset ON_ERROR_STOP
@@ -1530,11 +1568,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.114 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.115 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.114  2004-11-24 15:39:33  ncq
+-- Revision 1.115  2004-11-26 12:18:04  ncq
+-- - trigger/func _name_new_episode
+--
+-- Revision 1.114  2004/11/24 15:39:33  ncq
 -- - clin_episode does not have clinically_relevant anymore as per discussion on list
 --
 -- Revision 1.113  2004/11/21 21:38:31  ncq
