@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.19 $
+$Revision: 1.20 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -230,4 +230,11 @@ Preferably an unsigned online copy of the audit trail
 tables should be moved to another server. It is useful
 to have the complete revision history online for
 reference but this is not speed-critical.
+--------------------------------------------------------------
+Sam 14 Jun 2003 13:29:04 CEST    karsten.hilbert@gmx.net
+
+addition to CVS guidelines:
+
+set the execute bit on those files only that are actually
+supposed to get executed directly
 --------------------------------------------------------------
