@@ -13,7 +13,8 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmPlugin.py,v 1.41 2003-02-09 11:52:28 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -511,7 +512,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.40  2003-02-09 09:41:57  sjtan
+# Revision 1.41  2003-02-09 11:52:28  ncq
+# - just one more silly cvs keyword
+#
+# Revision 1.40  2003/02/09 09:41:57  sjtan
 #
 # clean up new code, make it less intrusive.
 #
