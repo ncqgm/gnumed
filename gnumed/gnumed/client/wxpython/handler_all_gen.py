@@ -9,11 +9,12 @@ def gen_cmd( cmd, filename_out):
 	f.close()
 	fin.close()
 
-if __name__ == '__main__':
-	print "generating"
+def main():
 	gen_cmd( 'python handler_generator.py -d patient', 'handler_patient.py')
 	gen_cmd( 'python handler_generator.py -f gmSelectPerson.py', 'handler_gmSelectPerson.py')
 	gen_cmd( 'python handler_generator.py -d gui', 'handler_gui.py')
 	gen_cmd( 'python handler_gen_editarea.py', 'EditAreaHandler.py')
 
-	
+if __name__ == '__main__':
+	print "generating"
+	main()
