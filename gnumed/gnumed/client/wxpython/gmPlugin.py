@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.18 2004-06-13 22:14:39 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPlugin.py,v 1.19 2004-06-25 12:51:23 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -344,7 +344,7 @@ class wxPatientPlugin (wxBasePlugin):
 #=========================================================
 # some convenience functions
 #---------------------------------------------------------
-def raise_plugin (plugin_name = None):
+def raise_plugin(plugin_name = None):
 	"""plugin_name is a plugin internal name"""
 	gb = gmGuiBroker.GuiBroker()
 	try:
@@ -357,7 +357,7 @@ def raise_plugin (plugin_name = None):
 		return 1
 	return 0
 #------------------------------------------------------------------
-def InstPlugin (aPackage='--??--', plugin_name='--??--'):
+def instantiate_plugin(aPackage='--??--', plugin_name='--??--'):
 	"""Instantiates a plugin object from a package directory, returning the object.
 
 	NOTE: it does NOT call register() for you !!!!
@@ -521,7 +521,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.18  2004-06-13 22:14:39  ncq
+# Revision 1.19  2004-06-25 12:51:23  ncq
+# - InstPlugin() -> instantiate_plugin()
+#
+# Revision 1.18  2004/06/13 22:14:39  ncq
 # - extensive cleanup/comments
 # - deprecate self.internal_name in favour of self.__class__.__name__
 # - introduce gb['main.notebook.raised_plugin']

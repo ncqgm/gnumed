@@ -18,9 +18,9 @@ right column
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmClinicalWindowManager.py,v $
-# $Id: gmClinicalWindowManager.py,v 1.19 2004-06-20 16:50:51 ncq Exp $
+# $Id: gmClinicalWindowManager.py,v 1.20 2004-06-25 12:51:23 ncq Exp $
 # license: GPL
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ =	"I.Haywood"
 
 import sys
@@ -212,7 +212,7 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		plugin_list = gmPlugin.GetPluginLoadList('patient')
 		# "patient" needs fixing
 		for plugin in plugin_list:
-			p = gmPlugin.InstPlugin(
+			p = gmPlugin.instantiate_plugin(
 				'patient',
 				plugin
 			)
@@ -241,7 +241,10 @@ class gmClinicalWindowManager (gmPlugin.wxNotebookPlugin):
 		return 1
 #==================================================
 # $Log: gmClinicalWindowManager.py,v $
-# Revision 1.19  2004-06-20 16:50:51  ncq
+# Revision 1.20  2004-06-25 12:51:23  ncq
+# - InstPlugin() -> instantiate_plugin()
+#
+# Revision 1.19  2004/06/20 16:50:51  ncq
 # - carefully fool epydoc
 #
 # Revision 1.18  2004/06/20 06:49:21  ihaywood

@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.154 2004-06-25 12:37:20 ncq Exp $
-__version__ = "$Revision: 1.154 $"
+# $Id: gmGuiMain.py,v 1.155 2004-06-25 12:51:23 ncq Exp $
+__version__ = "$Revision: 1.155 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -295,7 +295,7 @@ class gmTopLevelFrame(wxFrame):
 			)
 
 			try:
-				plugin = gmPlugin.InstPlugin ('gui', curr_plugin)
+				plugin = gmPlugin.instantiate_plugin('gui', curr_plugin)
 				if plugin:
 					_log.Log(gmLog.lInfo,  'got plugin of type %s' % plugin.__class__.__name__)
 					plugin.register()
@@ -396,7 +396,7 @@ class gmTopLevelFrame(wxFrame):
 		plugin_list = gmPlugin.GetPluginLoadList('gui')
 		_log.Log(gmLog.lData, str(type(plugin_list)) + ": " + str(plugin_list))
 		for plugin_name in plugin_list:
-			plugin = gmPlugin.InstPlugin ('gui', plugin_name)
+			plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
 			if isinstance (plugin, gmPlugin.wxNotebookPlugin):
 				if not (plugin.__class__.__name__ in self.guibroker['modules.gui'].keys()):
 					# if not installed
@@ -767,7 +767,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.154  2004-06-25 12:37:20  ncq
+# Revision 1.155  2004-06-25 12:51:23  ncq
+# - InstPlugin() -> instantiate_plugin()
+#
+# Revision 1.154  2004/06/25 12:37:20  ncq
 # - eventually fix the import gmI18N issue
 #
 # Revision 1.153  2004/06/23 20:53:30  ncq
