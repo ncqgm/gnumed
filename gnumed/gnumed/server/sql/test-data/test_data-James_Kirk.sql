@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,7 +47,7 @@ delete from clin_health_issue where
 insert into clin_health_issue (id_patient)
 values (currval('identity_id_seq'));
 
--- episode "knive cut"
+-- episode "knife cut"
 delete from clin_episode where id in (
 	select pk_episode
 	from v_pat_episodes
@@ -57,10 +57,10 @@ delete from clin_episode where id in (
 insert into clin_episode (fk_health_issue, description)
 values (
 	currval('clin_health_issue_id_seq'),
-	'knive cut L arm 9/2000'
+	'knife cut L arm 9/2000'
 );
 
--- encounter: first, for knive cut ------------------------------------------------
+-- encounter: first, for knife cut ------------------------------------------------
 insert into clin_encounter (
 	fk_patient,
 	fk_location,
@@ -89,7 +89,7 @@ insert into clin_narrative (
 	'2000-9-17 17:14:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'dirty knive cut',
+	'bleeding cut forearm L',
 	's',
 	'true'::boolean
 );
@@ -105,7 +105,9 @@ insert into clin_narrative (
 	'2000-9-17 17:16:41',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'acc cut himself left forearm ca -2/24, dirty blade, extraterrest.envir.',
+	'accid cut himself left forearm -2/24 w/ dirty
+blade rescuing self from being tentacled,
+extraterrest.envir.',
 	's'
 );
 
@@ -120,7 +122,9 @@ insert into clin_narrative (
 	'2000-9-17 17:20:59',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'left ulnar forearm; 5cm jagged(+) cut; dirt; skin/sc fat only; musc/tend not injured; no dist sens loss found; pain/redness++; smelly secretion+, no pus',
+	'left ulnar forearm; 6cm dirty laceration;
+skin/sc fat only; musc/tend not injured; no dist sens loss;
+pain/redness++; smelly secretion+; no pus',
 	'o'
 );
 
@@ -135,7 +139,7 @@ insert into clin_narrative (
 	'2000-9-17 17:21:19',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'contam/infected knive cut left arm, ?extraterr. vector?, req ABs/surg/blood',
+	'contam/infected knife cut left arm, ?extraterr. vector?, req ABs/surg/blood',
 	'a'
 );
 
@@ -169,7 +173,7 @@ insert into clin_narrative (
 	'2000-9-17 17:14:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'dirty knive cut',
+	'?contaminated laceration L forearm',
 	'a',
 	'true'::boolean
 );
@@ -383,7 +387,7 @@ insert into lnk_result2lab_req(fk_result, fk_request) values (
 	currval('lab_request_pk_seq')
 );
 
--- encounter, second for knive cut ------------------------------------------
+-- encounter, second for knife cut ------------------------------------------
 insert into clin_encounter (
 	fk_patient,
 	fk_location,
@@ -396,8 +400,25 @@ insert into clin_encounter (
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
-	'2000-9-18 17:13',
-	'2000-9-18 19:33'
+	'2000-9-18 8:13',
+	'2000-9-18 8:47'
+);
+
+-- RFE
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat,
+	is_rfe
+) values (
+	'2000-9-18 8:14:32',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_id_seq'),
+	'knife cut follow-up, pain',
+	's',
+	'true'::boolean
 );
 
 -- AOE
@@ -409,10 +430,10 @@ insert into clin_narrative (
 	soap_cat,
 	is_aoe
 ) values (
-	'2000-9-18 17:14:32',
+	'2000-9-18 8:17:32',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_id_seq'),
-	'wound infection L forearm',
+	'infected pop laceration L forearm',
 	'a',
 	'true'::boolean
 );
@@ -560,11 +581,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.30  2004-07-12 17:24:02  ncq
+-- Revision 1.31  2004-07-28 15:47:00  ncq
+-- - improve data
+--
+-- Revision 1.30  2004/07/12 17:24:02  ncq
 -- - code diagnoses with new structure now
 --
 -- Revision 1.29  2004/07/02 15:00:10  ncq
