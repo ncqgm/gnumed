@@ -216,7 +216,7 @@ from
 where
         a.street = str.id
         and
-        t.name = a.addrtype
+        t.id = a.addrtype
         and
         str.id_urb = u.id
         and
