@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -176,7 +176,6 @@ class ConnectionPool:
 
 		# either get a cached read-only connection
 		if readonly:
-#			_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
 			if ConnectionPool.__ro_conns.has_key(service):
 				try:
 					ConnectionPool.__conn_use_count[service] += 1
@@ -184,7 +183,6 @@ class ConnectionPool:
 					ConnectionPool.__conn_use_count[service] = 1
 				conn = ConnectionPool.__ro_conns[service]
 			else:
-#				_log.Log(gmLog.lData, 'using service [default] instead of [%s]' % service)
 				try:
 					ConnectionPool.__conn_use_count['default'] += 1
 				except KeyError:
@@ -938,7 +936,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.26 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.27 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1166,7 +1164,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.26  2004-09-06 18:56:16  ncq
+# Revision 1.27  2004-09-06 22:19:28  ncq
+# - some cleanup
+#
+# Revision 1.26  2004/09/06 18:56:16  ncq
 # - improve inline docs
 #
 # Revision 1.25  2004/09/01 22:00:10  ncq
