@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.41 $"
+__version__ = "$Revision: 1.42 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -315,14 +315,15 @@ class cProblem(gmClinItem.cClinItem):
 		"""
 		Retrieve the cEpisode instance equivalent to this problem.
 		The problem's type attribute must be 'episode'
-
-		FIXME: add a cast method problem2episode() to cClinicalRecord, too,
-		FIXME: which could use the cache and hence be faster
 		"""
 		if self._payload[self._idx['type']] != 'episode':
 			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
 			return None
-		episode = cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
+		try:
+			episode = cEpisode(aPK_obj=self._payload[self._idx['pk_episode']])
+		except gmExceptions.ConstructorError:
+			_log.LogException('cannot get encounter', sys.exc_info())
+			return None		
 		return episode
 #============================================================
 # convenience functions
@@ -578,7 +579,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.41  2005-03-17 13:35:52  ncq
+# Revision 1.42  2005-03-17 21:14:45  cfmoro
+# Improved exception handling in get_as_episode.
+#
+# Revision 1.41  2005/03/17 13:35:52  ncq
 # - cleanup and streamlining
 #
 # Revision 1.40  2005/03/16 19:10:06  cfmoro
