@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.1 2004-11-17 01:49:34 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.2 2004-11-21 13:02:21 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -60,8 +60,8 @@ class cSOAPMultiSash(wxWindow):
         saveData['child'] = self.child.GetSaveData()
         return saveData
 
-    def GetSelectedWindow(self):
-        return self.child.GetSelectedWindow()
+    def GetSelectedSOAPPanel(self):
+	return self.child.GetSelectedSOAPPanel()
 
     def SetSaveData(self,data):
         dChild = data['_defChild']
@@ -99,12 +99,13 @@ class wxMultiSplit(wxWindow):
 
         EVT_SIZE(self,self.OnSize)
 
-    def GetSelectedWindow(self):
-        selected_window = None
+    def GetSelectedSOAPPanel(self):
+	selected_soap_panel = None
         if self.view1:
-            selected_window = self.view1.GetSelectedWindow()
-        if selected_window is None and self.view2:
-            return self.view2.GetSelectedWindow()
+            selected_soap_panel = self.view1.GetSelectedSOAPPanel()
+        if selected_soap_panel is None and self.view2:
+            selected_soap_panel = self.view2.GetSelectedSOAPPanel()
+	return selected_soap_panel
 
     def GetSaveData(self):
         saveData = {}
@@ -322,10 +323,9 @@ class wxMultiViewLeaf(wxWindow):
 
         EVT_SIZE(self,self.OnSize)
 
-    def GetSelectedWindow(self):
-        if self.detail.selected:
-                print "SELECTED: %s"%(self.detail.child.GetSOAP().GetValues())
-                return self.detail.child.GetSOAP()
+    def GetSelectedSOAPPanel(self):
+	if self.detail.selected:
+                return self.detail.child
         return None
 
     def GetSaveData(self):

@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -13,9 +13,11 @@ from wxPython import wx
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPatient
-from Gnumed.wxpython import gmRegetMixin, SOAP2
+from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
+
+import SOAP2
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -104,9 +106,13 @@ class cSOAPControl(wx.wxPanel):
 		"""
 		Retrieves SOAP text editor
 		"""
-		print "Retrieving SOAP editor from split view..."
 		return self.soap_text_editor
 	
+	def ClearSOAP(self):
+		"""
+		Clear values in SOAP text editor
+		"""
+		self.soap_text_editor.SetValues ({"Subjective":" ", "Objective":" ", "Assessment":" ", "Plan":" "})
 
 #============================================================	       	       
 class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
@@ -146,7 +152,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Arranges SOAP input layout
 		"""
 		
-		from Gnumed.wxpython import SOAPMultiSash	
+		import SOAPMultiSash	
 		
 		# SOAP input panel main splitter window
 		self.soap_emr_splitter = wx.wxSplitterWindow(self, -1)
@@ -157,8 +163,9 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.soap_multisash = SOAPMultiSash.cSOAPMultiSash(self.soap_panel, -1)
 		# SOAP action buttons
 		self.save_button = wx.wxButton(self.soap_panel, -1, "&Save")
-		self.clear_button = wx.wxButton(self.soap_panel, -1, "&Cancel")
+		self.clear_button = wx.wxButton(self.soap_panel, -1, "&Clear")
 		self.new_button = wx.wxButton(self.soap_panel, -1, "&New")
+		self.remove_button = wx.wxButton(self.soap_panel, -1, "&Remove")
 
 		# EMR tree
 		self.emr_panel = wx.wxPanel(self.soap_emr_splitter,-1)
@@ -167,13 +174,13 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			-1,
 			style=wx.wxTR_HAS_BUTTONS | wx.wxNO_BORDER
 		)		
-		
-	
+			
 		# action buttons sizer
 		self.soap_actions_sizer = wx.wxBoxSizer(wx.wxHORIZONTAL)
 		self.soap_actions_sizer.Add(self.save_button, 0,wx.wxSHAPED)
 		self.soap_actions_sizer.Add(self.clear_button, 0,wx.wxSHAPED)
-		self.soap_actions_sizer.Add(self.new_button, 0,wx.wxSHAPED)		
+		self.soap_actions_sizer.Add(self.new_button, 0,wx.wxSHAPED)
+		self.soap_actions_sizer.Add(self.remove_button, 0,wx.wxSHAPED)
 		# SOAP area main sizer
 		self.soap_panel_sizer = wx.wxBoxSizer(wx.wxVERTICAL)
 		self.soap_panel_sizer.Add(self.soap_multisash, 1, wx.wxEXPAND)		
@@ -208,10 +215,12 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Configures enabled event signals
 		"""
 		# wx.wxPython events
-		wx.EVT_TREE_SEL_CHANGED(self.emr_tree, self.emr_tree.GetId(), self.on_tree_item_selected)
+		wx.EVT_TREE_SEL_CHANGED(self.emr_tree,self.emr_tree.GetId(), self.on_tree_item_selected)
 		wx.EVT_BUTTON(self.save_button, self.save_button.GetId(), self.on_save)
-		wx.EVT_BUTTON(self.clear_button, self.clear_button.GetId(), self.on_cancel)
-		wx.EVT_BUTTON(self.new_button, self.new_button.GetId(), self.on_new)		
+		wx.EVT_BUTTON(self.clear_button, self.clear_button.GetId(), self.on_clear)
+		wx.EVT_BUTTON(self.new_button, self.new_button.GetId(), self.on_new)
+		wx.EVT_BUTTON(self.remove_button, self.remove_button.GetId(), self.on_remove)
+					
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.on_patient_selected)
 		
@@ -220,27 +229,34 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Obtains SOAP input from selected editor and dumps it to backend
 		"""
-		print "Save SOAP..."
 		#result = self.soap_multisash.GetSaveData()
-		self.soap_multisash.GetSelectedWindow()
-		#print result['child']
-		#print result['child']['view1']['detailObject'].GetSOAP().GetValues()
+		selected_soap_panel = self.soap_multisash.GetSelectedSOAPPanel()
+		print "Saving SOAP: %s"%(selected_soap_panel.GetSOAP().GetValues())
 			
 	#--------------------------------------------------------
-	def on_cancel(self, event):
+	def on_clear(self, event):
 		"""
 		Clears selected SOAP editor
 		"""
-		print "Cancel SOAP"
+		print "Clear SOAP"
+		selected_soap_panel = self.soap_multisash.GetSelectedSOAPPanel()
+		selected_soap_panel.ClearSOAP()
 		
 	#--------------------------------------------------------
 	def on_new(self, event):
 		"""
 		Creates and displays a new SOAP input editor
 		"""
-		print "Cancel SOAP"		
+		print "New SOAP"		
 		
 	#--------------------------------------------------------
+	def on_remove(self, event):
+		"""
+		Creates and displays a new SOAP input editor
+		"""
+		print "Remove SOAP"		
+		
+	#--------------------------------------------------------	
 	def on_patient_selected(self):
 		"""
 		Current patient changed
