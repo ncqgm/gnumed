@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.1 2004-04-11 10:16:53 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmClinItem.py,v 1.2 2004-04-11 11:24:00 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -31,7 +31,7 @@ class cClinItem:
 	"""
 	#--------------------------------------------------------
 	def __init__(self, aPKey = None):
-		self.__is_modified = False
+		self._is_modified = False
 		#<DEBUG>
 		# check descendants
 		self.__class__._cmd_fetch_payload
@@ -44,8 +44,9 @@ class cClinItem:
 			raise gmExceptions.ConstructorError, "[%s:%s]: cannot load instance" % (self.__class__.__name__, self.pk)
 	#--------------------------------------------------------
 	def __del__(self):
-		if self.__is_modified:
-			print "was modified, loosing update"
+		if self._is_modified:
+			_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk))
+			_log.Log(gmLog.lData, self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
 		if len(self._payload) is None:
@@ -67,6 +68,7 @@ class cClinItem:
 		except KeyError:
 			raise KeyError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
 		self._payload[attribute] = value
+		self._is_modified = True
 		return True
 	#--------------------------------------------------------
 	# external API
@@ -74,7 +76,13 @@ class cClinItem:
 	def get_fields(self):
 		return self._idx.keys()
 	#--------------------------------------------------------
+	def get_updatable_fields(self):
+		return self.__class__._updatable_fields
+	#--------------------------------------------------------
 	def refetch_payload(self):
+		if self._is_modified:
+			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk))
+			return False
 		self._payload = None
 		data, self._idx = gmPG.run_ro_query(
 			'historica',
@@ -91,7 +99,7 @@ class cClinItem:
 		return True
 	#--------------------------------------------------------
 	def save_payload(self):
-		if not self.__is_modified:
+		if not self._is_modified:
 			return (True, None)
 		queries = []
 		for query in self.__class__._cmds_store_payload:
@@ -104,6 +112,10 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.1  2004-04-11 10:16:53  ncq
+# Revision 1.2  2004-04-11 11:24:00  ncq
+# - handle _is_modified
+# - protect against reload if modified
+#
+# Revision 1.1  2004/04/11 10:16:53  ncq
 # - first version
 #
