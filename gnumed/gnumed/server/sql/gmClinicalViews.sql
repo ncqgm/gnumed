@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.23 2003-08-03 14:06:45 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.24 2003-10-19 12:59:42 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -301,6 +301,88 @@ where
 ;
 
 -- ==========================================================
+-- vaccination stuff
+\unset ON_ERROR_STOP
+drop view v_vacc_regimes;
+\set ON_ERROR_STOP 1
+
+create view v_vacc_regimes as
+select
+	vreg.id as id_regime,
+	vind.description as indication,
+	vreg.description as description,
+	vdef.is_booster as is_booster,
+	case when vdef.is_booster
+		then null
+		else vdef.seq_id
+	end as vacc_seq_id,
+	case when vdef.is_booster
+		then booster_interval
+		else vdef.min_age_due
+	end as due,
+	case when vdef.is_booster
+		then null
+		else vdef.max_age_due
+	end as latest_due,
+	vdef.comment as "comment"
+from
+	vacc_regime vreg,
+	vacc_indication vind,
+	lnk_vacc_def2regime lvd2r,
+	vacc_def vdef
+where
+	vreg.fk_indication = vind.id
+		and
+	vreg.id = lvd2r.fk_regime
+		and
+	vdef.id = lvd2r.fk_vacc_def
+order by
+	indication,
+	vacc_seq_id
+;
+
+\unset ON_ERROR_STOP
+drop view v_patient_vaccinations;
+\set ON_ERROR_STOP 1
+
+-- FIXME: add base_immunisation_completed (or make
+-- sure that is_last_shot is only true if really true)
+create view v_patient_vaccinations as
+select
+	v.id as id,
+	v.fk_patient as id_patient,
+	v.date_given as date,
+	vcine.trade_name as vaccine,
+--	vcine.short_name as vaccine_short,
+	v.batch_no as batch_no,
+	vind.description as indication,
+	vdef.is_booster as is_booster,
+	case when vdef.is_booster
+		then null
+		else vdef.seq_id
+	end as seq_no,
+	-- FIXME: this needs to be *per indication*
+	-- use group by/having etc.
+	case when (vdef.seq_id = (select max(seq_id) from vacc_def))
+		then true
+		else false
+	end as is_last_shot,
+	v.site as site,
+	v.fk_provider as id_provider
+from
+	vaccination v,
+	vaccine vcine,
+	vacc_def vdef,
+	vacc_indication vind
+where
+	v.fk_vaccine = vcine.id
+		and
+	v.fk_vacc_def = vdef.id
+		and
+	vdef.fk_indication = vind.id
+;
+
+-- ==========================================================
 -- current encounter stuff
 \unset ON_ERROR_STOP
 drop trigger at_curr_encounter_ins on curr_encounter;
@@ -346,7 +428,8 @@ GRANT SELECT ON
 	"v_patient_episodes",
 	"v_patient_items",
 	"v_i18n_patient_encounters",
-	"v_i18n_patient_allergies"
+	"v_i18n_patient_allergies",
+	"v_vacc_regimes"
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -354,7 +437,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"v_patient_episodes",
 	"v_patient_items",
 	"v_i18n_patient_encounters",
-	"v_i18n_patient_allergies"
+	"v_i18n_patient_allergies",
+	"v_vacc_regimes"
 TO GROUP "_gm-doctors";
 
 -- =============================================
@@ -363,11 +447,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.23 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.24 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.23  2003-08-03 14:06:45  ncq
+-- Revision 1.24  2003-10-19 12:59:42  ncq
+-- - add vaccination views (still flaky)
+--
+-- Revision 1.23  2003/08/03 14:06:45  ncq
 -- - added measurements views
 --
 -- Revision 1.22  2003/07/19 20:23:47  ncq
