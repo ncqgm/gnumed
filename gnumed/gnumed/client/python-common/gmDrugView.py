@@ -41,7 +41,7 @@ class DrugView:
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		
-		currMachine = _whoami.getMachine()
+		currMachine = _whoami.get_workplace()
 		if currMachine is None:
 			# assume we are outside gnumed
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')
@@ -397,7 +397,10 @@ if __name__ == "__main__":
 	pass
 
 # $Log: gmDrugView.py,v $
-# Revision 1.3  2003-11-17 10:56:36  sjtan
+# Revision 1.4  2003-12-29 16:26:14  uid66147
+# - use whoami.get_workplace()
+#
+# Revision 1.3  2003/11/17 10:56:36  sjtan
 #
 # synced and commiting.
 #
