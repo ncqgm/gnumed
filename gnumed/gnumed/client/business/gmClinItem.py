@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.4 2004-04-16 00:00:59 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmClinItem.py,v 1.5 2004-04-16 12:46:35 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -123,10 +123,14 @@ class cClinItem:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk))
 			_log.Log(gmLog.lData, params)
 			return (None, err)
+		self._is_modified = False
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.4  2004-04-16 00:00:59  ncq
+# Revision 1.5  2004-04-16 12:46:35  ncq
+# - set is_modified=False after save_payload
+#
+# Revision 1.4  2004/04/16 00:00:59  ncq
 # - Carlos fixes
 # - save_payload should now work
 #
