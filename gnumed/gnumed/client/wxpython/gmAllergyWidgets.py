@@ -3,7 +3,7 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAllergyWidgets.py,v $
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -21,14 +21,10 @@ _log.Log(gmLog.lInfo, __version__)
 ID_ALLERGY_LIST = wxNewId()
 
 #======================================================================
-class gmAllergyEditArea(gmEditArea.gmEditArea):
+class gmAllergyEditArea(gmEditArea.cEditArea):
 
 	def __init__(self, parent, id):
-		try:
-			gmEditArea.gmEditArea.__init__(self, parent, id, aType = 'allergy')
-		except gmExceptions.ConstructorError:
-			_log.LogException('cannot instantiate allergy edit area', sys.exc_info(), verbose=1)
-			raise
+		gmEditArea.cEditArea.__init__(self, parent, id)
 	#----------------------------------------------------
 	def _define_fields(self, parent):
 		# line 1
@@ -131,7 +127,7 @@ class gmAllergyEditArea(gmEditArea.gmEditArea):
 		self._add_prompt(line = 6, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
-		emr = self.patient.get_clinical_record()
+		emr = self._patient.get_clinical_record()
 		if emr is None:
 			wxBell()
 			_gb['main.statustext'](_('Cannot create allergy: %s') % data)
@@ -348,7 +344,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergyWidgets.py,v $
-# Revision 1.4  2004-10-27 12:17:22  ncq
+# Revision 1.5  2004-12-15 21:55:00  ncq
+# - adapt to cleanly separated old/new style edit area
+#
+# Revision 1.4  2004/10/27 12:17:22  ncq
 # - robustify should there not be an active patient
 #
 # Revision 1.3  2004/10/11 20:14:16  ncq
