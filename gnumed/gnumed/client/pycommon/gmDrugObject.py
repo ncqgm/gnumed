@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #############################################################################
 #
 # gmDrugObject - Object hiding all drug related backend communication
@@ -7,23 +6,20 @@
 # @author: Hilmar Berger
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @dependencies: nil
 #
-# @TODO: Almost everything
 ############################################################################
 
+# FIXME: likely, this should be in client/business/
 
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDrugObject.py,v $      
-__version__ = "$Revision: 1.1 $"                                               
+# $Id: gmDrugObject.py,v 1.2 2005-01-19 11:15:41 ncq Exp $
+__version__ = "$Revision: 1.2 $"                                               
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types, os.path
 
-# location of our modules
-if __name__ == "__main__":
-	sys.path.append(os.path.join('.', 'modules'))
-
+# FIXME: import is broken
 import gmLog
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
@@ -35,7 +31,7 @@ import gmCfg, gmDbObject, gmPG
 from gmExceptions import *
 
 #--------------------------------------------------------------------------
-class QueryGroup:
+class cQueryGroup:
 	"""Object holding query strings and associated variable lists grouped together.
 
 	- Every query has to be identified by a unique identifier (string or number).
@@ -61,11 +57,13 @@ class QueryGroup:
 			self.mVarNames[aEntry] = None
 			self.mQueryStrings[aEntry] = None
 			self.mMappings[aEntry] = None
-            
-#--------------------------------------------------------------------------
-class Drug:
-	"""High level API to access drug data"""
 
+#--------------------------------------------------------------------------
+class cDrug:
+	"""High level API to access drug data
+
+	FIXME: should class Drug not, perhaps, be derived from gmBusinessDBObject ?
+	"""
 	_db = None
 	#--------------------------------------------------------------------------
 	def __init__(self, fastInit=0, queryCfgSource = None):
@@ -201,10 +199,12 @@ class Drug:
 
 		return 1
 #--------------------------------------------------------------------------
-class QueryGroupHandler:
+class cQueryGroupHandler:
 	"""Object covering groups of related items.
 
 	used to access the backend to fetch all those items at once
+
+	# FiXME: rework to not need gmDbObject
     """
     #--------------------------------------------------------------------------
 	def __init__(self, aParent=None, aName=None, aQueryGroup=None):
@@ -335,7 +335,10 @@ if __name__ == "__main__":
 #	print len(x['brandname'])
 #====================================================================================
 # $Log: gmDrugObject.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2005-01-19 11:15:41  ncq
+# - lots of FIXME stuff and some cleanup
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.2  2003/11/17 10:56:36  sjtan
