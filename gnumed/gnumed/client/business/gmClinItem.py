@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.9 2004-04-20 13:32:33 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmClinItem.py,v 1.10 2004-05-08 17:27:21 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -32,23 +32,30 @@ class cClinItem:
 	#--------------------------------------------------------
 	def __init__(self, aPKey = None):
 		self._is_modified = False
-		#<DEBUG>
 		# check descendants
+		#<DEBUG>
 		self.__class__._cmd_fetch_payload
 		self.__class__._cmds_store_payload
 		self.__class__._updatable_fields
 		#</DEBUG>
 		self.pk = aPKey
-		if self.pk is None:
-			raise gmExceptions.ConstructorError, "[%s]: must have primary key" % self.__class__.__name__
-		if not self.refetch_payload():
-			raise gmExceptions.ConstructorError, "[%s:%s]: cannot load instance" % (self.__class__.__name__, self.pk)
+#		if self.pk is None:
+#			raise gmExceptions.ConstructorError, "[%s]: must have primary key" % self.__class__.__name__
+		result = self.refetch_payload()
+		if result is True:
+			return
+		if result is None:
+			raise gmExceptions.NoSuchClinItemError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk)
+		if result is False:
+			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk)
 	#--------------------------------------------------------
 	def __del__(self):
-		if self.__dict__.has_key('_is_modified'):
+		try:
 			if self._is_modified:
 				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk))
 				_log.Log(gmLog.lData, self._payload)
+		except KeyError:
+			pass
 	#--------------------------------------------------------
 	def __str__(self):
 		tmp = []
@@ -98,8 +105,8 @@ class cClinItem:
 			_log.Log(gmLog.lErr, '[%s:%s]: error retrieving instance' % (self.__class__.__name__, self.pk))
 			return False
 		if len(data) == 0:
-			_log.Log(gmLog.lErr, '[%s:%s]: instance not found' % (self.__class__.__name__, self.pk))
-			return False
+			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk))
+			return None
 		self._payload = data[0]
 		return True
 	#--------------------------------------------------------
@@ -121,7 +128,11 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.9  2004-04-20 13:32:33  ncq
+# Revision 1.10  2004-05-08 17:27:21  ncq
+# - speed up __del__
+# - use NoSuchClinItemError
+#
+# Revision 1.9  2004/04/20 13:32:33  ncq
 # - improved __str__ output
 #
 # Revision 1.8  2004/04/19 12:41:30  ncq
