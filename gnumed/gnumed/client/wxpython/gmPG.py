@@ -19,22 +19,33 @@
 #
 # @TODO: Almost everything
 ############################################################################
+# This source code is protected by the GPL licensing scheme.
+# Details regarding the GPL are available at http://www.gnu.org
+# You may use and share it as long as you don't deny this right
+# to anybody else.
+
+"""gmConnectionPool - Broker for Postgres distributed backend connections
+"""
+__version__ = "$Revision: 1.29 $"
+__author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <@>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, gettext, copy, os, sys
 #3rd party dependencies
+# first, do we have the best-of-breed POSIX psycopg library available ?
 try:
-	import psycopg # try Zope library
-	dbapi = psycopg
+    import psycopg # try Zope library
+    dbapi = psycopg
+# nope
 except ImportError:
-	try:
-		import pgdb # try standard Postgres binding
-		dbapi = pgdb
-	except ImportError:
-		import pyPgSQL.PgSQL # try Windows bindings
-		dbapi = pyPgSQL.PgSQL
-
-#create an alias for our DB API adapter module to make code independend of the adapter used
+    # ah, maybe we are on Windows and it just has another name ?
+    try:
+	import pyPgSQL.PgSQL # try Windows bindings
+	dbapi = pyPgSQL.PgSQL
+    # well, well, no such luck - fall back to stock pgdb library
+    except ImportError:
+	import pgdb # try standard Postgres binding
+	dbapi = pgdb
 
 #gnumed specific modules
 import gmLoginInfo, gmLog, gmExceptions
