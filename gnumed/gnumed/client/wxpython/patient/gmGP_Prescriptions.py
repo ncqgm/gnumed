@@ -29,7 +29,7 @@ import gmGuiElement_HeadingCaptionPanel        #panel class to display top headi
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea                              #panel class holding editing
-import gmPlugin
+import gmPlugin_Patient
 import gmLog
 from gmPatientHolder import PatientHolder
 
@@ -248,7 +248,7 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 	def OnExitMenu(self, event):
 		print "OnExitMenu"
 #--------------------------------------------------------------------
-class gmGP_Prescriptions (gmPlugin.wxPatientPlugin):
+class gmGP_Prescriptions (gmPlugin_Patient.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the prescriptions window
 	"""

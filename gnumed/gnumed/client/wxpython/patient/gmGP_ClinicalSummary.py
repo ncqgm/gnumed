@@ -3,7 +3,7 @@ from wxPython.wx import *
 try:
 	import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
-	import gmPlugin
+	import gmPlugin_Patient
 	from gmPatientHolder import PatientHolder
 	import gmDispatcher, gmSignals
 
@@ -14,7 +14,7 @@ except:
 	sys.path.append('../../business')
 	import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 	import gmGuiElement_AlertCaptionPanel          #panel to hold flashing
-	import gmPlugin
+	import gmPlugin_Patient
 #--------------------------------------------------------------------
 # A class for displaying a summary of patients clinical data in the
 # form of a social history, family history, active problems, habits
@@ -109,7 +109,7 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		self.activeproblemlist.SetData(newList, fitClientSize = 1)
 
 #============================================================
-class gmGP_ClinicalSummary (gmPlugin.wxPatientPlugin):
+class gmGP_ClinicalSummary (gmPlugin_Patient.wxPatientPlugin):
 	"""Plugin to encapsulate the clinical summary.
 	"""
 
@@ -159,7 +159,7 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 		return ClinicalSummary (parent, -1)
 
 	def register (self):
-		gmPlugin.wxPatientPlugin.register (self)
+		gmPlugin_Patient.wxPatientPlugin.register (self)
 		self.gb['clinical.manager'].SetDefault(self.__class__.__name__)
 #----------------------------------------------------------------------
 if __name__ == "__main__":

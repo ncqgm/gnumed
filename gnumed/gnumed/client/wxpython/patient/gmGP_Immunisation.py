@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.32 2004-06-13 22:31:50 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmGP_Immunisation.py,v 1.33 2004-06-25 13:28:00 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -19,7 +19,7 @@ from Gnumed.wxpython.gmGuiElement_DividerCaptionPanel import DividerCaptionPanel
 from Gnumed.wxpython.gmGuiElement_AlertCaptionPanel import AlertCaptionPanel
 
 # panel class holding editing prompts and text boxes
-from Gnumed.wxpython import gmEditArea, gmPlugin
+from Gnumed.wxpython import gmEditArea, gmPlugin_Patient
 from Gnumed.business import gmPatient
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals
 
@@ -257,7 +257,7 @@ class ImmunisationPanel(wxPanel):
 #			is_stale == True
 #			return 1
 #======================================================================
-class gmGP_Immunisation(gmPlugin.wxPatientPlugin):
+class gmGP_Immunisation(gmPlugin_Patient.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
 
 	__icons = {
@@ -294,7 +294,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.32  2004-06-13 22:31:50  ncq
+# Revision 1.33  2004-06-25 13:28:00  ncq
+# - logically separate notebook and clinical window plugins completely
+#
+# Revision 1.32  2004/06/13 22:31:50  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()

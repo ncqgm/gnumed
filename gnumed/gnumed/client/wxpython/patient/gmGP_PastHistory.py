@@ -30,7 +30,7 @@ import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             				#panel class holding editing prompts and text boxes
-import gmPlugin, gmLog
+import gmPlugin_Patient, gmLog
 
 import gmDispatcher, gmSignals
 
@@ -232,7 +232,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 		
 		
 #----------------------------------------------------------------------
-class gmGP_PastHistory(gmPlugin.wxPatientPlugin):
+class gmGP_PastHistory(gmPlugin_Patient.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
 
 	__icons = {

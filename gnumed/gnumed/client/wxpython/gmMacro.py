@@ -6,7 +6,7 @@ This module implements functions a macro can legally use.
 
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMacro.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, random, types
@@ -76,7 +76,7 @@ class cMacroPrimitives:
 		return 0
 	#-----------------------------------------------------------------
 	def version(self):
-		return "%s $Revision: 1.12 $" % self.__class__.__name__
+		return "%s $Revision: 1.13 $" % self.__class__.__name__
 	#-----------------------------------------------------------------
 	def raise_gnumed(self, auth_cookie = None):
 		"""Raise ourselves to the top of the desktop."""
@@ -96,14 +96,14 @@ class cMacroPrimitives:
 		gb = gmGuiBroker.GuiBroker()
 		return gb['modules.gui'].keys()
 	#-----------------------------------------------------------------
-	def raise_plugin(self, auth_cookie = None, a_plugin = None):
+	def raise_notebook_plugin(self, auth_cookie = None, a_plugin = None):
 		"""Raise a notebook plugin within GnuMed."""
 		if not self.__attached:
 			return 0
 		if auth_cookie != self.__auth_cookie:
-			_log.Log(gmLog.lErr, 'non-authenticated raise_plugin()')
+			_log.Log(gmLog.lErr, 'non-authenticated raise_notebook_plugin()')
 			return 0
-		success = wx.wxCallAfter(gmPlugin.raise_plugin, a_plugin)
+		success = wx.wxCallAfter(gmPlugin.raise_notebook_plugin, a_plugin)
 		if not success:
 			return 0
 		return 1
@@ -179,7 +179,7 @@ if __name__ == '__main__':
 	print "should fail:", s.attach('wrong cookie')
 	print "should work:", s.version()
 	print "should fail:", s.raise_gnumed()
-	print "should fail:", s.raise_plugin('test plugin')
+	print "should fail:", s.raise_notebook_plugin('test plugin')
 	print "should fail:", s.lock_into_patient('kirk, james')
 	print "should fail:", s.unlock_patient()
 	status, conn_auth = s.attach('unit test')
@@ -201,7 +201,10 @@ if __name__ == '__main__':
 	listener.tell_thread_to_stop()
 #=====================================================================
 # $Log: gmMacro.py,v $
-# Revision 1.12  2004-06-01 07:59:55  ncq
+# Revision 1.13  2004-06-25 13:28:00  ncq
+# - logically separate notebook and clinical window plugins completely
+#
+# Revision 1.12  2004/06/01 07:59:55  ncq
 # - comments improved
 #
 # Revision 1.11  2004/03/20 19:48:07  ncq

@@ -10,7 +10,7 @@ listening on port 9999 (the default).
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/test-slave.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time
@@ -55,9 +55,9 @@ print s.get_loaded_plugins(conn_auth)
 time.sleep(5)
 
 print "=> raising a plugin that doesn't need an active patient"
-print s.raise_plugin(conn_auth, 'gmManual')
+print s.raise_notebook_plugin(conn_auth, 'gmManual')
 print "=> trying to raise a plugin that needs an active patient"
-print s.raise_plugin(conn_auth, 'gmClinicalWindowManager')
+print s.raise_notebook_plugin(conn_auth, 'gmClinicalWindowManager')
 time.sleep(5)
 
 print "=> knew it, need to lock into a patient first ..."
@@ -65,11 +65,11 @@ status, unlock_auth = s.lock_into_patient(conn_auth, 'kirk, james')
 print status, unlock_auth
 
 print "=> trying to raise plugin again"
-print s.raise_plugin(conn_auth, 'gmClinicalWindowManager')
+print s.raise_notebook_plugin(conn_auth, 'gmClinicalWindowManager')
 time.sleep(8)
 
 print "=> switching to document display plugin"
-print s.raise_plugin(conn_auth, 'gmShowMedDocs')
+print s.raise_notebook_plugin(conn_auth, 'gmShowMedDocs')
 time.sleep(4)
 
 print "=> cleaning up: unlocking patient"
@@ -87,7 +87,10 @@ del s
 
 #=====================================================================
 # $Log: test-slave.py,v $
-# Revision 1.2  2004-03-15 22:40:17  ncq
+# Revision 1.3  2004-06-25 13:28:00  ncq
+# - logically separate notebook and clinical window plugins completely
+#
+# Revision 1.2  2004/03/15 22:40:17  ncq
 # - added docs on how to use this
 #
 # Revision 1.1  2004/03/15 15:29:30  ncq

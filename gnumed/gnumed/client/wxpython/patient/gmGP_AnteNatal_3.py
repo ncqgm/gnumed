@@ -5,7 +5,7 @@ import string
 from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
 from Gnumed.wxpython import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 
 from Gnumed.wxpython import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
-from Gnumed.wxpython import gmPlugin, gmEditArea
+from Gnumed.wxpython import gmPlugin_Patient, gmEditArea
 
 from Gnumed.wxpython.gmPatientHolder import PatientHolder
 ID_ANCNOTEBOOK =wxNewId()
@@ -164,7 +164,7 @@ class AntenatalPanel (wxPanel , PatientHolder):
           self.Show(true)
     
 
-class gmGP_AnteNatal_3 (gmPlugin.wxPatientPlugin):
+class gmGP_AnteNatal_3 (gmPlugin_Patient.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the antenatalcare window
 	"""

@@ -18,12 +18,12 @@
 #      
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_FamilyHistory.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
 from wxPython.wx import *
 
-import gmEditArea, gmPlugin, gmLog
+import gmEditArea, gmPlugin_Patient, gmLog
 import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
@@ -158,7 +158,7 @@ class FamilyHistoryPanel(wxPanel, PatientHolder):
 		w, h = event.GetSize ()
 		self.mainsizer.SetDimension (0, 0, w, h)
 #----------------------------------------------------------------------
-class gmGP_FamilyHistory(gmPlugin.wxPatientPlugin):
+class gmGP_FamilyHistory(gmPlugin_Patient.wxPatientPlugin):
 	"""Plugin to encapsulate the family history window."""
 
 	__icons = {
@@ -199,7 +199,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================# 
 # $Log: gmGP_FamilyHistory.py,v $
-# Revision 1.7  2003-11-17 10:56:41  sjtan
+# Revision 1.8  2004-06-25 13:28:00  ncq
+# - logically separate notebook and clinical window plugins completely
+#
+# Revision 1.7  2003/11/17 10:56:41  sjtan
 #
 # synced and commiting.
 #

@@ -29,7 +29,7 @@ import gmGuiElement_HeadingCaptionPanel		#panel class to display top headings
 import gmGuiElement_DividerCaptionPanel		#panel class to display sub-headings or divider headings 
 import gmGuiElement_AlertCaptionPanel		#panel to hold flashing alert messages
 import gmEditArea             			#panel class holding editing prompts and text boxes
-import gmPlugin, gmLog
+import gmPlugin_Patient, gmLog
 from gmPatientHolder import PatientHolder
 
 ID_REQUESTSLIST = wxNewId()
@@ -134,7 +134,7 @@ class RequestsPanel (wxPanel, PatientHolder):
 		self.Show(true)
 	
 		
-class gmGP_Requests (gmPlugin.wxPatientPlugin):
+class gmGP_Requests (gmPlugin_Patient.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the requests window
 	"""

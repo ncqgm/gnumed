@@ -6,13 +6,13 @@
 # @license: GPL (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.10 2004-03-10 14:16:47 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmGP_Referrals.py,v 1.11 2004-06-25 13:28:00 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "R.Terry, I.Haywood"
 
 from wxPython.wx import *
 
-from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel, gmGuiElement_DividerCaptionPanel, gmGuiElement_AlertCaptionPanel, gmEditArea, gmPlugin
+from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel, gmGuiElement_DividerCaptionPanel, gmGuiElement_AlertCaptionPanel, gmEditArea, gmPlugin_Patient
 from Gnumed.pycommon import gmLog
 from Gnumed.wxpython.gmPatientHolder import PatientHolder
 
@@ -53,7 +53,7 @@ class ReferralsPanel (wxPanel, PatientHolder):
 		self.Show(true)
 
 #==============================================================
-class gmGP_Referrals (gmPlugin.wxPatientPlugin):
+class gmGP_Referrals (gmPlugin_Patient.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the referrals window
 	"""
@@ -98,7 +98,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #==============================================================
 # $Log: gmGP_Referrals.py,v $
-# Revision 1.10  2004-03-10 14:16:47  ncq
+# Revision 1.11  2004-06-25 13:28:00  ncq
+# - logically separate notebook and clinical window plugins completely
+#
+# Revision 1.10  2004/03/10 14:16:47  ncq
 # - readability, comments
 #
 # Revision 1.9  2004/03/10 12:56:01  ihaywood

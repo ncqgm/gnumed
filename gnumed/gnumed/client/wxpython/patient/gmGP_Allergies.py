@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -31,7 +31,7 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmPG 
-from Gnumed.wxpython import gmPlugin, gmEditArea 
+from Gnumed.wxpython import gmPlugin_Patient, gmEditArea 
 from Gnumed.business import gmPatient
 
 from Gnumed.wxpython import gmGuiElement_HeadingCaptionPanel        #panel class to display top headings
@@ -193,7 +193,7 @@ class AllergyPanel(wxPanel , PatientHolder ):
 		return 1
 
 #----------------------------------------------------------------------
-class gmGP_Allergies (gmPlugin.wxPatientPlugin):
+class gmGP_Allergies (gmPlugin_Patient.wxPatientPlugin):
 	"""Plugin to encapsulate the allergies window"""
 
 	__icons = {
@@ -229,7 +229,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.22  2004-03-19 21:07:35  shilbert
+# Revision 1.23  2004-06-25 13:28:00  ncq
+# - logically separate notebook and clinical window plugins completely
+#
+# Revision 1.22  2004/03/19 21:07:35  shilbert
 # - fixed module import
 #
 # Revision 1.21  2004/02/25 09:46:23  ncq

@@ -32,7 +32,7 @@ import gmGuiElement_HeadingCaptionPanel        #panel class to display top headi
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmEditArea                              #panel class holding editing
-import gmPlugin
+import gmPlugin_Patient
 import gmLog
 import gmI18N
 from gmListCtrlMapper import gmListCtrlMapper
@@ -196,7 +196,7 @@ class MeasurementPanel (wxPanel, gmPatientHolder.PatientHolder):
 	
 		
 #--------------------------------------------------------------------
-class gmGP_Measurements (gmPlugin.wxPatientPlugin):
+class gmGP_Measurements (gmPlugin_Patient.wxPatientPlugin):
 	"""
 	Plugin to encapsulate the prescriptions window
 	"""
