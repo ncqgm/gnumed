@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.68 2004-04-11 10:10:56 ncq Exp $
-__version__ = "$Revision: 1.68 $"
+# $Id: gmEditArea.py,v 1.69 2004-04-24 12:59:17 ncq Exp $
+__version__ = "$Revision: 1.69 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -12,7 +12,7 @@ __author__ = "R.Terry, K.Hilbert"
 
 import sys, traceback, time
 
-from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions
+from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI
 from Gnumed.business import gmPatient, gmDemographicRecord, gmForms
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
@@ -20,6 +20,7 @@ from wxPython.wx import *
 
 _log = gmLog.gmDefLog
 _gb = gmGuiBroker.GuiBroker()
+_whoami = gmWhoAmI.cWhoAmI()
 
 ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
@@ -305,7 +306,7 @@ class gmEditArea(wxPanel):
 		self._postInit()
 		self.old_data = {} 
 
-		self.data_ID = None
+		self.data = None
 		self.patient = gmPatient.gmCurrentPatient()
 		self.__register_events()
 		self.Show(true)
@@ -600,7 +601,7 @@ class gmEditArea(wxPanel):
 		# FIXME: this try: except: block seems to large
 		try:
 			event.Skip()
-			if self.data_ID is None:
+			if self.data is None:
 				self._save_new_entry()
 				self.set_data()
 			else:
@@ -696,7 +697,7 @@ class gmEditArea(wxPanel):
 	def _default_init_fields(self):
 		#self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
 		self.setInputFieldValues( self._get_init_values())
-		self.data_ID = None
+		self.data = None
 
 	def _get_init_values(self):
 		map = {}
@@ -813,10 +814,10 @@ class gmEditArea(wxPanel):
 		self.set_old_data(self.getInputFieldValues())
 	
 	def getDataId(self):
-		return self.data_ID 
+		return self.data 
 
-	def setDataId(self, id):
-		self.data_ID = id
+#	def setDataId(self, id):
+#		self.data = id
 	
 
 	def _getInputFieldValues(self):
@@ -1251,12 +1252,12 @@ class gmAllergyEditArea(gmEditArea):
 			_gb['main.statustext'](_('Cannot save allergy.'))
 			return None
 		_gb['main.statustext'](_('Allergy saved.'))
-		self.data_ID = data
+		self.data = data
 		return 1
 	#----------------------------------------------------
 	def set_data(self, allergy = None):
 		try:
-			self.data_ID = allergy['ID']
+			self.data = allergy['ID']
 		except KeyError:
 			_log.LogException('must have ID in allergy', sys.exc_info(), verbose=0)
 			return None
@@ -1436,44 +1437,52 @@ class gmVaccinationEditArea(gmEditArea):
 		self._add_prompt(line = 6, label = '')
 	#----------------------------------------------------
 	def _save_new_entry(self):
-		vacc = {}
-		vacc['vaccine'] = self.fld_vaccine.GetValue()
-		vacc['batch no'] = self.fld_batch_no.GetValue()
-		vacc['date given'] = self.fld_date_given.GetValue()
-		vacc['site given'] = self.fld_site_given.GetValue()
-		vacc['progress note'] = self.fld_progress_note.GetValue()
-		# FIXME: validation
+		# FIXME: validation ?
 		epr = self.patient.get_clinical_record()
-		status, data = epr.add_vaccination(vacc)
+		# create new vaccination
+		status, data = epr.add_vaccination(self.fld_vaccine.GetValue())
 		if status is None:
 			wxBell()
 			_gb['main.statustext'](_('Cannot save vaccination: %s') % data)
 			return None
+		# update it with known data
+		data['pk_provider'] = _whoami.get_staff_ID()
+		data['date'] = self.fld_date_given.GetValue()
+		data['narrative'] = self.fld_progress_note.GetValue()
+		data['site'] = self.fld_site_given.GetValue()
+		data['batch_no'] = self.fld_batch_no.GetValue()
+		status, err = data.save_payload()
+		if status is None:
+			wxBell()
+			_gb['main.statustext'](_('Cannot save vaccination: %s') % err)
+			return None
 		_gb['main.statustext'](_('Vaccination saved.'))
-		self.data_ID = data
+		self.data = data
 		return 1
 	#----------------------------------------------------
 	def _save_modified_entry(self):
-		vacc = {}
-		vacc['ID'] = self.data_ID
-		vacc['vaccine'] = self.fld_vaccine.GetValue()
-		vacc['batch no'] = self.fld_batch_no.GetValue()
-		vacc['date given'] = self.fld_date_given.GetValue()
-		vacc['site given'] = self.fld_site_given.GetValue()
-		vacc['progress note'] = self.fld_progress_note.GetValue()
-		# FIXME: validation
-		epr = self.patient.get_clinical_record()
-		status, data = epr.update_vaccination(vacc)
+		"""Update vaccination object and persist to backend.
+		"""
+		self.data['vaccine'] = self.fld_vaccine.GetValue()
+		self.data['batch_no'] = self.fld_batch_no.GetValue()
+		self.data['date'] = self.fld_date_given.GetValue()
+		self.data['site'] = self.fld_site_given.GetValue()
+		self.data['narrative'] = self.fld_progress_note.GetValue()
+		status, data = self.data.save_payload()
 		if status is None:
 			wxBell()
 			_gb['main.statustext'](_('Cannot update vaccination: %s') % data)
-			return None
+			return False
 		_gb['main.statustext'](_('Vaccination updated.'))
-		return 1
+		return True
 	#----------------------------------------------------
 	def set_data(self, aVacc = None):
-		# defaults
-		self.data_ID = None
+		"""Set edit area fields with vaccination object data.
+
+		- set defaults if no object is passed in, this will
+		  result in a new object being created upon saving
+		"""
+		self.data = None
 		if aVacc is None:
 			self.fld_vaccine.SetValue('')
 			self.fld_batch_no.SetValue('')
@@ -1481,21 +1490,12 @@ class gmVaccinationEditArea(gmEditArea):
 			self.fld_site_given.SetValue(_('left/right deltoid'))
 			self.fld_progress_note.SetValue('')
 			return 1
-		# or data
-		try: self.data_ID = aVacc['ID']
-		except KeyError:
-			_log.LogException('must have ID in aVacc', sys.exc_info(), verbose=0)
-			return None
-		try: self.fld_vaccine.SetValue(aVacc['vaccine'])
-		except KeyError: pass
-		try: self.fld_batch_no.SetValue(aVacc['batch no'])
-		except KeyError: pass
-		try: self.fld_date_given.SetValue(aVacc['date given'])
-		except KeyError: pass
-		try: self.fld_site_given.SetValue(aVacc['site given'])
-		except KeyError: pass
-		try: self.fld_progress_note.SetValue(aVacc['progress note'])
-		except KeyError: pass
+		self.data = aVacc
+		self.fld_vaccine.SetValue(aVacc['vaccine'])
+		self.fld_batch_no.SetValue(aVacc['batch_no'])
+		self.fld_date_given.SetValue(aVacc['date'])
+		self.fld_site_given.SetValue(aVacc['site'])
+		self.fld_progress_note.SetValue(aVacc['narrative'])
 		return 1
 #====================================================================
 class gmReferralEditArea(gmEditArea):
@@ -1505,7 +1505,7 @@ class gmReferralEditArea(gmEditArea):
 			gmEditArea.__init__(self, parent, id, aType = 'referral')
 		except gmExceptions.ConstructorError:
 			_log.LogException('cannot instantiate referral edit area', sys.exc_info(), verbose=0)
-		self.data_ID = None # we don't use this in this widget
+		self.data = None # we don't use this in this widget
 		self.recipient = None
 
 	def _define_prompts(self):
@@ -2396,7 +2396,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.68  2004-04-11 10:10:56  ncq
+# Revision 1.69  2004-04-24 12:59:17  ncq
+# - all shiny and new, vastly improved vaccinations
+#   handling via clinical item objects
+# - mainly thanks to Carlos Moro
+#
+# Revision 1.68  2004/04/11 10:10:56  ncq
 # - cleanup
 #
 # Revision 1.67  2004/04/10 01:48:31  ihaywood

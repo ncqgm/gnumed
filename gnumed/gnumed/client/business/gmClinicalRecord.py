@@ -9,22 +9,19 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.87 2004-04-20 12:56:58 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmClinicalRecord.py,v 1.88 2004-04-24 12:59:17 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # standard libs
-import sys, os.path, string, time, copy
-
-#if __name__ == "__main__":
-#	sys.path.append(os.path.join('..', 'pycommon'))
+import sys, string, time, copy
 
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI
 if __name__ == "__main__":
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmPathLab, gmAllergy
+from Gnumed.business import gmPathLab, gmAllergy, gmVaccination
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -160,10 +157,6 @@ class cClinicalRecord:
 	def db_cb_vaccinations_modified(self, **kwds):
 		try:
 			del self.__db_cache['vaccinations']
-		except KeyError:
-			pass
-		try:
-			del self.__db_cache['idx vaccinations']
 		except KeyError:
 			pass
 		try:
@@ -863,19 +856,21 @@ class cClinicalRecord:
 	# vaccinations API
 	#--------------------------------------------------------
 	def get_vaccinated_indications(self):
-		cmd = """
-			select distinct on (indication)
-				indication,
-				_(indication)
-			from v_pat_vacc4ind
-			where pk_patient=%s"""
-		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
-		if rows is None:
+		"""Retrieves patient vaccinated indications list.
+		"""
+		# most likely, vaccinations will be fetched close
+		# by so it makes sense to count on the cache being
+		# filled (or fill it for nearby use)
+		vaccinations = self.get_vaccinations()
+		if vaccinations is None:
 			_log.Log(gmLog.lErr, 'cannot load vaccinated indications for patient [%s]' % self.id_patient)
 			return (None, [[_('ERROR: cannot retrieve vaccinated indications'), _('ERROR: cannot retrieve vaccinated indications')]])
-		if len(rows) == 0:
+		if len(vaccinations) == 0:
 			return (1, [[_('no vaccinations recorded'), _('no vaccinations recorded')]])
-		return (1, rows)
+		v_indications = []
+		for vacc in vaccinations:
+			v_indications.append([vacc['indication'], vacc['l10n_indication']])
+		return (1, v_indications)
 	#--------------------------------------------------------
 	def get_vaccinated_regimes(self):
 		cmd = """
@@ -893,52 +888,50 @@ class cClinicalRecord:
 		return rows
 	#--------------------------------------------------------
 	def get_vaccinations(self, ID = None, indication_list = None):
+		"""Retrieves list of vaccinated indication items.
+
+			ID - PK of the vaccinated indication
+			indication_list - indications we want to retrieve vaccination
+			                  items for, must be primary language, not l10n_indication
+		"""
 		try:
 			self.__db_cache['vaccinations']
-			self.__db_cache['idx vaccinations']
 		except KeyError:
 			self.__db_cache['vaccinations'] = []
-			cmd = """
-				select
-					pk_vaccination,
-					pk_indication,
-					date,
-					indication,
-					vaccine,
-					vaccine_short,
-					batch_no,
-					site,
-					narrative,
-					pk_provider,
-					pk_vaccine
-				from  v_pat_vacc4ind
-				where pk_patient = %s
-				order by date desc"""
-			rows, self.__db_cache['idx vaccinations'] = gmPG.run_ro_query('historica', cmd, 1, self.id_patient)
+			# get list of IDs
+			# FIXME: date range, episode, encounter, issue, test filter
+			cmd = "select id from vaccination where fk_patient=%s"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
-				del self.__db_cache['vaccinations']
-				return (None, None)
-			self.__db_cache['vaccinations'] = rows
+				del self.__db_cache['vaccinations']			
+				return None
+			# Instantiate vaccination items and keep cache
+			for row in rows:
+				try:
+					self.__db_cache['vaccinations'].append(gmVaccination.cVaccination(aPKey=row[0]))
+				except gmExceptions.ConstructorError:
+					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
 		# apply filters
 		# 1) do we have an ID ?
 		if ID is not None:
 			for shot in self.__db_cache['vaccinations']:
-				if shot[self.__db_cache['idx vaccinations']['pk_vaccination']] == ID:
-					return shot, self.__db_cache['idx vaccinations']
+				if shot['pk_vaccination'] == ID:
+					return shot
 			_log.Log(gmLog.lErr, 'no vaccination [%s] found for patient [%s]' % (ID, self.id_patient))
-			return (None, None)
+			return None
 		filtered_shots = []
 		# 2) only certain indications ?
 		if indication_list is not None:
 			if len(indication_list) != 0:
 				for shot in self.__db_cache['vaccinations']:
-					if shot[self.__db_cache['idx vaccinations']['indication']] in indication_list:
-						filtered_shots.append(shot)
-				return (filtered_shots, self.__db_cache['idx vaccinations'])
-		return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
-	#--------------------------------------------------------
+					if shot['indication'] in indication_list:
+						filtered_shots.append(shot)	
+				return (filtered_shots)
+		return (self.__db_cache['vaccinations'])
+	#--------------------------------------------------------		
 	def get_due_vaccinations(self):
+		# FIXME: this *should* be working on get_vaccinations data, too ...
 		try:
 			return self.__db_cache['due vaccinations']
 		except KeyError:
@@ -953,7 +946,10 @@ class cClinicalRecord:
 		if len(dob) == 0:
 			_log.Log(gmLog.lErr, 'DOB for patient [%s] not found' % self.id_patient)
 			return (None, _('error loading date of birth') % self.id_patient)
-		pat_dob = dob[0][0].Format('%Y-%m-%d')
+		args = {
+			'pat_dob': dob[0][0].Format('%Y-%m-%d'),
+			'pat_id': self.id_patient
+			}
 		# due, non-booster
 		self.__db_cache['due vaccinations']['due'] = []
 		cmd = """
@@ -964,11 +960,11 @@ class cClinicalRecord:
 				seq_no,
 				case when age_due_max is null
 					then (now() + '2 years'::interval)
-					else (%s::timestamp + age_due_max)
+					else (%(pat_dob)s::timestamp + age_due_max)
 				end as latest_due,
 				case when age_due_max is null
 					then '2 years'::interval
-					else age(%s::timestamp + age_due_max)
+					else age(%(pat_dob)s::timestamp + age_due_max)
 				end as time_left,
 				vacc_comment,
 				age_due_min,
@@ -979,12 +975,12 @@ class cClinicalRecord:
 			from
 				v_pat_missing_vaccs vpmv
 			where
-				pk_patient=%s
+				pk_patient=%(pat_id)s
 					and
-				age(%s::timestamp) between age_due_min and coalesce(age_due_max, '115 years'::interval)
+				age(%(pat_dob)s::timestamp) between age_due_min and coalesce(age_due_max, '115 years'::interval)
 			order by time_left
 		"""
-		vaccs = gmPG.run_ro_query('historica', cmd, None, pat_dob, pat_dob, self.id_patient, pat_dob)
+		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
 		if vaccs is None:
 			_log.Log(gmLog.lErr, 'error loading due vaccinations for patient [%s]' % self.id_patient)
 			vaccs = [
@@ -999,7 +995,7 @@ class cClinicalRecord:
 				regime,
 				reg_comment,
 				seq_no,
-				age(%s::timestamp + age_due_max) as amount_overdue,
+				age(%(pat_dob)s::timestamp + age_due_max) as amount_overdue,
 				vacc_comment,
 				age_due_min,
 				age_due_max,
@@ -1009,12 +1005,12 @@ class cClinicalRecord:
 			from
 				v_pat_missing_vaccs vpmv
 			where
-				pk_patient=%s
+				pk_patient=%(pat_id)s
 					and
-				age(%s::timestamp) > coalesce(age_due_max, '115 years'::interval)
+				age(%(pat_dob)s::timestamp) > coalesce(age_due_max, '115 years'::interval)
 			order by amount_overdue
 		"""
-		vaccs = gmPG.run_ro_query('historica', cmd, None, pat_dob, self.id_patient, pat_dob)
+		vaccs = gmPG.run_ro_query('historica', cmd, None, args)
 		if vaccs is None:
 			_log.Log(gmLog.lErr, 'error loading overdue vaccinations for patient [%s]' % self.id_patient)
 			vaccs = [
@@ -1048,146 +1044,13 @@ class cClinicalRecord:
 		self.__db_cache['due vaccinations']['boosters'].extend(vaccs)
 		return self.__db_cache['due vaccinations']
 	#--------------------------------------------------------
-	def add_vaccination(self, aVacc = None):
-		if aVacc is None:
-			_log.Log(gmLog.lErr, 'must have vaccination to save it')
-			return (None, _('programming error'))
-
-		# insert command
-		cols = []
-		val_snippets = []
-		vals1 = {}
-
-		cols.append('id_encounter')
-		val_snippets.append('%(encounter)s')
-		vals1['encounter'] = self.id_encounter
-
-		cols.append('id_episode')
-		val_snippets.append('%(episode)s')
-		vals1['episode'] = self.id_episode
-
-		cols.append('fk_patient')
-		val_snippets.append('%(pat)s')
-		vals1['pat'] = self.id_patient
-
-		cols.append('fk_provider')
-		val_snippets.append('%(doc)s')
-		vals1['doc'] = _whoami.get_staff_ID()
-
-		try:
-			vals1['date'] = aVacc['date given']
-			cols.append('clin_when')
-			val_snippets.append('%(date)s')
-		except KeyError:
-			_log.LogException('missing date_given', sys.exc_info(), verbose=0)
-			return (None, _('"date given" missing'))
-
-		try:
-			vals1['narrative'] = aVacc['progress note']
-			cols.append('narrative')
-			val_snippets.append('%(narrative)s')
-		except KeyError:
-			pass
-
-		try:
-			vals1['site'] = aVacc['site given']
-			cols.append('site')
-			val_snippets.append('%(site)s')
-		except KeyError:
-			pass
-
-		try:
-			vals1['batch'] = aVacc['batch no']
-			cols.append('batch_no')
-			val_snippets.append('%(batch)s')
-		except KeyError:
-			_log.LogException('missing batch #', sys.exc_info(), verbose=0)
-			return (None, _('"batch #" missing'))
-
-		try:
-			vals1['vaccine'] = aVacc['vaccine']
-			if aVacc['vaccine'] == '':
-				raise KeyError
-			cols.append('fk_vaccine')
-			val_snippets.append('(select id from vaccine where trade_name=%(vaccine)s)')
-		except KeyError:
-			_log.LogException('missing vaccine name', sys.exc_info(), verbose=0)
-			return (None, _('"vaccine name" missing'))
-
-		cols_clause = string.join(cols, ',')
-		vals_clause = string.join(val_snippets, ',')
-		cmd1 = "insert into vaccination (%s) values (%s)" % (cols_clause, vals_clause)
-
-		# return new ID cmd
-		cmd2 = "select currval('vaccination_id_seq')"
-
-		result, msg = gmPG.run_commit('historica', [
-			(cmd1, [vals1]),
-			(cmd2, [])
-		], 1)
-		if result is None:
-			return (None, msg)
-		return (1, result[0][0])
-	#--------------------------------------------------------
-	def update_vaccination(self, aVacc = None):
-		if aVacc is None:
-			_log.Log(gmLog.lErr, 'must have vaccination to update it')
-			return (None, _('programming error'))
-
-		set_snippets = []
-		vals = {}
-		# ID
-		try:
-			vals['id_vacc'] = aVacc['ID']
-		except KeyError:
-			_log.LogException('need to know ID to be able to update vaccination', sys.exc_info(), verbose=0)
-			return (None, _('programming error'))
-		# when given
-		try:
-			vals['date'] = aVacc['date given']
-			set_snippets.append('clin_when=%(date)s')
-		except KeyError:
-			pass
-		# narrative
-		try:
-			vals['narrative'] = aVacc['progress note']
-			set_snippets.append('narrative=%(narrative)s')
-		except KeyError:
-			pass
-		# vaccine
-		try:
-			if aVacc['vaccine'] == '':
-				raise KeyError
-			vals['vaccine'] = aVacc['vaccine']
-			set_snippets.append('fk_vaccine=(select id from vaccine where trade_name=%(vaccine)s)')
-		except KeyError:
-			pass
-		# site
-		try:
-			if aVacc['site given'] == '':
-				raise KeyError
-			vals['site'] = aVacc['site given']
-			set_snippets.append('site=%(site)s')
-		except KeyError:
-			pass
-		# batch no
-		try:
-			if aVacc['batch no'] == '':
-				raise KeyError
-			vals['batchno'] = aVacc['batch no']
-			set_snippets.append('batch_no=%(batchno)s')
-		except KeyError:
-			pass
-
-		set_clause = ', '.join(set_snippets)
-		where_clause = 'where id=%(id_vacc)s'
-		cmd = 'update vaccination set %s %s' % (set_clause, where_clause)
-		result, msg = gmPG.run_commit('historica', [
-			(cmd, [vals])
-		], 1)
-		if result is None:
-			return (None, msg)
-		return (1, '')
+	def add_vaccination(self, vaccine):
+		return gmVaccination.create_vaccination(
+			patient_id = self.id_patient,
+			episode_id = self.id_episode,
+			encounter_id = self.id_encounter,
+			vaccine = vaccine
+		)
 	#------------------------------------------------------------------
 	# encounter API
 	#------------------------------------------------------------------
@@ -1561,7 +1424,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.87  2004-04-20 12:56:58  ncq
+# Revision 1.88  2004-04-24 12:59:17  ncq
+# - all shiny and new, vastly improved vaccinations
+#   handling via clinical item objects
+# - mainly thanks to Carlos Moro
+#
+# Revision 1.87  2004/04/20 12:56:58  ncq
 # - remove outdated get_due_vaccs(), use get_due_vaccinations() now
 #
 # Revision 1.86  2004/04/20 00:17:55  ncq

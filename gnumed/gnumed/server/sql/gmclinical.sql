@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.99 $
+-- $Revision: 1.100 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -476,6 +476,7 @@ comment on column vacc_def.min_interval is
 -- --------------------------------------------
 create table vaccination (
 	id serial primary key,
+	-- isn't this redundant ?
 	fk_patient integer
 		not null
 		references xlnk_identity(xfk_identity)
@@ -830,11 +831,16 @@ comment on column referral.narrative is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.99 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.100 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.99  2004-04-22 13:15:45  ncq
+-- Revision 1.100  2004-04-24 12:59:17  ncq
+-- - all shiny and new, vastly improved vaccinations
+--   handling via clinical item objects
+-- - mainly thanks to Carlos Moro
+--
+-- Revision 1.99  2004/04/22 13:15:45  ncq
 -- - fk update/delete actions on form_instances.fk_form_def
 --
 -- Revision 1.98  2004/04/21 20:36:07  ncq

@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.54 2004-04-21 15:35:23 ihaywood Exp $
+-- $Id: gmClinicalViews.sql,v 1.55 2004-04-24 12:59:17 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -496,6 +496,7 @@ select
 	v.id as pk_vaccination,
 	v.clin_when as date,
 	vind.description as indication,
+	_(vind.description) as l10n_indication,
 	vcine.trade_name as vaccine,
 	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
@@ -752,11 +753,16 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.54 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.55 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.54  2004-04-21 15:35:23  ihaywood
+-- Revision 1.55  2004-04-24 12:59:17  ncq
+-- - all shiny and new, vastly improved vaccinations
+--   handling via clinical item objects
+-- - mainly thanks to Carlos Moro
+--
+-- Revision 1.54  2004/04/21 15:35:23  ihaywood
 -- new referral table (do we still need gmclinical.form_data then?)
 --
 -- Revision 1.53  2004/04/21 15:30:24  ncq

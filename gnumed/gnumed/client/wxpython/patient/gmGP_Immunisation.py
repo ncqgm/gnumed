@@ -8,8 +8,8 @@
 # @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.26 2004-03-09 07:34:51 ihaywood Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmGP_Immunisation.py,v 1.27 2004-04-24 12:59:17 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 
 import sys
@@ -139,17 +139,13 @@ class ImmunisationPanel(wxPanel):
 		self.mainsizer.SetDimension (0, 0, w, h)
 	#----------------------------------------------------
 	def on_given_shot_selected(self, event):
+		"""
+			Retrieve vaccination item object for a selected vaccinated indication
+			and display in GUI
+		"""
 		id_vacc = event.GetClientData()
 		epr = self.patient.get_clinical_record()
-		shot,idx = epr.get_vaccinations(ID = id_vacc)
-		vacc = {}
-		vacc['ID'] = shot[idx['pk_vaccination']]
-		vacc['vaccine'] = shot[idx['vaccine']]
-		vacc['date given'] = shot[idx['date']].Format('%Y-%m-%d')
-		vacc['batch no'] = shot[idx['batch_no']]
-		vacc['site given'] = shot[idx['site']]
-		vacc['progress note'] = shot[idx['narrative']]
-		self.editarea.set_data(vacc)
+		self.editarea.set_data(epr.get_vaccinations(ID = id_vacc))
 	#----------------------------------------------------
 	def on_missing_shot_selected(self, event):
 		print "now editing missing shot:", event.GetSelection(), event.GetString(), event.IsSelection(), event.GetClientData()
@@ -162,13 +158,13 @@ class ImmunisationPanel(wxPanel):
 		selected_item = ind_list.GetSelection()
 		ind = ind_list.GetClientData(selected_item)
 		epr = self.patient.get_clinical_record()
-		shots, idx = epr.get_vaccinations(indication_list = [ind])
+		shots = epr.get_vaccinations(indication_list = [ind])
 		# clear list
 		self.LBOX_given_shots.Set([])
-		# FIXME: use Set() for entire array (problem with client_data)
+		# FIXME: use Set() for entire array (but problem with client_data)
 		for shot in shots:
-			label = '%s: %s' % (shot[idx['date']].Format('%m/%Y'), shot[idx['vaccine']])
-			data = shot[idx['pk_vaccination']]
+			label = '%s: %s' % (shot['date'].Format('%m/%Y'), shot['vaccine'])
+			data = shot['id']
 			self.LBOX_given_shots.Append(label, data)
 	#----------------------------------------------------
 	def __reset_ui_content(self):
@@ -278,7 +274,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.26  2004-03-09 07:34:51  ihaywood
+# Revision 1.27  2004-04-24 12:59:17  ncq
+# - all shiny and new, vastly improved vaccinations
+#   handling via clinical item objects
+# - mainly thanks to Carlos Moro
+#
+# Revision 1.26  2004/03/09 07:34:51  ihaywood
 # reactivating plugins
 #
 # Revision 1.25  2004/02/25 09:46:23  ncq
