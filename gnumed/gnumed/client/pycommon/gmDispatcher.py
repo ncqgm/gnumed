@@ -104,6 +104,7 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 		receivers = connections[senderkey][signal]
 	except KeyError:
 		print 'DISPATCHER ERROR: no receivers for signal %s from sender %s' % (repr(signal), sender)
+		return
 	try:
 		receivers.remove(receiver)
 	except ValueError:
@@ -264,7 +265,11 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.4  2005-03-23 19:02:27  ncq
+# Revision 1.5  2005-04-03 20:09:20  ncq
+# - it's rather stupid to try to remove a signal that we just tested to not exist,
+#   hence refrain from doing so
+#
+# Revision 1.4  2005/03/23 19:02:27  ncq
 # - improved error handling
 #
 # Revision 1.3  2005/03/17 12:59:16  ncq
