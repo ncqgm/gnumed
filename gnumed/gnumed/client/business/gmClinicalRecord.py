@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.42 2003-11-11 18:20:58 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmClinicalRecord.py,v 1.43 2003-11-11 20:28:59 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -329,28 +329,26 @@ class gmClinicalRecord:
 
 		return data
 	#--------------------------------------------------------
-	def _get_allergy_names(self):
+	def get_allergy_names(self, remove_sensitivities = None):
 		data = []
 		try:
 			self.__db_cache['allergies']
 		except KeyError:
-			if self._get_allergies() is None:
+			if self.get_allergies(remove_sensitivities) is None:
 				# remember: empty list will return false
 				# even though this is what we get with no allergies
-				_log.Log(gmLog.lErr, "Could not load allergies")
+				_log.Log(gmLog.lErr, "Cannot load allergies")
 				return []
+		idx = self.__db_cache['idx allergies']
 		for allergy in self.__db_cache['allergies']:
-			if allergy[15] == 2:
-				continue
 			tmp = {}
-			# FIXME: this should be accessible by col name, not position
-			tmp['id'] = allergy[0]
+			tmp['id'] = allergy[idx['id']]
 			# do we know the allergene ?
-			if allergy[10] not in [None, '']:
-				tmp['name'] = allergy[10]
+			if allergy[idx['allergene']] not in [None, '']:
+				tmp['name'] = allergy[idx['allergene']]
 			# no but the substance
 			else:
-				tmp['name'] = allergy[6]
+				tmp['name'] = allergy[idx['substance']]
 			data.append(tmp)
 		return data
 	#--------------------------------------------------------
@@ -854,7 +852,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.42  2003-11-11 18:20:58  ncq
+# Revision 1.43  2003-11-11 20:28:59  ncq
+# - get_allergy_names(), reimplemented
+#
+# Revision 1.42  2003/11/11 18:20:58  ncq
 # - fix get_text_dump() to actually do what it suggests
 #
 # Revision 1.41  2003/11/09 22:51:29  ncq
