@@ -70,12 +70,37 @@ It will become available at
 It is released under the GNU 
 General Public Licence, see the file <filename>LICENCE</filename> for details.
 </para>
+
+  </chapter>
+  <chapter>
+    <title>Installation</title>
+    
+    <sect1>
+      <title>Obtaining Gnumed software</title>
 <para>The latest sources are available by CVS at 
 <ulink url="http://savannah.gnu.org/projects/gnumed/">
 <citetitle>savannah.gnu.org</citetitle></ulink>.
 If CVS asks for a password, use a blank line. The module name is 
 <emphasis>gnumed</emphasis>
 </para>
+
+      <para>Qouting from GnuMed's CVS instruction</para>
+	  <para>
+	"This project's CVS repository can be checked out through anonymous (pserver) CVS with the following instruction set. The module [<emphasis>gnumed</emphasis>]  you wish to check out must be specified as the modulename. When prompted for a password for anoncvs, simply press the Enter key.
+	    </para>
+      <para>You would type:</para>
+
+	<screen>
+Source tree: cvs -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed login
+	</screen>
+	
+      <para>Remeber to hit enter when it asks for a password. Then type:</para>
+
+	<screen>
+cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
+	</screen>
+      <para>You should then see the cvs directory download into a gnumed directory</para>
+    </sect1>
 
 <sect1 id="linux">
 	<title>Linux Installation</title>
