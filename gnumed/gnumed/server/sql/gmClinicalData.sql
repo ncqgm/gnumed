@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.11 2003-08-13 14:31:29 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.12 2003-10-19 12:58:58 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -168,12 +168,27 @@ insert into test_type (
 );
 */
 -- ===================================================================
+-- vaccination routes
+insert into vacc_route
+	(abbreviation, description)
+values
+	('i.m.', i18n('intramuscular'));
+
+insert into vacc_route
+	(abbreviation, description)
+values
+	('s.c.', i18n('subcutaneous'));
+
+-- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.11  2003-08-13 14:31:29  ncq
+-- Revision 1.12  2003-10-19 12:58:58  ncq
+-- - add vacc route data
+--
+-- Revision 1.11  2003/08/13 14:31:29  ncq
 -- - add some test tyes
 --
 -- Revision 1.10  2003/07/27 21:57:34  ncq
