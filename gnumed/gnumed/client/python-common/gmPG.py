@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -597,7 +597,7 @@ WHERE
 		and
 	pga.attrelid=(SELECT oid FROM pg_class WHERE relname = %s)"""
 
-def get_pkey(aCursor = None, aTable = None):
+def get_pkey_name(aCursor = None, aTable = None):
 	# sanity checks
 	if aCursor is None:
 		_log.Log(gmLog.lErr, 'need cursor to determine primary key')
@@ -822,7 +822,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.68  2003-08-17 18:02:33  ncq
+# Revision 1.69  2003-09-16 22:41:11  ncq
+# - get_pkey -> get_pkey_name
+#
+# Revision 1.68  2003/08/17 18:02:33  ncq
 # - don't handle service "config" different from the others
 # - add helper get_pkey()
 #
