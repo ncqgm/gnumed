@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.46 $
+-- $Revision: 1.47 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -343,7 +343,7 @@ insert into test_result (
 );
 
 insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_id_seq'),
+	currval('test_result_pk_seq'),
 	currval('lab_request_pk_seq')
 );
 
@@ -371,7 +371,7 @@ insert into test_result (
 );
 
 insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_id_seq'),
+	currval('test_result_pk_seq'),
 	currval('lab_request_pk_seq')
 );
 
@@ -399,7 +399,7 @@ insert into test_result (
 );
 
 insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_id_seq'),
+	currval('test_result_pk_seq'),
 	currval('lab_request_pk_seq')
 );
 
@@ -427,7 +427,7 @@ insert into test_result (
 );
 
 insert into lnk_result2lab_req(fk_result, fk_request) values (
-	currval('test_result_id_seq'),
+	currval('test_result_pk_seq'),
 	currval('lab_request_pk_seq')
 );
 
@@ -629,11 +629,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.46 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.47 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.46  2005-02-13 15:08:23  ncq
+-- Revision 1.47  2005-02-15 18:27:24  ncq
+-- - test_result.id -> pk
+--
+-- Revision 1.46  2005/02/13 15:08:23  ncq
 -- - add names of actors and some comments
 --
 -- Revision 1.45  2005/02/12 13:49:14  ncq

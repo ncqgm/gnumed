@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.127 2005-02-12 13:49:14 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.128 2005-02-15 18:26:41 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -578,7 +578,7 @@ select
 	-- v_pat_episodes
 	vpe.id_patient as pk_patient,
 	-- test_result
-	tr.id as pk_test_result,
+	tr.pk as pk_test_result,
 	-- unified
 	tr.clin_when,
 	vttu.unified_code,
@@ -1525,7 +1525,7 @@ grant select, insert, update, delete on
 	, lnk_tst2norm
 	, lnk_tst2norm_id_seq
 	, test_result
-	, test_result_id_seq
+	, test_result_pk_seq
 	, lab_request
 	, lab_request_pk_seq
 	, lnk_result2lab_req
@@ -1569,11 +1569,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.127 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.128 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.127  2005-02-12 13:49:14  ncq
+-- Revision 1.128  2005-02-15 18:26:41  ncq
+-- - test_result.id -> pk
+--
+-- Revision 1.127  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes

@@ -3,14 +3,13 @@
 
 This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
-
-license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.9 2005-02-13 15:23:31 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPerson.py,v 1.10 2005-02-15 18:29:03 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL"
 
 # access our modules
 import sys, os.path, time, re, string
@@ -963,7 +962,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.9  2005-02-13 15:23:31  ncq
+# Revision 1.10  2005-02-15 18:29:03  ncq
+# - test_result.id -> pk
+#
+# Revision 1.9  2005/02/13 15:23:31  ncq
 # - v_basic_person.i_pk -> pk_identity
 #
 # Revision 1.8  2005/02/12 13:50:25  ncq

@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.47 2005-02-13 15:45:31 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPathLab.py,v 1.48 2005-02-15 18:29:03 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types, sys
@@ -29,7 +29,7 @@ class cLabResult(gmClinItem.cClinItem):
 		select *, xmin_test_result from v_results4lab_req
 		where pk_result=%s"""
 	_cmds_lock_rows_for_update = [
-		"""select 1 from test_result where id=%(pk_result)s and xmin=%(xmin_test_result)s for update"""
+		"""select 1 from test_result where pk=%(pk_result)s and xmin=%(xmin_test_result)s for update"""
 	]
 	_cmds_store_payload = [
 		"""update test_result set
@@ -53,7 +53,7 @@ class cLabResult(gmClinItem.cClinItem):
 				reviewed_by_clinician=%(reviewed)s::bool,
 				fk_reviewer=%(pk_reviewer)s,
 				clinically_relevant=%(relevant)s::bool
-			where id=%(pk_result)s""",
+			where pk=%(pk_result)s""",
 		"""select xmin_test_result from v_results4lab_req where pk_result=%(pk_result)s"""
 		]
 
@@ -350,7 +350,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.47 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.48 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -437,7 +437,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.47 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.48 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -496,9 +496,9 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	queries = []
 	cmd = "insert into test_result (fk_encounter, fk_episode, fk_type, val_num, val_alpha, val_unit) values (%s, %s, %s, %s, %s, %s)"
 	queries.append((cmd, [encounter_id, request['pk_episode'], test_type, val_num, val_alpha, unit]))
-	cmd = "insert into lnk_result2lab_req (fk_result, fk_request) values ((select currval('test_result_id_seq')), %s)"
+	cmd = "insert into lnk_result2lab_req (fk_result, fk_request) values ((select currval('test_result_pk_seq')), %s)"
 	queries.append((cmd, [request['pk_request']]))
-	cmd = "select currval('test_result_id_seq')"
+	cmd = "select currval('test_result_pk_seq')"
 	queries.append((cmd, []))
 	# insert new
 	result, err = gmPG.run_commit('historica', queries, True)
@@ -693,7 +693,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.47  2005-02-13 15:45:31  ncq
+# Revision 1.48  2005-02-15 18:29:03  ncq
+# - test_result.id -> pk
+#
+# Revision 1.47  2005/02/13 15:45:31  ncq
 # - v_basic_person.i_pk -> pk_identity
 #
 # Revision 1.46  2005/01/02 19:55:30  ncq

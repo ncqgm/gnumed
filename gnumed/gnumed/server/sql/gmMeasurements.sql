@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.38 $
+-- $Revision: 1.39 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -204,7 +204,7 @@ comment on column test_result_unmatched.data is
 
 -- ====================================
 create table test_result (
-	id serial primary key,
+	pk serial primary key,
 	fk_doc integer, -- references gmBlobs.med_doc.id
 	fk_type integer
 		not null
@@ -397,7 +397,7 @@ create table lnk_result2lab_req (
 	fk_result integer
 		unique
 		not null
-		references test_result(id)
+		references test_result(pk)
 		on update cascade
 		on delete cascade,
 	fk_request integer
@@ -425,11 +425,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.38 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.39 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.38  2005-02-13 19:18:40  ncq
+-- Revision 1.39  2005-02-15 18:25:14  ncq
+-- - test_result.id -> pk
+--
+-- Revision 1.38  2005/02/13 19:18:40  ncq
 -- - Jim wanted test_result_unmatched rather than the other way round
 --
 -- Revision 1.37  2005/02/08 07:22:42  ncq
