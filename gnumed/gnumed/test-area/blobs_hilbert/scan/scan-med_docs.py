@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __license__ = "GPL"
 __author__ = "\
 	Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
@@ -56,7 +56,7 @@ class scanFrame(wxFrame):
 		(self.TwainSrcMngr, self.TwainScanner) = (None, None)
 		(self.SaneSrcMngr, self.SaneScanner) = (None, None)
 		# like this:
-		self._acquire_handler[
+		self.acquire_handler[
 			'wintwain': self.__acquire_from_twain,
 			'linsane': self.__acquire_from_sane
 		]
@@ -228,7 +228,7 @@ class scanFrame(wxFrame):
 	#-----------------------------------
 	def on_acquire_image(self, event):
 		_log.Log(gmLog.lData, "trying to acquire image")
-		self._acquire_handler[scan_drv]
+		self.acquire_handler[scan_drv]
 	#-----------------------------------
 	def on_show_page(self, event):
 		page_idx = self.LBOX_doc_pages.GetSelection()
