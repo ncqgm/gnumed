@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -67,7 +67,6 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__do_layout()
 		self.__register_interests()
 		self._populate_with_data()
-#		self._schedule_data_reget()
 
 	#--------------------------------------------------------
 	# internal helpers
@@ -254,7 +253,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.__on_patient_selected)
-		
+		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self.__on_episodes_modified)
 	#--------------------------------------------------------
 	def __on_problem_selected(self, event):
 		"""
@@ -287,7 +286,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			retval = episode_selector.ShowModal()
 			if retval == gmEMRStructWidgets.dialog_OK:
 				# FIXME refresh only if episode selector action button was performed
-				self.__refresh_problem_list()
+				print "would be refreshing problem list now"
+#				self.__refresh_problem_list()
 				self.__selected_episode = self.__get_problem(episode_selector.get_selected_episode())
 				print 'Creating progress note for episode: %s' % self.__selected_episode
 			elif retval == gmEMRStructWidgets.dialog_CANCELLED:
@@ -327,10 +327,13 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			# let's find and focus the displayed note for the selected episode
 			self.__focus_episode(episode_id)
 		self.__update_button_state()
-	#--------------------------------------------------------	
+	#--------------------------------------------------------
 	def __on_patient_selected(self):
 		self._schedule_data_reget()
-		
+	#--------------------------------------------------------
+	def __on_episodes_modified(self):
+		print "episodes modified ..."
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def __on_save(self, event):
 		"""
@@ -367,9 +370,8 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		#importer.import_soap(bundle)		
 				
 		# update buttons
-		selected_soap.SetSaved(True)		
+		selected_soap.SetSaved(True)
 		self.__update_button_state()
-		
 	#--------------------------------------------------------
 	def __on_clear(self, event):
 		"""
@@ -523,7 +525,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.22  2005-02-23 03:19:02  cfmoro
+# Revision 1.23  2005-02-23 19:41:26  ncq
+# - listen to episodes_modified() signal instead of manual refresh
+# - cleanup, renaming, pretty close to being moved to main trunk
+#
+# Revision 1.22  2005/02/23 03:19:02  cfmoro
 # Fixed bug while refreshing leafs, using recursivity. On save, clear the editor and reutilize on future notes. Clean ups
 #
 # Revision 1.21  2005/02/22 18:22:31  ncq
