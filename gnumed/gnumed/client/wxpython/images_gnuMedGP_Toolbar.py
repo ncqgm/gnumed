@@ -7,7 +7,7 @@
 # You should rename your image file eg to images_myproject.py
 # before you add the images 
 #------------------------------------------------------------
-from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap
+from wxPython.wx import wxBitmapFromXPMData, wxImageFromBitmap, wxEmptyIcon
 import cPickle, zlib
 #----------------------------------------------------------------------
 def getToolbar_AllergiesData():
@@ -42,6 +42,11 @@ def getToolbar_BMICalcBitmap():
 
 def getToolbar_BMICalcImage():
     return wxImageFromBitmap(getToolbar_BMICalcBitmap())
+
+def getBMICalcIcon():	# called by 'gmBMICalc'
+    icon = wxEmptyIcon()
+    icon.CopyFromBitmap(getToolbar_BMICalcBitmap())
+    return icon
 
 #----------------------------------------------------------------------
 def getToolbar_CalculatorData():
@@ -246,6 +251,11 @@ def getToolbar_PregcalcBitmap():
 
 def getToolbar_PregcalcImage():
     return wxImageFromBitmap(getToolbar_PregcalcBitmap())
+
+def getPregcalcIcon():	# called by 'gmCalcPreg'
+    icon = wxEmptyIcon()
+    icon.CopyFromBitmap(getToolbar_PregcalcBitmap())
+    return icon
 
 #----------------------------------------------------------------------
 def getToolbar_PrinterData():
