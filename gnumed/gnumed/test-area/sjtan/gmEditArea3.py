@@ -407,6 +407,7 @@ class EditArea2(wxPanel):
 					w.Clear()
 		self.targetId = None
 		self._setDefaultText()
+		self.selectedIndex = {}
 
 
 	def ddl(self, key, statement):
@@ -974,7 +975,7 @@ class EditArea2(wxPanel):
 		
 
 	def saveOrUpdate(self):
-		
+		print "saveOrUpdate: selectedIndex = ", self.selectedIndex
 		if self.targetId == None:
 			self.saveNew()
 		else:
@@ -1104,13 +1105,15 @@ class EditArea2(wxPanel):
 	
 		return id
 		
-	def updateTarget(self, target, id,  recursionCount = 0, visited = [] ):
+	def updateTarget(self, target,   recursionCount = 0, visited = [] ):
 		(fieldList, valueList) = self.parseTargetFields( target, recursionCount, visited)
 		list = []
 		for i in xrange(0, len(fieldList)):
+			if fieldList[i] == 'id':
+				valueList[i] = self.selectedIndex[target]
 			list.append( ' %s = %s' % (fieldList[i], valueList[i]) )
 			
-		statement = "update %s 	set %s where id = %d" % (target, ', '.join(list), id)
+		statement = "update %s 	set %s where id = %d" % (target, ', '.join(list), self.selectedIndex[target])
 		print statement
 
 		cu = self.getConnection().cursor()
@@ -1172,6 +1175,7 @@ class EditArea2(wxPanel):
 
 		indexMap = getIndexMap( cu.description)
 
+		print "target ", target, " ID = ", id
 		self.selectedIndex[target] =  id
 
 
