@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.28 2004-03-09 07:34:51 ihaywood Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmDemographicRecord.py,v 1.29 2004-03-10 00:09:51 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -17,12 +17,13 @@ import sys, os.path, time
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'pycommon'))
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmMatchProvider
 from Gnumed.business import gmMedDoc
 
 _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
+	_ = lambda x:x
 _log.Log(gmLog.lData, __version__)
 
 # 3rd party
@@ -818,7 +819,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.28  2004-03-09 07:34:51  ihaywood
+# Revision 1.29  2004-03-10 00:09:51  ncq
+# - cleanup imports
+#
+# Revision 1.28  2004/03/09 07:34:51  ihaywood
 # reactivating plugins
 #
 # Revision 1.27  2004/03/04 10:41:21  ncq
