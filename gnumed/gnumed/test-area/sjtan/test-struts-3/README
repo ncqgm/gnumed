@@ -1,3 +1,17 @@
+Notes on CVS:
+	I had some trouble getting the test-struts-3 directory.
+
+cvs -z3 -d<username>@savannah.gnu.org/cvsroot/gnumed checkout gnumed/gnumed/test-area/sjtan/test-struts-3
+
+This works, but only if run at the root of the local copy of the cvs gnumed tree, othewise
+mv gnumed/gnumed/test-area/sjtan/test-struts-3 ../sjtan/test-struts-3 works , if in the
+sjtan directory, then remove the gnumed/gnumed .. directory.
+
+
+
+
+
+Notes on Install:
 
 The following steps were tested:
 
