@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -67,7 +67,7 @@ def install_domain():
 	except getopt.GetoptError:
 		log.Log(gmLog.lInfo, "problem parsing command line or --text-domain=<> not given")
 		exc = sys.exc_info()
-		log.LogException("Non-fatal exception caught:", exc)
+		log.LogException("Non-fatal exception caught:", exc, 0)
 
 	# 1) tuple(cmd_line) -> (known options, junk)
 	if len(cmd_line) > 0:
@@ -92,7 +92,7 @@ def install_domain():
 	except IOError:
 		# most likely we didn't have a .mo file
 		exc = sys.exc_info()
-		log.LogException('Cannot install textdomain from standard locations.', exc)
+		log.LogException('Cannot install textdomain from standard locations.', exc, 0)
 
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
@@ -105,7 +105,7 @@ def install_domain():
 			except IOError:
 				# most likely we didn't have a .mo file
 				exc = sys.exc_info()
-				log.LogException('Cannot install textdomain from custom location "%s=%s".' % (env_key, loc_dir), exc)
+				log.LogException('Cannot install textdomain from custom location "%s=%s".' % (env_key, loc_dir), exc, 0)
 		else:
 			log.Log(gmLog.lErr, 'Custom location "%s=%s" does not exist. Cannot install textdomain from there.' % (loc_dir, env_key))
 	else:
@@ -125,7 +125,7 @@ def install_domain():
 		except IOError:
 			# most likely we didn't have a .mo file
 			exc = sys.exc_info()
-			log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), exc)
+			log.LogException('Cannot install textdomain from one level above binary location [%s].' % (loc_dir), exc, 0)
 	else:
 		# this should not happen at all
 		log.Log(gmLog.lWarn, "Huh ? Binary seems to be installed in a non-existant directory (%s) ?!? I'm scared but I'll try to be brave." % (loc_dir))
