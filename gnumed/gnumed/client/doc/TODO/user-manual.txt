@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 ---------------------------------------------------
 Rules:
 ------
@@ -8,27 +8,5 @@ Rules:
 - leave behind an email address
 - delete things if you incorporated them into the manual
 - please date it. Thanks
----------------------------------------------------
-Fre 09 Aug 2002 13:20:04 CEST
-
-> 3.) as there were no further comments re database adapter, we go for PyPgSQL
-> for the following reasons:
-
-> - Windows binary available as "setup.exe"
-> - Clean install on all Linux versions via setup.py
-> - native support of listen/notify without need for further libraries
-
-Where is this, PyPgSQL??
-
-=> http://pypgsql.sourceforge.net/
-----------------------------------------------------
-Finally got GNUmed to work on Windows Me. One caveat: It does
-not work with authentication type "crypt" in pg_hba.conf on
-the database server. It must be "password".
-
-WinMe
-PyPgSQL 2.1 win32 for py2.2
-PostgreSQL 7.1
-
-Karsten
-------------------------------------------------------
+--
+-------------------------------------------------

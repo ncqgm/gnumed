@@ -193,6 +193,19 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 		  <entry><ulink url="http://www.apple.com">www.apple.com</ulink></entry>
 		  <entry>Unknown</entry>
 		</row>
+
+		
+		<row>
+		  <!-- one of (ENTRYTBL ENTRY) -->
+
+		  <entry>WinME</entry>
+
+		  <entry>???</entry>
+		  
+		  <entry><ulink url="http://www.microsoft.com">www.microsoft.com</ulink></entry>
+		  
+		  <entry>Does not work with authentication type "crypt" in pg_hba.conf. Must be "password"</entry>
+		</row>
 			</tbody>
 			</tgroup>
 
@@ -226,6 +239,7 @@ packages to be installed before it can be run.</para>
 		</thead>
 
 		<tbody>
+		
 			<row>
 				<entry>Python Scripting Language</entry>
 				<entry><ulink url="http://www.python.org/"><citetitle>python.org</citetitle></ulink></entry>
@@ -268,6 +282,15 @@ packages to be installed before it can be run.</para>
 		    </footnote>
 (both must be the same)</entry>
 			</row>
+		<row>
+		  <!-- one of (ENTRYTBL ENTRY) -->
+		  
+		  <entry>PyPgSQL</entry>
+	  
+		  <entry><ulink url="http://pypgsql.sourceforge.net/">www.pypgsql.sourceforge.net</ulink></entry>
+		  
+		  <entry>????</entry>
+		</row>
 		</tbody>
 	</tgroup>
 </table>
