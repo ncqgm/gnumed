@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.11 2003-03-27 21:08:25 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmTmpPatient.py,v 1.12 2003-03-31 23:36:51 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -202,7 +202,7 @@ class gmPatient:
 	#--------------------------------------------------------
 	def __getActiveName(self):
 		curs = self.__defconn_ro.cursor()
-		cmd = "select firstnames, lastnames from v_basic_person where id = %s;"
+		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -222,7 +222,7 @@ class gmPatient:
 	#--------------------------------------------------------
 	def __getTitle(self):
 		curs = self.__defconn_ro.cursor()
-		cmd = "select title from v_basic_person where id = %s;"
+		cmd = "select title from v_basic_person where i_id = %s;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -273,7 +273,7 @@ def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = conn.cursor()
-		cmd = "SELECT id FROM v_basic_person WHERE %s;" % where_clause
+		cmd = "SELECT i_id FROM v_basic_person WHERE %s;" % where_clause
 		if not gmPG.run_query(cursor, cmd):
 			cursor.close()
 			backend.ReleaseConnection('personalia')
@@ -354,7 +354,7 @@ def create_patient(data):
 
 	# patient already in database ?
 	try:
-		cmd = "SELECT exists(SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s');" % (data['first name'], data['last name'], data['dob'])
+		cmd = "SELECT exists(SELECT i_id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s');" % (data['first name'], data['last name'], data['dob'])
 	except KeyError:
 		_log.LogException('argument structure wrong: %s' % data, sys.exc_info())
 		return None
@@ -402,7 +402,7 @@ def create_patient(data):
 		_log.Log(gmLog.lData, 'patient already in database')
 
 	# get patient ID
-	cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s';" % (data['first name'], data['last name'], data['dob'])
+	cmd = "SELECT i_id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s';" % (data['first name'], data['last name'], data['dob'])
 	if not gmPG.run_query(rocurs, cmd):
 		rocurs.close()
 		backend.ReleaseConnection('personalia')
@@ -454,7 +454,10 @@ else:
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.11  2003-03-27 21:08:25  ncq
+# Revision 1.12  2003-03-31 23:36:51  ncq
+# - adapt to changed view v_basic_person
+#
+# Revision 1.11  2003/03/27 21:08:25  ncq
 # - catch connection errors
 # - create_patient rewritten
 # - cleanup on __del__
