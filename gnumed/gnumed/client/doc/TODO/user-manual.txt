@@ -1,12 +1,21 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 ---------------------------------------------------
 Rules:
 ------
-- add material for the User Manual here if you don't want
-  to put it into the sgml code yourself
+- add material for the User Manual in this text file if you
+  don't want to edit the sgml code yourself
 - leave behind an email address
 - delete things if you incorporated them into the manual
-- please date it. Thanks
---
--------------------------------------------------
+- please date it.
+Thanks
+---------------------------------------------------
+Don 29 Aug 2002 01:42:59 CEST
+Karsten.Hilbert@gmx.net
+
+- incorporate all the info from doc/gnumed/*
+  (which is the old user manual)
+- make sure doc/user-manual/ displays correctly as
+  a user manual in the GnuMed manual browser
+- remove doc/gnumed/ from CVS
+---------------------------------------------------
