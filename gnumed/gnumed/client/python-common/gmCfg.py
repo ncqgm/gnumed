@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -340,7 +340,8 @@ class cCfgSQL:
 				"where cfg_template.id = cfg_item.id_template and %s and %s" % (where_machine, where_user))
 
 		curs = self.conn.cursor()
-        # retrieve option definition
+
+	        # retrieve option definition
 		if gmPG.run_query(curs, cmd, where_args) is None:
 			curs.close()
 			return None
@@ -349,7 +350,7 @@ class cCfgSQL:
 		result = curs.fetchall()
 		curs.close()
 #<DEBUG>
-		_log.Log(gmLog.lData, 'options [%s@%s]: %s' % (user, machine, result))
+#		_log.Log(gmLog.lData, 'options [%s@%s]: %s' % (user, machine, result))
 #</DEBUG>
 		if result is None:
 			_log.Log(gmLog.lWarn, 'no parameters stored for [%s@%s] in config database' % (user, machine))
@@ -659,7 +660,10 @@ class cCfgFile:
 
 		# if we don't have a filename given we explicitly want
 		# to search various locations -> create location list
-		# huh ??
+		# if the programmer specified a filename and 
+		# does NOT want to search standard dirs then only try
+		# to find that very location (i.e. skip std dir generation)
+		
 		if (flags & cfg_SEARCH_STD_DIRS) or aDir is None:
 			# create list of standard config file locations
 			std_dirs = []
@@ -699,7 +703,7 @@ class cCfgFile:
 			candidate_files.insert(1, cfgNameHidden)
 
 		#<DEBUG>
-		_log.Log(gmLog.lInfo, "config file search order: %s" % str(candidate_files))
+		#_log.Log(gmLog.lInfo, "config file search order: %s" % str(candidate_files))
 		#</DEBUG>
 
 		# eventually loop through all candidates
@@ -995,7 +999,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.57  2003-08-10 00:53:09  ncq
+# Revision 1.58  2003-08-23 18:33:50  hinnef
+# added small comment in __get_conf_name(), commented out two verbose debug messages
+#
+# Revision 1.57  2003/08/10 00:53:09  ncq
 # - cleanup to Hilmars nice additions
 #
 # Revision 1.56  2003/08/07 23:31:04  hinnef
