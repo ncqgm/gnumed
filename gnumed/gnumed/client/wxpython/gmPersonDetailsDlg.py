@@ -86,6 +86,30 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		EVT_KILL_FOCUS( self.tcState, self.cityTextChanged)
 		self.autoCityText = None 
 
+		self.__loadSmartStreet()
+
+
+	def updateStreet(self, street):
+		if not self.streetMap.has_key(street):
+			tuple = [len(self.streetMap), 1, street]
+			self.streetMap[street] = tuple 
+			options = self.tcStreet.options
+			options.append(tuple) 
+
+	def __loadSmartStreet(self):
+				query = "select name from street"
+		                db = self.getDB()
+				cursor = db.cursor()
+				cursor.execute(query)
+				rows = cursor.fetchall()
+				self.streetMap = {} 
+				for i in xrange(0, len(rows)):
+					self.streetMap[rows[i][0]] =  [i, 1, rows[i][0]]
+				self.tcStreet.SetValues( self.streetMap.values())
+
+
+
+
 	def cityTextExactChanged(self, event):
 		self.checkCity( event, exact = 1)
 		event.Skip()
@@ -308,6 +332,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 					self.__address.reset()
 					self.__address.notify()
 					self.__person.notify()
+					self.updateStreet(addressMap["Street"])
 					
 				except Exception, errorStr:
 					db.rollback()
@@ -332,6 +357,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 			queries.append("""update v_basic_address set number= '%(Street No)s',street= '%(Street)s',
 			 street2='%(Address 1)s',  city=upper('%(City)s'),state=upper('%(State)s'), country='%(Country)s',
 			postcode='%(Postcode)s' where  id=%(id)d"""%addressMap)
+			self.updateStreet(addressMap["Street"])
 
 
 
