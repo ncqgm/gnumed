@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.94 2004-08-04 10:07:49 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.95 2004-08-11 08:59:54 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -175,6 +175,7 @@ where
 ;
 -- =============================================
 \unset ON_ERROR_STOP
+drop view v_pat_episodes cascade;
 drop view v_pat_episodes;
 \set ON_ERROR_STOP 1
 
@@ -798,6 +799,27 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
+-- might be slow
+create view v_pat_narrative as
+select
+	vpi.id_patient as pk_patient,
+	cn.clin_when as date,
+	cn.soap_cat as soap_cat,
+	cn.narrative as narrative,
+	cn.is_aoe as is_aoe,
+	cn.is_rfe as is_rfe,
+	cn.pk_item as pk_item,
+	cn.pk as pk_narrative,
+	vpi.pk_health_issue as pk_health_issue,
+	cn.fk_episode as pk_episode,
+	cn.fk_encounter as pk_encounter
+from
+	clin_narrative cn,
+	v_patient_items vpi
+where
+	cn.pk_item = vpi.pk_item
+;
+
 -- =============================================
 -- types of clin_root_item
 \unset ON_ERROR_STOP
@@ -912,6 +934,7 @@ to group "gm-doctors";
 GRANT SELECT ON
 	v_pat_encounters
 	, v_pat_episodes
+	, v_pat_narrative
 	, v_patient_items
 	, v_pat_allergies
 	, v_vacc_regimes
@@ -935,11 +958,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.94 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.95 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.94  2004-08-04 10:07:49  ncq
+-- Revision 1.95  2004-08-11 08:59:54  ncq
+-- - added v_pat_narrative by Carlos
+--
+-- Revision 1.94  2004/08/04 10:07:49  ncq
 -- - added v_pat_item_types/v_types4item
 --
 -- Revision 1.93  2004/07/18 11:50:19  ncq
