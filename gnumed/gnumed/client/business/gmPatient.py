@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.54 2004-09-01 21:57:55 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmPatient.py,v 1.55 2004-09-02 00:37:49 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -504,8 +504,8 @@ class cPatientSearcher_SQL:
 
 		# "#<di git  s>" - GnuMed patient ID
 		if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
-			tmp = raw.strip()
-			tmp = tmp.replace('#', '')
+			tmp = raw.replace('#', '')
+			tmp = tmp.strip()
 			tmp = tmp.replace(' ', '')
 			tmp = tmp.replace('\t', '')
 			# this seemingly stupid query ensures the id actually exists
@@ -514,15 +514,15 @@ class cPatientSearcher_SQL:
 
 		# "#<di/git s/orc-hars>" - external ID (or PUPIC)
 		if re.match("^(\s|\t)*#.+$", raw):
-			tmp = raw.strip()
-			tmp = tmp.replace('#', '')
+			tmp = raw.replace('#', '')
+			tmp = tmp.strip()
 			tmp = tmp.replace(' ', '*#DUMMY#*')
 			tmp = tmp.replace('\t', '*#DUMMY#*')
 			tmp = tmp.replace('-', '*#DUMMY#*')
 			tmp = tmp.replace('/', '*#DUMMY#*')
 			tmp = tmp.replace('*#DUMMY#*', '(\s|\t|-|/)*')
-			queries.append(["select id_identity from lnk_identity2ext_id where external_id *~ '^%s'" % tmp])
-			queries.append(["select id_identity from lnk_identity2ext_id where external_id *~ '%s'" % tmp])
+			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '^%s'" % tmp])
+			queries.append(["select id_identity from lnk_identity2ext_id where external_id ~* '%s'" % tmp])
 			return queries
 
 		# "<d igi ts>" - DOB or patient ID
@@ -940,7 +940,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.54  2004-09-01 21:57:55  ncq
+# Revision 1.55  2004-09-02 00:37:49  ncq
+# - it's ~*, not *~
+#
+# Revision 1.54  2004/09/01 21:57:55  ncq
 # - make search GnuMed primary key work
 # - add search for arbitrary external ID via "#..."
 # - fix regexing in __normalize() to avoid nested replacements
