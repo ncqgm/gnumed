@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.11 2004-12-23 14:11:55 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmResizingWidgets.py,v 1.12 2004-12-23 15:08:41 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -14,7 +14,7 @@ from wxPython import wx
 from wxPython import stc
 
 from Gnumed.pycommon import gmI18N, gmLog
-from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmGuiHelpers, gmTimer
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -438,6 +438,11 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		self.__popup_keywords = {}
 		self.__popup = None
 		self.__popup_visible = False
+		# FIXME: delay configurable
+		self.__timer = gmTimer.cTimer (
+			callback = self._on_timer_fired,
+			delay = 300
+		)
 
 		self.__show_list = 1
 		self.__embed = {}
@@ -484,15 +489,16 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		self.no_list = 0
 	#------------------------------------------------
 	def DelPhrase (self, pos):
+		# FIXME: optimize
 		end = pos+1
-		while end < self.GetLength () and self.GetCharAt (end) != ord(';'):
+		while (end < self.GetLength()) and (self.GetCharAt(end) != ord(';')):
 			end += 1
 		start = pos
-		while start > 0 and self.GetCharAt (start and start-1) != ord (';'):
+		while (start > 0) and (self.GetCharAt(start and start-1) != ord(';')):
 			start -= 1
-		self.SetTargetStart (start)
-		self.SetTargetEnd (end)
-		self.ReplaceTarget ('')
+		self.SetTargetStart(start)
+		self.SetTargetEnd(end)
+		self.ReplaceTarget('')
 	#------------------------------------------------
 	def SetFocus(self, x=None, line=None):
 		"""Set focus to current position in STC.
@@ -532,10 +538,15 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		if not (event.GetModificationType() & (stc.wxSTC_MOD_INSERTTEXT | stc.wxSTC_MOD_DELETETEXT)):
 			event.Skip()
 			return
-		# do we need to resize ?
 		last_char_pos = self.GetLength()
+		# do we need to restart timer ?
+		if last_char_pos == 0:
+			self.__timer.Stop()
+		else:
+			self.__timer.Start(oneShot = True)
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + self.TextHeight(0)
 		x, visible_height = self.GetSizeTuple()
+		# do we need to resize ?
 		if visible_height != true_txt_height:
 			self.__parent.ReSize(self, true_txt_height)
 		# get currently relevant term from string
@@ -731,6 +742,11 @@ class cResizingSTC (stc.wxStyledTextCtrl):
 		# maybe be a little smarter here
 		self.__popup.Destroy()
 		self.__popup = None
+	#------------------------------------------------
+	def _on_timer_fired(self, cookie):
+		print 'timer <%s> fired' % cookie
+		print 'we should popup a context pick list now'
+		return 1
 	#------------------------------------------------
 	# internal API
 	#------------------------------------------------
@@ -1002,7 +1018,11 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.11  2004-12-23 14:11:55  ncq
+# Revision 1.12  2004-12-23 15:08:41  ncq
+# - user timer from gmTimer to time list popup
+# - callback simply prints a message to the console for now
+#
+# Revision 1.11  2004/12/23 14:11:55  ncq
 # - scroll across STCs with Arrow-UP/DOWN as discussed with Richard
 #
 # Revision 1.10  2004/12/21 18:22:26  ncq
