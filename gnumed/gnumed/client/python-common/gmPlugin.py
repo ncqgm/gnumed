@@ -13,7 +13,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.39 $"
+__version__ = "$Revision: 1.40 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -103,7 +103,9 @@ class wxBasePlugin (gmPlugin):
 	#-----------------------------------------------------
 	def GetWidget (self, parent):
 		"""
-		Return the widget to display
+		Return the widget to display. Usually called from
+		register(). The instance returned is the
+		active object for event handling purposes.
 		"""
 		raise gmExceptions.PureVirtualFunction()
 	#-----------------------------------------------------
@@ -132,12 +134,35 @@ class wxBasePlugin (gmPlugin):
 		pass
 	#-----------------------------------------------------
 	def register(self):
+		"""call set_widget_reference AFTER the widget is 
+		created so it can be gotten from the global 
+		guiBroker object later."""
+		
+		
 		self.gb['modules.%s' % self.set][self.name()] = self
 		_log.Log(gmLog.lInfo, "loaded plugin %s/%s" % (self.set, self.name() ))
 	#-----------------------------------------------------
 	def unregister(self):
 		del self.gb['modules.%s' % self.set][self.name ()]
 		_log.Log(gmLog.lInfo, "unloaded plugin %s/%s" % (self.set, self.name()))
+
+	def set_widget_reference(self, widget):
+		"""puts a reference to widget in a map keyed as 'widgets'
+		in the guiBroker. The widget's map key is it's class name"""
+		_log.Log(gmLog.lInfo, "\n ********** gmBasePlugin.set_widget_reference() for %s\n" % self.__class__.__name__)
+		_log.Log(gmLog.lInfo,  " ***** widget class = %s \n" %widget.__class__.__name__ )
+		_log.Log(gmLog.lInfo, "attributes = %s \n**** \n"%widget.__dict__ )
+		
+
+		if not self.gb.has_key( 'widgets'):
+			self.gb['widgets'] = {}
+		
+		self.gb['widgets'][widget.__class__.__name__] = widget
+		return
+
+			
+		
+		
 #------------------------------------------------------------------
 class wxNotebookPlugin (wxBasePlugin):
 	"""Base plugin for plugins which provide a 'big page'.
@@ -173,6 +198,9 @@ class wxNotebookPlugin (wxBasePlugin):
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 		# so notebook can find this widget
 		self.gb['main.notebook.numbers'].append (self)
+
+		# so event handlers can get at this widget
+		self.set_widget_reference(widget)
 	#-----------------------------------------------------
 	def unregister (self):
 		"""Remove ourselves."""
@@ -193,6 +221,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		
 	#-----------------------------------------------------	
 	def Raise (self):
+		print "self.nb.SetSelection (nb_no)"
 		nbns = self.gb['main.notebook.numbers']
 		nb_no = nbns.index (self)
 		self.nb.SetSelection (nb_no)
@@ -219,6 +248,9 @@ class wxNotebookPlugin (wxBasePlugin):
 	# =----------------------------------------------------
 	def OnShow (self, evt):
 		self.register () # register without changing configuration
+
+	
+		
 #------------------------------------------------------------------
 class wxPatientPlugin (wxBasePlugin):
 	"""
@@ -251,7 +283,7 @@ class wxPatientPlugin (wxBasePlugin):
 		self.menu_id = wxNewId ()
 		menu.Append (self.menu_id, menuname)
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
-		self.__my_dirty_hook(widget)
+		self.set_widget_reference(widget)
 	#-----------------------------------------------------        
 	def OnTool (self, event):
 		self.Shown ()
@@ -273,28 +305,6 @@ class wxPatientPlugin (wxBasePlugin):
 			tb2.DeleteTool (self.tool_id)
 		del self.gb['modules.patient'][self.name ()]
 	#-----------------------------------------------------
-	def __my_dirty_hook(self, widget):
-		print "\n\n\n\*********** WIDGET IS ***************%s"%widget
-		print " ***** class = %s \n" %widget.__class__.__name__
-		print "attributes = %s \n\n\n"%widget.__dict__
-		if widget.__dict__.has_key('editarea'):
-			#all set to put in hooks
-			section = widget.editarea.rightside.section
-			section_name =  EditAreaHandler.section_num_map[section]
-			print "section = %d, or section name=%s\n" % (section, section_name) 
-
-			if not self.__dict__.has_key('handlers'):
-				self.handlers = []
-
-			# get a registered handler, and use it's cloning method create_handler to clone another handler for this editarea.rightside
-			gb = gmGuiBroker.GuiBroker()
-			self.handlers.append( gb[ section_name].create_handler(widget.editarea.rightside) )	
-
-			# took this out because it wasn't fancy enough
-			# actually , so different handlers can be registered e.g. a subclass implementation instance
-
-			#exec("self.%s_handler = EditAreaHandler.%s_handler(widget.editarea.rightside)"% ( EditAreaHandler.section_num_map[section],EditAreaHandler.section_num_map[section]) )
-			print "**** HANDLER IS IN ! (but it does nothing)"
 
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
@@ -501,7 +511,11 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.39  2003-02-07 12:47:15  sjtan
+# Revision 1.40  2003-02-09 09:41:57  sjtan
+#
+# clean up new code, make it less intrusive.
+#
+# Revision 1.39  2003/02/07 12:47:15  sjtan
 #
 # using gmGuiBroker for more dynamic handler loading. (e.g. can use subclassed instances of EditAreaHandler classes).
 # ~

@@ -9,7 +9,7 @@ variables needed for a gnumed GUI client interface
 """
 #-----------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmGuiBroker.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "H.Herb <hherb@gnumed.net>, H.Berger <Hilmar.Berger@gmx.de>"
 #===========================================================
 
@@ -61,6 +61,9 @@ class GuiBroker:
 	def getobject(self, key):
 		"allows to retrieve a gnumed gui element; see addobject() regarding the key parameter"
 		return GuiBroker.__objects[key]
+
+	def has_key( self, key):
+		return GuiBroker.__objects.has_key(key)
 
 
 
@@ -153,7 +156,11 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGuiBroker.py,v $
-# Revision 1.5  2003-01-16 14:45:03  ncq
+# Revision 1.6  2003-02-09 09:41:57  sjtan
+#
+# clean up new code, make it less intrusive.
+#
+# Revision 1.5  2003/01/16 14:45:03  ncq
 # - debianized
 #
 # Revision 1.4  2003/01/12 00:20:04  ncq
