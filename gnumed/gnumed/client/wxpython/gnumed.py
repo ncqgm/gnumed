@@ -37,11 +37,6 @@ Command line arguments:
  Use this to change the name of the log file.
  See gmLog.py to find out where the standard log file would
  end up.
---slave=<cookie>
- Start in slave mode for being controlled by other applications.
- This will start an XML-RPC server listening for script commands.
---port=<a port number>
- Which port to listen on if running in slave mode.
 --conf-file=<file>
  Use configuration file <file> instead of searching for it in
  standard locations.
@@ -52,7 +47,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.68 $"
+__version__ = "$Revision: 1.69 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -358,7 +353,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.68  2004-09-10 10:40:48  ncq
+# Revision 1.69  2004-09-13 09:31:10  ncq
+# - --slave and --port now in config file, remove help
+#
+# Revision 1.68  2004/09/10 10:40:48  ncq
 # - add --conf-file option to --help output
 #
 # Revision 1.67  2004/08/16 11:59:10  ncq
