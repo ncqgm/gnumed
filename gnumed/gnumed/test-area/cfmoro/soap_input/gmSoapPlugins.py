@@ -12,8 +12,8 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.27 $"
-__author__ = "cfmoro1976@yahoo.es"
+__version__ = "$Revision: 1.28 $"
+__author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std
@@ -173,29 +173,29 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__BTN_remove.Enable(True)
 					
 	#--------------------------------------------------------
-	def __get_problem_by_struct_element(self, emr_struct_element):
-		"""
-		Retrieve the problem in the list that corresponds with a
-		issue, episode (both typically selected via dialog) or
-		problem name (typically in an unassociated note).
-		"""
-		result_problem = None
-
-		emr = self.__pat.get_clinical_record()
-
-		if isinstance(emr_struct_element, gmEMRStructItems.cHealthIssue):
-			for problem in emr.get_problems():
-				if problem['pk_health_issue'] == emr_struct_element['id']:
-					result_problem = problem
-		elif isinstance(emr_struct_element, gmEMRStructItems.cEpisode):
-			for problem in emr.get_problems():
-				if problem['pk_episode'] == emr_struct_element['pk_episode']:
-					result_problem = problem
-		elif isinstance(emr_struct_element, types.StringType):
-			for problem in emr.get_problems():
-				if problem['problem'] == emr_struct_element:
-					result_problem = problem					
-		return result_problem
+	#def __get_problem_by_struct_element_REMOVE(self, emr_struct_element):
+	#	"""
+	#	Retrieve the problem in the list that corresponds with a
+	#	issue, episode (both typically selected via dialog) or
+	#	problem name (typically in an unassociated note).
+	#	"""
+	#	result_problem = None
+	#
+	#	emr = self.__pat.get_clinical_record()
+	#
+	#	if isinstance(emr_struct_element, gmEMRStructItems.cHealthIssue):
+	#		for problem in emr.get_problems():
+	#			if problem['pk_health_issue'] == emr_struct_element['id']:
+	#				result_problem = problem
+	#	elif isinstance(emr_struct_element, gmEMRStructItems.cEpisode):
+	#		for problem in emr.get_problems():
+	#			if problem['pk_episode'] == emr_struct_element['pk_episode']:
+	#				result_problem = problem
+	#	elif isinstance(emr_struct_element, types.StringType):
+	#		for problem in emr.get_problems():
+	#			if problem['problem'] == emr_struct_element:
+	#				result_problem = problem					
+	#	return result_problem
 
 	#--------------------------------------------------------
 	def __make_soap_editor(self):
@@ -217,11 +217,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		for a_leaf in all_leafs:
 			content = a_leaf.get_content()
 			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel):
-				if content.GetProblem() == gmSOAPWidgets.PROBLEM_SAVED:
-					displayed_episodes.append(gmSOAPWidgets.PROBLEM_SAVED)
-				elif content.GetProblem() is not None:
-					displayed_episodes.append(content.GetProblem()['problem'])
-				elif content.GetProblem() is None:
+				if content.GetEpisode() == gmSOAPWidgets.NOTE_SAVED:
+					displayed_episodes.append(gmSOAPWidgets.NOTE_SAVED)
+				elif content.GetEpisode() is not None:
+					displayed_episodes.append(content.GetEpisode()['description'])
+				elif content.GetEpisode() is None:
 					displayed_episodes.append(content.GetHeadingTxt())
 		return displayed_episodes
 		
@@ -256,7 +256,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			
 			if content is not None \
 				and isinstance(content, gmSOAPWidgets.cResizingSoapPanel) \
-				and content.GetEpisode() != gmSOAPWidgets.PROBLEM_SAVED \
+				and content.GetEpisode() != gmSOAPWidgets.NOTE_SAVED \
 				and content.GetEpisode() is not None:
 					target_name = content.GetEpisode()['description']
 			elif content.GetEpisode() is None:
@@ -291,7 +291,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Configure enabled event signals
 		"""
 		# wxPython events
-		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_selected)
+		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
 		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)		
 		wx.EVT_BUTTON(self.__BTN_remove, self.__BTN_remove.GetId(), self.__on_remove)
@@ -301,7 +301,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self.__on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self.__on_episodes_modified)
 	#--------------------------------------------------------
-	def __on_problem_selected(self, event):
+	def __on_problem_activated(self, event):
 		"""
 		When the user changes health issue selection, update selected issue
 		reference and update buttons according its input status.
@@ -315,7 +315,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			- if currently selected editor is an unassociated one and its episode name is empty,
 			  set its episode name in phrasewheel
 		"""
-		print self.__class__.__name__, "-> __on_problem_selected()"
+		print self.__class__.__name__, "-> __on_problem_activated()"
 		problem_idx = self.__LST_problems.GetSelection()
 		problem = self.__LST_problems.GetClientData(problem_idx)		
 
@@ -336,7 +336,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				# FIXME refresh only if episode selector action button was performed
 				print "would be refreshing problem list now"
 #				self.__refresh_problem_list()
-				self.__selected_episode = self.__get_problem_by_struct_element(episode_selector.get_selected_episode())
+				self.__selected_episode = episode_selector.get_selected_episode()
 				print 'Creating progress note for episode: %s' % self.__selected_episode
 			elif retval == gmEMRStructWidgets.dialog_CANCELLED:
 				print 'User canceled'
@@ -346,13 +346,14 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			episode_selector.Destroy() # finally destroy it when finished.
 		elif problem['type'] == 'episode':
 			print "... is episode"
-			self.__selected_episode = problem
+			self.__selected_episode = self.__pat.get_clinical_record().get_episodes(id_list=[problem['pk_episode']])[0]
 		else:
 			msg = _('Cannot open progress note editor for problem:\n%s') % problem
 			gmGuiHelpers.gm_show_error(msg, _('progress note editor'), gmLog.lErr)
 			_log.Log(gmLog.lErr, 'invalid problem type [%s]' % type(problem))
 			return False
-
+		
+		print self.__selected_episode
 		episode_name = self.__selected_episode['description']
 		if episode_name not in self.__get_displayed_episodes():
 			focused_widget = self.__soap_multisash.get_focussed_leaf().get_content()
@@ -362,10 +363,10 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 				focused_widget.SetHeadingTxt(self.__selected_episode['description'])
 				return
 			# let's create new note for the selected episode
-			if gmSOAPWidgets.PROBLEM_SAVED in self.__get_displayed_episodes():
+			if gmSOAPWidgets.NOTE_SAVED in self.__get_displayed_episodes():
 				# there are some displayed empty notes (after saving)
 				# set the selected problem in first of them
-				leaf = self.__get_leaf_for_episode(episode = gmSOAPWidgets.PROBLEM_SAVED)
+				leaf = self.__get_leaf_for_episode(episode = gmSOAPWidgets.NOTE_SAVED)
 				leaf.get_content().SetEpisode(self.__selected_episode)
 			else:
 				# create note in new leaf, always on bottom
@@ -529,7 +530,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	#	over the problem in the list and therefore, firing the actions
 	#	to create a new soap for the problem.
 	#	"""
-	#	self.__on_problem_selected(None)
+	#	self.__on_problem_activated(None)
 	#	
 	#--------------------------------------------------------
 	#def get_selected_episode(self):
@@ -603,7 +604,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.27  2005-03-14 14:49:05  ncq
+# Revision 1.28  2005-03-14 18:22:22  cfmoro
+# Passing episodes instead of problems to soap editor. Clean ups
+#
+# Revision 1.27  2005/03/14 14:49:05  ncq
 # - ongoing work/cleanup
 # - self.__emr is dangerous, use self.__pat.get_clinical_record()
 #
