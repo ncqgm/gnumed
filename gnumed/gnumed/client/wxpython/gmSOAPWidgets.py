@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.24 2005-03-16 19:29:22 cfmoro Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmSOAPWidgets.py,v 1.25 2005-03-17 13:35:23 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -348,8 +348,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			episode_selector.Destroy() # finally destroy it when finished.
 		elif problem['type'] == 'episode':
 			print "... is episode"
-			# FIXME: might add a method get_as_episode() to cProblem
-			# FIXME: or else teach soap_panel to accept problem, too, and turn into episode there
+			# FIXME: check use of self.__selected_episode whether we can leave it as problem
 			self.__selected_episode = self.__pat.get_clinical_record().get_episodes(id_list=[problem['pk_episode']])[0]
 		else:
 			msg = _('Cannot open progress note editor for problem:\n%s') % problem
@@ -712,14 +711,13 @@ class cResizingSoapPanel(wx.wxPanel):
 		@type input_defs: a list of cSOAPLineDef instances
 
 		"""
-		# sanity check and problem -> episode conversion
-		if isinstance(episode, gmEMRStructItems.cProblem) and episode['type'] == 'episode':
+		orig_episode = episode
+		# problem -> episode conversion
+		if isinstance(episode, gmEMRStructItems.cProblem):
 			episode = episode.get_as_episode()
-			if episode is None:
-				raise gmExceptions.ConstructorError, '''cannot make progress note editor for problem: [problem:"%s"]
-				[type:"%s"] [pk_episode:"%s"] ''' % (episode['problem'], episode['type'], episode['pk_episode'])
-		elif not isinstance(episode, (gmEMRStructItems.cEpisode, types.NoneType)):
-			raise gmExceptions.ConstructorError, 'cannot make progress note editor for episode [%s]' % str(episode)
+		# sanity check
+		if not isinstance(episode, gmEMRStructItems.cEpisode):
+			raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(orig_episode)
 		self.__episode = episode
 		# do layout
 		wx.wxPanel.__init__ (self,
@@ -1142,7 +1140,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.24  2005-03-16 19:29:22  cfmoro
+# Revision 1.25  2005-03-17 13:35:23  ncq
+# - some cleanup
+#
+# Revision 1.24  2005/03/16 19:29:22  cfmoro
 # cResizingSoapPanel accepting cProblem instance of type episode
 #
 # Revision 1.23  2005/03/16 17:47:30  cfmoro
