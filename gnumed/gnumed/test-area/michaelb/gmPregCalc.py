@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/michaelb/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.7 2003-07-06 21:36:30 michaelb Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmPregCalc.py,v 1.8 2003-07-06 23:14:35 rterry Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -150,7 +150,7 @@ class PregnancyFrame (wxFrame):
 		#------------------------------
 		# "Ultrasound Scan" label
 		#------------------------------
-		us_label = wxStaticText(self,-1,_("18/52 Ultrasound Scan"),size = (20,20))
+		us_label = wxStaticText(self,-1,_("18 Week Ultrasound Scan"),size = (20,20))
 		us_label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		us_label.SetForegroundColour(wxColour(50,50,204))
 		szr_backgrnd_18WkScanDue = wxBoxSizer(wxVERTICAL)
@@ -473,7 +473,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.7  2003-07-06 21:36:30  michaelb
+# Revision 1.8  2003-07-06 23:14:35  rterry
+# 18/52 changed to 18 Week as per list suggestion
+#
+# Revision 1.7  2003/07/06 21:36:30  michaelb
 # fixed ultrasound scan date bug, added tooltips to 'LMP' and 'Date' fields
 #
 # Revision 1.5  2003/07/05 06:44:28  michaelb
