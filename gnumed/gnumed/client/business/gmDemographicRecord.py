@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.19 2004-02-18 06:36:04 ihaywood Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmDemographicRecord.py,v 1.20 2004-02-18 15:26:39 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -431,7 +431,7 @@ where
 def dob2medical_age(dob):
 	"""format patient age in a hopefully meaningful way"""
 
-	age = mxDT.Age(mx.DateTime.now(), dob)
+	age = mxDT.Age(mxDT.now(), dob)
 
 	if age.years > 0:
 		return "%sy%sm" % (age.years, age.months)
@@ -600,7 +600,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.19  2004-02-18 06:36:04  ihaywood
+# Revision 1.20  2004-02-18 15:26:39  ncq
+# - fix dob2medical_age()
+#
+# Revision 1.19  2004/02/18 06:36:04  ihaywood
 # bugfixes
 #
 # Revision 1.18  2004/02/17 10:30:14  ncq
