@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.12 2005-03-08 16:43:58 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmPerson.py,v 1.13 2005-03-16 12:57:26 sjtan Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -36,7 +36,7 @@ class cPerson:
 	def __init__(self, identity = None):
 		if not isinstance (identity, gmDemographicRecord.cIdentity):
 			# assume to be an identity.pk then
-			identity = cIdentity (aPK_obj = int(identity))
+			identity = gmDemographicRecord.cIdentity (aPK_obj = int(identity))
 
 		self.__ID = identity['pk_identity']  	# = identity.pk = v_basic_person.pk_identity = primary key
 		self.__db_cache = {'identity': identity}
@@ -966,7 +966,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.12  2005-03-08 16:43:58  ncq
+# Revision 1.13  2005-03-16 12:57:26  sjtan
+#
+# fix import error.
+#
+# Revision 1.12  2005/03/08 16:43:58  ncq
 # - allow a cIdentity instance to be passed to gmCurrentPatient
 #
 # Revision 1.11  2005/02/19 15:06:33  sjtan
