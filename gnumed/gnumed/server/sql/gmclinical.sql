@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -226,6 +226,7 @@ create table allergy (
 ) inherits (audit_clinical);
 
 create index idx_allergy_transaction on allergy(id_clin_transaction);
+create index idx_allergy_comment on allergy(id_comment);
 
 comment on table allergy is
 	'patient allergy details';
@@ -462,7 +463,7 @@ GRANT SELECT ON
 	"clin_history",
 	"clin_physical",
 	"_enum_allergy_type",
-	"vi18n_enum_allergy_type",
+--	"vi18n_enum_allergy_type",
 	"allergy"
 TO GROUP "gm-doctors";
 
@@ -490,7 +491,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"clin_physical_id_seq",
 	"_enum_allergy_type",
 	"_enum_allergy_type_id_seq",
-	"vi18n_enum_allergy_type",
+--	"vi18n_enum_allergy_type",
 	"allergy",
 	"allergy_id_seq"
 TO GROUP "_gm-doctors";
@@ -498,11 +499,14 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.30 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.31 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.30  2003-04-28 20:56:16  ncq
+-- Revision 1.31  2003-04-28 21:40:40  ncq
+-- - better indices
+--
+-- Revision 1.30  2003/04/28 20:56:16  ncq
 -- - unclash "allergy" in hx type and type of allergic reaction + translations
 -- - some useful indices
 --
