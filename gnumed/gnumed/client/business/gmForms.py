@@ -9,8 +9,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.8 2004-03-10 13:30:21 ihaywood Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmForms.py,v 1.9 2004-03-12 13:20:29 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -26,8 +26,6 @@ if __name__ == "__main__":
     _log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
  
-from mx import DateTime
-
 #============================================================
 class gmFormEngine:
     """Ancestor for forms.
@@ -229,3 +227,10 @@ def test ():
 # main
 #------------------------------------------------------------
 test()
+
+#============================================================
+# $Log: gmForms.py,v $
+# Revision 1.9  2004-03-12 13:20:29  ncq
+# - remove unneeded import
+# - log keyword
+#
