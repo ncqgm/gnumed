@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping.dtd">
+
+<hibernate-mapping>
+
+	<class 
+		name="xgmed.domain.planning.Action"
+		table="action"
+	>
+
+	    <id 
+			name="id"
+			type="long"
+		>
+			<generator class="hilo.long">
+			</generator>
+	    </id>
+
+		<discriminator
+			column="type"
+			type="string"
+			length="255"
+		/>
+
+        <component
+            name="abandoned"
+            class="xgmed.domain.planning.Abandoned"
+        >    
+
+		</component>
+
+       <many-to-one
+	       name="location"
+		   class="xgmed.domain.common.Location"
+		   column="location"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+       <many-to-one
+	       name="parent"
+		   class="xgmed.domain.planning.Action"
+		   column="parent"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+       <many-to-one
+	       name="timeRecord"
+		   class="xgmed.domain.common.TimeRecord"
+		   column="timeRecord"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+    <set role="components" table="action_component_action" readonly="true" lazy="true">
+        <key column="parent"/>
+        <one-to-many class="xgmed.domain.planning.Action"/>
+    </set>
+    <set role="suspensions" table="action_suspension_action" readonly="true" lazy="true">
+        <key column="action"/>
+        <one-to-many class="xgmed.domain.planning.Suspension"/>
+    </set>
+     <set role="accountabilitys" table="action_accountability" lazy="true" readonly="true">
+    <key column="action_id"/>
+     <many-to-many  class="xgmed.domain.accountability.Accountability" column="accountability_id"/>
+     </set>
+    <many-to-one name="parent" class="xgmed.domain.planning.Action" column="parent_id"/>
+
+    <subclass name="xgmed.domain.observation.Observation">
+	    <!--    <key column="observation"/>
+	    -->
+	    <many-to-one name="subject" class="xgmed.domain.accountability.Party"/>
+            <many-to-one name="assuranceLevel" class="xgmed.domain.observation.AssuranceLevel"/>
+	    <many-to-one name="recordTime" class="xgmed.domain.common.TimeRecord" cascade="all"/>
+	    <many-to-one name="applicableTime" class="xgmed.domain.common.TimeRecord" cascade="all"/>
+	    <subclass name="xgmed.domain.observation.CategoryObservation">
+		    <many-to-one name="observationConcept" class="xgmed.domain.observation.ObservationConcept" cascade="save-update"/>
+		    <many-to-one name="occurence" class="xgmed.domain.observation.Occurence"/>
+			<subclass name="xgmed.domain.observation.IdentityObservation">
+				<many-to-one  name="coding" class="xgmed.domain.observation.Coding" cascade="all"/>
+			</subclass>
+   	    </subclass>
+            <subclass name="xgmed.domain.observation.Measurement">
+                <many-to-one name="phenomenonType" class="xgmed.domain.observation.PhenomenonType"/>
+                        <!-- don't cascade phenomenonType because may be creating more than one object in same session that
+                            refers to one phenomenonType object -->
+                <many-to-one name="quantity" class="xgmed.domain.common.Quantity" cascade="all"/>
+            </subclass>
+     </subclass>
+
+		<subclass
+			name="xgmed.domain.planning.ExecutedAction"
+			discriminator-value="E"
+		>
+
+        <one-to-one
+            name="proposedAction"
+			class="xgmed.domain.planning.ProposedAction"
+			cascade="none"
+			outer-join="auto"
+			constrained="false"
+	    />
+
+<!-- JRS:FIXME - why was this self inclusion here? A mistake?		
+-->	
+		<subclass
+			name="xgmed.domain.planning.CompletedAction"
+			discriminator-value="C"
+		>
+
+<!-- JRS:FIXME - why was this self inclusion here? A mistake?		
+
+-->	
+		</subclass>
+
+		</subclass>
+		<subclass
+			name="xgmed.domain.planning.ProposedAction"
+			discriminator-value="P"
+		>
+
+<!-- JRS:FIXME - why was this self inclusion here? A mistake?		
+
+-->	
+		</subclass>
+
+	</class>
+
+</hibernate-mapping>

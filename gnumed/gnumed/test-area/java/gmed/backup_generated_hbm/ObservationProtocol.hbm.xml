@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping.dtd">
+
+<hibernate-mapping>
+
+	<class 
+		name="xgmed.domain.observation.ObservationProtocol"
+		table="observation_protocol"
+	>
+
+	    <id 
+			name="id"
+			type="long"
+		>
+			<generator class="hilo.long">
+			</generator>
+	    </id>
+
+	    <!--
+			To add non XDoclet properties, create a file named
+			    hibernate-properties-ObservationProtocol.xml
+			containing the additional properties and place it in your merge dir.
+	    -->
+
+	</class>
+
+</hibernate-mapping>

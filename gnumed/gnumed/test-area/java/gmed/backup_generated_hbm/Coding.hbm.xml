@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping.dtd">
+
+<hibernate-mapping>
+
+	<class 
+		name="xgmed.domain.observation.Coding"
+		table="coding"
+	>
+
+	    <id 
+			name="id"
+			type="long"
+		>
+			<generator class="hilo.long">
+			</generator>
+	    </id>
+
+        <property
+	    	name="code"
+            type="java.lang.String"
+            column="code"
+            not-null="false"
+			unique="false"
+		/>
+
+       <many-to-one
+	       name="codeScheme"
+		   class="xgmed.domain.observation.CodeScheme"
+		   column="codeScheme"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+       <many-to-one
+	       name="identityObservation"
+		   class="xgmed.domain.observation.IdentityObservation"
+		   column="identityObservation"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+       <many-to-one
+	       name="observationConcept"
+		   class="xgmed.domain.observation.ObservationConcept"
+		   column="observationConcept"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+       <many-to-one
+	       name="phenomenonType"
+		   class="xgmed.domain.observation.PhenomenonType"
+		   column="phenomenonType"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+	    <!--
+			To add non XDoclet properties, create a file named
+			    hibernate-properties-Coding.xml
+			containing the additional properties and place it in your merge dir.
+	    -->
+
+	</class>
+
+</hibernate-mapping>

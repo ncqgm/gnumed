@@ -1,0 +1,35 @@
+ant.jar
+cglib.jar
+commons-collections.jar
+commons-lang.jar
+commons-logging.jar
+commons-resources.jar
+dom4j.jar
+hibernate.jar
+hibernate.properties
+jcs.jar
+jdom.jar
+junit.jar
+log4j.jar
+odmg.jar
+optional.jar
+pg73jdbc2.jar
+xdoclet-hibernate-module.jar
+xdoclet-java-module.jar
+xdoclet-xdoclet-module.jar
+xdoclet-xjavadoc.jar
+xdoclet.jar
+
+
+http://xpetstore.sourceforge.net/
+	for the xdoclet files.
+
+http://hibernate.sourceforge.net/ 
+	for the hibernate files.i Use the 1.2 hibernate libs.
+	 Put these last in case of version overlap.
+
+
+
+the pg73jdbc2.jar is from postgres distribution.
+
+

@@ -1,0 +1,47 @@
+
+
+1. Find a suitable analysis model.
+
+2. Use a UML tool to quickly construct and generate classes that 
+   hold associations.
+
+3. Add xdoclet tags to the generated class code.
+
+4. Copy an example of xdoclet used to run the desired framework .
+	i.e. hibernate in this case.
+
+5. write a ant build.xml script modelled on the examples' build.xml file.
+ 	e.g. use the xpetstore example found from the xdoclet website.
+
+6. get the build script to 
+	a) generate the java class files from a java source directory.
+	b) copy configuration files from a configuration source directory.
+	c) generate  hibernate hbm.xml files which are used to map
+	classes into relational tables.
+	d) use the code from the original build script which runs the
+	hibernate SchemaExport tool on the hbm files to generate the
+	sql script commands for the chosen backend for hibernate.
+
+7. Generally , this is done incrementally on the uml generated java domain
+code. Add xdoclet tags to a particular part e.g.
+	1) get party address telephone to work.
+		write test code that confirms it works, and use
+	this to debug any problems with generated code.
+	
+	2) next cycle is accountability accountabilityType partyType party
+
+	3) next cycle is observation. CategoryObservation , IdentityObservation
+	PhenomenonType phenomenon
+	4) next cycle is measurement , quantity, unit.
+
+	Make sure a test harness works for each cycle.
+
+
+8. somewhere early on, need to change the build file so that 
+SchemaExport is no longer used, because Hibernate 1.2 has trouble generating
+completely corrected subclasses ( > 1 subclass in depth) , and Hibernate 2.0
+just ignores custom_hbm mappings, which are needed in Hibernate 1.1 for 
+bidirectional many-to-many association mappings.
+
+
+

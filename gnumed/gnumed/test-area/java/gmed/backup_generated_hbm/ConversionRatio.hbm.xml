@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping.dtd">
+
+<hibernate-mapping>
+
+	<class 
+		name="xgmed.domain.common.ConversionRatio"
+		table="conversion_ratio"
+	>
+
+	    <id 
+			name="id"
+			type="long"
+		>
+			<generator class="hilo.long">
+			</generator>
+	    </id>
+
+        <property
+	    	name="description"
+            type="java.lang.String"
+            column="description"
+            not-null="false"
+			unique="false"
+		/>
+
+       <many-to-one
+	       name="fromUnit"
+		   class="xgmed.domain.common.Unit"
+		   column="fromUnit"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+        <property
+	    	name="number"
+            type="java.lang.Double"
+            column="number"
+            not-null="false"
+			unique="false"
+		/>
+
+       <many-to-one
+	       name="toUnit"
+		   class="xgmed.domain.common.Unit"
+		   column="toUnit"
+		   not-null="false"
+		   unique="false"
+		   cascade="none"
+		   outer-join="auto"
+        />
+
+	    <!--
+			To add non XDoclet properties, create a file named
+			    hibernate-properties-ConversionRatio.xml
+			containing the additional properties and place it in your merge dir.
+	    -->
+
+	</class>
+
+</hibernate-mapping>

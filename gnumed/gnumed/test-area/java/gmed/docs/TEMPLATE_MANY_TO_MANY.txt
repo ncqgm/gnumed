@@ -1,0 +1,32 @@
+
+<!-- in hibernate-properties-Party.xml -->
+<set role="telephones" table="party_telephone_link" lazy="true">
+	<key column="party_id"/>
+	<many-to-many class="xgmed.domain.Telephone" column="telephone_id"/>
+</set>
+
+<!-- in hibernate-properties-Telephone.xml -->
+
+<set role="partys" table="party_telephone_link" readonly="true" lazy="true">
+	<key column="telephone_id"/>
+	<many-to-many class="xgmed.domain.Party" column="party_id"/>
+</set>
+
+<!--- the above defines the set's name , which is it's role. The role is the other end of the bidirectional association,
+	; the table is standard many-to-many association ER-to-relational mapping , a  link table with foreign keys to the
+	2 tables involved in the association.
+	
+	; one end must be readonly ? to avoid a cycle when saving.
+	; lazy means a proxy is used ? for each object in the set, which only has the id.
+	
+	
+	The key column describes the name of the foreign key column in the link table pointing to  the current class's
+	table primary key. 
+	
+	The many-to-many description needs the class of the other end of the association, and the column name which
+	is the foreign key in the link table to that other class's table primary key.
+--->	
+
+
+	
+		
