@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.6 $
+version = $Revision: 1.7 $
 
 #----------------------------------
 [installation]
@@ -192,6 +192,13 @@ $language library dirs$
 # - it's also the one used to set up other GnuMed accounts
 [user GnuMed owner]
 name = gm-dbowner
+
+# - if this option is commented out and interactive is
+#   "yes" the user will be asked for the password, if we
+#   are non-interactive we fail
+# - if it is not commented out but set to be empty it
+#   is assumed that no password is needed because IDENT
+#   or TRUST connects are attempted
 #password = 
 
 # - this user will hardly ever need to be changed
@@ -233,7 +240,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.6  2003-05-22 12:53:41  ncq
+# Revision 1.7  2003-05-26 13:59:12  ncq
+# - explain new password option semantics
+#
+# Revision 1.6  2003/05/22 12:53:41  ncq
 # - add automatic audit trail generation
 # - add options for that
 #
