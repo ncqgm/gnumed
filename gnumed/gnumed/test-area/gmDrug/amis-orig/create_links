@@ -1,0 +1,5 @@
+#! /bin/bash
+# create here two symbolic links (we cannot do that in cvs):
+ln -s /cdrom/basis/version2 basis
+ln -s /cdrom/interakt interakt
+
