@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -227,10 +227,11 @@ can increase its log level with '--debug'.
 		_log.LogException('Exception: cannot change into resource directory ' + appPath, exc, fatal=0)
 		# let's try going on anyways
 
-	# run gnumed and intercept _all_ exceptions (but reraise them ...)
+	# run gnumed
 	try:
 		gmGuiMain.main()
-	except:
+	# and intercept _almost_ all exceptions (but reraise them ...)
+	except StandardError:
 		exc = sys.exc_info()
 		_log.LogException ("Exception: Unhandled exception encountered.", exc, fatal=1)
 		if gmCLI.has_arg('--talkback'):
@@ -253,7 +254,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.47  2003-01-20 08:25:15  ncq
+# Revision 1.48  2003-02-03 14:29:08  ncq
+# - finally fixed that annoying Pseudo error exception.SystemExit on login dialog cancellation
+#
+# Revision 1.47  2003/01/20 08:25:15  ncq
 # - better error messages
 #
 # Revision 1.46  2003/01/19 13:16:46  ncq
