@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -45,12 +45,12 @@ ln -vs ../modules client/modules
 
 # viewer
 ln -vs ../../../client/wxpython/gui/gmShowMedDocs.py client/gmShowMedDocs.py
-ln -vs ../../Archive/viewer/run-viewer.sh client/run-viewer.sh
-ln -vs ../../Archive/viewer/run-viewer.bat client/run-viewer.bat
+ln -vs ../../../Archive/viewer/run-viewer.sh client/run-viewer.sh
+ln -vs ../../../Archive/viewer/run-viewer.bat client/run-viewer.bat
 
 # docs
-ln -vs ../docs/sample.conf client/sample.conf
-ln -vs ../docs/README-client client/README
+ln -vs ../../../Archive/client/sample.conf client/sample.conf
+ln -vs ../../../Archive/client/README client/README
 
 # locale
 mkdir -p client/locale/de_DE@euro/LC_MESSAGES
