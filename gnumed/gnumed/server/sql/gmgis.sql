@@ -5,7 +5,7 @@
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmgis.sql,v $
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 -- changelog:
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
@@ -178,7 +178,7 @@ select
 	a.id as addr_id,
 	s.country as country,
 	s.code as state,
-	u.postcode as postcode,
+	coalesce (str.postcode, u.postcode) as postcode,
 	u.name as city,
 	a.number as number,
 	str.name as street,
@@ -201,6 +201,34 @@ where
 -- insert, delete, and update rules on this table
 -- problem: the street table had better contain the street.
 -- solution: function to auto-create street records on demand.
+
+create view v_home_address as
+select
+	ia.id_identity as id,
+	s.country as country,
+	s.code as state,
+	coalesce (str.postcode, u.postcode) as postcode,
+	u.name as city,
+	a.number as number,
+	str.name as street,
+	a.addendum as street2,
+from
+	address a,
+	state s,
+	urb u,
+	street str,
+	identities_addresses ia
+where
+	a.street = str.id
+		and
+	str.id_urb = u.id
+		and
+	u.statecode = s.id;
+		and
+	ia.id_address = a.id;
+		and
+	ia.id_type = 1; -- home address
+
 
 -- ===================================================================
 -- finds the state for a given postcode in a given country
@@ -393,4 +421,4 @@ create table address_info (
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.27 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmgis.sql,v $', '$Revision: 1.28 $');
