@@ -129,6 +129,7 @@ class CachedDBObject:
 
 	def reset(self):
 		"force a re-query of buffer on next data access attempt"
+		print "Resetting cache"
 		self.cache.querylock.acquire(1)
 		self.cache.buffer = None
 		self.cache.lastquery = None
@@ -151,10 +152,14 @@ class CachedDBObject:
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	def setId(self, id):
-		if self.cache.id != id:
-			self.cache.id = id
-			self.reset()
+	def setId(self, id, lazy=0):
+		print"Person setId to ", id
+		if lazy:
+			if self.cache.id != id:
+				self.cache.id = id
+				self.reset()
+		else:
+			self.get(id=id, refresh_only=1)
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -165,7 +170,7 @@ class CachedDBObject:
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-	def get(self, id=None, by_reference=0):
+	def get(self, id=None, by_reference=0, refresh_only=0):
 		"""returns the buffer. If id is not None and not in cache,
 		the backend will be queried.
 		If by_reference is not zero, a copy of the buffer instead of a reference
@@ -191,7 +196,8 @@ class CachedDBObject:
 				buf = self.cache.buffer
 		finally: #make sure the lock is released, no matter what
 			self.cache.querylock.release()
-		return buf
+		if not refresh_only:
+			return buf
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -285,6 +291,21 @@ class CachedDBObject:
 		return pstr
 
 
+	def dictresult(self):
+		if self.cache.buffer is None:
+			return None
+		dictres = []
+		index=0
+		for f in self.cache.buffer:
+			dict = {}
+			i=0
+			for a in self.cache.attributes:
+				dict[a]=f[i]
+				i+=1
+			dictres.append(dict)
+		return dictres
+
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -293,9 +314,10 @@ class CachedDBObject:
 		#print "%s doing a query" % self.who
 		#</DEBUG>
 
-		#assert (self.__cache.__id is not None)
 		assert (self.cache.db is not None)
-		assert (self.cache.querystr is not None)
+		if self.cache.querystr is None:
+			return None
+		#assert (self.cache.querystr is not None)
 
 		#make sure different threads are not trying
 		#to cause the buffer update concurrently

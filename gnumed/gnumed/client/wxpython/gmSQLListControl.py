@@ -36,10 +36,10 @@ class SQLListControl(wxListCtrl):
 
 
 
-	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=true):
+	def __init__(self, parent, id, pos=wxPyDefaultPosition, size=wxPyDefaultSize, style=wxLC_REPORT, feedback=true, hideid=true):
 		wxListCtrl.__init__(self, parent, id, pos, size, style)
 		self.__feedback = feedback
-
+		self.__hide_id=true
 
 
 	def SetMaxfetch(self, n):
@@ -150,6 +150,7 @@ class SQLListControl(wxListCtrl):
 		if len(self.__labels)<=0:
 			self.__labels = gmPG.fieldNames(cursor)
 
+
 		gmLabels.LabelListControl(self, self.__labels)
 		rowcount=0
 		for row in queryresult:
@@ -158,7 +159,7 @@ class SQLListControl(wxListCtrl):
 				if colcount==0:
 					self.InsertStringItem(rowcount,str(attr))
 				else:
-					self.SetStringItem(rowcount,colcount, str(attr))            
+					self.SetStringItem(rowcount,colcount, str(attr))
                 		colcount +=1
             		rowcount +=1
 

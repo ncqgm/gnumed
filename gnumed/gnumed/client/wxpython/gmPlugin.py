@@ -35,7 +35,7 @@ class gmPlugin:
 class wxGuiPlugin(gmPlugin):
 	"base class for all plugins providing wxPython widgets"
 	def __init__(self, name, guibroker=None, callbackbroker=None, dbbroker=None):
-		gmPlugin.__init__(name)
+		gmPlugin.__init__(self, name)
 		self.__gb = guibroker
 		self.__cb = callbackbroker
 		self.__db = dbbroker

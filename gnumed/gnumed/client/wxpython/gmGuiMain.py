@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-09 08:52:00 $
-# @version $Revision: 1.11 $ $Date: 2002-03-09 08:52:00 $ $Author: ncq $
+# @Date: $Date: 2002-03-28 13:59:07 $
+# @version $Revision: 1.12 $ $Date: 2002-03-28 13:59:07 $ $Author: hherb $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -57,8 +57,8 @@ class MainFrame(wxFrame):
 		"""
 
 		wxFrame.__init__(self, parent, id, title, size, \
-						style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
-
+		                  style = wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE)
+		self.SetAutoLayout( true )
 		self.log = self.CreateLog()
 		#self.About()
 
@@ -102,13 +102,13 @@ class MainFrame(wxFrame):
 		self.SetStatusText(_("You are logged in as [%s]") % user)
 
 		self.SetSizer( self.vbox )
-		self.SetAutoLayout( true )
-
+		self.vbox.Fit( self )
+		#don't let the window get too small
+		self.vbox.SetSizeHints(self)
 		#position the Window on the desktop
 		self.Centre(wxBOTH)
 		self.Show(true)
-		self.vbox.Fit( self )
-		self.vbox.SetSizeHints( self )
+
 		#self.Lock()
 
 
@@ -127,13 +127,15 @@ class MainFrame(wxFrame):
 			#Mac OS specific stuff here
 			myLog.Log(gmLog.lInfo,'running on a Mac')
 			pass
+		else:
+			myLog.Log(gmLog.lInfo,'running on an unknown platform')
 
 
 
 	def RegisterEvents(self):
 		#register events we want to react to
 		EVT_IDLE(self, self.OnIdle)
-		EVT_CLOSE(self, self.OnClose)
+		#EVT_CLOSE(self, self.OnClose)
 		EVT_ICONIZE(self, self.OnIconize)
 		EVT_MAXIMIZE(self, self.OnMaximize)
 
@@ -187,7 +189,8 @@ class MainFrame(wxFrame):
 		nbs = wxNotebookSizer(nb)
 
 		#Search Patient dialog
-		self.SearchPatientWindow = gmSelectPerson.DlgSelectPerson(nb, -1)
+		import gmPersonNotebook
+		self.SearchPatientWindow = gmPersonNotebook.PersonNotebook(nb, -1)
 		nb.AddPage(self.SearchPatientWindow, _("Patient"))
 
 		#Drug information
@@ -202,9 +205,8 @@ class MainFrame(wxFrame):
 		pnl = gmmanual.ManualHtmlPanel(nb, self, self.log)
 		nb.AddPage(pnl, _("Manual"))
 
-		print "import gmSQLWindow"
+		#a widget for generic SQL queries
 		import gmSQLWindow
-		print "self.SQLWindow = gmSQLWindow.SQLWindow(nb, -1)"
 		self.SQLWindow = gmSQLWindow.SQLWindow(nb, -1)
 		nb.AddPage(self.SQLWindow, _("SQL"))
 
@@ -306,6 +308,7 @@ class MainFrame(wxFrame):
 
 
 
+
 	def OnIdle(self, event):
 		"""Here we can process any background tasks
 		"""
@@ -352,16 +355,16 @@ class gmApp(wxApp):
 		import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend == None:
-			#print _("Login attempt unsuccesful\nCan't run GNUMed without database connetcion")
+			# _("Login attempt unsuccesful\nCan't run GNUMed without database connetcion")
 			myLog.Log(gmLog.lPanic, _("Login attempt unsuccesful\nCan't run GNUMed without database connection"))
 			return false
 		#create the main window
 		frame = MainFrame(None, -1, _('GNUMed client'), size=(700,580))
-		frame.Maximize(true)
-		#frame.Unlock()
-		frame.Show(true)
-		frame.CentreOnScreen(wxBOTH)
 		self.SetTopWindow(frame)
+		#frame.Unlock()
+		frame.Maximize(true)
+		frame.CentreOnScreen(wxBOTH)
+		frame.Show(true)
 		return true
 
 

@@ -37,6 +37,8 @@ class SQLSimpleSearch(wxPanel):
 		pos = wxPyDefaultPosition, size = wxPyDefaultSize,
 		style = wxTAB_TRAVERSAL, service = 'default' ):
 
+		self.selected = None
+
 		#the backend service to connect to
 		self.SetService(service)
 
@@ -106,7 +108,7 @@ class SQLSimpleSearch(wxPanel):
 
 	def OnSearchResultItemActivated(self, event):
 		print "def OnSearchResultItemActivated(self, event):"
-
+		#self.selected = event.m_ItemIndex
 
 	def OnSearchResultItemDeselected(self, event):
 		print "def OnSearchResultItemDeselected(self, event):"
@@ -151,6 +153,16 @@ class SQLSimpleSearch(wxPanel):
 		return searchexpr
 
 
-	def ProcessSelection(self, index):
-		data = self.listctrlSearchResults.GetItemData(index)
+	def GetSelection(self):
+		self.listctrlSearchResults.GetSelection()
 
+
+	def ProcessSelection(self, index):
+		if index is None:
+			return None
+		data = self.listctrlSearchResults.GetItemText(index)
+		return int(data)
+
+
+	def GetData(self, index):
+		return self.ProcessSelection(self.GetSelection())

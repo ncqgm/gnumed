@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-24 11:57:46 $
-# @version $Revision: 1.4 $ $Date: 2002-03-24 11:57:46 $ $Author: ihaywood $
+# @Date: $Date: 2002-03-28 13:59:07 $
+# @version $Revision: 1.5 $ $Date: 2002-03-28 13:59:07 $ $Author: hherb $
 # @change log:
 #	14.03.02 ihaywood inital version.
 #      
@@ -58,7 +58,7 @@ class MainWindow(wxPanel):
         # get database connection
         self.db = gmPG.ConnectionPool ()
         self.doctors = self.GetDoctors ()
-        
+
         # setup booking grid
         lID = wxNewId ()
         self.grid = wxGrid (self, lID)
@@ -88,7 +88,7 @@ class MainWindow(wxPanel):
         EVT_BUTTON (self.cancelbutton, buttonid, self.onBookCancel)
         buttonid= wxNewId ()
         self.findbutton = wxButton (self, buttonid, "Find...")
-        EVT_BUTTON (self.findbutton, buttonid, self.onFindPatient) 
+        EVT_BUTTON (self.findbutton, buttonid, self.onFindPatient)
         buttonid= wxNewId ()
         self.sessionbutton = wxButton (self, buttonid, "Sessions...")
         EVT_BUTTON (self.sessionbutton, buttonid, self.onSessionsEdit)
@@ -108,15 +108,15 @@ class MainWindow(wxPanel):
         leftsizer.Add (self.calendar)
         leftsizer.Add (row1, 0, wxEXPAND)
         leftsizer.Add (buttonbox, 1, wxEXPAND)
-        
-        self.sizer = wxBoxSizer(wxHORIZONTAL) 
+
+        self.sizer = wxBoxSizer(wxHORIZONTAL)
         self.sizer.Add (leftsizer, 0, wxALL, 5)
         self.sizer.Add (self.grid, 1, wxEXPAND)
-         
-        #Layout sizers 
-        self.SetSizer(self.sizer) 
-        self.SetAutoLayout(1) 
-        self.sizer.Fit(self) 
+
+        #Layout sizers
+        self.SetSizer(self.sizer)
+        self.SetAutoLayout(1)
+        self.sizer.Fit(self)
         self.Show(1)
 
         # set grid to today's date
@@ -132,15 +132,15 @@ class MainWindow(wxPanel):
         for doc in self.doctors:
             select += 'is_booked (%d, \'%s\', list.time),' % (doc[0], date)
         select = select[0:-1] # delete final comma
-        cursor = self.db.GetConnection ('appoint').cursor ()
+        cursor = self.db.GetConnection ('appointments').cursor ()
         cursor.execute ("""
-SELECT DISTINCT ON (list.time) list.time, %s FROM list, session WHERE
-float8 (session.day) = extract (dow from date \'%s\')
+SELECT DISTINCT ON (l.time) l.time %s FROM list l, session s WHERE
+float8 (s.day) = extract (dow from date \'%s\')
 AND
 session.id = list.session
 ORDER BY time""" % (select, date))
         result = cursor.fetchall ()
-        self.db.ReleaseConnection ('appoint')
+        self.db.ReleaseConnection ('appointments')
         # if there's a better way of doinf this I don't know...
         self.grid.DeleteRows (numRows=self.grid.GetNumberRows ())
         self.grid.AppendRows (len (result))
@@ -167,9 +167,9 @@ ORDER BY time""" % (select, date))
 
     # return list of doctor_number, doctor_name tuples
     def GetDoctors (self):
-        cursor = self.db.GetConnection ('appoint').cursor ()
+        cursor = self.db.GetConnection ('appointments').cursor ()
         cursor.execute ("SELECT id, name FROM clinician")
-        self.db.ReleaseConnection ('appoint')
+        self.db.ReleaseConnection ('appointments')
         return cursor.fetchall ()
 
     # callabcks for UI
@@ -207,13 +207,13 @@ ORDER BY time""" % (select, date))
     def onFindPatient (self, event):
         pass
 
-    
+
 # This is a framework for a Free Bonus standalone application
-# for making bookings      
+# for making bookings
 
 
 class appointapp (wxApp):
-    
+
     def OnInit (self):  
         frame = wxFrame(None,-4, "Appointments Book", size=wxSize (900, 400),
                         style=wxDEFAULT_FRAME_STYLE|  
@@ -223,30 +223,30 @@ class appointapp (wxApp):
         # Setting up the menu.  
         filemenu= wxMenu()     
         filemenu.Append(ID_ABOUT, "&About"," Information about this program")  
-        filemenu.AppendSeparator()  
+        filemenu.AppendSeparator()
         filemenu.Append(ID_EXIT,"E&xit"," Terminate the program")
         # Creating the menubar.  
         menuBar = wxMenuBar()  
         menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBa
-        frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.  
-        EVT_MENU(frame, ID_ABOUT, self.OnAbout) 
-        EVT_MENU(frame, ID_EXIT, self.OnCloseWindow) 
+        frame.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
+        EVT_MENU(frame, ID_ABOUT, self.OnAbout)
+        EVT_MENU(frame, ID_EXIT, self.OnCloseWindow)
         frame.Show(1)
         return 1
 
-    def OnAbout(self,e):  
+    def OnAbout(self,e):
         d= wxMessageDialog( self, " A drug database editor",
-                            "About Drug DB", wxOK)  
-        # Create a message dialog box  
-        d.ShowModal() # Shows it  
-        d.Destroy() # finally destroy it when finished.  
-    
+                            "About Drug DB", wxOK)
+        # Create a message dialog box
+        d.ShowModal() # Shows it
+        d.Destroy() # finally destroy it when finished.
+
     def OnCloseWindow (self, e):
-        self.ExitMainLoop ()  
+        self.ExitMainLoop ()
 
 def run ():
     import os, sys
-    os.chdir (os.path.split(sys.argv[0])[0])
+    #os.chdir (os.path.split(sys.argv[0])[0])
     app = appointapp (0)
     app.MainLoop ()
 

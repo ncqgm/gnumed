@@ -24,19 +24,21 @@
 import string, gettext, copy, os, sys
 #3rd party dependencies
 import pgdb
+#create an alias for our DB API adapter module to make code independend of the adapter used
+dbapi = pgdb
+
 #gnumed specific modules
 import gmLoginInfo, gmLog, gmExceptions
 
 #take care of translating strings
 _ = gettext.gettext
 
-#create an alias for our DB API adapter module to make code independend of the adapter used
-dbapi = pgdb
+
 __backend = 'Postgres'
 #check whether this adapter module suits our needs
 assert(float(dbapi.apilevel) >= 2.0)
 assert(dbapi.threadsafety > 0)
-assert(dbapi.paramstyle == 'pyformat') 
+assert(dbapi.paramstyle == 'pyformat')
 
 
 
@@ -269,9 +271,9 @@ def dictResult(cursor, fetched=None):
 		dict = {}
 		i=0
 		for a in attr:
-    	    		dict[a]=f[i]
+			dict[a]=f[i]
+			i+=1
 		dictres.append(dict)
-		i+=1
 	return dictres
 
 

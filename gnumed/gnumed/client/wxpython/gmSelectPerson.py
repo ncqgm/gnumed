@@ -1,3 +1,21 @@
+#!/usr/bin/python
+#############################################################################
+#
+# gmSelectPerson : convenience widget that allows to search for people
+#                   and pick a selection from a list box displaying the
+#                   search results
+# ---------------------------------------------------------------------------
+#
+# @author: Dr. Horst Herb
+# @copyright: author
+# @license: GPL (details at http://www.gnu.org)
+# @dependencies: gmSQLSimpleSearch
+# @change log:
+#	25.11.2001 hherb first draft, untested
+#
+# @TODO: Almost everything
+############################################################################
+
 from wxPython.wx import *
 from gmSQLSimpleSearch import SQLSimpleSearch
 import gettext
@@ -20,6 +38,7 @@ class DlgSelectPerson(SQLSimpleSearch):
 
 		SQLSimpleSearch.__init__(self, parent, id, pos, size, style, service)
 		#add a bottom row sizer to hold a few buttons
+		self.__SelectedPersonId=None
 		self.sizerButtons = wxBoxSizer( wxHORIZONTAL )
 		#add a "select patient" button
 		self.buttonSelect = wxButton( self, ID_BUTTON_SELECT, _("&Select"), wxDefaultPosition, wxDefaultSize, 0 )
@@ -51,9 +70,28 @@ class DlgSelectPerson(SQLSimpleSearch):
 			whereclause = "where (lastnames like '%s')" % (searchexpr +'%')
 
             	query = "%s %s %s;" % (selectclause, whereclause, orderclause)
-		print "gmSelectPerson transformed query to: ", query
+		#<DEBUG>
+		#print "gmSelectPerson transformed query to: ", query
+		#</DEBUG>
 		return query
 
+
+	def ProcessSelection(self, index):
+		if index is None:
+			return None
+		item = self.listctrlSearchResults.GetItem(index,0)
+		self.__SelectedPersonId = int(item.GetText())
+		#return self.SelectedPersonId
+		#<DEBUG>
+		#item = self.listctrlSearchResults.GetItem(index,2)
+		#name = item.GetText()
+		#item = self.listctrlSearchResults.GetItem(index,3)
+		#name = name + ' ' + item.GetText()
+		#print "The person selected was %s (id=%d)" % (name, personID)
+		#</DEBUG>
+
+	def GetSelectedPersonId(self):
+		return self.__SelectedPersonId
 
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 500))

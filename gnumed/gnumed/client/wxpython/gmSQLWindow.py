@@ -1,9 +1,7 @@
 #!/usr/bin/python
 #############################################################################
 #
-# gmGuiMain - The application framework and main window of the
-#             all signing all dancing GNUMed reference client.
-#             (WORK IN PROGRESS)
+# gmSQLWindow: convenience widget for quick "free style" SQL queries
 # ---------------------------------------------------------------------------
 #
 # provides a text entry field for the query string as well
@@ -125,7 +123,7 @@ class SQLWindow(wxPanel):
 		self.ListServices()
 		self.ListTables()
 
-		#resize the panle depending on it's widgets
+		#resize the panel depending on it's widgets
 		self.SetAutoLayout( true )
 		self.SetSizer( self.topsizer )
 		#tell the parent window about our size

@@ -290,7 +290,7 @@ class PnlPersonDetails(wxPanel):
 	def __init__(self, parent, id, pos = wxPyDefaultPosition, size = wxPyDefaultSize, style = wxTAB_TRAVERSAL):
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		szr = PersonDetailsFunc(self)
-		#parent.SetSizer( szr ) --AAARGH!!! this was te cause for the ominous segfault!
+		#parent.SetSizer( szr ) --AAARGH!!! this was the cause for the ominous segfault!
 		szr.Fit( parent )
 		szr.SetSizeHints( parent )
 
