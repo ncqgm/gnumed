@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.17 2003-10-03 00:20:25 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPhraseWheel.py,v 1.18 2003-10-07 22:20:50 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -20,6 +20,9 @@ if __name__ == "__main__":
 
 import gmLog
 _log = gmLog.gmDefLog
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
 import gmExceptions, gmPG
 
 from wxPython.wx import *
@@ -289,43 +292,77 @@ class cMatchProvider_SQL(cMatchProvider):
 	providing terms to match, a gmpw_user field and a gmpw_score
 	field.
 	"""
-	def __init__(self, source_defs):
+	def __init__(self, source_defs, score_def):
 		self.dbpool = gmPG.ConnectionPool()
 
 		# sanity check table connections
 		self.srcs = []
 		for src_def in source_defs:
-			tmp = {
-				'service': src_def['service'],
-				'table': src_def['table'],
-				'col': src_def['column'],
-				'limit': src_def['limit']
-			}
-			conn = self.dbpool.GetConnection(tmp['service'])
+			conn = self.dbpool.GetConnection(src_def['service'])
 			if conn is None:
-				for src in self.srcs:
-					src['conn'].ReleaseConnection()
-				raise gmExceptions.ConstructorError, 'cannot connect to service [%s]' % tmp['service']
+				self.__close_sources()
+				raise gmExceptions.ConstructorError, 'cannot connect to source service [%s]' % src_def['service']
 #			conn.conn.toggleShowQuery
 			curs = conn.cursor()
-			cmd = "select %s, gmpw_user, gmpw_score from %s limit 1" % (tmp['col'], tmp['table'])
+			cmd = "select %s from %s limit 1" % (src_def['column'], src_def['table'])
 			if not gmPG.run_query(curs, cmd):
 				curs.close()
-				for src in self.srcs:
-					src['conn'].ReleaseConnection()
-				raise gmExceptions.ConstructorError, 'cannot access [%s.{%s/gmpw_user/gmpw_score}] in service [%s]' % (tmp['table'], tmp['col'], tmp['service'])
-			pk = gmPG.get_pkey_name(curs, tmp['table'])
+				self.__close_sources()
+				raise gmExceptions.ConstructorError, 'cannot access [%s.%s] in service [%s]' % (src_def['table'], src_def['column'], src_def['service'])
+			if not src_def.has_key('pk'):
+				pk = gmPG.get_pkey_name(curs, src_def['table'])
+				if pk is None:
+					src_def['pk'] = "oid"
+				else:
+					src_def['pk'] = pk
 			curs.close()
-			if pk is None:
-				tmp['pk'] = "oid"
+			src_def['conn'] = conn
+			if src_def.has_key('extra conditions'):
+				src_def['extra conditions'] = "(%s) and " % src_def['extra conditions']
+				# must have extra values, too
+				src_def['extra values']
 			else:
-				tmp['pk'] = pk
-			tmp['conn'] = conn
-			tmp['query'] = "select %s, %s from %s where %s" % (tmp['pk'], tmp['col'], tmp['table'], tmp['col'])
-			self.srcs.append(tmp)
-			_log.Log(gmLog.lData, 'valid match source: %s' % tmp)
+				src_def['extra conditions'] = ''
+				# must not have extra values
+				src_def['extra values'] = []
+			src_def['query'] = "select %s, %s from %s where %s%s" % (
+				src_def['pk'],
+				src_def['column'],
+				src_def['table'],
+				src_def['extra conditions'],
+				src_def['column']
+			)
+			self.srcs.append(src_def)
+			_log.Log(gmLog.lData, 'valid match source: %s' % src_def)
+
+		rw_conn = self.dbpool.GetConnection(score_def['service'], readonly = 0)
+		if rw_conn is None:
+			self.__close_sources()
+			raise gmExceptions.ConstructorError, 'cannot connect to score storage service [%s]' % score_def['service']
+		rw_curs = rw_conn.cursor()
+		cmd = "select %s, user, score from %s limit 1" % (score_def['column'], score_def['table'])
+		if not gmPG.run_query(rw_curs, cmd):
+			rw_curs.close()
+			rw_conn.close()
+			self.__close_sources()
+			raise gmExceptions.ConstructorError, 'cannot access [%s.{%s/gmpw_user/gmpw_score}] in service [%s]' % (score_def['table'], score_def['column'], score_def['service'])
+		if not score_def.has_key('pk'):
+			pk = gmPG.get_pkey_name(rw_curs, score_def['table'])
+			if pk is None:
+				score_def['pk'] = "oid"
+			else:
+				score_def['pk'] = pk
+		rw_curs.close()
+		score_def['conn'] = rw_conn
+#		score_def['query'] = "select %s, %s from %s where %s" % (src_def['pk'], src_def['column'], src_def['table'], src_def['column'])
+		self.score_def = score_def
+		_log.Log(gmLog.lData, 'valid score storage target: %s' % score_def)
 
 		cMatchProvider.__init__(self)
+	#--------------------------------------------------------
+	def __close_sources(self):
+		for src in self.srcs:
+			self.dbpool.ReleaseConnection(src['service'])
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -362,7 +399,9 @@ class cMatchProvider_SQL(cMatchProvider):
 			curs = src['conn'].cursor()
 			# FIXME: deal with gmpw_score...
 			cmd = "%s %s %%s limit %s" % (src['query'], search_condition, src['limit'])
-			if not gmPG.run_query(curs, cmd, aFragment):
+			vals = src['extra values'][:]
+			vals.append(aFragment)
+			if not gmPG.run_query(curs, cmd, vals):
 				curs.close()
 				_log.Log(gmLog.lErr, 'cannot check for matches in %s' % src)
 				return (_false, [])
@@ -535,9 +574,14 @@ class cPhraseWheel (wxTextCtrl):
 
 		# recalculate position
 		# FiXME: check for number of entries - shrink list windows
-		#pos = self.ClientToScreen ((0,0))
-		#dim = self.GetSize ()
-		#self.__picklist_win.Position(pos, (0, dim.height))
+		(x,y) = self.ClientToScreenXY(0,0)
+		win = self
+		while not win.IsTopLevel():
+			win = win.GetParent()
+		(toplevel_x, toplevel_y) = win.ClientToScreenXY(0,0)
+
+		dim = self.GetSize()
+		self.__picklist_win.MoveXY(x - toplevel_x, y - toplevel_y + dim.height)
 
 		# select first value
 		self._picklist.SetSelection(0)
@@ -743,7 +787,12 @@ if __name__ == '__main__':
 					'column': 'phrase',
 					'limit': 25
 				}
-				mp2 = cMatchProvider_SQL([src])
+				score = {
+					'service': 'default',
+					'table': 'score_gmpw_sql_test',
+					'column': 'fk_gmpw_sql_test'
+				}
+				mp2 = cMatchProvider_SQL([src], score)
 				ww2 = cPhraseWheel(
 					parent = frame,
 					id = -1,
@@ -762,7 +811,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.17  2003-10-03 00:20:25  ncq
+# Revision 1.18  2003-10-07 22:20:50  ncq
+# - ported Syan's extra_sql_condition extension
+# - make SQL match provider aware of separate scoring tables
+#
+# Revision 1.17  2003/10/03 00:20:25  ncq
 # - handle case where matches = 1 and match = input -> don't show picklist
 #
 # Revision 1.16  2003/10/02 20:51:12  ncq
