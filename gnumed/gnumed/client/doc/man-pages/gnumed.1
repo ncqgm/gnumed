@@ -1,26 +1,28 @@
-.TH GNUMED 1 "2002 November 8" "Manual for gnumed"
+.TH GNUMED 1 "2002 November 8" "Manual for GNUmed"
 
 .SH NAME
-GnuMed \- a medical practice management software for GP offices
+GNUmed \- a medical practice management software for GP offices
 
 This is NOT PRODUCTION QUALITY software yet. Use at your own risk.
 You have been warned.
 
 .SH SYNOPSIS
 .B gnumed
-.RB [--debug|quiet]
+.RB [--quiet|debug]
 .RB [--talkback]
 .RB [--text-domain=TEXTDOMAIN]
 .RB [--log-file=FILE]
+.RB [--conf-file=FILE]
+.RB [--unicode-gettext=0|1]
 .RB [--help]
 .RB [-h|?]
 
 .SH DESCRIPTION
-.B GnuMed
+.B GNUmed
 is a solution for managing a medical practice. It primarily
 focuses on GP offices. It is released under the GPL.
 
-GnuMed is written in Python with wxPython/wxWindows. Data is stored
+GNUmed is written in Python with wxPython/wxWindows. Data is stored
 in PostgreSQL databases possibly distributed onto several machines.
 
 
@@ -48,9 +50,16 @@ specify the base name of the file without the .mo extension.
 .B \--log-file=FILE
 Use this to change the name of the log file. The default
 log file would be <~/.gnumed/gnumed.log>.
+.TP
 .B \--conf-file=FILE
 Use configuration file FILE instead of searching for it in
 standard locations.
+.TP
+.B
+--unicode-gettext=0|1
+Use unicode (1) or non-unicode (0) gettext. This is needed for older
+(< 2.5) and non-unicode compiled wxWidgets/wxPython libraries. The
+default is 1, eg. do use unicode.
 .TP
 .B \--help, -h, or -?
 Well, show this help.
@@ -60,7 +69,7 @@ Well, show this help.
 .TP
 .B GNUMED_DIR
 If GNUMED_DIR is set it will be included in the list of pathes
-to be searched for for various components of GnuMed.
+to be searched for for various components of GNUmed.
 .TP
 .B LANG, LC_MESSAGES, etc.
 See gettext(1) for how the various locale related environment
@@ -113,4 +122,4 @@ You have been warned.
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.6 2004-09-13 08:48:46 ncq Exp $
+$Id: gnumed.1,v 1.7 2005-03-29 07:16:14 ncq Exp $
