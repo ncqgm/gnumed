@@ -1,16 +1,19 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/make-schemadocs.sh,v $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 # license: GPL
 # author: Karsten.Hilbert@gmx.net
 
 export PGUSER="gm-dbo"
-/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t html &> ~/schemadocs.log
+/usr/local/bin/postgresql_autodoc -d gnumed -f ~/gm-schemadocs/gnumed-schema -t html
 
 #============================================
 # $Log: make-schemadocs.sh,v $
-# Revision 1.6  2005-01-12 14:47:48  ncq
+# Revision 1.7  2005-01-19 09:27:59  ncq
+# - let callers deal with output, don't predefine target as file (cron mails it)
+#
+# Revision 1.6  2005/01/12 14:47:48  ncq
 # - in DB speak the database owner is customarily called dbo, hence use that
 #
 # Revision 1.5  2005/01/10 12:26:40  ncq
