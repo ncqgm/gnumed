@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -711,7 +711,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 						continue
 					curs.close()
 					conn.close()
-					return (False, (2, _('Cannot save data. Database (row) locked by another user.')))
+					return (False, (2, _('Cannot save data. Database row locked by another user.')))
 				# FIXME: handle more types of errors
 				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], service), exc_info)
 				if extra_verbose:
@@ -773,7 +773,7 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False):
 			if str(val).find(_serialize_failure) > 0:
 				_log.Log(gmLog.lData, 'concurrency conflict detected')
 				curs.close()
-				return (False, (2, _('Cannot save data. Database (row) locked by another user.')))
+				return (False, (2, _('Cannot save data. Database row locked by another user.')))
 			# FIXME: handle more types of errors
 			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], conn), exc_info)
 			if extra_verbose:
@@ -827,7 +827,7 @@ def __commit2cursor(cursor=None, queries=None, extra_verbose=False):
 			_serialize_failure = "not serialize access due to concurrent update"
 			if str(val).find(_serialize_failure) > 0:
 				_log.Log(gmLog.lData, 'concurrency conflict detected')
-				return (False, (2, _('Cannot save data. Database (row) locked by another user.')))
+				return (False, (2, _('Cannot save data. Database row locked by another user.')))
 			# FIXME: handle more types of errors
 			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:250], cursor), exc_info)
 			if extra_verbose:
@@ -1181,7 +1181,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.32 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.33 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1399,7 +1399,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.32  2004-11-02 21:04:40  ncq
+# Revision 1.33  2004-11-03 22:19:53  ncq
+# - improve strings
+#
+# Revision 1.32  2004/11/02 21:04:40  ncq
 # - checked in first cut at run_commit2()
 # - next step is to make __commit2service/conn() use __commit2cursor()
 #
