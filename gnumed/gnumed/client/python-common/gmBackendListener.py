@@ -8,18 +8,22 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys, time, threading, select
 from pyPgSQL import libpq
-import gmDispatcher, gmLog
+import gmDispatcher, gmLog, gmExceptions
 _log = gmLog.gmDefLog
 #=====================================================================
 class BackendListener:
 	def __init__(self, service, database, user, password, host='localhost', port=5432, poll_interval = 3):
-		#when self._quit is true, the thread is stopped
-		self._quit = 0
+		# listener thread will regularly try to acquire this
+		# lock, when it succeeds it will quit
+		self._quit_lock = threading.Lock()
+		if not self._quit_lock.acquire(0):
+			_log.Log(gmLog.lErr, 'cannot acquire thread quit lock !?! aborting')
+			raise gmExceptions.ConstructorError, "cannot acquire thread quit-lock"
 		# remember what signals we are listening for; no need to listen twice to the same signal
 		self._intercepted_notifications = []
 		# remember what service we are representing
@@ -34,12 +38,16 @@ class BackendListener:
 		self._thread = None
 	#-------------------------------
 	def __del__(self):
-		self._quit = 1
-		for notification in self._intercepted_notifications:
-			self.__unlisten_notification(notification)
-		# give the thread time to terminate
-		if self._thread is not None:
-			self._thread.join(self._poll_interval+2)
+		# allow listener thread to acquire quit lock
+		try:
+			self._quit_lock.release()
+			for notification in self._intercepted_notifications:
+				self.__unlisten_notification(notification)
+			# give the thread time to terminate
+			if self._thread is not None:
+				self._thread.join(self._poll_interval+2)
+		except:
+			pass
 	#-------------------------------
 	# public API
 	#-------------------------------
@@ -52,11 +60,11 @@ class BackendListener:
 				res = self._conn.query(cmd)
 			except StandardError:
 				_log.Log(gmLog.lErr, '>>>%s<<< failed' % cmd)
-				_log.LogException('cannot register backend callback', sys.exc_info())
+				_log.LogException('cannot register backend callback', sys.exc_info(), verbose=0)
 				try:
 					self._conn_lock.release()
 				except StandardError:
-					_log.LogException('this should never happen: we have the lock but cannot release it', verbose=0)
+					_log.LogException('this should never happen: we have the lock but cannot release it', verbose=1)
 				return None
 			self._conn_lock.release()
 			if res.resultType == libpq.RESULT_ERROR:
@@ -69,7 +77,9 @@ class BackendListener:
 		# connect signal with callback function
 		gmDispatcher.connect(receiver = aCallback, signal = aSignal, sender = self._service)
 		if self._thread is None:
-			self.__start_thread()
+			if not self.__start_thread():
+				return None
+		return 1
 	#-------------------------------
 	def unregister_callback(self, aSignal, aCallback):
 		# unlisten to signal
@@ -81,9 +91,7 @@ class BackendListener:
 		return 1
 	#-------------------------------
 	def tell_thread_to_stop(self):
-		if self._thread is None:
-			return 1
-		self._quit = 1
+		self._quit_lock.release()
 	#-------------------------------
 	# internal helpers
 	#-------------------------------
@@ -117,12 +125,12 @@ class BackendListener:
 		return 1
 	#-------------------------------
 	def __connect(self, database, user, password, host='localhost', port=5432):
-		cnx = None
 		try:
 			auth = "dbname='%s' user='%s' password='%s' host='%s' port=%d" % (database, user, password, host, port)
 			cnx = libpq.PQconnectdb(auth)
 		except libpq.Error, msg:
 			_log.LogException("Connection to database '%s' failed: %s" % (database, msg), sys.exc_info())
+			return None
 		return cnx
 	#-------------------------------
 	def __start_thread(self):
@@ -141,15 +149,15 @@ class BackendListener:
 	#-------------------------------
 	def _process_notifications(self):
 		while 1:
-			if self._quit:
+			if self._quit_lock.acquire(0):
 				break
 			time.sleep(0.35)					# give others time to acquire lock
-			if self._quit:
+			if self._quit_lock.acquire(0):
 				break
 			self._conn_lock.acquire(1)
 			ready_input_sockets = select.select([self._conn.socket], [], [], 1.0)[0]
 			self._conn_lock.release()
-			if self._quit:
+			if self._quit_lock.acquire(0):
 				break
 			# any input available ?
 			if len(ready_input_sockets) != 0:
@@ -162,28 +170,28 @@ class BackendListener:
 				while note:
 					# if self._quit is true we may be in __del__ in which case
 					# gmDispatcher isn't guarantueed to exist anymore
-					if not self._quit:
+					if not self._quit_lock.acquire(0):
 						try:
 							gmDispatcher.send(signal = note.relname, sender = self._service, sending_backend_pid = note.be_pid)
 						except:
-							pass
-					if self._quit:
+							print "problem passing on notification to intra-client dispatcher"
+					if self._quit_lock.acquire(0):
 						break
 					time.sleep(0.25)
-					if self._quit:
+					if self._quit_lock.acquire(0):
 						break
 					self._conn_lock.acquire(1)
 					note = self._conn.notifies()
 					self._conn_lock.release()
 			else:
 				# don't sleep waiting for input if we plan on quitting anyways
-				if self._quit:
+				if self._quit_lock.acquire(0):
 					break
 				# let others acquire lock
 				time.sleep(0.35)
-				if self._quit:
+				if self._quit_lock.acquire(0):
 					break
-				# wait at max self.__poll_intervall for new data
+				# wait at most self.__poll_interval for new data
 				self._conn_lock.acquire(1)
 				select.select([self._conn.socket], [], [], self._poll_interval)
 				self._conn_lock.release()
@@ -269,7 +277,10 @@ if __name__ == "__main__":
 	listener.unregister_callback('patient_changed', OnPatientModified)
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.20  2003-11-17 10:56:35  sjtan
+# Revision 1.21  2004-01-18 21:45:50  ncq
+# - use real lock for thread quit indicator
+#
+# Revision 1.20  2003/11/17 10:56:35  sjtan
 #
 # synced and commiting.
 #
