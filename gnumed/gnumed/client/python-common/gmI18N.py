@@ -44,7 +44,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -136,7 +136,7 @@ def __install_domain():
 			return 1
 		except IOError:
 			# most likely we didn't have a .mo file
-			_log.LogException('Cannot install textdomain from standard POSIX locations.', sys.exc_info(), fatal=0)
+			_log.LogException('Cannot install textdomain from standard POSIX locations.', sys.exc_info(), verbose=0)
 	else:
 		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
 
@@ -228,7 +228,10 @@ _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.27  2003-04-25 08:48:47  ncq
+# Revision 1.28  2003-06-26 21:34:03  ncq
+# - fatal->verbose
+#
+# Revision 1.27  2003/04/25 08:48:47  ncq
 # - refactored, now also take into account different delimiters (see __split_locale*)
 #
 # Revision 1.26  2003/04/18 09:00:02  ncq

@@ -43,7 +43,7 @@ Limitations:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCLI.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, getopt, string
@@ -110,7 +110,7 @@ def _parse_opts(short_names, long_names, arg_list):
 	except getopt.GetoptError:
 		_log.Log(gmLog.lWarn, "problem parsing command line")
 		exc = sys.exc_info()
-		_log.LogException("Non-fatal exception caught:", exc, fatal=0)
+		_log.LogException("Non-fatal exception caught:", exc, verbose=0)
 
 	for opt in opts:
 		_cli_args[opt[0]] = opt[1]
@@ -151,7 +151,10 @@ else:
 
 #=====================================================================
 # $Log: gmCLI.py,v $
-# Revision 1.8  2002-11-18 09:41:25  ncq
+# Revision 1.9  2003-06-26 21:28:34  ncq
+# - fatal->verbose
+#
+# Revision 1.8  2002/11/18 09:41:25  ncq
 # - removed magic #! interpreter incantation line to make Debian happy
 #
 # Revision 1.7  2002/11/17 20:09:10  ncq

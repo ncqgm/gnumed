@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.52 2003-06-19 15:26:02 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmPlugin.py,v 1.53 2003-06-26 21:35:23 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -346,7 +346,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		# 2) get class name
 		plugin_class = plugin_module_name.__dict__[plugin_name]
 	except:
-		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), fatal=0)
+		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
 		return None
 
 	if not issubclass (plugin_class, wxBasePlugin):
@@ -357,7 +357,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	try:
 		plugin = plugin_class(set = aPackage, guibroker = guibroker, dbbroker = dbbroker)
 	except:
-		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), fatal=0)
+		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
 		return None
 
 	return plugin
@@ -459,7 +459,7 @@ def GetPluginLoadList(set):
 	try:
 		fCfg = gmCfg.cCfgFile(aFile = plugin_conf_name)
 	except:
-		_log.LogException("Can't load plugin load order config file.", sys.exc_info(), fatal=0)
+		_log.LogException("Can't load plugin load order config file.", sys.exc_info(), verbose=0)
 
 	# load from file
 	if fCfg is not None:
@@ -514,7 +514,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.52  2003-06-19 15:26:02  ncq
+# Revision 1.53  2003-06-26 21:35:23  ncq
+# - fatal->verbose
+#
+# Revision 1.52  2003/06/19 15:26:02  ncq
 # - cleanup bits
 # - add can_receive_focus() helper to wxNotebookPlugin()
 # - in default can_receive_focus() veto() plugin activation on "no patient selected"

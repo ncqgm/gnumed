@@ -2,8 +2,8 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.3 2003-04-20 15:33:03 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMimeLib.py,v 1.4 2003-06-26 21:34:43 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -56,7 +56,7 @@ def guess_mimetype(aFileName = None):
 			import gmMimeMagic
 		except ImportError:
 			exc = sys.exc_info()
-			_log.LogException("Cannot import internal magic data file.", exc, fatal=0)
+			_log.LogException("Cannot import internal magic data file.", exc, verbose=0)
 			return None
 		tmp = gmMimeMagic.file(aFileName)
 		# save resources
@@ -157,7 +157,7 @@ def call_viewer_on_file(aFile = None):
 			os.startfile(file_to_display)
 		except:
 			msg = _("Unable to start viewer on file [%s].") % file_to_display		
-			_log.LogException(msg, sys.exc_info(), fatal=0)
+			_log.LogException(msg, sys.exc_info(), verbose=0)
 			return None, msg
 
 	# clean up if necessary
@@ -173,7 +173,10 @@ if __name__ == "__main__":
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.3  2003-04-20 15:33:03  ncq
+# Revision 1.4  2003-06-26 21:34:43  ncq
+# - fatal->verbose
+#
+# Revision 1.3  2003/04/20 15:33:03  ncq
 # - call_viewer_on_file() belongs here, I guess
 #
 # Revision 1.2  2003/02/17 16:17:20  ncq
