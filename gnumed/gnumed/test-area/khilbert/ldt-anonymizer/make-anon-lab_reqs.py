@@ -8,8 +8,8 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/ldt-anonymizer/make-anon-lab_reqs.py,v $
-# $Id: make-anon-lab_reqs.py,v 1.1 2004-06-02 00:08:16 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: make-anon-lab_reqs.py,v 1.2 2004-06-23 21:12:43 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -33,14 +33,14 @@ Testwoman.
 """
 	sys.exit()	
 
-print "accessing patient data Laborata Testwoman"
+print "accessing patient Laborata Testwoman"
 # set encoding
 gmPG.set_default_client_encoding('latin1')
 # setup login defs
 auth_data = gmLoginInfo.LoginInfo(
 	user = 'any-doc',
 	passwd = 'any-doc',
-	host = '',
+	host = 'hherb.com',
 	port = 5432,
 	database = 'gnumed'
 )
@@ -80,23 +80,29 @@ for line in fileinput.input(infilename):
 	line_data = tmp[7:]
 	if line_type == '8310':
 		_log.Log(gmLog.lInfo, "creating lab request for ID [%s]" % line_data)
-		status, data = gmPathLab.create_lab_request(
+		print "creating lab request for ID [%s]" % line_data
+		status = emr.add_lab_request(
 			lab = 'your own practice',
-			req_id = line_data,
-			pat_id = patid,
-			encounter_id = enc_id,
-			episode_id = epi_id
+			req_id = line_data
 		)
-		if status is False:
-			print "ERROR:", data
-		elif status is None:
-			print "ERROR: check lab journal"
+		if status is None:
+			print "ERROR: failed"
+		else:
+			print "INFO: success"
 
-print "done"
+pat.cleanup()
+del pat
+del emr
 backend.StopListeners()
+print "done"
 
 #===============================================================
 # $Log: make-anon-lab_reqs.py,v $
-# Revision 1.1  2004-06-02 00:08:16  ncq
+# Revision 1.2  2004-06-23 21:12:43  ncq
+# - cleanup
+# - use emr.add_lab_request()
+# - properly use emr.cleanup()/patient.cleanup()
+#
+# Revision 1.1  2004/06/02 00:08:16  ncq
 # - tailor to Laborata Testwoman
 #
