@@ -2,18 +2,16 @@
 """
 #=======================================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeLib.py,v $
-# $Id: gmMimeLib.py,v 1.1 2004-02-25 09:30:13 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMimeLib.py,v 1.2 2004-10-11 19:08:08 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import os, mailcap, string, sys
+import os, mailcap, string, sys, mimetypes
 
 import gmLog
 _log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 #=======================================================================================
 def guess_mimetype(aFileName = None):
 	"""Guess mime type of arbitrary file."""
@@ -97,11 +95,26 @@ def guess_ext_by_mimetype(aMimeType = None):
 		return None
 
 	# FIXME: does this screw up with scope of binding vs. scope of import ?
-	import mimetypes
 	f_ext = mimetypes.guess_extension(aMimeType)
 	if f_ext is None:
 		_log.Log(gmLog.lErr, "The system does not know the file extension for the mimetype <%s>." % aMimeType)
 
+	return f_ext
+#-----------------------------------------------------------------------------------
+def guess_ext_for_file(aFile=None):
+	if aFile is None:
+		return None
+
+	(path_name, f_ext) = os.path.splitext(aFile)
+	if f_ext != '':
+		return f_ext
+
+	# try to guess one
+	mime_type = guess_mimetype(aFile)
+	f_ext = guess_ext_by_mimetype(mime_type)
+	if f_ext is None:
+		_log.Log(gmLog.lErr, 'unable to guess file extension for mime type [%s]' % mime_type)
+		return None
 	return f_ext
 #-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None):
@@ -168,12 +181,16 @@ def call_viewer_on_file(aFile = None):
 	return 1, ""
 #=======================================================================================
 if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
 	filename = sys.argv[1]
 	print str(guess_mimetype(filename))
 	print str(get_viewer_cmd(guess_mimetype(filename), filename))
 #=======================================================================================
 # $Log: gmMimeLib.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-10-11 19:08:08  ncq
+# - guess_ext_for_file()
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.5  2003/11/17 10:56:36  sjtan
