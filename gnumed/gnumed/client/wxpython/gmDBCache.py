@@ -345,6 +345,11 @@ class CachedDBObject:
 		self.notify()
 
 
+        def getSqlSettings(self):
+                return ["set datestyle to european", "set transaction isolation level serializable"]
+
+
+
 
 ##############################################################
 # convenience only, really

@@ -39,6 +39,27 @@ class CachedAddress(gmDBCache.CachedDBObject):
 		assert(self.cache.id is not None or id is not None)
 		return gmDBCache.CachedDBObject.get(self, id, by_reference, refresh_only)
 
+	def create_address_link( self, addressMap, db):
+		"""create an address_link. This has a processing dependency: The person database sequencer must have been used."""
+		queries = []
+        	queries.append( """insert into v_basic_address(number, street, street2, city, state,  country, postcode )
+                   values ( '%(number)s', '%(street)s', '%(street2)s', trim(upper('%(city)s')),trim(upper('%(state)s')), '%(country)s','%(postcode)s' )"""%addressMap)
+
+                queries.append("""insert into identities_addresses (id_identity, id_address, address_source ) select i.last_value,
+                   a.last_value, CURRENT_USER from identity_id_seq i, address_id_seq a  """)
+
+                                #also save the type in identities_addresses
+                queries.append ("""update identities_addresses set id_type=(select id from address_type ia where trim(lower(ia.name)) = trim(lower('%(address_at)s'))) where identities_addresses.id = currval('identities_addresses_id_seq')""" % addressMap)
+
+                #queries.append("""select currval('identity_id_seq'), currval('identities_addresses_id_seq')""")
+
+		cursor = db.cursor()
+
+		for x in queries:
+			print x
+			cursor.execute(x)
+
+
 	def dictresult(self, id=None):
 		if id is not None:
 			self.get(id, refresh_only=1)

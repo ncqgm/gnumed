@@ -208,39 +208,28 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		personMap = self.GetPersonMap()
 		addressMap = self.GetAddressMap()
 		
-		print "trying to save ", personMap, " ** AND **", addressMap
-
-
 		queries = []
 	
 		if self.personId == None or self.personId == -1:
-				queries.append( """insert into v_basic_person ( title,lastnames, firstnames,  gender, dob, cob )
-					values ('%(Title)s', '%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s', '%(Cob)s')"""%personMap)
 
-				
-				queries.append( """insert into v_basic_address(number, street, street2, city, state,  country, postcode )
-						values ( '%(Street No)s', '%(Street)s', '%(Address 1)s', trim(upper('%(City)s')),trim(upper('%(State)s')), '%(Country)s','%(Postcode)s' )"""%addressMap)
 
-				queries.append("""insert into identities_addresses (id_identity, id_address, address_source ) select i.last_value,
-						a.last_value, CURRENT_USER from identity_id_seq i, address_id_seq a  """)
-
-				#also save the type in identities_addresses
-				queries.append ("""update identities_addresses set id_type=(select id from address_type ia where trim(lower(ia.name)) = trim(lower('%(address At)s'))) where identities_addresses.id = currval('identities_addresses_id_seq')""" % addressMap) 	
-
-				queries.append("""select currval('identity_id_seq'), currval('identities_addresses_id_seq')""")
+				db = self.getDB()
 				try:
-					db = self.getDB()
 					db.commit()
-					setup = self.getSqlSettings()
 					cursor = db.cursor()
+					setup = self.getSqlSettings()
 					for x in setup:
-						print x
 						cursor.execute(x)
 
-					for x in queries:	
-						print x
-						cursor.execute(x)
+					map = self.LowerMap( personMap,  self.__GetPersonMapping())
+					self.__person.create_person( map, db)
 
+					map = self.LowerMap( addressMap,  self.__GetAddressMapping())
+					self.__address.create_address_link( map, db)
+
+					stmt  = """select currval('identity_id_seq'), currval('identities_addresses_id_seq')"""
+					print stmt
+					cursor.execute(stmt)
 					(a,b) = cursor.fetchone()
 					print " personId = ", a, "addressId = ",b
 					db.commit()
@@ -252,7 +241,11 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 					
 				except Exception, errorStr:
 					db.rollback()
-					print "error in inserting queries, ", errorStr
+					print "error in inserting queries, ", errorStr, 'at line=', sys.exc_traceback.tb_lineno
+					frame = sys.exc_traceback.tb_frame
+					while frame:
+						print" from ", frame.f_code," at line no=",   frame.f_lineno
+						frame = frame.f_back
 					
 			
 				return	
@@ -336,7 +329,28 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 		return ["set datestyle to european", "set transaction isolation level serializable"]
 
 	
+	def getName2(self, map):
+		if map.has_key('name2'):
+			return map['name2']
+		return None
+		
+	
+	def LowerMap( self, map, mapping):
+			newMap = {}
+			for i in mapping:
+				print "in LowerMap checking", i
+				y = self.getName2(i)
+				if y == None:
+					y = i['name'].lower()
+				try:
+					newMap[y] = map[ i['name'] ]
+				except Exception , errorStr:
+					print errorStr, 'in LowerMap in PersonDlg'
+			print "lower case map = ", newMap
+			return newMap
+
 				
+			 		
 
 	def __GetPersonMapping(self):
 		if self.personMapping == None:

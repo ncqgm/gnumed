@@ -55,6 +55,20 @@ class CachedPerson(gmDBCache.CachedDBObject):
 		except:
 			return None
 
+	def create_person(self, map, db):
+				"""create a person through sql , but no transaction statements"""
+		                queries = []
+
+                                queries.append( """insert into v_basic_person ( title,lastnames, firstnames,  gender, dob, cob )        
+	                               values ('%(title)s', '%(lastnames)s', '%(firstnames)s',  '%(gender)s', '%(dob)s', '%(cob)s')"""%map) 
+				cursor = db.cursor()
+
+				for x in queries:
+					print x
+					cursor.execute(x)
+
+
+
 
 if __name__ == "__main__":
 	import gmPG
