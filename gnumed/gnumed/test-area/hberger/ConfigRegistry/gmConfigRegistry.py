@@ -543,16 +543,6 @@ class gmConfigEditorPanel(wxPanel):
 		self.mainSizer.SetSizeHints(self)
 		self.Layout()
 		self.configTree.update()
-###############################################################################
-
-
-	def __populateTree():
-		# here we should 
-		# 1.) get the config parameter either from ConfigDefinition or ConfigData
-		# 2.) parse the config items and create a hierarchical list from it's names
-		# 3.) add each config entry to the treeCtrl
-		pass
-###############################################################################
 
 #================================================================
 # MAIN
@@ -605,7 +595,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.3  2003-05-11 16:56:48  hinnef
+# Revision 1.4  2003-05-11 17:00:26  hinnef
+# - removed obsolete code lines
+#
+# Revision 1.3  2003/05/11 16:56:48  hinnef
 # - now shows values of config parameters, too
 #
 # Revision 1.2  2003/05/10 18:44:02  hinnef
