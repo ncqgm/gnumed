@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.22 2004-02-26 02:12:00 ihaywood Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmDemographicRecord.py,v 1.23 2004-02-26 17:19:59 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -390,63 +390,82 @@ where
 			]
 		)
 	#------------------------------------------------------------
-	def setCommChannel (self, channel, url):
-		"""
-		Sets the communication channel (phone no., email, etc.).
-		channel is an ID returned from getCommChannelType ()
+	# FIXME: should be called linkCommChannel
+	# FIXME: should we support named channel types, too ?
+	def setCommChannel (self, channel_type, url):
+		"""Links a comm channel with a patient. Adds it first if needed.
+
+		(phone no., email, etc.).
+		channel_type is an ID as returned from getCommChannelTypeID()
 		"""
 		# does channel already exist ?
 		cmd = "select cc.id from comm_channel cc where cc.id_type = %s and cc.url = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, channel, url)
-		if data:
-			cc_id = data[0][0]
-		else:
-			# no, create new comm channel
-			cmd = "insert into comm_channel (id_type, url) values (%s, %s)"
-			gmPG.run_commit ('personalia', [(cmd, [channel, url])])
-			cmd = "select currval ('comm_channel_id_seq')"
-			cc_id = gmPG.run_ro_query ('personalia', cmd)[0][0]
+		data = gmPG.run_ro_query ('personalia', cmd, channel_type, url)
+		# error
+		if data is None:
+			_log(gmLog.lErr, 'cannnot check for comm channel details')
+			return None
+		# none found
+		if len(data) == 0:
+			cmd1 = "insert into comm_channel (id_type, url) values (%s, %s)"
+			cmd2 = "select currval('comm_channel_id_seq')"
+			data = gmPG.run_commit ('personalia', [
+				(cmd1, [channel_type, url]),
+				(cmd2, [])
+			])
+			if (data is None) or (len(data) == 0):
+				_log.Log(gmLog.lErr, 'cannot add communication channel details')
+				return None
+
+		id_channel = data[0][0]
+
 		# delete pre-existing link as required
 		cmd1 = """
 		delete from
-		 lnk_person2comm_channel lp2cc
-		where exists (
-		select 1 from comm_channel cc where cc.id_type = %s and cc.id = lp2cc.id_comm) and
-		lp2cc.id_identity = %s
-		 """
+			lnk_person2comm_channel lp2cc
+		where
+			lp2cc.id_identity = %s
+				and
+			exists(
+				select 1
+				from comm_channel cc
+				where cc.id_type = %s and cc.id = lp2cc.id_comm)"""
 		# creating new link
-		cmd2 = """
-		insert into lnk_person2comm_channel (id_type, id_identity, id_comm) values (%s, %s, %s)
-		"""
-		return gmPG.run_commit ('personalia', [(cmd1, [channel, self.ID]), (cmd2, [channel, self.ID, cc_id])])
+		cmd2 = """insert into lnk_person2comm_channel (id_type, id_identity, id_comm) values (%s, %s, %s)"""
+		return gmPG.run_commit ('personalia', [
+			(cmd1, [self.ID, channel_type]),
+			(cmd2, [channel_type, self.ID, id_channel])
+		])
 	#-------------------------------------------------------------
 	def getCommChannelTypeID (self, type=None):
-		"""
-		Gets the ID for a particular comm type
+		"""Gets the ID for a particular comm type.
+
 		None returns a list of [ID, type] available
 		"""
-		if type:
-			data = gmPG.run_ro_query ('personalia', 'select id from enum_comm_types where description = %s', type)
-			return data or data[0][0]
-		else:
+		if type is None:
 			return gmPG.run_ro_query ('personalia', 'select id, description from enum_comm_types')
+		data = gmPG.run_ro_query('personalia', 'select id from enum_comm_types where description = %s', type)
+		return data or data[0][0]
 	#-------------------------------------------------------------
 	def getCommChannel (self, ID=None):
 		"""
-		Gets the comm chennel url, given its type ID
+		Gets the comm channel url, given its type ID
 		If ID default, a mapping of all IDs and urls
 		"""
-		if ID:
-			data = gmPG.run_ro_query ('personalia', """
-			select cc.url from comm_channel cc, lnk_person2comm_channel lp2cc where
-			cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
-			""", ID, self.ID)
-			return data or data[0][0]
-		else:
-			return dict (gmPG.run_ro_query ('personalia', """
-			select cc.id_type, cc.url from comm_channel cc, lnk_person2comm_channel lp2cc where
-			cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
-			""", self.ID))
+		if ID is None:
+			cmd = """
+				select cc.id_type, cc.url
+				from comm_channel cc, lnk_person2comm_channel lp2cc
+				where cc.id=lp2cc.id_comm and lp2cc.id_identity = %s"""
+			return dict (gmPG.run_ro_query ('personalia', cmd, self.ID))
+
+		cmd = """
+			select cc.url
+			from comm_channel cc, lnk_person2comm_channel lp2cc
+			where cc.id_type=%s and lp2cc.id_identity=%s and lp2cc.id_comm=cc.id
+		"""
+		data = gmPG.run_ro_query ('personalia', cmd, ID, self.ID)
+		return data or data[0][0]
 	#--------------------------------------------------------------------
 	def getMedicalAge(self):
 		dob = self.getDOB()
@@ -658,7 +677,13 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.22  2004-02-26 02:12:00  ihaywood
+# Revision 1.23  2004-02-26 17:19:59  ncq
+# - setCommChannel: arg channel -> channel_type
+# - setCommChannel: we need to read currval() within
+#   the same transaction as the insert to get consistent
+#   results
+#
+# Revision 1.22  2004/02/26 02:12:00  ihaywood
 # comm channel methods
 #
 # Revision 1.21  2004/02/25 09:46:20  ncq
