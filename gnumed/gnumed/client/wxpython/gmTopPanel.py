@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -205,9 +205,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	#-------------------------------------------------------
 	def _update_allergies(self, **kwargs):
 		epr = self.curr_pat['clinical record']
-		allergies = epr.get_allergies(remove_sensitivities=1)
+		allergy_names = epr.get_allergy_names(remove_sensitivities=1)
 		tmp = []
-		for allergy in allergies:
+		for allergy in allergy_names:
 			tmp.append(allergy['name'])
 		data = string.join(tmp, ',')
 		if data == '':
@@ -304,7 +304,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.22  2003-11-09 17:33:27  shilbert
+# Revision 1.23  2003-11-13 08:15:25  ncq
+# - display allergies in top panel again
+#
+# Revision 1.22  2003/11/09 17:33:27  shilbert
 # - minor glitch
 #
 # Revision 1.21  2003/11/09 17:31:13  shilbert
