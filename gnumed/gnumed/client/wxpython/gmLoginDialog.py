@@ -378,7 +378,7 @@ For assistance on using GnuMed please contact:
 ########################################################################################
 
 class LoginDialog(wxDialog):
-	def __init__(self, parent, id, title=_("")):
+	def __init__(self, parent, id, title=_("Welcome to GnuMed")):
 		wxDialog.__init__(self, parent, id, title)
 		self.panel = LoginPanel(self, -1, isDialog=1)
 		self.Fit () # needed for Windoze.
