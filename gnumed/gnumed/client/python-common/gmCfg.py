@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -255,8 +255,8 @@ class cCfgFile:
 					new_file.write("%s = %s\n" % (opt, odata['value']))
 			new_file.write("\n\n")
 
-		new_file.close
-		# rename new file to old file
+		new_file.close()
+		# copy new file to old file
 		shutil.copyfile(new_name, self.cfgName)
 		#os.remove(new_name)
 		return 1
@@ -539,7 +539,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.12  2002-09-12 10:07:29  ncq
+# Revision 1.13  2002-09-12 23:11:14  ncq
+# - fixed one nasty overwriting bug in store()
+#
+# Revision 1.12  2002/09/12 10:07:29  ncq
 # - properly normalize : -> =
 #
 # Revision 1.11  2002/09/12 09:17:11  ncq
