@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.57 2004-01-06 23:44:40 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmClinicalRecord.py,v 1.58 2004-01-12 16:20:14 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -426,6 +426,7 @@ class gmClinicalRecord:
 		return self.__db_cache['episodes']
 	#------------------------------------------------------------------
 	def set_active_episode(self, episode_name = 'xxxDEFAULTxxx'):
+#		print "setting active episode to", episode_name
 		# does this episode exist at all ?
 		# (else we can't activate it in the first place)
 		cmd = "select id_episode from v_patient_episodes where id_patient=%s and episode=%s limit 1"
@@ -454,13 +455,10 @@ class gmClinicalRecord:
 		cmd1 = "delete from last_act_episode where id_patient=%s"
 		# activate new one
 		cmd2 = "insert into last_act_episode (id_episode, id_patient) values (%s, %s)"
-		rows = gmPG.run_commit('historica', [
+		result = gmPG.run_commit('historica', [
 			(cmd1, [self.id_patient]),
 			(cmd2, [id_episode, self.id_patient])])
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
-			return None
-		if len(rows) == 0:
+		if result != 1:
 			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (id_episode, self.id_patient))
 			return None
 
@@ -781,6 +779,8 @@ order by amount_overdue
 			_log.Log(gmLog.lData, 'must have vaccination to save it')
 			return (None, _('programming error'))
 
+#		print "add_vaccination:", aVacc
+
 		# generate insert command
 		cols = []
 		val_snippets = []
@@ -803,39 +803,41 @@ order by amount_overdue
 		vals1['doc'] = _whoami.get_staff_ID()
 
 		try:
+			vals1['date'] = aVacc['date given']
 			cols.append('clin_when')
 			val_snippets.append('%(date)s')
-			vals1['date'] = aVacc['date given']
 		except KeyError:
 			_log.LogException('missing date_given', sys.exc_info(), verbose=0)
 			return (None, _('"date given" missing'))
 
 		try:
+			vals1['narrative'] = aVacc['progress note']
 			cols.append('narrative')
 			val_snippets.append('%(narrative)s')
-			vals1['narrative'] = aVacc['progress note']
 		except KeyError:
 			pass
 
 		try:
+			vals1['site'] = aVacc['site given']
 			cols.append('site')
 			val_snippets.append('%(site)s')
-			vals1['site'] = aVacc['site given']
 		except KeyError:
 			pass
 
 		try:
+			vals1['batch'] = aVacc['batch no']
 			cols.append('batch_no')
 			val_snippets.append('%(batch)s')
-			vals1['batch'] = aVacc['batch no']
 		except KeyError:
 			_log.LogException('missing batch #', sys.exc_info(), verbose=0)
 			return (None, _('"batch #" missing'))
 
 		try:
+			vals1['vaccine'] = aVacc['vaccine']
+			if aVacc['vaccine'] == '':
+				raise KeyError
 			cols.append('fk_vaccine')
 			val_snippets.append('(select id from vaccine where trade_name=%(vaccine)s)')
-			vals1['vaccine'] = aVacc['vaccine']
 		except KeyError:
 			_log.LogException('missing vaccine name', sys.exc_info(), verbose=0)
 			return (None, _('"vaccine name" missing'))
@@ -867,13 +869,16 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 		# return new ID cmd
 		cmd3 = "select currval('vaccination_id_seq')"
 
-		result = gmPG.run_commit('historica', [
+#		print cmd1
+#		print cmd2
+
+		result, msg = gmPG.run_commit('historica', [
 			(cmd1, [vals1]),
 			(cmd2, [vals2]),
 			(cmd3, [])
-		])
+		], 1)
 		if result is None:
-			return (None, _('database error'))
+			return (None, msg)
 		return (1, result[0][0])
 	#--------------------------------------------------------
 	# set up handler map
@@ -915,7 +920,7 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 						and
 					now() - last_affirmed < %s::interval
 				"""
-			rows = gmPG.run_ro_query('historica', cmd, self.id_patient, self.encounter_soft_ttl)
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, self.encounter_soft_ttl)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot access current encounter table')
 				return -1, ''
@@ -942,7 +947,7 @@ values (currval('vaccination_id_seq'), %s)""" % vals_clause
 						and
 					now() - last_affirmed < %s::interval
 				limit 1"""
-			rows = gmPG.run_ro_query('historica', cmd, self.id_patient, self.encounter_hard_ttl)
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, self.encounter_hard_ttl)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot access current encounter table')
 				return -1, ''
@@ -1117,7 +1122,16 @@ if __name__ == "__main__":
 	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.57  2004-01-06 23:44:40  ncq
+# Revision 1.58  2004-01-12 16:20:14  ncq
+# - set_active_episode() does not read rows from run_commit()
+# - need to check for argument aVacc keys *before* adding
+#   corresponding snippets to where/cols clause else we would end
+#   up with orphaned query parts
+# - also, aVacc will always have all keys, it's just that they may
+#   be empty (because editarea.GetValue() will always return something)
+# - fix set_active_encounter: don't ask for column index
+#
+# Revision 1.57  2004/01/06 23:44:40  ncq
 # - __default__ -> xxxDEFAULTxxx
 #
 # Revision 1.56  2004/01/06 09:56:41  ncq
