@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.36 $"
+__version__ = "$Revision: 1.37 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -367,22 +367,12 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 			_log.Log(gmLog.lErr, 'cannot determine patient from encounter [%s]' % encounter_id)
 			return (False, 'unable to create episode')
 		id_patient = rows[0][0]
-	
-	# since cEpisode gets from rows from v_pat_episodes and v_pat_episodes gets from v_named_episode
-	# unnamed episodes cannot be refetched, so assigned a default episode name if episode_name is None.
-	#FIXME
-	if episode_name is None:
-		episode_name = "unlinked episode"
-		
 	# already there ?
-	
-	if episode_name is not None:
-		episode_name = str(episode_name)
-		try:
-			episode = cEpisode(id_patient=id_patient, name=episode_name)
-			return (True, episode)
-		except gmExceptions.ConstructorError, msg:
-			_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
+	try:
+		episode = cEpisode(id_patient=id_patient, name=episode_name)
+		return (True, episode)
+	except gmExceptions.ConstructorError, msg:
+		_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
 	# 1) insert naked episode record
 	queries = []
 	if id_patient is None:
@@ -392,22 +382,16 @@ def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encou
 		cmd = """insert into clin_episode (fk_health_issue, fk_patient) values (%s, %s)"""
 		queries.append((cmd, [pk_health_issue, id_patient]))
 	# 2) link to clin_narrative
-	#    - not strictly necessary if health_issue not None
-	#      but principle of least surprise applies
-	if episode_name is not None:
-		cmd = """insert into clin_narrative (fk_encounter, fk_episode, soap_cat, narrative)
-				 values (%s, currval('clin_episode_pk_seq'), %s, %s)"""
-		queries.append((cmd, [encounter_id, soap_cat, episode_name]))
-		cmd = """update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
-				 where pk = currval('clin_episode_pk_seq')"""
-		queries.append((cmd, []))
+	cmd = """insert into clin_narrative (fk_encounter, fk_episode, soap_cat, narrative)
+			 values (%s, currval('clin_episode_pk_seq'), %s, %s)"""
+	queries.append((cmd, [encounter_id, soap_cat, episode_name]))
+	cmd = """update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
+			 where pk = currval('clin_episode_pk_seq')"""
+	queries.append((cmd, []))
 	# 3) retrieve PK of newly created row
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
 	success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
-
-	_log.Log(gmLog.lInfo, "queries=%s, success=%s, data=%s" % ( queries, success, data) )
-
 	if not success:
 		_log.Log(gmLog.lErr, 'cannot create episode: %s' % data)
 		err, msg = data
@@ -600,7 +584,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.36  2005-02-20 10:30:49  sjtan
+# Revision 1.37  2005-02-28 18:15:36  ncq
+# - proper fix for not being able to fetch unnamed episodes
+#   is to require a name in the first place ...
+#
+# Revision 1.36  2005/02/20 10:30:49  sjtan
 #
 # unnamed episodes cannot be refetched.
 #
