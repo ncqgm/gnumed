@@ -1,0 +1,72 @@
+\documentclass{a4form}
+\usepackage{multicol}
+
+\begin{document}
+\begin{page}
+\text{20}{12}{70}{\field{to_address}}
+
+\lineh{20}{40}{170} % horiztonal separators
+\lineh{20}{50}{110}
+\lineh{20}{80}{170}
+\lineh{20}{135}{170}
+\lineh{20}{220}{170}
+\lineh{20}{255}{170}
+
+\linev{20}{40}{215} % sidelines
+\linev{190}{40}{215}
+
+\linev{130}{40}{95} % broken vertical separator
+\linev{130}{220}{35}
+
+\lineh{130}{107}{60} % smaller separators
+\linev{57}{40}{10}
+\linev{90}{40}{10}
+
+\text{22}{45}{20}{Billing}
+\text{59}{45}{15}{Our ref:}
+\text{92}{45}{20}{Your ref:}
+\text{133}{45}{55}{
+\textbf{Requesting Practitioner}\\
+\\
+\field{from_address}}
+\text{22}{55}{50}{\field{patient_address}}
+\text{22}{85}{100}{
+\textbf{REQUEST}\\
+\field{request}\\
+\\
+\textbf{THERAPY}\\
+\field{therapy}\\
+\\
+\textbf{CLINICAL NOTES}\\
+\field{clinical_notes}\\
+}
+
+\text{133}{85}{55}{
+\textbf{Copy of report to:}\\
+\\
+\field{copy_address}}
+
+\text{130}{107}{60}{
+\begin{multicols}{2}
+\checkbox{Routine}\\
+\checkbox{Urgent}\\
+\checkbox{Fax result}\\
+\checkbox{Phone results}\\
+\checkbox{Pensioner}\\
+\checkbox{Veteran}\\
+\checkbox{Referral pads}\\
+\end{multicols}
+}
+
+\text{22}{140}{165}{
+\textbf{PATIENT INSTRUCTIONS}\\
+\field{instructions}}
+
+\text{133}{225}{55}{
+\textbf{Doctor's Signature}
+}
+
+\text{57}{260}{80}{GNUMed forms}
+
+\end{page}
+\end{document}
