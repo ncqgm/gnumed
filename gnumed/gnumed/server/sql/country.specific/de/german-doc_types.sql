@@ -1,11 +1,21 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-doc_types.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 
 -- part of GnuMed
 -- GPL
 
 -- doc types translated into German
 -- run this _after_ gmBlobs.sql !
+
+-- if you want to insert your own document types follow these rules:
+
+-- * user defined document types can only have IDs between 100 and 200
+-- * insert your new type into doc_type:
+-- insert into doc_type (id, name) values (100, i18n('my doc type'));
+--   (increase the id value to 101, 102, ... if you want to insert more types)
+-- * insert your translation into i18n_translations:
+-- insert into i18n_translations(lang, orig, trans) values('de_DE', 'my doc type', 'mein Dokumententyp');
+
 -- ===================================================================
 -- do fixed string i18n()ing
 \i gmI18N.sql
@@ -40,11 +50,14 @@ INSERT INTO i18n_translations(lang, orig, trans) values('de_DE', 'referral repor
 
 -- do simple revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-doc_types.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: german-doc_types.sql,v $
--- Revision 1.7  2003-01-20 20:05:41  ncq
+-- Revision 1.8  2003-01-26 16:04:37  ncq
+-- - example of how to add your own types
+--
+-- Revision 1.7  2003/01/20 20:05:41  ncq
 -- - a few more doc types
 --
 -- Revision 1.6  2003/01/05 13:05:53  ncq
