@@ -43,7 +43,6 @@ class gmplNbPatientSelector(gmPlugin.wxNotebookPlugin):
 #======================================================
 # TODO
 # - gmPhraseWheel
-# - merge with gmSelectPerson
 # - allow for d.o.b., PUPIC and patient ID input, too
 # - search case sensitive by default, switch to insensitive if not found
 #   (handled automatically by phrase wheel)
