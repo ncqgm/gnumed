@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.28 2005-01-26 21:29:11 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.29 2005-02-02 09:53:01 sjtan Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -278,31 +278,31 @@ drop view v_person_comms_flat cascade;
 drop view v_person_comms_flat;
 \set ON_ERROR_STOP 1
 
-
 create view v_person_comms_flat as
-select distinct on (id_identity)
-	v1.id_identity as id_identity,
-	v1.url as email,
-	v2.url as fax,
-	v3.url as homephone,
-	v4.url as workphone,
-	v5.url as mobile
+select
+        id,
+        v1.email ,
+        v2.fax,
+        v3.homephone,
+        v4.workphone,
+        v5.mobile
 from
-	lnk_identity2comm v1,
-	lnk_identity2comm v2,
-	lnk_identity2comm v3,
-	lnk_identity2comm v4,
-	lnk_identity2comm v5
-where
-	v1.id_identity = v2.id_identity
-	and v2.id_identity = v3.id_identity
-	and v3.id_identity = v4.id_identity
-	and v4.id_identity = v5.id_identity
-	and v1.id_type = 1
-	and v2.id_type = 2
-	and v3.id_type = 3
-	and v4.id_type = 4
-	and v5.id_type = 5 ;
+        (select id from identity) as i  left outer join
+        (select  url as email, id_identity from lnk_identity2comm  where id_type =1 ) as v1
+        on ( id = v1.id_identity)
+        full outer join
+        (select  url as fax, id_identity as id_id_fax from lnk_identity2comm  where id_type =2 ) as v2
+        on ( id = v2.id_id_fax)
+        full outer join
+        (select  url as homephone, id_identity as id_id_homephone from lnk_identity2comm  where id_type =3 ) as v3
+        on ( id  = v3.id_id_homephone)
+        full outer join
+        (select  url as workphone, id_identity as id_id_workphone from lnk_identity2comm  where id_type =4 ) as v4
+        on ( id = v4.id_id_workphone)
+        full outer join
+        (select  url as mobile, id_identity as id_id_mobile from lnk_identity2comm  where id_type =5 ) as v5
+        on ( id  = v5.id_id_mobile);
+
 
 -- =========================================================
 
@@ -331,11 +331,15 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.28 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.29 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.28  2005-01-26 21:29:11  ncq
+-- Revision 1.29  2005-02-02 09:53:01  sjtan
+--
+-- keep em happy.
+--
+-- Revision 1.28  2005/01/26 21:29:11  ncq
 -- - added missing GRANT
 --
 -- Revision 1.27  2004/12/21 09:59:40  ncq
