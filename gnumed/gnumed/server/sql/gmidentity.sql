@@ -81,7 +81,8 @@ create table names (
 	lastnames varchar (80),
 	firstnames varchar(255),
 	aka varchar (80),
-	preferred varchar(80)
+	preferred varchar(80),
+	title varchar(80) --yes, there are some incredible rants of titles ...
 ) inherits (audit_identity);
 
 COMMENT ON TABLE names IS
@@ -189,4 +190,18 @@ COMMENT ON COLUMN identities_addresses.id_address IS
 
 COMMENT ON COLUMN identities_addresses.address_source IS
 'URL of some sort allowing to reproduce where the address is sourced from';
+
+
+create view v_basic_person as
+select
+	i.id as id,
+	n.title as title, n.firstnames as firstnames , n.lastnames as lastnames, n.aka as aka,
+	i.dob as dob, i.gender as gender
+from
+	identity i, names n
+where
+	i.deceased = NULL and n.id=i.id and n.active=true;
+
+
+
 
