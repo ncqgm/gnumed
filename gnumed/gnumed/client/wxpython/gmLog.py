@@ -42,7 +42,7 @@ Usage:
 @copyright: GPL
 """
 
-import sys, time, traceback, os.path, syslog
+import sys, time, traceback, os.path, syslog, atexit
 #-------------------------------------------
 
 # log levels:
@@ -353,8 +353,12 @@ class LogTargetDummy(LogTarget):
 #---------------------------------------------------------------
 def myExitFunc():
     # FIXME - do something useful
-    sys.exitfunc = oldExitFunc
+    #sys.exitfunc = oldExitFunc
     print "exiting gmLog.py"
+
+    gmDefLog.close()
+
+    # should close other loggers, too, but I need to keep track of them first
 #------- MAIN -------------------------------------------------------
 if __name__ == "__main__":
     print "\nTesting module gmLog\n=========================="
@@ -412,8 +416,11 @@ if __name__ == "__main__":
     print "Done."
 else:
     gmDefLog = Logger()
-    oldExitFunc = sys.exitfunc
-    sys.exitfunc = myExitFunc
+    # this seemed to fail for some people
+    #oldExitFunc = sys.exitfunc
+    #sys.exitfunc = myExitFunc
+    # this needs Python 2.x
+    atexit.register(myExitFunc)
 
 #---------------------------------------------------------------
 # random ideas and TODO
