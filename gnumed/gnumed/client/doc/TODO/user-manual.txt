@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 ---------------------------------------------------
 Rules:
 ------
@@ -54,4 +54,10 @@ certain degree.
 
 I have not yet connected to the backend explicit add/drop of
 plugins via Ian's new popup menu. This will come next.
+---------------------------------------------------
+Karsten.Hilbert@gmx.net    Mit 08 Jan 2003 12:06:34 CET
+
+pyPgSQL v2.3 is needed for db config string list support.
+
+Note: 2.3beta does NOT work yet
 ---------------------------------------------------
