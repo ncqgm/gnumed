@@ -6,7 +6,7 @@
 """
 #=======================================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 import os.path, fileinput, string, types, sys, tempfile, os
 import gmLog
@@ -507,7 +507,7 @@ class cPatientDocumentList:
 			__log__.Log(gmLog.lData, "Trying to load document with id %s" % aDocumentID)
 
 		if (aTempDir == None) or (not os.path.exists (aTempDir)):
-			__log__.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory '%s'." % (aTempDir, tempfile.tempdir)) # which is tempfile.tempdir == None == use system defaults
+			__log__.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % (aTempDir, tempfile.tempdir)) # which is tempfile.tempdir == None == use system defaults
 		else:
 			__log__.Log(gmLog.lData, "working into directory '%s'" % aTempDir)
 

@@ -6,11 +6,11 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #=======================================================================================
-import os, mailcap, string
+import os, mailcap, string, sys
 import gmLog
 
 __log__ = gmLog.gmDefLog
@@ -29,7 +29,7 @@ def guess_mimetype(aFileName = None):
 	# it might work of Cygwin installations
 	# -i get mime type
 	# -b don't display a header
-	aPipe = os.popen("fil -i -b %s" % aFileName)
+	aPipe = os.popen("file -i -b %s" % aFileName)
 	tmp = aPipe.readline()
 	ret_code = aPipe.close()
 	if ret_code == None:
@@ -81,4 +81,4 @@ if __name__ == "__main__":
 	import sys
 	filename = sys.argv[1]
 	print str(guess_mimetype(filename))
-#	print str(get_viewer_cmd(guess_mimetype(filename), filename))
+	print str(get_viewer_cmd(guess_mimetype(filename), filename))
