@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -17,7 +17,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	urb,
 	urb_id_seq,
 	country,
+	country_id_seq,
 	state,
+	state_id_seq,
 	street,
 	street_id_seq,
 	address,
@@ -58,7 +60,10 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.4  2004-07-20 00:02:54  ihaywood
+-- Revision 1.5  2004-07-20 07:12:16  ncq
+-- - RW queries on state (and country) need rights on the primary key sequence, too
+--
+-- Revision 1.4  2004/07/20 00:02:54  ihaywood
 -- grant the user access to the "state" table
 --
 -- Revision 1.3  2004/07/17 20:57:53  ncq
