@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.121 2005-01-24 17:57:43 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.122 2005-01-31 19:12:26 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -188,6 +188,49 @@ create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_h
 \set ON_ERROR_STOP 1
 
 create index idx_episode_issue on clin_episode(fk_health_issue);
+
+
+\unset ON_ERROR_STOP
+drop trigger tr_episode_mod on clin_episode;
+drop function trf_announce_episode_mod();
+\set ON_ERROR_STOP 1
+
+create function trf_announce_episode_mod() returns opaque as '
+declare
+	patient_id integer;
+begin
+	-- get patient ID
+	if TG_OP = ''DELETE'' then
+		-- if no patient in episode
+		if OLD.fk_patient is null then
+			-- get it from attached health issue
+			select into patient_id id_patient
+				from clin_health_issue
+				where pk = OLD.fk_health_issue;
+		else
+			patient_id := OLD.fk_patient;
+	else
+		-- if no patient in episode
+		if NEW.fk_patient is null then
+			-- get it from attached health issue
+			select into patient_id id_patient
+				from clin_health_issue
+				where pk = NEW.fk_health_issue;
+		else
+			patient_id := NEW.id_patient;
+	end if;
+	-- now, execute() the NOTIFY
+	execute ''notify "episode_change_db:'' || patient_id || ''"'';
+	return NULL;
+end;
+' language 'plpgsql';
+
+create trigger tr_episode_mod
+	after insert or delete or update
+	on clin_episode
+	for each row
+		execute procedure trf_announce_episode_mod()
+;
 
 
 -- an episode not linked to a health issue must have a
@@ -1599,11 +1642,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.121 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.122 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.121  2005-01-24 17:57:43  ncq
+-- Revision 1.122  2005-01-31 19:12:26  ncq
+-- - add trigger to announce episode changes
+--
+-- Revision 1.121  2005/01/24 17:57:43  ncq
 -- - cleanup
 -- - Ian's enhancements to address and forms tables
 --
