@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.81 2004-07-03 17:17:41 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.82 2004-07-03 17:24:08 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -96,6 +96,7 @@ create index idx_episode_h_issue on clin_episode(fk_health_issue);
 -- narrative
 
 \unset ON_ERROR_STOP
+
 drop index idx_narr_soap on clin_narrative(soap_cat);
 drop index idx_narr_s on clin_narrative(soap_cat);
 drop index idx_narr_o on clin_narrative(soap_cat);
@@ -106,9 +107,9 @@ drop index idx_narr_aoe on clin_narrative(is_aoe);
 
 create index idx_narr_soap on clin_narrative(soap_cat);
 create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='s';
-create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='o';
-create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='a';
-create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='p';
+create index idx_narr_o on clin_narrative(soap_cat) where soap_cat='o';
+create index idx_narr_a on clin_narrative(soap_cat) where soap_cat='a';
+create index idx_narr_p on clin_narrative(soap_cat) where soap_cat='p';
 create index idx_narr_rfe on clin_narrative(is_rfe) where is_rfe is true;
 create index idx_narr_aoe on clin_narrative(is_aoe) where is_aoe is true;
 
@@ -874,11 +875,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.81 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.82 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.81  2004-07-03 17:17:41  ncq
+-- Revision 1.82  2004-07-03 17:24:08  ncq
+-- - can't name all indexes the same :-)
+--
+-- Revision 1.81  2004/07/03 17:17:41  ncq
 -- - indexes on clin_narrative
 --
 -- Revision 1.80  2004/07/02 15:00:10  ncq
