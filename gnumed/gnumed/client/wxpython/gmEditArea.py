@@ -99,16 +99,6 @@ class EditAreaPromptLabel(wxStaticText):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
 		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,''))
 		self.SetForegroundColour(aColor)
-#------------------------------------------------------------
-#temporary Class which shoes a aqua bold label left justified
-#until I pass the rgb colours down to the routine above
-#------------------------------------------------------------
-#class EditAreaPromptLabelAqua(wxStaticText):
-#	def __init__(self, parent, id, prompt):
-#		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
-#		self.SetFont(wxFont(10,wxSWISS,wxBOLD,wxBOLD,false,''))
-#		self.SetForegroundColour()
-
 #--------------------------------------------------------------------------------
 #create the editorprompts class which expects a dictionary of labels passed to it
 #with prompts relevent to the editing area.
@@ -124,10 +114,10 @@ class EditAreaPrompts(wxPanel):
 				self.sizer.Add(EditAreaPromptLabel(self,-1, " " + prompt_array[key],aColor=richards_aqua),0,wxEXPAND)
 			else:
 				self.sizer.Add(EditAreaPromptLabel(self,-1, " " + prompt_array[key]),0,wxEXPAND)
-				
-		self.SetSizer(self.sizer)  
-		self.sizer.Fit(self)            
-		self.SetAutoLayout(true)                
+
+		self.SetSizer(self.sizer)
+		self.sizer.Fit(self)
+		self.SetAutoLayout(true)
 		#self.Show(true)
 	
 #----------------------------------------------------------
@@ -571,13 +561,14 @@ class EditTextBoxes(wxPanel):
      
 		else:
 		      pass
-			      
-	        
+
+
 		self.szr_edit_area.Add(self.gs,1,wxEXPAND)
 		self.SetSizer(self.szr_edit_area)  
 		self.szr_edit_area.Fit(self)            
 		self.SetAutoLayout(true)                
 		self.Show(true)
+
 class EditArea(wxPanel):
 	def __init__(self,parent,id,editareaprompts,section):
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize,style = wxNO_BORDER )	
