@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.10 2004-06-26 06:53:25 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmPatientExporter.py,v 1.11 2004-06-26 23:45:50 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -268,9 +268,9 @@ class gmEmrExport:
 	    filtered_items = self.get_filtered_items(emr, since_val, until_val, encounters_val,
             episodes_val, issues_val)
 	    # Extract from considered items related health issues
-	    filtered_issues = self.get_set_for_field(filtered_items, 'id_health_issue')
+	    filtered_issues = self.get_set_for_field(filtered_items, 'pk_health_issue')
 	    # Extract from considered items related episodes
-	    filtered_episodes = self.get_set_for_field(filtered_items, 'id_episode')
+	    filtered_episodes = self.get_set_for_field(filtered_items, 'pk_episode')
 	    # Extract from considered items related encounters
 	    filtered_encounters = self.get_set_for_field(filtered_items, 'id_encounter')
 	    
@@ -471,7 +471,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.10  2004-06-26 06:53:25  ncq
+# Revision 1.11  2004-06-26 23:45:50  ncq
+# - cleanup, id_* -> fk/pk_*
+#
+# Revision 1.10  2004/06/26 06:53:25  ncq
 # - id_episode -> pk_episode
 # - constrained by date range from Carlos
 # - dump documents folder, too, by Carlos

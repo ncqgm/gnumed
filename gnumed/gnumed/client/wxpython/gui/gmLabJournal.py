@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -294,7 +294,7 @@ class cLabJournalNB(wxNotebook):
 		self.DataGrid.SetColLabelValue(0, _('reviewed'))
 		self.DataGrid.SetColLabelValue(1, _('relevant'))
 		self.DataGrid.SetColLabelValue(2, _('patient'))
-		self.DataGrid.SetColLabelValue(3, _('result from'))
+		self.DataGrid.SetColLabelValue(3, _('facility'))
 		self.DataGrid.SetColLabelValue(4, _('analysis'))
 		self.DataGrid.SetColLabelValue(5, _('result'))
 		self.DataGrid.SetColLabelValue(6, _('range'))
@@ -739,7 +739,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.30  2004-06-26 07:33:55  ncq
+# Revision 1.31  2004-06-26 23:45:50  ncq
+# - cleanup, id_* -> fk/pk_*
+#
+# Revision 1.30  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.29  2004/06/20 16:50:51  ncq

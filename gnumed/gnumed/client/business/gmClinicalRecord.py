@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.122 2004-06-26 07:33:55 ncq Exp $
-__version__ = "$Revision: 1.122 $"
+# $Id: gmClinicalRecord.py,v 1.123 2004-06-26 23:45:50 ncq Exp $
+__version__ = "$Revision: 1.123 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -244,7 +244,7 @@ class cClinicalRecord:
 			'id_item',
 			'id_encounter',
 			'pk_episode',
-			'id_health_issue',
+			'pk_health_issue',
 			'src_table'
 		]
 		cmd = "select %s from v_patient_items where id_patient=%%s order by src_table, age" % string.join(fields, ', ')
@@ -310,9 +310,9 @@ class cClinicalRecord:
 				except:
 					episode_name = view_row[view_col_idx['pk_episode']]
 				try:
-					issue_name = issue_map[view_row[view_col_idx['id_health_issue']]]
+					issue_name = issue_map[view_row[view_col_idx['pk_health_issue']]]
 				except:
-					issue_name = view_row[view_col_idx['id_health_issue']]
+					issue_name = view_row[view_col_idx['pk_health_issue']]
 
 				if not emr_data.has_key(age):
 					emr_data[age] = []
@@ -374,7 +374,7 @@ class cClinicalRecord:
 			'id_item',
 			'id_encounter',
 			'pk_episode',
-			'id_health_issue',
+			'pk_health_issue',
 			'src_table'
 		]
 		select_from = "select %s from v_patient_items" % ', '.join(fields)
@@ -409,9 +409,9 @@ class cClinicalRecord:
 		if not issues is None and len(issues) > 0:
 			params['issue'] = issues
 			if len(issues) > 1:
-				where_snippets.append('id_health_issue in %(issue)s')
+				where_snippets.append('fk_health_issue in %(issue)s')
 			else:
-				where_snippets.append('id_health_issue=%(issue)s')
+				where_snippets.append('fk_health_issue=%(issue)s')
 
 		where_clause = ' and '.join(where_snippets)
 		order_by = 'order by src_table, age'
@@ -480,9 +480,9 @@ class cClinicalRecord:
 				except:
 					episode_name = view_row[view_col_idx['pk_episode']]
 				try:
-					issue_name = issue_map[view_row[view_col_idx['id_health_issue']]]
+					issue_name = issue_map[view_row[view_col_idx['pk_health_issue']]]
 				except:
-					issue_name = view_row[view_col_idx['id_health_issue']]
+					issue_name = view_row[view_col_idx['pk_health_issue']]
 
 				if not emr_data.has_key(age):
 					emr_data[age] = []
@@ -581,7 +581,7 @@ class cClinicalRecord:
 		if until is not None:
 			filtered_allergies = filter(lambda allg: allg['date'] < until, filtered_allergies)
 		if issues is not None:
-			filtered_allergies = filter(lambda allg: allg['id_health_issue'] in issues, filtered_allergies)
+			filtered_allergies = filter(lambda allg: allg['pk_health_issue'] in issues, filtered_allergies)
 		if episodes is not None:
 			filtered_allergies = filter(lambda allg: allg['pk_episode'] in episodes, filtered_allergies)
 		if encounters is not None:
@@ -642,16 +642,16 @@ class cClinicalRecord:
 		filtered_episodes = []
 		filtered_episodes.extend(self.__db_cache['episodes'])
 		if issues is not None:
-			filtered_episodes = filter(lambda epi: epi['id_health_issue'] in issues, filtered_episodes)
+			filtered_episodes = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_episodes)
 		if id_list is not None:
 			ids = id_list
 			filtered_episodes = filter(lambda epi: epi['id'] in ids, filtered_episodes)
 		return filtered_episodes
 	#------------------------------------------------------------------
-	def add_episode(self, episode_name = 'xxxDEFAULTxxx', id_health_issue = None):
+	def add_episode(self, episode_name = 'xxxDEFAULTxxx', pk_health_issue = None):
 		"""Add episode 'episode_name' for a patient's health issue.
 
-		- id_health_issue - given health issue PK
+		- pk_health_issue - given health issue PK
 		- episode_name - episode name
 
 		- adds default episode if no name given
@@ -661,21 +661,21 @@ class cClinicalRecord:
 			self.__db_cache['episodes']
 		except KeyError:
 			self.get_episodes()
-		if id_health_issue is None:
-			id_health_issue = self.health_issue['ID']
+		if pk_health_issue is None:
+			pk_health_issue = self.health_issue['ID']
 		# already there ?
 		for episode in self.__db_cache['episodes']:
 			if episode['description'] == episode_name:
-				if episode['id_health_issue'] == id_health_issue:
+				if episode['pk_health_issue'] == pk_health_issue:
 					return episode
 				else:
 					_log.Log(gmLog.lErr, 'episode [%s] already exists for patient [%s]' % (episode_name, self.id_patient))
-					_log.Log(gmLog.lErr, 'cannot change health issue link from [%s] to [%s]' % (episode['id_health_issue'], id_health_issue))
+					_log.Log(gmLog.lErr, 'cannot change health issue link from [%s] to [%s]' % (episode['pk_health_issue'], pk_health_issue))
 					return None
 		# no, try to create it
-		success, episode = gmEMRStructItems.create_episode(id_patient=self.id_patient, id_health_issue=id_health_issue, episode_name=episode_name)
+		success, episode = gmEMRStructItems.create_episode(id_patient=self.id_patient, pk_health_issue=pk_health_issue, episode_name=episode_name)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.id_patient, id_health_issue))
+			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.id_patient, pk_health_issue))
 			return None
 		return episode
 	#--------------------------------------------------------
@@ -727,7 +727,7 @@ class cClinicalRecord:
 				where
 					chi.id_patient = %s
 						and
-					chi.id = cle.id_health_issue
+					chi.id = cle.fk_health_issue
 						and
 					cle.modified_when = (
 						select max(cle1.modified_when) from clin_episode cle1 where cle1.id=cle.id
@@ -747,7 +747,7 @@ class cClinicalRecord:
 		# none found whatsoever
 		if episode is None:
 			# so try to create default episode ...
-			success, result = gmEMRStructItems.create_episode(id_health_issue=self.health_issue['id'])
+			success, result = gmEMRStructItems.create_episode(pk_health_issue=self.health_issue['id'])
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.id_patient)
 				_log.Log(gmLog.lErr, result)
@@ -757,7 +757,7 @@ class cClinicalRecord:
 		self.__episode = episode
 		self.__episode.set_active()
 		# load corresponding health issue
-		self.health_issue = self.get_health_issues(id_list=[self.__episode['id_health_issue']])
+		self.health_issue = self.get_health_issues(id_list=[self.__episode['pk_health_issue']])
 		if self.health_issue is None:
 			_log.Log(gmLog.lErr, 'cannot activate health issue linked from episode [%s], using default' % str(self.__episode))
 			self.health_issue = self.default_health_issue
@@ -911,7 +911,7 @@ class cClinicalRecord:
 		if until is not None:
 			filtered_shots = filter(lambda shot: shot['date'] < until, filtered_shots)
 		if issues is not None:
-			filtered_shots = filter(lambda shot: shot['id_health_issue'] in issues, filtered_shots)
+			filtered_shots = filter(lambda shot: shot['pk_health_issue'] in issues, filtered_shots)
 		if episodes is not None:
 			filtered_shots = filter(lambda shot: shot['pk_episode'] in episodes, filtered_shots)
  		if encounters is not None:
@@ -1318,7 +1318,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.122  2004-06-26 07:33:55  ncq
+# Revision 1.123  2004-06-26 23:45:50  ncq
+# - cleanup, id_* -> fk/pk_*
+#
+# Revision 1.122  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.121  2004/06/20 18:39:30  ncq

@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.5 2004-06-26 07:33:55 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmClinicalRecordTest.py,v 1.6 2004-06-26 23:45:50 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -74,12 +74,12 @@ class EMR_StructureTests(unittest.TestCase):
 		""" Check that a new episode can be created"""
 		# create new episode
 		h_issue = self.emr.get_health_issues()[0]
-		new_episode = self.emr.add_episode(episode_name = 'TEST Episode', id_health_issue = h_issue['id'])
+		new_episode = self.emr.add_episode(episode_name = 'TEST Episode', pk_health_issue = h_issue['id'])
 		self.assertEqual(isinstance(new_episode, gmEMRStructItems.cEpisode), True)
 		self.assertEqual(new_episode['id_patient'], patient_id)
 		# delete test episode
 		queries = []
-		cmd = "select id from clin_episode where id=%s and id_health_issue=%s and description=%s"
+		cmd = "select id from clin_episode where id=%s and fk_health_issue=%s and description=%s"
 		queries.append((cmd, [ new_episode['pk_episode'], h_issue['id'], 'TEST Episode']))
 		result, msg = gmPG.run_commit('historica', queries, True)
 		self.assertEqual(result[0][0], new_episode['pk_episode'])
@@ -301,7 +301,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.5  2004-06-26 07:33:55  ncq
+# Revision 1.6  2004-06-26 23:45:50  ncq
+# - cleanup, id_* -> fk/pk_*
+#
+# Revision 1.5  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.4  2004/06/17 22:49:22  ncq

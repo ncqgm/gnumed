@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.110 $
+-- $Revision: 1.111 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -56,16 +56,21 @@ comment on column clin_health_issue.description is
 -- -------------------------------------------------------------------
 create table clin_episode (
 	id serial primary key,
-	id_health_issue integer not null references clin_health_issue(id),
-	description varchar(128) default 'xxxDEFAULTxxx',
-	unique (id_health_issue, description)
+	fk_health_issue integer
+		not null
+		references clin_health_issue(id)
+		on update cascade
+		on delete restrict,
+	description text
+		default 'xxxDEFAULTxxx',
+	unique (fk_health_issue, description)
 ) inherits (audit_fields);
 
 select add_table_for_audit('clin_episode');
 
 comment on table clin_episode is
 	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
-comment on column clin_episode.id_health_issue is
+comment on column clin_episode.fk_health_issue is
 	'health issue this episode is part of';
 comment on column clin_episode.description is
 	'descriptive name of this episode, may change over time; if
@@ -164,9 +169,17 @@ comment on column clin_encounter.description is
 
 create table curr_encounter (
 	id serial primary key,
-	id_encounter integer not null references clin_encounter(id),
-	started timestamp with time zone not null default CURRENT_TIMESTAMP,
-	last_affirmed timestamp with time zone not null default CURRENT_TIMESTAMP,
+	fk_encounter integer
+		not null
+		references clin_encounter(id)
+		on update cascade
+		on delete cascade,
+	started timestamp with time zone
+		not null
+		default CURRENT_TIMESTAMP,
+	last_affirmed timestamp with time zone
+		not null
+		default CURRENT_TIMESTAMP,
 	comment text default 'affirmed'
 );
 
@@ -190,7 +203,7 @@ create table clin_root_item (
 	clin_when timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP,
-	id_encounter integer
+	fk_encounter integer
 		not null
 		references clin_encounter(id),
 	fk_episode integer
@@ -215,7 +228,7 @@ comment on COLUMN clin_root_item.pk_item is
 comment on column clin_root_item.clin_when is
 	'when this clinical item became known, can be different from
 	 when it was entered into the system (= audit_fields.modified_when)';
-comment on COLUMN clin_root_item.id_encounter is
+comment on COLUMN clin_root_item.fk_encounter is
 	'the encounter this item belongs to';
 comment on COLUMN clin_root_item.fk_episode is
 	'the episode this item belongs to';
@@ -721,7 +734,7 @@ create table clin_working_diag (
 			((is_active = true) and (is_significant = true))
 		),
 	unique (narrative, fk_episode),
-	unique (narrative, id_encounter)
+	unique (narrative, fk_encounter)
 ) inherits (clin_root_item);
 
 -- FIXME: trigger to insert/update/delete clin_aux_note fields on description update
@@ -888,11 +901,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.110 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.111 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.110  2004-06-26 07:33:55  ncq
+-- Revision 1.111  2004-06-26 23:45:50  ncq
+-- - cleanup, id_* -> fk/pk_*
+--
+-- Revision 1.110  2004/06/26 07:33:55  ncq
 -- - id_episode -> fk/pk_episode
 --
 -- Revision 1.109  2004/05/30 21:02:14  ncq

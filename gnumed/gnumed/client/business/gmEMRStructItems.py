@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -57,12 +57,12 @@ class cEpisode(gmClinItem.cClinItem):
 		"""select 1 from clin_episode where id=%(id)s for update""",
 		"""update clin_episode set
 				description=%(description)s,
-				id_health_issue=%(id_health_issue)s
+				fk_health_issue=%(pk_health_issue)s
 			where id=%(id)s"""
 		]
 	_updatable_fields = [
 		'description',
-		'id_health_issue'
+		'pk_health_issue'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
@@ -89,11 +89,11 @@ class cEpisode(gmClinItem.cClinItem):
 			insert into last_act_episode(fk_episode, id_patient)
 			values (%s,	(select id_patient from clin_health_issue where id=%s))"""
 		success, msg = gmPG.run_commit('historica', [
-			(cmd1, [self._payload[self._idx['id_health_issue']]]),
-			(cmd2, [self.pk_obj, self._payload[self._idx['id_health_issue']]])
+			(cmd1, [self._payload[self._idx['pk_health_issue']]]),
+			(cmd2, [self.pk_obj, self._payload[self._idx['pk_health_issue']]])
 		], True)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot record episode [%s] as most recently used one for health issue [%s]' % (self.pk_obj, self._payload[self._idx['id_health_issue']]))
+			_log.Log(gmLog.lErr, 'cannot record episode [%s] as most recently used one for health issue [%s]' % (self.pk_obj, self._payload[self._idx['pk_health_issue']]))
 			_log.Log(gmLog.lErr, str(msg))
 			return False
 		return True
@@ -187,11 +187,11 @@ def create_health_issue(patient_id=None, description='xxxDEFAULTxxx'):
 		return (False, _('internal error, check log'))
 	return (True, h_issue)
 #-----------------------------------------------------------
-def create_episode(id_patient = None, id_health_issue = None, episode_name='xxxDEFAULTxxx'):
+def create_episode(id_patient = None, pk_health_issue = None, episode_name='xxxDEFAULTxxx'):
 	"""Creates a new episode for a given patient's health issue.
 
     id_patient - patient PK
-	id_health_issue - given health issue PK
+	pk_health_issue - given health issue PK
 	episode_name - health issue name
 	"""
 	# already there ?
@@ -202,8 +202,8 @@ def create_episode(id_patient = None, id_health_issue = None, episode_name='xxxD
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 	# insert new episode
 	queries = []
-	cmd = "insert into clin_episode (id_health_issue, description) values (%s, %s)"
-	queries.append((cmd, [id_health_issue, episode_name]))
+	cmd = "insert into clin_episode (fk_health_issue, description) values (%s, %s)"
+	queries.append((cmd, [pk_health_issue, episode_name]))
 	# get PK of inserted row
 	cmd = "select currval('clin_episode_id_seq')"
 	queries.append((cmd, []))
@@ -303,7 +303,10 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.17  2004-06-26 07:33:55  ncq
+# Revision 1.18  2004-06-26 23:45:50  ncq
+# - cleanup, id_* -> fk/pk_*
+#
+# Revision 1.17  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.16  2004/06/08 00:44:41  ncq

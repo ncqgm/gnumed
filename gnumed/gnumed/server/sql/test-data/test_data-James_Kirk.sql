@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,7 +47,7 @@ delete from clin_episode where id in (
 	where id_patient = currval('identity_id_seq')
 );
 
-insert into clin_episode (id_health_issue, description)
+insert into clin_episode (fk_health_issue, description)
 values (
 	currval('clin_health_issue_id_seq'),
 	'knive cut left arm 9/2000'
@@ -70,7 +70,7 @@ insert into clin_encounter (
 
 -- diagnoses
 insert into clin_aux_note (
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	narrative
 ) values (
@@ -80,7 +80,7 @@ insert into clin_aux_note (
 );
 
 insert into clin_working_diag (
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	narrative,
 	fk_progress_note,
@@ -103,7 +103,7 @@ insert into clin_working_diag (
 
 -- given Td booster shot
 insert into vaccination (
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	narrative,
 	fk_patient,
@@ -141,7 +141,7 @@ insert into lnk_vacc2vacc_def (
 -- blood sample drawn for screen/CRP
 insert into lab_request (
 	clin_when,
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	narrative,
 	fk_test_org,
@@ -171,7 +171,7 @@ insert into lab_request (
 -- leukos
 insert into test_result (
 	clin_when,
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	fk_type,
 	val_num,
@@ -199,7 +199,7 @@ insert into lnk_result2lab_req(fk_result, fk_request) values (
 -- erys
 insert into test_result (
 	clin_when,
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	fk_type,
 	val_num,
@@ -227,7 +227,7 @@ insert into lnk_result2lab_req(fk_result, fk_request) values (
 -- platelets
 insert into test_result (
 	clin_when,
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	fk_type,
 	val_num,
@@ -255,7 +255,7 @@ insert into lnk_result2lab_req(fk_result, fk_request) values (
 -- CRP
 insert into test_result (
 	clin_when,
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	fk_type,
 	val_num,
@@ -297,7 +297,7 @@ insert into clin_encounter (
 
 -- diagnoses
 insert into clin_working_diag (
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	narrative,
 	laterality,
@@ -318,7 +318,7 @@ insert into clin_working_diag (
 
 -- wound infected, penicillin had been prescribed, developed urticaria
 insert into allergy (
-	id_encounter,
+	fk_encounter,
 	fk_episode,
 	substance,
 	allergene,
@@ -421,11 +421,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.27 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.26  2004-06-26 07:33:55  ncq
+-- Revision 1.27  2004-06-26 23:45:50  ncq
+-- - cleanup, id_* -> fk/pk_*
+--
+-- Revision 1.26  2004/06/26 07:33:55  ncq
 -- - id_episode -> fk/pk_episode
 --
 -- Revision 1.25  2004/06/02 13:46:46  ncq

@@ -10,12 +10,11 @@
 """
 #==============================================================
 # NOTE
-# - this actually belongs into guid-de
 # - but really we should build a more generic yet more
 #   specialized "medical content browser"
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __license__ = "GPL"
 __author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
@@ -242,7 +241,10 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.12  2004-06-25 12:37:21  ncq
+# Revision 1.13  2004-06-26 23:45:50  ncq
+# - cleanup, id_* -> fk/pk_*
+#
+# Revision 1.12  2004/06/25 12:37:21  ncq
 # - eventually fix the import gmI18N issue
 #
 # Revision 1.11  2004/06/20 16:50:52  ncq
