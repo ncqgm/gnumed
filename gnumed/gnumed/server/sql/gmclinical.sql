@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.86 $
+-- $Revision: 1.87 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -586,6 +586,61 @@ comment on column allergy.generic_specific is
 comment on column allergy.definite is
 	'true: definite, false: not definite';
 
+-- ============================================
+-- form instance tables
+-- --------------------------------------------
+create table form_status (
+	pk serial primary key,
+	status text not null
+);
+
+comment on table form_status is
+	'the status of a form instance:
+	 - instantiated
+	 - printed
+	 - faxed
+	 - emailed
+	 - stored on smartcard';
+
+-- --------------------------------------------
+create table form_instances (
+	pk serial primary key,
+	fk_form_def integer not null references form_defs(pk),
+	fk_status integer not null references form_status(pk)
+) inherits (clin_root_item);
+
+select add_table_for_audit('form_instances');
+
+comment on table form_instances is
+	'instances of forms, like a log of all processed forms';
+comment on column form_instances.fk_form_def is
+	'points to the definition of this instance';
+comment on column form_instances.fk_status is
+	'the status of this  instance, might be used in
+	 print queue like things';
+
+-- --------------------------------------------
+create table form_data (
+	pk serial primary key,
+	fk_instance integer not null references form_instances(pk),
+	place_holder text not null,
+	value text not null,
+	unique(fk_instance, place_holder)
+) inherits (audit_fields);
+
+select add_table_for_audit('form_data');
+
+comment on table form_data is
+	'holds the values used in form instances, for
+	 later re-use/validation';
+comment on column form_data.fk_instance is
+	'the form instance this value was used in';
+comment on column form_data.place_holder is
+	'the place holder in the form template that
+	 should be replaced by this value';
+comment on column form_data.value is
+	'the value to replace the place holder with';
+
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
 -- -------------------------------------------------------------------
@@ -797,6 +852,9 @@ GRANT SELECT ON
 	, lnk_vacc2vacc_def
 	, clin_history_editarea
 	, xlnk_identity
+	, form_status
+	, form_instances
+	, form_data
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -833,26 +891,35 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"vaccination",
 	"vaccination_id_seq",
 	"vaccine",
-	"vaccine_id_seq",
-	"vacc_def",
-	"vacc_def_id_seq"
+	"vaccine_id_seq"
+	, vacc_def
+	, vacc_def_id_seq
 	, vacc_regime
 	, vacc_regime_id_seq
 	, lnk_vacc2vacc_def
 	, lnk_vacc2vacc_def_pk_seq
-	, "clin_history_editarea"
-	, "clin_history_editarea_id_seq"
+	, clin_history_editarea
+	, clin_history_editarea_id_seq
 	, xlnk_identity
 	, xlnk_identity_pk_seq
+	, form_status
+	, form_status_pk_seq
+	, form_instances
+	, form_instances_pk_seq
+	, form_data
+	, form_data_pk_seq
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.86 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.87 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.86  2004-02-18 15:28:26  ncq
+-- Revision 1.87  2004-03-08 17:03:02  ncq
+-- - added form handling tables
+--
+-- Revision 1.86  2004/02/18 15:28:26  ncq
 -- - merge curr_encounter into clin_encounter
 --
 -- Revision 1.85  2004/01/18 21:56:38  ncq
