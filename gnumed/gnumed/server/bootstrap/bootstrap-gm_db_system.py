@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -668,11 +668,6 @@ class database:
 			if int(tmp) == 1:
 				return 1
 
-		tmp = _cfg.get(self.section, 'audit marker table')
-		if tmp is None:
-			return None
-		aud_gen.audit_marker_table = tmp
-		
 		tmp = _cfg.get(self.section, 'audit trail parent table')
 		if tmp is None:
 			return None
@@ -1157,7 +1152,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.25  2003-08-26 14:11:13  ncq
+# Revision 1.26  2003-10-01 16:18:17  ncq
+# - remove audit_mark reference
+#
+# Revision 1.25  2003/08/26 14:11:13  ncq
 # - add option to disable checking for proc lang library files on remote machines
 #
 # Revision 1.24  2003/08/26 12:58:55  ncq
