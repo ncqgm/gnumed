@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -139,7 +139,9 @@ create table test_result (
 
 	reviewed_by_clinician bool default false,
 	fk_clinician integer,
-	clinically_relevant bool not null
+	clinically_relevant bool
+		default null
+		check (((reviewed_by_clinician=false) and (clinically_relevant is null)) or (clinically_relevant is not null))
 ) inherits (clin_root_item);
 
 -- note_clinician provided as narrative by clin_root_item
@@ -320,11 +322,14 @@ to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.14  2004-03-18 10:01:10  ncq
+-- Revision 1.15  2004-03-18 18:30:14  ncq
+-- - constraint on test_result.clinically_relevant
+--
+-- Revision 1.14  2004/03/18 10:01:10  ncq
 -- - test_type.id_provider -> fk_test_org
 -- - test_org.internal_name
 -- - lab_request.result_reported_when -> results_reported_when
