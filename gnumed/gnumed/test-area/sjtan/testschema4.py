@@ -53,11 +53,12 @@ class SchemaParser:
 		#self.create_alias_sets()
 		self.fks = self.get_fk_list()
 		self.model = {}
-		
+		self.next_level_maps = {}
 		for x in self.config.roots:
 			self.visited = []
 			self.target = x
-			self.next_level_map = {}
+			#self.next_level_maps[x] = {}
+			self.next_level_map = {} #self.next_level_maps[x]
 			self.build_levels([x])
 			self.model[x] = self.get_model(x)
 		
@@ -81,15 +82,23 @@ class SchemaParser:
 				print
 
 	def get_model(self, node):
-		if node in self.visited:
-			return {}
 		m = {}
 		self.visited.append(node)	
+		
 		if not self.next_level_map.has_key(node):
-			return {}	
+			return { }	
 		l = self.next_level_map[node]
+		print "get model for ", node
+		print "\t\t is ", l
 		for x in l:
-			m[x] = self.get_model(x)
+			if x in self.visited:
+				continue
+			if m.has_key(x):
+				m[x].update(self.get_model(x))
+			else:
+				m[x] = self.get_model(x)
+		
+		#print "\t\tmap is ", m
 		return  m	
 
 
@@ -98,7 +107,7 @@ class SchemaParser:
 			return
 		next_level = []
 		for x in node_list:
-			if x in self.config.roots and x <> self.target:
+			if self.is_suppressed('', x) and x <> self.target:
 				continue
 			if x in self.next_level_map.keys():
 				continue
@@ -106,26 +115,45 @@ class SchemaParser:
 			if self.is_type_table(x):
 				continue
 
+
 			next_level_for_x = self.find_next_level_nodes(x)
 			self.next_level_map[x] = next_level_for_x
 			next_level += next_level_for_x
 		if next_level == []:
 			return
+		
 		self.build_levels( next_level)
 		
-	
+		
+	def is_suppressed( self,parent, node):
+		
+		l = self.config.suppress
+	#	print "CHECKING is_suppressed", parent ,node
+		for (root,aparent, anode) in l:
+	#		print "\tagainst ",root, aparent, anode
+			if self.target == root and anode == node and (aparent =='' or parent == aparent):
+	#			print "\t is suppressed**"
+				return 1
+		return 0	
+
 	def find_next_level_nodes(self, node):
 		l = []
-		for t1, t2 in self.fks:
-			if node == t2 and not self.next_level_map.has_key(t1):
-				l.append(t1)
-			elif node == t1 and not self.next_level_map.has_key(t2):
-				l.append(t2)
-	
-		for t, parent in self.get_inherits():
+		inherits = self.get_inherits()
+		for t, parent in inherits:
 			if node == parent and not self.next_level_map.has_key(t):
 				l.append(t)
+
+		
+		for t1, t2 in self.fks:
+			if node == t2 and not self.is_suppressed(node, t1):#and not self.next_level_map.has_key(t1):
+				l.append(t1)
 				
+			elif node == t1 and not self.is_suppressed(node, t2) and not self.next_level_map.has_key(t2):
+				l.append(t2)
+
+		
+				
+		#print "found next level for ", node , " = ", l		
 		return l
 
 	def create_regex(self):
@@ -207,6 +235,23 @@ class Config:
 
 			elif name == 'type_tables':
 				self.type_tables = [ x.strip() for x in defn.split(',') ]
+
+			elif name == 'suppress':
+				"""use path suppression to control tree parsing"""
+				self.suppress = []
+				l = [ x.strip() for x in defn.split(',') ]
+				for x in l:
+					nodes = x.split('.')
+					if len(nodes) == 2:
+						root, parent, node = nodes[0], nodes[0], nodes[1]
+					elif len(nodes) == 3:
+						root, parent, node =  nodes
+					else:
+						print "error parsing suppression expression ", x
+						continue
+					print "adding suppression ", root, parent, node
+					self.suppress.append( (root, parent, node) )
+					
 			
 			
 			
@@ -226,12 +271,12 @@ class Config:
 
 if __name__ == '__main__':
 	config = """
-roots:	identity, org, xlnk_identity, form_instances, vacc_def, clin_health_issue
+roots:	identity, org, xlnk_identity, form_instances, vacc_def
 #hide:	xlnk_identity
 external_fk:	xlnk_identity.xfk_identity references identity
 link_tables:	lnk.*
-type_tables:	.*enum.*,.*type., .*category, occupation
-
+type_tables:	^.*enum.*,^.*type., ^.*category, occupation, marital_status, staff_role
+suppress:	xlnk_identity.last_act_episode, xlnk_identity.vaccination, xlnk_identity.clin_episode.last_act_episode, xlnk_identity.clin_root_item.clin_episode, identity..org, vacc_def..xlnk_identity
 
 """
 	l = config.split("\n")
