@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.115 2003-10-19 12:17:16 ncq Exp $
-__version__ = "$Revision: 1.115 $"
+# $Id: gmGuiMain.py,v 1.116 2003-10-22 21:34:42 hinnef Exp $
+__version__ = "$Revision: 1.116 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -176,35 +176,39 @@ class gmTopLevelFrame(wxFrame):
 		#self.vbox.SetSizeHints(self)
 
 		# try to get last window size from the backend
-		defaultSize = (640,480)
-		result, set = gmCfg.getFirstMatchingDBSet( 
+		defaultWidth, defaultHeight = (640,480)
+		
+		width, set1 = gmCfg.getFirstMatchingDBSet( 
 			machine = _whoami.getMachine(),
-			option = 'main.window.size'
+			option = 'main.window.width'
 		)
-		if not set is None and len(result) == 2:
-			currentSize = tuple(result)
+		height, set2 = gmCfg.getFirstMatchingDBSet( 
+			machine = _whoami.getMachine(),
+			option = 'main.window.height'
+		)
+		# FIXME: Why does gmCfg return an instance type for numeric types ??
+		# i.e. which is the object it returns ??
+		if not set1 is None:
+			currentWidth = int(width)
 		else:
-			currentSize = defaultSize
-			db = gmPG.ConnectionPool()
-			conn = db.GetConnection(service = "default")
-			dbcfg = gmCfg.cCfgSQL(
-				aConn = conn,
-				aDBAPI = gmPG.dbapi
-			)
-			rwconn = db.GetConnection(service = "default", readonly = 0)
-			dbcfg.set(
-				machine = _whoami.getMachine(),
+			currentWidth = defaultWidth
+			gmCfg.setDBParam(machine = _whoami.getMachine(),
 				user = _whoami.getUser(),
-				option = 'main.window.size',
-				value = [currentSize[0],currentSize[1]],
-				aRWConn = rwconn
-			)
-			rwconn.close()
-			db.ReleaseConnection(service = "default")
-		_log.Log(gmLog.lInfo, 'currSize [%s,%s]' % currentSize)
+				option = 'main.window.width',
+				value = currentWidth )
+				
+		if not set2 is None:
+			currentHeight = int(height)
+		else:
+			currentHeight = defaultHeight
+			gmCfg.setDBParam(machine = _whoami.getMachine(),
+				user = _whoami.getUser(),
+				option = 'main.window.height',
+				value = currentHeight )
 
-		# FIXME: size should be stored as a special type [int,int]
-		self.SetClientSize(wxSize(int(currentSize[0]),int(currentSize[1])))
+		_log.Log(gmLog.lInfo, 'currSize [%s,%s]' % (currentWidth,currentHeight))
+
+		self.SetClientSize(wxSize(currentWidth,currentHeight))
 # Fit() will re-shrink the window
 #		self.Fit()
 		self.Centre(wxBOTH)
@@ -844,7 +848,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.115  2003-10-19 12:17:16  ncq
+# Revision 1.116  2003-10-22 21:34:42  hinnef
+# -changed string array for main.window.size into two separate integer parameters
+#
+# Revision 1.115  2003/10/19 12:17:16  ncq
 # - just cleanup
 #
 # Revision 1.114  2003/10/13 21:00:29  hinnef
