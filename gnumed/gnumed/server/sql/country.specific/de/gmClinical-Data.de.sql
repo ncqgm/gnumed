@@ -1,5 +1,5 @@
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-gmclinical.sql,v $
--- $Revision: 1.7 $
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/gmClinical-Data.de.sql,v $
+-- $Revision: 1.1 $
 
 -- part of GnuMed
 -- GPL
@@ -118,11 +118,14 @@ insert into i18n_translations(lang, orig, trans) values
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical-Data.de.sql,v $', '$Revision: 1.1 $');
 
 -- =============================================
--- $Log: german-gmclinical.sql,v $
--- Revision 1.7  2003-06-11 14:03:12  ncq
+-- $Log: gmClinical-Data.de.sql,v $
+-- Revision 1.1  2003-08-05 08:16:00  ncq
+-- - cleanup/renaming
+--
+-- Revision 1.7  2003/06/11 14:03:12  ncq
 -- - set encoding
 --
 -- Revision 1.6  2003/05/12 12:43:40  ncq

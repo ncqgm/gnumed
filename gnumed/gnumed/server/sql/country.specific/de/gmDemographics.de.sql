@@ -1,17 +1,18 @@
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-chipcard.sql,v $
--- $Revision: 1.3 $
+-- GnuMed
+-- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
+-- $Revision: 1.1 $
 
 -- part of GnuMed
 -- license: GPL
 
--- tables related to the German Krankenversichtenkarte KVK
--- belongs into service personalia
+-- demographics tables specific for Germany
+
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 set client_encoding to 'LATIN1';
--- ---------------------------------------------
+-- ===================================================================
 create table name_gender_map (
 	id serial primary key,
 	name varchar(255) unique not null,
@@ -25,10 +26,11 @@ COMMENT on table name_gender_map is
 	 ignored for ambiguity reasons,
 	 names with "ambigous" gender are also ignored';
 
--- ---------------------------------------------
+-- ===================================================================
+-- tables related to the German Krankenversichtenkarte KVK
 create table de_kvk (
 	id serial primary key,
-	id_patient references identity(id),
+	id_patient integer not null references identity(id),
 
 	-- eigentliche KVK-Felder
 	-- Datenbereich (020h-0FFh)				--  Feldtag	L‰nge	Feldname				Optional
@@ -53,7 +55,7 @@ create table de_kvk (
 	is_valid_address boolean default true,
 
 	valid_since timestamp with time zone not null,
-	presented timestamp with time zone[] not null,
+	presented timestamp with time zone [] not null,
 	invalidated timestamp with time zone default null
 );
 
@@ -70,35 +72,36 @@ comment on table de_kvk is
 	 Belange angesehen.';
 
 comment on column de_kvk.invalidated is
-	'Kann durchaus vor *Gueltigkeit* liegen. Zeitpunkt des Austritts aus
-	 der Krankenkasse. Beim Setzen dieses Feldes muﬂ auch die Zuzahlungsbefreiung
-	 auf NULL gesetzt werden.';
+	'Kann durchaus vor Ende von "Gueltigkeit" liegen. Zeitpunkt des
+	 Austritts aus der Krankenkasse. Beim Setzen dieses Feldes muﬂ
+	 auch die Zuzahlungsbefreiung auf NULL gesetzt werden.';
+
+-- ---------------------------------------------
+--create table de_kvk_presented (
+--	id serial primary key,
+--	id_kvk integer not null references de_kvk(id),
+--	presented timestamp with time zone not null,
+--	unique (id_kvk, presented)
+--);
 
 -- ---------------------------------------------
 create table de_zuzahlungsbefreiung (
 	id serial primary key,
-	id_patient references identity(id),
+	id_patient integer references identity(id),
 
 	Medikamente date default null,
 	Heilmittel date default null,
 	Hilfsmittel date default null,
 
-	presented timestamp with time zone default CURRENT_TIMESTAMP
+	presented timestamp with time zone not null default CURRENT_TIMESTAMP
 );
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-chipcard.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.1 $');
 
 -- =============================================
--- $Log: german-chipcard.sql,v $
--- Revision 1.3  2003-06-11 14:03:44  ncq
--- - set encoding
---
--- Revision 1.2  2003/05/12 12:43:40  ncq
--- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
---   database level now, don't include them in individual schema file anymore
---
--- Revision 1.1  2003/02/03 16:16:51  ncq
--- - first shot at KVK tables
+-- $Log: gmDemographics.de.sql,v $
+-- Revision 1.1  2003-08-05 08:16:00  ncq
+-- - cleanup/renaming
 --
