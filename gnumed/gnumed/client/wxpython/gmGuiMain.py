@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.184 2005-03-29 07:27:54 ncq Exp $
-__version__ = "$Revision: 1.184 $"
+# $Id: gmGuiMain.py,v 1.185 2005-04-02 20:45:12 cfmoro Exp $
+__version__ = "$Revision: 1.185 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -29,6 +29,7 @@ from Gnumed.wxpython import gmHorstSpace
 from Gnumed.wxpython import gmRichardSpace
 from Gnumed.business import gmPerson
 from Gnumed.pycommon.gmPyCompat import *
+from Gnumed.exporters import gmPatientExporter
 
 _cfg = gmCfg.gmDefCfgFile
 _whoami = gmWhoAmI.cWhoAmI()
@@ -55,6 +56,7 @@ ID_EXIT = wx.wxNewId ()
 ID_HELP = wx.wxNewId ()
 ID_NOTEBOOK = wx.wxNewId ()
 ID_LEFTBOX = wx.wxNewId ()
+ID_EXPORT_EMR = wx.wxNewId()
 #==============================================================================
 
 icon_serpent = \
@@ -237,6 +239,8 @@ class gmTopLevelFrame(wx.wxFrame):
 		# menu "Tools"
 		self.menu_tools = wxMenu()
 		self.__gb['main.toolsmenu'] = self.menu_tools
+		self.menu_tools.Append(ID_EXPORT_EMR, _('E&xport EMR\tAlt-X'), _('Export selected patient\'s EMR to file'))
+		EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
 		self.mainmenu.Append(self.menu_tools, _("&Tools"));
 
 		# menu "Reference"
@@ -304,6 +308,18 @@ class gmTopLevelFrame(wx.wxFrame):
 		"""
 		# call cleanup helper
 		self._clean_exit()
+	#----------------------------------------------
+	def OnExportEMR(self, event):
+		"""
+		Export selected patient EMR to a file
+		"""
+		sel_pat = gmPerson.gmCurrentPatient()
+		if not sel_pat.is_connected():
+			gmGuiHelpers.gm_show_error('A patient must be selected to dump the EMR for.', _('emr_dump'), gmLog.lErr)
+			return
+		# instantiate exporter
+		exporter = gmPatientExporter.cEmrExport(patient = sel_pat)
+		exporter.dump_emr_gui(parent = self)
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -655,7 +671,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.184  2005-03-29 07:27:54  ncq
+# Revision 1.185  2005-04-02 20:45:12  cfmoro
+# Implementated  exporting emr from gui client
+#
+# Revision 1.184  2005/03/29 07:27:54  ncq
 # - just silly cleanup
 #
 # Revision 1.183  2005/03/14 14:37:19  ncq
