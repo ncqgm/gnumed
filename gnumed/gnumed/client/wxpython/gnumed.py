@@ -47,7 +47,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -278,6 +278,7 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 	sys.exit(0)
 
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
+_log.Log(gmLog.lInfo, '%s on %s (%s)' % (sys.version, sys.platform, os.name)
 
 setup_cfg_file()
 
@@ -330,7 +331,10 @@ if gmCLI.has_arg('--talkback'):
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.61  2004-05-11 08:10:27  ncq
+# Revision 1.62  2004-06-23 21:07:26  ncq
+# - log Python version, platform type, os name at startup
+#
+# Revision 1.61  2004/05/11 08:10:27  ncq
 # - try: except: the warnings.filterwarnings code as some Pythons don't seem to have it
 #
 # Revision 1.60  2004/03/25 11:02:37  ncq
