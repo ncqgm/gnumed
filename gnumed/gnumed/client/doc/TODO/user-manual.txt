@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/user-manual.txt,v $
-# $Revision: 1.37 $
+# $Revision: 1.38 $
 ---------------------------------------------------
 Rules:
 ------
@@ -236,12 +236,12 @@ Please incorporate this into the manual:
 <PARA>Mine is cd /home/gnumed/gnumed/gnumed/server/bootstrap </PARA>
 <PARA></PARA>
 <PARA>b.  vi mono and put this line in it: </PARA>
-<PARA>                   python bootstrap-gm_db_system.py --conf-file=bootstrap-monolithic_core.conf</PARA>
+<PARA>                   python bootstrap_gm_db_system.py --conf-file=bootstrap-monolithic_core.conf</PARA>
 <PARA></PARA>
 <PARA>c.  exit and type:  chmod 744 mono</PARA>
 <PARA></PARA>
 <PARA>d.  vi check_log and put this line in it:</PARA>
-<PARA>                   tail -100 /home/gnumed/.bootstrap-gm_db_system/bootstrap-gm_db_system.log</PARA>
+<PARA>                   tail -100 /home/gnumed/.bootstrap_gm_db_system/bootstrap_gm_db_system.log</PARA>
 <PARA></PARA>
 <PARA>&lt;emphasis&gt;NOTE:  If your logfile is somewhere else, su - root and do a find / -name "*log*"&lt;/emphasis&gt;</PARA>
 <PARA></PARA>

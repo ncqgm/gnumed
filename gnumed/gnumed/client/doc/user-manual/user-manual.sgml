@@ -764,7 +764,7 @@ $ mcc
 	  <para>click on 'DrakXServices...'</para>
 <para>'postgresql' should say 'running'</para>
 	  <screen>
-$ python bootstrap-gm_db_system.py --conf-file=your_user_name-db.conf
+$ python bootstrap_gm_db_system.py --conf-file=your_user_name-db.conf
 </screen>
 	  <para>
 When prompted:
@@ -784,7 +784,7 @@ When prompted:
 	    </itemizedlist></para>
 
 	  <para><emphasis>
-NOTE: If you have problems the log file is in: "/home/your_user_name/.bootstrap-gm_db_system"
+NOTE: If you have problems the log file is in: "/home/your_user_name/.bootstrap_gm_db_system"
 	    </emphasis></para>
 	</sect2>
 	<sect2>
@@ -1325,7 +1325,7 @@ Mine is cd /home/gnumed/gnumed/gnumed/server/bootstrap
 </para></listitem><listitem><para>
 vi mono and put this line in it:
 <screen>
-python bootstrap-gm_db_system.py --conf-file=bootstrap-monolithic_core.conf
+python bootstrap_gm_db_system.py --conf-file=bootstrap-monolithic_core.conf
 </screen>
 </para></listitem><listitem><para>
 exit and type: chmod 744 mono
@@ -1333,7 +1333,7 @@ exit and type: chmod 744 mono
 </para></listitem><listitem><para>
 vi check_log and put this line in it:
 <screen>
-tail -100 /home/gnumed/.bootstrap-gm_db_system/bootstrap-gm_db_system.log
+tail -100 /home/gnumed/.bootstrap_gm_db_system/bootstrap_gm_db_system.log
 </screen>
 <emphasis>NOTE: If your logfile is somewhere else, su - root and do a find / -name "*log*"</emphasis>
 
@@ -1647,7 +1647,7 @@ Click on the Python icon and type:
 		</itemizedlist>
 
         <para>
-        All of this is handled automatically by the script bootstrap-gm_db_system.py
+        All of this is handled automatically by the script bootstrap_gm_db_system.py
         living in server/utils/. This script does not yet set up mappings of
         services to their databases/servers (although in theory it can install
         services on remote servers already). As this is not yet fully supported by
@@ -1667,7 +1667,7 @@ sh make-links.sh
 		<para>
 		Now use a sample config file by calling the script like this:
 		<screen>
-         bootstrap-gm_db_system.py --conf-file=&lt;a config file&gt;
+         bootstrap_gm_db_system.py --conf-file=&lt;a config file&gt;
 		</screen>
         </para>
 
@@ -1702,7 +1702,7 @@ $language library dirs$
         <para>
         If you want to tweak things by hand read the config files and the source
         of the bootstrapping scripts. All the config file parameters are documented
-        in <literal>bootstrap-gm_db_system.conf.sample</literal>.
+        in <literal>bootstrap_gm_db_system.conf.sample</literal>.
         </para>
 </sect2>
 </sect1>
@@ -1907,7 +1907,7 @@ This allows for a missing Austrian translation to fall back to
 	    account. It is located at
 	  <computeroutput>gnumed/server/sql/gmTestAccounts.sql</computeroutput>.
 	  Usually this account will be installed together with the backend tables
-	  using <filename>bootstrap-gm_db_system.py</filename>.
+	  using <filename>bootstrap_gm_db_system.py</filename>.
 	  There are currently three test accounts: </para>
 	  <screen>
 	  test-doc (password: test-doc)
