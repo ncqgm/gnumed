@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.2 2004-08-19 14:07:54 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPatPicWidgets.py,v 1.3 2004-08-19 14:37:30 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -19,7 +19,7 @@ import mx.DateTime as mxDT
 
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmGuiBroker, gmLog, gmI18N
-from Gnumed.business import gmMedDoc
+from Gnumed.business import gmMedDoc, gmPatient
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -192,7 +192,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.2  2004-08-19 14:07:54  ncq
+# Revision 1.3  2004-08-19 14:37:30  ncq
+# - fix missing import
+#
+# Revision 1.2  2004/08/19 14:07:54  ncq
 # - cleanup
 # - add tooltip but doesn't work with wxBitmap
 #
