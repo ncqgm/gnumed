@@ -9,7 +9,7 @@ import os, mailcap, string
 import gmLog
 
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 __log__ = gmLog.gmDefLog
 #=======================================================================================
@@ -22,6 +22,7 @@ def guess_mimetype(aFileName = None):
 
     # this only works on POSIX with 'file' installed (which is standard, however)
     if os.name == 'posix':
+	# get mime type and don't display a header
 	aPipe = os.popen("file -i -b %s" % aFileName)
 	mime_type = string.replace(aPipe.readline(), "\n", "")
 	aPipe.close()
@@ -34,7 +35,7 @@ def guess_mimetype(aFileName = None):
     return mime_type
 #-----------------------------------------------------------------------------------
 def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
-    """Return command for viewer for this mime type."""
+    """Return command for viewer for this mime type complete with this file"""
 
     # sanity checks
     if aMimeType == None:
@@ -43,6 +44,8 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 
     if aFileName == None:
 	__log__.Log(gmLog.lErr, "You should specify a file name for the replacement of %s.")
+	# last resort: if no file name given replace %s in original with literal '%s'
+	# and hope for the best - we certainly don't want the module default "/dev/null"
 	aFileName = """%s"""
 
     mailcaps = mailcap.getcaps()
