@@ -1,43 +1,30 @@
-#############################################################################
-#
-# gmConnectionPool - Broker for Postgres distributed backend connections
-# ---------------------------------------------------------------------------
-#
-# @author: Dr. Horst Herb
+
+"""gmConnectionPool - Broker for Postgres distributed backend connections."""
+
+#=======================================================================
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @dependencies: pg, gmLoginInfo
-# @change log:
-#	25.10.2001 hherb first draft, untested
-#	29.10.2001 hherb crude functionality achieved (works ! (sortof))
-#	30.10.2001 hherb reference counting to prevent disconnection of active connections
-#	==========================================================================
-#	significant version change!
-#	==========================================================================
-#	08.02.2002 hherb made DB API 2.0 compatible.
-#	01.09.2002 hherb pyPgSQL preferred adapter
-#	01.09.2002 hherb writeable connections, start work on asynchronous part
 #
-# @TODO: testing
-############################################################################
 # This source code is protected by the GPL licensing scheme.
 # Details regarding the GPL are available at http://www.gnu.org
 # You may use and share it as long as you don't deny this right
 # to anybody else.
-
-"""gmConnectionPool - Broker for Postgres distributed backend connections
-"""
-
+#=======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
 import string, copy, os, sys, select, threading, time
 
 #gnumed specific modules
-import gmI18N, gmLog, gmLoginInfo, gmExceptions, gmBackendListener
+import gmLog
 _log = gmLog.gmDefLog
+if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+_log.Log(gmLog.lData, __version__)
+
+import gmI18N, gmLoginInfo, gmExceptions, gmBackendListener
 
 #3rd party dependencies
 # first, do we have the preferred postgres-python library available ?
@@ -482,14 +469,29 @@ def quickROQuery(query, service='default'):
 	cur=con.cursor()
 	cur.execute(query)
 	return cur.fetchall(), cur.description
-
 #---------------------------------------------------
+def run_query(aCursor = None, aCmd = None):
+	# FIXME: adapt to pyPgSQL style of %s
 
+	# sanity checks
+	if aCursor is None:
+		_log.Log(gmLog.lErr, 'need cursor to run query')
+		return None
+	if aCmd is None:
+		_log.Log(gmLog.lErr, 'need query to run it')
+		return None
+
+	try:
+		aCursor.execute(aCmd)
+	except:
+		_log.LogException("query >>>%s<<< failed" % aCmd, sys.exc_info())
+		return None
+
+	return 1
+#---------------------------------------------------
 def getBackendName():
 	return __backend
-
-#---------------------------------------------------
-
+#===================================================
 def prompted_input(prompt, default=None):
 	try:
 		res = raw_input(prompt)
@@ -559,11 +561,6 @@ def inputLoginParams():
 # Main
 #==================================================================
 if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-
-_log.Log(gmLog.lData, __version__)
-
-if __name__ == "__main__":
 	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (__backend, dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
 	_ = lambda x:x
 
@@ -621,7 +618,11 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.33  2003-02-19 23:41:23  ncq
+# Revision 1.34  2003-02-24 23:17:32  ncq
+# - moved some comments out of the way
+# - convenience function run_query()
+#
+# Revision 1.33  2003/02/19 23:41:23  ncq
 # - removed excessive printk's
 #
 # Revision 1.32  2003/02/07 14:23:48  ncq
@@ -677,3 +678,13 @@ if __name__ == "__main__":
 # Revision 1.16  2002/09/10 07:44:29  ncq
 # - added changelog keyword
 #
+# @change log:
+#	25.10.2001 hherb first draft, untested
+#	29.10.2001 hherb crude functionality achieved (works ! (sortof))
+#	30.10.2001 hherb reference counting to prevent disconnection of active connections
+#	==========================================================================
+#	significant version change!
+#	==========================================================================
+#	08.02.2002 hherb made DB API 2.0 compatible.
+#	01.09.2002 hherb pyPgSQL preferred adapter
+#	01.09.2002 hherb writeable connections, start work on asynchronous part
