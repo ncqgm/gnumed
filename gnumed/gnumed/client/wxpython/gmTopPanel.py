@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -113,6 +113,7 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.szr_bottom_row.Add (self.pnl_bottom_row, 1, wxGROW)
 		# episode selector
 		# FIXME: handle input -> new episode
+		# FIXME: should be cEpisodeSelector class
 		self.combo_episodes = wxComboBox (
 			self,
 			ID_CBOX_episode,
@@ -202,7 +203,14 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
 	#----------------------------------------------
 	def _on_episode_selected(self, evt):
-		print "episode selected"
+		epr = self.curr_pat.get_clinical_record()
+		ep_name = evt.GetString()
+		if not epr.set_active_episode(ep_name):
+			gmGuiHelpers.gm_show_error (
+				_('Cannot activate episode [%s].\nLeaving previous one activated.' % ep_name),
+				_('selecting active episode'),
+				gmLog.lErr
+			)
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
 		age = self.curr_pat['demographic record'].getMedicalAge ()
@@ -215,10 +223,12 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self._update_allergies()
 
 		# update episode selector
+		epr = self.curr_pat['clinical record']
 		self.combo_episodes.Clear()
-		episodes = self.curr_pat['clinical record'].get_episodes()
+		episodes = epr.get_episodes()
 		for key in episodes.keys():
 			self.combo_episodes.Append(episodes[key], key)
+		self.combo_episodes.SetValue(episodes[epr.id_episode])
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -324,7 +334,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.26  2004-01-06 10:07:42  ncq
+# Revision 1.27  2004-01-15 14:58:31  ncq
+# - activate episode selector
+#
+# Revision 1.26  2004/01/06 10:07:42  ncq
 # - add episode selector to the left of the encounter type selector
 #
 # Revision 1.25  2003/11/18 23:48:08  ncq
