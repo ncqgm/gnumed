@@ -202,6 +202,16 @@ public class IdentityManager {
         
     }
     
+    public void delete( identity id) throws Exception {
+        Session sess = getSession();
+        if (id.getId() != null) {
+            sess.delete(id);
+            sess.flush();
+            sess.connection().commit();
+            sess.disconnect();
+        }
+    }
+    
     public List findIdentityByNames( String lastnames, String firstnames) throws Exception {
         //         Session sess =  gnmed.test.HibernateInit.openSession();
         Session sess = getSession();

@@ -178,7 +178,6 @@ public class identity {
      *@hibernate.set
      *  inverse="true"
      *  cascade="save-update"
-     * //     *  lazy="true"
      * @hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many
@@ -241,9 +240,9 @@ public class identity {
     
     /**
      *@hibernate.set
-     *  cascade="all"
+      *  cascade="all"
      *  inverse="true"
-     *@hibernate.collection-key
+      *@hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many
      *  class="org.gnumed.gmClinical.clin_encounter"
@@ -475,7 +474,6 @@ public class identity {
     /**
      *@hibernate.set
      *  cascade="all"
-     * //     *  lazy="true"
      *@hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many

@@ -12,6 +12,7 @@ import org.gnumed.gmIdentity.*;
  * @author  syan
  */
 public interface ProviderController {
+    public boolean isSaved();
     public ProviderView getView();
     public void setView( ProviderView view);
     public identity getProvider();
@@ -26,5 +27,7 @@ public interface ProviderController {
      *
      */
     public ManagerReference getManagerReference();
+    
+    public void delete();
     
 }

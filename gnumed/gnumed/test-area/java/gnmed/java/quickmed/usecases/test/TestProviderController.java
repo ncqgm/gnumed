@@ -13,7 +13,7 @@ import org.gnumed.gmIdentity.*;
  */
 public class TestProviderController implements ProviderController , ProviderView {
     
-     
+    
     private org.gnumed.gmIdentity.identity id;
     private ProviderView view;
     private InterfaceTransfer transferer;
@@ -26,7 +26,7 @@ public class TestProviderController implements ProviderController , ProviderView
             e.printStackTrace();
         }
         try {
-            transferer = new InterfaceTransfer( ProviderView.class, new String[] { "class" } );
+            transferer = new InterfaceTransfer( ProviderView.class, new String[] { "class", "saved" } );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,16 +42,16 @@ public class TestProviderController implements ProviderController , ProviderView
     
     public void modelToUi() {
         if (view != null)
-        try {
-            transferer.transfer(this, view);
-        } catch (Exception e) {
-        e.printStackTrace();
-        }
+            try {
+                transferer.transfer(this, view);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
     }
     
     public void setProvider(org.gnumed.gmIdentity.identity id) {
         this.id = id;
-       changeProvider(id);
+        changeProvider(id);
     }
     
     public void setView(ProviderView view) {
@@ -160,7 +160,7 @@ public class TestProviderController implements ProviderController , ProviderView
     
     public void save() {
         try {
-        getManagerReference().getIdentityManager().save(getIdentity());
+            getManagerReference().getIdentityManager().save(getIdentity());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -180,5 +180,21 @@ public class TestProviderController implements ProviderController , ProviderView
         model.setIdentity(i);
         modelToUi();
     }
+    
+    
+    public void delete() {
+        try {
+            getManagerReference().getIdentityManager().delete(getProvider());
+            changeProvider(new identity());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public boolean isSaved() {
+       return  getIdentity() == null? false: getIdentity().getId() == null ? false: true;
+    }
+    
+   
     
 }

@@ -43,7 +43,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         id.setPersister(manager);
         TestProviderController controller = new TestProviderController();
         controller.setIdentity(id);
-         setController(controller);   
+        setController(controller);
         
     }
     void setTabLabels() {
@@ -57,7 +57,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     
     void setSexComboLabels() {
         DefaultComboBoxModel model = new DefaultComboBoxModel( new String[] { Globals.bundle.getString("male"), Globals.bundle.getString("female") } );
-       jComboBox1.setModel(model);
+        jComboBox1.setModel(model);
         
     }
     
@@ -241,6 +241,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         jSeparator1 = new javax.swing.JSeparator();
         jLabel12 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
+        deleteButton7 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -581,6 +582,16 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
 
         jPanel3.add(jButton3, new java.awt.GridBagConstraints());
 
+        deleteButton7.setText(java.util.ResourceBundle.getBundle("SummaryTerms").getString("delete"));
+        deleteButton7.setEnabled(false);
+        deleteButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButton7ActionPerformed(evt);
+            }
+        });
+
+        jPanel3.add(deleteButton7, new java.awt.GridBagConstraints());
+
         jTabbedPane1.addTab("tab3", jPanel3);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -632,7 +643,12 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
     }//GEN-END:initComponents
-
+    
+    private void deleteButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButton7ActionPerformed
+        // Add your handling code here:
+        deleteProvider();
+    }//GEN-LAST:event_deleteButton7ActionPerformed
+    
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // Add your handling code here:
         // temporary hack for script writing provider .
@@ -640,108 +656,116 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         if (ix >= 0)
             Globals.setUserIdentity( resultjList1.getSelectedValue() );
     }//GEN-LAST:event_jButton6ActionPerformed
-
+    
     private void resultjList1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_resultjList1KeyPressed
         // Add your handling code here:
-        if (evt.getKeyCode() == evt.VK_ENTER) { 
+        if (evt.getKeyCode() == evt.VK_ENTER) {
             setProviderSelected(true);
             setProviderSelected(false);
         }
-            
+        
     }//GEN-LAST:event_resultjList1KeyPressed
-
+    
     private void searchNamesjTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchNamesjTextField2ActionPerformed
         // Add your handling code here:
-         searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), 1, "search for providers with role"));
+        searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), 1, "search for providers with role"));
     }//GEN-LAST:event_searchNamesjTextField2ActionPerformed
-
+    
     private void jTree3MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTree3MouseReleased
         // Add your handling code here:
         checkForPopup(evt);
     }//GEN-LAST:event_jTree3MouseReleased
-
+    
     private void findjTree2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_findjTree2MouseReleased
         // Add your handling code here:
         findByRoleMousePressed(evt);
     }//GEN-LAST:event_findjTree2MouseReleased
-
+    
     private void findjTree2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_findjTree2MouseClicked
         // Add your handling code here:
         findByRoleMousePressed(evt);
     }//GEN-LAST:event_findjTree2MouseClicked
-
+    
     private void findByRoleMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_findByRoleMousePressed
         // Add your handling code here:
-         if (evt.isPopupTrigger()) {
+        if (evt.isPopupTrigger()) {
             
             findProviderByRolePopupMenu.show((java.awt.Component)evt.getSource(), evt.getX(), evt.getY());
         }
     }//GEN-LAST:event_findByRoleMousePressed
-
+    
     private void clearRoleSekectMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearRoleSekectMenuItemActionPerformed
         // Add your handling code here:
         findjTree2.clearSelection();
     }//GEN-LAST:event_clearRoleSekectMenuItemActionPerformed
-
+    
     private void searchRoleMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchRoleMenuItemActionPerformed
         // Add your handling code here:
-          searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), 1, "search for providers with role"));
+        searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), 1, "search for providers with role"));
     }//GEN-LAST:event_searchRoleMenuItemActionPerformed
-
+    
     private void roleTreeClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_roleTreeClicked
         // Add your handling code here:
-        if (evt.getClickCount() == 2)  
+        if (evt.getClickCount() == 2)
             addSelectedRoleInTreeToList();
         checkForPopup(evt);
     }//GEN-LAST:event_roleTreeClicked
-
+    
     private void clearRoleTreeSelection(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearRoleTreeSelection
         // Add your handling code here:
-//        findjTree2.clearSelection();
+        //        findjTree2.clearSelection();
         jTree3.clearSelection();
     }//GEN-LAST:event_clearRoleTreeSelection
-
+    
     private void findjTree2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_findjTree2KeyPressed
         // Add your handling code here:
-         if (evt.getKeyCode() == evt.VK_ENTER) {
+        if (evt.getKeyCode() == evt.VK_ENTER) {
             
             searchProviderActionPerformed(new java.awt.event.ActionEvent( evt.getSource(), evt.VK_ENTER, "search for providers with role"));
         }
     }//GEN-LAST:event_findjTree2KeyPressed
-
+    
     private void findTreeSelectionTransferAction(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_findTreeSelectionTransferAction
         // Add your handling code here:
-       
+        
     }//GEN-LAST:event_findTreeSelectionTransferAction
-
+    
     private void clearIdentityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearIdentityActionPerformed
         // Add your handling code here:
         
-       getController().setProvider(new identity());
+        getController().setProvider(new identity());
     }//GEN-LAST:event_clearIdentityActionPerformed
-
+    
     private void deleteFromListHandler(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_deleteFromListHandler
         // Add your handling code here:
-          if (evt.getKeyCode() == evt.VK_DELETE) {
+        if (evt.getKeyCode() == evt.VK_DELETE) {
             Object[] oo = jList2.getSelectedValues();
             for (int i = 0; i < oo.length; ++i) {
                 addRemoved(oo[i]);
             }
         }
     }//GEN-LAST:event_deleteFromListHandler
-        
+    
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
         // Add your handling code here:
         Object o = resultjList1.getSelectedValue();
         if ( o instanceof identity) {
             getController().setProvider( (identity ) o);
             getController().modelToUi();
+            
             jTabbedPane1.setSelectedIndex(1);
+            
+            checkDeleteButtonState();
         }
     }//GEN-LAST:event_editButtonActionPerformed
     
     private void searchProviderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchProviderActionPerformed
         // Add your handling code here:
+        searchAction();
+        
+    }
+    
+    void searchAction() {
         String[] names = searchNamesjTextField2.getText().trim().split(",");
         String lastName = names[0].trim();
         
@@ -751,14 +775,10 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         
         for (int i = 0; paths != null && i < paths.length; ++i) {
             Object o =  paths[i].getLastPathComponent();
-            if (o instanceof DefaultMutableTreeNode) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) o;
-                if (node.getUserObject() instanceof identity_role)
-                    roles.add( node.getUserObject());
-            }
+            addLeafRoles(roles, (TreeNode) o);
         }
         try {
-//            resultjList1.setListData( new Object[0]);
+            //            resultjList1.setListData( new Object[0]);
             
             List l =  getController().getManagerReference().getIdentityManager().findProviders( lastName, firstName, (identity_role[])roles.toArray( new identity_role[0] ));
             
@@ -767,6 +787,20 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
             e.printStackTrace();
         }
     }//GEN-LAST:event_searchProviderActionPerformed
+    void addLeafRoles(List roles, TreeNode node) {
+        
+        if   ( node instanceof DefaultMutableTreeNode)  {
+            DefaultMutableTreeNode dnode = (DefaultMutableTreeNode) node;
+            if ( dnode.getUserObject() instanceof identity_role)
+                roles.add( dnode.getUserObject());
+        }
+        
+        if (node.isLeaf())
+            return;
+        for (int i = 0; i < node.getChildCount() ; ++i)
+            addLeafRoles(roles, node.getChildAt(i));
+        
+    }
     
     private void locationjComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_locationjComboBox1ActionPerformed
         // Add your handling code here:
@@ -780,7 +814,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         getController().getManagerReference().getIdentityManager()
         .removeRoles(getController().getProvider(), getRemoved());
         clearRemoved();
-        
+        checkDeleteButtonState();
     }//GEN-LAST:event_createProviderActionPerformed
     
     private void pagerjTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pagerjTextField4ActionPerformed
@@ -820,6 +854,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JMenuItem clearRoleSekectMenuItem;
     private javax.swing.JTextArea commentText;
+    private javax.swing.JButton deleteButton7;
     private javax.swing.JButton editButton;
     private javax.swing.JTextField faxjTextField7;
     private javax.swing.JPopupMenu findProviderByRolePopupMenu;
@@ -876,9 +911,9 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     private javax.swing.JMenuItem searchRoleMenuItem;
     private javax.swing.JTextField telephonejTextField6;
     // End of variables declaration//GEN-END:variables
-
+    
     /** Holds value of property providerSelected. */
-    private boolean providerSelected;    
+    private boolean providerSelected;
     
     /** Utility field used by bound properties. */
     private java.beans.PropertyChangeSupport propertyChangeSupport =  new java.beans.PropertyChangeSupport(this);
@@ -886,9 +921,9 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
     /** Holds value of property selectedUser. */
     private identity selectedUser;
     
-//    static Class[] roleFilter = { identity_role.class };
+    //    static Class[] roleFilter = { identity_role.class };
     
-   
+    
     
     public Collection getRemoved() {
         return removed;
@@ -1107,6 +1142,7 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
         boolean oldProviderSelected = this.providerSelected;
         this.providerSelected = providerSelected;
         propertyChangeSupport.firePropertyChange("providerSelected", new Boolean(oldProviderSelected), new Boolean(providerSelected));
+        
     }
     
     /** Getter for property selectedUser.
@@ -1123,6 +1159,30 @@ public class ContactsPanel extends javax.swing.JPanel implements ProviderView{
      */
     public void setSelectedUser(identity selectedUser) {
         this.selectedUser = selectedUser;
+        
+        
     }
     
+    public boolean isSaved() {
+        return getController().isSaved();
+    }
+    
+    
+    void confirm(String msg) throws RuntimeException {
+        if ( JOptionPane.showConfirmDialog(JOptionPane.getDesktopPaneForComponent(this), msg) == JOptionPane.YES_OPTION)
+            return;
+        throw new RuntimeException(Globals.bundle.getString("operation_cancelled"));
+        
+    }
+    
+    void deleteProvider() {
+        confirm(Globals.bundle.getString("confirm_delete"));
+        getController().delete();
+        searchAction();
+        checkDeleteButtonState();
+    }
+    
+    void checkDeleteButtonState() {
+        deleteButton7.setEnabled(isSaved());
+    }
 }
