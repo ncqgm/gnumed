@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -708,6 +708,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 					_log.Log(gmLog.lData, 'concurrency conflict detected')
 					if attempt < max_tries:
 						# jump to next full attempt
+						time.sleep(0.1)
 						continue
 					curs.close()
 					conn.close()
@@ -1181,7 +1182,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.33 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.34 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1399,7 +1400,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.33  2004-11-03 22:19:53  ncq
+# Revision 1.34  2004-11-21 20:54:59  ncq
+# - give concurrency retries some slack
+#
+# Revision 1.33  2004/11/03 22:19:53  ncq
 # - improve strings
 #
 # Revision 1.32  2004/11/02 21:04:40  ncq
