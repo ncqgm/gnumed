@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -61,9 +61,9 @@ import gmLog, gmCLI, gmPG
 
 _log = gmLog.gmDefLog
 
-# CfgFile flags
-SEARCH_STD_FILE_LOCATIONS = 1
-IGNORE_COMMAND_LINE = 2
+# flags for __get_conf_name
+cfg_SEARCH_STD_DIRS = 1
+cfg_IGNORE_CMD_LINE = 2
 
 # don't change this without knowing what you do as
 # it will already be in many databases
@@ -410,7 +410,6 @@ class cCfgFile:
 	"""
 
 	_modified = None
-	_cfgFileStdLocations = []
 	#----------------------------
 	def __init__(self, aPath = None, aFile = None, flags = 0):
 		"""Init ConfigFile object. For valid combinations of these
@@ -607,106 +606,112 @@ class cCfgFile:
 	def __get_conf_name(self, aDir = None, aName = None, flags = 0):
 		"""Try to construct a valid config file name.
 
-		Returns None if no valid name could be found, else TRUE(1).
+		- None: no valid name found
+		- true(1): valid name found
 		"""
 		_log.Log(gmLog.lData, '(<aDir=%s>, <aName=%s>)' % (aDir, aName))
-		targetFile = []
-		
-		# has the user manually supplied a config file on the command line ?
-		if gmCLI.has_arg('--conf-file') and not (flags & IGNORE_COMMAND_LINE):
-			self.cfgName = gmCLI.arg['--conf-file']
-			# file valid ?
-			if os.path.exists(self.cfgName):
-				_log.Log(gmLog.lData, 'found config file [--conf-file=%s]' % self.cfgName)
-				return 1
+
+		# did the user manually supply a config file on the command line ?
+		if not (flags & cfg_IGNORE_CMD_LINE):
+			if gmCLI.has_arg('--conf-file'):
+				self.cfgName = gmCLI.arg['--conf-file']
+				# file valid ?
+				if os.path.isfile(self.cfgName):
+					_log.Log(gmLog.lData, 'found config file [--conf-file=%s]' % self.cfgName)
+					return 1
+				else:
+					_log.Log(gmLog.lErr, "config file [--conf-file=%s] not found, aborting" % self.cfgName)
+					return None
 			else:
-				_log.Log(gmLog.lErr, "config file [--conf-file=%s] not found, aborting" % self.cfgName)
-				return None
+				_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
 		else:
-			_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
+			if gmCLI.has_arg('--conf-file'):
+				_log.Log(gmLog.lInfo, 'ignoring command line per cfg_IGNORE_CMD_LINE')
+
+		candidate_files = []
 
 		# now make base path components
-		# get base name (from name of script)
-		# if we have a filename given, try to find that one.
+		# 1) get base name:
 		if aName is None:
-			# else construct file name from script name
+			# - from name of script if no file name given
 			base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
-		else:	
-			# try to handle the various cases for given filename/dir
-			if not (flags & SEARCH_STD_FILE_LOCATIONS):
-				# we don't want to search, so either 
-				# aName or aDir + aName is absolute path
+		else:
+			# - from given file name/dir
+			# don't try to expand give file name if
+			# explicitely asked to search in standard dirs
+			if (flags & cfg_SEARCH_STD_DIRS):
+				base_name = aName
+			# else do try to expand
+			else:
 				if aDir is None:
 					absName = os.path.abspath(aName)
 				else :
 					absName = os.path.abspath(os.path.join(aDir, aName))
-				# add this file to target file list. 
-				# it will stay the only one.
-				targetFile.append(absName)
-			else:
-			# we want to search in std locations : basename
-				base_name = aName
-		# get base dir
+				# this candidate will stay the only one
+				candidate_files.append(absName)
+		# 2) get base dir
 		if aDir is None:
 			# from name of script
 			base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 		else:
 			# or from path in arguments
 			base_dir = aDir
-			
-		
-		# if we don't have a filename given of explicitly want 
-		# to search variuos locations -> create location list
-		if (flags & SEARCH_STD_FILE_LOCATIONS) or aName is None:
-			# now create list of standard config file locations
-			# 3) $(<script-name>_DIR)/base_name
+
+		# if we don't have a filename given we explicitly want
+		# to search various locations -> create location list
+		# huh ??
+		if (flags & cfg_SEARCH_STD_DIRS) or aDir is None:
+			# create list of standard config file locations
+			std_dirs = []
+			# - $(<script-name>_DIR)/etc/
 			env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
 			if os.environ.has_key(env_key):
 				env_key_val = os.environ[env_key]
-				cfgName = os.path.abspath(os.path.expanduser(os.path.join(env_key_val, 'etc')))
-				self._cfgFileStdLocations.append(cfgName)			
+				a_dir = os.path.abspath(os.path.expanduser(os.path.join(env_key_val, 'etc')))
+				std_dirs.append(a_dir)
 			else:
 				_log.Log(gmLog.lInfo, "$%s not set" % env_key)
 
-			# 4) ~/.base_dir/base_name
-			cfgName = os.path.expanduser(os.path.join('~', '.' + base_dir))
-			self._cfgFileStdLocations.append(cfgName)			
+			# - ~/.base_dir/
+			a_dir = os.path.expanduser(os.path.join('~', '.' + base_dir))
+			std_dirs.append(a_dir)	
 
-			# 5) ~/.base_name
-			# this is a hidden file, so we have to insert it manually later
-			cfgNameHidden = os.path.expanduser(os.path.join('~', '.' + base_name))
+			# - /etc/base_dir/
+			a_dir = os.path.join('/etc', base_dir)
+			std_dirs.append(a_dir)
 
-			# 6) /etc/base_dir/base_name
-			cfgName = os.path.join('/etc', base_dir)
-			self._cfgFileStdLocations.append(cfgName)			
+			# - /etc/
+			std_dirs.append('/etc')
 
-			# 7) /etc/base_name
-			cfgName = os.path.join('/etc')
-			self._cfgFileStdLocations.append(cfgName)			
-
-			# 8) ./base_name
+			# 8) ./
 			# last resort for inferior operating systems such as DOS/Windows
-			self.cfgName = os.path.abspath(os.path.join(os.path.split(sys.argv[0])[0], base_name))
-			self._cfgFileStdLocations.append(cfgName)			
+			a_dir = os.path.abspath(os.path.split(sys.argv[0])[0])
+			std_dirs.append(a_dir)
 
-			# compile valid filenames from std locations and basename
+			# compile candidate file names from
+			# standard dirs and base name
+			for a_dir in std_dirs:
+				candidate_files.append(os.path.join(a_dir, base_name))
 
-			for stdDir in (self._cfgFileStdLocations):
-				targetFile.append(stdDir + '/' + base_name)
-			targetFile.insert(1,cfgNameHidden)
-#DEBUG		
-		_log.Log(gmLog.lInfo, "Config File Search Order: %s" % str(targetFile))
-#DEBUG
-		# eventually we loop through all filenames
-		for tFile in (targetFile):
-			if not os.path.isfile(tFile):
-				_log.Log(gmLog.lWarn, "config file [%s] not found" % tFile)
+			# eventually add hidden file:
+			# - ~/.base_name
+			cfgNameHidden = os.path.expanduser(os.path.join('~', '.' + base_name))
+			candidate_files.insert(1, cfgNameHidden)
+
+		#<DEBUG>
+		_log.Log(gmLog.lInfo, "config file search order: %s" % str(candidate_files))
+		#</DEBUG>
+
+		# eventually loop through all candidates
+		for candidate in (candidate_files):
+			if not os.path.isfile(candidate):
+				_log.Log(gmLog.lWarn, "config file [%s] not found" % candidate)
 			else:
-				_log.Log(gmLog.lData, 'found config file [%s]' % tFile)
-				self.cfgName = tFile
+				_log.Log(gmLog.lData, 'found config file [%s]' % candidate)
+				self.cfgName = candidate
 				return 1
-		
-		# we still don't have a valid config file name ?!?
+
+		# still don't have a valid config file name ?!?
 		# we can't help it
 		_log.Log(gmLog.lErr, "cannot find config file in any of the standard paths")
 		return None
@@ -890,7 +895,7 @@ if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		try:
 			myCfg = cCfgFile(aFile = sys.argv[1])
-#			myCfg = cCfgFile(aFile = sys.argv[1],flags=SEARCH_STD_FILE_LOCATIONS)
+#			myCfg = cCfgFile(aFile = sys.argv[1],flags=cfg_SEARCH_STD_DIRS)
 		except:
 			exc = sys.exc_info()
 			_log.LogException('unhandled exception', exc, verbose=1)
@@ -990,7 +995,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.56  2003-08-07 23:31:04  hinnef
+# Revision 1.57  2003-08-10 00:53:09  ncq
+# - cleanup to Hilmars nice additions
+#
+# Revision 1.56  2003/08/07 23:31:04  hinnef
 # changed CfgFile.__get_conf_name so that files can be searched in more than one location
 #
 # Revision 1.55  2003/07/21 20:53:50  ncq
