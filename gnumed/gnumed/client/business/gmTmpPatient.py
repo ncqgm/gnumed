@@ -1,14 +1,14 @@
 """GnuMed temporary patient object.
 
-This a patient object intended to let a useful client-side
+This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
 
 license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.12 2003-03-31 23:36:51 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmTmpPatient.py,v 1.13 2003-04-04 20:40:51 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -25,22 +25,21 @@ _log.Log(gmLog.lData, __version__)
 
 import gmExceptions, gmPG, gmSignals, gmDispatcher
 
-gmDefPatient = None
 #============================================================
 gm2long_gender_map = {
 	'm': _('male'),
 	'f': _('female')
 }
-
+#============================================================
 # may get preloaded by the waiting list
-class gmPatient:
+class gmPerson:
 	"""Represents a patient that DOES EXIST in the database.
 
 	- searching and creation is done OUTSIDE this object
 	"""
 
 	# handlers for __getitem__()
-	__get_handler = {}
+	_get_handler = {}
 
 	def __init__(self, aPKey = None):
 		"""Fails if
@@ -48,37 +47,28 @@ class gmPatient:
 		- no connection to database possible
 		- patient referenced by aPKey does not exist.
 		"""
-		self.__backend = gmPG.ConnectionPool()
-		self.__defconn_ro = self.__backend.GetConnection('personalia')
-		if self.__defconn_ro is None:
+		self._backend = gmPG.ConnectionPool()
+		self._defconn_ro = self._backend.GetConnection('personalia')
+		if self._defconn_ro is None:
 			raise gmExceptions.ConstructorError, "Cannot connect to database." % aPKey
 
 		self.ID = aPKey			# == identity.id == primary key
-		if not self.__pkey_exists():
+		if not self._pkey_exists():
 			raise gmExceptions.ConstructorError, "No patient with ID [%s] in database." % aPKey
 
 		self.PUPIC = ""
-		self.OID = None
-		# if true the managed patient can't be changed, this
-		# is useful if some other software called us with a
-		# specific patient pre-selected
-		self.locked = (1==0)
-
-		# to be used whenever a format string is needed since
-		# we cannot pass parameters to __getitem__()
-		self.format = None
 
 		# register backend notification interests ...
-		#if not self.__register_interests():
+		#if not self._register_interests():
 			#raise gmExceptions.ConstructorError, "Cannot register patient modification interests."
-
-#		self.__cache = {}
-#		self.__query_trees = {}
 
 		_log.Log(gmLog.lData, 'Instantiated patient [%s].' % self.ID)
 	#--------------------------------------------------------
 	def __del__(self):
-		self.__backend.ReleaseConnection('personalia')
+		if self.__dict__.has_key('_backend'):
+			self._backend.ReleaseConnection('personalia')
+	#--------------------------------------------------------
+	# cache handling
 	#--------------------------------------------------------
 	def commit(self):
 		"""Do cleanups before dying.
@@ -88,19 +78,26 @@ class gmPatient:
 		# unlisten to signals
 		print "unimplemented: committing patient data"
 	#--------------------------------------------------------
+	def invalidate_cache(self):
+		"""Called when the cache turns cold.
+
+		"""
+		print "unimplemented: invalidating patient data cache"
+	#--------------------------------------------------------
+	#--------------------------------------------------------
 	def setQueryTree(self, aCol, aQueryTree = None):
 		if aQueryTree is None:
 			return None
-		self.__query_trees[aCol] = aQueryTree
+		self._query_trees[aCol] = aQueryTree
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
-	def __pkey_exists(self):
+	def _pkey_exists(self):
 		"""Does this primary key exist ?
 
 		- true/false/None
 		"""
-		curs = self.__defconn_ro.cursor()
+		curs = self._defconn_ro.cursor()
 		cmd = "select exists(select id from identity where id = %s);"
 		try:
 			curs.execute(cmd, self.ID)
@@ -114,63 +111,40 @@ class gmPatient:
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------
-	def __register_interests(self):
+	def _register_interests(self):
 		# backend
-		self.__backend.Listen(
+		self._backend.Listen(
 			service = 'personalia',
 			signal = '"%s.%s"' % (gmSignals.patient_modified(), self.ID),
-			callback = self.__patient_modified
+			callback = self._patient_modified
 		)
 	#--------------------------------------------------------
-	def __patient_modified(self):
+	def _patient_modified(self):
 		# uh, oh, cache may have been modified ...
 		# <DEBUG>
 		_log.Log(gmLog.lData, "patient_modified signal received from backend")
 		# </DEBUG>
+		# this is fraught with problems:
+		# can we safely just throw away the cache ?
+		# we may have new data in there ...
+		self.invalidate_cache()
 	#--------------------------------------------------------
-	# object behaviour
+	# __getitem__ handling
 	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it.
-
-		Either the built in mapper knows how to access the data in the database
-		or you must have provided queries. The mapper, of course, caches how to
-		access data in the database.
-
-		The values themselves are cached, too, until a backend notification is received
-		for this patient.
-
-		We may hand off regetting data after a change notification to a thread.
 		"""
 		try:
-			return gmPatient.__get_handler[aVar](self)
-		except:
-			_log.LogException('Missing handler for [%s]' % aVar, sys.exc_info())
+			return gmPerson._get_handler[aVar](self)
+		except KeyError:
+			_log.LogException('Missing get handler for [%s]' % aVar, sys.exc_info())
 			return None
-
-#		if aVar is None:
-#			_log.Log(gmLog.lErr, 'Anonymous attributes not supported. Need to supply a name.')
-#			return None
-#		try:
-#			return self.__cache[aVar]
-#		except KeyError:
-#			# not cached yet
-#			try:
-#				query_tree = self.__query_trees[aVar]
-#			except StandardError:
-#				_log.LogException ("No query tree available for [%s]." % aVar, sys.exc_info(), fatal=0)
-#				return None
-#			val = self.__run_queries(query_tree)
-#			if val is None:
-#				_log.Log(gmLog.lErr, "Cannot retrieve data for attribute [%s] (primary key [%s])." % (aVar, self.ID))
 	#--------------------------------------------------------
-	# attribute handlers
-	#--------------------------------------------------------
-	def __getMedDocsList(self):
+	def _getMedDocsList(self):
 		"""Build a complete list of metadata for all documents of our patient.
 
 		"""
-		blobs_conn = self.__backend.GetConnection('blobs')
+		blobs_conn = self._backend.GetConnection('blobs')
 		if blobs_conn is None:
 			_log.Log(gmLog.lPanic, "Cannot connect to database.")
 			return None
@@ -196,12 +170,12 @@ class gmPatient:
 			return None
 
 		curs.close()
-		self.__backend.ReleaseConnection('blobs')
+		self._backend.ReleaseConnection('blobs')
 
 		return docs
 	#--------------------------------------------------------
-	def __getActiveName(self):
-		curs = self.__defconn_ro.cursor()
+	def _getActiveName(self):
+		curs = self._defconn_ro.cursor()
 		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s;"
 		try:
 			curs.execute(cmd, self.ID)
@@ -220,9 +194,32 @@ class gmPatient:
 			}
 			return result
 	#--------------------------------------------------------
-	def __getTitle(self):
-		curs = self.__defconn_ro.cursor()
+	def _getTitle(self):
+		curs = self._defconn_ro.cursor()
 		cmd = "select title from v_basic_person where i_id = %s;"
+		try:
+			curs.execute(cmd, self.ID)
+		except:
+			curs.close()
+			_log.LogException('>>>%s<<< failed' % (cmd % self.ID), sys.exc_info())
+			return ''
+		data = curs.fetchone()
+		curs.close()
+		if data is None:
+			return ''
+		else:
+			if data[0] is None:
+				return ''
+			else:
+				return data[0]
+	#--------------------------------------------------------
+	def _getID(self):
+		return self.ID
+	#--------------------------------------------------------
+	def _getDOB(self):
+		curs = self._defconn_ro.cursor()
+		# FIXME: invent a mechanism to set the desired format
+		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s;"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -236,21 +233,101 @@ class gmPatient:
 		else:
 			return data[0]
 	#--------------------------------------------------------
-	__get_handler['document id list'] = __getMedDocsList
-	__get_handler['active name'] = __getActiveName
-	#__get_handler['all names'] = __getNamesList
-	__get_handler['title'] = __getTitle
+	# set up handler map
+	_get_handler['document id list'] = _getMedDocsList
+	_get_handler['active name'] = _getActiveName
+	#_get_handler['all names'] = _getNamesList
+	_get_handler['title'] = _getTitle
+	_get_handler['ID'] = _getID
+	_get_handler['dob'] = _getDOB
 #============================================================
-def get_patient():
-	"""Get a patient object.
+from gmBorg import cBorg
 
-	This is a factory function.
+class gmCurrentPatient(cBorg):
+	"""Patient Borg to hold currently active patient.
 
-	None - ambigous
-	not None - patient object
-	exception - failure
+	There may be many instances of this but they all share state.
 	"""
-	pass
+	def __init__(self, aPKey = None):
+		# share state among all instances ...
+		cBorg.__init__(self)
+
+		# make sure we do have a patient pointer even if it is None
+		if not self.__dict__.has_key('patient'):
+			self.patient = None
+
+		# set initial lock state
+		if not self.__dict__.has_key('locked'):
+			self.unlock()
+
+		# set up default data
+		if not self.__dict__.has_key('default_data'):
+			self.default_data = {}
+
+		# user wants to init or change us
+		if aPKey is not None:
+			# init
+			if self.patient is None:
+				try:
+					self.patient = gmPerson(aPKey)
+					self.unlock()
+					self.__send_selection_notification()
+				except:
+					_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
+			# change
+			else:
+				# are we really to become someone else ?
+				if self.patient['ID'] != aPKey:
+					# yes, but CAN we ?
+					if self.locked is None:
+						try:
+							tmp = gmPerson(aPKey)
+							# clean up after ourselves
+							self.patient.commit()
+							# FIXME: is this needed ?
+							del self.patient
+							self.patient = tmp
+							self.unlock()
+							self.__send_selection_notification()
+						except:
+							_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
+							# FIXME: maybe raise exception here ?
+					else:
+						_log.Log(gmLog.lErr, 'patient [%s] is locked, cannot change to [%s]' % (self.patient['ID'], aPKey))
+
+		return None
+	#--------------------------------------------------------
+	# patient change handling
+	#--------------------------------------------------------
+	def lock(self):
+		self.locked = 1
+	#--------------------------------------------------------
+	def unlock(self):
+		self.locked = None
+	#--------------------------------------------------------
+	def __send_selection_notification(self):
+		"""Sends signal when another patient has actually been made active."""
+		kwargs = {
+			'ID': self.patient['ID'],
+			'signal': gmSignals.patient_selected(),
+			'sender': id(self.__class__)
+		}
+		gmDispatcher.send(gmSignals.patient_selected(), kwds=kwargs)
+	#--------------------------------------------------------
+	# __getitem__ handling
+	#--------------------------------------------------------
+	def __getitem__(self, aVar = None):
+		"""Return any attribute if known how to retrieve it by proxy.
+		"""
+		if self.patient is not None:
+			return self.patient[aVar]
+		else:
+			return None
+#			try:
+#				return self.default_data[aVar]
+#			except KeyError:
+#				return None
+#============================================================
 #------------------------------------------------------------
 def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 	"""Get a list of matching patient IDs.
@@ -416,7 +493,7 @@ def create_patient(data):
 
 	# and init new patient object
 	try:
-		pat = gmPatient(aPKey = pat_id)
+		pat = gmPerson(aPKey = pat_id)
 	except:
 		_log.LogException('cannot init patient with ID [%s]' % pat_id, sys.exc_info(), fatal=1)
 		return None
@@ -426,35 +503,33 @@ def create_patient(data):
 # callbacks
 #------------------------------------------------------------
 def _patient_selected(**kwargs):
-	global gmDefPatient
-	if gmDefPatient is not None:
-		gmDefPatient.commit()
-
-	try:
-		tmp = gmPatient(aPKey = kwargs['kwds']['ID'])
-	except:
-		_log.Log(gmLog.lPanic, str(kwargs))
-		_log.LogException('Cannot change to patient [%s].' % kwargs['kwds']['ID'], sys.exc_info(), fatal=1)
-		return None
-	gmDefPatient = tmp
+	print "received patient_selected notification"
+	print kwargs['kwds']
 #============================================================
 if __name__ == "__main__":
+	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 	while 1:
 		pID = raw_input('a patient ID: ')
 		try:
-			myPatient = gmPatient(aPKey = pID)
+			myPatient = gmCurrentPatient(aPKey = pID)
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
 			continue
-		print myPatient.ID, myPatient['active name']
-		print myPatient['document id list']
-		print myPatient['missing handler']
-else:
-	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
+		print "ID     ", myPatient['ID']
+		print "name   ", myPatient['active name']
+		print "doc ids", myPatient['document id list']
+		print "title  ", myPatient['title']
+		print "fails  ", myPatient['missing handler']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.12  2003-03-31 23:36:51  ncq
+# Revision 1.13  2003-04-04 20:40:51  ncq
+# - handle connection errors gracefully
+# - let gmCurrentPatient be a borg but let the person object be an attribute thereof
+#   instead of an ancestor, this way we can safely do __init__(aPKey) where aPKey may or
+#   may not be None
+#
+# Revision 1.12  2003/03/31 23:36:51  ncq
 # - adapt to changed view v_basic_person
 #
 # Revision 1.11  2003/03/27 21:08:25  ncq
