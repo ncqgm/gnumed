@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.131 $
+-- $Revision: 1.132 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -912,6 +912,8 @@ create table clin_medication (
 		not null,
 	atc_code text
 		not null,
+	is_CR boolean,
+		not null
 	-- medical application
 	dosage numeric[]
 		not null,
@@ -924,7 +926,6 @@ create table clin_medication (
 		default null,
 	is_prn boolean
 		default false
---	is_SR boolean	-- ???
 ) inherits (clin_root_item);
 
 select add_table_for_audit ('clin_medication');
@@ -954,15 +955,15 @@ Applications should try in this order:
 - brandname
 - ATC code
 - generic name(s) (in constituents)
-
-	- clin_root_item.clin_when == "started":
-	  * when did patient start to take this medication
-	  * in most cases date of first prescription - but not always
-	  * for newly prescribed drugs identical to last_prescribed
-
-	- clin_root_item.narrative == "prescribed_for":
-	  * use to specify intent beyond treating issue at hand
 ';
+comment on column clin_medication.clin_when is
+	'used as "started" column
+	 - when did patient start to take this medication
+	 - in many cases date of first prescription - but not always
+	 - for newly prescribed drugs identical to last_prescribed';
+comment on column clin_medication.clin_when is
+	'used as "prescribed_for" column
+	 - use to specify intent beyond treating issue at hand';
 comment on column clin_medication.last_prescribed is
 	'date last script written for this medication';
 comment on column clin_medication.fk_last_script is
@@ -989,6 +990,10 @@ comment on column clin_medication.drug_db is
 comment on column clin_medication.atc_code is
 	'the Anatomic Therapeutic Chemical code for this drug,
 	 used to compute possible substitutes';
+comment on column clin_medication.is_CR is
+	'Controlled Release. Some drugs are marketed under the
+	 same name although one is slow release while the other
+	 is normal release.';
 comment on column clin_medication.dosage is
 	'an array of doses describing how the drug is taken
 	 over the dosing cycle, for example:
@@ -1005,8 +1010,6 @@ comment on column clin_medication.directions is
 	 such as "with food" etc';
 comment on column clin_medication.is_prn is
 	'true if "pro re nata" (= as required)';
---comment on column clin_medication.is_SR is
---	'true if the slow-release preparation is used';
 
 -- ===================================================================
 -- following tables not yet converted to EMR structure ...
@@ -1070,11 +1073,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.131 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.132 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.131  2004-10-17 16:27:15  ncq
+-- Revision 1.132  2004-10-20 13:16:03  ncq
+-- - is_SR -> is_CR
+-- - improved comments on clin_medication
+--
+-- Revision 1.131  2004/10/17 16:27:15  ncq
 -- - val_num: float -> numeric + fix views
 -- - clin_when::date in prescribed_after_started constraint
 --
