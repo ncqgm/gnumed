@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.14 2004-01-18 21:42:17 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmMedDoc.py,v 1.15 2004-01-26 18:19:55 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path
@@ -345,7 +345,7 @@ WHERE
 		# get object level metadata for all objects of this document
 		cmd = "SELECT id, comment, seq_idx, octet_length(data) FROM doc_obj WHERE doc_id=%s"
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.ID)
-		if rows is None
+		if rows is None:
 			_log.LogException('cannot load document [%s] metadata' % self.ID, sys.exc_info())
 			return None
 		self.metadata['objects'] = {}
@@ -443,7 +443,10 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.14  2004-01-18 21:42:17  ncq
+# Revision 1.15  2004-01-26 18:19:55  ncq
+# - missing :
+#
+# Revision 1.14  2004/01/18 21:42:17  ncq
 # - extra : removed
 #
 # Revision 1.13  2003/12/29 16:20:28  uid66147
