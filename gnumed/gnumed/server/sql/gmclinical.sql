@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.78 $
+-- $Revision: 1.79 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -90,7 +90,7 @@ create table clin_encounter (
 	fk_location integer,
 	fk_provider integer,
 	fk_type integer not null references _enum_encounter_type(id) default 1,
-	description varchar(128) default '__default__'
+	description text default ''
 );
 
 -- remote foreign keys
@@ -121,7 +121,7 @@ create table curr_encounter (
 	id_encounter integer not null references clin_encounter(id),
 	started timestamp with time zone not null default CURRENT_TIMESTAMP,
 	last_affirmed timestamp with time zone not null default CURRENT_TIMESTAMP,
-	"comment" varchar(128) default 'affirmed'
+	comment text default 'affirmed'
 );
 
 comment on table curr_encounter is
@@ -788,11 +788,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.78 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.79 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.78  2003-12-29 15:48:27  uid66147
+-- Revision 1.79  2004-01-05 00:48:02  ncq
+-- - clin_encounter.comment now text instead of varchar
+--
+-- Revision 1.78  2003/12/29 15:48:27  uid66147
 -- - now that we have staff tables use them
 -- - factor out vaccination.fk_vacc_def into lnk_vacc2vacc_def
 --   since a vaccination can cover several vacc_defs
