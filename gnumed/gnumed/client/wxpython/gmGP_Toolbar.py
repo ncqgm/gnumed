@@ -1,7 +1,13 @@
+# GnuMed
+# GPL
+
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmGP_Toolbar.py,v $
+__version__ = "$Revision: 1.10 $"
+__author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
+#===========================================================
 from wxPython.wx import *
 import gmGuiBroker, gmLog
-	
-
+#===========================================================
 class Toolbar(wxPanel):
     def __init__(self, parent,id):
 	wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER )
@@ -113,9 +119,13 @@ class Toolbar(wxPanel):
         else:
             gmLog.gmDefLog.Log (gmLog.lErr, "tried to delete non-existent %s" % key)
 
-	
+#===========================================================	
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))
 	app.SetWidget(Toolbar, -1)
-	app.MainLoop()
-           
+	app.MainLoop()           
+#===========================================================
+# $Log: gmGP_Toolbar.py,v $
+# Revision 1.10  2003-01-12 00:24:02  ncq
+# - CVS keywords
+#
