@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.41 2003-11-20 22:43:24 hinnef Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmEditArea.py,v 1.42 2003-11-22 02:02:53 ihaywood Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1441,7 +1441,7 @@ class gmPrescriptionEditArea(gmEditArea):
 #  		tuples of 	[ inputMap name,  widget label, widget class to instantiate from]
 
 #gmPrescriptionEditArea.extraColumns = [  basicPrescriptionExtra ]
-gmPrescriptionEditArea.extraColumns = [  auPrescriptionExtra ]
+#gmPrescriptionEditArea.extraColumns = [  auPrescriptionExtra ]
 	
 	
 	def _save_data(self):
@@ -1666,7 +1666,7 @@ class gmRequestEditArea(gmEditArea):
 
 		return self._makeExtraColumns( parent, lines )
 
-gmRequestEditArea.billingChoices = auBillingChoices
+#gmRequestEditArea.billingChoices = auBillingChoices
 	
 	
 	def _save_data(self):
@@ -2216,7 +2216,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.41  2003-11-20 22:43:24  hinnef
+# Revision 1.42  2003-11-22 02:02:53  ihaywood
+# fixed syntax errors
+#
+# Revision 1.41  2003/11/20 22:43:24  hinnef
 # added save_data() methods to prevent hanging up on exit
 #
 # Revision 1.40  2003/11/20 01:37:09  ncq
