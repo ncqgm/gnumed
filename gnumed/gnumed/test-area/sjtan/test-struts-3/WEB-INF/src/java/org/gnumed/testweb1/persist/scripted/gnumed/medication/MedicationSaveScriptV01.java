@@ -9,6 +9,9 @@ package org.gnumed.testweb1.persist.scripted.gnumed.medication;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.gnumed.testweb1.data.EntryMedication;
 import org.gnumed.testweb1.data.HealthSummary01;
@@ -33,7 +36,7 @@ public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedica
 		
 		String s9 = getInsertStatement(rootItemInserter);
 		PreparedStatement stmt = conn.prepareStatement(s9);
-		
+		ensureClinWhenBeforeLastPrescribed(med);
 		setStatement(med, rootItemInserter, stmt);
              
 		stmt.execute();
@@ -62,9 +65,9 @@ public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedica
 		stmt.setString(9, med.getForm());
 		stmt.setString(10, med.getDirections());
 		stmt.setBoolean( 11, med.isPRN());
-		stmt.setDate(12, new java.sql.Date(med.getStart().getTime()));
-		stmt.setDate(13, new java.sql.Date(med.getLast().getTime()));
-		stmt.setDate(14,med.getDiscontinued() == null? null: new java.sql.Date( med.getDiscontinued().getTime()));
+		stmt.setTimestamp(12, new java.sql.Timestamp(med.getStart().getTime()));
+		stmt.setTimestamp(13, new java.sql.Timestamp(med.getLast().getTime()));
+		stmt.setTimestamp(14,med.getDiscontinued() == null? null: new java.sql.Timestamp( med.getDiscontinued().getTime()));
 		stmt.setString(17, "p");
 		stmt.setBoolean(20,  med.isSR());
 	}
@@ -90,5 +93,39 @@ public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedica
 					" , ? , ? , ? , ? , ?)";
 		return s9;
 	}
+
+	/**
+	 * @param med
+	 */
+	protected void ensureClinWhenBeforeLastPrescribed(EntryMedication med) {
+		// TODO Auto-generated method stub
+		if (med.getClin_when() == null)
+			med.setClin_when(new Date());
+		if ( med.getLast() == null)
+			med.setLast(new Date());
+	
+		Timestamp cw = new Timestamp(med.getClin_when().getTime());
+		Timestamp lp = new Timestamp(med.getLast().getTime());
+		
+		 while (cw.toString().equals(lp.toString())) {
+			setLastPrescribedLater(med);
+			cw = new Timestamp(med.getClin_when().getTime());
+			lp = new Timestamp(med.getLast().getTime());
+		}
+		
+	}
+
+	/**
+	 * @param med
+	 */
+	private void setLastPrescribedLater(EntryMedication med) {
+		// TODO Auto-generated method stub
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(med.getLast());
+		//cal.roll(Calendar.MINUTE, true); // TODO: restore 
+		cal.roll(Calendar.DATE, true);  // whilst the schema constraint stops it working
+		med.setLast(cal.getTime());
+	}
+
  
 }

@@ -36,10 +36,17 @@ public class MedicationReadScriptV02 implements ClinMedicationFieldsV02,
 		m.setGenericName(set.getString(ClinMedicationFieldsV02.generic));
 		m.setDB_origin(set.getString(ClinMedicationFieldsV02.db_origin));
 		m.setDB_drug_id(set.getString(ClinMedicationFieldsV02.db_drug_id));
-		ResultSet doses = set.getArray(ClinMedicationFieldsV02.dose)
-				.getResultSet();
-		if (doses.next()) {
-			m.setConvertedDose(doses.getDouble(1));
+//		ResultSet doses = set.getArray(ClinMedicationFieldsV02.dose)
+//				.getResultSet();
+//		if (doses.next()) {
+//			m.setConvertedDose(doses.getDouble(1));
+//		}
+		
+		String doseStr = set.getString(ClinMedicationFieldsV02.dose);
+		  doseStr = doseStr.substring(1, doseStr.length()-2);
+		String[] doseStrings = doseStr.split("\\w*,\\w*");
+		if (doseStrings.length > 0) {
+			m.setConvertedDose(Double.parseDouble(doseStrings[0]));
 		}
 		m.setDirections(set.getString(ClinMedicationFieldsV02.directions));
 		m.setLast(new Date(set.getTimestamp(
