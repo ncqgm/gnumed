@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.26 2003-10-26 09:41:03 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.27 2003-10-31 23:27:06 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -122,22 +122,47 @@ order by
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop view v_i18n_patient_encounters;
+drop view v_i18n_curr_encounters;
 \set ON_ERROR_STOP 1
 
-create view v_i18n_patient_encounters as
-select distinct on (vpi.id_encounter)
-	ce.id as id_encounter,
-	ce.id_location as id_location,
-	ce.id_provider as id_provider,
-	vpi.id_patient as id_patient,
-	_(et.description) as type
+create view v_i18n_curr_encounters as
+select
+	cu_e.id_encounter as pk_encounter,
+	cu_e.started as started,
+	cu_e.last_affirmed as last_affirmed,
+	cu_e.comment as status,
+	cl_e.fk_patient as pk_patient,
+	cl_e.fk_location as pk_location,
+	cl_e.fk_provider as pk_provider,
+	_(et.description) as type,
+	cl_e.description as description
 from
-	(clin_encounter ce inner join v_patient_items vpi on (ce.id=vpi.id_encounter)),
-	_enum_encounter_type et
+	clin_encounter cl_e,
+	_enum_encounter_type et,
+	curr_encounter cu_e
 where
-	et.id=ce.id_type
+	et.id = cl_e.fk_type
+		and
+	cu_e.id_encounter = cl_e.id
 ;
+
+--\unset ON_ERROR_STOP
+--drop view v_i18n_patient_encounters;
+--\set ON_ERROR_STOP 1
+
+--create view v_i18n_patient_encounters as
+--select distinct on (vpi.id_encounter)
+--	ce.id as id_encounter,
+--	ce.id_location as id_location,
+--	ce.id_provider as id_provider,
+--	vpi.id_patient as id_patient,
+--	_(et.description) as type
+--from
+--	(clin_encounter ce inner join v_patient_items vpi on (ce.id=vpi.id_encounter)),
+--	_enum_encounter_type et
+--where
+--	et.id=ce.id_type
+--;
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -345,20 +370,21 @@ drop view v_patient_vaccinations;
 create view v_patient_vaccinations as
 select
 	v.id as id,
-	v.fk_patient as id_patient,
+	v.fk_patient as fk_patient,
 	v.date_given as date,
 	vcine.trade_name as vaccine,
 	vcine.short_name as vaccine_short,
 	v.batch_no as batch_no,
 	vind.description as indication,
-	vdef.is_booster as is_booster,
-	case when vdef.is_booster
+	vdef1.is_booster as is_booster,
+	case when vdef1.is_booster
 		then null
-		else vdef.seq_no
+		else vdef1.seq_no
 	end as seq_no,
-	-- FIXME: this needs to be *per indication*
-	-- use group by/having etc.
-	case when (vdef.seq_no = (select max(seq_no) from vacc_def))
+	case when 
+		(vdef1.seq_no = (select max(vdef2.seq_no) from vacc_def vdef2 where vdef2.fk_indication = vdef1.fk_indication group by vdef2.fk_indication))
+			and
+		(not vdef1.is_booster)
 		then true
 		else false
 	end as is_last_shot,
@@ -367,14 +393,14 @@ select
 from
 	vaccination v,
 	vaccine vcine,
-	vacc_def vdef,
+	vacc_def vdef1,
 	vacc_indication vind
 where
 	v.fk_vaccine = vcine.id
 		and
-	v.fk_vacc_def = vdef.id
+	v.fk_vacc_def = vdef1.id
 		and
-	vdef.fk_indication = vind.id
+	vdef1.fk_indication = vind.id
 ;
 
 -- ==========================================================
@@ -422,18 +448,20 @@ GRANT SELECT ON
 	"v_i18n_enum_encounter_type",
 	"v_patient_episodes",
 	"v_patient_items",
-	"v_i18n_patient_encounters",
+	"v_i18n_curr_encounters",
 	"v_i18n_patient_allergies",
-	"v_vacc_regimes"
+	"v_vacc_regimes",
+	v_patient_vaccinations
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"v_i18n_enum_encounter_type",
 	"v_patient_episodes",
 	"v_patient_items",
-	"v_i18n_patient_encounters",
+	"v_i18n_curr_encounters",
 	"v_i18n_patient_allergies",
-	"v_vacc_regimes"
+	"v_vacc_regimes",
+	v_patient_vaccinations
 TO GROUP "_gm-doctors";
 
 -- =============================================
@@ -442,11 +470,17 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.26 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.27 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.26  2003-10-26 09:41:03  ncq
+-- Revision 1.27  2003-10-31 23:27:06  ncq
+-- - clin_encounter now has fk_patient, hence v_i18n_patient_encounters
+--   not needed anymore
+-- - add v_i18n_curr_encounter view
+-- - add v_patient_vaccinations view
+--
+-- Revision 1.26  2003/10/26 09:41:03  ncq
 -- - truncate -> delete from
 --
 -- Revision 1.25  2003/10/19 15:43:00  ncq
