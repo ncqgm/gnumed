@@ -83,15 +83,6 @@ class base_handler:
 			return self.panel.__dict__[key]
 		return None
 
-	def get_valid_func( self, key , func):
-		component =  self.get_valid_component(key)
-		if component == None:
-			return None
-		if component.__class__.__dict__.has_key(func):
-			return component.__class__.__dict__[func]
-		else:
-			print "unable to find ", func, "in component.class ", component.__class__.__name__
-		return None
 
 	def set_id_common(self, name ,  control ):
 		id = control.GetId()
@@ -117,7 +108,6 @@ class gmBMICalc_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('txtHeight') ,
-			'setter': self.get_valid_func( 'txtHeight', 'SetValue')  ,
 			'comp_name' : 'txtHeight','setter_name' :  'SetValue' } 
 		map['txtHeight'] = comp_map
 		
@@ -182,199 +172,166 @@ class gmDemographics_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('addresslist') ,
-			'setter': self.get_valid_func( 'addresslist', 'SetStringSelection')  ,
 			'comp_name' : 'addresslist','setter_name' :  'SetStringSelection' } 
 		map['addresslist'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('addresslist') ,
-			'setter': self.get_valid_func( 'addresslist', 'SetStringSelection')  ,
 			'comp_name' : 'addresslist','setter_name' :  'SetStringSelection' } 
 		map['addresslist'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('combo_relationship') ,
-			'setter': self.get_valid_func( 'combo_relationship', 'SetValue')  ,
 			'comp_name' : 'combo_relationship','setter_name' :  'SetValue' } 
 		map['relationship'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_surname') ,
-			'setter': self.get_valid_func( 'txt_surname', 'SetValue')  ,
 			'comp_name' : 'txt_surname','setter_name' :  'SetValue' } 
 		map['surname'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('combo_title') ,
-			'setter': self.get_valid_func( 'combo_title', 'SetValue')  ,
 			'comp_name' : 'combo_title','setter_name' :  'SetValue' } 
 		map['title'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_firstname') ,
-			'setter': self.get_valid_func( 'txt_firstname', 'SetValue')  ,
 			'comp_name' : 'txt_firstname','setter_name' :  'SetValue' } 
 		map['firstname'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('combo_sex') ,
-			'setter': self.get_valid_func( 'combo_sex', 'SetValue')  ,
 			'comp_name' : 'combo_sex','setter_name' :  'SetValue' } 
 		map['sex'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('cb_preferredname') ,
-			'setter': self.get_valid_func( 'cb_preferredname', 'SetValue')  ,
 			'comp_name' : 'cb_preferredname','setter_name' :  'SetValue' } 
 		map['preferredname'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_preferred') ,
-			'setter': self.get_valid_func( 'txt_preferred', 'SetValue')  ,
 			'comp_name' : 'txt_preferred','setter_name' :  'SetValue' } 
 		map['preferred'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_address') ,
-			'setter': self.get_valid_func( 'txt_address', 'SetValue')  ,
 			'comp_name' : 'txt_address','setter_name' :  'SetValue' } 
 		map['address'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_suburb') ,
-			'setter': self.get_valid_func( 'txt_suburb', 'SetValue')  ,
 			'comp_name' : 'txt_suburb','setter_name' :  'SetValue' } 
 		map['suburb'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_zip') ,
-			'setter': self.get_valid_func( 'txt_zip', 'SetValue')  ,
 			'comp_name' : 'txt_zip','setter_name' :  'SetValue' } 
 		map['zip'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_birthdate') ,
-			'setter': self.get_valid_func( 'txt_birthdate', 'SetValue')  ,
 			'comp_name' : 'txt_birthdate','setter_name' :  'SetValue' } 
 		map['birthdate'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('combo_maritalstatus') ,
-			'setter': self.get_valid_func( 'combo_maritalstatus', 'SetValue')  ,
 			'comp_name' : 'combo_maritalstatus','setter_name' :  'SetValue' } 
 		map['maritalstatus'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_occupation') ,
-			'setter': self.get_valid_func( 'txt_occupation', 'SetValue')  ,
 			'comp_name' : 'txt_occupation','setter_name' :  'SetValue' } 
 		map['occupation'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_countryofbirth') ,
-			'setter': self.get_valid_func( 'txt_countryofbirth', 'SetValue')  ,
 			'comp_name' : 'txt_countryofbirth','setter_name' :  'SetValue' } 
 		map['countryofbirth'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btn_browseNOK') ,
-			'setter': self.get_valid_func( 'btn_browseNOK', 'None')  ,
 			'comp_name' : 'btn_browseNOK','setter_name' :  'None' } 
 		map['browseNOK'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_nameNOK') ,
-			'setter': self.get_valid_func( 'txt_nameNOK', 'SetValue')  ,
 			'comp_name' : 'txt_nameNOK','setter_name' :  'SetValue' } 
 		map['nameNOK'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_homephone') ,
-			'setter': self.get_valid_func( 'txt_homephone', 'SetValue')  ,
 			'comp_name' : 'txt_homephone','setter_name' :  'SetValue' } 
 		map['homephone'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_workphone') ,
-			'setter': self.get_valid_func( 'txt_workphone', 'SetValue')  ,
 			'comp_name' : 'txt_workphone','setter_name' :  'SetValue' } 
 		map['workphone'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_fax') ,
-			'setter': self.get_valid_func( 'txt_fax', 'SetValue')  ,
 			'comp_name' : 'txt_fax','setter_name' :  'SetValue' } 
 		map['fax'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_email') ,
-			'setter': self.get_valid_func( 'txt_email', 'SetValue')  ,
 			'comp_name' : 'txt_email','setter_name' :  'SetValue' } 
 		map['email'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_web') ,
-			'setter': self.get_valid_func( 'txt_web', 'SetValue')  ,
 			'comp_name' : 'txt_web','setter_name' :  'SetValue' } 
 		map['web'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_mobile') ,
-			'setter': self.get_valid_func( 'txt_mobile', 'SetValue')  ,
 			'comp_name' : 'txt_mobile','setter_name' :  'SetValue' } 
 		map['mobile'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('cb_addressresidence') ,
-			'setter': self.get_valid_func( 'cb_addressresidence', 'SetValue')  ,
 			'comp_name' : 'cb_addressresidence','setter_name' :  'SetValue' } 
 		map['addressresidence'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('cb_addresspostal') ,
-			'setter': self.get_valid_func( 'cb_addresspostal', 'SetValue')  ,
 			'comp_name' : 'cb_addresspostal','setter_name' :  'SetValue' } 
 		map['addresspostal'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btn_photo_import') ,
-			'setter': self.get_valid_func( 'btn_photo_import', 'None')  ,
 			'comp_name' : 'btn_photo_import','setter_name' :  'None' } 
 		map['photo_import'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btn_photo_export') ,
-			'setter': self.get_valid_func( 'btn_photo_export', 'None')  ,
 			'comp_name' : 'btn_photo_export','setter_name' :  'None' } 
 		map['photo_export'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('btn_photo_aquire') ,
-			'setter': self.get_valid_func( 'btn_photo_aquire', 'None')  ,
 			'comp_name' : 'btn_photo_aquire','setter_name' :  'None' } 
 		map['photo_aquire'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_findpatient') ,
-			'setter': self.get_valid_func( 'txt_findpatient', 'SetValue')  ,
 			'comp_name' : 'txt_findpatient','setter_name' :  'SetValue' } 
 		map['findpatient'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_age') ,
-			'setter': self.get_valid_func( 'txt_age', 'SetValue')  ,
 			'comp_name' : 'txt_age','setter_name' :  'SetValue' } 
 		map['age'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_allergies') ,
-			'setter': self.get_valid_func( 'txt_allergies', 'SetValue')  ,
 			'comp_name' : 'txt_allergies','setter_name' :  'SetValue' } 
 		map['allergies'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('combo_consultation_type') ,
-			'setter': self.get_valid_func( 'combo_consultation_type', 'SetValue')  ,
 			'comp_name' : 'combo_consultation_type','setter_name' :  'SetValue' } 
 		map['consultation_type'] = comp_map
 		
@@ -1279,7 +1236,6 @@ class gmGP_Allergies_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('classtxt') ,
-			'setter': self.get_valid_func( 'classtxt', 'SetValue')  ,
 			'comp_name' : 'classtxt','setter_name' :  'SetValue' } 
 		map['classtxt'] = comp_map
 		
@@ -1340,7 +1296,6 @@ class gmGP_FamilyHistory_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_social_history') ,
-			'setter': self.get_valid_func( 'txt_social_history', 'SetValue')  ,
 			'comp_name' : 'txt_social_history','setter_name' :  'SetValue' } 
 		map['social_history'] = comp_map
 		
@@ -1397,13 +1352,11 @@ class gmGP_Immunisation_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('missingimmunisation_listbox') ,
-			'setter': self.get_valid_func( 'missingimmunisation_listbox', 'SetStringSelection')  ,
 			'comp_name' : 'missingimmunisation_listbox','setter_name' :  'SetStringSelection' } 
 		map['listbox'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('missingimmunisation_listbox') ,
-			'setter': self.get_valid_func( 'missingimmunisation_listbox', 'SetStringSelection')  ,
 			'comp_name' : 'missingimmunisation_listbox','setter_name' :  'SetStringSelection' } 
 		map['listbox'] = comp_map
 		
@@ -1488,13 +1441,11 @@ class gmGP_Prescriptions_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_scriptDate') ,
-			'setter': self.get_valid_func( 'txt_scriptDate', 'SetValue')  ,
 			'comp_name' : 'txt_scriptDate','setter_name' :  'SetValue' } 
 		map['scriptDate'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('interactiontxt') ,
-			'setter': self.get_valid_func( 'interactiontxt', 'SetValue')  ,
 			'comp_name' : 'interactiontxt','setter_name' :  'SetValue' } 
 		map['interactiontxt'] = comp_map
 		
@@ -1581,13 +1532,11 @@ class gmGP_Referrals_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_referraldate') ,
-			'setter': self.get_valid_func( 'txt_referraldate', 'SetValue')  ,
 			'comp_name' : 'txt_referraldate','setter_name' :  'SetValue' } 
 		map['referraldate'] = comp_map
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_referral_letter') ,
-			'setter': self.get_valid_func( 'txt_referral_letter', 'SetValue')  ,
 			'comp_name' : 'txt_referral_letter','setter_name' :  'SetValue' } 
 		map['referral_letter'] = comp_map
 		
@@ -1672,7 +1621,6 @@ class gmGP_Requests_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('txt_requestDate') ,
-			'setter': self.get_valid_func( 'txt_requestDate', 'SetValue')  ,
 			'comp_name' : 'txt_requestDate','setter_name' :  'SetValue' } 
 		map['requestDate'] = comp_map
 		
@@ -1729,7 +1677,6 @@ class gmGP_ScratchPadRecalls_handler(base_handler):
 		
  
 		comp_map = { 'component': self.get_valid_component('scratchpad_txt') ,
-			'setter': self.get_valid_func( 'scratchpad_txt', 'SetValue')  ,
 			'comp_name' : 'scratchpad_txt','setter_name' :  'SetValue' } 
 		map['txt'] = comp_map
 		

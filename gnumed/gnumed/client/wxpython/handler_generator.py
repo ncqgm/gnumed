@@ -284,15 +284,6 @@ class base_handler:
 			return self.panel.__dict__[key]
 		return None
 
-	def get_valid_func( self, key , func):
-		component =  self.get_valid_component(key)
-		if component == None:
-			return None
-		if component.__class__.__dict__.has_key(func):
-			return component.__class__.__dict__[func]
-		else:
-			print "unable to find ", func, "in component.class ", component.__class__.__name__
-		return None
 
 	def set_id_common(self, name ,  control ):
 		id = control.GetId()
@@ -320,9 +311,9 @@ class %s_handler(base_handler):
 		for i in self.funcs:
 			name, prefix = self.get_parts_name( i[0] )
 			print""" 
-		comp_map = { 'component': self.get_valid_component('%s') ,\n\t\t\t'setter': self.get_valid_func( '%s', '%s')  ,\n\t\t\t'comp_name' : '%s','setter_name' :  '%s' } 
+		comp_map = { 'component': self.get_valid_component('%s') ,\n\t\t\t'comp_name' : '%s','setter_name' :  '%s' } 
 		map['%s'] = comp_map
-		""" % (  i[0], i[0], i[3] ,  i[0], i[3] , name) 
+		""" % (  i[0], i[0],  i[3] , name) 
 
 		print """
 		self.name_map = map
@@ -391,12 +382,24 @@ def usage():
 
 				-d  directory to find source files of ui definitions
 				-f  file of ui definition
+			
+			examples:
+			python handler_generator -d patient > handler_patient.py
+				regenerates handler_patient.py
+
+			python handler_generator -d gui > handler_gui.py
+
+			python handler_gen_editarea.py > EditAreaHandler.py
+
 
 """
 
 if __name__=="__main__":
 	import getopt
 	gen = generator()
+	if len(sys.argv[1:]) == 0 :
+		usage()
+		sys.exit(0)
 	options, other_args  = getopt.getopt(sys.argv[1:], "hd:f:")
 	for opt, value in options:
 		if opt == '-h':
