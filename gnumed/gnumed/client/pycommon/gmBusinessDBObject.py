@@ -68,8 +68,8 @@ succeeds.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.7 2005-01-02 16:16:52 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmBusinessDBObject.py,v 1.8 2005-01-02 19:58:02 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -373,7 +373,6 @@ if __name__ == '__main__':
 		_cmd_fetch_payload = None
 		_cmds_lock_rows_for_update = None
 		_cmds_store_payload = None
-		_xmins_refetch_col_pos = None
 		_updatable_fields = []
 		_service = None
 		#----------------------------------------------------
@@ -394,7 +393,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.7  2005-01-02 16:16:52  ncq
+# Revision 1.8  2005-01-02 19:58:02  ncq
+# - remove _xmins_refetch_col_pos
+#
+# Revision 1.7  2005/01/02 16:16:52  ncq
 # - by Ian: improve XMIN update on save by using new commit() get_col_idx
 #
 # Revision 1.6  2004/12/20 16:46:55  ncq
