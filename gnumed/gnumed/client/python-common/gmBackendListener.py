@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -179,10 +179,11 @@ class BackendListener:
 				# don't sleep waiting for input if we plan on quitting anyways
 				if self._quit:
 					break
-				# wait at max self.__poll_intervall + 350ms
+				# let others acquire lock
 				time.sleep(0.35)
 				if self._quit:
 					break
+				# wait at max self.__poll_intervall for new data
 				self._conn_lock.acquire(blocking = 1)
 				select.select([self._conn.socket], [], [], self._poll_interval)
 				self._conn_lock.release()
@@ -264,7 +265,12 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.15  2003-06-01 12:55:58  sjtan
+# Revision 1.16  2003-06-03 13:21:20  ncq
+# - still some problems syncing with threads on __del__ when
+#   failing in a constructor that sets up threads also
+# - slightly better comments in threaded code
+#
+# Revision 1.15  2003/06/01 12:55:58  sjtan
 #
 # sql commit may cause PortalClose, whilst connection.commit() doesnt?
 #
