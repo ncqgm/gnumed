@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.6 $ $Date: 2002-04-02 10:17:05 $ $Author: ncq $
+-- $Revision: 1.7 $ $Date: 2002-04-03 16:56:24 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -38,13 +38,13 @@ COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical docu
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
-    id int primary key references doc_med(id),
+    doc_id int references doc_med(id),
     refcounter int default 0
 );
 
 -- =============================================
 CREATE TABLE "doc_obj" (
-    "doc_id" integer primary key references doc_med(id),
+    "doc_id" integer references doc_med(id),
     "comment" character varying(30),
     "data" bytea
 );
@@ -54,7 +54,7 @@ COMMENT ON COLUMN doc_obj.comment IS 'optional tiny comment for this object, suc
 
 -- =============================================
 CREATE TABLE "doc_desc" (
-    "doc_id" integer primary key references doc_med(id),
+    "doc_id" integer references doc_med(id),
     "text" text
 );
 
