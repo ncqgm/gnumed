@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -64,7 +64,7 @@ insert into clin_encounter (
 	currval('identity_id_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
-	(select id from encounter_type where description='chart review'),
+	(select pk from encounter_type where description='chart review'),
 	'first for this RFE'
 );
 
@@ -90,10 +90,13 @@ insert into lab_request (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.1  2004-05-12 23:54:37  ncq
+-- Revision 1.2  2004-05-30 21:03:29  ncq
+-- - encounter_type.id -> encounter_type.pk
+--
+-- Revision 1.1  2004/05/12 23:54:37  ncq
 -- - used for regression testing lab handling
 --
