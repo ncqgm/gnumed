@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.3 2004-06-17 21:28:35 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmClinicalRecordTest.py,v 1.4 2004-06-17 22:49:22 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -119,7 +119,7 @@ class AllergyTests(unittest.TestCase):
 	#--------------------------------------------------------
 	def testGetAllergies(self):
 		"""Check that patient allergies can be obtained"""
-		an_allergy = self.emr.get_allergies()
+		an_allergy = self.emr.get_allergies()[0]
 		self.assertEqual(isinstance(an_allergy, gmAllergy.cAllergy), True)
 
 	def testGetAllergiesRemovingSensitivities(self):
@@ -296,11 +296,15 @@ if __name__ == "__main__":
 	_ = lambda x:x
 	# this is Captain Kirk
 	# Modify its PK to adapt to your backend to run the tests
+	# FIXME: get Kirk's ID from backend via query ?
 	patient_id = 13
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.3  2004-06-17 21:28:35  ncq
+# Revision 1.4  2004-06-17 22:49:22  ncq
+# - testGetAllergies() needs to [0] the return of get_allergies
+#
+# Revision 1.3  2004/06/17 21:28:35  ncq
 # - indication_list -> indications
 #
 # Revision 1.2  2004/06/14 07:51:59  ncq
