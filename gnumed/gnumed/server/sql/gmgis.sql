@@ -20,6 +20,7 @@
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+\i gnumed.sql
 
 -- any table that needs auditing MUST inherit audit_gis
 -- A python script (gmhistorian.py) generates automatically all triggers
@@ -169,11 +170,10 @@ create table address_external_ref (
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-create view v_basic_address
+create view v_basic_address as
 -- if you suffer from performance problems when selecting from this view,
 -- implement it as a real table and create rules / triggers for insert,
 -- update and delete that will update the underlying tables accordingly
-as
 select
 	a.id as id,
         s.country as country,
@@ -182,17 +182,19 @@ select
         u.name as city,
         a.number as number,
         str.name as street,
-        a.addendum as street2
+        a.addendum as street2,
+ 	t.name as address_at
 
 from
         address a,
         state s,
         urb u,
-        street str
+        street str,
+	address_type t
 where
         a.street = str.id
         and
-        a.addrtype = 1        -- home address
+        t.name = a.addrtype
         and
         str.id_urb = u.id
         and
@@ -232,23 +234,25 @@ END;' LANGUAGE 'plpgsql';
 CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
         INSERT INTO address (id, addrtype, street, number, addendum)
         VALUES ( nextval('address_id_seq'),
-               1,
+		(select address_type.id from address_type where address_type.name = NEW.address_at),
                find_street (NEW.street, (SELECT urb.id FROM urb, state WHERE
                            (urb.name = NEW.city) AND
                            (urb.postcode = NEW.postcode) AND
                            (urb.statecode = state.id) AND
                            state.code = NEW.state AND
                            state.country = NEW.country)),
-               NEW.number,
-               NEW.street2
-               );
+               NEW.number, NEW.street2);
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+create view v_home_address as
+select * from v_basic_address where address_at = 1;
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -- increase the external reference counter for an address
 
-DROP FUNCTION increase_refcount(INTEGER);
 CREATE FUNCTION increase_refcount(INTEGER) RETURNS INTEGER AS'
 DECLARE
         rc_id ALIAS FOR $1;
@@ -279,7 +283,6 @@ END;' LANGUAGE 'plpgsql';
 
 
 -- decrease the external reference count for an address
-DROP FUNCTION decrease_refcount(INTEGER);
 CREATE FUNCTION decrease_refcount(INTEGER) RETURNS INTEGER AS'
 DECLARE
         rc_id ALIAS FOR $1;
@@ -319,7 +322,9 @@ CREATE RULE delete_address AS ON DELETE TO v_basic_address DO INSTEAD
 -- updates the basic address data as identified by it's unique id
 
 CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
-       UPDATE address SET number = NEW.number, addendum = NEW.street2,
+       UPDATE address
+       SET addrtype = (select address_type.id from address_type where address_type.name = NEW.address_at),
+       number = NEW.number, addendum = NEW.street2,
        street = find_street (NEW.street,
                   (SELECT urb.id FROM urb, state WHERE
                    urb.name = NEW.city AND
@@ -609,6 +614,7 @@ AE	UNITED ARAB EMIRATES	\N
 GB	UNITED KINGDOM	\N
 US	UNITED STATES	\N
 \.
+
 
 
 
