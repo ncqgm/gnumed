@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.3 2003-07-07 22:20:48 michaelb Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPregCalc.py,v 1.4 2003-07-08 10:11:04 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -17,7 +17,10 @@ import math, zlib, cPickle
 import random
 import string
 
-ID_LNMP = wxNewId ()
+LMP_FIELD = 0
+US_FIELD = 1
+
+ID_LMP = wxNewId ()
 ID_DUE = wxNewId ()
 ID_DAY = wxNewId ()
 ID_WEEK = wxNewId ()
@@ -48,11 +51,8 @@ class PregnancyFrame (wxFrame):
 	"""
 
 	#TODO
-	# IMPROVE removal of time from txtlnmp, txtedc, txtdue (?)
+	# IMPROVE removal of time from txt_lmp, txtedc, txtdue (?)
 	#	see: def PurgeTime(self, date):
-	#
-	# general clean-up of code -- remove 'LNMP's -- make all 'LMP'
-	#	remove dead code
 	#
 	# explore idea of 'status bar' across bottom -- something to make
 	# 	clear how to use the calculator
@@ -71,8 +71,8 @@ class PregnancyFrame (wxFrame):
 		wxFrame.__init__(self, parent, -1, _("Pregnancy Calculator"), style=myStyle)
 
 		# initialization of variables used in the control & calculation
-		self.lnp_or_usdate=0	# controls which variable (LNP or Ultrasound) a calendar event changes
-					# (if == 0): {calendar selection modifies LNP}
+		self.xfer_cal_date_to=LMP_FIELD	# controls which variable (LMP or Ultrasound) a calendar event changes
+					# (if == 0): {calendar selection modifies LMP}
 					# (if == 1): {calendar selection modifies Ultrasound Date}
 
 		self.ustxt=wxDateTime_Today()	# avoids problem - one would have if the user clicked on
@@ -84,29 +84,29 @@ class PregnancyFrame (wxFrame):
 		icon.CopyFromBitmap(wxBitmapFromXPMData(cPickle.loads(zlib.decompress( _icons[_("""icon_Preg_calc""")] ))) )
 		self.SetIcon(icon)
 
-		rcs = RowColSizer()
+		szr_rc = RowColSizer()
 
 		#------------------------------
-		# sizer holding the 'LNMP' stuff
+		# sizer holding the 'LMP' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("LMP"),size = (50,20))	#label Lmp
 		label.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
-		self.txtlnmp = wxTextCtrl(self,-1,"",size=(100,20))  	# text for lmp
-		self.txtlnmp.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
-		self.txtlnmp.SetToolTip(wxToolTip(_("Click on calendar to enter the last menstrual period date")))
-		tiplmp=self.txtlnmp.GetToolTip()
+		self.txt_lmp = wxTextCtrl(self,-1,"",size=(100,20))  	# text for lmp
+		self.txt_lmp.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txt_lmp.SetToolTip(wxToolTip(_("Click on calendar to enter the last menstrual period date")))
+		tiplmp=self.txt_lmp.GetToolTip()
 
 		szr_row1 = wxBoxSizer(wxHORIZONTAL)
-		szr_row1.Add(self.txtlnmp,1,wxEXPAND|wxALL,2)
-		EVT_SET_FOCUS(self.txtlnmp, self.OnSetFocus_lnmp)
+		szr_row1.Add(self.txt_lmp,1,wxEXPAND|wxALL,2)
+		EVT_SET_FOCUS(self.txt_lmp, self.OnSetFocus_lmp)
 
-		szr_lnmp = wxBoxSizer(wxHORIZONTAL)
-		szr_lnmp.Add(label, 1, 0, 0)
-		szr_lnmp.Add(10,1,0,0)
-		rcs.Add(szr_lnmp, flag=wxEXPAND, row=0, col=1)
-		rcs.Add(szr_row1, flag=wxEXPAND, row=0, col=2, colspan=5)
+		szr_lmp = wxBoxSizer(wxHORIZONTAL)
+		szr_lmp.Add(label, 1, 0, 0)
+		szr_lmp.Add(10,1,0,0)
+		szr_rc.Add(szr_lmp, flag=wxEXPAND, row=0, col=1)
+		szr_rc.Add(szr_row1, flag=wxEXPAND, row=0, col=2, colspan=5)
 		#------------------------------
 		# sizer holding the 'Gest.' stuff
 		#------------------------------
@@ -123,8 +123,8 @@ class PregnancyFrame (wxFrame):
 		szr_gest = wxBoxSizer(wxHORIZONTAL)
 		szr_gest.Add(label, 1, 0, 0)
 		szr_gest.Add(10,1,0,0)
-		rcs.Add(szr_gest, flag=wxEXPAND, row=1, col=1)
-		rcs.Add(self.txtgest_szr, flag=wxEXPAND, row=1, col=2, colspan=5)
+		szr_rc.Add(szr_gest, flag=wxEXPAND, row=1, col=1)
+		szr_rc.Add(self.txtgest_szr, flag=wxEXPAND, row=1, col=2, colspan=5)
 
 		#------------------------------
 		# sizer holding the 'EDC' stuff
@@ -141,8 +141,8 @@ class PregnancyFrame (wxFrame):
 		szr_edc = wxBoxSizer(wxHORIZONTAL)
 		szr_edc.Add(label,1,0,0)
 		szr_edc.Add(10,1,0,0)
-		rcs.Add(szr_edc, flag=wxEXPAND, row=2, col=1)
-		rcs.Add(szr_txtedc, flag=wxEXPAND, row=2, col=2, colspan=5)
+		szr_rc.Add(szr_edc, flag=wxEXPAND, row=2, col=1)
+		szr_rc.Add(szr_txtedc, flag=wxEXPAND, row=2, col=2, colspan=5)
 
 		#------------------------------
 		# "Ultrasound Scan" label
@@ -153,7 +153,7 @@ class PregnancyFrame (wxFrame):
 		szr_backgrnd_18WkScanDue = wxBoxSizer(wxVERTICAL)
 		szr_backgrnd_18WkScanDue.Add(1,3, 0)
 		szr_backgrnd_18WkScanDue.Add(us_label,1,wxEXPAND,1)
-		rcs.Add(szr_backgrnd_18WkScanDue, flag=wxALIGN_CENTRE_HORIZONTAL, row=3, col=2, colspan=5)
+		szr_rc.Add(szr_backgrnd_18WkScanDue, flag=wxALIGN_CENTRE_HORIZONTAL, row=3, col=2, colspan=5)
 		#------------------------------
 		# sizer holding the 'Due' stuff
 		#------------------------------
@@ -169,8 +169,8 @@ class PregnancyFrame (wxFrame):
 		szr_due = wxBoxSizer(wxHORIZONTAL)
 		szr_due.Add(label,1,0,0)
 		szr_due.Add(10,1,0,0)
-		rcs.Add(szr_due, flag=wxEXPAND, row=4, col=1)
-		rcs.Add(self.szr_txtdue, flag=wxEXPAND, row=4, col=2, colspan=5)
+		szr_rc.Add(szr_due, flag=wxEXPAND, row=4, col=1)
+		szr_rc.Add(self.szr_txtdue, flag=wxEXPAND, row=4, col=2, colspan=5)
 
 		#------------------------------
 		# "Ultrasound Scan - Revised EDC" label
@@ -181,7 +181,7 @@ class PregnancyFrame (wxFrame):
 		szr_backgrnd_RevEDCLabel = wxBoxSizer(wxVERTICAL)
 		szr_backgrnd_RevEDCLabel.Add(1,3, 0)
 		szr_backgrnd_RevEDCLabel.Add(rev_edc_label,1,wxEXPAND,1)
-		rcs.Add(szr_backgrnd_RevEDCLabel, flag=wxALIGN_CENTRE_HORIZONTAL, row=5, col=2, colspan=5)
+		szr_rc.Add(szr_backgrnd_RevEDCLabel, flag=wxALIGN_CENTRE_HORIZONTAL, row=5, col=2, colspan=5)
 
 		#------------------------------
 		# sizer holding the 'newedc' stuff
@@ -201,8 +201,8 @@ class PregnancyFrame (wxFrame):
 		szr_label1 = wxBoxSizer(wxHORIZONTAL)
 		szr_label1.Add(label1,1,0,0)
 		szr_label1.Add(10,1,0,0)
-		rcs.Add(szr_label1, flag=wxEXPAND, row=6, col=1)
-		rcs.Add(self.szr_txtdate, flag=wxEXPAND, row=6, col=2, colspan=5)
+		szr_rc.Add(szr_label1, flag=wxEXPAND, row=6, col=1)
+		szr_rc.Add(self.szr_txtdate, flag=wxEXPAND, row=6, col=2, colspan=5)
 
 		#------------------------------
 
@@ -231,10 +231,10 @@ class PregnancyFrame (wxFrame):
 		szr_label3.Add(10,1,0,0)
 		szr_label3.Add(label3,1,wxALIGN_CENTRE_VERTICAL,0)
 		szr_label3.Add(10,1,0,0)
-		rcs.Add(szr_label2, flag=wxEXPAND, row=7, col=1)
-		rcs.Add(self.szr_txtweeks, flag=wxEXPAND, row=7, col=2, colspan=2)
-		rcs.Add(szr_label3, flag=wxEXPAND, row=7, col=4)
-		rcs.Add(self.szr_txtdays, flag=wxEXPAND, row=7, col=5, colspan=2)
+		szr_rc.Add(szr_label2, flag=wxEXPAND, row=7, col=1)
+		szr_rc.Add(self.szr_txtweeks, flag=wxEXPAND, row=7, col=2, colspan=2)
+		szr_rc.Add(szr_label3, flag=wxEXPAND, row=7, col=4)
+		szr_rc.Add(self.szr_txtdays, flag=wxEXPAND, row=7, col=5, colspan=2)
 
 		#------------------------------
 		# sizer holding the new (or revised) 'EDC' stuff
@@ -251,30 +251,30 @@ class PregnancyFrame (wxFrame):
 		szr_label=wxBoxSizer(wxHORIZONTAL)
 		szr_label.Add(label,1,0,0)
 		szr_label.Add(10,1,0,0)
-		rcs.Add(szr_label, flag=wxEXPAND, row=8, col=1)
-		rcs.Add(self.szr_txtnewedc, flag=wxEXPAND, row=8, col=2, colspan=5)
+		szr_rc.Add(szr_label, flag=wxEXPAND, row=8, col=1)
+		szr_rc.Add(self.szr_txtnewedc, flag=wxEXPAND, row=8, col=2, colspan=5)
 		self.btnPrint = wxButton(self,1011,_('&Print'))
 		self.btnSave = wxButton(self,1011,_('&Save'))
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
 		szr_buttons.Add(self.btnPrint,0,wxEXPAND)
 		szr_buttons.Add(self.btnSave,0,wxEXPAND)
-		rcs.Add(szr_buttons, flag=wxEXPAND,row=9, col=3, colspan=4)
+		szr_rc.Add(szr_buttons, flag=wxEXPAND,row=9, col=3, colspan=4)
 		#------------------------------
 		# Sizer holding stuff on the right
 		#------------------------------
 		szr_main_rt = wxBoxSizer(wxVERTICAL)
-		szr_main_rt.Add(rcs)
+		szr_main_rt.Add(szr_rc)
 		EVT_BUTTON(self,1010,self.EvtReset)
 		EVT_BUTTON(self,1011,self.EvtPrint)
 		EVT_BUTTON(self,1012,self.EvtSave)
 		#------------------------------
 		# Add calendar (stuff on the left)
 		#------------------------------
-		self.LNMPcal = wxCalendarCtrl (self, ID_LNMP,style = wxRAISED_BORDER)
-		EVT_CALENDAR_SEL_CHANGED(self.LNMPcal, ID_LNMP, self.OnCalcByLNMP)
+		self.lmp_cal = wxCalendarCtrl (self, ID_LMP,style = wxRAISED_BORDER)
+		EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
 
 		szr_main_lf = wxBoxSizer(wxVERTICAL)
-		szr_main_lf.Add(self.LNMPcal,0,wxALIGN_CENTRE_HORIZONTAL)
+		szr_main_lf.Add(self.lmp_cal,0,wxALIGN_CENTRE_HORIZONTAL)
 		btn_reset = wxButton(self, 1010, _('&Reset'))
 		#szr_main_lf.Add(5,0,5)
 		szr_main_lf.Add(btn_reset,0,wxEXPAND)
@@ -301,27 +301,28 @@ class PregnancyFrame (wxFrame):
 		self.Show(1)
 
 	#-----------------------------------------
-	def OnCalcByLNMP (self, event):
+	def OnCalcByLMP (self, event):
 
-		if(self.lnp_or_usdate==0):
+		if(self.xfer_cal_date_to==LMP_FIELD):
 			# we do this the "UNIX Way" -- all dates are converted into seconds
 			# since midnight 1 Jan, 1970.
 			# .GetDate().GetTicks() returns time at 5AM.  The -18000 second
-			#	correction adjusts LNMP to 12AM ??? NOT NEEDED
+			#	correction adjusts LMP to 12AM ??? NOT NEEDED
 			#	is it possible there is a BUG in the wxPython
 			#	Day Light Savings/Standard Time Calc?
 
-			#LNMP = self.LNMPcal.GetDate ().GetTicks () - 18000 	# Standard Time Fix (?)
-			self.LNMP = self.LNMPcal.GetDate ().GetTicks ()		# Correct for Day Light Saving Time
+			#LMP = self.lmp_cal.GetDate ().GetTicks () - 18000 	# Standard Time Fix (?)
+			self.lmp = self.lmp_cal.GetDate ().GetTicks ()		# Correct for Day Light Saving Time
 			today = wxDateTime_Today().GetTicks()
-			due = self.LNMP + GESTATION
-			gest = today - self.LNMP
-			self.ultrasound18_52 = self.LNMP + US18_52
+			due = self.lmp + GESTATION
+			gest = today - self.lmp
+			self.ultrasound18_52 = self.lmp + US18_52
 
 			# -----------------
-			LNMPtxt = wxDateTime()			# FIXME? - change format of date (?)
-			LNMPtxt.SetTimeT(self.LNMP)
-			self.txtlnmp.SetValue(self.PurgeTime(LNMPtxt))
+			# FIXME: use gmDateInput in gmDateTimeInput.py
+			lmp_txt = wxDateTime()			# FIXME? - change format of date (?)
+			lmp_txt.SetTimeT(self.lmp)
+			self.txt_lmp.SetValue(self.PurgeTime(lmp_txt))
 
 			# -----------------
 			gest_week = gest / WEEK
@@ -334,7 +335,8 @@ class PregnancyFrame (wxFrame):
 				weeks_label=_('week')
 			else:
 				weeks_label=_('weeks')
-			txtgest_str=str(gest_week)+" "+weeks_label+", "+str(gest_day)+" "+days_label
+			txtgest_str = "%s %s, %s %s" % (gest_week, weeks_label, gest_day, days_label)
+#			txtgest_str=str(gest_week)+" "+weeks_label+", "+str(gest_day)+" "+days_label
 			self.txtgest.SetValue(txtgest_str)
 
 			# -----------------
@@ -349,7 +351,7 @@ class PregnancyFrame (wxFrame):
 
 		else:
 			# set Ultrasound Date
-			self.usdate = self.LNMPcal.GetDate ().GetTicks ()
+			self.usdate = self.lmp_cal.GetDate ().GetTicks ()
 			usdatetxt = wxDateTime()	# FIXME? - change format of date
 			usdatetxt.SetTimeT(self.usdate)
 			self.txtdate.SetValue(self.PurgeTime(usdatetxt))
@@ -376,7 +378,7 @@ class PregnancyFrame (wxFrame):
 	#-----------------------------------------
 	def EvtReset(self, event):
 		# reset variables
-		self.txtlnmp.SetValue("")
+		self.txt_lmp.SetValue("")
 		self.txtgest.SetValue("")
 		self.txtedc.SetValue("")
 		self.txtdue.SetValue("")
@@ -388,8 +390,8 @@ class PregnancyFrame (wxFrame):
 		self.txtdays.SetValue(0)
 		self.txtnewedc.SetValue("")
 
-		self.lnp_or_usdate=0
-		self.LNMPcal.SetDate(wxDateTime_Today())	# reset Calendar to current date
+		self.xfer_cal_date_to=LMP_FIELD
+		self.lmp_cal.SetDate(wxDateTime_Today())	# reset Calendar to current date
 
 	#-----------------------------------------
 	def EvtPrint(self, event):
@@ -411,14 +413,14 @@ class PregnancyFrame (wxFrame):
 		return date_str[:(time_loc-3)]
 
 	#-------------------------------------------
-	def OnSetFocus_lnmp (self, event):
-		self.lnp_or_usdate=0
+	def OnSetfocus_lmp (self, event):
+		self.xfer_cal_date_to=LMP_FIELD
 		event.Skip()				# required so wxTextCtrl box is selected
 
 	#-------------------------------------------
 	def OnSetFocus_USDate (self, event):
-		self.LNMPcal.SetDate(self.ustxt)	# flip calendar to 18/52 date
-		self.lnp_or_usdate=1
+		self.lmp_cal.SetDate(self.ustxt)	# flip calendar to 18/52 date
+		self.xfer_cal_date_to=US_FIELD
 		event.Skip()
 
 
@@ -474,7 +476,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.3  2003-07-07 22:20:48  michaelb
+# Revision 1.4  2003-07-08 10:11:04  ncq
+# - lnmp -> lmp and some cleanup
+#
+# Revision 1.3  2003/07/07 22:20:48  michaelb
 # recalculate 'Rev EDC' if Ultrasound Scan Date is changed
 #
 # Revision 1.2  2003/07/07 03:35:43  michaelb
