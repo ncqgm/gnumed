@@ -19,8 +19,6 @@ and import this file from the psql command prompt with the "\i" statement
 import string, sys
 
 import_delimiter = ','
-export_delimiter='\t'
-country = 'AU'
 
 #order of entries in the AusPost postcode data file
 pcode=0
@@ -32,31 +30,67 @@ def usage():
     print usagestr
 
 
+def safestr(str):
+	"postgres chokes on embedded ' "
+	return string.replace(str, "'", "\''")
 
-if len(sys.argv) != 2:
-    usage()
-    sys.exit(1)
 
-filename = sys.argv[1]
+try:
+	filename = sys.argv[1]
+except:
+	usage()
+	sys.exit("You have to enter the file name of the import file!")
+
+offset=0
+ID_ACT = offset+1
+ID_NSW = offset+2
+ID_NT = offset+3
+ID_SA = offset+4
+ID_TAS = offset+5
+ID_QLD = offset+6
+ID_VIC = offset+7
+ID_WA = offset+8
+
+states = { 'ACT':ID_ACT, 'NSW':ID_NSW, 'NT':ID_NT, 'SA':ID_SA, 'TAS':ID_TAS, 'QLD':ID_QLD, 'VIC':ID_VIC, 'WA':ID_WA }
+
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'ACT', 'AU', 'Australian Capital Territory');" % (ID_ACT)
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'NSW', 'AU', 'New South Wales');" % (ID_NSW)
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'NT', 'AU', 'Northern Territory');" % (ID_NT)
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'SA', 'AU', 'South Australia');" % (ID_SA)
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'TAS', 'AU', 'Tasmania');" % (ID_TAS)
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'QLD', 'AU', 'Queensland');" % (ID_QLD)
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'VIC', 'AU', 'Victoria');" % (ID_VIC)
+print "INSERT INTO state(id, code, country, name) VALUES (%d, 'WA', 'AU', 'West Australia');" % (ID_WA)
 
 
 f = open(filename)
 lines = f.readlines()
-counter = -1
-
-
-print "COPY urb FROM stdin;"
-
+firstline=1
+count = 0
+begun=0
+MAXCOUNT=100 #commit 100 transactions at a time to improve performance
 
 for line in lines:
-    l = string.split(line, ',')
-    counter += 1
-    #skip the first line containing the headings
-    if counter==0:
-        continue
-    #get rid of the quotation marks of the imported fields
-    export = "%d\t%s\t%s\t%s\t%s" % (counter, country, l[state][1:-1], l[pcode][1:-1], l[locality][1:-1] )
-    print export
+	#skip the first line containing the headers
+	if firstline:
+		firstline=0
+		continue
 
-print ""
-    
+	if count==MAXCOUNT:
+		print "COMMIT WORK;"
+		begun=0
+		count=0
+
+	if count==0:
+		print "BEGIN WORK;"
+		begun=1
+
+	count +=1
+	l = string.split(line, import_delimiter)
+	#get rid of the quotation marks of the imported fields
+	print "INSERT INTO urb(statecode, postcode, name) values (%d, %s, '%s');" % (states[l[state][1:-1]], l[pcode][1:-1], safestr(l[locality][1:-1]) )
+if begun:
+	print "COMMIT WORK;"
+
+
+
