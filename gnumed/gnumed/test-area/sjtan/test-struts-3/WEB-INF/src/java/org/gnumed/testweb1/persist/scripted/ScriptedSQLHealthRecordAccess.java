@@ -50,6 +50,10 @@ import org.gnumed.testweb1.persist.DataObjectFactoryUsing;
 import org.gnumed.testweb1.persist.DataSourceException;
 import org.gnumed.testweb1.persist.DataSourceUsing;
 import org.gnumed.testweb1.persist.HealthRecordAccess01;
+import org.gnumed.testweb1.persist.scripted.gnumed.ClinRootInsert;
+import org.gnumed.testweb1.persist.scripted.gnumed.MedicationSaveScript;
+import org.gnumed.testweb1.persist.scripted.gnumed.clinroot.ClinRootInsertV01;
+import org.gnumed.testweb1.persist.scripted.gnumed.medication.MedicationSaveScriptV01;
 
 /**
  * 
@@ -67,6 +71,10 @@ import org.gnumed.testweb1.persist.HealthRecordAccess01;
  */
 public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 		DataSourceUsing, DataObjectFactoryUsing {
+	
+	private ClinRootInsert clinRootInsert = new ClinRootInsertV01();
+	private MedicationSaveScript medicationSaveScript = new MedicationSaveScriptV01();
+	
 	DataSource dataSource;
 
 	DataObjectFactory factory;
@@ -575,55 +583,16 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
 	 */
 	private void saveMedication(Connection conn, EntryMedication med, HealthSummary01 summary)
 throws SQLException, DataSourceException {
-		// TODO Auto-generated method stub
-		
-		String s9 = "insert into clin_medication(pk_item, " +
-				"brandname, atc_code, " +
-				"db_origin, db_drug_id," +
-				" amount_unit, dose, period," +
-				" form, directions, " +
-				"prn, sr , " +
-				"started, last_prescribed, discontinued," +
-				" clin_when, narrative, soap_cat,  fk_encounter, fk_episode) "
-			+ "values (?,  ? , ? , ?, ?," +
-					" ? , ? , ? , ? , ?" +
-					", ? , ? , ? , ? , ?" +
-					" , ? , ? , ? , ? , ?)";
-		PreparedStatement stmt = conn.prepareStatement(s9);
-		setClinRootItemStatement(stmt, med, 16); 
-		stmt.setString(2, med.getBrandName());
-		stmt.setString(3, med.getATC_code());
-		stmt.setString(4, med.getDB_origin());
-		stmt.setString(5, med.getDB_drug_id());
-		stmt.setString(6, med.getConvertedAmountUnit());
-		stmt.setDouble(7, med.getConvertedDose());
-		stmt.setInt(8, med.getPeriod());
-		stmt.setString(9, med.getForm());
-		stmt.setString(10, med.getDirections());
-		stmt.setBoolean( 11, med.isPRN());
-		stmt.setBoolean(12, med.isSR());
-		stmt.setDate(13, new java.sql.Date(med.getStart().getTime()));
-		stmt.setDate(14, new java.sql.Date(med.getLast().getTime()));
-		stmt.setDate(15,med.getDiscontinued() == null? null: new java.sql.Date( med.getDiscontinued().getTime()));
-		stmt.setString(18, "p");
-                stmt.execute();
-                conn.commit();
+		log.info("SAVING WITH " + getMedicationSaveScript());
+		getMedicationSaveScript().save(conn, med, summary, getClinRootInsert() );
                 
 	}
 
 	/** gets the next id from the sequence named */
 	private Integer getNextId(Connection conn, String seqName)
 			throws DataSourceException, SQLException {
-		Statement stmt = conn.createStatement();
-		stmt.execute("select nextval ('" + seqName + "')");
-		ResultSet rs = stmt.getResultSet();
-		Integer id = null;
-		while (rs.next()) {
-			id = new Integer(rs.getInt(1));
-		}
-		if (id == null)
-			throw new DataSourceException("id from " + seqName + " was null");
-		return id;
+		
+			return clinRootInsert.getNextId(conn, seqName);
 	}
 
 	private ClinicalEpisode findOrCreateEpisode(Connection conn,
@@ -771,23 +740,11 @@ throws SQLException, DataSourceException {
 
 	}
 
-	private void setClinRootItemStatement(PreparedStatement stmt,
+	public void setClinRootItemStatement(PreparedStatement stmt,
 			ClinRootItem item, int startIndex) throws DataSourceException,
-			SQLException {
-
-		Integer id = getNextId(stmt.getConnection(),
-				"clin_root_item_pk_item_seq");
-
-		stmt.setInt(1, id.intValue());
-		stmt.setTimestamp(startIndex++, new Timestamp(item.getClin_when()
-				.getTime()));
-		stmt.setString(startIndex++, ( item.getNarrative() == null ? "" : item
-				.getNarrative() ) );
-
-		stmt.setString(startIndex++, item.getSoapCat().substring(0, 1));
-		stmt.setInt(startIndex++, item.getEncounter().getId().intValue());
-		stmt.setInt(startIndex++, item.getEpisode().getId().intValue());
-
+			SQLException {	
+		
+			clinRootInsert.setClinRootItemStatement(stmt, item, startIndex);
 	}
 
 	private void saveAllergy(Connection conn, Allergy allergy)
@@ -1001,5 +958,20 @@ throws SQLException, DataSourceException {
 			e.printStackTrace();
 		}
 	}
-
+	
+	public void setClinRootInsert( ClinRootInsert inserter) {
+		clinRootInsert = inserter;
+	}
+	public ClinRootInsert getClinRootInsert() {
+		return clinRootInsert;
+	}
+	
+	public void setMedicationSave( MedicationSaveScript medSaveScript) {
+		medicationSaveScript = medSaveScript;
+	}
+	
+	public MedicationSaveScript getMedicationSaveScript( ) {
+		return medicationSaveScript;
+	}
+	
 }

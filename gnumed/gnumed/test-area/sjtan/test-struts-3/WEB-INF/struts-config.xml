@@ -590,18 +590,21 @@
   
   <plug-in  className="org.gnumed.testweb1.adapters.DataAccessSQLPlugIn">
     <set-property property="demographicSQLProvider" 
-            value = "org.gnumed.testweb1.persist.scripted.gnumed1.DemographicDetailSQLImpl1"
+            value = "org.gnumed.testweb1.persist.scripted.gnumed.DemographicDetailSQLImpl1"
     />
     <set-property property="clinicalSQLProvider" 
-            value = "org.gnumed.testweb1.persist.scripted.gnumed1.ClinicalSQLImpl1"
+            value = "org.gnumed.testweb1.persist.scripted.gnumed.ClinicalSQLImpl1"
     />
     <set-property property="healthRecordAccessProvider"
     value = "org.gnumed.testweb1.persist.scripted.ScriptedSQLHealthRecordAccess"
     />
     <set-property property="drugRefAccessProvider"
-    value = "org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccessImpl1"
+    value = "org.gnumed.testweb1.persist.scripted.gnumed.DrugRefAccessImpl1"
     />
 
+	<set-property property="healthRecordVersionConfiguration" 
+	value="org.gnumed.testweb1.adapters.HealthRecordAccessConfigurationV02"
+		 />
   </plug-in>
   
   

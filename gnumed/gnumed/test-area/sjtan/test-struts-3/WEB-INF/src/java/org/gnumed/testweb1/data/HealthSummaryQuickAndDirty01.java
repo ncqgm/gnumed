@@ -6,6 +6,8 @@
 
 package org.gnumed.testweb1.data;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,12 +22,16 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.beanutils.ResultSetDynaClass;
+import org.gnumed.testweb1.persist.scripted.gnumed.MedicationReadScript;
+import org.gnumed.testweb1.persist.scripted.gnumed.medication.MedicationReadScriptV02;
 
 /**
  *
  * @author  sjtan
  */
 public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
+	
+	MedicationReadScript medReadScript = new MedicationReadScriptV02();
     Long identityId;
     List healthIssues, episodes, encounters, vaccinations, medications, allergys,
     narratives, lab_requests, test_results, referrals;
@@ -58,9 +64,11 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
             constructHealthIssues();
             
             episodes = getListOfDynaBeansFromResultSet(episodesRS);
-            
-            medications = getListOfDynaBeansFromResultSet(medicationsRS);
-            
+            if (medReadScript== null) {
+            	medications= getListOfDynaBeansFromResultSet(medicationsRS);
+            }
+           medications = getMedicationFromResultSet(medicationsRS);
+            //medications = new ArrayList();
             narratives= getListOfDynaBeansFromResultSet(narrativeRS);
             
             lab_requests = getListOfDynaBeansFromResultSet(lab_requestRS);
@@ -89,6 +97,23 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
         }
         
         
+    }
+    
+    /**
+	 * @param medicationsRS
+	 * @return
+     * @throws SQLException
+	 */
+	private List getMedicationFromResultSet(ResultSet medicationsRS) throws SQLException {
+		List l = new ArrayList();
+		 while (medicationsRS.next() ) {
+		 	l.add(getMedication(medicationsRS));
+		 }
+		return l;
+	}
+
+	Medication getMedication(ResultSet row) throws SQLException {
+    			return medReadScript.read( row);
     }
     
     /**
@@ -291,11 +316,20 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
      */
     private List getListOfDynaBeansFromResultSet(ResultSet rs) throws IllegalAccessException, java.sql.SQLException, InstantiationException, java.lang.reflect.InvocationTargetException, java.lang.NoSuchMethodException{
         ArrayList results = new ArrayList(); // To hold copied list
+        Map map = rs.getStatement().getConnection().getTypeMap();
+        HashMap map2 = new HashMap();
+        if (map != null)
+        	map2.putAll(map);
+        map2.put( "interval",  StringBuffer.class);
+       
+        rs.getStatement().getConnection().setTypeMap(map2);
+        
         ResultSetDynaClass rsdc = new ResultSetDynaClass(rs);
         DynaProperty properties[] = rsdc.getDynaProperties();
         BasicDynaClass bdc =
         new BasicDynaClass("foo", BasicDynaBean.class,
         rsdc.getDynaProperties());
+   
         rs.beforeFirst();
         Iterator rows = rsdc.iterator();
         while (rows.hasNext()) {

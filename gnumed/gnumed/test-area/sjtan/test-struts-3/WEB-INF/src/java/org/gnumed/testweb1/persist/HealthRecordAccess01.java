@@ -14,7 +14,7 @@ import org.gnumed.testweb1.data.ClinicalEncounter;
  *
  * @author  sjtan
  */
-public interface HealthRecordAccess01 extends DataSourceUsing, DataObjectFactoryUsing, ClinicalDataAccessUsing {
+public interface HealthRecordAccess01 extends DataSourceUsing, DataObjectFactoryUsing, ClinicalDataAccessUsing, ConfigurableHealthRecordAccess {
     public HealthRecord01 findHealthRecordByIdentityId( long patientId) throws DataSourceException;
     public void save(HealthRecord01 healthRecord) throws DataSourceException;
     

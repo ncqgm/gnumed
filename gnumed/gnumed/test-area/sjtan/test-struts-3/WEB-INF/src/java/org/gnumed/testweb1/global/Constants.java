@@ -30,7 +30,7 @@ public final class Constants {
     public final static String JNDI_REF_DRUGREF_CONNECTION="/jdbc/drugref";
     public final static String POOLED_DATASOURCE_GNUMED="dataSourceGnumed";
     public final static String POOLED_DATASOURCE_DRUGREF="dataSourceDrugRef";
-    
+    public final static String HEALTH_RECORD_VERISON_CONFIG= "healthRecordVersionConfiguration";
     public static final int HOME_ADDRESS_TYPE = 1;
     
     public static final class Plugin {

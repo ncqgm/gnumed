@@ -20,7 +20,7 @@ import org.gnumed.testweb1.data.DataObjectFactory;
 import org.gnumed.testweb1.data.DrugRef;
 import org.gnumed.testweb1.forms.ClinicalUpdateForm;
 import org.gnumed.testweb1.global.Constants;
-import org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccess;
+import org.gnumed.testweb1.persist.scripted.gnumed.DrugRefAccess;
 
 /**
  * @author sjtan

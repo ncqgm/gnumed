@@ -28,7 +28,7 @@ import org.gnumed.testweb1.persist.scripted.ClinicalSQL;
 import org.gnumed.testweb1.persist.scripted.DemographicDetailSQL;
 import org.gnumed.testweb1.persist.scripted.ScriptedSQLClinicalAccess;
 import org.gnumed.testweb1.persist.scripted.ScriptedSQLDemographicDataAccess;
-import org.gnumed.testweb1.persist.scripted.gnumed1.DrugRefAccess;
+import org.gnumed.testweb1.persist.scripted.gnumed.DrugRefAccess;
 /**
  *
  * @author  sjtan
@@ -154,8 +154,8 @@ public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
         dbAccess.setDataSource(dataSource);
         
         dbAccess.setDemographicDetailSQL((DemographicDetailSQL) sqlScriptImpl);
-        
-        actionServlet.getServletContext().setAttribute(Constants.Servlet.DEMOGRAPHIC_ACCESS , dbAccess );
+     
+            actionServlet.getServletContext().setAttribute(Constants.Servlet.DEMOGRAPHIC_ACCESS , dbAccess );
     }
     
     /**
@@ -191,6 +191,8 @@ public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
         scriptedClinicalAccess.setClinicalSQL(clinSqlScriptImpl);
         actionServlet.getServletContext().
         setAttribute(Constants.Servlet.CLINICAL_ACCESS , scriptedClinicalAccess);
+      
+        
         return scriptedClinicalAccess;
     }
     
@@ -220,6 +222,11 @@ public class DataAccessSQLPlugIn extends BasicPlugin implements PlugIn {
         healthRecordAccess.setDataSource(dataSource);
         healthRecordAccess.setDataObjectFactory(factory);
         healthRecordAccess.setClinicalDataAccess(scriptedClinicalAccess);
+        
+        
+        String versionConfigClass = (String)dataAccessPluginConfig.getProperties().get(Constants.HEALTH_RECORD_VERISON_CONFIG);
+        HealthRecordAccessConfiguration config = (HealthRecordAccessConfiguration) Class.forName(versionConfigClass).newInstance();
+       config.configure(healthRecordAccess);
         
         actionServlet.getServletContext().setAttribute(Constants.Servlet.HEALTH_RECORD_ACCESS , healthRecordAccess);
     }

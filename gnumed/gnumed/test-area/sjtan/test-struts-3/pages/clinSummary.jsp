@@ -75,16 +75,16 @@
             <td>
             </td>
              <td>
-             <b><bean:write name="medication" property="brandname" /> </b>
+             <b><bean:write name="medication" property="brandName" /> </b>
             </td>
              <td > <bean:write name="medication" property="directions"  />
             </td>
-            <td><bean:write name="medication" property="started" format="dd/MM/yy"/>
+            <td><bean:write name="medication" property="start" format="dd/MM/yy"/>
             </td>
-    		<td><bean:write name="medication" property="last_prescribed" format="dd/MM/yy"/>
+    		<td><bean:write name="medication" property="last" format="dd/MM/yy"/>
             </td>
            
-            <td> <bean:write name="medication" property="atc_code"/>
+            <td> <bean:write name="medication" property="ATC_code"/>
             </td>
            
             </tr>

@@ -1,4 +1,4 @@
-
+L
 -ant not found . - download ant binary package from apache and add as root, a soft link as /usr/bin/ant	
 			e.g. if ant downloaded to /home/john/downloada/ant-1.5 then ln -s /home/john/downloads/ant-1.5/bin/ant /usr/bin/ant
 			and  'export ANT_HOME=/home/john/downloads/ant-1.5'  shows up with env.
@@ -18,11 +18,13 @@
  Haven't set users-xml.xml with a role manager and manager in a user's roles? change it , and  Stop and Start tomcat to get rid of previous tomcat state. ?using the right user and password.
 
 
+
 -pasting WEB-INF/context.xml  doesn't work ? 
 	using the url prefix "file:"  before the full path to this file ? 
 	ls the path correct? 'ls' the path used to see if it exists.
 	Is the context.xml  docBase='path-to-test-struts-3' correct? 'ls' the docBase string to see if exists and leads
 	to where the application home directory is.
+
 
 If using the war file, make sure the webapps/gnumed-test-war/META-INF/context.xml
 has the docPath="./gnumed-test-war"; if it doesn't change it,
@@ -30,6 +32,14 @@ then delete the conf/Catalina/localhost/gnumed-test-war.xml
 which is cached copy of the previous context.xml, if it exists.
 
  
+-SUDDENLY the web app doesn't work?
+	-something may have been deleted?
+	-e.g. tomcat/conf.../gnumed-test-web.xml is being used (the absolute filepath docPath)
+and the WEB-INF/classes file directory is missing  because CVS was stuffed up because the CVS directory in classes was deleted,
+and when it regenerates during an ant build, no CVS directory is there, so the easiest thing was to delete it before
+a cvs commit.
+
+
 
 URL should be
 file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
@@ -82,7 +92,9 @@ is not allowed to reference the underlying tables.
 	run set_perms_drugreg.sh after editing for users.
 	
 	
-	
+
+
+
 	
 	
 
