@@ -36,62 +36,13 @@ It features combo boxes which "remember" any number of previously entered settin
 """
 
 from wxPython.wx import *
-import os.path
-import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, time
+import os.path, time
+import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog
 _cfg = gmCfg.gmDefCfgFile
-
-#############################################################################
-#
-#############################################################################
-#def StringToList(str, separator='|'):
-#	"""converts a character separated string items into a list"""
-#	return string.split(str, separator)
-#############################################################################
-# converts a list of strings into a character separated string of string items
-#############################################################################
-
-#def ListToString(strlist, separator='|'):
-#	"""converts a list of strings into a character separated string of string items"""
-
-#	try:
-#		str = strlist[0]
-#	except:
-#		return None
-#	for setting in strlist[1:]:
-#		str = "%s%s%s" % (str, separator, setting)
-#	return str
-
-
-#############################################################################
-# returns a distinct merger of all items contained in origstr and newstr
-# and takes care of placing the most recent items at the beginnig of the
-# list
-#############################################################################
-
-#def AppendSettings(origstr, newstr, maxitems=0, separator='|'):
-#	"returns a distinct merger of all items contained in origstr and newstr"
-#	origlist = StringToList(origstr, separator)
-#	newlist = StringToList(newstr, separator)
-#	newlist.reverse()
-#	for item in newlist:
-#		if item not in origlist:
-			#if we care how many items should be in our list
-#			if maxitems>0:
-				#remove the last item if we have exceeded the quota
-#				if len(origlist)>=maxitems:
-#					origlist = origlist[:-1]
-			#if it is a new item, insert it at the beginnig of the list
-#			origlist.insert(0,item)
-#		else:
-			#move this item to the beginning of the list
-#			origlist.remove(item)
-#			origlist.insert(0,item)
-#	return ListToString(origlist)
-
+_log = gmLog.gmDefLog
 #############################################################################
 # returns all items in a combo box as list; the value of the text box as first item.
 #############################################################################
-
 def ComboBoxItems(combobox):
 	"""returns all items in a combo box as list; the value of the text box as first item."""
 
@@ -103,8 +54,6 @@ def ComboBoxItems(combobox):
 		if s is not None and s != '' and s not in li:
 			li.append(s)
 	return li
-
-
 #############################################################################
 # dummy class, to be used as a structure for login parameters
 #############################################################################
@@ -134,18 +83,11 @@ class LoginPanel(wxPanel):
 	#	isDialog: if this panel is the main panel of a dialog, the panel will
 	#	          resize the dialog automatically to display everything neatly
 	#	          if isDialog is set to true
-	#	configroot: where to load and store saved settings; allows to have multiple
-	#	          login dialogs with different settings within the same application
-	#	          which is neccessary when working with distributed servers
-	#	configfilename: name of configuration file. It is NOT neccessary to include
-	#	          a path or extension here, as wxConfig will choose automatically
-	#	          whatever is convention on the current platform
-	#	maxitems: maximum number of items "remembered" in the comboboxes
 
 	def __init__(self, parent, id, pos = wxPyDefaultPosition, size = wxPyDefaultSize, style = wxTAB_TRAVERSAL,
 		loginparams = None,
-		isDialog = 0,
-		maxitems = 8):
+		isDialog = 0
+	):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
@@ -158,9 +100,6 @@ class LoginPanel(wxPanel):
 
 		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
-
-		#the number of items we allow to be stored in the comboboxes "history"
-		self.maxitems = maxitems
 
 		#get some default login parameter settings in case the configuration file is empty
 		self.loginparams = loginparams or LoginParameters()
@@ -177,16 +116,18 @@ class LoginPanel(wxPanel):
 			bmp = wxStaticBitmap(self, -1, png, wxPoint(10, 10), wxSize(png.GetWidth(), png.GetHeight()))
 			self.topsizer.Add(bmp, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 		except:
-			self.topsizer.Add(wxStaticText (self, -1, "Cannot find image" + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
+			self.topsizer.Add(wxStaticText (self, -1, _("Cannot find image") + bitmap, style=wxALIGN_CENTRE), 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 10)
 
-		#-----------------------------------------------------------
-                #FIXME - This needs to be got from somewhere, not fixed text
+		#------------------------------------
 		#why doesn't this align in the centre
 		#------------------------------------
-                login_location =  _(" Login - Consulting Room 1 ")
-		
-    	    	# start getting login parameters
-		self.paramsbox = wxStaticBox( self, -1, login_location, style=wxALIGN_CENTRE_HORIZONTAL)
+		tmp = _cfg.get('workplace', 'name')
+		if tmp == None:
+			print _('You should name this workplace to better identify the machine !\nTo do this set the option "name" in the group [workplace] in the config file !')
+			tmp = _("<no workplace name set in config file>")
+
+		paramsbox_caption = _("Login - %s" % tmp)
+		self.paramsbox = wxStaticBox( self, -1, paramsbox_caption, style=wxALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wxStaticBoxSizer( self.paramsbox, wxVERTICAL )
 		self.paramsbox.SetForegroundColour(wxColour(35, 35, 142))
 		self.paramsbox.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
@@ -261,7 +202,7 @@ class LoginPanel(wxPanel):
 		self.paramsboxsizer.AddSizer(self.pboxgrid, 1, wxGROW|wxALL, 10)
 		self.topsizer.AddSizer(self.paramsboxsizer, 1, wxGROW|wxALL, 10)
 		#old code:self.topsizer.AddSizer(self.infoboxsizer, 0,wxGROW|wxALL, 10)
-	        self.topsizer.AddSizer( self.button_gridsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
+		self.topsizer.AddSizer( self.button_gridsizer, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		self.SetAutoLayout( true )
 		self.SetSizer( self.topsizer)
@@ -307,7 +248,6 @@ class LoginPanel(wxPanel):
 #############################################################################
 # Save all settings to the configuration file
 #############################################################################
-
 	def SaveSettings(self):
 		"""Save parameter settings to standard configuration file"""
 
@@ -318,8 +258,6 @@ class LoginPanel(wxPanel):
 		_cfg.set('backend', 'options', self.loginparams.backendoptionlist)
 
 		_cfg.store()
-
-
 #############################################################################
 # Retrieve current settings from user interface widgets
 #############################################################################
@@ -388,14 +326,35 @@ class LoginPanel(wxPanel):
 	def SetPort(self, port):
 		self.loginparams.portlist[0]
 
-
-
 #############################################################################
 # GUI action functions from here on
 #############################################################################
 
 	def OnHelp(self, event):
-		wxMessageBox(_("Sorry, not implemented yet!"))
+		tmp = _cfg.get('workplace', 'help desk')
+		if tmp == None:
+			print _("You need to set the option [workplace] -> <help desk> in the config file !")
+			tmp = "http://www.gnumed.org"
+
+		wxMessageBox(_(
+"""GnuMed main login screen
+
+USER:
+ name of the GnuMed user
+PASSWORD
+ password for this user
+
+button OK:
+ proceed with login
+button OPTIONS:
+ set advanced options
+button CANCEL:
+ abort login and quit GnuMed client
+button HELP:
+ this help screen
+
+For assistance on using GnuMed please contact:
+ %s""" % tmp))
 
 	def OnOptions(self, event):
 		self.optionwindow = OptionWindow(self,wxNewId(),loginparams=self.loginparams)
@@ -447,12 +406,11 @@ class OptionPanel(wxPanel):
 	#	isDialog: if this panel is the main panel of a dialog, the panel will
 	#	          resize the dialog automatically to display everything neatly
 	#	          if isDialog is set to true
-	#	maxitems: maximum number of items "remembered" in the comboboxes
 
 	def __init__(self, parent, id, pos = wxPyDefaultPosition, size = wxPyDefaultSize, style = wxTAB_TRAVERSAL,
 		loginparams = None,
-		isDialog = 0,
-		maxitems = 8):
+		isDialog = 0
+	):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
 		self.parent = parent
@@ -462,9 +420,6 @@ class OptionPanel(wxPanel):
 
 		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
 		self.isDialog = isDialog
-
-		#the number of items we allow to be stored in the comboboxes "history"
-		self.maxitems = maxitems
 
 		#login parameter settings should have been initialized by the parent window
 		self.loginparams = loginparams
