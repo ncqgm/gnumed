@@ -47,6 +47,7 @@ import gmPG, gmGuiBroker
 import keyword
 import time
 import pg
+import pdb
 darkblue = '#00006C'
 darkgreen = '#0106D0A'
 darkbrown = '#841310'
@@ -99,6 +100,7 @@ class DrugDisplay(wxPanel):
 		# is listed below by the same name eg def Menus_Create(self)
 		#-------------------------------------------------------------
 		self.GuiElements_Init()				#add main gui elements
+		self.inDisplay_PI = 0
 		self.db = pg.connect(dbname='mimsannual',
 					host = '',
 					port =5432,
@@ -130,7 +132,7 @@ class DrugDisplay(wxPanel):
 #-----------------------------------------------------------------------------------------------------------------------
 	def OnDrugChoiceDblClick(self,event):
 		print self.listbox_drugchoice.GetString(self.listbox_drugchoice.GetSelection())
-		self.comboProduct.SetValue(self.listbox_drugchoice.GetString(self.listbox_drugchoice.GetSelection()))
+		self.comboProduct.SetValue(self.listbox_drugchoice.GetString(self.listbox_drugchoice.GetSelection()).strip ())
 		return
 	
 	def GetDrugIssue(self):
@@ -213,8 +215,7 @@ class DrugDisplay(wxPanel):
 		#--------------------------------------------------------------------------
 		self.listbox_jumpto = wxListBox( self, ID_LISTBOX_JUMPTO, wxDefaultPosition, wxSize(150,100),
 			["Actions", "Adverse reactions","Composition","Contraindications","Description",
-			"Dose & administration", "Indications", "Interactions", "Lactation",
-			"Overdose","Poisons Schedule", "Precautions", "Presentation",  "Storage"] , wxLB_SINGLE )
+			"Dose & administration", "Indications", "Interactions", "Precautions", "Presentation",  "Storage"] , wxLB_SINGLE )
 		self.sizerVInteractionSidebar.AddWindow( self.listbox_jumpto, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
 		#--------------------------------------------------------------------------
 		# 5) Add another spacer underneath this listbox
@@ -277,28 +278,25 @@ class DrugDisplay(wxPanel):
 		print drugtofind
 		query = self.db.query(querytext)
 		result = query.getresult()
-		for row in result:
-			insertstring =''
-			column = 0
-			for field in row:
-				insertstring = str(field)
-				if column == 0:
-					drugname =  insertstring
-					self.listbox_drugchoice.Append(insertstring+'\n')
-				elif column == 1:
-					#self.listbox_drugchoice.Append(drugname)
-					self.mancode = field
-					print self.mancode
-					print drugname
-				column = column + 1
-		#-----------------------------------------------------------------
-		# if there is only one drug in the list, automatically show the PI
-		#-----------------------------------------------------------------
-		if self.listbox_drugchoice.Number() == 1:
-			self.Display_PI()
-			
-				
-	
+		if len (result) == 0:
+			if self.whichWidget == 'html_viewer':
+				self.ToggleWidget ()
+			self.listbox_drugchoice.Clear ()
+			self.listbox_drugchoice.Append ('No matching drugs funod!')
+		elif len (result) == 1:
+			if self.whichWidget == 'listbox_drugchoice':
+				self.ToggleWidget ()
+				self.Display_PI (result[0][0], result[0][1])
+				self.olddrug = result[0][1]
+			elif self.olddrug <> result[0][1]: # don't change unless different drug
+				self.Display_PI (result[0][0], result[0][1])
+				self.olddrug = result[0][1]
+		else:
+			if self.whichWidget == 'html_viewer':
+				self.ToggleWidget ()
+			self.listbox_drugchoice.Clear ()
+			for row in result:
+				self.listbox_drugchoice.Append (row[0] + '\n')
 		return true
 #---------------------------------------------------------------------------------------------------------------------------
 	def ToggleWidget(self):
@@ -330,106 +328,101 @@ class DrugDisplay(wxPanel):
 	
 #-----------------------------------------------------------------------------------------------------------------------------
 
-	def Display_PI(self):
-		#------------------------------------------------------------------
-		# If the listbox listing drugs is visible, display PI if clicked or
-		# if only one row exists in the listbox
-		#------------------------------------------------------------------
-		if self.whichWidget ==  "listbox_drugchoice":
-			#-----------------------------------------------------------------
-			# Queries MimsAnnual database using the mancode to get all the
-			# fields needed to format a HTML output of the product information
-			#-----------------------------------------------------------------
-			querytext = "Select DISTINCT * from manxxdat where mancode = " + str(self.mancode)
-			print 'starting to read database.....'
-			print 'sending query.....'
-			print querytext
-			query = self.db.query(querytext)
-			result = query.dictresult()
-			print 'results obtained'
-			drugname  =  self.listbox_drugchoice.GetString(0)
-			drugcode = self.mancode	
-			#----------------------------------------------------------------------
-			# Set this drug name to the combobox text, and add it to the combo list
-			#----------------------------------------------------------------------
-			#self.comboProduct.Append(drugname)
-			self.comboProduct.SetValue(drugname)
-			#----------------------------------------------------------------------
-			# Start construction the html file to display
-			# First put up the header of the html file
-			# to put in hyperlink
-			# This stuff is just whilst I'm learning HTML I made a few notes
-			# <a href="#composition">Composition</a> viewed as hyperlink in browser
-			# to put a tag which will be jumped to
-			# <name="#composition">  
-			# to jump into a file http://www.drsref.com.au/medical.html#composition
-			# table simple <TABLE><TR> <TD bgcolor=blue>a</TD> <TD>b </TD> </TR>  <TR> <TD>c </TD> <TD> d</TD> </TR> </TABLE> ' doesnot show unless
-			# something is in the cells this will be left aligned  ab and under this CD (standard 5 pixel spacing)
-			# if want this over whole screen in first <TABLE width = 100% cellpadding=20 cellspacing=10 border = 1 bgcolor = 'gray' >
-			# will stretch over full width or can do pixel eg Width = 840
-			# if first data screen = 40%   <TABLE width = 100%> <TD width = 40%> , second TD tag <TD width = 60%> and the ones
-			# below will align with the ones above.
-			# cell padding is the width between whatever is in the cell and the border around it
-			# cell spacing is width between the outlines of each cell
-			# BORDER = 1 pixel or more eg 2 etc.
-			#<TR> <TD colspan=2> d</TD> </TR> says wrap this under the two columns above.
-			#----------------------------------------------------------------------
-			pitext="<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=-1>" #FACE='fontname,font2,font3'>"
-			#--------------------------------------------------------
-			# For each field which is not null put a heading <B> </B>
-			# note the not null code is missing  - to do
-			# first put up the heading for composition of the drug
-			#--------------------------------------------------------
-			#pitext = pitext + "<FONT  SIZE=4 COLOR='" + darkblue + "'><B><name='#Composition'>Composition</B></FONT>"
-			pitext = pitext + "<FONT  SIZE=4 COLOR='" + darkblue + "'><B><A NAME='Composition'>Composition</A></B></FONT>"
-			#-----------------------------------------------------------------------------
-			#if there is no 'active' or 'inactive heading, insert carriage return to place
-			#text underneth the composition heading
-			#-----------------------------------------------------------------------------
-			if string.find(str(result[0]['co']),'active') == -1:
-				pitext = pitext + "<BR>"
-				pitext = pitext + str(result[0]['co'])
-				pitext = pitext +  "<BR><FONT  SIZE=4 COLOR='" + darkblue + "'><B>Description</B></FONT><BR>"
-				pitext = pitext +  str(result[0]['des']) 
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Actions</B></FONT><BR>"
-				pitext = pitext + str(result[0]['ac'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Indications</B></FONT><BR>"
-				pitext = pitext + str(result[0]['ind'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Contraindications</B></FONT><BR>"
-				pitext = pitext + str(result[0]['ci'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Warnings</B></FONT><BR>"
-				pitext = pitext + str(result[0]['wa'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Precautions</B></FONT><BR>"
-				pitext = pitext + str(result[0]['pr'])
-				pitext = pitext +  "<BR><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Adverse Reactions</B></FONT><BR>"
-				pitext = pitext + str(result[0]['ar'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Interactions</B></FONT><BR>"
-				pitext = pitext + str(result[0]['ir'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Dose and Administration</B></FONT><BR>"
-				pitext = pitext + str(result[0]['da'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Presentation</B></FONT><BR>"
-				pitext = pitext + str(result[0]['prn'])
-				pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Storage</B></FONT><BR>"
-				pitext = pitext + str(result[0]['str'])
-				#--------------------------------------------------------------------
-				# Now replace MIMS tags with html tags according to following regime:
-				# <HD2> = subheading <H2> end subheading
-				# <HD4> = subsubheading <H4> end subsubheading
-				# <D> = end of italic
-				#--------------------------------------------------------------------
-				pitext = string.replace(pitext,"<HD2>","<FONT  SIZE=3 COLOR='" + darkbrown + "'><B>")
-				pitext = string.replace(pitext,"<T2>","</B></FONT><BR>")
-				pitext = string.replace(pitext,"<HD4>","<FONT SIZE=3  COLOR='" + darkgreen + "'><B>")
-				pitext = string.replace(pitext,"<T4>","<BR></B></FONT>")
-				pitext = string.replace(pitext,"<D>","</I>")
-				#pitext = string.replace(pitext,"<H4>","<BR>")
-				#pitext = string.replace(pitext,"<H2>","<BR><BR>")
-				pitext = pitext + "</FONT></BODY></HTML>"
-				self.ToggleWidget()
-				self.html_viewer.SetPage(pitext)
-
-				
-			return true
+	def Display_PI(self, drugname, mancode):
+		#-----------------------------------------------------------------
+		# Queries MimsAnnual database using the mancode to get all the
+		# fields needed to format a HTML output of the product information
+		#-----------------------------------------------------------------
+		querytext = "Select DISTINCT * from manxxdat where mancode = " + str(mancode)
+		print 'starting to read database.....'
+		print 'sending query.....'
+		print querytext
+		query = self.db.query(querytext)
+		result = query.dictresult()
+		print 'results obtained'	
+		#----------------------------------------------------------------------
+		# Set this drug name to the combobox text, and add it to the combo list
+		#----------------------------------------------------------------------
+		#self.comboProduct.Append(drugname)
+		# this is to stop recursion!
+		self.inDisplay_PI = 1
+		self.comboProduct.SetValue(drugname.strip ())
+		self.inDisplay_PI = 0
+		#pdb.set_trace ()
+		#----------------------------------------------------------------------
+		# Start construction the html file to display
+		# First put up the header of the html file
+		# to put in hyperlink
+		# This stuff is just whilst I'm learning HTML I made a few notes
+		# <a href="#composition">Composition</a> viewed as hyperlink in browser
+		# to put a tag which will be jumped to
+		# <name="#composition">  
+		# to jump into a file http://www.drsref.com.au/medical.html#composition
+		# table simple <TABLE><TR> <TD bgcolor=blue>a</TD> <TD>b </TD> </TR>  <TR> <TD>c </TD> <TD> d</TD> </TR> </TABLE> ' doesnot show unless
+		# something is in the cells this will be left aligned  ab and under this CD (standard 5 pixel spacing)
+		# if want this over whole screen in first <TABLE width = 100% cellpadding=20 cellspacing=10 border = 1 bgcolor = 'gray' >
+		# will stretch over full width or can do pixel eg Width = 840
+		# if first data screen = 40%   <TABLE width = 100%> <TD width = 40%> , second TD tag <TD width = 60%> and the ones
+		# below will align with the ones above.
+		# cell padding is the width between whatever is in the cell and the border around it
+		# cell spacing is width between the outlines of each cell
+		# BORDER = 1 pixel or more eg 2 etc.
+		#<TR> <TD colspan=2> d</TD> </TR> says wrap this under the two columns above.
+		#----------------------------------------------------------------------
+		pitext="<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=-1>" #FACE='fontname,font2,font3'>"
+		#--------------------------------------------------------
+		# For each field which is not null put a heading <B> </B>
+		# note the not null code is missing  - to do
+		# first put up the heading for composition of the drug
+		#--------------------------------------------------------
+		#pitext = pitext + "<FONT  SIZE=4 COLOR='" + darkblue + "'><B><name='#Composition'>Composition</B></FONT>"
+		pitext = pitext + "<FONT  SIZE=4 COLOR='" + darkblue + "'><B><A NAME='Composition'>Composition</A></B></FONT><BR>"
+		#-----------------------------------------------------------------------------
+		#if there is no 'active' or 'inactive heading, insert carriage return to place
+		#text underneth the composition heading
+		#-----------------------------------------------------------------------------
+		# Richard, I just can't understand this at all.
+		# this if statement blocked 90% of the drugs from displaying at all! (Ian)
+		#if string.find(str(result[0]['co']),'active') == -1:
+		pitext = pitext + str(result[0]['co'])
+		pitext = pitext +  "<A NAME=\"Description\"></A><BR><FONT  SIZE=4 COLOR='" + darkblue + "'><B>Description</B></FONT><BR>"
+		pitext = pitext +  str(result[0]['des']) 
+		pitext = pitext +  "<A NAME=\"Actions\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Actions</B></FONT><BR>"
+		pitext = pitext + str(result[0]['ac'])
+		pitext = pitext +  "<A NAME=\"Indications\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Indications</B></FONT><BR>"
+		pitext = pitext + str(result[0]['ind'])
+		pitext = pitext +  "<A NAME=\"Contraindications\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Contraindications</B></FONT><BR>"
+		pitext = pitext + str(result[0]['ci'])
+		pitext = pitext +  "<BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Warnings</B></FONT><BR>"
+		pitext = pitext + str(result[0]['wa'])
+		pitext = pitext +  "<A NAME=\"Precautions\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Precautions</B></FONT><BR>"
+		pitext = pitext + str(result[0]['pr'])
+		pitext = pitext +  "<A NAME=\"Adverse reactions\"></A><BR><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Adverse Reactions</B></FONT><BR>"
+		pitext = pitext + str(result[0]['ar'])
+		pitext = pitext +  "<A NAME=\"Interactions\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Interactions</B></FONT><BR>"
+		pitext = pitext + str(result[0]['ir'])
+		pitext = pitext +  "<A NAME=\"Dose & administration\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Dose and Administration</B></FONT><BR>"
+		pitext = pitext + str(result[0]['da'])
+		pitext = pitext +  "<A NAME=\"Presentation\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Presentation</B></FONT><BR>"
+		pitext = pitext + str(result[0]['prn'])
+		pitext = pitext +  "<A NAME=\"Storage\"></A><BR><FONT  SIZE=5 COLOR='" + darkblue + "'><B>Storage</B></FONT><BR>"
+		pitext = pitext + str(result[0]['str'])
+		#--------------------------------------------------------------------
+		# Now replace MIMS tags with html tags according to following regime:
+		# <HD2> = subheading <H2> end subheading
+		# <HD4> = subsubheading <H4> end subsubheading
+		# <D> = end of italic
+		#--------------------------------------------------------------------
+		pitext = string.replace(pitext,"<HD2>","<FONT  SIZE=3 COLOR='" + darkbrown + "'><B>")
+		pitext = string.replace(pitext,"<T2>","</B></FONT><BR>")
+		pitext = string.replace(pitext,"<HD4>","<FONT SIZE=3  COLOR='" + darkgreen + "'><B>")
+		pitext = string.replace(pitext,"<T4>","<BR></B></FONT>")
+		pitext = string.replace(pitext,"<D>","</I>")
+		#pitext = string.replace(pitext,"<H4>","<BR>")
+		#pitext = string.replace(pitext,"<H2>","<BR><BR>")
+		pitext = pitext + "</FONT></BODY></HTML>"
+		self.html_viewer.SetPage(pitext)	
+		return true
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 	def TransferDataToWindow(self):
 		print "Transfer data to Window"
@@ -466,7 +459,7 @@ class DrugDisplay(wxPanel):
 		print "selection made"
 		tagname = self.listbox_jumpto.GetString(self.listbox_jumpto.GetSelection())
 		print  tagname
-		self.html_viewer.LoadPage(tagname)
+		self.html_viewer.LoadPage('#' + tagname)
 		pass
 
 	def OnSearchByIndication(self, event):
@@ -481,24 +474,13 @@ class DrugDisplay(wxPanel):
 	def OnSearchByAny(self, event):
 		pass
 
+	# Rewrote this
 	def OnProductKeyPressed(self, event):
-		#-------------------------------------------------------------------
-		# if there is text in the combobox, search for corresponding entries
-		#-------------------------------------------------------------------
-		if self.comboProduct.GetValue() <> '':
-			if self.whichWidget <> "html_viewer":
-				self.listbox_drugchoice.Clear()
-			self.Drug_Find()
-			print "keypressed in combobox"
-		else:
-			#------------------------------------------------------------
-			# othwise, if combo text just cleared, if the html is showing
-			# remove this and reshow the listbox
-			#------------------------------------------------------------
-			if self.whichWidget == "html_viewer":
-				self.ToggleWidget()
-				
-		pass
+		# first, do not recur when setting the box ourselves!
+		if not self.inDisplay_PI:
+			if self.comboProduct.GetValue () <> '':
+				self.Drug_Find ()
+
 
 	def OnProductSelected(self, event):
 		#----------------------------------------------
