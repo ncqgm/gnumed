@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.77 $
+-- $Revision: 1.78 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -96,6 +96,7 @@ create table clin_encounter (
 -- remote foreign keys
 select add_x_db_fk_def('clin_encounter', 'fk_patient', 'personalia', 'identity', 'id');
 select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
+select add_x_db_fk_def('clin_encounter', 'fk_provider', 'personalia', 'staff', 'pk');
 
 comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
@@ -104,9 +105,9 @@ comment on COLUMN clin_encounter.fk_patient is
 comment on COLUMN clin_encounter.fk_location is
 	'ID of location *of care*, e.g. where the provider is at';
 comment on COLUMN clin_encounter.fk_provider is
-	'ID of (main) provider of care';
+	'PK of (main) provider of care';
 comment on COLUMN clin_encounter.fk_type is
-	'ID of encounter type of this encounter';
+	'ID of type of this encounter';
 comment on column clin_encounter.description is
 	'descriptive name of this encounter, may change over time; if
 	 "__default__" applications should display "<date> (<provider>)"
@@ -337,10 +338,14 @@ comment on table lnk_vaccine2inds is
 -- FIXME: do we need lnk_vaccine2vacc_reg ?
 create table vacc_regime (
 	id serial primary key,
+	name text unique not null,
 	fk_recommended_by integer,
-	fk_indication integer not null references vacc_indication(id) on update cascade,
-	description text unique not null,
-	unique(fk_recommended_by, fk_indication, description)
+	fk_indication integer
+		not null
+		references vacc_indication(id)
+		on update cascade,
+	comment text,
+	unique(fk_recommended_by, fk_indication, name)
 ) inherits (audit_fields);
 
 select add_table_for_audit('vacc_regime');
@@ -355,13 +360,17 @@ comment on column vacc_regime.fk_recommended_by is
 	'organization recommending this vaccination';
 comment on column vacc_regime.fk_indication is
 	'vaccination indication this regime is targeted at';
-comment on column vacc_regime.description is
+comment on column vacc_regime.name is
 	'regime name: schedule/disease/target bacterium...';
 
 -- --------------------------------------------
 create table vacc_def (
 	id serial primary key,
-	fk_regime integer not null references vacc_regime(id) on delete cascade on update cascade,
+	fk_regime integer
+		not null
+		references vacc_regime(id)
+		on delete cascade
+		on update cascade,
 	-- FIXME: specific constraint: null if (is_booster == true) else > 0
 	is_booster boolean not null default false,
 	seq_no integer not null,
@@ -399,14 +408,20 @@ comment on column vacc_def.min_interval is
 -- --------------------------------------------
 create table vaccination (
 	id serial primary key,
-	fk_patient integer not null,
-	fk_provider integer not null,
-	fk_vaccine integer references vaccine(id),
-	-- we need a constraint on fk_vacc_def to only
-	-- allow sequential vacc_def.seq_no inserts
-	fk_vacc_def integer references vacc_def(id),
-	site text default 'not recorded',
-	batch_no text not null default 'not recorded',
+	fk_patient integer
+		not null,
+	fk_provider integer
+		not null,
+	fk_vaccine integer
+		not null
+		references vaccine(id)
+		on delete restrict
+		on update cascade,
+	site text
+		default 'not recorded',
+	batch_no text
+		not null
+		default 'not recorded',
 	unique (fk_patient, fk_vaccine, clin_when)
 ) inherits (audit_fields, clin_root_item);
 
@@ -417,12 +432,30 @@ select add_table_for_notifies('vaccination', 'vacc');
 
 -- remote foreign keys:
 select add_x_db_fk_def('vaccination', 'fk_patient', 'personalia', 'identity', 'id');
-select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('vaccination', 'fk_provider', 'personalia', 'staff', 'pk');
 
 comment on table vaccination is
 	'holds vaccinations actually given';
-comment on column vaccination.fk_vacc_def is
-	'the vaccination event this particular
+
+-- --------------------------------------------
+-- this table will be even larger than vaccination ...
+create table lnk_vacc2vacc_def (
+	pk serial primary key,
+	fk_vaccination integer
+		not null
+		references vaccination(id)
+		on delete cascade
+		on update cascade,
+	fk_vacc_def integer
+		not null
+		references vacc_def(id)
+		on delete restrict
+		on update cascade,
+	unique (fk_vaccination, fk_vacc_def)
+) inherits (audit_fields);
+
+comment on column lnk_vacc2vacc_def.fk_vacc_def is
+	'the vaccination event a particular
 	 vaccination is supposed to cover, allows to
 	 link out-of-band vaccinations into regimes';
 
@@ -704,7 +737,9 @@ GRANT SELECT ON
 	"vaccination",
 	"vaccine",
 	"vacc_def"
-	, "clin_history_editarea"
+	, vacc_regime
+	, lnk_vacc2vacc_def
+	, clin_history_editarea
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -744,17 +779,25 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"vaccine_id_seq",
 	"vacc_def",
 	"vacc_def_id_seq"
+	, vacc_regime
+	, vacc_regime_id_seq
+	, lnk_vacc2vacc_def
 	, "clin_history_editarea"
 	, "clin_history_editarea_id_seq"
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.77 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.78 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.77  2003-12-02 00:06:54  ncq
+-- Revision 1.78  2003-12-29 15:48:27  uid66147
+-- - now that we have staff tables use them
+-- - factor out vaccination.fk_vacc_def into lnk_vacc2vacc_def
+--   since a vaccination can cover several vacc_defs
+--
+-- Revision 1.77  2003/12/02 00:06:54  ncq
 -- - add on update/delete actions on vacc* tables
 --
 -- Revision 1.76  2003/12/01 22:13:19  ncq
