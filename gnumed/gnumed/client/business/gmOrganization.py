@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG, gmI18N, gmBorg
 from Gnumed.pycommon.gmPyCompat import *
@@ -961,11 +961,39 @@ def clean_test_org():
 	l = get_test_data()
 	names = [ "".join( ["'" ,str(org[0]), "'"] )  for ( org, address) in l]
 	nameList = ",".join(names)
-	cmds = [ ("""delete from lnk_person_org_address
-		where id_org in ( select id from org where description in ( %s ))""" % nameList,[]),
-		("""delete from lnk_org2comm_channel
-		where id_org in (select id from org where description in ( %s )) """ % nameList,[]),
-		("""delete from org where description in ( %s) """ % nameList, [] )
+
+	cmds = [ ( """create temp table del_org as select id  from org where description in(%s) """%nameList, [] ),
+		("""create temp table del_identity as  
+		select id  from identity 
+		where id in 
+			( 
+				select id_identity from lnk_person_org_address 
+				where id_org in ( select id from del_org)
+			)""",[] ),
+		("""create temp table del_comm as 
+		(select id_comm from lnk_org2comm_channel where 
+			id_org in ( select id from del_org) 
+		) UNION
+		(select id_comm from lnk_identity2comm_chan where
+			id_identity in ( select id from del_identity)
+		)""", [] ), 
+		("""delete from names where id_identity in 
+				(select id from del_identity)""",[]), 
+		("""delete from lnk_person_org_address where 
+				id_org in (select id from del_org )""",[]), 
+		("""delete from lnk_person_org_address where 
+				id_identity in (select id from del_identity)""", []),
+		("""delete from lnk_org2comm_channel 
+		where id_org in (select id from del_org) """,[]),
+		("""delete from lnk_identity2comm_chan 
+				where id_identity in (select id from del_identity)""",[] ), 
+		("""delete from comm_channel where id in ( select id_comm from del_comm)""",[]),
+		("""delete from identity where id in (select id from del_identity)""",[] ),
+		("""delete from org where id in ( select id from del_org) """ , [] ),
+		("""drop table del_comm""",[]),
+		("""drop table del_identity""",[]),
+		("""drop table del_org""", [])
+				
 		]
 	return gmPG.run_commit("personalia", cmds) <> None
 
@@ -1342,7 +1370,12 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.16  2004-05-26 18:21:38  sjtan
+# Revision 1.17  2004-05-28 01:20:14  sjtan
+#
+# cleanup script would probably work for comm_channel if left out org.del_shallow()
+# in test runs.
+#
+# Revision 1.16  2004/05/26 18:21:38  sjtan
 #
 # add org , save  toolbar buttons linked,  list select linked, needs testing,
 # must have 'hospital' if table org_category.
