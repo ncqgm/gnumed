@@ -24,7 +24,7 @@
 #        this module is for GUI development/demonstration
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmBMICalc.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>"
 
@@ -122,9 +122,11 @@ class BMICalc_Panel(wxPanel):
 
 		# initializations
 		self.height=''
-		self.mass=''
+		self.mass=''		# some people incorrectly call this "weight"
 		self.low_norm_mass=''	# mass for given height if BMI=20
 		self.upp_norm_mass=''	# mass for given height if BMI=25
+		self.loss=''		# mass to lose
+		self.goal=''		# a more ideal mass
 
 		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )
 		sizer = wxBoxSizer(wxVERTICAL)
@@ -153,6 +155,8 @@ class BMICalc_Panel(wxPanel):
 		self.txtHeight = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtHeight.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		EVT_TEXT(self, self.txtHeight.GetId(), self.EvtText_Height)
+		EVT_SET_FOCUS(self.txtHeight, self.OnSetFocus_Height)
+		EVT_CHAR(self.txtHeight, self.EvtChar_Height)
 		szr_left2.Add(10,1,0,0)
 		szr_left2.Add(label1,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left2.Add(self.txtHeight,1,wxALIGN_CENTRE_VERTICAL|0)
@@ -167,6 +171,8 @@ class BMICalc_Panel(wxPanel):
 		self.txtmass = wxTextCtrl(self,-1,"",size=(100,20))
 		self.txtmass.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
+		EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
+		EVT_CHAR(self.txtmass, self.EvtChar_mass)
 		szr_left3.Add(10,1,0,0)
 		szr_left3.Add(label2,1,wxALIGN_CENTRE_VERTICAL|0)
 		szr_left3.Add(self.txtmass,1,wxALIGN_CENTRE_VERTICAL|0)
@@ -194,18 +200,21 @@ class BMICalc_Panel(wxPanel):
 		#-----------------------------------------------------
 		#put a slider control under the bmi colour range scale
 		#-----------------------------------------------------
-		slider = wxSlider(self, -1, 0, 0, 35, wxPoint(30, 60),
-							wxSize(324, -1),
-							wxSL_HORIZONTAL | wxSL_AUTOTICKS | wxSL_LABELS )
-		slider.SetTickFreq(1, 1)
+		self.slider = wxSlider(self, -1, 0, 15, 34, wxPoint(30, 60),
+					wxSize(324, -1),
+					wxSL_HORIZONTAL | wxSL_AUTOTICKS | wxSL_LABELS )
+		self.slider.SetTickFreq(1, 1)
+		EVT_SCROLL(self.slider, self.SLIDER_EVT)
+		EVT_CHAR(self.slider, self.EvtChar_slider)
 		szr_left6 = wxBoxSizer(wxHORIZONTAL)
-		szr_left6.Add(slider,1,wxEXPAND)
+		szr_left6.Add(self.slider,1,wxEXPAND)
 		#---------------------------------------------------------------------
 		#Add the adjusted values heading, underlined, autoexpand to fill width
 		#TOFIX - find underline constant
 		#---------------------------------------------------------------------
 		szr_left7 = wxBoxSizer(wxHORIZONTAL)
-		label4 = wxStaticText(self,-1,_("Adjusted Values"),wxDefaultPosition,wxDefaultSize,style = wxALIGN_CENTRE)  #add underline
+		label4 = wxStaticText(self,-1,_("Adjusted Values"),wxDefaultPosition,\
+			wxDefaultSize, style = wxALIGN_CENTRE)  #add underline
 		label4.SetFont(wxFont(12,wxSWISS,wxNORMAL, wxBOLD,false,''))
 		label4.SetForegroundColour(wxColour(0,0,131))
 		szr_left7.Add(label4,1,wxEXPAND)
@@ -215,24 +224,30 @@ class BMICalc_Panel(wxPanel):
 		lblgoal = wxStaticText(self,-1,_("Goal mass"),size = (30,20))
 		lblgoal.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		lblgoal.SetForegroundColour(wxColour(0,0,131))
-		txtgoal= wxTextCtrl(self,-1,"",size=(100,20))
-		txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtgoal= wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtgoal.SetFont(wxFont(14,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		EVT_TEXT(self, self.txtgoal.GetId(), self.EvtText_goal)
+		EVT_SET_FOCUS(self.txtgoal, self.OnSetFocus_goal)
+		EVT_CHAR(self.txtgoal, self.EvtChar_goal)
 		szr_left8 = wxBoxSizer(wxHORIZONTAL)
 		szr_left8.Add(10,1,0,0)
 		szr_left8.Add(lblgoal,1,0)
-		szr_left8.Add(txtgoal,1,0)
+		szr_left8.Add(self.txtgoal,1,0)
 		#-----------------------------
 		#and the amount to loose in Kg
 		#-----------------------------
 		lblloss = wxStaticText(self,-1,_("kg to loose"),size = (30,20))
 		lblloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		lblloss.SetForegroundColour(wxColour(0,0,131))
-		txtloss= wxTextCtrl(self,-1,"",size=(100,20))
-		txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		self.txtloss= wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtloss.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
+		EVT_TEXT(self, self.txtloss.GetId(), self.EvtText_loss)
+		EVT_SET_FOCUS(self.txtloss, self.OnSetFocus_loss)
+		EVT_CHAR(self.txtloss, self.EvtChar_loss)
 		szr_left9 = wxBoxSizer(wxHORIZONTAL)
 		szr_left9.Add(10,1,0,0)
 		szr_left9.Add(lblloss,1,0)
-		szr_left9.Add(txtloss,1,0)
+		szr_left9.Add(self.txtloss,1,0)
 		#-----------------------------------------------------------------
 		#finally add all the horizontal sizers from top down to main sizer
 		#-----------------------------------------------------------------
@@ -261,14 +276,71 @@ class BMICalc_Panel(wxPanel):
 		self.SetAutoLayout(true)
 		self.Show(true)
 
+	def OnSetFocus_Height(self, event):
+		self.focus=1
+		event.Skip()
+
+	def OnSetFocus_mass(self, event):
+		self.focus=2
+		event.Skip()
+
+	def OnSetFocus_goal(self, event):
+		self.focus=4
+		event.Skip()
+
+	def OnSetFocus_loss(self, event):
+		self.focus=5
+		event.Skip()
+
 	def EvtText_Height(self, event):
-		self.height=event.GetString()
-		self.calc_ideal_range()
-		self.CalcBMI()
+		if(self.focus==1):
+			self.height=event.GetString()
+			self.calc_ideal_mass_range()
+			self.CalcBMI()
 
 	def EvtText_mass(self, event):
-		self.mass=event.GetString()
-		self.CalcBMI()
+		if(self.focus==2):
+			self.mass=event.GetString()
+			self.CalcBMI()
+
+	def EvtText_goal(self, event):
+		if(self.focus==4):
+			self.goal=event.GetString()
+
+			if(self.goal!=''):
+				try:
+					self.loss=str(eval(self.mass)-eval(self.goal))
+					self.txtloss.SetValue(self.loss)
+					self.CalcNEWBMI()
+				except:
+					pass	# error handling
+			else:
+				self.txtloss.SetValue('')
+
+	def EvtText_loss(self, event):
+		if(self.focus==5):
+			self.loss=event.GetString()
+
+			if(self.loss!=''):
+				try:
+					self.goal=str(eval(self.mass)-eval(self.loss))
+					self.txtgoal.SetValue(self.goal)
+					self.CalcNEWBMI()
+				except:
+					pass	# error handling
+			else:
+				self.txtgoal.SetValue('')
+
+	def calc_ideal_mass_range(self):
+		try:
+			self.low_norm_mass=20.*((eval(self.height)/100.)**2)
+			self.upp_norm_mass=25.*((eval(self.height)/100.)**2)
+			print self.low_norm_mass, self.upp_norm_mass	# test
+
+			# FIX ME - display upp_norm_mass & low_norm_mass
+			#bmi_colour_scale = BMI_Colour_Scale(self)
+		except:
+			pass 	# error handling
 
 	def CalcBMI(self):
 		if(self.height=='' or self.mass==''):
@@ -278,19 +350,56 @@ class BMICalc_Panel(wxPanel):
 				self.BMI=round(eval(self.mass)/((eval(self.height)/100.)**2),1)
 				self.txtbmi.SetValue(str(self.BMI))
 			except:
-				pass	# error handling - TODO
+				pass	# error handling
 
-	def calc_ideal_range(self):
+	def CalcNEWBMI(self):
+		self.NEWBMI=round(eval(self.goal)/((eval(self.height)/100.)**2),0)
+		self.slider.SetValue(self.NEWBMI)
+
+	def SLIDER_EVT(self, event):
+		self.NEWBMI=self.slider.GetValue()
 		try:
-			self.low_norm_mass=20.*((eval(self.height)/100.)**2)
-			self.upp_norm_mass=25.*((eval(self.height)/100.)**2)
-			print self.low_norm_mass, self.upp_norm_mass	# test
+			self.goal=str(self.NEWBMI*(eval(self.height)/100.)**2)
+			self.loss=str(eval(self.mass)-eval(self.goal))
 
-			#bmi_colour_scale = BMI_Colour_Scale(self)	<-- FIX ME - display upp_norm_mass & low_norm_mass
-			#szr_left5 = wxBoxSizer(wxHORIZONTAL)
-			#szr_left5.Add(bmi_colour_scale,1,wxEXPAND)
+			# display values
+			self.txtgoal.SetValue(self.goal)
+			self.txtloss.SetValue(self.loss)
 		except:
-			pass 	# error handling - TODO
+			pass 	# error handling
+
+	# The following routines are used to tab between fields
+	def EvtChar_Height(self, event):
+		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):	# 'Tab'=9 and 'Enter'=13
+			self.txtmass.SetFocus()
+		else:
+			event.Skip()
+
+	def EvtChar_mass(self, event):
+		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
+			self.slider.SetFocus()
+		else:
+			event.Skip()
+
+	def EvtChar_slider(self, event):
+		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
+			self.txtgoal.SetFocus()
+		else:
+			event.Skip()
+
+	def EvtChar_goal(self, event):
+		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
+			self.txtloss.SetFocus()
+		else:
+			event.Skip()
+
+	def EvtChar_loss(self, event):
+		if(event.GetKeyCode()==9 or event.GetKeyCode()==13):
+			self.txtHeight.SetFocus()
+		else:
+			event.Skip()
+
+
 
 #-------------------------------------------------------------------
 #Creates all the sizers necessary to hold the top two menu's, picture
@@ -390,7 +499,7 @@ if __name__ == '__main__':
 				icon_xpm_data = cPickle.loads(zlib.decompress(_icons["""icon_BMI_calc"""]))
 			icon_bmp_data = wxBitmapFromXPMData(icon_xpm_data)
 			icon = wxEmptyIcon()
-			icon.CopyFromBitmap(icon_bmp_data)		# Michael, still seg'ing ?
+			icon.CopyFromBitmap(icon_bmp_data)
 			frame.SetIcon(icon)
 			frame.Show(1)
 			return true
@@ -450,7 +559,10 @@ else:
 					return _icons["""icon_BMI_calc"""]
 #=====================================================================
 # $Log: gmBMICalc.py,v $
-# Revision 1.15  2003-04-14 07:35:54  ncq
+# Revision 1.16  2003-04-20 02:40:52  michaelb
+# tabbing btw fields/slider works, calculation works (slider functional, 'Goal mass' & 'kg to loose' functional)
+#
+# Revision 1.15  2003/04/14 07:35:54  ncq
 # - moved standalone icon acquision inside OnInit to alleviate segfault
 #
 # Revision 1.14  2003/04/14 04:04:41  michaelb
