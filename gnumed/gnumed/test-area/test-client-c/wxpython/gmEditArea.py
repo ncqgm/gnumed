@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.2 2003-10-24 03:50:36 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmEditArea.py,v 1.3 2003-10-24 04:20:17 sjtan Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -291,6 +291,18 @@ _known_edit_area_types.extend(_prompt_defs.keys() )
 #	'vaccination'
 #	]
 
+f = file('editarea.yaml', 'w')
+f.write('---\n')
+f.close()
+#
+# The following will read the editarea.yaml file after all the editareas are constructed
+#
+#import yaml
+#for k,v in   list( yaml.load( "".join(file("../editarea.yaml")) ) )[0].items(): 
+#						#the file is at ../ to this dir,wxpython
+#	print k, v
+
+
 def stacktrace():
 		print sys.exc_info()[0], sys.exc_info()[1]
 		traceback.print_tb(sys.exc_info()[2])
@@ -353,7 +365,9 @@ class gmEditArea( wxPanel):
 		self.__register_events()
 		
 		self._postInit()
-		
+
+		self._out_yaml()
+
 		self.Show(true)
 	#----------------------------------------------------------------
 	def _make_prompt(self, parent, aLabel, aColor):
@@ -454,6 +468,20 @@ class gmEditArea( wxPanel):
 		return []
 	#----------------------------------------------------------------
 
+	def _out_yaml(self):
+		print "appending to editarea.yaml"
+		f = file('editarea.yaml','a')
+		list = []
+		list.extend(self.input_fields.keys())
+		list.sort()
+		f.write( self._type)
+		f.write(":\n")
+		for x in list:
+			f.write( "".join( ["        -" , x , '\n' ] ) )
+		f.write('\n')
+		f.close()
+		
+
 	def __make_editing_area(self):
 		# make edit fields
 		fields_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
@@ -463,13 +491,7 @@ class gmEditArea( wxPanel):
 
 		# get lines
 		lines = self._make_edit_lines(parent = fields_pnl)
-		list = []
-		list.extend(self.input_fields.keys())
-		list.sort()
-		print "  ", self._type + ":"
-		for x in list:
-			print "        -", x
-		print	
+
 		
 		self.lines = lines
 		if len(lines) != len(_prompt_defs[self._type]):
@@ -1766,7 +1788,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.2  2003-10-24 03:50:36  sjtan
+# Revision 1.3  2003-10-24 04:20:17  sjtan
+#
+# yaml side-effect code; remove later if not useful.
+#
+# Revision 1.2  2003/10/24 03:50:36  sjtan
 #
 # make sure smaller widgets such as checkboxes and radiobuttons on input_fields;
 # "pastable" yaml input_field maps output from print statements.
