@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -269,25 +269,25 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Obtains SOAP input from selected editor and dumps it to backend
 		"""
-		if self.soap_multisash.GetSelectedLeaf() is None or len(self.issues_with_soap) == 0:
-			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
-		else:
-			selected_soap = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().GetSOAP()
-			print selected_soap.GetValues()
-			print "Saving SOAP: %s"%(selected_soap.GetValues())
+		if not self.allow_perform_action(self.save_button.GetId()):
+			return
+	
+		selected_soap = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel().GetSOAP()
+		print selected_soap.GetValues()
+		print "Saving SOAP: %s"%(selected_soap.GetValues())
 			
 	#--------------------------------------------------------
 	def on_clear(self, event):
 		"""
 		Clears selected SOAP editor
 		"""
-		if self.soap_multisash.GetSelectedLeaf() is None or len(self.issues_with_soap) == 0:
-			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
-		else:
-			print "Clear SOAP"
-			selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
-			selected_soap_panel.ClearSOAP()
-		
+
+		if not self.allow_perform_action(self.clear_button.GetId()):
+			return
+
+		print "Clear SOAP"
+		selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
+		selected_soap_panel.ClearSOAP()
 
 	#--------------------------------------------------------
 	def on_new(self, event):
@@ -295,49 +295,48 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Creates and displays a new SOAP input editor
 		"""
 
-		if self.soap_multisash.GetSelectedLeaf() is None:
-			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
-		elif self.selected_issue is None or len(self.selected_issue) == 0:
-			wx.wxMessageBox("There is not any problem selected.\nA problem must be selected to create a new SOAP note.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+		if not self.allow_perform_action(self.new_button.GetId()):
+			return
+			
+		print "New SOAP"
+		# FIXME only when unique and empty SOAP
+		selected_leaf = self.soap_multisash.GetSelectedLeaf()
+		selected_issue = selected_leaf.GetSOAPPanel().GetHealthIssue()
+		if selected_issue is None or len(selected_issue) == 0:
+		#selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
+			selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
+			selected_leaf.GetSOAPPanel().Show()
+			selected_leaf.detail.Select()
+			selected_leaf.creatorHor.Show(True)
+			selected_leaf.closer.Show(True)
+			self.issues_with_soap.append(self.selected_issue[1])
+			
 		else:
-			print "New SOAP"
-			# FIXME only when unique and empty SOAP
-			selected_leaf = self.soap_multisash.GetSelectedLeaf()
-			selected_issue = selected_leaf.GetSOAPPanel().GetHealthIssue()
-			if selected_issue is None or len(selected_issue) == 0:
-			#selected_soap_panel = self.soap_multisash.GetSelectedLeaf().GetSOAPPanel()
-				selected_leaf.GetSOAPPanel().SetHealthIssue(self.selected_issue)
-				selected_leaf.GetSOAPPanel().Show()
-				selected_leaf.detail.Select()
-				selected_leaf.creatorHor.Show(True)
-				selected_leaf.closer.Show(True)
-				self.issues_with_soap.append(self.selected_issue[1])
-				
+			if self.selected_issue[1] in self.issues_with_soap:
+				print "Issue has already soap"
+				wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
 			else:
-				if self.selected_issue[1] in self.issues_with_soap:
-					print "Issue has already soap"
-					wx.wxMessageBox("The SOAP note can't be created.\nCurrently selected health issue has yet an associated SOAP note in this encounter.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
-				else:
-					# FIXME calculate height
-					selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
+				# FIXME calculate height
+				selected_leaf.AddLeaf(SOAPMultiSash.MV_VER, 130)
 
-			print "Issues with soap: %s"%(self.issues_with_soap)
-			self.check_buttons()	
+		print "Issues with soap: %s"%(self.issues_with_soap)
+		self.check_buttons()	
 		
 	#--------------------------------------------------------
 	def on_remove(self, event):
 		"""
 		Creates and displays a new SOAP input editor
 		"""
-		if self.soap_multisash.GetSelectedLeaf() is None or len(self.issues_with_soap) == 0:
-			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
-		else:
-			print "Remove SOAP"
-			selected_leaf = self.soap_multisash.GetSelectedLeaf()
-			selected_leaf.DestroyLeaf()
 
-			print "Issues with soap: %s"%(self.issues_with_soap)
-			self.check_buttons()	
+		if not self.allow_perform_action(self.remove_button.GetId()):
+			return
+			
+		print "Remove SOAP"
+		selected_leaf = self.soap_multisash.GetSelectedLeaf()
+		selected_leaf.DestroyLeaf()
+
+		print "Issues with soap: %s"%(self.issues_with_soap)
+		self.check_buttons()	
 	#--------------------------------------------------------	
 	def on_patient_selected(self):
 		"""
@@ -354,6 +353,8 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		if not self.new_button.IsEnabled():
 			self.new_button.Enable(True)
 
+		self.check_buttons()	
+
 	#--------------------------------------------------------	
 	def check_buttons(self):
 		"""
@@ -368,10 +369,25 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.clear_button.Enable(enable)
 		self.remove_button.Enable(enable)
 
-		if self.soap_multisash.GetSelectedLeaf() is  None:
+		if self.soap_multisash.GetSelectedLeaf() is None or len(self.selected_issue) == 0 or self.selected_issue[1] in self.issues_with_soap:
 			self.new_button.Enable(False)
 		else:
 			self.new_button.Enable(True)
+
+	#--------------------------------------------------------	
+	def allow_perform_action(self, action_id):
+		"""
+		Check and configure adecuate buttons enable state
+		"""
+		if self.soap_multisash.GetSelectedLeaf() is None or len(self.issues_with_soap) == 0 and action_id != self.new_button.GetId():
+			wx.wxMessageBox("There is not any SOAP note selected.\nA SOAP note must be selected as target of desired action.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+			return False
+
+		if self.selected_issue is None or len(self.selected_issue) == 0 and action_id == self._new_button.GetId():
+			wx.wxMessageBox("There is not any problem selected.\nA problem must be selected to create a new SOAP note.", caption = "SOAP warning", style = wx.wxOK | wx.wxICON_EXCLAMATION, parent = self)
+			return False
+		
+		return True
 		
 	#--------------------------------------------------------
 	# reget mixin API

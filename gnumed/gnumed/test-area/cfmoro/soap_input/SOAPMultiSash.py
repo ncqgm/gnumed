@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.10 2004-11-27 20:42:48 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.11 2004-11-27 21:16:25 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -161,8 +161,8 @@ class wxMultiSplit(wxWindow):
                 old = self.view1
                 self.view1 = self.view2
                 self.view2 = None
-	        soap_issue = self.old.detail.child.GetHealthIssue()
-	        self.old.detail.childController.get_issues_with_soap().remove(soap_issue[1])
+	        soap_issue = old.detail.child.GetHealthIssue()
+	        old.detail.childController.get_issues_with_soap().remove(soap_issue[1])
 		old.UnSelect()
                 old.Destroy()
 		print "1.1"
