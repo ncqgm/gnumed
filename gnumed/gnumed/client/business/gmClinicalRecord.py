@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.105 2004-05-28 15:46:28 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmClinicalRecord.py,v 1.106 2004-05-30 19:54:57 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -528,18 +528,23 @@ class cClinicalRecord:
  		try:
  			self.__db_cache['allergies']
  		except KeyError:
+			# FIXME: date range, episode, encounter, issue, test filter
  			self.__db_cache['allergies'] = []
-			id_list = self._get_allergies_list()
-			had_errors = False
-			for allg_id in id_list:
-				try:
-					self.__db_cache['allergies'].append(gmAllergy.cAllergy(aPK_obj=allg_id))
-				except gmExceptions.ConstructorError:
-					_log.LogException('allergy error', sys.exc_info(), verbose=0)
-					had_errors = True
-			if had_errors and (len(self.__db_cache['allergies'] == 0)):
+			cmd = "select id from v_pat_allergies where id_patient=%s"
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load allergies for patient [%s]' % self.id_patient)
 				del self.__db_cache['allergies']
 				return None
+			# Instantiate allergy items and keep cache
+			for row in rows:
+				try:
+					self.__db_cache['allergies'].append(gmAllergy.cAllergy(aPK_obj=row[0]))
+				except gmExceptions.ConstructorError:
+					_log.LogException('allergy error on [%s] for patient [%s]' % (row[0], self.id_patient) , sys.exc_info(), verbose=0)
+					_log.Log(gmLog.lInfo, 'better to report an error than rely on incomplete allergy information')
+					del self.__db_cache['allergies']
+					return None
 		# constrain by type (sensitivity/allergy)
  		if remove_sensitivities:
 			tmp = []
@@ -549,22 +554,24 @@ class cClinicalRecord:
 			return tmp
 		return self.__db_cache['allergies']
 	#--------------------------------------------------------
-	def _get_allergies_list(self):
-		"""Required to retrieve patient allergy item value objects."""
-		try:
-			return self.__db_cache['allergy IDs']
-		except KeyError:
-			pass
-		self.__db_cache['allergy IDs'] = []
-		cmd = "select id from v_pat_allergies where id_patient=%s"
-		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot load list of allergies for patient [%s]' % self.id_patient)
-			del self.__db_cache['allergy IDs']
+	def add_allergy(self, substance=None, allg_type=None, encounter_id=None, episode_id=None):
+		if encounter_id is None:
+			encounter_id = self.__encounter['id']
+		if episode_id is None:
+			episode_id = self.__episode['id']
+		status, data = gmAllergy.create_allergy(
+			substance=substance,
+			allg_type=allg_type,
+			encounter_id=encounter_id,
+			episode_id=episode_id
+		)
+		if not status:
+			_log.Log(gmLog.lErr, str(data))
 			return None
-		for row in rows:
-			self.__db_cache['allergy IDs'].extend(row)
-		return self.__db_cache['allergy IDs']
+		return data
+	#--------------------------------------------------------
+	def set_allergenic_state(self, status=None):
+		pass
 	#--------------------------------------------------------
 	# episodes API
 	#--------------------------------------------------------
@@ -830,7 +837,7 @@ class cClinicalRecord:
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load vaccinations for patient [%s]' % self.id_patient)
-				del self.__db_cache['vaccinations']			
+				del self.__db_cache['vaccinations']
 				return None
 			# Instantiate vaccination items and keep cache
 			for row in rows:
@@ -1083,19 +1090,23 @@ class cClinicalRecord:
 		return self.__encounter
 	#------------------------------------------------------------------
 	def attach_to_encounter(self, anID = None):
-		"""Attach to an encounter but do not activate it.
-		"""
-		print "attach_to_encounter: FIXME"
-		return None
-		if anID is None:
-			_log.Log(gmLog.lErr, 'need encounter ID to attach to it')
-			return None
-		cmd = "update clin_encounter set fk_provider=%s where id=%s"
-		if not gmPG.run_commit('historica', [(cmd, [_whoami.get_staff_ID(), anID])]):
-			_log.Log(gmLog.lWarn, 'cannot attach to encounter [%s]' % anID)
-			return None
-#		self.id_encounter = anID
-		return 1
+#		"""Attach to an encounter but do not activate it.
+#		"""
+		# FIXME: this is the correct implementation but I
+		# think the concept of attach_to_encounter is flawed,
+		# eg we don't need it
+#		if anID is None:
+#			return False
+#		encounter = gmEMRStructItems.cEncounter(aPK_obj= anID)
+#		if encounter is None:
+#			_log.Log(gmLog.lWarn, 'cannot instantiante encounter [%s]' % anID)
+#			return False
+#		if not encounter.set_attached_to(staff_id = _whoami.get_staff_ID()):
+#		    _log.Log(gmLog.lWarn, 'cannot attach to encounter [%s]' % anID)
+#		    return False
+#		self.encounter = encounter
+#		return True
+		pass
 	#------------------------------------------------------------------
 	# lab data API
 	#------------------------------------------------------------------
@@ -1267,7 +1278,13 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.105  2004-05-28 15:46:28  ncq
+# Revision 1.106  2004-05-30 19:54:57  ncq
+# - comment out attach_to_encounter(), actually, all relevant
+#   methods should have encounter_id, episode_id kwds that
+#   default to self.__*['id']
+# - add_allergy()
+#
+# Revision 1.105  2004/05/28 15:46:28  ncq
 # - get_active_episode()
 #
 # Revision 1.104  2004/05/28 15:11:32  ncq
