@@ -30,8 +30,6 @@ public class TestGISManager {
         return instance;
     }
     
-    public TestGISManager() {
-    }
     
     public final static enum_telephone_role home = createOrFindEnumTelephone( Globals.bundle.getString("home"));
     public final static  enum_telephone_role work= createOrFindEnumTelephone( Globals.bundle.getString("work"));
@@ -42,6 +40,36 @@ public class TestGISManager {
     
     public final static enum_telephone_role pager  = createOrFindEnumTelephone(Globals.bundle.getString("pager"));
     public final static enum_telephone_role fax  = createOrFindEnumTelephone(Globals.bundle.getString("fax"));
+    
+    public final static String  DEFAULT_URB_NAME = Globals.bundle.getString("default_urb_name");
+    public final static urb DEFAULT_URB = createDefaultUrb();
+    static urb createDefaultUrb() {
+        
+        Session sess = null;
+        try {
+            sess =HibernateInit.openSession();
+            
+            return  (urb) sess.iterate("from urb u where lower(u.name) like ? ", DEFAULT_URB_NAME.toLowerCase(), Hibernate.STRING ).next();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            
+        }
+        finally {
+            try {
+                if (sess != null)
+                    sess.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return null;
+    }
+    
+    
+    
+    public TestGISManager() {
+    }
     
     static address_type createOrFindAddressType( String type) {
         try {
@@ -97,8 +125,8 @@ public class TestGISManager {
         urb u = null;
         Session sess = null;
         try {
-            sess =  getSession();
-            
+            sess = HibernateInit.openSession();
+            logger.info("LOOKING FOR urb: " + name + ";  state : " + stateName);
             List l  =
             sess.find("select u from urb u where lower(u.name) like ? and ( lower( u.state.name) like ? "+
             " or lower(u.state.code) like ? )",
@@ -109,9 +137,12 @@ public class TestGISManager {
         } catch (Exception e) {
             logger.info(e.getLocalizedMessage());
         } finally {
-            getSession().disconnect();
+            sess.connection().rollback();
+            sess.close();
         }
         logger.info("found u = " + u);
+        if (u == null)
+            u = DEFAULT_URB;
         logger.info("u.name = " + u.getName());
         return u;
     }
@@ -242,7 +273,7 @@ public class TestGISManager {
         if (a.getStreet() != null && a.getStreet().getId() == null)
             return a;
         try {
-            sess =  getSession();
+            sess =  HibernateInit.openSession();
             Iterator j = sess.iterate( "select a from address a where lower(a.number) like ? "+
             "and a.street.id = ? ", new Object[] { a.getNumber().toLowerCase() , a.getStreet().getId() },
             new Type[] { Hibernate.STRING, Hibernate.LONG } );
@@ -255,7 +286,9 @@ public class TestGISManager {
         }
         finally {
             try {
-                getSession().disconnect();
+                sess.connection().rollback();
+                sess.close();
+                
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -293,11 +326,11 @@ public class TestGISManager {
         return id;
     }
     
-    public urb createOrFindNamedUrb(String urbS, state state) {
+    public   urb createOrFindNamedUrb(String urbS, state state) {
         urbS = urbS.trim();
         urb urb = null;
         try {
-            urb = findUrbByNameAndState(urbS, state.getName());
+            urb = findUrbByNameAndState(urbS,state == null? "%" : state.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -310,7 +343,7 @@ public class TestGISManager {
         return urb;
     }
     
-    public state findState(String stateStr) {
+    public  state findState(String stateStr) {
         Session sess = null;
         state state = null;
         try {
@@ -449,12 +482,12 @@ public class TestGISManager {
     
     street createStreet(String street,  urb urb) throws Exception {
         Session s= getSession();
-//        s.connection().commit();
+        //        s.connection().commit();
         street st = new street();
         st.setName(street);
         st.setUrb(urb);
         s.save(st);
-//        s.flush();
+        //        s.flush();
         s.connection().commit();
         s.disconnect();
         logger.fine("CREATED STREET " + st.getName() + " in urb " + st.getUrb());
