@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -513,9 +513,14 @@ def listSystemTables(service='default'):
 	return data
 #---------------------------------------------------
 def listTables(service='default'):
+<<<<<<< gmPG.py
+	"list all tables available in the specified service"
+	return quickROQuery("select * from pg_tables", service)
+=======
 	"""list all tables available in the specified service"""
 	data, = run_ro_query(service, "select * from pg_tables", None)
 	return data
+>>>>>>> 1.72
 #---------------------------------------------------
 def _import_listener_engine():
 	try:
@@ -541,6 +546,30 @@ def run_query(aCursor = None, aQuery = None, *args):
 	except:
 		_log.LogException("query >>>%s<<< with args >>>%s<<< failed" % (aQuery, args), sys.exc_info(), verbose = _query_logging_verbosity)
 		return None
+	return 1
+#---------------------------------------------------
+def run_commit (service, queries):
+	"""
+	convience function for running a transaction.
+	Takes a list of (query, [args]) to execute as a single transaction
+	"""
+	dbp = ConnectionPool ()
+	con = dbp.GetConnection (service, readonly = 0)
+	cur = con.cursor ()
+	for query, args in queries:
+		try:
+			cur.execute (query, args)
+		except:
+			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), sys.exc_info(), verbose = _query_logging_verbosity)
+			return 0
+		# its worth pointing out here that the whole point of this function is to handle error conditions,
+		# so the calling code can avoid the highly repetitive try..except bureaucracy
+	cur.close ()
+	con.commit ()
+	con.close ()
+	# this is very wasteful, why can't we save this read-write connection
+	# for the next time it's used (I understand it can't be shared at once)
+	# dbp.ReleaseConnection (service)
 	return 1
 #---------------------------------------------------
 def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
@@ -579,6 +608,7 @@ def run_ro_query(aService = None, aQuery = None, get_col_idx = None, *args):
 	pool.ReleaseConnection(aService)
 	return data, col_idx
 #---------------------------------------------------
+>>>>>>> 1.72
 def get_col_indices(aCursor = None):
 	# sanity checks
 	if aCursor is None:
@@ -830,7 +860,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.72  2003-09-22 23:31:44  ncq
+# Revision 1.73  2003-09-23 06:41:27  ihaywood
+# merging overlapped changes
+#
+# Revision 1.72  2003/09/22 23:31:44  ncq
 # - remove some duplicate code
 # - new style run_ro_query() use
 #
