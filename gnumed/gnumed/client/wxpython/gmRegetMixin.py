@@ -23,8 +23,8 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.7 2005-01-13 14:27:33 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmRegetMixin.py,v 1.8 2005-03-20 17:51:41 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -48,12 +48,17 @@ class cRegetOnPaintMixin:
 		except:
 			_log.Log(gmLog.lErr, 'you likely need to call "cRegetOnPaintMixin.__init__()" later in your __init__()')
 			raise
+		wx.EVT_SET_FOCUS(self, self._on_focus_event)
 	#-----------------------------------------------------
 	def _on_paint_event(self, event):
 		"""Repopulate UI if data is stale."""
 		if self._data_stale:
 			self.__populate_with_data()
 		event.Skip()
+	#-----------------------------------------------------
+	def _on_focus_event(self, event):
+		"""Doubtful whether that's the proper way to do it but seems OK."""
+		self.Refresh()
 	#-----------------------------------------------------
 	def __populate_with_data(self):
 		if self._populate_with_data():
@@ -94,7 +99,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.7  2005-01-13 14:27:33  ncq
+# Revision 1.8  2005-03-20 17:51:41  ncq
+# - although not sure whether conceptually it's the right thing to do it
+#   sure seems appropriated to Refresh() on focus events
+#
+# Revision 1.7  2005/01/13 14:27:33  ncq
 # - grammar fix
 #
 # Revision 1.6  2004/10/17 15:52:21  ncq
