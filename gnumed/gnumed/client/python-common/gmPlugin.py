@@ -14,15 +14,16 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
 
 from wxPython.wx import *
 
-import gmExceptions, gmGuiBroker, gmPG, gmConf, gmShadow, gmLog
-log = gmLog.gmDefLog.Log
+import gmExceptions, gmGuiBroker, gmPG, gmConf, gmShadow, gmLog, gmCfg
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lData, __version__)
 #------------------------------------------------------------------
 class gmPlugin:
 	"""base class for all gnumed plugins"""
@@ -109,7 +110,14 @@ class wxBasePlugin (gmPlugin):
 	def MenuInfo (self):
 		"""Return tuple of (menuname, menuitem).
 
-		menuname can be "tools", "view", "help", "file"
+		menuname can be
+			"tools",
+			"view",
+			"help",
+			"file"
+
+		If you return "None" no entry will be placed
+		in any menu.
 		"""
 		raise gmExceptions.PureVirtualFunction()
 	#-----------------------------------------------------
@@ -124,12 +132,12 @@ class wxBasePlugin (gmPlugin):
 		pass
 	#-----------------------------------------------------
 	def register(self):
-		self.gb['modules.%s' % self.set][self.name ()] = self
-		log (gmLog.lInfo, "loaded plugin %s/%s" % (self.set, self.name ()))
+		self.gb['modules.%s' % self.set][self.name()] = self
+		_log.Log(gmLog.lInfo, "loaded plugin %s/%s" % (self.set, self.name ()))
 	#-----------------------------------------------------
 	def unregister(self):
 		del self.gb['modules.%s' % self.set][self.name ()]
-		log (gmLog.lInfo, "unloaded plugin %s/%s" % (self.set, self.name()))
+		_log.Log(gmLog.lInfo, "unloaded plugin %s/%s" % (self.set, self.name()))
 #------------------------------------------------------------------
 class wxNotebookPlugin (wxBasePlugin):
 	"""
@@ -156,9 +164,7 @@ class wxNotebookPlugin (wxBasePlugin):
 		self.DoToolbar (tb, widget)
 		tb.Realize ()
 
-		# and put ourselves into the menu structure
-		# FIXED: this should be optional, too
-		# IH: It is, get MenuInfo () to return None 
+		# and put ourselves into the menu structure if so
 		if self.MenuInfo ():
 			menuset, menuname = self.MenuInfo ()
 			menu = self.gb['main.%smenu' % menuset]
@@ -261,7 +267,7 @@ class wxPatientPlugin (wxBasePlugin):
 		del self.gb['modules.patient'][self.name ()]
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
-	"""Instantiates a plugin object from a package directory, return ing the
+	"""Instantiates a plugin object from a package directory, returning the
 	object.
 	NOTE: it does NOT called register () for you!!!! 
 
@@ -296,53 +302,151 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		plugin_class = plugin_module_name.__dict__[plugin_name]
 	except:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ('Cannot import module "%s.%s".' % (aPackage, plugin_name), exc)
+		_log.LogException ('Cannot import module "%s.%s".' % (aPackage, plugin_name), exc)
 		return None
 
 	if not issubclass (plugin_class, wxBasePlugin):
-		log (gmLog.lErr, "class %s is not a subclass of wxBasePlugin" % plugin_name)
+		_log.Log(gmLog.lErr, "class %s is not a subclass of wxBasePlugin" % plugin_name)
 		return None
 
-	log (gmLog.lInfo, "instantiating plugin %s" % plugin_name)
+	_log.Log(gmLog.lInfo, "instantiating plugin %s" % plugin_name)
 	try:
 		plugin = plugin_class(set = aPackage, guibroker = guibroker, dbbroker = dbbroker)
 	except:
 		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), exc)
+		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), exc)
 		return None
 
 	return plugin
 #------------------------------------------------------------------
-# FIXME: get plugin list from gmconfiguration for this user
-# FIXME: step 1: use gmCfg.cCfgFile instead of arbitrary file
-# FIXME:         this would allow for "profiles"
-# FIXME: step 2: use database config store
-def GetAllPlugins (set):
+def GetPluginLoadList(set):
+	"""Get a list of plugins to load.
+
+	1) look in database
+	2) look into source directory
+	 a) check for plugin.conf
+	 b) scan directly
+	 c) store in database
 	"""
-	Searches the directory for all plugins
-	"""
-	gb = gmGuiBroker.GuiBroker ()
-	dir = gb['gnumed_dir']
-	# FIXME: in future versions we will ask the backend where plugins are
-	dir = os.path.join (dir, 'wxpython', set)
-	config_fname = os.path.join(dir, 'plugins.cfg')
-	#see whether we shall only load specific plugins in a specific order
+	gb = gmGuiBroker.GuiBroker()
+
+	# connect to database
+	db = gmPG.ConnectionPool()
+	conn = db.GetConnection(service = "default")
+	dbcfg = gmCfg.cCfgSQL(
+		aConn = conn,
+		aDBAPI = gmPG.dbapi
+	)
+
+	# search database
+	# for this user on this machine	
+	p_list = dbcfg.get(
+		machine = gb['workplace_name'],
+		option = 'plugin load order',
+		cookie = str(set)
+	)
+	if p_list is not None:
+		db.ReleaseConnection(service = "default")
+		return p_list
+
+	# for this user on default machine
+	p_list = dbcfg.get(
+		option = 'plugin load order',
+		cookie = str(set)
+	)
+	if p_list is not None:
+		rwconn = db.GetConnection(service = "default", readonly = 0)
+		dbcfg.set(
+			machine = gb['workplace_name'],
+			option = 'plugin load order',
+			value = p_list,
+			cookie = str(set),
+			aRWConn = rwconn
+		)
+		rwconn.close()
+		db.ReleaseConnection(service = "default")
+		return p_list
+
+	# for default user on this machine
+	p_list = dbcfg.get(
+		machine = gb['workplace_name'],
+		user = '__default__',
+		option = 'plugin load order',
+		cookie = str(set)
+	)
+	if p_list is not None:
+		rwconn = db.GetConnection(service = "default", readonly = 0)
+		dbcfg.set(
+			machine = gb['workplace_name'],
+			option = 'plugin load order',
+			value = p_list,
+			cookie = str(set),
+			aRWConn = rwconn
+		)
+		rwconn.close()
+		db.ReleaseConnection(service = "default")
+		return p_list
+
+	# for default user on default machine
+	p_list = dbcfg.get(
+		user = '__default__',
+		option = 'plugin load order',
+		cookie = str(set)
+	)
+	if p_list is not None:
+		rwconn = db.GetConnection(service = "default", readonly = 0)
+		dbcfg.set(
+			machine = gb['workplace_name'],
+			option = 'plugin load order',
+			value = p_list,
+			cookie = str(set),
+			aRWConn = rwconn
+		)
+		rwconn.close()
+		db.ReleaseConnection(service = "default")
+		return p_list
+
+	db.ReleaseConnection(service = "default")
+	_log.Log(gmLog.lWarn, "No plugin load order stored in database. Trying local config file.")
+
+	# search in plugin directory
+	#  FIXME: in the future we might ask the backend where plugins are
+	plugin_conf_name = os.path.join(gb['gnumed_dir'], 'wxpython', set, 'plugins.conf')
+	fCfg = None
 	try:
-		f = open(config_fname)
-		filesCR = f.readlines()
-		files=[]
-		for file in filesCR:
-			#check whether this file has been commented out
-			if file[0] != '#':
-				files.append(file[:-1])
+		fCfg = gmCfg.cCfgFile(aFile = plugin_conf_name)
 	except:
-		files = os.listdir (dir)
-	ret = []
-	for f in files:
-		if re.compile ('.+\.py$').match (f) and f != '__init__.py':
-			ret.append (f[:-3])
-	return ret
-	
+		_log.LogException("Can't load plugin load order config file.", sys.exc_info(), fatal=0)
+
+	# load from file
+	if fCfg is not None:
+		p_list = fCfg.get("plugins", "load order")
+
+	# parse directory directly
+	if p_list is None:
+		_log.Log(gmLog.lWarn, "Config file [%s] does not contain the plugin load order !" % plugin_conf_name)
+		_log.Log(gmLog.lInfo, "Scanning plugin directory directly.")
+		files = os.listdir(os.path.join(gb['gnumed_dir'], 'wxpython', set))
+		p_list = []
+		for file in files:
+			if (re.compile ('.+\.py$').match(file)) and (file != '__init__.py'):
+				p_list.append (file[:-3])
+
+	if (len(p_list) > 0):
+		# set for default user on this machine
+		_log.Log(gmLog.lInfo, "Storing default plugin load order in database.")
+		rwconn = db.GetConnection(service = "default", readonly = 0)
+		dbcfg.set(
+			machine = gb['workplace_name'],
+			user = '__default__',
+			option = 'plugin load order',
+			value = p_list,
+			cookie = str(set),
+			aRWConn = rwconn
+		)
+		rwconn.close()
+
+	return p_list
 #------------------------------------------------------------------
 def UnloadPlugin (set, name):
 	"""
@@ -354,10 +458,15 @@ def UnloadPlugin (set, name):
 #==================================================================
 # Main
 #------------------------------------------------------------------
-log(gmLog.lData, __version__)
+
+
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.28  2003-01-04 07:43:55  ihaywood
+# Revision 1.29  2003-01-05 10:00:38  ncq
+# - better comments
+# - implement database plugin configuration loading/storing
+#
+# Revision 1.28  2003/01/04 07:43:55  ihaywood
 # Popup menus on notebook tabs
 #
 # Revision 1.27  2002/11/13 09:14:17  ncq
