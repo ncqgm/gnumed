@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 
-import gmExceptions
+import gmExceptions 
 
 class gmPlugin:
 	"base class for all gnumed plugins"

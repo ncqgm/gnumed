@@ -45,9 +45,9 @@ packages to be installed before it can be run.</para>
 </entry>
 </row>
 <row>
-  <entry>GNOME libraries</entry>
-  <entry><ulink url="http://www.ximian.com/">
-<citetitle>ximian.com</citetitle></ulink>
+  <entry>GTK libraries</entry>
+  <entry><ulink url="http://www.gtk.org/">
+<citetitle>gtk.org</citetitle></ulink>
 </entry>
 <entry>
 <filename>1.2</filename>
@@ -89,10 +89,11 @@ libraries.
 </tgroup>
 </table></para>
 
-<para>This list looks daunting, but most of these packages (except mx and 
-wxPython) should be on your Linux installation disk.</para>
+<para>This list looks daunting, but Python and GTK libraries are
+almost invariably installed, and PostgreSQL, if not installed, will be
+on your Linux CDs somewhere.</para>
 <para>Note that the packages should be installed in the listed order, as 
-some depend upon others. Also, if using RPM, youy must install the libraries 
+some depend upon others. Also, if using RPM, you must install the libraries 
 (postgresql-lib), then the main package (postgresql), then the others, 
 including postgresql-python.
 </para>
