@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
@@ -1124,21 +1124,21 @@ msgstr ""
 "GnuMed Anmeldebildschirm\n"
 "\n"
 "BENUTZER:\n"
-" Name des GnuMed Benutzers\n"
+"  Name des GnuMed-Benutzers\n"
 "PASSWORT\n"
 "  Passwort für diesen Benutzer\n"
 "\n"
-"Knopf OK:\n"
-" mit Anmelden fortfahren\n"
-"Knopf OPTIONEN:\n"
-" einstellen erweiterter Optionen\n"
-"Knopf ABBRUCH:\n"
-" Anmelden abbrechen und GnuMed verlassen\n"
-"Kopf HILFE:\n"
-" dieser Hilfebildschirm\n"
+"Knopf [OK]:\n"
+"  als Nutzer am GnuMed-Server anmelden\n"
+"Knopf [OPTIONEN]:\n"
+"  erweiterte Optionen einstellen\n"
+"Knopf [ABBRUCH]:\n"
+"  Anmeldung abbrechen und GnuMed verlassen\n"
+"Knopf [HILFE]:\n"
+"  dieser Hilfebildschirm\n"
 "\n"
 "Bei Fragen kontaktieren Sie bitte :\n"
-" %s"
+"  %s"
 
 #: ../wxpython/gmPersonDetails.py:161
 msgid "Categorize this address (i.e. \"home\", \"work\", \"holidays\")"
@@ -1240,7 +1240,7 @@ msgstr "StikoHtmlFenster: Keine weiteren Eitraege in der Historie\n"
 
 #: ../wxpython/gmLoginDialog.py:390
 msgid "Advanced login options"
-msgstr "Optionen (DB)"
+msgstr "erweiterte Optionen"
 
 #: ../wxpython/gmLoginDialog.py:142
 msgid "password"
@@ -1298,7 +1298,7 @@ msgstr "Logdateieintrag"
 
 #: ../wxpython/gmLoginDialog.py:475
 msgid "backend options"
-msgstr "Optionen (DB)"
+msgstr "Optionen"
 
 #: ../wxpython/gmLabels.py:41
 msgid "reason"
@@ -1451,13 +1451,21 @@ msgid ""
 "Port: port number of database server\n"
 "Backend options: options passed through unparsed to the backend\n"
 msgstr ""
-"Erweiterte Backend-Optionen:\n"
+"Erweiterte Datenbank-Optionen:\n"
 "\n"
-"Datenbank: Name der GnuMed-Datenbank\n"
-"Host : Name oder IP des Rechners auf dem die Datenbank läuft\n"
-"Port : Port für den Datenbank-Server\n"
-"Backend Optionen : Optionen die unverändert an das Backend weitergereicht "
-"werden\n"
+"Datenbank\n"
+"  Name der GnuMed-Datenbank\n"
+"\n"
+"Host\n"
+"  Name oder IP des Rechners auf dem die Datenbank läuft,\n"
+"  Angabe 'unix' wählt Verbindung per UNIX domain sockets,\n"
+"\n"
+"Port\n"
+"  Port für den Datenbank-Server\n"
+"\n"
+"Optionen\n"
+"  werden unverändert an den Datenbank-Server weitergereicht\n"
+"\n"
 
 #: ../wxpython/gui/gmDrugDisplay.py:226
 msgid "Dose & administration"
