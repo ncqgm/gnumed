@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -21,7 +21,7 @@ from wxPython import wx
 
 # GnuMed
 from Gnumed.pycommon import gmLog, gmI18N, gmDispatcher, gmSignals, gmWhoAmI
-from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmSOAPWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -58,7 +58,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		self.__emr = pat.get_clinical_record()
 		self.__managed_episodes = []			# avoid duplicate SOAP notes
 		self.__selected_episode = None
@@ -489,7 +489,7 @@ def askForPatient():
 	"""
 	
 	# Variable initializations
-	pat_searcher = gmPatient.cPatientSearcher_SQL()
+	pat_searcher = gmPerson.cPatientSearcher_SQL()
 
 	# Ask patient
 	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
@@ -504,7 +504,7 @@ def askForPatient():
 		prompted_input("Various patients match the query term. Press any key to continue.")
 		return None
 	patient_id = search_ids[0]
-	patient = gmPatient.gmCurrentPatient(patient_id)
+	patient = gmPerson.gmCurrentPatient(patient_id)
 	
 	return patient
 	
@@ -562,7 +562,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.9  2005-01-29 18:04:58  ncq
+# Revision 1.10  2005-01-31 09:50:59  ncq
+# - gmPatient -> gmPerson
+#
+# Revision 1.9  2005/01/29 18:04:58  ncq
 # - cleanup/added "$ Log" CVS keyword
 #
 #

@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.18 2004-10-01 11:48:53 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmLDTimporter.py,v 1.19 2005-01-31 09:53:25 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmCfg, gmPG, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.business import gmPathLab, gmXdtMappings, gmPatient
+from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson
 
 import mx.DateTime as mxDT
 
@@ -496,7 +496,7 @@ class cLDTImporter:
 				_log.Log(gmLog.lErr, 'Kann lab_request nicht automatisch erzeugen.')
 				return None
 			# find patient
-			searcher = gmPatient.cPatientSearcher_SQL()
+			searcher = gmPerson.cPatientSearcher_SQL()
 			pat_ids = searcher.get_patient_ids(search_dict=pat_ldt)
 			if len(pat_ids) == 0:
 				_log.Log(gmLog.lErr, 'Kann in der Datenbank keinen Patienten für %s finden.' % str(pat_ldt))
@@ -506,7 +506,7 @@ class cLDTImporter:
 				return None
 			# create lab request
 			try:
-				pat = gmPatient.gmPerson(aPKey=pat_ids[0])
+				pat = gmPerson.gmPerson(aPKey=pat_ids[0])
 			except gmExceptions.ConstructorError:
 				_log.LogException('patient error', sys.exc_info())
 				return None
@@ -776,7 +776,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.18 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.19 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -931,7 +931,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.18 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.19 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -965,7 +965,10 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.18  2004-10-01 11:48:53  ncq
+# Revision 1.19  2005-01-31 09:53:25  ncq
+# - gmPatient -> gmPerson
+#
+# Revision 1.18  2004/10/01 11:48:53  ncq
 # - id -> pk
 #
 # Revision 1.17  2004/09/25 13:09:58  ncq

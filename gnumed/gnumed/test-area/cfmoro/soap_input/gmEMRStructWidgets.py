@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.7 2005-01-29 19:12:19 cfmoro Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmEMRStructWidgets.py,v 1.8 2005-01-31 09:50:59 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ from wxPython import wx
 
 # GnuMed
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
+from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -121,7 +121,7 @@ class cEpisodePicker(wx.wxPanel):
 
 		# edited episodes' issue's PK
 		self.__pk_health_issue = pk_health_issue
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		# patient EMR
 		self.__emr = pat.get_clinical_record()
 		# patient episodes
@@ -386,7 +386,7 @@ class cEpisodeEditor(wx.wxPanel):
 
 		# edited episodes' issue's PK
 		self.__pk_health_issue = pk_health_issue
-		pat = gmPatient.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
 		# patient EMR
 		self.__emr = pat.get_clinical_record()
 		# patient episodes
@@ -612,7 +612,7 @@ def askForPatient():
 	"""
 	
 	# Variable initializations
-	pat_searcher = gmPatient.cPatientSearcher_SQL()
+	pat_searcher = gmPerson.cPatientSearcher_SQL()
 
 	# Ask patient
 	patient_term = prompted_input("\nPatient search term (or 'bye' to exit) (eg. Kirk): ")
@@ -627,7 +627,7 @@ def askForPatient():
 		prompted_input("Various patients match the query term. Press any key to continue.")
 		return None
 	patient_id = search_ids[0]
-	patient = gmPatient.gmCurrentPatient(patient_id)
+	patient = gmPerson.gmCurrentPatient(patient_id)
 
 	return patient
 
@@ -681,7 +681,7 @@ if __name__ == '__main__':
 				wx.EVT_MENU(frame, ID_EXIT, self.OnCloseWindow)
 												
 				# patient EMR
-				pat = gmPatient.gmCurrentPatient()
+				pat = gmPerson.gmCurrentPatient()
 				self.__emr = pat.get_clinical_record()
 				
 				frame.Show(1)
@@ -780,7 +780,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.7  2005-01-29 19:12:19  cfmoro
+# Revision 1.8  2005-01-31 09:50:59  ncq
+# - gmPatient -> gmPerson
+#
+# Revision 1.7  2005/01/29 19:12:19  cfmoro
 # Episode creation on episode editor widget
 #
 # Revision 1.6  2005/01/29 18:01:20  ncq

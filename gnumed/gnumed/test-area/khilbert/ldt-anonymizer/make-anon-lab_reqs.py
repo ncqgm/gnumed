@@ -8,15 +8,15 @@ copyright: authors
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/ldt-anonymizer/make-anon-lab_reqs.py,v $
-# $Id: make-anon-lab_reqs.py,v 1.4 2004-06-28 15:16:53 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: make-anon-lab_reqs.py,v 1.5 2005-01-31 09:52:05 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
 import fileinput, sys, random, time
 
 from Gnumed.pycommon import gmPG, gmLoginInfo, gmLog
-from Gnumed.business import gmPathLab, gmPatient
+from Gnumed.business import gmPathLab, gmPerson
 
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -51,7 +51,7 @@ pat_data = {
 	'firstnames': 'Laborata',
 	'gender': 'f'
 }
-searcher = gmPatient.cPatientSearcher_SQL()
+searcher = gmPerson.cPatientSearcher_SQL()
 pat_ids = searcher.get_patient_ids(search_dict = pat_data)
 
 if len(pat_ids) == 0:
@@ -63,7 +63,7 @@ if len(pat_ids) > 1:
 
 patid = pat_ids[0]
 print "Laborata Testwoman has ID [%s]" % patid
-pat = gmPatient.gmCurrentPatient(aPKey=patid)
+pat = gmPerson.gmCurrentPatient(aPKey=patid)
 emr = pat.get_clinical_record()
 enc = emr.get_active_encounter()
 enc_id = enc['pk_encounter']
@@ -100,7 +100,10 @@ print "done"
 
 #===============================================================
 # $Log: make-anon-lab_reqs.py,v $
-# Revision 1.4  2004-06-28 15:16:53  ncq
+# Revision 1.5  2005-01-31 09:52:05  ncq
+# - gmPatient -> gmPerson
+#
+# Revision 1.4  2004/06/28 15:16:53  ncq
 # - id_ -> fk_/pk_
 #
 # Revision 1.3  2004/06/26 07:33:55  ncq
