@@ -1,28 +1,19 @@
-#############################################################################
-#
-# gmPlugin - base classes for GNUMed's plugin architecture
-# ---------------------------------------------------------------------------
-#
-# @author: Dr. Horst Herb
-# @copyright: author
-# @license: GPL (details at http://www.gnu.org)
-# @dependencies: nil
-# @change log:
-#	08.03.2002 hherb first draft, untested
-#
-# @TODO: Almost everything
+"""gmPlugin - base classes for GNUMed's plugin architecture.
+
+@copyright: author
+@license: GPL (details at http://www.gnu.org)
+"""
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.51 2003-04-28 12:03:15 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPlugin.py,v 1.52 2003-06-19 15:26:02 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
 
 from wxPython.wx import *
 
-import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg
-#import EditAreaHandler
+import gmExceptions, gmGuiBroker, gmPG, gmShadow, gmLog, gmCfg, gmTmpPatient
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lData, __version__)
 #------------------------------------------------------------------
@@ -217,7 +208,21 @@ class wxNotebookPlugin (wxBasePlugin):
 		# delete notebook page
 		nb = self.gb['main.notebook']
 		nb.DeletePage (nb_no)
-		
+	#-----------------------------------------------------
+	def can_receive_focus(self):
+		"""Called when this plugin is about to receive focus.
+
+		If None returned from here (or from overriders) the
+		plugin activation will be veto()ed.
+		"""
+		# fail if no patient selected
+		pat = gmTmpPatient.gmCurrentPatient()
+		if not pat.is_connected():
+			set_statustext = self.gb['main.statustext']
+			set_statustext(_('Cannot switch to [%s]: no patient selected') % self.name())
+			return None
+		# FIXME: fail if locked
+		return 1
 	#-----------------------------------------------------	
 	def Raise (self):
 		nbns = self.gb['main.notebook.plugins']
@@ -284,7 +289,7 @@ class wxPatientPlugin (wxBasePlugin):
 	def OnTool (self, event):
 		self.ReceiveFocus()
 		self.mwm.Display (self.internal_name())
-		# reduntant as cannot access toolbar unless mwm raised
+		# redundant as cannot access toolbar unless mwm raised
 		#self.gb['modules.gui']['Patient'].Raise ()
 	#-----------------------------------------------------
 	def Raise (self):
@@ -305,8 +310,6 @@ class wxPatientPlugin (wxBasePlugin):
 		"""Called whenever this module receives focus and is thus shown onscreen.
 		"""
 		pass
-#		_log.Log(gmLog.lWarn, 'forgot to change Shown() -> ReceiveFocus() in some plugin ...')
-#		self.ReceiveFocus()
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	"""Instantiates a plugin object from a package directory, returning the object.
@@ -511,7 +514,12 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.51  2003-04-28 12:03:15  ncq
+# Revision 1.52  2003-06-19 15:26:02  ncq
+# - cleanup bits
+# - add can_receive_focus() helper to wxNotebookPlugin()
+# - in default can_receive_focus() veto() plugin activation on "no patient selected"
+#
+# Revision 1.51  2003/04/28 12:03:15  ncq
 # - introduced internal_name() helper, adapted to use thereof
 # - leaner logging
 #
@@ -611,3 +619,5 @@ def UnloadPlugin (set, name):
 # Revision 1.22  2002/09/09 00:50:28  ncq
 # - return success or failure on LoadPlugin()
 #
+# @change log:
+#	08.03.2002 hherb first draft, untested
