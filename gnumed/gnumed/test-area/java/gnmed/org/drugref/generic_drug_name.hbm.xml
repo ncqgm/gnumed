@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.drugref.generic_drug_name"
+        dynamic-update="false"
+        dynamic-insert="false"
+        mutable="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Integer"
+        >
+            <generator class="assigned">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="drug_element"
+            class="org.drugref.drug_element"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="id_drug"
+        />
+
+        <property
+            name="name"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="name"
+        />
+
+        <property
+            name="comment"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="comment"
+        />
+
+        <property
+            name="audit_id"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            column="audit_id"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-generic_drug_name.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

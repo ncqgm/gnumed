@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.drugref.drug_element"
+        dynamic-update="false"
+        dynamic-insert="false"
+        mutable="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Integer"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <set
+            name="atcs"
+            table="link_drug_atc"
+            lazy="false"
+            inverse="false"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="id_drug"
+              />
+
+              <many-to-many
+                  class="org.drugref.atc"
+                  column="atccode"
+                  outer-join="auto"
+              />
+
+        </set>
+
+        <set
+            name="products"
+            lazy="false"
+            inverse="false"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="drug_element"
+              />
+
+              <one-to-many
+                  class="org.drugref.product"
+              />
+        </set>
+
+        <property
+            name="category"
+            type="char"
+            update="true"
+            insert="true"
+            column="category"
+        />
+
+        <property
+            name="description"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="description"
+        />
+
+        <property
+            name="audit_id"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            column="audit_id"
+        />
+
+        <set
+            name="toCompounds"
+            lazy="false"
+            inverse="true"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="id_component"
+              />
+
+              <one-to-many
+                  class="org.drugref.link_compound_generics"
+              />
+        </set>
+
+        <set
+            name="toComponents"
+            lazy="false"
+            inverse="true"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="id_compound"
+              />
+
+              <one-to-many
+                  class="org.drugref.link_compound_generics"
+              />
+        </set>
+
+        <set
+            name="generic_name"
+            lazy="false"
+            inverse="true"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="id_drug"
+              />
+
+              <one-to-many
+                  class="org.drugref.generic_drug_name"
+              />
+        </set>
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-drug_element.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

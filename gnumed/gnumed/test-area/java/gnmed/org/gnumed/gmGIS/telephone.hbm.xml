@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmGIS.telephone"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="address"
+            class="org.gnumed.gmGIS.address"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="address"
+        />
+
+        <many-to-one
+            name="enum_telephone_role"
+            class="org.gnumed.gmGIS.enum_telephone_role"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="enum_telephone_role"
+        />
+
+        <set
+            name="identitys"
+            lazy="false"
+            inverse="false"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="mobile"
+              />
+
+              <one-to-many
+                  class="org.gnumed.gmIdentity.identity"
+              />
+        </set>
+
+        <property
+            name="number"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="number"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-telephone.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

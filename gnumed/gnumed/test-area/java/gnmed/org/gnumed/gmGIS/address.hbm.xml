@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmGIS.address"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="street"
+            class="org.gnumed.gmGIS.street"
+            cascade="save-update"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="street"
+        />
+
+        <property
+            name="number"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="number"
+        />
+
+        <property
+            name="addendum"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="addendum"
+        />
+
+        <set
+            name="telephones"
+            lazy="false"
+            inverse="false"
+            cascade="all"
+            sort="unsorted"
+        >
+
+              <key
+                  column="address"
+              />
+
+              <one-to-many
+                  class="org.gnumed.gmGIS.telephone"
+              />
+        </set>
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-address.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

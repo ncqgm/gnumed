@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmIdentity.Names"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="identity"
+            class="org.gnumed.gmIdentity.identity"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="identity"
+        />
+
+        <property
+            name="active"
+            type="java.lang.Boolean"
+            update="true"
+            insert="true"
+            column="active"
+        />
+
+        <property
+            name="lastnames"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="lastnames"
+        />
+
+        <property
+            name="firstnames"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="firstnames"
+        />
+
+        <property
+            name="preferred"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="preferred"
+        />
+
+        <property
+            name="title"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="title"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-Names.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmClinical.code_ref"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="disease_code"
+            class="org.drugref.disease_code"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="disease_code"
+        />
+
+        <many-to-one
+            name="coding_systems"
+            class="org.gnumed.gmClinical.coding_systems"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="coding_systems"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-code_ref.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmClinical.clin_attribute"
+        dynamic-update="false"
+        dynamic-insert="false"
+        discriminator-value="a"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <discriminator
+            column="type"
+            type="string"
+            length="2"
+        />
+
+        <many-to-one
+            name="identity"
+            class="org.gnumed.gmIdentity.identity"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="identity"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-clin_attribute.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+        <subclass
+            name="org.gnumed.gmClinical.category_attribute"
+            dynamic-update="false"
+            dynamic-insert="false"
+            discriminator-value="c"
+        >
+
+        <many-to-one
+            name="category"
+            class="org.gnumed.gmClinical.category"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="category"
+        />
+
+        </subclass>
+        <subclass
+            name="org.gnumed.gmClinical.measurement"
+            dynamic-update="false"
+            dynamic-insert="false"
+            discriminator-value="m"
+        >
+
+        <many-to-one
+            name="quantified_type"
+            class="org.gnumed.gmClinical.quantified_type"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="quantified_type"
+        />
+
+        <property
+            name="value"
+            type="java.lang.Double"
+            update="true"
+            insert="true"
+            column="value"
+        />
+
+        </subclass>
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmIdentity.social_identity"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="enum_social_id"
+            class="org.gnumed.gmIdentity.enum_social_id"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="enum_social_id"
+        />
+
+        <many-to-one
+            name="identity"
+            class="org.gnumed.gmIdentity.identity"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="identity"
+        />
+
+        <property
+            name="number"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="number"
+        />
+
+        <property
+            name="expiry"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="expiry"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-social_identity.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

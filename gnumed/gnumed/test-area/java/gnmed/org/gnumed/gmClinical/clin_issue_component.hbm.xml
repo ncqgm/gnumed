@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmClinical.clin_issue_component"
+        dynamic-update="false"
+        dynamic-insert="false"
+        discriminator-value="C"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <discriminator
+            column="TYPE"
+            type="string"
+        />
+
+        <many-to-one
+            name="code_ref"
+            class="org.gnumed.gmClinical.code_ref"
+            cascade="all"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="code_ref"
+        />
+
+        <many-to-one
+            name="clin_health_issue"
+            class="org.gnumed.gmClinical.clin_health_issue"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="clin_health_issue"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-clin_issue_component.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+        <subclass
+            name="org.gnumed.gmClinical.clin_diagnosis"
+            dynamic-update="false"
+            dynamic-insert="false"
+            discriminator-value="D"
+        >
+        <property
+            name="approx_start"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="approx_start"
+        />
+
+        <property
+            name="text"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="text"
+        />
+
+        </subclass>
+        <subclass
+            name="org.gnumed.gmClinical.immunity"
+            dynamic-update="false"
+            dynamic-insert="false"
+            discriminator-value="I"
+        >
+        <property
+            name="notes"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="notes"
+        />
+
+        </subclass>
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmClinical.script"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="clin_encounter"
+            class="org.gnumed.gmClinical.clin_encounter"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="clin_encounter"
+        />
+
+        <set
+            name="link_script_drugs"
+            lazy="false"
+            inverse="false"
+            cascade="all"
+            sort="unsorted"
+        >
+
+              <key
+                  column="script"
+              />
+
+              <one-to-many
+                  class="org.gnumed.gmClinical.link_script_drug"
+              />
+        </set>
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-script.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.drugref.product"
+        dynamic-update="false"
+        dynamic-insert="false"
+        mutable="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Integer"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="drug_element"
+            class="org.drugref.drug_element"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="id_drug"
+        />
+
+        <many-to-one
+            name="drug_formulations"
+            class="org.drugref.drug_formulations"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="id_formulation"
+        />
+
+        <many-to-one
+            name="drug_units"
+            class="org.drugref.drug_units"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="id_packing_unit"
+        />
+
+        <many-to-one
+            name="drug_routes"
+            class="org.drugref.drug_routes"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="id_route"
+        />
+
+        <set
+            name="package_sizes"
+            lazy="false"
+            inverse="false"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="id_product"
+              />
+
+              <one-to-many
+                  class="org.drugref.package_size"
+              />
+        </set>
+
+        <set
+            name="subsidized_productss"
+            lazy="false"
+            inverse="true"
+            cascade="none"
+            sort="unsorted"
+        >
+
+              <key
+                  column="id_product"
+              />
+
+              <one-to-many
+                  class="org.drugref.subsidized_products"
+              />
+        </set>
+
+        <property
+            name="amount"
+            type="java.lang.Double"
+            update="true"
+            insert="true"
+            column="amount"
+        />
+
+        <property
+            name="comment"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="comment"
+        />
+
+        <property
+            name="audit_id"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            column="audit_id"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-product.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

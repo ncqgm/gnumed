@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gnumed.gmGIS.street"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="java.lang.Long"
+        >
+            <generator class="hilo">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="urb"
+            class="org.gnumed.gmGIS.urb"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="urb"
+        />
+
+        <property
+            name="name"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="name"
+        />
+
+        <property
+            name="postcode"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="postcode"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-street.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>
