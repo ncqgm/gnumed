@@ -47,7 +47,7 @@ import sys, time, traceback, os.path, atexit
 try:
 	import syslog
 	__use_syslog=1
-else:
+except:
 	__use_syslog=0
 
 #-------------------------------------------

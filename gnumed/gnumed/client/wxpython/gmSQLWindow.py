@@ -124,15 +124,14 @@ class SQLWindow(wxPanel):
 
 		self.ListServices()
 		self.ListTables()
-		#self.Test()
-		set_sizer=true
-		if set_sizer == true:
-			self.SetAutoLayout( true )
-			self.SetSizer( self.topsizer )
-		call_fit=true
-		if call_fit == true:
-			self.topsizer.Fit( parent )
-			self.topsizer.SetSizeHints( parent )
+
+		#resize the panle depending on it's widgets
+		self.SetAutoLayout( true )
+		self.SetSizer( self.topsizer )
+		#tell the parent window about our size
+		self.topsizer.Fit( parent )
+		self.topsizer.SetSizeHints( parent )
+
 		# WDR: handler declarations for gmSQLWin
 		EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRLQUERYRESULT, self.OnResultSelected)
 		EVT_COMBOBOX(self, ID_COMBO_QUERY, self.OnTextEntered)

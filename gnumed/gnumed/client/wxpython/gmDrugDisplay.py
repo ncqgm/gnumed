@@ -32,6 +32,7 @@ ID_BUTTON_PRESCRIBE = wxNewId()
 ID_BUTTON_DISPLAY = wxNewId()
 ID_BUTTON_PRINT = wxNewId()
 ID_BUTTON_BOOKMARK = wxNewId()
+ID_LBOXDRUGS = wxNewId()
 
 class DrugDisplay(wxPanel):
 	"displays drug information in a convenience widget"
@@ -72,7 +73,10 @@ class DrugDisplay(wxPanel):
 		pass
 
 	def OnDisplay(self, event):
-		pass
+		########R.TERRY WATCH THIS:
+		self.ToggleWidget()
+		########END R.TERRY WATCH THIS:
+
 
 	def OnPrescribe(self, event):
 		pass
@@ -82,7 +86,7 @@ class DrugDisplay(wxPanel):
 
 	def OnJumpToSelected(self, event):
 		print "selection made"
-		pass
+		
 
 	def OnSearchByIndication(self, event):
 		pass
@@ -97,9 +101,11 @@ class DrugDisplay(wxPanel):
 		pass
 
 	def OnProductKeyPressed(self, event):
+		print "key in combo box presed"
 		pass
 
 	def OnProductSelected(self, event):
+		print "drug in combo box selected"
 		pass
 
 	def OnOk(self, event):
@@ -128,9 +134,17 @@ class DrugDisplay(wxPanel):
 		self.szrVTop.AddSizer( self.szrProduct, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		self.szrHTop = wxBoxSizer( wxHORIZONTAL )
+		self.szrToggleWidgets = wxBoxSizer(wxVERTICAL)
+		self.szrHTop.AddSizer( self.szrToggleWidgets, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
-		self.mltxtMims = wxTextCtrl( self, ID_TEXTCTRL, "", wxDefaultPosition, wxSize(80,40), wxTE_MULTILINE )
-		self.szrHTop.AddWindow( self.mltxtMims, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
+		self.lboxDrugs=None
+		self.mltxtMims=None
+
+		########R.TERRY WATCH THIS:
+		self.whichWidget = "text"
+		self.ToggleWidget()
+		########END R.TERRY WATCH THIS:
+
 
 		self.szrHTop.AddSpacer( 10, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
 
@@ -183,6 +197,32 @@ class DrugDisplay(wxPanel):
 		self.SetSizer( self.szrVTop )
 		self.szrVTop.Fit( self )
 		self.szrVTop.SetSizeHints( self )
+
+	########R.TERRY WATCH THIS:
+	def ToggleWidget(self):
+		if self.whichWidget == "text":
+			if self.mltxtMims is not None:
+				return
+			if self.lboxDrugs is not None:
+				self.szrToggleWidgets.Remove(self.lboxDrugs)
+				self.lboxDrugs = None
+			self.mltxtMims = wxTextCtrl( self, ID_TEXTCTRL, "", wxDefaultPosition, wxSize(80,40), wxTE_MULTILINE )
+			self.szrToggleWidgets.AddWindow( self.mltxtMims, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
+			self.szrToggleWidgets.Layout()
+			self.whichWidget="mims"
+		else:
+			if self.lboxDrugs is not None:
+				return
+			if self.mltxtMims is not None:
+				self.szrToggleWidgets.Remove(self.mltxtMims)
+				self.mltxtMims = None
+			self.lboxDrugs = wxListBox( self, ID_LBOXDRUGS, wxDefaultPosition, wxSize(150,100),
+				[_("Drug A"), _("DrugB"), _("DrugC")] , wxLB_SINGLE )
+			self.szrToggleWidgets.AddWindow( self.lboxDrugs, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
+			self.szrToggleWidgets.Layout()
+			self.whichWidget="text"
+	########END R.TERRY WATCH THIS
+
 
 
 if __name__ == "__main__":

@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
 	try:
 		import gmGuiMain
-	except:
-		print "CRITICAL ERROR: Can't find module gmGuiMain! - Program halted"
+	except ImportError:
+		sys.exit("CRITICAL ERROR: Can't find module gmGuiMain! - Program halted")
 
 	#run gnumed!
 	gmGuiMain.main()

@@ -145,6 +145,7 @@ class SQLSimpleSearch(wxPanel):
 		self.listctrlSearchResults.RunQuery()
 
 	def TransformQuery(self, searchexpr):
+		"this method should be overridden by derived classes if neccessary"
 		return searchexpr
 
 

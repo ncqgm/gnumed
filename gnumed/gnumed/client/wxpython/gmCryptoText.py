@@ -66,9 +66,10 @@ class gmCryptoText(wxTextCtrl):
     position
     """
 
-    def __init__(self, parent, id, size=wxPyDefaultSize, style=wxTE_MULTILINE, defaulttext=None):
+    def __init__(self, parent, id, size=wxPyDefaultSize, style=wxTE_MULTILINE|wxTE_RICH, defaulttext=None):
         #initialize parent class
         wxTextCtrl.__init__(self, parent, id, size=size, style=style)
+ 	self.SetDefaultStyle(wxTextAttr(wxRED))
 
         #will search for text tags within fuzzymargin characters
         self.fuzzymargin = 25
@@ -96,8 +97,6 @@ class gmCryptoText(wxTextCtrl):
 
         #...and this one for wxMSW (hope this inconsistency is fixed soon
         #EVT_COMMAND_RIGHT_CLICK(self, self.aID, self.OnRightClick)
-
-
 
     def OnRightClick(self, event):
         "A right mouse click triggers a popup menu for cryptographic functionality"
@@ -178,7 +177,7 @@ class gmCryptoText(wxTextCtrl):
 
     def OnRightDown(self, event):
         """dummy function; if this event was not intercepted, GTK would
-        clear the text selection the very monet the mouse button is clicked"""
+        clear the text selection the very moment the mouse button is clicked"""
         pass
 
     def AskForPassphrase(self):

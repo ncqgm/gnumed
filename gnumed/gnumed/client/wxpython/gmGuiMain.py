@@ -249,7 +249,7 @@ class MainFrame(wxFrame):
 	def CreateMenu(self):
 		"Create the whole menu bar including all menu entries"
 
-		self.mainmenu = wxMenuBar()
+  		self.mainmenu = wxMenuBar()
 		self.guibroker['main.mainmenu']=self.mainmenu
 		self.filemenu = wxMenu()
 		self.filemenu.Append(exitID, _('E&xit\tAlt-X'), _('Close this GNUMed client'))
@@ -395,4 +395,4 @@ if __name__ == '__main__':
 	main()
 
 # clean up
-myLog.Close()
+# myLog.Close()
