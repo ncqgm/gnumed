@@ -4,7 +4,7 @@ A module to add shadowing to an arbitrary widget.
 """
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmShadow.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__  = "H.Berger <Hilmar.Berger@gmx.de>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, R.Terry <rterry@gnumed.net>"
 
 from wxPython.wx import *
@@ -24,7 +24,7 @@ class Shadow (wxPanel):
 
 		Widget MUST have parent=Shadow widget, and pos=(0,0)
 		"""
-        self.contents = widget
+		self.contents = widget
 	#-----------------------------------------------------
 	def OnSize (self, event):
 		w, h = self.GetClientSizeTuple ()
@@ -56,7 +56,10 @@ class Shadow (wxPanel):
 		)
 #=======================================================================
 # $Log: gmShadow.py,v $
-# Revision 1.7  2003-01-12 01:06:22  ncq
+# Revision 1.8  2003-01-12 11:42:23  ncq
+# - nasty "invisible" whitespace bug
+#
+# Revision 1.7  2003/01/12 01:06:22  ncq
 # - CVS keywords
 # - code cleanup
 #
