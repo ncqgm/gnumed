@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.31 $
+-- $Revision: 1.32 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -211,36 +211,17 @@ create table cfg_str_array (
 	value text[] not null
 );
 
---=====================================================================
-GRANT SELECT ON
-	db,
-	distributed_db,
-	config,
-	cfg_type_enum,
-	cfg_template,
-	cfg_item,
-	cfg_string,
-	cfg_str_array,
-	cfg_numeric
-TO GROUP "gm-public";
-
-GRANT select, insert, update, delete on
-	cfg_type_enum,
-	cfg_template,
-	cfg_template_id_seq,
-	cfg_item,
-	cfg_item_id_seq,
-	cfg_string,
-	cfg_str_array,
-	cfg_numeric
-to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.32 $');
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.31  2004-07-19 11:50:43  ncq
+-- Revision 1.32  2004-09-02 00:42:33  ncq
+-- - add v_cfg_options
+-- - move grants to volatile DDL file
+--
+-- Revision 1.31  2004/07/19 11:50:43  ncq
 -- - cfg: what used to be called "machine" really is "workplace", so fix
 --
 -- Revision 1.30  2004/07/17 20:57:53  ncq
