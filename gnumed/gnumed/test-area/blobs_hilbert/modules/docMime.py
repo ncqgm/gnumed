@@ -6,7 +6,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docMime.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #=======================================================================================
@@ -28,7 +28,7 @@ def guess_mimetype(aFileName = None):
 	mime_type = desperate_guess
 	ret_code = -1
 	# this only works on POSIX with 'file' installed (which is standard, however)
-	# it might work of Cygwin installations
+	# it might work on Cygwin installations
 	# -i get mime type
 	# -b don't display a header
 	aPipe = os.popen(mime_guesser_cmd, "r")
@@ -103,24 +103,6 @@ def guess_ext_by_mimetype(aMimeType = None):
 		__log__.Log(gmLog.lErr, "The system does not know the file extension for the mimetype <%s>." % aMimeType)
 
 	return f_ext
-#-----------------------------------------------------------------------------------
-#def get_win_fname(aMimeType = None):
-	"""Return file name suitable for a given file type in Windows and other inferior OS."""
-
-	# sanity checks
-#	if aMimeType == None:
-#		__log__.Log(gmLog.lErr, "Cannot determine file name if I don't have a mime type.")
-#		return None
-
-#	import mimetypes
-#	f_ext = mimetypes.guess_extension(aMimeType)
-#	if f_ext == None:
-#		__log__.Log(gmLog.lErr, "The system does not know the file extension for the mimetype <%s>." % aMimeType)
-#		f_ext = ""
-
-#	import tempfile
-#	tempfile.template = "obj-"
-#	return os.path.normpath(tempfile.mktemp(f_ext))
 #-----------------------------------------------------------------------------------
 if __name__ == "__main__":
 	import sys
