@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.14 2005-03-09 20:00:13 cfmoro Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmEMRBrowser.py,v 1.15 2005-03-10 19:51:29 cfmoro Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -358,9 +358,9 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		"""
 		emr = gmPerson.gmCurrentPatient().get_clinical_record()
 		encounter = self.__sel_item_obj
-		narrative = self.__get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = 1)
-		# FIXME: retrieve problem form cClinicalRecord filtered by pk_issue and pk_episode
-		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
+		episode = self.__browser.get_EMR_item(self.__browser.get_item_parent(self.__browser.get_selection()))
+		narrative = self.__get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
+		problem = emr.get_problems(issues = [episode['pk_health_issue']], episodes=[episode['pk_episode']])[0]
 		self.__browser.SetCustomRightWidget(gmSOAPWidgets.cResizingSoapPanel(self.__browser, problem = problem,
 		input_defs = narrative))
 				
@@ -539,7 +539,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.14  2005-03-09 20:00:13  cfmoro
+# Revision 1.15  2005-03-10 19:51:29  cfmoro
+# Obtained problem from cClinicalRecord on progress notes edition
+#
+# Revision 1.14  2005/03/09 20:00:13  cfmoro
 # Added fixme comment in problem retrieval
 #
 # Revision 1.13  2005/03/09 19:43:21  cfmoro
