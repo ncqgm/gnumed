@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.66 $"
+__version__ = "$Revision: 1.67 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -163,29 +163,6 @@ class ConnectionPool:
 	def GetConnectionUnchecked(self, service = "default", readonly = 1, encoding = None):
 		"""if a distributed service exists, return it - otherwise return the default server"""
 		_log.Log(gmLog.lErr, 'use of GetConnectionUnchecked() deprecated')
-#		logininfo = self.GetLoginInfoFor(service)
-
-		# get new read-write connection
-#		if not readonly:
-#			_log.Log(gmLog.lData, "requesting RW connection to service [%s]" % service)
-#			return self.__pgconnect(logininfo, readonly = 0)
-
-		# return a cached read-only connection
-#		_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
-#		if ConnectionPool.__databases.has_key(service):
-#			try:
-#				ConnectionPool.__connections_in_use[service] += 1
-#			except:
-#				ConnectionPool.__connections_in_use[service] = 1
-#			return ConnectionPool.__databases[service]
-#		else:
-#			try:
-#				ConnectionPool.__connections_in_use['default'] += 1
-#			except:
-#				ConnectionPool.__connections_in_use['default'] = 1
-#
-#			return ConnectionPool.__databases['default']
-		
 	#-----------------------------
 	def ReleaseConnection(self, service):
 		"decrease reference counter of active connection"
@@ -818,7 +795,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.66  2003-07-21 20:55:39  ncq
+# Revision 1.67  2003-08-13 14:07:43  ncq
+# - removed some dead code
+#
+# Revision 1.66  2003/07/21 20:55:39  ncq
 # - add helper set_default_client_encoding()
 #
 # Revision 1.65  2003/07/21 19:21:22  ncq
