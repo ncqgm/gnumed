@@ -18,21 +18,18 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
 import sys, os.path, string
 
-if __name__ == "__main__" :
-	sys.path.append(os.path.join('.', 'modules'))
-
-import gmLog
+from Gnumed.pycommom import gmLog, gmPG
 _log = gmLog.gmDefLog
 if __name__ == "__main__" :
 	_log.SetAllLogLevels(gmLog.lData)
 
-import gmPG
+_log.Log(gmLog.lInfo, __version__)
 
 # the audit trail tables start with this prefix
 audit_trail_table_prefix = 'log_'
@@ -292,14 +289,6 @@ def create_audit_schema(aCursor):
 # main
 #------------------------------------------------------------------
 if __name__ == "__main__" :
-#	tmp = ''
-#	try:
-#		tmp = raw_input("audit marker table [%s]: " % audit_marker_table)
-#	except KeyboardError:
-#		pass
-#	if tmp != '':
-#		audit_marker_table = tmp
-
 	tmp = ''
 	try:
 		tmp = raw_input("audit trail parent table [%s]: " % audit_trail_parent_table)
@@ -328,7 +317,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.19  2003-11-05 16:03:02  ncq
+# Revision 1.20  2004-06-28 13:23:20  ncq
+# - fix import statements
+#
+# Revision 1.19  2003/11/05 16:03:02  ncq
 # - allow gm-public to insert into log tables
 #
 # Revision 1.18  2003/10/25 16:58:40  ncq

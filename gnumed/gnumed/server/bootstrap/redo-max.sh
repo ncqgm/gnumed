@@ -1,5 +1,10 @@
 #!/bin/sh
 
+cd ../../
+ln -vfsn client Gnumed
+cd -
+export PYTHONPATH="${PYTHONPATH}:../"
+
 echo "re-bootstrapping maximum database"
 echo "dropping old database"
 dropdb -U postgres gnumed

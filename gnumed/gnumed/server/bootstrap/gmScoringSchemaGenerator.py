@@ -11,21 +11,18 @@ neccessary scoring tables automatically.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/gmScoringSchemaGenerator.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
 import sys, os.path, string
 
-if __name__ == "__main__" :
-	sys.path.append(os.path.join('.', 'modules'))
-
-import gmLog
+from Gnumed.pycommom import gmLog, gmPG
 _log = gmLog.gmDefLog
 if __name__ == "__main__" :
 	_log.SetAllLogLevels(gmLog.lData)
 
-import gmPG
+_log.Log(gmLog.lInfo, __version__)
 
 # the scoring tables start with this prefix
 scoring_table_prefix = 'score_'
@@ -113,7 +110,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmScoringSchemaGenerator.py,v $
-# Revision 1.2  2003-12-29 15:25:07  uid66147
+# Revision 1.3  2004-06-28 13:23:20  ncq
+# - fix import statements
+#
+# Revision 1.2  2003/12/29 15:25:07  uid66147
 # - auto-add grants on scoring tables
 #
 # Revision 1.1  2003/10/19 12:57:19  ncq

@@ -11,21 +11,18 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
 import sys, os.path, string
 
-if __name__ == "__main__" :
-	sys.path.append(os.path.join('..', '..', 'client', 'pycommon'))
-
-import gmLog
+from Gnumed.pycommom import gmLog, gmPG
 _log = gmLog.gmDefLog
 if __name__ == "__main__" :
 	_log.SetAllLogLevels(gmLog.lData)
 
-import gmPG
+_log.Log(gmLog.lInfo, __version__)
 
 #==================================================================
 # SQL statements for notification triggers
@@ -104,7 +101,10 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.5  2004-06-26 07:33:55  ncq
+# Revision 1.6  2004-06-28 13:23:20  ncq
+# - fix import statements
+#
+# Revision 1.5  2004/06/26 07:33:55  ncq
 # - id_episode -> fk/pk_episode
 #
 # Revision 1.4  2004/04/17 11:54:16  ncq

@@ -30,41 +30,14 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
+# standard library
 import sys, string, os.path, fileinput, os, time, getpass, glob, re
 
-# location of our modules, try hard to find modules
-mydir = os.path.dirname (sys.argv[0])
-if mydir:
-	os.chdir (mydir)
-if os.path.exists (os.path.join ('.', 'modules')):
-	sys.path.append(os.path.join('.', 'modules'))
-if os.path.exists ('/usr/share/gnumed/client/pycommon'):
-	sys.path.append ('/usr/share/gnumed/client/pycommon')
-if os.path.exists ('../../client/pycommon'):
-	sys.path.append (os.path.abspath ('../../client/pycommon'))
-if os.path.exists (os.path.expandvars ('$GNUMED_DIR/client/pycommon')):
-	sys.path.append (os.path.expandvars ('$GNUMED_DIR/client/pycommon'))
-
-try:
-	import gmLog
-except ImportError:
-	print """
-Please make sure there's a link 'modules' pointing
-to client/pycommon/ so that we can load GnuMed
-Python modules.
-
-Good luck !
-"""
-_log = gmLog.gmDefLog
-_log.SetAllLogLevels(gmLog.lData)
-
-import gmCfg
-_cfg = gmCfg.gmDefCfgFile
-
+# 3rd party imports
 dbapi = None
 try:
 	from pyPgSQL import PgSQL
@@ -92,18 +65,27 @@ except ImportError:
 			_log.LogException("Cannot load pgdb database adapter module.", sys.exc_info(), verbose=0)
 			raise
 
-from gmExceptions import ConstructorError
+# GnuMed imports
+try:
+	from Gnumed.pycommon import gmLog
+except ImportError:
+	print """Please make sure the GnuMed Python modules are in the Python path !"""
+	raise
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon.gmExceptions import ConstructorError
 
+# local imports
 import gmAuditSchemaGenerator
 aud_gen = gmAuditSchemaGenerator
-
 import gmScoringSchemaGenerator
 score_gen = gmScoringSchemaGenerator
-
 import gmNotificationSchemaGenerator
 notify_gen = gmNotificationSchemaGenerator
-
 import Psql
+
+_log = gmLog.gmDefLog
+_log.SetAllLogLevels(gmLog.lData)
+_cfg = gmCfg.gmDefCfgFile
 
 _interactive = 0
 _bootstrapped_servers = {}
@@ -1379,6 +1361,8 @@ def get_cfg_in_nice_mode():
 		print  '%2s) %s' % (n, desc)
 		n += 1
 	choice = int(raw_input ('\n\nYour choice: '))
+	if choice == -1:
+		return None
 	return cfgs[choice]
 #==================================================================
 if __name__ == "__main__":
@@ -1386,6 +1370,9 @@ if __name__ == "__main__":
 	if _cfg is None:
 		_log.Log(gmLog.lInfo, "No config file specified on command line. Getting it in nice mode.")
 		_cfg = get_cfg_in_nice_mode()
+		if _cfg is None:
+			print "bye"
+			sys.exit(0)
 
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
@@ -1444,7 +1431,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.57  2004-06-23 21:10:48  ncq
+# Revision 1.58  2004-06-28 13:23:20  ncq
+# - fix import statements
+#
+# Revision 1.57  2004/06/23 21:10:48  ncq
 # - cleanup become_demon_user()
 #
 # Revision 1.56  2004/06/14 18:58:06  ncq
