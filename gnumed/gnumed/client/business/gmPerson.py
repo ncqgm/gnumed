@@ -6,13 +6,14 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.11 2005-02-19 15:06:33 sjtan Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmPerson.py,v 1.12 2005-03-08 16:43:58 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # access our modules
 import sys, os.path, time, re, string
+
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord, gmMedDoc
 
@@ -216,7 +217,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		# must be cPerson instance, then
 		if not isinstance(person, cPerson):
-			_log.Log(gmLog.lErr, 'cannot set active patient to [%s]' % str(person))
+			_log.Log(gmLog.lErr, 'cannot set active patient to [%s], must be either None, -1 or cPerson instance' % str(person))
 
 		# same ID, no change needed
 		if self._person['pk_identity'] == person['pk_identity']:
@@ -887,8 +888,10 @@ def set_active_patient(person = None):
 	If person is -1 the active patient will be unset.
 	"""
 	if person is None:
-		_log.Log(gmLog.lErr, 'programming error: anID is None, must be -1 or cPerson instance')
+		_log.Log(gmLog.lErr, 'programming error: anID is None, must be -1, cPerson instance or cIdentity instance')
 		return False
+	if isinstance(person, gmDemographicRecord.cIdentity):
+		person = cPerson(identity=person)
 	# attempt to switch
 	tstart = time.time()
 	try:
@@ -963,7 +966,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.11  2005-02-19 15:06:33  sjtan
+# Revision 1.12  2005-03-08 16:43:58  ncq
+# - allow a cIdentity instance to be passed to gmCurrentPatient
+#
+# Revision 1.11  2005/02/19 15:06:33  sjtan
 #
 # **kwargs should be passed for signal parameters.
 #
