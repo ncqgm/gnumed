@@ -36,8 +36,8 @@ self.__metadata		{}
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-# $Id: gmMedDoc.py,v 1.22 2004-06-01 07:50:01 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmMedDoc.py,v 1.23 2004-09-28 12:20:16 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, tempfile, os, shutil, os.path, types
@@ -66,9 +66,6 @@ class cDocumentFolder:
 #			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
 		_log.Log(gmLog.lData, 'Instantiated document folder for patient [%s].' % self.id_patient)
-	#--------------------------------------------------------
-	def __del__(self):
-		pass
 	#--------------------------------------------------------
 	# internal helper
 	#--------------------------------------------------------
@@ -105,9 +102,25 @@ class cDocumentFolder:
 				return None
 			if status != 1:
 				_log.Log(gmLog.lData, 'inserted patient [%s] into documents database with local id [%s]' % (self.id_patient, status[0][0]))
-		return (1==1)
+		return True
 	#--------------------------------------------------------
 	# API
+	#--------------------------------------------------------
+	def get_latest_mugshot(self):
+		cmd = "select pk_obj from v_latest_mugshot where pk_patient=%s"
+		rows = gmPG.run_ro_query('blobs', cmd, None, self.id_patient)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error load latest mugshot for patient [%s]' % self.id_patient)
+			return None
+		if len(rows) == 0:
+			_log.Log(gmLog.lInfo, 'no mugshots available for patient [%s]' % self.id_patient)
+			return None
+		try:
+			mugshot = gmMedObj(aPKey=rows[0][0])
+		except gmExceptions.ConstructorError, err:
+			_log.LogException(err, sys.exc_info(), verbose=0)
+			return None
+		return mugshot
 	#--------------------------------------------------------
 	def get_mugshot_list(self, latest_only=1):
 		if latest_only:
@@ -122,6 +135,7 @@ class cDocumentFolder:
 					dm.type = (select id from doc_type where name='patient photograph') and
 					dm.patient_id=%s and
 					and dobj.doc_id = dm.id
+				limit 1
 			"""
 		rows = gmPG.run_ro_query('blobs', cmd, None, self.id_patient)
 		if rows is None:
@@ -164,7 +178,7 @@ class cDocumentFolder:
 		return doc_ids
 #============================================================
 class gmMedObj:
-	def __init__(self, aPKey):
+	def __init__(self, aPKey=None):
 		"""Fails if
 
 		- no connection to database possible
@@ -177,6 +191,7 @@ class gmMedObj:
 		self.__rwconn = backend.GetConnection('blobs', readonly = 0)
 		if self.__rwconn is None:
 			raise gmExceptions.ConstructorError, 'cannot get r/w connection to service [blobs]'
+		# this shouldn't, actually, really be necessary
 		cmd = 'reset client_encoding'
 		result = gmPG.run_ro_query(self.__rwconn, cmd)
 		if result is None:
@@ -184,7 +199,7 @@ class gmMedObj:
 
 		self.ID = aPKey			# == doc_obj.id == primary key
 		if not self.__pkey_exists():
-			raise gmExceptions.ConstructorError
+			raise gmExceptions.ConstructorError, 'cannot find doc object [%]' % self.ID
 
 		self.metadata = {}
 	#--------------------------------------------------------
@@ -242,8 +257,8 @@ class gmMedObj:
 		fname = tempfile.mktemp()
 		aFile = open(fname, 'wb+')
 
-		if self.__export (aFile, aChunkSize):
-			aFile.close ()
+		if self.__export(aFile, aChunkSize):
+			aFile.close()
 			return fname
 		aFile.close ()
 		return None
@@ -610,7 +625,11 @@ def create_object(doc_id):
 	return obj
 #============================================================
 # $Log: gmMedDoc.py,v $
-# Revision 1.22  2004-06-01 07:50:01  ncq
+# Revision 1.23  2004-09-28 12:20:16  ncq
+# - cleanup/robustify
+# - add get_latest_mugshot()
+#
+# Revision 1.22  2004/06/01 07:50:01  ncq
 # - error checking, optimizing, cleanup
 # - adaptation to ClinItem pending
 #
