@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.137 2005-03-31 18:02:35 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.138 2005-04-03 20:14:04 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1918,6 +1918,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin_medication
 	, clin_medication_pk_seq
 	, constituent
+	, soap_cat_ranks
 TO GROUP "gm-doctors";
 
 -- measurements
@@ -1978,11 +1979,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.137 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.138 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.137  2005-03-31 18:02:35  ncq
+-- Revision 1.138  2005-04-03 20:14:04  ncq
+-- - soap_cat_ranks grant
+--
+-- Revision 1.137  2005/03/31 18:02:35  ncq
 -- - move strings to data
 --
 -- Revision 1.136  2005/03/31 17:46:00  ncq
