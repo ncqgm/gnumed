@@ -5,7 +5,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Spock.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -15,14 +15,14 @@ insert into identity (gender, dob, cob, title)
 values ('m', '1931-03-26+2:00', 'US', 'Capt.');
 
 insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_id_seq'), true, 'Spock', 'Leonard');
+values (currval('identity_pk_seq'), true, 'Spock', 'Leonard');
 
 insert into xlnk_identity (xfk_identity, pupic)
-values (currval('identity_id_seq'), currval('identity_id_seq'));
+values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 --insert into staff (fk_identity, fk_role, db_user, sign, comment)
 --values (
---	currval('identity_id_seq'),
+--	currval('identity_pk_seq'),
 --	(select pk from staff_role where name='doctor'),
 --	'test-doc',
 --	'JB',
@@ -32,11 +32,16 @@ values (currval('identity_id_seq'), currval('identity_id_seq'));
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Spock.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Spock.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Spock.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: test_data-Spock.sql,v $
--- Revision 1.4  2004-06-02 13:46:46  ncq
+-- Revision 1.5  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.4  2004/06/02 13:46:46  ncq
 -- - setting default session timezone has incompatible syntax
 --   across version range 7.1-7.4, henceforth specify timezone
 --   directly in timestamp values, which works

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.40 $
+-- $Revision: 1.41 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -182,7 +182,7 @@ create table enum_comm_types (
 -- person related tables
 -- ===================================================================
 create table identity (
-	id serial primary key,
+	pk serial primary key,
 	pupic char(24),
 	gender varchar(2)
 		default '?'
@@ -192,14 +192,12 @@ create table identity (
 	dob timestamp with time zone
 		not null,
 	fk_marital_status integer
-		not null
-		default 1
+		default null
 		references marital_status(pk),
 	cob char(2),
 	deceased timestamp with time zone
 		default null
 		check ((deceased is null) or (deceased >= dob)),
-	-- yes, there are some incredible rants of titles ...
 	title text
 ) inherits (audit_fields);
 
@@ -222,9 +220,10 @@ comment on column identity.dob IS
 comment on column identity.cob IS
 	'country of birth as per date of birth, coded as 2 character ISO code';
 comment on column identity.deceased IS
-	'date when a person has died (if so), format yyyymmdd';
+	'date when a person has died';
 comment on column identity.title IS
-	'yes, a title is an attribute of an identity, not of a name !';
+	'Yes, a title is an attribute of an identity, not of a name !
+	 Also, there are some incredible rants of titles.';
 
 -- ===================================================================
 create table enum_ext_id_types (
@@ -250,7 +249,7 @@ comment on column enum_ext_id_types.context is
 -- ==========================================================
 create table lnk_identity2ext_id (
 	id serial primary key,
-	id_identity integer not null references identity(id),
+	id_identity integer not null references identity(pk),
 	external_id text not null,
 	fk_origin integer not null references enum_ext_id_types(pk),
 	comment text,
@@ -276,7 +275,7 @@ comment on column lnk_identity2ext_id.fk_origin is
 create table names (
 	id serial primary key,
 	id_identity integer
-		references identity(id)
+		references identity(pk)
 		on update cascade
 		on delete cascade,
 	active boolean default true,
@@ -301,7 +300,7 @@ comment on column names.preferred IS
 create table lnk_identity2comm (
 	id serial primary key,
 	id_identity integer not null
-		references identity(id)
+		references identity(pk)
 		on update cascade
 		on delete cascade,
 	url text,
@@ -345,8 +344,8 @@ comment on column relation_types.description IS
 
 create table lnk_person2relative (
 	id serial primary key,
-	id_identity integer not null references identity,
-	id_relative integer not null references identity,
+	id_identity integer not null references identity(pk),
+	id_relative integer not null references identity(pk),
 	id_relation_type integer not null references relation_types,
 	started date default NULL,
 	ended date default NULL
@@ -382,7 +381,7 @@ comment on table occupation is
 -- ==========================================================
 create table lnk_job2person (
 	id serial primary key,
-	id_identity integer not null references identity(id),
+	id_identity integer not null references identity(pk),
 	id_occupation integer not null references occupation(id),
 	comment text,
 	unique (id_identity, id_occupation)
@@ -414,7 +413,7 @@ create table staff (
 	-- should actually point to identity(PUPIC)
 	fk_identity integer
 		not null
-		references identity(id)
+		references identity(pk)
 		on update cascade
 		on delete cascade,
 	fk_role integer
@@ -470,7 +469,7 @@ create table lnk_org2comm (
 		on update cascade
 		on delete cascade,
 	url text,
-	id_type integer references enum_comm_types (id), 
+	id_type integer references enum_comm_types(id), 
 	is_confidential bool not null default false,
 	unique (id_org, url)
 );
@@ -492,15 +491,15 @@ create table lnk_org2ext_id (
 create table lnk_person_org_address (
 	id serial primary key,
 	id_identity integer
-		references identity(id),
+		references identity(pk),
 	id_address integer
 		references address(id),
 	id_type integer
 		default 1
-		references address_type (id),
+		references address_type(id),
 	address_source text,
 	id_org integer
-		references org (id),
+		references org(id),
 	unique(id_identity, id_address),
 	unique(id_org, id_address)
 --	, unique(id_identity, id_org, id_occupation)
@@ -525,11 +524,16 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.40 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.41 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.40  2005-01-24 17:57:43  ncq
+-- Revision 1.41  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.40  2005/01/24 17:57:43  ncq
 -- - cleanup
 -- - Ian's enhancements to address and forms tables
 --

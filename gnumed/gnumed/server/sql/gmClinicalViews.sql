@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.126 2005-02-07 13:02:41 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.127 2005-02-12 13:49:14 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1023,18 +1023,18 @@ select
 	vvs4p.vacc_seq_no as seq_no,
 	case when vvs4p.age_due_max is null
 		then (now() + coalesce(vvs4p.min_interval, vvs4p.age_due_min))
-		else ((select identity.dob from identity where identity.id=vvs4p.pk_patient) + vvs4p.age_due_max)
+		else ((select identity.dob from identity where identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max)
 	end as latest_due,
 	-- note that ...
 	-- ... 1) time_left ...
 	case when vvs4p.age_due_max is null
 		then coalesce(vvs4p.min_interval, vvs4p.age_due_min)
-		else (((select identity.dob from identity where identity.id=vvs4p.pk_patient) + vvs4p.age_due_max) - now())
+		else (((select identity.dob from identity where identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max) - now())
 	end as time_left,
 	-- ... and 2) amount_overdue ...
 	case when vvs4p.age_due_max is null
 		then coalesce(vvs4p.min_interval, vvs4p.age_due_min)
-		else (now() - ((select identity.dob from identity where identity.id=vvs4p.pk_patient) + vvs4p.age_due_max))
+		else (now() - ((select identity.dob from identity where identity.pk=vvs4p.pk_patient) + vvs4p.age_due_max))
 	end as amount_overdue,
 	-- ... are just the inverse of each other
 	vvs4p.age_due_min,
@@ -1569,11 +1569,16 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.126 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.127 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.126  2005-02-07 13:02:41  ncq
+-- Revision 1.127  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.126  2005/02/07 13:02:41  ncq
 -- - v_test_type_local -> v_test_type_unified
 -- - old v_test_type_unified -> v_unified_test_types
 -- - follow-on changes, grants

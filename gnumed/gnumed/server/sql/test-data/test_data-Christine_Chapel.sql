@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Christine_Chapel.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -14,11 +14,11 @@ insert into identity (gender, dob, cob, title)
 values ('f', '1932-2-23+2:00', 'US', 'Dr.RN');
 
 insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_id_seq'), true, 'Chapel', 'Christine');
+values (currval('identity_pk_seq'), true, 'Chapel', 'Christine');
 
 insert into staff (fk_identity, fk_role, db_user, sign, comment)
 values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk from staff_role where name='nurse'),
 	'test-nurse',
 	'CC',
@@ -28,11 +28,16 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Christine_Chapel.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Christine_Chapel.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Christine_Chapel.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: test_data-Christine_Chapel.sql,v $
--- Revision 1.6  2004-06-02 13:46:46  ncq
+-- Revision 1.7  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.6  2004/06/02 13:46:46  ncq
 -- - setting default session timezone has incompatible syntax
 --   across version range 7.1-7.4, henceforth specify timezone
 --   directly in timestamp values, which works

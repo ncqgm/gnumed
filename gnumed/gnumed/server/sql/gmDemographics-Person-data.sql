@@ -4,7 +4,7 @@
 -- identity related data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-data.sql,v $
--- $Id: gmDemographics-Person-data.sql,v 1.4 2004-12-20 19:04:37 ncq Exp $
+-- $Id: gmDemographics-Person-data.sql,v 1.5 2005-02-12 13:49:14 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -30,7 +30,6 @@ insert into relation_types(biological, description, inverse) values(false, i18n(
 update relation_types set inverse=12 where id=11;
 COMMIT;
 
-insert into marital_status(name) values (i18n ('unknown'));
 insert into marital_status(name) values (i18n ('single'));
 insert into marital_status(name) values (i18n ('de facto'));
 insert into marital_status(name) values (i18n ('married'));
@@ -41,11 +40,16 @@ insert into marital_status(name) values (i18n ('widowed'));
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-data.sql,v $
--- Revision 1.4  2004-12-20 19:04:37  ncq
+-- Revision 1.5  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.4  2004/12/20 19:04:37  ncq
 -- - fixes by Ian while overhauling the demographics API
 --
 -- Revision 1.3  2004/12/15 09:25:53  ncq

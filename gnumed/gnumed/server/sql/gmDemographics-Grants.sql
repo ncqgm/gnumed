@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -13,7 +13,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	names,
 	names_id_seq,
 	identity,
-	identity_id_seq,
+	identity_pk_seq,
 	urb,
 	urb_id_seq,
 	country,
@@ -53,7 +53,12 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.8  2005-01-24 17:57:43  ncq
+-- Revision 1.9  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.8  2005/01/24 17:57:43  ncq
 -- - cleanup
 -- - Ian's enhancements to address and forms tables
 --

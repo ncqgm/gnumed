@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -196,8 +196,8 @@ insert into test_org
 	(fk_org, fk_adm_contact, fk_med_contact, internal_name, comment)
 values (
 	99999,
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='Spock' and dob='1931-3-26+2:00'::timestamp),
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
+	(select i_pk from v_basic_person where firstnames='Leonard' and lastnames='Spock' and dob='1931-3-26+2:00'::timestamp),
+	(select i_pk from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'Enterprise Main Lab',
 	'the main path lab aboard the USS Enterprise'
 );
@@ -300,11 +300,16 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.15  2005-02-07 13:10:54  ncq
+-- Revision 1.16  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.15  2005/02/07 13:10:54  ncq
 -- - some lab tables changed so we need to keep up with that
 --
 -- Revision 1.14  2004/12/18 10:13:03  ncq

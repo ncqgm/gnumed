@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Leonard_McCoy.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -15,8 +15,8 @@ delete from identity where
 		and
 	cob = 'US'
 		and
-	id in (
-		select i_id
+	pk in (
+		select i_pk
 		from v_basic_person
 		where firstnames='Leonard'
 				and lastnames='McCoy'
@@ -27,18 +27,18 @@ insert into identity (gender, dob, cob, title)
 values ('m', '1920-1-20+2:00', 'US', 'Dr.');
 
 insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_id_seq'), true, 'McCoy', 'Leonard');
+values (currval('identity_pk_seq'), true, 'McCoy', 'Leonard');
 
 
-delete from xlnk_identity where xfk_identity = currval('identity_id_seq');
+delete from xlnk_identity where xfk_identity = currval('identity_pk_seq');
 
 insert into xlnk_identity (xfk_identity, pupic)
-values (currval('identity_id_seq'), currval('identity_id_seq'));
+values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 
 insert into staff (fk_identity, fk_role, db_user, sign, comment)
 values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk from staff_role where name='doctor'),
 	'any-doc',
 	'LMcC',
@@ -48,11 +48,16 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Leonard_McCoy.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Leonard_McCoy.sql,v $', '$Revision: 1.12 $');
 
 -- =============================================
 -- $Log: test_data-Leonard_McCoy.sql,v $
--- Revision 1.11  2004-11-28 14:38:18  ncq
+-- Revision 1.12  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.11  2004/11/28 14:38:18  ncq
 -- - some more deletes
 -- - use new method of episode naming
 -- - this actually bootstraps again

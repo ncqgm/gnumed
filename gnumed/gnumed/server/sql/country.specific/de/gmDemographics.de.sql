@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- part of GnuMed
 -- license: GPL
@@ -30,7 +30,7 @@ COMMENT on table name_gender_map is
 -- tables related to the German Krankenversichtenkarte KVK
 create table de_kvk (
 	id serial primary key,
-	id_patient integer not null references identity(id),
+	id_patient integer not null references identity(pk),
 
 	-- eigentliche KVK-Felder
 	-- Datenbereich (020h-0FFh)				--  Feldtag	Länge	Feldname				Optional
@@ -87,7 +87,7 @@ comment on column de_kvk.invalidated is
 -- ---------------------------------------------
 create table de_zuzahlungsbefreiung (
 	id serial primary key,
-	id_patient integer references identity(id),
+	id_patient integer references identity(pk),
 
 	Medikamente date default null,
 	Heilmittel date default null,
@@ -116,7 +116,7 @@ create table behandlungsfall (
 	pk serial primary key,
 	fk_patient integer
 		not null
-		references identity(id)
+		references identity(pk)
 		on delete restrict
 		on update cascade,
 	fk_falltyp integer
@@ -169,11 +169,16 @@ comment on table prax_geb_paid is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.2  2003-12-29 16:02:28  uid66147
+-- Revision 1.3  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.2  2003/12/29 16:02:28  uid66147
 -- - client_encoding breakage
 --
 -- Revision 1.1  2003/08/05 08:16:00  ncq

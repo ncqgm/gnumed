@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -19,8 +19,8 @@ delete from identity where
 		and
 	cob = 'CA'
 		and
-	id in (
-		select i_id
+	pk in (
+		select i_pk
 		from v_basic_person
 		where firstnames='Laborata'
 				and lastnames='Testwoman'
@@ -31,13 +31,13 @@ insert into identity (gender, dob, cob, title)
 values ('f', '1931-3-22+2:00', 'CA', '');
 
 insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_id_seq'), true, 'Testwoman', 'Laborata');
+values (currval('identity_pk_seq'), true, 'Testwoman', 'Laborata');
 
 
-delete from xlnk_identity where xfk_identity = currval('identity_id_seq');
+delete from xlnk_identity where xfk_identity = currval('identity_pk_seq');
 
 insert into xlnk_identity (xfk_identity, pupic)
-values (currval('identity_id_seq'), currval('identity_id_seq'));
+values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 
 -- encounter
@@ -48,7 +48,7 @@ insert into clin_encounter (
 	fk_type,
 	description
 ) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='chart review'),
@@ -60,7 +60,7 @@ insert into clin_encounter (
 delete from clin_episode where pk in (
 	select pk_episode
 	from v_pat_episodes
-	where id_patient = currval('identity_id_seq')
+	where id_patient = currval('identity_pk_seq')
 );
 
 commit;
@@ -70,7 +70,7 @@ insert into clin_episode (
 	fk_patient,
 	is_open
 ) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	true
 );
 
@@ -106,18 +106,23 @@ insert into lab_request (
 	'used for anonymized import regression tests',
 	(select pk from test_org where internal_name='your own practice'),
 	'anon: sample ID',
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
+	(select i_pk from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	true
 );
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%test_data-lab_regression.sql%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.12  2004-12-14 01:44:50  ihaywood
+-- Revision 1.13  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.12  2004/12/14 01:44:50  ihaywood
 -- gmPsql now supports BEGIN..COMMIT. Note that without a "begin" it reverts
 -- to the old one-line-one-transaction mode, so a lone commit is useless
 -- (this is the change to test_data-lab_regression)

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.148 $
+-- $Revision: 1.149 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -17,11 +17,11 @@ create table xlnk_identity (
 	data text unique default null
 ) inherits (audit_fields);
 
-select add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
 select add_table_for_audit('xlnk_identity');
 
 comment on table xlnk_identity is
-	'this is the one table with the unresolved identity(id)
+	'this is the one table with the unresolved identity(pk)
 	 foreign key, all other tables in this service link to
 	 this table, depending upon circumstances one can add
 	 dblink() verification or a true FK constraint (if "personalia"
@@ -189,11 +189,11 @@ comment on table clin_encounter is
 comment on COLUMN clin_encounter.fk_patient is
 	'PK of subject of care, should be PUPIC, actually';
 comment on COLUMN clin_encounter.fk_location is
-	'ID of location *of care*, e.g. where the provider is at';
+	'PK of location *of care*, e.g. where the provider is at';
 comment on COLUMN clin_encounter.fk_provider is
 	'PK of (main) provider of care';
 comment on COLUMN clin_encounter.fk_type is
-	'ID of type of this encounter';
+	'PK of type of this encounter';
 comment on column clin_encounter.description is
 	'descriptive name of this encounter, may change over time;
 	 could be RFE, if "xxxDEFAULTxxx" applications should
@@ -1081,11 +1081,16 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.148 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.149 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.148  2005-02-08 07:20:20  ncq
+-- Revision 1.149  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.148  2005/02/08 07:20:20  ncq
 -- - clin_root_item.narrative, not .comment
 --
 -- Revision 1.147  2005/02/08 07:07:40  ncq

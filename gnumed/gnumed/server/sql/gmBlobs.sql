@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.45 $ $Date: 2004-10-11 18:58:45 $ $Author: ncq $
+-- $Revision: 1.46 $ $Date: 2005-02-12 13:49:13 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -20,11 +20,11 @@ create table xlnk_identity (
 	data text unique default null
 ) inherits (audit_fields);
 
-select add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('xlnk_identity', 'xfk_identity', 'personalia', 'identity', 'pk');
 select add_table_for_audit('xlnk_identity');
 
 comment on table xlnk_identity is
-	'this is the one table with the unresolved identity(id)
+	'this is the one table with the unresolved identity(pk)
 	 foreign key, all other tables in this service link to
 	 this table, depending upon circumstances one can add
 	 dblink() verification or a true FK constraint (if "personalia"
@@ -120,7 +120,7 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.45 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.46 $');
 
 -- =============================================
 -- questions:
@@ -140,7 +140,12 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.45  2004-10-11 18:58:45  ncq
+-- Revision 1.46  2005-02-12 13:49:13  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.45  2004/10/11 18:58:45  ncq
 -- - rolled back Ian's changes but retained his comments
 -- - needs further thought before implementation
 --

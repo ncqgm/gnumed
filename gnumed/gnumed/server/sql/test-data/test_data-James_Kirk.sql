@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.44 $
+-- $Revision: 1.45 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -23,30 +23,30 @@ delete from identity where
 		and
 	cob = 'CA'
 		and
-	id in (select i_id from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22+2:00');
+	pk in (select i_pk from v_basic_person where firstnames='James T.' and lastnames='Kirk' and dob='1931-3-22+2:00');
 
 insert into identity (gender, dob, cob, title)
 values ('m', '1931-3-22+2:00', 'CA', 'Capt.');
 
 insert into names (id_identity, active, lastnames, firstnames)
-values (currval('identity_id_seq'), true, 'Kirk', 'James T.');
+values (currval('identity_pk_seq'), true, 'Kirk', 'James T.');
 
 insert into enum_ext_id_types (name, issuer, context)
 values ('Star Fleet Staff Code', 'Star Fleet Central Staff Office', 'o');
 
 insert into lnk_identity2ext_id (id_identity, external_id, fk_origin)
-values (currval('identity_id_seq'), 'SC937-0176-CEC', currval('enum_ext_id_types_pk_seq'));
+values (currval('identity_pk_seq'), 'SC937-0176-CEC', currval('enum_ext_id_types_pk_seq'));
 
 -- only works because services are in the same database
 insert into xlnk_identity (xfk_identity, pupic)
-values (currval('identity_id_seq'), currval('identity_id_seq'));
+values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 
 -- =============================================
 -- service BLOBs
 -- =============================================
 -- document of type "patient picture"
 insert into doc_med (patient_id, type, comment) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk from doc_type where name='patient photograph'),
 	'Captain Kirk pictures'
 );
@@ -66,30 +66,30 @@ insert into doc_obj (doc_id, seq_idx, comment, data) VALUES (
 -- EMR data
 
 -- put him on some vaccination schedules
-delete from lnk_pat2vacc_reg where fk_patient = currval('identity_id_seq');
+delete from lnk_pat2vacc_reg where fk_patient = currval('identity_pk_seq');
 -- tetanus
 insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk_regime from v_vacc_regimes where regime='Tetanus (SFCVC)')
 );
 -- meningococcus C
 insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk_regime from v_vacc_regimes where regime='MenC (SFCVC)')
 );
 -- hemophilus B
 insert into lnk_pat2vacc_reg (fk_patient, fk_regime) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk_regime from v_vacc_regimes where regime='HiB (SFCVC)')
 );
 
 -- health issue
 delete from clin_health_issue where
-	id_patient = currval('identity_id_seq');
+	id_patient = currval('identity_pk_seq');
 
 insert into clin_health_issue (id_patient, description)
 values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	'9/2000 extraterrestrial infection'
 );
 
@@ -97,7 +97,7 @@ values (
 delete from clin_episode where pk in (
 	select pk_episode
 	from v_pat_episodes
-	where id_patient = currval('identity_id_seq')
+	where id_patient = currval('identity_pk_seq')
 );
 
 insert into clin_episode (
@@ -118,7 +118,7 @@ insert into clin_encounter (
 	started,
 	last_affirmed
 ) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
@@ -274,7 +274,7 @@ insert into vaccination (
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
 	'prev booster > 7 yrs',
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select id from vaccine where trade_name='Tetasorbat (SFCMS)'),
 	'2000-9-17',
@@ -304,7 +304,7 @@ insert into lab_request (
 	'inflammation screen, possibly extraterrestrial contamination',
 	(select pk from test_org where internal_name='Enterprise Main Lab'),
 	'EML#SC937-0176-CEC#11',
-	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
+	(select i_pk from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'::timestamp),
 	'SC937-0176-CEC#15034',
 	'2000-9-17 17:40',
 	'2000-9-17 18:10',
@@ -434,7 +434,7 @@ insert into clin_encounter (
 	started,
 	last_affirmed
 ) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
@@ -539,7 +539,7 @@ insert into allergy_state (
 	fk_patient,
 	has_allergy
 ) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	1
 );
 
@@ -553,7 +553,7 @@ insert into doc_med (
 	comment,
 	ext_ref
 ) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk from doc_type where name='referral report other'),
 	'Vietnam 2003: The Peoples Republic',
 	'vietnam-2003-3::1'
@@ -595,7 +595,7 @@ insert into doc_med (
 	comment,
 	ext_ref
 ) values (
-	currval('identity_id_seq'),
+	currval('identity_pk_seq'),
 	(select pk from doc_type where name='referral report other'),
 	'Vietnam 2003: Tagwerk',
 	'vietnam-2003-3::2'
@@ -623,11 +623,16 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.44 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.45 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.44  2004-12-18 09:58:13  ncq
+-- Revision 1.45  2005-02-12 13:49:14  ncq
+-- - identity.id -> identity.pk
+-- - allow NULL for identity.fk_marital_status
+-- - subsequent schema changes
+--
+-- Revision 1.44  2004/12/18 09:58:13  ncq
 -- - vaccinate according to Starfleet rules
 --
 -- Revision 1.43  2004/11/28 14:38:18  ncq
