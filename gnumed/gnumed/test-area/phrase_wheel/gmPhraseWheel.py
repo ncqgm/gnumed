@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -279,13 +279,9 @@ class cWheelTimer(wxTimer):
 		else:
 			self.__callback = aCallback
 
-		#<DEBUG>
-		print "setting up timer"
-		#</DEBUG>
 		wxTimer.__init__(self)
 	#--------------------------------------------------------
 	def Notify(self):
-		print "timer fired"
 		self.__callback()
 #============================================================
 class cPhraseWheel (wxTextCtrl):
