@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.1 2004-06-14 07:37:43 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmClinicalRecordTest.py,v 1.2 2004-06-14 07:51:59 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -273,11 +273,10 @@ def suite():
 	lab_tests = unittest.makeSuite(LabAPITests, 'test')
 
 	test_suite = unittest.TestSuite((
-#		emr_struct_tests
-#		, vacc_tests
-#		, lab_tests
-#		, 
-		allg_tests,
+		emr_struct_tests
+		, vacc_tests
+		, lab_tests
+		, allg_tests
 	))
 
 	return test_suite
@@ -300,6 +299,9 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.1  2004-06-14 07:37:43  ncq
+# Revision 1.2  2004-06-14 07:51:59  ncq
+# - activate all the unit tests
+#
+# Revision 1.1  2004/06/14 07:37:43  ncq
 # - first check in
 #
