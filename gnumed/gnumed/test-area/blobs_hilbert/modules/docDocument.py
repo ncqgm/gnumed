@@ -37,7 +37,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.33 $"
+__version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -188,7 +188,7 @@ class cDocument:
 		for row in matching_rows:
 			oid = row[0]
 			# cDocument.metadata->objects->oid->comment/index
-			tmp = {'comment': row[1], 'index': row[2], 'size': row[3]}
+			tmp = {'comment': row[1], 'index': row[2], 'size': int(row[3])}
 			self.__metadata['objects'][oid] = tmp
 
 		cursor.close()
@@ -366,8 +366,10 @@ class cDocument:
 			max_chunk_size = 0
 			_log.Log(gmLog.lWarn, 'PostgreSQL < 7.2 does not support substring() on bytea.')
 		else:
-			max_chunk_size = self.cfg.get("viewer", "export chunk size")
-			if max_chunk_size is None:
+			tmp = self.cfg.get("viewer", "export chunk size")
+			try:
+				max_chunk_size = abs(int(tmp))
+			except:
 				max_chunk_size = 0
 		_log.Log(gmLog.lData, "export chunk size is %s" % max_chunk_size)
 
@@ -379,7 +381,7 @@ class cDocument:
 		aFile = open(obj['file name'], 'wb+')
 
 		# a chunk size of 0 means: all at once
-		if (max_chunk_size == 0) or (obj['size'] < max_chunk_size):
+		if ((max_chunk_size == 0) or (obj['size'] <= max_chunk_size)):
 			_log.Log(gmLog.lInfo, "export chunk size is 0 or object size is less then chunk size")
 			# retrieve object
 			cmd = "SELECT data FROM doc_obj WHERE oid='%s'" % (anObjID)
@@ -761,7 +763,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.33  2003-01-31 00:03:31  ncq
+# Revision 1.34  2003-02-03 11:04:00  ncq
+# - fix type mismatch on max_chunk_size
+#
+# Revision 1.33  2003/01/31 00:03:31  ncq
 # - slightly better logging
 #
 # Revision 1.32  2003/01/26 16:48:24  ncq
