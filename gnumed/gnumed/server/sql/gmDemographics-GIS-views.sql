@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -193,7 +193,7 @@ CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
 
 CREATE RULE delete_address AS ON DELETE TO v_basic_address DO INSTEAD
 	DELETE FROM address
-	WHERE address.id = OLD.addr_id
+	WHERE address.id = OLD.id
 ;
 
 -- updates the basic address data as identified by it's unique id
@@ -216,7 +216,7 @@ CREATE RULE update_address AS ON UPDATE TO v_basic_address DO INSTEAD
 			)
 		)
 	WHERE
-		address.id=OLD.addr_id
+		address.id=OLD.id
 ;
 
 -- ===================================================================
@@ -371,11 +371,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.13 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.12  2004-12-15 04:18:03  ihaywood
+-- Revision 1.13  2004-12-15 09:24:49  ncq
+-- - addr_id -> id, followup v_basic_address changes
+--
+-- Revision 1.12  2004/12/15 04:18:03  ihaywood
 -- minor changes
 -- pointless irregularity in v_basic_address
 -- extended v_basic_person to more fields.
