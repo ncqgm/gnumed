@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.67 2004-01-26 22:08:52 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmClinicalRecord.py,v 1.68 2004-02-02 16:19:03 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -736,7 +736,7 @@ class gmClinicalRecord:
 			return [[_('no vaccinations recorded'), '']]
 		return rows
 	#--------------------------------------------------------
-	def get_vaccinations(self, regime_list = None, ID = None, indication_list = None):
+	def get_vaccinations(self, ID = None, indication_list = None):
 		try:
 			self.__db_cache['vaccinations']
 			self.__db_cache['idx vaccinations']
@@ -783,6 +783,116 @@ class gmClinicalRecord:
 		return (self.__db_cache['vaccinations'], self.__db_cache['idx vaccinations'])
 	#--------------------------------------------------------
 	def get_due_vaccinations(self):
+		try:
+			return self.__db_cache['due vaccinations']
+		except KeyError:
+			pass
+		self.__db_cache['due vaccinations'] = {}
+		# get patient dob
+		cmd = "select dob from identity where id=%s"
+		dob = gmPG.run_ro_query('demographica', cmd, None, self.id_patient)
+		if dob is None:
+			_log.Log(gmLog.lErr, 'error loading DOB for patient [%s]' % self.id_patient)
+			return (None, _('error loading date of birth') % self.id_patient)
+		if len(dob) == 0:
+			_log.Log(gmLog.lErr, 'DOB for patient [%s] not found' % self.id_patient)
+			return (None, _('error loading date of birth') % self.id_patient)
+		pat_dob = dob[0][0].Format('%Y-%m-%d')
+		# due, non-booster
+		self.__db_cache['due vaccinations']['due'] = []
+		cmd = """
+			select
+				indication,
+				regime,
+				reg_comment,
+				seq_no,
+				case when age_due_max is null
+					then (now() + '2 years'::interval)
+					else (timestamp(%s) + age_due_max)
+				end as latest_due,
+				case when age_due_max is null
+					then '2 years'::interval
+					else age((timestamp(%s) + age_due_max), now())
+				end as time_left,
+				vacc_comment,
+				age_due_min,
+				age_due_max,
+				min_interval,
+				pk_indication,
+				pk_recommended_by
+			from
+				v_pat_missing_vaccs vpmv
+			where
+				pk_patient=%s
+					and
+				age(timestamp(%s)) between age_due_min and coalesce(age_due_max, '115 years'::interval)
+			order by time_left
+		"""
+		vaccs = gmPG.run_ro_query('historica', cmd, None, pat_dob, pat_dob, self.id_patient, pat_dob)
+		if vaccs is None:
+			_log.Log(gmLog.lErr, 'error loading due vaccinations for patient [%s]' % self.id_patient)
+			vaccs = [
+				[_('error loading due vaccinations'), '', '', -1, -1, -1, '', -1, -1, -1, -1, -1]
+			]
+		self.__db_cache['due vaccinations']['due'].extend(vaccs)
+		# overdue, non-booster
+		self.__db_cache['due vaccinations']['overdue'] = []
+		cmd = """
+			select
+				indication,
+				regime,
+				reg_comment,
+				seq_no,
+				age(timestamp(%s) + age_due_max) as amount_overdue,
+				vacc_comment,
+				age_due_min,
+				age_due_max,
+				min_interval,
+				pk_indication,
+				pk_recommended_by
+			from
+				v_pat_missing_vaccs vpmv
+			where
+				pk_patient=%s
+					and
+				age(%s) > coalesce(age_due_max, '115 years'::interval)
+			order by amount_overdue
+		"""
+		vaccs = gmPG.run_ro_query('historica', cmd, None, pat_dob, self.id_patient, pat_dob)
+		if vaccs is None:
+			_log.Log(gmLog.lErr, 'error loading overdue vaccinations for patient [%s]' % self.id_patient)
+			vaccs = [
+				[_('error loading overdue vaccinations'), '', '', -1, -1, '', -1, -1, -1, -1, -1]
+			]
+		self.__db_cache['due vaccinations']['overdue'].extend(vaccs)
+		# due boosters
+		self.__db_cache['due vaccinations']['boosters'] = []
+		cmd = """
+			select
+				indication,
+				regime,
+				reg_comment,
+				vacc_comment,
+				age_due_min,
+				age_due_max,
+				min_interval,
+				pk_indication,
+				pk_recommended_by
+			from
+				v_pat_missing_boosters vpmb
+			where
+				pk_patient=%s
+		"""
+		vaccs = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+		if vaccs is None:
+			_log.Log(gmLog.lErr, 'error loading due boosters for patient [%s]' % self.id_patient)
+			vaccs = [
+				[_('error loading due boosters'), '', '', -1, '', -1, -1, -1, -1, -1]
+			]
+		self.__db_cache['due vaccinations']['boosters'].extend(vaccs)
+		return self.__db_cache['due vaccinations']
+	#--------------------------------------------------------
+	def get_due_vaccs(self):
 		# FIXME: be smarter about boosters !
 		try:
 			return self.__db_cache['due vaccinations']
@@ -1184,7 +1294,6 @@ def get_vacc_regimes():
 	for row in rows:
 		data.extend(rows)
 	return data
-
 #------------------------------------------------------------
 # main
 #------------------------------------------------------------
@@ -1192,6 +1301,10 @@ if __name__ == "__main__":
 	_ = lambda x:x
 	gmPG.set_default_client_encoding('latin1')
 	record = gmClinicalRecord(aPKey = 11)
+	vaccs = record.get_due_vaccinations()
+	print vaccs['due']
+	print vaccs['overdue']
+	print vaccs['boosters']
 #	dump = record.get_text_dump()
 #	if dump is not None:
 #		keys = dump.keys()
@@ -1217,7 +1330,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.67  2004-01-26 22:08:52  ncq
+# Revision 1.68  2004-02-02 16:19:03  ncq
+# - rewrite get_due_vaccinations() taking advantage of indication-based tables
+#
+# Revision 1.67  2004/01/26 22:08:52  ncq
 # - gracefully handle failure to retrive vacc_ind
 #
 # Revision 1.66  2004/01/26 21:48:48  ncq
