@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -20,37 +20,37 @@
 -- -------------------------------------------------------------------
 create table x_db_fk (
 	id serial primary key,
-	fk_schema name default null,
-	fk_table name not null, -- references pg_class(relname),
-	fk_col name not null, -- references pg_attribute(attname),
-	src_service text not null default 'default',
-	src_schema name default null,
-	src_table name not null,
-	src_col name not null,
+	fk_src_schema name default null,
+	fk_src_table name not null, -- references pg_class(relname),
+	fk_src_col name not null, -- references pg_attribute(attname),
+	ext_service text not null default 'default',
+	ext_schema name default null,
+	ext_table name not null,
+	ext_col name not null,
 	last_checked timestamp with time zone,
-	-- should include fk_schema, too, but not now since
+	-- should include fk_src_schema, too, but not now since
 	-- schemata aren't used yet so the "default null" on
-	-- fk_schema would always satisfy the unique constraint
+	-- fk_src_schema would always satisfy the unique constraint
 	-- since null != null	
-	unique (fk_table, fk_col)
+	unique (fk_src_table, fk_src_col)
 );
 
 comment on table x_db_fk is
 	'describes cross-database (remote) foreign keys';
-comment on column x_db_fk.fk_schema is
+comment on column x_db_fk.fk_src_schema is
 	'the schema holding the FK column, unused so far';
-comment on column x_db_fk.fk_table is
+comment on column x_db_fk.fk_src_table is
 	'the table holding the FK column';
-comment on column x_db_fk.fk_col is
+comment on column x_db_fk.fk_src_col is
 	'the actual FK column name';
-comment on column x_db_fk.src_service is
+comment on column x_db_fk.ext_service is
 	'the service holding the column referenced by the FK,
 	 remote database access parameters are derived from this';
-comment on column x_db_fk.src_schema is
+comment on column x_db_fk.ext_schema is
 	'the schema holding the column referenced by the FK, unused so far';
-comment on column x_db_fk.src_table is
+comment on column x_db_fk.ext_table is
 	'the table holding the column referenced by the FK';
-comment on column x_db_fk.src_col is
+comment on column x_db_fk.ext_col is
 	'the name of the column referenced by the FK';
 comment on column x_db_fk.last_checked is
 	'when was this constraint checked last ?
@@ -92,11 +92,14 @@ comment on column x_db_fk_violation.fk_value is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FKs.sql,v $
--- Revision 1.4  2003-07-27 21:56:17  ncq
+-- Revision 1.5  2003-08-03 14:41:01  ncq
+-- - clear up column naming confusion in x_db_fk, adapt users
+--
+-- Revision 1.4  2003/07/27 21:56:17  ncq
 -- - adjust unique constraints
 -- - don't default to CURRENT_TIMESTAMP in last_checked ! (it needs to be set explicitely)
 -- - *reference* relevant remote-FKs from *_violations instead of cloning x_db_fk

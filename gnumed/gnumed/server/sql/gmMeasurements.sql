@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 
 -- this belongs into the service clinical (historica)
 
@@ -22,17 +22,17 @@ create table test_org (
 ) inherits (audit_mark, audit_fields);
 
 -- remote foreign keys
-insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
 values (
 	'test_org', 'id_practice', 'personalia', 'org', 'id'
 );
 
-insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
 values (
 	'test_org', 'id_adm_contact', 'personalia', 'identity', 'id'
 );
 
-insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
 values (
 	'test_org', 'id_med_contact', 'personalia', 'identity', 'id'
 );
@@ -75,7 +75,7 @@ create table test_type (
 ) inherits (audit_mark, audit_fields);
 
 -- remote foreign keys
-insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
 	values ('test_type', 'coding_system', 'reference', 'ref_source', 'name_short');
 -- column "code" would have to be checked, too, but we don't
 -- know against which table in "reference" since that depends
@@ -131,13 +131,13 @@ create table test_result (
 -- note_clinician provided as narrative by clin_root_item
 
 -- remote foreign keys
-insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
 values (
 	'test_result', 'val_unit', 'reference', 'unit', 'name_short'
 );
 
 -- should actually point to identity.doctor.id
-insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
 values (
 	'test_result', 'id_clinician', 'personalia', 'identity', 'id'
 );
@@ -213,7 +213,7 @@ create table lab_result (
 	abnormal_tag character(5)
 ) inherits (audit_mark, clin_root_item);
 
-insert into x_db_fk (fk_table, fk_col, src_service, src_table, src_col)
+insert into x_db_fk (fk_src_table, fk_src_col, ext_service, ext_table, ext_col)
 values (
 	'lab_result', 'id_sampler', 'personalia', 'identity', 'id'
 );
@@ -270,11 +270,14 @@ create table log_lab_result (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.5  2003-08-03 14:10:27  ncq
+-- Revision 1.6  2003-08-03 14:41:01  ncq
+-- - clear up column naming confusion in x_db_fk, adapt users
+--
+-- Revision 1.5  2003/08/03 14:10:27  ncq
 -- - add external FK defs
 --
 -- Revision 1.4  2003/07/27 21:59:47  ncq
