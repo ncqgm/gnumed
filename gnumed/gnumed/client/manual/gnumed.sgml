@@ -1,3 +1,4 @@
+<!-- -*- DocBook -*- -->
 <!doctype book PUBLIC "-//Davenport//DTD DocBook V3.0//EN" []>
  <book>
    <bookinfo>
@@ -27,19 +28,33 @@
 medical practice with emphasis on privacy protection, secure patient-centric 
 record sharing, decision support and ease of use.
 </para>
+<sect1>
+<title>The Platform</title>
+<para>
+
      <sect1>
-       <title>Downloading GNUMed</title>
+       <title>Getting started with GNUMed</title>
        <para>GNUMed is not yet ready for download as a package.
 It will become available at 
 <ulink url="http://gnumed.org/">
-<citetitle>gnumed.org</citetitle></ulink>It is released under the GNU 
+<citetitle>gnumed.org</citetitle></ulink>.
+ 
+It is released under the GNU 
 General Public Licence, see the file <filename>LICENCE</filename> for details.
 </para>
-<para>The latest sources are available by CVS at <ulink 
-url="http://savannah.gnu.org/projects/gnumed/"><citetitle>
-savannah.gnu.org</citetitle></ulink>
+<para>The latest sources are available by CVS at 
+<ulink url="http://savannah.gnu.org/projects/gnumed/">
+<citetitle>savannah.gnu.org</citetitle></ulink>.
+If CVS asks for a password, use a blank line. The module name is 
+<emphasis>gnumed</emphasis>
 </para>
-    <sect2>
+<sect2>
+<title>Installation</title>
+<sect3>
+<title>Linux</title>
+<para>GNUMed has run successfully on Linux. It requires a number of
+packages to be installed before it can be run.</para>
+    <sect4>
       <title>Requirements</title>
       <para>GNUMed requires the following packages:
 
@@ -49,7 +64,7 @@ savannah.gnu.org</citetitle></ulink>
 <row>
   <entry>Package</entry>
   <entry>URL</entry>
-  <entry>RedHat package name</entry>
+  <entry>Version</entry>
 </row>
 </thead>
 <tbody>
@@ -59,7 +74,7 @@ savannah.gnu.org</citetitle></ulink>
 <citetitle>python.org</citetitle></ulink>
 </entry>
 <entry>
-<filename>python</filename>
+<filename>2.1</filename>
 </entry>
 </row>
 <row>
@@ -68,28 +83,7 @@ savannah.gnu.org</citetitle></ulink>
 <citetitle>ximian.com</citetitle></ulink>
 </entry>
 <entry>
-<filename>gnome-libs</filename>
-</entry>
-</row>
-<row>
-  <entry>PostgreSQL Database server</entry>
-  <entry><ulink url="http://www.postgresql.org/">
-<citetitle>postgresql.org</citetitle></ulink>
-</entry>
-<entry>
-<filename>postgresql</filename>,<filename>postgresql-libs</filename>,
-<filename>postgresql-server</filename>,<filename>postgresql-python</filename>
-</entry>
-</row>
-<row>
-  <entry>wxWindows windowing library</entry>
-  <entry><ulink url="http://www.wxwindows.org/">
-<citetitle>wxwindows web site</citetitle></ulink>,
-<ulink url="http://www.wxpython.org/">
-<citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink>
-</entry>
-<entry>
-<filename>wxGTK</filename>,<filename>wxPython</filename>
+<filename>1.2</filename>
 </entry>
 </row>
 <row>
@@ -101,24 +95,196 @@ savannah.gnu.org</citetitle></ulink>
 <filename>mx</filename>
 </entry>
 </row>
+<row>
+  <entry>PostgreSQL Database server</entry>
+  <entry><ulink url="http://www.postgresql.org/">
+<citetitle>postgresql.org</citetitle></ulink>
+<footnote>Dont forget to include the Python interface libraries.</footnote>
+</entry>
+<entry>
+<filename>7.0
+</entry>
+</row>
+<row>
+  <entry>wxWindows windowing library</entry>
+  <entry><ulink url="http://www.wxwindows.org/">
+<citetitle>wxwindows web site</citetitle></ulink>,
+<ulink url="http://www.wxpython.org/">
+<citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink>
+</entry>
+<entry>
+<filename>2.3.1 (both must be the same)
+</entry>
+</row>
 </tbody>
 </tgroup>
 </table></para>
 
 <para>This list looks daunting, but most of these packages (except mx and 
-wxPython) should be on your Linux installation disk.
+wxPython) should be on your Linux installation disk.</para>
+<para>Note that the packages should be installed in the listed order, as 
+some depend upon others. Also, if using RPM, youy must install the libraries 
+(postgresql-lib), then the main package (postgresql), then the others, 
+including postgresql-python.
 </para>
-</sect2></sect1>
+</sect4>
+<para>
+On some distros, some of the Python libraries get installed in funny places.
+So Python can find them, add this line to your <filename>.profile</filename>:
 
-<sect1>
-<title>Setting up <application>PostgreSQL</application></title>
+<screen>
+export PYTHONPATH=/usr/lib/python1.5/site-packages:/usr/local/lib/python2.1/site-packages
+</screen></para>
+<sect4><title>Configurating PostgreSQL (quoting Steven Duffy)</title>
 <para> Some steps are required to get the <application>PostgreSQL</application>
 database system running.</para>
 <para>First, make sure you have the PostgreSQL server daemon running.
-Check under <filename>/etc/rc.d/</filename>, or run <application>Linuxconf</application></para>
+Check under <filename>/etc/rc.d/</filename>, or run <application>Linuxconf</application>. If isn't you can set it up with these commands as root:
+<screen>
+su - postgres
+initdb -D ~postgres/data
+postmaster -D ~postgres/data >logfile 2>&1 &
+</screen></para>
+<para>
+One minor issue has been overlooked so far, this is TCP/IP access to the database. In order to do this:
+<procedure>
+<step><para>find and open <filename>postgresql.conf</filename></para></step>
+<step><para>change <command>tcpip_socket = false</command> to <command>tcpip_socket = on</command></para></step>
+<step><para>save changes and restart <application>PostgreSQL</application></para></step>
+</procedure>
+
+This can also be accomplished by passing the <command>-i</command> option to the postmaster upon execution. If your distribution uses as postgresql script to start the server, it is likely the <command>pg_ctl</command> is used to run postmaster. In this case, find where <command>pg_ctl</command> is executed and add<command> insert -o \<quote>-i</quote> as one of the options to pg_ctl. Otherwise, find the script from which postmaster is executed and simply add <command>-i</command> as an argument.
+</para>
+</sect4>
+<para>Once these packages are installed, go to the section on
+setting up the database.</para></sect3>
+
+<sect3><title>Mac</title>
+<para>I have not heard of this done. It may be possible on OS X.
+There is a Mac port of Python, and one of wxWindows is in progress.
+</para>
+</sect3>
+<sect3><title>Windows 98/Me</title>
+<para>According to the PostgreSQL documentation, it is not possible 
+to run Postgres on these systems. It is possible to run the GNUMed client, but
+you need another computer to run the database.</para>
+
+ <sect4>
+      <title>Requirements</title>
+      <para>GNUMed requires the following packages:
+
+<table frame=all><title>Requirements</title>
+<tgroup cols=3 align=left colsep=1 rowsep=1>
+<thead>
+<row>
+  <entry>Package</entry>
+  <entry>URL</entry>
+<entry>Version</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>Python Scripting Language</entry>
+  <entry><ulink url="http://www.python.org/">
+<citetitle>python.org</citetitle></ulink>
+</entry>
+<entry>2.1</entry>
+</row>
+<row>
+  <entry>wxWindows windowing library</entry>
+  <entry><ulink url="http://www.wxwindows.org/">
+<citetitle>wxwindows web site</citetitle></ulink>,
+<ulink url="http://www.wxpython.org/">
+<citetitle>wxpython (wxWindows for Python bindings)</citetitle></ulink>
+</entry>
+<entry>2.3.1</entry>
+</row>
+<row>
+  <entry>mx extension libraries</entry>
+  <entry><ulink url="http://www.lemburg.com/files/python/eGenix-mx-Extensions.html">
+<citetitle>mx</citetitle></ulink>
+</entry>
+</row>
+<row>
+ <entry>PyGresQL -- Python libraries for SQL</entry>
+ <entry><ulink url="http://www.druid.net/pygresql/"><citetitle>PyGresQL</citetitle></ulink></entry><entry>3.2</entry>
+</row>
+<row>
+ <entry>PostgreSQL source code</entry>
+ <entry><ulink url="http://www.postgresql.org"><citetitle>Postgesql.org</citetitle></ulink></entry><entry>7.0</entry></row>
+</tbody>
+</tgroup>
+</table>
+</para>
+</sect4>
+<para>
+Quoting installation from Steven Duffy:
+<blockquote><para>
+The install is straight forward and done with wizards for Python and wxPython. The only problematic area is the installation of PyGreSQL so the pg module works. Here are the steps for compiling and installing PyGreSQL on Windows with MS Visual C++:</para>
+<procedure>
+<title>Compiling postgres interface library</title>
+<step>
+<para>download the main and base source code for PostgreSQL (I used version 7.0.2)</para></step>
+<step><para>extract both of these into the same directory using 
+<ulink url="http://www.winzip.com"><citetitle>winzip</citetitle></ulink>
+</para></step>
+<step><para>using the command prompt enter the <filename>src</filename> subdirectory from where you extracted the source.</para></step>
+<step><para>
+from the command prompt type: 
+<screen>
+nmake /f win32.mak
+</screen></para></step>
+<step><para>extract PyGreSQL from zip file.</para></step>
+<step><para>from the PostgreSQL subdirectory, 
+<filename>interfaces\libpq\release</filename>, copy 
+<filename>libpq.dll</filename></para></step>
+<step><para>paste <filename>libpq.dll</filename> 
+into the directory in which you have extracted PyGreSQL.</para></step>
+<step><para>also paste 
+<filename>libpq.dll</filename> 
+into <filename>winnt/system32</filename> 
+(or <filename>windows/system32</filename>) to install</para></step>
+<step><para>in the PyGreSQL directory open 
+<filename>system.py</filename> in a text editor</para></step>
+<step><para>adjust the value of <varname>win_pg_build_root</varname> 
+to be the directory in which you extracted PostgreSQL</para></step>
+<step><para>enter the PyGreSQL directory with the command prompt</para>
+<para>Then type:
+<screen>
+<prompt>&gt;</prompt> python setup.py build
+<prompt>&gt;</prompt> python setup.py install
+</screen></para></step></procedure></para>
+<para>
+If you don't have MS Visual C++ or you just don't feel like doing all of this. Contact me, Steven Duffy, and I'll send you the binaries.</para>
+</blockquote>
+</sect3>
+<sect3><title>Windows NT/2000/XP</title>
+<para>It is possible to run PostgreSQL, using the cygwin UNIX emulator..
+</para>
+   
+<para>Be warned! Nobody has actually done this yet. It would potentially
+be much more complicated than installing Linux just to run GNUMed.
+Running Linux is advisable anyway for security reasons.</para>
+</sect3>
+</sect2>
+<sect2>
+<title>Setting up <application>PostgreSQL</application> databases (quoting Steven Duffy)</title>
+
+Now that PostgreSQL is installed and working, the server scripts from the CVS repository can be executed. These scripts all end in .sql are intended to be executed from within psql. The one required script is gmconfiguration.sql. To set it up, do the following from the <filename>gnumed/gnumed/server/sql</filename>:
+
+<screen>
+<prompt>#</prompt> psql gnumed
+<prompt>gnumed=&gt;</prompt>\i gmconfiguration.sql 
+<prompt>gnumed=&gt;</prompt>\i gmidentity.sql
+<prompt>gnumed=&gt;</prompt>\i gmgis.sql
+</screen>
+
+Then enter the <filename>country.specific</filename> directory, then the directory  for your country's code, and then install the <filename>.sql</filename>
+file there too. <footnote>The only such directory at the moment is au, the only working databases is postcodes.su.sql</footnote></para>
+
 <para>FIXME: presumable some shell script to create all the databases and
 feed in the ER scripts?</para>
-</sect1>
+</sect2></sect1>
 
 </chapter>
 

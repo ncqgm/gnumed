@@ -197,27 +197,27 @@ at later times to prevent bookings in these times.
 If an appointment is deleted, the dummies are deleted.
 A timestamp is added of when the booking is made.';
 
--- Function to get booked patient for a doctor at a given time.
--- If no booking possible, returns NULL. If free, returns string "FREE"
+-- Function to get if a time is booked. True if booked, false if not booked,
+-- NULL of no time available.
+-- First param is doctors ID.
 
-CREATE FUNCTION book (INTEGER, DATE, TIME)
-RETURNS TEXT AS '
+CREATE FUNCTION is_booked (INTEGER, DATE, TIME)
+RETURNS BOOLEAN AS '
 DECLARE
 	clinician ALIAS FOR $1;
 	appt_date ALIAS FOR $2;
 	appt_time ALIAS FOR $3;
 	appt datetime;
-	patient text;
 	dummy RECORD; -- SELECTs *must be* "SELECT INTO" even if we don''t care about the result. 
 BEGIN
 	appt := timestamp (appt_date, appt_time);
 	-- find if booked to other patient
-	SELECT appointment.patient_name INTO patient FROM appointment, session
+	SELECT * INTO dummy FROM appointment, session
 	WHERE appointment.time = appt AND
 	      appointment.session = session.id AND
 	      session.clinician = clinician;
 	IF FOUND THEN
-	   RETURN patient;
+	   RETURN ''t'';
 	END IF;
 	-- check not on holiday
 	SELECT * INTO dummy FROM holiday WHERE
@@ -236,9 +236,7 @@ BEGIN
 	       session.id = list.session AND
 	       list.time = appt_time;
 	IF FOUND THEN
-	   RETURN ''__FREE__'';
-	   -- NOTE: this a ''reserved name'' which the frontend must
-	   -- interpret. It is not NOT translated as it is not displayed.
+	   RETURN ''f'';
 	ELSE
 	   RETURN NULL;
 	END IF;
@@ -248,30 +246,30 @@ END;' LANGUAGE 'plpgsql';
 -- SELECT time, book (1, '10/1/01', time)
 -- FROM list WHERE float8 (day) = extract (dow from date '10/1/01') ORDER BY time;
 
-COMMENT ON FUNCTION book (integer, date, time) IS 
-'Returns the name of a patient booked for a particular doctor at a particular
-time. If no patient booked, returns the string ''FREE''. If no booking is 
-possible, (because of holiday or no session) returns NULL'; 
+COMMENT ON FUNCTION is_booked (integer, date, time) IS 
+'Returns true if a patient is booked, false if not, NULL if time not available';
 
-CREATE FUNCTION isfree (INTEGER, DATE, TIME)
-RETURNS BOOLEAN AS '
+ 
+
+CREATE FUNCTION get_book_patient (INTEGER, DATE, TIME)
+RETURNS INTEGER AS '
 DECLARE
-	sessionx ALIAS FOR $1;
+	doctor ALIAS FOR $1;
 	appt_date ALIAS FOR $2;
 	appt_time ALIAS FOR $3;
 	appt datetime;
-	patient text; -- PL/SQL allows SELECT..INTO but not plain select, need dummy variable.
+	patient_id integer; 
 BEGIN
-	appt:= timestamp (appt_date, appt_time);
-	SELECT appointment.patient_name INTO patient FROM appointment
+	appt:= timestamp (appt_date, appt_time); 
+	SELECT appointment.patient_id INTO patient_id FROM appointment, session
 	WHERE appointment.time = appt AND
-	      appointment.session = sessionx;
-	RETURN NOT FOUND;
+	      appointment.session = session.id AND
+	      session.clinician = doctor;
+	RETURN patient_id;
 END;' LANGUAGE 'plpgsql';
 
-COMMENT ON FUNCTION isfree (integer, date, time) IS
-'Checks if a patient is booked for the specified time. Returns true if no 
-patient booked, false if booked.';
+COMMENT ON FUNCTION get_book_patient (integer, date, time) IS
+'Convience function to find the ID of a patient booked at a particular time.';
 
 CREATE FUNCTION isnotonholiday (INTEGER, DATE, TIME)
 RETURNS BOOLEAN AS '
@@ -348,4 +346,5 @@ WARNING: potentially very slow.';
 CREATE VIEW first_available AS SELECT name, get_first_avail (id, date (now ())) FROM clinician; 
 
 COMMENT ON VIEW first_available IS
-'Convience view for a list of all doctors and when they are available.';
+'Convience view for a list of all doctors and when they are available.
+WARNING: Queries on this table may be VERY SLOW.';

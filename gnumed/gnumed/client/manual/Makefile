@@ -5,20 +5,20 @@ dist_files = Makefile $(imagefiles) manual.sgml
 
 all: index.html manual.pdf
 
-index.html: manual.sgml
+index.html: gnumed.sgml
 	db2html manual.sgml
 	cp -R manual/* .
 	rm -Rf manual/
 	mv book1.html index.html
 
-manual.pdf: manual.sgml $(imagefiles)
-	db2pdf manual.sgml
+gnumed.pdf: gnumed.sgml $(imagefiles)
+	db2pdf gnumed.sgml
 
 	
 clean:
-	rm -Rf manual/
-	rm -f manual.pdf
-	rm -f manual.tex manual.aux manual.log manual.out
+	rm -Rf gnumed/
+	rm -f gnumed.pdf
+	rm -f *.tex *.aux *.log *.out
 	rm -Rf DB* # temp dirs created by db2html
 	rm *.html
 	rm *.css

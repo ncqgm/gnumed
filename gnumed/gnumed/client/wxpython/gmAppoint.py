@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-03-14 11:56:27 $
-# @version $Revision: 1.1 $ $Date: 2002-03-14 11:56:27 $ $Author: ihaywood $
+# @Date: $Date: 2002-03-15 00:37:19 $
+# @version $Revision: 1.2 $ $Date: 2002-03-15 00:37:19 $ $Author: ihaywood $
 # @change log:
 #	14.03.02 ihaywood inital version.
 #      
@@ -46,7 +46,9 @@ class MainWindow(wxPanel):
         self.dbpool = gmPG.ConnectionPool () 
         wxPanel.__init__ (parent, id)
         # colour to mark free times. FIXME: set from configuration system.
-        self.freecolour = wxGREEN 
+        self.freecolour = wxGREEN
+        self.bookedcolour = wxBLUE
+        self.nobookcolour = wxWHITE
         # setup calendar
         cID = wxNewId ()
         self.calendar = wxCalendarCtrl(self, cID,
@@ -56,13 +58,52 @@ class MainWindow(wxPanel):
         # setup booking grid
         lID = wxNewId ()
         self.grid = wxGrid (self, lID)
+        EVT_GRID_SELECT_CELL (self.grid, onCellSelected)
+        EVT_GRID_CELL_LEFT_DCLICK (self.grid, onCellDClicked)
+        EVT_GRID_CELL_RIGHT_CLICKED (self.grid, onCellGetFloatMenu)
+        EVT_GRID_LABEL_LEFT_DCLICK (self.grid, onDoctorClicked)
         self.doctors = self.GetDoctors () 
         self.grid_num_rows = 10
         self.grid.CreateGrid (len (self.doctors), self.num_rows)
         self.grid.SetDefaultCellBackgroundColour (wxWHITE)
         self.grid.SetDefaultCellTextColour (wxBLACK)
-        self.grid.DisableCellEditControl () 
- 
+        self.grid.DisableCellEditControl ()
+
+        EVT_CHAR (self, self.onChar)
+
+        # buttons and controls in left lower corner
+        self.namectrl = wxTextCtrl (self, -1, style=wxTE_READONLY)
+        buttonid= wxNewId ()
+        self.bookbutton = wxButton (self, buttonid, "Book...")
+        EVT_BUTTON (self.bookbutton, self.onBooking)
+        buttonid = wxNewId ()
+        self.cancelbutton = wxButton (self, buttonid, "Cancel....")
+        EVT_BUTTON (self.cancelbutton, self.onBookCancel)
+        buttonid= wxNewId ()
+        self.findbutton = wxButton (self, buttonid, "Find...")
+        EVT_BUTTON (self.findbutton, self.onFindPatient) 
+        buttonid= wxNewId ()
+        self.sessionbutton = wxButton (self, buttonid, "Sessions...")
+        EVT_BUTTON (self.sessionbutton, self.onSessionsEdit)
+
+
+        # button rows
+        row1 = wxBoxSizer (wxHORIZONTAL)
+        row1.Add (wxStaticText (self, -1, "Patient: "), 1, wxEXPAND, 0)
+        row1.Add (self.namectrl, 1, wxEXPAND, 0)
+        row2 = wxBoxSizer (wxHORIZONTAL)
+        row2.Add (self.bookbutton, 1, wxEXPAND, 0)
+        row2.Add (self.cancelbutton, 1, wxEXPAND, 0)
+        row3 = wxBoxSizer (wxHORIZONTAL)
+        row3.Add (self.findbutton, 1, wxEXPAND, 0)
+        row3.Add (self.sessionbutton, 1, wxEXPAND, 0)
+
+        leftsizer = wxBoxSizer (wxVERTICAL)
+        leftsizer.Add (self.calendar, 0, wxALL, 0)
+        leftsizer.Add (row1, 0, wxALL, 0)
+        leftsizer.Add (row2, 0, wxALL, 0)
+        leftsizer.Add (row3, 0, wxALL, 0)
+        
         self.sizer = wxBoxSizer(wxHORIZONTAL) 
         self.sizer.Add (self.calendar, 0, wxALL, 5)
         self.sizer.Add (self.grid, 1, wxEXPAND)
@@ -83,7 +124,7 @@ class MainWindow(wxPanel):
     def SetGrid (self, date):
         select = ''
         for doc in self.doctors:
-            select += 'book (%d, %s, time),' % (doc[0], date)
+            select += 'is_booked (%d, %s, time),' % (doc[0], date)
         select = select[0,-1] # delete final comma
         cursor = self.dbpool.GetConnection ('appoint').cursor ()
         cursor.execute ("""
@@ -98,12 +139,15 @@ ORDER BY time""" % (select, date))
             col = 0
             for j in i:
                 if j is not None:
-                    if j == "__FREE__":
-                        # this is the "reserved name" for marking 
-                        # free consult times
-                        self.grid.SetCellBackgroundColor (self.freecolour,
+                    if j:
+                        self.grid.SetCellBackgroundColor (self.bookedcolour,
                                                           line, col)
-                    self.grid.InsertValue (line, col, j)
+                    else:
+                        self.grid.SetCellBackgroundColour (self.freecolour,
+                                                           line, col)
+                else:
+                    self.grid.SetCellBackgroundColor (self.nobookcolour,
+                                                      line, col)
                 col += 1
             line += 1
 
