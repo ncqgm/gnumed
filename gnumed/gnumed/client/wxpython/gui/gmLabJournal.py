@@ -114,6 +114,17 @@ class cLabJournalNB(wxNotebook):
 
 		self.AddPage( self.PNL_errors_tab, _("lab errors"))
 		
+		# tab with unreviewed lab results
+		self.PNL_review_tab = wxPanel( self, -1)
+		szr_review = self.__init_SZR_review_status()
+
+		self.PNL_review_tab.SetAutoLayout( True )
+		self.PNL_review_tab.SetSizer( szr_review )
+		szr_review.Fit( self.PNL_review_tab )
+		szr_review.SetSizeHints( self.PNL_review_tab )
+
+		self.AddPage( self.PNL_review_tab, _("unreviewed lab results"))
+		
 		self.curr_pat = gmPatient.gmCurrentPatient()
 	#------------------------------------------------------------------------
 	def __init_SZR_due (self, call_fit = True, set_sizer = True ):
@@ -186,6 +197,28 @@ class cLabJournalNB(wxNotebook):
 		self.lbox_errors.InsertColumn(2, _("solution"))
 		 
 		return xvszr_main
+		
+	def __init_SZR_review_status (self, call_fit = True, set_sizer = True ):
+		rvszr_main = wxBoxSizer( wxVERTICAL )
+		tID = wxNewId()
+		
+		self.review_Ctrl = gmLabIDListCtrl(
+			self.PNL_review_tab,
+			tID,
+			size=(500,200),
+			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
+		)#|wxLC_HRULES)
+		
+		rvszr_main.AddWindow(self.review_Ctrl, 0, wxALIGN_CENTER | wxALL, 5)
+
+		self.review_Ctrl.InsertColumn(0, _("patient name"))
+		self.review_Ctrl.InsertColumn(1, _("dob"))
+		self.review_Ctrl.InsertColumn(2, _("date"))
+		self.review_Ctrl.InsertColumn(3, _("test"))
+		self.review_Ctrl.InsertColumn(4, _("result"))
+		self.review_Ctrl.InsertColumn(5, _("info provided by lab"))
+		 
+		return rvszr_main
 	#------------------------------------------------------------------------
 	def OnLeftDClick(self, evt):
 		pass
@@ -239,7 +272,30 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_errors.SetStringItem(index = idx, col=1, label=lab_error[4])
 			# -- how can we fix it ---
 			self.lbox_errors.SetStringItem(index = idx, col=2, label=lab_error[5])
-			
+		
+		#------ unreviewed lab results PNL ------------------------------------
+		unreviewed_results = self.__get_unreviewed_results()
+		#print unreviewed_results
+		for result in unreviewed_results:
+			self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
+			idx=self.idx
+			# FIXME: return some string instead of None if no data avail 
+			# -- display  patient name ------------------- 
+			id = result[0]
+			name, dobobj = self.__get_pat4result(id)
+			self.review_Ctrl.SetStringItem(index = idx, col=0, label=name)
+			self.review_Ctrl.SetStringItem(index = idx, col=1, label=dobobj.date)
+			# -- when rxd ---
+			self.review_Ctrl.SetStringItem(index = idx, col=2, label=result[1].date)
+			# -- test name ---
+			self.review_Ctrl.SetStringItem(index = idx, col=3, label=result[2])
+			# -- result including unit
+			self.review_Ctrl.SetStringItem(index = idx, col=4, label=result[3]+result[4])
+			# -- notes from provider 
+			if not result[5] is None:
+				self.review_Ctrl.SetStringItem(index = idx, col=5, label=result[5])
+			else :
+				self.review_Ctrl.SetStringItem(index = idx, col=5, label=_('None'))
 	#-------------------------------------------------------------------------
 	def get_patient_for_lab_request(self,req_id,lab):
 		lab_req = gmPathLab.cLabRequest(req_id=req_id, lab=lab)
@@ -285,6 +341,16 @@ class cLabJournalNB(wxNotebook):
 			return next
 		else:
 			return None
+	#--------------------------------------------------------------------------
+	def __get_unreviewed_results(self):
+		query = """select pk_patient, lab_rxd_when, lab_name,unified_val, val_unit, note_provider from v_results4lab_req where reviewed='f'"""
+		unreviewed_results = gmPG.run_ro_query('historica', query)
+		return unreviewed_results
+	#--------------------------------------------------------------------------
+	def __get_pat4result(self,id):
+		query = """select * from v_basic_person where i_id=%s"""
+		pat4result = gmPG.run_ro_query('historica', query, None, id)
+		return pat4result[0][4]+' '+pat4result[0][5], pat4result[0][6]
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
@@ -554,7 +620,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.7  2004-05-04 09:26:55  shilbert
+# Revision 1.8  2004-05-06 23:32:45  shilbert
+# - now features a tab with unreviewed lab results
+#
+# Revision 1.7  2004/05/04 09:26:55  shilbert
 # - handle more errors
 #
 # Revision 1.6  2004/05/04 08:42:04  shilbert
