@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.15 2004-06-25 15:08:57 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.16 2004-06-25 15:19:42 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -233,10 +233,11 @@ CREATE VIEW lnk_org2address AS
 
 -- ==========================================================
 \unset ON_ERROR_STOP
-drop view v_pat_comms;
+drop view v_person_comms;
+drop view v_person_comms_flat;
 \set ON_ERROR_STOP 1
 
-create view v_pat_comms as
+create view v_person_comms as
 select *
 from
 	(select i.id as pk_identity, ect.id as pk_comm_type
@@ -247,6 +248,32 @@ from
 	 where li2cc.id_comm = cc.id) as l_comm
 	 	using (pk_identity, pk_comm_type);
 
+
+create view v_person_comms_flat as
+select distinct on (pk_identity)
+	v1.pk_identity as pk_identity,
+	v1.url as email,
+	v2.url as fax,
+	v3.url as homephone,
+	v4.url as workphone,
+	v5.url as mobile
+from
+	v_person_comms v1,
+	v_person_comms v2,
+	v_person_comms v3,
+	v_person_comms v4,
+	v_person_comms v5
+where
+	v1.pk_identity = v2.pk_identity
+	and v2.pk_identity = v3.pk_identity
+	and v3.pk_identity = v4.pk_identity
+	and v4.pk_identity = v5.pk_identity
+	and v1.pk_comm_type = 1
+	and v2.pk_comm_type = 2
+	and v3.pk_comm_type = 3
+	and v4.pk_comm_type = 4
+	and v5.pk_comm_type = 5;
+
 -- ==========================================================
 -- permissions
 -- ==========================================================
@@ -255,7 +282,8 @@ GRANT SELECT ON
 	v_staff,
 	lnk_person2address,
 	lnk_org2address
-	, v_pat_comms
+	,v_person_comms
+	,v_person_comms_flat
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -265,11 +293,15 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.15 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.15  2004-06-25 15:08:57  ncq
+-- Revision 1.16  2004-06-25 15:19:42  ncq
+-- - add v_person_comms_flat by Syan, this isn't really
+--   nice since it uses hardcoded comm types
+--
+-- Revision 1.15  2004/06/25 15:08:57  ncq
 -- - v_pat_comms by Syan
 --
 -- Revision 1.14  2004/04/07 18:16:06  ncq
