@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -131,6 +131,14 @@ class cCfgFile:
 	def getGroups(self):
 		"""Return list of all groups in config dict."""
 		return self._cfg_data['groups'].keys()
+	#----------------------------
+	def getOptions(self, aGroup = None):
+		"""Return list of all options in a group."""
+		if not self._cfg_data['groups'].has_key(aGroup):
+			_log.Log(gmLog.lWarn, "Cannot return options for [%s]. No such group." % aGroup)
+			return None
+
+		return self._cfg_data['groups'][aGroup]['options'].keys()
 	#----------------------------
 	def get(self, aGroup = None, anOption = None):
 		if not self._cfg_data['groups'].has_key(aGroup):
@@ -557,26 +565,33 @@ if __name__ == "__main__":
 
 	print myCfg
 
-	data = myCfg.getCfg()
-
+	# display file level data
 	print "file: %s" % myCfg.cfgName
-	if data.has_key('comment'):
-		print "comment: %s" % data['comment']
-	print "groups: %s" % str(myCfg.getGroups())
+	tmp = myCfg.getComment()
+	if not tmp is None:
+		print "comment:", tmp
 
-	for group in data['groups'].keys():
+	# display group level data
+	groups = myCfg.getGroups()
+	print "groups:", str(groups)
+
+	# recurse groups
+	for group in groups:
 		print "GROUP [%s]" % group
-		gdata = data['groups'][group]
-		if gdata.has_key('comment'):
-			print " %s" % gdata['comment']
 
-		for opt in gdata['options'].keys():
-			odata = gdata['options'][opt]
-			print "OPTION <%s> = %s" % (opt, odata['value'])
-			if odata.has_key('comment'):
-				print "  %s" % odata['comment']
+		tmp = myCfg.getComment(aGroup = group)
+		if not tmp is None:
+			print " ", tmp
 
-	print myCfg.get('backend', 'hosts')
+		# recurse options
+		options = myCfg.getOptions(group)
+		for option in options:
+			tmp = myCfg.get(group, option)
+			if not tmp is None:
+				print "OPTION <%s> = %s" % (option, tmp)
+			tmp = myCfg.getComment(group, option)
+			if not tmp is None:
+				print "  %s" % tmp
 
 	myCfg.set("date", "modified", "right now", ["should always be rather current"])
 	myCfg.store()
@@ -596,7 +611,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.23  2002-11-04 15:38:28  ncq
+# Revision 1.24  2002-11-05 18:15:03  ncq
+# - new helper getOptions()
+# - modified example code to show real use
+#
+# Revision 1.23  2002/11/04 15:38:28  ncq
 # - moved empty config file creation to helper function
 #
 # Revision 1.22  2002/11/03 14:11:19  ncq
