@@ -161,6 +161,7 @@ class PatientWindow (wxPanel):
                 pos += 1
 	    self.righthalfpanel.SetSizer (self.vbox)
 	    self.righthalfpanel.SetAutoLayout (1)
+            self.righthalfshadow.Show (1)
             self.sizer.Add (self.righthalfshadow, 1, wxEXPAND, 0) 
             self.sizer.Layout ()
             self.visible = name
