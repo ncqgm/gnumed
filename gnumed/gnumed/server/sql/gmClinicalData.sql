@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.24 2004-04-21 15:35:23 ihaywood Exp $
+-- $Id: gmClinicalData.sql,v 1.25 2004-04-30 12:22:31 ihaywood Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -76,47 +76,6 @@ INSERT INTO enum_confidentiality_level (description) values (i18n('clinical staf
 INSERT INTO enum_confidentiality_level (description) values (i18n('doctors'));
 INSERT INTO enum_confidentiality_level (description) values (i18n('doctors of practice only'));
 INSERT INTO enum_confidentiality_level (description) values (i18n('treating doctor'));
-
--- ===================================================================
-insert into drug_units(unit) values('ml');
-insert into drug_units(unit) values('mg');
-insert into drug_units(unit) values('mg/ml');
-insert into drug_units(unit) values('mg/g');
-insert into drug_units(unit) values('U');
-insert into drug_units(unit) values('IU');
-insert into drug_units(unit) values('each');
-insert into drug_units(unit) values('mcg');
-insert into drug_units(unit) values('mcg/ml');
-insert into drug_units(unit) values('IU/ml');
-insert into drug_units(unit) values('day');
-
--- ===================================================================
---I18N!
-insert into drug_formulations(description) values ('tablet');
-insert into drug_formulations(description) values ('capsule');
-insert into drug_formulations(description) values ('syrup');
-insert into drug_formulations(description) values ('suspension');
-insert into drug_formulations(description) values ('powder');
-insert into drug_formulations(description) values ('cream');
-insert into drug_formulations(description) values ('ointment');
-insert into drug_formulations(description) values ('lotion');
-insert into drug_formulations(description) values ('suppository');
-insert into drug_formulations(description) values ('solution');
-insert into drug_formulations(description) values ('dermal patch');
-insert into drug_formulations(description) values ('kit');
-
--- ===================================================================
---I18N!
-insert into drug_routes(description, abbreviation) values('oral', 'o.');
-insert into drug_routes(description, abbreviation) values('sublingual', 's.l.');
-insert into drug_routes(description, abbreviation) values('nasal', 'nas.');
-insert into drug_routes(description, abbreviation) values('topical', 'top.');
-insert into drug_routes(description, abbreviation) values('rectal', 'rect.');
-insert into drug_routes(description, abbreviation) values('intravenous', 'i.v.');
-insert into drug_routes(description, abbreviation) values('intramuscular', 'i.m.');
-insert into drug_routes(description, abbreviation) values('subcutaneous', 's.c.');
-insert into drug_routes(description, abbreviation) values('intraarterial', 'art.');
-insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.');
 
 -- ===================================================================
 -- measurements stuff
@@ -516,11 +475,15 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.24 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.25 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.24  2004-04-21 15:35:23  ihaywood
+-- Revision 1.25  2004-04-30 12:22:31  ihaywood
+-- new referral table
+-- some changes to old medications tables, but still need more work
+--
+-- Revision 1.24  2004/04/21 15:35:23  ihaywood
 -- new referral table (do we still need gmclinical.form_data then?)
 --
 -- Revision 1.23  2004/03/18 10:57:20  ncq

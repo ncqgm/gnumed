@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.104 $
+-- $Revision: 1.105 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -740,41 +740,6 @@ comment on table enum_confidentiality_level is
 -- ============================================
 -- Drug related tables
 
--- These tables are pasted from gmdrugs.sql, how do we otherwise
--- deal with this?
-
-create table drug_units (
-	id serial primary key,
-	unit varchar(30)
-);
-comment on table drug_units is
-'(SI) units used to quantify/measure drugs';
-comment on column drug_units.unit is
-'(SI) units used to quantify/measure drugs like "mg", "ml"';
-
-
-create table drug_formulations(
-	id serial primary key,
-	description varchar(60),
-	comment text
-);
-comment on table drug_formulations is
-'presentations or formulations of drugs like "tablet", "capsule" ...';
-comment on column drug_formulations.description is
-'the formulation of the drug, such as "tablet", "cream", "suspension"';
-
-
-create table drug_routes (
-	id serial primary key,
-	description varchar(60),
-	abbreviation varchar(10),
-	comment text
-);
-comment on table drug_routes is
-'administration routes of drugs';
-comment on column drug_routes.description is
-'administration route of a drug like "oral", "sublingual", "intravenous" ...';
-
 -- --------------------------------------------
 -- IMHO this needs considerably more thought
 create table curr_medication (
@@ -782,25 +747,25 @@ create table curr_medication (
 	-- administrative data
 	started date not null,
 	last_prescribed date not null,
+	expires date not null,
 	-- medical data
 	brandname text default 'GENERIC',
 	adjuvant text,
-	db_xref varchar (128) not null,
+	db_origin text not null,
+	db_xref text not null,
 	atc_code varchar (32),
-	fluid_amount float,
-	amount_unit integer references drug_units (id),
-	packsize integer,
-	id_route integer references drug_routes (id) not null,
-	id_form integer references drug_formulations (id) not null,
+	amount_unit varchar (7) not null check (amount_unit in 
+					('g', 'each', 'ml')),
+	dose float,
+	period integer not null,
+	form varchar (20) not null check (form in 
+			('spray', 'cap', 'tab', 'inh', 'neb', 'cream', 'syrup', 'lotion', 'drop', 'inj', 'oral liquid')), 
 	directions text,
 	prn boolean,
-	weekly float,
-	mane float,
-	midi float,
-	vesper float,
-	nocte float
+	SR boolean
 ) inherits (clin_root_item);
--- needs to be audited when stabilized
+
+select add_table_for_audit ('curr_medication');
 
 comment on table curr_medication is
 'Representing what the patient is taking *now*, not a simple log
@@ -820,36 +785,42 @@ comment on column curr_medication.started is
 	   but not always
 	 - for newly prescribed drugs identical to last_prescribed';
 comment on column curr_medication.last_prescribed is
-	'date last script written, for compliance checking';
-comment on column curr_medication.fluid_amount is
-	'for fluid drugs, the amount of fluid in each bottle/tube,
-	 etc. Otherwise 1.0. The total amount dispensed is always
-	 fluid_amount*packsize';
+	'date last script written';
+comment on column curr_medication.expires is
+'date last script expires, for compliance checking';
 comment on column curr_medication.prn is 'true if "pro re nata" (= as required)';
 comment on column curr_medication.directions is 'free text for directions, such as "with food" etc';
 comment on column curr_medication.adjuvant is 'free text describing adjuvants, such as "orange-flavoured" etc.';
-comment on column curr_medication.weekly is 'for drugs taken one/tweice a twice, such as bisphosphonates, metotrexate, etc., NULL otherwise. If non-NULL, overrides other dosing fields.';
-comment on column curr_medication.mane is 'amount taken in the morning.';
-comment on column curr_medication.midi is 'midday';
-comment on column curr_medication.vesper is 'evening';
-comment on column curr_medication.nocte is 'nighttime';
+comment on column curr_medication.brandname is 'the manufacturer''s own name for this drug';
+comment on column curr_medication.db_origin is 'the drug database used to poulate this entry';
+comment on column curr_medication.db_xref is 'the opaque identifier for this drug assigned by the source database';
+comment on column curr_medication.atc_code is 'the Anatomic Therapeutic Chemical code for this drug';
+comment on column curr_medication.amount_unit is 'the unit the dose is measured in. ''each'' for discrete objects like tablets';
+comment on column curr_medication.dose is 'an array of doses describing how 
+the drug is taken over the dosing cycle, for example 2 mane 2.5 nocte would be 
+[2, 2.5], period=24. 2 one and 2.5 the next would be [2, 2.5] with 
+period=48. Once a week would be [1] with period=168';
+comment on column curr_medication.period is 'the length of the dosing cycle, in hours';
+comment on column curr_medication.SR is 'true if the slow-release preparation is used';
+comment on column curr_medication.form is 'the general form of the drug. Some approximation may be required from the manufacturer''s description';
 
 -- --------------------------------------------
 -- IMHO this does not belong in here
-create table constituents
+create table constituent
 (
-	id serial primary key,
-	genericname varchar (100),
-	dose float,
-	dose_unit integer references drug_units (id),
-	id_drug integer references curr_medication (id)
+	genericname varchar (100) not null,
+	amount float not null,
+	amount_unit varchar (5) not null check (amount_unit in 
+				('g', 'ml', 'mg', 'mcg', 'IU')),
+	id_drug integer not null references curr_medication (id),
+	unique (genericname, id_drug)
 );
 
-comment on table constituents is
+comment on table constituent is
 'the constituent substances of the various drugs (normalised out to support compound drugs like Augmentin)';
---comment on column constituents.name is
---'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
-comment on column constituents.dose is
+comment on column constituent.genericname is
+'the English IUPHARM standard name, as a base, with no adjuvant, in capitals. So MORPHINE. not Morphine, not MORPHINE SULPHATE, not MORPHINIUM';
+comment on column constituent.amount is
 'the amount of drug (if salt, the amount of active base substance, in a unit (see amount_unit above)';
 
 -- =============================================
@@ -860,29 +831,33 @@ create table referral (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	address text not null,
-	transmission_method char default 'p' check (transmission_method in ('p', 'f', 'e')),
-	included_meds boolean,
-	included_phx boolean
+	fk_form integer
+		not null
+		references form_instances (pk) 
 ) inherits (clin_root_item);
 
 select add_table_for_audit ('referral');
 
 comment on table referral is 'table for referrals to defined individuals';
-comment on column referral.transmission_method is 'p=post, f=fax, e=email';
 comment on column referral.fk_referee is 'person to whom the referral is directed';
 comment on column referral.narrative is
 	'inherited from clin_root_item;
 	 stores text of referral letter';
+comment on column referral.fk_form is 'foreign key to the form instance of
+this referral.';
 
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.104 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.105 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.104  2004-04-30 09:12:30  ncq
+-- Revision 1.105  2004-04-30 12:22:31  ihaywood
+-- new referral table
+-- some changes to old medications tables, but still need more work
+--
+-- Revision 1.104  2004/04/30 09:12:30  ncq
 -- - fk description clin_working_diag -> clin_aux_note
 -- - v_pat_diag
 --
