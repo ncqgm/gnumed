@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -58,15 +58,15 @@ class cEpisode(gmClinItem.cClinItem):
 	]
 	_cmds_store_payload = [
 		"""update clin_episode set
-				description=%(description)s,
 				fk_health_issue=%(pk_health_issue)s,
-				fk_patient=%(pk_patient)s
+				fk_patient=%(pk_patient)s,
+				is_open=%(episode_open)s
 			where pk=%(pk)s"""
 	]
 	_updatable_fields = [
-		'description',
 		'pk_health_issue',
-		'fk_patient'
+		'fk_patient',
+		'is_open'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
@@ -225,31 +225,69 @@ def create_health_issue(patient_id=None, description=None):
 		return (False, _('internal error, check log'))
 	return (True, h_issue)
 #-----------------------------------------------------------
-def create_episode(id_patient = None, pk_health_issue = None, episode_name='xxxDEFAULTxxx'):
+def create_episode(pk_health_issue=None, episode_name=None, soap_cat=None, encounter_id=None):
 	"""Creates a new episode for a given patient's health issue.
 
-    id_patient - patient PK
+	This also always requires creating a new clin_narrative row
+	for the patient in order to store the description of the
+	episode. We cannot pre-create that row because it has to
+	point to ourselves via fk_episode - a chicken-egg problem.
+	Theoretically, it would be possible to tweak a pre-existing
+	row to point at us after we exist but that smells like
+	corner cases and inconsistencies. The most obvious problem
+	with that is what to do if this is the very first episode
+	ever created ? So we avoid that alltogether and create a
+	new row - which is the right thing in 99% of cases anyways.
+
+	We could, of course, not worry about the episode description
+	at all and just leave it as a naked episode but that isn't
+	medically sound.
+
 	pk_health_issue - given health issue PK
-	episode_name - health issue name
+	episode_name - name of episode in new clin_narrative row
+	soap_cat - soap category of new clin_narrative row
+	encounter_id - id of encounter of new clin_narrative row, also defines id_patient
 	"""
+	# get patient ID from encounter if needed
+	id_patient = None
+	if pk_health_issue is None:
+		cmd = "select fk_patient from clin_encounter where id=%s"
+		rows = gmPG.run_ro_query('historica', cmd, None, encounter_id)
+		if (rows is None) or (len(rows) == 0):
+			_log.Log(gmLog.lErr, 'cannot determine patient from encounter [%s]' % encounter_id)
+			return (False, 'unable to create episode')
+		id_patient = rows[0][0]
 	# already there ?
-	try:
-		episode = cEpisode(id_patient=id_patient, name=episode_name)
-		return (True, episode)
-	except gmExceptions.ConstructorError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
-	# insert new episode
+	if episode_name is not None:
+		try:
+			episode = cEpisode(id_patient=id_patient, name=episode_name)
+			return (True, episode)
+		except gmExceptions.ConstructorError, msg:
+			_log.LogException(str(msg), sys.exc_info(), verbose=0)
+
+	# 1) insert naked episode record
 	queries = []
-	cmd = "insert into clin_episode (fk_patient, fk_health_issue, description) values (%s, %s, %s)"
-	queries.append((cmd, [id_patient, pk_health_issue, episode_name]))
-	# get PK of inserted row
+	cmd = """insert into clin_episode (fk_health_issue, fk_patient) values (%s, %s)"""
+	queries.append((cmd, [pk_health_issue, id_patient]))
+	# 2) if not linked to health issue
+	if pk_health_issue is None:
+		# link to narrative entry
+		cmd = """insert into clin_narrative (fk_encounter, fk_episode, soap_cat, narrative)
+				 values (%s, currval('clin_episode_pk_seq'), %s, %s)"""
+		queries.append((cmd, [encounter_id, soap_cat, episode_name]))
+		cmd = """update clin_episode set fk_clin_narrative = currval('clin_narrative_pk_seq')
+				 where pk = currval('clin_episode_pk_seq')"""
+		queries.append((cmd, []))
+	# 3) retrieve PK of newly created row
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
-	result, msg = gmPG.run_commit('historica', queries, True)
-	if result is None:
+	success, data = gmPG.run_commit2('historica', queries)
+	if not success:
+		err, msg = data
 		return (False, msg)
+	# now there ?
 	try:
-		episode = cEpisode(aPK_obj = result[0][0])
+		episode = cEpisode(aPK_obj = data[0][0])
 	except gmExceptions.ConstructorError:
 		_log.LogException('cannot instantiate episode [%s]' % (result[0][0]), sys.exc_info, verbose=0)
 		return (False, _('internal error, check log'))
@@ -361,7 +399,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.24  2004-11-03 22:32:34  ncq
+# Revision 1.25  2004-12-15 10:28:11  ncq
+# - fix create_episode() aka add_episode()
+#
+# Revision 1.24  2004/11/03 22:32:34  ncq
 # - support _cmds_lock_rows_for_update in business object base class
 #
 # Revision 1.23  2004/09/19 15:02:29  ncq

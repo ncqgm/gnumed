@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.150 2004-10-27 12:09:28 ncq Exp $
-__version__ = "$Revision: 1.150 $"
+# $Id: gmClinicalRecord.py,v 1.151 2004-12-15 10:28:11 ncq Exp $
+__version__ = "$Revision: 1.151 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -723,23 +723,19 @@ class cClinicalRecord:
 			filtered_episodes = filter(lambda epi: epi['pk_episode'] in id_list, filtered_episodes)
 		return filtered_episodes
 	#------------------------------------------------------------------
-	def add_episode(self, episode_name = 'xxxDEFAULTxxx', pk_health_issue = None):
+	def add_episode(self, episode_name=None, pk_health_issue=None, soap_cat=None):
 		"""Add episode 'episode_name' for a patient's health issue.
 
-		- pk_health_issue - health issue PK, may be None
-		- episode_name - episode name
-
-		- adds default episode if no name given
 		- silently returns if episode already exists
 		"""
-		try:
-			self.__db_cache['episodes']
-		except KeyError:
-			self.get_episodes()
-		# try to create it
-		success, episode = gmEMRStructItems.create_episode(id_patient=self.id_patient, pk_health_issue=pk_health_issue, episode_name=episode_name)
+		success, episode = gmEMRStructItems.create_episode (
+			pk_health_issue = pk_health_issue,
+			episode_name = episode_name,
+			soap_cat = soap_cat,
+			encounter_id = self.__encounter['pk_encounter']
+		)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.id_patient, pk_health_issue))
+			_log.Log(gmLog.lErr, 'cannot create episode [%s::%s] for patient [%s] and health issue [%s]' % (soap_cat, episode_name, self.id_patient, pk_health_issue))
 			return None
 		return episode
 	#--------------------------------------------------------
@@ -817,7 +813,11 @@ where
 		# none found whatsoever
 		if episode is None:
 			# so try to create default episode ...
-			success, result = gmEMRStructItems.create_episode(pk_health_issue=self.__health_issue['id'])
+			success, result = gmEMRStructItems.create_episode(
+				pk_health_issue=self.__health_issue['id'],
+				soap_cat = 's',
+				encounter_id=self.__encounter['pk_encounter']
+			)
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.id_patient)
 				_log.Log(gmLog.lErr, result)
@@ -1519,6 +1519,11 @@ def set_func_ask_user(a_func = None):
 		global _func_ask_user
 		_func_ask_user = a_func
 #------------------------------------------------------------
+def get_item_types():
+	cmd = "select pk, type, code from clin_item_type"
+	data = gmPG.run_ro_query('historica', cmd)
+
+#------------------------------------------------------------
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
@@ -1606,7 +1611,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.150  2004-10-27 12:09:28  ncq
+# Revision 1.151  2004-12-15 10:28:11  ncq
+# - fix create_episode() aka add_episode()
+#
+# Revision 1.150  2004/10/27 12:09:28  ncq
 # - properly set booster/seq_no in the face of the patient
 #   not being on any vaccination schedule
 #
