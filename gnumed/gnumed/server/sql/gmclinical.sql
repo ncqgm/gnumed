@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.119 $
+-- $Revision: 1.120 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -557,7 +557,7 @@ create table lnk_pat2vacc_reg (
 ) inherits (audit_fields);
 
 select add_table_for_audit('lnk_pat2vacc_reg');
-select add_table_for_notifies('lnk_pat2vacc_reg', 'vacc');
+-- select add_table_for_notifies('lnk_pat2vacc_reg', 'vacc');
 
 comment on table lnk_pat2vacc_reg is
 	'links patients to vaccination regimes they are actually on,
@@ -936,11 +936,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.119 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.120 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.119  2004-08-16 19:26:45  ncq
+-- Revision 1.120  2004-08-18 08:33:54  ncq
+-- - currently, our notify trigger generator can only deal with clin_root_item children
+--
+-- Revision 1.119  2004/08/16 19:26:45  ncq
 -- - add lnk_pat2vacc_reg so we can actually define which
 --   patient is on which vaccination schedule
 --
