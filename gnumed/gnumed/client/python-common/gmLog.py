@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -76,7 +76,7 @@ except ImportError:
 # lPanic - try to log this before we die
 # lErr   - some error occured, may be recoverable
 # lWarn  - something should be done about this though it's not fatal
-# lInfo  - user info like program flow
+# lInfo  - user info such as program flow
 # lData  - raw data processed by program
 
 # injudicious use of lData may lead to copious amounts of log output
@@ -378,11 +378,9 @@ class cLogTargetConsole(cLogTarget):
 		self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
 	#---------------------------
 	def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		#sys.stdout.write(aTimeStamp + aPrefix + aLocation + aMsg)
 		sys.stdout.write(aPrefix + aLocation + aMsg)
 	#---------------------------
 	def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
-		#sys.stderr.write(aTimeStamp + aPrefix + aLocation + aMsg)
 		sys.stderr.write(aPrefix + aLocation + aMsg)
 #---------------------------------------------------------------
 class cLogTargetSyslog(cLogTarget):
@@ -762,7 +760,10 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __is_subclass__
 #===============================================================
 # $Log: gmLog.py,v $
-# Revision 1.31  2003-02-12 01:03:44  ncq
+# Revision 1.32  2003-02-13 16:09:13  ncq
+# - typo
+#
+# Revision 1.31  2003/02/12 01:03:44  ncq
 # - when logging to console: don't display timestamp, it scrolls past too fast anyways
 #
 # Revision 1.30  2002/11/20 12:08:36  ncq
