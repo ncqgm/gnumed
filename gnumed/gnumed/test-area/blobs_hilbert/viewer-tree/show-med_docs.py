@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #----------------------------------------------------------------------
 import os.path, sys, os
@@ -163,18 +163,19 @@ class cDocTree(wx.wxTreeCtrl):
 			return (1==0)
 
 		obj = mdata['objects'][node_data['id']]
-		mime_type = docMime.guess_mimetype(obj['file name'])
-		viewer_cmd = docMime.get_viewer_cmd(mime_type, obj['file name'])
-		_log.Log(gmLog.lData, "object: %s" % str(obj))
-		_log.Log(gmLog.lData, "%s -> %s" % (mime_type, viewer_cmd))
-
-		if viewer_cmd == None:
-			_log.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
-			new_fname = docMime.get_win_fname(mime_type)
-			os.rename(obj['file name'], new_fname)
-			os.startfile(new_fname)
-		else:
-			os.system(viewer_cmd)
+		fname = obj['file name']
+		(result, msg) = docDocument.call_viewer_on_file(fname)
+		if not result:
+			dlg = wxMessageDialog(
+				self,
+				_('Cannot display page %s.\n%s') % (page_idx+1, msg),
+				_('displaying page'),
+				wxOK | wxICON_ERROR
+			)
+			dlg.ShowModal()
+			dlg.Destroy()
+			return None
+		return 1
 #------------------------------------------------------------------------
 class MyFrame(wx.wxFrame):
 	"""Very standard Frame class. Nothing special here!"""
