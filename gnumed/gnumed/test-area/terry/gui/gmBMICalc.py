@@ -298,7 +298,7 @@ ID_BMIMENU = wxNewId ()
 ID_BMITOOL = wxNewId ()
 
 class gmBMICalc (gmPlugin.wxBasePlugin):
-    def name ():
+    def name (self):
         return 'SnellenPlugin'
 
     def register (self):

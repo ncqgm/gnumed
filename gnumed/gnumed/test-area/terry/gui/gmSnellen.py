@@ -459,7 +459,7 @@ double-click ends""")), 0, wxALL, 15)
 
 
 class gmSnellen (gmPlugin.wxBasePlugin):
-    def name ():
+    def name (self):
         return 'SnellenPlugin'
 
     def register (self):

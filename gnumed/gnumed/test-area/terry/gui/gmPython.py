@@ -18,7 +18,7 @@ class gmPython (gmPlugin.wxBasePlugin):
          from wxPython.lib.pyshell import PyShellWindow
          from wxPython.lib.shell import PyShell
          win = PyShell(self.mwm, globals())
-         self.mwm.RegisterLeftSide ('python', win)
+         self.mwm.RegisterWholeScreen ('python', win)
          tb2 = self.gb['main.bottom_toolbar']
          tb2.AddSeparator()
          tool1 = tb2.AddTool(ID_PYTHON,

@@ -14,8 +14,9 @@
 # @TODO: Almost everything
 ############################################################################
 
-import gmExceptions, os, inspect
-import gmLog
+import gmExceptions, os, sys, traceback
+from gmLog import *
+log = gmDefLog.Log
 from wxPython.wx import *
 
 class gmPlugin:
@@ -58,7 +59,12 @@ class gmPlugin:
 
 class wxBasePlugin (gmPlugin):
 	
-	"base class for all plugins providing wxPython widgets."
+	"""
+	base class for all plugins providing wxPython widgets.
+	Plugins must have a class descending of this class in their file, which MUST HAVE THE SAME NAME AS THE FILE.
+	The file must be in a directory which is loaded by LoadPluginSet (gui/ for the moment, others may be added for different plugin types)
+	
+	"""
 	# NOTE: I anticipate that all plugins will in fact be derived
 	# from this class. Without the brokers a plugin is useless (IH)
 	def __init__(self, guibroker=None, callbackbroker=None,
@@ -98,13 +104,14 @@ def LoadPluginSet (set, guibroker, dbbroker, defaults):
 				plugin = plugin_class (guibroker = guibroker, dbbroker = dbbroker)
 				plugin.register ()
 				dict[plugin.name ()] = plugin
-				gmLog.gmDefLog.Log (gmLog.lInfo, "registing plugin %s" % plugin.name ())
+				log (lInfo, "registing plugin %s" % plugin.name ())
 			else:
-				gmLog.gmDefLog.Log (lPanic, "class %s is not a subclass of wxBasePlugin" % name)
-		except:
-			gmLog.gmDefLog.Log (gmLog.lPanic,
-				  "cannot load module %s.%s" % (set, name))
-	guibroker['modules.%s' % set] = dict # keep a record of plugins	
+				log (lErr, "class %s is not a subclass of wxBasePlugin" % name)
+		except Exception, error:
+			frame = traceback.extract_tb (sys.exc_info ()[2])[-1]
+			log (lErr, "cannot load module %s/%s:\nException: %s\nFile: %s\nLine: %s\n" % (set, name, error, frame[0], frame[1]))
+	guibroker['modules.%s' % set] = dict
+	# keep a record of plugins
 
 
 #####################################################################

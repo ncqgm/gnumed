@@ -44,6 +44,7 @@ class MainWindowManager (wxPanel):
         Client must NOT do Show () on the panel!
         """
         self.wholescreen[name] = panel
+        log (lInfo, "Registering %s as whole screen widget" % name)
 
     def RegisterLeftSide (self, name, panel):
         """
@@ -59,7 +60,7 @@ class MainWindowManager (wxPanel):
         automatcially displayed when a left-column plugin is displayed
         """
         self.righthalf[name] = (panel, position)
-        log (lInfo, "Registering %s right side" % name)
+        log (lInfo, "Registering %s as right side widget" % name)
 
     def Unregister (self, name):
         if name == self.default:
@@ -151,4 +152,6 @@ class MainWindowManager (wxPanel):
         
     
     
+
+
 

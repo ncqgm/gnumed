@@ -16,7 +16,7 @@ class gmSQL (gmPlugin.wxBasePlugin):
 
     def register (self):
          self.mwm = self.gb['main.manager']
-         self.mwm.RegisterLeftSide ('SQL', gmSQLWindow.SQLWindow (self.mwm, -1))
+         self.mwm.RegisterWholeScreen ('SQL', gmSQLWindow.SQLWindow (self.mwm, -1))
          tb2 = self.gb['main.bottom_toolbar']
          tb2.AddSeparator()
          tool1 = tb2.AddTool(ID_SQL,
