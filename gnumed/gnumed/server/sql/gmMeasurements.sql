@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.31 $
+-- $Revision: 1.32 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -161,6 +161,7 @@ comment on column lnk_tst2norm.id_norm is
 -- ====================================
 create table test_result (
 	id serial primary key,
+	fk_doc integer, -- references gmBlobs.med_doc.id
 	fk_type integer
 		not null
 		references test_type(pk),
@@ -191,7 +192,7 @@ create table test_result (
 	note_provider text,
 	material text,
 	material_detail text,
-	reviewed_by_clinician boolean
+	reviewed_by_clinician boolean   -- IMHO this should move to gmBlobs.doc_med, as all documents need this 
 		not null
 		default false,
 	fk_reviewer integer
@@ -219,6 +220,8 @@ comment on column test_result.narrative is
 	'clinical comment, progress note';
 comment on column test_result.fk_type is
 	'the type of test this result is from';
+comment on column test_result.fk_doc is
+	'the document used to generate these results';
 comment on column test_result.val_num is
 	'numeric value if any';
 comment on column test_result.val_alpha is
@@ -377,11 +380,19 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.31  2004-09-29 10:33:54  ncq
+-- Revision 1.32  2004-10-10 06:34:13  ihaywood
+-- Extended blobs to support basic document management:
+-- keeping track of whose reviewed what, etc.
+--
+-- This duplicates the same functionality for path. results:
+-- how can we integrate?
+-- CVS ----------------------------------------------------------------------
+--
+-- Revision 1.31  2004/09/29 10:33:54  ncq
 -- - cleanup
 -- - normalize test_type_local into lnk_table
 -- - basic_unit -> conversion_unit

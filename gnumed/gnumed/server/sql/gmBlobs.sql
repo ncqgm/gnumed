@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.42 $ $Date: 2004-09-20 21:12:42 $ $Author: ncq $
+-- $Revision: 1.43 $ $Date: 2004-10-10 06:34:12 $ $Author: ihaywood $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -37,14 +37,31 @@ CREATE TABLE doc_type (
 	name text unique
 );
 
+CREATE TABLE queues (
+	pk serial primary key,
+	name text
+);
+
+COMMENT ON TABLE queues IS
+'the various states a document can be in as it traverses the GNUMed system, 
+this allows SQL views of document "queues" for faxing, emailing, doctor''s inboxes, etc.';
+
 -- =============================================
 CREATE TABLE doc_med (
 	id serial primary key,
 	patient_id integer references xlnk_identity(xfk_identity) not null,
+	local_id integer references xlnk_identity(xfk_identity),
+	remote_id integer references xlnk_identity(xfk_identity),
+	fk_queue integer references queues (pk),
 	type integer references doc_type(id),
 	comment text,
+	fk_form_template integer, -- references gmReference.form_template (pk),
 	"date" timestamp with time zone default CURRENT_TIMESTAMP,
-	ext_ref text
+	ext_ref text,
+	has_measure boolean,
+	fk_reviewer integer
+		default null
+		references xlnk_identity(xfk_identity)
 );
 
 COMMENT ON TABLE doc_med IS
@@ -58,6 +75,14 @@ COMMENT ON COLUMN doc_med.type IS
 COMMENT ON COLUMN doc_med.comment IS
 	'additional short comment such as "abdominal", "ward 3,
 	 Dr. Stein", etc.';
+COMMENT ON COLUMN doc_med.remote_id IS
+	'the remote entity (the sender for incoming documents, the recipient for outgoing documents)';
+COMMENT ON COLUMN doc_med.local_id IS
+	'the local entity (the receiver for incoming documents, the sender for outgoing documents)';
+COMMENT ON COLUMN doc_med.fk_form_template IS
+	'the form template, where this document is a GNUMed form, 
+	doc_obj stores the fields, doc_obj.comment is the 
+	field name';
 COMMENT ON COLUMN doc_med.date IS
 	'date of document content creation (such as exam date),
 	 NOT date of document creation or date of import; may
@@ -65,6 +90,8 @@ COMMENT ON COLUMN doc_med.date IS
 COMMENT ON COLUMN doc_med.ext_ref IS
 	'external reference string of physical document,
 	 original paper copy can be found with this';
+COMMENT ON COLUMN doc_med.has_measure IS 'true if
+measurement data (see gmMeasurement.sql) has been generated from this document';
 
 -- =============================================
 CREATE TABLE doc_obj (
@@ -72,6 +99,7 @@ CREATE TABLE doc_obj (
 	doc_id integer references doc_med(id),
 	seq_idx integer,
 	comment text,
+	mime text,
 	data bytea
 );
 
@@ -86,6 +114,9 @@ COMMENT ON COLUMN doc_obj.comment IS
 	 object, such as "page 1"';
 COMMENT ON COLUMN doc_obj.data IS
 	'actual binary object data';
+COMMENT ON COLUMN doc_obj.mime IS
+	'the MIME type of the object. Auto-detection of document types is cool,
+but falliable: encrypted PGP data looks a lot like plain text, for example';
 
 -- =============================================
 CREATE TABLE doc_desc (
@@ -105,14 +136,16 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.42 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.43 $');
 
 -- =============================================
 -- questions:
 --  - do we need doc_desc linkeable to doc_obj, too ?
+--  IH: no, OCR etc. should span the multiple pages
 --  - how do we protect documents from being accessed by unauthorized users ?
 --    - on access search for the oid in gmCrypto tables for a matching key/PW hash record ??
 --  - should (potentially large) binary objects be moved to audit tables ?!?
+-- IH: no, doc_med should be audited, but not doc_obj. doc_obj rows never change anyway.
 
 -- notes:
 -- - as this uses BYTEA for storing binary data we have the following limitations
@@ -123,7 +156,15 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.42  2004-09-20 21:12:42  ncq
+-- Revision 1.43  2004-10-10 06:34:12  ihaywood
+-- Extended blobs to support basic document management:
+-- keeping track of whose reviewed what, etc.
+--
+-- This duplicates the same functionality for path. results:
+-- how can we integrate?
+-- CVS ----------------------------------------------------------------------
+--
+-- Revision 1.42  2004/09/20 21:12:42  ncq
 -- - constraint on doc_desc
 -- - improve v_obj4doc
 -- - fix v_latest_mugshot

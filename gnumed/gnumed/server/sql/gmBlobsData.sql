@@ -4,21 +4,35 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.6 $ $Date: 2004-03-04 19:41:52 $ $Author: ncq $
+-- $Revision: 1.7 $ $Date: 2004-10-10 06:34:13 $ $Author: ihaywood $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+INSERT INTO queues (pk, name) values (1, 'Received, archived');
+INSERT INTO queues (pk, name) values (2, 'Received, awaiting clinical review');
+INSERT INTO queues (pk, name) values (3, 'Received, awaiting secretarial review');
+INSERT INTO queues (pk, name) values (4, 'Sent, archived');
+INSERT INTO queues (pk, name) values (11, 'Sent, awaiting consultant''s report');
+INSERT INTO queues (pk, name) values (5, 'Sent, awaiting confirmation of receipt');
+INSERT INTO queues (pk, name) values (6, 'Sent, permanent error');
+INSERT INTO queues (pk, name) values (7, 'Sent, temporary error (e-mail)');
+INSERT INTO queues (pk, name) values (8, 'Sent, temporary error (fax)');
+INSERT INTO queues (pk, name) values (9, 'For e-mail transmission');
+INSERT INTO queues (pk, name) values (10, 'For fax transmission');
+--INSERT INTO queues (pk, name) values ( , '');
+
+
 -- =============================================
-INSERT into doc_type(id, name) values(1, i18n('discharge summary internal'));
+INSERT into doc_type(id, name) values(1, i18n('discharge summary internal medical'));
 INSERT into doc_type(id, name) values(2, i18n('discharge summary surgical'));
 INSERT into doc_type(id, name) values(3, i18n('discharge summary psychiatric'));
 INSERT into doc_type(id, name) values(4, i18n('discharge summary neurological'));
 INSERT into doc_type(id, name) values(5, i18n('discharge summary orthopaedic'));
 INSERT into doc_type(id, name) values(6, i18n('discharge summary other'));
 INSERT into doc_type(id, name) values(7, i18n('discharge summary rehabilitation'));
-INSERT into doc_type(id, name) values(8, i18n('referral report internal'));
+INSERT into doc_type(id, name) values(8, i18n('referral report internal medical'));
 INSERT into doc_type(id, name) values(9, i18n('referral report surgical'));
 INSERT into doc_type(id, name) values(10, i18n('referral report ENT'));
 INSERT into doc_type(id, name) values(11, i18n('referral report eye'));
@@ -45,11 +59,19 @@ INSERT into doc_type(id, name) values(26, i18n('patient photograph'));
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.6  2004-03-04 19:41:52  ncq
+-- Revision 1.7  2004-10-10 06:34:13  ihaywood
+-- Extended blobs to support basic document management:
+-- keeping track of whose reviewed what, etc.
+--
+-- This duplicates the same functionality for path. results:
+-- how can we integrate?
+-- CVS ----------------------------------------------------------------------
+--
+-- Revision 1.6  2004/03/04 19:41:52  ncq
 -- - whitespace, comment
 --
 -- Revision 1.5  2004/03/02 23:59:11  ihaywood
