@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -63,7 +63,6 @@ _log = gmLog.gmDefLog
 _log.SetAllLogLevels(gmLog.lData)
 
 import gmCfg
-global _cfg
 _cfg = gmCfg.gmDefCfgFile
 
 dbapi = None
@@ -298,7 +297,6 @@ class user:
 #==================================================================
 class db_server:
 	def __init__(self, aSrv_alias, aCfg):
-		print aCfg
 		_log.Log(gmLog.lInfo, "bootstrapping server [%s]" % aSrv_alias)
 
 		global _bootstrapped_servers
@@ -1446,7 +1444,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.51  2004-03-04 19:40:50  ncq
+# Revision 1.52  2004-03-09 08:14:06  ncq
+# - call helper shell script to regenerate AU postcodes
+#
+# Revision 1.51  2004/03/04 19:40:50  ncq
 # - micro-optimize become_pg_demon_user()
 #
 # Revision 1.50  2004/03/02 10:22:30  ihaywood
