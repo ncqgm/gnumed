@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.1 2004-04-12 22:58:55 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmAllergy.py,v 1.2 2004-04-16 00:00:59 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 from Gnumed.pycommon import gmLog
@@ -25,7 +25,7 @@ class cAllergy(gmClinItem.cClinItem):
 		"""update allergy set
 				substance=%(substance)s,
 				substance_code=%(substance_code)s,
-				generics=%(generics),
+				generics=%(generics)s,
 				allergene=%(allergene)s,
 				atc_code=%(atc_code)s,
 				id_type=%(id_type)s,
@@ -74,6 +74,10 @@ if __name__ == '__main__':
 		_log.LogException('programming error', sys.exc_info())
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.1  2004-04-12 22:58:55  ncq
+# Revision 1.2  2004-04-16 00:00:59  ncq
+# - Carlos fixes
+# - save_payload should now work
+#
+# Revision 1.1  2004/04/12 22:58:55  ncq
 # - Carlos sent me this
 #

@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.3 2004-04-12 22:53:19 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmClinItem.py,v 1.4 2004-04-16 00:00:59 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -112,18 +112,25 @@ class cClinItem:
 	def save_payload(self):
 		if not self._is_modified:
 			return (True, None)
+		params = {}
+		for field in self._idx.keys():
+			params[field] = self._payload[self._idx[field]]
 		queries = []
 		for query in self.__class__._cmds_store_payload:
-			queries.append((query, [self._payload]))
+			queries.append((query, [params]))
 		status, err = gmPG.run_commit('historica', queries, True)
 		if status is None:
 			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk))
-			_log.Log(gmLog.lData, self._payload)
+			_log.Log(gmLog.lData, params)
 			return (None, err)
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.3  2004-04-12 22:53:19  ncq
+# Revision 1.4  2004-04-16 00:00:59  ncq
+# - Carlos fixes
+# - save_payload should now work
+#
+# Revision 1.3  2004/04/12 22:53:19  ncq
 # - __init__ now handles arbitrary keyword args
 # - _pre_/_post_init()
 # - streamline
