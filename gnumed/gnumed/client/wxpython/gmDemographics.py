@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.21 2004-05-23 11:13:59 sjtan Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmDemographics.py,v 1.22 2004-05-25 16:00:34 sjtan Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -29,7 +29,7 @@ import cPickle, zlib, shutil, time
 from string import *
 
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
-from Gnumed.business.gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP, OccupationMP, CountryMP
+from Gnumed.business.gmDemographicRecord import MP_urb_by_zip , PostcodeMP, StreetMP, OccupationMP, CountryMP 
 
 _log = gmLog.gmDefLog
 
@@ -493,11 +493,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		EVT_BUTTON(self.btn_photo_export, self.btn_photo_export.GetId (), self._photo_export)
 
 	def __urb_selected(self, id):
-		try:
-			self.input_fields['postcode'].SetValue( gmDemographicRecord.getPostcodeForUrbId(id )  )
-			self.input_fields['postcode'].input_was_selected = 1		
-		except:
-			_log.LogException ('failed on set postcode', sys.exc_info (), verbose=0)
+		gmDemographicRecord.setPostcodeWidgetFromUrbId( self.input_fields['postcode'], id)
+		#	print "failed to set postcode widget from urb_id"
+	
+
 
 	def __postcode_selected(self, pk):
 		postcode = pk
@@ -824,7 +823,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.21  2004-05-23 11:13:59  sjtan
+# Revision 1.22  2004-05-25 16:00:34  sjtan
+#
+# move common urb/postcode collaboration  to business class.
+#
+# Revision 1.21  2004/05/23 11:13:59  sjtan
 #
 # some data fields not in self.input_fields , so exclude them
 #

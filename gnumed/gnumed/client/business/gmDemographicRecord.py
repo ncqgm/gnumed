@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.40 2004-05-19 11:16:08 sjtan Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmDemographicRecord.py,v 1.41 2004-05-25 16:00:34 sjtan Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -840,7 +840,23 @@ class NameMP (gmMatchProvider.cMatchProvider_SQL):
 			'extra conditions':{'occupation':'exists (select 1 from lnk_job2person where id_occupation = %s and lnk_job2person.id_identity = names.id_identity)'}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
+
+
 #------------------------------------------------------------
+
+def setPostcodeWidgetFromUrbId(postcodeWidget , id):
+	"""convenience method for urb and postcode phrasewheel interaction"""
+	try:
+		postcodeWidget.SetValue( getPostcodeForUrbId(id )  )
+		postcodeWidget.input_was_selected= 1
+		return True
+	except:
+		gmLog.gmDefLog.LogException ('failed on set postcode', sys.exc_info (), verbose=0)
+		return False
+
+
+#------------------------------------------------------------
+
 # FIXME: do we REALLY need this ?
 def get_time_tuple(faultyMxDateObject):
 		list = [0,0,0,   0, 0, 0,   0, 0, 0]
@@ -853,8 +869,10 @@ def get_time_tuple(faultyMxDateObject):
 		except:
 			print "Failed to parse dob"
 			_log.LogException("Failed to parse DOB", sys.exc_info(), verbose = 1)
-		
+
 		return list
+
+
 #============================================================
 # callbacks
 #------------------------------------------------------------
@@ -886,7 +904,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.40  2004-05-19 11:16:08  sjtan
+# Revision 1.41  2004-05-25 16:00:34  sjtan
+#
+# move common urb/postcode collaboration  to business class.
+#
+# Revision 1.40  2004/05/19 11:16:08  sjtan
 #
 # allow selecting the postcode for restricting the urb's picklist, and resetting
 # the postcode for unrestricting the urb picklist.

@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -16,7 +16,7 @@ __license__ = "GPL"  # (details at http://www.gnu.org)
 from wxPython.wx import *
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
-from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP
+from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 
@@ -26,15 +26,15 @@ organisationsdata = {
 2 : (" ","Cardiovascular Department", "","", "49214200"),
 3 : ( " ","- Dr L Smith","Cardiologist","lsmith@cardiology.jhh.com.au", "0148 222 222"),
 4 : (" ","Department of Surgery", "","", "49214200"),
-5 : ( " ","- Dr No Brains","Colorectal surgeon","nobrainer@surgery.jhh.com.au", "0148 111 111"),	
+5 : ( " ","- Dr No Brains","Colorectal surgeon","nobrainer@surgery.jhh.com.au", "0148 111 111"),
 6 : ("Belmont District Hospital","", "Lake Rd BELMONT","Public Hospital","02 49421111"),
 7 : (" ","Physiotherapy", "","", "49423567"),
-8 : ( " ","- P Lang","Sports Physiotherapist","plang@jphysio.bdh.com.au", "494223568"),		     
-9 : ( " ","- L Short","Physiotherapist","lshort@jphysio.bdh.com.au", "494223568"),	
+8 : ( " ","- P Lang","Sports Physiotherapist","plang@jphysio.bdh.com.au", "494223568"),
+9 : ( " ","- L Short","Physiotherapist","lshort@jphysio.bdh.com.au", "494223568"),
 }
 
 [
-ID_ORGANISATIONSLIST, 
+ID_ORGANISATIONSLIST,
 ID_ALL_MENU,
 ID_COMBOTYPE,
 ID_SAVESQL,
@@ -64,13 +64,13 @@ ID_SAVE
 #--------------------------------------------------
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
-		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT) 
+		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
 		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.SetForegroundColour(wxColour(0,0,131))
 
 class DarkBlueHeading(wxStaticText):
 	def __init__(self, parent, id, prompt):
-		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER) 
+		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER)
 		self.SetFont(wxFont(
 			pointSize = 12,
 			family = wxSWISS,
@@ -199,6 +199,21 @@ class ContactsPanel(wxPanel):
 	  #create the check boxes
 	  #----------------------
 	  self.chbx_postaladdress = wxCheckBox(self, -1,_( " Postal Address "), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+
+	  self.input_fields = {
+	  	'name': self.txt_org_name,
+		'category': self.txt_org_category,
+		'type': self.txt_org_type,
+		'street': self.txt_org_street,
+		'urb': self.txt_org_suburb,
+		'postcode' : self.txt_org_zip,
+		'memo': self.txt_org_memo,
+		'phone' : self.txt_org_phone,
+		'fax' : self.txt_org_fax,
+		'mobile': self.txt_org_mobile,
+		'email': self.txt_org_email,
+		'jabber': self.txt_org_internet }
+
 	  #-------------------------------------------
 	  #create the sizers for each line of controls
 	  #-------------------------------------------
@@ -345,13 +360,22 @@ class ContactsPanel(wxPanel):
           self.mainsizer.Fit
           self.SetAutoLayout(true)
           self.Show(true)
-	  
+
        def __urb_selected(self, urb_id):
           print "urb_id", urb_id
+	  setPostcodeWidgetFromUrbId( self.input_fields['postcode'], urb_id)
       	  pass
        def __postcode_selected(self, postcode):
        	  print "postcode", postcode
       	  pass
+
+       def get_address_values(self):
+       	  f = self.input_fields
+	  vals = [ f[n].GetValue() for n in ['street', 'urb', 'postcode'] ]
+	  # split the street value into 2 parts, number and street. ? Have a separate number field instead.
+	  vals = [ vals[0].split(' ')[0] , ' '.join( vals[0].split(' ')[1:] ) ] + vals[1:]
+	  return vals
+
 
 class gmContacts (gmPlugin.wxNotebookPlugin):
 	tab_name = _("Contacts")
@@ -360,7 +384,8 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 		return gmContacts.tab_name
 
 	def GetWidget (self, parent):
-		return ContactsPanel (parent, -1)
+		self._last_widget = ContactsPanel (parent, -1)
+		return self._last_widget
 
 	def MenuInfo (self):
 		return ('view', _('&Contacts'))
@@ -405,8 +430,26 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 				shortHelpString=_("Pre-formatted reports"),)
 	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
 	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
-				shortHelpString=_("Save Record"),)		
-          
+				shortHelpString=_("Save Record"),)
+
+	      self.__connect_commands(tb)
+
+	def __connect_commands(self, toolbar):
+		EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.doOrgAdd)
+		EVT_TOOL(toolbar, ID_EMPLOYEEADD, self.doEmployeeAdd)
+		EVT_TOOL(toolbar ,ID_BRANCHDEPTADD , self.doBranchDeptAdd)
+
+        def doEmployeeAdd(self, event):
+		print "doEmployeeAdd"
+
+	def doOrgAdd(self, event):
+		print "doOrgAdd"
+		w = self._last_widget
+		print w.get_address_values()
+
+        def doBranchDeptAdd(self, event):
+		print "doBranchDeptAdd"
+
 
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (800, 600))
@@ -415,7 +458,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.15  2004-05-25 14:51:23  sjtan
+# Revision 1.16  2004-05-25 16:00:34  sjtan
+#
+# move common urb/postcode collaboration  to business class.
+#
+# Revision 1.15  2004/05/25 14:51:23  sjtan
 #
 # savepoint, enable urb and postcode phrasewheels.
 #
