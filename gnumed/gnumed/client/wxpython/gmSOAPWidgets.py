@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.8 2005-01-18 13:38:24 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmSOAPWidgets.py,v 1.9 2005-01-28 18:35:42 cfmoro Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -120,7 +120,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		self.SetSizerAndFit(self.__szr_main)
 
 		# display health problem
-		txt = '#%s: %s' % (self.__problem[0]+1, self.__problem[1]['problem'])
+		txt = '%s:' % self.__problem['problem']
 		self.__set_heading(txt)
 
 		# flag indicating saved state
@@ -353,7 +353,7 @@ if __name__ == "__main__":
 
 	try:
 		app = wx.wxPyWidgetTester(size=(300,300))
-		app.SetWidget(cResizingSoapPanel, (0, {'problem': 'cold/cough'}))
+		app.SetWidget(cResizingSoapPanel, {'problem': 'cold/cough'})
 		app.MainLoop()
 		del app
 
@@ -367,7 +367,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.8  2005-01-18 13:38:24  ncq
+# Revision 1.9  2005-01-28 18:35:42  cfmoro
+# Removed problem idx number
+#
+# Revision 1.8  2005/01/18 13:38:24  ncq
 # - cleanup
 # - input_defs needs to be list as dict does not guarantee order
 # - make Richard-SOAP the default
