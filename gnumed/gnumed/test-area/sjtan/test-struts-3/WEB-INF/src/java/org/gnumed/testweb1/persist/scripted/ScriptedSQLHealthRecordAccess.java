@@ -477,11 +477,8 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         stmt.setDate(4, new java.sql.Date( narrative.getClin_when().getTime() ));
         stmt.setString(5, narrative.getNarrative());
         
-        char c = narrative.getSoapCat() ;
         
-        String s = new String( new char[] { c } ,0, 1 );
-        log.info(" soat_cat " +s);
-        stmt.setString(6, s );
+        stmt.setString(6, narrative.getSoapCat().substring(0,1) );
         stmt.setInt(7, narrative.getEncounter().getId(). intValue() );
         stmt.setInt(8,   narrative.getEpisode().getId(). intValue() );
         

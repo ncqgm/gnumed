@@ -173,7 +173,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     void setCommonRootItemAttributes( ClinRootItem rootItem, DynaBean nb) {
         rootItem.setNarrative((String)nb.get("narrative"));
         rootItem.setId( new Long( ((Integer)nb.get("pk")).longValue() ));
-        rootItem.setSoapCat( ((String)nb.get("soap_cat")).charAt(0) );
+        rootItem.setSoapCat( ((String)nb.get("soap_cat")) );
         rootItem.setClin_when( (java.util.Date) nb.get("clin_when"));
     }
     

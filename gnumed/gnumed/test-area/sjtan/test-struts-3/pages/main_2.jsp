@@ -8,15 +8,11 @@
 <html>
 <html:base/>
 <head><title>JSP Page</title>
-<LINK   TYPE='text/css'  REL='stylesheet' href='style.css'/>     
+
+<LINK   TYPE="text/css" REL="stylesheet" href="./style.css" title="Style"/>    
+ 
 </head>
-<!--
-<STYLE type="text/css" >
-    h1,h2,h3 { background-color:#A47 }
-        b   { color : #555}
-       BODY { background-color: #AAA }
-    </STYLE>
-    -->
+
 
     
 <body>

@@ -20,5 +20,13 @@ body {
         background-color: #AAA ;
 }
 
+div.pastNotesNarrative0 {
+    background-color : #9A7;
+}
+
+div.pastNotesNarrative1 {
+    background-color: #9BA;
+}
+
 div.errors   {    color : rgb(255,255,0) ; background-color :rgb( 0, 75, 250)  }
 

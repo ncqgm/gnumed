@@ -168,8 +168,8 @@ e.g. getNarrative(index) ...  id='narrative'
                             <bean:message key="narrative.notes" />
                         </td>
                         <td>
-                            <html:select name="narrative" property="soatCat" value="s">
-                            <html:option key="s" value="s">S</html:option>
+                            <html:select name="narrative" property="soapCat" indexed="true" >
+                            <html:option key="s" value="s" >S</html:option>
                              <html:option key="o" value="o">O</html:option>
                             <html:option key="a" value="a">A</html:option>
                             <html:option key="p" value="p">P</html:option>

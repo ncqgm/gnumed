@@ -15,8 +15,9 @@ public class ClinRootItemImpl1 implements ClinRootItem {
     ClinicalEpisode episode;
     ClinicalEncounter clinicalEncounter;
     Long id;
-    char soapCat = 's';
+    
     String narrative, healthIssueName, newHealthIssueName;
+    String soapCat = "s";
     
     /** Creates a new instance of ClinRootItemImpl1 */
     public ClinRootItemImpl1() {
@@ -39,7 +40,7 @@ public class ClinRootItemImpl1 implements ClinRootItem {
         return narrative;
     }
     
-    public char getSoapCat() {
+    public String getSoapCat() {
     return soapCat;
     }
     
@@ -62,7 +63,7 @@ public class ClinRootItemImpl1 implements ClinRootItem {
         System.err.println("setNarrative " + this);
     }
     
-    public void setSoapCat(char soapCat) {
+    public void setSoapCat(String soapCat) {
         this.soapCat = soapCat;
     }
     

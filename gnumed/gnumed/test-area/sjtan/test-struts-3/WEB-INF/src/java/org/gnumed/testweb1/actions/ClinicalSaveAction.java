@@ -123,6 +123,7 @@ public class ClinicalSaveAction extends Action {
                 ClinNarrative n = (ClinNarrative) j.next();
                  log.info("narrative found with text " + n.getNarrative() + ">");
                  log.info("Health issue name for " + n + " was " + n.getHealthIssueName());
+                 log.info("Narrative SOAP CAT " +n.getSoapCat());
             }
             
             HealthRecordAccess01 access = 

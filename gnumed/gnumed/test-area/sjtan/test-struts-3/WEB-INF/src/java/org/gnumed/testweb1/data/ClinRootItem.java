@@ -40,13 +40,13 @@ public interface ClinRootItem {
      * Getter for property soapCat.
      * @return Value of property soapCat.
      */
-    public char getSoapCat();
+    public String getSoapCat();
     
     /**
      * Setter for property soapCat.
      * @param soapCat New value of property soapCat.
      */
-    public void setSoapCat(char soapCat);
+    public void setSoapCat(String soapCat);
     
     /**
      * Getter for property encounter.
