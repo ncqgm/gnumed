@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/bootstrap-ng/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -77,7 +77,10 @@ class db_server:
 	def __init__(self, aSrv_alias, aCfg):
 		_log.Log(gmLog.lInfo, "bootstrapping server [%s]" % aSrv_alias)
 
+		global _bootstrapped_servers
+
 		if _bootstrapped_servers.has_key(aSrv_alias):
+			_log.Log(gmLog.lInfo, "server [%s] already bootstrapped" % aSrv_alias)
 			return None
 
 		self.cfg = aCfg
@@ -88,7 +91,6 @@ class db_server:
 		if not self.__bootstrap():
 			raise ConstructorError, "db_server.__init__(): Cannot bootstrap db server."
 
-		global _bootstrapped_servers
 		_bootstrapped_servers[self.alias] = self
 
 		return None
@@ -244,7 +246,7 @@ class db_server:
 		return 1
 	#--------------------------------------------------------------
 	def __bootstrap_proc_langs(self):
-		_log.Log(gmLog.lInfo, "bootstrapping procedural")
+		_log.Log(gmLog.lInfo, "bootstrapping procedural languages")
 
 		lang_aliases = self.cfg.get("GnuMed defaults", "procedural languages")
 		# FIXME: better separation
@@ -305,13 +307,13 @@ class db_server:
 		_log.Log(gmLog.lInfo, "User [%s] does not exist." % aUser)
 		return None
 	#--------------------------------------------------------------
-	def get_dbowner_password(self):
+	def get_dbowner_password(self, aDB_Owner):
 		if self.dbowner_password is None:
 			self.dbowner_password = self.cfg.get("GnuMed defaults", "database owner password")
 			if self.dbowner_password is None:
 				if _interactive:
 					print "I need the password for the GnuMed database owner."
-					print "(user [%s] on [%s:%s])" % (dbowner, self.alias, self.cfg.get(self.server_group, "port"))
+					print "(user [%s] on [%s:%s])" % (aDB_Owner, self.alias, self.cfg.get(self.server_group, "port"))
 					self.dbowner_password = raw_input("Please type password: ")
 				else:
 					_log.Log(gmLog.lErr, "Cannot load GnuMed database owner password from config file.")
@@ -331,7 +333,7 @@ class db_server:
 			cursor.close()
 			return 1
 
-		self.get_dbowner_password()
+		self.get_dbowner_password(dbowner)
 
 		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB;" % (dbowner, self.dbowner_password)
 		try:
@@ -414,6 +416,12 @@ class database:
 	def __init__(self, aDB_alias, aCfg):
 		_log.Log(gmLog.lInfo, "bootstrapping database [%s]" % aDB_alias)
 
+		global _bootstrapped_dbs
+
+		if _bootstrapped_dbs.has_key(aDB_alias):
+			_log.Log(gmLog.lInfo, "database [%s] already bootstrapped" % aDB_alias)
+			return None
+
 		self.conn = None
 		self.cfg = aCfg
 		self.alias = aDB_alias
@@ -430,7 +438,6 @@ class database:
 		if not self.__bootstrap():
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
-		global _bootstrapped_dbs
 		_bootstrapped_dbs[self.alias] = self
 
 		return None
@@ -453,9 +460,9 @@ class database:
 		owner = self.cfg.get("GnuMed defaults", "database owner")		
 
 		srv = _bootstrapped_servers[self.server_alias]
-		passwd = srv.get_dbowner_password()
+		passwd = srv.get_dbowner_password(owner)
 
-		srv_group = "server %s" % server_alias
+		srv_group = "server %s" % self.server_alias
 		db = self.cfg.get(srv_group, "template database")
 
 		# connect as owner to template
@@ -490,24 +497,6 @@ class database:
 		_log.Log(gmLog.lInfo, "Database %s does not exist." % aDatabase)
 		return None
 #==================================================================
-def dummy2():
-	
-	
-	if server_alias is None:
-		_log.Log(gmLog.lErr, "Need to know server name to connect to database [%s]." % aDatabaseAlias)
-		return None
-
-	# get db server object
-	if __servers.has_key('server_alias'):
-		server = __servers['server_alias']
-	else:
-		try:
-			server = db_server(server_alias, _cfg)
-			__servers['server_alias'] = server
-		except:
-			_log.Log(gmLog.lErr, "Cannot init server [%s] object." % server_alias)
-			return None
-
 #==================================================================
 def connect_to_db():
 	print "Connecting to PostgreSQL server as initial user ..."
@@ -815,12 +804,6 @@ def bootstrap_core_database():
 	print "Successfully bootstrapped GnuMed core database [%s]." % database
 	return 1
 #==================================================================
-def dummy():
-
-
-	db_name = _cfg.get(db_group, "database name")
-
-
 #==================================================================
 def bootstrap_database(db_alias):
 	if _bootstrapped_dbs.has_key(db_alias):
@@ -946,32 +929,16 @@ if __name__ == "__main__":
 	if not bootstrap_services():
 		exit_with_msg("Cannot bootstrap services.")
 
-	# connect to template database as superuser
-
-#	tmp = connect_to_db()
-#	if tmp is None:
-#		exit_with_msg("Cannot connect to database.")
-#	dbconn = tmp
-
-	# create users/groups
-#	bootstrap_user_structure()
-
-	# insert procedural languages
-#	bootstrap_procedural_languages()
-
-	# boostrap gnumed core database
-#	bootstrap_core_database()
-
-	# setup (possibly distributed) services
-
-#	dbconn.close()
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping."
 else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.1  2003-01-13 16:55:20  ncq
+# Revision 1.2  2003-01-14 20:52:46  ncq
+# - works "more" :-)
+#
+# Revision 1.1  2003/01/13 16:55:20  ncq
 # - first checkin of next generation
 #
 # Revision 1.10  2002/11/29 13:02:53  ncq
