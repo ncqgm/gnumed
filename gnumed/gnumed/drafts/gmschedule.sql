@@ -152,5 +152,16 @@ CREATE VIEW v_duration_short AS
 	select duration, id_staff from preferred_app_length
 	where id_enum_app_type =
 	(select id from enum_app_type where description='short');
+	
+CREATE TABLE booked_appointment (
+	id serial primary key,
+	id_patient int NOT NULL,
+	id_staff int,
+	date date,
+	time time,
+	booked_duration int, -- in minutes
+	booked timestamp default now(),
+	comment text
+);
 
 

@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -44,6 +44,8 @@ class ScheduleAllDoctorsPnl(wxPanel):
 		self.szrMain.Fit(self)
 		self.szrMain.SetSizeHints(self)
 		self.SetDate()
+		self.schedules[0].schedule.SetFocus()
+		self.schedules[0].schedule.GoToDateTime()
 
 
 

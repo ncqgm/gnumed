@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -15,7 +15,7 @@ from wxPython.lib import colourdb
 import gettext
 _ = gettext.gettext
 
-import gmPG
+import gmPG, gmQuickSelectionDlg
 
 ID_LISTBOX_SELECTION = wxNewId()
 
@@ -165,6 +165,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		self.clr_selected_day = wxColour(190,225,255)
 
 		self.MakeGrid()
+		self.GoToDateTime()
 
 		#EVT_IDLE(self, self.OnIdle)
 
@@ -192,6 +193,51 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		#EVT_GRID_EDITOR_CREATED(self, self.OnEditorCreated)
 
 		EVT_KEY_DOWN(self,self.OnKeyDown)
+		
+
+	def DateToColumn(self, date):
+		"""returns column representing a given date
+		IF that column is actually displayed currently,
+		else return the first displayed column"""
+		start = time.mktime(self.Date)
+		wanted = time.mktime(date)
+		delta = (wanted-start)/86400
+		if delta > 0 and delta < self.days :
+			return delta
+		else:
+			return 0
+
+	def TimeToRow(self, date):
+		"""returns the row number closest to the current time"""
+		hours = int(time.strftime("%H", date))
+		m = int(time.strftime("%M", date))
+		minutes = self.session_interval * (m/self.session_interval)
+		if hours < self.hour_start:
+			return 0
+		if minutes==60:
+			minutes=0
+			hours+=1
+		label = "%02d:%02d" % (hours, minutes)
+		index=0
+		for lbl in self.timelabels:
+			if label==lbl:
+				break
+			index+=1
+		if index>=len(self.timelabels):
+			index = len(self.timelabels)-1
+		return index
+
+
+	def GoToDateTime(self, datetime=None):
+		"""Sets the grid cursor closest to the stated time.
+		If time is not stated, cursor is placed closest to the
+		current time"""
+		if datetime is None:
+			datetime = time.localtime()
+		col = self.DateToColumn(datetime)
+		row = self.TimeToRow(datetime)
+		self.SetGridCursor(row, col)
+
 
 	def OnKeyDown(self,evt):
 		code = evt.KeyCode()
@@ -454,18 +500,23 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
         	return surname, firstname, increment
 
 
-	def NewPatient(self, surname, firstname):
+	def NewPatient(self, surname=None, firstname=None):
 		return None
 
 
 	def ChoosePatient(self, patient_dict):
 		crect = self.CellToRect(self.GetGridCursorRow(), self.GetGridCursorCol())
-		self.li = wxListBox( self, ID_LISTBOX_SELECTION, wxPoint(crect.x, crect.y+crect.height), wxSize(200,120),
-        		[] , wxLB_SINGLE )
-		for p in patient_dict:
-			self.li.Append("%s, %s" % (p["lastnames"], p["firstnames"]), p["id"])
-		self.li.SetFocus()
-		EVT_LISTBOX(self, ID_LISTBOX_SELECTION, self.OnItemSelected)
+		d=gmQuickSelectionDlg.QuickSelectionDlg(None, -1, "test", pos=(crect.x, crect.y+crect.height), size=(240,120))
+		d.SetItemDict(patient_dict, ["lastnames", "firstnames", "dob", "id"])
+		retval = d.ShowModal() # Shows it
+		patient = None
+		if retval > gmQuickSelectionDlg.CANCELLED:
+			patient = d.GetSelection()
+		elif retval == gmQuickSelectionDlg.NEW_ITEM:
+			patient = self.NewPatient()
+		d.Destroy() # finally destroy it when finished.
+		return patient
+
 
 
 	def OnItemSelected(self, evt):
@@ -488,9 +539,6 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 		n = len(result)
 		if n == 0:
 			return self.NewPatient(surname, firstname)
-		elif n == 1:
-			pat = result[0]
-			return pat["id"], pat["firstname"], pat["surname"]
 		else:
 			return self.ChoosePatient(result)
 
@@ -507,9 +555,8 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 		if  value is not None and value != '':
 			surname, firstname, increment = self.ParseAppEntry(value)
-			self.GetPatientByName(surname, firstname);
-			return
-			if id is None:
+			patient = self.GetPatientByName(surname, firstname);
+			if patient is None:
 				return
 			for i in range(increment+1):
 				self.SetCellBackgroundColour(row+i, col, self.clr_appointed)
@@ -517,7 +564,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 					incstr = '+'
 				else:
 					incstr=''
-				#self.SetCellValue(row+i, col, "%s%s, %s" % (incstr, surname, firstname))
+				self.SetCellValue(row+i, col, "%s%s, %s" % (incstr, patient["lastnames"], patient["firstnames"]))
 		else:
 			self.SetCellBackgroundColour(row, col, wxWHITE)
 		datetime=self.GetCellDateTime(row, col)
@@ -525,6 +572,10 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 
 		dts = time.strftime("%Y-%m-%d %H:%M", datetime)
 		print "%d min. Appointment made for % s on %s with Dr. [id=%d]" % (duration, value, dts, self.doctor_id)
+		cur = self.db.cursor()
+		query = "insert into booked_appointment(id_patient, id_staff, date, time, booked_duration) \
+		        values(%d, %d, '%s', '%s', %d)" %
+			(int (patient["id"]), int(self.doctor_id), time.strftime
 
 
 	def OnCellChange(self, evt):

@@ -1,4 +1,4 @@
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -42,6 +42,7 @@ class DoctorsSchedulePnl(wxPanel):
 		session_interval = 15
 
 		self.schedule = gmScheduleGrid.ScheduleGrid(self, session_interval=session_interval)
+		
 		self.szrButtons = wxBoxSizer(wxHORIZONTAL)
 		self.szrMain.AddSizer(self.szrTopRow, 0, wxGROW|wxALIGN_TOP|wxLEFT|wxRIGHT, 5 )
 		self.szrMain.AddWindow(self.schedule, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 3 )
@@ -65,6 +66,7 @@ class DoctorsSchedulePnl(wxPanel):
 		self.SetAutoLayout(true)
 		self.szrMain.Fit(self)
 		self.szrMain.SetSizeHints(self)
+		self.schedule.GoToDateTime()
 
 
 	def FillComboStaff(self, doctors):
