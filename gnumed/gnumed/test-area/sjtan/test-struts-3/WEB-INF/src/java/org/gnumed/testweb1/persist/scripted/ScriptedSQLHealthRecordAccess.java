@@ -336,7 +336,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             }
             
             conn.commit();
-            
+            conn.close();
             
             HealthRecord01 hr =(HealthRecord01) getAccessedRecords().get(summary.getIdentityId());
             
@@ -352,6 +352,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
         } catch (Exception exception) {
             try {
                 conn.rollback();
+                conn.close();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -435,6 +436,10 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     
     
     private HealthIssue findOrCreateHealthIssue(Connection conn,String healthIssueName, HealthSummary01 summary) throws DataSourceException, SQLException {
+        // hacky guard
+        if (healthIssueName.trim().equals(""))
+                healthIssueName = "xxxDEFAULTxxx";
+        
         
         Iterator i = summary.getHealthIssues().iterator();
         while (i.hasNext()) {
@@ -450,7 +455,7 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
             }
         }
         
-        
+        log.info("New health issue is " + healthIssueName + " identity id = " + summary.getIdentityId());
         Integer id = getNextId(conn, "clin_health_issue_id_seq");
         String s2b = "insert into clin_health_issue(id, id_patient, description) values( ?,?,?)";
         PreparedStatement stmt = conn.prepareStatement(s2b);

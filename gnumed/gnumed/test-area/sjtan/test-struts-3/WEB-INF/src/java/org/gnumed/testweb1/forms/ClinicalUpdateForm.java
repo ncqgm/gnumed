@@ -207,7 +207,12 @@ public class ClinicalUpdateForm extends ActionForm {
         for ( int i=1; i < narratives.length; ++i ) {
            if ( narratives[i].isLinkedToPreviousEpisode() ) {
                narratives[i].setNewHealthIssueName(narratives[i-1].getNewHealthIssueName());
+                narratives[i].setHealthIssueName(narratives[i-1].getHealthIssueName());
+             
                narratives[i].setEpisode(narratives[i-1].getEpisode());
+                log.info(narratives[i] + " WAS LINKED");
+           } else {
+           log.info(narratives[i] + " is not Linked");
            }
         }
     }
