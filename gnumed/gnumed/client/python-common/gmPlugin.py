@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -140,8 +140,8 @@ class wxBasePlugin (gmPlugin):
 		_log.Log(gmLog.lInfo, "unloaded plugin %s/%s" % (self.set, self.name()))
 #------------------------------------------------------------------
 class wxNotebookPlugin (wxBasePlugin):
-	"""
-	Base plugin for plugins which provide a 'big page'
+	"""Base plugin for plugins which provide a 'big page'.
+
 	Either whole screen, or notebook if it exists
 	"""	
 	def register (self):
@@ -240,8 +240,11 @@ class wxPatientPlugin (wxBasePlugin):
 			tb2 = self.gb['toolbar.Patient']
 			#tb2.AddSeparator()
 			self.tool_id = wxNewId ()
-			tool1 = tb2.AddTool(self.tool_id, icon,
-					    shortHelpString=self.name ())
+			tool1 = tb2.AddTool(
+				self.tool_id,
+				icon,
+				shortHelpString = self.name()
+			)
 			EVT_TOOL (tb2, self.tool_id, self.OnTool)
 		menuname = self.name ()
 		menu = self.gb['patient.submenu']
@@ -270,9 +273,9 @@ class wxPatientPlugin (wxBasePlugin):
 		del self.gb['modules.patient'][self.name ()]
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
-	"""Instantiates a plugin object from a package directory, returning the
-	object.
-	NOTE: it does NOT called register () for you!!!! 
+	"""Instantiates a plugin object from a package directory, returning the object.
+
+	NOTE: it does NOT call register() for you !!!!
 
 	- "set" specifies the subdirectory in which to find the plugin
 	- this knows nothing of databases, all it does is load a named plugin
@@ -304,8 +307,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 		# 2) get class name
 		plugin_class = plugin_module_name.__dict__[plugin_name]
 	except:
-		exc = sys.exc_info()
-		_log.LogException ('Cannot import module "%s.%s".' % (aPackage, plugin_name), exc)
+		_log.LogException ('Cannot import module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), fatal=0)
 		return None
 
 	if not issubclass (plugin_class, wxBasePlugin):
@@ -316,8 +318,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None, dbbroker = None):
 	try:
 		plugin = plugin_class(set = aPackage, guibroker = guibroker, dbbroker = dbbroker)
 	except:
-		exc = sys.exc_info()
-		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), exc)
+		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), fatal=0)
 		return None
 
 	return plugin
@@ -465,7 +466,10 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.30  2003-01-06 04:52:55  ihaywood
+# Revision 1.31  2003-01-06 12:53:26  ncq
+# - some cleanup bits
+#
+# Revision 1.30  2003/01/06 04:52:55  ihaywood
 # resurrected gmDemographics.py
 #
 # Revision 1.29  2003/01/05 10:00:38  ncq
