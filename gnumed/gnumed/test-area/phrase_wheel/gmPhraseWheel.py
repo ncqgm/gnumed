@@ -20,7 +20,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -308,18 +308,22 @@ class cPhraseWheel (wxTextCtrl):
 		self.__timer = cWheelTimer(self._on_timer_fired)
 		self.__timer_delay = aDelay
 
-		wxTextCtrl.__init__ (self, parent, id, "", pos, size)
+		# need to explicitely process ENTER events to avoid them being
+		# handed over to the next control
+		wxTextCtrl.__init__ (self, parent, id, "", pos, size, style = wxTE_PROCESS_ENTER)
 		self.SetBackgroundColour (wxColour (200, 100, 100))
 		self.parent = parent
 
 		# set event handlers
-		# 1) entered text changed
-		EVT_TEXT	(self, self.GetId(), self.__on_text_update)
-		# 2) a key was released
-		EVT_KEY_UP	(self, self.__on_key_up)
-		# 3) evil user wants to resize widget
-		EVT_SIZE	(self, self.on_resize)
-
+		# - entered text changed
+		EVT_TEXT		(self, self.GetId(), self.__on_text_update)
+		# - user pressed <enter>
+		EVT_TEXT_ENTER	(self, self.GetId(), self.__on_enter)
+		# - a key was pressed
+		EVT_KEY_DOWN	(self, self.__on_key_pressed)
+		# - evil user wants to resize widget
+		EVT_SIZE		(self, self.on_resize)
+		
 		self.id_callback = id_callback
 
 		self.__picklist_win = wxPopupTransientWindow (parent, -1)
@@ -374,34 +378,33 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
-	def OnSelected (self):
+	def __on_selected (self):
 		"""Gets called when user selected a list item."""
 
 		print "__on_selected"
 
 		self.__hide_picklist()
 
-		n = self.__picklist.GetSelection()		# get selected item
-		data = self.__picklist.GetClientData(n)		# get data associated with selected item
+		n = self.__picklist.GetSelection()				# get selected item
+		data = self.__picklist.GetClientData(n)			# get data associated with selected item
 		self.SetValue (self.__picklist.GetString(n))	# tell the input field to display that data
 
 		self.id_callback (data)				# and tell our parents about the user's selection
 	#--------------------------------------------------------
-	def __on_enter (self):
+	def __on_enter (self, event):
 		"""Called when the user pressed <ENTER>.
 
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
-		print "on <enter>"
+		print "__on_enter"
 
 		# if we have a pick list
 		if self.__picklist_visible:
 			# tell the input field about it
-			self.OnSelected ()
+			self.__on_selected()
 	#--------------------------------------------------------
-	def __on_down(self):
-
-		print "__on_down"
+	def __on_cursor_down(self):
+		print "__on_cursor_down"
 
 		# if we have a pick list
 		if self.__picklist_visible:
@@ -411,42 +414,39 @@ class cPhraseWheel (wxTextCtrl):
 				self.__picklist.SetSelection (selected+1)
 		# if we don't have a pick list
 		else:
-			# but only if we have matches
-			if len(self.__currMatches) > 0:
-				self.__show_picklist()
+			pass
+	#--------------------------------------------------------
+	def __on_cursor_up(self):
+		print "__on_cursor_up"
+
+		# if we have a pick list
+		if self.__picklist_visible:
+			selected = self.__picklist.GetSelection ()
+			# select previous item if available
+			if selected > 0:
+				self.__picklist.SetSelection (selected-1)
+		# if we don't have a pick list
+		else:
+			pass
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def __on_key_up (self, key):
-		"""Is called when a key is released."""
-
-		print "__on_key_up"
+	def __on_key_pressed(self, key):
+		"""A key has been pressed."""
+		print "__on_key_pressed"
 
 		# user moved down
 		if key.GetKeyCode () == WXK_DOWN:
-			self.__on_down()
+			self.__on_cursor_down()
 			return
 
-		# user pressed <ENTER>
-		if key.GetKeyCode () == WXK_RETURN:
-			self.__on_enter()
-			return
+		if key.GetKeyCode() == WXK_UP:
+			self.__on_cursor_up()
 
-		# if we are in the drop down list
-		if self.__picklist_visible:
-			selected = self.__picklist.GetSelection()
-			# user moved up
-			if key.GetKeyCode() == WXK_UP:
-				# select previous item if available
-				if selected > 0:
-					self.__picklist.SetSelection (selected-1)
-			# FIXME: we need Page UP/DOWN, Pos1/End here
+		# FIXME: we need Page UP/DOWN, Pos1/End here
 
-			# user typed anything else
-			else:
-				key.Skip ()
-		else:
-			key.Skip()
+		print "skipping key"
+		key.Skip()
 	#--------------------------------------------------------
 	def __on_text_update (self, event):
 		"""Internal handler for EVT_TEXT (called when text has changed)"""
@@ -556,13 +556,10 @@ if __name__ == '__main__':
 # - wxEditableListBox ?
 
 # - press down only once to get into list
-# - auto repeat on down arrow key
-# - moving between list members is too slow
 
 # - if non-learning (i.e. fast select only): autocomplete with match
 #   and move cursor to end of match
 
-# don't drop down list if only one match and selection == match
 #-----------------------------------------------------------------------------------------------
 # darn ! this clever hack won't work since we may have crossed a search location threshold
 #----
