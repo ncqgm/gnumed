@@ -10,7 +10,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPublicAccounts.sql,v $
--- $Id: gmPublicAccounts.sql,v 1.1 2003-04-01 13:03:55 ncq Exp $
+-- $Id: gmPublicAccounts.sql,v 1.2 2003-04-29 12:35:39 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -33,14 +33,16 @@ CREATE USER "_any-doc"
 -- ===================================================
 -- do simple schema revision tracking
 --\i gmSchemaRevision.sql
---\unset ON_ERROR_STOP
---INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.1 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.2 $');
 
 \set ON_ERROR_STOP 1
 
 -- ===================================================
 -- $Log: gmPublicAccounts.sql,v $
--- Revision 1.1  2003-04-01 13:03:55  ncq
+-- Revision 1.2  2003-04-29 12:35:39  ncq
+-- - uncomment schema revision insertion
+--
+-- Revision 1.1  2003/04/01 13:03:55  ncq
 -- - for public databases
 --
 -- Revision 1.5  2003/02/07 14:33:21  ncq
