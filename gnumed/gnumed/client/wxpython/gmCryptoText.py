@@ -66,7 +66,7 @@ class gmCryptoText(wxTextCtrl):
     position
     """
 
-    def __init__(self, parent, id, defaulttext='Write something, select it with your mouse, and right click it'):
+    def __init__(self, parent, id, defaulttext=None):
         #initialize parent class
         wxTextCtrl.__init__(self, parent, id, style=wxTE_MULTILINE)
 
@@ -220,11 +220,13 @@ class gmCryptoText(wxTextCtrl):
         """This is a 'virtual' function which should be overridden to provide your own meaningful tag"""
         return '[rotor]'
 
+
     def SetFuzzyMargin(self, margin):
         """The fuzzy margin is the number of characters on each side of the text selection
         the decryption algorithm will search for correct delimiters. It should be at least as long as
         the IdentTag is plus an extra 3 characters to allow for the crypto tag"""
         self.fuzzymargin = margin
+
 
     def FuzzyScanSelection(self, frompos, topos, margin):
         fulltext = self.GetValue()
@@ -242,7 +244,12 @@ class gmCryptoText(wxTextCtrl):
             return ''
         return fulltext[left:right], left,right
 
-
+#############################################################################
+# test function for this module: simply run the module as "main"
+# a text entry window will pop up. Write something, select arbitray
+# segmnts of text with the mouse, and then right click the selection
+# for options like encryption, decryption, and setting of passphrase
+#############################################################################
 if __name__ == '__main__':
 	app = wxPyWidgetTester(size = (400, 400))
 	#show the login panel in a main window
