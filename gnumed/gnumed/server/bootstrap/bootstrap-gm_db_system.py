@@ -28,7 +28,7 @@ further details.
 # TODO: warn if empty password
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -76,6 +76,7 @@ except ImportError:
 			dsn_format = "%s:%s:%s:%s:%s"
 		except ImportError:
 			print "Cannot find Python module for connecting to the database server. Program halted."
+			print "Please check the log file and report to the mailing list."
 			_log.Log(gmLog.lErr, "Cannot load pgdb database adapter module.")
 			raise
 
@@ -1006,7 +1007,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.1  2003-02-25 08:26:49  ncq
+# Revision 1.2  2003-02-25 08:29:25  ncq
+# - added one more line so people are urged to check the log on failures
+#
+# Revision 1.1  2003/02/25 08:26:49  ncq
 # - moved here from server/utils/
 #
 # Revision 1.25  2003/02/23 19:07:06  ncq
