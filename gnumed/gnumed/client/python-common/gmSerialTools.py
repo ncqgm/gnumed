@@ -7,10 +7,10 @@ These functions are complementing pySerial.
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmSerialTools.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import time
+import time, string
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -52,7 +52,7 @@ def wait_for_str(aDrv = None, aString = '', aTimeout = 2500, max_bytes = 2048):
 				# did we exceed our character buffer limit ?
 				# this stops runaway serial ports
 				if len(rxd) >= max_bytes:
-					_log.Log(gmLog.lErr, 'exceeded maximum # of bytes to receive')
+					_log.Log(gmLog.lErr, 'exceeded maximum # of bytes (%s) to receive' % max_bytes)
 					return (0, rxd)
 		# nothing there, wait a slice
 		else:
@@ -63,6 +63,7 @@ def wait_for_str(aDrv = None, aString = '', aTimeout = 2500, max_bytes = 2048):
 
 	# hm, waited for aTimeout but expected string not received
 	_log.Log(gmLog.lWarn, 'wait for [%s] timed out after %s ms' % (aString, aTimeout), gmLog.lCooked)
+	_log.Log(gmLog.lData, rxd, gmLog.lCooked)
 	return (0, rxd)
 #--------------------------------------------------------
 def wait_for_data(aDrv = None, aTimeout = 2500):
@@ -92,7 +93,10 @@ def wait_for_data(aDrv = None, aTimeout = 2500):
 	return 0
 #========================================================
 # $Log: gmSerialTools.py,v $
-# Revision 1.2  2003-11-19 17:59:49  ncq
+# Revision 1.3  2003-11-21 15:59:47  ncq
+# - some cleanup
+#
+# Revision 1.2  2003/11/19 17:59:49  ncq
 # - slice must be float()ed to support sub-second slices
 #
 # Revision 1.1  2003/11/19 17:35:28  ncq
