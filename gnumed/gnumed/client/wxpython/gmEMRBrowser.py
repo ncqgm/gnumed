@@ -3,7 +3,7 @@
 """
 This is patient EMR pat history/notes viewer
 """
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "cfmoro1976@yahoo.es"
 #================================================================
 import os.path, sys
@@ -12,6 +12,7 @@ from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG
 from Gnumed.exporters import gmPatientExporter
+from Gnumed.business import gmEMRStructItems
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -52,20 +53,22 @@ if __name__ == '__main__':
             self.notes_splitter = wxSplitterWindow(self, -1)
             
             # EMR right tree
-            self.emr_tree = wxTreeCtrl(self.notes_splitter, -1, style=wxTR_HAS_BUTTONS|wxSUNKEN_BORDER)
+            self.__emr_tree = wxTreeCtrl(self.notes_splitter, -1, style=wxTR_HAS_BUTTONS|wxSUNKEN_BORDER)
             demo = exporter.get_patient().get_demographic_record()
             dump = demo.export_demographics(True)
-            active_item = self.emr_tree.AddRoot(dump['names'][0]['first'] + " EMR")
-            self.emr_tree.Expand(active_item)
+            active_item = self.__emr_tree.AddRoot(dump['names'][0]['first'] + " EMR")
+            self.__emr_tree.Expand(active_item)
             
             # selected encounter left dump
             self.notes_text_ctrl = wxTextCtrl(self.notes_splitter, -1, style=wxTE_MULTILINE|wxTE_READONLY|wxTE_DONTWRAP)
-            self.notes_text_ctrl.WriteText("Test text in control...")
     
             # final widget configuration and population
             self.__set_properties()
             self.__do_layout()
             self.refresh_tree()
+            
+            # event handlers
+            EVT_TREE_SEL_CHANGED(self.__emr_tree, self.__emr_tree.GetId(), self.__on_select)
 
         #--------------------------------------------------------    
         def __set_properties(self):
@@ -74,7 +77,7 @@ if __name__ == '__main__':
             """
             self.notes_splitter.SetSashPosition(150, True)
             self.notes_splitter.SetMinimumPaneSize(20)            
-            self.notes_splitter.SplitVertically(self.emr_tree, self.notes_text_ctrl)
+            self.notes_splitter.SplitVertically(self.__emr_tree, self.notes_text_ctrl)
 
         #--------------------------------------------------------    
         def __do_layout(self):
@@ -94,8 +97,18 @@ if __name__ == '__main__':
             """
             Updates EMR browser right tree
             """
-            self.__exporter.get_historical_tree(self.emr_tree)
+            self.__exporter.get_historical_tree(self.__emr_tree)
             
+        #--------------------------------------------------------
+        def __on_select(self, event):
+            """
+            Displays information for a selected tree node
+            """
+            item = event.GetItem()
+            itemData = self.__emr_tree.GetPyData(item)
+            if isinstance(itemData, gmEMRStructItems.cEncounter):
+                self.notes_text_ctrl.Clear()
+                self.notes_text_ctrl.WriteText(self.__exporter.dump_encounter_info(itemData))
 #== for plugin use ======================================
 else:
     # FIXME pending
@@ -190,6 +203,9 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.1  2004-07-21 12:30:25  ncq
+# Revision 1.2  2004-07-26 00:09:27  ncq
+# - Carlos brings us data display for the encounters - can REALLY browse EMR now !
+#
+# Revision 1.1  2004/07/21 12:30:25  ncq
 # - initial checkin
 #
