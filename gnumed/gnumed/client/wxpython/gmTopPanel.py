@@ -2,7 +2,7 @@
 # GPL
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 #===========================================================
 import sys, os.path, cPickle, zlib, string
@@ -16,6 +16,7 @@ from wxPython.wx import *
 
 ID_BTN_pat_demographics = wxNewId()
 ID_CBOX_consult_type = wxNewId()
+ID_CBOX_episode = wxNewId()
 
 # FIXME: need a better name here !
 bg_col = wxColour(214,214,214)
@@ -110,6 +111,20 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.szr_bottom_row = wxBoxSizer (wxHORIZONTAL)
 		self.pnl_bottom_row = wxPanel(self, -1)
 		self.szr_bottom_row.Add (self.pnl_bottom_row, 1, wxGROW)
+		# episode selector
+		# FIXME: handle input -> new episode
+		self.combo_episodes = wxComboBox (
+			self,
+			ID_CBOX_episode,
+			'',
+			wxDefaultPosition,
+			wxDefaultSize,
+			[],
+			wxCB_DROPDOWN
+		)
+		tt = wxToolTip(_('choose active episode\nany subsequent input will be attributed to this episode'))
+		self.combo_episodes.SetToolTip(tt)
+		self.szr_bottom_row.Add(self.combo_episodes, 0, wxRIGHT, 0)
 		# consultation type selector
 		self.combo_consultation_type = wxComboBox (
 			self,
@@ -118,8 +133,9 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 			wxDefaultPosition,
 			wxDefaultSize,
 			self.__consultation_types,
-			wxCB_DROPDOWN
+			wxCB_DROPDOWN | wxCB_READONLY
 		)
+		self.combo_consultation_type.SetToolTip(wxToolTip(_('choose consultation type')))
 		self.szr_bottom_row.Add(self.combo_consultation_type, 0, wxRIGHT, 0)
 
 		# - stack them atop each other
@@ -180,9 +196,13 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 	def __register_interests(self):
 		# events
 		EVT_BUTTON(self, ID_BTN_pat_demographics, self.__on_display_demographics)
+		EVT_COMBOBOX(self, ID_CBOX_episode, self._on_episode_selected)
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.allergy_updated(), receiver=self._update_allergies)
+	#----------------------------------------------
+	def _on_episode_selected(self, evt):
+		print "episode selected"
 	#----------------------------------------------
 	def _on_patient_selected(self, **kwargs):
 		age = self.curr_pat['demographic record'].getMedicalAge ()
@@ -191,7 +211,14 @@ K\xc7+x\xef?]L\xa2\xb5r!D\xbe\x9f/\xc1\xe7\xf9\x9d\xa7U\xcfo\x85\x8dCO\xfb\
 		self.txt_age.SetValue(age)
 		name = self.curr_pat['demographic record'].getActiveName()
 		self.patient_selector.SetValue('%s, %s' % (name['last'], name['first']))
+
 		self._update_allergies()
+
+		# update episode selector
+		self.combo_episodes.Clear()
+		episodes = self.curr_pat['clinical record'].get_episodes()
+		for key in episodes.keys():
+			self.combo_episodes.Append(episodes[key], key)
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -297,7 +324,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.25  2003-11-18 23:48:08  ncq
+# Revision 1.26  2004-01-06 10:07:42  ncq
+# - add episode selector to the left of the encounter type selector
+#
+# Revision 1.25  2003/11/18 23:48:08  ncq
 # - remove merge conflict remnants in update_allergy
 #
 # Revision 1.24  2003/11/17 10:56:39  sjtan
