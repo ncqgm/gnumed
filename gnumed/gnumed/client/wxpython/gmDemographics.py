@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.43 2004-10-16 22:42:12 sjtan Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmDemographics.py,v 1.44 2004-10-17 22:26:42 sjtan Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -202,7 +202,56 @@ class ExtIDPanel:
 #		- self.sizer_for_patientlist expands vertically and horizontally
 #		- self.gs expands horizontally but not vertically
 #---------------------------------------------------------------------------------------------------------
-class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
+class PatientsPanel(wx.wxPanel):
+
+	def __init__(self, parent, id= -1):
+		wx.wxPanel.__init__ (
+			self,
+			parent,
+			id,
+			wx.wxPyDefaultPosition,
+			wx.wxPyDefaultSize,
+			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+		)
+		self.gb = gmGuiBroker.GuiBroker()
+		self.__createdemographicgui()									#draw the user interface
+#		self.__add_character_validators()
+ 		#self._updateUI()
+
+	def  __createdemographicgui(self):
+		#-----------------------------------------------------------
+		#   top level page layout:
+		#  --------------------------------------
+		# | patient search multiple results list |
+		# |--------------------------------------
+		# |      patient data entry are          |
+		#  --------------------------------------
+		self.main_splitWindow = wx.wxSplitterWindow( self, -1, point = wx.wxDefaultPosition,  size = wx.wxDefaultSize, style=wx.wxSP_3DSASH)
+		self.patientListWin = PatientListWindow(self.main_splitWindow)
+		self.patientDetailWin = PatientDetailWindow(self.main_splitWindow)
+
+		self.main_splitWindow.SplitHorizontally( self.patientListWin, self.patientDetailWin)
+		self.sizer_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.sizer_main.Add(self.main_splitWindow, 1, wx.wxEXPAND | wx.wxALL)
+#		self.sizer_main.Add (sizer_top_patientlist, 1, wx.wxEXPAND | wx.wxALL, 20)
+#		self.sizer_main.Add(sizer_bottom_patient_dataentry, 0, wx.wxEXPAND | wx.wxBOTTOM, 20)
+#		self.sizer_main.Add(sizer_top_patientlist, 1, wx.wxEXPAND | wx.wxALL, 2)
+#		self.sizer_main.Add(sizer_bottom_patient_dataentry, 0, wx.wxEXPAND | wx.wxALL, 2)
+
+		# adjust layout
+		self.SetSizer(self.sizer_main)
+#		self.SetSizer( self.main_splitWindow)
+		self.SetAutoLayout(True)
+		self.sizer_main.Fit(self)
+
+
+
+	#-----------------------------------------------------------
+
+class PatientListWindow(wx.wxPanel):		
+#E	, gmPatientHolder.PatientHolder):
+#		# FIXME: remove
+#		gmPatientHolder.PatientHolder.__init__(self)
 
 	def __init__(self, parent, id= -1):
 		wx.wxPanel.__init__ (
@@ -214,47 +263,9 @@ class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
 			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
 		)
 		# FIXME: remove
-		gmPatientHolder.PatientHolder.__init__(self)
 		self.gb = gmGuiBroker.GuiBroker()
-		try:
-			self.mwm = self.gb['clinical.manager']
-		except:
-			self.mwm = {}
-		self.to_delete = []
-		self.addr_cache = []
-		self.gendermap = {
-			'm': _('Male'),
-			'f': _("Female"),
-			'?': _("Unknown"),
-			'tm': _('Trans. Male'),
-			'tf': _('Trans. Female'),
-			'h':_('Hermaphrodite')
-		}
-		self.comm_channel_names = gmDemographicRecord.getCommChannelTypes()
-		self.__createdemographicgui()									#draw the user interface
-		self.__create_input_field_map()
-#		self.__add_character_validators()
-		self.__register_events()
- 		#self._updateUI()
-	#-----------------------------------------------------------
-	def __register_events(self):
-		# patient list popup menu
-		wx.EVT_RIGHT_UP(self.patientlist, self._on_RightClick_patientlist)
-		wx.EVT_MENU(self, ID_Popup_SaveDisplayLayout, self._on_PopupSaveDisplayLayout)
-		wx.EVT_MENU(self, ID_Popup_AddPerson , self._on_Popup_AddPerson)
-		wx.EVT_MENU(self, ID_Popup_AddAddressForPerson, self._on_Popup_AddAddressForPerson)
-		wx.EVT_MENU(self, ID_Popup_AddFamilyMember, self._on_Popup_AddFamilyMember)
-		wx.EVT_MENU(self, ID_Popup_DeletePerson, self._on_Popup_DeletePerson)
-		wx.EVT_MENU(self, ID_Popup_DeleteAddressForPerson, self._on_Popup_DeleteAddressForPerson)
-		wx.EVT_MENU(self, ID_Popup_UndoDelete, self._on_Popup_UndoDelete)
-		wx.EVT_MENU(self, ID_Popup_SortA_Z, self._on_Popup_SortA_Z)
-		wx.EVT_MENU(self, ID_Popup_SortZ_A, self._on_PopupEight_SortZ_A)
-		wx.EVT_MENU(self, ID_Popup_ChangeFont, self._on_SelectFontPatientList)
-		wx.EVT_MENU(self, ID_Popup_SaveDisplayLayout, self._on_PopupSaveDisplayLayout)
-		wx.EVT_MENU(self, ID_Popup_BuildSQL, self._on_Popup_BuildSQL)
-		wx.EVT_MENU(self, ID_Popup_Help, self._on_PopupHelp)
-		#wx.EVT_MENU(self, ID_Popup_AddPerson 3, self._on_PopupThirteen)
-		#wx.EVT_MENU(self, ID_Popup_AddPerson 4, self._on_Popup_DeletePersonteen)
+		self.__createdemographicgui()
+
 	#-----------------------------------------------------------
 	def  __createdemographicgui(self):
 		#------------------------------------------------------------------------
@@ -322,6 +333,249 @@ class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
 			| wx.wxTOP | wx.wxLEFT | wx.wxBOTTOM,	# edges
 			2						# by a 10 pixel border
 		)
+		# adjust layout
+		self.SetSizer(sizer_top_patientlist)
+#		self.SetSizer( self.main_splitWindow)
+		self.SetAutoLayout(True)
+		sizer_top_patientlist.Fit(self)
+		self.__register_events()
+
+	def __register_events(self):
+		# patient list popup menu
+		wx.EVT_RIGHT_UP(self.patientlist, self._on_RightClick_patientlist)
+		wx.EVT_MENU(self, ID_Popup_SaveDisplayLayout, self._on_PopupSaveDisplayLayout)
+		wx.EVT_MENU(self, ID_Popup_AddPerson , self._on_Popup_AddPerson)
+		wx.EVT_MENU(self, ID_Popup_AddAddressForPerson, self._on_Popup_AddAddressForPerson)
+		wx.EVT_MENU(self, ID_Popup_AddFamilyMember, self._on_Popup_AddFamilyMember)
+		wx.EVT_MENU(self, ID_Popup_DeletePerson, self._on_Popup_DeletePerson)
+		wx.EVT_MENU(self, ID_Popup_DeleteAddressForPerson, self._on_Popup_DeleteAddressForPerson)
+		wx.EVT_MENU(self, ID_Popup_UndoDelete, self._on_Popup_UndoDelete)
+		wx.EVT_MENU(self, ID_Popup_SortA_Z, self._on_Popup_SortA_Z)
+		wx.EVT_MENU(self, ID_Popup_SortZ_A, self._on_PopupEight_SortZ_A)
+		wx.EVT_MENU(self, ID_Popup_ChangeFont, self._on_SelectFontPatientList)
+		wx.EVT_MENU(self, ID_Popup_SaveDisplayLayout, self._on_PopupSaveDisplayLayout)
+		wx.EVT_MENU(self, ID_Popup_BuildSQL, self._on_Popup_BuildSQL)
+		wx.EVT_MENU(self, ID_Popup_Help, self._on_PopupHelp)
+		#wx.EVT_MENU(self, ID_Popup_AddPerson 3, self._on_PopupThirteen)
+		#wx.EVT_MENU(self, ID_Popup_AddPerson 4, self._on_Popup_DeletePersonteen)
+
+	def _on_RightClick_patientlist(self, event):
+# 		Maximise Viewing Area
+# 		Minimise Viewing Area
+# 		---------------------
+# 		Add Person
+# 		Add Address for person
+# 		Add Family Member
+# 		--------------------------
+# 		Delete Person
+# 		Delete Address for person
+# 		Undo Delete
+# 		------------------------------------
+# 		Sort A_Z
+# 		Sort Z_A
+# 		--------------
+# 		Change Font
+# 		Save Display Layout
+# 		--------------------------
+# 		Build SQL
+# 		-------------------
+# 		Help
+# 		----------------
+# 		Exit
+
+		#self.log.WriteText("OnRightClick\n")
+
+		#-----------------------------------------------------------------
+		# make a menu to popup over the patient list
+		#-----------------------------------------------------------------
+		self.menu_patientlist = wx.wxMenu()
+		#Trigger routine to clear all textboxes to add entirely new person
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_AddPerson ,"Add Person")
+		item.SetBitmap(images_patient_demographics.getperson_addBitmap())
+		self.menu_patientlist.AppendItem(item)
+
+		#Trigger routine to clear all address textboxes only to add another address
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_AddAddressForPerson, "Add Address for person")
+		item.SetBitmap(images_patient_demographics.getbranch_addBitmap())
+		self.menu_patientlist.AppendItem(item)
+		#Trigger routine to clear person details, leave address, home phone
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_AddFamilyMember,"Add Family Member")
+		item.SetBitmap(images_patient_demographics.getemployeesBitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#Trigger routine to delete a person
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_DeletePerson,"Delete Person")
+		item.SetBitmap(images_patient_demographics.getcutBitmap())
+		self.menu_patientlist.AppendItem(item)
+
+		#Trigger routine to delete an address (if > 1) for a person
+		self.menu_patientlist.Append(ID_Popup_DeleteAddressForPerson, "Delete Address for person")
+		self.menu_patientlist.AppendSeparator()
+
+		#Trigger nested undo-deletes
+		self.menu_patientlist.Append(ID_Popup_UndoDelete, "Undo Delete")
+		#self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#trigger routine to sort visible patient lists by surname A_Z
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_SortA_Z,"Sort A_Z")
+		item.SetBitmap(images_patient_demographics.getsort_A_ZBitmap())
+		self.menu_patientlist.AppendItem(item)
+
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_SortZ_A,"Sort Z_A")
+		item.SetBitmap(images_patient_demographics.getsort_Z_ABitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+
+		self.menu_patientlist.Append(ID_Popup_ChangeFont, "Change Font")
+
+		self.menu_patientlist.Append(ID_Popup_SaveDisplayLayout, "Save Display Layout")
+		#self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#Save search query to database as user defined query
+		item = wx.wxMenuItem(self.menu_patientlist,ID_Popup_BuildSQL, "Build SQL")
+		item.SetBitmap(images_patient_demographics.getsqlBitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+		#Jump to help for patients_list
+		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_Help,  "Help")
+		item.SetBitmap(images_patient_demographics.gethelpBitmap())
+		self.menu_patientlist.AppendItem(item)
+		self.menu_patientlist.AppendSeparator()
+
+
+		# Popup the menu.  If an item is selected then its handler
+		# will be called before PopupMenu returns.
+		self.PopupMenu(self.menu_patientlist, event.GetPosition())
+		self.menu_patientlist.Destroy()
+
+
+	def _on_Popup_AddPerson(self, event):
+	       print 'I\'m adding a person.....'
+		#self.log.WriteText("Popup one\n")
+
+	def _on_Popup_AddAddressForPerson(self, event):
+		print 'I\'m adding a new address for a person.....'
+
+	def _on_Popup_AddFamilyMember(self, event):
+		print 'I\'m adding a family member.....'
+
+
+	def _on_Popup_DeletePerson(self, event):
+		print 'I\'m deleting a person....'
+
+	def _on_Popup_DeleteAddressForPerson(self, event):
+		print 'I\'m deleting an address for a person...'
+
+	def _on_Popup_UndoDelete(self, event):
+		print 'I\'m undoing the last delete....'
+
+	def _on_Popup_SortA_Z(self, event):
+		print 'I\'m sorting A to Z..'
+
+	def _on_PopupEight_SortZ_A(self,event):
+		print 'I\'m sorting Z_A...'
+	def _on_Popup_BuildSQL(self, event):
+		print '\'m saving the sql of this search'
+
+	def _on_PopupHelp(self, event):
+		print 'I\'m popping up help'
+
+
+	def UpdateFontPatientListI(self):
+		self.patientlist.SetFont(self.curFont)
+	# 			self.ps.SetLabel(str(self.curFont.GetPointSize()))
+	# 			self.family.SetLabel(self.curFont.GetFamilyString())
+	# 			self.style.SetLabel(self.curFont.GetStyleString())
+	# 			self.weight.SetLabel(self.curFont.GetWeightString())
+	# 			self.face.SetLabel(self.curFont.GetFaceName())
+	# 			self.nfi.SetLabel(self.curFont.GetNativeFontInfo().ToString())
+		self.Layout()
+
+	def _on_SelectFontPatientList(self, evt):
+		self.curFont = self.patientlist.GetFont()
+        	self.curClr = wx.wxBLACK
+		print 'Selecting font list'
+		data = wx.wxFontData()
+		data.EnableEffects(True)
+		data.SetColour(self.curClr)         # set colour
+		data.SetInitialFont(self.curFont)
+
+		dlg = wx.wxFontDialog(self, data)
+		if dlg.ShowModal() == wx.wxID_OK:
+			data = dlg.GetFontData()
+			font = data.GetChosenFont()
+			colour = data.GetColour()
+# 			self.log.WriteText('You selected: "%s", %d points, color %s\n' %
+# 					(font.GetFaceName(), font.GetPointSize(),
+# 						colour.Get()))
+			self.curFont = font
+			self.curClr = colour
+			self.UpdateFontPatientListI()
+		dlg.Destroy()
+	#----------------------------------------------------------
+	def _on_PopupSaveDisplayLayout(self, event):
+		wx.wxBeginBusyCursor()
+		pat_cols_widths = []										#create empty list
+		for col in range (0, self.patientlist.GetColumnCount()): 			# get widths of columns
+			pat_cols_widths.append(self.patientlist.GetColumnWidth(col))		# add to the list
+		gmCfg.setDBParam (										# set the value for the current user/workplace
+			workplace = _whoami.get_workplace(),
+			option = "widgets.demographics.patientlist.column_sizes",
+			value = pat_cols_widths
+		)
+		wx.wxEndBusyCursor()
+	#----------------------------------------------------------
+	def _on_PopupEleven(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def _on_PopupTwelve(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def _on_PopupThirteen(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def _on_Popup_DeletePersonteen(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def _on_PopupFifteen(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	def _on_Popup_UndoDeleteteen(self, event):
+		self.log.WriteText("Popup nine\n")
+
+	
+class PatientDetailWindow(wx.wxPanel):		
+	def __init__(self, parent, id= -1):
+		wx.wxPanel.__init__ (
+			self,
+			parent,
+			id,
+			wx.wxPyDefaultPosition,
+			wx.wxPyDefaultSize,
+			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+		)
+		# FIXME: remove
+		self.gb = gmGuiBroker.GuiBroker()
+		try:
+			self.mwm = self.gb['clinical.manager']
+		except:
+			self.mwm = {}
+		self.to_delete = []
+		self.addr_cache = []
+		self.comm_channel_names = gmDemographicRecord.getCommChannelTypes()
+		self.gendermap = {
+			'm': _('Male'),
+			'f': _("Female"),
+			'?': _("Unknown"),
+			'tm': _('Trans. Male'),
+			'tf': _('Trans. Female'),
+			'h':_('Hermaphrodite')
+		}
+		self.__createdemographicgui()
+		self.__create_input_field_map()
+
+		
+	def  __createdemographicgui(self):
 		lbl_space = BlueLabel_Normal(self,-1,"",wx.wxLEFT) #This lbl_space is used as a spacer between label
 
 
@@ -680,25 +934,9 @@ class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
 		sizer_bottom_patient_dataentry.Add(sizer_leftside, 1, wx.wxEXPAND | wx.wxRIGHT, 5)
 		sizer_bottom_patient_dataentry.Add(sizer_rightside, 1, wx.wxEXPAND)
 
-		#-----------------------------------------------------------
-		#   top level page layout:
-		#  --------------------------------------
-		# | patient search multiple results list |
-		# |--------------------------------------
-		# |      patient data entry are          |
-		#  --------------------------------------
-		self.sizer_main = wx.wxBoxSizer(wx.wxVERTICAL)
-#		self.sizer_main.Add (sizer_top_patientlist, 1, wx.wxEXPAND | wx.wxALL, 20)
-#		self.sizer_main.Add(sizer_bottom_patient_dataentry, 0, wx.wxEXPAND | wx.wxBOTTOM, 20)
-		self.sizer_main.Add(sizer_top_patientlist, 1, wx.wxEXPAND | wx.wxALL, 2)
-		self.sizer_main.Add(sizer_bottom_patient_dataentry, 0, wx.wxEXPAND | wx.wxALL, 2)
-
-		# adjust layout
-		self.SetSizer(self.sizer_main)
+		self.SetSizer(sizer_bottom_patient_dataentry)
 		self.SetAutoLayout(True)
-		self.sizer_main.Fit(self)
-
-
+		sizer_bottom_patient_dataentry.Fit(self)
 
 #
  	def __add_character_validators(self):
@@ -743,6 +981,7 @@ class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
 				self.txt_postcode.input_was_selected= 1
 			except:
 				gmLog.gmDefLog.LogException( "select urb problem", sys.exc_info(), verbose=0)
+
 
 	def _address_selected( self, event):
 		 #IAN TO RECONNECT
@@ -975,189 +1214,6 @@ class PatientsPanel(wx.wxPanel, gmPatientHolder.PatientHolder):
 		self.__update_nok()
 
 
-	def _on_RightClick_patientlist(self, event):
-# 		Maximise Viewing Area
-# 		Minimise Viewing Area
-# 		---------------------
-# 		Add Person
-# 		Add Address for person
-# 		Add Family Member
-# 		--------------------------
-# 		Delete Person
-# 		Delete Address for person
-# 		Undo Delete
-# 		------------------------------------
-# 		Sort A_Z
-# 		Sort Z_A
-# 		--------------
-# 		Change Font
-# 		Save Display Layout
-# 		--------------------------
-# 		Build SQL
-# 		-------------------
-# 		Help
-# 		----------------
-# 		Exit
-
-		#self.log.WriteText("OnRightClick\n")
-
-		#-----------------------------------------------------------------
-		# make a menu to popup over the patient list
-		#-----------------------------------------------------------------
-		self.menu_patientlist = wx.wxMenu()
-		#Trigger routine to clear all textboxes to add entirely new person
-		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_AddPerson ,"Add Person")
-		item.SetBitmap(images_patient_demographics.getperson_addBitmap())
-		self.menu_patientlist.AppendItem(item)
-
-		#Trigger routine to clear all address textboxes only to add another address
-		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_AddAddressForPerson, "Add Address for person")
-		item.SetBitmap(images_patient_demographics.getbranch_addBitmap())
-		self.menu_patientlist.AppendItem(item)
-		#Trigger routine to clear person details, leave address, home phone
-		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_AddFamilyMember,"Add Family Member")
-		item.SetBitmap(images_patient_demographics.getemployeesBitmap())
-		self.menu_patientlist.AppendItem(item)
-		self.menu_patientlist.AppendSeparator()
-		#Trigger routine to delete a person
-		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_DeletePerson,"Delete Person")
-		item.SetBitmap(images_patient_demographics.getcutBitmap())
-		self.menu_patientlist.AppendItem(item)
-
-		#Trigger routine to delete an address (if > 1) for a person
-		self.menu_patientlist.Append(ID_Popup_DeleteAddressForPerson, "Delete Address for person")
-		self.menu_patientlist.AppendSeparator()
-
-		#Trigger nested undo-deletes
-		self.menu_patientlist.Append(ID_Popup_UndoDelete, "Undo Delete")
-		#self.menu_patientlist.AppendItem(item)
-		self.menu_patientlist.AppendSeparator()
-		#trigger routine to sort visible patient lists by surname A_Z
-		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_SortA_Z,"Sort A_Z")
-		item.SetBitmap(images_patient_demographics.getsort_A_ZBitmap())
-		self.menu_patientlist.AppendItem(item)
-
-		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_SortZ_A,"Sort Z_A")
-		item.SetBitmap(images_patient_demographics.getsort_Z_ABitmap())
-		self.menu_patientlist.AppendItem(item)
-		self.menu_patientlist.AppendSeparator()
-
-		self.menu_patientlist.Append(ID_Popup_ChangeFont, "Change Font")
-
-		self.menu_patientlist.Append(ID_Popup_SaveDisplayLayout, "Save Display Layout")
-		#self.menu_patientlist.AppendItem(item)
-		self.menu_patientlist.AppendSeparator()
-		#Save search query to database as user defined query
-		item = wx.wxMenuItem(self.menu_patientlist,ID_Popup_BuildSQL, "Build SQL")
-		item.SetBitmap(images_patient_demographics.getsqlBitmap())
-		self.menu_patientlist.AppendItem(item)
-		self.menu_patientlist.AppendSeparator()
-		#Jump to help for patients_list
-		item = wx.wxMenuItem(self.menu_patientlist, ID_Popup_Help,  "Help")
-		item.SetBitmap(images_patient_demographics.gethelpBitmap())
-		self.menu_patientlist.AppendItem(item)
-		self.menu_patientlist.AppendSeparator()
-
-
-		# Popup the menu.  If an item is selected then its handler
-		# will be called before PopupMenu returns.
-		self.PopupMenu(self.menu_patientlist, event.GetPosition())
-		self.menu_patientlist.Destroy()
-
-
-	def _on_Popup_AddPerson(self, event):
-	       print 'I\'m adding a person.....'
-		#self.log.WriteText("Popup one\n")
-
-	def _on_Popup_AddAddressForPerson(self, event):
-		print 'I\'m adding a new address for a person.....'
-
-	def _on_Popup_AddFamilyMember(self, event):
-		print 'I\'m adding a family member.....'
-
-
-	def _on_Popup_DeletePerson(self, event):
-		print 'I\'m deleting a person....'
-
-	def _on_Popup_DeleteAddressForPerson(self, event):
-		print 'I\'m deleting an address for a person...'
-
-	def _on_Popup_UndoDelete(self, event):
-		print 'I\'m undoing the last delete....'
-
-	def _on_Popup_SortA_Z(self, event):
-		print 'I\'m sorting A to Z..'
-
-	def _on_PopupEight_SortZ_A(self,event):
-		print 'I\'m sorting Z_A...'
-	def _on_Popup_BuildSQL(self, event):
-		print '\'m saving the sql of this search'
-
-	def _on_PopupHelp(self, event):
-		print 'I\'m popping up help'
-
-
-	def UpdateFontPatientListI(self):
-		self.patientlist.SetFont(self.curFont)
-	# 			self.ps.SetLabel(str(self.curFont.GetPointSize()))
-	# 			self.family.SetLabel(self.curFont.GetFamilyString())
-	# 			self.style.SetLabel(self.curFont.GetStyleString())
-	# 			self.weight.SetLabel(self.curFont.GetWeightString())
-	# 			self.face.SetLabel(self.curFont.GetFaceName())
-	# 			self.nfi.SetLabel(self.curFont.GetNativeFontInfo().ToString())
-		self.Layout()
-
-	def _on_SelectFontPatientList(self, evt):
-		self.curFont = self.patientlist.GetFont()
-        	self.curClr = wx.wxBLACK
-		print 'Selecting font list'
-		data = wx.wxFontData()
-		data.EnableEffects(True)
-		data.SetColour(self.curClr)         # set colour
-		data.SetInitialFont(self.curFont)
-
-		dlg = wx.wxFontDialog(self, data)
-		if dlg.ShowModal() == wx.wxID_OK:
-			data = dlg.GetFontData()
-			font = data.GetChosenFont()
-			colour = data.GetColour()
-# 			self.log.WriteText('You selected: "%s", %d points, color %s\n' %
-# 					(font.GetFaceName(), font.GetPointSize(),
-# 						colour.Get()))
-			self.curFont = font
-			self.curClr = colour
-			self.UpdateFontPatientListI()
-		dlg.Destroy()
-	#----------------------------------------------------------
-	def _on_PopupSaveDisplayLayout(self, event):
-		wx.wxBeginBusyCursor()
-		pat_cols_widths = []										#create empty list
-		for col in range (0, self.patientlist.GetColumnCount()): 			# get widths of columns
-			pat_cols_widths.append(self.patientlist.GetColumnWidth(col))		# add to the list
-		gmCfg.setDBParam (										# set the value for the current user/workplace
-			workplace = _whoami.get_workplace(),
-			option = "widgets.demographics.patientlist.column_sizes",
-			value = pat_cols_widths
-		)
-		wx.wxEndBusyCursor()
-	#----------------------------------------------------------
-	def _on_PopupEleven(self, event):
-		self.log.WriteText("Popup nine\n")
-
-	def _on_PopupTwelve(self, event):
-		self.log.WriteText("Popup nine\n")
-
-	def _on_PopupThirteen(self, event):
-		self.log.WriteText("Popup nine\n")
-
-	def _on_Popup_DeletePersonteen(self, event):
-		self.log.WriteText("Popup nine\n")
-
-	def _on_PopupFifteen(self, event):
-		self.log.WriteText("Popup nine\n")
-
-	def _on_Popup_UndoDeleteteen(self, event):
-		self.log.WriteText("Popup nine\n")
 #============================================================
 if __name__ == "__main__":
 	from Gnumed.pycommon import gmGuiBroker
@@ -1166,7 +1222,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.43  2004-10-16 22:42:12  sjtan
+# Revision 1.44  2004-10-17 22:26:42  sjtan
+#
+# split window new look Richard's demographics ( his eye for gui design is better
+# than most of ours). Rollback if vote no.
+#
+# Revision 1.43  2004/10/16 22:42:12  sjtan
 #
 # script for unitesting; guard for unit tests where unit uses gmPhraseWheel; fixup where version of wxPython doesn't allow
 # a child widget to be multiply inserted (gmDemographics) ; try block for later versions of wxWidgets that might fail
