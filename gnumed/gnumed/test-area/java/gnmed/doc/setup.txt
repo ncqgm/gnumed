@@ -1,0 +1,24 @@
+1.
+make sure the schema.has.been.exported property in gnmed-test.properties = false
+
+2. to reset the database
+psql -h 127.0.0.1 template1  (grant access for the user from 127.0.0.1 through pgdata/hba_conf.conf )
+drop schema public cascade;
+create schema public cascade;
+grant all on schema public to yourname;
+\q
+
+3.To load the database
+ant testLoadPostcode
+
+4.Need to load part of org.drugref.data.dump
+psql -f org.drugref.data.dump -h 127.0.0.1 template1
+
+This loads the disease_code table with the data from drugref.org 
+
+5.check this exists
+psql -h 127.0.0.1 template1
+select * from disease_code;
+
+6. TestClinHealthIssue and higher test cases won't work without disease_code being loaded.
+

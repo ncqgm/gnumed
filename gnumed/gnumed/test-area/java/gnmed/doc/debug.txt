@@ -9,6 +9,8 @@
 
 3. mapping for polymorphic persistence error a pain. Remove id from subclasses , try deleting
 all generated hbm.xml files, if can't find from reading the files. Fixed with persistence.
+27/7/2003 - the actual problem is lack of a tag for the base class java file: @hibernate.discriminator column="" type="" length=""
+
 
 4. comment out cross-package reference from gmIdentity to gmClinical and debug that.
    
@@ -35,5 +37,51 @@ keeps one session active . This avoids conflicting sessions within the same thre
 11.TestClinHealthIssue not cascading through the cascade="delete" tag in identity.clin_health_issues,
 made it cascade="all" so now saving operation cascades to clin_health_issues. Made sure clin_diagnosis cascades to code_ref as well. Cascade is one of the main reasons for using O-R mapping.
 
+12. Note on the Mouse Wheel - now that I'm on the Hibernate mouse wheel here's some notes about the behaviour of the mouse:
+    1. I get transient objects to work and test association with the DomainPrinter output. Easy enough, because of the 
+auto-generated associations have no typing mistakes.
+    2. This gives me a reward and operant conditioning makes me try to persist a list of the new transient objects.
+    3. I am sorely disappointed multiple times when I find I make several mapping mistakes:
+        a) forget a discriminator column definition for the bas class of a class heirarchy
+        b) the configurator follows the association tags I wrote mechanically to classes I'm not debugging yet,
+        so comment out the previous tagging work. Cycle several times. 
+        c) I get a transient object reference exception, I have to dig the configuration files to find out where I've
+        forgotten to add a cascade attribute to an association, or there's been a wrong type of cascade ("delete" instead
+        of "all" or "save-update")
+    4. after multiple failures, it sudenly works, and I'm even more positively reinforced to run on the Hibernate wheel.
+
+13. the con about mapping trees :- very high dependency between classes.
+    - can't have 2 classes reference the same class , must pull up to super-class
+example: clin_issue_component must pull up the code_ref reference from immunity and diagnosis,
+because the tag generator only generates a reference for one of them.
+
+14. missing bidirectional association code in identity for clin_encounters. Poseidon generated for provider because
+same type.
+
+15. CASCADES - there IS a disadvantage.
+    1) when lazy = "false" for a one-to-many association then an object's associations will be loaded when the
+object is loaded. This would not be good if identities were only to be used for their addresses such as in 
+a patient finder dialog. 
+    If lazy="false" for clin_encounters  in identity, then the dialog would need to retrieve the attributes of identity 
+e.g. sess.find("select id.names, id.birthdate, id.genotype, id.identities_addressess 
+                    from org.gnumed.gmIdentity.identity id where id.names.lastnames like ?"...)
+
+    2) when lazy="true" then just the object will be loaded, and any accessor operation occuring on the
+collection before a mutator operation ( add or delete) to the collection will result in a null collection returned.
+    there for the dialog would be more straight forward, 
+    but to load the rest of the info on the identity , then manually load the clin_encounters and clin_health_issues.
+
+    3) when cascade is not "none" there mustn't be a path back to the a type encountered on the path e.g.
+        cannot save if there is a cascade from identity to clin_encounter and from clin_encounter to provider which
+is identity type.  This cycle causes a deadlock in the transaction,
+        solution is to manually save the cycling link , i.e. save the providers of each clinical encoounter, before
+saving the identity.
+
+16. Bug fix - changed clin_encounter.provider to cascade="none" to avoid deadlock cycle when trying to save identity.
+(cannot save another identity when in the middle of saving an identity).
+
+17. chose to make lazy="false" for identity.clin_encounters , identity.clin_health_issues, and clin_encounters.clin_root_items
+so that loading up an identity is simple ( but inefficient). In other words, any directly loaded identity means
+the entire medical record for the identity is loaded.
 
 

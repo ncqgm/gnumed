@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Written to assume that classpath is rooted in the current directory. --><!-- So this should be OK if you make this script in the root of a filesystem. --><!-- If not, you may prefer to adjust the basedir, or move some directories around. --><!-- The idea is that both Ant and NetBeans have to know what the package root is --><!-- for the classes in your application. --><project basedir="." default="all" name="myapp">
+<!-- Written to assume that classpath is rooted in the current directory. --><!-- So this should be OK if you make this script in the root of a filesystem. --><!-- If not, you may prefer to adjust the basedir, or move some directories around. --><!-- The idea is that both Ant and NetBeans have to know what the package root is --><!-- for the classes in your application. --><project basedir="." default="all" name="gnmed">
 
     <!-- Don't worry if you don't know the Ant syntax completely or need help on some tasks! -->
     <!-- The standard Ant documentation can be downloaded from AutoUpdate and -->
@@ -124,5 +124,22 @@
                 <fileset dir="${lib.dir}"> <include name="**/*.jar"/> </fileset>
             </classpath>
     	</java>
+    </target>
+    <target depends="init, xdocletToHibernate, compile" name="testLoadPostcode">
+        <java classname="gnmed.test.TestCSVLoader" failonerror="true" fork="true">
+            <classpath path="./lib">
+                <pathelement location="."/>
+                <fileset dir="${lib.dir}"> <include name="**/*.jar"/> </fileset>
+            </classpath>
+    	</java>
+    </target>
+    <target depends="init, xdocletToHibernate, compile" name="testClinEncounter">
+        <java classname="gnmed.test.TestClinEncounter" failonerror="true" fork="true">
+            <classpath path="./lib">
+                <pathelement location="."/>
+                <fileset dir="${lib.dir}"> <include name="**/*.jar"/> </fileset>
+            </classpath>
+    	    <jvmarg line="-server"/>
+        </java>
     </target>
 </project>
