@@ -42,15 +42,17 @@ class DlgSelectPerson(SQLSimpleSearch):
 
 	def TransformQuery(self, searchexpr):
 		"'virtual' function of the base class, adjusted to the needs of this dialog"
-		selectclause = "select * from v_selectperson"
-		orderclause = "order by surname, firstnames"
+		selectclause = "select * from v_basic_person"
+		orderclause = "order by lastnames, firstnames"
 		if self.checkboxCaseInsensitive.GetValue():
-			whereclause = "where (surname ~* '%s')" % searchexpr
+			#perform (slower) case insensitive search
+			whereclause = "where (lastnames ilike '%s')" % (searchexpr + '%')
 		else:
-			whereclause = "where (surname like '%s')" % searchexpr
+			whereclause = "where (lastnames like '%s')" % (searchexpr +'%')
 
             	query = "%s %s %s;" % (selectclause, whereclause, orderclause)
-		#print query
+		print "gmSelectPerson transformed query to: ", query
+		return query
 
 
 if __name__ == "__main__":

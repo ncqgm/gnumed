@@ -142,13 +142,15 @@ class SQLSimpleSearch(wxPanel):
 		searchexpr = self.comboSearchExpr.GetValue()
 		querystr = self.TransformQuery(searchexpr)
 		self.listctrlSearchResults.SetQueryStr(querystr, self.__service)
+		print "gmSQLSimpleSearch.py: running query %s on service %s" % (querystr, self.__service)
 		self.listctrlSearchResults.RunQuery()
 
 	def TransformQuery(self, searchexpr):
 		"this method should be overridden by derived classes if neccessary"
+		print "this should never show up!"
 		return searchexpr
 
 
 	def ProcessSelection(self, index):
 		data = self.listctrlSearchResults.GetItemData(index)
-		
+
