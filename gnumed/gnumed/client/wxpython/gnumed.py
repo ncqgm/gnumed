@@ -46,7 +46,7 @@ Command line arguments:
 License: GPL (details at http://www.gnu.org)
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.44 $"
+__version__ = "$Revision: 1.45 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -209,7 +209,7 @@ if __name__ == "__main__":
 		gmGuiMain.main()
 	except:
 		exc = sys.exc_info()
-		_log.LogException ("Exception: Unhandled exception encountered.", exc, fatal=0)
+		_log.LogException ("Exception: Unhandled exception encountered.", exc, fatal=1)
 		if gmCLI.has_arg('--talkback'):
 			import gmTalkback
 			gmTalkback.run(email_logger)
@@ -230,7 +230,10 @@ else:
 
 #============================================================================
 # $Log: gnumed.py,v $
-# Revision 1.44  2002-11-06 11:52:43  ncq
+# Revision 1.45  2003-01-14 19:36:39  ncq
+# - better logging of fatal exceptions
+#
+# Revision 1.44  2002/11/06 11:52:43  ncq
 # - correct misleading printk()s
 #
 # Revision 1.43  2002/11/04 15:38:59  ncq
