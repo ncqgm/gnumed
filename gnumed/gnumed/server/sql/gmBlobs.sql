@@ -3,7 +3,7 @@
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
--- $Revision: 1.5 $ $Date: 2002-03-29 12:45:30 $ $Author: ncq $
+-- $Revision: 1.6 $ $Date: 2002-04-02 10:17:05 $ $Author: ncq $
 
 -- =============================================
 CREATE TABLE "doc_type" (
@@ -22,7 +22,8 @@ INSERT INTO doc_type(id, name) values(6,'neuro exam');
 
 -- =============================================
 CREATE TABLE "doc_med" (
-    "patient_id" integer primary key references identity,
+    "id" serial primary key,
+    "patient_id" integer references identity not null,
     "type" integer references doc_type(id) not null,
     "comment" character varying(60) not null,
     "date" character varying(20) not null,
@@ -37,13 +38,13 @@ COMMENT ON COLUMN doc_med.ext_ref IS 'external reference string of physical docu
 
 -- =============================================
 CREATE TABLE "doc_med_external_ref" (
-    id int references doc_med,
+    id int primary key references doc_med(id),
     refcounter int default 0
 );
 
 -- =============================================
 CREATE TABLE "doc_obj" (
-    "doc_id" integer references doc_med,
+    "doc_id" integer primary key references doc_med(id),
     "comment" character varying(30),
     "data" bytea
 );
@@ -53,7 +54,7 @@ COMMENT ON COLUMN doc_obj.comment IS 'optional tiny comment for this object, suc
 
 -- =============================================
 CREATE TABLE "doc_desc" (
-    "doc_id" integer references doc_med,
+    "doc_id" integer primary key references doc_med(id),
     "text" text
 );
 
