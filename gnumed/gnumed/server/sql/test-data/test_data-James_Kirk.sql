@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -69,7 +69,7 @@ insert into clin_encounter (
 	currval('identity_id_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
-	(select id from _enum_encounter_type where description='in surgery'),
+	(select id from encounter_type where description='in surgery'),
 	'first for this RFE'
 );
 
@@ -296,7 +296,7 @@ insert into clin_encounter (
 	currval('identity_id_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
-	(select id from _enum_encounter_type where description='in surgery'),
+	(select id from encounter_type where description='in surgery'),
 	'second for this RFE'
 );
 
@@ -426,11 +426,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.20 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.19  2004-05-06 23:32:44  ncq
+-- Revision 1.20  2004-05-08 17:37:08  ncq
+-- - *_encounter_type -> encounter_type
+--
+-- Revision 1.19  2004/05/06 23:32:44  ncq
 -- - internal_name now local_name
 -- - technically_abnormal now text
 --

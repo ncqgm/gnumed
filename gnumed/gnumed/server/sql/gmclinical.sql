@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.106 $
+-- $Revision: 1.107 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -105,12 +105,12 @@ comment on table last_act_episode is
 -- -------------------------------------------------------------------
 -- encounter related tables
 -- -------------------------------------------------------------------
-create table _enum_encounter_type (
+create table encounter_type (
 	id serial primary key,
 	description varchar(32) unique not null
 );
 
-comment on TABLE _enum_encounter_type is
+comment on TABLE encounter_type is
 	'these are the types of encounter';
 
 -- -------------------------------------------------------------------
@@ -123,7 +123,7 @@ create table clin_encounter (
 		on delete restrict,
 	fk_location integer,
 	fk_provider integer,
-	fk_type integer not null references _enum_encounter_type(id) default 1,
+	fk_type integer not null references encounter_type(id) default 1,
 	description text default '',
 	started timestamp with time zone not null default CURRENT_TIMESTAMP,
 	last_affirmed timestamp with time zone not null default CURRENT_TIMESTAMP
@@ -861,11 +861,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.106 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.107 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.106  2004-05-02 19:24:02  ncq
+-- Revision 1.107  2004-05-08 17:37:08  ncq
+-- - *_encounter_type -> encounter_type
+--
+-- Revision 1.106  2004/05/02 19:24:02  ncq
 -- - clin_working_diag.narrative is used as the diag name now
 -- - a link to clin_aux_note now allows storage of aux note
 -- - fix check constraints in clin_working_diag

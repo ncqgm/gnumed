@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.27 2004-05-04 09:10:59 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.28 2004-05-08 17:37:08 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -19,18 +19,18 @@
 --			_('by email'),
 --			_('other consultation')
 --		]
-INSERT INTO _enum_encounter_type (description) values (i18n('in surgery'));
-INSERT INTO _enum_encounter_type (description) values (i18n('phone consultation'));
-INSERT INTO _enum_encounter_type (description) values (i18n('fax consultation'));
-INSERT INTO _enum_encounter_type (description) values (i18n('home visit'));
-INSERT INTO _enum_encounter_type (description) values (i18n('nursing home visit'));
-INSERT INTO _enum_encounter_type (description) values (i18n('repeat script'));
-INSERT INTO _enum_encounter_type (description) values (i18n('hospital visit'));
-INSERT INTO _enum_encounter_type (description) values (i18n('video conference'));
-INSERT INTO _enum_encounter_type (description) values (i18n('proxy encounter'));
-INSERT INTO _enum_encounter_type (description) values (i18n('emergency encounter'));
-INSERT INTO _enum_encounter_type (description) values (i18n('chart review'));
-INSERT INTO _enum_encounter_type (description) values (i18n('other encounter'));
+INSERT INTO encounter_type (description) values (i18n('in surgery'));
+INSERT INTO encounter_type (description) values (i18n('phone consultation'));
+INSERT INTO encounter_type (description) values (i18n('fax consultation'));
+INSERT INTO encounter_type (description) values (i18n('home visit'));
+INSERT INTO encounter_type (description) values (i18n('nursing home visit'));
+INSERT INTO encounter_type (description) values (i18n('repeat script'));
+INSERT INTO encounter_type (description) values (i18n('hospital visit'));
+INSERT INTO encounter_type (description) values (i18n('video conference'));
+INSERT INTO encounter_type (description) values (i18n('proxy encounter'));
+INSERT INTO encounter_type (description) values (i18n('emergency encounter'));
+INSERT INTO encounter_type (description) values (i18n('chart review'));
+INSERT INTO encounter_type (description) values (i18n('other encounter'));
 
 -- ===================================================================
 insert into _enum_allergy_type (value) values (i18n('allergy'));
@@ -477,11 +477,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.27  2004-05-04 09:10:59  ncq
+-- Revision 1.28  2004-05-08 17:37:08  ncq
+-- - *_encounter_type -> encounter_type
+--
+-- Revision 1.27  2004/05/04 09:10:59  ncq
 -- - fix your own lab test org
 --
 -- Revision 1.26  2004/05/04 08:43:28  ncq
