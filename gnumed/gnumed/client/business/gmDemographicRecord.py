@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.53 2004-07-26 14:34:49 sjtan Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmDemographicRecord.py,v 1.54 2004-08-18 09:05:07 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -19,9 +19,7 @@ from Gnumed.business import gmMedDoc
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -888,6 +886,7 @@ def _patient_selected(**kwargs):
 	print kwargs['kwds']
 #============================================================
 if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 	while 1:
 		pID = raw_input('a patient ID: ')
@@ -911,7 +910,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.53  2004-07-26 14:34:49  sjtan
+# Revision 1.54  2004-08-18 09:05:07  ncq
+# - just some cleanup, double-check _ is defined for epydoc
+#
+# Revision 1.53  2004/07/26 14:34:49  sjtan
 #
 # numbering correction from labels in gmDemograpics.
 #
