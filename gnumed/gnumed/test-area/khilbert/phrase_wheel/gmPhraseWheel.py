@@ -18,7 +18,7 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/khilbert/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 __log__ = gmLog.gmDefLog
 #============================================================
@@ -588,3 +588,18 @@ if __name__ == '__main__':
 # stop list (list of negatives): "an" -> "animal" but not "and"
 
 # maybe store fixed list matches as balanced tree if otherwise to slow
+
+#-----
+#> > remember, you should be searching on  either weighted data, or in some
+#> > situations a start string search on indexed data
+#>
+#> Can you be a bit more specific on this ?
+
+#seaching ones own previous text entered  would usually be instring but
+#weighted (ie the phrases you use the most auto filter to the top)
+
+#Searching a drug database for a   drug brand name is usually more
+#functional if it does a start string search, not an instring search which is
+#much slower and usually unecesary.  There are many other examples but trust
+#me one needs both
+#-----

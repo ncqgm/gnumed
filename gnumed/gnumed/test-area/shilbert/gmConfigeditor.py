@@ -68,33 +68,41 @@ class gmConfigEditorPanel(wxPanel):
 	def __init__(self, parent):
 		wxPanel.__init__(self, parent, -1)
 		self.parent_notebook = wxNotebook(self, -1, style=wxNB_RIGHT)	
-		# get the name of all the groups in a config-file and
-		#add a notebook tab for each 
+		# get the name of all the groups in a config file
+		# and add a notebook tab for each
 		groups  = _cfg.getGroups()
 		for group in groups:
-			self.panel      = wxPanel(id = -1, name = group, parent = self.parent_notebook, pos = wxPoint(0, 0), size = wxSize(768, 513), style = wxTAB_TRAVERSAL)
-			self.parent_notebook.AddPage(self.panel,group)    	
+			panel_nb_page = wxPanel(
+				id = -1,
+				name = group,
+				parent = self.parent_notebook,
+				pos = wxPoint(0, 0),
+				size = wxSize(640, 480),
+				style = wxTAB_TRAVERSAL
+			)
+			self.parent_notebook.AddPage(panel_nb_page, group)
 			panelsizer = wxBoxSizer(wxVERTICAL)
-			notebooksizer = wxBoxSizer(wxVERTICAL)
+			
 			grid_sizer_1 = wxGridSizer(14, 2, 0, 0)
 			# now get all available options in a group plus their descriptions
 			# add descritiption and options as statictext
 			options  = _cfg.getOptions(group)
 			optionObjects = []
-			# now get all available options in a group plus their descriptions
-			# add descritiption and options as statictext
 			for option in options:
-				#tempcomment = wxStaticText(self.panel,-1,str(option))
-				tempcomment = wxStaticText(self.panel,-1,str(string.join(_cfg.getComment(group,option),"\n")))
-				tempctrl = wxTextCtrl(self.panel,-1,str(_cfg.get(group,option)))
+				#tempcomment = wxStaticText(panel_nb_page,-1,str(option))
+				tempcomment = wxStaticText(panel_nb_page,-1,str(string.join(_cfg.getComment(group,option),"\n")))
+				tempctrl = wxTextCtrl(panel_nb_page,-1,str(_cfg.get(group,option)))
 				optionObjects.append(tempctrl)
 				grid_sizer_1.Add(tempcomment, 0, wxLEFT, 10)
 				grid_sizer_1.Add(tempctrl, 0, wxLEFT, 10)
+
+			notebooksizer = wxBoxSizer(wxVERTICAL)
 			notebooksizer.Add(grid_sizer_1, 1, wxEXPAND, 0)
-			self.panel.SetAutoLayout(1)
-			self.panel.SetSizer(notebooksizer)
-			notebooksizer.Fit(self.panel)
-			notebooksizer.SetSizeHints(self.panel)
+
+			panel_nb_page.SetAutoLayout(1)
+			panel_nb_page.SetSizer(notebooksizer)
+			notebooksizer.Fit(panel_nb_page)
+			notebooksizer.SetSizeHints(panel_nb_page)
 			panelsizer.Add(wxNotebookSizer(self.parent_notebook), 1, wxEXPAND, 0)
 			self.SetAutoLayout(1)
 			self.SetSizer(panelsizer)
@@ -108,7 +116,7 @@ class gmConfigEditorPanel(wxPanel):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	_log.Log (gmLog.lInfo, "starting display handler")
+	_log.Log (gmLog.lInfo, "starting config editor")
 
 	if _cfg == None:
 		_log.Log(gmLog.lErr, "Cannot run without config file.")
@@ -124,21 +132,21 @@ if __name__ == '__main__':
 		# but re-raise them
 		raise
 
-	_log.Log (gmLog.lInfo, "closing display handler")
+	_log.Log (gmLog.lInfo, "closing config editor")
 
 else:
 	import gmPlugin
 
 	class gmConfigEditor(gmPlugin.wxNotebookPlugin):
 		def name (self):
-			return _("XDT")
+			return _("config")
 
 		def GetWidget (self, parent):
 			self.configeditor = gmConfigEditorPanel(parent)
 			return self.viewer
 
 		def MenuInfo (self):
-			return ('tools', _('&show XDT'))
+			return ('tools', _('&config file edit'))
 
 		def ReceiveFocus(self):
 			# get file name
@@ -166,7 +174,10 @@ else:
 			return 1
 
 # $Log: gmConfigeditor.py,v $
-# Revision 1.4  2003-04-12 17:07:17  shilbert
+# Revision 1.5  2003-04-13 15:08:17  ncq
+# - some cleanup, added comments
+#
+# Revision 1.4  2003/04/12 17:07:17  shilbert
 # complete rewrite
 # converted from static to dynamic
 #
