@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/dist/Attic/make-links.sh,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 # GPL
 # Karsten.Hilbert@gmx.net
 
@@ -36,20 +36,21 @@ ln -vfs ../../../locale/de_DE@euro client/locale/de_DE@euro
 
 echo "=> server"
 mkdir server
+ln -vfs ~/.gnumed/gnumed-archive.conf server/gnumed-archive.conf
+ln -vfs ../../server/install.sh server/install.sh
 ln -vfs ../../server/bootstrap-gm_db_system.conf server/bootstrap-gm_db_system.conf
+ln -vfs ../../server/README server/README
+ln -vfs ../../import/import-med_docs.py server/import-med_docs.py
+ln -vfs ../../import/remove-imported_dirs.sh server/remove-imported_dirs.sh
+ln -vfs ../../import/run-importer.sh server/run-importer.sh
+ln -vfs ../../modules server/modules
 ln -vfs ../../../../server/utils/bootstrap-gm_db_system.py server/bootstrap-gm_db_system.py
+ln -vfs ../../../../server/utils/gmUserSetup.py server/gmUserSetup.py
+ln -vfs ../../../../server/utils/setup-local_users.conf.sample server/setup-local_users.conf.sample
 ln -vfs ../../../../server/sql/country.specific/de/german-doc_types.sql server/german-doc_types.sql
 ln -vfs ../../../../server/sql/gmBlobs.sql server/gmBlobs.sql
 ln -vfs ../../../../server/sql/gmconfiguration.sql server/gmconfiguration.sql
 ln -vfs ../../../../server/sql/gmgis.sql server/gmgis.sql
 ln -vfs ../../../../server/sql/gmidentity.sql server/gmidentity.sql
 ln -vfs ../../../../server/sql/gmSchemaRevision.sql server/gmSchemaRevision.sql
-ln -vfs ../../../../server/utils/gmUserSetup.py server/gmUserSetup.py
-ln -vfs ~/.gnumed/gnumed-archive.conf server/gnumed-archive.conf
-ln -vfs ../../import/import-med_docs.py server/import-med_docs.py
-ln -vfs ../../import/remove-imported_dirs.sh server/remove-imported_dirs.sh
-ln -vfs ../../server/install.sh server/install.sh
-ln -vfs ../../modules server/modules
-ln -vfs ../../server/README server/README
-ln -vfs ../../import/run-importer.sh server/run-importer.sh
-ln -vfs ../../../../server/utils/setup-local_users.conf.sample server/setup-local_users.conf.sample
+ln -vfs ../../../../server/sql/gmI18N.sql server/gmI18N.sql
