@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -640,7 +640,7 @@ class scanFrame(wxPanel):
 		if not self.SaneSrcMngr:
 			# no, so we need to open it now
 			try:
-				init_result = sane.init()
+				init_result = _sane.init()
 			except:
 				exc = sys.exc_info()
 				_log.LogException('cannot init SANE', exc, fatal=1)
@@ -652,7 +652,7 @@ class scanFrame(wxPanel):
 		if not self.SaneScanner:
 			# FIXME: actually we should use this to remember which device we work with
 			devices = []
-			devices = sane.get_devices()
+			devices = _sane.get_devices()
 			if devices == []:
 				_log.Log (gmLog.lErr, "SANE did not find any devices")
 				dlg = wxMessageDialog(
@@ -669,7 +669,7 @@ class scanFrame(wxPanel):
 
 			try:
 				# by default use the first device
-				self.SaneScanner = sane.open(sane.get_devices()[0][0])
+				self.SaneScanner = _sane.open(_sane.get_devices()[0][0])
 			except:
 				exc = sys.exc_info()
 				_log.LogException('cannot open SANE scanner', exc, fatal=1)
@@ -949,7 +949,10 @@ else:
 			return (_('Tools'), _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.5  2002-10-11 10:20:37  ncq
+# Revision 1.6  2002-11-17 16:24:13  ncq
+# - sane.* -> _sane.*
+#
+# Revision 1.5  2002/10/11 10:20:37  ncq
 # - on demand loading of scanner library so we can at least
 #   start on machines without SANE or TWAIN
 #
