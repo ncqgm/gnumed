@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.2 2005-01-22 23:12:32 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmEMRStructWidgets.py,v 1.3 2005-01-23 12:20:15 cfmoro Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -18,8 +18,8 @@ from wxPython import wx
 
 # GnuMed
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.business import gmEMRStructItems, gmPatient
-from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
+from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 from Gnumed.pycommon.gmPyCompat import *
 
 import SOAPMultiSash
@@ -88,31 +88,49 @@ class cEpisodeEditor(wx.wxPanel):
 		)
 		self.__LST_episodes.InsertColumn(0, _('Start date'))
 		self.__LST_episodes.InsertColumn(1, _('Description'), wx.wxLIST_FORMAT_RIGHT)
-		self.__LST_episodes.InsertColumn(2, _('Is open'))
+		self.__LST_episodes.InsertColumn(2, _('Caterogy'))
+		self.__LST_episodes.InsertColumn(3, _('Is open'))
 		self.__LST_episodes.SetColumnWidth(0, 100)
 		self.__LST_episodes.SetColumnWidth(1, 230)
 		self.__LST_episodes.SetColumnWidth(2, 70)
+		self.__LST_episodes.SetColumnWidth(3, 70)
 
 		self.__STT_description = wx.wxStaticText(self, -1, _('Description: '))
 		# FIXME: configure, attach matcher (Karsten)
 		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-
+		self.__STT_soap_cat = wx.wxStaticText(self, -1, _('Category: '))
+		soap_choices = [_('--Select option--')]
+		soap_choices.extend(gmSOAPimporter.soap_bundle_SOAP_CATS)
+		print soap_choices
+		self.__CHC_soap_cat = wx.wxChoice(self, -1, choices=soap_choices) 
 		self.__BTN_add = wx.wxButton(self, -1, _('Add episode'))
 		self.__BTN_clear = wx.wxButton(self, -1, _('Clear'))
 
-		# arrange widgets
-		szr_input = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		# arrange widgets		
+		szr_list = wx.wxStaticBoxSizer(wx.wxStaticBox(self, -1, _('Episode list')) , wx.wxHORIZONTAL)
+		szr_list.Add(self.__LST_episodes, 1, wx.wxEXPAND | wx.wxTOP, border=4)
+		
+		szr_editor = wx.wxStaticBoxSizer(wx.wxStaticBox(self, -1, _('Episode editor')) ,wx.wxVERTICAL)
+		
+		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
+		szr_input.AddGrowableCol(1)
 		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
+		# FIXME avoid phrasewheel to grow vertically
 		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
+		szr_input.Add(self.__STT_soap_cat, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
+		szr_input.Add(self.__CHC_soap_cat, 0, wx.wxSHAPED)		
 
 		szr_actions = wx.wxBoxSizer(wx.wxHORIZONTAL)
 		szr_actions.Add(self.__BTN_add, 0, wx.wxSHAPED)
 		szr_actions.Add(self.__BTN_clear, 0, wx.wxSHAPED | wx.wxALIGN_RIGHT)
+		
+		szr_editor.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
+		szr_editor.Add(szr_actions, 1, wx.wxALIGN_CENTER | wx.wxTOP, border = 10)		
 
 		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.__LST_episodes, 1, wx.wxEXPAND)
-		szr_main.Add(szr_input, 0, wx.wxALIGN_LEFT)
-		szr_main.Add(szr_actions, 0, wx.wxALIGN_CENTER)
+		szr_main.Add(szr_list, 1, wx.wxEXPAND)
+		szr_main.Add(szr_editor,1 , wx.wxEXPAND | wx.wxTOP, border=4)
+
 
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
@@ -131,7 +149,8 @@ class cEpisodeEditor(wx.wxPanel):
 			self.__LST_episodes.InsertStringItem(idx,  str(epi['episode_modified_when']))
 #			self.__LST_episodes.SetStringItem(idx, 0, str(epi['episode_modified_when']))
 			self.__LST_episodes.SetStringItem(idx, 1, epi['description'])
-			self.__LST_episodes.SetStringItem(idx, 2, str(epi['episode_open']))
+			self.__LST_episodes.SetStringItem(idx, 2, epi['soap_cat'])
+			self.__LST_episodes.SetStringItem(idx, 3, str(epi['episode_open']))
 			self.__episodes[idx] = epi
 			self.__LST_episodes.SetItemData(idx, idx)
 
@@ -155,6 +174,7 @@ class cEpisodeEditor(wx.wxPanel):
 		self.__selected_episode = self.__episodes[sel_idx]
 		print 'Selected episode: ', self.__selected_episode
 		self.__PRW_description.SetValue(self.__selected_episode['description'])
+		self.__CHC_soap_cat.SetStringSelection(self.__selected_episode['soap_cat'])
 		self.__BTN_add.SetLabel(_('Update'))
 		self.__BTN_clear.SetLabel(_('Cancel'))
 		event.Skip()
@@ -166,36 +186,53 @@ class cEpisodeEditor(wx.wxPanel):
 		buttons for a new episode.
 		"""
 		self.__PRW_description.Clear()
+		self.__CHC_soap_cat.SetSelection(0)
 		if not self.__selected_episode is None:
 			# on episode edition
 			self.__BTN_add.SetLabel(_('Add episode'))
 			self.__BTN_clear.SetLabel(_('Clear'))
-			self.__selected_episode = None
+			self.__selected_episode = None			
 		event.Skip()
+		
 	#--------------------------------------------------------
 	# FIXME:
-	#    on new episode: soap cat?, emr has no active encounter in standalone mode
-	#    on episode edition: updating description is related to a join with
-	#    a narrative entry
+	#	on new episode: emr has no active encounter in standalone mode
+	#	on episode edition: updating description is related to a join with
+	#	a narrative entry
 	def __on_add(self, event):
 		"""
 		On new episode: add episode to backend
 		On episode edition: update episode in backend, clear input fields
 		and restore buttons for a new episode
 		"""
+		description = self.__PRW_description.GetValue()
+		soap_cat = self.__CHC_soap_cat.GetStringSelection()
+
+		# sanity check
+		action = ''
+		if self.__selected_episode is None:
+			action = 'create'
+		else:
+			action = 'update'			
+		if description is None or len(description) == 0 or \
+		   self.__CHC_soap_cat.GetSelection() == 0:
+			msg = _('Cannot %s episode.\nAll required fields must be filled') % (action)
+			gmGuiHelpers.gm_show_error(msg, _('episode editor'), gmLog.lErr)
+			_log.Log(gmLog.lErr, 'invalid description:soap cat [%s:%s]' % (description,soap_cat))
+			return False					
+		
 		if self.__selected_episode is None:
 			# on new episode
-			#self.__emr.add_episode(episode_name= self.__PRW_description.GetValue(), pk_health_issue=self.__pk_health_issue, soap_cat= 's')
-			print 'Creating episode: %s' % self.__PRW_description.GetValue()
+			#self.__emr.add_episode(episode_name= , pk_health_issue=self.__pk_health_issue, soap_cat= self.__CHC_soap_cat.GetStringSelection())
+			print 'Creating episode: %s , soap: %s' % (self.__PRW_description.GetValue(),self.__CHC_soap_cat.GetStringSelection())
 		else:
 			# on episode edition
 			#self.__selected_episode['description'] = self.__PRW_description.GetValue()
 			#self.__selected_episode.save_payload()
 			print 'Updating episode: %s' % self.__selected_episode
-			
-			
+						
 		# do clear stuff
-		self.__on_clear(None)
+		self.__on_clear(event)
 		# refresh episode table
 		self.__refresh_episode_list
 
@@ -267,7 +304,7 @@ if __name__ == '__main__':
 			sys.exit(0)
 
 		# display standalone editor
-		application = wx.wxPyWidgetTester(size=(400,300))
+		application = wx.wxPyWidgetTester(size=(470,300))
 		episode_editor = cEpisodeEditor(application.frame, -1, pk_health_issue=1)
 
 		application.frame.Show(True)
