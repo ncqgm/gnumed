@@ -1,11 +1,11 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
-echo "setting up links for tgz creation"
+echo "setting up links for GnuMed/Archive tgz creation"
 
 #----------------------------------
 echo "_____________"
@@ -96,6 +96,5 @@ ln -vs ../../../Archive/server/gmArchiveAccounts.sql server/gmArchiveAccounts.sq
 ln -vs ../../../Archive/server/install.sh server/install.sh
 ln -vs ../../../Archive/server/dropBlobs.sql server/dropBlobs.sql
 
+# docs
 ln -vs ../../../Archive/server/README server/README
-
-#ln -vs ~/.gnumed/gnumed-archive.conf server/gnumed-archive.conf
