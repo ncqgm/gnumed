@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.49 2003-11-19 23:27:44 sjtan Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmClinicalRecord.py,v 1.50 2003-11-28 08:08:05 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -466,6 +466,53 @@ from  v_patient_vaccinations
 where pk_patient = %s
 """
 	#--------------------------------------------------------
+	def get_due_vaccinations(self):
+		try:
+			return self.__db_cache['vaccination status']
+		except KeyError:
+			pass
+		self.__db_cache['vaccination status'] = {}
+		cmd = """
+select
+	pk_vacc_def,
+	regime,
+	seq_no,
+	is_booster,
+	latest_due,
+	time_left,
+	min_interval,
+	comment
+from v_pat_due_vaccs
+where pk_patient = %s
+"""
+		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
+		if rows is not None:
+			self.__db_cache['vaccination status']['due'] = []
+			if len(rows) != 0:
+				self.__db_cache['vaccination status']['due'].extend(rows)
+			else:
+				self.__db_cache['vaccination status']['due'] = [[]]
+		cmd = """
+select
+	pk_vacc_def,
+	regime,
+	seq_no,
+	is_booster,
+	amount_overdue,
+	min_interval,
+	comment
+from v_pat_overdue_vaccs
+where pk_patient = %s
+"""
+		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
+		if rows is not None:
+			self.__db_cache['vaccination status']['overdue'] = []
+			if len(rows) != 0:
+				self.__db_cache['vaccination status']['overdue'].extend(rows)
+			else:
+				self.__db_cache['vaccination status']['overdue'] = [[]]
+		return self.__db_cache['vaccination status']
+	#--------------------------------------------------------
 	def _get_vaccination_status(self):
 		try:
 			return self.__db_cache['vaccination status']
@@ -477,15 +524,6 @@ where pk_patient = %s
 		# need to actually fetch data:
 		curs = self._ro_conn_clin.cursor()
 
-		# - some vaccinations the patient may have never had
-		cmd = """
-select distinct on (description) description
-from vacc_indication
-where description not in (
-	select indication
-	from v_patient_vaccinations
-	where id_patient=%s
-)"""
 		if not gmPG.run_query(curs, cmd, self.id_patient):
 			curs.close()
 			_log.Log(gmLog.lErr, 'cannot load vaccination indications')
@@ -883,7 +921,6 @@ class gmClinicalPart:
 
 	def _print(self, *kargs):
 		return
-		#_log.Log(gmLog.lInfo, "   ".join([ str(x) for x in kargs ]) )
 
 	def validate_not_null( self, values, fields):
 		for f in fields:
@@ -899,24 +936,17 @@ class gmClinicalPart:
 				try:
 					map[fields[i]] = row[i+1]
 				except:
-					#_print("ERROR at i = ", i , " len(fields) ", len(fields) , "len(row)", len(row))
 					pass
 			all_map[row[0]]= map	
 
-		return all_map	
-				
-		
-	
-#def _print( *kwds, **kargs):
-#	list = [ str(x) for x in kwds]
-#	_log.Log(gmLog.lInfo, " ".join(list))
-
-			
+		return all_map
+#------------------------------------------------------------
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
 	_ = lambda x:x
-	record = gmClinicalRecord(aPKey = 3)
+	gmPG.set_default_client_encoding('latin1')
+	record = gmClinicalRecord(aPKey = 8)
 	dump = record.get_text_dump()
 	if dump is not None:
 		keys = dump.keys()
@@ -924,12 +954,28 @@ if __name__ == "__main__":
 		for aged_line in keys:
 			for line in dump[aged_line]:
 				print line
-	import time
-	time.sleep(3)
-	del record
+	dump = record.get_due_vaccinations()
+	f = open('vaccs.lst', 'wb')
+	if dump is not None:
+		print "=== due ==="
+		f.write("=== due ===\n")
+		for row in dump['due']:
+			print row
+			f.write(repr(row))
+			f.write('\n')
+		print "=== overdue ==="
+		f.write("=== overdue ===\n")
+		for row in dump['overdue']:
+			print row
+			f.write(repr(row))
+			f.write('\n')
+	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.49  2003-11-19 23:27:44  sjtan
+# Revision 1.50  2003-11-28 08:08:05  ncq
+# - improve get_due_vaccinations()
+#
+# Revision 1.49  2003/11/19 23:27:44  sjtan
 #
 # make _print()  a dummy function , so that  code reaching gmLog through this function works;
 #
