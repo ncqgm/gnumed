@@ -93,7 +93,7 @@ addressdata = ['129 Afred Street WARNERS BAY 2280', '99 Wolfe Street NEWCASTLE 2
 class BlueLabel(wxStaticText):
 	def __init__(self, parent, id, prompt):
 		wxStaticText.__init__(self,parent, id,prompt,wxDefaultPosition,wxDefaultSize,wxALIGN_LEFT)
-		self.SetFont(wxFont(12,wxSWISS,wxNormal,wxBold,false,''))
+		self.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxBOLD,false,''))
 		self.SetForegroundColour(wxColour(0,0,131))
 #------------------------------------------------------------
 #text control class to be later replaced by the gmPhraseWheel
@@ -122,12 +122,10 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.addresslist.SetForegroundColour(wxColor(180,182,180))
 		# code to link up SQLListControl
 		self.patientslist = gmSQLListControl.SQLListControl (self, ID_PATIENTSLIST, hideid=true, style= wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
-
 		self.patientslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.lbl_surname = BlueLabel(self,-1,"Surname")
 		self.lbl_firstname = BlueLabel(self,-1,"Firstname")
 		self.lbl_preferredname = BlueLabel(self,-1,"Salutation")
-		self.lbl_alias = BlueLabel(self,-1,"Alias")
 		self.lbl_title = BlueLabel(self,-1,"Title")
 		self.lbl_sex = BlueLabel(self,-1,"Sex ")
 		self.lbl_street = BlueLabel(self,-1,"Street")
@@ -157,9 +155,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.combo_sex = wxComboBox(self, 500, "", wxDefaultPosition,wxDefaultSize, ['M','F'], wxCB_DROPDOWN)
 		self.cb_preferredname = wxCheckBox(self, -1, _("Preferred Name"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 		self.txt_preferred = TextBox_RedBold(self,-1)
-		self.aliaslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,[],wxLB_SINGLE)
-		self.aliaslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
-		self.aliaslist.SetForegroundColour(wxColor(180,182,180))
 		self.txt_address = wxTextCtrl(self, 30, "",
 					      wxDefaultPosition,wxDefaultSize, style=wxTE_MULTILINE|wxNO_3D|wxSIMPLE_BORDER)
 		self.txt_address.SetInsertionPoint(0)
@@ -225,14 +220,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.sizer_line4_left.Add(1,0,3)
 		self.sizer_line4_left.Add(self.cb_preferredname,7,wxEXPAND)
 		self.sizer_line4_left.Add(1,0,7)
-		#line five - alias if they exist ( put code in later to do this)
-		self.sizer_alias = wxBoxSizer(wxVERTICAL)
-		self.sizer_alias.Add(self.lbl_alias,0,wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_alias.Add(0,0,0)
-		self.sizer_line5_left = wxBoxSizer(wxHORIZONTAL)
-		self.sizer_line5_left.Add(self.sizer_alias,3, wxGROW|wxALIGN_CENTER_VERTICAL,5)
-		self.sizer_line5_left.Add(self.aliaslist,7,wxEXPAND)
-		self.sizer_line5_left.Add(0,0,7)
 		#line6 on this left side is blank
 		self.sizer_line6_left = wxBoxSizer(wxHORIZONTAL)
 		self.sizer_line6_left.Add(self.lbl_line6gap,1,wxEXPAND)
@@ -283,7 +270,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 		self.leftside.Add(self.sizer_line2_left,0,wxEXPAND|wxALL,1)
 		self.leftside.Add(self.sizer_line3_left,0,wxEXPAND|wxALL,1)
 		self.leftside.Add(self.sizer_line4_left,0,wxEXPAND|wxALL,1)
-		self.leftside.Add(self.sizer_line5_left,0,wxEXPAND|wxALL,1)
 		self.leftside.Add(self.sizer_line6_left,0,wxEXPAND|wxALL,1)
 		self.leftside.Add(self.sizer_line7_left,0,wxEXPAND|wxALL,1)
 		self.leftside.Add(self.sizer_line8_left,0,wxEXPAND|wxALL,1)
@@ -429,16 +415,11 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 	      	tb.toplinesizer.Add(self.txt_age,0,wxEXPAND|wxALL,3)
 	      	tb.toplinesizer.Add(self.lbl_allergies,0,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
 	      	tb.toplinesizer.Add(self.txt_allergies,6,wxEXPAND|wxALL,3)
+		self.gb['modules.patient'][self.name ()] = self
 		tb.AddWidgetRightBottom (self.combo_consultation_type)
-		self.RegisterInterests()
-		#
-		#now register ourselves with the patient window manager
-		# so the demographics widget will display.
-		# ?????? WHY WAS THIS REMOVED ?????
 		self.mwm = self.gb['patient.manager']
 		self.widget = PatientsPanel (self.mwm, self)
 		self.mwm.RegisterWholeScreen (self.name (), self.widget)
-		self.gb['modules.patient'][self.name ()] = self
 		
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
