@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.114 2003-10-13 21:00:29 hinnef Exp $
-__version__ = "$Revision: 1.114 $"
+# $Id: gmGuiMain.py,v 1.115 2003-10-19 12:17:16 ncq Exp $
+__version__ = "$Revision: 1.115 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -164,9 +164,6 @@ class gmTopLevelFrame(wxFrame):
 		self.__load_plugins(backend)
 		self.__register_events()
 
-		# signal any other modules requiring init.
-		#gmDispatcher.send( gmSignals.application_init())
-
 		# size, position and show ourselves
 		self.top_panel.ReFit()
 		self.SetAutoLayout(true)
@@ -178,12 +175,12 @@ class gmTopLevelFrame(wxFrame):
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
 
-		defaultSize = (640,480)
 		# try to get last window size from the backend
+		defaultSize = (640,480)
 		result, set = gmCfg.getFirstMatchingDBSet( 
 			machine = _whoami.getMachine(),
-			option = 'main.window.size')
-		print set, result
+			option = 'main.window.size'
+		)
 		if not set is None and len(result) == 2:
 			currentSize = tuple(result)
 		else:
@@ -847,7 +844,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.114  2003-10-13 21:00:29  hinnef
+# Revision 1.115  2003-10-19 12:17:16  ncq
+# - just cleanup
+#
+# Revision 1.114  2003/10/13 21:00:29  hinnef
 # -added main.window.size config parameter (will be set on startup)
 #
 # Revision 1.113  2003/09/03 17:32:41  hinnef
