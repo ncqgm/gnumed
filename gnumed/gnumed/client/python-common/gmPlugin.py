@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.20 $"
+__version__ = "$Revision: 1.21 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -312,18 +312,3 @@ def UnloadPlugin (set, name):
 	plugin.unregister ()
 	del gb['modules.%s' % set][name]
 	log (gmLog.lInfo, "unloaded plugin %s/%s" % (set, name))
-#####################################################################
-# here is sample code of how to use gmPlugin.py:
-#import inspect
-#import gmPlugin
-#
-#try:
-#    aPlugin = __import__("foo")
-#except:
-#    print "cannot import foo"
-#    for plugin_class in inspect.getmembers (aPlugin, inspect.isclass):
-#	if issubclass (plugin_class, gmPlugin.gmPlugin):
-#	    plugin_class.register ()
-
-#This also allows a single source file to define several plugin objects.
-#----------------------------------------------------------------------
