@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.16 2004-05-08 22:13:11 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPathLab.py,v 1.17 2004-05-11 01:37:21 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types,sys
@@ -16,6 +16,11 @@ from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+#============================================================
+# FIXME: TODO
+class cTestResult(gmClinItem.cClinItem):
+	def link_to_lab_request(self):
+		pass
 #============================================================
 class cLabResult(gmClinItem.cClinItem):
 	"""Represents one lab result."""
@@ -276,11 +281,11 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	ttype = None
 	try:
 		ttype = cTestType(lab=lab, code=code)
-	except gmExceptions.NoSuchClinItemError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
-		return (False, msg)
+	except gmExceptions.NoSuchClinItemError:
+		_log.LogException('will try to create test type', sys.exc_info())
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		return (False, msg)
 	# found ?
 	if ttype is not None:
 		if name is None:
@@ -289,7 +294,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.16 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.17 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -369,7 +374,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.16 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.17 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -398,7 +403,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		return (False, msg)
 	return (True, req)
 #------------------------------------------------------------
-def create_test_result(patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None, encounter_id=None, episode_id=None):
+def create_lab_result(patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None, encounter_id=None, episode_id=None, request_id=None):
 	tres = None
 	try:
 		tres = cLabResult(
@@ -410,10 +415,11 @@ def create_test_result(patient_id=None, when_field=None, when=None, test_type=No
 			val_alpha=val_alpha,
 			unit=unit
 		)
-		# found, can't create, so fail
+		# exists already, so fail
+		_log.Log(gmLog.lErr, 'cannot create test result, it exists already: %s' % str(tres))
 		return (None, tres)
 	except gmExceptions.NoSuchClinItemError, msg:
-		_log.LogException(str(msg), sys.exc_info(), verbose=0)
+		_log.Log(gmLog.lData, 'test result not found, as expected, will create it')
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -421,6 +427,8 @@ def create_test_result(patient_id=None, when_field=None, when=None, test_type=No
 	queries = []
 	cmd = "insert into test_result (id_encounter, id_episode, fk_type, val_num, val_alpha, val_unit) values (%s, %s, %s, %s, %s, %s)"
 	queries.append((cmd, [encounter_id, episode_id, test_type, val_num, val_alpha, unit]))
+	cmd = "insert into lnk_result2lab_req (fk_result, fk_request) values ((select currval('test_result_id_seq')), %s)"
+	queries.append((cmd, [request_id]))
 	cmd = "select currval('test_result_id_seq')"
 	queries.append((cmd, []))
 	# insert new
@@ -433,12 +441,15 @@ def create_test_result(patient_id=None, when_field=None, when=None, test_type=No
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, tres)
+#------------------------------------------------------------
+
+
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
 	def test_result():
-		lab_result = cLabResult(aPKey=1)
+		lab_result = cLabResult(aPKey=29)
 		print lab_result
 		fields = lab_result.get_fields()
 		for field in fields:
@@ -469,14 +480,18 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
 
-#	test_result()
+	test_result()
 #	test_request()
 ##	test_create_result()
 
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.16  2004-05-08 22:13:11  ncq
+# Revision 1.17  2004-05-11 01:37:21  ncq
+# - create_test_result -> create_lab_result
+# - need to insert into lnk_result2lab_req, too, in create_lab_result
+#
+# Revision 1.16  2004/05/08 22:13:11  ncq
 # - cleanup
 #
 # Revision 1.15  2004/05/08 17:29:18  ncq
