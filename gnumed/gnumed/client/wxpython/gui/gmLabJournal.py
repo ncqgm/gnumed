@@ -20,7 +20,7 @@ else:
 _log.Log(gmLog.lData, __version__)
 
 from Gnumed.pycommon import gmPG, gmCfg, gmExceptions, gmWhoAmI, gmMatchProvider
-from Gnumed.business import gmPatient, gmClinicalRecord
+from Gnumed.business import gmPatient, gmClinicalRecord, gmPathLab
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -36,7 +36,7 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_LBOX_pending_results,
 	wxID_PHRWH_labs,
 	wxID_TXTCTRL_ids,
-	wxID_BTN_submit_Lab_ID
+	wxID_BTN_save_request_ID
 ] = map(lambda _init_ctrls: wxNewId(), range(6))
 
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
@@ -57,14 +57,13 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			id = -1,
 			aMatchProvider = self.mp,
 			size = wxDefaultSize,
-			pos = wxDefaultPosition,
-			id_callback = self.wheel_callback
+			pos = wxDefaultPosition
+			#id_callback = self.wheel_callback
 		)
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
 	
-	def wheel_callback(self, data):
-		#self.lab = 'Enterprise Main Lab'
-		print data
+	#def wheel_callback(self, data):
+	#	print data
 #====================================
 class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
     def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
@@ -105,9 +104,16 @@ class cLabJournalNB(wxNotebook):
 		self.AddPage( self.PNL_due_tab, _("pending lab results"))
 
 		# tab with errors
-		self.PNL_error_tab = wxPanel( self, -1)
-		self.AddPage( self.PNL_error_tab, _("lab errors"))
+		self.PNL_errors_tab = wxPanel( self, -1)
+		szr_errors = self.__init_SZR_import_errors()
 
+		self.PNL_errors_tab.SetAutoLayout( True )
+		self.PNL_errors_tab.SetSizer( szr_errors )
+		szr_errors.Fit( self.PNL_errors_tab )
+		szr_errors.SetSizeHints( self.PNL_errors_tab )
+
+		self.AddPage( self.PNL_errors_tab, _("lab errors"))
+		
 		self.curr_pat = gmPatient.gmCurrentPatient()
 	#------------------------------------------------------------------------
 	def __init_SZR_due (self, call_fit = True, set_sizer = True ):
@@ -115,19 +121,11 @@ class cLabJournalNB(wxNotebook):
 		vbszr_main = wxBoxSizer( wxVERTICAL )
 		lab_wheel = cLabWheel(self.PNL_due_tab)
 		lab_wheel.on_resize (None)
-		#lab_wheel = wxTextCtrl( 
-			#self.PNL_due_tab,
-			#wxID_PHRWH_labs,
-			#"", 
-			#wxDefaultPosition,
-			#wxSize(80,-1),
-			#0
-			#)
-		#EVT_ITEM_SELECTED(self.PNL_due_tab,self.__on_lab_selected)
+		lab_wheel.addCallback(self.on_lab_selected)
 		
 		vbszr_main.AddWindow(lab_wheel, 0, wxALIGN_CENTER | wxALL, 5)
 
-		item2 = wxTextCtrl(
+		self.item2 = wxTextCtrl(
 			self.PNL_due_tab,
 			wxID_TXTCTRL_ids,
 			"",
@@ -136,55 +134,62 @@ class cLabJournalNB(wxNotebook):
 			0
 			)
 
-		vbszr_main.AddWindow( item2, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr_main.AddWindow( self.item2, 0, wxALIGN_CENTER|wxALL, 5 )
 
-		# -- "submit lab id" button -----------
-		self.BTN_submit_Lab_ID = wxButton(
-			name = 'BTN_submit_Lab_ID',
+		# -- "save request id" button -----------
+		self.BTN_save_request_ID = wxButton(
+			name = 'BTN_save_request_ID',
 			parent = self.PNL_due_tab,
-			id = wxID_BTN_submit_Lab_ID,
+			id = wxID_BTN_save_request_ID,
 			label = _("save request ID")
 		)
-		self.BTN_submit_Lab_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
-		EVT_BUTTON(self.BTN_submit_Lab_ID, wxID_BTN_submit_Lab_ID, self.on_submit_ID)
+		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
+		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
 
-		vbszr_main.AddWindow( self.BTN_submit_Lab_ID, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr_main.AddWindow( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
 
 		# maybe have a look at MultiColumnList
 		# our actual list
 		tID = wxNewId()
-		lbox_pending = gmLabIDListCtrl(
+		self.lbox_pending = gmLabIDListCtrl(
 			self.PNL_due_tab,
 			tID,
 			size=(400,100),
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)#|wxLC_HRULES)
 
-		lbox_pending.InsertColumn(0, _("XDT field"))
-		lbox_pending.InsertColumn(1, _("XDT field content"))
-		idx = lbox_pending.InsertItem(info=wxListItem())
-		lbox_pending.SetStringItem(index=idx, col=0, label='idx')
-		lbox_pending.SetStringItem(index=idx, col=1, label='idx')
+		self.lbox_pending.InsertColumn(0, _("date"))
+		self.lbox_pending.InsertColumn(1, _("lab"))
+		self.lbox_pending.InsertColumn(2, _("id"))
+		self.lbox_pending.InsertColumn(3, _("patient"))
+		self.lbox_pending.InsertColumn(4, _("status"))
 		
-		#lbox_pending = wxListBox( 
-		#	self.PNL_due_tab,
-		#	wxID_LBOX_pending_results,
-		#	wxDefaultPosition,
-		#	wxSize(80,100), 
-		#	["ListItem"] ,
-		#	wxLB_SINGLE 
-		#	)
-
-		vbszr_main.AddWindow( lbox_pending, 0, wxALIGN_CENTER|wxALL, 5 )
+		vbszr_main.AddWindow( self.lbox_pending, 0, wxALIGN_CENTER|wxALL, 5 )
 		return vbszr_main
 
 	def __init_SZR_import_errors (self, call_fit = True, set_sizer = True ):
-		pass
+	
+		xvszr_main = wxBoxSizer( wxVERTICAL )
+		
+		tID = wxNewId()
+		self.lbox_errors = gmLabIDListCtrl(
+			self.PNL_errors_tab,
+			tID,
+			size=(400,100),
+			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
+		)#|wxLC_HRULES)
+		
+		xvszr_main.AddWindow(self.lbox_errors, 0, wxALIGN_CENTER | wxALL, 5)
+
+		self.lbox_errors.InsertColumn(0, _("when"))
+		self.lbox_errors.InsertColumn(1, _("problem"))
+		self.lbox_errors.InsertColumn(2, _("solution"))
+		 
+		return xvszr_main
 	#------------------------------------------------------------------------
 	def OnLeftDClick(self, evt):
 		pass
 		
-	
 	#------------------------------------------------------------------------
 	def update(self):
 		if self.curr_pat['ID'] is None:
@@ -200,34 +205,60 @@ class cLabJournalNB(wxNotebook):
 		return 1
 	#------------------------------------------------------------------------
 	def __populate_notebook(self):
-		# Unfug
-		# populate phrase_wheel on receive_focus
-		# get_last_id() on wheel.lose_focus
-		self.last_id = {}
-		labs = self.__get_all_labs()
-		for lab in labs:
-			if not self.__get_last_used_ID(lab[1]) == []:
-				self.last_id[lab[1]] = self.__get_last_used_ID(lab[1])[0][0]
-		# FIXME: check if patient changed at all
-		# emr = self.curr_pat.get_clinical_record()
-		# FIXME: there might be too many results to handle in memory
-		#lab = emr.get_lab_results()
 		
-		#if lab is None or len(lab)==0:
-		#	name = self.curr_pat['demographic record'].get_names()
-		#	gmGuiHelpers.gm_show_error(
-		#		aMessage = _('Cannot find any lab data for patient\n[%s %s].') % (name['first'], name['last']),
-		#		aTitle = _('loading lab record list')
-		#		)
-		#	return None
+		self.item2.Clear()
+		self.lbox_pending.Clear()
+		#------ due PNL ------------------------------------
+		pending_requests = self.__get_pending_requests()
+		for request in pending_requests:
+			# for pending requests
+			if request[3]:
+				self.idx = self.lbox_pending.InsertItem(info=wxListItem())
+				idx=self.idx
+				# -- display request date ------------------- 
+				self.lbox_pending.SetStringItem(index = idx, col=0, label=request[0].date)
+				# -- display request lab ---------------------
+				lab = self.__get_labname(request[1])[0][0]
+				self.lbox_pending.SetStringItem(index = idx, col=1, label=lab)
+				# -- display associated patient name ---
+				self.lbox_pending.SetStringItem(index = idx, col=2, label=request[2])
+				patient = self.get_patient_for_lab_request(request[2],lab)
+				# FIXME: make use of rest data in patient via mouse over context
+				self.lbox_pending.SetStringItem(index = idx, col=3, label=patient[2]+' '+patient[3])
+				self.lbox_pending.SetStringItem(index = idx, col=4, label=_('pending'))
+		
+		
+		#----- import errors PNL -----------------------
+		lab_errors = self.__show_import_errors()
+		for lab_error in lab_errors:
+			self.idx = self.lbox_errors.InsertItem(info=wxListItem())
+			idx=self.idx
+			# -- display  when error was reported ------------------- 
+			self.lbox_errors.SetStringItem(index = idx, col=0, label=lab_error[1].date)
+			# -- what's the problem ---------------------
+			self.lbox_errors.SetStringItem(index = idx, col=1, label=lab_error[4])
+			# -- how can we fix it ---
+			self.lbox_errors.SetStringItem(index = idx, col=2, label=lab_error[5])
 			
-		#else:
-	#		return 1
-			
+	#-------------------------------------------------------------------------
+	def get_patient_for_lab_request(self,req_id,lab):
+		lab_req = gmPathLab.cLabRequest(req_id=req_id, lab=lab)
+		patient = lab_req.get_patient()
+		return patient
+	#-------------------------------------------------------------------------		
+	def __get_pending_requests(self):
+		query = """select clin_when, fk_test_org, request_id, is_pending from lab_request where is_pending is true"""
+		pending_requests = gmPG.run_ro_query('historica', query)
+		return pending_requests
 	#------------------------------------------------------------------------
-	def __get_all_labs(self):
-		query = """select pk, internal_name from test_org"""
-		labs = gmPG.run_ro_query('historica', query)
+	def __show_import_errors(self):
+		query = """select * from housekeeping_todo where category='lab'"""
+		import_errors = gmPG.run_ro_query('historica', query)
+		return import_errors
+	#------------------------------------------------------------------------
+	def __get_labname(self, data):
+		query= """select internal_name from test_org where pk=%s"""
+		labs = gmPG.run_ro_query('historica', query, None, data)
 		return labs
 	#------------------------------------------------------------------------
 	def __get_last_used_ID(self, lab_name):
@@ -245,22 +276,38 @@ class cLabJournalNB(wxNotebook):
 			)"""
 		last_id = gmPG.run_ro_query('historica', query, None, lab_name)
 		return last_id
+	#--------------------------------------------------------------------------	
+	def guess_next_id(self, lab_name):
+		last = self.__get_last_used_ID(lab_name)[0][0]
+		next = chr(ord(last[-1:])+1)
+		return next
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
-	def on_submit_ID(self, event):
-		#get value for chosen laboratory
+	def on_save_request_ID(self, event):
+	
+		emr = self.curr_pat.get_clinical_record()
+		#test = gmPathLab.create_lab_request(lab=self.lab_name[0][0], req_id = self.item2.GetValue(), pat_id = self.curr_pat['ID'], encounter_id = emr.id_encounter, episode_id= emr.id_episode)
+		test = gmPathLab.create_lab_request(req_id='ML#SC937-0176-CEC#11', lab='Enterprise Main Lab', encounter_id = emr.id_encounter, episode_id= emr.id_episode)
+		# react on succes or failure of save_request
+		#print self.lab_name[0][0] , self.item2.GetValue(), #pat_id, encounter_id, episode_id
 		
-		#get id to associate with lab/probe
-		#item2.
-		pass
+		print test
+		self.__populate_notebook()
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
 		#pass
 		evt.Skip()
 	#-------------------------------------------------------
-	def __on_lab_selected(self,aLab):
-		item2.SetValue(self.last_id[aLab])
+	def on_lab_selected(self,data):
+		print "phrase wheel just changed lab to", data
+		# get last used id for lab
+		self.lab_name = self.__get_labname(data)
+		print self.lab_name
+		#guess next id
+		nID = self.guess_next_id(self.lab_name[0][0])
+		# set field to that
+		self.item2.SetValue(nID)
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -495,7 +542,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.4  2004-05-01 10:29:46  shilbert
+# Revision 1.5  2004-05-04 07:19:34  shilbert
+# - kind of works, still a bug in create_request()
+#
+# Revision 1.4  2004/05/01 10:29:46  shilbert
 # - custom event handlig code removed, pending lab ids input almost completed
 #
 # Revision 1.3  2004/04/29 21:05:19  shilbert
