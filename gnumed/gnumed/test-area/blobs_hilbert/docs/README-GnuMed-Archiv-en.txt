@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-en.txt,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 #------------------------------------------------------------------------
 
 What GNUmedArchive is and what it is not.
@@ -206,31 +206,37 @@ server
 
 	You might want to edit the file 'german-doc_types.sql' in case you want German document types inside your
 	database. This file contains entries for the document types which later on will be used for classifying
-	documents.
+	documents. The names for these types will also be shown in the patient document viewer. GnuMed/Archive is
+	designed for international use. Therefore document type internationalization
+	has been implemented on database level.
+
+	You need to
+	a) supply new doc_types in English in 'german-doc_types.sql.
 
 	e.g.:
+	INSERT INTO doc_type(id, name) values(100, i18n('my new type'));
 
-	INSERT INTO doc_type(id, name) values(101,'document type1');
-	INSERT INTO doc_type(id, name) values(102,'document type2');
-	INSERT INTO doc_type(id, name) values(103,'document typex');
+	b) supply the translated string for your language
+
+	e.g.:
+	INSERT INTO i18n_translations (lang, orig, trans) values('de_DE', 'my new type','mein neuer Typ');
+
 	and so on.
 
-	The numerical value in front of tge document type must be unique. This mean no value must be there twice.
-	Because of that you must also make sure that none of the values has been used before in any other file
-	such as 'gmBlobs.sql'. Just take a look at the highest value in 'gmBlobs.sql' and add (+) '1'. The newly
-	calcuclated value is the first one to use in 'german-doc_types.sql'. Just increase by '1' for each following
-	entry.
+	The number (100 in above example) must be unique for each document type. This means you must not
+	one single number twice. User defined document types must only range between 100 and 200. This
+	guarantees you that these types never get overwritten. You could send your
+	individually defined document types to the developers of GnuMed/Archive so
+	they can be added to the standard document types.
 
 	Now it is time to think about who is going to use the document archive and with what privileges.
 	You may create user who will have read and write permissions and others who will just have read
-	permissions. In case you just want to create test-users everything has been taken care of for you.
-	The file 'bootstrap-gm_db_system.conf' will take care of that. If you prefer to set up your own set of users
-	you might want to create a seperate config file. Just create some file like 'users.conf' and put your
-	configuration in there. This file needs to have a special format so take a look at the default file
-	'bootstrap-gm_db_system.conf'.
+	permissions. In case you just want to create test users everything has been taken care of for you.
+	If you prefer to set up your own set of users you might want to create a seperate file. Just create
+	some file similar to 'gmTestAccounts.sql' and put your configuration in there.
 
 	Assuming you are done so far you may now run the installation shell script 'install.sh' and follow the
-	instructions on your screen
+	instructions on your screen.
 
 	If the installation succeeds you will get further instruction on what you can do to make your freshly
 	installed software run smoothly. This includes instructions on how to automize the process of actually
@@ -391,15 +397,18 @@ export documents for the use in letters of referral and so on.
 ################################################
 
 GNU/Linux
-	GNUmed - GNUmedArchive is part of GNUmed and will be integrated as a plugin.
+	GNUmed - GNUmedArchive is part of GnuMed and will be integrated as a plugin.
 DOS
-	Users of German Turbomed should read the German version of this document.
+	Users of German 'Turbomed' should read the German version of this document.
 Windows
 	Who cares :) actually I know none.
 
 #------------------------------------------------------------------------
 # $Log: README-GnuMed-Archiv-en.txt,v $
-# Revision 1.2  2003-01-19 16:32:44  ncq
+# Revision 1.3  2003-01-26 23:27:26  ncq
+# - updated
+#
+# Revision 1.2  2003/01/19 16:32:44  ncq
 # - what is GnuMed/Archive
 #
 # Revision 1.1  2003/01/19 13:44:09  ncq

@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/docs/Attic/README-GnuMed-Archiv-de.txt,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 #------------------------------------------------------------------------
 
 Sie lesen gerade eine Vorversion des Installationshandbuchs zu GNUmedArchiv.
@@ -207,32 +207,37 @@ Server
 	Für die Installation benötigen Sie root-Zugriff auf Ihr System.
 
 	Passen Sie nun die Datei'german-doc_types.sql' an Ihre individuellen Bedürfnisse an.
-	Diese Datei enthält die Einträge für die Befundtypen die später beim Zuordnen der
-	eingescannten Befunde benötigt werden.
+	Diese Datei enthält die Benennung der Einträge für die Befundtypen die später beim Zuordnen der
+	eingescannten Befunde benötigt werden. Diese Namen werden auch in der Dokumentenübersicht zum
+	Patienten angezeigt. Das Archiv ist so gestaltet, dass die Befundtypen
+	international verwendbar sind. Das wird über die automatische Übersetzung der Befundtypen
+	mit in der Datenbank hinterlegten Entsprechungen realisiert.
 
-	Bsp.:
+	Dazu muss
+	a) in doc_type der neue Typ auf English eingefügt werden.
 
-	INSERT INTO doc_type(id, name) values(101,'Befundtyp1');
-	INSERT INTO doc_type(id, name) values(102,'Befundtyp2');
-	INSERT INTO doc_type(id, name) values(103,'Befundtypx');
+	zum Beispiel:
+	INSERT INTO doc_type(id, name) values(100, i18n('my new type'));
+
+	b) die Übersetzung für die gewünschten Sprachen eingefügt werden
+
+	zum Beispiel:
+	INSERT INTO i18n_translations(lang, orig, trans) values ('de_DE', 'my new type', 'mein neuer Typ');
+
 	usw.
 
-	Die Zahl vor dem Befundtyp muss einmalig sein. Das bedeutet,
-	das keine Zahl doppelt vergeben werden darf. Daher muss auch
-	sichergestellt werden, dass die Zahl nicht bereits in der Datei
-	'gmBlobs.sql' verwendet wird. Man schaut sich also die Datei 'gmBlobs.sql' an, schaut nach
-	der größten Zahl und addiert dazu '1'. Diese Zahl ist dann die Zahl vor dem ersten Eintrag
-	in der Datei'german-doc_types.sql'. Bei den folgenden Einträgen wird einfach hochgezählt.
-
+	Die Zahl (s.o. 100) für den Befundtyp muss einmalig sein. Das bedeutet, dass keine Zahl
+	doppelt vergeben werden darf. Vom Anwender vergebene Befundtypen dürfen nur Nummern zwischen
+	100 und 200 haben. Es wird garantiert, daß diese niemals überschrieben werden. Sie sollten
+	Ihre selbstdefinierten Dokumententypen an die Programmierer von GnuMed/Archive einsenden,
+	damit diese als Standardtypen aufgenommen werden.
 
 	Jetzt ist es an der Zeit sich zu überlegen welche Benutzer mit welchen Rechten im
 	Archiv arbeiten dürfen bzw. schreibend und/oder lesend zugreifen dürfen. Will man
-	nur Testbenutzer anlegen muss nichts angepasst werden. Dafür reichen die Voreinstellungen
-	in der Datei 'bootstrap-gm_db_system.conf'. Will man eigene Benutzer einrichten, erledigt man
-	das am Besten mit einer eigenen Konfigurationsdatei. Man erzeugt beispielsweise eine
-	neue Datei 'users.conf'. Dort trägt man dann eigene Gruppen und Benutzer ein. Diese Datei muss
-	ein betsimmtes Format haben. Man orientiert sich am Besten am Format der Datei
-	'bootstrap-gm_db_system.conf'.
+	nur Testbenutzer anlegen muss nichts angepasst werden. Will man eigene Benutzer einrichten,
+	erledigt man das am Besten mit einer eigenen Konfigurationsdatei. Man erzeugt eine neue Datei.
+	Dort trägt man dann eigene Gruppen und Benutzer ein. Diese Datei muss ein betsimmtes Format haben.
+	Man orientiert sich am Besten am Format der Datei 'gmTestAccounts.sql'.
 
 	Ist alles soweit eingestellt, führt man das Installationsskript 'install.sh' aus und
 	folgt den Anweisungen.
@@ -240,7 +245,7 @@ Server
 	Läuft die Installation ohne Fehler durch, erhalten Sie am Ende weitere Anweisungen
 	was noch zu tun ist damit beispielsweise automatisch die angelieferten
 	Befunde in die Datenbank gespeichert werden.
-	
+
 	Falls bei der Installation Fehler auftreten, ist es ratsam, einen Blick in das Fehlerprotokoll
 	zu werfen. Für den Fall, dass auch das nicht zum Ziel führt kann eine Nachricht an die Mailing-Liste
 	weiterhelfen. Bitte nicht vergessen, das Fehlerprotokoll anzuhängen.
@@ -432,7 +437,10 @@ DOS
 
 #------------------------------------------------------------------------
 $Log: README-GnuMed-Archiv-de.txt,v $
-Revision 1.5  2003-01-19 16:32:44  ncq
+Revision 1.6  2003-01-26 23:27:26  ncq
+- updated
+
+Revision 1.5  2003/01/19 16:32:44  ncq
 - what is GnuMed/Archive
 
 Revision 1.4  2003/01/19 13:44:09  ncq
