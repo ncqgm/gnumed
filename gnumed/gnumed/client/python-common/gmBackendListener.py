@@ -8,7 +8,7 @@ NOTE !  This is specific to the DB adapter pyPgSQL and
 """
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmBackendListener.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "H. Herb <hherb@gnumed.net>"
 
 import sys, time, threading, select
@@ -47,7 +47,7 @@ class BackendListener:
 		# if not listening to that signal yet, do so now
 		if aSignal not in self._intercepted_notifications:
 			cmd = 'LISTEN "%s";' % aSignal
-			self._conn_lock.acquire(blocking = 1)
+			self._conn_lock.acquire(1)
 			try:
 				res = self._conn.query(cmd)
 			except StandardError:
@@ -95,7 +95,7 @@ class BackendListener:
 		# stop listening
 		cmd = 'UNLISTEN "%s";' % aNotification
 		try:
-			self._conn_lock.acquire(blocking = 1)
+			self._conn_lock.acquire(1)
 			res = self._conn.query(cmd)
 			self._conn_lock.release()
 		except StandardError:
@@ -146,7 +146,7 @@ class BackendListener:
 			time.sleep(0.35)					# give others time to acquire lock
 			if self._quit:
 				break
-			self._conn_lock.acquire(blocking = 1)
+			self._conn_lock.acquire(1)
 			ready_input_sockets = select.select([self._conn.socket], [], [], 1.0)[0]
 			self._conn_lock.release()
 			if self._quit:
@@ -154,7 +154,7 @@ class BackendListener:
 			# any input available ?
 			if len(ready_input_sockets) != 0:
 				# grab what came in
-				self._conn_lock.acquire(blocking = 1)
+				self._conn_lock.acquire(1)
 				self._conn.consumeInput()
 				note = self._conn.notifies()
 				self._conn_lock.release()
@@ -172,7 +172,7 @@ class BackendListener:
 					time.sleep(0.25)
 					if self._quit:
 						break
-					self._conn_lock.acquire(blocking = 1)
+					self._conn_lock.acquire(1)
 					note = self._conn.notifies()
 					self._conn_lock.release()
 			else:
@@ -184,7 +184,7 @@ class BackendListener:
 				if self._quit:
 					break
 				# wait at max self.__poll_intervall for new data
-				self._conn_lock.acquire(blocking = 1)
+				self._conn_lock.acquire(1)
 				select.select([self._conn.socket], [], [], self._poll_interval)
 				self._conn_lock.release()
 
@@ -265,7 +265,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmBackendListener.py,v $
-# Revision 1.17  2003-06-26 04:18:40  ihaywood
+# Revision 1.18  2003-07-04 20:01:48  ncq
+# - remove blocking keyword from acquire() since Python does not like the
+#
+# Revision 1.17  2003/06/26 04:18:40  ihaywood
 # Fixes to gmCfg for commas
 #
 # Revision 1.16  2003/06/03 13:21:20  ncq
