@@ -22,6 +22,23 @@ import gmGuiBroker, gmPlugin, gmLog
 
 manual_path = 'doc/gnumed/book1.html'
 
+
+import images_for_gnumed_browser16_16
+import images_gnuMedGP_Toolbar
+
+ID_MANUALCONTENTS = wxNewId()
+ID_MANUALBACK = wxNewId()
+ID_MANUALFORWARD = wxNewId()
+ID_MANUALHOME = wxNewId()
+ID_MANUALBABELFISH = wxNewId()
+ID_MANUALPRINTER  = wxNewId()
+ID_MANUALOPENFILE = wxNewId()
+ID_MANUALBOOKMARKS = wxNewId()
+ID_MANUALADDBOOKMARK = wxNewId()
+ID_MANUALVIEWSOURCE = wxNewId()
+ID_MANUALRELOAD = wxNewId()
+ID_VIEWSOURCE  = wxNewId()
+
 #----------------------------------------------------------------------
 
 
@@ -57,39 +74,6 @@ class ManualHtmlPanel(wxPanel):
         self.html.SetRelatedFrame(frame, "")
         self.html.SetRelatedStatusBar(0)
         self.box.Add(self.html, 1, wxGROW)
-
-        subbox = wxBoxSizer(wxHORIZONTAL)
-        n = wxNewId()
-        btn = wxButton(self, n, _("&Manual"))
-        EVT_BUTTON(self, n, self.OnShowDefault)
-        subbox.Add(btn, 1, wxGROW | wxALL, 2)
-
-        n = wxNewId()
-        btn = wxButton(self, n, _("Load File"))
-        EVT_BUTTON(self, n, self.OnLoadFile)
-        subbox.Add(btn, 1, wxGROW | wxALL, 2)
-
-        n = wxNewId()
-        btn = wxButton(self, n, _("Back"))
-        EVT_BUTTON(self, n, self.OnBack)
-        subbox.Add(btn, 1, wxGROW | wxALL, 2)
-
-        n = wxNewId()
-        btn = wxButton(self, n, _("Forward"))
-        EVT_BUTTON(self, n, self.OnForward)
-        subbox.Add(btn, 1, wxGROW | wxALL, 2)
-
-        n = wxNewId()
-        btn = wxButton(self, n, _("Print"))
-        EVT_BUTTON(self, n, self.OnPrint)
-        subbox.Add(btn, 1, wxGROW | wxALL, 2)
-
-        n = wxNewId()
-        btn = wxButton(self, n, _("View Source"))
-        EVT_BUTTON(self, n, self.OnViewSource)
-        subbox.Add(btn, 1, wxGROW | wxALL, 2)
-
-        self.box.Add(subbox, 0, wxGROW)
 
         self.SetSizer(self.box)
         self.SetAutoLayout(true)
@@ -141,13 +125,6 @@ class ManualHtmlPanel(wxPanel):
         self.printer.PrintFile(self.html.GetOpenedPage())
 
 
-
-
-
-
-
-
-
 class gmManual (gmPlugin.wxNotebookPlugin):
     """
     Plugin to encapsulate the manual window
@@ -160,3 +137,40 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 
     def GetWidget (self, parent):
         return ManualHtmlPanel (parent, self.gb['main.frame'])
+
+    def DoToolbar (self, tb, widget):
+	tool1 = tb.AddTool(ID_MANUALCONTENTS, images_for_gnumed_browser16_16.getcontentsBitmap(),
+			   shortHelpString="Gnumed Manual Contents", isToggle=true)
+	EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
+      	tool1 = tb.AddTool(ID_MANUALOPENFILE, images_for_gnumed_browser16_16.getfileopenBitmap(),
+				shortHelpString="Open File", isToggle=true)
+	EVT_TOOL (tb, ID_MANUALOPENFILE, widget.OnLoadFile)
+	tool1 = tb.AddTool(ID_MANUALBACK, images_for_gnumed_browser16_16.get1leftarrowBitmap(),
+				shortHelpString="Back", isToggle=false)
+	EVT_TOOL (tb, ID_MANUALBACK, widget.OnBack)
+	tool1 = tb.AddTool(ID_MANUALFORWARD, images_for_gnumed_browser16_16.get1rightarrowBitmap(),
+				shortHelpString="Forward", isToggle=true)
+	EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
+	tool1 = tb.AddTool(ID_MANUALRELOAD, images_for_gnumed_browser16_16.getreloadBitmap(),
+				shortHelpString="Re-load", isToggle=true)
+	tb.AddSeparator()
+	tool1 = tb.AddTool(ID_MANUALHOME, images_for_gnumed_browser16_16.getgohomeBitmap(),
+				shortHelpString="Home", isToggle=true)
+	EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
+	tb.AddSeparator()
+	tool1 = tb.AddTool(ID_MANUALBABELFISH, images_for_gnumed_browser16_16.getbabelfishBitmap(),
+				shortHelpString="Translate text", isToggle=false)
+	#EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
+	tb.AddSeparator()
+	tool1 = tb.AddTool(ID_MANUALBOOKMARKS, images_for_gnumed_browser16_16.getbookmarkBitmap(),
+				shortHelpString="Bookmarks", isToggle=true)
+	#EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
+	tool1 = tb.AddTool(ID_MANUALADDBOOKMARK, images_for_gnumed_browser16_16.getbookmark_addBitmap(),
+				shortHelpString="Add Bookmark", isToggle=true)
+	#EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
+	tool1 = tb.AddTool(ID_VIEWSOURCE, images_for_gnumed_browser16_16.getviewsourceBitmap(),
+				shortHelpString="View Source", isToggle=true)
+	EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
+	tool1=tb.AddTool(ID_MANUALPRINTER, images_for_gnumed_browser16_16.getprinterBitmap(),
+				shortHelpString="Print Page", isToggle=true)
+	EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint)	

@@ -24,6 +24,7 @@
 
 from wxPython.wx import *
 import gmPlugin
+import images_contacts_toolbar16_16
 ID_ORGANISATIONSLIST = wxNewId()
 ID_ALL_MENU  = wxNewId()
 ID_COMBOTYPE = wxNewId()
@@ -39,6 +40,26 @@ organisationsdata = {
 8 : ( " ","- P Lang","Sports Physiotherapist","plang@jphysio.bdh.com.au", "494223568"),		     
 9 : ( " ","- L Short","Physiotherapist","lshort@jphysio.bdh.com.au", "494223568"),	
 }
+
+ID_SAVESQL = wxNewId()
+ID_SEARCHGLOBAL= wxNewId()
+ID_ORGANISATIONDISPLAY = wxNewId()
+ID_GENERALPRACTICESDISPLAY = wxNewId()
+ID_DOCTORSDISPLAY = wxNewId()
+ID_PERSONSDISPLAY = wxNewId()
+ID_ORGANISATIONADD = wxNewId()
+ID_BRANCHDEPTADD = wxNewId()
+ID_EMPLOYEEADD = wxNewId()
+ID_PERSONADD = wxNewId()
+ID_RELOAD = wxNewId()
+ID_SEARCHSPECIFIC = wxNewId()
+ID_SORTA_Z = wxNewId()
+ID_SORTZ_A = wxNewId()
+ID_SENDEMAIL = wxNewId()
+ID_LINKINTERNET = wxNewId()
+ID_INSTANTREPORT = wxNewId()
+ID_REPORTS = wxNewId()
+ID_SAVE = wxNewId()
 
 #--------------------------------------------------
 #Class which shows a blue bold label left justified
@@ -327,6 +348,49 @@ class gmContacts (gmPlugin.wxNotebookPlugin):
 
 	def MenuInfo (self):
 		return ('view', '&Contacts')
+
+	def DoToolbar (self, tb, widget):
+	      tool1 = tb.AddTool(ID_SEARCHGLOBAL, images_contacts_toolbar16_16.getfind_globalBitmap(),
+				shortHelpString="Global Search Of Contacts Database", isToggle=false)
+	      tb.AddControl(wxTextCtrl(tb, ID_SEARCHGLOBAL, name ="txtGlobalSearch",size =(100,-1),style = 0, value = ''))
+	      tool1 = tb.AddTool(ID_ORGANISATIONDISPLAY, images_contacts_toolbar16_16.getorganisationBitmap(),
+				shortHelpString="Display Organisations", isToggle=true)
+	      tool1 = tb.AddTool(ID_GENERALPRACTICESDISPLAY, images_contacts_toolbar16_16.getgeneralpracticesBitmap(),
+				shortHelpString="Display General Practices", isToggle=true)
+	      tool1 = tb.AddTool(ID_DOCTORSDISPLAY, images_contacts_toolbar16_16.getdoctorBitmap(),
+				shortHelpString="Display Doctors", isToggle=true)
+	      tool1 = tb.AddTool(ID_PERSONSDISPLAY, images_contacts_toolbar16_16.getpersonBitmap(),
+				shortHelpString="Display Persons", isToggle=false)
+	      #tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+	      tool1 = tb.AddTool(ID_ORGANISATIONADD, images_contacts_toolbar16_16.getorganisation_addBitmap(),
+				shortHelpString="Add an Organisation", isToggle=true)
+	      tool1 = tb.AddTool(ID_BRANCHDEPTADD, images_contacts_toolbar16_16.getbranch_addBitmap(),
+				shortHelpString="Add Branch or Department", isToggle=true)
+	      tool1 = tb.AddTool(ID_EMPLOYEEADD, images_contacts_toolbar16_16.getemployeesBitmap(),
+				shortHelpString="Add an Employee", isToggle=true)
+	      tool1 = tb.AddTool(ID_PERSONADD, images_contacts_toolbar16_16.getperson_addBitmap(),
+				shortHelpString="Add Person", isToggle=true)
+              tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+              tool1 = tb.AddTool(ID_RELOAD, images_contacts_toolbar16_16.getreloadBitmap(),
+				shortHelpString="Refresh Display", isToggle=true)
+              tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+              tool1 = tb.AddTool(ID_SEARCHSPECIFIC, images_contacts_toolbar16_16.getfind_specificBitmap(),
+				shortHelpString="Find Specific Records in Contacts Database", isToggle=true)
+              tool1 = tb.AddTool(ID_SORTA_Z, images_contacts_toolbar16_16.getsort_A_ZBitmap(),
+				shortHelpString="Sort A to Z", isToggle=true)
+              tool1 = tb.AddTool(ID_SORTZ_A, images_contacts_toolbar16_16.getsort_Z_ABitmap(),
+				shortHelpString="Sort Z to A", isToggle=true)
+	      tool1 = tb.AddTool(ID_SENDEMAIL, images_contacts_toolbar16_16.getsendemailBitmap(),
+				shortHelpString="Send Email", isToggle=true)
+	      tool1 = tb.AddTool(ID_LINKINTERNET, images_contacts_toolbar16_16.getearthBitmap(),
+				shortHelpString="Load Web Address", isToggle=true)
+	      tool1 = tb.AddTool(ID_INSTANTREPORT, images_contacts_toolbar16_16.getlighteningBitmap(),
+				shortHelpString="Instant Report from Grid", isToggle=true)
+	      tool1 = tb.AddTool(ID_REPORTS, images_contacts_toolbar16_16.getreportsBitmap(),
+				shortHelpString="Pre-formatted reports", isToggle=true)
+	      tb.AddControl(wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wxDefaultPosition, wxDefaultSize))
+	      tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
+				shortHelpString="Save Record", isToggle=true)		
           
 
 if __name__ == "__main__":

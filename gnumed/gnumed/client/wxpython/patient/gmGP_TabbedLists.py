@@ -27,21 +27,21 @@
 #        remove non-used imports from below this text
 ############################################################################
 from wxPython.wx import *
-from wxPython.gizmos import *
+#from wxPython.gizmos import *
 from wxPython.stc import *
 import keyword
 import time
 import images #bitmaps for column headers of lists
 import gmPlugin, gmShadow, gmConf
 import images_gnuMedGP_TabbedLists           #bitmaps for tabs on notebook
-from wxPython.lib.mixins.listctrl import wxColumnSorterMixin   
+#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin   
 scriptdata = {
 1 : ("Adalat Oris", "30mg","1 mane","21/01/2002", "Hypertension","30 Rpt5","29/02/2000"),
 2 : ("Nitrolingual Spray","", "1 spray when needed","24/08/2001", "Angina","1 Rpt2","01/06/2001"),
 3 : ("Losec", "20mg","1 mane", "21/01/2002","Reflux Oesophagitis","30 Rpt5","16/11/2001"),
 4 : ("Zoloft", "50mg","1 mane", "24/04/2002","Depression","30 Rpt0","24/04/2002"),
 }
-class TabbedLists(wxPanel, wxColumnSorterMixin):
+class TabbedLists(wxPanel): #, wxColumnSorterMixin):
     def __init__(self, parent,id):
 	wxPanel.__init__(self, parent, id)
 	self.SetAutoLayout(true)

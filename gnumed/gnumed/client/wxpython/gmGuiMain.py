@@ -10,8 +10,8 @@
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
-# @Date: $Date: 2002-07-17 10:04:29 $
-# @version $Revision: 1.28 $ $Date: 2002-07-17 10:04:29 $ $Author: ncq $
+# @Date: $Date: 2002-07-20 08:09:15 $
+# @version $Revision: 1.29 $ $Date: 2002-07-20 08:09:15 $ $Author: ihaywood $
 # @change log:
 #	10.06.2001 hherb initial implementation, untested
 #	01.11.2001 hherb comments added, modified for distributed servers
@@ -31,7 +31,7 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__  = "H. Herb <hherb@gnumed.net>, S. Tan <sjtan@bigpond.com>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -47,7 +47,7 @@ import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headi
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 import gmGP_PatientPicture                     #panel to display patients picture 
 import gmGP_Toolbar                            #panel with two toolbars on top of the screen
-from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
+#from wxPython.lib.mixins.listctrl import wxColumnSorterMixin
 
 from gmI18N import gmTimeformat
 
@@ -145,10 +145,8 @@ class MainFrame(wxFrame):
 			gmPlugin.LoadPlugin ('gui', plugin,
 						guibroker = self.guibroker,
 						dbbroker = backend)
-		# realize the toolbars
-		self.guibroker['main.top_toolbar'].Realize ()
 		self.SetStatusText(_("You are logged in as [%s]") % user)
-
+		self.tb.ReFit ()
 		self.SetSizer( self.vbox )
 		self.vbox.Fit( self )
 		#don't let the window get too small

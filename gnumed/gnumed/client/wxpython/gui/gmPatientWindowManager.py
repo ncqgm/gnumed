@@ -52,15 +52,15 @@ class PatientWindow (wxPanel):
         Client must NOT do Show () on the panel!
         """ 
         self.wholescreen[name] = panel
-        panel.Show (0) # make sure all hidden
+	panel.Show (0)
         #log (lInfo, "Registering %s as whole screen widget" % name)
 
     def RegisterLeftSide (self, name, panel):
         """
         Register for left side
         """
+	panel.Show (0)
         self.lefthalf[name] = panel
-        panel.Show (0)
         
 
     def RegisterRightSide (self, name, panel, position =1):
@@ -186,6 +186,7 @@ class gmPatientWindowManager (gmPlugin.wxNotebookPlugin):
         for plugin in gmPlugin.GetAllPlugins ('patient'):
             gmPlugin.LoadPlugin ('patient', plugin,
                                  guibroker = self.gb)
+	#self.pw.Show (0)
         self.pw.DisplayDefault ()
         self.gb['toolbar.%s' % self.name ()].Realize ()
 

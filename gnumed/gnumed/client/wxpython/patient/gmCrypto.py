@@ -17,7 +17,26 @@ class gmCrypto (gmPlugin.wxPatientPlugin):
         return ('view', '&Crypto')
 
     def GetIcon (self):
-        return images_gnuMedGP_Toolbar.getToolbar_CryptoBitmap()
+    	return wxBitmapFromXPMData([
+	"16 16 2 1",
+	"       c None",
+	".      c #ED0B47",
+	"                ",
+	"                ",
+	"                ",
+	"             .  ",
+	"            . . ",
+	"           .   .",
+	" ...........   .",
+	" ...........   .",
+	" ..  ..    .   .",
+	" ..  ..     . . ",
+	" ..  ..      .  ",
+	" ..  ..         ",
+	"                ",
+	"                ",
+	"                ",
+	"                "])
 
     def GetWidget (self, parent):
-        return gmCryptoText.gmCryptoText (parent, -1)
+	return gmCryptoText.gmCryptoText (parent, -1)

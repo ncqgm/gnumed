@@ -1,5 +1,5 @@
 from wxPython.wx import *
-import gmGuiBroker, gmLog
+import gmGuiBroker, gmLog, gmConf
 	
 
 class Toolbar(wxPanel):
@@ -15,40 +15,71 @@ class Toolbar(wxPanel):
         gb = gmGuiBroker.GuiBroker ()
     
 	#-------------------------------------------------------------------------
-	#create the top toolbar with the findpatient, age and allergies text boxes
+	#create the top toolbar. patient adds top line with patient name etc.
         #-------------------------------------------------------------------------
-        tb2 = wxToolBar(self,-1,wxDefaultPosition,wxDefaultSize,wxTB_HORIZONTAL|wxRAISED_BORDER|wxTB_FLAT)
-        tb2.SetToolBitmapSize((21,21))
-        gb['main.top_toolbar'] = tb2
+        self.toplinesizer = wxBoxSizer (wxHORIZONTAL)
 	#-------------------------------------------------------------------------
 	#create the second tool bar underneath which will hold most of the buttons
 	#-------------------------------------------------------------------------
-        # IH: as requested, this is now a multi-toolbar
-        # FIXME: how to we set the right width? 300 does it for now!
-        self.tb1 = wxPanel (self, -1, size = wxSize (300, 25)) # force thin line
+	self.bottomlinesizer = wxBoxSizer (wxHORIZONTAL)
+	if 0:
+		self.fixedtoolbar = wxToolBar(self,-1,style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+		self.fixedtoolbar.SetToolBitmapSize((16,16))
+		self.bottomlinesizer.Add (self.fixedtoolbar, 0, wxEXPAND)
+        self.bottomline = wxPanel (self, -1)
         self.subbars = {}
-	self.sizer.Add(1,3,0,wxEXPAND)		  
-        self.sizer.Add(tb2,1,wxEXPAND)
-        self.sizer.Add(self.tb1,1,wxEXPAND)
+	self.bottomlinesizer.Add (self.bottomline, 1, wxGROW)
+	# IMHO: space is at too much of a premium for such padding
+	#self.sizer.Add(1,3,0,wxEXPAND)		  
+        self.sizer.Add(self.toplinesizer,1,wxEXPAND)
+        self.sizer.Add(self.bottomlinesizer,1,wxEXPAND)
 	self.SetSizer(self.sizer)  #set the sizer 
 	self.sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(true)                 #tell frame to use the sizer
         self.Show(true)
         
 
+    def AddWidgetRightBottom (self, widget):
+	"""
+	Insert a widget on the right-hand side of the bottom toolbar
+	"""
+	self.bottomlinesizer.Add(widget,0,wxRIGHT,0)
+
     def AddBar (self, key):
         """
-        Creates and returns a new empyty toolbar, referenced by key
-        Key must correspond to the notebook page number is defined by the notebook (see gmPlugin.py)
+        Creates and returns a new empty toolbar, referenced by key
+        Key should correspond to the notebook page number as defined by the notebook (see gmPlugin.py),
+	so that gmGuiMain can display the toolbar with the notebook
         """
-        self.subbars[key] = wxToolBar (self.tb1, -1, size=self.tb1.GetClientSize (), style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
+        self.subbars[key] = wxToolBar (self.bottomline, -1, size=self.bottomline.GetClientSize (), style=wxTB_HORIZONTAL|wxNO_BORDER|wxTB_FLAT)
         self.subbars[key].SetToolBitmapSize((16,16))
         if len (self.subbars) == 1:
-            self.subbars[key].Show ()
+            self.subbars[key].Show (1)
             self.__current = key
         else:
             self.subbars[key].Hide ()
         return self.subbars[key]
+
+    def ReFit (self):
+	"""
+	Refits the toolbar after its been changed
+	"""
+	tw = 0
+	th = 0
+	# get maximum size for the toolbar
+	for i in self.subbars.values ():
+		ntw, nth = i.GetSizeTuple ()
+		if ntw > tw:
+			tw = ntw
+		if nth > th:
+			th = nth
+	#import pdb
+	#pdb.set_trace ()
+	s = wxSize (tw, th)
+	self.bottomline.SetSize (s)
+	for i in self.subbars.values ():
+		i.SetSize (s)
+	self.sizer.Fit (self)
             
     def ShowBar (self, key):
         """
@@ -56,7 +87,7 @@ class Toolbar(wxPanel):
         """
         self.subbars[self.__current].Hide ()
         if self.subbars.has_key (key):
-            self.subbars[key].Show ()
+            self.subbars[key].Show (1)
             self.__current = key
         else:
             gmLog.gmDefLog.Log (gmLog.lErr, "tried to show non-existent toolbar %s" % key)
@@ -70,7 +101,7 @@ class Toolbar(wxPanel):
             del self.subbars[key]
             if self.__current == key and len (self.subbars):
                 self.__current = self.subbars.keys () [0]
-                self.subbars[self.__current].Show ()
+                self.subbars[self.__current].Show (1)
         else:
             gmLog.gmDefLog.Log (gmLog.lErr, "tried to delete non-existent %s" % key)
 

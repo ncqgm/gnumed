@@ -67,6 +67,14 @@ ID_BUTTONPHOTOIMPORT = wxNewId()
 ID_CHKBOXRESIDENCE = wxNewId()
 ID_CHKBOXPOSTAL = wxNewId()
 ID_CHKBOXPREFERREDALIAS = wxNewId()
+
+ID_BUTTONFINDPATIENT = wxNewId()
+ID_TXTPATIENTFIND = wxNewId()
+ID_TXTPATIENTAGE = wxNewId()
+ID_TXTPATIENTALLERGIES  = wxNewId()
+ID_COMBOCONSULTTYPE =wxNewId()
+consulttypelist = ['Surgery Consultation', 'Home Visit', 'Phone Conversation', 'Request by Specialist', 'Patient Absent', 'Email Contact', 'Other']
+
 #------------------------------------
 #Dummy data to simulate allergy items
 #------------------------------------
@@ -101,11 +109,11 @@ class TextBox_BlackNormal(wxTextCtrl):
 		self.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,'xselfont'))
 
 class PatientsPanel(wxPanel):
-	def __init__(self, parent,id, gb, mwm, pt_name):
+	def __init__(self, parent,id, plugin):
 		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
-		self.gb = gb
-		self.mwm = mwm
-		self.pt_name_ctrl = pt_name
+		self.gb = plugin.gb
+		self.mwm = plugin.mwm
+		# controls on the top toolbar are available via plugin.foo
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,addressdata,wxLB_SINGLE)
 		self.addresslist.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, false, '')) #first list with patient names
 		self.addresslist.SetForegroundColour(wxColor(180,182,180))
@@ -487,38 +495,41 @@ import gmPlugin
 import images_gnuMedGP_Toolbar
 from string import *
 
-ID_FINDPTICON = wxNewId ()
-ID_FINDPTTXT = wxNewId ()
-ID_PTAGE = wxNewId ()
-ID_ALLERGYTXT = wxNewId ()
-
 class gmDemographics (gmPlugin.wxBasePlugin):
 
 	def name (self):
 		return 'Patient Search'
 
 	def register (self):
-		# first, set up the toolbar
-		tb1 = self.gb['main.top_toolbar']
-		tb1.AddSeparator()
-		tb1.AddTool(ID_FINDPTICON, images_gnuMedGP_Toolbar.getToolbar_FindPatientBitmap(), shortHelpString="Find a patient")
-		self.pt_name_ctrl = wxTextCtrl(tb1, ID_FINDPTTXT, name ="txtFindPatient",size =(300,-1),style = 0, value = '')
-		tb1.AddControl(self.pt_name_ctrl)
-		tb1.AddSeparator()	
-		tb1.AddControl(wxStaticText(tb1, -1, label ='Age', name = 'lblAge',size = (30,-1), style = 0))
-		tb1.AddSeparator()
-		self.pt_age_ctrl = wxTextCtrl(tb1, ID_PTAGE, name ="txtPtAge",size =(30,-1),style = 0, value = '')
-		tb1.AddControl(self.pt_age_ctrl)
-		tb1.AddSeparator()	
-		tb1.AddControl(wxStaticText(tb1, -1, label ='Allergies', name = 'lblAge',size = (50,-1), style = 0))
-		self.pt_allergies_ctrl = wxTextCtrl(tb1, ID_ALLERGYTXT, name ="txtFindPatient",size =(250,-1),style = 0, value = '')
-		tb1.AddControl (self.pt_allergies_ctrl)
+		# first, set up the widgets on the top line of the toolbar
+		tb = self.gb['main.toolbar']
+		self.pt_search_button = wxBitmapButton (tb, ID_BUTTONFINDPATIENT, bitmap= images_gnuMedGP_Toolbar.getToolbar_FindPatientBitmap())
+		self.pt_search_button.SetToolTip (wxToolTip ('Find Patient'))
+		self.txt_findpatient = wxTextCtrl(tb,ID_TXTPATIENTFIND,"Frederick Nerk 153 Maybury St REDHEAD 2290")
+	    	self.txt_findpatient.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	      	self.lbl_age =wxStaticText(tb,-1," Age ",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL) 
+	      	self.lbl_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
+	      	self.lbl_age.SetForegroundColour(wxColour(0,0,131))
+	      	self.txt_age = wxTextCtrl(tb,ID_TXTPATIENTAGE,"59",size = (40,-1))
+	      	self.txt_age.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	      	self.lbl_allergies =wxStaticText(tb,-1," Allergies ",wxDefaultPosition,wxDefaultSize,wxALIGN_CENTER_VERTICAL) 
+	      	self.lbl_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxNORMAL,false,''))
+	      	self.lbl_allergies.SetForegroundColour(wxColour(255,0,0))
+	      	self.txt_allergies = wxTextCtrl(tb,ID_TXTPATIENTALLERGIES,"Penicillin, Macrolides")
+	      	self.txt_allergies.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+	      	self.txt_allergies.SetForegroundColour(wxColour(255,0,0))
+	      	self.combo_consultation_type = wxComboBox(tb, ID_COMBOCONSULTTYPE, "Surgery Consultation", wxDefaultPosition,wxDefaultSize,consulttypelist, wxCB_DROPDOWN)
+		tb.toplinesizer.Add(self.pt_search_button,0,wxEXPAND)
+	      	tb.toplinesizer.Add(self.txt_findpatient,5,wxEXPAND|wxALL,3)
+	      	tb.toplinesizer.Add(self.lbl_age,1,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
+	      	tb.toplinesizer.Add(self.txt_age,0,wxEXPAND|wxALL,3)
+	      	tb.toplinesizer.Add(self.lbl_allergies,0,wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALL,3)
+	      	tb.toplinesizer.Add(self.txt_allergies,6,wxEXPAND|wxALL,3)
+		tb.AddWidgetRightBottom (self.combo_consultation_type)
 
 		# now set up the searching list
 		self.mwm = self.gb ['patient.manager']
-		self.widget = PatientsPanel (self.mwm, -1, self.gb, self.mwm, self.pt_name_ctrl)
+		self.widget = PatientsPanel (self.mwm, -1, self)
 		self.mwm.RegisterWholeScreen ('Patient Search', self.widget)
-		EVT_TOOL (tb1, ID_FINDPTICON, self.widget.OnSearch)
-		EVT_TEXT_ENTER (tb1, ID_FINDPTTXT, self.widget.OnSearch)
 
 

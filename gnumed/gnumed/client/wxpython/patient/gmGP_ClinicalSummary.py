@@ -1,5 +1,5 @@
 from wxPython.wx import *
-from wxPython.gizmos import *
+#from wxPython.gizmos import *
 from wxPython.stc import *
 import keyword
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings 

@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback
@@ -117,13 +117,15 @@ class wxNotebookPlugin (wxBasePlugin):
 		self.nb_no = self.nb.GetPageCount ()
 		widget = self.GetWidget (self.nb)
 		self.nb.AddPage (widget, self.name ())
-		widget.Show ()
+		widget.Show (1)
 
 		# place ourselves in the main toolbar
 		# FIXME: this should be optional
 		self.tbm = self.gb['main.toolbar']
 		tb = self.tbm.AddBar (self.nb_no)
 		self.gb['toolbar.%s' % self.name ()] = tb
+		self.DoToolbar (tb, widget)
+		tb.Realize ()
 
 		# and put ourselves into the menu structure
 		# FIXME: this should be optional, too
@@ -154,6 +156,14 @@ class wxNotebookPlugin (wxBasePlugin):
 	#-----------------------------------------------------
 	def GetNotebookNumber (self):
 		return self.nb_no
+	#----------------------------------------------------
+	def DoToolbar (self, tb, widget):
+		"""
+		sets up the toolbar for this widget.
+		tb is the toolbar
+		widget is the widget returned by GetWidget () for connecting events
+		"""
+		pass
 #------------------------------------------------------------------
 class wxPatientPlugin (wxBasePlugin):
 	"""
@@ -166,11 +176,9 @@ class wxPatientPlugin (wxBasePlugin):
 			widget = self.GetWidget (shadow)
 			shadow.SetContents (widget)
 			self.mwm.RegisterLeftSide (self.name (), shadow)
-			shadow.Show ()
 		else:
 			widget = self.GetWidget (self.mwm)
 			self.mwm.RegisterLeftSide (self.name (), self.GetWidget (self.mwm))
-			widget.Show ()
 		icon = self.GetIcon ()
 		if icon is not None:
 			tb2 = self.gb['toolbar.Patient']

@@ -43,121 +43,6 @@ def getToolbar_BMICalcBitmap():
 def getToolbar_BMICalcImage():
     return wxImageFromBitmap(getToolbar_BMICalcBitmap())
 
-#---------------------------------------------------------------------
-def getToolbar_ManualData ():
-    return [
-"16 16 2 1",
-" 	c None",
-".	c #02C209",
-"                ",
-"      ...       ",
-"     .....      ",
-"    ..   ..     ",
-"    .     ..    ",
-"          ..    ",
-"         ...    ",
-"        ...     ",
-"       ..       ",
-"       ..       ",
-"       ..       ",
-"       ..       ",
-"       ..       ",
-"                ",
-"       ..       ",
-"                "]
-
-def getToolbar_ManualBitmap():
-    return wxBitmapFromXPMData (getToolbar_ManualData ())
-
-#---------------------------------------------------------------------
-
-def getToolbar_CryptoData ():
-    return [
-"16 16 2 1",
-" 	c None",
-".	c #ED0B47",
-"                ",
-"                ",
-"                ",
-"             .  ",
-"            . . ",
-"           .   .",
-" ...........   .",
-" ...........   .",
-" ..  ..    .   .",
-" ..  ..     . . ",
-" ..  ..      .  ",
-" ..  ..         ",
-"                ",
-"                ",
-"                ",
-"                "]
-
-        
-def getToolbar_CryptoBitmap():
-    return wxBitmapFromXPMData(getToolbar_CryptoData())
-
-#---------------------------------------------------------------------
-
-def getToolbar_SQLData ():
-    return [
-"16 16 4 1",
-" 	c None",
-".	c #050504",
-"+	c #050505",
-"@	c #DBA320",
-"                ",   # its supposed to be a playptus - the PostgreSQL symbol
-"         ....   ",
-"         .....  ",
-"        +.....  ",
-"       @@@....  ",
-"    ..@@@@@..   ",
-"     @@@@@@.    ",
-"     @@@@@@     ",
-"     @@@@@      ",
-" .  @@@@@@.     ",
-" ..@@@@@@@.     ",
-"  @@@@@@@       ",
-" @@@@@@@        ",
-" @@@@@@@        ",
-"@@@@@ .         ",
-"@     ..        "]
-
-
-def getToolbar_SQLBitmap():
-    return wxBitmapFromXPMData(getToolbar_SQLData())
-
-
-#---------------------------------------------------------------------
-
-def getToolbar_PythonData ():
-    return [
-"16 16 4 1",
-" 	c None",
-".	c #20C01C",
-"+	c #EA1E3D",
-"@	c #391EEA",
-"                ",
-"           ..++ ",
-"          ..+++ ",
-"         ..+++  ",
-"        @.+++.. ",
-"        ..++... ",
-"        ......  ",
-"    .........   ",
-"    .......     ",
-"    .......     ",
-"    ...         ",
-"    ...         ",
-"    ...         ",
-".......         ",
-".......         ",
-".......         "]
-
-
-def getToolbar_PythonBitmap():
-    return wxBitmapFromXPMData(getToolbar_PythonData())
-
 #----------------------------------------------------------------------
 def getToolbar_CalculatorData():
     return cPickle.loads(zlib.decompress(
@@ -280,7 +165,7 @@ def getToolbar_HomeImage():
     return wxImageFromBitmap(getToolbar_HomeBitmap())
 
 #----------------------------------------------------------------------
-def getToolbar_ImmunisationData():
+def getToolbar_ImmunisationsData():
     return cPickle.loads(zlib.decompress(
 'x\xdam\xd0\xb1\n\xc3 \x10\x06\xe0\xdd\xa7\xf8!\x83\x9d~"\x85\xe2\xdcH^\xc0\
 \xc55d\xacC\xdf\x7f\xeai\x0czX9\x90\xff\xf3\x04\xbdG\xfe:\x13\xad{A\xea\tg\
@@ -289,10 +174,11 @@ def getToolbar_ImmunisationData():
 4\x8d\xcd\x14\xde\xd6\xf1~\xce\x80T?\xbdP\x1b\xdaL\xff f\xe4\x0f?YF\x88' ))
 
 def getToolbar_ImmunisationBitmap():
-    return wxBitmapFromXPMData(getToolbar_ImmunisationData())
+    return wxBitmapFromXPMData(getToolbar_ImmunisationsData())
 
 def getToolbar_ImmunisationImage():
-    return wxImageFromBitmap(getToolbar_ImmunisationBitmap())
+    return wxImageFromBitmap(getToolbar_ImmunisationsBitmap())
+
 
 #----------------------------------------------------------------------
 def getToolbar_ManData():
@@ -548,5 +434,38 @@ def getToolbar_VerticalSeparatorBitmap():
 
 def getToolbar_VerticalSeparatorImage():
     return wxImageFromBitmap(getToolbar_VerticalSeparatorBitmap())
+#----------------------------------------------------------------------
+def getpadlock_closedData():
+    return cPickle.loads(zlib.decompress(
+'x\xda\x85\x90\xb1\n\x03!\x10D\xfb\xfb\n!\x85\xa9\x06,\x12\xad\x15,cq\x8d\
+\xedq\xa4\xca\x91\xcd\xffWY5\xcazMFY\x98\xb7\xc3*{=>fY\xb5\xb9+\xbe7e\xf4\
+\xb2\xad\x1ajW\xfe\xd8\xf6Wu\x89\xdd\xc5:\x1b\xac\xab^\xb1\x7f\xd0\xfbYM.\
+\xcd\xe8b\x88\xadI\xc5{\xe7\x83\xef\xe1Y\x02\x82u\x86\xc8,\xcc\x10\x99\x00jT\
+@\x8e\xe2\x0c\xa9\xcc\xa4:\xb7\xc3\xe2\x89Ja\xfa\x83\x0c\x9a\x90\x06\x84P\
+\x1a0S?\x02\xa6!\x01G0\xffK\x8a\x99\xe3\x9f\xf2\xf5yK\xd3\xea\xf0\x05\xeaN^\
+\xe5' ))
 
+def getpadlock_closedBitmap():
+    return wxBitmapFromXPMData(getpadlock_closedData())
 
+def getpadlock_closedImage():
+    return wxImageFromBitmap(getpadlock_closedBitmap())
+
+#----------------------------------------------------------------------
+def getpadlock_unlockedData():
+    return cPickle.loads(zlib.decompress(
+'x\xda\x85\x8f=\x0b\xc3 \x10\x86\xf7\xfc\n\xa1\x83\x85\x83\x17\xb3\x04\xe7\
+\x06\x1c\x9b!\x8bk\x08\x99\x1az\xfd\xffS\xef\xb4\x1a[\x02}/\x88\xcf\xe3\xf9\
+\x91\xeb\xfe\xea\xbb\xd9\xf6\x83\x91O\x06\xdb-\xb3\x85Y\xcdm_\xd6G"\x16\xba\
+\x8cN+\xf1\xa4\x1c|\x18]fR\xf6N+\xb1\x11\xbe\xf3sK\x10Ks\xf0\x9fE\r$yvHD\t\
+\xbe%"\x03\x9c\xed!\x19\xba\xf2#q"\'\xc9Y\xa7\x84\xd3\x86"AD\xcc\xd0B\x91`\
+\x16\'\x01U\x89&Te\xe4R\x8d\xa4\x9aF\xd6\xc6\xf8\xaf\xb39\xb3\xbe\xb3\xbd=\
+\xff\x11\xdeR\x1e^\xc8' ))
+
+def getpadlock_unlockedBitmap():
+    return wxBitmapFromXPMData(getpadlock_unlockedData())
+
+def getpadlock_unlockedImage():
+    return wxImageFromBitmap(getpadlock_unlockedBitmap())
+
+#----------------------------------------------------------------------
