@@ -129,19 +129,51 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         @param size: the window's size
         @type style: integer
         @param style: the window's style
+
+		extra parameters by subclassing, and overriding GetHeaders(), GetSummary()
+		
         """
         if size is None:
             size = wxSize (400, 200)
         wxStyledTextCtrl.__init__ (self, parent, id, pos, size, style)
         self.parent = parent
         id = self.GetId ()
+
         self.SetWrapMode (wxSTC_WRAP_WORD)
         self.StyleSetSpec (STYLE_HEADER, "fore:#7F11010,bold,face:Times,size:12")
         self.StyleSetSpec (STYLE_EMBED, "fore:#4040B0")
         self.StyleSetSpec (STYLE_KEYWORD, "fore:#3030A0")
+	"""
+	StyleSetSpec(styleNum, spec)
+	it takes a string object spec and applies the information from the string as the attributes for the style specified by the integer parameter styleNum. Returns None.
+
+	The specification string has various tokens, some with options.
+
+	bold                    turns on bold
+	italic                  turns on italics
+	fore:#RRGGBB            sets the foreground colour
+	back:#RRGGBB            sets the background colour
+	face:[facename]         sets the font face name to use
+	size:[num]              sets the font size in points
+	eol                     turns on eol filling
+	underline               turns on underlining
+
+	"""
         self.SetEOLMode (wxSTC_EOL_LF)
+	"""
+	SetEOLMode(eolMode)
+
+	Sets the line ending mode for the active Document to the integer value eolMode. It is important to realize that this is NOT a global setting, but is done on a document-by-document basis. When a new document is created its internal EOL mode flag is set to LF only (wxSTC_EOL_LF) if the OS is Unix or to CRLF (wxSTC_EOL_CRLF) otherwise (this is a result of a compile-time #ifdef in the Scintilla code).
+
+	If you are concerned about cross-platform compatibility, you may wish to programmatically set this every time a new Document is created. Otherwise, if your app is run on a Mac the EOL mode will be set to CRLF.
+	"""
+
         self.SetMarginWidth (1, 0)
         self.AutoCompStops ("()<>,.;:'\"[]{}\\|/? !@#$%^&*")
+	"""
+	If a character from the set of characters in stopChars is pressed by the user, then the autocomplete operation is cancelled; just as if AutoCompCancel() was invoked programmatically. Returns None.
+
+	"""
         self.__embeds = {}
         self.autocompstr = ''
         self.__data = {}
@@ -153,9 +185,22 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         self.replace_len = 0
         self.popup = 0
         self.AutoCompSetSeparator (10)
+	"""
+	AutoCompSetSeparator(separatorCharacter)
+
+	Sets the separator character that is used to separate strings in the itemList passed to AutoCompShow or UserListShow. If this method is not used then the default is the space character. Returns None. 
+	"""
         EVT_KEY_DOWN (self, self.__keypressed)
         EVT_LEFT_DOWN (self, self.__mouse_down)
         EVT_STC_USERLISTSELECTION (self, id, self.__userlist)
+	"""
+	EVT_STC_USERLISTSELECTION(win, id, func)
+
+	Fired after an item in a user list is selected. Use wxStyledTextCtrl.GetListType and .GetText to retrieve the values of the listType and text attributes set by this event. Note: at the time of this writing (Nov 2002) GetListType will always return 0. This will probably be fixed by the time you read this, unless you are using an old version of wxPython.
+	"""
+
+
+
 
     def GetHeaders (self):
         """
@@ -190,6 +235,8 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         self.SetEOLMode (wxSTC_EOL_LF)
         self.__write_headings ()
 
+
+
     def set_data (self, data):
         """
         Clears the contents of the widget,
@@ -208,7 +255,18 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             self.__text = data['__text']
 
     def __write_headings (self, data={}):
+	"""
+	@type data - a dictionary of strings
+	@param data: the text to insert, keyed by header name.
+	data is state information for a child SOAPTextCtrl popup,
+	stored in the parent's self._embeds map under the child's summary text.
+	e.g. for SOAP headers or S, O, A, P, for recall it is reason, date.
+	"""
+	
         pos = 0
+
+	"""write the header and it's data, and set the header text style to STYLE_HEADER
+	"""
         for heading, type, matcher, poppers in self.headers:
             if data.has_key (heading):
                 text = "%s: %s\n" % (heading, data[heading])
@@ -218,7 +276,9 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             self.StartStyling (pos, 0xFF)
             self.SetStyling (len (heading)+1, STYLE_HEADER)
             pos += len (text)
-            
+           
+	"""initialize section and cursor position
+	to first section, end of first sections' data."""   
         self.section = 0
         self.section_start = len (self.headers[0][0])+1
         self.section_end = len (self.headers[0][0])+1
@@ -315,6 +375,13 @@ class SOAPTextCtrl (wxStyledTextCtrl):
         return 0
     
     def Embed (self, text, clas, state):
+	"""'text' is a embedded text created with a subclass of this widget defined
+	by 'clas' and having other instance information in 'state'.
+	it is used as a key in self.__embeds which stores child popup class and state
+	information. Embed is only called once when the popup is first destroyed,
+	so any duplicate keys refer to another popup; differentiate by adding a 
+	number to the 'text' keyword
+	"""
         n= 1
         ending = ''
         while self.__embeds.has_key (text + ending):
@@ -366,17 +433,34 @@ class SOAPTextCtrl (wxStyledTextCtrl):
 
         
     def __keypressed (self, event):
+	"""processes a KEY_DOWN event"""
+
+	
         pos = self.GetCurrentPos ()
-        if self.timer:
+        
+	"""on keypress, halt timer for autocompletion activation"""
+	if self.timer:
             self.timer.Stop ()
             self.timer = None
+	
+	"""keypress in parent of popup will destroy the popup"""
         if self.__popup:
             self.__popup.Destroy ()
             self.__popup = None
+
+	"""avoid state change checks if already waiting for a auto-completion selection"""    
         if self.AutoCompActive ():
             event.Skip ()
             return
+
+    	
         hdr, typ, matcher, poppers = self.headers[self.section]
+
+	"""read the conditional like a switch statement, each first level conditional
+	is exclusive of others.
+	"""
+
+
         if event.KeyCode () == WXK_RETURN:
             if self.GetCharAt (pos) == 10 and not event.AltDown ():
                 # we are at the end of a line
@@ -473,10 +557,23 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             pass
 
     def __cursorMoved (self, pos):
+	"""processes a jump in text position. If the text position is within the range
+	[section_start , max of (oldpos+1, current text length) ] then it is regarded
+	as text entry into the current	section;
+	otherwise it is a section jump. 
+	"""
         oldpos = self.GetCurrentPos ()
         m = self.GetLength ()
-        moved_section = pos < self.section_start or pos-oldpos > 1 or pos >= m
+        """moved_section flags a change in text section e.g. in SOAP, S section, O section..."""
+	moved_section = pos < self.section_start or pos-oldpos > 1 or pos >= m
+
         hdr, typ, matcher, poppers = self.headers[self.section]
+
+	"""if leaving a section, then validate the last section, 
+	preventing jump to another section if the data doesn't succeed
+	in basic type validation. 
+	type is one of [NUMBER, DATE, TEXT, selection], see above package initializations
+	"""
         if moved_section and typ == NUMBER:
             if not self.__validate_number ():
                 self.GotoPos (oldpos)
@@ -485,6 +582,30 @@ class SOAPTextCtrl (wxStyledTextCtrl):
             if not self.__validate_date ():
                 self.GotoPos (oldpos)
                 return
+
+	"""if pos < GetLength(), which means cursor over existing text,
+	then process re-editing of headers, embedded text, 
+	and user list selections ( autocompletion).
+	
+	   if it is in the STYLE_HEADER header area, check the next position by
+	   a recursive call to __cursorMoved() ( this function). 
+	   
+	   if it is in the STYLE_EMBED area (which marks popup created summary text)
+	   then it is a re-edit of a previously embedded text:
+	   go to either the start or end of the styled word under the cursor,
+	   and call the popup associated with the embedded word.
+	   The popup configuration for a word is stored in self.__embeds, keyed by
+	   the word. The configuration is a map: 
+	   the key 'class' stores the  SOAPTextCtrl subclass ,
+	   and this is used to construct the popup within the self.__pop() function,
+	   using this current control as the parent.
+
+	   Finally, check for typing within a SELECTION area , and if moved into
+	   such a section show the auto-completion  list
+	
+	if pos == GetLenth() and is a popup , then store the popup class and state.
+
+	"""
         if pos < m:
             style = self.GetStyleAt (pos)
             if style == STYLE_HEADER:
@@ -507,6 +628,7 @@ class SOAPTextCtrl (wxStyledTextCtrl):
                         self.__map_text_to_id = dict ([(i['label'], i['data']) for i in self.mlist])
                         self.UserListShow (1, string.join ([i['label'] for i in self.mlist], '\n'))
         else:
+	    
             if self.popup:
                 self.parent.SetFocus ()
                 data = self.get_data ()
