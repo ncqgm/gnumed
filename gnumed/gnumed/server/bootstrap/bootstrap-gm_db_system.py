@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1362,30 +1362,27 @@ def become_pg_demon_user():
 			print "WARNING: This script may not work if not running as the system administrator."
 
 #==============================================================================
-def nice_mode():
+def get_cfg_in_nice_mode():
 	print welcome_sermon
 	cfgs = []
-	n = 1
+	n = 0
 	for cfg_file in glob.glob('*.conf'):
 		cfg = gmCfg.cCfgFile(None, cfg_file)
 		# only offer those conf files that aren't reserved for gurus
-		if not cfg.get('installation', 'guru_only') == '1':
-			desc = cfg.get ('installation', 'description')
-			cfgs.append (cfg)
-			desc = string.join (desc,  '\n      ') # some indentation
-			if n > 10:
-				print "%s)   %s\n" % (n, desc)
-			else:
-				print " %s)   %s\n" % (n, desc)
-			n += 1
-	return cfgs[int (raw_input ("Your option:"))-1]
+		if cfg.get('installation', 'guru_only') == '1':
+			continue
+		cfgs.append(cfg)
+		desc = '\n    '.join(cfg.get('installation', 'description'))	# some indentation
+		print  '%2s) %s' % (n, desc)
+		n += 1
+	choice = int(raw_input ('\n\nYour choice: '))
+	return cfgs[choice]
 #==================================================================
 if __name__ == "__main__":
 	_log.Log(gmLog.lInfo, "startup (%s)" % __version__)
-	global _cfg
 	if _cfg is None:
-		_log.Log(gmLog.lInfo, "No config file specified on command line. Entering Nice Mode")
-		_cfg = nice_mode()
+		_log.Log(gmLog.lInfo, "No config file specified on command line. Getting it in nice mode.")
+		_cfg = get_cfg_in_nice_mode()
 
 	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
@@ -1444,7 +1441,12 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.54  2004-03-14 22:32:04  ncq
+# Revision 1.55  2004-05-24 14:07:59  ncq
+# - after understanding Ian's clever hack with nice_mode()
+#   I renamed some methods and variables so people like me
+#   will hopefully stay clued in later on ;-)
+#
+# Revision 1.54  2004/03/14 22:32:04  ncq
 # - postgres version -> minimum postgresql version
 #
 # Revision 1.53  2004/03/09 10:45:02  ncq
