@@ -1,54 +1,6 @@
-From gnumed-devel-admin@lists.sourceforge.net  Sun Apr  7 15:44:05 2002
-Return-Path: <gnumed-devel-admin@lists.sourceforge.net>
-Received: from localhost (localhost [127.0.0.1])
-	by hermes.hilbert.loc (8.11.6/8.11.6/SuSE Linux 0.5) with ESMTP id g37Di5K02828
-	for <ncq@localhost>; Sun, 7 Apr 2002 15:44:05 +0200
-X-Flags: 0000
-Delivered-To: GMX delivery to karsten.hilbert@gmx.net
-Received: from pop.gmx.de [213.165.64.20]
-	by localhost with POP3 (fetchmail-5.9.0)
-	for ncq@localhost (single-drop); Sun, 07 Apr 2002 15:44:05 +0200 (CEST)
-Received: (qmail 5807 invoked by uid 0); 7 Apr 2002 13:28:19 -0000
-Received: from usw-sf-fw2.sourceforge.net (HELO usw-sf-list1.sourceforge.net) (216.136.171.252)
-  by mx0.gmx.net (mx023-rz3) with SMTP; 7 Apr 2002 13:28:19 -0000
-Received: from localhost ([127.0.0.1] helo=usw-sf-list1.sourceforge.net)
-	by usw-sf-list1.sourceforge.net with esmtp (Exim 3.31-VA-mm2 #1 (Debian))
-	id 16uCiO-0008JX-00; Sun, 07 Apr 2002 06:28:16 -0700
-Received: from modem59.malleenet.net.au ([203.143.67.123] helo=gnumed.dhs.org)
-	by usw-sf-list1.sourceforge.net with smtp (Exim 3.31-VA-mm2 #1 (Debian))
-	id 16uCi0-0008CT-00
-	for <gnumed-devel@lists.sourceforge.net>; Sun, 07 Apr 2002 06:27:52 -0700
-Received: (qmail 15597 invoked by uid 8); 7 Apr 2002 13:27:44 -0000
-Received: from pc-00075.e-smith.gnumed.dhs.org (192.168.1.75, claiming to be "there")
-	by bifrost.e-smith.gnumed.dhs.org with SMTP id smtpdrgGl8i; Sun, 07 Apr 2002 23:27:35 EST
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Horst Herb <hherb@malleenet.net.au>
-Message-Id: <200204072321.25464@gnumed.net>
-To: gnumed-devel@lists.sourceforge.net
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Gnumed-devel] more guidelines for newbies
-Sender: gnumed-devel-admin@lists.sourceforge.net
-Errors-To: gnumed-devel-admin@lists.sourceforge.net
-X-BeenThere: gnumed-devel@lists.sourceforge.net
-X-Mailman-Version: 2.0.5
-Precedence: bulk
-List-Help: <mailto:gnumed-devel-request@lists.sourceforge.net?subject=help>
-List-Post: <mailto:gnumed-devel@lists.sourceforge.net>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/gnumed-devel>,
-	<mailto:gnumed-devel-request@lists.sourceforge.net?subject=subscribe>
-List-Id: mailing list for people interested in the GNUMed project development <gnumed-devel.lists.sourceforge.net>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/gnumed-devel>,
-	<mailto:gnumed-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://www.geocrawler.com/redir-sf.php3?list=gnumed-devel>
-X-Original-Date: Sun, 7 Apr 2002 23:37:20 +1000
-Date: Sun, 7 Apr 2002 23:37:20 +1000
-Status: RO
-Content-Length: 2188
-Lines: 49
-
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/html/random-notes/Attic/coding-practices,v $
+$Revision: 1.2 $
+--------------------------------------------------------------
 1.) strings and translation:
 
 hardcoded error strings meant for developers / debugging are in English.
@@ -99,3 +51,25 @@ Gnumed-devel@lists.sourceforge.net
 https://lists.sourceforge.net/lists/listinfo/gnumed-devel
 To subscribe or unsubscribe send a message with "help" as subject
 
+--------------------------------------------------------------
+COMMENTS
+--------
+- mark places that need fixing with a comment like this:
+
+# FIXME: a comment on what should be fixed how
+... your code ...
+--------------------------------------------------------------
+CVS
+---
+- always test before you check in (yes, I have been guilty of not
+  heeding my advice, sorry)
+--------------------------------------------------------------
+DEBUGGING/LOGGING
+-----------------
+- place markers before/after logging statements
+  that can be commented out once things work like this:
+
+#<DEBUG>/
+gmLog.Log(gmLog.lData, "this is a completely useless and wasteful, excessive log message")
+#<DEBUG>
+--------------------------------------------------------------
