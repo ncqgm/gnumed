@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.17 2004-03-10 13:57:45 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPlugin.py,v 1.18 2004-06-13 22:14:39 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -15,6 +15,7 @@ from wxPython.wx import *
 
 from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmPG, gmLog, gmCfg, gmWhoAmI
 from Gnumed.wxpython import gmShadow
+from Gnumed.pycommon.gmPyCompat import *
 
 gmPatient = None
 _log = gmLog.gmDefLog
@@ -47,12 +48,8 @@ class gmPlugin:
 	#-----------------------------------------------------
 	def name(self):
 		return 'plugin %s' % self.__class__.__name__
-	#-----------------------------------------------------
-	def internal_name(self):
-		"""Used for referencing a plugin by name."""
-		return self.__class__.__name__
 #------------------------------------------------------------------
-class wxBasePlugin (gmPlugin):
+class wxBasePlugin(gmPlugin):
 	"""Base class for all plugins providing wxPython widgets.
 
 	Plugins must have a class descending of this class in
@@ -69,9 +66,9 @@ class wxBasePlugin (gmPlugin):
 		self.cb = callbackbroker
 		self.db = dbbroker
 		if self.gb is None:
-			self.gb = gmGuiBroker.GuiBroker ()
+			self.gb = gmGuiBroker.GuiBroker()
 		if self.db is None:
-			self.db = gmPG.ConnectionPool ()
+			self.db = gmPG.ConnectionPool()
 		self.set = set
 	#-----------------------------------------------------
 	def GetIcon (self):
@@ -129,7 +126,7 @@ class wxBasePlugin (gmPlugin):
 	def Raise (self):
 		"""Raises this plugin to the top level if not visible.
 		"""
-		raise gmExceptions.PureVirtualFunction ()
+		raise gmExceptions.PureVirtualFunction()
 	#-----------------------------------------------------
 	def ReceiveFocus(self):
 		"""Called whenever this module receives focus and is thus shown onscreen.
@@ -137,91 +134,105 @@ class wxBasePlugin (gmPlugin):
 		pass
 	#-----------------------------------------------------
 	def register(self):
-		"""call set_widget_reference AFTER the widget is 
-		created so it can be gotten from the global 
-		guiBroker object later."""
-	
-		self.gb['modules.%s' % self.set][self.internal_name()] = self
-		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.internal_name(), self.set))
+		# register ANY type of plugin, regardless of where plugged in
+		# we may be able to do away with this once we don't do
+		# several types of plugins anymore, as we should
+		self.gb['modules.%s' % self.set][self.__class__.__name__] = self
+		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
 	#-----------------------------------------------------
 	def unregister(self):
-		del self.gb['modules.%s' % self.set][self.internal_name()]
-		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.internal_name(), self.set))
-	#-----------------------------------------------------
-	def set_widget_reference(self, widget):
-		"""puts a reference to widget in a map keyed as 'widgets'
-		in the guiBroker. The widget's map key is it's class name"""
-		_log.Log(gmLog.lData, "plugin class [%s], widget class [%s]" % (self.__class__.__name__, widget.__class__.__name__))
-
-		if not self.gb.has_key( 'widgets'):
-			self.gb['widgets'] = {}
-		
-		self.gb['widgets'][widget.__class__.__name__] = widget
-		widget.plugin = self
-		return
-
+		del self.gb['modules.%s' % self.set][self.__class__.__name__]
+		_log.Log(gmLog.lInfo, "plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self.set))
 #------------------------------------------------------------------
-class wxNotebookPlugin (wxBasePlugin):
-	"""Base plugin for plugins which provide a 'big page'.
-
-	Either whole screen, or notebook if it exists
-	"""	
+class wxNotebookPlugin(wxBasePlugin):
+	"""Base plugin for plugins which provide a full notebook page.
+	"""
+	def __init__(self, set=None):
+		wxBasePlugin.__init__(self, set='gui')
+		# make sure there's a raised_plugin entry
+		try:
+			tmp = self.gb['main.notebook.raised_plugin']
+		except KeyError:
+			self.gb['main.notebook.raised_plugin'] = 'none'
+		self._widget = None
+	#-----------------------------------------------------
 	def register (self):
 		"""Register ourselves with the main notebook widget."""
-		wxBasePlugin.register (self)
-		# add ourselves to the main notebook
-		self.nb = self.gb['main.notebook']
-		#nb_no = self.nb.GetPageCount ()
-		widget = self.GetWidget (self.nb)
-		self.nb.AddPage (widget, self.name())
-		widget.Show (1)
 
-		# place ourselves in the main toolbar
-		# Pages that don't want a toolbar must install a blank one
-		# otherwise the previous page's toolbar would be visible
-		self.tb_main = self.gb['main.toolbar']
-		tb = self.tb_main.AddBar(self.internal_name())
-		self.gb['toolbar.%s' % self.internal_name ()] = tb
-		self.DoToolbar (tb, widget)
+		wxBasePlugin.register(self)
+
+		# add ourselves to the main notebook
+		nb = self.gb['main.notebook']
+		widget = self.GetWidget(nb)
+		nb.AddPage(widget, self.name())
+		# FIXME: really use Show() here ?
+		widget.Show(1)
+
+		# place ourselves in the top panel,
+		# pages that don't want a toolbar must install a
+		# blank one otherwise the previous page's toolbar
+		# would be visible
+		top_panel = self.gb['main.top_panel']
+		tb = top_panel.AddBar(self.__class__.__name__)
+		self.gb['toolbar.%s' % self.__class__.__name__] = tb
+		self.populate_toolbar (tb, widget)
 		tb.Realize()
-		
+
 		# and put ourselves into the menu structure if so
-		if self.MenuInfo() is not None:
-			name_of_menu, menu_item_name = self.MenuInfo()
+		menu_info = self.MenuInfo()
+		if menu_info is not None:
+			name_of_menu, menu_item_name = menu_info
 			menu = self.gb['main.%smenu' % name_of_menu]
 			self.menu_id = wxNewId()
 			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
 			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
 			EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
 
-		# so notebook can find this widget
+		# so *notebook* can find this widget
 		self.gb['main.notebook.plugins'].append(self)
 
-		# so event handlers can get at this widget
-		self.set_widget_reference(widget)
+		return 1
 	#-----------------------------------------------------
-	def unregister (self):
+	def unregister(self):
 		"""Remove ourselves."""
-		wxBasePlugin.unregister (self)
+		wxBasePlugin.unregister(self)
+
 		# delete menu item
-		if self.MenuInfo ():
-			menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
-			menu.Delete (self.menu_id)
+		menu_info = self.MenuInfo()
+		if menu_info is not None:
+			menu = self.gb['main.%smenu' % menu_info()[0]]
+			menu.Delete(self.menu_id)
+
 		# delete toolbar
-		self.tb_main.DeleteBar (self.internal_name())
-		# correct the number-plugin dictionary
-		nbns = self.gb['main.notebook.plugins']
-		nb_no = nbns.index (self)
-		del nbns[nb_no]
+		top_panel = self.gb['main.top_panel']
+		top_panel.DeleteBar(self.__class__.__name__)
+
+		# correct the plugin dictionary
+		nb_plugins = self.gb['main.notebook.plugins']
+		nb_page_num = nb_plugins.index(self)
+		del nb_plugins[nb_page_num]
+
 		# delete notebook page
 		nb = self.gb['main.notebook']
-		nb.DeletePage (nb_no)
+		nb.DeletePage(nb_page_num)
+	#-----------------------------------------------------
+	def MenuInfo (self):
+		"""Return tuple of (menuname, menuitem)."""
+		return None
+	#-----------------------------------------------------
+	def populate_with_data(self):
+		print "missing", self.__class__.__name__, "-> populate_with_data()"
+	#-----------------------------------------------------
+	def ReceiveFocus(self):
+		"""We *are* receiving focus now."""
+		self.gb['main.notebook.raised_plugin'] = self.__class__.__name__
+		self.populate_with_data()
 	#-----------------------------------------------------
 	def can_receive_focus(self):
-		"""Called when this plugin is about to receive focus.
+		"""Called when this plugin is *about to* receive focus.
 
 		If None returned from here (or from overriders) the
-		plugin activation will be veto()ed.
+		plugin activation will be veto()ed (if it can be).
 		"""
 		# FIXME: fail if locked
 		return 1
@@ -249,40 +260,35 @@ class wxNotebookPlugin (wxBasePlugin):
 		set_statustext(txt)
 		return 1
 	#-----------------------------------------------------
-	def Raise (self):
+	def Raise(self):
 		"""Raise ourselves."""
-		try:
-			plugin = self.gb['modules.gui'][self.internal_name()]
-		except KeyError:
-			_log.LogException("cannot raise me (%s), plugin not available" % self.internal_name(), sys.exc_info(), verbose=0)
-			return None
+		# already raised ?
+		if self.gb['main.notebook.raised_plugin'] == self.__class__.__name__:
+			return 1
 		plugin_list = self.gb['main.notebook.plugins']
-		plugin_idx = plugin_list.index(plugin)
-		self.nb.SetSelection (plugin_idx)
+		plugin_idx = plugin_list.index(self)
+		nb = self.gb['main.notebook']
+		nb.SetSelection(plugin_idx)
 		return 1
 	#-----------------------------------------------------
 	def OnMenu (self, event):
 		self.Raise()
-	#-----------------------------------------------------
-	def GetNotebookNumber (self):
-		return self.nb_no
 	#----------------------------------------------------
-	def DoToolbar (self, tb, widget):
-		"""
-		sets up the toolbar for this widget.
-		tb is the toolbar
-		widget is the widget returned by GetWidget () for connecting events
+	def populate_toolbar (self, tb, widget):
+		"""Populates the toolbar for this widget.
+
+		- tb is the toolbar to populate
+		- widget is the widget returned by GetWidget()		# FIXME: is this really needed ?
 		"""
 		pass
 	# -----------------------------------------------------
 	# event handlers for the popup window
 	def OnLoad (self, evt):
 		# FIXME: talk to the configurator so we're loaded next time
-		self.register ()
+		self.register()
 	# =----------------------------------------------------
 	def OnShow (self, evt):
-		self.register () # register without changing configuration
-
+		self.register() # register without changing configuration
 #------------------------------------------------------------------
 class wxPatientPlugin (wxBasePlugin):
 	"""
@@ -297,7 +303,7 @@ class wxPatientPlugin (wxBasePlugin):
 		shadow = gmShadow.Shadow (self.mwm, -1)
 		widget = self.GetWidget (shadow)
 		shadow.SetContents (widget)
-		self.mwm.RegisterLeftSide (self.internal_name(), shadow)
+		self.mwm.RegisterLeftSide (self.__class__.__name__, shadow)
 
 		icon = self.GetIcon ()
 		if icon is not None:
@@ -315,32 +321,26 @@ class wxPatientPlugin (wxBasePlugin):
 		self.menu_id = wxNewId ()
 		menu.Append (self.menu_id, menuname)
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
-		self.set_widget_reference(widget)
 	#-----------------------------------------------------        
 	def OnTool (self, event):
 		self.ReceiveFocus()
-		self.mwm.Display (self.internal_name())
+		self.mwm.Display (self.__class__.__name__)
 		# redundant as cannot access toolbar unless mwm raised
 		#self.gb['modules.gui']['Patient'].Raise ()
 	#-----------------------------------------------------
 	def Raise (self):
 		self.gb['modules.gui']['Patient'].Raise()
-		self.mwm.Display (self.internal_name())
+		self.mwm.Display (self.__class__.__name__)
 	#-----------------------------------------------------
 	def unregister (self):
 		wxBasePlugin.unregister (self)
-		self.mwm.Unregister (self.internal_name())
+		self.mwm.Unregister (self.__class__.__name__)
 		menu = self.gb['main.submenu']
 		menu.Delete (menu_id)
 		if self.GetIcon () is not None:
 			tb2 = self.gb['toolbar.%s' % 'gmClinicalWindowManager']
 			tb2.DeleteTool (self.tool_id)
-		del self.gb['modules.patient'][self.internal_name()]
-	#-----------------------------------------------------
-	def Shown(self):
-		"""Called whenever this module receives focus and is thus shown onscreen.
-		"""
-		pass
+		del self.gb['modules.patient'][self.__class__.__name__]
 #=========================================================
 # some convenience functions
 #---------------------------------------------------------
@@ -357,7 +357,7 @@ def raise_plugin (plugin_name = None):
 		return 1
 	return 0
 #------------------------------------------------------------------
-def InstPlugin (aPackage, plugin_name, guibroker = None):
+def InstPlugin (aPackage='--??--', plugin_name='--??--'):
 	"""Instantiates a plugin object from a package directory, returning the object.
 
 	NOTE: it does NOT call register() for you !!!!
@@ -374,13 +374,11 @@ def InstPlugin (aPackage, plugin_name, guibroker = None):
 	FIXME: we should inform the user about failing plugins
 	"""
 	# we do need brokers, else we are useless
-	if guibroker is None:
-		guibroker = gmGuiBroker.GuiBroker()
-	dbbroker = gmPG.ConnectionPool()
+	gb = gmGuiBroker.GuiBroker()
 
 	# bean counting ! -> loaded plugins
-	if not ('modules.%s' % aPackage) in guibroker.keylist():
-		guibroker['modules.%s' % aPackage] = {}
+	if not ('modules.%s' % aPackage) in gb.keylist():
+		gb['modules.%s' % aPackage] = {}
 
 	try:
 		# use __import__() so we can dynamically calculate the module name
@@ -400,7 +398,7 @@ def InstPlugin (aPackage, plugin_name, guibroker = None):
 
 	_log.Log(gmLog.lInfo, "instantiating plugin %s" % plugin_name)
 	try:
-		plugin = plugin_class(set = aPackage, guibroker = guibroker, dbbroker = dbbroker)
+		plugin = plugin_class(set = aPackage)
 	except:
 		_log.LogException ('Cannot open module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
 		return None
@@ -523,7 +521,15 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.17  2004-03-10 13:57:45  ncq
+# Revision 1.18  2004-06-13 22:14:39  ncq
+# - extensive cleanup/comments
+# - deprecate self.internal_name in favour of self.__class__.__name__
+# - introduce gb['main.notebook.raised_plugin']
+# - add populate_with_data()
+# - DoToolbar() -> populate_toolbar()
+# - remove set_widget_reference()
+#
+# Revision 1.17  2004/03/10 13:57:45  ncq
 # - unconditionally do shadow
 #
 # Revision 1.16  2004/03/10 12:56:01  ihaywood
