@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -133,7 +133,7 @@ class cDocTree(wxTreeCtrl):
 		if doc_ids is None:
 			name = self.curr_pat['active name']
 			gm_show_error(
-				aMessage = _('Cannot find any documents for the patient\n[%s %s].') % (name['first'], name['last']),
+				aMessage = _('Cannot find any documents for patient\n[%s %s].') % (name['first'], name['last']),
 				aTitle = _('loading document list')
 			)
 			return None
@@ -602,7 +602,7 @@ if __name__ == '__main__':
 		application.SetWidget(cStandalonePanel,-1)
 		application.MainLoop()
 	except:
-		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
+		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
 		raise
 
@@ -612,7 +612,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.27  2003-08-24 12:50:20  shilbert
+# Revision 1.28  2003-08-27 12:31:41  ncq
+# - some cleanup
+#
+# Revision 1.27  2003/08/24 12:50:20  shilbert
 # - converted from __show_error() to gmGUIHelpers.gm_show_error()
 #
 # Revision 1.26  2003/06/29 15:21:22  ncq
