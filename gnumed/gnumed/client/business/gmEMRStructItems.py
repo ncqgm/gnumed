@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -60,13 +60,15 @@ class cEpisode(gmClinItem.cClinItem):
 		"""update clin_episode set
 				fk_health_issue=%(pk_health_issue)s,
 				fk_patient=%(pk_patient)s,
-				is_open=%(episode_open)s
+				is_open=%(episode_open)s,
+				fk_clin_narrative=%(pk_narrative)s
 			where pk=%(pk)s"""
 	]
 	_updatable_fields = [
 		'pk_health_issue',
-		'fk_patient',
-		'is_open'
+		'pk_patient',
+		'episode_open',
+		'pk_narrative'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
@@ -399,7 +401,10 @@ if __name__ == '__main__':
 	    
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.25  2004-12-15 10:28:11  ncq
+# Revision 1.26  2004-12-15 10:42:09  ncq
+# - cClinEpisode not handles the fields properly
+#
+# Revision 1.25  2004/12/15 10:28:11  ncq
 # - fix create_episode() aka add_episode()
 #
 # Revision 1.24  2004/11/03 22:32:34  ncq
