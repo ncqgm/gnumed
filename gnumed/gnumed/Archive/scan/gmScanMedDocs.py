@@ -4,7 +4,7 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -18,6 +18,9 @@ if __name__ == "__main__":
 	#sys.path.append(os.path.join('..', '..', 'python-common'))
 	# standalone from test_area CVS tree
 	sys.path.append(os.path.join('.', 'modules'))
+	sys.path.append('../../client/business')
+	sys.path.append('../../client/python-common')
+	sys.path.append('../../client/wxpython')
 
 import gmLog
 _log = gmLog.gmDefLog
@@ -996,7 +999,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.1  2003-04-13 13:47:22  ncq
+# Revision 1.2  2003-05-06 13:04:42  ncq
+# - temporary fix to make it run standalone from gnumed/Archive/scan/
+#
+# Revision 1.1  2003/04/13 13:47:22  ncq
 # - moved here from test_area
 #
 # Revision 1.21  2003/01/12 13:24:02  ncq
