@@ -135,8 +135,7 @@ the
 options to pg_ctl. Otherwise, find the script from which postmaster is 
 executed and simply add <command>-i</command> as an argument.
 </para>
-<para>Once these packages are installed, go to the section on
-setting up the database (<xref linkend="pgsql">.)</para>
+
 </sect2>
 
 <sect1 id="mac"><title>Mac</title>
@@ -146,10 +145,7 @@ There is a Mac port of Python, and one of wxWindows is in progress.
 </sect1>
 
 
-<sect1 id="win9x"><title>Windows 98/Me</title>
-<para>According to the PostgreSQL documentation, it is not possible 
-to run Postgres on these systems. It is possible to run the GNUMed client, but
-you need another computer to run the database.</para>
+<sect1 id="win9x"><title>Windows</title>
 
    <para>GNUMed requires the following packages. Each link points to a .EXE file. Download them and run each in turn.
 
@@ -186,42 +182,6 @@ you need another computer to run the database.</para>
  <entry>PyGresQL -- Python libraries for SQL</entry>
  <entry><ulink url="http://prdownloads.sourceforge.net/pypgsql/pyPgSQL-2.0.win32-py2.2.exe"><citetitle>PyGresQL</citetitle></ulink></entry><entry>3.2</entry>
 </row>
-</tbody>
-</tgroup>
-</table>
-</para>
-<para>
-Once you have done this, you can run GNUMed from the Python interpreter.
-Click on the Python icon and type:
-<screen>
-<prompt>>>></prompt>  import sys
-<prompt>>>></prompt>  sys.path.append ('path-to-gnumed-files')
-<prompt>>>></prompt>  import gnumed
-<prompt>>>></prompt>  gnumed.main ()
-</screen>
-</para>
-</sect1>
-
-<sect1 id="nt-xp"><title>Windows NT/2000/XP</title>
-<para>It is possible to run PostgreSQL, using the cygwin UNIX emulator,
-but it not highly recommended.</para>
-<para>
-FIXME: Can this work on Windows 9X???? Docs contradict each other.
-</para>
-<para>
-Download these packages. For cygwin, make sure you select
-the package <application>PostgreSQL</application> in the Databases category. 
-</para>
-<table frame=all><title>Requirements</title>
-<tgroup cols=3 align=left colsep=1 rowsep=1>
-<thead>
-<row>
-  <entry>Package</entry>
-  <entry>URL</entry>
-<entry>Version</entry>
-</row>
-</thead>
-<tbody>
 <row>
   <entry>CYGWIN UNIX emulator</entry>
   <entry><ulink url="http://www.cygwin.com/setup.exe">
@@ -233,21 +193,30 @@ the package <application>PostgreSQL</application> in the Databases category.
   <entry>IPC for Cygwin</entry>
   <entry>
 <ulink url="http://www.neuro.gatech.edu/users/cwilson/cygutils/V1.1/cygipc/cygipc-1.11-1.tar.bz2">
-<citetitle>CygIPC</citetitle></ulink>
+<citetitle>CygIPC (this is not an .EXE file. Save it to C:\CYGWIN)</citetitle></ulink>
 </entry><entry>1.11</entry>
 </row>
 </tbody>
 </tgroup>
 </table>
+</para>
 <para>
-Next, run the following commands in the Cygwin shell.
+Download these packages. For cygwin, make sure you select
+the package <application>PostgreSQL</application> in the Databases category. 
+</para>
+
+<sect2><title>Installing PostgreSQL</title>
+
+<para>
+Double-click on the Cygwin icon on your desktop. The UNIX command
+prompt appears. Take a deep breath, and type:
 <screen>
-<prompt>$</prompt>  cd /
-<prompt>$</prompt>  tar xvjf /path/to/cygipc-1.11-1.bz2
-<prompt>$</prompt>  /usr/local/bin/ipc-daemon &
-<prompt>$</prompt>  mkdir /var/pgdata/base
-<prompt>$</prompt>  /usr/bin/initdb -D /var/pgdata/base
-<prompt>$</prompt>  /usr/bin/postmaster -D /var/pgdata/base &
+cd /
+tar xvjf /cygipc-1.11-1.bz2
+/usr/local/bin/ipc-daemon &
+mkdir /usr/share/postgresql/data
+/usr/bin/initdb -D /
+/usr/bin/postmaster -D /usr/share/postgresql/data &
 </screen>
 Postgres should now be running. <emphasis>DO NOT</emphasis> close
 the window containing these commands. You can follow the
@@ -257,10 +226,65 @@ to install the GNUMed database.
 <para>Every time to want to run PostgreSQL again, open up Cygwin as
 before and type:
 <screen>
-<prompt>$</prompt>  /usr/local/bin/ipc-daemon &
-<prompt>$</prompt>  /usr/bin/postmaster -D /var/pgdata/base &
+/usr/local/bin/ipc-daemon &
+/usr/bin/postmaster -D /usr/share/postgresql/data &
 </screen>
 </para>
+
+<para>Once PostgreSQL is set up, go to the section on
+setting up the database (<xref linkend="pgsql">.)</para>
+<sect3><title>Running PostgreSQL as an NT service</title>
+
+<para>On Windows NT, Windows 2000 or Windows NT it is possible to run
+PostgreSQL as a background process (similar to a UNIX daemon).
+</para>
+<para>Go to Control Panel: "Users", and create a new user for your
+system, called "postgres". Give the user privileges to run as a service.
+<para>At the Cygwin prompt, type:
+<screen>
+ipc-daemon --install-as-service
+</screen>
+Then,as a single line:
+<screen>
+cygrunsrv --install postmaster --path /usr/bin/postmaster --args "-D
+  /usr/share/postgresql/data -i" --dep ipc-daemon --termsig INT --user
+  postgres --shutdown
+</screen>
+Then
+<screen>
+mkdir /usr/share/postgresql/data
+chown postgres /usr/share/postgresql/data
+</screen>
+If this directory (/usr/share/postgresql/data) already exists from your previous
+efforts, delete it with "rm -R /usr/share/postgresql/data", and repeat.
+</para><para>
+Reboot the computer.
+Now log in as the "postgres" user, load Cygwin again and type:
+<screen>
+initdb -D /usr/share/postgresql/data
+</screen>
+The datbase is now running. Make sure you use "psql -U postgres .."
+when you first use the database.</para>
+
+</sect3>
+</sect2>
+
+<sect2><title>
+Once you have done this, you can run GNUMed from the Python interpreter.
+Click on the Python icon and type:
+<screen>
+<prompt>>>></prompt>  import sys
+<prompt>>>></prompt>  sys.path.append ('path-to-gnumed-files')
+<prompt>>>></prompt>  import gnumed
+<prompt>>>></prompt>  gnumed.main ()
+</screen>
+</sect2>
+
+<sect2 id="nt-xp"><title>Windows NT/2000/XP</title>
+<para>It is possible to run PostgreSQL, using the cygwin UNIX emulator,
+but it not highly recommended.</para>
+</sect2>
+
 </sect1>
 
 <sect1 id="pgsql" xreflabel="SQL Setup">

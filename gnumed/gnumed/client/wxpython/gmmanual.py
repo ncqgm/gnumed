@@ -23,7 +23,7 @@ from   wxPython.html       import *
 import wxPython.lib.wxpTag
 import gmGuiBroker
 
-manual_path = 'manual/index.html'
+manual_path = 'manual/gnumed/book1.html'
 
 #----------------------------------------------------------------------
 
