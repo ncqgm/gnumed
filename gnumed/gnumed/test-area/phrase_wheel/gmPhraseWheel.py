@@ -20,15 +20,12 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/phrase_wheel/Attic/gmPhraseWheel.py,v $
 __author__ = "Karsten Hilbert <Karsten.Hilbert>"
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 __log__ = gmLog.gmDefLog
-
-gmpw_true = (1==1)
-gmpw_false = (1==0)
-#------------------------------------------------------------
+#============================================================
 # generic base class
-#------------------------------------------------------------
+#============================================================
 class cMatchProvider:
 	"""Base class for match providing objects.
 
@@ -59,7 +56,7 @@ class cMatchProvider:
 		"""
 		# do we return matches at all ?
 		if not self.__deliverMatches:
-			return (gmpw_false, [])
+			return (0, [])
 
 		# sanity check
 		if aFragment == None:
@@ -81,7 +78,7 @@ class cMatchProvider:
 		elif lngFragment >= self.__threshold['phrase']:
 			return self.getMatchesByPhrase(tmpFragment)
 		else:
-			return (gmpw_false, [])
+			return (0, [])
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		pass
@@ -155,21 +152,21 @@ class cMatchProvider:
 
 		Useful if a slow network database link is detected, for example.
 		"""
-		self.__deliverMatches = gmpw_false
+		self.__deliverMatches = 0
 	#--------------------------------------------------------
 	def enableMatching(self):
-		self.__deliverMatches = gmpw_true
+		self.__deliverMatches = 1
 	#--------------------------------------------------------
 	def disableLearning(self):
 		"""Immediately stop learning new items."""
-		self.__learnNewItems = gmpw_false
+		self.__learnNewItems = 0
 	#--------------------------------------------------------
 	def enableLearning(self):
 		"""Immediately start learning new items."""
-		self.__learnNewItems = gmpw_true
-#------------------------------------------------------------
+		self.__learnNewItems = 1
+#============================================================
 # usable instances
-#------------------------------------------------------------
+#============================================================
 class cMatchProvider_FixedList(cMatchProvider):
 	"""Match provider where all possible options can be held
 	   in a reasonably sized, pre-allocated list.
@@ -200,10 +197,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (0, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (1, matches)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -221,10 +218,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (0, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (1, matches)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -235,20 +232,20 @@ class cMatchProvider_FixedList(cMatchProvider):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (0, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (1, matches)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
 		matches = self.__items
 		# no matches found
 		if len(matches) == 0:
-			return (gmpw_false, [])
+			return (0, [])
 
 		matches.sort(self.__cmp_items)
-		return (gmpw_true, matches)
+		return (1, matches)
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""Compare items based on weight."""
@@ -259,8 +256,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 			return -1
 		else:
 			return 0
-#------------------------------------------------------------
-#------------------------------------------------------------
+#============================================================
 class cWheelTimer(wxTimer):
 	"""Timer for delayed fetching of matches.
 
@@ -283,17 +279,15 @@ class cWheelTimer(wxTimer):
 		else:
 			self.__callback = aCallback
 
-		if aDelay == None:
-			self.__delay = 300
-		else:
-			self.__delay = aDelay
-
+		#<DEBUG>
+		print "setting up timer"
+		#</DEBUG>
 		wxTimer.__init__(self)
 	#--------------------------------------------------------
 	def Notify(self):
+		print "timer fired"
 		self.__callback()
-#------------------------------------------------------------
-#------------------------------------------------------------
+#============================================================
 class cPhraseWheel (wxTextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
 	def __init__ (self,
@@ -303,7 +297,7 @@ class cPhraseWheel (wxTextCtrl):
 					pos = wxDefaultPosition,
 					size = wxDefaultSize,
 					aMatchProvider = None,
-					aDelay = None):
+					aDelay = 300):
 		"""
 		id_callback holds a refence to another Python function.
 		This function is called when the user selects a value.
@@ -315,7 +309,8 @@ class cPhraseWheel (wxTextCtrl):
 			return None
 
 		self.__matcher = aMatchProvider
-		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
+		self.__timer = cWheelTimer(self._on_timer_fired)
+		self.__timer_delay = aDelay
 
 		wxTextCtrl.__init__ (self, parent, id, "", pos, size)
 		self.SetBackgroundColour (wxColour (200, 100, 100))
@@ -335,7 +330,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.panel = wxPanel(self.__picklist_win, -1)
 		self.__picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self.__picklist.Clear()
-		self.__picklist_visible = gmpw_false
+		self.__picklist_visible = 0
 	#--------------------------------------------------------
 	def __updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
@@ -364,7 +359,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.__picklist.SetSelection (0)
 
 		# remember that we have a list window
-		self.__picklist_visible = gmpw_true
+		self.__picklist_visible = 1
 
 		# and show it
 		# FIXME: we should _update_ the list window instead of redisplaying it
@@ -374,7 +369,7 @@ class cPhraseWheel (wxTextCtrl):
 		"""Hide the pick list."""
 		if self.__picklist_visible:
 			self.__picklist_win.Dismiss()		# dismiss the dropdown list window
-		self.__picklist_visible = gmpw_false
+		self.__picklist_visible = 0
 	#--------------------------------------------------------
 	# specific event handlers
 	#--------------------------------------------------------
@@ -464,7 +459,7 @@ class cPhraseWheel (wxTextCtrl):
 			self.__timer.Stop()
 		else:
 			# start timer for delayed match retrieval
-			self.__timer.Start(oneShot = gmpw_true)
+			self.__timer.Start(milliseconds = self.__timer_delay, oneShot = 1)
 	#--------------------------------------------------------
 	def on_resize (self, event):
 		sz = self.GetSize()
@@ -496,9 +491,9 @@ class cPhraseWheel (wxTextCtrl):
 			# we may have had a pick list window so we need to
 			# dismiss that since we don't have input anymore
 			self.__hide_picklist()
-#--------------------------------------------------------
+#============================================================
 # MAIN
-#--------------------------------------------------------
+#============================================================
 if __name__ == '__main__':
 	gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 	import gmI18N
@@ -526,9 +521,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	app = TestApp ()
 	app.MainLoop ()
-
-
-#----------------------------------------------------------
+#============================================================
 # ideas
 #----------------------------------------------------------
 #- display possible completion but highlighted for deletion
