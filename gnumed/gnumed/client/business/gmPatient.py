@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.48 2004-07-20 10:09:44 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmPatient.py,v 1.49 2004-07-21 07:53:12 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -855,31 +855,30 @@ def create_dummy_identity():
 	return data[0][0]
 #============================================================
 def set_active_patient(anID = None):
-	tstart = time.time()
 	# argument error
 	if anID is None:
 		return None
+	tstart = time.time()
 	pat = gmCurrentPatient()
-	# None if not connected
 	old_ID = pat.get_ID()
 	# nothing to do
 	if old_ID == anID:
-		return 1
+		return True
 	# attempt to switch
 	try:
 		pat = gmCurrentPatient(anID)
 	except:
 		_log.LogException('error changing active patient', sys.exc_info())
-		return None
+		return False
 	# who are we now ?
 	new_ID = pat.get_ID()
 	# nothing happened
 	if new_ID == old_ID:
 		_log.Log (gmLog.lErr, 'error changing active patient')
-		return None
+		return False
 	duration = time.time() - tstart
-	print "set_active_patient took %s seconds" % duration
-	return 1
+	_log.Log(gmLog.lData, "set_active_patient took %s seconds" % duration)
+	return True
 #============================================================
 # main/testing
 #============================================================
@@ -922,7 +921,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.48  2004-07-20 10:09:44  ncq
+# Revision 1.49  2004-07-21 07:53:12  ncq
+# - some cleanup in set_active_patient
+#
+# Revision 1.48  2004/07/20 10:09:44  ncq
 # - a bit of cleanup here and there
 # - use Null design pattern instead of None when no real
 #   patient connected to gmCurrentPatient Borg
