@@ -278,21 +278,23 @@ class cLabJournalNB(wxNotebook):
 		return last_id
 	#--------------------------------------------------------------------------	
 	def guess_next_id(self, lab_name):
-		last = self.__get_last_used_ID(lab_name)[0][0]
-		next = chr(ord(last[-1:])+1)
-		return next
+	
+		if not len(self.__get_last_used_ID(lab_name)) == 0:
+			last = self.__get_last_used_ID(lab_name)[0][0]
+			next = chr(ord(last[-1:])+1)
+			return next
+		else:
+			return None
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
 	def on_save_request_ID(self, event):
 		req_id = self.item2.GetValue()
-		if not req_id == '':
+		if not req_id is None or req_id == '':
 			emr = self.curr_pat.get_clinical_record()
 			test = gmPathLab.create_lab_request(lab=self.lab_name[0][0], req_id = req_id, pat_id = self.curr_pat['ID'], encounter_id = emr.id_encounter, episode_id= emr.id_episode)
 			#test = gmPathLab.create_lab_request(req_id='ML#SC937-0176-CEC#11', lab='Enterprise Main Lab', encounter_id = emr.id_encounter, episode_id= emr.id_episode)
 			# react on succes or failure of save_request
-			#print self.lab_name[0][0] , self.item2.GetValue(), #pat_id, encounter_id, episode_id
-			
 			print test
 		else :
 			_log.Log(gmLog.lErr, 'No request ID typed in yet !')
@@ -315,8 +317,9 @@ class cLabJournalNB(wxNotebook):
 			print self.lab_name
 			#guess next id
 			nID = self.guess_next_id(self.lab_name[0][0])
-			# set field to that
-			self.item2.SetValue(nID)
+			if not nID is None:
+				# set field to that
+				self.item2.SetValue(nID)
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -551,7 +554,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.6  2004-05-04 08:42:04  shilbert
+# Revision 1.7  2004-05-04 09:26:55  shilbert
+# - handle more errors
+#
+# Revision 1.6  2004/05/04 08:42:04  shilbert
 # - first working version, needs testing
 #
 # Revision 1.5  2004/05/04 07:19:34  shilbert
