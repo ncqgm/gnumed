@@ -30,11 +30,11 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
-import sys, string, os.path, fileinput, popen2, os, time
+import sys, string, os.path, fileinput, os, time
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
@@ -572,7 +572,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.8  2002-11-18 12:23:31  ncq
+# Revision 1.9  2002-11-18 22:41:21  ncq
+# - don't really know what changed
+#
+# Revision 1.8  2002/11/18 12:23:31  ncq
 # - make Debian happy by checking for psycopg, too
 #
 # Revision 1.7  2002/11/16 01:12:09  ncq
