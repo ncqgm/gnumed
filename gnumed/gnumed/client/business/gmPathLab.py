@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPathLab.py,v $
-# $Id: gmPathLab.py,v 1.17 2004-05-11 01:37:21 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPathLab.py,v 1.18 2004-05-13 00:03:17 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import types,sys
@@ -71,8 +71,8 @@ class cLabResult(gmClinItem.cClinItem):
 		'relevant'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPKey=None, patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None):
-		pk = aPKey
+	def __init__(self, aPK_obj=None, patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None):
+		pk = aPK_obj
 		if pk is None:
 			# sanity checks
 			if None in [patient_id, when, when_field, test_type, unit]:
@@ -105,7 +105,7 @@ class cLabResult(gmClinItem.cClinItem):
 				raise gmExceptions.NoSuchClinItemError, 'no lab result for: pat=%s %s=%s test_type=%s val_num=%s val_alpha=%s unit=%s' % (patient_id, when_field, when, test_type, val_num, val_alpha, unit)
 			pk = data[0][0]
 		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPKey=pk)
+		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_patient(self):
 		cmd = """
@@ -152,8 +152,8 @@ class cLabRequest(gmClinItem.cClinItem):
 		'is_pending'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPKey=None, req_id=None, lab=None):
-		pk = aPKey
+	def __init__(self, aPK_obj=None, req_id=None, lab=None):
+		pk = aPK_obj
 		# no PK given, so find it from req_id and lab
 		if pk is None:
 			if None in [req_id, lab]:
@@ -180,7 +180,7 @@ class cLabRequest(gmClinItem.cClinItem):
 				raise gmExceptions.NoSuchClinItemError, 'no lab request for [%s:%s]' % (lab, req_id)
 			pk = data[0][0]
 		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPKey=pk)
+		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def get_patient(self):
 		cmd = """
@@ -219,8 +219,8 @@ class cTestType(gmClinItem.cClinItem):
 		'basic_unit'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPKey=None, lab=None, code=None, name=None):
-		pk = aPKey
+	def __init__(self, aPK_obj=None, lab=None, code=None, name=None):
+		pk = aPK_obj
 		# no PK given, so find it from lab/code/name
 		if pk is None:
 			if lab is None:
@@ -252,7 +252,7 @@ class cTestType(gmClinItem.cClinItem):
 				raise gmExceptions.NoSuchClinItemError, 'no test type for [%s:%s:%s]' % (lab, code, name)
 			pk = data[0][0]
 		# instantiate class
-		gmClinItem.cClinItem.__init__(self, aPKey=pk)
+		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		# find fk_test_org from name
@@ -294,7 +294,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 		# yes but ambigous
 		if name != db_lname:
 			_log.Log(gmLog.lErr, 'test type found for [%s:%s] but long name mismatch: expected [%s], in DB [%s]' % (lab, code, name, db_lname))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.17 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.18 $'
 			to = 'user'
 			prob = _('The test type already exists but the long name is different. '
 					'The test facility may have changed the descriptive name of this test.')
@@ -346,7 +346,7 @@ def create_test_type(lab=None, code=None, unit=None, name=None):
 	if result is None:
 		return (False, err)
 	try:
-		ttype = cTestType(aPKey=result[0][0])
+		ttype = cTestType(aPK_obj=result[0][0])
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -374,7 +374,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		# yes but ambigous
 		if pat_id != db_pat[0]:
 			_log.Log(gmLog.lErr, 'lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.17 $'
+			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.18 $'
 			to = 'user'
 			prob = _('The lab request already exists but belongs to a different patient.')
 			sol = _('Verify which patient this lab request really belongs to.')
@@ -397,7 +397,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	if result is None:
 		return (False, err)
 	try:
-		req = cLabRequest(aPKey=result[0][0])
+		req = cLabRequest(aPK_obj=result[0][0])
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -436,7 +436,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 	if result is None:
 		return (False, err)
 	try:
-		tres = cLabResult(aPKey=result[0][0])
+		tres = cLabResult(aPK_obj=result[0][0])
 	except gmExceptions.ConstructorError, msg:
 		_log.LogException(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
@@ -449,7 +449,7 @@ def create_lab_result(patient_id=None, when_field=None, when=None, test_type=Non
 #------------------------------------------------------------
 if __name__ == '__main__':
 	def test_result():
-		lab_result = cLabResult(aPKey=29)
+		lab_result = cLabResult(aPK_obj=29)
 		print lab_result
 		fields = lab_result.get_fields()
 		for field in fields:
@@ -458,7 +458,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_request():
 		try:
-#			lab_req = cLabRequest(aPKey=1)
+#			lab_req = cLabRequest(aPK_obj=1)
 #			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab=2)
 			lab_req = cLabRequest(req_id='EML#SC937-0176-CEC#11', lab='Enterprise Main Lab')
 		except gmExceptions.ConstructorError, msg:
@@ -487,7 +487,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPathLab.py,v $
-# Revision 1.17  2004-05-11 01:37:21  ncq
+# Revision 1.18  2004-05-13 00:03:17  ncq
+# - aPKey -> aPK_obj
+#
+# Revision 1.17  2004/05/11 01:37:21  ncq
 # - create_test_result -> create_lab_result
 # - need to insert into lnk_result2lab_req, too, in create_lab_result
 #
