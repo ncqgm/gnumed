@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.118 2004-12-06 21:09:38 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.119 2004-12-14 20:06:59 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -543,6 +543,18 @@ select
 			else tr.val_num::text || ' (' || tr.val_alpha || ')'
 		end
 	end as unified_val,
+	case when tr.val_target_min is null
+		then tr.val_normal_min
+		else tr.val_target_min
+	end as unified_target_min,
+	case when tr.val_target_max is null
+		then tr.val_normal_max
+		else tr.val_target_max
+	end as unified_target_max,
+	case when tr.val_target_range is null
+		then tr.val_normal_range
+		else tr.val_target_range
+	end as unified_target_range,
 	tr.soap_cat,
 	coalesce(tr.narrative, '') as comment,
 	-- test result data
@@ -1587,11 +1599,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.118 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.119 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.118  2004-12-06 21:09:38  ncq
+-- Revision 1.119  2004-12-14 20:06:59  ncq
+-- - v_test_results.unified_target_* from val_target_* first or val_normal_* second
+--
+-- Revision 1.118  2004/12/06 21:09:38  ncq
 -- - eventually properly implement episode naming via deferred constraint trigger
 --
 -- Revision 1.117  2004/11/28 14:37:00  ncq
