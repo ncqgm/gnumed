@@ -9,12 +9,12 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/STIKO-Impfkalender.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 delete from vacc_def;
-delete from vacc_regime;
+delete from vacc_regime where description like '%STIKO%';
 
 ------------
 -- Masern --
@@ -332,11 +332,14 @@ values
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename like '%STIKO-Impfkalender%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: STIKO-Impfkalender.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: STIKO-Impfkalender.sql,v $
--- Revision 1.7  2003-12-01 22:22:41  ncq
+-- Revision 1.8  2003-12-01 23:53:18  ncq
+-- - delete more selectively
+--
+-- Revision 1.7  2003/12/01 22:22:41  ncq
 -- - vastly improve strings
 --
 -- Revision 1.6  2003/11/26 23:19:08  ncq
