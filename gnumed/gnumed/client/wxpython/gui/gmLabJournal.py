@@ -7,6 +7,8 @@ __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
 import os.path, sys, os, re
+# FIXME: debugging
+import time
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -59,9 +61,23 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('choose which lab will process the probe with the specified ID'))
 #====================================
 class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
-    def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
-        wxListCtrl.__init__(self, parent, ID, pos, size, style)
-        wxListCtrlAutoWidthMixin.__init__(self)
+	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
+		wxListCtrl.__init__(self, parent, ID, pos, size, style)
+		wxListCtrlAutoWidthMixin.__init__(self)
+	
+	def AppendColouredItem(self, sLabel = None): 
+		NewItem = wxListItem()
+		NewItem.SetMask(wxLIST_MASK_TEXT);
+		NewItem.SetId(self.GetItemCount());
+		NewItem.SetText(sLabel);
+		NewItem.SetFont(wxITALIC_FONT);
+		NewItem.SetTextColour(wxRED);
+		NewItem.SetBackgroundColour(wxColour(235, 235, 235));
+		
+		#self.InsertItem(NewItem)
+		return NewItem
+
+
 
 #====================================
 class cLabJournalNB(wxNotebook):
@@ -254,22 +270,24 @@ class cLabJournalNB(wxNotebook):
 		self.lab_wheel.Clear()
 		self.lbox_pending.DeleteAllItems()
 		#------ due PNL ------------------------------------
-		pending_requests = self.__get_pending_requests()
+		#pending_requests = self.__get_pending_requests()
+		too_many, pending_requests = gmPathLab.get_pending_requests(limit=250)
 		for request in pending_requests:
 			# for pending requests
-			if request[3]:
+			if request['is_pending']:
 				self.idx = self.lbox_pending.InsertItem(info=wxListItem())
 				idx=self.idx
 				# -- display request date ------------------- 
-				self.lbox_pending.SetStringItem(index = idx, col=0, label=request[0].date)
+				self.lbox_pending.SetStringItem(index = idx, col=0, label=request['clin_when'].date)
 				# -- display request lab ---------------------
-				lab = self.__get_labname(request[1])[0][0]
-				self.lbox_pending.SetStringItem(index = idx, col=1, label=lab)
+				lab = self.__get_labname(request['fk_test_org'])
+				self.lbox_pending.SetStringItem(index = idx, col=1, label=lab[0][0])
+				# -- display associated req id ---
+				self.lbox_pending.SetStringItem(index = idx, col=2, label=request['request_id'])
 				# -- display associated patient name ---
-				self.lbox_pending.SetStringItem(index = idx, col=2, label=request[2])
-				patient = self.get_patient_for_lab_request(request[2],lab)
+				name, dobobj = self.__get_pat4result(request)
 				# FIXME: make use of rest data in patient via mouse over context
-				self.lbox_pending.SetStringItem(index = idx, col=3, label=patient[2]+' '+patient[3])
+				self.lbox_pending.SetStringItem(index = idx, col=3, label=name)
 				self.lbox_pending.SetStringItem(index = idx, col=4, label=_('pending'))
 		
 		#----- import errors PNL -----------------------
@@ -287,48 +305,66 @@ class cLabJournalNB(wxNotebook):
 			self.lbox_errors.SetStringItem(index = idx, col=3, label=lab_error[6])
 		
 		#------ unreviewed lab results PNL ------------------------------------
-		unreviewed_results = self.__get_unreviewed_results()
-		#print unreviewed_results
-		for result in unreviewed_results:
+		#t1 = time.time()  
+		more_avail, unreviewed_results = gmPathLab.get_unreviewed_results(limit=50)
+		#t2 = time.time() 
+		#print t2-t1
+		
+		if more_avail and unreviewed_results is None:
 			self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
 			idx=self.idx
-			# result abnormal ? --> change font color to red
-			if not result[7] is None:
-				print 'bla'
-				print result
-				self.review_Ctrl.SetTextColour(wxRED)
-			else:
-				self.review_Ctrl.SetTextColour(wxBLACK)
-			# FIXME: return some string instead of None if no data avail 
-			# -- display  patient name ------------------- 
-			id = result[0]
-			name, dobobj = self.__get_pat4result(id)
-			self.review_Ctrl.SetStringItem(index = idx, col=0, label=name)
-			self.review_Ctrl.SetStringItem(index = idx, col=1, label=dobobj.date)
-			# -- when rxd ---
-			self.review_Ctrl.SetStringItem(index = idx, col=2, label=result[1].date)
-			# -- test name ---
-			self.review_Ctrl.SetStringItem(index = idx, col=3, label=result[2])
-			# -- result including unit
-			self.review_Ctrl.SetStringItem(index = idx, col=4, label=result[3]+result[4])
-			# -- val normal range
-			if not result[6] is None:
-				self.review_Ctrl.SetStringItem(index = idx, col=5, label=result[6])
-			# -- notes from provider 
-			if not result[5] is None:
-				self.review_Ctrl.SetStringItem(index = idx, col=6, label=result[5])
-			else :
-				self.review_Ctrl.SetStringItem(index = idx, col=6, label=_('no message'))
+			item = self.review_Ctrl.GetItem(idx)
+			item.SetTextColour(wxRED)
+			self.review_Ctrl.SetItem(item)
+			self.review_Ctrl.SetStringItem(index = idx, col=2, label=_('error retrieving unreviewed lab results'))
+			return None
+		else:
+			for result in unreviewed_results:
+				self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
+				idx=self.idx
+				# result abnormal ? --> change item color to red
+				if not result['abnormal'] is None and not result['abnormal'].strip()=="":
+					item = self.review_Ctrl.GetItem(idx)
+					item.SetTextColour(wxRED)
+					self.review_Ctrl.SetItem(item)
+					
+				# -- display  patient name ------------------- 
+				#id = result['pk_patient']
+				name, dobobj = self.__get_pat4result(result)
+				self.review_Ctrl.SetStringItem(index = idx, col=0, label=name)
+				self.review_Ctrl.SetStringItem(index = idx, col=1, label=dobobj.date)
+				# -- when rxd ---
+				self.review_Ctrl.SetStringItem(index = idx, col=2, label=result['lab_rxd_when'].date)
+				# -- test name ---
+				self.review_Ctrl.SetStringItem(index = idx, col=3, label=result['unified_name'])
+				# -- result including unit
+				self.review_Ctrl.SetStringItem(index = idx, col=4, label=result['unified_val']+result['val_unit'])
+				# -- val normal range
+				if not result['val_normal_range'] is None:
+					self.review_Ctrl.SetStringItem(index = idx, col=5, label=result['val_normal_range'])
+				else:
+					self.review_Ctrl.SetStringItem(index = idx, col=5, label=_('missing'))
+				# -- notes from provider 
+				if not result['note_provider'] is None:
+					self.review_Ctrl.SetStringItem(index = idx, col=6, label=result['note_provider'])
+				else :
+					self.review_Ctrl.SetStringItem(index = idx, col=6, label=_('no message'))
+					
+			# we show 50 items at once , notify user if there are more
+			if more_avail:
+				self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
+				idx=self.idx
+				self.review_Ctrl.SetStringItem(index = idx, col=6, label=_('more results to be reviewed than shown'))
 	#-------------------------------------------------------------------------
-	def get_patient_for_lab_request(self,req_id,lab):
-		lab_req = gmPathLab.cLabRequest(req_id=req_id, lab=lab)
-		patient = lab_req.get_patient()
-		return patient
+	#def get_patient_for_lab_request(self,req_id,lab):
+	#	lab_req = gmPathLab.cLabRequest(req_id=req_id, lab=lab)
+	#	patient = lab_req.get_patient()
+	#	return patient
 	#-------------------------------------------------------------------------		
-	def __get_pending_requests(self):
-		query = """select clin_when, fk_test_org, request_id, is_pending from lab_request where is_pending is true"""
-		pending_requests = gmPG.run_ro_query('historica', query)
-		return pending_requests
+	#def __get_pending_requests(self):
+	#	query = """select clin_when, fk_test_org, request_id, is_pending from lab_request where is_pending is true"""
+	#	pending_requests = gmPG.run_ro_query('historica', query)
+	#	return pending_requests
 	#------------------------------------------------------------------------
 	def __show_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
@@ -365,15 +401,12 @@ class cLabJournalNB(wxNotebook):
 		else:
 			return None
 	#--------------------------------------------------------------------------
-	def __get_unreviewed_results(self):
-		query = """select pk_patient, lab_rxd_when, lab_name, unified_val, val_unit, note_provider, val_normal_range, abnormal from v_results4lab_req where reviewed='f'"""
-		unreviewed_results = gmPG.run_ro_query('historica', query)
-		return unreviewed_results
-	#--------------------------------------------------------------------------
-	def __get_pat4result(self,id):
-		query = """select * from v_basic_person where i_id=%s"""
-		pat4result = gmPG.run_ro_query('historica', query, None, id)
-		return pat4result[0][4]+' '+pat4result[0][5], pat4result[0][6]
+	def __get_pat4result(self,result):
+		pat4result = result.get_patient()
+		#query = """select * from v_basic_person where i_id=%s"""
+		#pat4result = gmPG.run_ro_query('historica', query, None, id)
+		#return pat4result[0][4]+' '+pat4result[0][5], pat4result[0][6]
+		return pat4result[2]+' '+pat4result[3], pat4result[4]
 	#-----------------------------------
 	# event handlers
 	#-----------------------------------
@@ -648,7 +681,11 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.12  2004-05-22 23:29:09  shilbert
+# Revision 1.13  2004-05-25 08:15:20  shilbert
+# - make use of gmPathLab for db querries
+# - introduce limit for user visible list items
+#
+# Revision 1.12  2004/05/22 23:29:09  shilbert
 # - gui updates (import error context , ctrl labels )
 #
 # Revision 1.11  2004/05/18 20:43:17  ncq
