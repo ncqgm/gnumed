@@ -22,6 +22,7 @@ from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
 import gmGuiBroker
+import gmLog
 
 manual_path = 'manual/gnumed/book1.html'
 
@@ -29,9 +30,8 @@ manual_path = 'manual/gnumed/book1.html'
 
 
 class ManualHtmlWindow(wxHtmlWindow):
-    def __init__(self, parent, id, log):
+    def __init__(self, parent, id):
         wxHtmlWindow.__init__(self, parent, id)
-        self.log = log
         self.parent = parent
 
     def OnSetTitle(self, title):
@@ -39,9 +39,8 @@ class ManualHtmlWindow(wxHtmlWindow):
 
 
 class ManualHtmlPanel(wxPanel):
-    def __init__(self, parent, frame, log):
+    def __init__(self, parent, frame):
         wxPanel.__init__(self, parent, -1)
-        self.log = log
         self.frame = frame
         # CHANGED CODE Haywood 26/2/02
         # get base directory for manuals from broker
@@ -59,7 +58,7 @@ class ManualHtmlPanel(wxPanel):
         infobox.Add(self.infoline, 1, wxGROW|wxALL)
         self.box.Add(infobox, 0, wxGROW)
 
-        self.html = ManualHtmlWindow(self, -1, log)
+        self.html = ManualHtmlWindow(self, -1)
         self.html.SetRelatedFrame(frame, "")
         self.html.SetRelatedStatusBar(0)
         self.box.Add(self.html, 1, wxGROW)
@@ -124,12 +123,12 @@ class ManualHtmlPanel(wxPanel):
 
     def OnBack(self, event):
         if not self.html.HistoryBack():
-            self.log.WriteText(_("ManualHtmlWindow: No more items in history!\n"))
+            gmLog.gmDefLog (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
     def OnForward(self, event):
         if not self.html.HistoryForward():
-            self.log.WriteText(_("ManualHtmlWindow: No more items in history!\n"))
+            gmLog.gmDefLog (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
     def OnViewSource(self, event):
@@ -142,3 +141,9 @@ class ManualHtmlPanel(wxPanel):
 
     def OnPrint(self, event):
         self.printer.PrintFile(self.html.GetOpenedPage())
+
+
+
+
+
+
