@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -584,14 +584,18 @@ def __open_default_logfile():
 	# make sure path is there
 	tmp = os.path.expanduser(os.path.join('~', '.' + base_dir))
 	if not os.path.exists(tmp):
-		os.mkdir(tmp)
-	logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
-	try:
-		loghandle = cLogTargetFile (lInfo, logName, "wb")
-		print "log file is [%s]" % logName
-		return loghandle
-	except:
-		pass
+		try:
+			os.mkdir(tmp)
+		except:
+			print "Cannot make directory [%s]." % tmp
+	if os.path.exists(tmp):
+		logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
+		try:
+			loghandle = cLogTargetFile (lInfo, logName, "wb")
+			print "log file is [%s]" % logName
+			return loghandle
+		except:
+			pass
 
 	# /var/log/base_dir/base_name.log
 	logName = os.path.join('/var/log', base_dir, base_name)
