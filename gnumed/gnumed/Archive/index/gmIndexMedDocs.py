@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -25,11 +25,8 @@ from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
     _log.SetAllLogLevels(gmLog.lData)
-    from Gnumed.pycommon import gmI18N
-else :
-    from Gnumed.business import gmPatient
 
-from Gnumed.pycommon import gmCfg, gmMatchProvider, gmExceptions
+from Gnumed.pycommon import gmCfg, gmMatchProvider, gmExceptions, gmI18N
 from Gnumed.business import gmXmlDocDesc, gmXdtObjects
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 
@@ -1101,7 +1098,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.17  2004-03-19 20:49:21  shilbert
+# Revision 1.18  2005-01-31 09:48:51  ncq
+# - cleanup
+#
+# Revision 1.17  2004/03/19 20:49:21  shilbert
 # - fixed import
 #
 # Revision 1.16  2004/03/08 22:06:54  shilbert
