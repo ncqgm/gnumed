@@ -47,7 +47,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -61,9 +61,12 @@ if __name__ != "__main__":
 #==========================================================
 # Python 2.3 on Mandrake seems to turn True/False deprecation warnings
 # into exceptions, so revert them to warnings again
-import warnings
-warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
-warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
+try:
+	import warnings
+	warnings.filterwarnings("default", "Use\sPython.s\sFalse\sinstead", DeprecationWarning)
+	warnings.filterwarnings("default", "Use\sPython.s\sTrue\sinstead", DeprecationWarning)
+except:
+	pass
 
 import_error_sermon = """
 CRITICAL ERROR: Cannot load GnuMed Python modules ! - Program halted.
@@ -327,7 +330,10 @@ if gmCLI.has_arg('--talkback'):
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.60  2004-03-25 11:02:37  ncq
+# Revision 1.61  2004-05-11 08:10:27  ncq
+# - try: except: the warnings.filterwarnings code as some Pythons don't seem to have it
+#
+# Revision 1.60  2004/03/25 11:02:37  ncq
 # - cleanup
 #
 # Revision 1.59  2004/03/04 19:45:51  ncq
