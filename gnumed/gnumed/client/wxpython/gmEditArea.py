@@ -29,6 +29,12 @@ ID_REQUEST_BILL_wcover = wxNewId()
 ID_REQUEST_BILL_REBATE  = wxNewId()
 #---------------------------------------------
 gmSECTION_MEASUREMENTS = 10
+ID_MEASUREMENT_TYPE = wxNewId()
+ID_MEASUREMENT_VALUE = wxNewId()
+ID_MEASUREMENT_DATE = wxNewId()
+ID_MEASUREMENT_COMMENT = wxNewId()
+ID_MEASUREMENT_NEXTVALUE = wxNewId()
+ID_MEASUREMENT_GRAPH   = wxNewId()
 #---------------------------------------------
 gmSECTION_REFERRALS = 11
 ID_REFERRAL_CATEGORY        = wxNewId()
@@ -414,7 +420,31 @@ class EditTextBoxes(wxPanel):
 		      self.gs.Add(self.sizer_line10,0,wxEXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
 		      
 	        elif section == gmSECTION_MEASUREMENTS:
-		      pass
+		      self.combo_measurement_type = wxComboBox(self, ID_MEASUREMENT_TYPE, "", wxDefaultPosition,wxDefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wxCB_DROPDOWN)
+		      self.combo_measurement_type.SetFont(wxFont(12,wxSWISS,wxBOLD,wxBOLD,false,''))
+		      self.combo_measurement_type.SetForegroundColour(wxColor(255,0,0))
+		      self.txt_measurement_value = EditAreaTextBox(self,ID_MEASUREMENT_VALUE,wxDefaultPosition,wxDefaultSize)
+		      self.txt_txt_measurement_date = EditAreaTextBox(self,ID_MEASUREMENT_DATE,wxDefaultPosition,wxDefaultSize)
+		      self.txt_txt_measurement_comment = EditAreaTextBox(self,ID_MEASUREMENT_COMMENT,wxDefaultPosition,wxDefaultSize)
+		      self.txt_txt_measurement_progressnote = EditAreaTextBox(self,ID_PROGRESSNOTES,wxDefaultPosition,wxDefaultSize)
+		      self.sizer_graphnextbtn = wxBoxSizer(wxHORIZONTAL)
+		      self.btn_nextvalue = wxButton(self,ID_MEASUREMENT_NEXTVALUE,"   Next Value   ")                 #clear fields except type
+		      self.btn_graph   = wxButton(self,ID_MEASUREMENT_GRAPH," Graph ")                        #graph all values of this type
+		      self.sizer_graphnextbtn.Add(self.btn_nextvalue,1,wxEXPAND|wxALL,2)  #put next and graph button
+		      self.sizer_graphnextbtn.Add(self.btn_graph,1,wxEXPAND|wxALL,2)      #on same sizer
+	
+		      self.gs.Add(self.combo_measurement_type,0,wxEXPAND)              #e.g Blood pressure
+		      self.gs.Add(self.txt_measurement_value,0,wxEXPAND)               #e.g 120.70
+		      self.gs.Add(self.txt_txt_measurement_date,0,wxEXPAND)            #e.g 10/12/2001
+		      self.gs.Add(self.txt_txt_measurement_comment,0,wxEXPAND)         #e.g sitting, right arm
+		      self.gs.Add(self.txt_txt_measurement_progressnote,0,wxEXPAND)    #e.g given home BP montitor, see 1 week
+		      self.sizer_line8.Add(5,0,0)
+		      self.sizer_line8.Add(self.sizer_graphnextbtn,2,wxEXPAND)
+		      self.sizer_line8.Add(5,0,2)
+		      self.sizer_line8.Add(self.btnOK,1,wxEXPAND|wxALL,2)
+		      self.sizer_line8.Add(self.btnClear,1,wxEXPAND|wxALL,2)
+		      self.gs.AddSizer(self.sizer_line8,0,wxEXPAND)
+		      
 	        elif section == gmSECTION_REFERRALS:
 		      self.btnpreview = wxButton(self,-1,"Preview")
 		      self.sizer_btnpreviewok = wxBoxSizer(wxHORIZONTAL)
