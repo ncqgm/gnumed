@@ -10,23 +10,21 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.41 2004-07-15 20:36:11 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPatientSelector.py,v 1.42 2004-07-18 19:51:12 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = 'GPL (for details see http://www.gnu.org/'
 
-# access our modules
 import sys, os.path, time, string, re
+
+from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N
 from Gnumed.business import gmPatient, gmKVK
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-	_ = lambda x:x
-
-from wxPython.wx import *
+_log.Log(gmLog.lInfo, __version__)
 
 ID_PatPickList = wxNewId()
 #============================================================
@@ -55,11 +53,9 @@ def pat_expand_default(curs = None, ID_list = None):
 		FROM v_basic_person
 		WHERE i_id in (%s)
 		""" % ','.join(map(lambda x: str(x), ID_list))
-
-	if not gmPG.run_query(curs, cmd):
-		_log.Log(gmLog.lErr, 'Cannot fetch patient data.')
-	else:
-		pat_data = curs.fetchall()
+	pat_data = gmPG.run_ro_query(curs, cmd)
+	if pat_data is None:
+		_log.Log(gmLog.lErr, 'cannot fetch extended patient data')
 
 	col_order = [
 		{'label': _('last name'),	'data idx': 1},
@@ -211,7 +207,7 @@ class cPatientPickList(wxDialog):
 		# and place them
 		self.szrMain.AddSizer(self.szrButtons, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5)
 
-		self.SetAutoLayout(true)
+		self.SetAutoLayout(True)
 		self.SetSizer(self.szrMain)
 		self.szrMain.Fit(self)
 		self.szrMain.SetSizeHints(self)
@@ -313,7 +309,7 @@ and hit <ENTER>
 			# only unique patients
 			for prev_pat in self.prev_pats:
 				if prev_pat[0] == anID:
-					return true
+					return True
 			self.prev_pats.append(data)
 
 			# and only 10 of them
@@ -392,7 +388,7 @@ and hit <ENTER>
 			# ALT-L, ALT-P - list of previously active patients
 			if keycode in [ord('l'), ord('p')]:
 				if self.prev_pats == []:
-					return true
+					return True
 				# show list
 				dlg = cPatientPickList(parent = NULL)
 				dlg.SetItems(self.prev_pats, self.prev_col_order)
@@ -402,13 +398,13 @@ and hit <ENTER>
 				if result > 0:
 					# and make our selection known to others
 					self.SetActivePatient(result)
-				return true
+				return True
 
 			# ALT-N - enter new patient
 			if keycode == ord('n'):
 				print "ALT-N not implemented yet"
 				print "should immediately jump to entering a new patient"
-				return true
+				return True
 
 			# ALT-K - access chipcards
 			if keycode in [ord('k'), ord('c')]:
@@ -417,7 +413,7 @@ and hit <ENTER>
 				if kvks is None:
 					print "No KVKs available !"
 					# show some message here ...
-					return true
+					return True
 				picklist, col_order = gmKVK.kvks_extract_picklist(kvks)
 				# show list
 				dlg = cPatientPickList(parent = NULL, title = _("please select a KVK"))
@@ -428,13 +424,13 @@ and hit <ENTER>
 				if result != -1:
 					print "user selected kvkd file %s" % picklist[result][10]
 					print picklist[result]
-				return true
+				return True
 
 		# cycling through previous fragments
 		elif keycode == WXK_UP:
 			if self.prev_search_term is not None:
 				self.SetValue(self.prev_search_term)
-			return true
+			return True
 		
 #		elif keycode == WXK_DOWN:
 #			pass
@@ -463,7 +459,7 @@ and hit <ENTER>
 					)
 				dlg.ShowModal()
 				dlg.Destroy()
-				return true
+				return True
 
 			curs = self.conn.cursor()
 			# only one matching patient
@@ -495,6 +491,7 @@ and hit <ENTER>
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
 	app = wxPyWidgetTester(size = (200, 40))
 	app.SetWidget(cPatientSelector, -1)
 	app.MainLoop()
@@ -612,7 +609,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.41  2004-07-15 20:36:11  ncq
+# Revision 1.42  2004-07-18 19:51:12  ncq
+# - cleanup, use True/False, not true/false
+# - use run_ro_query(), not run_query()
+#
+# Revision 1.41  2004/07/15 20:36:11  ncq
 # - better default size
 #
 # Revision 1.40  2004/06/20 16:01:05  ncq
