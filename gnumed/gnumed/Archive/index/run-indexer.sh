@@ -12,17 +12,20 @@
 CONF=/home/ncq/.gnumed/gnumed-archive.conf
 LOG=/var/log/gnumed/archive-index.log
 
-python ./index-med_docs.py \
+python ./gmIndexMedDocs.py \
 	--conf-file=$CONF \
 	--text-domain=gnumed \
 	--log-file=$LOG
 
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/run-indexer.sh,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 # $Log: run-indexer.sh,v $
-# Revision 1.2  2003-04-20 15:31:06  ncq
+# Revision 1.3  2003-11-08 12:04:57  shilbert
+# - reflect name change index_med_docs -> gmIndexMedDocs
+#
+# Revision 1.2  2003/04/20 15:31:06  ncq
 # - cleaner argument handling
 #
 # Revision 1.1  2003/04/06 09:43:14  ncq
