@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -486,7 +486,7 @@ class cCfgFile:
 		global _gmCLI
 		if _gmCLI is None:
 			import gmCLI as _gmCLI
-		if 
+
 		self._cfg_data = {}
 		# get conf file name
 		if not self.__get_conf_name(aPath, aFile, flags):
@@ -1212,7 +1212,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
+# Revision 1.2  2004-02-25 22:56:38  sjtan
+#
+# probably a typo ; temp fix until authors see it.
+#
+# Revision 1.1  2004/02/25 09:30:13  ncq
 # - moved here from python-common
 #
 # Revision 1.71  2004/02/25 08:46:12  ncq
