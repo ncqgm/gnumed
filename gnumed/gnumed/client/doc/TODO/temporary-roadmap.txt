@@ -1,7 +1,7 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.7 $
+$Revision: 1.8 $
 -----------------------------------------------------------------
 This is the temporary roadmap. Please always include the
 URL to this document when discussing items on the list:
@@ -20,6 +20,7 @@ hackers: Ian Haywood
  - search done (or nearly, in top panel)
  - mediocre attempt at input/modification available
  - input needs considerably more smarts
+status: in progress
 
 ---------------------
 simple ConfigRegistry
@@ -27,7 +28,7 @@ simple ConfigRegistry
 maintainer: Hilmar Berger
 hackers:
  - complete default config data
- - nearly done
+status: nearly done
 
 ------------------
 referrals handling
@@ -108,7 +109,7 @@ hackers:
 ------------------------
 export of progress notes
 ------------------------
-maintainer:
+maintainer: Karsten Hilbert
 hackers:
  - per patient
  - ASCII to text files for re-use
@@ -122,13 +123,14 @@ maintainer:
 hackers:
  - allow other apps to connect to a GnuMed instance, lock it
    into a patient and release that lock later on
+status: done
 
 ----------------
 document archive
 ----------------
 maintainer: Hilbert
 hackers:
- - nearly done
+status: nearly done
 
 ------------
 path results
@@ -182,7 +184,10 @@ Old German first-off roadmap is here:
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.7  2003-07-30 23:13:40  ncq
+Revision 1.8  2004-03-09 11:01:36  ncq
+- added blurb on form handling concept
+
+Revision 1.7  2003/07/30 23:13:40  ncq
 - added post-release "contacts" TODO
 
 Revision 1.6  2003/07/29 07:23:27  ncq

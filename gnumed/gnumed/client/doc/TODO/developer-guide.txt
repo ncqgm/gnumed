@@ -1,5 +1,5 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/developer-guide.txt,v $
-$Revision: 1.25 $
+$Revision: 1.26 $
 --------------------------------------------------------------
 Rules:
 ------
@@ -9,3 +9,37 @@ Rules:
 - Please date it. Thanks
 - delete things if you incorporated them into the guide
 --------------------------------------------------------------
+Die 09 Mär 2004 10:49:17 CET
+----------------------------
+GnuMed forms concept:
+
+Overview:
+
+Forms consist of two parts: the template and the data. The template
+is stored in the table form_defs along with some metadata about the
+form. The template contains placeholders which will be replaced by
+data. Placeholders may appear more than once per template and are
+template format specific. GnuMed proper is agnostic of the
+placeholder format.
+
+Some part of GnuMed, usually a widget, will collect the data
+needed to fill in a form. Data may come directly from the database,
+from some calculation, or from user input.
+
+Every form has a rendering engine type associated with it. The
+template and and the data are passed to the rendering engine which
+knows how to replace placeholders specific to the template format.
+Engines include LaTeX, pdflib and others. The engine eventually
+renders the substituted template into a format directly suitable
+for passing on to the intended pathway of delivery. In most cases
+this will be a printer and thus the rendering engine will produce
+a PDF or PS file. However, some forms may be transmitted by email
+so the rendering output may be an SMTP compatible text file. Finally,
+form instances are recorded in form_instances and the data is
+stored in form_data with a link to the particular instance. The
+rendered form is stored in the forms delivery queue, again with
+a link to the form_instance row.
+
+(Perhaps several) demons listen to incoming requests in the forms
+delivery queue and handle rendered forms. In most cases a form
+will be sent to a printer after appropriate user interaction.
