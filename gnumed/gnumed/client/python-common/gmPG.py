@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.42 $"
+__version__ = "$Revision: 1.43 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -75,6 +75,11 @@ class ConnectionPool:
 		if ConnectionPool.__connected is None:
 			self.SetFetchReturnsList()
 			ConnectionPool.__connected = self.__connect(login)
+	#-----------------------------
+	def __del__(self):
+		for backend in ConnectionPool.__listeners.keys():
+			ConnectionPool.__listeners[backend].tell_thread_to_stop()
+			del ConnectionPool.__listeners[backend]
 	#-----------------------------
 	# connection API
 	#-----------------------------
@@ -182,13 +187,14 @@ class ConnectionPool:
 		listener = ConnectionPool.__listeners[backend]
 		listener.unregister_callback(signal, callback)
 	#-----------------------------
-	def StopListeningThread(self, service):
+	def StopListener(self, service):
 		try:
 			backend = self.__service2db_map[service]	
 		except KeyError:
 			backend = 0
 		try:
 			self.__listeners[backend].tell_thread_to_stop()
+			del self.__listeners[backend]
 		except:
 			pass
 	#-----------------------------
@@ -358,6 +364,7 @@ class ConnectionPool:
 		#stop all background threads
 		for backend in self.__listeners.keys():
 			self.__listeners[backend].tell_thread_to_stop()
+			del self.__listeners[backend]
 		###disconnect from all databases
 		for key in ConnectionPool.__databases.keys():
 			### check whether this connection might still be in use ...
@@ -614,7 +621,7 @@ def run_notifications_debugger():
 
 	# clean up
 	print "please wait a second or two for threads to sync and die"
-	dbpool.StopListeningThread('default')
+	dbpool.StopListener('default')
 	rocurs.close()
 	roconn.close()
 	dbpool.ReleaseConnection('default')
@@ -676,14 +683,17 @@ if __name__ == "__main__":
 	print "and type 'notify test'; if everything works,"
 	print "a message [Backend notification received!] should appear\n"
 	dbpool.Listen('config', 'test', TestCallback)
-	time.sleep(20)	
-	dbpool.StopListeningThread('config')	
+	time.sleep(20)
+	dbpool.StopListener('config')
 	print "Requesting write access connection:"
 	con = dbpool.GetConnection('config', readonly=0)
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.42  2003-05-01 15:01:10  ncq
+# Revision 1.43  2003-05-03 14:15:31  ncq
+# - sync and stop threads in __del__
+#
+# Revision 1.42  2003/05/01 15:01:10  ncq
 # - port must be int in backend.listener()
 # - remove printk()s
 #
