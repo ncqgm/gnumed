@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.21 2003-06-19 15:22:57 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmClinicalRecord.py,v 1.22 2003-06-22 16:17:40 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -41,6 +41,7 @@ class gmClinicalRecord:
 		- patient referenced by aPKey does not exist
 		"""
 		self.transactionCursor = None
+
 		self._backend = gmPG.ConnectionPool()
 
 		# this connection may drop , so need to get fresh one
@@ -66,8 +67,13 @@ class gmClinicalRecord:
 		if not self.__load_most_recent_episode():
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
 
-		# reactivate once the code in there is reasonably smart
-#		self.ensure_current_clinical_encounter()
+		# load or create current encounter
+		# FIXME: this should be configurable (for explanation see the method source)
+		self.encounter_soft_decay = '2 hours'
+		self.encounter_hard_decay = '5 hours'
+		self.id_encounter = None
+#		if not self.__load_current_encounter():
+#			raise gmExceptions.ConstructorError, "cannot create an encounter for patient [%s]" % aPKey
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -78,7 +84,7 @@ class gmClinicalRecord:
 		_log.Log(gmLog.lData, 'Instantiated clinical record for patient [%s].' % self.id_patient)
 	#--------------------------------------------------------
 	def __del__(self):
-		if self.__dict__.has_key('_backend'):
+		if self._defconn_ro is not None:
 			self._backend.Unlisten(service = 'historica', signal = gmSignals.allergy_add_del_db(), callback = self._allergy_added_deleted)
 			self._backend.ReleaseConnection('historica')
 	#--------------------------------------------------------
@@ -157,8 +163,8 @@ class gmClinicalRecord:
 		return 1
 	#--------------------------------------------------------
 	def _allergy_added_deleted(self):
-		#curs = self._defconn_ro.cursor()
-		curs = self.getCursor()
+		curs = self._defconn_ro.cursor()
+#		curs = self.getCursor()
 		# did number of allergies change for our patient ?
 		cmd = "select count(id) from v_i18n_patient_allergies where id_patient='%s';" % self.id_patient
 		if not gmPG.run_query(curs, cmd):
@@ -195,6 +201,31 @@ class gmClinicalRecord:
 		# we may have new data in there ...
 #		self.invalidate_cache()
 	#--------------------------------------------------------
+	# __setitem__ handling
+	#--------------------------------------------------------
+	def __setitem__(self, item=None, value=None):
+		if item == 'new clinical note':
+			return self.create_clinical_note(value)
+		_log.Log(gmLog.lWarn, "don't know how to set item [%s]" % item)
+		raise KeyError, "don't know how to set item [%s]" % item
+	#--------------------------------------------------------
+	def create_clinical_note(self, value=None):
+		if value is None:
+			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
+			return 1
+		rwconn = self.__backend.GetConnection('historica', readonly=0)
+		rwcurs = rwconn.cursor()
+		cmd = "insert into clin_note(id_encounter, id_episode, narrative) values (%d, %d, '%s');" % (self.id_encounter, self.id_episode, value)
+		if not gmPG.run_query(rwcurs, cmd):
+			rwcurs.close()
+			rwconn.close()
+			_log.Log(gmLog.lErr, 'cannot create clinical note [%s] (episode %d, encounter %d)' % (value, self.id_episode, self,id_encounter))
+			return None
+		rwconn.commit()
+		rwcurs.close()
+		rwconn.close()
+		return 1
+	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
@@ -210,7 +241,7 @@ class gmClinicalRecord:
 		return self.id_patient
 	#--------------------------------------------------------
 	def _get_allergies(self):
-		"""Return rows in v_i18n_allergies for this patient"""
+		"""Return rows in v_i18n_patient_allergies."""
 		try:
 			return self.__db_cache['allergies']
 		except:
@@ -270,6 +301,12 @@ class gmClinicalRecord:
 		for row in rows:
 			self.__db_cache['allergy IDs'].extend(row)
 		return self.__db_cache['allergy IDs']
+	#--------------------------------------------------------
+	# set up handler map
+	_get_handler['patient ID'] = _get_patient_ID
+#	_get_handler['allergy IDs'] = _get_allergies_list
+	_get_handler['allergy names'] = _get_allergy_names
+	_get_handler['allergies'] = _get_allergies
 	#------------------------------------------------------------------
 	# health issue related helpers
 	#------------------------------------------------------------------
@@ -424,29 +461,86 @@ class gmClinicalRecord:
 		rw_conn.close()
 		return id_episode
 	#------------------------------------------------------------------
+	# encounter related helpers
+	#------------------------------------------------------------------
+	def __load_current_encounter(self):
+		"""Load the currently active encounter or create one.
+
+		1) if curr_encounter.last_affirmed is younger than
+		   self.encounter_soft_decay we always assume
+		   the encounter to still be valid
+		2) if curr_encounter.last_affirmed is younger than
+		   self.encounter_hard_decay we always assume
+		   the encounter to be stale and create a new one
+
+		FIXME: this needs considerably smarter heuristics
+		"""
+		self.id_encounter = None
+
+		ro_curs = self._defconn_ro.cursor()
+		# encounter recorded that we always consider current ?
+		cmd = "select id_encounter from curr_encounter where id_patient=%d and now() - last_affirmed < '%%s' limit 1;" % self.id_patient
+		if not gmPG.run_query(ro_curs, cmd % self.encounter_hard_decay):
+			ro_curs.close()
+			_log.Log(gmLog.lErr, 'cannot access current encounter table')
+			return None
+		row = ro_curs.fetchone()
+		# very recent encounter found
+		if row is not None:
+			self.id_encounter = row[0]
+			# update last_affirmed
+			data = {
+				id: self.id_encounter,
+				comment: 'electronic chart pulled'
+			}
+			self.__affirm_encounter(data)
+			return 1
+
+
+
+
+		marker = time.asctime()
+		cmd = "insert into clin_encounter (id_location, id_provider, id_type, description) values(0 , 0, 1, '%s' ) " % marker
+		if self.execute(cmd, "unable to create clin encounter") is None:
+			return 0
+		cmd = "select id from clin_encounter where description = '%s'" % marker
+		rows = self.execute(cmd, "unable to select recently created encounter")
+		if rows is None:
+			return 0
+		if len (rows) <> 1 :
+			_log.Log(gmLog.lErr, "there are %d rows with marker %s. Row should be unique" %(len(rows), marker) )
+		self.id_encounter = rows[0][0]
+		return rows[0][0]
+	#------------------------------------------------------------------
+	def __affirm_encounter(self, data = None):
+		try:
+			cmd = "update curr_encounter set comment='%s' where id_patient=%d and id_encounter=%d;" % (data['comment'], self.id_patient, data['id'])
+		except:
+			_log.LogException('invalid dictionary structure: %s' % data)
+			return None
+
+		rw_conn = self._backend.GetConnection('historica', readonly = 0)
+		if rw_conn is None:
+			_log.Log(gmLog.lErr, 'cannot affirm patient [%s] encounter with [%s]' % (data['id'], data['comment']))
+			return None
+		rw_curs = rw_conn.cursor()
 	#------------------------------------------------------------------
 	# trial 
+	#------------------------------------------------------------------
 	def create_allergy(self, map):
 		"""tries to add allergy to database."""
 
 		self.beginTransaction()
 
-		# one would use the "currently selected" health
-		# issue and episode here, the clinician must decide
-		# upon the content thereof
-#		self.id_curr_health_issue = self.ensure_health_issue_exists("allergy")
-#		episode_id = self.get_or_create_episode_for_issue(self.id_health_issue)
-
-		encounter_id = self.ensure_current_clinical_encounter()
-		if encounter_id == 0:
-			self.execute("rollback", "rolling back because of invalid encounter_id = 0")
+		if self.id_encounter == 0:
+			self.execute("rollback", "rolling back because of invalid encounter id = 0")
 			return 0
 
 		# definite misspelled in older SQL scripts so try both
 		cmd_part = "insert into allergy(id_type, id_encounter, id_episode,  substance, reaction, %s)"
 
 		# FIXME: id_type hardcoded, not reading checkbox states (allergy or sensitivity)
-		value_part = " values (%d, %d, %d, '%s', '%s', '%s' )" % (1, encounter_id, self.id_episode, map["substance"], map["reaction"], map["definite"])
+		value_part = " values (%d, %d, %d, '%s', '%s', '%s' )" % (1, self.id_encounter, self.id_episode, map["substance"], map["reaction"], map["definite"])
 		cmd1 = cmd_part % "definite"  + value_part
 		cmd2 = cmd_part % "definate"  + value_part
 		if self.execute(cmd1, "insert allergy failed with defin*I*te ", rollback = 0 ) is None:
@@ -477,43 +571,6 @@ class gmClinicalRecord:
 		# notified of the change by the backend
 		#gmDispatcher.send(signal = gmSignals.allergy_updated(), sender = self.__class__.__name__)
 		return 1
-
-
-#	def ensure_health_issue_exists(self, issue):
-#		"""ensure that the  health issue exists for this patient_id"""
-		
-#		cmd = "select id from clin_health_issue where id_patient=%s and description='%s'" % (self.id_patient, issue)
-#		rows = self.execute(cmd, "Unable to select %s health issue for id_patient=%s " % (issue, self.id_patient ))
-#		if (rows <> None and len(rows) == 0):
-#			cmd2 = "insert into clin_health_issue ( id_patient, description) values ( %s, '%s')" %( self.id_patient, issue)
-#			self.execute(cmd2, "can't insert issue %s" % issue)
-#			rows = self.execute(cmd, "not finding clin_issue %s" % issue )
-		
-#		if (rows <> None and len(rows) == 1):
-#			return rows[0][0]
-
-#		return 0
-#------------ deal with clinical encounter id ---------------------------------
-	def ensure_current_clinical_encounter(self):
-		# FIXME: this needs considerably more smarts
-		# FIXME: this should run during __init__
-
-		if self.__dict__.has_key('clin_encounter'):
-			return self.clin_encounter
-
-		marker = time.asctime()
-		cmd = "insert into clin_encounter( id_location, id_provider, id_type, description ) values(0 , 0, 1, '%s' ) " % marker
-		if self.execute(cmd, "unable to create clin encounter") is None:
-			return 0
-		cmd = "select id  from clin_encounter where description = '%s'" % marker
-		rows = self.execute(cmd, "unable to select recently created encounter")
-		if rows is None:
-			return 0
-		if len (rows) <> 1 :
-			_log.Log(gmLog.lErr, "there are %d rows with marker %s. Row should be unique" %(len(rows), marker) )
-		self.clin_encounter = rows[0][0]
-		return rows[0][0]
-
 #-------------- convenience sql call interface ----------------------------------------
 	def execute(self, cmd, error_msg, rollback = 0):
 		#<DEBUG>
@@ -573,13 +630,6 @@ class gmClinicalRecord:
 			string.find(string.lower(cmd), "commit") >= 0 or \
 			string.find(string.lower(cmd), "select into") >= 0:
 				return 1
-	
-	#--------------------------------------------------------
-	# set up handler map
-	_get_handler['patient ID'] = _get_patient_ID
-#	_get_handler['allergy IDs'] = _get_allergies_list
-	_get_handler['allergy names'] = _get_allergy_names
-	_get_handler['allergies'] = _get_allergies
 #============================================================
 # main
 #------------------------------------------------------------
@@ -590,7 +640,12 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.21  2003-06-19 15:22:57  ncq
+# Revision 1.22  2003-06-22 16:17:40  ncq
+# - start dealing with encounter initialization
+# - add create_clinical_note()
+# - cleanup
+#
+# Revision 1.21  2003/06/19 15:22:57  ncq
 # - fix spelling error in SQL in episode creation
 #
 # Revision 1.20  2003/06/03 14:05:05  ncq
