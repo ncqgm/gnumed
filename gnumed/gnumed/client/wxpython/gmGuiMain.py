@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.79 2003-02-11 12:21:19 sjtan Exp $
-__version__ = "$Revision: 1.79 $"
+# $Id: gmGuiMain.py,v 1.80 2003-02-12 23:37:58 sjtan Exp $
+__version__ = "$Revision: 1.80 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -188,6 +188,9 @@ class MainFrame(wxFrame):
 		# load plugins
 		self.LoadPlugins(backend)
 
+		#signal any other modules requireing init.
+		gmDispatcher.send( gmSignals.application_init())
+
 		self.SetStatusText(_("You are logged in as [%s]") % user)
 		self.tb.ReFit ()
 		self.SetSizer( self.vbox )
@@ -201,7 +204,6 @@ class MainFrame(wxFrame):
 		self.Fit ()
 		self.Centre(wxBOTH)
 		self.Show(true)
-		handler_loader.main()
 
 	#----------------------------------------------
 	def OnNotebookPopup(self, evt):
@@ -429,14 +431,16 @@ class MainFrame(wxFrame):
 		self.mainmenu=None
 		self.window=None
 		self.Destroy()
-		self.data_cleanup()
+		#self.data_cleanup()
+		gmDispatcher.send(gmSignals.application_clean_closing())
 
-	def data_cleanup(self):
-		handler_loader.save_models()
+#	def data_cleanup(self):
+#		handler_loader.save_models()
 				
 	#----------------------------------------------
 	def OnClose(self,event):
 		self.CleanExit()
+		event.Skip()
 	#----------------------------------------------
 	def OnIdle(self, event):
 		"""Here we can process any background tasks
@@ -633,7 +637,13 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.79  2003-02-11 12:21:19  sjtan
+# Revision 1.80  2003-02-12 23:37:58  sjtan
+#
+# now using gmDispatcher and gmSignals for initialization and cleanup.
+# Comment out the import handler_loader in gmGuiMain will restore back
+# to prototype GUI stage.
+#
+# Revision 1.79  2003/02/11 12:21:19  sjtan
 #
 # one more dependency formed , at closing , to implement saving of persistence objects.
 # this should be temporary, if a periodic save mechanism is implemented

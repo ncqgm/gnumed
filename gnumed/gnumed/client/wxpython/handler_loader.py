@@ -1,12 +1,17 @@
 """loads handler onto widgets stored in widget map of guiBroker."""
-
+load_handles = 1 # set to zero if want no handles
 import gmGuiBroker 
 import EditAreaHandler
 from handler_gmSelectPersonImpl import *
 from handler_patient import *
 import cPickle 
 
+from  wxPython.wx import *
+import gmDispatcher, gmSignals
+
+
 def configure_handlers():
+
 	gb = gmGuiBroker.GuiBroker()
 	gb['DlgSelectPerson_handler'] = gmSelectPerson_handler_impl()
 	handler = gmDemographics_handler(None)
@@ -20,6 +25,18 @@ def configure_handlers():
 	gb['models'] = {}
 	gb['models']['gmDemographics'] = model
 	gb['PatientsPanel_handler'] = handler
+
+	frame = gb['main.frame']
+	gmDispatcher.connect( save_models, gmSignals.application_clean_closing())
+
+	#evt_handler =  CloseCleanupEvtHandler( frame)
+	#evt_handler.SetEvtHandlerEnabled(1)
+	#frame.PushEventHandler( evt_handler)
+	#frame.SetEvtHandlerEnabled(1)
+	#print "FRAME got event handler", evt_handler
+		
+
+	
 
 def save_models():
 	gb = gmGuiBroker.GuiBroker()
@@ -65,7 +82,11 @@ def load_handlers():
 				load_widget(widget, handler.model)
 			continue
 
-def main():
+def init_handlers():
 	configure_handlers()
 	load_handlers()	
 
+def main():
+	init_handlers()
+
+gmDispatcher.connect(init_handlers,  gmSignals.application_init())
