@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.161 2005-02-23 19:38:40 ncq Exp $
-__version__ = "$Revision: 1.161 $"
+# $Id: gmClinicalRecord.py,v 1.162 2005-03-01 20:48:46 ncq Exp $
+__version__ = "$Revision: 1.162 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -58,16 +58,6 @@ class cClinicalRecord:
 			'vaccinations': {}
 		}
 
-		self.__health_issue = None
-
-		# what episode did we work on last time we saw this patient ?
-		# also load corresponding health issue
-		t1 = time.time()
-		if not self.__load_last_active_episode():
-			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
-		duration = time.time() - t1
-		_log.Log(gmLog.lData, '__load_last_active_episode() took %s seconds' % duration)
-
 		# load current or create new encounter
 		# FIXME: this should be configurable (for explanation see the method source)
 		t1 = time.time()
@@ -75,6 +65,15 @@ class cClinicalRecord:
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 		duration = time.time() - t1
 		_log.Log(gmLog.lData, '__initiate_active_encounter() took %s seconds' % duration)
+
+		# FIXME: really do this ?
+		# what episode did we work on last time we saw this patient ?
+		# also load corresponding health issue
+		t1 = time.time()
+		if not self.__load_last_active_episode():
+			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
+		duration = time.time() - t1
+		_log.Log(gmLog.lData, '__load_last_active_episode() took %s seconds' % duration)
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -762,9 +761,6 @@ class cClinicalRecord:
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create episode [%s::%s] for patient [%s] and health issue [%s]' % (soap_cat, episode_name, self.pk_patient, pk_health_issue))
 			return None
-		
-		# FIXME use gmSignals? update cache with the newly created episode
-		#self.__db_cache['episodes'].append(episode)
 		return episode
 	#--------------------------------------------------------
 	def __load_last_active_episode(self):
@@ -841,40 +837,18 @@ where
 		# none found whatsoever
 		if episode is None:
 			# so try to create default episode ...
-			success,result = False, ['no result'] 
-			
-			#precondition self.__health_issue , and self.__encounter must exist
-			try:
-				x = self.__health_issue
-				if x is None:
-					raise Exception
-			except:
-				self.__health_issue = self.add_health_issue("xxxDEFAULTxxx")
-				_log.Log(gmLog.lInfo, "Found health issue  %s " % self.__health_issue)
-
-			try:
-				x = self.__encounter
-				if x is None:
-					raise Exception
-			except:
-				self.__initiate_active_encounter()	
-			
-			#preconditions should have been checked and attempted
-
-			try:
-				success, result = gmEMRStructItems.create_episode(
-					pk_health_issue=self.__health_issue['id'],
-					soap_cat = 's',
-					encounter_id=self.__encounter['pk_encounter']
-				)
-			except:
-				_log.LogException( 'trying to create_episode with __health_issue=[%s] and __encounter=[%s]' % (str(self.__health_issue), str(self.__encounter) ) , sys.exc_info(), verbose=0 )
-
+			# FIXME: really create default episode ???
+			success, result = gmEMRStructItems.create_episode (
+				episode_name = 'xxxDEFAULTxxx',
+				soap_cat = 's',
+				encounter_id = self.__encounter['pk_encounter']
+			)
 			if not success:
 				_log.Log(gmLog.lErr, 'cannot even activate default episode for patient [%s], aborting' %  self.pk_patient)
 				_log.Log(gmLog.lErr, result)
 				return False
 			episode = result
+			episode.set_active()
 
 		self.__episode = episode
 		# load corresponding health issue
@@ -1702,7 +1676,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.161  2005-02-23 19:38:40  ncq
+# Revision 1.162  2005-03-01 20:48:46  ncq
+# - rearrange __init__ such that encounter is set up before episode
+# - fix handling in __load_last_active_episode()
+#
+# Revision 1.161  2005/02/23 19:38:40  ncq
 # - listen to episode changes in DB, too
 #
 # Revision 1.160  2005/02/20 10:31:44  sjtan
