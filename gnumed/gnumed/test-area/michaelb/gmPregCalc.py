@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #====================================================================
-# GnuMed tool to calculate expected date of delivery
-# licence: GPL
+# GnuMed tool to calculate expected date of delivery & 18th week ultrasound scan
+# licence: GPL - Copyright (c) 2003
 # Changelog:
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/michaelb/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.5 2003-07-05 06:44:28 michaelb Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPregCalc.py,v 1.6 2003-07-06 20:22:41 michaelb Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -25,8 +25,8 @@ ID_MENU = wxNewId ()
 
 # Naegele's rule is easy for manual calculation, but a pain to code
 # Enter Haywood's rule ;-), human gestation is defined as 24192000 seconds.
+# 	ideally, tool should query backend for parity, race, etc. for exact measurement
 GESTATION = 24192000
-# ideally, tool should query backend for parity, race, etc. for exact measurement
 WEEK = 604800
 DAY = 86400
 US18_52 = 10886400	# 18 weeks in seconds (for 18/52 Ultrasound)
@@ -48,7 +48,8 @@ class PregnancyFrame (wxFrame):
 	"""
 
 	#TODO
-	# IMPROVE removal of time from txtlnmp, txtedc, txtdue
+	# IMPROVE removal of time from txtlnmp, txtedc, txtdue (?)
+	#	see: def PurgeTime(self, date):
 	#
 	# add tooltips to wxTextCtrl fields to describe what they
 	#	are and how to use the calculator
@@ -67,8 +68,9 @@ class PregnancyFrame (wxFrame):
 		wxFrame.__init__(self, parent, -1, _("Pregnancy Calculator"), style=myStyle)
 
 		# initialization
-		self.lnp_or_usdate=0	# (if == 0): {calendar sel = LNP}
-					# (if == 1): {calendar sel = Ultrasound Date}
+		self.lnp_or_usdate=0	# controls which variable (LNP or Ultrasound) a calendar event changes
+					# (if == 0): {calendar selection modifies LNP}
+					# (if == 1): {calendar selection modifies Ultrasound Date}
 
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(wxBitmapFromXPMData(cPickle.loads(zlib.decompress( _icons[_("""icon_Preg_calc""")] ))) )
@@ -102,12 +104,10 @@ class PregnancyFrame (wxFrame):
 		label.SetForegroundColour(wxColour(0,0,0))
 
 		self.txtgest = wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtgest.Enable(false)
 		self.txtgest.SetFont(wxFont(12,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		self.txtgest_szr  = wxBoxSizer(wxHORIZONTAL)
 		self.txtgest_szr.Add(self.txtgest,1,wxEXPAND|wxALL,2)
-		#EVT_TEXT(self, self.txtmass.GetId(), self.EvtText_mass)
-		#EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
-		#EVT_CHAR(self.txtmass, self.EvtChar_mass)
 
 		szr_gest = wxBoxSizer(wxHORIZONTAL)
 		szr_gest.Add(label, 1, 0, 0)
@@ -123,6 +123,7 @@ class PregnancyFrame (wxFrame):
 		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtedc = wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtedc.Enable(false)
 		self.txtedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		szr_txtedc = wxBoxSizer(wxHORIZONTAL)
 		szr_txtedc.Add(self.txtedc,1,wxEXPAND|wxALL,2)
@@ -141,7 +142,6 @@ class PregnancyFrame (wxFrame):
 		szr_backgrnd_18WkScanDue = wxBoxSizer(wxVERTICAL)
 		szr_backgrnd_18WkScanDue.Add(1,3, 0)
 		szr_backgrnd_18WkScanDue.Add(us_label,1,wxEXPAND,1)
-		#rcs.Add(us_label, flag=wxALIGN_CENTRE_HORIZONTAL, row=4, col=2, colspan=5)
 		rcs.Add(szr_backgrnd_18WkScanDue, flag=wxALIGN_CENTRE_HORIZONTAL, row=3, col=2, colspan=5)
 		#------------------------------
 		# sizer holding the 'Due' stuff
@@ -151,7 +151,7 @@ class PregnancyFrame (wxFrame):
 		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtdue = wxTextCtrl(self,-1,"",size=(100,20))
-		#self.txtdue.Enable(false)
+		self.txtdue.Enable(false)
 		self.txtdue.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		self.szr_txtdue  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtdue.Add(self.txtdue,1,wxEXPAND|wxALL,2)
@@ -170,7 +170,6 @@ class PregnancyFrame (wxFrame):
 		szr_backgrnd_RevEDCLabel = wxBoxSizer(wxVERTICAL)
 		szr_backgrnd_RevEDCLabel.Add(1,3, 0)
 		szr_backgrnd_RevEDCLabel.Add(rev_edc_label,1,wxEXPAND,1)
-		#rcs.Add(rev_edc_label, flag=wxALIGN_CENTRE_HORIZONTAL, row=6, col=2, colspan=5)
 		rcs.Add(szr_backgrnd_RevEDCLabel, flag=wxALIGN_CENTRE_HORIZONTAL, row=5, col=2, colspan=5)
 
 		#------------------------------
@@ -180,7 +179,6 @@ class PregnancyFrame (wxFrame):
 		label1.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label1.SetForegroundColour(wxColour(0,0,0))
   		self.txtdate = wxTextCtrl(self,-1,"",size=(25,20))
-		#self.txtdate.Enable(false)
 		self.txtdate.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		self.szr_txtdate  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtdate.Add(self.txtdate,1,wxEXPAND|wxALL,2)
@@ -197,47 +195,26 @@ class PregnancyFrame (wxFrame):
 		label2 = wxStaticText(self,-1,_("Weeks"),size = (25,20))
 		label2.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label2.SetForegroundColour(wxColour(0,0,0))
-		"""
-		self.txtweeks = wxTextCtrl(self,-1,"",size=(25,20))
-		EVT_TEXT(self, self.txtweeks.GetId(), self.EvtText_weeks)
-		#EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
-		#EVT_CHAR(self.txtmass, self.EvtChar_mass)
-		"""
 		self.txtweeks = wxSpinCtrl (self, -1, value = "0", min = 0, max = 42)
 		EVT_SPINCTRL (self.txtweeks ,self.txtweeks.GetId(), self.EvtText_calcnewedc)
-
-		#self.txtweeks.Enable(false)
 		self.txtweeks.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		self.szr_txtweeks  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtweeks.Add(self.txtweeks,1,wxEXPAND|wxALL,2)
 
-
 		label3 = wxStaticText(self,-1,_("Days"),size = (25,20))
 		label3.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label3.SetForegroundColour(wxColour(0,0,0))
-		"""
-		self.txtdays = wxTextCtrl(self,-1,"",size=(25,20))
-		EVT_TEXT(self, self.txtdays.GetId(), self.EvtText_days)
-		#EVT_SET_FOCUS(self.txtmass, self.OnSetFocus_mass)
-		#EVT_CHAR(self.txtmass, self.EvtChar_mass)
-		"""
 		self.txtdays = wxSpinCtrl (self, -1, value = "0", min = 0, max = 6)
 		EVT_SPINCTRL (self.txtdays ,self.txtdays.GetId(), self.EvtText_calcnewedc)
-
-		#self.txtdays.Enable(false)
 		self.txtdays.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		self.szr_txtdays  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtdays.Add(self.txtdays,1,wxEXPAND|wxALL,2)
 
-
 		szr_label2 = wxBoxSizer(wxHORIZONTAL)
-		##szr_label2.Add(10,1,0,0)
-		#szr_label2.Add(label2,1,0,0)
 		szr_label2.Add(label2,1,wxALIGN_CENTRE_VERTICAL,0)
 		szr_label2.Add(10,1,0,0)
 		szr_label3 = wxBoxSizer(wxHORIZONTAL)
 		szr_label3.Add(10,1,0,0)
-		#szr_label3.Add(label3,1,0,0)
 		szr_label3.Add(label3,1,wxALIGN_CENTRE_VERTICAL,0)
 		szr_label3.Add(10,1,0,0)
 		rcs.Add(szr_label2, flag=wxEXPAND, row=7, col=1)
@@ -246,13 +223,14 @@ class PregnancyFrame (wxFrame):
 		rcs.Add(self.szr_txtdays, flag=wxEXPAND, row=7, col=5, colspan=2)
 
 		#------------------------------
-		# sizer holding the new 'EDC' stuff
+		# sizer holding the new (or revised) 'EDC' stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("EDC"),size = (100,20))
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
   		self.txtnewedc = wxTextCtrl(self,-1,"",size=(100,20))
+		self.txtnewedc.Enable(false)
 		self.txtnewedc.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		self.szr_txtnewedc  = wxBoxSizer(wxHORIZONTAL)
 		self.szr_txtnewedc.Add(self.txtnewedc,1,wxEXPAND|wxALL,2)
@@ -321,30 +299,19 @@ class PregnancyFrame (wxFrame):
 
 			#LNMP = self.LNMPcal.GetDate ().GetTicks () - 18000 	# Standard Time Fix (?)
 			self.LNMP = self.LNMPcal.GetDate ().GetTicks ()		# Correct for Day Light Saving Time
-			#today = wxGetCurrentTime ()
 			today = wxDateTime_Today().GetTicks()
 			due = self.LNMP + GESTATION
 			gest = today - self.LNMP
-			#gest = due - today
-			ultrasound18_52 = self.LNMP + US18_52
-
-			"""
-			print LNMP
-			print today
-			print due
-			print gest
-			"""
+			self.ultrasound18_52 = self.LNMP + US18_52
 
 			# -----------------
-			LNMPtxt = wxDateTime()			# FIXME - remove time from date, change format of date (?)
+			LNMPtxt = wxDateTime()			# FIXME? - change format of date (?)
 			LNMPtxt.SetTimeT(self.LNMP)
 			self.txtlnmp.SetValue(self.PurgeTime(LNMPtxt))
 
 			# -----------------
 			gest_week = gest / WEEK
 			gest_day = (gest % WEEK) / DAY
-			#print gest_week	# test
-			#print gest_day		# test
 			if(gest_day==1):
 				days_label=_('day')
 			else:
@@ -353,7 +320,7 @@ class PregnancyFrame (wxFrame):
 				weeks_label=_('week')
 			else:
 				weeks_label=_('weeks')
-			txtgest_str=str(gest_week)+" "+weeks_label+"   "+str(gest_day)+" "+days_label
+			txtgest_str=str(gest_week)+" "+weeks_label+", "+str(gest_day)+" "+days_label
 			self.txtgest.SetValue(txtgest_str)
 
 			# -----------------
@@ -362,14 +329,14 @@ class PregnancyFrame (wxFrame):
 			self.txtedc.SetValue(self.PurgeTime(edctxt))
 
 			# -----------------
-			ustxt = wxDateTime()
-			ustxt.SetTimeT(ultrasound18_52)
-			self.txtdue.SetValue(self.PurgeTime(ustxt))
+			self.ustxt = wxDateTime()
+			self.ustxt.SetTimeT(self.ultrasound18_52)
+			self.txtdue.SetValue(self.PurgeTime(self.ustxt))
 
 		else:
 			# set Ultrasound Date
 			self.usdate = self.LNMPcal.GetDate ().GetTicks ()
-			usdatetxt = wxDateTime()	# FIXME - remove time from date, change format of date (?)
+			usdatetxt = wxDateTime()	# FIXME? - change format of date
 			usdatetxt.SetTimeT(self.usdate)
 			self.txtdate.SetValue(self.PurgeTime(usdatetxt))
 
@@ -380,14 +347,13 @@ class PregnancyFrame (wxFrame):
 			days=self.txtdays.GetValue()
 
 			# get date of ultrasound
-			#newedc=self.usdate+WEEK*weeks+DAY*days	#WRONG
 			newedc=self.usdate+GESTATION-WEEK*weeks-DAY*days
 
 			wxD=wxDateTime()
 			wxD.SetTimeT(newedc)
 			self.txtnewedc.SetValue(self.PurgeTime(wxD))
 		except:
-			pass	# error handling
+			pass	# error handling - FIXME is 'try' statement necessary (?)
 
 	#-----------------------------------------
 	def EvtReset(self, event):
@@ -412,8 +378,8 @@ class PregnancyFrame (wxFrame):
 	def EvtSave(self, event):
 		pass 					# TODO
 	#-----------------------------------------
-	def EvtHandout(self, event):
-		pass 					# TODO
+	#def EvtHandout(self, event):
+	#	pass 					# TODO
 	#-------------------------------------------
 	def OnClose (self, event):
 		self.Destroy ()
@@ -427,14 +393,12 @@ class PregnancyFrame (wxFrame):
 	#-------------------------------------------
 	def OnSetFocus_lnmp (self, event):
 		self.lnp_or_usdate=0
-		#print self.lnp_or_usdate	# test
-		event.Skip()			# required so wxTextCtrl box is selected
+		event.Skip()				# required so wxTextCtrl box is selected
 
 	#-------------------------------------------
 	def OnSetFocus_USDate (self, event):
+		self.LNMPcal.SetDate(self.ustxt)	# flip calendar to 18/52 date
 		self.lnp_or_usdate=1
-		#print self.lnp_or_usdate	# test
-		# TODO - flip calendar to 18/52 date
 		event.Skip()
 
 
@@ -490,7 +454,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.5  2003-07-05 06:44:28  michaelb
+# Revision 1.6  2003-07-06 20:22:41  michaelb
+# locked down some wxTextCtrl boxes; when ultrasound field activated flips to 18/52 date, dead code removal
+#
+# Revision 1.5  2003/07/05 06:44:28  michaelb
 # fixed "Revised EDC" calc, on reset LMP selected & calendar put on current date
 #
 # Revision 1.4  2003/07/05 06:14:41  michaelb
