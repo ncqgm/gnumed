@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.35 $"
+__version__ = "$Revision: 1.36 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os, re
@@ -370,7 +370,7 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
-    from Gnumed.wxpython import gmLoginInfo
+    from Gnumed.pycommon import gmLoginInfo
     from Gnumed.business import gmXdtObjects, gmXdtMappings
 
     wxID_btn_quit = wxNewId()
@@ -497,26 +497,6 @@ if __name__ == '__main__':
         def __on_quit(self, evt):
             app = wxGetApp()
             app.ExitMainLoop()
-        #--------------------------------------------------------
-
-#################
-        def __show_error(self, aMessage = None, aTitle = ''):
-            # sanity checks
-            tmp = aMessage
-            if aMessage is None:
-                tmp = _('programmer forgot to specify error message')
-
-            tmp = tmp + _("\n\nPlease consult the error log for further information !")
-
-            dlg = wxMessageDialog(
-                NULL,
-                tmp,
-                aTitle,
-                wxOK | wxICON_ERROR
-            )
-            dlg.ShowModal()
-            dlg.Destroy()
-            return 1
 #== classes for plugin use ======================================
 else:
 
@@ -645,7 +625,11 @@ else:
     pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.35  2004-03-07 22:19:26  ncq
+# Revision 1.36  2004-03-19 08:08:41  ncq
+# - fix import of gmLoginInfo
+# - remove dead code
+#
+# Revision 1.35  2004/03/07 22:19:26  ncq
 # - proper import
 # - re-fix gmTmpPatient -> gmPatient (fallout from "Syan's commit")
 #
