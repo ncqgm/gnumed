@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.81 2003-02-12 23:45:49 sjtan Exp $
-__version__ = "$Revision: 1.81 $"
+# $Id: gmGuiMain.py,v 1.82 2003-02-13 08:21:18 ihaywood Exp $
+__version__ = "$Revision: 1.82 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -328,6 +328,7 @@ class MainFrame(wxFrame):
 		self.tb.ShowBar(new_page.name())
 		# hand focus to plugin page
 		new_page.ReceiveFocus()
+		event.Skip () # required for MSW
 	#----------------------------------------------
 	def RegisterEvents(self):
 		"""register events we want to react to"""
@@ -633,7 +634,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.81  2003-02-12 23:45:49  sjtan
+# Revision 1.82  2003-02-13 08:21:18  ihaywood
+# bugfix for MSW
+#
+# Revision 1.81  2003/02/12 23:45:49  sjtan
 #
 # removing dead code.
 #
