@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.8 2003-02-07 12:18:14 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmGP_Immunisation.py,v 1.9 2003-02-07 14:29:32 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry, S.J.Tan"
 
 from wxPython.wx import *
@@ -191,7 +191,7 @@ Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87'
 		return ('view', '&Immunisation')
 
 	def GetIconData(self, anIconID = None):
-		if anIconID == None:
+		if anIconID is None:
 			return self.__icons[_("""icon_syringe""")]
 		else:
 			if self.__icons.has_key(anIconID):
@@ -210,6 +210,9 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmGP_Immunisation.py,v $
-# Revision 1.8  2003-02-07 12:18:14  ncq
+# Revision 1.9  2003-02-07 14:29:32  ncq
+# - == None -> is None
+#
+# Revision 1.8  2003/02/07 12:18:14  ncq
 # - cvs metadata keywords
 #
