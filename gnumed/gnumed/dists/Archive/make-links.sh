@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -85,8 +85,8 @@ ln -vs ../../../test-area/blobs_hilbert/import/run-importer.sh server/run-import
 
 # bootstrapping
 ln -vs ../../../server/sql server/sql
-ln -vs ../../../server/utils/bootstrap-gm_db_system.py server/bootstrap-gm_db_system.py
-ln -vs ../../../server/utils/bootstrap-archive.conf.sample server/bootstrap-archive.conf.sample
+ln -vs ../../../server/bootstrap/bootstrap-gm_db_system.py server/bootstrap-gm_db_system.py
+ln -vs ../../../server/bootstrap/bootstrap-archive.conf.sample server/bootstrap-archive.conf.sample
 
 #echo "=> server"
 #ln -vs ~/.gnumed/gnumed-archive.conf server/gnumed-archive.conf
