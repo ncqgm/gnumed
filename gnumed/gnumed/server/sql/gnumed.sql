@@ -1,4 +1,7 @@
--- DO NOT USE ANYMORE !
+-- !!!!!!!!!!!!!!!!!!!!!!
+-- ! DO NOT USE ANYMORE !
+-- !!!!!!!!!!!!!!!!!!!!!!
+
 -- use server/utils/bootstrap-gm_db_system.py instead
 
 -- project: GNUMed
@@ -50,7 +53,7 @@ CREATE TRUSTED PROCEDURAL LANGUAGE 'plpython'
 -- ask user if and how to split information into multiple databases
 -- create geographic / demographic databases accordingly
 -- connect to them
--- run respective scripts gmgis.sql and gmidentity.sql
+-- run respective scripts gmidentity.sql and gmgis.sql
 -- connect to configuration database
 -- update information about geographic / demographic database
 -- ...
