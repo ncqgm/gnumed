@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -122,7 +122,11 @@ class ConnectionPool:
 			#<DEBUG>
 			_log.Log(gmLog.lData, "requesting RW connection to service [%s] for %s" % (service, user))
 			#</DEBUG>
-			return self.__pgconnect(logininfo)
+			try:
+				return self.__pgconnect(logininfo)
+			except:
+				_log.LogException("Cannot open RW connection to service [%s] for %s." % (service, user), sys.exc_info(), fatal=1)
+				return None
 		else:
 			logininfo = self.GetLoginInfoFor(service)
 			user = logininfo.GetUser()
@@ -629,7 +633,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.29  2003-01-05 09:58:19  ncq
+# Revision 1.30  2003-01-06 14:35:02  ncq
+# - fail gracefully on not being able to connect RW
+#
+# Revision 1.29  2003/01/05 09:58:19  ncq
 # - explicitely use service=default on empty Get/ReleaseConnection()
 #
 # Revision 1.28  2002/10/29 23:12:25  ncq
