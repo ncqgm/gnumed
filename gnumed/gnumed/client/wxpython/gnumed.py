@@ -50,7 +50,7 @@ License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.72 $"
+__version__ = "$Revision: 1.73 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
@@ -320,6 +320,7 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 	sys.exit(0)
 
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
+_log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
 setup_cfg_file()
 appPath = get_base_dir()
@@ -393,7 +394,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.72  2005-03-29 07:32:36  ncq
+# Revision 1.73  2005-03-30 22:10:39  ncq
+# - even more better logging ...
+#
+# Revision 1.72  2005/03/29 07:32:36  ncq
 # - add --unicode-gettext
 # - add setup_locale()
 #
