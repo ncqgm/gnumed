@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -738,12 +738,18 @@ class indexFrame(wxPanel):
 	def __valid_input(self):
 		# check whether values for date of record, record type, short comment and extended comment
 		# have been filled in
+
+		lboxlen = self.LBOX_doc_pages.GetCount()
 		date = self.TBOX_doc_date.GetLineText(0)
 		datechecklist = string.split(date, '-')
 		shortDescription = self.TBOX_desc_short.GetLineText(0)
 		docType = self.SelBOX_doc_type.GetSelection()
+
+		# count pages to index
+		if lboxlen == 0:
+			msg = _('number of pages: none ?\n\n forgot to load pages ? ')
 		# do some checking on the date
-		if date == _('please fill in'):
+		elif date == _('please fill in'):
 			msg = _('document date: missing')
 		elif len(date) != 10:
 			msg = _('document date: must be 10 characters long')
@@ -765,7 +771,7 @@ class indexFrame(wxPanel):
 			msg = _('document date: day must be 1 to 31')
 		elif shortDescription == _('please fill in') or shortDescription == '':
 			msg = _('You must type in a short document comment.')
-		elif docType == -1 or docType == 'please choose':
+		elif docType == -1 or docType == _('please choose'):
 			msg = _('You must select a document type.')
 		else:
 			return 1
@@ -913,7 +919,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.21  2002-12-02 03:28:16  ncq
+# Revision 1.22  2002-12-09 23:06:11  ncq
+# - test for loaded pages before saving document
+#
+# Revision 1.21  2002/12/02 03:28:16  ncq
 # - converted to sizers
 # - first provisions for plugin()ification
 #
