@@ -142,7 +142,7 @@ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/gnumed co gnumed
 			</row>
 			<row>
 				<entry>Mandrake</entry>
-				<entry>???</entry>
+				<entry>8.2 (2.4.18-6mdk kernel)</entry>
 				<entry><ulink url="http://www.mandrake.com">www.mandrake.com</ulink></entry>
 		  <entry>Yes</entry>
 			</row>
