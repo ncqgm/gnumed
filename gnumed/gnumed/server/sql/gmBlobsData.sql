@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.5 $ $Date: 2004-03-02 23:59:11 $ $Author: ihaywood $
+-- $Revision: 1.6 $ $Date: 2004-03-04 19:41:52 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -39,15 +39,20 @@ INSERT into doc_type(id, name) values(25, i18n('referral report neurosurgery'));
 INSERT into doc_type(id, name) values(26, i18n('patient photograph'));
 --INSERT into doc_type(id, name) values(, i18n(''));
 
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 -- your own doc types can only have ids between 100 and 200
+-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.5  2004-03-02 23:59:11  ihaywood
+-- Revision 1.6  2004-03-04 19:41:52  ncq
+-- - whitespace, comment
+--
+-- Revision 1.5  2004/03/02 23:59:11  ihaywood
 -- New document type 26: patient photograph
 --
 -- Revision 1.4  2003/07/20 09:39:25  ncq

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -49,7 +49,6 @@ insert into occupation (name) values ('cardio-thoracic surgeon');
 insert into occupation (name) values ('ENT surgeon');
 insert into occupation (name) values ('ophthalmologist');
 
-
 insert into occupation (name) values ('nurse');
 insert into occupation (name) values ('social worker');
 insert into occupation (name) values ('physiotherapist');
@@ -90,11 +89,14 @@ insert into enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o')
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics.au.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.10 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.9  2004-03-04 10:48:06  ncq
+-- Revision 1.10  2004-03-04 19:41:52  ncq
+-- - whitespace, comment
+--
+-- Revision 1.9  2004/03/04 10:48:06  ncq
 -- - don't hardcode primary keys for ext_id_types
 --
 -- Revision 1.8  2004/03/03 23:50:58  ihaywood
