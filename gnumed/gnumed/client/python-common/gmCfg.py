@@ -17,7 +17,7 @@ places:
 
 1) programmer supplied arguments
 2) user supplied command line (getopt style):	--conf-file=<a file name>
-3) user supplied aName_DIR environment variable (all uppercase)
+3) user supplied $aName_DIR environment variable (all uppercase)
 4) ~/.<aDir>/<aName>.conf
 5) ~/.<aName>.conf
 6) /etc/<aDir>/<aName>.conf
@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -587,74 +587,75 @@ class cCfgFile:
 	#----------------------------
 	def __get_conf_name(self, aDir = None, aName = None):
 		"""Try to construct a valid config file name.
+
 		Returns None if no valid name could be found, else TRUE(1).
 		"""
 		_log.Log(gmLog.lData, '(<aDir=%s>, <aName=%s>)' % (aDir, aName))
 		# 1) has the programmer manually specified a config file ?
-		if aName != None:
+		if aName is not None:
 			self.cfgName = os.path.abspath(aName)
 			if os.path.exists(self.cfgName):
-				_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+				_log.Log(gmLog.lData, 'config file [%s] (hardcoded)' % self.cfgName)
 				return 1
 			else:
-				_log.Log(gmLog.lWarn, 'config file [%s] not found' % self.cfgName)
-				if aDir != None:
+				_log.Log(gmLog.lWarn, 'hardcoded config file [%s] not found' % self.cfgName)
+				if aDir is not None:
 					self.cfgName = os.path.abspath(os.path.join(aDir, aName))
 					if os.path.exists(self.cfgName):
-						_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+						_log.Log(gmLog.lData, 'config file [%s] (hardcoded)' % self.cfgName)
 						return 1
 					else:
-						_log.Log(gmLog.lWarn, 'Config file [%s] not found. Aborting.' % self.cfgName)
+						_log.Log(gmLog.lWarn, 'hardcoded config file [%s] not found, aborting' % self.cfgName)
 						return None
 				else:
 					return None
+		#<DEBUG>
+		assert(aName is None)
+		#<DEBUG>
 
 		# 2) has the user manually supplied a config file on the command line ?
 		if gmCLI.has_arg('--conf-file'):
 			self.cfgName = gmCLI.arg['--conf-file']
-			_log.Log(gmLog.lData, '--conf-file=%s' % self.cfgName)
 			# file valid ?
 			if os.path.exists(self.cfgName):
-				_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+				_log.Log(gmLog.lData, 'found config file [--conf-file=%s]' % self.cfgName)
 				return 1
 			else:
-				_log.Log(gmLog.lErr, "Config file [%s] not found. Aborting." % self.cfgName)
+				_log.Log(gmLog.lErr, "config file [--conf-file=%s] not found, aborting" % self.cfgName)
 				return None
 		else:
 			_log.Log(gmLog.lData, "No config file given on command line. Format: --conf-file=<config file>")
 
 		# now make base path components
-		if aName is None:
-			# get base name from name of script
-			base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
-		else:
-			base_name = aName
-
+		# get base name (from name of script)
+		base_name = os.path.splitext(os.path.basename(sys.argv[0]))[0] + ".conf"
+		# get base dir
 		if aDir is None:
-			# get base dir from name of script
+			# from name of script
 			base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
 		else:
+			# or from path in arguments
 			base_dir = aDir
 
 		# 3) $(<script-name>_DIR)/base_name
 		env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
 		if os.environ.has_key(env_key):
-			_log.Log(gmLog.lInfo, "$(%s) = %s" % (env_key, os.environ[env_key]))
-			self.cfgName = os.path.abspath(os.path.expanduser(os.path.join(os.environ[env_key], base_name)))
+			env_key_val = os.environ[env_key]
+			self.cfgName = os.path.abspath(os.path.expanduser(os.path.join(env_key_val, 'etc', base_name)))
 			if os.path.exists(self.cfgName):
-				_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+				_log.Log(gmLog.lData, 'found config file [%s] via $%s = "%s"' % (self.cfgName, env_key, env_key_val))
 				return 1
 			else:
-				_log.Log(gmLog.lErr, "config file [%s] (in $%s) not found" % (self.cfgName, env_key))
+				_log.Log(gmLog.lWarn, 'config file [%s] not found via $%s = "%s"' % (self.cfgName, env_key, env_key_val))
 		else:
-			_log.Log(gmLog.lInfo, "$(%s) not set" % env_key)
+			_log.Log(gmLog.lInfo, "$%s not set" % env_key)
 
 		# 4) ~/.base_dir/base_name
 		self.cfgName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
-			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+			_log.Log(gmLog.lData, 'found config file [%s]' % self.cfgName)
 			return 1
 
 		# 5) ~/.base_name
@@ -662,7 +663,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
-			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+			_log.Log(gmLog.lData, 'found config file [%s]' % self.cfgName)
 			return 1
 
 		# 6) /etc/base_dir/base_name
@@ -670,7 +671,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
-			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+			_log.Log(gmLog.lData, 'found config file [%s]' % self.cfgName)
 			return 1
 
 		# 7) /etc/base_name
@@ -678,7 +679,7 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
-			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+			_log.Log(gmLog.lData, 'found config file [%s]' % self.cfgName)
 			return 1
 
 		# 8) ./base_name
@@ -687,12 +688,12 @@ class cCfgFile:
 		if not os.path.exists(self.cfgName):
 			_log.Log(gmLog.lWarn, "config file [%s] not found" % self.cfgName)
 		else:
-			_log.Log(gmLog.lData, 'Found config file [%s].' % self.cfgName)
+			_log.Log(gmLog.lData, 'found config file [%s]' % self.cfgName)
 			return 1
 
 		# we still don't have a valid config file name ?!?
 		# we can't help it
-		_log.Log(gmLog.lErr, "Cannot run without any configuration file.")
+		_log.Log(gmLog.lErr, "cannot find config file in any of the standard paths")
 		return None
 	#----------------------------
 	def __parse_conf_file(self):
@@ -973,7 +974,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.49  2003-06-03 21:52:23  hinnef
+# Revision 1.50  2003-06-17 22:21:53  ncq
+# - improve __get_conf_name()
+#
+# Revision 1.49  2003/06/03 21:52:23  hinnef
 # - fixed a bug in cfgSQL.set() when updating a value
 #
 # Revision 1.48  2003/05/12 09:12:48  ncq
