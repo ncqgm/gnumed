@@ -10,14 +10,12 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.27 2003-11-22 14:49:32 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.27 2003-11-22 14:49:32 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmPatientSelector.py,v 1.28 2004-02-04 00:55:02 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
-import sys, os.path, re, time, string
+import sys, os.path, time, string, re
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'python-common'))
 	sys.path.append(os.path.join('..', 'business'))
@@ -31,52 +29,6 @@ import gmPatient, gmDispatcher, gmSignals, gmPG, gmI18N, gmKVK, gmGuiHelpers
 from wxPython.wx import *
 
 ID_PatPickList = wxNewId()
-#============================================================
-def _sensitize(aName = None):
-	"""Make user input suitable for case-sensitive matching.
-
-	- this mostly applies to names
-	- it will be correct in "most" cases
-
-	- "beckert"  -> "Beckert"
-	- "mcburney" -> "Mcburney" (probably wrong but hard to be smart about it)
-	- "mcBurney" -> "McBurney" (try to preserve effort put in by the user)
-	- "McBurney" -> "McBurney"
-	"""
-	if aName is None:
-		return None
-	else:
-		return aName[:1].upper() + aName[1:]
-#------------------------------------------------------------
-def _normalize_soundalikes(aString = None, aggressive = 0):
-	if aString is None:
-		return None
-	elif len(aString) == 0:
-		return aString
-	else:
-		# umlauts
-		normalized =    aString.replace(u'Ä', u'(Ä|AE|Ae|E)')
-		normalized = normalized.replace(u'Ö', u'(Ö|OE|Oe)')
-		normalized = normalized.replace(u'Ü', u'(Ü|UE|Ue)')
-		normalized = normalized.replace(u'ä', u'(ä|ae|e)')
-		normalized = normalized.replace(u'ö', u'(ö|oe)')
-		normalized = normalized.replace(u'ü', u'(ü|ue|y)')
-		normalized = normalized.replace(u'ß', u'(ß|sz|ss)')
-		# common soundalikes
-		# - René, Desiré, ...
-		normalized = normalized.replace(u'é', u'(é|e)')
-		# FIXME: how to sanely replace t -> th ?
-		normalized = normalized.replace('Th', '(Th|T)')
-		normalized = normalized.replace('th', '(th|t)')
-		# FIXME: how to prevent replacing (f|v|ph) -> (f|(v|f|ph)|ph) ?
-		#normalized = normalized.replace('v','(v|f|ph)')
-		#normalized = normalized.replace('f','(f|v|ph)')
-		#normalized = normalized.replace('ph','(ph|f|v)')
-
-		if aggressive == 1:
-			pass
-			# some more here
-		return normalized
 #============================================================
 # country-specific functions
 #------------------------------------------------------------
@@ -95,7 +47,7 @@ def pat_expand_default(curs = None, ID_list = None):
 	# - current waiting time
 	# - presence
 	# - KVK indicator
-	# - has been in this Quartal
+	# - been here this Quartal
 	# ...
 	# Note: this query must ALWAYS return the ID in field 0
 	cmd = "SELECT i_id, n_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY') FROM v_basic_person WHERE i_id in (%s) and n_id in (%s)" % \
@@ -116,329 +68,6 @@ def pat_expand_default(curs = None, ID_list = None):
 patient_expander = {
 	'default': pat_expand_default,
 	'de': pat_expand_default
-}
-#============================================================
-# write your own query generator and add it here
-#------------------------------------------------------------
-# use compile() for speedup
-# must escape strings before use !!
-# ORDER BY !
-# FIXME: what about "< 40" ?
-
-def _make_simple_query(raw):
-	queries = {
-		1: [],
-		2: [],
-		3: []
-	}
-	# "<ZIFFERN>" - patient ID or DOB
-	if re.match("^(\s|\t)*\d+(\s|\t)*$", raw):
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp)
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw)
-		return queries
-
-	# "#<ZIFFERN>" - patient ID
-	if re.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		tmp = tmp.replace('#', '')
-		# this seemingly stupid query ensures the id actually exists
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp)
-		return queries
-
-	# "<Z I  FF ERN>" - DOB or patient ID
-	if re.match("^(\d|\s|\t)+$", raw):
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % raw)
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE i_id LIKE '%s%%'" % tmp)
-		return queries
-
-	# "<Z(.|/|-/ )I  FF ERN>" - DOB
-	if re.match("^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw):
-		tmp = raw.replace(' ', '')
-		tmp = tmp.replace('\t', '')
-		# apparently not needed due to PostgreSQL smarts...
-		#tmp = tmp.replace('-', '.')
-		#tmp = tmp.replace('/', '.')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp)
-		return queries
-
-	# "*|$<...>" - DOB
-	if re.match("^(\s|\t)*(\*|\$).+$", raw):
-		tmp = raw.replace('*', '')
-		tmp = tmp.replace('$', '')
-		queries[1].append("SELECT i_id, n_id FROM v_basic_person WHERE date_trunc('day', dob) LIKE (select timestamp '%s')" % tmp)
-		return queries
-
-	return None
-#------------------------------------------------------------
-def queries_de(raw = None):
-	if raw is None:
-		return []
-
-	# check to see if we get away with a simple query ...
-	queries = _make_simple_query(raw)
-	if queries is not None:
-		return queries
-
-	# no we don't
-	queries = []
-
-	# replace Umlauts
-	# (names of months do not contain Umlauts in German, so ...
-	# actually this should be done when needed so we can
-	# leave out raw[0] for the case-sensitive queries
-	no_umlauts = _normalize_soundalikes(raw)
-#	no_umlauts =        raw.replace('Ä', '(Ä|AE|Ae|E)')
-#	no_umlauts = no_umlauts.replace('Ö', '(Ö|OE|Oe)')
-#	no_umlauts = no_umlauts.replace('Ü', '(Ü|UE|Ue)')
-#	no_umlauts = no_umlauts.replace('ä', '(ä|ae|e)')
-#	no_umlauts = no_umlauts.replace('ö', '(ö|oe)')
-#	no_umlauts = no_umlauts.replace('ü', '(ü|ue|y)')
-#	no_umlauts = no_umlauts.replace('ß', '(ß|sz|ss)')
-	# René, Desiré, ...
-#	no_umlauts = no_umlauts.replace('é', '(é|e)')
-
-	# "<CHARS>" - single name part
-	# yes, I know, this is culture specific (did you read the docs ?)
-	if re.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", raw):
-		# there's no intermediate whitespace due to the regex
-		tmp = no_umlauts.strip()
-		# assumption: this is a last name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~ '^%s'" % _sensitize(tmp)])
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~* '^%s'" % tmp])
-		# assumption: this is a first name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s'" % _sensitize(tmp)])
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s'" % tmp])
-		# name parts anywhere in name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s'" % tmp])
-		return queries
-
-	# try to split on (major) part separators
-	parts_list = re.split(",|;", no_umlauts)
-
-	# only one "major" part ? (i.e. no ",;" ?)
-	if len(parts_list) == 1:
-		# re-split on whitespace
-		sub_parts_list = re.split("\s*|\t*", no_umlauts)
-
-		# parse into name/date parts
-		date_count = 0
-		name_parts = []
-		for part in sub_parts_list:
-			# any digit signifies a date
-			# FIXME: what about "<40" ?
-			if re.search("\d", part):
-				date_count = date_count + 1
-				date_part = part
-			else:
-				name_parts.append(part)
-
-		# exactly 2 words ?
-		if len(sub_parts_list) == 2:
-			# no date = "first last" or "last first"
-			if date_count == 0:
-				# assumption: first last
-				queries.append(
-					[
-					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]))
-					]
-				)
-				queries.append([
-					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[0], name_parts[1])
-				])
-				# assumption: last first
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s'" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]))
-				])
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s'" % (name_parts[1], name_parts[0])
-				])
-				# name parts anywhere in name - third order query ...
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s'" % (name_parts[0], name_parts[1])
-				])
-				return queries
-			# FIXME: either "name date" or "date date"
-			_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % raw)
-			return queries
-
-		# exactly 3 words ?
-		if len(sub_parts_list) == 3:
-			# special case: 3 words, exactly 1 of them a date, no ",;"
-			if date_count == 1:
-				# assumption: first, last, dob - first order
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]), date_part)
-				])
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
-				])
-				# assumption: last, first, dob - second order query
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]), date_part)
-				])
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[1], name_parts[0], date_part)
-				])
-				# name parts anywhere in name - third order query ...
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s' AND firstnames || lastnames ~* '%s' AND date_trunc('day', dob) LIKE (select timestamp '%s')" % (name_parts[0], name_parts[1], date_part)
-				])
-				return queries
-			# FIXME: "name name name" or "name date date"
-			_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % raw)
-			return queries
-
-		# FIXME: no ',;' but neither "name name" nor "name name date"
-		_log.Log(gmLog.lErr, "don't know how to generate queries for [%s]" % raw)
-		return queries
-
-	# more than one major part (separated by ';,')
-	else:
-		# parse into name and date parts
-		date_parts = []
-		name_parts = []
-		name_count = 0
-		for part in parts_list:
-			# any digits ?
-			if re.search("\d+", part):
-				# FIXME: parse out whitespace *not* adjacent to a *word*
-				date_parts.append(part)
-			else:
-				tmp = part.strip()
-				tmp = re.split("\s*|\t*", tmp)
-				name_count = name_count + len(tmp)
-				name_parts.append(tmp)
-
-		wheres = []
-		# first, handle name parts
-		# special case: "<date(s)>, <name> <name>, <date(s)>"
-		if (len(name_parts) == 1) and (name_count == 2):
-			# usually "first last"
-			wheres.append([
-				"firstnames ~ '^%s'" % _sensitize(name_parts[0][0]),
-				"lastnames ~ '^%s'"  % _sensitize(name_parts[0][1])
-			])
-			wheres.append([
-				"firstnames ~* '^%s'" % name_parts[0][0],
-				"lastnames ~* '^%s'" % name_parts[0][1]
-			])
-			# but sometimes "last first""
-			wheres.append([
-				"firstnames ~ '^%s'" % _sensitize(name_parts[0][1]),
-				"lastnames ~ '^%s'"  % _sensitize(name_parts[0][0])
-			])
-			wheres.append([
-				"firstnames ~* '^%s'" % name_parts[0][1],
-				"lastnames ~* '^%s'" % name_parts[0][0]
-			])
-			# or even substrings anywhere in name
-			wheres.append([
-				"firstnames || lastnames ~* '%s'" % name_parts[0][0],
-				"firstnames || lastnames ~* '%s'" % name_parts[0][1]
-			])
-
-		# special case: "<date(s)>, <name(s)>, <name(s)>, <date(s)>"
-		elif len(name_parts) == 2:
-			# usually "last, first"
-			wheres.append([
-				"firstnames ~ '^%s'" % string.join(map(_sensitize, name_parts[1]), ' '),
-				"lastnames ~ '^%s'"  % string.join(map(_sensitize, name_parts[0]), ' ')
-			])
-			wheres.append([
-				"firstnames ~* '^%s'" % string.join(name_parts[1], ' '),
-				"lastnames ~* '^%s'" % string.join(name_parts[0], ' ')
-			])
-			# but sometimes "first, last"
-			wheres.append([
-				"firstnames ~ '^%s'" % string.join(map(_sensitize, name_parts[0]), ' '),
-				"lastnames ~ '^%s'"  % string.join(map(_sensitize, name_parts[1]), ' ')
-			])
-			wheres.append([
-				"firstnames ~* '^%s'" % string.join(name_parts[0], ' '),
-				"lastnames ~* '^%s'" % string.join(name_parts[1], ' ')
-			])
-			# or even substrings anywhere in name
-			wheres.append([
-				"firstnames || lastnames ~* '%s'" % string.join(name_parts[0], ' '),
-				"firstnames || lastnames ~* '%s'" % string.join(name_parts[1], ' ')
-			])
-
-		# big trouble - arbitrary number of names
-		else:
-			# FIXME: deep magic, not sure of rationale ...
-			if len(name_parts) == 1:
-				for part in name_parts[0]:
-					wheres.append([
-						"firstnames || lastnames ~* '%s'" % part
-					])
-					wheres.append([
-						"firstnames || lastnames ~* '%s'" % part
-					])
-			else:
-				tmp = []
-				for part in name_parts:
-					tmp.append(string.join(part, ' '))
-				for part in tmp:
-					wheres.append([
-						"firstnames || lastnames ~* '%s'" % part
-					])
-					wheres.append([
-						"firstnames || lastnames ~* '%s'" % part
-					])
-
-		# secondly handle date parts
-		# FIXME: this needs a considerable smart-up !
-		if len(date_parts) == 1:
-			if len(wheres) > 0:
-				wheres[0].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
-			else:
-				wheres.append([
-					"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0]
-				])
-			if len(wheres) > 1:
-				wheres[1].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
-			else:
-				wheres.append([
-					"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0]
-				])
-		elif len(date_parts) > 1:
-			if len(wheres) > 0:
-				wheres[0].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
-				wheres[0].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1])
-			else:
-				wheres.append([
-					"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0],
-					"date_trunc('day', identity.deceased) LIKE (select timestamp '%s'" % date_parts[1]
-				])
-			if len(wheres) > 1:
-				wheres[1].append("date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0])
-				wheres[1].append("date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1])
-			else:
-				wheres.append([
-					"date_trunc('day', dob) LIKE (select timestamp '%s')" % date_parts[0],
-					"date_trunc('day', identity.deceased) LIKE (select timestamp '%s')" % date_parts[1]
-				])
-
-		# and finally generate the queries ...
-		for where_clause in wheres:
-			if len(where_clause) > 0:
-				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE %s" % string.join(where_clause, ' AND ')
-				])
-			else:
-				queries.append([])
-		return queries
-
-	return []
-#------------------------------------------------------------
-query_generator = {
-	'default': queries_de,
-	'de': queries_de
 }
 #============================================================
 class cPatientPickList(wxDialog):
@@ -585,7 +214,7 @@ class cPatientPickList(wxDialog):
 		self.szrMain.Fit(self)
 		self.szrMain.SetSizeHints(self)
 
-		#won't work on Windoze otherwise:
+		# won't work on Windoze otherwise:
 		self.listctrl.SetFocus()
 
 #============================================================
@@ -607,8 +236,17 @@ class cPatientSelector(wxTextCtrl):
 		)
 		selector_tooltip = _( \
 """Patient search field.                                   \n
-to search, type any of:\n - fragment of last or first name\n - date of birth (can start with '$' or '*')\n - patient ID (can start with '#')\nand hit <ENTER>
-<ALT-L> or <ALT-P>\n - list of *L*ast/*P*revious patients\n<ALT-K> or <ALT-C>\n - list of *K*VKs/*C*hipcards\n<CURSOR-UP>\n - recall most recently used search term
+to search, type any of:
+ - fragment of last or first name
+ - date of birth (can start with '$' or '*')
+ - patient ID (can start with '#')
+and hit <ENTER>
+<ALT-L> or <ALT-P>
+ - list of *L*ast/*P*revious patients
+<ALT-K> or <ALT-C>
+ - list of *K*VKs/*C*hipcards
+<CURSOR-UP>
+ - recall most recently used search term
 """)
 		self.SetToolTip(wxToolTip(selector_tooltip))
 
@@ -617,18 +255,9 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		# FIXME: is this necessary ?
 		self.parent = parent
 
-		# set locale dependant query handlers
-		# - generator
-		try:
-			self.generate_queries = query_generator[gmI18N.system_locale_level['full']]
-		except KeyError:
-			try:
-				self.generate_queries = query_generator[gmI18N.system_locale_level['country']]
-			except KeyError:
-				try:
-					self.generate_queries = query_generator[gmI18N.system_locale_level['language']]
-				except KeyError:
-					self.generate_queries = query_generator['default']
+		# FIXME: set query generator
+		self.pat_searcher = gmPatient.cPatientSearcher_SQL()
+
 		# - retriever
 		try:
 			self.pat_expander = patient_expander[gmI18N.system_locale_level['full']]
@@ -698,40 +327,6 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 				self.prev_pats.pop(0)
 	#--------------------------------------------------------
 	# utility methods
-	#--------------------------------------------------------
-	def _fetch_pat_ids(self, query_lists = None):
-		# anything to do ?
-		if query_lists is None:
-			_log.Log(gmLog.lErr, 'query tree empty')
-			return None
-		try:
-			if query_lists[0] == []:
-				_log.Log(gmLog.lWarn, 'query tree empty ?')
-				_log.Log(gmLog.lWarn, query_lists)
-				return None
-		except KeyError:
-			_log.Log(gmLog.lErr, 'query tree syntax wrong')
-			_log.Log(gmLog.lErr, query_lists)
-			return None
-
-		pat_ids = []
-
-		curs = self.conn.cursor()
-		for query_list in query_lists:
-			_log.Log(gmLog.lData, "running %s" % query_list)
-			# try all queries at this query level
-			for cmd in query_list:
-				if not gmPG.run_query(curs, cmd):
-					_log.Log(gmLog.lErr, 'cannot fetch patient IDs')
-				else:
-					rows = curs.fetchall()
-					pat_ids.extend(rows)
-			# if we got patients don't try more query levels
-			if len(pat_ids) > 0:
-				break
-		curs.close()
-
-		return pat_ids
 	#--------------------------------------------------------
 	def _display_name(self):
 		if self.curr_pat.is_connected():
@@ -829,14 +424,11 @@ to search, type any of:\n - fragment of last or first name\n - date of birth (ca
 		if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
 			self.prev_search_term = curr_search_term
 
-		# generate queries
-		queries = self.generate_queries(curr_search_term)
-
 		# get list of matching ids
 		start = time.time()
-		ids = self._fetch_pat_ids(queries)
+		ids = self.pat_searcher.get_patient_ids(curr_search_term)
 		duration = time.time() - start
-		print "%s patient IDs fetched in %3.3f seconds" % (len(ids), duration)
+		print "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration)
 
 		if ids is None or len(ids) == 0:
 			dlg = wxMessageDialog(
@@ -994,7 +586,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.27  2003-11-22 14:49:32  ncq
+# Revision 1.28  2004-02-04 00:55:02  ncq
+# - moved UI-independant patient searching code into business/gmPatient.py where it belongs
+#
+# Revision 1.27  2003/11/22 14:49:32  ncq
 # - fix typo
 #
 # Revision 1.26  2003/11/22 00:26:10  ihaywood
