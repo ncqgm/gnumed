@@ -8,11 +8,15 @@ to give phrasewheels the ability to guess phrases
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.1 2003-11-04 01:40:27 ihaywood Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmMatchProvider.py,v 1.2 2003-11-04 10:35:23 ihaywood Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
+import string, types, time, sys, re
+import gmPG, gmExceptions
 
+_true = (1==1)
+_false = (1==0)
 
 
 #------------------------------------------------------------
@@ -187,12 +191,6 @@ class cMatchProvider:
 		but used in context as is (i.e a constant context)
 		"""
 		self.__context[name] = val
-	#---------------------------------------------------------
-	def getCache (self):
-		"""
-		Return a faster version of this match provider
-		"""
-		return self
 #------------------------------------------------------------
 # usable instances
 #------------------------------------------------------------
@@ -404,8 +402,11 @@ class cMatchProvider_SQL(cMatchProvider):
 			# query
 			for context_var, condition in src['extra conditions'].iteritems ():
 				if self.__context.has_key (context_var) and self.__context[context_var]:
-					context_where += " and (%s)" self.condition
-					vars.append (self.__context[context_var]
+					context_where += " and (%s)"% self.condition
+					vars.append (self.__context[context_var])
+			if src['extra conditions'].has_key ('default'):
+				content_where += " and (%s)" % src['extra conditions']['default']
+				       
 
 			cmd = "select %s, %s from %s where %s %s %%s%s" % (
 				src_def['pk'],
@@ -437,9 +438,6 @@ class cMatchProvider_SQL(cMatchProvider):
 		if item1 == item2:
 			return 0
 		return 1
-	#-----------------------------------------------------------
-	def getCache (self):
-		return cMatch_Provider_FixedList (self.getAllMatches ())
 
 
 # FUTURE: a cMatchProvider_LDAP

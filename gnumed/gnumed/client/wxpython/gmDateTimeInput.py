@@ -7,8 +7,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.5 2003-10-06 17:49:40 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmDateTimeInput.py,v 1.6 2003-11-04 10:35:23 ihaywood Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, re, string
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 import gmLog
 _log = gmLog.gmDefLog
 
-import gmExceptions, gmPhraseWheel
+import gmExceptions, gmPhraseWheel, gmMatchProvider
 
 import mx.DateTime as mxDT
 
@@ -27,7 +27,7 @@ from wxPython.wx import *
 _true = (1==1)
 _false = not true
 #============================================================
-class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
+class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	def __init__(self):
 		self.__allow_past = None
 		self.__shifting_base = None
@@ -321,7 +321,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.5  2003-10-06 17:49:40  ncq
+# Revision 1.6  2003-11-04 10:35:23  ihaywood
+# match providers in gmDemographicRecord
+#
+# Revision 1.5  2003/10/06 17:49:40  ncq
 # - remove dependancy on gmI18N on standalone test run
 #
 # Revision 1.4  2003/10/02 20:51:12  ncq

@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.21 2003-11-04 01:40:27 ihaywood Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPhraseWheel.py,v 1.22 2003-11-04 10:35:23 ihaywood Exp $
+__version__ = "$Revision: 1.22 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -76,6 +76,7 @@ class cPhraseWheel (wxTextCtrl):
 			_log.Log(gmLog.lErr, "aMatchProvider must be a match provider object")
 			return None
 		self.__matcher = aMatchProvider
+		self.__real_matcher = None
 		self.__currMatches = []
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
@@ -133,7 +134,35 @@ class cPhraseWheel (wxTextCtrl):
 		return self.data
 	#--------------------------------------------------------
 	def setContext (self, context, val):
+		if self.__real_matcher:
+			# forget any caching, as it's now invalid
+			self.__matcher = self.__real_matcher
+			self.__real_matcher = None
 		self.__matcher.setContext (context, val)
+	#---------------------------------------------------------
+	def snap (self):
+		"""
+		This is called when the context is rich enough that
+		it is likely matching will return one or only
+		a few values. If there is only one value,
+		the phrasewheel will 'snap' to that value
+		"""
+		if self.__real_matcher:
+			# this should never happen, just in case
+			self.__matcher = self.__real_matcher
+			self.__real_matcher = None
+		matches = self.__matcher.getAllMatches ()
+		if len (matches) == 1:
+			self.data = matches[0]['data']
+			self.SetValue (matches[0]['label'])
+			for call in self.notify_caller:
+				# get data associated with selected item
+				call (self.data)
+			self.have_called = 1
+		if len (matches) > 1:
+			# cache these results
+			self.__real_matcher = self.__matcher
+			self.__matcher = gmMatchProvider.cMatchProvider_FixedList (matches)
 	#---------------------------------------------------------
 	def setNextFocus (self, focus):
 		"""
@@ -193,6 +222,7 @@ class cPhraseWheel (wxTextCtrl):
 		if matched:
 			for item in self.__currMatches:
 				self._picklist.Append(item['label'], clientData = item['data'])
+				
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
@@ -411,7 +441,7 @@ if __name__ == '__main__':
 			ww1 = cPhraseWheel(
 				parent = frame,
 				id = -1,
-				id_callback = clicked,
+				#id_callback = clicked,
 				pos = (50, 50),
 				size = (180, 30),
 				aMatchProvider = mp1
@@ -436,7 +466,7 @@ if __name__ == '__main__':
 				ww2 = cPhraseWheel(
 					parent = frame,
 					id = -1,
-					id_callback = clicked,
+					#id_callback = clicked,
 					pos = (50, 250),
 					size = (180, 30),
 					aMatchProvider = mp2
@@ -451,7 +481,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.21  2003-11-04 01:40:27  ihaywood
+# Revision 1.22  2003-11-04 10:35:23  ihaywood
+# match providers in gmDemographicRecord
+#
+# Revision 1.21  2003/11/04 01:40:27  ihaywood
 # match providers moved to python-common
 #
 # Revision 1.20  2003/10/26 11:27:10  ihaywood

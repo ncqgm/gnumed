@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.1 2003-11-03 23:59:55 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDemographicRecord.py,v 1.2 2003-11-04 10:35:22 ihaywood Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmClinicalRecord, gmI18N
+import gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider 
 
 # 3rd party
 import mx.DateTime
@@ -330,41 +330,63 @@ def getCommChannelTypes():
 		return None
 	return [row[0] for row in row_list]
 #----------------------------------------------------------------
-def GuessZipFromUrbStreet (urb = None, street = None):
-	"""Returns a list of valid postcodes given urb and street.
+class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
+	"""Returns a list of valid postcodes,
+	Accepts two contexts : "urb" and "street" being the **IDs** of urb and street
 	"""
-	if urb is None or len (urb) == 0:
-		return [] # cope with empty urb name
 
-	if street is None:
-		cmd = "select postcode from urb where name = %s"
-		data = gmPG.run_ro_query('personalia', cmd, None, urb)
-	else:
-		cmd = """
-select street.postcode
-from urb, street
-where
-	street.name = %s and
-	urb.name = %s and
-	street.id_urb = urb.id and
-	street.postcode is not null
-"""
-		data = gmPG.run_ro_query('personalia', cmd, None, street, urb)
-		if data is None or len(data) == 0:
-			# street.postcode full of NULLs (i.e. we are in the wrong jurisdiction
-			# for this type of search, client has called in error
-			cmd = "select postcode from urb where name = %s"
-			data = gmPG.run_ro_query('personalia', cmd, None, urb)
-
-	return data
+	def __init__ (self):
+		# we search two tables here, as in some jurisdictions (UK, Germany, US)
+		# postcodes are tied to streets or small groups of streets,
+		# and in others (Australia) postcodes refer to an entire town
+		source = [{
+			'column':'postcode',
+			'pk':'postcode',
+			'limit':10,
+			'table':'urb',
+			'extra conditions':{'urb':'id = %s', 'default':'postcode is not null'}
+			},
+			{
+			'column':'postcode',
+			'table':'street',
+			'limit':10,
+			'pk':'postcode',
+			'extra conditions':{'urb':'id_urb = %s', 'street': 'id = %s', 'default':'postcode is not null'}
+			}]
+		gmMatchProvider.cMatchProvider_SQL (self, source)
+			
 #----------------------------------------------------------------
-def GuessStreetFromZip(postcode = None):
-	"""Guess the street name based on the postcode.
+class StreetMP (gmMatchProvider.cMatchProvider_SQL):
+	"""Returns a list of streets
+	accepts "urb" and "postcode" contexts
 	"""
-	if postcode is None or len (postcode) == 0:
-		return [] # cope with empty postcode name
-	cmd = "select street from v_zip2street where postcode = %s"
-	return gmPG.run_ro_query('personalia', cmd, None, postcode)
+
+	def __init__ (self):
+		source = [{
+			'column':'street',
+			'pk':'id',
+			'limit':10,
+			'table':'street',
+			'extra conditions':{'urb': 'id_urb = %s', 'postcode':'postcode = %s or postcode is null'}
+			}]
+		gmMatchProvider.cMatchProvider_SQL (self, source)
+
+
+class UrbMP (gmMatchProvider.cMatchProvider_SQL):
+	"""Returns a list of streets
+	accepts "postcode" context
+	"""
+
+	def __init__ (self):
+		source = [{
+			'column':'name',
+			'pk':'id',
+			'limit':10,
+			'table':'urb',
+			'extra conditions':{'postcode':'(postcode = %s or postcode is null)'}
+			}]
+		gmMatchProvider.cMatchProvider_SQL (self, source)
+		
 #============================================================
 # callbacks
 #------------------------------------------------------------
@@ -396,7 +418,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.1  2003-11-03 23:59:55  ncq
+# Revision 1.2  2003-11-04 10:35:22  ihaywood
+# match providers in gmDemographicRecord
+#
+# Revision 1.1  2003/11/03 23:59:55  ncq
 # - renamed to avoid namespace pollution with plugin widget
 #
 # Revision 1.6  2003/10/31 23:21:20  ncq
