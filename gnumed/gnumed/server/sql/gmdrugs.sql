@@ -11,10 +11,13 @@
 --=====================================================================
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmdrugs.sql,v $
--- $Revision: 1.26 $ $Date: 2002-11-25 01:13:26 $ $Author: ihaywood $
+-- $Revision: 1.27 $ $Date: 2002-11-29 00:54:35 $ $Author: ihaywood $
 -- ============================================================
 -- $Log: gmdrugs.sql,v $
--- Revision 1.26  2002-11-25 01:13:26  ihaywood
+-- Revision 1.27  2002-11-29 00:54:35  ihaywood
+-- *** empty log message ***
+--
+-- Revision 1.26  2002/11/25 01:13:26  ihaywood
 -- table link_drug_indication resurrected
 --
 -- Revision 1.25  2002/11/23 13:31:41  ncq
@@ -598,7 +601,7 @@ comment on column subsidies.iso_countrycode is
 comment on column subsidies.name is
 'description of the subsidy (like PBS or RPBS in Australia)';
 
-insert into subsidies (iso_countrycode, name, comment) values ('AU', 'PBS', 'Pharmaceutical Benefits Schedule');
+insert into subsidies (iso_countrycode, name, comment) values ('au', 'PBS', 'Pharmaceutical Benefits Schedule');
 
 create table conditions (
 	id serial,
@@ -671,7 +674,7 @@ comment on column link_drug_indication.line is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.26 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmdrugs.sql,v $', '$Revision: 1.27 $')
 
 -- -----------------------------------------
 -- we need to be able to "lock" certain drugs from prescribing and such
