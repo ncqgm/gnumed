@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -128,7 +128,7 @@ class cCfgSQL:
 		curs = self.conn.cursor()
 
 		# retrieve option definition
-		if self.__run_query(curs, "select cfg_item.id, cfg_template.type from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
+		if gmPG.run_query(curs, "select cfg_item.id, cfg_template.type from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
 			curs.close()
 			return None
 
@@ -141,7 +141,7 @@ class cCfgSQL:
 
 		# retrieve values from appropriate table
 		cmd = "select value from cfg_%s where id_item=%%s limit 1;" % value_type
-		if self.__run_query(curs, cmd, item_id) is None:
+		if gmPG.run_query(curs, cmd, item_id) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -176,7 +176,7 @@ class cCfgSQL:
 
 		curs = self.conn.cursor()
 		# retrieve option definition
-		if self.__run_query(curs, "select cfg_item.id from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
+		if gmPG.run_query(curs, "select cfg_item.id from cfg_item, cfg_template where %s%s%s%s and cfg_template.id = cfg_item.id_template limit 1;" % (where_option, where_user, where_machine, where_cookie)) is None:
 			curs.close()
 			return None
 		result = curs.fetchone()
@@ -260,7 +260,7 @@ class cCfgSQL:
 		# get id of option template
 		curs = aRWConn.cursor()
 		cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
-		if self.__run_query(curs, cmd, option, data_type) is None:
+		if gmPG.run_query(curs, cmd, option, data_type) is None:
 			curs.close()
 			return None
 		# if not in database insert new option template
@@ -268,11 +268,11 @@ class cCfgSQL:
 		if result is None:
 			# insert new template
 			cmd = "insert into cfg_template (name, type) values ( %s , %s );"
-			if self.__run_query(curs, cmd, option, data_type) is None:
+			if gmPG.run_query(curs, cmd, option, data_type) is None:
 				curs.close()
 				return None
 			cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
-			if self.__run_query(curs, cmd, option, data_type) is None:
+			if gmPG.run_query(curs, cmd, option, data_type) is None:
 				curs.close()
 				return None
 			result = curs.fetchone()
@@ -282,12 +282,12 @@ class cCfgSQL:
 		if self.get(machine, user, cookie, option) is None:
 			# insert new option
 			# insert option instance
-			if self.__run_query(curs, "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value)) is None:
+			if gmPG.run_query(curs, "insert into cfg_item (id_template %s%s%s) values (%s%s%s%s)" % (owner_field, machine_field, cookie_field, template_id, owner_value, machine_value, cookie_value)) is None:
 				curs.close()
 				return None
 			# insert option value
 			cmd = "insert into cfg_%s (id_item, value)" % data_type + " values (currval('cfg_item_id_seq'), %s);"
-			if self.__run_query(curs, cmd, data_value) is None:
+			if gmPG.run_query(curs, cmd, data_value) is None:
 				curs.close()
 				return None
 		else:
@@ -299,7 +299,7 @@ class cCfgSQL:
 				return None
 			# update option instance
 			cmd = "update cfg_%s" % data_type + " set value=%s" + " where id_item='%s';" % (item_id)
-			if self.__run_query(curs, cmd, data_value ) is None:
+			if gmPG.run_query(curs, cmd, data_value ) is None:
 				curs.close()
 				return None
 
@@ -313,26 +313,31 @@ class cCfgSQL:
 		self.cache[cache_key] = value
 
 		return 1
-#-------------------------------------------
-	def getAllParams(self, user = None, machine = '__default__'):
+	#-------------------------------------------
+	def getAllParams(self, user = None, machine = cfg_DEFAULT):
 		"""Get names of all stored parameters for a given machine/(user)/cookie-key.
 		This will be used by the ConfigEditor object to create a parameter tree.
 		"""
-        
-		# if no machine given: any machine
-		where_machine = " and cfg_item.machine like '%s'" % gmPG.esc (machine)
+		where_args = []
+		# if no machine given: any machine (= cfg_DEFAULT)
+		where_machine = "cfg_item.machine like %s"
+		where_args.append(machine)
 
 		# if no user given: current db user
 		# but check for "_user", too, due to ro/rw conn interaction
 		if user is None:
-			where_user = " (cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
+			where_user = "(cfg_item.owner like CURRENT_USER or cfg_item.owner like '_' || CURRENT_USER)"
 		else:
-			where_user = "  cfg_item.owner like '%s'" % gmPG.esc(user)
+			where_user = "cfg_item.owner like %s"
+			where_args.append(user)
+
+		cmd =	"select name, cookie, owner, type, description "
+				"from cfg_template, cfg_item "
+				"where cfg_template.id = cfg_item.id_template and %s and %s" % (where_machine, where_user)
 
 		curs = self.conn.cursor()
-
         # retrieve option definition
-		if self.__run_query(curs, "select name,cookie,owner,type,description from cfg_template,cfg_item where %s%s and cfg_template.id = cfg_item.id_template;" % (where_user, where_machine)) is None:
+		if gmPG.run_query(curs, cmd, where_args) is None:
 			curs.close()
 			return None
 
@@ -351,20 +356,19 @@ class cCfgSQL:
 	def __make_key(self, machine, user, cookie, option):
 		return '%s-%s-%s-%s' % (machine, user, cookie, option)
 	#----------------------------
-	def __run_query(self, aCursor, aQuery, *args):
-		#_log.Log(gmLog.lData, "running >>>%s<<< " % aQuery)
-		try:
-			if len(args) == 0:
-				aCursor.execute(aQuery)
-			else:
-				aCursor.execute(aQuery, args)
-		except:
-			if len(args) == 0:
-				_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), verbose=0)
-			else:
-				_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose=0)
-			return None
-		return 1
+#	def __run_query(self, aCursor, aQuery, *args):
+#		try:
+#			if len(args) == 0:
+#				aCursor.execute(aQuery)
+#			else:
+#				aCursor.execute(aQuery, args)
+#		except:
+#			if len(args) == 0:
+#				_log.LogException("query >>>%s<<< failed" % aQuery, sys.exc_info(), verbose=0)
+#			else:
+#				_log.LogException("query >>>%s<<< (args: %s) failed" % (aQuery, args), sys.exc_info(), verbose=0)
+#			return None
+#		return 1
 #================================
 class cCfgFile:
 	"""Handle common INI-style config files.
@@ -558,17 +562,19 @@ class cCfgFile:
 				for line in self._cfg_data['comment']:
 					new_file.write("# %s\n" % line)
 				new_file.write("\n")
-
+		# loop over groups
 		for group in self._cfg_data['groups'].keys():
 			gdata = self._cfg_data['groups'][group]
+			# group level comment
 			if gdata.has_key('comment'):
 				if not gdata['comment'] == []:
 					for line in gdata['comment']:
 						new_file.write("# %s\n" % line)
-
 			new_file.write("[%s]\n" % group)
+			# loop over options for group
 			for opt in gdata['options'].keys():
 				odata = gdata['options'][opt]
+				# option level comment
 				if odata.has_key('comment'):
 					for line in odata['comment']:
 						new_file.write("# %s\n" % line)
@@ -982,7 +988,12 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.53  2003-06-26 21:29:58  ncq
+# Revision 1.54  2003-07-21 19:18:06  ncq
+# - use gmPG.run_query(), not home-brew
+# - kill gmPG.esc() use
+# - cleanup/comments
+#
+# Revision 1.53  2003/06/26 21:29:58  ncq
 # - (cmd, arg) style, fatal->verbose
 #
 # Revision 1.52  2003/06/26 04:18:40  ihaywood
