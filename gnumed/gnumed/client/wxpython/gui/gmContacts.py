@@ -8,13 +8,15 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.29 $"
+__version__ = "$Revision: 1.30 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
 from Gnumed.pycommon import gmLog
 from wxPython.wx import *
 import wx
+
+
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
@@ -402,16 +404,37 @@ class ContactsPanel(wxPanel):
 	  	self._isPersonIndex = {}
 	  	self._tmpPerson = {}
 	  	self._currentPerson = None
+		self._cutPerson = None
 
 		self._connectCutPaste()
 		
 		self._lastSelected = None # for internal cut and paste
+
+		self._lastItemIndex = 0
+		
+		self._connectDrag()
+		
 
 	def getLastSelected(self):
 		return self._lastSelected
 
 	def setLastSelected(self, obj):
 		self._lastSelected = obj
+
+
+	def _connectDrag(self):
+		EVT_LIST_BEGIN_DRAG(self.list_organisations, self.list_organisations.GetId(), self._doDrag)
+	
+	def _doDrag(self, event):
+		dragSource = wxDropSource(self)
+		text = self._getClipDragTextDataObject()
+		if text:
+			dragSource.SetData(text)
+			
+			result = dragSource.DoDragDrop(True)
+			if result == wxDragCopy: print "drag copy action"
+			elif result == wxDragMove: print "drag move action"
+		
 
 	def _connectCutPaste(self):
 		EVT_KEY_DOWN(self.list_organisations, self._checkForCutPaste)
@@ -425,6 +448,7 @@ class ContactsPanel(wxPanel):
 			if c == 88 : # ascii('x')
 				print "cut"
 				self._cutPerson = self.getLastSelected()
+				self._doCopyToClipboard() # experiment with wxClipboard
 			elif c == 86: # ascii('v')
 				print "paste"
 				self.doPaste()
@@ -438,14 +462,33 @@ class ContactsPanel(wxPanel):
 			self.getCurrent().linkPerson(p.getDemographicRecord())
 			p.setParent(self.getCurrent())
 
+			self.load_all_orgs()
+
 			self._cutPerson = None
 			self.setLastSelected(None)
 
-			self.load_all_orgs()
 
+	def _doCopyToClipboard(self):
+		
+		board = wxTheClipboard
+		if not board.Open():
+			print "unable to get ownership of clipboard yet."
+			return False
+		text = self._getClipDragTextDataObject()
+		if text:
+			board.SetData(text )
+		board.Close()
 
-				
-				
+	def _getClipDragTextDataObject(self):	
+		p = self.getLastSelected()
+		if p is None:
+			p = self.getCurrent()
+			if p is None:
+				#<DEBUG>
+				print "No current org or person to copy to clipboard"
+				#</DEBUG>
+				return None		
+		return wxTextDataObject( p.getHelper().getClipboardText(p) )
 
        	def _connect_list(self):
 	  """allow list selection to update the org edit area"""
@@ -467,9 +510,9 @@ class ContactsPanel(wxPanel):
        	  f = self.input_fields
 	  vals = [ f[n].GetValue() for n in ['street', 'urb', 'postcode'] ]
 	  # split the street value into 2 parts, number and street. ? Have a separate number field instead.
-	  vals = [ vals[0].split(' ')[0] , ' '.join( vals[0].split(' ')[1:] ) ] + vals[1:] + [None,None]
+	  addr = [ vals[0].split(' ')[0] , ' '.join( vals[0].split(' ')[1:] ) ] + vals[1:] + [None,None]
 	  # [None, None] is state and country at the moment
-	  return vals
+	  return addr 
 
        	def get_org_values(self):
 	  """returns a dictionary of the widget controls contents"""
@@ -487,6 +530,7 @@ class ContactsPanel(wxPanel):
 			return
 	  	x = self.list_organisations.GetItemCount()
 	  	self._insert_org_data( x, key, data)
+		
 	  	if showPersons:
 		  	m = org.getPersonMap(reload=False)
 			# create _isPersonIndex, which maps a row index to
@@ -551,12 +595,11 @@ class ContactsPanel(wxPanel):
 		  return None, None 
 
 
-	  a = org.getAddress()
 	  o = org.get()
 
-	  address_str = " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')])
 	  
 	  phone_fax = '/fax '.join([ o.get('phone', '') , o.get('fax', '')]  )
+	  address_str = org.getHelper().getAddressStr(org)
 
 	  # display for person
 	  if org.getHelper().isPerson(org):
@@ -567,10 +610,9 @@ class ContactsPanel(wxPanel):
 		return key, [o['name'], '', address_str,  o['category'], phone_fax]
 
 	  # display  branch, department , division
-	  return key, ["", ' '.join([o.get('name',''), o.get('subtype','')]), address_str, o.get('email',''), phone_fax]
+	  return key, ["", ' '.join([o.get('name',''), o.get('subtype','')]),address_str, o.get('email',''), phone_fax]
 			 
 
-      
       
        	def _insert_org_data(self, n, key, data): 	  
 	  self.list_organisations.InsertStringItem(n, data[0])
@@ -579,6 +621,7 @@ class ContactsPanel(wxPanel):
 	  self.list_organisations.SetStringItem(n, 3, data[3])
 	  self.list_organisations.SetStringItem(n, 4, data[4])
 	  self.list_organisations.SetItemData(n, key)
+
 
        	def _update_org_data( self, n, key, data):
 	  l = self.list_organisations
@@ -590,8 +633,9 @@ class ContactsPanel(wxPanel):
        	def load_all_orgs(self):
 	  """clears the list control, displays the example data, and then 
 	  the real data, from _helper.findAllOrganizations() """
+	  #pos = self.list_organisations.GetScrollPos(wxVERTICAL)
 	  self.list_organisations.DeleteAllItems()
-	  self._insert_example_data()
+	  #self._insert_example_data()   , removing this as it is confusing
 	  if self._isPersonIndex <> {}:
 		  self._tmpPerson = {}
 		  for person  in self._isPersonIndex.values():
@@ -601,6 +645,39 @@ class ContactsPanel(wxPanel):
 	  orgs = self.getOrgHelper().findAllOrganizations()
 	  for org in orgs:
 		  self.add_org(org)
+		
+	  #self.list_organisations.SetScrollPos(wxVERTICAL, pos)
+	  #self.list_organisations.Refresh()
+	  self._ensureCurrentVisible()
+	  
+	def _ensureCurrentVisible(self):
+	  l = self.list_organisations
+	  person = self._currentPerson or self._cutPerson
+	  print "person ", person, "self._cutPerson", self._cutPerson
+
+  	  if person:
+		  key = person.getId()
+		  for i, p in self._isPersonIndex.items():
+			  if p.getId() == person.getId():
+				  break
+	  elif self.getCurrent() is None:
+			  return
+	  else:
+		
+	  	c = l.GetItemCount()
+		key = self.getCurrent().getId()
+		i , nexti = 0, -1
+		while  nexti <> i and (i < l.GetItemCount()  or self._isPersonIndex.has_key(i)):
+			i = nexti
+			nexti = l.FindItemData(i, key)
+			
+			#print i
+
+	  for j in xrange(0, 2):	  
+		  if i + 1 < l.GetItemCount():
+			  i += 1
+
+	  l.EnsureVisible(i)
 	 
        	def _insert_example_data(self):
 	  items = organisationsdata.items()
@@ -773,11 +850,15 @@ class ContactsPanel(wxPanel):
 		o = self.get_org_values()
 		a = self.get_address_values()
 		org.set(*[],**o)
+		#<DEBUG>
+		print "setting address with ", a
+		#</DEBUG>
 		org.setAddress(*a)
 		
 		isNew = org.getId() is None
 		org.save()
 		self.load_all_orgs()
+
 		#if isNew:
 		#	self.add_org(org)
 		#else:
@@ -931,7 +1012,16 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.29  2004-06-01 07:18:36  ncq
+# Revision 1.30  2004-06-01 15:11:59  sjtan
+#
+# cut ctrl-x and paste ctrl-v, works through clipboard, so can paste name/address info onto
+# text editors (oowriter, kwrite tried out). Drag and drop doesn't work to outside apps.
+# List displays at last updated position after load_all_orgs() called. removed
+# old display data listing on list org display button press, because cutting and pasting
+# persons to these items loses  persons. Only saves top-level orgs if there is a valid
+# category value in category field.
+#
+# Revision 1.29  2004/06/01 07:18:36  ncq
 # - simple Mac fix
 #
 # Revision 1.28  2004/05/31 14:24:19  sjtan

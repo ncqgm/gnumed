@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog,  gmI18N, gmBorg
 
@@ -167,6 +167,13 @@ class cOrgHelper:
 	def isPerson(self, org):
 		return False
 
+	def setXMLClipboardFormat(self):
+		pass
+
+	def setLineSeparatedClipboardFormat(self):
+		pass
+		
+
 
 
 class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
@@ -175,6 +182,50 @@ class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
 		gmBorg.cBorg.__init__(self)
 		cOrgHelper.__init__(self)
 		self._cache = {}
+		self.setLineSeparatedClipboardFormat()
+	
+
+	def setLineSeparatedClipboardFormat(self):
+		self._clipboardFormat = "%(name)s,\n%(address_str)s,\nphone:%(phone)s,\nfax:%(fax)s\nemail: %(email)s\nref:%(orgtype)s/%(id)d\n"
+	
+	def setXMLClipboardFormat(self):
+		self._clipboardFormat = """
+<%(orgtype)s id='%(id)d'> 
+	<name>%(name)s</name>
+	<address>%(address_str)s</address>
+	<phone>%(phone)s</phone>
+	<fax>%(fax)s</fax>
+	<email>%(email)s</email>
+</(orgtype)s>
+			"""
+
+	def getClipboardText(self, org):
+		
+	 	d = { 	'name':	org['name'],
+			'address_str': self.getAddressStr(org),
+			'phone'	: org['phone'],
+			'fax'	: org['fax'],
+			'email' : org['email'],
+			'id': org.getId()
+			}
+		if self.isPerson(org):
+			d['orgtype'] = 'person'
+			
+		elif org.getParent() <> None:
+			d['orgtype'] = 'org'
+			d['name'] = ' '.join( [ org['name'], org['subtype'], ',',org.getParent()['name'] ] )
+		else:
+			d['orgtype'] = 'org'
+
+		# find a non-blank address
+		o = org
+		while o.getParent() <> None and  self.getAddressStr(o).strip() == '':
+				d['address_str'] = self.getAddressStr(o.getParent() )
+				o = o.getParent()	
+
+		str = self._clipboardFormat % d
+		
+		return str
 
 	def cacheContains(self,id):
 		return self._cache.has_key(id)
@@ -267,6 +318,9 @@ class cOrgHelperImpl1(gmBorg.cBorg, cOrgHelper):
 		return cOrgImpl1()
 
 		
+	def getAddressStr(self, org):
+		a = org.getAddress()
+	 	return  " ".join( [a.get('number','').strip(), a.get('street','').strip(), a.get('urb','').strip(), a.get('postcode','')])
 
 
 
@@ -955,7 +1009,9 @@ class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 		}
 		for k in d.keys():
 			d[k] = s[k]
-			print 'data ', k, ' has been set to ', d[k]
+			#<DEBUG>
+			#print 'data ', k, ' has been set to ', d[k]
+			#</DEBUG>
 			
 		
 	
@@ -972,12 +1028,17 @@ class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 
 			
 		for k in s.keys():
-			d = s[k]
+			d[k] = s[k]
+		#<DEBUG>	
+		#print "self._address is now ", self._address
+		#</DEBUG>
 
 	def getAddress(self):
 		m = {}
 		m.update(self._address)
 		return m
+
+		
 
 	def __setitem__(self, k, v):
 		d = self._data
@@ -1017,10 +1078,23 @@ class cOrgDemographicAdapter(cOrg, _cPersonMarker):
 
 		address = r.getAddresses( addressTypes[workAddressType], firstonly=1)
 		a = self._address
-		if not len(address):
+		#<DEBUG>
+		print "got back address from demographic record", address
+		#</DEBUG>
+		if address is None:
 			return 
-		for k in ['number', 'street', 'urb', 'postcode']:
-			a[k] = address[0].get(k, '')
+
+		fields = ['number', 'street', 'urb', 'postcode']
+		if type(address) is type([]) and len(address) >0:
+			if type(address[0]) is type({}):
+				address = address[0]
+			elif type(address[0]) is type(''):
+				a = dict ( [(k,v) for k,v in zip( fields, address) ] )
+				return
+
+		for k in fields:
+			if  type(address) is type({}):
+				a[k] = address.get(k, '')
 		
 
 	def save(self):
@@ -1890,7 +1964,16 @@ if __name__ == '__main__':
 			clean_org_categories(adminlogin)
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.26  2004-06-01 07:15:05  ncq
+# Revision 1.27  2004-06-01 15:11:56  sjtan
+#
+# cut ctrl-x and paste ctrl-v, works through clipboard, so can paste name/address info onto
+# text editors (oowriter, kwrite tried out). Drag and drop doesn't work to outside apps.
+# List displays at last updated position after load_all_orgs() called. removed
+# old display data listing on list org display button press, because cutting and pasting
+# persons to these items loses  persons. Only saves top-level orgs if there is a valid
+# category value in category field.
+#
+# Revision 1.26  2004/06/01 07:15:05  ncq
 # - made cPerson into "private" class _cPersonMarker (as per the comment)
 #   such that never ever even the slighest confusion will arise whether to
 #   use that "class" or the cPerson in gmPatient.py
