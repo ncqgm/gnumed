@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.4 2003-02-09 23:38:21 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmTmpPatient.py,v 1.5 2003-02-11 13:03:44 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -199,11 +199,13 @@ def _patient_selected(**kwargs):
 	global gmDefPatient
 	if not gmDefPatient is None:
 		gmDefPatient.commit()
-	gmDefPatient = None
 	try:
-		gmDefPatient = gmPatient(aPKey = kwargs['kwds']['ID'])
+		tmp = gmPatient(aPKey = kwargs['kwds']['ID'])
 	except:
-		_log.LogException('Cannot change to patient [%s].' % str(kwargs), sys.exc_info())
+		_log.Log(gmLog.lPanic, str(kwargs))
+		_log.LogException('Cannot change to patient [%s].' % kwargs['kwds']['ID'], sys.exc_info(), fatal=1)
+		return None
+	gmDefPatient = tmp
 #============================================================
 if __name__ == "__main__":
 	while 1:
@@ -220,7 +222,10 @@ else:
 	gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.4  2003-02-09 23:38:21  ncq
+# Revision 1.5  2003-02-11 13:03:44  ncq
+# - don't change patient on patient not found ...
+#
+# Revision 1.4  2003/02/09 23:38:21  ncq
 # - now actually listens patient selectors, commits old patient and
 #   inits the new one if possible
 #
