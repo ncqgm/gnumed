@@ -70,20 +70,25 @@ class BackendListener:
 			print "LISTEN command failed"
 		
 			
+			
 if __name__ == "__main__":
 
 	def OnPatientSelected():
 		sys.stdout.flush()
 		print "\nBacked says: patient has been selected"
+			
 	print "this demo will self-terminate in approx. 30 secs."
-	print "you can't stop it with Ctrl-C!"		
+	print "or you can try to stop it with Ctrl-C!"		
 	listener = BackendListener(database='gnumed', user='hherb', password='')
 	print "Now fire up psql in a new shell, and type 'notify patient_changed'"
-	listener.RegisterForFeedback('patient_changed', OnPatientSelected)
-	counter = 0
-	while counter<30:
-		counter += 1
-		time.sleep(1)
-		sys.stdout.flush()
-		print '.',
-	listener.Stop()
+	try:
+		listener.RegisterForFeedback('patient_changed', OnPatientSelected)
+		counter = 0
+		while counter<30:
+			counter += 1
+			time.sleep(1)
+			sys.stdout.flush()
+			print '.',
+		listener.Stop()
+	except KeyboardInterrupt:
+		listener.Stop()
