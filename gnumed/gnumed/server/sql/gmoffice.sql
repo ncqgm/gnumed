@@ -5,7 +5,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.5 $ $Date: 2004-03-10 15:45:15 $ $Author: ncq $
+-- $Revision: 1.6 $ $Date: 2004-03-23 22:43:46 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -76,7 +76,7 @@ comment on column form_queue.status is
 -- updatable views.
 
 create table schedule (
-	id serial,
+	id serial primary key,
 	code varchar (20),
 	name varchar (100),
 	min_duration integer,
@@ -84,7 +84,7 @@ create table schedule (
 );
 
 create table billing_scheme (
-	id serial,
+	id serial primary key,
 	name varchar (100),
 	iso_countrycode char (2)
 );
@@ -102,7 +102,7 @@ comment on column prices.bulkbill is
 	'the amount billed directly (bulk-billed) to the payor';
 
 create table accounts (
-	id serial,
+	id serial primary key,
 	name varchar (50),
 	extra integer
 );
@@ -143,11 +143,14 @@ TO GROUP "_gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.6 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.5  2004-03-10 15:45:15  ncq
+-- Revision 1.6  2004-03-23 22:43:46  ncq
+-- - 7.4 is stricter about FKs having to point to unique references
+--
+-- Revision 1.5  2004/03/10 15:45:15  ncq
 -- - grants on form tables
 --
 -- Revision 1.4  2004/03/10 00:08:31  ncq
