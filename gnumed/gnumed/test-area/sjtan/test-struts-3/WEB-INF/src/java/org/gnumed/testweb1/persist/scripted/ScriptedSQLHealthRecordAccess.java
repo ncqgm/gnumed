@@ -42,6 +42,8 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     
     static double MATCHED_WORDCOUNT_THRESHHOLD = 0.7;
     
+    static long SAME_EPISODE_INTERVAL =  5 * 1000; // 5 seconds
+    
     static Log log= LogFactory.getLog(ScriptedSQLHealthRecordAccess.class);
     
     /** Creates a new instance of ScriptedSQLHealthRecordAccess */
@@ -432,7 +434,9 @@ HealthRecordAccess01, DataSourceUsing, DataObjectFactoryUsing  {
     
     
     private boolean isSameEpisode( ClinicalEpisode e1, ClinicalEpisode e2) {
-        return Algorithms.isCharMatchedInWords(e1.getDescription(), e2.getDescription(), WORD_THRESHOLD, MATCHED_WORDCOUNT_THRESHHOLD);
+        
+        return Algorithms.isCharMatchedInWords(e1.getDescription(), e2.getDescription(), WORD_THRESHOLD, MATCHED_WORDCOUNT_THRESHHOLD)
+        && java.lang.Math.abs(e1.getModified_when().getTime() - e2.getModified_when().getTime()) < SAME_EPISODE_INTERVAL;
     }
     
     

@@ -11,11 +11,7 @@
 
     <LINK   TYPE="text/css" REL="stylesheet" href="./style.css" title="Style"/>    
  
-</head>
-
-
-   
-
+</head> 
 <body>
 
     <table width='100%'> 
@@ -41,32 +37,38 @@
             </td>
         </tr>
     </table>
-    <table >
+     <hr/>
+    <jsp:include page="./intraLinksClinicalEdit.jsp"/> 
+    <table width='100%'>
         <tr>
             <td>
-            <table width='50%'>
+            <table>
             <tr>
             <td  valign='top' > 
-                <jsp:include page="/pages/clinicalEntry.jsp"/>
+                <tiles:insert name="leftTop"/>
             </td>
         </tr>
             <tr>
                 <td >
-                    <jsp:include page="/pages/pastNotes.jsp"/> 
+                  <tiles:insert name="leftBottom"/>
   
                 </td>
             </tr>
         </table>   
        
         <td valign='top' width='40%'> 
-            <jsp:include page="/pages/clinSummary.jsp"/> 
+        <table>
+        <tr><td>
+           <tiles:insert name="rightTop"/>
+        </td></tr>
+         <tr><td>
+           <tiles:insert name="rightBottom"/>
+        </td></tr>
+        </table>
         </td>
         
         </tr>
-    </table>
-        
-    <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>
-    <%-- <jsp:getProperty name="beanInstanceName"  property="propertyName" /> --%>
+    </table> 
       
        
 </body>

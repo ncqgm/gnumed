@@ -42,7 +42,7 @@
             <put name="content" value="/pages/demographicEntry.jsp" type="page"/>
         </definition>
       
-        <definition name="clinicalentry" page="/pages/main_2.jsp">
+        <definition name="clinicalentry_old" page="/pages/main_2.jsp">
              
         </definition>
       
@@ -54,6 +54,32 @@
         <definition name="testlinknames" extends="template">
         <put name="content" value="/TestListNames.do" type="page"/>
         </definition>
+        
+        <definition name="encounter" page="/pages/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/encounter.jsp" type="page"/>
+         </definition>
+         
+           <definition name="clinSummary" page="/pages/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/clinSummary.jsp" type="page"/>
+         </definition>
+         
+            <definition name="pastNotes" page="/pages/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/pastNotes.jsp" type="page"/>
+         </definition>
+         
+           <definition name="episodeList" page="/pages/intraLinkedClinical.jsp">
+         <put name="content" value="/pages/episodeList.jsp" type="page"/>
+         </definition>
+         
+         <definition name="clinicalentry" page="/pages/main_2tiles.jsp">
+         <put name="leftTop" value="encounter" />
+            <put name="leftBottom" value="pastNotes" />
+         <put name="rightTop" value="clinSummary" />
+         <put name="rightBottom" value="episodeList" />
+         </definition>
+         
+                  
+         
         
           
 <!--

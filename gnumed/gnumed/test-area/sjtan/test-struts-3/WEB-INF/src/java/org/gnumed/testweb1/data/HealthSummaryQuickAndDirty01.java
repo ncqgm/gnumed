@@ -45,22 +45,37 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
         identityId =  patientId;
         try {
             
-            allergys = getResults(allergyRS);
-            healthIssues = getResults(healthIssuesRS);
-            episodes = getResults(episodesRS);
+            allergys = getListOfDynaBeansFromResultSet(allergyRS);
             
-            medications = getResults(medicationsRS);
-            narratives= getResults(narrativeRS);
-            lab_requests = getResults(lab_requestRS);
-            test_results = getResults(test_resultRS);
-            referrals = getResults(referralRS);
-            vaccinations = getVaccinations(vaccinationsRS, vaccines);
-            encounters = getResults(encountersRS);
+            healthIssues = getListOfDynaBeansFromResultSet(healthIssuesRS);
             constructHealthIssues();
+            
+            episodes = getListOfDynaBeansFromResultSet(episodesRS);
+            
+            medications = getListOfDynaBeansFromResultSet(medicationsRS);
+            
+            narratives= getListOfDynaBeansFromResultSet(narrativeRS);
+            
+            lab_requests = getListOfDynaBeansFromResultSet(lab_requestRS);
+            
+            test_results = getListOfDynaBeansFromResultSet(test_resultRS);
+            
+            referrals = getListOfDynaBeansFromResultSet(referralRS);
+            
+            vaccinations = getVaccinations(vaccinationsRS, vaccines);
+            
+            encounters = getListOfDynaBeansFromResultSet(encountersRS);
+            
+            
+            
             constructEpisodes();
+            
             constructEncounters();
+            
             constructNarratives();
+            
             sortEncounterRootItems();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -183,9 +198,9 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     throws NoSuchMethodException,  IllegalAccessException , java.lang.reflect.InvocationTargetException {
         Long id_e =new Long( ((Integer)dynaRootItem.get("fk_encounter")).longValue());
         Long id_episode = new Long( ((Integer)dynaRootItem.get("fk_episode")).longValue());
+        
         rootItem.setEncounter((ClinicalEncounter)emap.get( id_e ));
         rootItem.setEpisode((ClinicalEpisode)mapEpisodes.get(id_episode) );
-        
         // set the clinical encounter object to contain the specific type of root item
         PropertyUtils.setIndexedProperty(rootItem.getEncounter(), childName, index, rootItem);
         
@@ -250,9 +265,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     /** gets a List of Dynabeans from a result set.
      *  this is from the example in the Apache documentation
      */
-    private List getResults(ResultSet rs) throws IllegalAccessException,
-    java.sql.SQLException, InstantiationException,
-    java.lang.reflect.InvocationTargetException  , java.lang.NoSuchMethodException{
+    private List getListOfDynaBeansFromResultSet(ResultSet rs) throws IllegalAccessException, java.sql.SQLException, InstantiationException, java.lang.reflect.InvocationTargetException, java.lang.NoSuchMethodException{
         ArrayList results = new ArrayList(); // To hold copied list
         ResultSetDynaClass rsdc = new ResultSetDynaClass(rs);
         DynaProperty properties[] = rsdc.getDynaProperties();
@@ -275,7 +288,7 @@ public class HealthSummaryQuickAndDirty01 implements HealthSummary01 {
     /*
     private void loadAllergies() {
         allergyRS.beforeFirst();
-        allergys = getResults(allergyRS);
+        allergys = getListOfDynaBeansFromResultSet(allergyRS);
     }
      
     private Allergy loadAllergy() {

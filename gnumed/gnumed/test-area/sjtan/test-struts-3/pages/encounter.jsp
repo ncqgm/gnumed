@@ -5,15 +5,15 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-bean" prefix="bean"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic"%>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-nested" prefix="nested"%>
-<%@taglib uri="../WEB-INF/lib/struts-html-el.tld" prefix='el'%>
+<%@taglib uri="http://jakarta.apache.org/struts/tags-html-el" prefix='html-el'%>
 <%--  See vaccination regarding indexed properties for <logic:iterate>
  1. need a indexed getter method on the bean.  2. the id attribute of logic:iterate must
 be the name of the property targetted by the getter
 e.g. getNarrative(index) ...  id='narrative'
 --%>
-
+<%--
 <jsp:include page="./createContextPath.jsp"/>
-    
+    --%>
 <h3> <bean:message key="encounter.entry.title"/> </h3>
     <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>
     <%-- <jsp:getProperty name="beanInstanceName"  property="propertyName" /> --%>
@@ -23,7 +23,7 @@ e.g. getNarrative(index) ...  id='narrative'
         
     </div>
     
-    
+    <a name="encounterTop"/>
     
     <jsp:include page="./patient_detail_block.jsp"/>
     
@@ -92,7 +92,7 @@ e.g. getNarrative(index) ...  id='narrative'
                  <logic:greaterThan name="index" value="0">
                     link previous episode
                     
-                    <el:checkbox  name="narrative" property="linkedToPreviousEpisode" indexed="true" 
+                    <html-el:checkbox  name="narrative" property="linkedToPreviousEpisode" indexed="true" 
                      onchange="if (this.checked) { 
                             document.getElementById('healthIssueInput${index}').style.display='none';
                             
@@ -215,7 +215,21 @@ onchange=""
                     
                     </td>
                     
-                    <td><sub><a href='<%=request.getAttribute("contextPath")%>#submitEncounter'>to submit</a></sub></td>
+                    <td><sub>
+                   <html:link anchor='submitEncounter' action='ClinicalEdit.do' paramId="id" paramName="clinicalUpdateForm"
+        paramProperty="patientId" > to submit </html:link>
+                   <%--
+                    <a href='<%=request.getAttribute("contextPath")%>#submitEncounter'>
+                     to submit
+                     
+                    </a>
+                    --%>
+                    <%--
+                    <logic:redirect anchor="submitEncounter" page="encounter.jsp" >
+                    to submit
+                    </logic:redirect>
+                  --%>
+                    </sub></td>
                    
                         </tr>
                 </table>

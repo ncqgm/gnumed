@@ -7,8 +7,10 @@
 <%@taglib uri="http://jakarta.apache.org/struts/tags-bean-el" prefix="bean-el"%>
  
   <bean:define id="identityId" name="healthRecord" property="healthSummary.identityId" />
-    <%String contextPath=org.apache.struts.util.RequestUtils.serverURL(request)+"/"
-        +request.getContextPath()+"/"+"ClinicalEdit.do?id="+identityId.toString();
+    <%String contextPath=org.apache.struts.util.RequestUtils.serverURL(request)+
+        request.getContextPath()+
+        "/ClinicalEdit.do"+
+        "?id="+identityId.toString();
         request.setAttribute("contextPath", contextPath); %>
     
 <%-- <jsp:useBean id="beanInstanceName" scope="session" class="beanPackage.BeanClassName" /> --%>

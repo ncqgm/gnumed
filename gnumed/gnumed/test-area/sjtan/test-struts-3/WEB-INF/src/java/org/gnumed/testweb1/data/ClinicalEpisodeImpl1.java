@@ -14,7 +14,7 @@ public class ClinicalEpisodeImpl1 implements ClinicalEpisode{
     private String description;
     private HealthIssue hi;
     private Long id;
-    private java.util.Date modified_when;
+    private java.util.Date modified_when = new java.util.Date();
     
     private java.util.List rootItems = new java.util.ArrayList();
     

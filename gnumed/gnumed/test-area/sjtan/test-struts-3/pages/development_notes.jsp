@@ -49,31 +49,31 @@
     <li><h6>running a web app in tomcat </h6>
         <ol>
         <li>
-            tomcat should run fairly easily after downloading a binary, as long
-            as java sdk is present and its bin directory accessible via PATH environment variable.
-            change to bin directory, and do ./catalina.sh start , or ./catalina.sh debug, followed by run.
-            When in ./catalina.debug, exit will exit the debugging and stop tomcat.
+        tomcat should run fairly easily after downloading a binary, as long
+        as java sdk is present and its bin directory accessible via PATH environment variable.
+        change to bin directory, and do ./catalina.sh start , or ./catalina.sh debug, followed by run.
+        When in ./catalina.debug, exit will exit the debugging and stop tomcat.
             
-        </li>
-        <li>
-            drop a webapp.war file, e.g. struts-example.war into the tomcat-home/webapps directory,
-            and tomcat should start it up.
-        </li>
-        <li>
-            edit tomcat-home/conf/tomcat-users.xml file, to set a user with a password who has
-            the role admin, and manager. This allows one to login  from the tomcat home page
-            to admin, or manager. manager app allows a webapp to be manually stopped, or removed, or restarted.
+    </li>
+    <li>
+        drop a webapp.war file, e.g. struts-example.war into the tomcat-home/webapps directory,
+        and tomcat should start it up.
+    </li>
+    <li>
+        edit tomcat-home/conf/tomcat-users.xml file, to set a user with a password who has
+        the role admin, and manager. This allows one to login  from the tomcat home page
+        to admin, or manager. manager app allows a webapp to be manually stopped, or removed, or restarted.
             
-        </li>
-        <li>
-            there is one easily available java ide that provides a apache tomcat server that will run web apps from any
-           project directory . It also provides a management interface for the tomcat server.
+    </li>
+    <li>
+        there is one easily available java ide that provides a apache tomcat server that will run web apps from any
+        project directory . It also provides a management interface for the tomcat server.
            
-        </li>
-        </ol>
+    </li>
+    </ol>
     </ol>
     
-     </li>
+    </li>
     
     <li> <h6>Struts</h6> is a web application framework. It defines a fairly regid way of
     organising a web app , so that a person can move from one Struts application to another
@@ -82,12 +82,12 @@
     <li><a name='struts-action-execute'/>
     In struts, the method is an Action's execute method, <a href="#struts-action-execute">description</a>
     which receives parameters : 
-        <ul>
+    <ul>
         <li> request </li>
         <li> mapping</li>
         <li>form</li> and 
         <li>response</li>
-        </ul> . 
+    </ul> . 
     <p>The <b>request</b> attribute commonly is used to read or write variables to the client.</p>
     <p>request represents a request scope context, and request.getSession() represents a session context.</p>
     <p> request.getSession().getSessionContext() isn't very interesting, but request.getSession().getServletContext() 
@@ -128,7 +128,7 @@
     should give a path to the page relative to the applications base directory e.g. /pages/apage.jsp
     </li>
           
-        </ul>
+    </ul>
     </li>
         
     
@@ -148,13 +148,13 @@
     </li>
     <li> <b>struts-config.xml</b>
         specifies 
-    <ol>
+        <ol>
         <li><b>form bean mappings</b>, either to config file specified "dyna" forms,
             or to user java subclassed ActionForm classes, which behave more dynamically and
             deal with non-simple form properties ( collections etc).
         </li>
         <li>
-        <p>
+            <p>
             <b>action mappings</b> which define the path of success/failure between pages; 
             usually there will be a mapping for page setup (e.g. xxxEditAction),
             and one for page processing (e.g. xxSaveAction).
@@ -166,42 +166,42 @@
             is to use 'attribute' for enty actions (before form construction), 
             and 'name' for exit actions (after the form is submitted).</p>
             <p>action mappings may have an internal forward mapping, which can specify
-             a path for the next web page, or a tiles definition which constructs the
-             next web page ( see  tiles-def.xml below).</p>
-             <p>
-             <code>
-             <p>
-            &lt;action </p>
+            a path for the next web page, or a tiles definition which constructs the
+            next web page ( see  tiles-def.xml below).</p>
             <p>
+                <code>
+                <p>
+                &lt;action </p>
+                <p>
                 path="/DemographicEdit"
-             </p>
-             <p>
+            </p>
+                <p>
                 type="org.gnumed.testweb1.actions.DemographicEditAction"
-             </p>
-             <p>
+                </p>
+                <p>
                 attribute="demographicForm"
                 </p>
-             <p>
+                <p>
                 scope="request"
-             &gt;  </p>
+                &gt;  </p>
                 <p>
                 &lt;forward name="successLoadForEdit" path="demoentry"/ &gt;
                 </p>
-             <p>&lt;/action&gt;</p>
+                <p>&lt;/action&gt;</p>
        
-             </code>
-             </p>
+            </code>
+            </p>
         </li>
         <li>
-            <b>resource mapping </b> for internationalizable property files,
-         </li>
-        <li> <b>plugin mappings </b> for specifying PlugIn subclasses, which will 
+        <b>resource mapping </b> for internationalizable property files,
+    </li>
+    <li> <b>plugin mappings </b> for specifying PlugIn subclasses, which will 
     have there own configuration parameters, and will be loaded for the application as application services
     e.g. persistence, object implementation factories, validation, login .
-        </li>
-         <li> other configuration items include  <b>global forwards</b> and <b> global exceptions</b>
+    </li>
+    <li> other configuration items include  <b>global forwards</b> and <b> global exceptions</b>
         for defining common pages and error pages.
-        </li>
+    </li>
     </ol>
     </li>
     <li> <b>tiles-config.xml </b> <a name='#tiles-def'/>
@@ -265,7 +265,7 @@
         </p>
         </li>
         <li><p> The following is not essential: </p>
-            <small>
+        <small>
             <p>a form is  passed back as the form parameter in the action execute method,
             that handles form posting. e.g. in actions/xxxSaveForm.java
             </p>
@@ -308,8 +308,8 @@
         <li>In the jsp file using the form within a &lt html:form / &gt tag , have a onsubmit attribute in html:form start-tag i.e. 
         <p><code> &lt html:form formName="myForm" onsubmit="return validateMyForm(this);" </code></p>
         <p> The validateMyForm is usually for validated forms, and will be generated by DynaValidatorForm definitions,
-        from a form validation definition  in validation.xml.
-         </p>
+            from a form validation definition  in validation.xml.
+        </p>
         </li>
         <li> In validation.xml , create a default formset ( no language or country start-tag attribute). Add the form entry
         for the created form. The entry should list an entry for every field that is validated.
@@ -338,7 +338,30 @@
             from the jsp page's &lt script &gt  declaration and see if it works. 
         </li>
     </ol>
+    </li>
+    
+    <li> <b>INTRA PAGE LINKS </b> this wasn't working using a manual request context path attribute
+    because there was an extra slash after the url:port// , inadvertently added.
+    The solution is to use html:link action='ClinicalEdit.do' anchor='ClinicalSummary' 
+    for anchors.  The evolution was: 
+    <ol><li>used user constructed contextPath request attribute. The problem with this was
+    that an extra slash was put after getServerlURL() , which made the first use of a intralink
+    access the page again, and losing any previous entered data ( this would happen only for the
+    first time the intralink was used). <i>
+The extra slash makes the browser reload the page.
+    </i>    
+    </li>
+        <li>used struts el to allow re-writing of anchors within iteration loops.
+        </li>
+        <li> used html:link with action attribute , and paramId for 'id' parameter,
+        and drop the  hyperlink a html tag and href using contextPath.
+        This always gives the right url and looks more like clean struts code.
 </li>
+    </ol>
+                
+    </li>
+    
+    </li>
     </ol>
 </body>
 </html>

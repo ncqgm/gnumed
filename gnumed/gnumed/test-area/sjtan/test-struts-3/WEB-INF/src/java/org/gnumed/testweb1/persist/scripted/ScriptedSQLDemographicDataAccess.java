@@ -41,15 +41,22 @@ public class ScriptedSQLDemographicDataAccess implements DemographicDataAccess, 
     DemographicDetail fragment)
     throws DataSourceException{
         checkDataSourceExists();
-        
+        Connection conn = null;
         try {
             DataSource src = getDataSource();
-            Connection conn = src.getConnection();
-            return this.demographicDetailSQL.findByExample(conn, fragment);
+            conn = src.getConnection();
+            DemographicDetail[] details = this.demographicDetailSQL.findByExample(conn, fragment);
+            return details;
         } catch (SQLException sqle) {
             log.error(sqle + ":" + sqle.getLocalizedMessage());
             
             throw new DataSourceException(sqle);
+        } finally {
+            try {
+                conn.close();
+            }catch (Exception e) {
+               log.error(e ); 
+            }
         }
         
     }

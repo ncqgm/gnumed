@@ -11,6 +11,7 @@ package org.gnumed.testweb1.data;
  * @author  sjtan
  */
 public class ClinRootItemImpl1 implements ClinRootItem {
+     
     java.util.Date clin_when = new java.util.Date();
     ClinicalEpisode episode;
     ClinicalEncounter clinicalEncounter;
