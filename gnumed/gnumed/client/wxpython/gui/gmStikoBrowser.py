@@ -16,18 +16,19 @@
 #
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmStikoBrowser.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __license__ = "GPL"
-__author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
+__author__ =    "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 import sys, os, os.path
 
 from   wxPython.wx         import *
 from   wxPython.html       import *
 import wxPython.lib.wxpTag
-import gmGuiBroker, gmPlugin, gmLog
+from Gnumed.pycommon import gmGuiBroker, gmLog
+from Gnumed.wxpython import gmPlugin
 
 stiko_path = os.path.join("doc", "medical_knowledge", "de", "STIKO", "STI_NEU.htm")
 
@@ -151,102 +152,105 @@ class gmStikoBrowser (gmPlugin.wxNotebookPlugin):
         return StikoHtmlPanel (parent, self.gb['main.frame'])
 
     def DoToolbar (self, tb, widget):
-		tool1 = tb.AddTool(
-			ID_STIKOCONTENTS,
-			images_for_gnumed_browser16_16.getcontentsBitmap(),
-			shortHelpString=_("Table of Content"),
-			isToggle=true
-		)
-		EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
+        tool1 = tb.AddTool(
+            ID_STIKOCONTENTS,
+            images_for_gnumed_browser16_16.getcontentsBitmap(),
+            shortHelpString=_("Table of Content"),
+            isToggle=true
+        )
+        EVT_TOOL (tb, ID_STIKOCONTENTS, widget.OnShowDefault)
 
-		tool1 = tb.AddTool(
-			ID_STIKOOPENFILE, 
-			images_for_gnumed_browser16_16.getfileopenBitmap(),
-			shortHelpString=_("Open File"),
-			isToggle=true
-		)
-		EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
+        tool1 = tb.AddTool(
+            ID_STIKOOPENFILE, 
+            images_for_gnumed_browser16_16.getfileopenBitmap(),
+            shortHelpString=_("Open File"),
+            isToggle=true
+        )
+        EVT_TOOL (tb, ID_STIKOOPENFILE, widget.OnLoadFile)
 
-		tool1 = tb.AddTool(
-			ID_STIKOBACK, 
-			images_for_gnumed_browser16_16.get1leftarrowBitmap(),
-			shortHelpString=_("Back"),
-			isToggle=false
-		)
-		EVT_TOOL (tb, ID_STIKOBACK, widget.OnBack)
+        tool1 = tb.AddTool(
+            ID_STIKOBACK, 
+            images_for_gnumed_browser16_16.get1leftarrowBitmap(),
+            shortHelpString=_("Back"),
+            isToggle=false
+        )
+        EVT_TOOL (tb, ID_STIKOBACK, widget.OnBack)
 
-		tool1 = tb.AddTool(
-			ID_STIKOFORWARD, 
-			images_for_gnumed_browser16_16.get1rightarrowBitmap(),
-			shortHelpString=_("Forward"),
-			isToggle=true
-		)
-		EVT_TOOL (tb, ID_STIKOFORWARD, widget.OnForward)
+        tool1 = tb.AddTool(
+            ID_STIKOFORWARD, 
+            images_for_gnumed_browser16_16.get1rightarrowBitmap(),
+            shortHelpString=_("Forward"),
+            isToggle=true
+        )
+        EVT_TOOL (tb, ID_STIKOFORWARD, widget.OnForward)
 
-		tool1 = tb.AddTool(
-			ID_STIKORELOAD, 
-			images_for_gnumed_browser16_16.getreloadBitmap(),	
-			shortHelpString=_("Reload"),
-			isToggle=true
-		)
+        tool1 = tb.AddTool(
+            ID_STIKORELOAD, 
+            images_for_gnumed_browser16_16.getreloadBitmap(),   
+            shortHelpString=_("Reload"),
+            isToggle=true
+        )
 
-		tb.AddSeparator()
+        tb.AddSeparator()
 
-		tool1 = tb.AddTool(
-			ID_STIKOHOME,
-			images_for_gnumed_browser16_16.getgohomeBitmap(),	
-			shortHelpString=_("Home"),
-			isToggle=true
-		)
-		EVT_TOOL (tb, ID_STIKOHOME, widget.OnShowDefault)
+        tool1 = tb.AddTool(
+            ID_STIKOHOME,
+            images_for_gnumed_browser16_16.getgohomeBitmap(),   
+            shortHelpString=_("Home"),
+            isToggle=true
+        )
+        EVT_TOOL (tb, ID_STIKOHOME, widget.OnShowDefault)
 
-		tb.AddSeparator()
+        tb.AddSeparator()
 
-		tool1 = tb.AddTool(
-			ID_STIKOBABELFISH, 
-			images_for_gnumed_browser16_16.getbabelfishBitmap(),
-			shortHelpString=_("Translate text"), 
-			isToggle=false
-		)
-		#EVT_TOOL (tb, ID_STIKOBABELFISH, widget.OnBabelFish )
-		
-		tb.AddSeparator()
+        tool1 = tb.AddTool(
+            ID_STIKOBABELFISH, 
+            images_for_gnumed_browser16_16.getbabelfishBitmap(),
+            shortHelpString=_("Translate text"), 
+            isToggle=false
+        )
+        #EVT_TOOL (tb, ID_STIKOBABELFISH, widget.OnBabelFish )
+        
+        tb.AddSeparator()
 
-		tool1 = tb.AddTool(
-			ID_STIKOBOOKMARKS, 
-			images_for_gnumed_browser16_16.getbookmarkBitmap(),
-			shortHelpString=_("Bookmarks"), 
-			isToggle=true
-		)
-		#EVT_TOOL (tb, ID_STIKOBOOKMARKS, widget.OnBookmarks)
+        tool1 = tb.AddTool(
+            ID_STIKOBOOKMARKS, 
+            images_for_gnumed_browser16_16.getbookmarkBitmap(),
+            shortHelpString=_("Bookmarks"), 
+            isToggle=true
+        )
+        #EVT_TOOL (tb, ID_STIKOBOOKMARKS, widget.OnBookmarks)
 
-		tool1 = tb.AddTool(
-			ID_STIKOADDBOOKMARK, 
-			images_for_gnumed_browser16_16.getbookmark_addBitmap(),
-			shortHelpString=_("Add Bookmark"), 
-			isToggle=true
-		)
-		#EVT_TOOL (tb, ID_STIKOADDBOOKMARK, widget.OnAddBookmark)
+        tool1 = tb.AddTool(
+            ID_STIKOADDBOOKMARK, 
+            images_for_gnumed_browser16_16.getbookmark_addBitmap(),
+            shortHelpString=_("Add Bookmark"), 
+            isToggle=true
+        )
+        #EVT_TOOL (tb, ID_STIKOADDBOOKMARK, widget.OnAddBookmark)
 
-		tool1 = tb.AddTool(
-			ID_VIEWSOURCE, 
-			images_for_gnumed_browser16_16.getviewsourceBitmap(),
-			shortHelpString=_("View Source"), 
-			isToggle=true
-		)
-		EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
+        tool1 = tb.AddTool(
+            ID_VIEWSOURCE, 
+            images_for_gnumed_browser16_16.getviewsourceBitmap(),
+            shortHelpString=_("View Source"), 
+            isToggle=true
+        )
+        EVT_TOOL (tb, ID_VIEWSOURCE, widget.OnViewSource)
 
-		tool1 = tb.AddTool(
-			ID_STIKOPRINTER, 
-			images_for_gnumed_browser16_16.getprinterBitmap(),
-			shortHelpString=_("Print Page"), 
-			isToggle=true
-		)
-		EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
+        tool1 = tb.AddTool(
+            ID_STIKOPRINTER, 
+            images_for_gnumed_browser16_16.getprinterBitmap(),
+            shortHelpString=_("Print Page"), 
+            isToggle=true
+        )
+        EVT_TOOL (tb, ID_STIKOPRINTER, widget.OnPrint)
 
 #======================================================
 # $Log: gmStikoBrowser.py,v $
-# Revision 1.5  2003-11-17 10:56:41  sjtan
+# Revision 1.6  2004-03-08 23:17:29  shilbert
+# - adapt to new API from Gnumed.foo import bar
+#
+# Revision 1.5  2003/11/17 10:56:41  sjtan
 #
 # synced and commiting.
 #
