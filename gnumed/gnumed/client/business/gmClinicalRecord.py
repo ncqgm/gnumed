@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.65 2004-01-24 17:07:46 ncq Exp $
-__version__ = "$Revision: 1.65 $"
+# $Id: gmClinicalRecord.py,v 1.66 2004-01-26 21:48:48 ncq Exp $
+__version__ = "$Revision: 1.66 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -711,7 +711,7 @@ class gmClinicalRecord:
 			select distinct on (indication)
 				indication,
 				_(indication)
-			from v_patient_vacc4ind
+			from v_pat_vacc4ind
 			where pk_patient=%s"""
 		rows = gmPG.run_ro_query('historica', cmd, 0, self.id_patient)
 		if rows is None:
@@ -755,7 +755,7 @@ class gmClinicalRecord:
 					narrative,
 					pk_provider,
 					pk_vaccine
-				from  v_patient_vacc4ind
+				from  v_pat_vacc4ind
 				where pk_patient = %s
 				order by date desc"""
 			rows, self.__db_cache['idx vaccinations'] = gmPG.run_ro_query('historica', cmd, 1, self.id_patient)
@@ -1217,7 +1217,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.65  2004-01-24 17:07:46  ncq
+# Revision 1.66  2004-01-26 21:48:48  ncq
+# - v_patient_vacc4ind -> v_pat_vacc4ind
+#
+# Revision 1.65  2004/01/24 17:07:46  ncq
 # - fix insertion into xlnk_identity
 #
 # Revision 1.64  2004/01/21 16:52:02  ncq
