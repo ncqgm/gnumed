@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.10 2003-07-27 21:57:34 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.11 2003-08-13 14:31:29 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -121,12 +121,62 @@ insert into drug_routes(description, abbreviation) values('intrathecal', 'i.th.'
 insert into enum_immunities (name) values ('tetanus');
 
 -- ===================================================================
+-- measurements stuff
+-- your own practice as a test-providing org
+insert into test_org (id, id_org, comment) values (
+	1, -1, 'your own practice'
+);
+
+-- measurement definitions
+-- weight
+insert into test_type (
+	id, id_provider, code, coding_system, name, comment, basic_unit
+) values (
+	1, 1, i18n('wght'), null, i18n('weight (body mass)'), i18n('the patient''s weight (body mass to be accurate)'), 'kg'
+);
+-- template
+insert into test_type (
+	id, id_provider, code, coding_system, name, comment, basic_unit
+) values (
+	2, 1, i18n('hght'), null, i18n('height'), i18n('lying in infants, else standing, see result notes'), 'm'
+);
+-- blood pressure
+-- manually/by device, sitting/lying/standing, Riva-Rocci vs. other methods handled in result specifics
+insert into test_type (
+	id, id_provider, code, coding_system, name, comment, basic_unit
+) values (
+	3, 1, i18n('RR'), null, i18n('blood pressure'), i18n('specifics attached to result record'), 'Pa'
+);
+-- pulse
+insert into test_type (
+	id, id_provider, code, coding_system, name, comment, basic_unit
+) values (
+	4, 1, i18n('pulse'), null, i18n('pulse, periph.art.'), i18n('peripheral arterial pulse'), 'Hz'
+);
+-- peripheral arterial oxygenation
+insert into test_type (
+	id, id_provider, code, coding_system, name, comment, basic_unit
+) values (
+	5, 1, i18n('SpO2'), null, i18n('blood oxygen saturation'), i18n('peripheral arterial blood oxygenization level, transduced'), '%'
+);
+/*
+-- template
+insert into test_type (
+	id, id_provider, code, coding_system, name, comment, basic_unit
+) values (
+	'missing', 1, i18n(''), null, i18n(''), i18n(''), ''
+);
+*/
+-- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.10  2003-07-27 21:57:34  ncq
+-- Revision 1.11  2003-08-13 14:31:29  ncq
+-- - add some test tyes
+--
+-- Revision 1.10  2003/07/27 21:57:34  ncq
 -- - comment out *semantic* type of coding system ... (what was that intended for anyways?)
 --
 -- Revision 1.9  2003/05/12 12:43:39  ncq
