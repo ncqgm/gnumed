@@ -146,10 +146,9 @@ class Psql:
 								curs = self.conn.cursor ()
 								curs.execute (self.cmd)
 								self.conn.commit ()
-								#gmLog.gmDefLog.Log (gmLog.lData, self.cmd)
+								_log.Log (gmLog.lData, self.cmd)
 								curs.close ()
 							except StandardError, error:
-								_log.LogException('>>>%s<<< failed' % self.cmd, sys.exc_info(), verbose=0)
 								if re.match (r"^NOTICE:.*", str(error)):
 									_log.Log (gmLog.lWarn, self.fmt_msg(error))
 								else:
