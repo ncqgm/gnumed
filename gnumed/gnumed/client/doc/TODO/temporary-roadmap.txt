@@ -1,7 +1,7 @@
 GnuMed temporary roadmap
 ========================
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/TODO/Attic/temporary-roadmap.txt,v $
-$Revision: 1.6 $
+$Revision: 1.7 $
 -----------------------------------------------------------------
 This is the temporary roadmap. Please always include the
 URL to this document when discussing items on the list:
@@ -35,10 +35,14 @@ referrals handling
 maintainer:
 hackers:
  - accompanying referral letter
-   - AbiWord IMHO for letters that need a little writing
-   - quick-pick lists+LaTeX+text editor for "rapid-letter" referrals
+   - use wxWindows-internal styled text editing widget
+     - reText ?
+	 - StyledTextCtrl ?
+	 - Scintilla ?
+   - FUTURE: AbiWord IMHO for letters that need a little writing
+   - DISCUSS LATER: quick-pick lists+LaTeX+text editor for "rapid-letter" referrals
  - referral form (Germany)
-   - uses common forms engine with prescription
+   - either common forms engine with prescription or hard-coded via EditArea
    - optional
 
 ------------
@@ -77,8 +81,8 @@ hackers: Hilmar Berger
  - PBS via drugref.org via XML-RPC, initially
  - AMIS (German) to follow
 
----------
-OPTIONAL:
+========================
+OPTIONAL (post-release):
 --------------------
 progress notes input
 --------------------
@@ -141,13 +145,47 @@ hackers: Karsten Hilbert,
  - optional: AU pathology request codes: <URL>
  - future: LOINC/LDT
 
+--------
+contacts
+--------
+maintainer:
+hackers:
+
+Have an XML-RPC server "contacts". This server spans possibly
+several sources: a) The service "administration" which includes
+the practice's configuration, eg. the practices contacts
+database. This is the schema we control and use for
+efficient/rapid selection. b) The service "reference". This
+will contain reference data for those countries where "official"
+contacts data is distributed on CD or by download (eg. in
+Germany). We also control this schema but it is also more
+closely modelled to the reference source data layout. Of
+course, there would be facilities to say something like "move
+all cardiologists in the SF bay area into the practice contact
+database" (eg filling the local contacts from the reference
+source) - this may go as far as making their *content*
+identical (but not necessarily their layout). c) Access to
+online, remote, official repositories (these are most likely
+going to be LDAP or PKI key server type things).
+
+Again, the server "contacts" would encapsulate this into one
+API. When the user hits "widen search" it adds the reference
+data sources to the match scope. Any selected contact will be
+transferred from the reference source to the local contacts
+repository automatically (the abovementioned scripts "move all
+of ... into the local repository" will still be there for bulk
+transfers/updates).
+
 -----------------------------------------------------------------
 Old German first-off roadmap is here:
  (http://mail.gnu.org/archive/html/gnumed-devel/2003-06/msg00045.html)
 
 -----------------------------------------------------------------
 $Log: temporary-roadmap.txt,v $
-Revision 1.6  2003-07-29 07:23:27  ncq
+Revision 1.7  2003-07-30 23:13:40  ncq
+- added post-release "contacts" TODO
+
+Revision 1.6  2003/07/29 07:23:27  ncq
 - reordered, Hilmar claimed items
 
 Revision 1.5  2003/07/29 06:07:31  ncq
