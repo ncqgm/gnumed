@@ -220,7 +220,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 		return "id_clin_history"
 	
 	def create_history(self, (fields, formatting, values)  ):
-		"""update via impl, the real business object, then save the editarea specific fields"""
+	    """update via impl, the real business object, then save the editarea specific fields"""
    	    conn = self._backend.GetConnection('historica', readonly = 0)
 	    try:
 		id = self.impl._create_history(conn, fields, formatting, values )
@@ -234,7 +234,7 @@ class gmPHxEditAreaDecorator(gmEditAreaFacade):
 
 		
 	def update_history( self, (fields, formatting, values), ix ):
-		"""update via impl, the real business object, then save the editarea specific fields"""
+	    """update via impl, the real business object, then save the editarea specific fields"""
    	    conn = self._backend.GetConnection('historica', readonly = 0)
 	    try:
 		    self.impl._update_history( conn, fields, formatting, values, ix )	
