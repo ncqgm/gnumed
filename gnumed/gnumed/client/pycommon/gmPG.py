@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -745,8 +745,8 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 		# something seems odd
 		if curs.description is not None:
 			if curs.rowcount > 0:
-				_log.Log(gmLog.lWarn, 'there seem to be rows but fetchall() failed -- DB API violation ?')
-				_log.Log(gmLog.lWarn, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
+				_log.Log(gmLog.lData, 'there seem to be rows but fetchall() failed -- DB API violation ?')
+				_log.Log(gmLog.lData, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
 
 	# clean up
 	commit()
@@ -946,7 +946,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.18 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.19 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1174,7 +1174,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.18  2004-05-06 23:26:09  ncq
+# Revision 1.19  2004-05-13 00:00:54  ncq
+# - deescalate apparent DB API violation to lData as it seems very common and harmless
+#
+# Revision 1.18  2004/05/06 23:26:09  ncq
 # - cleanup _setup_default_ro_conns()
 #
 # Revision 1.17  2004/04/28 03:25:01  ihaywood
