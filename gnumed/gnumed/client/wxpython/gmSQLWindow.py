@@ -160,6 +160,11 @@ class SQLWindow(wxPanel):
 			self.choiceService.Append(service)
 
 
+	def RunQuery(self):
+		service = self.choiceService.GetStringSelection()
+		querystr = self.comboQueryInput.GetValue()
+		self.listQueryResults.SetQueryStr(querystr, service)
+		self.listQueryResults.RunQuery()
 
 	def OnChangeService(self, event):
 		self.ListTables()
@@ -172,17 +177,14 @@ class SQLWindow(wxPanel):
 			pass
 
 	def OnTextEntered(self, event):
-		wxLogMessage("SQL Window: OnTextEntered")
+		self.RunQuery()
 
 
 	def OnClearQuery(self, event):
 		self.comboQueryInput.SetValue('')
 
 	def OnRunQuery(self, event):
-		service = self.choiceService.GetStringSelection()
-		querystr = self.comboQueryInput.GetValue()
-		self.listQueryResults.SetQueryStr(querystr, service)
-		self.listQueryResults.RunQuery()
+		self.RunQuery()
 
 	def GetResultListctrl(self):
 		return listQueryResults

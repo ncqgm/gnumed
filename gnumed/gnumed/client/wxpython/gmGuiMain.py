@@ -31,7 +31,7 @@ from wxPython.wx import *
 from wxPython.html import *
 from gmI18N import *
 import time, os
-import gmLogFrame, gmGuiBroker, gmPG, gmmanual
+import gmLogFrame, gmGuiBroker, gmPG, gmmanual, gmSQLSimpleSearch
 
 # widget IDs
 exitID = wxNewId()
@@ -172,6 +172,10 @@ class MainFrame(wxFrame):
 		self.guibroker['main.notebook'] = nb
 		#allow self-sizing according to page sizes
 		nbs = wxNotebookSizer(nb)
+
+		#Search Patient dialog
+		self.SearchPatientWindow = gmSQLSimpleSearch.SQLSimpleSearch(nb, -1)
+		nb.AddPage(self.SearchPatientWindow, _("Patient"))
 
 		#GNUMeds online manual
 		pnl = gmmanual.ManualHtmlPanel(nb, self, self.log)

@@ -157,7 +157,7 @@ class ConnectionPool:
 			if ConnectionPool.__connections_in_use[service] > 0 :
 				###unless we are really mean :-(((
 				if force_it == 0:
-					#let the end user know thatshit is happening
+					#let the end user know that shit is happening
 					raise LIFE_CONNECTION_DELETE_ATTEMPT
 			else:
 				###close the connection

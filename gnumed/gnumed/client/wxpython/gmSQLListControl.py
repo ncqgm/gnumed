@@ -105,6 +105,9 @@ class SQLListControl(wxListCtrl):
 
 
 	def RunQuery(self):
+		if self.__querystr is None or self.__querystr == '':
+			#no need to process an empty query
+			return
 		self.RedirectOutput()
 		try:
 			print "running query on service ", self.__service
