@@ -8,31 +8,25 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.47 2004-07-20 01:01:44 ihaywood Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPatient.py,v 1.48 2004-07-20 10:09:44 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
 import sys, os.path, time, re, string
 
-#if __name__ == "__main__":
-#	sys.path.append(os.path.join('..', 'pycommon'))
-
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord, gmMedDoc
 
 _log = gmLog.gmDefLog
-if __name__ == "__main__":
-	_log.SetAllLogLevels(gmLog.lData)
-
-_log.Log(gmLog.lData, __version__)
+_log.Log(gmLog.lInfo, __version__)
 
 #============================================================
 # may get preloaded by the waiting list
 class gmPerson:
 	"""Represents a person that DOES EXIST in the database.
 
-	Accepting this as a hard and fast rule WILL simplify
+	Accepting this as a hard-and-fast rule WILL simplify
 	internal logic and remove some corner cases, I believe.
 
 	- searching and creation is done OUTSIDE this object
@@ -183,7 +177,6 @@ class gmPerson:
 	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['demographic record'] = get_demographic_record
-	_get_handler['clinical record'] = get_clinical_record
 	_get_handler['document folder'] = get_document_folder
 	_get_handler['API'] = _get_API
 	_get_handler['ID'] = getID
@@ -198,9 +191,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# share state among all instances ...
 		gmBorg.cBorg.__init__(self)
 
-		# make sure we do have a patient pointer even if it is None
+		# make sure we do have a patient pointer
 		if not self.__dict__.has_key('_patient'):
-			self._patient = None
+			self._patient = gmNull.cNull()
 
 		# set initial lock state,
 		# this lock protects against activating another patient
@@ -208,32 +201,32 @@ class gmCurrentPatient(gmBorg.cBorg):
 		if not self.__dict__.has_key('locked'):
 			self.unlock()
 
-		# user wants to init or change us
+		# - user wants copy of current patient
 		if aPKey is None:
 			# do nothing which will return ourselves
-			if self._patient is None:
-				tmp = 'None'
-			else:
-				tmp = str(self._patient['ID'])
-			_log.Log(gmLog.lData, 'patient <current> (= [%s]) requested' % tmp)
+#			if self._patient is None:
+#				tmp = 'None'
+#			else:
+#				tmp = str(self._patient['ID'])
+			_log.Log(gmLog.lData, 'current patient (%s) requested' % self._patient['ID'])
 			return None
 
 		# possibly change us, depending on PKey
-		_log.Log(gmLog.lData, 'patient [%s] requested' % aPKey)
+#		_log.Log(gmLog.lData, 'patient [%s] requested' % aPKey)
 		# no previous patient
-		if self._patient is None:
-			_log.Log(gmLog.lData, 'no previous patient')
-			try:
-				self._patient = gmPerson(aPKey)
-			except:
-				_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
-				return None
+#		if self._patient is None:
+#			_log.Log(gmLog.lData, 'no previous patient')
+#			try:
+#				self._patient = gmPerson(aPKey)
+#			except:
+#				_log.LogException('cannot connect with patient [%s]' % aPKey, sys.exc_info())
+#				return None
 			# remote app must lock explicitly
-			self.unlock()
-			self.__send_selection_notification()
-			return None
+#			self.unlock()
+#			self.__send_selection_notification()
+#			return None
 
-		# change to another patient
+		# user wants change of current patient
 		_log.Log(gmLog.lData, 'patient change [%s] -> [%s] requested' % (self._patient['ID'], aPKey))
 		# are we really supposed to become someone else ?
 		if self._patient['ID'] == aPKey:
@@ -279,14 +272,13 @@ class gmCurrentPatient(gmBorg.cBorg):
 		return self._patient.get_document_folder()
 	#--------------------------------------------------------
 	def get_ID(self):
-		if self._patient is None:
-			return None
-		else:
-			return self._patient.getID()
+#		if self._patient is None:
+#			return None
+		return self._patient.getID()
 	#--------------------------------------------------------
 	def export_data(self):
-		if self._patient is None:
-			return None
+#		if self._patient is None:
+#			return None
 		return self._patient.export_data()
 	#--------------------------------------------------------
 # this MAY eventually become useful when we start
@@ -338,20 +330,21 @@ class gmCurrentPatient(gmBorg.cBorg):
 		gmDispatcher.send(gmSignals.activating_patient(), kwds=kwargs)
 	#--------------------------------------------------------
 	def is_connected(self):
-		if self._patient is None:
-			return None
+		if isinstance(self._patient, gmNull.cNull):
+			return False
 		else:
-			return 1
+			return True
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
 	def __getitem__(self, aVar = None):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
-		if self._patient is not None:
-			return self._patient[aVar]
-		else:
-			return None
+		return self._patient[aVar]
+#		if self._patient is not None:
+#			return self._patient[aVar]
+#		else:
+#			return None
 #============================================================
 class cPatientSearcher_SQL:
 	"""UI independant i18n aware patient searcher."""
@@ -891,6 +884,8 @@ def set_active_patient(anID = None):
 # main/testing
 #============================================================
 if __name__ == "__main__":
+	_log.SetAllLogLevels(gmLog.lData)
+
 	searcher = cPatientSearcher_SQL()
 	p_data = None
 	while 1:
@@ -927,7 +922,19 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.47  2004-07-20 01:01:44  ihaywood
+# Revision 1.48  2004-07-20 10:09:44  ncq
+# - a bit of cleanup here and there
+# - use Null design pattern instead of None when no real
+#   patient connected to gmCurrentPatient Borg
+#
+#   this allows us to forego all the tests for None as
+#   Null() reliably does nothing no matter what you try,
+#   eventually, this will allow us to remove all the
+#   is_patient_avail checks in the frontend,
+#   it also acts sanely for code forgetting to check
+#   for a connected patient
+#
+# Revision 1.47  2004/07/20 01:01:44  ihaywood
 # changing a patients name works again.
 # Name searching has been changed to query on names rather than v_basic_person.
 # This is so the old (inactive) names are still visible to the search.
