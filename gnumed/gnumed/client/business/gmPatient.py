@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.15 2004-02-14 00:37:10 ihaywood Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmPatient.py,v 1.16 2004-02-17 10:38:27 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -736,7 +736,8 @@ def create_dummy_identity():
 		return None
 	return data[0][0]
 #=============================================================
-def create_new_patient (id):
+# FIXME: we don't REALLY want this here
+def xlnk_patient_in_clinical(id):
 	cmd = "insert into xlnk_identity (xfk_identity, pupic) values (%s, %s)"
 	gmPG.run_commit ('historica', [(cmd, [id, str(id)])])
 #============================================================
@@ -767,7 +768,6 @@ def set_active_patient(anID = None):
 # main/testing
 #============================================================
 if __name__ == "__main__":
-	#gmDispatcher.connect(_patient_selected, gmSignals.patient_selected())
 	searcher = cPatientSearcher_SQL()
 	p_data = None
 	while 1:
@@ -803,7 +803,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.15  2004-02-14 00:37:10  ihaywood
+# Revision 1.16  2004-02-17 10:38:27  ncq
+# - create_new_patient() -> xlnk_patient_in_clinical()
+#
+# Revision 1.15  2004/02/14 00:37:10  ihaywood
 # Bugfixes
 # 	- weeks = days / 7
 # 	- create_new_patient to maintain xlnk_identity in historica
