@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.9 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmEMRBrowser.py,v 1.10 2005-02-03 20:19:16 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -142,8 +142,8 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Updates EMR browser data
 		"""
 		# EMR tree root item
-		demos = self.__pat.get_demographic_record()
-		root_item = self.__emr_tree.AddRoot(_('%s EMR') % demos['description'])
+		ident = self.__pat.get_identity()
+		root_item = self.__emr_tree.AddRoot(_('%s EMR') % ident['description'])
 
 		# Obtain all the tree from exporter
 		self.__exporter.get_historical_tree(self.__emr_tree)
@@ -233,7 +233,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.9  2005-02-01 10:16:07  ihaywood
+# Revision 1.10  2005-02-03 20:19:16  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.9  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace

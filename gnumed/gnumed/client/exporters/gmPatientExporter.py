@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.38 2005-01-31 13:01:23 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPatientExporter.py,v 1.39 2005-02-03 20:19:16 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -114,7 +114,7 @@ class cEmrExport:
         emr = self.__patient.get_clinical_record()
         
         # patient dob
-        patient_dob = mxParser.DateFromString(self.__patient.get_demographic_record().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
+        patient_dob = mxParser.DateFromString(self.__patient.get_identity().getDOB(aFormat = 'YYYY-MM-DD'), formats= ['iso']) 
         date_length = len(patient_dob.Format('%Y-%m-%d')) + 2 # (YYYY-mm-dd)
 
         # dictionary of pairs indication : scheduled vaccination
@@ -698,8 +698,8 @@ class cEmrExport:
             Dumps in ASCII format some basic patient's demographic data
             
         """
-        demo = self.__patient.get_demographic_record()
-        dump = demo.export_demographics(all)
+        ident = self.__patient.get_identity()
+        dump = ident.export_demographics(all)
         if demo is None:
             _log.Log(gmLog.lErr, 'cannot get Demographic export')
             print(_(
@@ -882,7 +882,10 @@ if __name__ == "__main__":
         
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.38  2005-01-31 13:01:23  ncq
+# Revision 1.39  2005-02-03 20:19:16  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.38  2005/01/31 13:01:23  ncq
 # - use ask_for_patient() in gmPerson
 #
 # Revision 1.37  2005/01/31 10:19:11  ncq

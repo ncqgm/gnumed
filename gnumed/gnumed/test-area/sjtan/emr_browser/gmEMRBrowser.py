@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/emr_browser/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.3 2005-01-31 13:06:40 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmEMRBrowser.py,v 1.4 2005-02-03 20:22:07 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -149,8 +149,8 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Updates EMR browser data
 		"""
 		# EMR tree root item
-		demos = self.__pat.get_demographic_record()
-		names = demos.get_names()
+		identity = self.__pat.get_identity()
+		names = identity.get_names()
 		root_item = self.__emr_tree.AddRoot(_('%s %s EMR') % (names['first'], names['last']))
 
 		# Obtain all the tree from exporter
@@ -502,7 +502,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.3  2005-01-31 13:06:40  ncq
+# Revision 1.4  2005-02-03 20:22:07  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.3  2005/01/31 13:06:40  ncq
 # - use gmPerson.ask_for_patient()
 #
 # Revision 1.2  2005/01/31 10:18:11  ncq

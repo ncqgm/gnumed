@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.82 2005-01-31 10:37:26 ncq Exp $
-__version__ = "$Revision: 1.82 $"
+# $Id: gmEditArea.py,v 1.83 2005-02-03 20:19:16 ncq Exp $
+__version__ = "$Revision: 1.83 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -1019,7 +1019,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getBirthYear(self):
 		try:
-			birthyear = int(str(self._patient.get_demographic_record().getDOB()).split('-')[0]) 
+			birthyear = int(str(self._patient.get_identity().getDOB()).split('-')[0]) 
 		except:
 			birthyear = time.localtime()[0]
 		
@@ -1052,7 +1052,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getDefaultAge(self):
 		try:
-			return	time.localtime()[0] - self._patient.get_demographic_record().getBirthYear()
+			return	time.localtime()[0] - self._patient.get_identity().getBirthYear()
 		except:
 			return 0
 
@@ -1996,7 +1996,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.82  2005-01-31 10:37:26  ncq
+# Revision 1.83  2005-02-03 20:19:16  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.82  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.81  2005/01/31 06:27:18  ncq

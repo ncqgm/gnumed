@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.51 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmDemographics.py,v 1.52 2005-02-03 20:19:16 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "R.Terry, SJ Tan"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1011,7 +1011,7 @@ class PatientDetailWindow(wx.wxPanel):
 
 	def _save_addresses(self):
 		 #IAN TO RECONNECT
-		myPatient = self.patient.get_demographic_record()
+		myPatient = self.patient.get_identity()
 		for data in self.addr_cache:
 			if data.has_key('dirty'):
 				myPatient.linkNewAddress( data['type'], data['number'], data['street'], data['urb'], data['postcode'] )
@@ -1075,7 +1075,7 @@ class PatientDetailWindow(wx.wxPanel):
 		self.value_map = self.get_input_value_map ()
 		self.validate_fields()
 		self._save_addresses()
-		myPatient = self.patient.get_demographic_record()
+		myPatient = self.patient.get_identity()
 		print myPatient
 		pass
 		if m['firstname'].IsModified () or m['surname'].IsModified ():
@@ -1159,7 +1159,7 @@ class PatientDetailWindow(wx.wxPanel):
 
 	def __update_addresses(self):
 		 #IAN TO RECONNECT
-		myPatient = self.patient.get_demographic_record()
+		myPatient = self.patient.get_identity()
 		try:
 			self.addr_cache = myPatient.getAddresses (None)
 		except:
@@ -1179,7 +1179,7 @@ class PatientDetailWindow(wx.wxPanel):
 	def __update_nok(self):
 		 #IAN TO RECONNECT
 		"""this function is disabled until further notice. see l = []"""
-		myPatient = self.patient.get_demographic_record ()
+		myPatient = self.patient.get_identity ()
 		#l = myPatient.get_relatives()
 		l = [] # disabled for the time being
 		l2 = []
@@ -1193,7 +1193,7 @@ class PatientDetailWindow(wx.wxPanel):
 	def _updateUI(self):
 		 #IAN TO RECONNECT
 		"""on patient_selected() signal handler , inherited from gmPatientHolder.PatientHolder"""
-		myPatient = self.patient.get_demographic_record()
+		myPatient = self.patient.get_identity()
 		m = self.input_fields
 		m['firstname'].SetValue( myPatient.get_names()['first'] )
 		m['surname'].SetValue( myPatient.get_names()['last'] )
@@ -1234,7 +1234,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.51  2005-02-01 10:16:07  ihaywood
+# Revision 1.52  2005-02-03 20:19:16  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.51  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace

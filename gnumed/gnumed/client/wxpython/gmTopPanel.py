@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.56 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmTopPanel.py,v 1.57 2005-02-03 20:19:16 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -322,12 +322,12 @@ class cMainTopPanel(wxPanel):
 		wxCallAfter(self.__update_allergies, **kwargs)
 	#----------------------------------------------
 	def __on_patient_selected(self, **kwargs):
-		demr = self.curr_pat.get_demographic_record()
-		age = demr['medical_age']
+		ident = self.curr_pat.get_identity()
+		age = ident['medical_age']
 		# FIXME: if the age is below, say, 2 hours we should fire
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		self.txt_age.SetValue(age)
-		self.patient_selector.SetValue(demr['description'])
+		self.patient_selector.SetValue(ident['description'])
 
 		# update episode selector
 		self.combo_episodes.Clear()
@@ -452,7 +452,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.56  2005-02-01 10:16:07  ihaywood
+# Revision 1.57  2005-02-03 20:19:16  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.56  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace

@@ -6,8 +6,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.28 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmForms.py,v 1.29 2005-02-03 20:17:18 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -145,8 +145,8 @@ class TextForm (gmFormEngine):
 		self.basic_params = {}
 		self.results = {}
 		self.basic_params['sender'] = gmDemographicRecord.cDemographicRecord_SQL (self.whoami.get_staff_identity ())
-		self.basic_params['patient'] = self.patient.get_demographic_record ()
-		self.basic_params['clinical'] = self.patient.get_clinical_record ()
+		self.basic_params['patient'] = self.patient.get_identity()
+		self.basic_params['clinical'] = self.patient.get_clinical_record()
 
 	def convert (self, item, table_sep='\n'):
 		"""
@@ -431,7 +431,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmForms.py,v $
-# Revision 1.28  2005-02-01 10:16:07  ihaywood
+# Revision 1.29  2005-02-03 20:17:18  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.28  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace

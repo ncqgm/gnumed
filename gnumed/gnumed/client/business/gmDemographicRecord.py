@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.56 2005-02-01 10:16:07 ihaywood Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmDemographicRecord.py,v 1.57 2005-02-03 20:17:18 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -355,9 +355,9 @@ where
 		id_new_relative = create_dummy_identity()
 		relative = gmPerson(id_new_relative)
 		# pre-fill with data from ourselves
-		relative_demographics = relative.get_demographic_record()
-		relative_demographics.copyAddresses(self)
-		relative_demographics.addName( '**?**', self.get_names()['last'], activate = 1)
+		relative_ident = relative.get_identity()
+		relative_ident.copyAddresses(self)
+		relative_ident.addName( '**?**', self.get_names()['last'], activate = 1)
 		# and link the two
 		cmd2 = """
 			insert into lnk_person2relative (
@@ -368,8 +368,11 @@ where
 		if self._ext_cache.has_key ('relatives'):
 			del self._ext_cache['relatives']
 		if rel_type:
-			return gmPG.run_commit2 ('personalia', [(cmd1, [self['id'], relation['id'], relation['id'], aelf['id']]),
-								(cmd2, [relation['id'], self['id'], rel_type])])
+			return gmPG.run_commit2 (
+				'personalia',
+				[(cmd1, [self['id'], relation['id'], relation['id'], aelf['id']]),
+				 (cmd2, [relation['id'], self['id'], rel_type])]
+			)
 		else:
 			return gmPG.run_commit2 ('personalia', [(cmd1, [self['id'], relation['id'], relation['id'], aelf['id']])])
 	#----------------------------------------------------------------------
@@ -648,7 +651,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.56  2005-02-01 10:16:07  ihaywood
+# Revision 1.57  2005-02-03 20:17:18  ncq
+# - get_demographic_record() -> get_identity()
+#
+# Revision 1.56  2005/02/01 10:16:07  ihaywood
 # refactoring of gmDemographicRecord and follow-on changes as discussed.
 #
 # gmTopPanel moves to gmHorstSpace
