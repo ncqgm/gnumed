@@ -6,12 +6,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: multisash.py,v 1.10 2005-02-21 23:44:59 cfmoro Exp $
+# RCS-ID:		$Id: multisash.py,v 1.11 2005-02-23 03:19:02 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/multisash.py,v $
-# $Id: multisash.py,v 1.10 2005-02-21 23:44:59 cfmoro Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: multisash.py,v 1.11 2005-02-23 03:19:02 cfmoro Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "Carlos, Karsten"
 __license__ = "GPL"
 	   
@@ -103,6 +103,33 @@ class cMultiSash(wxWindow):
 			self.bottom_leaf = bottom_leaf
 		
 	#---------------------------------------------
+	def refresh_displayed_leafs(self, splitter):
+		"""
+		Recursively find all displayed leafs.
+		@param splitter The multisash splitter to traverse its leafs for.
+		@type splitter cMultiSashSplitter
+		"""
+		if id(splitter) == id(self.child):
+			self.displayed_leafs = []
+		print "__refresh_displayed_leafs()"
+		print "splitter: %s [%s]" % (splitter.__class__.__name__, id(splitter))
+		print "- leaf 1: %s [%s]" % (splitter.view1.__class__.__name__, id(splitter.view1))
+		print "- leaf 2: %s [%s]" % (splitter.view2.__class__.__name__, id(splitter.view2))
+		if isinstance(splitter.view1, cMultiSashSplitter):
+			print "leaf 1 is splitter, recurse down"
+			self.refresh_displayed_leafs(splitter.view1)
+		if isinstance(splitter.view2, cMultiSashSplitter):
+			print "leaf 2 is splitter, recurse down"
+			self.refresh_displayed_leafs(splitter.view2)
+		print "found bottom split: %s [%s]" % (splitter.__class__.__name__, id(splitter))
+		if not splitter.view2 is None and not isinstance(splitter.view2, cMultiSashSplitter):
+			print "found leaf (view2): %s [%s]" % (splitter.view2.__class__.__name__, id(splitter.view2))
+			self.displayed_leafs.append(splitter.view2)
+		if not splitter.view1 is None and not isinstance(splitter.view1, cMultiSashSplitter):
+			print "found leaf (view1): %s [%s]" % (splitter.view1.__class__.__name__, id(splitter.view1))			
+			self.displayed_leafs.append(splitter.view1)
+		
+	#---------------------------------------------
 	# internal API
 	#---------------------------------------------
 	def __find_bottom_leaf(self, splitter):
@@ -126,7 +153,7 @@ class cMultiSash(wxWindow):
 		else:
 			print "bottom leaf (view1): %s [%s]" % (splitter.view1.__class__.__name__, id(splitter.view1))
 			return splitter.view1
-
+						
 #----------------------------------------------------------------------
 class cMultiSashSplitter(wxWindow):
 	"""
@@ -207,6 +234,7 @@ class cMultiSashSplitter(wxWindow):
 
 	def DestroyLeaf(self,caller):
 		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))
+		multiView = self.multiView
 		if not self.view2:
 			self.view1.set_content(cEmptyChild(self))	# We will only have 2 windows if
 			return						# we need to destroy any
@@ -220,14 +248,14 @@ class cMultiSashSplitter(wxWindow):
 				self.view1 = self.view2
 				self.view2 = None
 				# Gnumed: remove content from displayed leafs
-				print "Removing old: %s [%s]" % (old.__class__.__name__, id(old))
-				self.multiView.displayed_leafs.remove(old)
+				#print "Removing old: %s [%s]" % (old.__class__.__name__, id(old))
+				#self.multiView.displayed_leafs.remove(old)
 				old.Destroy()
 			else:
 				print "caller is leaf 2, hence destroying leaf 2"
 				# Gnumed: remove content from displayed leafs
-				print "Removing view2: %s [%s]" % (self.view2.__class__.__name__, id(self.view2))
-				self.multiView.displayed_leafs.remove(self.view2)
+				#print "Removing view2: %s [%s]" % (self.view2.__class__.__name__, id(self.view2))
+				#self.multiView.displayed_leafs.remove(self.view2)
 				self.view2.Destroy()
 				self.view2 = None
 			self.view1.SetSize(self.GetSize())
@@ -275,9 +303,14 @@ class cMultiSashSplitter(wxWindow):
 				print "leaf 2: %s [%s]" % (self.view2.__class__.__name__, id(self.view2))
 			except:
 				pass
-			# Gnumed: find and update the bottom leaf
-			multiView.refresh_bottom_leaf()
-		
+		# Gnumed: find and update the bottom leaf
+		multiView.refresh_bottom_leaf()
+		multiView.refresh_displayed_leafs(multiView.child)
+		print "\nGuessed leafs:"
+		cont = 0
+		for a_leaf in multiView.displayed_leafs:
+			cont +=1
+			print "leaf %d: %s [%s]" % (cont, a_leaf.__class__.__name__, id(a_leaf))
 	#---------------------------------------------
 	def CanSize(self,side,view):
 		if self.SizeTarget(side,view):
@@ -839,7 +872,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: multisash.py,v $
-# Revision 1.10  2005-02-21 23:44:59  cfmoro
+# Revision 1.11  2005-02-23 03:19:02  cfmoro
+# Fixed bug while refreshing leafs, using recursivity. On save, clear the editor and reutilize on future notes. Clean ups
+#
+# Revision 1.10  2005/02/21 23:44:59  cfmoro
 # Commented out New button. Focus editor when trying to add and existing one. Clean ups
 #
 # Revision 1.9  2005/02/21 11:52:37  cfmoro

@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -199,13 +199,32 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		Retrieves the list of episodes that are currently displayed in the
 		multisash widget.
 		"""
-		in_edition_episodes = []
+		displayed_episodes = []
 		all_leafs = self.__soap_multisash.get_displayed_leafs()
 		for a_leaf in all_leafs:
 			content = a_leaf.get_content()
 			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel):
-				in_edition_episodes.append(content.GetProblem()['pk_episode'])
-		return in_edition_episodes
+				if content.GetProblem() is None:
+					displayed_episodes.append(None)
+				else:
+					displayed_episodes.append(content.GetProblem()['pk_episode'])
+		return displayed_episodes
+		
+	#--------------------------------------------------------
+	def __get_leaf_for_episode(self, episode):
+		"""
+		Retrieves the displayed leaf for the given episode (or the first
+		is they are multiple, eg. after saving various soap notes).
+		@param episode The episode to retrieve the displayed note for.
+		@type episode gmEMRStructItems.cEpisode
+		"""
+		all_leafs = self.__soap_multisash.get_displayed_leafs()
+		for a_leaf in all_leafs:
+			content = a_leaf.get_content()
+			if isinstance(content, gmSOAPWidgets.cResizingSoapPanel) \
+			and content.GetProblem() == episode:
+				return a_leaf
+		return None
 
 	#--------------------------------------------------------
 	def __focus_episode(self, episode_id):
@@ -251,8 +270,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		print self.__class__.__name__, "-> __on_problem_selected()"
 		problem_idx = self.__LST_problems.GetSelection()
-		problem = self.__LST_problems.GetClientData(problem_idx)
-		print "problem", problem
+		problem = self.__LST_problems.GetClientData(problem_idx)		
 
 		# FIXME: constant in gmEMRStructIssues 
 		if problem['type'] == 'issue':
@@ -289,24 +307,25 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		episode_id = self.__selected_episode['pk_episode']
 		if episode_id not in self.__get_displayed_episodes():
-			# create new leaf always on bottom
-			successful, errno = self.__soap_multisash.add_content(content = self.__make_soap_editor())
-			# FIXME: actually, one would have to check errno but there is only one error number so far
-			if not successful:
-				msg = _('Cannot open progress note editor for\n\n'
-						'[%s]\n\n'
-						'The GnuMed window is too small. Please enlarge\n'
-						'the lowermost editor and try again.') % problem['problem']
-				gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
+			# let's create new note for the selected episode
+			if None in self.__get_displayed_episodes():
+				# there are some displayed empty notes (after saving)
+				# set the selected problem in first of them
+				leaf = self.__get_leaf_for_episode(episode = None)
+				leaf.get_content().SetProblem(self.__selected_episode)
+			else:
+				# create note in new leaf, always on bottom
+				successful, errno = self.__soap_multisash.add_content(content = self.__make_soap_editor())
+				# FIXME: actually, one would have to check errno but there is only one error number so far
+				if not successful:
+					msg = _('Cannot open progress note editor for\n\n'
+							'[%s]\n\n'
+							'The GnuMed window is too small. Please enlarge\n'
+							'the lowermost editor and try again.') % problem['problem']
+					gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
 		else:
+			# let's find and focus the displayed note for the selected episode
 			self.__focus_episode(episode_id)
-			# FIXME: find and focus
-#			msg = _(
-#				'There already is a progress note editor open for\n'
-#				'[%s]\n\n'
-#				'We are lacking code to focus that editor yet.'
-#			) % problem['problem']
-#			gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening progress note editor'))
 		self.__update_button_state()
 	#--------------------------------------------------------	
 	def __on_patient_selected(self):
@@ -344,11 +363,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# let's dump soap contents		   
 		print 'Saving: %s' % bundle
-		importer = gmSOAPimporter.cSOAPImporter()
-		importer.import_soap(bundle)		
+		#importer = gmSOAPimporter.cSOAPImporter()
+		#importer.import_soap(bundle)		
 				
 		# update buttons
-		selected_soap.SetSaved(True)
+		selected_soap.SetSaved(True)		
 		self.__update_button_state()
 		
 	#--------------------------------------------------------
@@ -424,20 +443,20 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def activate_selected_problem(self):
-		"""
-		Activate the currently selected problem, simulating double clicking
-		over the problem in the list and therefore, firing the actions
-		to create a new soap for the problem.
-		"""
-		self.__on_problem_selected(None)
-		
+	#def activate_selected_problem(self):
+	#	"""
+	#	Activate the currently selected problem, simulating double clicking
+	#	over the problem in the list and therefore, firing the actions
+	#	to create a new soap for the problem.
+	#	"""
+	#	self.__on_problem_selected(None)
+	#	
 	#--------------------------------------------------------
-	def get_selected_episode(self):
-		"""
-		Retrieves selected episode in list
-		"""
-		return self.__selected_episode
+	#def get_selected_episode(self):
+	#	"""
+	#	Retrieves selected episode in list
+	#	"""
+	#	return self.__selected_episode
 
 	#--------------------------------------------------------
 	# internal API
@@ -504,7 +523,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #============================================================
 # $Log: gmSoapPlugins.py,v $
-# Revision 1.21  2005-02-22 18:22:31  ncq
+# Revision 1.22  2005-02-23 03:19:02  cfmoro
+# Fixed bug while refreshing leafs, using recursivity. On save, clear the editor and reutilize on future notes. Clean ups
+#
+# Revision 1.21  2005/02/22 18:22:31  ncq
 # - cleanup
 #
 # Revision 1.20  2005/02/21 23:44:59  cfmoro
