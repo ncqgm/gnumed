@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -136,7 +136,7 @@ class cLabJournalNB(wxNotebook):
 		szr_due.Fit( self.PNL_due_tab )
 		szr_due.SetSizeHints(self.PNL_due_tab)
 
-		self.AddPage( self.PNL_due_tab, _("pending results"))
+		self.AddPage( self.PNL_due_tab, _("add | view pending requests"))
 
 		# tab with errors
 		self.PNL_errors_tab = wxPanel( self, -1)
@@ -165,7 +165,7 @@ class cLabJournalNB(wxNotebook):
 	def __init_SZR_due (self):
 
 		vbszr = wxBoxSizer( wxVERTICAL )
-		hbszr = wxBoxSizer( wxHORIZONTAL )
+		hbszr = wxStaticBoxSizer(wxStaticBox(self.PNL_due_tab, -1, _("add new request for current patient")), wxHORIZONTAL)
 		
 		self.lab_label = wxStaticText(
 			name = 'lablabel',
@@ -214,7 +214,7 @@ class cLabJournalNB(wxNotebook):
 		self.BTN_save_request_ID.SetToolTipString(_('associate chosen lab and ID with current patient'))
 		EVT_BUTTON(self.BTN_save_request_ID, wxID_BTN_save_request_ID, self.on_save_request_ID)
 
-		hbszr.Add( self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
+		hbszr.Add(self.BTN_save_request_ID, 0, wxALIGN_CENTER|wxALL, 5 )
 		vbszr.Add(hbszr,0, wxALIGN_LEFT | wxALL, 5)
 		
 		# our actual list
@@ -595,6 +595,13 @@ class cLabJournalNB(wxNotebook):
 					
 				reviewed_req.append(req)
 		
+		if len(reviewed_req) == 0:
+			gmGuiHelpers.gm_show_error(
+				aMessage = _("Unable to comply with your request.\nYou didn't mark any result as reviewed."),
+				aTitle = _('setting request status to reviewed')
+			)
+			return None
+		
 		for req in reviewed_req:
 			req['reviewed'] = 'true'
 			req['pk_reviewer'] = _whoami.get_staff_ID()
@@ -605,6 +612,7 @@ class cLabJournalNB(wxNotebook):
 			# repopulate
 			if status:
 				self.__populate_notebook()
+				
 			else:
 				_log.Log(gmLog.lErr, 'setting request status to reviewed failed %s' % error)
 				gmGuiHelpers.gm_show_error(
@@ -731,7 +739,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.27  2004-06-20 06:49:21  ihaywood
+# Revision 1.28  2004-06-20 13:48:02  shilbert
+# - GUI polished
+#
+# Revision 1.27  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.26  2004/06/13 22:31:49  ncq
