@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.137 2004-01-29 16:12:18 ncq Exp $
-__version__ = "$Revision: 1.137 $"
+# $Id: gmGuiMain.py,v 1.138 2004-02-05 23:54:11 ncq Exp $
+__version__ = "$Revision: 1.138 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -56,6 +56,7 @@ import gmDispatcher, gmSignals, gmGuiBroker, gmSQLSimpleSearch, gmSelectPerson, 
 import gmGuiHelpers
 import gmTopPanel
 import gmPatient
+import gmCLI
 
 # widget IDs
 ID_ABOUT = wxNewId ()
@@ -373,6 +374,9 @@ class gmTopLevelFrame(wxFrame):
 		event.Skip() # required for MSW
 	#----------------------------------------------
 	def on_patient_selected(self, **kwargs):
+		wxCallAfter(self.__on_patient_selected, **kwargs)
+	#----------------------------------------------
+	def __on_patient_selected(self, **kwargs):
 		pat = gmPatient.gmCurrentPatient()
 		try:
 			epr = pat['clinical record']
@@ -513,6 +517,11 @@ class gmTopLevelFrame(wxFrame):
 		gmDispatcher.send(gmSignals.application_closing())
 		# handle our own stuff
 		gmPG.ConnectionPool().StopListeners()
+		try:
+			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
+		except KeyError: pass
+		except:
+			_log.LogException('cannot stop scripting listener thread', sys.exc_info(), verbose=0)
 		self.timer.Stop()
 		self.mainmenu = None
 		self.Destroy()
@@ -602,6 +611,20 @@ class gmApp(wxApp):
 	def OnInit(self):
 		self.__setup_platform()
 
+		# check for proper slave-mode command line syntax
+		if gmCLI.has_arg('--slave'):
+			cookie = gmCLI.arg['--slave']
+			if cookie == '':
+				msg = _(
+					'Slave mode was requested by "--slave". However,\n'
+					'no cookie was specified. Clients need to use that\n'
+					'cookie to be able to attach to GnuMed.\n\n'
+					'Please provide a cookie using the following syntax:\n'
+					' --slave <cookie>'
+				)
+				gmGuiHelpers.gm_show_error(msg, _('Starting slave mode'), gmLog.lErr)
+				return false
+
 		# create a static GUI element dictionary that
 		# will be static and alive as long as app runs
 		self.__guibroker = gmGuiBroker.GuiBroker()
@@ -642,6 +665,20 @@ class gmApp(wxApp):
 		#frame.Maximize(true)
 		frame.CentreOnScreen(wxBOTH)
 		frame.Show(true)
+
+		# last but not least: start macro listener if so desired
+		if gmCLI.has_arg('--slave'):
+			import gmScriptingListener, gmMacro
+			macro_executor = gmMacro.cMacroPrimitives(cookie)
+			if gmCLI.has_arg('--port'):
+				port = gmCLI.arg['--port']
+				if port == '':
+					port = 9999
+			else:
+				port = 9999
+			self.__guibroker['scripting listener'] = gmScriptingListener.cScriptingListener(port, macro_executor)
+			_log.Log(gmLog.lInfo, 'listening for macros on port [%s] with cookie [%s]' % (port, cookie))
+
 		return true
 	#----------------------------------------------
 	def OnExit(self):
@@ -782,7 +819,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.137  2004-01-29 16:12:18  ncq
+# Revision 1.138  2004-02-05 23:54:11  ncq
+# - wxCallAfter()
+# - start/stop scripting listener
+#
+# Revision 1.137  2004/01/29 16:12:18  ncq
 # - add check for DB account to staff member mapping
 #
 # Revision 1.136  2004/01/18 21:52:20  ncq
