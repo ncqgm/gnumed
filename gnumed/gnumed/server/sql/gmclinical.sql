@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.156 $
+-- $Revision: 1.157 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -174,7 +174,7 @@ create table clin_encounter (
 	source_time_zone interval,
 	description text
 		default null
-		check trim(both from coalesce(description, 'xxxDEFAULTxxx')) != '',
+		check (trim(both from coalesce(description, 'xxxDEFAULTxxx')) != ''),
 	started timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP,
@@ -1214,11 +1214,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.156 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.157 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.156  2005-03-31 17:52:18  ncq
+-- Revision 1.157  2005-03-31 20:10:47  ncq
+-- - missing () in check constraint
+--
+-- Revision 1.156  2005/03/31 17:52:18  ncq
 -- - cleanup
 -- - add on update/delete
 -- - improve check constraint
