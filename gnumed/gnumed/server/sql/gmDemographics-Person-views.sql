@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.27 2004-12-21 09:59:40 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.28 2005-01-26 21:29:11 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -321,6 +321,7 @@ GRANT SELECT ON
 	v_staff
 	, lnk_person2address
 	, lnk_org2address
+	, v_person_comms_flat
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -330,11 +331,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.27 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.28 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.27  2004-12-21 09:59:40  ncq
+-- Revision 1.28  2005-01-26 21:29:11  ncq
+-- - added missing GRANT
+--
+-- Revision 1.27  2004/12/21 09:59:40  ncq
 -- - comm_channel -> comm else too long on server < 7.3
 --
 -- Revision 1.26  2004/12/20 19:04:37  ncq
