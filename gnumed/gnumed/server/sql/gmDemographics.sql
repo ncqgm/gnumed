@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -260,7 +260,7 @@ comment on column enum_ext_id_types.context is
 		- s for staff in this clinic';
 
 -- ==========================================================
-create table ext_person_id (
+create table lnk_identity2ext_id (
 	id serial primary key,
 	id_identity integer not null references identity(id),
 	external_id text not null,
@@ -269,15 +269,15 @@ create table ext_person_id (
 	unique (id_identity, external_id, fk_origin)
 ) inherits (audit_fields);
 
-select add_table_for_audit('ext_person_id');
+select add_table_for_audit('lnk_identity2ext_id');
 
-comment on table ext_person_id is
+comment on table lnk_identity2ext_id is
 	'link external IDs to GnuMed identities';
-comment on column ext_person_id.external_id is
+comment on column lnk_identity2ext_id.external_id is
 	'textual representation of external ID which
 	 may be Social Security Number, patient ID of
 	 another EMR system, you-name-it';
-comment on column ext_person_id.fk_origin is
+comment on column lnk_identity2ext_id.fk_origin is
 	'originating system';
 
 -- ==========================================================
@@ -307,32 +307,7 @@ comment on column names.preferred IS
 	'preferred first name, the name a person is usually called (nickname)';
 
 -- ==========================================================
-create table lnk_person2address (
-	id serial primary key,
-	id_identity integer references identity,
-	id_address integer references address,
-	id_type int references address_type default 1,
-	address_source varchar(30),
-	unique(id_identity, id_address),
-	unique(id_identity, id_type)
-);
-
-COMMENT ON TABLE lnk_person2address IS
-	'a many-to-many pivot table linking addresses to identities';
-COMMENT ON COLUMN lnk_person2address.id_identity IS
-	'identity to whom the address belongs';
-COMMENT ON COLUMN lnk_person2address.id_address IS
-	'address belonging to this identity';
-COMMENT ON COLUMN lnk_person2address.id_type IS
-	'type of this address (like home, work, parents, holidays ...)';
-
--- consider not plainly auditing this table but also
--- giving a reason for changes (incorrectly recorded
--- vs. moved etc.) or even explicitely model that
--- behaviour (as per Tim Churches)
-
--- ==========================================================
-create table lnk_person2comm_channel (
+create table lnk_identity2comm_channel (
 	id serial primary key,
 	id_identity integer not null references identity(id),
 	id_comm integer not null references comm_channel(id),
@@ -482,36 +457,66 @@ create table org_category (
 -- measurements will link to this, for example
 create table org (
 	id serial primary key,
-	id_org integer references org (id),
 	id_category integer not null references org_category(id),
-	type char default 'o' check (type in ('o', 'b', 'd')),
 	description text not null,
-	memo text,
-	id_address integer not null references address (id),
-	is_postal boolean,
 	unique(id_category, description)
 );
 
-comment on column org.id_org is 
-'the super-organisation in the hierarchy of branches/offices. head offices have NULL here.';
-comment on column org.memo is
-'a short note regarding the organisation.';
-comment on column org.type is
-'the type in the hierarchy: o) organisation, b) branch, d) department';
 
 -- ====================================================================
-create table lnk_org2comm (
-	id_org integer not null references org (id),
-	id_comm_channel integer not null references comm_channel (id),
-	unique (id_org, id_comm_channel)
+
+create table lnk_org2comm_channel (
+	id serial primary key,
+	id_org integer not null references org(id),
+	id_comm integer not null references comm_channel(id),
+	is_confidential bool not null default false,
+	unique (id_org, id_comm)
 );
 
+-- =====================================================================
 
-create table lnk_person2org (
-	id_org integer not null references org (id),
-	id_identity integer not null references identity (id),
-	unique (id_org, id_identity)
+create table lnk_org2ext_id (
+	id serial primary key,
+	id_org integer not null references org(id),
+	external_id text not null,
+	fk_origin integer not null references enum_ext_id_types(pk),
+	comment text,
+	unique (id_org, external_id, fk_origin)
+) inherits (audit_fields);
+
+-- ==========================================================
+-- the table formerly known as lnk_person2address
+-- homologous to data_links in Richard's schema
+create table lnk_person_org_address (
+	id serial primary key,
+	id_identity integer references identity (id),
+	id_address integer references address (id),
+	id_type int references address_type (id) default 1,
+	address_source varchar(30),
+	id_org integer references org (id),
+	id_occupation integer references occupation (id),
+	unique(id_identity, id_address),
+	unique(id_org, id_address)
 );
+
+COMMENT ON TABLE lnk_person_org_address IS
+	'a many-to-many pivot table describing the relationship between a person,
+organisation, their work address and occupation at that location. For patients id_org is NULL';
+COMMENT ON COLUMN lnk_person_org_address.id_identity IS
+	'identity to whom the address belongs';
+COMMENT ON COLUMN lnk_person_org_address.id_address IS
+	'address belonging to this identity (the branch of the organisation)';
+COMMENT ON COLUMN lnk_person_org_address.id_type IS
+	'type of this address (like home, work, parents, holidays ...)';
+
+
+
+-- consider not plainly auditing this table but also
+-- giving a reason for changes (incorrectly recorded
+-- vs. moved etc.) or even explicitely model that
+-- behaviour (as per Tim Churches)
+
+
 
 -- ===================================================================
 -- permissions
@@ -529,20 +534,19 @@ GRANT SELECT ON
 	enum_comm_types,
 	enum_ext_id_types,
 	comm_channel,
-	ext_person_id,
+	lnk_identity2ext_id,
 	mapbook,
 	coordinate,
 	address_info,
-	lnk_person2address,
-	lnk_person2comm_channel,
+	lnk_person_org_address,
+	lnk_identity2comm_channel,
 	relation_types,
 	lnk_person2relative,
 	occupation,
 	lnk_job2person,
 	org_category,
 	org,
-	lnk_org2comm,
-	lnk_person2org,
+	lnk_org2comm_channel,
 	staff_role,
 	staff,
 	marital_status
@@ -562,16 +566,16 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	address_id_seq,
 	comm_channel,
 	comm_channel_id_seq,
-	ext_person_id,
-	ext_person_id_id_seq,
+	lnk_identity2ext_id,
+	lnk_identity2ext_id_id_seq,
 	coordinate,
 	coordinate_id_seq,
 	address_info,
 	address_info_id_seq,
-	lnk_person2address,
-	lnk_person2address_id_seq,
-	lnk_person2comm_channel,
-	lnk_person2comm_channel_id_seq,
+	lnk_person_org_address,
+	lnk_person_org_address_id_seq,
+	lnk_identity2comm_channel,
+	lnk_identity2comm_channel_id_seq,
 	lnk_person2relative,
 	lnk_person2relative_id_seq,
 	occupation,
@@ -580,17 +584,21 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	lnk_job2person_id_seq,
 	org,
 	org_id_seq,
-	lnk_org2comm,
-	lnk_person2org
+	lnk_org2comm_channel,
+	lnk_org2comm_channel_id_seq
 TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.25 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.26 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.25  2004-03-09 09:10:50  ncq
+-- Revision 1.26  2004-03-27 04:37:01  ihaywood
+-- lnk_person2address now lnk_person_org_address
+-- sundry bugfixes
+--
+-- Revision 1.25  2004/03/09 09:10:50  ncq
 -- - removed N/A gender
 --
 -- Revision 1.24  2004/03/04 10:40:29  ncq
@@ -619,7 +627,7 @@ TO GROUP "_gm-doctors";
 -- - add staff tables
 --
 -- Revision 1.17  2003/12/01 22:12:41  ncq
--- - lnk_person2id -> ext_person_id
+-- - lnk_person2id -> lnk_person_ext_id
 --
 -- Revision 1.16  2003/11/23 23:34:49  ncq
 -- - names.title -> identity.title

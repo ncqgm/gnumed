@@ -14,8 +14,8 @@
 #           30.07.2002 rterry images put in file
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.18 2004-03-25 11:03:23 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmDemographics.py,v 1.19 2004-03-27 04:37:01 ihaywood Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.wxpython import gmPlugin, gmGP_PatientPicture, gmPatientHolder
@@ -598,10 +598,7 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		if m['birthdate'].IsModified ():
 			myPatient.setDOB( self.value_map['birthdate'])
 		if m['country'].IsModified ():
-			success, err = myPatient.setCOB (self.value_map['country'])
-			# FIXME: handle errors
-			#if not success:
-				
+			myPatient.setCOB (self.value_map['country'])	
 		if self.value_map['title'] != self.old_title:
 			myPatient.setTitle( self.value_map['title'])
 		for str, const in [('fax', gmDemographicRecord.FAX), ('homephone', gmDemographicRecord.HOME_PHONE), ('workphone', gmDemographicRecord.WORK_PHONE), ('mobile', gmDemographicRecord.MOBILE), ('web', gmDemographicRecord.WEB), ('email', gmDemographicRecord.EMAIL)]:
@@ -798,7 +795,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.18  2004-03-25 11:03:23  ncq
+# Revision 1.19  2004-03-27 04:37:01  ihaywood
+# lnk_person2address now lnk_person_org_address
+# sundry bugfixes
+#
+# Revision 1.18  2004/03/25 11:03:23  ncq
 # - getActiveName -> get_names
 #
 # Revision 1.17  2004/03/15 15:43:17  ncq

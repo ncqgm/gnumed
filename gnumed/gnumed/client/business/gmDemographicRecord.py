@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.34 2004-03-25 11:01:45 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmDemographicRecord.py,v 1.35 2004-03-27 04:37:01 ihaywood Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -214,20 +214,6 @@ class cDemographicRecord_SQL(cDemographicRecord):
 	#--------------------------------------------------------
 	def setTitle (self, title):
 		cmd = "update identity set title=%s where id=%s"
-#		cmd = "select id from names where id_identity = %s and active = true"
-#		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-#		if data is None or len(data) == 0:
-#			print "NO ACTIVE TITLE FOUND"
-#			return None
-#		name_id = data[0][0]
-#		cmd = "update names set active = false where id = %s" 
-			# setting the active row false but remember its id: a row with  active = false won't fire the 
-			# trigger(s) causing side effects.
-#		gmPG.run_commit ('personalia', [(cmd, [name_id ])])
-#		cmd = "update names set title = %s  where id = %s"
-#		gmPG.run_commit ('personalia', [(cmd, [title, name_id ])])
-#		cmd = "update names set active= true where id = %s"
-		#reactivate the row after the data is set
 		return gmPG.run_commit ('personalia', [(cmd, [title, self.ID])])
 	#--------------------------------------------------------
 	def getID(self):
@@ -260,19 +246,11 @@ class cDemographicRecord_SQL(cDemographicRecord):
 	#--------------------------------------------------------------------
 	def setCOB (self, cob):
 		cmd = "update identity set cob = country.code from country where identity.id = %s and country.name = %s"
-#		conn = gmPG.ConnectionPool().GetConnection ('personalia', readonly=0)
-#		curs = conn.cursor()
-#		gmPG.run_commit(curs, [(cmd, [self.ID, cob])])
 		success, err_msg = gmPG.run_commit('personalia', [(cmd, [self.ID, cob])], return_err_msg=1)
 		if not success:
-#		if curs.rowcount == 0:
 			# user probably gave us invalid country
-#			gmDispatcher.send (gmSignals.user_error(), message = 'Country %s not valid' % cob)
 			msg = '%s (%s)' % ((_('invalid country [%s]') % cob), err_msg)
-			return (None, msg)
-#		curs.close ()
-#		conn.commit ()
-#		conn.close ()
+			raise gmExceptions.InvalidInputException (msg)
 	#----------------------------------------------------------------------
 	def getMaritalStatus (self):
 		cmd = "select name from marital_status, identity where marital_status.id = identity.id_marital_status and identity.id = %s"
@@ -405,12 +383,12 @@ where
 				at.name
 			from
 				v_basic_address vba,
-				lnk_person2address lp2a,
+				lnk_person_org_address lpoa,
 				address_type at
 			where
-				lp2a.id_address = vba.addr_id
-				and lp2a.id_type = at.id
-				and lp2a.id_identity = %%(pat_id)s
+				lpoa.id_address = vba.addr_id
+				and lpoa.id_type = at.id
+				and lpoa.id_identity = %%(pat_id)s
 				%s""" % addr_where
 		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, vals)
 		if rows is None:
@@ -427,7 +405,7 @@ where
 		} for r in rows]
 	#--------------------------------------------------------
 	def unlinkAddress (self, ID):
-		cmd = "delete from lnk_person2address where id_identity = %s and id_address = %s"
+		cmd = "delete from lnk_person_org_address where id_identity = %s and id_address = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [self.ID, ID])])
 	#--------------------------------------------------------
 	def copyAddresses(self, a_demographic_record):
@@ -464,7 +442,7 @@ where
 
 		# delete any pre-existing link for this identity and the given address type
 		cmd = """
-			delete from lnk_person2address
+			delete from lnk_person_org_address
 			where
 				id_identity = %s and
 				id_type = (select id from address_type where name = %s)
@@ -475,7 +453,7 @@ where
 		if len(data) > 0:
 			addr_id = data[0][0]
 			cmd = """
-				insert into lnk_person2address (id_identity, id_address, id_type)
+				insert into lnk_person_org_address (id_identity, id_address, id_type)
 				values (%s, %s, (select id from address_type where name = %s))
 				"""
 			return gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, addr_type))])
@@ -486,7 +464,7 @@ where
 			values (%s, %s, %s, %s, %s, %s)
 			"""
 		cmd2 = """
-			insert into lnk_person2address (id_identity, id_address, id_type)
+			insert into lnk_person_org_address (id_identity, id_address, id_type)
 			values (%s, currval ('address_id_seq'), (select id from address_type where name = %s))
 			"""
 		return gmPG.run_commit ("personalia", [
@@ -525,7 +503,7 @@ where
 		# delete pre-existing link as required
 		cmd1 = """
 		delete from
-			lnk_person2comm_channel
+			lnk_identity2comm_channel
 		where
 			id_identity = %s
 				and
@@ -534,7 +512,7 @@ where
 				from comm_channel cc
 				where cc.id_type = %s and cc.id = id_comm)"""
 		# creating new link
-		cmd2 = """insert into lnk_person2comm_channel (id_identity, id_comm) values (%s, %s)"""
+		cmd2 = """insert into lnk_identity2comm_channel (id_identity, id_comm) values (%s, %s)"""
 		return gmPG.run_commit ('personalia', [
 			(cmd1, [self.ID, channel_type]),
 			(cmd2, [self.ID, id_channel])
@@ -545,21 +523,22 @@ where
 		Gets the comm channel url, given its type ID
 		If ID default, a mapping of all IDs and urls
 		"""
-		if channel is None:
-			rows = gmPG.run_ro_query ('personalia', """
+		if channel:
+			data = gmPG.run_ro_query ('personalia', """
+			select cc.url from comm_channel cc, lnk_identity2comm_channel lp2cc where
+			cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
+			""", None, channel, self.ID)
+			return data and data[0][0]
+		else:
+			data = gmPG.run_ro_query ('personalia', """
 			select cc.id_type, cc.url
-			from comm_channel cc,
-			lnk_person2comm_channel lp2cc
-			where cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
+			from
+			comm_channel cc,
+			lnk_identity2comm_channel lp2cc
+			where
+			cc.id = lp2cc.id_comm and lp2cc.id_identity = %s
 			""", None, self.ID)
 			return dict(rows)
-
-		data = gmPG.run_ro_query ('personalia', """
-			select cc.url
-			from comm_channel cc, lnk_person2comm_channel lp2cc
-			where cc.id_type = %s and lp2cc.id_identity = %s and lp2cc.id_comm = cc.id
-			""", None, channel, self.ID)
-		return data and data[0][0]
 	#----------------------------------------------------------------------
 	def getMedicalAge(self):
 		dob = self.getDOB()
@@ -579,10 +558,10 @@ where
 			'comment': comment,
 			}
 		if comment:
-			cmd1 = 'insert into ext_person_id (id_identity, external_id, fk_origin, comment) values (%(ID)s, %(ext_ID)s, %(origin)s, %(comment)s)'
+			cmd1 = 'insert into lnk_identity2ext_id (id_identity, external_id, fk_origin, comment) values (%(ID)s, %(ext_ID)s, %(origin)s, %(comment)s)'
 		else:
-			cmd1 = 'insert into ext_person_id (id_identity, external_id, fk_origin) values (%(ID)s, %(ext_ID)s, %(origin)s)'
-		cmd2 = "select currval('ext_person_id_id_seq')"
+			cmd1 = 'insert into lnk_identity2ext_id (id_identity, external_id, fk_origin) values (%(ID)s, %(ext_ID)s, %(origin)s)'
+		cmd2 = "select currval('lnk_identity2ext_id_id_seq')"
 		result = gmPG.run_commit('personalia', [
 			(cmd1, [args]),
 			(cmd2, [])
@@ -593,7 +572,7 @@ where
 		return result[0][0]
 	#------------------------------------------------------------
 	def removeExternalID(self, pk_external_ID):
-		cmd = 'delete from ext_person_id where id=%s'
+		cmd = 'delete from lnk_identity2ext_id where id=%s'
 		return gmPG.run_commit('personalia', [(cmd, [pk_external_ID])])
 	#---------------------------------------------------------------
 	def listExternalIDs (self):
@@ -605,7 +584,7 @@ where
 		- comment [a user comment]
 		- external_id [the actual external ID]
 		"""
-		cmd = "select id, fk_origin, comment, external_id from ext_person_id where id_identity = %s"
+		cmd = "select id, fk_origin, comment, external_id from lnk_identity2ext_id where id_identity = %s"
 		rows = gmPG.run_ro_query ('personalia', cmd, None, self.ID)
 		if rows is None:
 			return []
@@ -856,7 +835,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.34  2004-03-25 11:01:45  ncq
+# Revision 1.35  2004-03-27 04:37:01  ihaywood
+# lnk_person2address now lnk_person_org_address
+# sundry bugfixes
+#
+# Revision 1.34  2004/03/25 11:01:45  ncq
 # - getActiveName -> get_names(all=false)
 # - export_demographics()
 #

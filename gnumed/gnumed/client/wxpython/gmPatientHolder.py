@@ -11,12 +11,13 @@
 # @dependencies: wxPython (>= version 2.3.1)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientHolder.py,v $
-# $Id: gmPatientHolder.py,v 1.9 2004-03-09 07:34:51 ihaywood Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmPatientHolder.py,v 1.10 2004-03-27 04:37:01 ihaywood Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "R.Terry, SJ Tan"
 
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmLog
 from Gnumed.business.gmPatient import gmCurrentPatient
+from Gnumed.wxpython import gmGuiHelpers
 import sys
 from wxPython.wx import *
 
@@ -51,6 +52,10 @@ class PatientHolder:
 		"""
 		try:
 			self._save_data ()
+		except gmExceptions.InvalidInputError, err:
+			# nasty evil popup dialogue box
+			# but for invalid input we want to interrupt user
+			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
 		except:
 			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 

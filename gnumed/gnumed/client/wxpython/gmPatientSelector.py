@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.35 2004-03-25 11:03:23 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmPatientSelector.py,v 1.36 2004-03-27 04:37:01 ihaywood Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -53,7 +53,7 @@ def pat_expand_default(curs = None, ID_list = None):
 		SELECT i_id, lastnames, firstnames, to_char(dob, 'DD.MM.YYYY')
 		FROM v_basic_person
 		WHERE i_id in (%s)
-		""" % string.join(map(lambda x:str(x[0]), ID_list), ',')
+		""" % string.join(map(lambda x:str(x), ID_list), ',')
 
 	if not gmPG.run_query(curs, cmd):
 		_log.Log(gmLog.lErr, 'Cannot fetch patient data.')
@@ -412,52 +412,55 @@ and hit <ENTER>
 		evt.Skip()
 	#--------------------------------------------------------
 	def _on_enter(self, evt):
-		curr_search_term = self.GetValue()
-		# remember fragment
-		if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
-			self.prev_search_term = curr_search_term
+		try:
+			curr_search_term = self.GetValue()
+			# remember fragment
+			if self.IsModified() and not re.match("^(\s|\t)*$", curr_search_term):
+				self.prev_search_term = curr_search_term
 
-		# get list of matching ids
-		start = time.time()
-		ids = self.pat_searcher.get_patient_ids(curr_search_term)
-		duration = time.time() - start
-		print "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration)
-
-		if ids is None or len(ids) == 0:
-			dlg = wxMessageDialog(
-				NULL,
-				_('Cannot find ANY matching patients for search term\n"%s" !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
-				_('selecting patient'),
-				wxOK | wxICON_EXCLAMATION
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return true
-
-		curs = self.conn.cursor()
-		# only one matching patient
-		if len(ids) == 1:
-			# and make our selection known to others
-			data, self.prev_col_order = self.pat_expander(curs, ids)
-			curs.close()
-			self.SetActivePatient(ids[0], data[0])
-		else:
-			# get corresponding patient data
+			# get list of matching ids
 			start = time.time()
-			pat_list, self.prev_col_order = self.pat_expander(curs, ids)
+			ids = self.pat_searcher.get_patient_ids(curr_search_term)
 			duration = time.time() - start
-			print "patient data fetched in %3.3f seconds" % duration
-			curs.close()
+			_log.Log (gmLog.lInfo, "%s patient ID(s) fetched in %3.3f seconds" % (len(ids), duration))
+
+			if ids is None or len(ids) == 0:
+				dlg = wxMessageDialog(
+					NULL,
+					_('Cannot find ANY matching patients for search term\n"%s" !\nCurrently selected patient stays active.\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
+					_('selecting patient'),
+					wxOK | wxICON_EXCLAMATION
+					)
+				dlg.ShowModal()
+				dlg.Destroy()
+				return true
+
+			curs = self.conn.cursor()
+			# only one matching patient
+			if len(ids) == 1:
+				# and make our selection known to others
+				data, self.prev_col_order = self.pat_expander(curs, ids)
+				curs.close()
+				self.SetActivePatient(ids[0], data[0])
+			else:
+				# get corresponding patient data
+				start = time.time()
+				pat_list, self.prev_col_order = self.pat_expander(curs, ids)
+				duration = time.time() - start
+				_log.Log (gmLog.lInfo, "patient data fetched in %3.3f seconds" % duration)
+				curs.close()
 
 			# and let user select from pick list
-			dlg = cPatientPickList(parent = NULL)
-			dlg.SetItems(pat_list, self.prev_col_order)
-			result = dlg.ShowModal()
-			dlg.Destroy()
-			for pat in pat_list:
-				if result == pat[0]:
-					self.SetActivePatient(result, pat)
-					break
+				dlg = cPatientPickList(parent = NULL)
+				dlg.SetItems(pat_list, self.prev_col_order)
+				result = dlg.ShowModal()
+				dlg.Destroy()
+				for pat in pat_list:
+					if result == pat[0]:
+						self.SetActivePatient(result, pat)
+						break
+		except:
+			_log.LogException ("select patient", sys.exc_info (), verbose=0)
 #============================================================
 # main
 #------------------------------------------------------------
@@ -579,7 +582,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.35  2004-03-25 11:03:23  ncq
+# Revision 1.36  2004-03-27 04:37:01  ihaywood
+# lnk_person2address now lnk_person_org_address
+# sundry bugfixes
+#
+# Revision 1.35  2004/03/25 11:03:23  ncq
 # - getActiveName -> get_names
 #
 # Revision 1.34  2004/03/20 19:48:07  ncq
