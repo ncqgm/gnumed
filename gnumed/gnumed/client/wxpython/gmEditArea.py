@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.34 2003-09-21 00:24:19 sjtan Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmEditArea.py,v 1.35 2003-10-19 12:16:48 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -13,13 +13,15 @@ import sys, traceback
 
 if __name__ == "__main__":
 	sys.path.append ("../python-common/")
+	sys.path.append ("../business/")
+
 import gmLog
 _log = gmLog.gmDefLog
 
 if __name__ == "__main__":
 	import gmI18N
 
-import gmExceptions, gmDateTimeInput, TestEvents
+import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals
 
 from wxPython.wx import *
 
@@ -115,6 +117,8 @@ PHX_CONFIDENTIAL=wxNewId()
 PHX_SIGNIFICANT=wxNewId()
 PHX_PROGRESSNOTES=wxNewId()
 
+wxID_BTN_Save = wxNewId()
+wxID_BTN_Clear = wxNewId()
 
 richards_blue = wxColour(0,0,131)
 richards_aqua = wxColour(0,194,197)
@@ -170,7 +174,6 @@ class cEditAreaField(wxTextCtrl):
 		self.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 #====================================================================
 #====================================================================
-#class gmEditArea(PropertySupport.PropertySupported, wxPanel):
 class gmEditArea( wxPanel):
 	def __init__(self, parent, id, aType = None):
 		# sanity checks
@@ -188,23 +191,13 @@ class gmEditArea( wxPanel):
 			wxDefaultSize,
 			style = wxNO_BORDER | wxTAB_TRAVERSAL
 		)
-		# for Owning Use Case identification
 		self.SetName(self._type)
 #		self.SetBackgroundColour(wxColor(222,222,222))
 
 		self.input_fields = {}
 
-		# make prompts
 		szr_prompts = self.__make_prompts(_prompt_defs[self._type])
-
-		# make editing area
 		self.szr_editing_area = self.__make_editing_area()
-
-		# add the handler
-		self.test_handler = TestEvents.TestEvents()
-		self.test_handler.test_checkbox(self)
-
-		
 		# stack prompts and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
 		self.szr_main_panels.Add(szr_prompts, 11, wxEXPAND)
@@ -218,6 +211,9 @@ class gmEditArea( wxPanel):
 		self.SetSizer(self.szr_central_container)
 		self.szr_central_container.Fit(self)
 		self.SetAutoLayout(true)
+
+		self.__register_events()
+
 		self.Show(true)
 	#----------------------------------------------------------------
 	def _make_prompt(self, parent, aLabel, aColor):
@@ -277,17 +273,17 @@ class gmEditArea( wxPanel):
 		return hszr_prompts
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
-		self.btn_OK = wxButton(parent, -1, _("Ok"))
-		self.btn_Clear = wxButton(parent, -1, _("Clear"))
+		self.btn_Save = wxButton(parent, wxID_BTN_Save, _("Save"))
+		self.btn_Clear = wxButton(parent, wxID_BTN_Clear, _("Clear"))
 
 		# back pointers for panel type identification
 		# FIXME: you mean, like, for finding out what type of edit area ?
 		# why can't we use self._type for that ?
-		self.btn_OK.owner = self
+		self.btn_Save.owner = self
 		self.btn_Clear.owner = self
 		
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_OK, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(self.btn_Save, 1, wxEXPAND | wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
 
@@ -342,6 +338,41 @@ class gmEditArea( wxPanel):
 		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wxEXPAND)
 
 		return hszr_edit_fields
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_events(self):
+		# connect standard buttons
+		EVT_BUTTON(self.btn_Save, wxID_BTN_Save, self._on_save_btn_pressed)
+		EVT_BUTTON(self.btn_Clear, wxID_BTN_Clear, self._on_clear_btn_pressed)
+
+		# client internal signals
+		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._save_data)
+		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._save_data)
+
+		return 1
+	#--------------------------------------------------------
+	# handlers
+	#--------------------------------------------------------
+	def _on_save_btn_pressed(self, event):
+		print "SAVE button pressed"
+		self._save_data()
+		event.Skip()
+	#--------------------------------------------------------
+	def _save_data(self):
+		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
+		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
+		raise AttributeError
+	#--------------------------------------------------------
+	def _on_clear_btn_pressed(self, event):
+		print "CLEAR button pressed"
+		self._init_fields()
+		event.Skip()
+	#--------------------------------------------------------
+	def _init_fields(self):
+		_log.Log(gmLog.lErr, 'programmer forgot to define _init_fields() for [%s]' % self._type)
+		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
+		raise AttributeError
 #====================================================================
 class gmAllergyEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -355,7 +386,13 @@ class gmAllergyEditArea(gmEditArea):
 		_log.Log(gmLog.lData, "making allergy lines")
 		lines = []
 		# line 1
-		self.input_fields['date recorded'] = gmDateTimeInput.gmDateInput(parent, -1, style = wxSIMPLE_BORDER)
+		self.input_fields['date recorded'] = gmDateTimeInput.gmDateInput(
+			parent = parent,
+			id = -1,
+			size = wxPyDefaultSize,
+			pos = wxPyDefaultPosition,
+			style = wxSIMPLE_BORDER
+		)
 		lines.append(self.input_fields['date recorded'])
 		# line 2
 		self.input_fields['substance'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
@@ -378,7 +415,7 @@ class gmAllergyEditArea(gmEditArea):
 		# line 6
 		self.RBtn_is_allergy = wxRadioButton(parent, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
 		self.RBtn_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
-		self.cb_is_definite_allergy = wxCheckBox(parent, -1, _("Definate"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
+		self.cb_is_definite_allergy = wxCheckBox(parent, -1, _("Definite"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
 
 		self.input_fields['definite'] = self.cb_is_definite_allergy
 		szr = wxBoxSizer(wxHORIZONTAL)
@@ -390,6 +427,14 @@ class gmAllergyEditArea(gmEditArea):
 		lines.append(szr)
 
 		return lines
+	#--------------------------------------------------------
+	def _save_data(self):
+		print "saving allergy data"
+		return 1
+	#--------------------------------------------------------
+	def _init_fields(self):
+		print "initializing allergy input fields"
+		return 1
 #====================================================================
 class gmFamilyHxEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -682,10 +727,10 @@ class EditTextBoxes(wxPanel):
 		self.Show(true)
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self):
-		self.btn_OK = wxButton(self, -1, _("Ok"))
+		self.btn_Save = wxButton(self, -1, _("Ok"))
 		self.btn_Clear = wxButton(self, -1, _("Clear"))
 		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_OK, 1, wxEXPAND, wxALL, 1)
+		szr_buttons.Add(self.btn_Save, 1, wxEXPAND, wxALL, 1)
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND, wxALL, 1)
 		return szr_buttons
@@ -812,7 +857,7 @@ class EditArea(wxPanel):
 #		      self.gszr.Add(self.txt_sitegiven,0,wxEXPAND)
 #		      self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
 #		      self.sizer_line6.Add(5,0,6)
-#		      self.sizer_line6.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line6.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
 #	              self.sizer_line6.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
 #		      self.gszr.Add(self.sizer_line6,1,wxEXPAND)
 
@@ -860,7 +905,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line8.Add(5,0,0)
 #		      self.sizer_line8.Add(self.sizer_auth_PI,2,wxEXPAND)
 #		      self.sizer_line8.Add(5,0,2)
-#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
 #		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
 #		      self.gszr.Add(self.text1_prescription_reason,1,wxEXPAND) #prescribe for
 #		      self.gszr.Add(self.text2_drug_class,1,wxEXPAND) #prescribe by class
@@ -909,7 +954,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line7.Add(self.cb_includeallmedications,3,wxEXPAND)
 #		      self.sizer_line10.AddSizer(self.sizer_request_optionbuttons,3,wxEXPAND)
 #		      self.sizer_line10.AddSizer(self.szr_buttons,1,wxEXPAND)
-		      #self.sizer_line10.Add(self.btn_OK,1,wxEXPAND|wxALL,1)
+		      #self.sizer_line10.Add(self.btn_Save,1,wxEXPAND|wxALL,1)
 	              #self.sizer_line10.Add(self.btn_Clear,1,wxEXPAND|wxALL,1)  
 		      #------------------------------------------------------------------
 		      #add either controls or sizers with controls to vertical grid sizer
@@ -924,7 +969,7 @@ class EditArea(wxPanel):
 #		      self.gszr.Add(self.txt_request_copyto,0,wxEXPAND)                 #e.g Dr I'm All Heart, 120 Big Street Smallville
 #		      self.gszr.Add(self.txt_request_progressnotes,0,wxEXPAND)          #emphasised to patient must return for results 
  #                     self.sizer_line8.Add(5,0,6)
-#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
 #	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)   
 #		      self.gszr.Add(self.sizer_line10,0,wxEXPAND)                       #options:b/bill private, rebate,w/cover btnok,btnclear
 
@@ -950,7 +995,7 @@ class EditArea(wxPanel):
 #		      self.sizer_line8.Add(5,0,0)
 #		      self.sizer_line8.Add(self.sizer_graphnextbtn,2,wxEXPAND)
 #		      self.sizer_line8.Add(5,0,2)
-#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
 #		      self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)
 #		      self.gszr.AddSizer(self.sizer_line8,0,wxEXPAND)
 		      
@@ -1075,7 +1120,7 @@ class EditArea(wxPanel):
 #		      self.gszr.AddSizer(self.sizer_line1,1,wxEXPAND)                        #the contact method, appointment length
 #		      self.gszr.Add(self.txt_recall_progressnotes,1,wxEXPAND)          #add any progress notes for consultation
 #		      self.sizer_line8.Add(5,0,6)
-#		      self.sizer_line8.Add(self.btn_OK,1,wxEXPAND|wxALL,2)
+#		      self.sizer_line8.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
 #	              self.sizer_line8.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
 #		      self.gszr.Add(self.sizer_line8,1,wxEXPAND)
 #		else:
@@ -1088,15 +1133,20 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))
 	app.SetWidget(gmAllergyEditArea, -1)
 	app.MainLoop()
-	app = wxPyWidgetTester(size = (400, 200))
-	app.SetWidget(gmFamilyHxEditArea, -1)
-	app.MainLoop()
-	app = wxPyWidgetTester(size = (400, 200))
-	app.SetWidget(gmPastHistoryEditArea, -1)
-	app.MainLoop()
+#	app = wxPyWidgetTester(size = (400, 200))
+#	app.SetWidget(gmFamilyHxEditArea, -1)
+#	app.MainLoop()
+#	app = wxPyWidgetTester(size = (400, 200))
+#	app.SetWidget(gmPastHistoryEditArea, -1)
+#	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.34  2003-09-21 00:24:19  sjtan
+# Revision 1.35  2003-10-19 12:16:48  ncq
+# - cleanup
+# - add event handlers to standard buttons
+# - fix gmDateInput args breakage
+#
+# Revision 1.34  2003/09/21 00:24:19  sjtan
 #
 # rollback.
 #
