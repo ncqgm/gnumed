@@ -7,7 +7,7 @@ TBx = 1
 CHBx = 2
 RBn = 3
 CMBx =4
-
+LAB = 5
 
 
 
@@ -54,6 +54,9 @@ class EditArea2(wxPanel):
 		if type == CMBx:
 			label= wxStaticText(self, -1, displayName)
 			widget = wxComboBox(self, -1)
+		
+		if type == LAB:
+			widget = wxStaticText(self, -1, displayName)
 
 		if label <> None:
 			self.lineSizer.Add(label, 1, flag=wxALIGN_RIGHT)
@@ -65,7 +68,7 @@ class EditArea2(wxPanel):
 			aflag =  wxALIGN_LEFT
 		self.lineSizer.Add(widget, aproportion, aflag)
 		self.rowItems += 1
-
+		
 		self.widgets[propName] = widget
 
 		if newline:
@@ -153,37 +156,81 @@ class ReferralEditArea(EditArea2):
 		self.add("suburb", weight=2)
 		self.add("postcode", newline=1)
 		self.add("for", newline=1)
+		self.add("include", LAB)
 		self.add("medications", CHBx)
 		self.add("social history", CHBx)
 		self.add("family history", CHBx, newline = 1)
+		self.add("", LAB)
 		self.add("past problems", CHBx)
 		self.add("active problems", CHBx)
 		self.add("habits", CHBx, newline = 1)
 		self.finish()
 		
 
+class RequestEditArea(EditArea2):
+	def __init__(self, parent, id):
+		EditArea2.__init__(self, parent, id)
+		self.add("type", newline =1 )
+		self.add("company", newline = 1)
+		self.add("street", newline = 1)
+		self.add("suburb", weight = 2)
+		self.add("phone", weight = 2,newline = 1)
+		self.add("request", newline = 1)
+		self.add("notes on form", newline = 1)
+		self.add("medications", weight=3)
+		self.add("include all meds", CHBx, newline = 1)
+		self.add("copy to", newline = 1)
+		self.add("progress notes", newline = 1)
+		self.add("billing", LAB)
+		self.add("bulk bill", RBn)
+		self.add("private", RBn)
+		self.add("rebate", RBn)
+		self.add("wcover", RBn, newline = 1)
+		self.add("", LAB)
+		self.finish()
+
+class VaccinationEditArea(EditArea2):
+	def __init__(self, parent, id):
+		EditArea2.__init__(self, parent, id)
+		self.add("target disease", CMBx, weight = 2)
+		self.add("schedule age", CMBx,  newline = 1)
+		self.add("vaccine", CMBx, newline = 1)
+		self.add("date given", newline = 1)
+		self.add("serial no", newline = 1)
+		self.add("route", CMBx)
+		self.add("site injected", CMBx)
+		self.finish()
+		
+
+
 
 
 if __name__=="__main__":
-	app = wxPyWidgetTester(size=(400,200) )
+	app = wxPyWidgetTester(size=(400,300) )
 	app.SetWidget( PastHistoryEditArea, -1)
 	app.MainLoop()
 
-	app = wxPyWidgetTester(size=(400,200) )
+	app = wxPyWidgetTester(size=(400,300) )
 	app.SetWidget( MedicationEditArea, -1)
 	app.MainLoop()
 	
-	app = wxPyWidgetTester( size=(400, 200) )
+	app = wxPyWidgetTester( size=(400, 300) )
 	app.SetWidget( RecallEditArea, -1)
 	app.MainLoop()
 
 	
-	app = wxPyWidgetTester( size=(400, 200) )
+	app = wxPyWidgetTester( size=(400, 300) )
 	app.SetWidget( ReferralEditArea, -1)
 	app.MainLoop()
 	
+	app = wxPyWidgetTester( size=(400, 300) )
+	app.SetWidget( RequestEditArea, -1)
+	app.MainLoop()
 	
 		
+	app = wxPyWidgetTester( size=(400, 200) )
+	app.SetWidget( VaccinationEditArea, -1)
+	app.MainLoop()
 
 			
 			
