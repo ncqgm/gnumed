@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.44 2004-02-18 15:29:05 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.45 2004-03-12 23:15:04 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -201,7 +201,7 @@ create view v_test_result as
 		vpep.id_health_issue as id_health_issue,
 		tr.id_episode as id_episode,
 		tr.id_encounter as id_encounter,
-		tr.id_type as id_type,
+		tr.fk_type as pk_type,
 		tr.val_when as result_when,
 		tt.code as test_code,
 		tt.name as test_name,
@@ -214,7 +214,7 @@ create view v_test_result as
 		tr.val_normal_range as normal_range,
 		tr.note_provider as comment_provider,
 		tr.reviewed_by_clinician as seen_by_doc,
-		tr.id_clinician as id_doc_seen,
+		tr.fk_clinician as pk_doc_seen,
 		tr.clinically_relevant as clinically_relevant,
 		tr.narrative as comment_doc
 	from
@@ -222,33 +222,18 @@ create view v_test_result as
 		test_type tt,
 		v_patient_episodes vpep
 	where
-		tr.id_type = tt.id
+		tr.fk_type = tt.id
 			AND
 		tr.id_episode = vpep.id_episode
 ;
 
 -- ==========================================================
-\unset ON_ERROR_STOP
-drop view v_lab_result;
-\set ON_ERROR_STOP 1
+--\unset ON_ERROR_STOP
+--drop view v_pending_lab_reqs;
+--\set ON_ERROR_STOP 1
 
-create view v_lab_result as
-	select
-		lr.id as id_lab_result,
-		vtr.*,
-		lr.sample_id,
-		lr.abnormal_tag,
-		lr.id_sampler,
-		tt.id_provider as id_lab
-	from
-		lab_result lr,
-		v_test_result vtr,
-		test_type tt
-	where
-		lr.id_result = vtr.id_result
-			AND
-		vtr.id_type = tt.id
-;
+-- this isn't very useful due to clinical and demographics
+-- being separate services
 -- ==========================================================
 -- health issues stuff
 \unset ON_ERROR_STOP
@@ -548,11 +533,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.44 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.45 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.44  2004-02-18 15:29:05  ncq
+-- Revision 1.45  2004-03-12 23:15:04  ncq
+-- - adjust to id_ -> fk_/pk_
+--
+-- Revision 1.44  2004/02/18 15:29:05  ncq
 -- - add v_most_recent_encounters
 --
 -- Revision 1.43  2004/02/02 16:17:42  ncq

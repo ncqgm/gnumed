@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.21 2004-02-18 14:08:29 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.22 2004-03-12 23:15:04 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -124,7 +124,7 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- measurements stuff
 -- your own practice as a test-providing org
-insert into test_org (id, id_org, comment) values (
+insert into test_org (pk, fk_org, comment) values (
 	1, -1, 'your own practice'
 );
 
@@ -519,11 +519,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.22 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.21  2004-02-18 14:08:29  ncq
+-- Revision 1.22  2004-03-12 23:15:04  ncq
+-- - adjust to id_ -> fk_/pk_
+--
+-- Revision 1.21  2004/02/18 14:08:29  ncq
 -- - add "chart review" encounter type
 --
 -- Revision 1.20  2004/01/22 23:44:39  ncq
