@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -850,7 +850,7 @@ class cCfgFile:
 		# eventually loop through all candidates
 		for candidate in (candidate_files):
 			if not os.path.isfile(candidate):
-				_log.Log(gmLog.lWarn, "config file [%s] not found" % candidate)
+				_log.Log(gmLog.lInfo, "config file [%s] not found" % candidate)
 			else:
 				_log.Log(gmLog.lData, 'found config file [%s]' % candidate)
 				self.cfgName = candidate
@@ -1254,7 +1254,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.24  2005-01-10 11:46:51  ncq
+# Revision 1.25  2005-02-01 16:56:58  ncq
+# - downgrade some log messages from Warn to Info
+#
+# Revision 1.24  2005/01/10 11:46:51  ncq
 # - make cCfgSQL also support arbitrary option values in cfg_data
 #
 # Revision 1.23  2004/09/06 22:18:12  ncq
