@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.71 2004-06-02 00:05:51 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.72 2004-06-13 08:08:35 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -280,7 +280,10 @@ select
 	tr0.fk_type as pk_test_type,
 	lr.pk as pk_request,
 	lr.fk_test_org as pk_test_org,
-	lr.fk_requestor as pk_requestor
+	lr.fk_requestor as pk_requestor,
+	vpep.id_health_issue as pk_health_issue,
+	tr0.id_episode as pk_episode,
+	tr0.id_encounter as pk_encounter
 from
 	(lnk_result2lab_req lr2lr inner join test_result tr1 on (lr2lr.fk_result=tr1.id)) tr0
 		inner join
@@ -356,6 +359,7 @@ select
 	a.definite as definite,
 	a.narrative as reaction,
 	a.id_type as id_type,
+	a.clin_when as date,
 	vpep.id_health_issue as id_health_issue,
 	a.id_episode as id_episode,
 	a.id_encounter as id_encounter
@@ -424,13 +428,19 @@ select
 	coalesce(v.narrative, '') as narrative,
 	vind.id as pk_indication,
 	v.fk_provider as pk_provider,
-	vcine.id as pk_vaccine
+	vcine.id as pk_vaccine,
+	vpep.id_health_issue as id_health_issue,
+	v.id_episode as id_episode,
+	v.id_encounter as id_encounter
 from
 	vaccination v,
 	vaccine vcine,
 	lnk_vaccine2inds lv2i,
-	vacc_indication vind
+	vacc_indication vind,
+	v_pat_episodes vpep
 where
+	vpep.id_episode=v.id_episode
+		and
 	v.fk_vaccine = vcine.id
 		and
 	lv2i.fk_vaccine = vcine.id
@@ -748,11 +758,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.71 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.72 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.71  2004-06-02 00:05:51  ncq
+-- Revision 1.72  2004-06-13 08:08:35  ncq
+-- - pull in some more PKs in views for episode/encounter/issue sorting
+--
+-- Revision 1.71  2004/06/02 00:05:51  ncq
 -- - vpep.episode now vpep.description
 --
 -- Revision 1.70  2004/06/01 08:43:21  ncq
