@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scanFrame.py,v $
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/scan-med_docs.py,v $
 __version__ = "$Revision: 1.1 $"
 
-#Boa:Frame:scanFrame
 
 from wxPython.wx import *
 import Image,string,time,shutil,os,sys,gettext
@@ -21,8 +20,8 @@ except ImportError:
     scan_drv = 'linsane'
 #-------------------------------------------------
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
-__log__ = gmLog.gmDefLog
-__cfg__ = gmCfg.gmDefCfg
+_log = gmLog.gmDefLog
+_cfg = gmCfg.gmDefCfg
 
 
 def create(parent):
@@ -379,4 +378,28 @@ class scanFrame(wxFrame):
         ##        dlg.ShowModal()
         ##    finally:
         ##        dlg.Destroy()
+
+#!/usr/bin/env python
+#Boa:PyApp:main
+
+from wxPython.wx import *
+import scanFrame
+
+modules ={'scanFrame': [0, '', 'scanFrame.py']}
+
+class BoaApp(wxApp):
+    def OnInit(self):
+        wxInitAllImageHandlers()
+        self.main = scanFrame.create(None)
+        #workaround for running in wxProcess
+        self.main.Show();self.main.Hide();self.main.Show() 
+        self.SetTopWindow(self.main)
+        return true
+
+def main():
+    application = BoaApp(0)
+    application.MainLoop()
+
+if __name__ == '__main__':
+    main()
     
