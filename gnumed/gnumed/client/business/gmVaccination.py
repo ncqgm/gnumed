@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmVaccination.py,v $
-# $Id: gmVaccination.py,v 1.11 2004-09-28 12:28:12 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmVaccination.py,v 1.12 2004-10-12 11:16:22 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -51,13 +51,16 @@ class cVaccination(gmClinItem.cClinItem):
 			return False
 		self._idx['is_booster'] = len(self._payload)
 		self._payload.append(is_booster)
+		if is_booster:
+			self.set_seq_no(seq_no = -1)
 		return True
 	#--------------------------------------------------------
 	def set_seq_no(self, seq_no=None):
-		if seq_no is None:
-			return False
+		int(seq_no)
 		self._idx['seq_no'] = len(self._payload)
 		self._payload.append(seq_no)
+		if seq_no > 0:
+			self.set_booster_status(is_booster=False)
 		return True
 	#--------------------------------------------------------
 #	def get_next_shot_due(self):
@@ -147,6 +150,31 @@ class cScheduledVaccination(gmClinItem.cClinItem):
 	_cmds_store_payload = []
 
 	_updatable_fields = []
+
+#============================================================
+class cVaccinationRegime(gmClinItem.cClinItem):
+	"""Represents one vaccination regime.
+	"""
+	_cmd_fetch_payload = """
+		select * from v_vacc_regimes
+		where pk_regime=%s"""
+
+	_cmds_store_payload = [
+		"""select 1 from vacc_regime where id=%(pk_regime)s for update""",
+		"""update vacc_regime set
+				name=%(regime)s,
+				fk_recommended_by=%(pk_recommended_by)s,
+				fk_indication=(select id from vacc_indication where description=%(indication)s),
+				comment=%(comment)s
+			where id=%(pk_regime)s"""
+		]
+
+	_updatable_fields = [
+		'regime',
+		'pk_recommended_by',
+		'indication',
+		'comment'
+	]
 #============================================================
 # convenience functions
 #------------------------------------------------------------
@@ -191,6 +219,7 @@ def create_vaccination(patient_id=None, episode_id=None, encounter_id=None, staf
 	return (True, vacc)
 #--------------------------------------------------------
 def get_vacc_regimes():
+	# FIXME: use cVaccinationRegime
 	cmd = 'select name from vacc_regime'
 	rows = gmPG.run_ro_query('historica', cmd)
 	if rows is None:
@@ -230,6 +259,29 @@ def get_indications_from_vaccinations(vaccinations=None):
 			except KeyError:
 				inds.append(['vacc -> ind error: %s' % str(vacc), _('vacc -> ind error: %s') % str(vacc)])
 	return (True, inds)
+#--------------------------------------------------------
+def put_patient_on_schedule(patient_id=None, regime=None):
+	"""
+		Schedules a vaccination regime for a patient
+
+		* patient_id = Patient's PK
+		* regime_id = regime object or Vaccination regime's PK
+	"""
+	# FIXME: add method schedule_vaccination_regime() to gmPatient.cPerson
+	if isinstance(regime, cVaccinationRegime):
+		reg_id = regime['pk_regime']
+	else:
+		reg_id = regime
+
+	# insert new patient - vaccination regime relation
+	queries = []
+	cmd = """insert into lnk_pat2vacc_reg (fk_patient, fk_regime)
+			 values (%s, %s)"""
+	queries.append((cmd, [patient_id, reg_id]))
+	result, msg = gmPG.run_commit('historica', queries, True)
+	if result is None:
+		return (False, msg)
+	return (True, msg)
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -245,10 +297,6 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', vacc[field]
 		print "updatable:", vacc.get_updatable_fields()
-		try:
-			vacc['wrong attribute'] = 'hallo'
-		except:
-			_log.LogException('programming error', sys.exc_info(), verbose=0)
 	#--------------------------------------------------------
 	def test_due_vacc():
 		# Test for a due vaccination
@@ -287,33 +335,46 @@ if __name__ == '__main__':
 		print missing_booster
 		for field in fields:
 			print field, ':', missing_booster[field]
-			
 	#--------------------------------------------------------
 	def test_scheduled_vacc():
 		scheduled_vacc = cScheduledVaccination(aPK_obj=20)
+		print "\nScheduled vaccination:"
 		print scheduled_vacc
 		fields = scheduled_vacc.get_fields()
 		for field in fields:
 			print field, ':', scheduled_vacc[field]
 		print "updatable:", scheduled_vacc.get_updatable_fields()
-		try:		
-			print scheduled_vacc['wrong attribute']
-		except:
-			_log.LogException('programming error', sys.exc_info(), verbose=0)			
-		try:
-			scheduled_vacc['wrong attribute'] = 'hallo'
-		except:
-			_log.LogException('programming error', sys.exc_info(), verbose=0)			
 	#--------------------------------------------------------
-	
+	def test_vaccination_regime():
+		vacc_regime = cVaccinationRegime(aPK_obj=7)
+		vacc_regime.set_max_seq(6)
+		print "\nVaccination regime:"		
+		print vacc_regime
+		fields = vacc_regime.get_fields()
+		for field in fields:
+			print field, ':', vacc_regime[field]
+		print "updatable:", vacc_regime.get_updatable_fields()
+	#--------------------------------------------------------
+	def test_put_patient_on_schedule():
+		result, msg = put_patient_on_schedule(patient_id=12, regime_id=1)
+		print '\nPutting patient id 12 on schedule id 1... %s (%s)' % (result, msg)
+	#--------------------------------------------------------
+
 	gmPG.set_default_client_encoding('latin1')
+	test_vaccination_regime()
+	#test_put_patient_on_schedule()
 	test_scheduled_vacc()
 	test_vacc()
 	test_due_vacc()
 #	test_due_booster()
 #============================================================
 # $Log: gmVaccination.py,v $
-# Revision 1.11  2004-09-28 12:28:12  ncq
+# Revision 1.12  2004-10-12 11:16:22  ncq
+# - robustify cVaccination.set_seq_no/set_booster_status
+# - Carlos added cVaccinationRegime/put_patient_on_schedule
+# - some test code
+#
+# Revision 1.11  2004/09/28 12:28:12  ncq
 # - cVaccination: add set_booster_status(), set_seq_no()
 # - add cScheduledVaccination (by Carlos)
 # - improve testing
