@@ -9,7 +9,7 @@ import os, mailcap, string
 import gmLog
 
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 
 __log__ = gmLog.gmDefLog
 #=======================================================================================
@@ -51,5 +51,7 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
     return cmd
 #-----------------------------------------------------------------------------------
 if __name__ == "__main__":
-    print str(guess_mimetype("~/.bashrc"))
-    print str(get_viewer_cmd(guess_mimetype("~/.bashrc"), "~/.bashrc"))
+    import sys
+    filename = sys.argv[1]
+    print str(guess_mimetype(filename))
+    print str(get_viewer_cmd(guess_mimetype(filename), filename))
