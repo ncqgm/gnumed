@@ -25,36 +25,30 @@ It features combo boxes which "remember" any number of previously entered settin
 """
 
 from wxPython.wx import *
-
-import gmLoginInfo, gmGuiMain, gmGuiBroker
-
 import os.path
+import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg
+_cfg = gmCfg.gmDefCfgFile
 
 #############################################################################
 #
 #############################################################################
-
-def StringToList(str, separator='|'):
-	"""converts a character separated string items into a list"""
-
-	return string.split(str, separator)
-
-
-
+#def StringToList(str, separator='|'):
+#	"""converts a character separated string items into a list"""
+#	return string.split(str, separator)
 #############################################################################
 # converts a list of strings into a character separated string of string items
 #############################################################################
 
-def ListToString(strlist, separator='|'):
-	"""converts a list of strings into a character separated string of string items"""
+#def ListToString(strlist, separator='|'):
+#	"""converts a list of strings into a character separated string of string items"""
 
-	try:
-		str = strlist[0]
-	except:
-		return None
-	for setting in strlist[1:]:
-		str = "%s%s%s" % (str, separator, setting)
-	return str
+#	try:
+#		str = strlist[0]
+#	except:
+#		return None
+#	for setting in strlist[1:]:
+#		str = "%s%s%s" % (str, separator, setting)
+#	return str
 
 
 #############################################################################
@@ -63,27 +57,25 @@ def ListToString(strlist, separator='|'):
 # list
 #############################################################################
 
-def AppendSettings(origstr, newstr, maxitems=0, separator='|'):
-	"returns a distinct merger of all items contained in origstr and newstr"
-	origlist = StringToList(origstr, separator)
-	newlist = StringToList(newstr, separator)
-	newlist.reverse()
-	for item in newlist:
-		if item not in origlist:
+#def AppendSettings(origstr, newstr, maxitems=0, separator='|'):
+#	"returns a distinct merger of all items contained in origstr and newstr"
+#	origlist = StringToList(origstr, separator)
+#	newlist = StringToList(newstr, separator)
+#	newlist.reverse()
+#	for item in newlist:
+#		if item not in origlist:
 			#if we care how many items should be in our list
-			if maxitems>0:
+#			if maxitems>0:
 				#remove the last item if we have exceeded the quota
-				if len(origlist)>=maxitems:
-					origlist = origlist[:-1]
+#				if len(origlist)>=maxitems:
+#					origlist = origlist[:-1]
 			#if it is a new item, insert it at the beginnig of the list
-			origlist.insert(0,item)
-		else:
+#			origlist.insert(0,item)
+#		else:
 			#move this item to the beginning of the list
-			origlist.remove(item)
-			origlist.insert(0,item)
-	return ListToString(origlist)
-
-
+#			origlist.remove(item)
+#			origlist.insert(0,item)
+#	return ListToString(origlist)
 
 #############################################################################
 # returns all items in a combo box as list; the value of the text box as first item.
@@ -139,29 +131,27 @@ class LoginPanel(wxPanel):
 	#	          whatever is convention on the current platform
 	#	maxitems: maximum number of items "remembered" in the comboboxes
 
-	def __init__(self, parent, id,
-                  pos = wxPyDefaultPosition, size = wxPyDefaultSize,
-                  style = wxTAB_TRAVERSAL,
-		  loginparams = None,
-		  isDialog = 0,
-		  configroot = '/login' ,
-		  configfilename = 'gnumed',
-		  maxitems = 8):
+	def __init__(self, parent, id, pos = wxPyDefaultPosition, size = wxPyDefaultSize, style = wxTAB_TRAVERSAL,
+		loginparams = None,
+		isDialog = 0,
+		configroot = '/login' ,
+		configfilename = 'gnumed',
+		maxitems = 8):
 
 		wxPanel.__init__(self, parent, id, pos, size, style)
-		self.parent=parent
+		self.parent = parent
 
 		#file name of configuration file - wxConfig takes care of path, extension etc.
-		self.confname=configfilename
+		self.confname = configfilename
 		self.gb = gmGuiBroker.GuiBroker ()
 		#root of setings in the configuration file for this particular dialog
 		self.configroot = configroot
 
 		#true if dialog was cancelled by user
-		self.cancelled=false
+		self.cancelled = false
 
 		#true if this panel is displayed within a dialog (will resize the dialog automatically then)
-		self.isDialog=isDialog
+		self.isDialog = isDialog
 
 		#the number of items we allow to be stored in the comboboxes "history"
 		self.maxitems = maxitems
@@ -192,8 +182,15 @@ class LoginPanel(wxPanel):
 		#USER NAME COMBO
 		label = wxStaticText( self, -1, _("user"), wxDefaultPosition, wxDefaultSize, 0 )
 		self.pboxgrid.AddWindow( label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 )
-		self.usercombo = wxComboBox( self, -1, self.loginparams.userlist[0], wxDefaultPosition, wxSize(150,-1),
-			self.loginparams.userlist , wxCB_DROPDOWN )
+		self.usercombo = wxComboBox(
+			self,
+			-1,
+			self.loginparams.userlist[0],
+			wxDefaultPosition,
+			wxSize(150,-1),
+			self.loginparams.userlist,
+			wxCB_DROPDOWN
+		)
 		self.pboxgrid.AddWindow( self.usercombo, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 )
 
 		#PASSWORD TEXT ENTRY
@@ -273,39 +270,70 @@ class LoginPanel(wxPanel):
 #############################################################################
 # Initialize dialog widget settings from configuration file
 #############################################################################
-
 	def LoadSettings(self):
-		"Load parameter settings from standard configuration file"
-		conf = wxFileConfig(self.confname, style=wxCONFIG_USE_LOCAL_FILE)
-		self.loginparams.userlist = StringToList(conf.Read("/login/user"))
+		"""Load parameter settings from standard configuration file"""
+
+		self.loginparams.userlist = _cfg.get('backend', 'logins')
+		if not self.loginparams.userlist:
+			self.loginparams.userlist = ['guest']
+
 		self.loginparams.password = ''
-		self.loginparams.databaselist = StringToList(conf.Read("login/database"))
-		self.loginparams.hostlist = StringToList(conf.Read("/login/host"))
-		self.loginparams.portlist = StringToList(conf.Read("/login/port"))
-		self.loginparams.backendoptionlist = StringToList(conf.Read("/login/backendoption"))
+
+		self.loginparams.databaselist = _cfg.get('backend', 'databases')
+		if not self.loginparams.databaselist:
+			self.loginparams.databaselist = ['gnumed']
+
+		self.loginparams.hostlist = _cfg.get('backend', 'hosts')
+		if not self.loginparams.hostlist:
+			self.loginparams.hostlist = ['localhost']
+
+		self.loginparams.portlist = _cfg.get('backend', 'ports')
+		if not self.loginparams.portlist:
+			self.loginparams.portlist = ['5432']
+
+		self.loginparams.backendoptionlist = _cfg.get('backend', 'options')
+		if not self.loginparams.backendoptionlist:
+			self.loginparams.backendoptionlist = ['']
+
+#		conf = wxFileConfig(self.confname, style=wxCONFIG_USE_LOCAL_FILE)
+#		self.loginparams.userlist = StringToList(conf.Read("/login/user"))
+#		self.loginparams.password = ''
+#		self.loginparams.databaselist = StringToList(conf.Read("login/database"))
+#		self.loginparams.hostlist = StringToList(conf.Read("/login/host"))
+#		self.loginparams.portlist = StringToList(conf.Read("/login/port"))
+#		self.loginparams.backendoptionlist = StringToList(conf.Read("/login/backendoption"))
 
 #############################################################################
 # Save all settings to the configuration file
 #############################################################################
 
-	def SaveSettingsFor(self, conf, key, setting):
+#	def SaveSettingsFor(self, conf, key, setting):
 		"""Append items not already existing in the configuration file
 		and make sure that changes already committed by other processes
 		using the same configuration file don't get overwritten"""
 
-		conf.Write(key, AppendSettings(conf.Read(key), setting, self.maxitems))
+#		conf.Write(key, AppendSettings(conf.Read(key), setting, self.maxitems))
 
 	def SaveSettings(self):
-		"Save parameter settings to standard configuration file"
+		"""Save parameter settings to standard configuration file"""
+
+		_cfg.set('backend', 'logins', ComboBoxItems(self.usercombo))
+		_cfg.set('backend', 'databases', ComboBoxItems(self.dbcombo))
+		_cfg.set('backend', 'hosts', ComboBoxItems(self.hostcombo))
+		_cfg.set('backend', 'ports', ComboBoxItems(self.portcombo))
+		_cfg.set('backend', 'options', ComboBoxItems(self.beoptioncombo))
+
+		_cfg.store()
+
 		# set the location of the configuration file in a platform independent way
-		conf = wxFileConfig(self.confname, style=wxCONFIG_USE_LOCAL_FILE)
-		self.SaveSettingsFor(conf, "/login/user", ListToString(ComboBoxItems(self.usercombo)))
-		self.SaveSettingsFor(conf, "/login/database", ListToString(ComboBoxItems(self.dbcombo)))
-		self.SaveSettingsFor(conf, "/login/host", ListToString(ComboBoxItems(self.hostcombo)))
-		self.SaveSettingsFor(conf, "/login/port", ListToString(ComboBoxItems(self.portcombo)))
-		self.SaveSettingsFor(conf, "/login/backendoption", ListToString(ComboBoxItems(self.beoptioncombo)))
-		# make sure changes are written to dosk immediately
-		conf.Flush()
+#		conf = wxFileConfig(self.confname, style=wxCONFIG_USE_LOCAL_FILE)
+#		self.SaveSettingsFor(conf, "/login/user", ListToString(ComboBoxItems(self.usercombo)))
+#		self.SaveSettingsFor(conf, "/login/database", ListToString(ComboBoxItems(self.dbcombo)))
+#		self.SaveSettingsFor(conf, "/login/host", ListToString(ComboBoxItems(self.hostcombo)))
+#		self.SaveSettingsFor(conf, "/login/port", ListToString(ComboBoxItems(self.portcombo)))
+#		self.SaveSettingsFor(conf, "/login/backendoption", ListToString(ComboBoxItems(self.beoptioncombo)))
+		# make sure changes are written to disk immediately
+#		conf.Flush()
 
 #############################################################################
 # Retrieve current settings from user interface widgets
