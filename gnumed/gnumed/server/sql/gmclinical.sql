@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.64 $
+-- $Revision: 1.65 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -86,19 +86,26 @@ comment on TABLE _enum_encounter_type is
 -- -------------------------------------------------------------------
 create table clin_encounter (
 	id serial primary key,
-	id_location integer,
-	id_provider integer,
-	id_type integer not null references _enum_encounter_type(id) default 1,
+	fk_patient integer not null,
+	fk_location integer,
+	fk_provider integer,
+	fk_type integer not null references _enum_encounter_type(id) default 1,
 	description varchar(128) default '__default__'
 );
 
+-- remote foreign keys
+select add_x_db_fk_def('clin_encounter', 'fk_patient', 'personalia', 'identity', 'id');
+select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
+
 comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
-comment on COLUMN clin_encounter.id_location is
+comment on COLUMN clin_encounter.fk_patient is
+	'PK of subject of care, should be PUPIC, actually';
+comment on COLUMN clin_encounter.fk_location is
 	'ID of location *of care*, e.g. where the provider is at';
-comment on COLUMN clin_encounter.id_provider is
+comment on COLUMN clin_encounter.fk_provider is
 	'ID of (main) provider of care';
-comment on COLUMN clin_encounter.id_type is
+comment on COLUMN clin_encounter.fk_type is
 	'ID of encounter type of this encounter';
 comment on column clin_encounter.description is
 	'descriptive name of this encounter, may change over time; if
@@ -111,7 +118,6 @@ comment on column clin_encounter.description is
 create table curr_encounter (
 	id serial primary key,
 	id_encounter integer not null references clin_encounter(id),
-	id_patient integer unique not null,
 	started timestamp with time zone not null default CURRENT_TIMESTAMP,
 	last_affirmed timestamp with time zone not null default CURRENT_TIMESTAMP,
 	"comment" varchar(128) default 'affirmed'
@@ -284,7 +290,7 @@ create table vaccine (
 	is_licensed boolean not null default true,
 	min_age interval not null,
 	max_age interval default null,
-	last_batch_no text,
+	last_batch_no text default null,
 	comment text
 ) inherits (audit_fields);
 
@@ -671,7 +677,9 @@ GRANT SELECT ON
 	"clin_history",
 	"clin_physical",
 	"_enum_allergy_type",
-	"allergy"
+	"allergy",
+	vaccination,
+	vaccine
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -704,7 +712,11 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	"_enum_allergy_type",
 	"_enum_allergy_type_id_seq",
 	"allergy",
-	"allergy_id_seq"
+	"allergy_id_seq",
+	vaccination,
+	vaccination_id_seq,
+	vaccine,
+	vaccine_id_seq
 TO GROUP "_gm-doctors";
 
 
@@ -713,11 +725,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.64 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.65 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.64  2003-10-26 09:41:03  ncq
+-- Revision 1.65  2003-10-31 23:29:38  ncq
+-- - cleanup, id_ -> fk_
+--
+-- Revision 1.64  2003/10/26 09:41:03  ncq
 -- - truncate -> delete from
 --
 -- Revision 1.63  2003/10/20 22:01:01  ncq

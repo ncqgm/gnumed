@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -471,6 +471,7 @@ TO GROUP "gm-doctors";
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	names,
 	names_id_seq,
+	identity,
 	identity_id_seq,
 	urb,
 	urb_id_seq,
@@ -503,11 +504,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.11 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.10  2003-10-26 18:00:03  ncq
+-- Revision 1.11  2003-10-31 23:29:38  ncq
+-- - cleanup, id_ -> fk_
+--
+-- Revision 1.10  2003/10/26 18:00:03  ncq
 -- - add link table identity -> external IDs
 --
 -- Revision 1.9  2003/10/01 15:45:20  ncq
