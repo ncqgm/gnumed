@@ -4,26 +4,9 @@
 -- author: hherb
 -- copyright: Dr. Horst Herb, horst@hherb.com
 -- license: GPL (details at http://gnu.org)
--- version: 0.1
--- changelog:
--- 20.10.2001:  (hherb) identity related tables separated from gnumed main database
---              in order to facilitate use of distributed servers.
---
---              All data integrity checking and versioning taken out of this code, now handled
---              by backend driven log mechanism resp. generated automatically by another script.
---
---              In order to simplfy and speed performance, normalization of "names" undone
---
---    All address related items have been moved into a separate database
---    in order to use GIS servers where available
--- 07.03.2002:  (hherb) "title" attribute added to "names" table
--- 07.03.2002:  (hherb) view "v_basic_person" added
--- 09.03.2002:  (ihaywood) Rules for basic_person view.
--- 08.04.2002:	 (hherb) service "personalia" related changes.
---                BREAKS BACKWARDS COMPATIBILITY!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmidentity.sql,v $
--- $Id: gmidentity.sql,v 1.35 2003-04-01 13:14:11 ncq Exp $
+-- $Id: gmidentity.sql,v 1.36 2003-04-18 13:16:33 ncq Exp $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -194,56 +177,13 @@ COMMENT ON COLUMN relation.ended IS
 'date when this relationship ended. Biological relationships do not end!';
 
 -- ==========================================================
-create view v_basic_person as
-select
-	i.id as i_id, n.id as n_id,
-	n.title as title, n.firstnames as firstnames, n.lastnames as lastnames,
-	--n.aka as aka,
-	i.dob as dob, i.cob as cob, i.gender as gender
-from
-	identity i, names n
-where
-	i.deceased is NULL and n.id_identity=i.id and n.active=true;
-
--- ==========================================================
--- IH 9/3/02 Add some rules
+-- IH 9/3/02 Add some functions
 CREATE FUNCTION new_pupic () RETURNS char (24) AS '
 DECLARE
 BEGIN
    -- how does this work? How do we get new ''unique'' numbers?
    RETURN ''0000000000'';
 END;' LANGUAGE 'plpgsql';
-
-
--- create new name and new identity.
-
-CREATE RULE r_insert_basic_person AS
-	ON INSERT TO v_basic_person DO INSTEAD (
-		INSERT INTO identity (pupic, gender, dob, cob)
-					values (new_pupic(), NEW.gender, NEW.dob, NEW.cob);
-		INSERT INTO names (title, firstnames, lastnames, id_identity)
-					VALUES (NEW.title, NEW.firstnames, NEW.lastnames, currval ('identity_id_seq'));
-	)
-;
-
-
--- rule for name change - add new name to list, making it active.
-CREATE RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person 
-    WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
-    OR NEW.title != OLD.title DO INSTEAD 
-    INSERT INTO names (title, firstnames, lastnames, id_identity, active)
-     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.i_id, 't');
-
--- rule for identity change
--- yes, you would use this, think carefully.....
-CREATE RULE r_update_basic_person2 AS ON UPDATE TO v_basic_person
-    DO INSTEAD UPDATE identity SET dob=NEW.dob, cob=NEW.cob, gender=NEW.gender
-    WHERE id=NEW.i_id;
-
--- deletes names as well by use of a trigger (double rule would be simpler, 
--- but didn't work)
-CREATE RULE r_delete_basic_person AS ON DELETE TO v_basic_person DO INSTEAD
-       DELETE FROM identity WHERE id=OLD.i_id;
 
 CREATE FUNCTION delete_names () RETURNS OPAQUE AS '
 DECLARE
@@ -263,7 +203,6 @@ GRANT SELECT ON
 	names,
 	identity,
 	identity_id_seq,
-	v_basic_person,
 	audit_identity_audit_id_seq
 TO GROUP "gm-doctors";
 
@@ -271,18 +210,20 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	names,
 	names_id_seq,
 	identity_id_seq,
-	v_basic_person,
 	audit_identity_audit_id_seq
 TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.sql,v $', '$Revision: 1.36 $');
 
 -- =============================================
 -- $Log: gmidentity.sql,v $
--- Revision 1.35  2003-04-01 13:14:11  ncq
+-- Revision 1.36  2003-04-18 13:16:33  ncq
+-- - broke out views into separate file for more modular reuse
+--
+-- Revision 1.35  2003/04/01 13:14:11  ncq
 -- - fix a few references to i_id in v_basic_person rules
 --
 -- Revision 1.34  2003/03/31 23:43:48  ncq
@@ -303,3 +244,18 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmidentity.
 -- Revision 1.30  2003/02/14 10:36:37  ncq
 -- - break out default and test data into their own files, needed for dump/restore of dbs
 --
+-- 20.10.2001:  (hherb) identity related tables separated from gnumed main database
+--              in order to facilitate use of distributed servers.
+--
+--              All data integrity checking and versioning taken out of this code, now handled
+--              by backend driven log mechanism resp. generated automatically by another script.
+--
+--              In order to simplfy and speed performance, normalization of "names" undone
+--
+--    All address related items have been moved into a separate database
+--    in order to use GIS servers where available
+-- 07.03.2002:  (hherb) "title" attribute added to "names" table
+-- 07.03.2002:  (hherb) view "v_basic_person" added
+-- 09.03.2002:  (ihaywood) Rules for basic_person view.
+-- 08.04.2002:	 (hherb) service "personalia" related changes.
+--                BREAKS BACKWARDS COMPATIBILITY!
