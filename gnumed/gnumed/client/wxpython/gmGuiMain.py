@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.105 2003-06-19 15:27:53 ncq Exp $
-__version__ = "$Revision: 1.105 $"
+# $Id: gmGuiMain.py,v 1.106 2003-06-23 22:29:59 ncq Exp $
+__version__ = "$Revision: 1.106 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -344,22 +344,66 @@ class MainFrame(wxFrame):
 		EVT_MAXIMIZE(self, self.OnMaximize)
 
 		# intra-client signals
-		gmDispatcher.connect(self.OnPatientChanged, gmSignals.patient_selected())
+		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
 	#----------------------------------------------
-	def OnPatientChanged(self, **kwargs):
+	def on_patient_selected(self, **kwargs):
 		pat = gmTmpPatient.gmCurrentPatient()
-
 		#<DEBUG>
 		_log.Log(gmLog.lWarn, "patient changed to [%s]" % pat)
-		_log.Log(gmLog.lWarn, pat.__dict__)
 		#</DEBUG>
-
 		try:
+			epr = pat['clinical record']
 			names = pat['active name']
-			patient = "%s %s %s (%s) #%d" % (pat['title'], names['first'], names['last'], pat['dob'], int(pat['ID']))
-			self.updateTitle(aPatient = patient)
 		except:
 			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
+			return None
+
+		# make sure there's an encounter
+		status, encounter = epr.attach_to_encounter(forced = 0)
+		patient = "%s %s (%s)" % (names['first'], names['last'], pat['dob'])
+		# error ?
+		if status == -1:
+			msg = _(
+				'Can neither attach to an existing encounter\n'
+				'nor create a new one for patient\n'
+				'"%s".'
+			) % patient
+			self.__show_error(msg, _('recording patient encounter'))
+		# ambigous ?
+		elif status == 0:
+			# FIXME: better widget -> activate/new buttons
+			msg = _(
+				'There is a recent encounter recorded for\n'
+				'"%s".\n'
+				'It was started %s\n'
+				'and last affirmed %s.\n'
+				'The last known activity was\n'
+				'"%s".\n\n'
+				'Do you want to reactivate this encounter ?\n'
+				'Hitting "No" will start a new one.'
+			) % (patient, encounter['started'], encounter['affirmed'], encounter['comment'])
+			result = self.__show_question(msg, _('recording patient encounter'))
+			# attach to existing
+			if result == wxID_YES:
+				epr.attach_to_encounter(anID = encounter['ID'], forced = 1)
+			# create new one
+			else:
+				status, encounter = epr.attach_to_encounter(forced = 1)
+				if status == -1:
+					msg = _(
+						'Cannot create new encounter for patient\n'
+						'"%s".'
+					) % patient
+					self.__show_error(msg, _('recording patient encounter'))
+		#elif 1:
+			#success
+
+		# update window title
+		fname = names['first']
+		if len(fname) > 0:
+			fname = fname[:1]
+		patient = "%s %s.%s (%s) #%d" % (pat['title'], fname, names['last'], pat['dob'], int(pat['ID']))
+		self.updateTitle(aPatient = patient)
 	#----------------------------------------------
 	def OnAbout(self, event):
 		import gmAbout
@@ -431,8 +475,8 @@ class MainFrame(wxFrame):
 		self.SetMenuBar(self.mainmenu)
 	#----------------------------------------------
 	def Lock(self):
-		"Lock GNUmed client against unauthorized access"
-		#TODO
+		"""Lock GNUmed client against unauthorized access"""
+		# FIXME
 		for i in range(1, self.nb.GetPageCount()):
 			self.nb.GetPage(i).Enable(false)
 	#----------------------------------------------
@@ -442,7 +486,6 @@ class MainFrame(wxFrame):
 		all pages but the 'login' page of the main notebook widget
 		are locked; i.e. not accessible by the user
 		"""
-
 		#unlock notebook pages
 		for i in range(1, self.nb.GetPageCount()):
 			self.nb.GetPage(i).Enable(true)
@@ -510,7 +553,41 @@ class MainFrame(wxFrame):
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
+	#----------------------------------------------
+	# internal helpers
+	#----------------------------------------------
+	def __show_error(self, aMessage = None, aTitle = ''):
+		# sanity checks
+		tmp = aMessage
+		if aMessage is None:
+			tmp = _('programmer forgot to specify error message')
 
+		tmp = tmp + _("\n\nPlease consult the error log for further information !")
+
+		dlg = wxMessageDialog(
+			NULL,
+			tmp,
+			aTitle,
+			wxOK | wxICON_ERROR
+		)
+		dlg.ShowModal()
+		dlg.Destroy()
+		return 1
+	#----------------------------------------------
+	def __show_question(self, aMessage = None, aTitle = ''):
+		# sanity checks
+		tmp = aMessage
+		if aMessage is None:
+			tmp = _('programmer forgot to specify question')
+		dlg = wxMessageDialog(
+			NULL,
+			tmp,
+			aTitle,
+			wxYES_NO | wxICON_QESTION
+		)
+		result = dlg.ShowModal()
+		dlg.Destroy()
+		return result
 #==================================================
 class gmApp(wxApp):
 
@@ -657,7 +734,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.105  2003-06-19 15:27:53  ncq
+# Revision 1.106  2003-06-23 22:29:59  ncq
+# - in on_patient_selected() add code to attach to a
+#   previous encounter or create one if necessary
+# - show_error/quesion() helper
+#
+# Revision 1.105  2003/06/19 15:27:53  ncq
 # - also process EVT_NOTEBOOK_PAGE_CHANGING
 #   - veto() page change if can_receive_focus() is false
 #
