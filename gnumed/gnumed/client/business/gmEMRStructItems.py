@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys
@@ -53,7 +53,7 @@ class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
 	"""
 	_cmd_fetch_payload = """
-		select * from v_pat_episodes
+		select id_episode, id_health_issue, id_patient, health_issue, episode as description  from v_pat_episodes
 		where id_episode=%s
 		"""
 	_cmds_store_payload = [
@@ -306,7 +306,12 @@ if __name__ == '__main__':
 	print "updatable:", encounter.get_updatable_fields()
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.11  2004-06-01 23:53:56  ncq
+# Revision 1.12  2004-06-02 12:48:56  sjtan
+#
+# map episode to description in cursor.description, so can find as episode['description']
+# and also save.
+#
+# Revision 1.11  2004/06/01 23:53:56  ncq
 # - v_pat_episodes.episode -> *.description
 #
 # Revision 1.10  2004/06/01 08:20:14  ncq
