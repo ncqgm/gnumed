@@ -6,16 +6,15 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.6 2003-11-17 10:56:42 sjtan Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmPregCalc.py,v 1.7 2004-03-19 09:05:55 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
 from wxPython.calendar import *
 from wxPython.lib.rcsizer import RowColSizer
-import math, zlib, cPickle
-import random
-import string
+
+import math, zlib, cPickle, random, string
 
 LMP_FIELD = 0
 US_FIELD = 1
@@ -443,7 +442,7 @@ if __name__ == '__main__':
 	app.MainLoop ()
 else:
 	# plugin()ize
-	import gmPlugin
+	from Gnumed.wxpython import gmPlugin
 
 	ID_PregCalc_BUTTON = wxNewId()
 
@@ -476,7 +475,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.6  2003-11-17 10:56:42  sjtan
+# Revision 1.7  2004-03-19 09:05:55  ncq
+# - fix imports
+#
+# Revision 1.6  2003/11/17 10:56:42  sjtan
 #
 # synced and commiting.
 #
