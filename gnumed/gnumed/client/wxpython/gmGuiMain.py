@@ -19,8 +19,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.136 2004-01-18 21:52:20 ncq Exp $
-__version__ = "$Revision: 1.136 $"
+# $Id: gmGuiMain.py,v 1.137 2004-01-29 16:12:18 ncq Exp $
+__version__ = "$Revision: 1.137 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -613,6 +613,19 @@ class gmApp(wxApp):
 			_log.Log(gmLog.lWarn, "Login attempt unsuccesful. Can't run GnuMed without database connection")
 			return false
 
+		try:
+			tmp = _whoami.get_staff_ID()
+		except ValueError:
+			_log.LogException('DB account [%s] not mapped to GnuMed staff member' % _whoami.get_db_account(), sys.exc_info(), verbose=0)
+			msg = _(
+				'The database account [%s] is not associated with\n'
+				'any staff member known to GnuMed. You therefor\n'
+				'cannot use GnuMed with this account.\n\n'
+				'Please ask your administrator for help.\n'
+			) % _whoami.get_db_account()
+			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
+			return false
+
 		EVT_QUERY_END_SESSION(self, self._on_query_end_session)
 		EVT_END_SESSION(self, self._on_end_session)
 
@@ -769,7 +782,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.136  2004-01-18 21:52:20  ncq
+# Revision 1.137  2004-01-29 16:12:18  ncq
+# - add check for DB account to staff member mapping
+#
+# Revision 1.136  2004/01/18 21:52:20  ncq
 # - stop backend listeners in clean_exit()
 #
 # Revision 1.135  2004/01/06 10:05:21  ncq
