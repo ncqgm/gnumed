@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -46,8 +46,14 @@ comment on column ref_source.source is
 
 -- ====================================
 create table lnk_tbl2src (
-	fk_ref_source integer not null references ref_source(pk),
-	data_table name unique not null
+	fk_ref_source integer
+		not null
+		references ref_source(pk)
+		on update cascade
+		on delete cascade,
+	data_table name
+		unique
+		not null
 );
 
 -- workaround since we cannot add trigger on
@@ -265,11 +271,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.13 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.14 $');
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.13  2004-12-15 12:14:08  ihaywood
+-- Revision 1.14  2004-12-18 09:55:24  ncq
+-- - cleanup
+--
+-- Revision 1.13  2004/12/15 12:14:08  ihaywood
 -- couple of extra fields and comments
 --
 -- Revision 1.12  2004/06/26 23:43:51  ncq
