@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.39 2003-11-09 03:29:11 ncq Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmClinicalRecord.py,v 1.40 2003-11-09 16:24:03 ncq Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -316,7 +316,7 @@ class gmClinicalRecord:
 			self.__db_cache['idx allergies'] = col_idx
 
 		data = []
-		if remove_sensitivies:
+		if remove_sensitivities:
 			col_idx = self.__db_cache['idx allergies']
 			for allergy in self.__db_cache['allergies']:
 				if allergy[col_idx['type']] == 'allergy':
@@ -851,7 +851,10 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.39  2003-11-09 03:29:11  ncq
+# Revision 1.40  2003-11-09 16:24:03  ncq
+# - typo fix
+#
+# Revision 1.39  2003/11/09 03:29:11  ncq
 # - API cleanup, __set/getitem__ deprecated
 #
 # Revision 1.38  2003/10/31 23:18:48  ncq
