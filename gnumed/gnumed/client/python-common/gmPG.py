@@ -30,7 +30,7 @@
 """
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__  = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -47,7 +47,7 @@ try:
 	dbapi = pyPgSQL.PgSQL
 	_isPGDB = 0
 	#<DEBUG>
-	print 'USING PYPGSQL!!!'
+	#print 'USING PYPGSQL!!!'
 	#</DEBUG>
 except ImportError:
 	try:
@@ -56,7 +56,7 @@ except ImportError:
 		dbapi = psycopg
 		_isPGDB = 0
 		#<DEBUG>
-		print 'USING PSYCOPG'
+		#print 'USING PSYCOPG'
 		#</DEBUG>
 	except ImportError:
 		try:
@@ -64,11 +64,13 @@ except ImportError:
 			dbapi = pgdb
 			_isPGDB = 1
 			#<DEBUG>
-			print 'USING PGDB'
+			#print 'USING PGDB'
 			#</DEBUG>
 		except ImportError:
-			print "Apparently there is no database adapter available! Program halted"
-			sys.exit(-1)
+			print "Cannot find any Python module for connecting to the database server. Program halted."
+			exc = sys.exc_info()
+			_log.LogException("No Python database adapter found.", exc, fatal=1)
+			raise
 
 # FIXME: DBMS should eventually be configurable
 __backend = 'Postgres'
@@ -116,12 +118,12 @@ class ConnectionPool:
 			user = "_%s" % logininfo.GetUser()
 			logininfo.SetUser(user)
 			#<DEBUG>
-			_log.Log(gmLog.lData, "requesting RW connection to [%s] for %s" % (service, user))
+			_log.Log(gmLog.lData, "requesting RW connection to service [%s] for %s" % (service, user))
 			#</DEBUG>
 			return self.__pgconnect(logininfo)
 
 		#<DEBUG>
-		_log.Log(gmLog.lData, "requesting RO connection to [%s]" % service)
+		_log.Log(gmLog.lData, "requesting RO connection to service [%s]" % service)
 		#</DEBUG>
 
 		if ConnectionPool.__databases.has_key(service):
@@ -621,7 +623,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.23  2002-09-30 16:20:30  ncq
+# Revision 1.24  2002-10-20 16:10:46  ncq
+# - a few bits here and there
+# - cleaner logging
+# - raise ImportError on failing to import a database adapter instead of dying immediately
+#
+# Revision 1.23  2002/09/30 16:20:30  ncq
 # - wrap printk()s in <DEBUG>
 #
 # Revision 1.22  2002/09/30 15:48:16  ncq
