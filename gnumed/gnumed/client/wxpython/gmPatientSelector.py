@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.40 2004-06-20 16:01:05 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmPatientSelector.py,v 1.41 2004-07-15 20:36:11 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -147,7 +147,6 @@ class cPatientPickList(wxDialog):
 		# FIXME: and make ourselves just big enough
 		self.szrMain.Fit(self)
 		self.Fit()
-#		self.
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -223,7 +222,7 @@ class cPatientPickList(wxDialog):
 #============================================================
 class cPatientSelector(wxTextCtrl):
 	"""Widget for smart search for patients."""
-	def __init__ (self, parent, id = -1, pos = (-1, -1), size = (-1, -1)):
+	def __init__ (self, parent, id = -1, pos = wxPyDefaultPosition, size = wxPyDefaultSize):
 		self.curr_pat = gmPatient.gmCurrentPatient()
 
 		# need to explicitely process ENTER events to avoid
@@ -254,9 +253,6 @@ and hit <ENTER>
 		self.SetToolTip(wxToolTip(selector_tooltip))
 
 		self._display_name()
-
-		# FIXME: is this necessary ?
-		self.parent = parent
 
 		# FIXME: set query generator
 		self.pat_searcher = gmPatient.cPatientSearcher_SQL()
@@ -300,7 +296,7 @@ and hit <ENTER>
 		EVT_TEXT_ENTER (self, self.GetId(), self._on_enter)
 		# - user single clicked left mouse button
 		EVT_LEFT_UP (self, self._on_get_left_up)
-		
+
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 	#----------------------------------------------
@@ -616,7 +612,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.40  2004-06-20 16:01:05  ncq
+# Revision 1.41  2004-07-15 20:36:11  ncq
+# - better default size
+#
+# Revision 1.40  2004/06/20 16:01:05  ncq
 # - please epydoc more carefully
 #
 # Revision 1.39  2004/06/20 06:49:21  ihaywood
