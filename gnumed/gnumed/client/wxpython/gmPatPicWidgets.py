@@ -2,8 +2,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.3 2004-08-19 14:37:30 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPatPicWidgets.py,v 1.4 2004-08-20 13:23:43 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -25,7 +25,7 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_AquirePhoto = wxNewId()
+ID_AcquirePhoto = wxNewId()
 ID_ImportPhoto = wxNewId()
 ID_ExportPhoto = wxNewId()
 ID_RemovePhoto = wxNewId()
@@ -38,7 +38,7 @@ current_photo = None
 class cPatientPicture (wxStaticBitmap):
 	"""A patient picture control ready for display.
 		with popup menu to import/export
-		remove or aquire from a device
+		remove or Acquire from a device
 	"""
 	def __init__(self, parent, id):
 		try:
@@ -63,8 +63,6 @@ class cPatientPicture (wxStaticBitmap):
 			wxPoint(0, 0),
 			wxSize(self.desired_width, self.desired_height)
 		)
-		tt = wxToolTip(_('Patient picture.\nRight-click for context menu.'))
-		self.SetToolTip(tt)
 		self.__pat = gmPatient.gmCurrentPatient()
 		self.__register_events()
 	#-----------------------------------------------------------------
@@ -73,7 +71,7 @@ class cPatientPicture (wxStaticBitmap):
 	def __register_events(self):
 		# wxPython events
 		EVT_RIGHT_UP(self, self._on_RightClick_photo)
-		EVT_MENU(self, ID_AquirePhoto, self._on_AquirePhoto)
+		EVT_MENU(self, ID_AcquirePhoto, self._on_AcquirePhoto)
 		EVT_MENU(self, ID_ImportPhoto, self._on_ImportPhoto)
 		EVT_MENU(self, ID_ExportPhoto, self._on_ExportPhoto)
 		EVT_MENU(self, ID_RemovePhoto, self._on_RemovePhoto)
@@ -83,7 +81,7 @@ class cPatientPicture (wxStaticBitmap):
 	#-----------------------------------------------------------------
 	def _on_RightClick_photo(self, event):
 		menu_patientphoto = wxMenu()
-		menu_patientphoto.Append(ID_AquirePhoto, _("Aquire from imaging device"))
+		menu_patientphoto.Append(ID_AcquirePhoto, _("Acquire from imaging device"))
 		menu_patientphoto.Append(ID_ImportPhoto, _("Import from file"))
 		menu_patientphoto.Append(ID_ExportPhoto, _("Export to file"))
 		menu_patientphoto.Append(ID_RemovePhoto, "Remove Photo")
@@ -124,7 +122,7 @@ class cPatientPicture (wxStaticBitmap):
 		if exp_dlg.ShowModal() == wxID_OK:
 			shutil.copyfile (self.__pic_name, exp_dlg.GetPath())
 	#-----------------------------------------------------------------
-	def _on_AquirePhoto(self,event):
+	def _on_AcquirePhoto(self,event):
 		gmGuiHelpers.gm_show_info (
 			_('This feature is not implemented yet.'),
 			_('acquire patient photograph')
@@ -192,7 +190,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.3  2004-08-19 14:37:30  ncq
+# Revision 1.4  2004-08-20 13:23:43  ncq
+# - aquire -> acquire
+#
+# Revision 1.3  2004/08/19 14:37:30  ncq
 # - fix missing import
 #
 # Revision 1.2  2004/08/19 14:07:54  ncq
