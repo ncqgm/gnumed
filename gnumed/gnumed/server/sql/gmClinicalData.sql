@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.31 2004-09-25 13:23:32 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.32 2004-09-29 10:26:40 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -166,7 +166,7 @@ insert into test_org (fk_org, internal_name, comment) values (
 -- measurement definitions
 -- weight
 insert into test_type (
-	fk_test_org, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('test_org_pk_seq'),
 	i18n('wght'),
@@ -177,7 +177,7 @@ insert into test_type (
 );
 -- height
 insert into test_type (
-	fk_test_org, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('test_org_pk_seq'),
 	i18n('hght'),
@@ -189,7 +189,7 @@ insert into test_type (
 -- blood pressure
 -- manually/by device, sitting/lying/standing, Riva-Rocci vs. other methods handled in result specifics
 insert into test_type (
-	fk_test_org, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('test_org_pk_seq'),
 	i18n('RR'),
@@ -200,7 +200,7 @@ insert into test_type (
 );
 -- pulse
 insert into test_type (
-	fk_test_org, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('test_org_pk_seq'),
 	i18n('pulse'),
@@ -211,7 +211,7 @@ insert into test_type (
 );
 -- peripheral arterial oxygenation
 insert into test_type (
-	fk_test_org, code, coding_system, name, comment, basic_unit
+	fk_test_org, code, coding_system, name, comment, conversion_unit
 ) values (
 	currval('test_org_pk_seq'),
 	i18n('SpO2'),
@@ -221,7 +221,7 @@ insert into test_type (
 	'%'
 );
 --insert into test_type (
---	fk_test_org, code, coding_system, name, comment, basic_unit
+--	fk_test_org, code, coding_system, name, comment, conversion_unit
 --) values (
 --	currval('test_org_pk_seq'),
 --	i18n('code'),
@@ -584,11 +584,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.31  2004-09-25 13:23:32  ncq
+-- Revision 1.32  2004-09-29 10:26:40  ncq
+-- - basic_unit -> conversion_unit
+--
+-- Revision 1.31  2004/09/25 13:23:32  ncq
 -- - add dummy test orgs for in-house/self-measured/generic external
 --
 -- Revision 1.30  2004/07/18 11:50:19  ncq
