@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.3 2003-11-17 10:56:34 sjtan Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmDemographicRecord.py,v 1.4 2003-11-18 16:44:24 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lData, __version__)
 
-import gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider 
+import gmExceptions, gmPG, gmSignals, gmDispatcher, gmI18N, gmMatchProvider, gmPatient
 
 # 3rd party
 import mx.DateTime
@@ -34,33 +34,6 @@ gm2long_gender_map = {
 	'm': _('male'),
 	'f': _('female')
 }
-#============================================================
-# utility function separate from db access logic
-def get_medical_age(dob):
-	"""format patient age in a hopefully meaningful way"""
-
-	age = mx.DateTime.Age(mx.DateTime.now(), dob)
-
-	_log.Log(gmLog.lInfo, str(age) )
-
-	if age.years > 0:
-		return "%sy%sm" % (age.years, age.months)
-	try:
-		if age.weeks > 4:
-			return "%sm%sw" % (age.months, age.weeks)
-		if age.weeks > 1:
-			return "%sd" % age.days
-	except:
-		_log.LogException("age.weeks error", sys.exc_info() )
-	if age.days > 1:
-		return "%sd (%sh)" % (age.days, age.hours)
-	if age.hours > 3:
-		return "%sh" % age.hours
-	if age.hours > 0:
-		return "%sh%sm" % (age.hours, age.minutes)
-	if age.minutes > 5:
-		return "%sm" % (age.minutes)
-	return "%sm%ss" % (age.minutes, age.seconds)
 #============================================================
 # virtual ancestor class, SQL and LDAP descendants
 class gmDemographicRecord:
@@ -91,7 +64,7 @@ class gmDemographicRecord:
 	def setGender(self, gender):
 		raise gmExceptions.PureVirtualFunction ()
 
-	def getAddress (self, type):
+	def getAddresses (self, type):
 		raise gmExceptions.PureVirtualFunction ()
 
 	def unlinkAddress (self, ID):
@@ -208,39 +181,66 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 			cmd = "select dob from identity where id=%s"
 		else:
 			cmd = "select to_char(dob, '%s') from identity where %s" % (aFormat, "id=%s")
-		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
+		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)		
 		if data is None:
+			if aFormat is None:
+				return None
 			return ''
 		if len(data) == 0:
+			if aFormat is None:
+				return None
 			return ''
 		return data[0][0]
 	#--------------------------------------------------------
 	def setDOB (self, dob):
 		cmd = "update identity set dob = %s where id = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [dob, self.ID])])
-
 	#--------------------------------------------------------
-	def getDOBTimeTuple(self):
-		"""the mx.DateTime object from fetchall doesn't convert (? no time component) using package time, so get a time tuple to use"""
-		dob = self.getDOB()
-		return get_time_tuple(dob)
-		
-
+	def get_relatives(self):
+		cmd = """
+select
+	v.id, t.description , v.firstnames, v.lastnames, v.gender, v.dob
+from
+	v_basic_person v, relation_types t, lnk_person2relative l
+where
+	l.id_identity = %s and
+	v.id = l.id_relative and
+	t.id = l.id_relation_type
+"""
+		data, idx = gmPG.run_ro_query('personalia', cmd, 1, self.ID)
+		if data is None:
+			return []
+		if len(data) == 0:
+			return []
+		return [{
+			'id': r[idx['id']],
+			'firstnames': r[idx['firstnames']],
+			'lastnames': r[idx['lastnames']],
+			'gender': r[idx['gender']],
+			'dob': r[idx['dob']],
+			'description': r[idx['description']]
+			} for r in data ]
 	#--------------------------------------------------------
-	def getBirthYear(self):
-		dob = self.getDOB()
-		
-		print dob, type(dob)
-		import time
-		#print time.localtime()
-		try:
-			year = time.localtime(dob)[0]
-		except:
-			year = str( dob).split('-')[0]
-			year = int(year)
-
-		return year	
-
+	def link_new_relative(self, rel_type = 'parent'):
+		# create new relative
+		id_new_relative = gmPatient.create_dummy_identity()
+		relative = gmPerson(id_new_relative)
+		# pre-fill with data from ourselves
+		relative_demographics = relative.get_demographic_record()
+		relative_demographics.copyAddresses(self)
+		relative_demographics.setActiveName( "?", self.getActiveName()['last'])
+		# and link the two
+		cmd = """
+insert into lnk_person2relative (
+	id_identity, id_relative, id_relation_type
+) values (
+	%s, %s, (select id from relation_types where description = %s)
+)
+"""
+		success = gmPG.run_commit ("personalia", [(cmd, (id_new_relative, self.ID, rel_type))])
+		if success:
+			return id_new_relative
+		return None
 	#--------------------------------------------------------
 	def getGender(self):
 		cmd = "select gender from v_basic_person where i_id = %s"
@@ -250,19 +250,13 @@ class gmDemographicRecord_SQL (gmDemographicRecord):
 		if len(data) == 0:
 			return ''
 		return data[0][0]
-
 	#--------------------------------------------------------
 	def setGender(self, gender):
-
 		gender = gender.lower()
-
 		cmd = "update identity set gender = %s where id = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [gender, self.ID])])
-
-
 	#--------------------------------------------------------
-
-	def getAddress (self, type):
+	def getAddresses(self, addr_type):
 		cmd = """
 select
 	vba.addr_id,
@@ -283,7 +277,7 @@ where
 		and
 	lp2a.id_identity = %s
 """
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, type, self.ID)
+		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, addr_type, self.ID)
 		if rows is None:
 			return None
 		if len(rows) == 0:
@@ -300,30 +294,24 @@ where
 		cmd = "delete from lnk_person2address where id_identity = %s and id_address = %s"
 		return gmPG.run_commit ('personalia', [(cmd, [self.ID, ID])])
 	#--------------------------------------------------------
-	def copyAddresses(self,  demographic_record):
-		types = getAddressTypes()
-		for type in types:
-			addresses = demographic_record.getAddress(type)
-			if addresses == None:
+	def copyAddresses(self, a_demographic_record):
+		addr_types = getAddressTypes()
+		for addr_type in addr_types:
+			addresses = a_demographic_record.getAddresses(addr_type)
+			if addresses is None:
 				continue
 			for addr in addresses:
-				self.linkNewAddress( type, addr['number'], addr['street'], addr['urb'], addr['postcode'] )
-
-	#-------------------------------------------------------------------------------------------
-
-	def linkNewAddress (self, type, number, street, urb, postcode, state = None, country = None):
+				self.linkNewAddress(addr_type, addr['number'], addr['street'], addr['urb'], addr['postcode'])
+	#--------------------------------------------------------
+	def linkNewAddress (self, addr_type, number, street, urb, postcode, state = None, country = None):
 		"""Adds a new address into this persons list of addresses.
 		"""
+		if state is None:
+			state, country = guess_state_country(urb, postcode)
 
 		# address already in database ?
-
-		
-		if state == None:
-			state, country = self.__guess_state_country(urb, postcode)
-		
 		cmd = """
-select addr_id
-from v_basic_address
+select addr_id from v_basic_address
 where
 	number = %s and
 	street = %s and
@@ -334,8 +322,8 @@ where
 """
 		data = gmPG.run_ro_query ('personalia', cmd, None, number, street, urb, postcode, state, country)
 		if data is None:
-			s = " ".join( ( type, number, street, urb, postcode, state , country ) )
-			_log.Log(gmLog.lErr, 'cannot check for address existence' + s)
+			s = " ".join( ( addr_type, number, street, urb, postcode, state, country ) )
+			_log.Log(gmLog.lErr, 'cannot check for address existence (%s)' % s)
 			return None
 
 		# delete any pre-existing link for this identity and the given address type
@@ -346,7 +334,7 @@ where
 		and
 	id_type = (select id from address_type where name = %s)
 """
-		gmPG.run_commit ('personalia', [(cmd, [self.ID, type])]) 
+		gmPG.run_commit ('personalia', [(cmd, [self.ID, addr_type])])
 
 		# yes, address already there, just add the link
 		if len(data) > 0:
@@ -355,7 +343,7 @@ where
 insert into lnk_person2address (id_identity, id_address, id_type)
 values (%s, %s, (select id from address_type where name = %s))
 """
-			return gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, type))])
+			return gmPG.run_commit ("personalia", [(cmd, (self.ID, addr_id, addr_type))])
 
 		# no, insert new address and link it, too
 		cmd1 = """
@@ -368,45 +356,42 @@ values (%s, currval ('address_id_seq'), (select id from address_type where name 
 """
 		return gmPG.run_commit ("personalia", [
 			(cmd1, (number, street, urb, postcode, state, country)),
-			(cmd2, (self.ID, type))
+			(cmd2, (self.ID, addr_type))
 			]
 		)
 	#------------------------------------------------------------
 	def getMedicalAge(self):
-		cmd = "select dob from identity where id = %s"
-		data = gmPG.run_ro_query('personalia', cmd, None, self.ID)
-
-		if data is None:
+		dob = self.getDOB()
+		if dob is None:
 			return '??'
-		if len(data) == 0:
-			return '??'
-		return get_medical_age(data[0][0])
-
-	def getAddressTypes(self):
-		return getAddressTypes()
-
-
-	def __guess_state_country(self, urb, postcode):
-		"""parameters are urb.name, urb.postcode;  outputs are urb.id_state,  country.code"""
-		
-		cmd = """select state.code, state.country from urb, state where lower(urb.name) = lower('%s') and upper(urb.postcode) = upper('%s') and urb.id_state = state.id""" 
-		print cmd
-		data = gmPG.run_ro_query ('personalia', cmd, None,  urb, postcode)
-		if data is None:
-			return "", ""
-		return data[0]
-
-	def getPostcodeForUrbId(self, id):
-		cmd = "select postcode from urb where id = %s"
-		data = gmPG.run_ro_query ('personalia', cmd, None,  id)
-		if data is None:
-			return ""
-		return data[0][0]
-
-
+		return get_medical_age(dob)
 #================================================================
 # convenience functions
 #================================================================
+def get_medical_age(dob):
+	"""format patient age in a hopefully meaningful way"""
+
+	age = mx.DateTime.Age(mx.DateTime.now(), dob)
+
+	if age.years > 0:
+		return "%sy%sm" % (age.years, age.months)
+	try:
+		if age.weeks > 4:
+			return "%sm%sw" % (age.months, age.weeks)
+		if age.weeks > 1:
+			return "%sd" % age.days
+	except:
+		_log.LogException("age.weeks error", sys.exc_info())
+	if age.days > 1:
+		return "%sd (%sh)" % (age.days, age.hours)
+	if age.hours > 3:
+		return "%sh" % age.hours
+	if age.hours > 0:
+		return "%sh%sm" % (age.hours, age.minutes)
+	if age.minutes > 5:
+		return "%sm" % (age.minutes)
+	return "%sm%ss" % (age.minutes, age.seconds)
+#----------------------------------------------------------------
 def getAddressTypes():
 	"""Gets a simple list of address types."""
 	row_list = gmPG.run_ro_query('personalia', "select name from address_type")
@@ -418,12 +403,40 @@ def getAddressTypes():
 #----------------------------------------------------------------
 def getCommChannelTypes():
 	"""Gets the list of comm channels"""
-	row_list = gmPG.run_ro_query ('personalia', "select description from enum_comm_types")
+	row_list = gmPG.run_ro_query('personalia', "select description from enum_comm_types")
 	if row_list is None:
 		return None
 	if len (row_list) == 0:
 		return None
 	return [row[0] for row in row_list]
+#----------------------------------------------------------------
+def guess_state_country(self, urb, postcode):
+	"""parameters are urb.name, urb.postcode;
+	   outputs are urb.id_state,  country.code"""
+
+	cmd = """
+select state.code, state.country
+from urb, state
+where
+	lower(urb.name) = lower('%s') and
+	upper(urb.postcode) = upper('%s') and
+	urb.id_state = state.id
+"""
+	data = gmPG.run_ro_query ('personalia', cmd, None,  urb, postcode)
+	if data is None:
+		return "", ""
+	if len(data) == 0:
+		return '', ''
+	return data[0]
+#----------------------------------------------------------------
+def getPostcodeForUrbId(self, urb_id):
+	cmd = "select postcode from urb where id = %s"
+	data = gmPG.run_ro_query ('personalia', cmd, None, urb_id)
+	if data is None:
+		return ""
+	if len(data) == 0:
+		return ''
+	return data[0][0]
 #----------------------------------------------------------------
 class PostcodeMP (gmMatchProvider.cMatchProvider_SQL):
 	"""Returns a list of valid postcodes,
@@ -502,11 +515,6 @@ def get_time_tuple( faultyMxDateObject):
 			_log.LogException("Failed to parse DOB", sys.exc_info(), verbose = 1)
 		
 		return list
-		
-
-
-
-		
 #============================================================
 # callbacks
 #------------------------------------------------------------
@@ -534,11 +542,19 @@ if __name__ == "__main__":
 		adr_types = getAddressTypes()
 		print "adr types", adr_types
 		for type_name in adr_types:
-			print "adr (%s)" % type_name, myPatient.getAddress (type_name)
+			print "adr (%s)" % type_name, myPatient.getAddresses(type_name)
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.3  2003-11-17 10:56:34  sjtan
+# Revision 1.4  2003-11-18 16:44:24  ncq
+# - getAddress -> getAddresses
+# - can't verify mxDateTime bug with missing time tuple
+# - remove getBirthYear, do getDOB() -> mxDateTime -> format
+# - get_relative_list -> get_relatives
+# - create_dummy_relative -> link_new_relative
+# - cleanup
+#
+# Revision 1.3  2003/11/17 10:56:34  sjtan
 #
 # synced and commiting.
 #
