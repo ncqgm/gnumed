@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -64,14 +64,14 @@ comment on column clin_episode."comment" is
 -- -------------------------------------------------------------------
 create table _enum_encounter_type (
 	id serial primary key,
-	value varchar(32) unique not null
+	description varchar(32) unique not null
 ) inherits (audit_clinical);
 
 comment on TABLE _enum_encounter_type is
 	'these are the types of encounter';
 
 create view vi18n_enum_encounter_type as
-	select _enum_encounter_type.id, _(_enum_encounter_type.value)
+	select _enum_encounter_type.id, _(_enum_encounter_type.description)
 	from _enum_encounter_type;
 
 -- -------------------------------------------------------------------
@@ -249,8 +249,8 @@ create table allergy (
 
 	type integer references _enum_allergy_type(id),
 	reaction text default '',
-	definate boolean default 0,
-	had_hypo boolean default 0,
+	definate boolean default false,
+	had_hypo boolean default false,
 	"comment" text default ''
 ) inherits (audit_clinical);
 
@@ -279,8 +279,7 @@ comment on column allergy.definate is
 comment on column allergy.had_hypo is
 	'true: has been treated with hyposensibilization, if true hypo data is recorded elsewhere';
 comment on column allergy."comment" is
-	'free text comment, such as first/last time observed, etc.'
-
+	'free text comment, such as first/last time observed, etc.';
 
 -- ============================================
 -- Drug related tables
@@ -407,11 +406,14 @@ comment on table enum_immunities is
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.23 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.22  2003-04-09 13:10:13  ncq
+-- Revision 1.23  2003-04-09 13:50:29  ncq
+-- - typos
+--
+-- Revision 1.22  2003/04/09 13:10:13  ncq
 -- - _clinical_ -> _clin_
 -- - streamlined episode/encounter/transaction
 --

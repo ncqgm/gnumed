@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.2 2003-04-09 13:08:21 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.3 2003-04-09 13:50:29 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -16,17 +16,17 @@
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-INSERT INTO enum_clin_encounters (description) values (i18n('surgery consultation'));
-INSERT INTO enum_clin_encounters (description) values (i18n('phone consultation'));
-INSERT INTO enum_clin_encounters (description) values (i18n('fax consultation'));
-INSERT INTO enum_clin_encounters (description) values (i18n('home visit'));
-INSERT INTO enum_clin_encounters (description) values (i18n('nursing home visit'));
-INSERT INTO enum_clin_encounters (description) values (i18n('repeat script'));
-INSERT INTO enum_clin_encounters (description) values (i18n('hospital visit'));
-INSERT INTO enum_clin_encounters (description) values (i18n('video conference'));
-INSERT INTO enum_clin_encounters (description) values (i18n('proxy encounter'));
-INSERT INTO enum_clin_encounters (description) values (i18n('emergency encounter'));
-INSERT INTO enum_clin_encounters (description) values (i18n('other encounter'));
+INSERT INTO _enum_encounter_type (description) values (i18n('surgery consultation'));
+INSERT INTO _enum_encounter_type (description) values (i18n('phone consultation'));
+INSERT INTO _enum_encounter_type (description) values (i18n('fax consultation'));
+INSERT INTO _enum_encounter_type (description) values (i18n('home visit'));
+INSERT INTO _enum_encounter_type (description) values (i18n('nursing home visit'));
+INSERT INTO _enum_encounter_type (description) values (i18n('repeat script'));
+INSERT INTO _enum_encounter_type (description) values (i18n('hospital visit'));
+INSERT INTO _enum_encounter_type (description) values (i18n('video conference'));
+INSERT INTO _enum_encounter_type (description) values (i18n('proxy encounter'));
+INSERT INTO _enum_encounter_type (description) values (i18n('emergency encounter'));
+INSERT INTO _enum_encounter_type (description) values (i18n('other encounter'));
 
 -- ===================================================================
 INSERT INTO enum_clin_history (description) values (i18n('past'));
@@ -121,11 +121,14 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.2  2003-04-09 13:08:21  ncq
+-- Revision 1.3  2003-04-09 13:50:29  ncq
+-- - typos
+--
+-- Revision 1.2  2003/04/09 13:08:21  ncq
 -- - _clinical_ -> _clin_
 --
 -- Revision 1.1  2003/02/14 10:54:19  ncq
