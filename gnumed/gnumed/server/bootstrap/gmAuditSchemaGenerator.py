@@ -19,7 +19,7 @@ cannot be null in the audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -184,7 +184,7 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 	#  audit triggers are named "zzt_*" to make
 	#  reasonably sure they are executed last
 	func_name_insert = 'ft_ins_%s' % (audited_table)
-	trigger_name_insert = 'zzt_ins_%s' % (audited_table)
+	trigger_name_insert = 'zt_ins_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_insert)
 	schema.append(template_insert_function % (func_name_insert))
@@ -196,7 +196,7 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 
 	# update
 	func_name_update = 'ft_upd_%s' % (audited_table)
-	trigger_name_update = 'zzt_upd_%s' % (audited_table)
+	trigger_name_update = 'zt_upd_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_update)
 	schema.append(template_update_function % (func_name_update, audit_trail_table, columns_clause, values_clause))
@@ -208,7 +208,7 @@ def trigger_schema(aCursor, audited_table, audit_parent_table = 'audit_log', aud
 
 	# delete
 	func_name_delete = 'ft_del_%s' % (audited_table)
-	trigger_name_delete = 'zzt_del_%s' % (audited_table)
+	trigger_name_delete = 'zt_del_%s' % (audited_table)
 
 	schema.append(drop_function % func_name_delete)
 	schema.append(template_delete_function % (func_name_delete, audit_trail_table, columns_clause, values_clause))
@@ -263,7 +263,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.5  2003-05-15 10:18:32  ncq
+# Revision 1.6  2003-05-17 18:43:24  ncq
+# - make triggers zt* so other things (like notify triggers) can easier run afterwards as, say zzt*
+#
+# Revision 1.5  2003/05/15 10:18:32  ncq
 # - name triggers "zzt_*" so they are executed last
 # - name trigger function "ft_*"
 # - better __doc__
