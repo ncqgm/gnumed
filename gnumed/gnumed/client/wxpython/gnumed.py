@@ -18,7 +18,7 @@ gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
 
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -31,7 +31,7 @@ if __name__ == "__main__":
 	appPath = os.path.split(sys.argv[0])[0]
 
 	# console is Good(tm)
-	aLogTarget = gmLog.LogTargetConsole(gmLog.lInfo)
+	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
 
 #<DEBUG>

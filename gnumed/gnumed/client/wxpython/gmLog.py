@@ -10,7 +10,7 @@ Theory of operation:
 A logger object is a unifying wrapper for an arbitrary number
 of log targets. A log target may be a file, syslog, the console,
 or an email address, or, in fact, any object derived from the
-class LogTarget. Log targets will only log messages with at least
+class cLogTarget. Log targets will only log messages with at least
 their own message priority level (log level). Each log target
 may have it's own log level.
 
@@ -34,13 +34,15 @@ that log to different targets alltogether if you want to keep
 some messages separate from others.
 
 Usage:
-1.) create an instance of Logger
-2.) if neccessary, redirect your output to your output device/widget
-3.) call the Logger.Log() function
+1.) if desired create an instance of cLogger
+2.) create appropriate log targets and add them to the default logger or your own (from step 1)
+3.) call the cLogger.LogXXX() functions
 
-@author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 @copyright: GPL
 """
+
+__version__ = "$Revision: 1.14 $"
+__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, time, traceback, os.path, atexit, os
 
@@ -109,18 +111,18 @@ AsciiName = ['<#0-0x00-nul>',
 	     '<#32-0x20-space>'
 	    ]
 
-class Logger:
+class cLogger:
     # file(s)/pipes, stdout/stderr = console, email, syslog, widget, you-name-it
-    # can be any arbitrary object derived from LogTarget (see below)
+    # can be any arbitrary object derived from cLogTarget (see below)
     __targets = {}
 
     def __init__(self, aTarget=None):
-	"""Open an instance of Logger and initialize a target.
+	"""Open an instance of cLogger and initialize a target.
 
 	in case there's no target given open a dummy target
 	"""
 	if aTarget == None:
-	    aTarget = LogTargetDummy()
+	    aTarget = cLogTargetDummy()
 	self.AddTarget (aTarget)
 
     def close(self):
@@ -133,7 +135,7 @@ class Logger:
     def AddTarget (self, aTarget):
 	"""Add another log target.
 
-	- targets must be objects derived from LogTarget
+	- targets must be objects derived from cLogTarget
 	- ignores identical targets
 	- the number of concurrent targets is potentially unlimited
 	"""
@@ -209,7 +211,7 @@ class Logger:
 	else:
 	    return aChar
 #---------------------------------------------------------------
-class LogTarget:
+class cLogTarget:
     """Base class for actual log target implementations.
 
     - derive your targets from this class
@@ -224,18 +226,19 @@ class LogTarget:
 
     # any security related items should be tagged with "SECURITY" by the programmer
     __LogLevelPrefix = {lPanic: '[PANIC] ', lErr: '[ERROR] ', lWarn: '[WARN]  ', lInfo: '[INFO]  ', lData: '[DATA]  '}
-
+    #---------------------------
     def __init__(self, aLogLevel = lErr):
 	self.__activeLogLevel = aLogLevel
 	self.writeDelimiter()
 	self.writeMsg (lPanic, "SECURITY: initial log level is " + self.__LogLevelPrefix[self.__activeLogLevel])
-
+    #---------------------------
     def close(self):
 	self.writeMsg (lPanic, "SECURITY: closing log target (ID = " + str(self.ID) + ")")
-
+	self.flush()
+    #---------------------------
     def getID (self):
 	return self.ID
-
+    #---------------------------
     def SetLogLevel(self, aLogLevel):
 	# are we sane ?
 	if aLogLevel not in range(lData+1):
@@ -245,7 +248,7 @@ class LogTarget:
 	self.writeMsg (lPanic, "SECURITY: log level change from " + self.__LogLevelPrefix[self.__activeLogLevel] + " to " + self.__LogLevelPrefix[aLogLevel])
 	self.__activeLogLevel = aLogLevel
 	return self.__activeLogLevel
-
+    #---------------------------
     def writeMsg (self, aLogLevel, aMsg):
 	if aLogLevel <= self.__activeLogLevel:
 	    timestamp = self.__timestamp()
@@ -256,31 +259,34 @@ class LogTarget:
 		self.dump2stdout (timestamp, severity, caller, aMsg + "\n")
 	    else:
 		self.dump2stderr (timestamp, severity, caller, aMsg + "\n")
-
+	    # lPanic immediately flush()es
+	    if aLogLevel == lPanic:
+		self.flush()
+    #---------------------------
     def writeDelimiter (self):
 	self.dump2stdout (self.__timestamp(), '', '', '------------------------------------------------------------\n')
-
+    #---------------------------
     def flush (self):
 	pass
-
+    #---------------------------
     # Private methods - you never have to use those directly
-
+    #---------------------------
     # stdout equivalent for lWarn and above
     def dump2stdout (self, aTimestamp, aSeverity, aCaller, aMsg):
 	# for most log targest we make no distinction between stderr and stdout
 	self.dump2stderr (aTimestamp, aSeverity, aCaller, aMsg)
-
+    #---------------------------
     # stderr equivalent for lPanic, lErr
     def dump2stderr (self, aTimestamp, aSeverity, aCaller, aMsg):
-	print "LogTarget: You forgot to override dump2stderr() !\n"
-
+	print "cLogTarget: You forgot to override dump2stderr() !\n"
+    #---------------------------
     def __timestamp(self):
 	"""return a nicely formatted time stamp
 
 	FIXME: allow for non-hardwired format string
 	"""
 	return time.strftime("%Y-%m-%d %H:%M:%S ", time.localtime(time.time()))
-
+    #---------------------------
     def __tracestack(self):
 	"""extract data from the current execution stack
 
@@ -294,51 +300,50 @@ class LogTarget:
             self.__functionname = "Main"
 
 #---------------------------------------------------------------
-class LogTargetFile(LogTarget):
+class cLogTargetFile(cLogTarget):
     # the actual file handle
     __handle = None
-
-    def __init__ (self, aFileName, aMode, aLogLevel):
+    #---------------------------
+    def __init__ (self, aLogLevel = lErr, aFileName = "", aMode = "ab"):
 	# do our extra work
 	self.__handle = open (aFileName, aMode)
 	if self.__handle is None:
 	    return None
 	else:
 	    # call inherited
-	    LogTarget.__init__(self, aLogLevel)
+	    cLogTarget.__init__(self, aLogLevel)
 	    self.ID = os.path.abspath (aFileName) # the file name canonicalized
 
 	self.writeMsg (lData, "instantiated log file " + aFileName + " with ID " + str(self.ID))
-
+    #---------------------------
     def close(self):
-	LogTarget.close(self)
+	cLogTarget.close(self)
 	self.__handle.close()
-
+    #---------------------------
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	self.__handle.write(aTimeStamp + aPrefix + aLocation + aMsg)
-
 #---------------------------------------------------------------
-class LogTargetConsole(LogTarget):
+class cLogTargetConsole(cLogTarget):
     def __init__ (self, aLogLevel = lErr):
 	# call inherited
-	LogTarget.__init__(self, aLogLevel)
+	cLogTarget.__init__(self, aLogLevel)
 	# do our extra work
 	self.ID = "stdout/stderr"
 	self.writeMsg (lData, "instantiated console logging with ID " + str(self.ID))
-
+    #---------------------------
     def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	sys.stdout.write(aTimeStamp + aPrefix + aLocation + aMsg)
-
+    #---------------------------
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	sys.stderr.write(aTimeStamp + aPrefix + aLocation + aMsg)
 
 #---------------------------------------------------------------
-class LogTargetSyslog(LogTarget):
+class cLogTargetSyslog(cLogTarget):
     def __init__ (self, aLogLevel = lErr):
 	# is syslog available ?
     	if _use_syslog:
 	    # call inherited
-	    LogTarget.__init__(self, aLogLevel)
+	    cLogTarget.__init__(self, aLogLevel)
 	    # do our extra work
 	    syslog.openlog(os.path.basename(sys.argv[0]))
 	    syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
@@ -346,25 +351,84 @@ class LogTargetSyslog(LogTarget):
 	    self.writeMsg (lData, "instantiated syslog logging with ID " + str(self.ID))
 	else:
 	    raise NotImplementedError, "No SYSLOG module available on this platform (" + str(os.name) + ") !"
-
+    #---------------------------
     def close(self):
-	LogTarget.close(self)
+	cLogTarget.close(self)
 	syslog.closelog()
-
+    #---------------------------
     def dump2stdout (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	syslog.syslog ((syslog.LOG_USER | syslog.LOG_INFO), aPrefix + aLocation + aMsg)
-
+    #---------------------------
     def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
 	syslog.syslog ((syslog.LOG_USER | syslog.LOG_ERR), aPrefix + aLocation + aMsg)
 #---------------------------------------------------------------
-class LogTargetDummy(LogTarget):
+class cLogTargetDummy(cLogTarget):
     def __init__ (self):
 	# call inherited
-	LogTarget.__init__(self, lPanic)
+	cLogTarget.__init__(self, lPanic)
 	self.ID = "dummy"
-
+    #---------------------------
     def dump2stderr (self, aTimestamp, aSeverity, aCaller, aMsg):
 	pass
+#---------------------------------------------------------------
+class cLogTargetEMail(cLogTarget):
+    """Log into E-Mail.
+
+    - sends log messages to the specified e-mail address upon flush() or close()
+    - holds unsent log messages in a ring buffer
+    """
+    def __init__ (self, aLogLevel = lErr, aReceiverList = None, aBufferLength = 150, aSysDump = None):
+	"""Instantiate.
+    
+	- aReceiver must hold a sequence of addresses (unsually a singleton)
+	- aBufferlength = maximum number of log messages in ring buffer
+	- if aSysDump != None: include various system info when flush()ing such as PYTHONPATH
+	"""
+	# sanity check
+	if aReceiverList == None:
+	    raise ValueError, "cLogTargetEMail.__init__(): aReceiverList must contain values !"
+
+	# call inherited
+	cLogTarget.__init__(self, aLogLevel)
+
+	# do our extra work
+	self.__receiver_list = string.join(aReceiverList, ", ")
+	self.ID = "email: " + self.__receiver_list
+	if aSysDump == None:
+	    self.__dump_sys_info = (1==0)
+	else:
+	    self.__dump_sys_info = (1==1)
+	self.__max_buf_len = aBufferLength
+	# FIXME: this is pseudo-hardcoded but shouldn't be, really
+	# please suggest some smart algorithm !
+	# you can change it if you really want by accessing
+	# cLogTargetEMail.max_line_size directly
+	# 200 characters max per line (hardcoded)
+	self.max_line_size = 200
+	self.__msg_buffer = []
+	self.writeMsg (lInfo, "instantiated e-mail logging with ID " + str(self.ID))
+    #---------------------------
+    def dump2stderr (self, aTimeStamp, aPrefix, aLocation, aMsg):
+	# any messages containing "CONFIDENTIAL" get dropped
+	if string.find(aMsg, "CONFIDENTIAL") != -1:
+	    return (1==1)
+	# any message larger than max_line_size is truncated
+	if len(aMsg) > self.max_line_size:
+	    aMsg[self.max_line_size:] = " [...]\n"
+	# drop oldest msg from buffer if buffer full
+	if len(self.__msg_buffer) >= self.__max_buf_len:
+	    self.__msg_buffer.pop(0)
+	# now finally store the current log message
+	self.__msg_buffer.append(aTimeStamp + aPrefix + aLocation + aMsg)
+    #---------------------------
+    def flush():
+	pass
+	# FIXME here is the meat !
+	# import mail modules
+	# create mail header
+	# create mail body
+	# send mail
+	# initialize msg buffer
 #---------------------------------------------------------------
 def myExitFunc():
     pass
@@ -376,14 +440,14 @@ if __name__ == "__main__":
     print "\nTesting module gmLog\n=========================="
 
     # create a file target
-    loghandle = LogTargetFile ("test.log", "a", lData)
+    loghandle = cLogTargetFile (lData, "test.log", "a")
 
     # procure the ID
     handleID = loghandle.getID()
     print (str(handleID))
 
     # and use that to populate the logger
-    log = Logger(loghandle)
+    log = cLogger(loghandle)
 
     # should log a security warning
     loghandle.SetLogLevel (lWarn)
@@ -399,16 +463,16 @@ if __name__ == "__main__":
 
     print "Let's add a console logging handle."
     # let's add a console log target - it can have it's own log level
-    consolehandle = LogTargetConsole (lInfo)
+    consolehandle = cLogTargetConsole (lInfo)
     log.AddTarget (consolehandle)
 
     log.Log (lData, "this should only show up in the log file")
     log.Log (lInfo, "this should show up both on console and in the log file")
 
     # syslog is cool, too
-    #if __use_syslog:
+    #if _use_syslog:
     print "adding syslog logging"
-    sysloghandle = LogTargetSyslog (lWarn)
+    sysloghandle = cLogTargetSyslog (lWarn)
     log.AddTarget (sysloghandle)
 
     log.Log (lData, "the logger object uncooked: " + str(log))
@@ -428,7 +492,7 @@ if __name__ == "__main__":
 
     print "Done."
 else:
-    gmDefLog = Logger()
+    gmDefLog = cLogger()
     # this needs Python 2.x
     atexit.register(myExitFunc)
 
