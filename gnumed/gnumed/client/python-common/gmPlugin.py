@@ -19,18 +19,16 @@ from gmLog import *
 log = gmDefLog.Log
 from wxPython.wx import *
 import gmGuiBroker, gmPG, gmConf, gmShadow
-
+#------------------------------------------------------------------
 class gmPlugin:
-	
-	"base class for all gnumed plugins"
-
-
+	"""base class for all gnumed plugins"""
+	#-----------------------------------------------------
 	def provides ():
 		"""
 		Returns a list of services that the plugin provides
 		"""
 		return []
-	
+	#-----------------------------------------------------
 	def requires ():
 		"""
 		Requires a list of services that must be registered
@@ -39,24 +37,21 @@ class gmPlugin:
 		satisfies the plugins' requirements
 		"""
 		return []
-
+	#-----------------------------------------------------
 	def description ():
+		"""Returns a brief description of the plugin.
 		"""
-		Returns a brief description of the plugin
-		"""
-
+		pass
+	#-----------------------------------------------------
 	def name (self):
 		return ''
-
+	#-----------------------------------------------------
 	def register(self):
 		raise gmExceptions.PureVirtualFunction()
-
+	#-----------------------------------------------------
 	def unregister(self):
 		raise gmExceptions.PureVirtualFunction()
-
-
-
-
+#------------------------------------------------------------------
 class wxBasePlugin (gmPlugin):
 	
 	"""
@@ -76,43 +71,39 @@ class wxBasePlugin (gmPlugin):
 			self.gb = gmGuiBroker.GuiBroker ()
 		if self.db is None:
 			self.db = gmPG.ConnectionPool ()
-
+	#-----------------------------------------------------
 	def GetIcon (self):
 		"""
 		Return icon representing page on the toolbar
 		"""
 		return None
-
+	#-----------------------------------------------------
 	def GetWidget (self, parent):
 		"""
 		Return the widget to display
 		"""
 		raise gmExceptions.PureVirtualFunction()
-
+	#-----------------------------------------------------
 	def MenuInfo (self):
-		"""
-		Return tuple of (menuname, menuitem)
+		"""Return tuple of (menuname, menuitem).
 		"""
 		raise gmExceptions.PureVirtualFunction()
-
+	#-----------------------------------------------------
 	def Raise (self):
-		"""
-		Raises this plugin to the top level if not visible
+		"""Raises this plugin to the top level if not visible.
 		"""
 		raise gmExceptions.PureVirtualFunction ()
-
+	#-----------------------------------------------------
 	def Shown (self):
-		"""
-		called whenever this module is shown onscreen
+		"""Called whenever this module is shown onscreen.
 		"""
 		pass
-
+#------------------------------------------------------------------
 class wxNotebookPlugin (wxBasePlugin):
 	"""
 	Base plugin for plugins which provide a 'big page'
 	Either whole screen, or notebook if it exists
 	"""
-
 	
 	def register (self):
 		self.nb = self.gb['main.notebook']
@@ -126,26 +117,24 @@ class wxNotebookPlugin (wxBasePlugin):
 		self.menu_id = wxNewId ()
 		menu.Append (self.menu_id, menuname, self.name ())
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnMenu)
-
+	#-----------------------------------------------------
 	def unregister (self):
 		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
 		menu.Delete (menu_id)
 		nb = gb['main.notebook']
 		nb.DeletePage (self.nb_no)
 		self.tbm.DeleteBar (self.nb_no) 
-	
-
+	#-----------------------------------------------------	
 	def Raise (self):
 		self.nb.SetSelection (self.nb_no)
 		self.tbm.ShowBar (self.nb_no)
-
+	#-----------------------------------------------------
 	def OnMenu (self, event):
 		self.Raise ()
-
+	#-----------------------------------------------------
 	def GetNotebookNumber (self):
 		return self.nb_no
-
-
+#------------------------------------------------------------------
 class wxPatientPlugin (wxBasePlugin):
 	"""
 	A 'small page', sits inside the patient view, with the side visible
@@ -172,14 +161,14 @@ class wxPatientPlugin (wxBasePlugin):
 		self.menu_id = wxNewId ()
 		menu.Append (self.menu_id, menuname, self.name ())
 		EVT_MENU (self.gb['main.frame'], self.menu_id, self.OnTool)
-        
+	#-----------------------------------------------------        
 	def OnTool (self, event):
 		self.mwm.Display (self.name ())
-
+	#-----------------------------------------------------
 	def Raise (self):
 		self.gb['modules.gui']['Patient Window'].Raise ()
 		self.mwm.Display (self.name ())
-
+	#-----------------------------------------------------
 	def unregister (self):
 		self.mwm.Unregister (self.name ())
 		menu = self.gb['main.%smenu' % self.MenuInfo ()[0]]
@@ -187,9 +176,7 @@ class wxPatientPlugin (wxBasePlugin):
 		if self.GetIcon () is not None:
 			tb2 = self.gb['tollbar.Patient Window']
 			tb2.DeleteTool (self.tool_id)
-
-
-
+#------------------------------------------------------------------
 def LoadPlugin (set, plugin_name, guibroker = None, dbbroker = None):
 	"""
 	Loads a plugins.
@@ -218,20 +205,20 @@ def LoadPlugin (set, plugin_name, guibroker = None, dbbroker = None):
 			plugin = plugin_class (guibroker = guibroker, dbbroker = dbbroker)
 			plugin.register ()
 			guibroker['modules.%s' % set][plugin.name()] = plugin
-			log (lInfo, "registing plugin %s" % plugin_name)
+			log (lInfo, "registering plugin %s" % plugin_name)
 		else:
 			log (lErr, "class %s is not a subclass of wxBasePlugin" % name)
 	except Exception, error:
 		frame = traceback.extract_tb (sys.exc_info ()[2])[-1]
 		log (lErr, "cannot load module %s/%s:\nException: %s\nFile: %s\nLine: %s\n" % (set, plugin_name, error, frame[0], frame[1]))
-
+#------------------------------------------------------------------
 def GetAllPlugins (set):
 	"""
 	Searches the directory for all plugins
 	"""
 	gb = gmGuiBroker.GuiBroker ()
 	dir = gb['gnumed_dir']
-	# in future versions we will ask the backend where plguins are
+	# FIXME: in future versions we will ask the backend where plguins are
 	dir = os.path.join (dir, 'wxpython', set)
 	
 	files = os.listdir (dir)
@@ -240,8 +227,7 @@ def GetAllPlugins (set):
 		if re.compile ('.+\.py$').match (f) and f != '__init__.py':
 			ret.append (f[:-3])
 	return ret
-
-	
+#------------------------------------------------------------------	
 def UnloadPlugin (set, name):
 	"""
 	Unloads the named plugin
@@ -251,7 +237,6 @@ def UnloadPlugin (set, name):
 	plugin.unregister ()
 	del gb['modules.%s' % set][name]
 	log (lInfo, "unloaded plugin %s/%s" % (set, name))
-
 
 #####################################################################
 # here is sample code of how to use gmPlugin.py:
@@ -267,8 +252,3 @@ def UnloadPlugin (set, name):
 #	    plugin_class.register ()
 
 #This also allows a single source file to define several plugin objects.
-
-
-
-
-
