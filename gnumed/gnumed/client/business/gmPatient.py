@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.23 2004-03-10 12:56:01 ihaywood Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPatient.py,v 1.24 2004-03-10 13:44:33 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -18,8 +18,12 @@ import sys, os.path, time, re, string
 if __name__ == "__main__":
 	sys.path.append(os.path.join('..', 'pycommon'))
 
-from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmI18N
+from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg
 from Gnumed.business import gmClinicalRecord, gmDemographicRecord
+
+# if we just import gmI18N again we'd
+# re-install the _() wrapper
+from Gnumed.pycommon.gmI18N import system_locale_level
 
 _log = gmLog.gmDefLog
 
@@ -328,13 +332,13 @@ class cPatientSearcher_SQL:
 		# set locale dependant query handlers
 		# - generator
 		try:
-			self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['full']]
+			self.__generate_queries = self.__query_generators[system_locale_level['full']]
 		except KeyError:
 			try:
-				self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['country']]
+				self.__generate_queries = self.__query_generators[system_locale_level['country']]
 			except KeyError:
 				try:
-					self.__generate_queries = self.__query_generators[gmI18N.system_locale_level['language']]
+					self.__generate_queries = self.__query_generators[system_locale_level['language']]
 				except KeyError:
 					self.__generate_queries = self.__query_generators['default']
 		# make a cursor
@@ -812,7 +816,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.23  2004-03-10 12:56:01  ihaywood
+# Revision 1.24  2004-03-10 13:44:33  ncq
+# - shouldn't just import gmI18N, needs fix, I guess
+#
+# Revision 1.23  2004/03/10 12:56:01  ihaywood
 # fixed sudden loss of main.shadow
 # more work on referrals,
 #
