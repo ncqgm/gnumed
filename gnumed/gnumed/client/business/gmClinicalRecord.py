@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.95 2004-05-17 19:01:40 ncq Exp $
-__version__ = "$Revision: 1.95 $"
+# $Id: gmClinicalRecord.py,v 1.96 2004-05-18 20:33:40 ncq Exp $
+__version__ = "$Revision: 1.96 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -948,9 +948,7 @@ class cClinicalRecord:
 		# 3) no encounter yet or too old, create new one
 		result = gmEMRStructItems.create_encounter(
 			fk_patient = self.id_patient,
-			fk_provider = _whoami.get_staff_ID(),
-			description = encounter_name,
-			enc_type = encounter_type
+			fk_provider = _whoami.get_staff_ID()
 		)
 		if result is False:
 			return False
@@ -1213,7 +1211,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.95  2004-05-17 19:01:40  ncq
+# Revision 1.96  2004-05-18 20:33:40  ncq
+# - fix call to create_encounter() in __initiate_active_encounter()
+#
+# Revision 1.95  2004/05/17 19:01:40  ncq
 # - convert encounter API to use encounter class
 #
 # Revision 1.94  2004/05/16 15:47:27  ncq
