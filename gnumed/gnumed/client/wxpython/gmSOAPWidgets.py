@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.2 2005-01-10 17:48:03 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmSOAPWidgets.py,v 1.3 2005-01-10 17:50:36 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -318,6 +318,28 @@ class cSingleBoxSOAPPanel(wx.wxPanel):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
+	def create_widget_on_test_kwd1(*args, **kwargs):
+		print "test keyword must have been typed..."
+		print "actually this would have to return a suitable wxWindow subclass instance"
+		print "args:", args
+		print "kwd args:"
+		for key in kwargs.keys():
+			print key, "->", kwargs[key]
+
+	def create_widget_on_test_kwd2(*args, **kwargs):
+		msg = (
+			"test keyword must have been typed...\n"
+			"actually this would have to return a suitable wxWindow subclass instance\n"
+		)
+		for arg in args:
+			msg = msg + "\narg ==> %s" % arg
+		for key in kwargs.keys():
+			msg = msg + "\n%s ==> %s" % (key, kwargs[key])
+		gmGuiHelpers.gm_show_info (
+			aMessage = msg,
+			aTitle = 'msg box on create_widget from test_keyword'
+		)
+
 	_log.SetAllLogLevels(gmLog.lData)
 
 	try:
@@ -335,7 +357,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.2  2005-01-10 17:48:03  ncq
+# Revision 1.3  2005-01-10 17:50:36  ncq
+# - carry over last bits and pieces from test-area
+#
+# Revision 1.2  2005/01/10 17:48:03  ncq
 # - all of test_area/cfmoro/soap_input/gmSoapWidgets.py moved here
 #
 # Revision 1.1  2005/01/10 16:14:35  ncq
