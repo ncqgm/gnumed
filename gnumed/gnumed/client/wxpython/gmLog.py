@@ -350,6 +350,11 @@ class LogTargetDummy(LogTarget):
 
     def dump2stderr (self, aTimestamp, aSeverity, aCaller, aMsg):
 	pass
+#---------------------------------------------------------------
+def myExitFunc():
+    # FIXME - do something useful
+    sys.exitfunc = oldExitFunc
+    print "exiting gmLog.py"
 #------- MAIN -------------------------------------------------------
 if __name__ == "__main__":
     print "\nTesting module gmLog\n=========================="
@@ -407,3 +412,20 @@ if __name__ == "__main__":
     print "Done."
 else:
     gmDefLog = Logger()
+    oldExitFunc = sys.exitfunc
+    sys.exitfunc = myExitFunc
+
+#---------------------------------------------------------------
+# random ideas and TODO
+#
+# target email
+# target wxPython
+#
+# log areas ?
+#
+# promptfunc() ?
+#
+# __bases__
+# callable()
+# type()
+# __del__
