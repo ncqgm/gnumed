@@ -15,9 +15,11 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.12 2003-06-16 09:52:04 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmLoginInfo.py,v 1.13 2003-06-26 02:31:23 ihaywood Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
+
+import gmLog
 
 #====================================================================
 class LoginInfo:
@@ -169,6 +171,11 @@ class LoginInfo:
 		return self.__host
 	#------------------------------------------
 	def SetPort(self, port):
+		try:
+			port = int (port)
+		except ValueError:
+			gmLog.gmDefLog.Log (gmLog.lWarn, "tried to set port to '%s', set to -1" % port)
+			port = -1
 		self.__port = port
 	#------------------------------------------
 	def GetPort(self):
@@ -213,7 +220,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.12  2003-06-16 09:52:04  ncq
+# Revision 1.13  2003-06-26 02:31:23  ihaywood
+# Fix for non-integer port values
+#
+# Revision 1.12  2003/06/16 09:52:04  ncq
 # - really make local connections go via sockets
 #
 # Revision 1.11  2003/06/14 22:41:30  ncq
