@@ -112,6 +112,82 @@ class DrugView:
 		result = self.mDrugInterface.GetData('brandsForGeneric',refresh=1)
 		return result
 
+	#---------------------------------------------------------------------------
+	# IH: extra APIs for prescription
+
+	def getSimpleFormulationsList(self,aId, brand=None):
+		"""
+	aId is the ID of a drug selected from the above queries
+	brand restricts search to a particular brand, (must be exact string match, i.e. from
+	previous search [ignored by drugref for now]
+	
+	Returns a list of formulations for this drug. Dictionary entries:
+	id: the formulation ID code
+	WARNING: in drugref, this ID is *generic*, not to a brand's formulation
+
+	free_form: formulation stated as a simple string, such as "tablet 4mg", "capsule 500mg/125mg"
+	for displaying as a drop-down box in the prescription widget. Human-readable but not parseable
+	
+	FUTURE: may have an optional 'strict_form' field where formulation format is defined and parseable.
+
+	amount: the amount of the drug (for liquid drugs, should be 1 otherwise)
+	
+	amount_unit: the amount unit. MUST BE one of None, "each", "ml", "g", "day"
+	Databases other than drugref should use the SQL case..end construct to enforce this rule
+	Generally, they should return each for 'solid' preparations such as tablets, capsules, etc.
+	This level of specificity is needed for compliance-checking.
+
+	route: the drugs route, MUST BE one of 'iv', 'im', 'oral', 'pr', 'topical'. Again, use case..end to
+	enforce where neccessary. Can be None. This is not the full list (of routes), needs further discussion
+	see drugref.sql
+	"""
+		if aId is None:
+			return None
+		self.mDrugInterface.mVars['ID']=aId
+		self.mDrugInterface.mVars['brand']=brand
+
+		result = self.mDrugInterface.GetData ('formsList')
+
+		return result
+
+	def getPackageSizes (self, aId, brand=None):
+		"""
+	Given the ID from a formulation as above, return a list of 'package_size' and 'price' available, as integers
+	Price should be for the named brand if given
+	[drugref will ignore brand for now]
+	"""
+		if aId is None:
+			return None
+		self.mDrugInterface.mVars['ID']=aId
+		self.mDrugInterface.mVars['brand'] = brand
+
+		result = self.mDrugInterface.GetData ('packageSizes')
+
+		return result
+
+	def getPrescribingRestrictions (self, aId, regime):
+		"""
+	Given the ID from the formulation as returned above, returns 'flag' and 'text'
+	regime: the subsidy regime under which the prescriber is operating
+	flag: true if the restriction requires the prescriber to contact the subsidy authority.
+	(always false in jurisdictions where this makes no sense)
+	text: is free text describing the restriction, for display to the prescriber
+	"""
+		if aId is None:
+			return None
+		self.mDrugInterface.mVars['ID']=aId
+		self.mDrugInterface
+
+		result = self.mDrugInterface.GetData ('restriction')
+
+		return result	
+
+	
+	
+	#------------------------------------------------------------------------------------
+	# from here, stuff for displaying drug monographs
+	
+
 	def getProductInfo(self,aId):
 		"""
         Returns an HTML-formatted drug information sheet for display
@@ -379,7 +455,10 @@ if __name__ == "__main__":
 	pass
 
 # $Log: gmDrugView.py,v $
-# Revision 1.6  2002-11-17 16:44:23  hinnef
+# Revision 1.7  2003-07-31 07:45:07  ihaywood
+# Additions for prescribing
+#
+# Revision 1.6  2002/11/17 16:44:23  hinnef
 # fixed some bugs regarding display of non-string items and list entries in PI
 #
 # Revision 1.5  2002/11/09 15:10:47  hinnef
