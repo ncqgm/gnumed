@@ -52,7 +52,7 @@ class ResizingWindow (wxScrolledWindow):
     and adjusts accordingly
     """
     
-    def __init__ (self, parent, id, pos = wxDefaultPosition, size = wxDefaultSize):
+    def __init__ (self, parent, id, pos = wxDefaultPosition, size = wxDefaultSize, complete = None):
         wxScrolledWindow.__init__ (self, parent, id, pos = pos, size = size, style =wxVSCROLL)
         self.lines = [[]]
         self.SetScrollRate (0, 20) # suppresses X scrolling by setting X rate to zero
@@ -61,7 +61,27 @@ class ResizingWindow (wxScrolledWindow):
         self.__matcher = None
         self.list = None
         self.popup = None
+        self.complete = complete
         self.szr = None
+        self.DoLayout ()
+        self.szr = wxFlexGridSizer (len (self.lines), 2)
+        self.SetSizer (self.szr)
+        for line in self.lines:
+            if line:
+                if line[0][1]:
+                    self.szr.Add (line[0][1], 1) # first label goes in column 1
+                else:
+                    self.szr.Add (20, 20)
+                h_szr = wxBoxSizer (wxHORIZONTAL)
+                h_szr.Add (line[0][2], 1, wxGROW) # the rest gets packed into column 2
+                for w in line[1:]:
+                    if w[1]:
+                        h_szr.Add (w[1], 0)
+                    h_szr.Add (w[2], 1, wxGROW)
+                self.szr.Add (h_szr, 1, wxGROW)
+        self.szr.AddGrowableCol (1)
+        self.szr.Add (10, 10)
+        self.FitInside ()
 
     def AddWidget (self, widget, label=None):
         """
@@ -85,26 +105,10 @@ class ResizingWindow (wxScrolledWindow):
 
     def DoLayout (self):
         """
-        Does the layout for the first time
+        Overridden by descendants, this function uses AddWidget and Newline to form
+        the outline of the widget
         """
-        self.szr = wxFlexGridSizer (len (self.lines), 2)
-        self.SetSizer (self.szr)
-        for line in self.lines:
-            if line:
-                if line[0][1]:
-                    self.szr.Add (line[0][1], 1) # first label goes in column 1
-                else:
-                    self.szr.Add (20, 20)
-                h_szr = wxBoxSizer (wxHORIZONTAL)
-                h_szr.Add (line[0][2], 1, wxGROW) # the rest gets packed into column 2
-                for w in line[1:]:
-                    if w[1]:
-                        h_szr.Add (w[1], 0)
-                    h_szr.Add (w[2], 1, wxGROW)
-            self.szr.Add (h_szr, 1, wxGROW)
-        self.szr.AddGrowableCol (1)
-        self.szr.Add (10, 10)
-        self.FitInside ()
+        pass
 
     def ReSize (self, widget, new_height):
         """
@@ -220,12 +224,24 @@ class ResizingWindow (wxScrolledWindow):
         self.list = PickList (self, wxPoint (x, y), wxSize (lw, lh), callback)
         return self.list
 
+    def GetSummary (self):
+        """
+        Gets a terse summary string for the data in the widget
+        """
+        return ""
 
-    def DestroyPopup (self):
+
+    def Set (self, item):
+        """
+        Accepts a cClinItem, sets the widget to reflect its contents
+        """
         pass
-        #if self.popup:
-        #    self.popup.Destroy ()
-        #    self.popup = None
+
+    def Save (self, item):
+        """
+        Accepts a cClinItem, sets *it* to reflect the widget's contents
+        """
+        pass
 
 class ResizingSTC (wxStyledTextCtrl):
     """
@@ -262,7 +278,6 @@ class ResizingSTC (wxStyledTextCtrl):
         
     def __OnChange (self, event):
         event.Skip ()
-        self.parent.DestroyPopup ()
         length = self.GetLength ()
         height = self.PointFromPosition (length).y - self.PointFromPosition (0).y + self.TextHeight (0)
         x, y = self.GetSizeTuple ()
@@ -297,7 +312,9 @@ class ResizingSTC (wxStyledTextCtrl):
 
     def __userlist (self, text, data=None):
         self.list.Destroy ()
-        if callable (data):
+        if issubclass (data, ResizingWindow):
+            PopupFrame (text, data, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ()))).Show ()
+        elif callable (data):
             data (text, self.parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
         else:
             self.Embed (text, data)
@@ -327,6 +344,10 @@ class ResizingSTC (wxStyledTextCtrl):
             else:
                 if self.next:
                     self.next.SetFocus ()
+                elif self.parent.complete:
+                    self.parent.complete ()
+        elif self.parent.complete and event.KeyCode () == WXK_F12:
+            self.parent.complete ()
         elif event.KeyCode () == ord (';'):
             if self.GetLength () == 0:
                 wxBell ()
@@ -351,6 +372,8 @@ class ResizingSTC (wxStyledTextCtrl):
                 if self.GetCharAt (pos and pos-1) == ord (';'):
                     if self.next:
                         self.next.SetFocus ()
+                    elif self.parent.complete ():
+                        self.parent.complete ()
                 else:
                     self.AddText (';')
             elif self.GetLength () == 0 and self.next ():
@@ -392,76 +415,82 @@ class ResizingSTC (wxStyledTextCtrl):
         """
         self.__matcher = matcher
 
-class RecallWindow (wxFrame):
-    def __init__ (self, pos):
-        wxFrame.__init__(self, None, wxNewId (), "Recall", pos = pos, style=wxSIMPLE_BORDER)
-        self.win = ResizingWindow (self, -1, pos = pos, size = wxSize (300, 150))
-        self.type = wxStyledTextCtrl (self.win, -1)
-        self.type.SetWrapMode (wxSTC_WRAP_WORD)
-        EVT_KEY_DOWN (self.type, self.Key)
-        self.date = ResizingSTC (self.win, -1)
-        self.notes = ResizingSTC (self.win, -1)
-        self.type.prev = None
-        self.type.next = self.date
-        self.date.prev = self.type
-        self.date.next = self.notes
-        self.notes.prev = self.date
-        self.notes.next = None
-        self.win.AddWidget (self.type, "Type")
-        self.win.Newline ()
-        self.win.AddWidget (self.date, "Date")
-        self.win.Newline ()
-        self.win.AddWidget (self.notes, "Notes")
-        self.win.Newline ()
-        self.win.DoLayout ()
-        EVT_CLOSE (self, self.OnClose)
+class PopupFrame (wxFrame):
+    def __init__ (self, text, widget_class, originator=None, pos=wxDefaultPosition):
+        wxFrame.__init__(self, None, wxNewId (), widget_class.__name__, pos = pos, style=wxSIMPLE_BORDER)
+        self.win = widget_class (self, -1, pos = pos, size = wxSize (300, 150), complete = self.OnOK)
+        self.text = text
+        self.originator = originator
+        self.ok = wxButton (self, -1, _(" OK "))
+        self.cancel = wxButton (self, -1, _(" Cancel "))
+        EVT_BUTTON (self.ok, self.ok.GetId (), self.OnOK)
+        EVT_BUTTON (self.cancel, self.cancel.GetId (), self.OnClose)
         self.__do_layout()
-        # end wxGlade
-
-    def Key (self, event):
-        event.Skip ()
 
     def __do_layout(self):
-        # begin wxGlade: MyFrame.__do_layout
         sizer_1 = wxBoxSizer(wxVERTICAL)
         sizer_1.Add(self.win, 1, wxEXPAND, 0)
+        sizer_2 = wxBoxSizer (wxHORIZONTAL)
+        sizer_2.Add(self.ok, 0, 0)
+        sizer_2.Add(self.cancel, 0, 0)
+        sizer_1.Add(sizer_2, 0, wxEXPAND)
         self.SetAutoLayout(1)
         self.SetSizer(sizer_1)
         sizer_1.Fit(self)
         sizer_1.SetSizeHints(self)
         self.Layout()
-        # end wxGlade
 
     def OnClose (self, event):
-            self.Destroy ()
+        self.Close ()
 
+    def OnOK (self, event=None):
+        if self.originator:
+            self.originator.Embed ("%s: %s" % (self.text, self.win.GetSummary ()))
+        self.Close ()
 
 if __name__ == '__main__':
 
     from Gnumed.pycommon.gmMatchProvider import cMatchProvider_FixedList
-    
-    class testFrame(wxFrame):
-        def __init__(self, title):
-            # begin wxGlade: MyFrame.__init__
-            wxFrame.__init__(self, None, wxNewId (), title)
+    from Gnumed.pycommon import gmI18N
+
+    class RecallWindow (ResizingWindow):
+        def DoLayout (self):
+            self.type = ResizingSTC (self, -1)
+            self.date = ResizingSTC (self, -1)
+            self.notes = ResizingSTC (self, -1)
+            self.type.prev = None
+            self.type.next = self.date
+            self.date.prev = self.type
+            self.date.next = self.notes
+            self.notes.prev = self.date
+            self.notes.next = None
+            self.AddWidget (self.type, "Type")
+            self.Newline ()
+            self.AddWidget (self.date, "Date")
+            self.Newline ()
+            self.AddWidget (self.notes, "Notes")
+
+        def GetSummary (self):
+            return "%s on %s [%s]" % (self.type.GetText (), self.date.GetText (), self.notes.GetText ())
+
+    class SOAPWindow (ResizingWindow):
+        def DoLayout (self):
             Planlist = [{'label':'pencillin V', 'data':1, 'weight':1}, {'label':'penicillin X', 'data':2, 'weight':1},
                 {'label':'penicillinamine', 'data':3, 'weight':1}, {'label':'penthrane', 'data':4, 'weight':1},
                 {'label':'penthidine', 'data':5, 'weight':1},
-                {'label':'recall', 'data':self.Recall, 'weight':1}]
+                {'label':'recall', 'data':RecallWindow, 'weight':1}]
             AOElist = [{'label':'otitis media', 'data':1, 'weight':1}, {'label':'otitis externa', 'data':2, 'weight':1},
                 {'label':'cellulitis', 'data':3, 'weight':1}, {'label':'gingvitis', 'data':4, 'weight':1},
                 {'label':'ganglion', 'data':5, 'weight':1}]
-
             Subjlist = [{'label':'earache', 'data':1, 'weight':1}, {'label':'earache', 'data':1, 'weight':1},
                {'label':'ear discharge', 'data':2, 'weight':1}, {'label':'eardrum bulging', 'data':3, 'weight':1},
                {'label':'sore arm', 'data':4, 'weight':1}, {'label':'sore tooth', 'data':5, 'weight':1}]
-            self.text_ctrl_1 = ResizingWindow (self, -1, size = wxSize (300, 150))
-            self.S = ResizingSTC (self.text_ctrl_1, -1)
+            self.S = ResizingSTC (self, -1)
             self.S.AttachMatcher (cMatchProvider_FixedList (Subjlist))
-            self.O = ResizingSTC (self.text_ctrl_1, -1)
-            self.A = ResizingSTC (self.text_ctrl_1, -1)
+            self.O = ResizingSTC (self, -1)
+            self.A = ResizingSTC (self, -1)
             self.A.AttachMatcher (cMatchProvider_FixedList (AOElist))
-            self.P = ResizingSTC (self.text_ctrl_1, -1)
+            self.P = ResizingSTC (self, -1)
             self.P.AttachMatcher (cMatchProvider_FixedList (Planlist))
             self.S.prev = None
             self.S.next = self.O
@@ -471,44 +500,21 @@ if __name__ == '__main__':
             self.A.next = self.P
             self.P.prev = self.A
             self.P.next = None
-            self.text_ctrl_1.AddWidget (self.S, "Subjective")
-            self.text_ctrl_1.Newline ()
-            self.text_ctrl_1.AddWidget (self.O, "Objective")
-            self.text_ctrl_1.Newline ()
-            self.text_ctrl_1.AddWidget (self.A, "Assessment")
-            self.text_ctrl_1.Newline ()
-            self.text_ctrl_1.AddWidget (self.P, "Plan")
-            self.text_ctrl_1.SetValues ({"Subjective":"sore ear", "Plan":"Amoxycillin"})
-            self.text_ctrl_1.DoLayout ()
-            EVT_CLOSE (self, self.OnClose)
-            self.__do_layout()
-            # end wxGlade
-
-        def __do_layout(self):
-            # begin wxGlade: MyFrame.__do_layout
-            sizer_1 = wxBoxSizer(wxVERTICAL)
-            sizer_1.Add(self.text_ctrl_1, 1, wxEXPAND, 0)
-            self.SetAutoLayout(1)
-            self.SetSizer(sizer_1)
-            sizer_1.Fit(self)
-            sizer_1.SetSizeHints(self)
-            self.Layout()
-            # end wxGlade
-
-        def OnClose (self, event):
-            print self.text_ctrl_1.GetValues ()
-            self.Destroy ()
-
-        def Recall (self, text, parent, caller, pos):
-            self.recall = RecallWindow (pos)
-            self.recall.Show ()
+            self.AddWidget (self.S, "Subjective")
+            self.Newline ()
+            self.AddWidget (self.O, "Objective")
+            self.Newline ()
+            self.AddWidget (self.A, "Assessment")
+            self.Newline ()
+            self.AddWidget (self.P, "Plan")
+            self.SetValues ({"Subjective":"sore ear", "Plan":"Amoxycillin"})
 
     # end of class MyFrame
 
 
     class testApp (wxApp):
         def OnInit (self):
-            self.frame = testFrame ("Test SOAP")
+            self.frame = PopupFrame ("testFrame", SOAPWindow)
             self.frame.Show ()
             return 1
 
