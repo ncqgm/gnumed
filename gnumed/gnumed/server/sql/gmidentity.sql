@@ -16,9 +16,18 @@
 --
 --              All address related items have been moved into a separate database
 --              in order to use GIS servers where available
-
+--
+-- 07.03.2002:  (hherb) "title" attribute added to "names" table
+-- 07.03.2002:  (hherb) view "v_basic_person" added
 
 -- ==========================================================
+
+CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
+    '/usr/lib/pgsql/plpgsql.so' LANGUAGE 'C';
+
+CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
+    HANDLER plpgsql_call_handler
+    LANCOMPILER 'PL/pgSQL';
 
 -- any table that needs auditing MUST inherit audit_identity.
 -- A python script (gmhistorian.py) generates automatically all triggers
@@ -209,6 +218,12 @@ COMMENT ON COLUMN identities_addresses.id_address IS
 COMMENT ON COLUMN identities_addresses.address_source IS
 'URL of some sort allowing to reproduce where the address is sourced from';
 
+create function new_pupic(text) returns text as '
+-- TODO!!!!
+begin;
+	return $1;  -- just a dummy
+end;' language 'plpgsql';
+
 
 create view v_basic_person as
 select
@@ -219,29 +234,29 @@ from
 	identity i, names n
 where
 	i.deceased = NULL and n.id=i.id and n.active=true;
- 
--- IH 9/3/02 Add some rules
 
-CREATE RULE insert_basic_person AS ON INSERT TO basic_address DO INSTEAD
+
+CREATE RULE r_insert_basic_person AS ON INSERT TO v_basic_person DO INSTEAD
 (
 	INSERT INTO identity (pupic, gender, dob, cob) values
-	       (new_pupic (), NEW.gender, NEW.dob, NEW.cob);
+	       (new_pupic('dummy'), NEW.gender, NEW.dob, NEW.cob);
 	INSERT INTO names (title, firstnames, lastnames, aka, id_identity)
-	VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.aka, 
+	VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.aka,
 	       currval ('identity_id_seq'));
 );
 
--- rule for name change - add new name to list.
-CREATE RULE r_update_basic_person1 AS ON UPDATE TO basic_address 
+
+CREATE RULE r_update_basic_person AS ON UPDATE TO v_basic_person
     WHERE NEW.dob = OLD.dob AND NEW.cob = OLD.cob AND NEW.gender
     = OLD.gender DO INSTEAD INSERT INTO names (title, firstnames,
     lastnames, aka, id_identity, active) VALUES (NEW.title, NEW.firstnames,
     NEW.lastnames, NEW.aka, NEW.id, 't');
-       
 
-CREATE RULE r_delete_basic_person AS ON DELETE TO basic_address DO INSTEAD
+
+CREATE RULE r_delete_basic_person AS ON DELETE TO v_basic_person DO INSTEAD
 (
-	DELETE FROM names WHERE id_identity=NEW.id;
-	DELETE FROM identity WHERE id=NEW.id;
-); 	       
+	DELETE FROM names WHERE id_identity=OLD.id;
+	DELETE FROM identity WHERE id=OLD.id;
+);
+
 
