@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on mime types.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/viewer-tree/Attic/show-med_docs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #----------------------------------------------------------------------
 import os.path, sys, os
@@ -170,7 +170,13 @@ class cDocTree(wx.wxTreeCtrl):
 		__log__.Log(gmLog.lData, "object: %s" % str(obj))
 		__log__.Log(gmLog.lData, "%s -> %s" % (mime_type, viewer_cmd))
 
-		os.system(viewer_cmd)
+		if viewer_cmd == None:
+			__log__.Log(gmLog.lWarn, "Cannot determine viewer via standard mailcap mechanism. Desperately trying to guess.")
+			new_fname = docMime.get_win_fname(mime_type)
+			os.rename(obj['file name'], new_fname)
+			os.startfile(new_fname)
+		else:
+			os.system(viewer_cmd)
 #------------------------------------------------------------------------
 class MyFrame(wx.wxFrame):
 	"""Very standard Frame class. Nothing special here!"""
