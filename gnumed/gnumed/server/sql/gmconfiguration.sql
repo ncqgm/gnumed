@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -136,17 +136,102 @@ CREATE TABLE queries (
 	db INT REFERENCES DB,
 	query text
 );
---=====================================================================
-GRANT SELECT ON db, distributed_db, config TO GROUP "gm-public";
 
+-- ======================================================
+create table cfg_type_enum (
+	name varchar(20) unique
+);
+
+comment on table cfg_type_enum is
+	'enumeration of config option data types';
+
+INSERT INTO cfg_type_enum VALUES ('string');
+INSERT INTO cfg_type_enum VALUES ('numeric');
+
+-- ======================================================
+create table cfg_template (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(20) NOT NULL DEFAULT 'must set this !',
+	type VARCHAR (20) references cfg_type_enum (name),
+	cfg_group VARCHAR (20) not null default 'default',
+	description TEXT NOT NULL DEFAULT 'programmer is an avid Camel Book Reader'
+);
+
+comment on table cfg_template is
+	'meta definition of config items';
+comment on column cfg_template.name is
+	'the name of the option; this MUST be set to something meaningful';
+comment on column cfg_template.type is
+	'type of the value';
+comment on column cfg_template.cfg_group is
+	'just for logical grouping of options according to task sets to facilitate better config management';
+comment on column cfg_template.description is
+	'arbitrary description (user visible)';
+
+-- ======================================================
+create table cfg_item (
+	id SERIAL PRIMARY KEY,
+
+	id_template INTEGER REFERENCES cfg_template (id),
+	owner varchar (30) not null default CURRENT_USER,
+	machine VARCHAR (40) not null default 'default',
+	cookie VARCHAR (40) not null default 'default'
+);
+
+comment on table cfg_item is
+	'this table holds all "instances" of cfg_template';
+comment on column cfg_item.id_template is
+	'this points to the class of this option, think of this as a base object, this also defines the data type';
+comment on column cfg_item.owner is
+	'the database level user this option belongs to; this is the "role" of the user from the perspective of the database; can be "default" at the application level to indicate that it does not care';
+comment on column cfg_item.machine is
+	'the logical workplace this option pertains to; can be a hostname but should be a logical rather than a physical identifier, machines get moved, workplaces do not; kind of like a "role" for the machine; associate this with a physical machine through a local config file or environment variable; can be "default" if we do not care';
+comment on column cfg_item.cookie is
+	'an arbitrary, opaque entity the client code can use to associate this config item with even finer grained context; could be the pertinent patient ID for patient specific options; can default to "default"';
+
+-- ======================================================
+create table cfg_string (
+	id_item integer references cfg_item (id),
+	value text not null
+);
+
+-- ======================================================
+create table cfg_numeric (
+	id_item integer references cfg_item (id),
+	value numeric not null
+);
+
+--=====================================================================
+GRANT SELECT ON
+	db,
+	distributed_db,
+	config,
+	cfg_type_enum,
+	cfg_template,
+	cfg_item,
+	cfg_string,
+	cfg_numeric
+TO GROUP "gm-public";
+
+GRANT select, insert, update, delete on
+	cfg_type_enum,
+	cfg_template,
+	cfg_item,
+	cfg_string,
+	cfg_numeric
+to group "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.17 $')
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.18 $')
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.17  2002-11-16 01:03:20  ncq
+-- Revision 1.18  2002-11-28 11:53:44  ncq
+-- - added client configuration tables to work with database config library
+-- - adjusted ACLs
+--
+-- Revision 1.17  2002/11/16 01:03:20  ncq
 -- - add simple revision tracking
 --
 -- Revision 1.16  2002/11/12 17:04:10  ncq
