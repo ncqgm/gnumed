@@ -1,8 +1,10 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/server/Attic/README,v $
-$Revision: 1.1 $
+$Revision: 1.2 $
 
 In here you will find all the files specific to bootstrapping a
 GnuMed-Archive database on a virgin PostgreSQL database server.
+
+Run install.sh and follow on-screen instructions.
 
 Please fix and/or report bugs.
 
