@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -262,25 +262,20 @@ class cLabDataGrid(wxGrid):
 			return 1
 	
 	#------------------------------------------------------------------------		
-	def __compile_stats(self, lab=None):
+	def __compile_stats(self, lab_results=None):
 		# parse record for dates and tests
 		dates = []
 		test_names = []
-		for instance in lab:
-			if instance['val_when'].date in dates:
-				'1' == '1'
-			else:
-				dates.append(instance['val_when'].date)
-			if instance['unified_name'] in test_names:
-				'1'== '1'
-			else:
-				test_names.append(instance['unified_name'])
+		for result in lab_results:
+			if result['val_when'].date not in dates:
+				dates.append(result['val_when'].date)
+			if result['unified_name'] not in test_names:
+				test_names.append(result['unified_name'])
 		dates.sort()
 		print dates
 		print test_names
 		
-		return dates, test_names 
-	
+		return dates, test_names
 	#------------------------------------------------------------------------
 	def __GetDataCell(self, item=None, xorder=None, yorder=None):
 		#fixme: get real for x
@@ -587,7 +582,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.5  2004-04-16 22:28:07  shilbert
+# Revision 1.6  2004-04-20 00:15:36  ncq
+# - slight deuglification
+#
+# Revision 1.5  2004/04/16 22:28:07  shilbert
 # - code cleanups , make use of 'def __compile_stats():'
 # - framework for user defined lab profiles
 #
