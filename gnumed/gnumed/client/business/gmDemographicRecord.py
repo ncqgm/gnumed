@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.44 2004-05-28 15:05:10 sjtan Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmDemographicRecord.py,v 1.45 2004-05-29 12:03:47 sjtan Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood"
 
 # access our modules
@@ -841,6 +841,22 @@ class NameMP (gmMatchProvider.cMatchProvider_SQL):
 			'extra conditions':{'occupation':'exists (select 1 from lnk_job2person where id_occupation = %s and lnk_job2person.id_identity = names.id_identity)'}
 			}]
 		gmMatchProvider.cMatchProvider_SQL.__init__ (self, source)
+
+#------------------------------------------------------------
+class OrgCategoryMP (gmMatchProvider.cMatchProvider_SQL):
+	"""
+	List of org categories.
+	"""
+	def __init__(self):
+		source = [ {
+			'service': 'personalia',
+			'table'	: 'org_category',
+			'pk'	: 'id',
+			'column': 'description',
+			'result': 'description' ,
+			'limit' : 5,
+			}]
+		gmMatchProvider.cMatchProvider_SQL.__init__(self, source)
 #------------------------------------------------------------
 def setPostcodeWidgetFromUrbId(postcodeWidget, id_urb):
 	"""convenience method for urb and postcode phrasewheel interaction.
@@ -943,7 +959,11 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.44  2004-05-28 15:05:10  sjtan
+# Revision 1.45  2004-05-29 12:03:47  sjtan
+#
+# OrgCategoryMP for gmContact's category field
+#
+# Revision 1.44  2004/05/28 15:05:10  sjtan
 #
 # utility functions only called with exactly 2 args in order to fulfill function intent, but do some checking for invalid args.
 #

@@ -8,7 +8,7 @@
 #	implemented for gui presentation only
 ##############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmContacts.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Dr. Richard Terry, \
   			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"  # (details at http://www.gnu.org)
@@ -18,7 +18,7 @@ import wx
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.business import gmDemographicRecord
-from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId
+from Gnumed.business.gmDemographicRecord import StreetMP, MP_urb_by_zip, PostcodeMP, setPostcodeWidgetFromUrbId  , OrgCategoryMP
 from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
@@ -183,7 +183,7 @@ class ContactsPanel(wxPanel):
 	  self.txt_org_user1 = TextBox_BlackNormal(self,-1)
 	  self.txt_org_user2 = TextBox_BlackNormal(self,-1)
 	  self.txt_org_user3 = TextBox_BlackNormal(self,-1)
-	  self.txt_org_category = TextBox_BlackNormal(self,-1)
+	  self.txt_org_category = cPhraseWheel(parent = self, id = -1, aMatchProvider = OrgCategoryMP(), selection_only = 1, pos = wxDefaultPosition, size=wxDefaultSize)
 	  #self.txt_pers_occupation = TextBox_BlackNormal(self,-1)
 	  self.txt_org_phone = TextBox_BlackNormal(self,-1)
 	  self.txt_org_fax = TextBox_BlackNormal(self,-1)
@@ -677,7 +677,11 @@ if __name__ == "__main__":
 
 #======================================================
 # $Log: gmContacts.py,v $
-# Revision 1.23  2004-05-28 15:20:41  sjtan
+# Revision 1.24  2004-05-29 12:03:46  sjtan
+#
+# OrgCategoryMP for gmContact's category field
+#
+# Revision 1.23  2004/05/28 15:20:41  sjtan
 #
 # add department and branch, but only onto saved top level orgs (i.e. hospitals
 # in the test case/ don't mistake the original dummy rows for saved orgs).
