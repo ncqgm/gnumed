@@ -1,6 +1,5 @@
 #!/usr/bin/python
 #############################################################################
-#
 # gnumed - launcher for the main gnumed GUI client module
 # ---------------------------------------------------------------------------
 #
@@ -21,50 +20,102 @@
 gnumed - launcher for the main gnumed GUI client module
 Use as standalone program.
 """
-__version__ = "$Revision: 1.20 $"
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
+__version__ = "$Revision: 1.21 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 # standard modules
-import sys, os, gettext
-_ = gettext.gettext
+import sys, os, os.path
+#import gettext
+#_ = gettext.gettext
+# ---------------------------------------------------------------------------
+def get_base_dir():
+	"""Retrieve the global base directory.
+
+	   The most preferable approach would be to just let
+	   the user specify the name of a config file on the
+	   command line but for that we'd have to load some
+	   non-standard modules already unless we want to
+	   duplicate the entire config file infrastructure
+	   right here.
+
+	   1) regardless of OS if the environment variable GMED_DIR
+		  is set this directory will be tried as a base dir
+		  - this will allow people to start GNUmed from any dir
+		    they want on any OS they happen to run
+		  - the variable name has been chosen to be descriptive
+		    but still not waste too many resources
+		  - the FSF will kill me, I know
+	   2) assume /usr/share/gnumed/ as base dir
+		  - this will work on POSIX systems and may work on
+		    Cygwin systems
+		  - this is the no-brainer for stock UN*X
+	   3) finally try one level below path to binary
+	      - last resort for lesser systems
+		  - this is the no-brainer for DOS/Windows
+		  - it also allows running from a local CVS copy
+	"""
+	# environment variable
+	if os.environ.has_key('GMED_DIR'):
+		tmp = os.environ['GMED_DIR']
+	else:
+		tmp = ""
+	# however, we don't want any random rogue to throw us off
+	# balance so we check whether that's a valid path,
+	# note that it may still be the wrong directory
+	if os.path.exists(tmp):
+		return os.path.abspath(tmp)
+
+	print 'Environment variable GMED_DIR contains "%s".' % tmp
+	print 'This is not a valid path, however.'
+	print 'Trying to fall back to system defaults.'
+
+	# standard path
+	# - normalize and convert slahes to fs local convention
+	tmp = os.path.normcase('/usr/share/gnumed/')
+	# sanity check
+	if os.path.exists(tmp):
+		return os.path.abspath(tmp)
+
+	print 'Standard path "%s" does not exist.' % tmp
+	print 'Desperately trying to fall back to last resort measures.'
+	print 'This may be an indicator we are running Windows or something.'
+
+	# one level below path to binary
+	tmp = os.path.abspath(os.path.dirname(sys.argv[0]))
+	# strip one directory level
+	# this is a rather neat trick :-)
+	tmp = os.path.normpath(os.path.join(tmp, '..'))
+	# sanity check (paranoia rulez)
+	if os.path.exists(tmp):
+		return os.path.abspath(tmp)
+
+	print 'Cannot verify path one level below path to binary (%s).' % tmp
+	print 'Something is really rotten here. We better fail gracefully.'
+	return None
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
 	"""Launch the gnumed wx GUI client."""
-	# there has been a lot of confusion about paths
-	# NEW RULE 1: nobody, but nobody, queries argv except here
-	# NEW RULE 2: no assumptions made about the current directory
-	# both of these are due to portability
 
-	# some OS (Windows/DOS) will have the base path set in the environment
-	if os.environ.has_key('GNUMED'):
-		# Windows or other OS that has set everything
-		appPath = os.environ['GNUMED']
-	else:
-		# Linux, set by home dir
-		appPath = os.path.abspath (os.path.split (sys.argv[0])[0])
-		# problem: we are in gnumed/client/wxpython, but the base
-		# directory is ALWAYS gnumed/client
-		# therefor remove "wxpython" from the end of the path
-		# FIXME: this is rather ugly in technique
-		appPath = appPath[:-9]
-		# manually extend our module search path
-		sys.path.append(os.path.join(appPath, 'wxpython'))
-		sys.path.append(os.path.join(appPath, 'python-common'))
+	appPath = get_base_dir()
+	if appPath == None:
+		sys.exit("CRITICAL ERROR: Cannot determine base path.")
+
+	# manually extend our module search path
+	sys.path.append(os.path.join(appPath, 'wxpython'))
+	sys.path.append(os.path.join(appPath, 'python-common'))
+
 	try:
 		import gmLog
-		#print "imported gmLog"
 		import gmGuiBroker
-		#print "imported gui broker"
 		import gmGuiMain
-		#print "imported gui main"
 		import gmI18N
-		#print "imported i18n"
 	except ImportError:
-		exc = sys.exc_info()
-		gmLog.gmDefLog.LogException ("Exception: Cannot load gmGuiMain", exc)
-		sys.exit("CRITICAL ERROR: Can't find module gmGuiMain! - Program halted\n \
-				Please check whether your PYTHONPATH environment variable\n \
-				is set correctly")
+		#exc = sys.exc_info()
+		#gmLog.gmDefLog.LogException ("Exception: Cannot load modules.", exc)
+		sys.exit("CRITICAL ERROR: Can't find modules to load ! - Program halted\n \
+				Please check whether your PYTHONPATH and GMED_DIR environment variables\n \
+				are set correctly")
 
 	gb = gmGuiBroker.GuiBroker ()
 	gb['gnumed_dir'] = appPath # EVERYONE must use this!
@@ -73,7 +124,7 @@ if __name__ == "__main__":
 	aLogTarget = gmLog.cLogTargetConsole(gmLog.lInfo)
 	gmLog.gmDefLog.AddTarget(aLogTarget)
 	gmLog.gmDefLog.Log(gmLog.lInfo, 'Starting up as main module.')
-	gmLog.gmDefLog.Log(gmLog.lInfo, _("set resource path to: ") + appPath)
+	gmLog.gmDefLog.Log(gmLog.lInfo, "set resource path to: " + appPath)
 	#</DEBUG>
 	try:
 		#change into our working directory
@@ -82,7 +133,7 @@ if __name__ == "__main__":
 	except:
 		print "Cannot change into application directory [%s]" % appPath
 
-	#run gnumed and intercept _all_ exceptions (but reraise them ...)
+	# run gnumed and intercept _all_ exceptions (but reraise them ...)
 	try:
 	    gmGuiMain.main()
 	except:
