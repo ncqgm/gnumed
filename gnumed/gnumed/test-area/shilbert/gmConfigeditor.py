@@ -3,7 +3,7 @@
 __version__ = ""
 __author__ = "S.Hilbert, K.Hilbert"
 
-import sys, os, string
+import sys, os, string, types
 # location of our modules
 if __name__ == "__main__":
 	#sys.path.append(os.path.join('..', '..', 'python-common'))
@@ -79,12 +79,12 @@ class gmConfigEditorPanel(wxPanel):
 		self.splitterwindow_left_pane = wxPanel(self.splitterwindow, -1)
 		self.splitterwindow.SplitVertically(self.splitterwindow_left_pane, self.splitterwindow_right_pane,sashPosition = -100)
 		self.parent_notebook = wxNotebook(self.splitterwindow_left_pane, -1, style=wxTAB_TRAVERSAL)
-		self.CtrlsContainer = []
+#		self.CtrlsContainer = []
 		# get the names of all the groups in a configfile and
 		# add a notebook tab for each 
 		groups  = self.cfg.getGroups()
+		self.grouped_controls = {}
 		for group in groups:
-			groupCtrlsList = {}
 			# dynamically draw the rest
 			panel_nb_page = wxPanel(
 				parent = self.parent_notebook,
@@ -97,44 +97,51 @@ class gmConfigEditorPanel(wxPanel):
 			# -----------------------------
 			# option | edit field | comment
 			# -----------------------------
-			fgszr_ctrls = wxFlexGridSizer(rows=0, cols=3, vgap=10, hgap=10)
+			fgszr_ctrls = wxFlexGridSizer(cols=3, vgap=10, hgap=10)
+#			fgszr_ctrls.SetFlexibleDirection(wxBOTH)
 			#fgszr_ctrls.AddGrowableCol(idx=0)
-			fgszr_ctrls.AddGrowableCol(idx=1)
-			fgszr_ctrls.AddGrowableCol(idx=2)
+#			fgszr_ctrls.AddGrowableCol(idx=1)
+#			fgszr_ctrls.AddGrowableCol(idx=2)
 			# now get all available options in a group plus their descriptions
 			# add descritiption and options as statictext
 			options  = self.cfg.getOptions(group)
 			# now get all available options in a group plus their descriptions
 			# add description and options as statictext
-			optionCtrlsList = {}
+			optionCtrlsDict = {}
 			for option in options:
 				# option name == field label
 				label = wxStaticText(parent=panel_nb_page, id=-1, label=option, style=wxALIGN_LEFT)
 				fgszr_ctrls.Add(label)
 				# edit field
 				# FIXME: handle lists !  -> wxTE_MULTILINE
-				if type (self.cfg.get(group, option)) is list :
+				data = self.cfg.get(group, option)
+				if type(data) is types.ListType:
+					print "this option is a list"
 					edit_field = wxTextCtrl(
 						parent = panel_nb_page,
 						id =  -1,
 						value = "",
-						style = wxTE_MULTILINE
+						style = wxTE_MULTILINE | wxTE_DONTWRAP,
+						size = (200, 80)
 						)
-						
-					for listoption in self.cfg.get(group, option):
-						edit_field.AppendText(listoption)
+					for line in data:
+						edit_field.AppendText("%s\n" % line)
 				else:
-					edit_field = wxTextCtrl(panel_nb_page, -1, str(self.cfg.get(group, option)))					
-				optionCtrlsList[option] = edit_field
+					edit_field = wxTextCtrl(
+						parent = panel_nb_page,
+						id = -1,
+						value = str(data)
+					)
+				optionCtrlsDict[option] = edit_field
 				fgszr_ctrls.Add(edit_field)
 				# option comment
 				tmp = str(string.join(self.cfg.getComment(group, option),"\n"))
 				comment = wxStaticText(parent=panel_nb_page, id=-1, label=tmp, style=wxALIGN_LEFT)
 				fgszr_ctrls.Add(comment)
 
-			groupCtrlsList[group] = optionCtrlsList
+			self.grouped_controls[group] = optionCtrlsDict
 			#append dictionary to a list
-			self.CtrlsContainer.append(groupCtrlsList)
+#			self.CtrlsContainer.append(self.grouped_controls)
 			# add page to notebook
 			panel_nb_page.SetAutoLayout(1)
 			panel_nb_page.SetSizer(fgszr_ctrls)
@@ -170,24 +177,17 @@ class gmConfigEditorPanel(wxPanel):
 		self.Layout()
 			
 	def __dump_to_cfgfile(self, aDir):
-		# retrieve individual dicts from list of groupdicts 
-		for elementsdict in self.CtrlsContainer:
-			#retrieve list of groupsnames ( key in each dict)  
-			temp = elementsdict.keys()
-			for groups in temp:
-				#print groups
-				# retrieve dict of options for this group 
-				optionsdict = elementsdict[groups]
-				temp = optionsdict.keys()
-				for option in temp:
-					if type (self.cfg.get(groups, option)) is list :
-						tmp = optionsdict[option].GetValue()
-						data = string.split(tmp,"\n")
-					else:
-						data = optionsdict[option].GetValue()
-					self.cfg.set(groups,option,data)
-				
-	    	#self.cfg.store()
+		for group in self.grouped_controls.keys():
+			option_controls = self.grouped_controls[group]
+			for opt_name in option_controls.keys():
+				if option_controls[opt_name].GetNumberOfLines > 1:
+					print "writing list"
+					tmp = option_controls[opt_name].GetValue()
+					data = string.split(tmp,"\n")
+				else:
+					data = option_controls[opt_name].GetValue()
+				self.cfg.set(group, opt_name, data)
+    	#self.cfg.store()
 		
 	def __exit(self,evt):
 		sys.exit()
@@ -265,7 +265,12 @@ else:
 
 #===========================================
 # $Log: gmConfigeditor.py,v $
-# Revision 1.11  2003-04-15 18:41:19  shilbert
+# Revision 1.12  2003-04-16 14:31:26  ncq
+# - renamed some variables
+# - removed one level of option control dicts
+# - make lists/multiline controls work
+#
+# Revision 1.11  2003/04/15 18:41:19  shilbert
 # - now handles options as lists if applicable
 #
 # Revision 1.10  2003/04/15 02:31:13  ncq
