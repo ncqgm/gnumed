@@ -1,0 +1,36 @@
+
+1. extra properties on sub-command <hibernate> of hibernatdoclet task. Set the version to 2.0 to generate
+    hibernate 2.0 mappings, 
+2. the hibernate-mappings-dtd-2.0.xml file inside the hibernat2.jar may be missing
+    a <!ATTLIST definition for dynamic-insert in the "class" attributes .
+    Also for subclass and joined-subclass as well. Need to add this for xdoclet generated
+    hibernate config  files to work.
+    
+
+3. mapping for polymorphic persistence error a pain. Remove id from subclasses , try deleting
+all generated hbm.xml files, if can't find from reading the files. Fixed with persistence.
+
+4. comment out cross-package reference from gmIdentity to gmClinical and debug that.
+   
+5. misspelled generator-clas  so Names didn't have generator class at runtime.
+
+6. stage 1 test is to test persistence of gmIdentity.
+
+7. got postcode.csv.au objects construction to work.
+    problems with method call ( calling parseTokens twice in one loop accidently).
+    forgot ACT so had null state in ACT suburbs.
+    tried caching the whole lot of objects, but didn't improve spped.
+    tried caching 10 objects at a time with count and cycle variables, seems to work a little.
+    main determinant of time spent inserting seems to be size of table. Maybe the table is hash bucket
+    with collisions. Need to have option of use btree in hibernate. 
+    Best time is I can get is 90-100 secs for 8900 objects.
+
+8. to get proper dropping in SchemaExport, had to edit the hibernate source at net.sf.hibernate.dialect.PostgreSQLDialect to return the " cascade"; string in blah-blah getCascade() and rebuild.
+
+9. test cases helped define where cascade "save-update" is needed in hibernate tags e.g. in identity and in identities_addresses 
+
+10. trying to access sessions via HibernateInit which keeps tracks of created sessions, and only
+keeps one session active . This avoids conflicting sessions within the same thread.
+
+
+
