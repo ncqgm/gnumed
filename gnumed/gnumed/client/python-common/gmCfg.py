@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -102,7 +102,7 @@ class cCfgFile:
 	   |-> option 1	= {dict}
 	   | ...
 	   `-> option n
-	    |
+		|
 		|-> 'comment' [list of strings]
 		`-> 'value'
 	"""
@@ -559,17 +559,19 @@ else:
 	# - IF the called really knows what she does she can handle
 	#   that exception in her own code
 	try:
-		_tmp = cCfgFile()
-	except Exception, msg:
-		exc = sys.exc_info()
-		_log.LogException('unhandled exception', exc, fatal=1)
-		raise ImportError, msg
+		gmDefCfgFile = cCfgFile()
+	except:
+		_log.LogException('unhandled exception', sys.exc_info(), fatal=1)
 
-	# we only get here if we DON'T throw an exception
-	gmDefCfgFile = _tmp
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.19  2002-10-22 15:30:16  ncq
+# Revision 1.20  2002-10-22 21:11:44  ncq
+# - throwing exception ImportError on failing to load the
+#   default config file wasn't such a good idea after all
+#   since we might _actually_ only be interested in a different
+#   file ...
+#
+# Revision 1.19  2002/10/22 15:30:16  ncq
 # - added getGroups()
 #
 # Revision 1.18  2002/10/19 19:30:13  ncq
