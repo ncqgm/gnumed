@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLoginInfo.py,v $
-# $Id: gmLoginInfo.py,v 1.11 2003-06-14 22:41:30 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmLoginInfo.py,v 1.12 2003-06-16 09:52:04 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 
 #====================================================================
@@ -79,16 +79,22 @@ class LoginInfo:
 		if readonly == 2:
 			print "GetPGDB_DSN(): old style call, please convert"
 			_log.Log(gmLog.lWarn, 'old style call, please convert')
+		host = self.GetHost()
+		port = str(self.GetPort())
+		# for local UNIX domain sockets connections: leave host/port empty
+		if host in ['', 'localhost', '127.0.0.1']:
+			host = ""
+			port = ""
 		dsn = "%s:%s:%s:%s:%s:%s" % (
-			self.GetHost(),
+			host,
 			self.GetDatabase(),
 			self.GetUser(readonly),
 			self.GetPassword(),
 			self.GetOptions(),
 			self.GetTTY()
 		)
-		host = "%s:%s" % (self.GetHost(), str(self.GetPort()))
-		return dsn, host
+		host_port = "%s:%s" % (host, port)
+		return dsn, host_port
 	#------------------------------------------
 	def GetDBAPI_DSN(self, readonly=2):
 		if readonly == 2:
@@ -96,7 +102,8 @@ class LoginInfo:
 			_log.Log(gmLog.lWarn, 'old style call, please convert')
 		host = self.GetHost()
 		port = str(self.GetPort())
-		if host in ['unix', '', 'localhost', '127.0.0.1']:
+		# for local UNIX domain sockets connections: leave host/port empty
+		if host in ['', 'localhost', '127.0.0.1']:
 			host = ""
 			port = ""
 		dsn = "%s:%s:%s:%s:%s:%s:%s" % (
@@ -206,7 +213,10 @@ if __name__ == "__main__" :
 
 #====================================================================
 # $Log: gmLoginInfo.py,v $
-# Revision 1.11  2003-06-14 22:41:30  ncq
+# Revision 1.12  2003-06-16 09:52:04  ncq
+# - really make local connections go via sockets
+#
+# Revision 1.11  2003/06/14 22:41:30  ncq
 # - leave host/port blank for UNIX domain socket authentication data
 #
 # Revision 1.10  2003/05/17 17:26:37  ncq
