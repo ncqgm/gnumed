@@ -28,9 +28,10 @@ further details.
 # TODO
 # - warn if empty password
 # - option to drop databases
+# - verify that pre-created database is owned by "gm-dbowner"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -715,10 +716,11 @@ class database:
 	#--------------------------------------------------------------
 	def __create_db(self):
 		if self.__db_exists():
+			# FIXME: verify that database is owned by "gm-dbowner"
 			return 1
 
 		# create database
-		# FIXME: we need to pull this nasty trick of ending and restarting
+		# NOTE: we need to pull this nasty trick of ending and restarting
 		# the current transaction to work around pgSQL automatically associating
 		# cursors with transactions
 		cmd = "commit; create database \"%s\" with encoding='unicode'; begin" % self.name
@@ -1448,7 +1450,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.61  2004-11-24 16:03:58  ncq
+# Revision 1.62  2004-12-18 09:59:11  ncq
+# - comments added
+#
+# Revision 1.61  2004/11/24 16:03:58  ncq
 # - need True/False from gmPyCompat, too
 #
 # Revision 1.60  2004/11/24 15:37:12  ncq
