@@ -5,23 +5,25 @@
 """
 import exceptions
 import types
-import traceback
+import sys
 import weakref
-
-class DispatcherError(exceptions.Exception):
-	def __init__(self, args=None):
-		self.args = args
-
-
-class _Any:
-	pass
-
-Any = _Any()
 
 connections = {}
 senders = {}
 
+_boundMethods = weakref.WeakKeyDictionary()
+#=====================================================================
+class _Any:
+	pass
 
+Any = _Any()
+#=====================================================================
+class DispatcherError(exceptions.Exception):
+	def __init__(self, args=None):
+		self.args = args
+#=====================================================================
+# external API
+#---------------------------------------------------------------------
 def connect(receiver, signal=Any, sender=Any, weak=1):
 	"""Connect receiver to sender for signal.
 	
@@ -86,7 +88,7 @@ def connect(receiver, signal=Any, sender=Any, weak=1):
 	try: receivers.remove(receiver)
 	except ValueError: pass
 	receivers.append(receiver)
-
+#---------------------------------------------------------------------
 def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	"""Disconnect receiver from sender for signal.
 	
@@ -101,19 +103,13 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	try:
 		receivers = connections[senderkey][signal]
 	except KeyError:
-		print 'No receivers for signal %s from sender %s' % (repr(signal), sender)
-#		 raise DispatcherError, \
-#			   'No receivers for signal %s from sender %s' % \
-#			   (repr(signal), sender)
+		print 'DISPATCHER ERROR: no receivers for signal %s from sender %s' % (repr(signal), sender)
 	try:
 		receivers.remove(receiver)
 	except ValueError:
-		print "receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender)
-#		raise DispatcherError, \
-#			  'No connection to receiver %s for signal %s from sender %s' % \
-#			  (receiver, repr(signal), sender)
+		print "DISPATCHER ERROR: receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender)
 	_cleanupConnections(senderkey, signal)
-
+#---------------------------------------------------------------------
 def send(signal, sender=None, **kwds):
 	"""Send signal from sender to all connected receivers.
 	
@@ -165,34 +161,11 @@ def send(signal, sender=None, **kwds):
 			# this seems such a fundamental error that it appears reasonable
 			# to print directly to the console instead of making the whole
 			# module depend on gmLog.py
-			import traceback
-			traceback.print_exc()
+			typ, val, tb = sys.exc_info()
+			print 'DISPATCHER ERROR: %s <%s>' % (typ, val)
+			print 'DISPATCHER ERROR: calling <%s> failed' % str(receiver)
 	return responses
-
-def _call(receiver, **kwds):
-	"""Call receiver with only arguments it can accept."""
-	if type(receiver) is types.InstanceType:
-		# receiver is a class instance; assume it is callable.
-		# Reassign receiver to the actual method that will be called.
-		receiver = receiver.__call__
-	if hasattr(receiver, 'im_func'):
-		# receiver is a method. Drop the first argument, usually 'self'.
-		fc = receiver.im_func.func_code
-		acceptable = fc.co_varnames[1:fc.co_argcount]
-	elif hasattr(receiver, 'func_code'):
-		# receiver is a function.
-		fc = receiver.func_code
-		acceptable = fc.co_varnames[0:fc.co_argcount]
-	if not (fc.co_flags & 8):
-		# fc does not have a **kwds type parameter, therefore 
-		# remove unacceptable arguments.
-		for arg in kwds.keys():
-			if arg not in acceptable:
-				del kwds[arg]
-	return receiver(**kwds)
-
-_boundMethods = weakref.WeakKeyDictionary()
-
+#---------------------------------------------------------------------
 def safeRef(object):
 	"""Return a *safe* weak reference to a callable object."""
 	if hasattr(object, 'im_self'):
@@ -208,9 +181,10 @@ def safeRef(object):
 				BoundMethodWeakref(boundMethod=object)
 			return _boundMethods[selfkey][funckey]
 	return weakref.ref(object, _removeReceiver)
-
+#=====================================================================
 class BoundMethodWeakref:
 	"""BoundMethodWeakref class."""
+
 	def __init__(self, boundMethod):
 		"""Return a weak-reference-like instance for a bound method."""
 		self.isDead = 0
@@ -220,9 +194,11 @@ class BoundMethodWeakref:
 			_removeReceiver(receiver=self)
 		self.weakSelf = weakref.ref(boundMethod.im_self, remove)
 		self.weakFunc = weakref.ref(boundMethod.im_func, remove)
+	#------------------------------------------------------------------
 	def __repr__(self):
 		"""Return the closest representation."""
 		return repr(self.weakFunc)
+	#------------------------------------------------------------------
 	def __call__(self):
 		"""Return a strong reference to the bound method."""
 		if self.isDead:
@@ -231,7 +207,33 @@ class BoundMethodWeakref:
 			object = self.weakSelf()
 			method = self.weakFunc().__name__
 			return getattr(object, method)
-
+#=====================================================================
+# internal API
+#---------------------------------------------------------------------
+def _call(receiver, **kwds):
+	"""Call receiver with only arguments it can accept."""
+	if type(receiver) is types.InstanceType:
+		# receiver is a class instance; assume it is callable.
+		# Reassign receiver to the actual method that will be called.
+		receiver = receiver.__call__
+	if hasattr(receiver, 'im_func'):
+		# receiver is a method. Drop the first argument, usually 'self'.
+		fc = receiver.im_func.func_code
+		acceptable = fc.co_varnames[1:fc.co_argcount]
+	elif hasattr(receiver, 'func_code'):
+		# receiver is a function.
+		fc = receiver.func_code
+		acceptable = fc.co_varnames[0:fc.co_argcount]
+	else:
+		print 'DISPATCHER ERROR: <%s> must be instance, method or function' % str(receiver)
+	if not (fc.co_flags & 8):
+		# fc does not have a **kwds type parameter, therefore 
+		# remove unacceptable arguments.
+		for arg in kwds.keys():
+			if arg not in acceptable:
+				del kwds[arg]
+	return receiver(**kwds)
+#---------------------------------------------------------------------
 def _removeReceiver(receiver):
 	"""Remove receiver from connections."""
 	for senderkey in connections.keys():
@@ -240,7 +242,7 @@ def _removeReceiver(receiver):
 			try: receivers.remove(receiver)
 			except: pass
 			_cleanupConnections(senderkey, signal)
-			
+#---------------------------------------------------------------------
 def _cleanupConnections(senderkey, signal):
 	"""Delete any empty signals for senderkey. Delete senderkey if empty."""
 	receivers = connections[senderkey][signal]
@@ -251,7 +253,7 @@ def _cleanupConnections(senderkey, signal):
 		if not signals:
 			# No more signal connections. Therefore, remove the sender.
 			_removeSender(senderkey)
-			
+#---------------------------------------------------------------------
 def _removeSender(senderkey):
 	"""Remove senderkey from connections."""
 	del connections[senderkey]
@@ -262,7 +264,10 @@ def _removeSender(senderkey):
 
 #=====================================================================
 # $Log: gmDispatcher.py,v $
-# Revision 1.3  2005-03-17 12:59:16  ncq
+# Revision 1.4  2005-03-23 19:02:27  ncq
+# - improved error handling
+#
+# Revision 1.3  2005/03/17 12:59:16  ncq
 # - if an event receiver fails we should not fail all other receivers, too
 # - so report and continue
 # - but do not make us depend on gmLog just because of one fundamental,
