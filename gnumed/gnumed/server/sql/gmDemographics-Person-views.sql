@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.20 2004-07-20 01:01:46 ihaywood Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.21 2004-07-20 07:19:12 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -107,22 +107,25 @@ DECLARE
 	identity_id alias for $1;
 	first alias for $2;
 	last alias for $3;
-	activated alias for $4;
+	activate_name alias for $4;
 
 	n_rec record;
 BEGIN
 	-- name already there for this identity ?
 	select into n_rec * from names where id_identity = identity_id and firstnames = first and lastnames = last;
 	if FOUND then
-		update names set active = activated where id = n_rec.id;
+		update names set active = activate_name where id = n_rec.id;
 		if FOUND then
 			return n_rec.id;
 		end if;
 		return NULL;
 	end if;
 	-- no, insert new name
-	update names set active=''f'' where id_identity = identity_id;
-	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activated);
+	if activate_name then
+	    -- deactivate all the existing names
+		update names set active=''f'' where id_identity = identity_id;
+	end if;
+	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activate_name);
 	if FOUND then
 		return n_rec.id;
 	end if;
@@ -297,11 +300,15 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.20  2004-07-20 01:01:46  ihaywood
+-- Revision 1.21  2004-07-20 07:19:12  ncq
+-- - in add_name() only deactivate existing names if new name is to be active
+--   or else we'd be able to have patients without an active name ...
+--
+-- Revision 1.20  2004/07/20 01:01:46  ihaywood
 -- changing a patients name works again.
 -- Name searching has been changed to query on names rather than v_basic_person.
 -- This is so the old (inactive) names are still visible to the search.
