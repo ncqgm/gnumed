@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.26 2004-03-20 10:48:31 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPatient.py,v 1.27 2004-03-20 11:10:46 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -522,7 +522,7 @@ class cPatientSearcher_SQL:
 			return []
 
 		vals = {}
-		where_snippets = ()
+		where_snippets = []
 		try:
 			data['firstnames']
 			where_snippets.append('firstnames=%(fname)s')
@@ -877,7 +877,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.26  2004-03-20 10:48:31  ncq
+# Revision 1.27  2004-03-20 11:10:46  ncq
+# - where_snippets needs to be []
+#
+# Revision 1.26  2004/03/20 10:48:31  ncq
 # - if search_dict given we need to pass it to run_ro_query
 #
 # Revision 1.25  2004/03/19 11:46:24  ncq
