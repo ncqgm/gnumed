@@ -1,0 +1,5 @@
+
+<set role="phenomenons"  readonly="true" lazy="true">
+	<key column="phenomenonType"/>
+	<one-to-many class="xgmed.domain.observation.Phenomenon"/>
+</set>

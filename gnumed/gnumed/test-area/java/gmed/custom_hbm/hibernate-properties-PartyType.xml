@@ -1,0 +1,27 @@
+
+ <set role="commissionings" table="accountability_type_commissioner_party_type" lazy="true" readonly="true">
+    <key column="party_type_id"/>
+     <many-to-many  class="xgmed.domain.accountability.AccountabilityType" column="accountability_type_id"/>
+ </set>
+ 
+<set role="responsibilitys" table="accountability_type_responsible_party_type" lazy="true" readonly="true">
+    <key column="party_type_id"/>
+    <many-to-many  class="xgmed.domain.accountability.AccountabilityType" column="accountability_type_id"/>
+</set>
+  
+     
+<set role="subTypes" table="partytype_subtype" lazy="true" readonly="true">
+    <key column="supertype_party_id"/>
+    <many-to-many class="xgmed.domain.accountability.PartyType" column="subtype_party_id"/>
+ </set>
+
+ <set role="superTypes" table="partytype_subtype" lazy="true">
+    <key column="subtype_party_id"/>
+    <many-to-many class="xgmed.domain.accountability.PartyType" column="supertype_party_id" />
+ </set>
+  
+ <set role="partys" table="party_partytype_link" lazy="false" readonly="true">
+    <key column="partytype_id"/>
+    <many-to-many class="xgmed.domain.accountability.Party" column="party_id"/>
+</set>
+     

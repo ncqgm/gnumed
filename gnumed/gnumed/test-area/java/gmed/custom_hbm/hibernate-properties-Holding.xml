@@ -1,0 +1,6 @@
+
+<set role="consumableAllocations"  readonly="true" lazy="true">
+	<key column="holding"/>
+	<one-to-many class="xgmed.domain.planning.resource.ConsumableAllocation"/>
+</set>
+

@@ -1,0 +1,11 @@
+
+
+<bag role="compoundUnits" table="atomic_compound_unit_link" lazy="true">
+<key column="atomic_unit_id"/>
+<many-to-many class="xgmed.domain.common.CompountUnit" column="compound_unit_id"/>
+</bag>
+
+ <bag role="inverseCompoundUnits" table="inverse_atomic_compound_unit_link" lazy="true">
+     <key column="atomic_unit_id"/>
+     <many-to-many class="xgmed.domain.common.CompountUnit" column="compound_unit_id"/>
+ </bag>

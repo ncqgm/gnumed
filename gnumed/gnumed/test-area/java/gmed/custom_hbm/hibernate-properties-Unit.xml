@@ -1,0 +1,10 @@
+
+<set role="toRatios"  readonly="true" lazy="true">
+	<key column="fromUnit"/>
+	<one-to-many class="xgmed.domain.common.ConversionRatio"/>
+</set>
+<set role="fromRatios"  readonly="true" lazy="true">
+	<key column="toUnit"/>
+	<one-to-many class="xgmed.domain.common.ConversionRatio"/>
+</set>
+

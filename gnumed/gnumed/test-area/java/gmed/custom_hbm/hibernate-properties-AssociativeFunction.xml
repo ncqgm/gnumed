@@ -1,0 +1,7 @@
+
+
+<set role="arguments" table="associative_function_observation_concept_args" lazy="true">
+<key column="associativeFunction"/>
+<many-to-many class="xgmed.domain.observation.ObservationConcept" column="observationConcept"/>
+</set>
+

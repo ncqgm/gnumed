@@ -1,0 +1,35 @@
+
+    <set role="components" table="action_component_action" readonly="true" lazy="true">
+        <key column="parent"/>
+        <one-to-many class="xgmed.domain.planning.Action"/>
+    </set>
+    
+    <set role="suspensions" table="action_suspension_action" readonly="true" lazy="true">
+        <key column="action"/>
+        <one-to-many class="xgmed.domain.planning.Suspension"/>
+    </set>
+     <set role="accountabilitys" table="action_accountability" lazy="true" readonly="true">
+    <key column="action_id"/>
+     <many-to-many  class="xgmed.domain.accountability.Accountability" column="accountability_id"/>
+     </set>
+    
+    <many-to-one name="parent" class="xgmed.domain.planning.Action" column="parent_id"/>
+
+    <subclass name="xgmed.domain.observation.Observation">
+	    <!--    <key column="observation"/>
+	    -->
+	        <many-to-one name="subject" class="xgmed.domain.accountability.Party"/>
+        	<many-to-one name="assuranceLevel" class="xgmed.domain.observation.AssuranceLevel"/>
+	    <many-to-one name="recordTime" class="xgmed.domain.common.TimeRecord"/>
+	    <many-to-one name="applicableTime" class="xgmed.domain.common.TimeRecord"/>
+	    <subclass name="xgmed.domain.observation.CategoryObservation">
+		    <many-to-one name="observationConcept" class="xgmed.domain.observation.ObservationConcept"/>
+		    <many-to-one name="occurence" class="xgmed.domain.observation.Occurence"/>
+			<subclass name="xgmed.domain.observation.IdentityObservation">
+				<one-to-one name="coding" class="xgmed.domain.observation.Coding" cascade="all"/>
+			</subclass>
+   	    </subclass>
+    
+     </subclass>
+
+    

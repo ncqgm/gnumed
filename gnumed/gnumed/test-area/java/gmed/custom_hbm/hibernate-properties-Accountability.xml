@@ -1,0 +1,6 @@
+
+
+<set role="actions" table="action_accountability" lazy="true">
+<key column="accountability_id"/>
+<many-to-many class="xgmed.domain.planning.Action" column="action_id"/>
+</set>

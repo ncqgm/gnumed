@@ -1,0 +1,16 @@
+
+
+<set role="associativeFunctions" table="associative_function_observation_concept_args" readonly="true" lazy="true">
+<key column="observationConcept"/>
+<many-to-many class="xgmed.domain.observation.AssociativeFunction" column="associativeFunction"/>
+</set>
+
+<set role="categoryObservations" readonly="true" lazy="true">
+	<key column="observationConcept"/>
+	<one-to-many class="xgmed.domain.observation.Observation"/>
+</set>	
+
+<set role="producers" readonly="true" lazy="true">
+<key column="observationConcept"/>
+<one-to-many class="xgmed.domain.observation.AssociativeFunction"/>
+</set>

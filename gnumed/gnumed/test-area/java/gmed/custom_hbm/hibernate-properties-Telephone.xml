@@ -1,0 +1,4 @@
+	<bag role="partys" table="party_telephone_link" readonly="true" lazy="true">
+		<key column="telephone_id"/>
+		<many-to-many class="xgmed.domain.accountability.Party" column="party_id"/>
+	</bag>

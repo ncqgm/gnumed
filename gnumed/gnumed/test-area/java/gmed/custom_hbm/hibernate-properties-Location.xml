@@ -1,0 +1,5 @@
+
+<set role="subs"  readonly="true" lazy="true">
+	<key column="location"/>
+	<one-to-many class="xgmed.domain.common.Location"/>
+</set>
