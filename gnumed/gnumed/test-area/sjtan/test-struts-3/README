@@ -11,8 +11,8 @@ The dist ant build task was fixed to copy a war file specific META-INF/context.x
 a relative file path in tomcat to ../webapps/gnumed-test-war  , so now the application should work
 if the ant dist tasks work. Just drop the  dist/gnumed-test-war.war  package in the webapps directory of tomcat.
 (which is supposed to be how it works).  However, all the stuff about setting up postgres, gnumed on postgres using
-redo-max.sh,  getting the packages for java sdk 1.4+,  ant , tomcat 5+ and struts-1.2.4 still has been done, and
-modifying copy_libs.sh to point to the path's for tomcat and struts still needs to be done and run, and postgres still
+redo-max.sh,  getting the packages for java sdk 1.4+,  ant , tomcat 5+ and struts-1.2.4 still has to be done, and
+modifying copy_libs.sh to point to the path's for tomcat and struts still needs to be done (and run), and postgres still
 needs to be running.
 
 If the old way is preferred, then the new tomcat application name is /gnumed-test-web . vs. /gnumed-test-war for the war drop-in.
@@ -142,25 +142,25 @@ eg. from context.xml
     </parameter>
     <parameter>
       <name>username</name>
-      <value>sjtan</value>
+      <value>_test-doc</value>
     </parameter>
     <parameter>
       <name>password</name>
-      <value>mypassword</value>
+      <value>test-doc</value>
     </parameter>
 
-e.g. change to 'sjtan' to _test-doc , and 'password' to test-doc
-if this will work.
-
-** Please change 
-	** ./war-context.xml **  
-as well if the postgres config parameters are changed, 
-as this allows the war packed application to work when
-dropped into ${your-tomcat-base-directory}/webapps. ( i.e. no manager config)
+e.g. change  _test-doc , and password 'test-doc' to local write-enabled user and password
+if this will work on your local  gnumed install,
+but if username and password is changed,  * please change *  
+	 	./war-context.xml   
+	as well if the postgres config parameters are changed, 
+	as this allows the war packed application to work when dropped into ${your-tomcat-base-directory}/webapps.
   
 
+7. compile by changing to /WEB-INF/src where the build.xml file is , and typing 'ant'.
 
-7. Set the right context path in the  META-INF/context.xml  configuration file.
+
+8a. (If not using war drop-in)  Set the right context path in the  META-INF/context.xml  configuration file.
 
 In the 3rd line,
 
@@ -171,9 +171,7 @@ e.g. /home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3
 
 hint: test that it is the path by selecting the docBase string, and then on the command line, do a 'ls' and paste the string.
 
-
-
-8. compile by changing to /WEB-INF/src where the build.xml file is , and typing 'ant'.
+8b. (if using war drop-in)  Copy dist/gnumed-test-war.war to the ./webapps directory of tomcat.
 
 
 9. start tomcat, by going to {tomcat-basedir}/bin/   and typing 'catalina.sh debug' , followed by 'run' at the '>' prompt.
@@ -181,35 +179,56 @@ hint: test that it is the path by selecting the docBase string, and then on the 
 
 10. go to http://localhost:8080  to see if tomcat ran.
 
-11. go to http://localhost:8080/manager ; if step 5. works, then the user name 'tomcat', password 'tomcat' should give
+11 
+a. if using war drop-in, then the manager config can be skipped.
+
+b.(if not using war drop-in)
+	i. go to http://localhost:8080/manager ; if step 5. works, then the user name 'tomcat', password 'tomcat' should give
 the manager page.
 
-12. Point tomcat to the context.xml file of step 6.
-In the box on the manager page which says: -
+	ii. Point tomcat to the context.xml file of step 6.
 
-Deploy directory or WAR file located on server
-    XML Configuration file URL: [                       ]
+		In the box on the manager page which says: -
 
-e.g. put the URL as 
-	file:/home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+		Deploy directory or WAR file located on server
+		    XML Configuration file URL: [                       ]
 
-
-generally , it's 
-
-file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+		e.g. put the URL as 
+			file:/home/john/projects/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
 
 
-i.e whatever  is the URL file path to the file edited in step 6. ( note the single slashed file:/ as a url base)
+		generally , it's 
+
+		file:/${GNUMED_DIR}/gnumed/gnumed/test-area/sjtan/test-struts-3/META-INF/context.xml
+
+		i.e whatever  is the URL file path to the file edited in step 6. ( note the single slashed file:/ as a url base)
+
+		When the deploy button is pressed, there should be an OK - gnumed-test-web deployed message, 
+
+13. Using the demographics application:  e.g.  go to 
+	
+	http://localhost:8080/gnumed-test-war (if using war drop-in)
+or
+	http://localhost:8080/gnumed-test-web (if not using war drop-in)
+							
+14. click login.
+	the user name  "admin" ,
+	 password "password" 
+
+ is the only login.
+	From the login page, a new patient can be created or patient search is done. 
+	Clicking patient names found will edit that patient. 
+	"clinical" href will take to the clinical screen. 
+		Here the current functionality is:
+
+			(6/10/04) - add episodes , episode narrative items , episode vaccinations, episode allergies,
+				episode vital signs ( height, and weight ;   it is ready for other vital signs, but the
+				schema data for these are not in the gnumed schema scripts yet ).
+				( correcting old entries not done yet)
+				- show  printable summary and past notes page.
+
+			- health Summary of previous encounters are on the right,
+			the entry part is top left, and the previous past notes are in the bottom left.
 
 
-( For some reason, the application doesn't work as a drop-in war file yet, perhaps something to do with the pooled 
-database connections and tomcat mediating it ).
 
-When the deploy button is pressed, there should be an OK - gnumed-test-web deployed message, 
-
-13. Using the demographics application:  e.g.  go to http://localhost:8080/gnumed-test-web
-click login.
-the user name  "admin" , password "password"  is the only login.
-From the login page, a new patient can be created or patient search is done. 
-Clicking patient names found will edit that patient. 
-Clicking clinical next to the patient name, will take to the first clinical screen, which is non-functional.

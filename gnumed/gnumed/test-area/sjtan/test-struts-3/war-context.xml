@@ -19,11 +19,13 @@
     </parameter>
     <parameter>
       <name>username</name>
-      <value>sjtan</value>
+      <!--   <value>sjtan</value> -->
+      <value>_test-doc</value> 
     </parameter>
     <parameter>
       <name>password</name>
-      <value>monica</value>
+      <!-- <value>monica</value> -->
+      <value>test-doc</value>
     </parameter>
     <parameter>
       <name>maxActive</name>
