@@ -1,7 +1,7 @@
 #!/bin/sh
 #----------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Archive/Attic/make-links.sh,v $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 # GPL
 # Karsten.Hilbert@gmx.net
 #----------------------------------
@@ -30,6 +30,10 @@ ln -vs ../../../client/business/gmTmpPatient.py modules/gmTmpPatient.py
 ln -vs ../../../client/business/gmMedDoc.py modules/gmMedDoc.py
 ln -vs ../../../client/business/gmXdtObjects.py modules/gmXdtObjects.py
 ln -vs ../../../client/business/gmXdtMappings.py modules/gmXdtMappings.py
+
+ln -vs ../../../test-area/blobs_hilbert/modules/docPatient.py modules/docPatient.py
+ln -vs ../../../test-area/blobs_hilbert/modules/docDocument.py modules/docDocument.py
+ln -vs ../../../test-area/blobs_hilbert/modules/docDatabase.py modules/docDatabase.py
 
 #----------------------------------
 echo "____________"
@@ -77,21 +81,21 @@ echo "============"
 
 mkdir server
 ln -vs ../modules server/modules
+ln -vs ../../../server/sql server/sql
 
 # importer
-ln -vs ../../../test-area/blobs_hilbert/import/import-med_docs.py server/import-med_docs.py
-ln -vs ../../../test-area/blobs_hilbert/import/remove-imported_dirs.sh server/remove-imported_dirs.sh
-ln -vs ../../../test-area/blobs_hilbert/import/run-importer.sh server/run-importer.sh
+ln -vs ../../../Archive/import/import-med_docs.py server/import-med_docs.py
+ln -vs ../../../Archive/import/remove-imported_dirs.sh server/remove-imported_dirs.sh
+ln -vs ../../../Archive/import/run-importer.sh server/run-importer.sh
+ln -vs ../../../Archive/import/run-importer.bat server/run-importer.bat
 
-# bootstrapping
-ln -vs ../../../server/sql server/sql
+# installation/bootstrapping
 ln -vs ../../../server/bootstrap/bootstrap-gm_db_system.py server/bootstrap-gm_db_system.py
 ln -vs ../../../server/bootstrap/bootstrap-archive.conf.sample server/bootstrap-archive.conf.sample
+ln -vs ../../../Archive/server/gmArchiveAccounts.sql server/gmArchiveAccounts.sql
+ln -vs ../../../Archive/server/install.sh server/install.sh
+ln -vs ../../../Archive/server/dropBlobs.sql server/dropBlobs.sql
 
-#echo "=> server"
+ln -vs ../../../Archive/server/README server/README
+
 #ln -vs ~/.gnumed/gnumed-archive.conf server/gnumed-archive.conf
-#ln -vs ../../server/install.sh server/install.sh
-#ln -vs ../../server/bootstrap-archive.conf server/bootstrap-archive.conf
-#ln -vs ../../server/README server/README
-#ln -vs ../../server/gmArchiveAccounts.sql server/gmArchiveAccounts.sql
-
