@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.25 $ $Date: 2003-01-22 23:06:59 $ $Author: ncq $
+-- $Revision: 1.26 $ $Date: 2003-01-24 13:35:18 $ $Author: ncq $
 
 -- ===================================================================
 -- do fixed string i18n()ing
@@ -41,20 +41,6 @@ INSERT into doc_type(name) values(i18n('referral report psychotherapy'));
 -- add any number of types here, this is just to give you an idea
 
 -- =============================================
---create view v_i18n_doc_type as
---	select
---		doc_type.id,
---		i18n_translations.trans as name
---	from
---		doc_type,
---		i18n_translations
---	where (
---		i18n_translations.lang = (select lang from i18n_curr_lang where owner = CURRENT_USER::varchar)
---	) and (
---		doc_type.name = i18n_translations.orig
---	)
---	;
-
 create view v_i18n_doc_type as
 	select
 		doc_type.id,
@@ -69,12 +55,13 @@ CREATE TABLE "doc_med" (
 	"patient_id" integer references identity not null,
 	"type" integer references doc_type(id) not null,
 	"comment" character varying(60) not null,
-	"date" character varying(20) not null,
+	"date" timestamp with timezone not null,
 	"ext_ref" character varying (40) not null
 );
 
 COMMENT ON TABLE "doc_med" IS
 	'a medical document object possibly containing several data objects such as several pages of a paper document';
+-- FIXME: this needs to be able to reference external databases
 COMMENT ON COLUMN doc_med.patient_id IS
 	'the patient this document belongs to';
 COMMENT ON COLUMN doc_med.type IS
@@ -135,7 +122,7 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.25 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.26 $');
 
 -- =============================================
 -- questions:
