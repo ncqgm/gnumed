@@ -25,13 +25,18 @@ class module1:
 class module2:
 	def __init__(self):
 		print "instance of class test2 is initialized\n"
-
+		#look at how we pass the method __call__ as 'self':
+		gmDispatcher.connect(self, 'weird')
 	#define a callback function that does something, and the
 	#posts an event that may cause other modules to do something else
 	def callback(self, otherparam='default'):
 		#if 'otherparam' is not passe as parameter, there is a default
 		print "-> callback of test2 called with parameter %s\n" % otherparam
 		gmDispatcher.send('allergy_changed', sender=None, allergy_id=1)
+		
+	def __call__(self, param):
+		print "\nThis one shows how to use the dispatcher within a class definition"
+		print "it works:", param
 
 
 #create an instance of each of the two classes / modules
@@ -52,6 +57,7 @@ print "\n# Posting the event 'some signal' with the parameters 'abc' and 'def'"
 print "# Read the code and learn why only parameter 'abc' has been handled\n"
 
 gmDispatcher.send('some signal', param='abc', ignoredparam="def")
+gmDispatcher.send('weird', param='abc', ignoredparam="def")
 
 print "\n# Now we send a message without a required parameter. See what happens:\n"
 gmDispatcher.send('allergy_changed', sender=None, param='abc')
