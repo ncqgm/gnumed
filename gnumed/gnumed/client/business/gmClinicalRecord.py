@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.142 2004-10-12 11:14:51 ncq Exp $
-__version__ = "$Revision: 1.142 $"
+# $Id: gmClinicalRecord.py,v 1.143 2004-10-12 18:39:12 ncq Exp $
+__version__ = "$Revision: 1.143 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -969,41 +969,46 @@ where
 			self.__db_cache['vaccinations']['vaccinated']
 		except KeyError:			
 			self.__db_cache['vaccinations']['vaccinated'] = []
-			# FIXME: bulk loader
-			# get list of IDs
 			# Important fetch ordering by indication, date to know if a vaccination is booster
-			cmd = "select pk_vaccination, indication from v_pat_vacc4ind where pk_patient=%s order by indication, date"
-			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			cmd= """select * from v_pat_vacc4ind
+					where pk_patient=%s
+ 					order by indication, date"""
+			rows, idx  = gmPG.run_ro_query('historica', cmd, True, self.id_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'cannot load given vaccinations for patient [%s]' % self.id_patient)
 				del self.__db_cache['vaccinations']['vaccinated']
 				return None
 			# Instantiate vaccination items
-			vaccs = {}
+			vaccs_by_ind = {}
 			for row in rows:
+				vacc_row = {
+					'pk_field': 'pk_vaccination',
+					'idx': idx,
+					'data': row
+				}
 				try:
-					vacc = gmVaccination.cVaccination(aPK_obj=row[0])
+					vacc = gmVaccination.cVaccination(row=vacc_row)
 					self.__db_cache['vaccinations']['vaccinated'].append(vacc)
 				except gmExceptions.ConstructorError:
-					_log.LogException('vaccination error on [%s] for patient [%s]' % (row[0], self.id_patient), sys.exc_info(), verbose=0)
+					_log.LogException('vaccination error on [%s] for patient [%s]' % (row, self.id_patient), sys.exc_info(), verbose=0)
 				# keep them, ordered by indication
 				try:
-					vaccs[row[1]].append(vacc)
+					vaccs_by_ind[vacc['indication']].append(vacc)
 				except KeyError:
-					vaccs[row[1]] = [vacc]
+					vaccs_by_ind[vacc['indication']] = [vacc]
 
 			# calculate sequence number and is_booster			
-			for ind in vaccs.keys():
+			for ind in vaccs_by_ind.keys():
 				vacc_regime = self.get_scheduled_vaccination_regimes(indications = [ind])[0]
-				for vacc in vaccs[ind]:
+				for vacc in vaccs_by_ind[ind]:
 					# due to the "order by indication, date" the vaccinations are in the
 					# right temporal order inside the indication-keyed dicts
-					seq_no = vaccs[ind].index(vacc)+1
+					seq_no = vaccs_by_ind[ind].index(vacc) + 1
 					if seq_no > vacc_regime['shots']:
 						vacc.set_booster_status(True)
 					else:
 						vacc.set_seq_no(seq_no=seq_no)
-			del vaccs
+			del vaccs_by_ind
 
 		# ok, lets's constrain our list
 		filtered_shots = []
@@ -1499,17 +1504,18 @@ if __name__ == "__main__":
 		vacc_regimes = emr.get_scheduled_vaccination_regimes(indications = ['tetanus'])
 		print '\nVaccination regimes: '
 		for a_regime in vacc_regimes:
-			print a_regime
+			pass
+#			print a_regime
 		vacc_regime = emr.get_scheduled_vaccination_regimes(ID=10)			
-		print vacc_regime
+#		print vacc_regime
 		
 		# vaccination regimes and vaccinations for regimes
 		scheduled_vaccs = emr.get_scheduled_vaccinations(indications = ['tetanus'])
 		print 'Vaccinations for the regime:'
 		for a_scheduled_vacc in scheduled_vaccs:
-			print '   %s' %(a_scheduled_vacc)
-		
-				
+			pass
+#			print '   %s' %(a_scheduled_vacc)
+
 		# vaccination next shot and booster
 		vaccinations = emr.get_vaccinations()
 		for a_vacc in vaccinations:
@@ -1572,7 +1578,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.142  2004-10-12 11:14:51  ncq
+# Revision 1.143  2004-10-12 18:39:12  ncq
+# - first cut at using Carlos' bulk fetcher in get_vaccinations(),
+#   seems to work fine so far ... please test and report lossage ...
+#
+# Revision 1.142  2004/10/12 11:14:51  ncq
 # - improve get_scheduled_vaccination_regimes/get_vaccinations, mostly by Carlos
 #
 # Revision 1.141  2004/10/11 19:50:15  ncq
