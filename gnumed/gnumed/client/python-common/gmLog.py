@@ -53,7 +53,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -813,7 +813,17 @@ myLogger = gmLog.cLogger(aTarget = your-log-target)
 # __del__
 # __is_subclass__
 #===============================================================
+# $Log: gmLog.py,v $
+# Revision 1.44  2003-11-19 14:41:14  ncq
+# - somehow, the log keyword got dropped in the recent mess, re-add
 #
+#
+# revision 1.43
+# date: 2003/11/19 14:34:30;  author: ncq;  state: Exp;  lines: +4 -4
+# - remerge patches that Syan dropped
+#
+# revision 1.42
+# date: 2003/11/17 10:56:36;  author: sjtan;  state: Exp;  lines: +10 -5
 # manual edit areas modelled after r.terry's specs.
 #
 # Revision 1.41  2003/10/31 08:48:17  ncq
