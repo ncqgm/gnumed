@@ -22,33 +22,32 @@
 # @author: Karsten Hilbert
 # @copyright: author
 # @license: GPL (details at http://www.gnu.org)
-# @Date: $Date: 2002-03-21 12:15:50 $
-# @version $Revision: 1.2 $ $Date: 2002-03-21 12:15:50 $ $Author: ncq $
+# @Date: $Date: 2002-06-16 19:34:43 $
+# @version $Revision: 1.3 $ $Date: 2002-06-16 19:34:43 $ $Author: ncq $
 ###############################################################
 
 import string, sys, fileinput
 
 if len(sys.argv) < 2:
-    print "Usage: debugging_off.py <a_python_script> <a_python_script> ..."
-    sys.exit(1)
+	print "Usage: debugging_off.py <a_python_script> <a_python_script> ..."
+	sys.exit(1)
 
 print "Removing excess debugging from", sys.argv[1:]
 
 for line in fileinput.input(inplace=1, backup='.bak1'):
+	line = string.replace(line, '\015','')
+	line = string.replace(line, '\012','')
+	tmp = string.lstrip(line)
 
-    line = string.replace(line, '\015','')
-    line = string.replace(line, '\012','')
-    tmp = string.lstrip(line)
+	# find start of tagged debugging
+	if string.find(tmp, "#<DEBUG>", 0, 8) == 0:
+		left, right = string.split(line, '#<DEBUG>', 1)
+		print left + '"""#<DEBUG>' + right
 
-    # find start of tagged debugging
-    if string.find(tmp, "#<DEBUG>", 0, 8) == 0:
-	left, right = string.split(line, '#<DEBUG>', 1)
-	print left + '"""#<DEBUG>' + right
+	# find end of tagged debugging
+	elif string.find(tmp, "#</DEBUG>", 0, 9) == 0:
+		left, right = string.split(line, '#</DEBUG>', 1)
+		print left + '#</DEBUG>"""' + right
 
-    # find end of tagged debugging
-    elif string.find(tmp, "#</DEBUG>", 0, 9) == 0:
-	left, right = string.split(line, '#</DEBUG>', 1)
-	print left + '#</DEBUG>"""' + right
-
-    else:
-	print line
+	else:
+		print line
