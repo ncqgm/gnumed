@@ -27,8 +27,8 @@ the command line like this:
 
 This module searches for message catalog files in 3 main locations:
  - in standard POSIX places (/usr/share/locale/ ...)
- - below $GNUMED_DIR
- - below (one level above binary directory)
+ - below $GNUMED_DIR/locale/
+ - below (one level above binary directory)/locale/
 
 For DOS/Windows I don't know of standard places so only the last
 option will work unless you have CygWin installed. I don't know a
@@ -46,7 +46,7 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
@@ -97,7 +97,7 @@ def install_domain():
 	# 2) $(<script-name>_DIR)/
 	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
 	if os.environ.has_key(env_key):
-		loc_dir = os.path.abspath(os.environ[env_key])
+		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], "locale"))
 		if os.path.exists(loc_dir):
 			try:
 				gettext.install(text_domain, loc_dir)
@@ -116,7 +116,7 @@ def install_domain():
 	loc_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 	#    strip one directory level
 	#    this is a rather neat trick :-)
-	loc_dir = os.path.normpath(os.path.join(loc_dir, '..'))
+	loc_dir = os.path.normpath(os.path.join(loc_dir, '..', 'locale'))
 	#    sanity check (paranoia rulez)
 	if os.path.exists(loc_dir):
 		try:
