@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docPatient.py,v $
-__version__	= "$Revision: 1.8 $"
+__version__	= "$Revision: 1.9 $"
 __author__	= "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, string, fileinput, sys
@@ -243,7 +243,7 @@ class cPatient:
 			_log.Log(gmLog.lErr, "This should not happen.")
 			return ((1==0), None)
 	#-----------------------------------
-	def getDocsFromGNUmed(self, aConn = None):
+	def getDocsFromGNUmed(self, aConn = None, aCfg = None):
 		"""Build a complete list of metadata for all documents of our patient.
 
 		Note that we DON'T keep a list of those documents local to cPatient !
@@ -251,11 +251,14 @@ class cPatient:
 		_log.Log(gmLog.lInfo, 'getting documents from GNUmed compatible database')
 
 		# sanity check
-		if aConn == None:
+		if aConn is None:
 			_log.Log(gmLog.lErr, 'Cannot load documents without connection object.')
 			return None
+		if aCfg is None:
+			_log.Log(gmLog.lErr, 'Cannot load documents without config parser.')
+			return None
 
-		if self.ID == None:
+		if self.ID is None:
 			_log.Log(gmLog.lErr, "Cannot associate a patient with her documents without a patient ID.")
 			return None
 
@@ -279,7 +282,7 @@ class cPatient:
 		docs = {}
 		for row in matching_rows:
 			doc_id = row[0]
-			docs[doc_id] = docDocument.cDocument()
+			docs[doc_id] = docDocument.cDocument(aCfg)
 			docs[doc_id].loadMetaDataFromGNUmed(aConn, doc_id)
 
 		cursor.close
