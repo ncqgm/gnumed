@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.29 2005-03-17 21:23:16 cfmoro Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmSOAPWidgets.py,v 1.30 2005-03-18 16:48:41 cfmoro Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -54,6 +54,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		@param parent: Wx parent widget
 		@param id: Wx widget id
 		"""
+		# Call parents constructors
 		print "creating", self.__class__.__name__
 		wx.wxPanel.__init__ (
 			self,
@@ -71,7 +72,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		# ui contruction and event handling set up
 		self.__do_layout()
 		self.__register_interests()
-		self._populate_with_data()
+		self.reset_ui_content()		
 
 	#--------------------------------------------------------
 	# internal helpers
@@ -138,8 +139,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
 		szr_main.Add(self.__splitter, 1, wx.wxEXPAND, 0)
 		self.SetSizerAndFit(szr_main)
-		
-	#--------------------------------------------------------
+	#--------------------------------------------------------			
 	def __refresh_problem_list(self):
 		"""
 		Updates health problems list
@@ -391,6 +391,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 
 	#--------------------------------------------------------
 	def __on_patient_selected(self):
+		"""Patient changed."""
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def __on_episodes_modified(self):
@@ -536,7 +537,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		"""
 		Fills UI with data.
 		"""
-		#self.reset_ui_content()
+		self.reset_ui_content()
 		if self.__refresh_problem_list():
 			return True
 		return False
@@ -544,6 +545,14 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
+	def reset_ui_content(self):
+		"""
+		Clear all information from input panel
+		"""
+		self.__selected_episode = None
+		self.__LST_problems.Clear()
+		self.__soap_multisash.Clear()	
+		
 	#def activate_selected_problem(self):
 	#	"""
 	#	Activate the currently selected problem, simulating double clicking
@@ -559,17 +568,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 	#	"""
 	#	return self.__selected_episode
 
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def reset_ui_content(self):
-		"""
-		Clear all information from input panel
-		"""
-		self.__selected_episode = None
-		#self.__managed_episodes = []
-		self.__LST_problems.Clear()
-		self.__soap_multisash.Clear()
 #============================================================
 # Old Log for: gmSoapPlugins.py,v in test_area:
 #
@@ -1177,7 +1175,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.29  2005-03-17 21:23:16  cfmoro
+# Revision 1.30  2005-03-18 16:48:41  cfmoro
+# Fixes to integrate multisash notes input plugin in wxclient
+#
+# Revision 1.29  2005/03/17 21:23:16  cfmoro
 # Using cClinicalRecord.problem2episode to take advantage of episode cache
 #
 # Revision 1.28  2005/03/17 19:53:13  cfmoro

@@ -8,12 +8,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: gmMultiSash.py,v 1.2 2005-03-17 19:54:20 cfmoro Exp $
+# RCS-ID:		$Id: gmMultiSash.py,v 1.3 2005-03-18 16:48:41 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMultiSash.py,v $
-# $Id: gmMultiSash.py,v 1.2 2005-03-17 19:54:20 cfmoro Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmMultiSash.py,v 1.3 2005-03-18 16:48:41 cfmoro Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "Gerrit van Dyk, Carlos, Karsten"
 #__license__ = "GPL"
 	   
@@ -72,10 +72,20 @@ class cMultiSash(wxWindow):
 		return successful, errno
 	#---------------------------------------------
 	def Clear(self):
+		"""
+		Clear all mulsisash leafs and restores initial values
+		"""
+		# FIXME: keep an eye if strange behaviour
 		old = self.child
-		self.child = wxMultiSplit(self,self,wxPoint(0,0),self.GetSize())
+		self.child = cMultiSashSplitter(self,self,wxPoint(0,0),self.GetSize())
 		old.Destroy()
 		self.child.OnSize(None)
+		
+		# Gnumed: focused and bottom leaf
+		self.focussed_leaf = self.child.leaf1
+		self.bottom_leaf = self.child.leaf1
+		self.bottom_leaf.Select()
+		self.displayed_leafs = []
 	#---------------------------------------------		  
 	def refresh_bottom_leaf(self, bottom_leaf = None):
 		"""
@@ -884,7 +894,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: gmMultiSash.py,v $
-# Revision 1.2  2005-03-17 19:54:20  cfmoro
+# Revision 1.3  2005-03-18 16:48:41  cfmoro
+# Fixes to integrate multisash notes input plugin in wxclient
+#
+# Revision 1.2  2005/03/17 19:54:20  cfmoro
 # Ensure a the bottom leaf is selected after adding or removing leaf to avoid corrupted references
 #
 # Revision 1.1  2005/03/15 07:53:28  ncq
