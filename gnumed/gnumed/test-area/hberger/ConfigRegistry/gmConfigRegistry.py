@@ -3,7 +3,7 @@
 __version__ = ""
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
-import sys, os, string
+import sys, os, string,types
 # location of our modules
 if __name__ == "__main__":
 	#sys.path.append(os.path.join('..', '..', 'python-common'))
@@ -27,9 +27,14 @@ from wxPython.wx import *
 
 [
 ConfigTreeCtrlID,
-ConfigEntryParamCtrlID ,
+ConfigTreeBoxID,
+ParamBoxID,
+ConfigEntryParamCtrlID,
+ButtonParamApplyID,
+ButtonParamRevertID,
+DescriptionBoxID,
 ConfigDescriptionTextID
-] = map(lambda _init_ctrls: wxNewId(), range(3))
+] = map(lambda _init_ctrls: wxNewId(), range(8))
 
 # local vars
 #configTreeItem = {}
@@ -40,35 +45,15 @@ class cConfTree(wxTreeCtrl):
 	parameter names.
 	"""
 	def __init__(self, parent, id, aConn = None,size=wxDefaultSize,pos=wxDefaultPosition,
-				style=None,aUser=None,aMachine=None,paramWidgets=None):
-		"""Set up our specialised tree.
-		   default entries in root:
-			 -current user, current machine
-			 -current user, default machine
-			 -default user, current machine
-			 -default user, default machine
+				style=None,configData = None,rootLabel = "",paramWidgets=None):
+		"""Set up our specialised tree."""
 
-			expects a open connection to service config
-		"""
-
-		self.currUser = aUser
-		self.currMachine = aMachine
 		self.paramTextCtrl = paramWidgets[0]
 		self.paramDescription = paramWidgets[1]
+		self.mConfData = configData
+		self.rootLabel = rootLabel
 
-		# initialize the objects holding data on the subtrees
-		# add default subtrees root nodes if possible
-		self.mConfData = {}
-		if not (self.currUser is None or self.currMachine is None) :
-			self.mConfData['CURRENT_USER_CURRENT_MACHINE'] = ConfigData(aMachine=self.currMachine)
-		if not (self.currUser is None) :
-			self.mConfData['CURRENT_USER_DEFAULT_MACHINE'] = ConfigData()
-		if not (self.currMachine is None) :
-			self.mConfData['DEFAULT_USER_CURRENT_MACHINE'] = ConfigData(aUser='__default__',aMachine=self.currMachine)
-		# this should always work
-		self.mConfData['DEFAULT_USER_DEFAULT_MACHINE'] = ConfigData(aUser='__default__')
-
-		wxTreeCtrl.__init__(self, parent, id, pos, size, style=wxTR_NO_BUTTONS)
+		wxTreeCtrl.__init__(self, parent, id, pos, size, style)
 
 		self.root = None
 		self.param_list = None
@@ -94,9 +79,8 @@ class cConfTree(wxTreeCtrl):
 			self.DeleteAllItems()
             
 		# init new tree
-		rootname = "%s@%s" % (self.currUser,self.currMachine)
-		self.root = self.AddRoot(rootname, -1, -1)
-		self.SetPyData(self.root, {'type': 'root', 'name': rootname})
+		self.root = self.AddRoot(self.rootLabel, -1, -1)
+		self.SetPyData(self.root, {'type': 'root', 'name': self.rootLabel})
 		self.SetItemHasChildren(self.root, FALSE)
 
 		# now get subtrees for four maingroups (see __init__)
@@ -108,15 +92,15 @@ class cConfTree(wxTreeCtrl):
 			node = self.AppendItem(self.root, nodeDescription)
 			# mabe we should store some data (version ?)
 			self.SetPyData(node, {'type': 'defaultSubtree', 'name': nodeDescription})
-			self.SetItemHasChildren(node, TRUE)
-			# we might as well not display whole subtrees, but than we can't
-			# add anything, neither
+			# don't add empty subtrees, just display their subtree root node
 			if subTree is None:
+				self.SetItemHasChildren(node, FALSE)
 				continue
 			else:
 				self.__addSubTree(node,subTree)
 				self.SortChildren(node)
-				self.Expand(node)
+				self.SetItemHasChildren(node, TRUE)
+#				self.Expand(node)
 						
 		self.SetItemHasChildren(self.root, TRUE)
 		self.SortChildren(self.root)
@@ -142,6 +126,7 @@ class cConfTree(wxTreeCtrl):
 		childrenList = aSubTree[1].keys()
 		if childrenList is None:
 			return None
+		self.SetItemHasChildren(aNode, TRUE)
 
 		# add every child as new node, add child-subtrees as subtree
 		# reiterating this method
@@ -152,12 +137,12 @@ class cConfTree(wxTreeCtrl):
 #			_log.Log(gmLog.lInfo, "Node: %s Name: %s" % (str(aNode),nodeName) )
 			node = self.AppendItem(aNode, nodeName)
 			self.SetPyData(node, nodeEntry[0])
-			self.SetItemHasChildren(aNode, TRUE)
+			self.SetItemHasChildren(node, FALSE)
 			# now add subTrees
 			if not nodeEntry[1] == {}:
 				self.__addSubTree(node,nodeEntry)
 				self.SortChildren(node)
-				self.Expand(node)
+#				self.Expand(node)
 				
 	#------------------------------------------------------------------------
 	def __getSubTree(self,nodeDescription):
@@ -222,18 +207,21 @@ class cConfTree(wxTreeCtrl):
 	def OnActivate (self, event):
 		item = event.GetItem()
 		data = self.GetPyData(item)
-		_log.Log(gmLog.lInfo, "ItemData %s" % str(data))
+#DEBUG
+#		_log.Log(gmLog.lInfo, "ItemData %s" % str(data))
 
 		self.paramDescription.Clear()
-
+		self.paramTextCtrl.SetEditable(0)
 		type = data['type']
 		if type == 'parameter':
 			ref = data['ref']
 			subtree = data ['subtree']
 			confData = self.mConfData[subtree].GetConfigData(ref)
 			description = confData[1][4]
-			_log.Log(gmLog.lInfo, "VALUE %s" % str(confData))
+#DEBUG
+#			_log.Log(gmLog.lInfo, "VALUE %s" % str(confData))
 			self.paramTextCtrl.ShowParam(confData)
+			self.paramTextCtrl.SetEditable(1)
 			self.paramDescription.SetValue(description)
 		elif type == 'branch':
 			self.paramTextCtrl.ShowMessage(_("(Branch)"))
@@ -364,37 +352,61 @@ class ConfigDefinition:
 # -method to change/add new parameters
 
 class ConfigData:
-	""" holds config data for a particular user/machine pair 
-    read from backend.
+	""" 
+    Base class. Derived classes hold config data for a particular 
+	backend user/machine combination, config file etc.	    
 	this will contain: 
 		a) config parameter names
 		b) config parameter values
 		c) config information version (must match the version used in ConfigDefinition)
 	"""
+
+	def __init__(self, aType = None):
+		self.type = aType
+		self.mConfigData = {}
+
+# pure virtual methods
+	def GetAllNames(self):
+		pass
+
+	def GetConfigData(self):
+		pass
+
+	def SetConfigData(self):
+		pass    	
+
+#--------------------------------------------------------------------------
+class ConfigDataDB(ConfigData):
+	""" 
+	Class that holds config data for a particular user/machine pair 
+	"""
 	# static class variables that hold links to backend and gmCfg
-	# this will be shared by all ConfigData objects
+	# this will be shared by all ConfigDataDB objects
+	# this assumes that there will always be only one backend config source
 	_backend = None
 	_dbcfg = None
 
-	def __init__(self, aUser = None, aMachine = '__default__'):
+	def __init__(self, aType = "DB", aUser = None, aMachine = '__default__'):
+		""" Init DB connection"""
+		ConfigData.__init__(self,aType)
+		
 		# get connection
-		if ConfigData._backend is None:
-			ConfigData._backend = gmPG.ConnectionPool()
+		if ConfigDataDB._backend is None:
+			ConfigDataDB._backend = gmPG.ConnectionPool()
 
 		# connect to config database
-		if ConfigData._dbcfg is None:
-			ConfigData._dbcfg = gmCfg.cCfgSQL(
+		if ConfigDataDB._dbcfg is None:
+			ConfigDataDB._dbcfg = gmCfg.cCfgSQL(
 				aConn = self._backend.GetConnection('default'),
 				aDBAPI = gmPG.dbapi
 			)
 
-		if ConfigData._dbcfg is None:
+		if ConfigDataDB._dbcfg is None:
 			_log.Log(gmLog.lErr, "Cannot access configuration without database connection !")
 			raise ConstructorError, "ConfigData.__init__(): need db conn"
 
 		self.mUser = aUser
 		self.mMachine = aMachine
-		self.mConfigData = {}
 
 	def GetConfigData(self, aParameterName = None):
 		"""
@@ -405,7 +417,7 @@ class ConfigData:
 		name=self.mConfigData[aParameterName][0]
 		cookie = self.mConfigData[aParameterName][1]
 		try:
-			result=ConfigData._dbcfg.get(self.mMachine, self.mUser,cookie,name)
+			result=ConfigDataDB._dbcfg.get(self.mMachine, self.mUser,cookie,name)
 		except:
 			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
 		
@@ -417,7 +429,7 @@ class ConfigData:
 		parameter names where cookie and real name are concatenated.
 		"""
 		try:
-			result=ConfigData._dbcfg.getAllParams(self.mUser,self.mMachine)
+			result=ConfigDataDB._dbcfg.getAllParams(self.mUser,self.mMachine)
 		except:
 			_log.Log(gmLog.lErr, "Cannot get config parameter names.")
 			raise
@@ -450,20 +462,114 @@ class ConfigData:
 
 		return mParamNames
 
+#--------------------------------------------------------------------------
+class ConfigDataFile(ConfigData):
+	""" 
+	Class that holds config data for a particular config file
+	"""
+	def __init__(self, aType = "FILE", aFilename = None):
+		""" Init config file """
+		ConfigData.__init__(self,aType)
+
+		self.filename = aFilename
+		self.__cfgfile = None
+		
+		# open config file
+		try:
+			self.__cfgfile = gmCfg.cCfgFile(aFile = self.filename)
+		except:
+			_log.LogException("Can't open config file !", sys.exc_info(), fatal=1)
+
+		# this is a little bit ugly, but we need to get the full name of the
+		# file because this depends on the installation/system settings
+		# if no absolute path was specified, we get the config file gnumed
+		# would find first which is what we want usually 
+		self.fullPath = self.__cfgfile.cfgName
+
+	def GetFullPath(self):
+		""" returns the absolute path to the config file in use"""
+		return self.fullPath
+
+	def GetConfigData(self, aParameterName = None):
+		"""
+		Gets Config Data for a particular parameter. 
+		Returns a tuple consisting of the value and a list of metadata 
+		(name,cookie, owner, type and description)
+		"""
+		name=self.mConfigData[aParameterName][0]
+		group = self.mConfigData[aParameterName][1]
+		try:
+			result=self.__cfgfile.get(group,name)
+		except:
+			_log.Log(gmLog.lErr, "Cannot get parameter value for [%s]" % aParameterName )
+		
+		return (result,self.mConfigData[aParameterName])
+		
+	def getAllNames(self):
+		"""
+		fetch names and parameter data from config file. Returns list of
+		parameter names where group and option name are concatenated.
+		"""
+		
+		# this returns name,cookie, owner (TODO), type and description 
+		# of a parameter. 
+		# We combine group + option name to one single name. 
+		groups = self.__cfgfile.getGroups()
+		if len(groups) == 0:
+			return None
+		mParamNames = []		
+		for group in (groups):
+			options = self.__cfgfile.getOptions(group)
+			if len(options) == 0:
+				continue
+			else:
+				for option in (options):			
+					currType=type(self.__cfgfile.get(group,option))
+					if currType == types.IntType or currType == types.FloatType or currType == types.LongType:
+						myType = 'numeric'
+					elif currType == types.StringType:
+						myType = 'string'
+					elif currType == types.ListType:
+						myType = 'str_array'
+					else:
+					# FIXME: we should raise an exception here or make the entry
+					# read only since we don't know how to handle this entry
+						mType = 'string'
+
+					description = self.__cfgfile.getComment(group,option)
+					if description is []:
+						description = ''
+					else:
+						myDescription = string.join(description,'\n')
+					optionData=[option,group,'',myType,myDescription]
+
+					newName = group + '.' + option
+					self.mConfigData[newName] = optionData
+					mParamNames.append(newName)
+			
+#DEBUG		
+#		_log.Log (gmLog.lData, "%s" % self.mConfigData)
+
+		return mParamNames
+
 ###############################################################################
 class cParamCtrl(wxTextCtrl):
 	def __init__(self, parent, id,value,pos,size,style,type ):
 		wxTextCtrl.__init__(self, parent, -1, value="",style=style)		
+		self.parent = parent
 
 	def ShowParam(self,aParam=None):
 		self.Clear()
 		if aParam is None:
 			return
+		# store current parameter for later use
+		self.currParam = aParam
+		# get metadata
 		metadata = aParam[1]
 		value = aParam[0]
 		type = metadata[3]
-		description = metadata[4]
-		
+		name = metadata[0] + '.' + metadata[1]
+#		self.parent.configEntryParamBox.SetTitle(_("Parameter") + ": " + name)
 		if type == 'string':
 			self.SetValue(value)
 		elif type == 'str_array':
@@ -473,9 +579,16 @@ class cParamCtrl(wxTextCtrl):
 			self.SetValue(str(value))
 			
 	def ShowMessage(self,aMessage=""):
+		self.currParam = None
 		self.Clear()
 		self.SetValue(aMessage)
 
+	def SaveParam(self):
+		pass
+
+	def RevertToSaved(self):
+		if not self.currParam is None:
+			self.ShowParam(self.currParam)
 
 ###############################################################################
 # TODO: -a MenuBar allowing for import, export and options
@@ -484,25 +597,62 @@ class gmConfigEditorPanel(wxPanel):
 	def __init__(self, parent, aUser,aMachine):
 		wxPanel.__init__(self, parent, -1)
 
+		self.currUser = aUser
+		self.currMachine = aMachine
+# init data structures
+		# initialize the objects holding data on the subtrees
+		# add default subtrees root nodes if possible
+		#   default entries in root:
+		# 	 -default config file (usually ~/.gnumed/gnumed.conf)
+		#	 -current user, current machine
+		#	 -current user, default machine
+		#	 -default user, current machine
+		#	 -default user, default machine
+		self.mConfData = {}
+		# if we pass no config file name, we get the default cfg file
+		cfgFile = ConfigDataFile()
+		# now get the absolute path of the default cfg file
+		self.mConfData['FILE:%s' % cfgFile.GetFullPath()] = cfgFile
+		if not (self.currUser is None or self.currMachine is None) :
+			self.mConfData['DB:CURRENT_USER_CURRENT_MACHINE'] = ConfigDataDB(aMachine=self.currMachine)
+		if not (self.currUser is None) :
+			self.mConfData['DB:CURRENT_USER_DEFAULT_MACHINE'] = ConfigDataDB()
+		if not (self.currMachine is None) :
+			self.mConfData['DB:DEFAULT_USER_CURRENT_MACHINE'] = ConfigDataDB(aUser='__default__',aMachine=self.currMachine)
+		# this should always work
+		self.mConfData['DB:DEFAULT_USER_DEFAULT_MACHINE'] = ConfigDataDB(aUser='__default__')
+
 # main sizers
 		self.mainSizer = wxBoxSizer(wxHORIZONTAL)
 		self.rightSizer = wxBoxSizer(wxVERTICAL)
 
 # selected parameter
-		self.configEntryParamBox = wxStaticBox( self, -1, _("Parameters") )
+		self.configEntryParamBox = wxStaticBox( self, ParamBoxID, _("Parameters") )
 		self.configEntryParamBoxSizer = wxStaticBoxSizer( self.configEntryParamBox, wxHORIZONTAL )
 
 		self.configEntryParamCtrl = cParamCtrl( parent = self, 
 											id = ConfigEntryParamCtrlID, 
 											pos = wxDefaultPosition, 
-											size = wxSize(250,100),
+											size = wxSize(250,200),
 											value = "" , 
 											style = wxLB_SINGLE,
 											type = None)
-		self.configEntryParamBoxSizer.AddWindow( self.configEntryParamCtrl, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+		
+		self.paramButtonSizer = wxBoxSizer(wxHORIZONTAL)
+		self.paramCtrlSizer = wxBoxSizer(wxVERTICAL)
+		self.buttonApply = wxButton(parent=self,
+									id = ButtonParamApplyID,
+									label = "Apply changes" )
+		self.buttonRevert = wxButton(parent=self,
+									id = ButtonParamRevertID,
+									label = "Revert to saved" )
+		
+		EVT_BUTTON(self,ButtonParamApplyID,self.ApplyChanges)
+		EVT_BUTTON(self,ButtonParamRevertID,self.RevertChanges)
+
 
 # parameter description
-		self.configEntryDescriptionBox = wxStaticBox( self, -1, _("Parameter Description") )
+		self.configEntryDescriptionBox = wxStaticBox( self, DescriptionBoxID, _("Parameter Description") )
 		self.configEntryDescriptionBoxSizer = wxStaticBoxSizer( self.configEntryDescriptionBox, wxHORIZONTAL )
 
 		self.configEntryDescription = wxTextCtrl(parent = self, 
@@ -514,21 +664,28 @@ class gmConfigEditorPanel(wxPanel):
 		self.configEntryDescriptionBoxSizer.AddWindow( self.configEntryDescription, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
 
 # static box for config tree
-		self.configTreeBox = wxStaticBox( self, -1, _("Config Options") )
+		self.configTreeBox = wxStaticBox( self, ConfigTreeBoxID, _("Config Options") )
 		self.configTreeBoxSizer = wxStaticBoxSizer( self.configTreeBox, wxHORIZONTAL )
+		
 # config tree        
+		rootLabel = "%s@%s" % (self.currUser,self.currMachine)
 		self.configTree = cConfTree( 	parent = self,
 										id = ConfigTreeCtrlID ,
 										pos = wxPoint(0, 0), 
 										size = wxSize(200, 300),
-										style = wxTR_HAS_BUTTONS,
-										aUser = aUser,
-										aMachine = aMachine,
+										style = wxTR_HAS_BUTTONS|wxTAB_TRAVERSAL,
+										configData = self.mConfData,
+										rootLabel = rootLabel,
 										paramWidgets=(self.configEntryParamCtrl,self.configEntryDescription)
 										)
-#		configTreeItem['root']=self.configTree.AddRoot(localMachineName)
+		self.configTree.SetFocus()
 		self.configTreeBoxSizer.AddWindow( self.configTree, 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 5 )
 
+		self.paramCtrlSizer.AddWindow(self.configEntryParamCtrl,1,wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
+		self.paramButtonSizer.AddWindow(self.buttonApply,1,wxALIGN_LEFT|wxALL|wxEXPAND, 2 )
+		self.paramButtonSizer.AddWindow(self.buttonRevert,1,wxALIGN_RIGHT|wxALL|wxEXPAND, 2 )
+		self.paramCtrlSizer.Add(self.paramButtonSizer,0,wxALIGN_BOTTOM, 2 )
+		self.configEntryParamBoxSizer.Add(self.paramCtrlSizer , 1, wxALIGN_CENTRE|wxALL|wxEXPAND, 2 )
 
 # add right panels to right sizer
 		self.rightSizer.Add(self.configEntryParamBoxSizer, 1, wxEXPAND, 0)
@@ -543,6 +700,15 @@ class gmConfigEditorPanel(wxPanel):
 		self.mainSizer.SetSizeHints(self)
 		self.Layout()
 		self.configTree.update()
+
+	def ApplyChanges(self,event):
+		if self.configEntryParamCtrl.IsModified():
+			self.configEntryParamCtrl.SaveParam()
+
+	def RevertChanges(self,event):
+		self.configEntryParamCtrl.RevertToSaved()		
+		
+
 
 #================================================================
 # MAIN
@@ -595,7 +761,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.4  2003-05-11 17:00:26  hinnef
+# Revision 1.5  2003-05-16 10:51:45  hinnef
+# - now subtrees can hold config file data
+#
+# Revision 1.4  2003/05/11 17:00:26  hinnef
 # - removed obsolete code lines
 #
 # Revision 1.3  2003/05/11 16:56:48  hinnef
