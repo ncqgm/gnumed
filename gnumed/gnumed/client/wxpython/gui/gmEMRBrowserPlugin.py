@@ -6,11 +6,9 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
-
-from wxPython.wx import *
 
 from Gnumed.wxpython import gmPlugin, gmEMRBrowser
 from Gnumed.pycommon import gmLog
@@ -44,10 +42,12 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-	
+
+    from wxPython import wx
+
     from Gnumed.pycommon import gmPG, gmCfg
     from Gnumed.exporters import gmPatientExporter
-    
+
     _cfg = gmCfg.gmDefCfgFile	
 	
     _log.Log (gmLog.lInfo, "starting emr browser plugin...")
@@ -68,7 +68,7 @@ if __name__ == "__main__":
             sys.exit(0)
                     
         # display standalone browser
-        application = wxPyWidgetTester(size=(800,600))
+        application = wx.wxPyWidgetTester(size=(800,600))
         emr_browser = gmEMRBrowser.cEMRBrowserPanel(application.frame, -1)
         emr_browser.init_patient(patient)
         
@@ -96,6 +96,9 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.1  2004-09-06 18:59:18  ncq
+# Revision 1.2  2004-09-25 13:12:15  ncq
+# - switch to from wxPython import wx
+#
+# Revision 1.1  2004/09/06 18:59:18  ncq
 # - Carlos wrote a plugin wrapper for us
 #
