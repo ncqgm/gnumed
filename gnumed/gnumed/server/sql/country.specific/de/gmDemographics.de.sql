@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- part of GnuMed
 -- license: GPL
@@ -11,18 +11,18 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-set client_encoding to 'LATIN1';
+-- set client_encoding to 'LATIN1';
 -- ===================================================================
 create table name_gender_map (
 	id serial primary key,
-	name varchar(255) unique not null,
+	name text unique not null,
 	gender character(1) check (gender in ('m', 'f'))
 );
 
 COMMENT on table name_gender_map is
-	'maps (first) names to their most frequently locally assigned gender, 
-	 this table is updated nightly by a cron script, 
-	 names whose gender distribution is between 70/30 and 30/70 are 
+	'maps (first) names to their most frequently locally assigned gender,
+	 this table is updated nightly by a cron script,
+	 names whose gender distribution is between 70/30 and 30/70 are
 	 ignored for ambiguity reasons,
 	 names with "ambigous" gender are also ignored';
 
@@ -61,19 +61,19 @@ create table de_kvk (
 
 -- Der Datenbereich ist wie folgt gegliedert:
 --  1. Feldtag (1 Byte)
---  2. Feldlänge (1 Byte)
---  3. ASCII-codierter Text (der angegebenen Feldlänge, 1 Zeichen=1 Byte )
+--  2. Feldlaenge (1 Byte)
+--  3. ASCII-codierter Text (der angegebenen Feldlaenge, 1 Zeichen=1 Byte )
 
 comment on table de_kvk is
 	'Speichert die Daten einer bestimmten KVK. Wir trennen die KVK-Daten von
-	 den Daten über Person, Wohnort, Kassenzugehörigkeit, Mitgliedsstatus und
-	 Abrechnungsfällen. Diese Daten werden jedoch a) als Vorgaben für die
-	 eigentlichen Personendaten und b) als gültig für abrechnungstechnische
+	 den Daten ueber Person, Wohnort, Kassenzugehoerigkeit, Mitgliedsstatus und
+	 Abrechnungsfaellen. Diese Daten werden jedoch a) als Vorgaben fuer die
+	 eigentlichen Personendaten und b) als gueltig fuer abrechnungstechnische
 	 Belange angesehen.';
 
 comment on column de_kvk.invalidated is
 	'Kann durchaus vor Ende von "Gueltigkeit" liegen. Zeitpunkt des
-	 Austritts aus der Krankenkasse. Beim Setzen dieses Feldes muß
+	 Austritts aus der Krankenkasse. Beim Setzen dieses Feldes muss
 	 auch die Zuzahlungsbefreiung auf NULL gesetzt werden.';
 
 -- ---------------------------------------------
@@ -97,11 +97,85 @@ create table de_zuzahlungsbefreiung (
 );
 
 -- =============================================
+-- Praxisgebuehr
+-- ---------------------------------------------
+create table beh_fall_typ (
+	pk serial primary key,
+	code text unique not null,
+	kurzform text unique not null,
+	name text unique not null
+) inherits (audit_fields);
+
+select add_table_for_audit('beh_fall_typ');
+
+comment on table beh_fall_typ is
+	'Art des Behandlungsfalls (MuVo/Impfung/...)';
+
+-- ---------------------------------------------
+create table behandlungsfall (
+	pk serial primary key,
+	fk_patient integer
+		not null
+		references identity(id)
+		on delete restrict
+		on update cascade,
+	fk_falltyp integer
+		not null
+		references beh_fall_typ(pk)
+		on delete restrict
+		on update cascade,
+	started date
+		not null
+		default CURRENT_DATE,
+	must_pay_prax_geb boolean
+		not null
+		default true
+);
+
+select add_table_for_audit('behandlungsfall');
+
+-- ---------------------------------------------
+-- this general table belongs elsewhere
+create table payment_method (
+	pk serial primary key,
+	description text unique not null
+);
+
+-- ---------------------------------------------
+create table prax_geb_paid (
+	pk serial primary key,
+	fk_fall integer
+		not null
+		references behandlungsfall(pk)
+		on delete restrict
+		on update cascade,
+	paid_amount numeric
+		not null
+		default 0,
+	paid_when date
+		not null
+		default CURRENT_DATE,
+	paid_with integer
+		not null
+		references payment_method(pk)
+		on delete restrict
+		on update cascade
+) inherits (audit_fields);
+
+select add_table_for_audit('prax_geb_paid');
+
+comment on table prax_geb_paid is
+	'';
+
+-- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.1  2003-08-05 08:16:00  ncq
+-- Revision 1.2  2003-12-29 16:02:28  uid66147
+-- - client_encoding breakage
+--
+-- Revision 1.1  2003/08/05 08:16:00  ncq
 -- - cleanup/renaming
 --
