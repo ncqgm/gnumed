@@ -4,7 +4,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/gmDrug/amis-create_tables.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.1 $
+-- version: $Revision: 1.2 $
 -- license: GPL
 -- TODO: further processing of the data (normalizing)
 
@@ -402,14 +402,47 @@ create table amis_interaction_text (
 create index connection_id_index_praep ON amis_praeparate (connection_id);
 create index substance_id_index ON amis_substances (id);
 CREATE INDEX substance_name_index ON amis_substances_names (substance_name);
-create index amis_drug_descripition_index on amis_drug_description (text_key);
+create index amis_drug_description_index on amis_drug_description (text_key);
+
+-- =====================================================================================
+-- grant appropriate rights
+-- =====================================================================================
+GRANT SELECT ON
+	amis_praeparate,
+	amis_praeparate_combination, 
+	amis_substances, 
+	amis_substances_extended, 
+	amis_substances_names, 
+	amis_indications, 
+	amis_warnings, 
+	amis_warning_text, 
+	amis_manufacturer, 
+	amis_manuf_emergency_call, 
+	amis_atc, 
+	amis_drug_description, 
+	amis_substance_description, 
+	amis_price, 
+	amis_price_manufacturer, 
+	amis_presentation, 
+	amis_interaction_groups, 
+	amis_documented_interaction, 
+	amis_expected_interaction, 
+	amis_undecided_interaction, 
+	amis_unlikely_interaction, 
+	amis_interaction_type, 
+	amis_interaction_text
+TO "gm-public";
 
 -- ==========================================================
 -- == changelog =============================================
 --	21.10.2001: first implementation
 --	30.11.2001: \set & \unset applied correctly
+--
 -- $Log: amis-create_tables.sql,v $
--- Revision 1.1  2002-10-24 12:56:38  ncq
+-- Revision 1.2  2002-10-29 23:15:29  ncq
+-- - cleanup, ACL structure
+--
+-- Revision 1.1  2002/10/24 12:56:38  ncq
 -- - initial checkin
 -- - split into creation of tables and import of data so people
 --   without the data can still import the structure
