@@ -26,8 +26,8 @@ all signing all dancing GNUMed reference client.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.74 2003-02-07 22:57:59 ncq Exp $
-__version__ = "$Revision: 1.74 $"
+# $Id: gmGuiMain.py,v 1.75 2003-02-09 09:05:30 michaelb Exp $
+__version__ = "$Revision: 1.75 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
                S. Tan <sjtan@bigpond.com>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
@@ -60,20 +60,37 @@ ID_EXIT = wxNewId ()
 ID_HELP = wxNewId ()
 ID_NOTEBOOK = wxNewId ()
 #==================================================
-class MainFrame(wxFrame):
-	"""GNUmed client's main windows frame.
 
-	This is where it all happens. Avoid popping up any other windows.
-	Most user interaction should happen to and from widgets within this frame
-	"""
-	
-	icon_gui_main='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
+icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
 \xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
 \xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
 \x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
 \xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
 \xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
 \xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
+
+class ProgressDialog (wxProgressDialog):
+	def __init__(self, nr_plugins):
+		wxProgressDialog.__init__(
+			self,
+			title = _("GnuMed: loading %s plugins") % nr_plugins,
+			message = _("loading list of plugins                    "),
+			maximum = nr_plugins,
+			parent=None,
+			style = wxPD_ELAPSED_TIME
+			)
+		# set window icon
+		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
+		icon = wxEmptyIcon()
+		icon.CopyFromBitmap(icon_bmp_data)
+		self.SetIcon(icon)
+
+class MainFrame(wxFrame):
+	"""GNUmed client's main windows frame.
+
+	This is where it all happens. Avoid popping up any other windows.
+	Most user interaction should happen to and from widgets within this frame
+	"""
 
 	#----------------------------------------------
 	def __init__(self, parent, id, title, size=wxPyDefaultSize):
@@ -252,13 +269,7 @@ class MainFrame(wxFrame):
 		nr_plugins = len(plugin_list)
 
 		#  set up a progress bar
-		progress_bar = wxProgressDialog(
-			title = _("GnuMed: loading %s plugins") % nr_plugins,
-			message = _("loading list of plugins                    "),
-			maximum = nr_plugins,
-			parent = None,
-			style = wxPD_ELAPSED_TIME
-			)
+		progress_bar = ProgressDialog(nr_plugins)
 
 		#  and load them
 		last_plugin = ""
@@ -453,7 +464,7 @@ class MainFrame(wxFrame):
 		self.SetTitle(title)
 
 		# set window icon
-		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_gui_main)))
+		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
 		icon = wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
@@ -608,7 +619,10 @@ _log.Log(gmLog.lData, __version__)
 
 #==================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.74  2003-02-07 22:57:59  ncq
+# Revision 1.75  2003-02-09 09:05:30  michaelb
+# renamed 'icon_gui_main' to 'icon_serpent', added icon to loading-plugins-progress-dialog box
+#
+# Revision 1.74  2003/02/07 22:57:59  ncq
 # - fixed extra (% cmd)
 #
 # Revision 1.73  2003/02/07 14:30:33  ncq
