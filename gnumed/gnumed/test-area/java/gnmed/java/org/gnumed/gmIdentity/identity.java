@@ -13,6 +13,7 @@ import org.gnumed.gmClinical.script_drug;
 import org.gnumed.gmClinical.clin_attribute;
 import org.gnumed.gmClinical.category_attribute;
 import org.gnumed.gmClinical.category_type;
+import org.drugref.product;
 // for the find function.
 import org.gnumed.gmGIS.address_type;
 /**
@@ -77,9 +78,9 @@ public class identity {
      */
     private Date deceased;
     
-     
-      public Collection clin_attribute = new java.util.HashSet(); // of type clin_attribute
-
+    
+    public Collection clin_attribute = new java.util.HashSet(); // of type clin_attribute
+    
     
     ///////////////////////////////////////
     // associations
@@ -108,22 +109,23 @@ public class identity {
     
     /** Holds value of property mobile. */
     private org.gnumed.gmGIS.telephone mobile;
-      public Collection social_identity = new java.util.HashSet(); // of type social_identity
+    public Collection social_identity = new java.util.HashSet(); // of type social_identity
     
-      
-      /**
-       *@hibernate.set
-       *    inverse="true"
-       *@hibernate.collection-key
-       *    column="identity"
-       *@hibernate.collection-one-to-many
-       *    class="org.gnumed.gmIdentity.social_identity"
-       */
-  public Collection getSocial_identitys() {
+    
+    /**
+     *@hibernate.set
+     *    inverse="true"
+     *    cascade="all"
+     *@hibernate.collection-key
+     *    column="identity"
+     *@hibernate.collection-one-to-many
+     *    class="org.gnumed.gmIdentity.social_identity"
+     */
+    public Collection getSocial_identitys() {
         return social_identity;
     }
-  
-   /** Setter for property social_identitys.
+    
+    /** Setter for property social_identitys.
      * @param social_identitys New value of property social_identitys.
      *
      */
@@ -155,14 +157,14 @@ public class identity {
     public Collection getIdentities_addressess() {
         return identities_addresses;
     }
-      /** Setter for property identities_addressess.
+    /** Setter for property identities_addressess.
      * @param identities_addressess New value of property identities_addressess.
      *
      */
     
-    public void setIdentities_addressess(Collection identities_addressess) 
+    public void setIdentities_addressess(Collection identities_addressess)
     {identities_addresses= identities_addressess;
-    }    
+    }
     
     public void addIdentities_addresses(identities_addresses _identities_addresses) {
         if (! this.identities_addresses.contains(_identities_addresses)) {
@@ -179,7 +181,7 @@ public class identity {
      *@hibernate.set
      *      lazy="false"
      *      cascade="all"
-//     *      inverse="true"
+     * //     *      inverse="true"
      *@hibernate.collection-key
      *      column="identity"
      *@hibernate.collection-one-to-many
@@ -243,8 +245,8 @@ public class identity {
     /**
      *
      * @hibernate.set
-     *      cascade="save-update"
-//     *      inverse="true"
+     *      cascade="all"
+     * //     *      inverse="true"
      * @hibernate.collection-key
      *  column="identity"
      * @hibernate.collection-one-to-many
@@ -253,13 +255,13 @@ public class identity {
     public Collection getNamess() {
         return names;
     }
-     /** Setter for property namess.
+    /** Setter for property namess.
      * @param namess New value of property namess.
      *
      */
-    public void setNamess(Collection namess) {names = namess;}    
+    public void setNamess(Collection namess) {names = namess;}
     
-  
+    
     
     public void addNames(Names names) {
         if (! this.names.contains(names)) {
@@ -276,12 +278,12 @@ public class identity {
      *@hibernate.set
      *  cascade="all"
      *  lazy="false"
-      * @hibernate.collection-key
+     * @hibernate.collection-key
      *  column="identity"
      * @hibernate.collection-one-to-many
      *  class="org.gnumed.gmClinical.script_drug"
      */
-       public Collection getScript_drugs() {
+    public Collection getScript_drugs() {
         return script_drug;
     }
     public void addScript_drug(script_drug _script_drug) {
@@ -294,14 +296,14 @@ public class identity {
         boolean removed = this.script_drug.remove(_script_drug);
         if (removed) _script_drug.setIdentity((identity)null);
     }
-      /** Setter for property script_drugs.
+    /** Setter for property script_drugs.
      * @param script_drugs New value of property script_drugs.
      *
      */
     public void setScript_drugs(Collection script_drugs) {
         script_drug = script_drugs;
-    }    
-   
+    }
+    
     
     ///////////////////////////////////////
     // operations
@@ -427,6 +429,7 @@ public class identity {
      * @return Value of property mobile.
      *
      *@hibernate.many-tp-one
+     *  cascade="all"
      */
     public org.gnumed.gmGIS.telephone getMobile() {
         return this.mobile;
@@ -439,15 +442,16 @@ public class identity {
     public void setMobile(org.gnumed.gmGIS.telephone mobile) {
         this.mobile = mobile;
     }
-   
+    
     /**
      *@hibernate.set
+     *  cascade="all"
      *@hibernate.collection-key
      *  column="identity"
      *@hibernate.collection-one-to-many
      *  class="org.gnumed.gmClinical.clin_attribute"
      */
- public Collection getClin_attributes() {
+    public Collection getClin_attributes() {
         return clin_attribute;
     }
     public void addClin_attribute(clin_attribute _clin_attribute) {
@@ -477,7 +481,7 @@ public class identity {
             if ( ! ( o instanceof category_attribute))
                 continue;
             category_attribute attr = (category_attribute) o;
-            if (attr.getCategory().getCategory_type().equals(type)) 
+            if (attr.getCategory().getCategory_type().equals(type))
                 return attr;
         }
         return null;
@@ -493,8 +497,28 @@ public class identity {
         return null;
     }
     
-    // end setId
-    
+    public script_drug findDrugScriptWithProduct(final product product, Double qty) throws Exception {
+        Iterator i = getScript_drugs().iterator();
+        long smallest = Long.MAX_VALUE;
+        script_drug chosen = null;
+        while (i.hasNext()) {
+            script_drug sd = (script_drug) i.next();
+            
+            // if points to same product 
+            if (sd.getProduct() == product)
+                return sd;
+            // if pretty close
+            long diff = Math.abs(Double.doubleToLongBits(qty.doubleValue()) - Double.doubleToLongBits(sd.getQty().doubleValue()));
+            if (sd.getProduct().equals(product) &&  diff < smallest) {
+                smallest = diff;
+                chosen = sd;
+            }
+        }
+        return chosen;
+    }
+ 
+// end setId
+
 } // end identity
 
 

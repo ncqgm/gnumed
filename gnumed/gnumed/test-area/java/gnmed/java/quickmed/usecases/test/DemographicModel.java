@@ -220,12 +220,18 @@ public interface DemographicModel {
      * @return Value of property maritalStatus.
      *
      */
-    public String getMaritalStatus();
+    public Object getMaritalStatus();
     
     /** Setter for property maritalStatus.
      * @param maritalStatus New value of property maritalStatus.
      *
      */
-    public void setMaritalStatus(String maritalStatus);
+    public void setMaritalStatus(Object maritalStatus);
+    
+    /** Getter for property maritalList.
+     * @return Value of property maritalList.
+     *
+     */
+    public Object[] getMaritalList();
     
 }

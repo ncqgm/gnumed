@@ -101,6 +101,18 @@ public class package_size {
     
  // end setId        
 
+    static java.text.NumberFormat formatter =  java.text.NumberFormat.getNumberInstance();
+    public String toString() {
+        try {
+        formatter.setMaximumFractionDigits(2);
+        StringBuffer sb = new StringBuffer();
+        sb.append(getProduct()).append(" x ").append(formatter.format(getSize()) );
+        return sb.toString();
+        } catch (Exception e) {
+            java.util.logging.Logger.global.info(e.toString());
+        }
+        return super.toString();
+     }
 } // end package_size
 
 

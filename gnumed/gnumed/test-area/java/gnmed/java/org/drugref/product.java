@@ -375,6 +375,14 @@ public class product {
     
  // end setId        
 
+    public String toString() {
+       org.drugref.generic_drug_name n =(org.drugref.generic_drug_name) getDrug_element().getGeneric_name().iterator().next();
+       StringBuffer sb = new StringBuffer();
+       sb.append(n.getName());
+       sb.append(": ");
+       sb.append(getComment());
+       return sb.toString();
+    }
 } // end product
 
 

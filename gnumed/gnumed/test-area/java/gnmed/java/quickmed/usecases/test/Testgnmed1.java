@@ -11,7 +11,7 @@ import java.util.*;
  * @author  sjtan
  */
 public class Testgnmed1 extends javax.swing.JFrame {
-   
+    
     /** Creates new form Testgnmed1 */
     public Testgnmed1() {
         initComponents();
@@ -113,21 +113,18 @@ public class Testgnmed1 extends javax.swing.JFrame {
 
         pack();
     }//GEN-END:initComponents
-
+    
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // Add your handling code here:
         // creates a new patient inner frame
-       PatientInnerFrame frame = new PatientInnerFrame();
-       frame.setIconifiable(true);
-       frame.setMaximizable(true);
-       frame.setClosable(true);
+        PatientInnerFrame frame = new PatientInnerFrame();
         desktopPane.add(frame);
         frame.setVisible(true);
         
-      
+        
         
     }//GEN-LAST:event_jMenuItem1ActionPerformed
-
+    
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
         // Add your handling code here:
     }//GEN-LAST:event_openMenuItemActionPerformed

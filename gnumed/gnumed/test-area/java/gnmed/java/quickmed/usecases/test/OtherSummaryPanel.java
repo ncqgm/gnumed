@@ -5,7 +5,14 @@
  */
 
 package quickmed.usecases.test;
+import javax.swing.*;
+import javax.swing.table.*;
+import javax.swing.event.*;
+import java.util.*;
+import java.util.logging.*;
+import java.awt.*;
 
+import org.gnumed.gmIdentity.*;
 /**
  *
  * @author  sjtan
@@ -13,13 +20,50 @@ package quickmed.usecases.test;
 public class OtherSummaryPanel extends javax.swing.JPanel {
     public static final int DATE_WIDTH=70;
     public static final int NO_WIDTH=30;
-     public static final int MAX_DIFF=100;
+    public static final int MAX_DIFF=100;
     
+    PrescribeDialog dialog ;
     /** Creates new form OtherSummaryPanel */
     public OtherSummaryPanel() {
         initComponents();
         resizeManagementColumns();
         resizeProblemColumns();
+        setDrugTableModel();
+    }
+    
+    void setDrugTableModel() {
+        ListObjectTableModel model = new ListObjectTableModel();
+        DummyDrugViewFactory factory = new DummyDrugViewFactory();
+        factory.setIdentityFactory( new Factory () {
+                    public Object newInstance() {
+                         return getIdentity();
+                    }
+        }     );
+        
+        model.setFactory(factory);
+        model.setList(new java.util.ArrayList());
+        model.newObject();
+        
+        
+        tableWithPopup1.setModel(model);
+        //DefaultRenderer DOESN'T SEEM TO WORK THE WAY I THINK IT SHOOULD
+        tableWithPopup1.getTable().setDefaultRenderer(java.util.Date.class, new ShortDateCellRenderer());
+        //        OtherSummaryPanel.LinkDrugDialogCellEditorListener l = new OtherSummaryPanel.LinkDrugDialogCellEditorListener();
+        
+        SelectionDialogListObjectTableModelLinker l2 = new SelectionDialogListObjectTableModelLinker();
+        l2.setTable( tableWithPopup1.getTable());
+        l2.setDialog( new PrescribeDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class,
+        OtherSummaryPanel.this), true ) );
+        
+        
+        getDrugTableColumn("drug").setCellEditor(new DefaultCellEditor(new JTextField())); // so not null next line.
+        
+        getDrugTableColumn("drug").getCellEditor().addCellEditorListener( l2);
+    }
+    
+    javax.swing.table.TableColumn getDrugTableColumn( String name) {
+        ListObjectTableModel model = (ListObjectTableModel) tableWithPopup1.getModel();
+        return tableWithPopup1.getTable().getColumnModel().getColumn(model.getColumnByName(name));
     }
     
     protected void resizeProblemColumns() {
@@ -45,6 +89,8 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jSplitPane3 = new javax.swing.JSplitPane();
+        jPanel6 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
@@ -58,6 +104,19 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jScrollPane9 = new javax.swing.JScrollPane();
         jTextArea4 = new javax.swing.JTextArea();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable3 = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        jPanel5 = new javax.swing.JPanel();
+        jSplitPane2 = new javax.swing.JSplitPane();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTable4 = new javax.swing.JTable();
+        tableWithPopup1 = new quickmed.usecases.test.TableWithPopup();
         jPanel3 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -69,18 +128,6 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         jTextField4 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jTextField5 = new javax.swing.JTextField();
-        jScrollPane10 = new javax.swing.JScrollPane();
-        jTable6 = new javax.swing.JTable();
-        jPanel4 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
-        jPanel5 = new javax.swing.JPanel();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        jTable4 = new javax.swing.JTable();
         jScrollPane5 = new javax.swing.JScrollPane();
         jTable5 = new javax.swing.JTable();
 
@@ -88,6 +135,9 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
 
         setMaximumSize(new java.awt.Dimension(1300, 800));
         setPreferredSize(new java.awt.Dimension(940, 426));
+        jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jPanel6.setLayout(new java.awt.GridLayout());
+
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         jPanel1.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("social_family_label")));
@@ -97,11 +147,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
 
         jPanel1.add(jScrollPane6, java.awt.BorderLayout.CENTER);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 20;
-        gridBagConstraints.weightx = 1.0;
-        add(jPanel1, gridBagConstraints);
+        jPanel6.add(jPanel1);
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
@@ -162,10 +208,128 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 1.0;
         jPanel2.add(jScrollPane9, gridBagConstraints);
 
+        jPanel6.add(jPanel2);
+
+        jSplitPane3.setLeftComponent(jPanel6);
+
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jPanel4.setLayout(new java.awt.GridBagLayout());
+
+        jScrollPane1.setBorder(new javax.swing.border.TitledBorder(null, "Significant problems - past and present", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
+        jTable1.setFont(new java.awt.Font("Dialog", 0, 10));
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Date", "No", "Significant Problems-Past and Current"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                true, false, true
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        javax.swing.table.TableColumnModel colModel= new javax.swing.table.DefaultTableColumnModel();
+        colModel.addColumn(new javax.swing.table.TableColumn(0,5));
+        colModel.addColumn(new javax.swing.table.TableColumn(1,3));
+        colModel.addColumn(new javax.swing.table.TableColumn(2));
+        jScrollPane1.setViewportView(jTable1);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 2.0;
-        add(jPanel2, gridBagConstraints);
+        jPanel4.add(jScrollPane1, gridBagConstraints);
+
+        jScrollPane3.setBorder(new javax.swing.border.TitledBorder("Immunizations"));
+        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Date", "Type", "Batch"
+            }
+        ));
+        jScrollPane3.setViewportView(jTable3);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel4.add(jScrollPane3, gridBagConstraints);
+
+        jScrollPane2.setBorder(new javax.swing.border.TitledBorder("Allergies"));
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Allergy", "Caution", "Severity"
+            }
+        ));
+        jScrollPane2.setViewportView(jTable2);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.5;
+        jPanel4.add(jScrollPane2, gridBagConstraints);
+
+        jSplitPane1.setLeftComponent(jPanel4);
+
+        jPanel5.setLayout(new java.awt.BorderLayout());
+
+        jSplitPane2.setOneTouchExpandable(true);
+        jScrollPane4.setBorder(new javax.swing.border.TitledBorder("Management"));
+        jTable4.setFont(new java.awt.Font("Dialog", 0, 10));
+        jTable4.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Date", "management", "ended"
+            }
+        ));
+        jScrollPane4.setViewportView(jTable4);
+
+        jSplitPane2.setLeftComponent(jScrollPane4);
+
+        tableWithPopup1.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("current_medication")));
+        jSplitPane2.setRightComponent(tableWithPopup1);
+
+        jPanel5.add(jSplitPane2, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setRightComponent(jPanel5);
+
+        jSplitPane3.setRightComponent(jSplitPane1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 20.0;
+        gridBagConstraints.weighty = 1.0;
+        add(jSplitPane3, gridBagConstraints);
 
         jPanel3.setLayout(new java.awt.GridBagLayout());
 
@@ -247,130 +411,7 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 1.0;
         add(jPanel3, gridBagConstraints);
 
-        jScrollPane10.setBorder(new javax.swing.border.TitledBorder(java.util.ResourceBundle.getBundle("SummaryTerms").getString("current_medication")));
-        jTable6.setFont(new java.awt.Font("Dialog", 0, 10));
-        jTable6.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "last script", "drug", "instruct", "qty", "rpts"
-            }
-        ));
-        jScrollPane10.setViewportView(jTable6);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 3.0;
-        add(jScrollPane10, gridBagConstraints);
-
-        jPanel4.setLayout(new java.awt.BorderLayout());
-
-        jScrollPane1.setBorder(new javax.swing.border.TitledBorder(null, "Significant problems - past and present", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 10)));
-        jTable1.setFont(new java.awt.Font("Dialog", 0, 10));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Date", "No", "Significant Problems-Past and Current"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                true, false, true
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        javax.swing.table.TableColumnModel colModel= new javax.swing.table.DefaultTableColumnModel();
-        colModel.addColumn(new javax.swing.table.TableColumn(0,5));
-        colModel.addColumn(new javax.swing.table.TableColumn(1,3));
-        colModel.addColumn(new javax.swing.table.TableColumn(2));
-        jScrollPane1.setViewportView(jTable1);
-
-        jPanel4.add(jScrollPane1, java.awt.BorderLayout.NORTH);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 2.0;
-        gridBagConstraints.weighty = 1.0;
-        add(jPanel4, gridBagConstraints);
-
-        jScrollPane2.setBorder(new javax.swing.border.TitledBorder("Allergies"));
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Allergy", "Caution", "Severity"
-            }
-        ));
-        jScrollPane2.setViewportView(jTable2);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        add(jScrollPane2, gridBagConstraints);
-
-        jScrollPane3.setBorder(new javax.swing.border.TitledBorder("Immunizations"));
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Date", "Type", "Batch"
-            }
-        ));
-        jScrollPane3.setViewportView(jTable3);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.5;
-        add(jScrollPane3, gridBagConstraints);
-
-        jPanel5.setLayout(new java.awt.GridBagLayout());
-
-        jScrollPane4.setBorder(new javax.swing.border.TitledBorder("Management"));
-        jTable4.setFont(new java.awt.Font("Dialog", 0, 10));
-        jTable4.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Date", "management", "ended"
-            }
-        ));
-        jScrollPane4.setViewportView(jTable4);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 10.0;
-        gridBagConstraints.weighty = 3.0;
-        jPanel5.add(jScrollPane4, gridBagConstraints);
-
+        jTable5.setFont(new java.awt.Font("Dialog", 0, 10));
         jTable5.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {"Height", null},
@@ -411,21 +452,30 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 4.0;
-        gridBagConstraints.weighty = 3.0;
-        jPanel5.add(jScrollPane5, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 3.0;
-        add(jPanel5, gridBagConstraints);
+        gridBagConstraints.weighty = 4.0;
+        add(jScrollPane5, gridBagConstraints);
 
     }//GEN-END:initComponents
-
+    
+    /** Getter for property identity.
+     * @return Value of property identity.
+     *
+     */
+    public identity getIdentity() {
+        return this.identity;
+    }
+    
+    /** Setter for property identity.
+     * @param identity New value of property identity.
+     *
+     */
+    public void setIdentity(identity identity) {
+        this.identity = identity;
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -440,8 +490,8 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -450,12 +500,14 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JScrollPane jScrollPane9;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JSplitPane jSplitPane2;
+    private javax.swing.JSplitPane jSplitPane3;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
     private javax.swing.JTable jTable5;
-    private javax.swing.JTable jTable6;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextArea jTextArea3;
@@ -465,6 +517,137 @@ public class OtherSummaryPanel extends javax.swing.JPanel {
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
+    private quickmed.usecases.test.TableWithPopup tableWithPopup1;
     // End of variables declaration//GEN-END:variables
+    //    TableCellEditor testDrugEditor;
+    
+    /** Holds value of property identity. */
+    private identity identity;
+    
+    //    class LinkDrugDialogCellEditorListener implements CellEditorListener {
+    //
+    //        /** Holds value of property data. */
+    //        private Object data;
+    //
+    //        /** Holds value of property model. */
+    //        private ListObjectTableModel model;
+    //
+    //        public void editingCanceled(ChangeEvent e) {
+    //        }
+    //
+    //
+    //        public void editingStopped(ChangeEvent e) {
+    //            initDialog();
+    //            positionAndSizeDialog();
+    //            Object val = getCellEditorValue(e.getSource());
+    //            if ( val instanceof String)
+    //                dialog.setSearchText((String) val);
+    //            dialog.show();
+    //            Logger.global.info( "Dialog selected val = " + dialog.getSelectedItem());
+    //            if ( dialog.getSelectedItem() instanceof String)
+    //                return;
+    //            setValueAtTableCell( dialog.getSelectedItem());
+    //      }
+    //
+    //        void initDialog() {
+    //            if (dialog == null)
+    //                dialog = new PrescribeDialog(
+    //                (java.awt.Frame) SwingUtilities.getAncestorOfClass(java.awt.Frame.class,
+    //                OtherSummaryPanel.this), true );
+    //        }
+    //
+    //        Object getCellEditorValue(Object source) {
+    //            TableCellEditor ed = ( TableCellEditor) source;
+    //            return  ed.getCellEditorValue();
+    //        }
+    //
+    //        void positionAndSizeDialog() {
+    //            dialog.setLocation(tableWithPopup1.getLocationOnScreen());
+    //            dialog.setSize( tableWithPopup1.getToolkit().getScreenSize().width /2, tableWithPopup1.getToolkit().getScreenSize().height /2);
+    //        }
+    //        void setValueAtTableCell(Object o)  {
+    //             ((ListObjectTableModel)tableWithPopup1.getModel()).setValueAt(o);
+    //            setData(dialog.getSelectedItem());
+    //        }
+    //        public void setData(Object data) {
+    //            this.data = data;
+    //        }
+    //
+    //        /** Getter for property model.
+    //         * @return Value of property model.
+    //         *
+    //         */
+    //        public ListObjectTableModel getModel() {
+    //            return this.model;
+    //        }
+    //
+    //        /** Setter for property model.
+    //         * @param model New value of property model.
+    //         *
+    //         */
+    //        public void setModel(ListObjectTableModel model) {
+    //            this.model = model;
+    //        }
+    //
+    //    }
+    
+    //
+    //
+    //    class DrugEditor implements javax.swing.table.TableCellEditor {
+    //        int row, column;
+    //        JComboBox comboBox = new DrugComboBoxA();
+    //
+    //        javax.swing.table.TableCellEditor  worker = new DefaultCellEditor(new JTextField());
+    //
+    //        public JComboBox getComboBox() {
+    //            return comboBox;
+    //        }
+    //        public void addCellEditorListener(javax.swing.event.CellEditorListener l) {
+    //            worker.addCellEditorListener(l);
+    //        }
+    //
+    //        public void cancelCellEditing() {
+    //            worker.cancelCellEditing();
+    //        }
+    //
+    //        public Object getCellEditorValue() {
+    //            return   worker.getCellEditorValue();
+    //        }
+    //
+    //        public java.awt.Component getTableCellEditorComponent(javax.swing.JTable table, Object value, boolean isSelected, int row, int column) {
+    //            this.row = row;
+    //            this.column = column;
+    //            return worker.getTableCellEditorComponent(table, value, isSelected, row, column);
+    //        }
+    //
+    //        public boolean isCellEditable(java.util.EventObject anEvent) {
+    //            return worker.isCellEditable(anEvent);
+    //        }
+    //
+    //        public void removeCellEditorListener(javax.swing.event.CellEditorListener l) {
+    //            worker.removeCellEditorListener(l);
+    //        }
+    //
+    //        public boolean shouldSelectCell(java.util.EventObject anEvent) {
+    //            return worker.shouldSelectCell(anEvent);
+    //        }
+    //
+    //        public boolean stopCellEditing() {
+    //            return worker.stopCellEditing();
+    //        }
+    //
+    //        /** Getter for property object.
+    //         * @return Value of property object.
+    //         *
+    //         */
+    //
+    //        public int getRow() {
+    //            return row;
+    //        }
+    //
+    //        public int getColumn() {
+    //            return column;
+    //        }
+    //    }
     
 }

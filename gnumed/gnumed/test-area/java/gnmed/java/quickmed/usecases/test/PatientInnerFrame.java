@@ -57,6 +57,7 @@ public class PatientInnerFrame extends javax.swing.JInternalFrame {
         // Add your handling code here:
         summaryPanel1.transferFormToModel();
         gnmed.test.DomainPrinter.getInstance().printIdentity( System.out, summaryPanel1.getIdentity());
+        IdentityManager.instance().save(summaryPanel1.getIdentity());
     }//GEN-LAST:event_onCloseFinalizeIdentity
     
     

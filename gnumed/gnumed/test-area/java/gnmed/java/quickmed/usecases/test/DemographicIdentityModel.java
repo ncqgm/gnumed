@@ -84,6 +84,8 @@ public class DemographicIdentityModel implements  DemographicModel {
     static    category divorced = createOrFindCategory( bundle.getString("divorced"), maritalStatus);
     static   category widowed = createOrFindCategory( bundle.getString("widowed"), maritalStatus);
     
+    static category [] maritalList = new category[] { married, unmarried, divorced, widowed };
+    
     static {
         
          try {
@@ -542,12 +544,18 @@ public class DemographicIdentityModel implements  DemographicModel {
     }
     
     
-    public String getMaritalStatus() {
-        return "m";
+    public Object getMaritalStatus() {
+        category_attribute a = getIdentity().findCategoryAttribute(maritalStatus);
+        if ( a == null) 
+            return bundle.getString("unknown");
+        return a.getCategory().getName();
     }
     
-    public void setMaritalStatus(String maritalStr) {
-        category c = (category ) mapMarital.get(maritalStr);
+    public void setMaritalStatus(Object maritalStatus) {
+        category c = (category ) maritalStatus;
+        logger.info(" category  returned " + c);
+        if (getIdentity() == null) 
+            throw new RuntimeException("IDENTITY SHOULD EXIST");
         if (getIdentity().findCategoryAttribute(c.getCategory_type() ) == null) {
             category_attribute a = new category_attribute();
             a.setCategory(c);
@@ -639,6 +647,14 @@ public class DemographicIdentityModel implements  DemographicModel {
      */
     public void setUiModel(DemographicModel uiModel) {
         this.uiModel = uiModel;
+    }
+    
+    /** Getter for property getMaritalStatus.
+     * @return Value of property getMaritalStatus.
+     *
+     */
+    public Object[] getMaritalList() {
+        return maritalList;
     }
     
 }
