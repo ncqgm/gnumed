@@ -44,31 +44,34 @@ related environment variables (in this order):
 """
 #---------------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmI18N.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 ############################################################################
 
-import gettext, sys, os.path, string, os
+import gettext, sys, os.path, string, os, re
 import gmLog, gmCLI
 _log = gmLog.gmDefLog
 
 system_locale = ''
 system_locale_level = {}
 #---------------------------------------------------------------------------
-def install_domain():
-	"""Install a text domain suitable for the main script.
+def __split_locale_into_levels():
+	"""Split locale into language, country and variant parts.
+
+	- we have observed the following formats in the wild:
+	  - de_DE@euro
+	  - ec_CA.UTF-8
+	  - en_US:en
 	"""
-	text_domain = ""
-	# text domain given on command line ?
-	if gmCLI.has_arg('--text-domain'):
-		text_domain = gmCLI.arg['--text-domain']
-	# else get text domain from name of script 
-	else:
-		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+	global system_locale_level
+	system_locale_level['full'] = system_locale
+	# trim '@<variant>' part
+	system_locale_level['country'] = re.split('@|:|\.', system_locale, 1)[0]
+	# trim '_<COUNTRY>@<variant>' part
+	system_locale_level['language'] = system_locale.split('_', 1)[0]
+#---------------------------------------------------------------------------
+def __get_system_locale():
 
-	_log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
-
-	# explicitely probe user locale settings
 	global system_locale
 	global system_locale_level
 	env_key = 'LANGUAGE'
@@ -103,13 +106,22 @@ def install_domain():
 	if system_locale is None:
 		_log.Log(gmLog.lErr, 'the system locale is not set to anything, assuming [en_EN]')
 		system_locale = "en_EN"
+
 	# generate system locale levels
-	system_locale_level['full'] = system_locale
-	# trim '@<variant>' part
-	# FIXME: may be a different deliminator on other systems
-	system_locale_level['country'] = system_locale.split('@', 1)[0]
-	# trim '_<COUNTRY>@<variant>' part
-	system_locale_level['language'] = system_locale.split('_', 1)[0]
+	__split_locale_into_levels()
+#---------------------------------------------------------------------------
+def __install_domain():
+	"""Install a text domain suitable for the main script.
+	"""
+	text_domain = ""
+	# text domain given on command line ?
+	if gmCLI.has_arg('--text-domain'):
+		text_domain = gmCLI.arg['--text-domain']
+	# else get text domain from name of script 
+	else:
+		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+
+	_log.Log(gmLog.lInfo, 'text domain is "%s"' % text_domain)
 
 	# search for message catalog
 	_log.Log(gmLog.lData, 'Searching message catalog file for system locale [%s].' % system_locale)
@@ -196,7 +208,8 @@ if __name__ == "__main__":
 
 _log.Log(gmLog.lData, __version__)
 
-install_domain()
+__get_system_locale()
+__install_domain()
 
 if __name__ == "__main__":
 	print "system locale: [%s]" % system_locale
@@ -215,7 +228,10 @@ _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.26  2003-04-18 09:00:02  ncq
+# Revision 1.27  2003-04-25 08:48:47  ncq
+# - refactored, now also take into account different delimiters (see __split_locale*)
+#
+# Revision 1.26  2003/04/18 09:00:02  ncq
 # - assume en_EN for locale if none found
 #
 # Revision 1.25  2003/03/24 16:52:27  ncq
