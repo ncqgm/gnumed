@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.135 $
+-- $Revision: 1.136 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -216,7 +216,7 @@ comment on COLUMN clin_encounter.fk_type is
 comment on column clin_encounter.description is
 	'descriptive name of this encounter, may change over time;
 	 could be RFE, if "xxxDEFAULTxxx" applications should
-	 display "<date> (<provider>)" plus some marker for "default"';
+	 display "<date> (<provider>): <type>" plus some marker for "default"';
 
 -- -------------------------------------------------------------------
 create table curr_encounter (
@@ -1076,11 +1076,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.135 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.136 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.135  2004-10-22 06:53:15  ncq
+-- Revision 1.136  2004-11-14 17:55:15  ncq
+-- - update clin_encounter.description comment as per Jim's suggestion
+--
+-- Revision 1.135  2004/10/22 06:53:15  ncq
 -- - missing ) prevented this from being bootstrapped, fixed
 --
 -- Revision 1.134  2004/10/20 21:41:03  ncq
