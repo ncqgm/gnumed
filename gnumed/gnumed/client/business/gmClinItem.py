@@ -1,136 +1,34 @@
 """GnuMed clinical item related business objects.
 
-license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.17 2004-06-18 13:31:21 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmClinItem.py,v 1.18 2004-10-11 19:37:13 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL"
 
-from Gnumed.pycommon import gmExceptions, gmLog, gmPG
-from Gnumed.pycommon.gmPyCompat import *
+from Gnumed.pycommon import gmBusinessDBObject, gmLog
 
 _log = gmLog.gmDefLog
-if __name__ == '__main__':
-	_log.SetAllLogLevels(gmLog.lData)
 _log.Log(gmLog.lInfo, __version__)
-
-# FIXME: auto-discover audit_fields and clin_root_item fields
-
 #============================================================
-class cClinItem:
-	"""Represents clinical data items.
+# FIXME: auto-discover audit_fields and clin_root_item fields ?
 
-	Rules:
-	- instances ARE ASSUMED TO EXIST in the database
-	- DOES verify its existence on instantiation (fetching data fails)
-	- does NOT verify FK targets existence
-	- does NOT create new entries in the database
-	- does NOT lazy-fetch fields
+class cClinItem(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents clinical data items.
 	"""
 	_service = "historica"
-	#--------------------------------------------------------
-	def __init__(self, aPK_obj = None):
-		self._is_modified = False
-		# check descendants
-		#<DEBUG>
-		self.__class__._cmd_fetch_payload
-		self.__class__._cmds_store_payload
-		self.__class__._updatable_fields
-		#</DEBUG>
-		self.pk_obj = aPK_obj
-		result = self.refetch_payload()
-		if result is True:
-			return
-		if result is None:
-			raise gmExceptions.NoSuchClinItemError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk_obj)
-		if result is False:
-			raise gmExceptions.ConstructorError, "[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj)
-	#--------------------------------------------------------
-	def __del__(self):
-		if self.__dict__.has_key('_is_modified'):
-			if self._is_modified:
-				_log.Log(gmLog.lPanic, '[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
-				_log.Log(gmLog.lData, self._payload)
-	#--------------------------------------------------------
-	def __str__(self):
-		tmp = []
-		[tmp.append('%s: %s' % (attr, self._payload[self._idx[attr]])) for attr in self._idx.keys()]
-		return str(tmp)
-	#--------------------------------------------------------
-	def __getitem__(self, attribute):
-		try:
-			return self._payload[self._idx[attribute]]
-		except KeyError:
-			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
-			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self._idx.keys())))
-			raise gmExceptions.NoSuchClinItemAttributeError, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute)
-	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		if attribute not in self.__class__._updatable_fields:
-			_log.Log(gmLog.lWarn, '[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-			raise gmExceptions.ClinItemAttributeNotSettableError, '[%s]: attribute <%s> not settable' % (self.__class__.__name__, attribute)
-		try:
-			self._idx[attribute]
-		except KeyError:
-			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-			raise gmExceptions.NoSuchClinItemAttributeError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
-		self._payload[self._idx[attribute]] = value
-		self._is_modified = True
-		return True
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def is_modified(self):
-		return self._is_modified
-	#--------------------------------------------------------
-	def get_fields(self):
-		return self._idx.keys()
-	#--------------------------------------------------------
-	def get_updatable_fields(self):
-		return self.__class__._updatable_fields
-	#--------------------------------------------------------
-	def refetch_payload(self):
-		"""Fetch item values from backend.
-		"""
-		if self._is_modified:
-			_log.Log(gmLog.lPanic, '[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
-			return False
-		self._payload = None
-		data, self._idx = gmPG.run_ro_query(
-			self.__class__._service,
-			self.__class__._cmd_fetch_payload,
-			True,
-			self.pk_obj)
-		if data is None:
-			_log.Log(gmLog.lErr, '[%s:%s]: error retrieving instance' % (self.__class__.__name__, self.pk_obj))
-			return False
-		if len(data) == 0:
-			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
-			return None
-		self._payload = data[0]
-		return True
-	#--------------------------------------------------------
-	def save_payload(self):
-		if not self._is_modified:
-			return (True, None)
-		params = {}
-		for field in self._idx.keys():
-			params[field] = self._payload[self._idx[field]]
-		queries = []
-		for query in self.__class__._cmds_store_payload:
-			queries.append((query, [params]))
-		status, err = gmPG.run_commit(self.__class__._service, queries, True)
-		if status is None:
-			_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance' % (self.__class__.__name__, self.pk_obj))
-			_log.Log(gmLog.lData, params)
-			return (False, err)
-		self._is_modified = False
-		return (True, None)
+
+#============================================================
+if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.17  2004-06-18 13:31:21  ncq
+# Revision 1.18  2004-10-11 19:37:13  ncq
+# - derive myself from cBusinessDBObject
+#
+# Revision 1.17  2004/06/18 13:31:21  ncq
 # - return False from save_payload on failure to update
 #
 # Revision 1.16  2004/06/02 21:50:32  ncq
