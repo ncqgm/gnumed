@@ -1,0 +1,62 @@
+<!--
+PHP interface to gnumed drug database
+Copyright (C) 2002 Ian Haywood 
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+or see online at http://www.gnu.org/licenses/gpl.html
+!>
+
+
+<?php
+
+# script to receive new dosage information
+
+include ('connect.php');
+
+$start = (int) $start;
+if ($start < 1 or $start > 10000)
+{
+  echo "start $start is not valid!";
+  exit;
+}
+
+$max = (int) $max;
+if ($max < $max or $max > 10000)
+{
+  echo "start $max is not valid!";
+  exit;
+}
+
+if (! isset ($unit))
+{
+  echo "no unit selected";
+  exit;
+}
+
+
+if ($warning == -1)
+{
+  $warning = 'NULL';
+}
+
+pg_query ("insert into drug_dosage (id_drug_warning_categories, dosage_hints) values ($warning, '$hints')");
+pg_query ("insert into substance_dosage (id_drug_dosage, id_drug_units, dosage_type, dosage_start, dosage_max) values (currval ('dose_dosage_id_seq'), $unit, '$type', $start, $max)");
+pg_query ("insert into link_drug_dosage values ($id, currval ('dosage_id_seq'))");
+
+$message = "new dosage inserted";
+
+include ('viewelement.php');
+
+?>

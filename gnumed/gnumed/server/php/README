@@ -1,0 +1,13 @@
+These files form a PHP interface to the gnumed drug database.
+
+First, create a gmdrugs database on PostgreSQL (../sql/gmdrugs.sql), make sure you have 
+access to this database. Open connect.php in this directory an change the username foo to your username.
+
+Then, copy them to a directory available to the webserver.
+
+PHP >= 4.1, must be running on the webserver,
+
+Then point your browser to 
+listclasses.php, and enjoy!
+
+Questions/comments to gnumed-devel@gnu.org
