@@ -3,13 +3,16 @@
 This is a clinical record object intended to let a useful
 client-side API crystallize from actual use in true XP fashion.
 
-license: GPL
+Make sure to call set_func_ask_user() and set_encounter_ttl()
+early on in your code (before gmClinicalRecord.__init__() is
+called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.72 2004-02-17 04:04:34 ihaywood Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmClinicalRecord.py,v 1.73 2004-02-18 15:25:20 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL"
 
 # access our modules
 import sys, os.path, string, time, copy
@@ -28,6 +31,11 @@ import gmExceptions, gmPG, gmSignals, gmDispatcher, gmWhoAmI
 _whoami = gmWhoAmI.cWhoAmI()
 
 import mx.DateTime as mxDT
+
+_encounter_soft_ttl = mxDT.TimeDelta(hours=2)
+_encounter_hard_ttl = mxDT.TimeDelta(hours=5)
+
+_func_ask_user = None
 #============================================================
 class gmClinicalRecord:
 
@@ -63,11 +71,11 @@ class gmClinicalRecord:
 		if not self.__load_last_active_episode():
 			raise gmExceptions.ConstructorError, "cannot activate an episode for patient [%s]" % aPKey
 
-		# load or create current encounter
+		# load current or create new encounter
 		# FIXME: this should be configurable (for explanation see the method source)
-		self.encounter_soft_ttl = '2 hours'
-		self.encounter_hard_ttl = '5 hours'
 		self.id_encounter = None
+		if not self.__initiate_active_encounter():
+			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -1093,118 +1101,187 @@ order by amount_overdue
 	#------------------------------------------------------------------
 	# encounter API
 	#------------------------------------------------------------------
-	def attach_to_encounter(self, anID = None, forced = None, comment = 'affirmed'):
-		"""Try to attach to an encounter.
-		"""
+	def __initiate_active_encounter(self):
 		self.id_encounter = None
 
-		# if forced to ...
-		if forced:
-			# ... create a new encounter and attach to that
-			if anID is None:
-				self.id_encounter = self.__add_encounter()
-				if self.id_encounter is None:
-					return -1, ''
-				else:
-					return 1, ''
-			# ... attach to a particular encounter
-			else:
-				self.id_encounter = anID
-				if not self.__affirm_current_encounter(comment):
-					return -1, ''
-				else:
-					return 1, ''
+		# 1) "very recent" encounter recorded ?
+		status = self.__activate_very_recent_encounter()
+		if status in [None, 1]:
+			return status
 
-		# else auto-search for encounter and attach if necessary
-		if anID is None:
-			# 1) very recent encounter recorded ? (that we always consider current)
-			cmd = """
-				select pk_encounter
-				from v_i18n_curr_encounters
-				where
-					pk_patient=%s
-						and
-					now() - last_affirmed < %s::interval
-				"""
-			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, self.encounter_soft_ttl)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot access current encounter table')
-				return -1, ''
-			# yes, so update and return that
-			if len(rows) != 0:
-				self.id_encounter = rows[0][0]
-				if not self.__affirm_current_encounter(comment):
-					return -1, ''
-				else:
-					return 1, ''
+		# 2) "fairly recent" encounter recorded ?
+		status = self.__activate_fairly_recent_encounter()
+		if status in [None, 1]:
+			return status
 
-			# 2) encounter recorded that's fairly recent ?
-			cmd = """
-				select
-					pk_encounter,
-					started,
-					last_affirmed,
-					status,
-					description,
-					type
-				from v_i18n_curr_encounters
-				where
-					pk_patient=%s
-						and
-					now() - last_affirmed < %s::interval
-				limit 1"""
-			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, self.encounter_hard_ttl)
-			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot access current encounter table')
-				return -1, ''
-			# ask user what to do about it
-			if len(rows) != 0:
-				data = {
-					'ID': rows[0][0],
-					'started': rows[0][1],
-					'affirmed': rows[0][2],
-					'status': rows[0][3],
-					'comment': rows[0][4],
-					'type': rows[0][5]
-				}
-				return 0, data
-
-			# 3) no encounter active or encounter timed out, create new one
-			self.id_encounter = self.__add_encounter()
-			if self.id_encounter is None:
-				return -1, ''
-			else:
-				return 1, ''
-		else:
-			_log.Log(gmLog.lErr, 'invalid argument combination: forced=false & anID given (= %d)' % anID)
-			return -1, ''
+		# 3) no encounter yet or too old, create new one
+		self.id_encounter = self.__add_encounter()
+		if self.id_encounter is None:
+			return None
+		return 1
 	#------------------------------------------------------------------
-	def __add_encounter(self, aComment = 'created', encounter_name = None):
-		"""Insert a new encounter.
+	def __activate_very_recent_encounter(self):
+		"""Try to attach to a "very recent" encounter if there is one.
+
+		returns:
+		 None: stop trying, error out
+		 0: no "very recent" encounter, create new one
+	     1: success
 		"""
-		# delete old entries if any
-		cmd1 = "delete from curr_encounter where id_encounter in (select id from clin_encounter where fk_patient=%s)"
+		days, seconds = _encounter_soft_ttl.absvalues()
+		sttl = '%s days %s seconds' % (days, seconds)
+		cmd = """
+			select pk_encounter
+			from v_most_recent_encounters
+			where
+				pk_patient=%s
+					and
+				age(last_affirmed) < %s::interval
+			"""
+		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, sttl)
+		# error
+		if enc_rows is None:
+			_log.Log(gmLog.lErr, 'cannot access encounter tables')
+			return None
+		# none found
+		if len(enc_rows) == 0:
+			return 0
+		# attach to existing
+		cmd = """
+			update clin_encounter
+			set
+				fk_provider=%s,
+				last_affirmed=now()
+			where id=%s"""
+		if not gmPG.run_commit('historica', [(cmd, [_whoami.get_staff_ID(), enc_rows[0][0]])]):
+			_log.Log(gmLog.lWarn, 'cannot reaffirm encounter')
+		self.id_encounter = enc_rows[0][0]
+		return 1
+	#------------------------------------------------------------------
+	def __activate_fairly_recent_encounter(self):
+		"""Try to attach to a "fairly recent" encounter if there is one.
+
+		returns:
+		 None: stop trying, error out
+		 0: no "fairly recent" encounter, create new one
+	     1: success
+		"""
+		cmd = """
+			select
+				pk_encounter,
+				started,
+				last_affirmed,
+				description,
+				l10n_type
+			from v_most_recent_encounters
+			where
+				pk_patient=%s
+					and
+				age(last_affirmed) between %s::interval and %s::interval
+			"""
+		days, seconds = _encounter_soft_ttl.absvalues()
+		sttl = '%s days %s seconds' % (days, seconds)
+		days, seconds = _encounter_hard_ttl.absvalues()
+		httl = '%s days %s seconds' % (days, seconds)
+		enc_rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, sttl, httl)
+		# error
+		if enc_rows is None:
+			_log.Log(gmLog.lErr, 'cannot access encounter tables')
+			return None
+		# none found
+		if len(enc_rows) == 0:
+			return 0
+		# ask user whether to attach or not
+		if _func_ask_user is None:
+			_log.Log(gmLog.lErr, 'cannot ask user for guidance, missing _func_ask_user')
+			return 0
+		# FIXME: this is ugly because it accesses personalia directly
+		cmd = """
+			select
+				title, firstnames, lastnames, gender, dob
+			from v_basic_person
+			where i_id=%s"""
+		pat = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
+		if (pat is None) or (len(pat) == 0):
+			_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.id_patient)
+			return None
+		pat_str = '%s %s %s (%s), %s, #%s' % (
+			pat[0][0][:5],
+			pat[0][1][:12],
+			pat[0][2][:12],
+			pat[0][3],
+			pat[0][4].Format('%Y-%m-%d'),
+			self.id_patient
+		)
+		msg = _(
+			'A fairly recent encounter exists for patient:\n'
+			' %s\n'
+			'started    : %s\n'
+			'affirmed   : %s\n'
+			'type       : %s\n'
+			'description: %s\n\n'
+			'Do you want to reactivate this encounter ?\n'
+			'Hitting "No" will start a new one.'
+		) % (pat_str, enc_rows[0][1], enc_rows[0][2], enc_rows[0][4], enc_rows[0][3])
+		title = _('recording patient encounter')
+		try:
+			# FIXME: better widget -> activate/new buttons
+			attach = _func_ask_user(msg, title)
+		except:
+			_log.LogException('cannot ask user for guidance', sys.exc_info(), verbose=0)
+			return 0
+		if not attach:
+			return 0
+		# attach to existing
+		cmd = """
+			update clin_encounter
+			set
+				fk_provider=%s,
+				last_affirmed=now()
+			where id=%s"""
+		if not gmPG.run_commit('historica', [(cmd, [_whoami.get_staff_ID(), enc_rows[0][0]])]):
+			_log.Log(gmLog.lWarn, 'cannot reaffirm encounter')
+		self.id_encounter = enc_rows[0][0]
+		return 1
+	#------------------------------------------------------------------
+	def __add_encounter(self, encounter_name = None, encounter_type = None):
+		"""Insert a new encounter."""
 		# insert new encounter
-		# FIXME: we don't deal with location yet
 		if encounter_name is None:
 			encounter_name = 'auto-created %s' % mxDT.today().Format('%A %Y-%m-%d %H:%M')
-		cmd2 = "insert into clin_encounter(fk_patient, fk_location, fk_provider, description) values(%s, -1, %s, %s)"
-		# and record as currently active encounter
-		cmd3 = "insert into curr_encounter (id_encounter, \"comment\") values (currval('clin_encounter_id_seq'), %s)"
-
-		return gmPG.run_commit('historica', [
-			(cmd1, [self.id_patient]),
-			(cmd2, [self.id_patient, _whoami.get_staff_ID(), encounter_name]),
-			(cmd3, [aComment])
+		if encounter_type is None:
+			# FIXME: look for MRU/MCU encounter type here
+			encounter_type = 'chart review'
+		# FIXME: we don't deal with location yet
+		cmd1 = """
+			insert into clin_encounter (
+				fk_patient, fk_location, fk_provider, description, fk_type
+			) values (
+				%s, -1, %s, %s,
+				(select id from _enum_encounter_type where description=%s)
+			)"""
+		cmd2 = "select currval('clin_encounter_id_seq')"
+		result = gmPG.run_commit('historica', [
+			(cmd1, [self.id_patient, _whoami.get_staff_ID(), encounter_name, encounter_type]),
+			(cmd2, [])
 		])
-	#------------------------------------------------------------------
-	def __affirm_current_encounter(self, aComment = 'affirmed'):
-		"""Update internal comment and time stamp on curr_encounter row.
-		"""
-		cmd = "update curr_encounter set comment=%s where id_encounter=%s"
-		if not gmPG.run_commit('historica', [(cmd, [aComment, self.id_encounter])]):
-			_log.Log(gmLog.lErr, 'cannot reaffirm encounter')
+		if result is None:
 			return None
+		if len(result) == 0:
+			return None
+		return result[0][0]
+	#------------------------------------------------------------------
+	def attach_to_encounter(self, anID = None):
+		"""Attach to an encounter but do not activate it.
+		"""
+		if anID is None:
+			_log.Log(gmLog.lErr, 'need encounter ID to attach to it')
+			return None
+		cmd = "update clin_encounter set fk_provider=%s where id=%s"
+		if not gmPG.run_commit('historica', [(cmd, [_whoami.get_staff_ID(), anID])]):
+			_log.Log(gmLog.lWarn, 'cannot attach to encounter [%s]' % anID)
+			return None
+		self.id_encounter = anID
 		return 1
 	#------------------------------------------------------------------
 	# trial: allergy panel
@@ -1296,6 +1373,19 @@ def get_vacc_regimes():
 		data.extend(rows)
 	return data
 #------------------------------------------------------------
+def set_encounter_ttl(soft = None, hard = None):
+	if soft is not None:
+		global _encounter_soft_ttl
+		_encounter_soft_ttl = soft
+	if hard is not None:
+		global _encounter_hard_ttl
+		_encounter_hard_ttl = hard
+#------------------------------------------------------------
+def set_func_ask_user(a_func = None):
+	if a_func is not None:
+		global _func_ask_user
+		_func_ask_user = a_func
+#------------------------------------------------------------
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
@@ -1331,7 +1421,15 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.72  2004-02-17 04:04:34  ihaywood
+# Revision 1.73  2004-02-18 15:25:20  ncq
+# - rewrote encounter support
+#   - __init__() now initiates encounter
+#   - _encounter_soft/hard_ttl now global mx.DateTime.TimeDelta
+#   - added set_encounter_ttl()
+#   - added set_func_ask_user() for UI callback on "fairly recent"
+#     encounter detection
+#
+# Revision 1.72  2004/02/17 04:04:34  ihaywood
 # fixed patient creation refeential integrity error
 #
 # Revision 1.71  2004/02/14 00:37:10  ihaywood
