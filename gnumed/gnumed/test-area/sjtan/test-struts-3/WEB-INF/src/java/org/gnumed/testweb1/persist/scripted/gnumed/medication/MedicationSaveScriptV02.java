@@ -10,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,8 +40,7 @@ public class MedicationSaveScriptV02 extends MedicationSaveScriptV01 implements
 	 * @throws DataSourceException
 	 * @throws SQLException
 	 */
-public void setStatement(EntryMedication med, ClinRootInsert rootItemInserter, PreparedStatement stmt) throws DataSourceException, SQLException {
-		ensurePrescribedAfterStarted(med);
+protected void setStatement(EntryMedication med, ClinRootInsert rootItemInserter, PreparedStatement stmt) throws DataSourceException, SQLException {
 		int j = 1;
 		stmt.setString(++j, med.getBrandName());
 		stmt.setString(++j, med.getATC_code());
@@ -59,9 +57,7 @@ public void setStatement(EntryMedication med, ClinRootInsert rootItemInserter, P
 		stmt.setBoolean( ++j, med.isPRN());
 	//	stmt.setDate(++j, new java.sql.Date(med.getStart().getTime())); //deprecated
 		stmt.setDate(++j, new java.sql.Date(med.getLast().getTime()));
-		
 		stmt.setDate(++j,med.getDiscontinued() == null? null: new java.sql.Date( med.getDiscontinued().getTime()));
-		
 		rootItemInserter.setClinRootItemStatement(stmt, med, ++j); 
 		j=15;
 		stmt.setString(++j, "p");
@@ -78,7 +74,6 @@ public void setStatement(EntryMedication med, ClinRootInsert rootItemInserter, P
 		 
 		}
 	}
-
 	/**
 	 * @param rootItemInserter
 	 * @return

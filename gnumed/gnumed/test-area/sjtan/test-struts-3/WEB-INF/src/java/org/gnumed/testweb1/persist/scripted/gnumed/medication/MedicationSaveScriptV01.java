@@ -9,10 +9,7 @@ package org.gnumed.testweb1.persist.scripted.gnumed.medication;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.gnumed.testweb1.data.EntryMedication;
 import org.gnumed.testweb1.data.HealthSummary01;
 import org.gnumed.testweb1.persist.DataSourceException;
@@ -26,7 +23,6 @@ import org.gnumed.testweb1.persist.scripted.gnumed.MedicationSaveScript;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedicationFields {
-	static Log log= LogFactory.getLog(MedicationSaveScriptV01.class);
 	
  
 	/* (non-Javadoc)
@@ -39,7 +35,7 @@ public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedica
 		PreparedStatement stmt = conn.prepareStatement(s9);
 		
 		setStatement(med, rootItemInserter, stmt);
-        ensurePrescribedAfterStarted(med);      
+             
 		stmt.execute();
         conn.commit();
 	}
@@ -94,31 +90,5 @@ public class MedicationSaveScriptV01 implements MedicationSaveScript, ClinMedica
 					" , ? , ? , ? , ? , ?)";
 		return s9;
 	}
-
-	/**
-	 * @param med
-	 */
-	protected void ensurePrescribedAfterStarted(EntryMedication med) {
-		// TODO Auto-generated method stub
-		log.info("checking prescribed After started");
-		if (med.getClin_when() == null) {
-			med.setClin_when(new Date());
-			log.info("null in clin_when");
-		}
-		
-		if (med.getLast() == null) {
-			med.setLast(new Date());
-			log.info("null in last (last_prescribed)");
-		}
-		
-		if (med.getClin_when().getTime() > med.getLast().getTime()) {
-			Date d = med.getClin_when();
-			med.setClin_when(med.getLast());
-			med.setLast(d);
-			log.info("Swapped clin_when and last");
-		} 
-		med.setLast( new Date( med.getLast().getTime() + 1000 ));
-		log.info(" clin when and last_prescribed are " + med.getClin_when() +  
-		" and " + med.getLast() );
-	}
+ 
 }

@@ -10,8 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.gnumed.testweb1.data.Medication;
 import org.gnumed.testweb1.data.MedicationImpl1;
 import org.gnumed.testweb1.persist.scripted.gnumed.MedicationReadScript;
@@ -23,9 +21,9 @@ import org.gnumed.testweb1.persist.scripted.gnumed.MedicationReadScript;
  * Preferences - Java - Code Style - Code Templates
  */
 public class MedicationReadScriptV02 implements ClinMedicationFieldsV02,
- 
+
  MedicationReadScript {
-	Log log = LogFactory.getLog(MedicationReadScriptV02.class);
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -38,24 +36,10 @@ public class MedicationReadScriptV02 implements ClinMedicationFieldsV02,
 		m.setGenericName(set.getString(ClinMedicationFieldsV02.generic));
 		m.setDB_origin(set.getString(ClinMedicationFieldsV02.db_origin));
 		m.setDB_drug_id(set.getString(ClinMedicationFieldsV02.db_drug_id));
-//		ResultSet doses = set.getArray(ClinMedicationFieldsV02.dose)
-//				.getResultSet();
-//		if (doses.next()) {
-//			m.setConvertedDose(doses.getDouble(1));
-//		}
-		String doseStr = set.getString(ClinMedicationFieldsV02.dose);
-		if (doseStr.indexOf('{') == 0  && dose.endsWith("}") ) {
-			doseStr = doseStr.substring(1, doseStr.length() -2);
-			String[] doseStrings  = doseStr.split("\\s*, \\s*");
-			if (doseStrings.length > 0) {
-				try {
-				m.setConvertedDose(Double.parseDouble(doseStrings[0]));
-				} catch (Exception e) {
-					log.info("FAILED TO PARSE doseStr= " + doseStr ,e);
-				}
-			} else {
-				log.info("FAILED TO PARSE doseStr=" + doseStr );
-			}
+		ResultSet doses = set.getArray(ClinMedicationFieldsV02.dose)
+				.getResultSet();
+		if (doses.next()) {
+			m.setConvertedDose(doses.getDouble(1));
 		}
 		m.setDirections(set.getString(ClinMedicationFieldsV02.directions));
 		m.setLast(new Date(set.getTimestamp(
