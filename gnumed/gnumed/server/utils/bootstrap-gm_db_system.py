@@ -30,7 +30,7 @@ further details.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/utils/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -304,7 +304,7 @@ def db_exists(aDatabase):
 	_log.Log(gmLog.lInfo, "Database %s does not exist." % aDatabase)
 	return None
 #------------------------------------------------------------------
-bootstrap_core_database()
+bootstrap_core_database():
 	print "Bootstrapping GnuMed core database..."
 
 	global dbconn
@@ -388,7 +388,10 @@ else:
 	print "This currently isn't intended to be used as a module."
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.2  2002-11-01 13:56:05  ncq
+# Revision 1.3  2002-11-01 14:05:39  ncq
+# - typo
+#
+# Revision 1.2  2002/11/01 13:56:05  ncq
 # - now also installs the GnuMed core database "gnumed"
 #
 # Revision 1.1  2002/10/31 22:59:19  ncq
