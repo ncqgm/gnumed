@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -89,7 +89,7 @@ insert into vaccination (
 	(select i_id from v_basic_person where firstnames='Leonard' and lastnames='McCoy' and dob='1920-1-20'),
 	(select id from vaccine where trade_name='Tetasorbat SSW'),
 	(select id from vacc_def where
-		fk_indication = (select id from vacc_indication where description='tetanus')
+		fk_regime = (select id from vacc_regime where fk_indication=(select id from vacc_indication where description='tetanus'))
 			and
 		is_booster = true
 	),
@@ -141,7 +141,10 @@ insert into allergy_state (
 commit;
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.5  2003-11-23 23:35:11  ncq
+-- Revision 1.6  2003-11-27 00:18:47  ncq
+-- - vacc_def links to vacc_regime now
+--
+-- Revision 1.5  2003/11/23 23:35:11  ncq
 -- - names.title -> identity.title
 --
 -- Revision 1.4  2003/11/16 19:32:17  ncq
