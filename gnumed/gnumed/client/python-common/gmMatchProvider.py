@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.8 2003-11-20 01:37:05 sjtan Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmMatchProvider.py,v 1.9 2003-11-20 02:16:03 sjtan Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -44,7 +44,7 @@ class cMatchProvider:
 		self.setThresholds()
 		self.setWordSeparators()
 		self.setIgnoredChars()
-		self.__context_val = {}
+		self._context_val = {}
 	#--------------------------------------------------------
 	# actions
 	#--------------------------------------------------------
@@ -192,7 +192,7 @@ class cMatchProvider:
 		can pass a fixed value, in which case it is nt called,
 		but used in context as is (i.e a constant context)
 		"""
-		self.__context_val[name] = val
+		self._context_val[name] = val
 #------------------------------------------------------------
 # usable instances
 #------------------------------------------------------------
@@ -407,11 +407,11 @@ class cMatchProvider_SQL(cMatchProvider):
 				# loop over name and condition for contexts
 				for ctxt_name, ctxt_condition in src['extra conditions'].iteritems():
 					# value known for this context condition ?
-					if self.__context_val.has_key(ctxt_name) and self.__context_val[ctxt_name]:
+					if self._context_val.has_key(ctxt_name) and self._context_val[ctxt_name]:
 						# add context condition
 						ctxt_where += " and (%s)" % ctxt_condition
 						# remember value for condition
-						values.append(self.__context_val[ctxt_name])
+						values.append(self._context_val[ctxt_name])
 			# do we have any contexts that always apply ?
 			if src['extra conditions'].has_key('default'):
 				ctxt_where += " and (%s)" % src['extra conditions']['default']
@@ -453,7 +453,12 @@ class cMatchProvider_SQL(cMatchProvider):
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.8  2003-11-20 01:37:05  sjtan
+# Revision 1.9  2003-11-20 02:16:03  sjtan
+#
+# make __context_val  in base class gmMatchProvider protected instead of class private, so subclasses can
+# access it.
+#
+# Revision 1.8  2003/11/20 01:37:05  sjtan
 #
 # syntax correction.
 #
