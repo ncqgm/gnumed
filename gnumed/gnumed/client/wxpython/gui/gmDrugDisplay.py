@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #############################################################################
 #
 # gmDrugDisplay_RT  Feedback: anything which is incorrect or ambiguous please
@@ -30,6 +30,9 @@
 #        Need config file with:
 #        HTML font options for heading, subheading, subsubheading etc
 ############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDrugDisplay.py,v $
+# $Id: gmDrugDisplay.py,v 1.8 2003-02-09 10:19:44 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 
 #===========================================================================
 # firstly in wxPython you have to import any modules we want to use, here
@@ -559,10 +562,8 @@ else:
 
 		def GetWidget (self, parent):
 			return DrugDisplay (parent, -1)
-
-
-
-
-
-
-
+#===========================================================================
+# $Log: gmDrugDisplay.py,v $
+# Revision 1.8  2003-02-09 10:19:44  ncq
+# - cvs metadata keywords
+#
