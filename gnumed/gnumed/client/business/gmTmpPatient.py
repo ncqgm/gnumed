@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.16 2003-04-19 22:54:46 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmTmpPatient.py,v 1.17 2003-04-25 12:58:58 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -461,21 +461,44 @@ def create_patient(data):
 	- not None: either newly created patient or existing patient
 	- None: failure
 	"""
+	# sanity checks
+	try:
+		if not data.has_key('lastnames'):
+			_log.Log(gmLog.lErr, "need last name")
+			return None
+	except:
+		_log.LogException('wrong data structure: %s' % data, sys.exc_info())
+		return None
+	if not data.has_key('firstnames'):
+		_log.Log(gmLog.lErr, "need first name")
+		return None
+
 	backend = gmPG.ConnectionPool()
 	roconn = backend.GetConnection('personalia')
 	if roconn is None:
 		_log.Log(gmLog.lPanic, "Cannot connect to database.")
 		return None
 
-	# patient already in database ?
-	try:
-		cmd = "SELECT exists(SELECT i_id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s');" % (data['first name'], data['last name'], data['dob'])
-	except KeyError:
-		_log.LogException('argument structure wrong: %s' % data, sys.exc_info())
-		return None
+	possible_where_fields = (
+		'title',
+		'firstnames',
+		'lastnames',
+		'dob',
+		'cob',
+		'gender'
+	)
 
 	rocurs = roconn.cursor()
 
+	# create where clause
+	where_fragments = []
+	for key in data.keys():
+		if key in possible_where_fields:
+			where_fragments.append("%s='%s'" % (key, data[key]))
+	where_clause = string.join(where_fragments, ' AND ')
+
+	# check for patient
+	cmd = "SELECT exists(SELECT i_id FROM v_basic_person WHERE %s);" % where_clause
 	if not gmPG.run_query(rocurs, cmd):
 		_log.Log(gmLog.lErr, 'Cannot check for patient existence.')
 		rocurs.close()
@@ -485,12 +508,6 @@ def create_patient(data):
 
 	# insert new patient
 	if not pat_exists:
-		cmd =  "INSERT INTO v_basic_person (firstnames, lastnames, dob) \
-				VALUES ('%s', '%s', '%s');" % (
-					data['first name'],
-					data['last name'],
-					data['dob']
-				)
 		rwconn = backend.GetConnection('personalia', readonly = 0)
 		if rwconn is None:
 			_log.Log(gmLog.lPanic, "Cannot connect to database.")
@@ -499,6 +516,16 @@ def create_patient(data):
 			return None
 		rwcurs = rwconn.cursor()
 
+		field_fragments = []
+		value_fragments = []
+		for key in data.keys():
+			if key in possible_where_fields:
+				field_fragments.append("%s" % key)
+				value_fragments.append("'%s'" % data[key])
+		field_clause = string.join(field_fragments, ',')
+		value_clause = string.join(value_fragments, ',')
+
+		cmd =  "INSERT INTO v_basic_person (%s) VALUES (%s);" % (field_clause, value_clause)
 		if not gmPG.run_query(rwcurs, cmd):
 			_log.Log(gmLog.lErr, 'Cannot insert patient.')
 			_log.Log(gmLog.lErr, data)
@@ -517,17 +544,22 @@ def create_patient(data):
 		_log.Log(gmLog.lData, 'patient already in database')
 
 	# get patient ID
-	cmd = "SELECT i_id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND date_trunc('day', dob)='%s';" % (data['first name'], data['last name'], data['dob'])
+	cmd = "SELECT i_id FROM v_basic_person WHERE %s LIMIT 2;" % where_clause
 	if not gmPG.run_query(rocurs, cmd):
 		rocurs.close()
 		backend.ReleaseConnection('personalia')
 		return None
-	pat_id = rocurs.fetchone()[0]
+	result = rocurs.fetchall()
+	if len(result) > 1:
+		_log.Log(gmLog.lErr, "data matches more than one patient, aborting")
+		_log.Log(gmLog.lData, data)
+		return None
+	pat_id = result[0][0]
 
 	rocurs.close()
 	backend.ReleaseConnection('personalia')
 
-	_log.Log(gmLog.lData, 'patient ID: %s' % pat_id)
+	_log.Log(gmLog.lData, 'patient ID [%s]' % pat_id)
 
 	# and init new patient object
 	try:
@@ -563,7 +595,10 @@ if __name__ == "__main__":
 		print "fails  ", myPatient['missing handler']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.16  2003-04-19 22:54:46  ncq
+# Revision 1.17  2003-04-25 12:58:58  ncq
+# - dynamically handle supplied data in create_patient but added some sanity checks
+#
+# Revision 1.16  2003/04/19 22:54:46  ncq
 # - cleanup
 #
 # Revision 1.15  2003/04/19 14:59:04  ncq
