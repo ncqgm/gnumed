@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.19 2004-03-04 19:46:53 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmPatient.py,v 1.20 2004-03-07 23:52:32 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -140,6 +140,18 @@ class gmPerson:
 			return None
 		return self.__db_cache['demographic record']
 	#--------------------------------------------------------
+	def get_document_folder(self):
+		if self.__db_cache.has_key('document folder'):
+			return self.__db_cache['document folder']
+		try:
+			# FIXME: we need some way of setting the type of backend such that
+			# to instantiate the correct type of document folder class
+			self.__db_cache['document folder'] = gmMedDoc.cDocumentFolder(aPKey = self.__ID)
+		except StandardError:
+			_log.LogException('cannot instantiate document folder for person [%s]' % self.__ID, sys.exc_info())
+			return None
+		return self.__db_cache['document folder']
+	#--------------------------------------------------------
 	def _get_API(self):
 		API = []
 		for handler in gmPerson._get_handler.keys():
@@ -231,6 +243,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 	def get_demographic_record(self):
 		return self.patient.get_demographic_record()
+
+	def get_document_folder(self):
+		return self.patient.get_document_folder()
 
 	def get_ID(self):
 		if self.patient is None:
@@ -797,7 +812,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.19  2004-03-04 19:46:53  ncq
+# Revision 1.20  2004-03-07 23:52:32  ncq
+# - get_document_folder()
+#
+# Revision 1.19  2004/03/04 19:46:53  ncq
 # - switch to package based import: from Gnumed.foo import bar
 #
 # Revision 1.18  2004/02/25 09:46:20  ncq
