@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.19 2005-03-30 18:59:03 cfmoro Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmEMRBrowser.py,v 1.20 2005-03-30 22:10:07 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -135,13 +135,13 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Dump EMR to file."""
 		# get file name
 		# - via file select dialog		
-		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("ascii files"), _("all files"))
+		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
 		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
 		dlg = wx.wxFileDialog(
 			parent = self,
 			message = _("Save patient's EMR as..."),
 			defaultDir = aDefDir,
-			defaultFile = '%s.txt' % self.__pat.get_identity()['description'],
+			defaultFile = '%s-%s.txt' % (_('emr-export'), self.__pat.get_identity()['description']),
 			wildcard = aWildcard,
 			style = wx.wxSAVE
 		)
@@ -149,12 +149,12 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		fname = dlg.GetPath()
 		dlg.Destroy()
 		if choice == wx.wxID_OK:
+			self.__exporter.set_patient(self.__pat)
 			_log.Log(gmLog.lData, 'selected [%s]' % fname)
 			gmGuiHelpers.gm_show_info('EMR dump code coming soon...', _('emr dump'), gmLog.lWarn)
 	#--------------------------------------------------------
 	def _on_patient_selected(self):
 		"""Patient changed."""
-		self.__exporter.set_patient(self.__pat)
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def __on_episodes_modified(self):
@@ -168,7 +168,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		# retrieve the selected EMR element
 		sel_item = event.GetItem()
-		sel_item_obj = self.get_EMR_item(sel_item)
+		sel_item_obj = self.__emr_tree.GetPyData(sel_item)
 		self.__selected_node = sel_item
 
 		self.__display_narrative_on_right_pane()
@@ -195,9 +195,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__narr_TextCtrl.Clear()
 		self.__narr_TextCtrl.WriteText(header)
 		self.__narr_TextCtrl.WriteText(txt)
-
-		# update popup menu
-#		self.popup.SetPopupContext(sel_item)
 	#--------------------------------------------------------
 	def __on_tree_item_right_clicked(self, event):
 		"""
@@ -206,7 +203,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# FIXME: should get the list item at the current position
 		# FIXME: should then update the context
 #		sel_item = event.GetItem()
-#		self.popup.SetPopupContext(sel_item)
 #		self.PopupMenu(self.popup, (event.GetX(), event.GetY()))
 
 		node = event.GetItem()
@@ -259,7 +255,9 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# Expand root node and display patient summary info
 		self.__emr_tree.Expand(root_item)
-		self.__narr_TextCtrl.WriteText(_('Summary\n=======\n\n'))
+		label = _('Summary')
+		underline = '=' * len(label)
+		self.__narr_TextCtrl.WriteText('%s\n%s\n\n' % (label, underline))
 		self.__narr_TextCtrl.WriteText(self.__exporter.dump_summary_info(0))
 
 		# Set sash position
@@ -268,15 +266,15 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# FIXME: error handling
 		return True
 	#--------------------------------------------------------
-	def get_EMR_item(self, selected_tree_item):
-		"""
-		Retrieved the EMR struct item associated with the given
-		tree node.
-		
-		@param selected_tree_item The tree node to retrieve its data model for.
-		@type selected_tree_item A wxTreeItemId instance
-		"""
-		return self.__emr_tree.GetPyData(selected_tree_item)
+#	def get_EMR_item(self, selected_tree_item):
+#		"""
+#		Retrieved the EMR struct item associated with the given
+#		tree node.
+#		
+#		@param selected_tree_item The tree node to retrieve its data model for.
+#		@type selected_tree_item A wxTreeItemId instance
+#		"""
+#		return self.__emr_tree.GetPyData(selected_tree_item)
 	#--------------------------------------------------------
 	def get_selection(self):
 		"""
@@ -467,7 +465,8 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		"""
 		emr = gmPerson.gmCurrentPatient().get_clinical_record()
 		encounter = self.__sel_item_obj
-		episode = self.__browser.get_EMR_item(self.__browser.get_item_parent(self.__browser.get_selection()))
+		item = self.__browser.get_item_parent(self.__browser.get_selection())
+		episode = self.__emr_tree.GetPyData(item)
 		narrative = self.__get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
 		problem = emr.get_problems(issues = [episode['pk_health_issue']], episodes=[episode['pk_episode']])[0]
 		self.__browser.SetCustomRightWidget(gmSOAPWidgets.cResizingSoapPanel(self.__browser, problem = problem,
@@ -648,7 +647,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.19  2005-03-30 18:59:03  cfmoro
+# Revision 1.20  2005-03-30 22:10:07  ncq
+# - just cleanup
+#
+# Revision 1.19  2005/03/30 18:59:03  cfmoro
 # Added file selector dialog to emr dump callback function
 #
 # Revision 1.18  2005/03/30 18:14:56  cfmoro
