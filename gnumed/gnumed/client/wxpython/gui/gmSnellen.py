@@ -234,6 +234,12 @@ class SnellenChart (wxFrame):
         self.rect (2, 0, 3, 5)
         self.rect (0, 2, 5, 3)
 
+    def box (self):
+        self.rect (0, 0, 5, 1)
+        self.rect (0, 4, 5, 5)
+        self.rect (0, 1, 1, 4)
+        self.rect (4, 1, 5, 4)
+
     def star (self):
         """
         Star of 5 points
@@ -264,7 +270,7 @@ class SnellenChart (wxFrame):
     cyrillic = [A, delta, E, BackN,
                K, M, H, O, pi,
                T, C, X]
-    symbol = [O, cross, star]
+    symbol = [O, cross, star, box]
     alphabets = {_("Latin"):latin, _("Greek"):greek,
                  _("Cyrillic"):cyrillic, _("Four Es"):fourE,
                  _("Symbol"):symbol}
