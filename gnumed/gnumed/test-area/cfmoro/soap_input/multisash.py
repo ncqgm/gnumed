@@ -6,12 +6,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: multisash.py,v 1.7 2005-02-21 10:20:46 cfmoro Exp $
+# RCS-ID:		$Id: multisash.py,v 1.8 2005-02-21 10:31:11 cfmoro Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/cfmoro/soap_input/Attic/multisash.py,v $
-# $Id: multisash.py,v 1.7 2005-02-21 10:20:46 cfmoro Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: multisash.py,v 1.8 2005-02-21 10:31:11 cfmoro Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "cfmoro"
 __license__ = "GPL"
 	   
@@ -31,7 +31,7 @@ class cMultiSash(wxWindow):
 	"""	
 	def __init__(self, *_args,**_kwargs):
 		apply(wxWindow.__init__,(self,) + _args,_kwargs)
-		self._defChild = EmptyChild
+		#self._defChild = cEmptyChild
 		self.child = cMultiSashSplitter(self,self,wxPoint(0,0),self.GetSize())
 		
 		# Gnumed: focused and bottom leaf
@@ -40,9 +40,9 @@ class cMultiSash(wxWindow):
 		
 		EVT_SIZE(self,self.OnMultiSize)
 
-	def SetDefaultChildClass(self,childCls):
-		self._defChild = childCls
-		self.child.DefaultChildChanged()
+	#def SetDefaultChildClass(self,childCls):
+	#	self._defChild = childCls
+	#	self.child.DefaultChildChanged()
 
 	def OnMultiSize(self,evt):
 		self.child.SetSize(self.GetSize())
@@ -180,9 +180,9 @@ class cMultiSashSplitter(wxWindow):
 		if self.view2:
 			self.view2.UnSelect()
 
-	def DefaultChildChanged(self):
-		if not self.view2:
-			self.view1.DefaultChildChanged()
+	#def DefaultChildChanged(self):
+	#	if not self.view2:
+	#		self.view1.DefaultChildChanged()
 	#---------------------------------------------
 	def AddLeaf(self,direction,caller,pos):		
 		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
@@ -231,7 +231,8 @@ class cMultiSashSplitter(wxWindow):
 
 	def DestroyLeaf(self,caller):
 		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))
-		if not self.view2:				# We will only have 2 windows if
+		if not self.view2:
+			self.view1.set_content(cEmptyChild(self))	# We will only have 2 windows if
 			return						# we need to destroy any
 		parent = self.GetParent()		# Another splitview
 		if parent == self.multiView:	# We'r at the root
@@ -430,7 +431,7 @@ class cMultiSashLeaf(wxWindow):
 		# Gnumed: Disable creators until obvious solution
 		#self.creatorHor = cMultiCreator(self,MV_HOR)
 		#self.creatorVer = cMultiCreator(self,MV_VER)
-		self.detail = cMultiSashLeafContent(self,multiView._defChild)
+		self.detail = cMultiSashLeafContent(self)
 		self.closer = cMultiCloser(self)
 
 		EVT_SIZE(self,self.OnSize)
@@ -449,8 +450,8 @@ class cMultiSashLeaf(wxWindow):
 	def UnSelect(self):
 		self.detail.UnSelect()
 
-	def DefaultChildChanged(self):
-		self.detail.SetNewChildCls(self.multiView._defChild)
+	#def DefaultChildChanged(self):
+	#	self.detail.SetNewChildCls(self.multiView._defChild)
 		
 	#-----------------------------------------------------		
 	def set_content(self, content):
@@ -483,7 +484,7 @@ class cMultiSashLeaf(wxWindow):
 			if pos > w - 10: return (False, 1)
 		# Gnumed: when initial leaf, replace its content widget and focus it
 		#		 else, add a new leaf
-		if not isinstance(self.detail.child, EmptyChild):
+		if not isinstance(self.detail.child, cEmptyChild):
 			self.GetParent().AddLeaf(direction,self,pos)
 		else:
 			self.set_focus()
@@ -547,13 +548,13 @@ class cMultiSashLeafContent(wxWindow):
 	"""
 	Widget that encapsulate contents of a leaf or split window.
 	"""	
-	def __init__(self,parent,childCls):
+	def __init__(self,parent):
 		w,h = self.CalcSize(parent)
 		wxWindow.__init__(self,id = -1,parent = parent,
 						  pos = wxPoint(0,0),
 						  size = wxSize(w,h),
 						  style = wxCLIP_CHILDREN | wxSUNKEN_BORDER)
-		self.child = childCls(self)
+		self.child = cEmptyChild(self)
 		self.child.MoveXY(2,2)
 		self.normalColour = self.GetBackgroundColour()
 		self.selected = False
@@ -593,12 +594,12 @@ class cMultiSashLeafContent(wxWindow):
 		w,h = self.GetClientSizeTuple()
 		self.child.SetSize(wxSize(w-4,h-4))
 
-	def SetNewChildCls(self,childCls):
-		if self.child:
-			self.child.Destroy()
-			self.child = None
-		self.child = childCls(self)
-		self.child.MoveXY(2,2)
+	#def SetNewChildCls(self,childCls):
+	#	if self.child:
+	#		self.child.Destroy()
+	#		self.child = None
+	#	self.child = childCls(self)
+	#	self.child.MoveXY(2,2)
 		
 	#-----------------------------------------------------		
 	def set_new_content(self,content):
@@ -886,7 +887,7 @@ class cMultiCloser(wxWindow):
 #----------------------------------------------------------------------
 
 
-class EmptyChild(wxWindow):
+class cEmptyChild(wxWindow):
 	def __init__(self,parent):
 		wxWindow.__init__(self,parent,-1, style = wxCLIP_CHILDREN)
 
@@ -941,7 +942,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: multisash.py,v $
-# Revision 1.7  2005-02-21 10:20:46  cfmoro
+# Revision 1.8  2005-02-21 10:31:11  cfmoro
+# Display empty child when removing first leaf. Some clean ups
+#
+# Revision 1.7  2005/02/21 10:20:46  cfmoro
 # Class renaming
 #
 # Revision 1.6  2005/02/17 17:28:14  cfmoro
