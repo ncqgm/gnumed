@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -327,11 +327,11 @@ class cDocTree(wxTreeCtrl):
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
-	# FIXME !! - need to take care of new gmCurrentPatient() stuff
-
 	import gmLoginInfo
 	import gmXdtObjects
 	from gmXdtMappings import xdt_gmgender_map
+
+	wxID_btn_quit = wxNewId()
 
 	class cStandalonePanel(wxPanel):
 
@@ -410,9 +410,20 @@ if __name__ == '__main__':
 			self.tree.update()
 			self.tree.SelectItem(self.tree.root)
 
+			# buttons
+			btn_quit = wxButton(
+				parent = self,
+				id = wxID_btn_quit,
+				label = _('Quit')
+			)
+			EVT_BUTTON (btn_quit, wxID_btn_quit, self.__on_quit)
+			szr_buttons = wxBoxSizer(wxHORIZONTAL)
+			szr_buttons.Add(btn_quit, 0, wxALIGN_CENTER_VERTICAL, 1)
+
 			szr_main = wxBoxSizer(wxVERTICAL)
 			szr_main.Add(self.pat_panel, 0, wxEXPAND, 1)
 			szr_main.Add(self.tree, 1, wxEXPAND, 9)
+			szr_main.Add(szr_buttons, 0, wxEXPAND, 1)
 
 			self.SetAutoLayout(1)
 			self.SetSizer(szr_main)
@@ -440,6 +451,10 @@ if __name__ == '__main__':
 				return None
 
 			return 1
+		#--------------------------------------------------------
+		def __on_quit(self, evt):
+			app = wxGetApp()
+			app.ExitMainLoop()
 		#--------------------------------------------------------
 		def __show_error(self, aMessage = None, aTitle = ''):
 			# sanity checks
@@ -530,7 +545,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.18  2003-04-18 16:40:04  ncq
+# Revision 1.19  2003-04-18 17:45:05  ncq
+# - add quit button
+#
+# Revision 1.18  2003/04/18 16:40:04  ncq
 # - works again as standalone
 #
 # Revision 1.17  2003/04/04 20:49:22  ncq
