@@ -1,0 +1,296 @@
+<HTML
+><HEAD
+><TITLE
+>Appointment book</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
+REL="HOME"
+TITLE="GNUMed"
+HREF="index.html"><LINK
+REL="UP"
+TITLE=" Design "
+HREF="c216.html"><LINK
+REL="PREVIOUS"
+TITLE="Main Toolbar"
+HREF="x466.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>GNUMed: </TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x466.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 5. Design</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN497"
+></A
+>5.7. Appointment book</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN499"
+></A
+>5.7.1. Functionality</H2
+><P
+>The appointment book is aimed for front-desk staff.  It allows to
+		make, edit and cancel appointments.
+		The doctors can view the appointment list too (who is in the waiting room?)
+		or give appointments without interfering with the receptionists. It can be
+		used as a time tracking tool, too as it allows to keep track of when a patient
+		</P
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>has booked</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>for when he has been booked</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>when the patient arrived</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>when and how long the patient has been seen</P
+></LI
+></UL
+><P
+>		It also can fill in as a interface towards the billing package.
+    		</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN512"
+></A
+>5.7.2. The "schedule widget"</H2
+><P
+>		Central unit of the appoinment book is the schedule widget - a spreadsheet
+		like GUI control. Within the appointment book framework, any number of schedules
+		can be displayed simultaneously (for example one for each doctor in a practice).
+		Date selection controls in the framework sterr all schedule widgets simultaneously
+		- taht allows to quickly page through the weeks to see which doctor could
+		still fit a patient in.
+		</P
+><P
+>"Today" is marked yellow, weekend days pink, and days where a doctor is
+		not available are marked in grey. Of course, all colours are configurable.</P
+><P
+>Data entry is simple &#38; efficient: after selecting a vacant time slot
+		, one starts typing a few characters of a surname; if there might be many
+		patients with the same surname, one can enter a few characters of a given
+		name too, separated by a space. If the appointment should be longer than
+		standard, keying in a '+' for each pre-defined increment will do the trick.
+		 On Enter, a small dialogue pops up and takes obver the cursor. It displays
+		all matches from the patient data base (matching surname fraction and optionally
+		given name fraction), the cursor is already positioned on the first entry.
+		Enter confirms, cursor keys move the selection, Alt-n allows to enter a new
+		patient. Thus, in the most common cse the appointment is made with 5-6 keystrokes
+		: 2 first characters of the surname, 2 first characters of the given name,
+		Enter.
+		</P
+><P
+><IMG
+SRC="snapshots/schedule-mono.png"></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN520"
+></A
+>5.7.3. Calendar navigation</H2
+><P
+>A few convenience buttons allow navigation between weeks and months around
+		    the current date with a single keystroke or mouse click. For more demanding
+		    date entry, a calendar popup is provided. Alt+c pops it up, cursor keys select,
+		    enter confirms. alternatively, the mouse can be used.
+		    </P
+><P
+><IMG
+SRC="snapshots/schedule.png"></P
+><P
+>		    This images displays two doctors simultaneously. Any number of doctors can
+		    be displayed, provided the screen is large enough for satisfactory visualization.
+		    Alternatively, each schedule widget has a combo box on top which allows to
+		    select any doctor available.
+		    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN527"
+></A
+>5.7.4. Context sensitive popup menus</H2
+><P
+><IMG
+SRC="snapshots/appointment-popup-menu.png"></P
+><P
+>		    By right clicking a cell (or typing Alt-o) a popup menu will offer a few
+		    choices what else we can do with the booked patient. This is expandable via
+		    plugin architecture.
+    	    	    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN533"
+></A
+>5.7.5. TO DO:</H2
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>testing</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>write proper documentation</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>popup menu functions not implemented yet</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>new patient dialog not implemented yet</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>billing package needs to be written</P
+></LI
+><LI
+STYLE="list-style-type: opencircle"
+><P
+>printing</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x466.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Main Toolbar</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c216.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

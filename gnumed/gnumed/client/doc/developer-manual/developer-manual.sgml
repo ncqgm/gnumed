@@ -1639,7 +1639,9 @@ should be del()ed after use, actually
 		</orderedlist>
     	    </sect2>
     	</sect1>	
-	
+
+
+
 	<sect1>
 	<title>FAQ</title>
     	<para>
@@ -1660,13 +1662,13 @@ via distributed services.
 etc.
 
 Sometimes, this happens on a smaller scale like within a hospital where 
-hey already have successfully implemented some of these services, they 
+they already have successfully implemented some of these services, they 
 are running smoothly, and they find no reason to pull it apart again. 
 GNUMed will shine in such an environment because it will be far easier 
 to integrate into such existing solutions than other software.
 
 Thus we try to find out which "services" are relatively independent from 
-  others, and isolate them into particular "virtual" databases. That 
+others, and isolate them into particular "virtual" databases. That 
 way, it will be magnitudes easier to write simple wrappers for external 
 sources and use them.
 
@@ -1707,7 +1709,338 @@ the issues better than me.
 
 	<sect1>
 	    <title>GUI design</title>
-	    <para>TODO</para>
+
+    	    <sect2>
+		<title>General</title>
+	    	<para> (Taken from Richards Terry´s Design Philosophy at www.gnumed.net/rterry)</para>
+		<itemizedlist mark=opencircle>
+		   <listitem><para>Uncluttered screen without wasting screen real estate.</para></listitem>
+		   
+		   <listitem><para>Pleasant, aesthetic view.</para></listitem>
+		   
+		   <listitem><para>As few as possible pop-up elements; static screen elements should be given preference.</para></listitem>
+
+		    <listitem><para>
+		      As few as possible modal forms. Data belonging together should be on the same visual plane. Peripheral information should not distract the attention attention.
+		    </para></listitem>
+
+		    <listitem><para>
+		      Core information (eg medications, tasks to do during consultations, recalls etc) should be visible while working in different sections.  		      
+		    </para></listitem>
+
+		    <listitem><para>Use of colors to highlight and separate information. The use of colors should be customizable.
+		    </para></listitem>
+
+		    <listitem><para>
+		    Data entry and presentation should follow a recurring pattern. The same type of information should be displayed and entered at the same place in different sections where possible.
+		    </para></listitem>
+
+		    <listitem><para>
+		      Program control: Primarily keyboard oriented control, every action should be accessible via keyboard shortcuts
+		      Mouse oriented control must be possible, too.
+		    </para></listitem>
+		    <listitem><para>Ease of use:
+		      Only very few steps to find an option. Key strokes should be kept to a minimum.key strokes should be kept to a minimum,
+		      there should be no heavy reliance on menu's. 
+    	    	    </para></listitem>
+		    <listitem><para>Customizability: The program should provide the user with timely and appropriate information in his style and language. 
+		    </para></listitem>
+		    <listitem><para>Contextual and weighted data presentation: If possible, information should be presented in a weighted and contextual fashion. Statistics about information use should be collected in these cases.
+		    </para></listitem>
+
+		  </itemizedlist>
+
+
+    	    	<sect3>
+		    <title>Date Entry Paradigm - The Editing Area</title> 
+		    <para>Medical information usually can be presented as groups of 4-10 parameters. 
+		    It is therefore possible to come up with a gui design for data entry where 
+		      all segments of a medical records program use the same format of data input. 
+		    In GnuMed this fact is reflected by a graphic 
+		      design that is called the 'editing area'. 
+		    </para>
+
+		    <para>The area of the screen where data is entered (`editing area´) will be implemented as an widget which can be customized to the various groups of medical information. </para>
+		      <para>This editing area does not 'pop up' in a window. It stays in the same place 
+		      on the screen but changes appearance according to the type of data the user 
+		      is entering.</para>
+		    <para> Because it looks and functions the same, no matter 
+		      what category of data is being entered, there is no need to for the user to 
+		      learn how to use multiple sections of a program, no need to have multiple different 
+		      designs of pop up dialogs as is common in most medical programs.</para>
+		    <para>In addition, as a programmer will quickly realise, 
+		      it can lead to a reduction in computer code needed to generate the display and 
+		      call in information from the database for contextual display, as generic subroutines 
+		      can be developed to work across all sections of medical information. </para>
+		    <para>In most sections of the program the user enters 
+		      very little information as most of it will be 'autofilled' in by the program. In GnuMed, The 
+		      context of the editing area can be called from a button bar. </para>
+		  
+		    <para>In the following there are shown some examples of it's implementation. 
+		      These screen dumps have been taken from an already functional VisualBasic-based medical records program written by Richard Terry. 
+		      The graphical interface of GnuMed will be quite similiar to that of some of the examples shown.
+		      First examples of variations of the editing area, followed by screen 
+		      dumps of the whole program, accompanied by comments by Richard Terry.</para>
+    	    	</sect3>
+		
+		<sect3>
+		    <title>Full Screen Design</title>
+		    <para>The following is the rough 
+		      template used for designing the whole screen. The proportions are roughly 
+		      shown below.</para>
+		    <para>
+		      Though the area designated 
+		      for the tab control (which contains lists for medications, pathology, referral 
+		      letters, recalls etc) may seem small, in practice it works well. There is enough 
+		      room here for eg 10-14 medications and if filled, that in itself would indicate 
+		      the patient was probably suffering from poly-pharmacy!. Other lists eg pathology 
+		      are viewed in decending order, ie most recent to least recent, and are usually 
+		      able to be sorted by date/type of request etc hence information is easily seen 
+		      or quickly found. Just how many requests/referrals/recalls does the average 
+		      patient have in year anyway, usually very few.</para>
+		    <para>The 'scratch pad' area I've found immensely useful. 
+		      The doctor enters free hand text here for those little reminders one needs which 
+		      may not be 'medical reminders' or could be personal memory joggers for the doctor.</para>
+		    <para>The lower right hand area contains any outstanding 
+		      reviews/recalls which are presented as the recall name and months due/overdue.</para>
+		    <para>The size of the left hand rectangle (which here 
+		      contains the editing area and some lists) is large enough and proportionately 
+		      sized enough to display a variety of information e.g. referral letter text, 
+		      pathology results, imaging results, graphs with decision support. I.e, one could 
+ clicking on the drug display 
+		      its product information, or if browsing the pathology list display the results 
+		      of a test in this area</para>
+		    <para>The editing area always occupies the central portion 
+		      of this area and changes display according to the section of the program one 
+		      is working on, although it may at times be temporarily covered by a display 
+		      which uses the whole of this left hand pane.</para>
+		    <para>The best way to see how this all works is to view 
+		      the screen dumps shown on the following pages.</para>
+		    <screenshot><graphic fileref="snapshots/Full%20screen%20-%20general%20description.png"></graphic>
+		    </screenshot>		
+		</sect3>
+    	    </sect2>
 	</sect1>
+
+    	<sect1>
+	    <title>Login Screen</title>
+	    <sect2>
+		<title>Short description</title>
+
+    		<para>
+		User authentication , possibility to choose login options.
+		</para>
+
+    	    </sect2>
+
+	    <sect2>
+		<title>Data Shown/Accessible</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>user name [free text]</para></listitem>
+		    <listitem><para>user password [free text]</para></listitem>
+		    <listitem><para>GnuMed database name [free text, choose from list]</para></listitem>
+		    <listitem><para>GnuMed database host name [free text, choose from list]</para></listitem>
+		    <listitem><para>GnuMed database host port [free text, choose from list]</para></listitem>
+		    <listitem><para>GnuMed database options [free text, choose from list]</para></listitem>
+		</itemizedlist>
+    	    </sect2>
+
+	    <sect2>
+		<title>Functionality</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>Get user name and password</para></listitem>
+		    <listitem><para>Change GnuMed database options (database name, host, port of database server, database options)</para></listitem>
+		    <listitem><para>Try to start GnuMed using the given user and options.</para></listitem>
+		    <listitem><para>Remember the user/options used at the last login attempt.</para></listitem>
+		</itemizedlist>
+    	    </sect2>
+
+	    <sect2>
+		<title>Internals / Additional Information</title>
+		<para>
+		GNUMeds design allow connection to arbitrary servers. The server of choice is simply
+		entered into the "host" text entry field. This is handy to connect to a replicated backup server in case
+		of a failure of the primary server. It also allows to replicate the database onto the workstation
+		and work separated from the net. As we are using TCP/IP (with optional SSL/TL secure protocol layers,
+		the server can be located anywhere in the world. This allows for example a doctor to access a visiting patient's
+		health record without importing / exporting data first. It also allows for centralized  record keeping in
+		practices with multiple locations, or it allows a doctor to access his records from home.
+		</para>
+
+		<para>
+		After entering the password and hitting enter (or after clicking onto the login button), the client attempts
+		a server backend connection. If successful, the connection is logged and the GnuMed main screen displayed. The users
+		preferences are loaded and the client configured accordingly. This can involve a complete reconfiguration
+		of the client user interface. As the client remembers the last state before
+		it was closed the last time, no configuration will be neccessary (unless it involves confidential settings)
+		if always the same user uses this particular workstation.
+		</para>
+
+		<para>
+		After a succesful login (and succesful user configuration) the first page of the notebook is opened automatically
+		and the cursor is placed inthe "patient selector" search expression combo box, ready to search for a specific patient.
+		</para>
+
+    	    </sect2>
+
+    	</sect1>
+
+    	<sect1>
+	<title>Main Toolbar</title>
+
+	    <sect2>
+		<title>Short Description</title>
+
+    		<para>
+		Toolbar which is always present and holds menus, icons to change tools and generally important information.
+		</para>
+
+    	    </sect2>
+
+	    <sect2>
+		<title>Data Shown/Accessible</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>Menus of all notebook pages / tools etc [scroll down menus]</para></listitem>
+		    <listitem><para>Tool bar specific to the current module (notebook page) [icons]</para></listitem>
+		    <listitem><para>Generally important information specific to the current module such as patient photo, name, allergies in the 'patient' module [various]</para></listitem>			
+		</itemizedlist>
+    	    </sect2>
+
+	    <sect2>
+		<title>Functionality</title>
+		<itemizedlist mark=opencircle>
+		    <listitem><para>Hold all menus.</para></listitem>
+		    <listitem><para>Hold tool icons and generally important information specific to the current module</para></listitem>
+		</itemizedlist>
+    	    </sect2>
+
+    	    <sect2>
+	    <title>Internals / Additional Information</title>
+	    <para>
+	    <emphasis>The patient photo:</emphasis> if available, the most recent photograph of the patient will be displayed.
+	    Clicking on the photograph will open the patient details notebook page below. A right click will reveal
+	    a menu allowing to browse other photographs of this patient.
+	    </para>
+
+	    <para>
+	    <emphasis>Personal details</emphasis>: The most important items from the personal details of the patient. Configurable.
+	    </para>
+	    <para>
+	    <emphasis>Allergies &amp;</emphasis> Warnings Configurable. Colour coding etc. available to discretely display warnings like
+	    "drug seeking behaviour"
+	    </para>
+
+	    <para>
+	    <emphasis>The main notebook :</emphasis> The notebook design has been chosen in order to avoid annoying popup
+	    dialogues. The order of the notebook pages is user configurable. The first page of the notebook
+	    is the login screen. As most user settings are stored on the database backend, the gnumed client will
+	    not be functional before the backend connection has happened.
+	    </para>
+
+        </sect2>
+    	</sect1>
+	
+    	<sect1>
+	    <title>Appointment book</title>    	
+    	    <sect2>
+		<title>Functionality</title>
+    		<para>The appointment book is aimed for front-desk staff. &nbsp;It allows to
+		make, edit and cancel appointments.
+		The doctors can view the appointment list too (who is in the waiting room?)
+		or give appointments without interfering with the receptionists. It can be
+		used as a time tracking tool, too as it allows to keep track of when a patient
+		</para>
+		<itemizedlist mark=opencircle>
+		  <listitem><para>has booked</para></listitem>
+		  <listitem><para>for when he has been booked</para></listitem>
+		  <listitem><para>when the patient arrived</para></listitem>
+		  <listitem><para>when and how long the patient has been seen</para></listitem>
+		</itemizedlist>
+    		<para>
+		It also can fill in as a interface towards the billing package.
+    		</para>
+	    </sect2>
+
+    	    <sect2>  
+    	    <title>The "schedule widget"</title>
+  
+		<para>
+		Central unit of the appoinment book is the schedule widget - a spreadsheet
+		like GUI control. Within the appointment book framework, any number of schedules
+		can be displayed simultaneously (for example one for each doctor in a practice).
+		Date selection controls in the framework sterr all schedule widgets simultaneously
+		- taht allows to quickly page through the weeks to see which doctor could
+		still fit a patient in.
+		</para>
+		<para>"Today" is marked yellow, weekend days pink, and days where a doctor is
+		not available are marked in grey. Of course, all colours are configurable.</para>
+		<para>Data entry is simple &amp; efficient: after selecting a vacant time slot
+		, one starts typing a few characters of a surname; if there might be many
+		patients with the same surname, one can enter a few characters of a given
+		name too, separated by a space. If the appointment should be longer than
+		standard, keying in a '+' for each pre-defined increment will do the trick.
+		 On Enter, a small dialogue pops up and takes obver the cursor. It displays
+		all matches from the patient data base (matching surname fraction and optionally
+		given name fraction), the cursor is already positioned on the first entry.
+		Enter confirms, cursor keys move the selection, Alt-n allows to enter a new
+		patient. Thus, in the most common cse the appointment is made with 5-6 keystrokes
+		: 2 first characters of the surname, 2 first characters of the given name,
+		Enter.
+		</para>
+		<screenshot>
+		<screeninfo>"Schedule for one doctor with patient selector open. Size 679x815"</screeninfo>
+		<graphic fileref="snapshots/schedule-mono.png"> </graphic>
+		</screenshot>
+    	    	</sect2>  
+
+		<sect2>
+		    <title>Calendar navigation</title>
+		    <para>A few convenience buttons allow navigation between weeks and months around
+		    the current date with a single keystroke or mouse click. For more demanding
+		    date entry, a calendar popup is provided. Alt+c pops it up, cursor keys select,
+		    enter confirms. alternatively, the mouse can be used.
+		    </para>
+		    <screenshot>
+		    <screeninfo>"Schedule for 2 doctors with calendar widget active Size 1020x824"</screeninfo>
+		    <graphic fileref="snapshots/schedule.png"></graphic>
+		    </screenshot>
+
+		    <para>
+		    This images displays two doctors simultaneously. Any number of doctors can
+		    be displayed, provided the screen is large enough for satisfactory visualization.
+		    Alternatively, each schedule widget has a combo box on top which allows to
+		    select any doctor available.
+		    </para>
+    	    	</sect2>  
+
+    	    	<sect2>
+		    <title>Context sensitive popup menus</title>
+
+		    <screenshot>
+		    <screeninfo>"Popup menu for a booked patient. Size 402x359"</screeninfo>
+		    <graphic fileref="snapshots/appointment-popup-menu.png"></graphic>
+		    </screenshot>
+    
+    	    	    <para>
+		    By right clicking a cell (or typing Alt-o) a popup menu will offer a few
+		    choices what else we can do with the booked patient. This is expandable via
+		    plugin architecture.
+    	    	    </para>
+    	    	</sect2>
+
+    	    	<sect2>
+    	    	    <title>TO DO:</title>
+ 
+		    <itemizedlist mark=opencircle>
+			<listitem><para>testing</para></listitem>
+			<listitem><para>write proper documentation</para></listitem>
+			<listitem><para>popup menu functions not implemented yet</para></listitem>
+			<listitem><para>new patient dialog not implemented yet</para></listitem>
+			<listitem><para>billing package needs to be written</para></listitem>
+			<listitem><para>printing</para></listitem>
+		    </itemizedlist>
+    	    	</sect2>    	    	
+    	</sect1>	
+
 
 </book>
