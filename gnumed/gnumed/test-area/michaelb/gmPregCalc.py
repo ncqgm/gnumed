@@ -6,8 +6,8 @@
 # 11/7/02: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/michaelb/Attic/gmPregCalc.py,v $
-# $Id: gmPregCalc.py,v 1.8 2003-07-06 23:14:35 rterry Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPregCalc.py,v 1.9 2003-07-07 02:46:33 rterry Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 
 from wxPython.wx import *
@@ -189,7 +189,7 @@ class PregnancyFrame (wxFrame):
 		#------------------------------
 		# sizer holding the 'newedc' stuff
 		#------------------------------
-		label1 = wxStaticText(self,-1,_("Date"),size = (25,20))
+		label1 = wxStaticText(self,-1,_("Scan Date"),size = (25,20))
 		label1.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label1.SetForegroundColour(wxColour(0,0,0))
   		self.txtdate = wxTextCtrl(self,-1,"",size=(25,20))
@@ -242,7 +242,7 @@ class PregnancyFrame (wxFrame):
 		#------------------------------
 		# sizer holding the new (or revised) 'EDC' stuff
 		#------------------------------
-		label = wxStaticText(self,-1,_("EDC"),size = (100,20))
+		label = wxStaticText(self,-1,_("Rev EDC"),size = (100,20))
 		label.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,false,''))
 		label.SetForegroundColour(wxColour(0,0,0))
 
@@ -473,7 +473,10 @@ else:
 
 #=====================================================================
 # $Log: gmPregCalc.py,v $
-# Revision 1.8  2003-07-06 23:14:35  rterry
+# Revision 1.9  2003-07-07 02:46:33  rterry
+# Made labels for revised EDC more explanatory
+#
+# Revision 1.8  2003/07/06 23:14:35  rterry
 # 18/52 changed to 18 Week as per list suggestion
 #
 # Revision 1.7  2003/07/06 21:36:30  michaelb
