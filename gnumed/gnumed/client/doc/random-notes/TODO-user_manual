@@ -1,5 +1,5 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/random-notes/Attic/TODO-user_manual,v $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 ---------------------------------------------------
 Rules:
 ------
@@ -7,5 +7,6 @@ Rules:
   to put it into the sgml code yourself
 - leave behind an email address
 - delete things if you incorporated them into the manual
+- please date it. Thanks
 ---------------------------------------------------
 
