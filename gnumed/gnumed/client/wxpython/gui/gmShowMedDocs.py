@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -237,7 +237,7 @@ class cDocTree(wxTreeCtrl):
 		_log.Log(gmLog.lData, "User selected object [%s]" % obj_id)
 
 		if __name__ == "__main__":
-			tmp = "no idea"
+			tmp = "unknown_machine"
 		else:
 			gb = gmGuiBroker.GuiBroker()
 			tmp = gb['workplace_name']
@@ -260,6 +260,10 @@ class cDocTree(wxTreeCtrl):
 			obj = gmMedDoc.gmMedObj(aPKey = obj_id)
 		except:
 			_log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
+			self.__show_error(
+				aMessage = _('Document part does not seem to exist in database !!'),
+				aTitle = _('showing document')
+			)
 			return None
 
 		if __name__ == "__main__":
@@ -277,21 +281,39 @@ class cDocTree(wxTreeCtrl):
 		# retrieve object
 		if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
 			_log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
+			self.__show_error(
+				aMessage = _('Cannot export document part from database to file.'),
+				aTitle = _('showing document')
+			)
 			return None
 
 		fname = obj['filename']
 		(result, msg) = gmMedDoc.call_viewer_on_file(fname)
 		if not result:
+			self.__show_error(
+				aMessage = _('Cannot display object.\n%s.') % msg,
+				aTitle = _('displaying page')
+			)
+			return None
+		return 1
+		#--------------------------------------------------------
+		def __show_error(self, aMessage = None, aTitle = ''):
+			# sanity checks
+			tmp = aMessage
+			if aMessage is None:
+				tmp = _('programmer forgot to specify error message')
+
+			tmp = tmp + _("\n\nPlease consult the error log for further information !")
+
 			dlg = wxMessageDialog(
-				self,
-				_('Cannot display object.\n%s.') % msg,
-				_('displaying page'),
+				NULL,
+				tmp,
+				aTitle,
 				wxOK | wxICON_ERROR
 			)
 			dlg.ShowModal()
 			dlg.Destroy()
-			return None
-		return 1
+			return 1
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -499,7 +521,10 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.8  2003-02-20 01:25:18  ncq
+# Revision 1.9  2003-02-21 13:54:17  ncq
+# - added even more likely and unlikely user warnings
+#
+# Revision 1.8  2003/02/20 01:25:18  ncq
 # - read login data from config file again
 #
 # Revision 1.7  2003/02/19 15:19:43  ncq
