@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.11 2003-06-01 14:07:42 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmClinicalRecord.py,v 1.12 2003-06-01 14:11:52 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -379,15 +379,19 @@ class gmClinicalRecord:
 		if curs is None:
 			curs = self.getCursor()
 		if not gmPG.run_query(curs, cmd):
-			if rollback and not gmPG.run_query(curs, "rollback"):
-				_log.Log(gm.lErr, "*****   Unable to rollback", sys.exc_info() )
+			# this is utterly useless !!
+#			if rollback and not gmPG.run_query(curs, "rollback"):
+#				_log.Log(gm.lErr, "*****   Unable to rollback", sys.exc_info() )
+			curs.close()
 			_log.Log(gmLog.lErr, error_msg)
 			
 			return None
 
 		if self.is_update_command(cmd):
+			# uhm, wouldn't you want to commit() here ?!?
 			return []  # don't fetch from cursor	
 		rows = curs.fetchall()
+		# I am completely stumped as to what you want to achieve here
 		if self.getTransactionCursor() is None:
 			curs.close()
 		
@@ -445,7 +449,10 @@ if __name__ == "__main__":
 	conn.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.11  2003-06-01 14:07:42  ncq
+# Revision 1.12  2003-06-01 14:11:52  ncq
+# - added some comments
+#
+# Revision 1.11  2003/06/01 14:07:42  ncq
 # - "select into" is an update command, too
 #
 # Revision 1.10  2003/06/01 13:53:55  ncq
