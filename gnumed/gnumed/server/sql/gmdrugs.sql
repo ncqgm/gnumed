@@ -123,30 +123,7 @@ CREATE TABLE drug_presentation (
 );
 
 
--- =============================================
--- alternative to therapeutic classes, just a thought
-
-
-CREATE TABLE indication (
-       id SERIAL PRIMARY KEY,
-       --drug INTEGER REFERENCES drug_package (id),
-       route INTEGER REFERENCES drug_route (id),
-       unit INTEGER REFERENCES drug_units (id),
-       course INTEGER, -- in days, 1 for stat dose, 0 if continuing
-       paed_dose FLOAT, -- paediatric dose, units/kg
-       min_dose FLOAT, -- adult minimum dose
-       max_dose FLOAT, -- adult maximum dose
-       comment TEXT,
-       line INTEGER -- 1=first-line, 2=second-line, etc.
-);
-
--- with this table, a list of indicated drugs would appear in a sidebox
--- when a diagnosis was entered, with interacting/contraindicated/allergic
--- drugs removed a priori. The prescriber could click on one to these to
--- bring up the prescription dialogue, pre-loaded with the drug.
--- paediatric dosing can be automatically calculated.		          
-
--- =============================================
+-- ================================================
 -- This table corresponds to each line in the PBS Yellow Book.
 -- The manufacturer is linked to the strengths and pack sizes that they offer.
 
@@ -276,6 +253,32 @@ CREATE TABLE disease (
 
 COMMENT ON COLUMN disease.ICD10 IS 'ICD-10 code, if applicable';
 
+
+-- =============================================
+-- alternative to therapeutic classes, just a thought
+
+
+CREATE TABLE indication (
+       id SERIAL PRIMARY KEY,
+       drug INTEGER REFERENCES drug_package (id),
+       course INTEGER, -- in days, 1 for stat dose, 0 if continuing
+	frequency character(5) DEFAULT 'mane' check (frequency in ('mane', 'nocte', 'bd', 'tds', 'qid')),
+	-- For non-med people: these are Latin expressions for prescribing
+	-- mane='morning', nocte='night', bd=twice daily, tds=three times daily
+	-- qid=four times day.
+       paed_dose FLOAT, -- paediatric dose, units/kg
+       min_dose FLOAT, -- adult minimum dose
+       max_dose FLOAT, -- adult maximum dose
+       comment TEXT,
+       line INTEGER -- 1=first-line, 2=second-line, etc.
+);
+
+-- with this table, a list of indicated drugs would appear in a sidebox
+-- when a diagnosis was entered, with interacting/contraindicated/allergic
+-- drugs removed a priori. The prescriber could click on one to these to
+-- bring up the prescription dialogue, pre-loaded with the drug.
+-- paediatric dosing can be automatically calculated.		          
+
 --=============================================
 -- link diseases to interactions -- i.e contraindications
 -- if the complication is only known for a compounds, link both substances 
@@ -291,8 +294,9 @@ COMMENT ON TABLE link_disease_interaction IS
 
 
 --===============================================
-
 -- side-effects: diseases *caused* by a substances
+-- obviously, the word 'disease' is used flexibly: 'nausea', 'diarrhoea'
+-- are symptoms, but will be listed in the table above. 
 
 CREATE TABLE side_effect (
        id SERIAL,
