@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.3 2004-08-24 15:41:13 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmPatSearchWidgets.py,v 1.4 2004-08-29 23:15:58 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/'
 
@@ -30,6 +30,7 @@ _whoami = gmWhoAmI.cWhoAmI()
 _log.Log(gmLog.lInfo, __version__)
 
 ID_PatPickList = wx.wxNewId()
+ID_BTN_AddNew = wx.wxNewId()
 #============================================================
 # country-specific functions
 #------------------------------------------------------------
@@ -96,17 +97,13 @@ class cPatientPickList(wx.wxDialog):
 			style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER | wx.wxSTAY_ON_TOP
 		)
 
-		self._do_layout()
+		self.__register_events()
+
+#		self.__do_layout_old()
+		self.__do_layout()
 		self.__items = []
-
-		# set event handlers
-		#wx.EVT_LIST_ITEM_SELECTED(self, ID_PatPickList, self.OnItemCursor)
-		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
-
-		#wx.EVT_BUTTON(self, ID_NEW, self.OnNew)
-		#wx.EVT_BUTTON(self, wx.wxID_OK, self.OnOk)
-		# FIXME: remove button, add evt char ESC
-		wx.EVT_BUTTON(self, wx.wxID_CANCEL, self._on_cancel)
+	#--------------------------------------------------------
+	# external API
 	#--------------------------------------------------------
 	def SetItems(self, items = [], col_order = []):
 		# TODO: make selectable by 0-9
@@ -114,9 +111,9 @@ class cPatientPickList(wx.wxDialog):
 		self.__items = items
 
 		# set up columns
-		self.listctrl.ClearAll()
+		self.__listctrl.ClearAll()
 		for order_idx in range(len(col_order)):
-			self.listctrl.InsertColumn(order_idx, col_order[order_idx]['label'])
+			self.__listctrl.InsertColumn(order_idx, col_order[order_idx]['label'])
 
 		# now add items
 		for row_idx in range(len(self.__items)):
@@ -124,7 +121,7 @@ class cPatientPickList(wx.wxDialog):
 			row = self.__items[row_idx]
 			# first column
 			try:
-				self.listctrl.InsertStringItem(row_idx, str(row[col_order[0]['data idx']]))
+				self.__listctrl.InsertStringItem(row_idx, str(row[col_order[0]['data idx']]))
 			except KeyError:
 				_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
 				if self.__items != []:
@@ -135,7 +132,7 @@ class cPatientPickList(wx.wxDialog):
 			# subsequent columns
 			for order_idx in range(1, len(col_order)):
 				try:
-					self.listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['data idx']]))
+					self.__listctrl.SetStringItem(row_idx, order_idx, str(row[col_order[order_idx]['data idx']]))
 				except KeyError:
 					_log.LogException('dict mismatch items <-> labels !', sys.exc_info())
 					if self.__items != []:
@@ -146,11 +143,137 @@ class cPatientPickList(wx.wxDialog):
 
 		# adjust column width
 		for order_idx in range(len(col_order)):
-			self.listctrl.SetColumnWidth(order_idx, wx.wxLIST_AUTOSIZE)
+			self.__listctrl.SetColumnWidth(order_idx, 200)	# wx.wxLIST_AUTOSIZE)
 
 		# FIXME: and make ourselves just big enough
-		self.szrMain.Fit(self)
+		self.sizer_main.Fit(self)
 		self.Fit()
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __register_events(self):
+		# set event handlers
+		#wx.EVT_LIST_ITEM_SELECTED(self, ID_PatPickList, self.OnItemCursor)
+		wx.EVT_LIST_ITEM_ACTIVATED(self, ID_PatPickList, self._on_item_activated)
+
+		#wx.EVT_BUTTON(self, ID_NEW, self.OnNew)
+		#wx.EVT_BUTTON(self, wx.wxID_OK, self.OnOk)
+		# FIXME: remove button, add evt char ESC
+		wx.EVT_BUTTON(self, wx.wxID_CANCEL, self._on_cancel)
+	#--------------------------------------------------------
+	def __do_layout(self):
+		self.__listctrl = wx.wxListCtrl(
+			parent = self,
+			id = ID_PatPickList,
+			size = (600,200),
+			style = wx.wxLC_SINGLE_SEL | wx.wxVSCROLL | wx.wxSUNKEN_BORDER| wx.wxLC_REPORT | wx.wxLC_VRULES| wx.wxLC_HRULES
+		)
+		#-----------------------------------------------------------------------------------------------------------
+		# make horizontal sizer and put <Add><Ok><Cancel> into it
+		#-----------------------------------------------------------------------------------------------------------
+		sizer_buttons = wx.wxBoxSizer(wx.wxHORIZONTAL)				#bottom sizer to hold buttons
+		# Ok Button = load patient
+		btnOK = wx.wxButton (
+			self,
+			wx.wxID_OK,
+			_("&OK"),			# FIXME: perhaps better label, say, "load" ?
+			wx.wxPyDefaultPosition,
+			wx.wxPyDefaultSize,
+			0
+		)
+		# allow add new patient
+		btnAddNew = wx.wxButton (
+			self,
+			ID_BTN_AddNew,
+			_("&Add"),
+			wx.wxPyDefaultPosition,
+			wx.wxPyDefaultSize,
+			0
+		)
+		# cancel pick list
+		btnCancel = wx.wxButton (
+			self,
+			wx.wxID_CANCEL,
+			_("&Cancel"),
+			wx.wxPyDefaultPosition,
+			wx.wxPyDefaultSize,
+			0
+		)
+		sizer_buttons.Add(60, 20, 1, wx.wxEXPAND)
+		sizer_buttons.Add(btnAddNew, 0, wx.wxEXPAND | wx.wxTOP | wx.wxBOTTOM, 5)
+		sizer_buttons.Add(btnOK, 0, wx.wxEXPAND | wx.wxALL , 5)
+		sizer_buttons.Add(btnCancel, 0, wx.wxEXPAND | wx.wxALL, 5)
+		#---------------------------------------------------------------------------------------
+		# vertical box sizer will stack vertically
+		#  - list control
+		#  - row of buttons
+		#----------------------------------------------------------------------------------------
+		self.sizer_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.sizer_main.Add(self.__listctrl, 1, wx.wxEXPAND | wx.wxALL, 10)
+		self.sizer_main.AddSizer(sizer_buttons, 0, wx.wxEXPAND | wx.wxLEFT | wx.wxRIGHT, 10)
+		#-----------------------------------
+		# now set the main sizer
+		#-----------------------------------
+		self.SetAutoLayout(True)
+		self.SetSizer(self.sizer_main)
+		self.sizer_main.Fit(self)
+		self.__listctrl.SetFocus()					# won't work on Windoze without this
+	#--------------------------------------------------------
+	def __do_layout_old(self):
+		self.sizer_main = wx.wxBoxSizer(wx.wxVERTICAL)
+
+		# make list
+		self.__listctrl = wx.wxListCtrl(
+			parent = self,
+			id = ID_PatPickList,
+			style = wx.wxLC_REPORT | wx.wxLC_SINGLE_SEL | wx.wxVSCROLL | wx.wxHSCROLL | wx.wxSUNKEN_BORDER
+		)
+		# and place it
+		self.sizer_main.AddWindow(self.__listctrl, 1, wx.wxGROW | wx.wxALIGN_CENTER_VERTICAL, 5)
+
+		# make buttons
+		self.szrButtons = wx.wxBoxSizer(wx.wxHORIZONTAL)
+#		btnOK = wx.wxButton (
+#			self,
+#			wx.wxID_OK,
+#			_("&OK"),
+#			wx.wxDefaultPosition,
+#			wx.wxDefaultSize,
+#			0
+#		)
+#		self.szrButtons.AddWindow(btnOK, 1, wxALIGN_CENTRE, 5)
+
+#		btnNew = wxButton (
+#			self,
+#			ID_NEW,
+#			_("&New"),
+#			wxDefaultPosition,
+#			wxDefaultSize,
+#			0
+#		)
+#		self.szrButtons.AddWindow(btnNew, 1, wxALIGN_CENTRE, 5)
+
+		btnCancel = wx.wxButton (
+			self,
+			wx.wxID_CANCEL,
+			_("&Cancel"),
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
+			0
+		)
+		self.szrButtons.AddWindow(btnCancel, 1, wx.wxALIGN_CENTRE, 5)
+
+		# and place them
+		self.sizer_main.AddSizer(self.szrButtons, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL, 5)
+
+		self.SetAutoLayout(True)
+		self.SetSizer(self.sizer_main)
+		self.sizer_main.Fit(self)
+		self.sizer_main.SetSizeHints(self)
+
+		# won't work on Windoze otherwise:
+		self.__listctrl.SetFocus()
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -165,64 +288,6 @@ class cPatientPickList(wx.wxDialog):
 	#--------------------------------------------------------
 	def _on_cancel(self, evt):
 		self.EndModal(-1)
-	#--------------------------------------------------------
-	# utility methods
-	#--------------------------------------------------------
-	def _do_layout(self):
-		self.szrMain = wx.wxBoxSizer(wx.wxVERTICAL)
-
-		# make list
-		self.listctrl = wx.wxListCtrl(
-			parent = self,
-			id = ID_PatPickList,
-			style = wx.wxLC_REPORT | wx.wxLC_SINGLE_SEL | wx.wxVSCROLL | wx.wxHSCROLL | wx.wxSUNKEN_BORDER
-		)
-		# and place it
-		self.szrMain.AddWindow(self.listctrl, 1, wx.wxGROW | wx.wxALIGN_CENTER_VERTICAL, 5)
-
-		# make buttons
-		self.szrButtons = wx.wxBoxSizer(wx.wxHORIZONTAL)
-#		self.btnOK = wx.wxButton (
-#			self,
-#			wx.wxID_OK,
-#			_("&OK"),
-#			wx.wxDefaultPosition,
-#			wx.wxDefaultSize,
-#			0
-#		)
-#		self.szrButtons.AddWindow(self.btnOK, 1, wxALIGN_CENTRE, 5)
-
-#		self.btnNew = wxButton (
-#			self,
-#			ID_NEW,
-#			_("&New"),
-#			wxDefaultPosition,
-#			wxDefaultSize,
-#			0
-#		)
-#		self.szrButtons.AddWindow(self.btnNew, 1, wxALIGN_CENTRE, 5)
-
-		self.btnCancel = wx.wxButton (
-			self,
-			wx.wxID_CANCEL,
-			_("&Cancel"),
-			wx.wxDefaultPosition,
-			wx.wxDefaultSize,
-			0
-		)
-		self.szrButtons.AddWindow(self.btnCancel, 1, wx.wxALIGN_CENTRE, 5)
-
-		# and place them
-		self.szrMain.AddSizer(self.szrButtons, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL, 5)
-
-		self.SetAutoLayout(True)
-		self.SetSizer(self.szrMain)
-		self.szrMain.Fit(self)
-		self.szrMain.SetSizeHints(self)
-
-		# won't work on Windoze otherwise:
-		self.listctrl.SetFocus()
-
 #============================================================
 class cPatientSelector(wx.wxTextCtrl):
 	"""Widget for smart search for patients."""
@@ -516,6 +581,7 @@ and hit <ENTER>
 		# let user select from pick list
 		picklist = cPatientPickList(parent = self)
 		picklist.SetItems(pats_data, self.__pat_picklist_col_defs)
+		picklist.Centre()
 		wx.wxEndBusyCursor()
 		result = picklist.ShowModal()
 		wx.wxBeginBusyCursor()
@@ -649,7 +715,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.3  2004-08-24 15:41:13  ncq
+# Revision 1.4  2004-08-29 23:15:58  ncq
+# - Richard improved the patient picklist popup
+# - plus cleanup/fixes etc
+#
+# Revision 1.3  2004/08/24 15:41:13  ncq
 # - eventually force patient pick list to stay on top
 #   as suggested by Robin Dunn
 #
