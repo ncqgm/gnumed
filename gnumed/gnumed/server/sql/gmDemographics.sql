@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -152,10 +152,9 @@ create table comm_channel (
 comment on table comm_channel is
 	'stores reachability information';
 comment on column comm_channel.id_type is
-	'the type of communication channel';
+	'the id specifying the type of communication channel e.g. phone, email address, pager number, etc.';
 comment on column comm_channel.url is
-	'the actual connection information such as a
-	 a phone number, email address, pager number, etc.';
+	'the connection detail i.e. the phone number, email address, pager number, etc.';
 
 -- ===================================================================
 
@@ -532,11 +531,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.30 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.31 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.30  2004-05-30 21:01:11  ncq
+-- Revision 1.31  2004-07-22 02:23:58  ihaywood
+-- Jim's new comments for comm_channel
+--
+-- Revision 1.30  2004/05/30 21:01:11  ncq
 -- - cleanup
 --
 -- Revision 1.29  2004/04/07 18:42:10  ncq
