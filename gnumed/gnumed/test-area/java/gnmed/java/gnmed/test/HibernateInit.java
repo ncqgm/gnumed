@@ -27,6 +27,7 @@ public class HibernateInit {
     private static SessionFactory sessions;
     private static Configuration ds;
     private static WeakHashMap oldSessions = new WeakHashMap();
+    
     public static SessionFactory getSessions() {
         return sessions;
     }
@@ -79,14 +80,22 @@ public class HibernateInit {
     
     public static void initGmIdentity() throws Exception {
         ds.addClass(identity.class)
-        .addClass(Names.class).
-        addClass(identities_addresses.class).
+        .addClass(Names.class);
+        
+         ds.addClass( enum_social_id.class);
+        ds.addClass(social_identity.class);
+        
+        ds.addClass(identities_addresses.class).
         addClass(address.class).
         addClass(street.class).
         addClass(state.class).
         addClass(urb.class).
         addClass(country.class).
         addClass(address_type.class);
+        ds.addClass(telephone.class);
+        
+        ds.addClass(enum_telephone_role.class);
+       
         
         
     }
@@ -111,7 +120,11 @@ public class HibernateInit {
         
         addClass(script_drug.class).
         addClass(link_script_drug.class).
-        addClass(script.class)
+        addClass(script.class);
+        
+        ds.addClass(clin_attribute.class).
+        addClass(category_type.class).
+        addClass(category.class)
         
         
         ;
@@ -150,7 +163,19 @@ public class HibernateInit {
         HibernateInit.initGmIdentity();
         HibernateInit.initGmClinical();
         HibernateInit.finalizeInit();
+        
         HibernateInit.exportDatabase();
+    }
+    
+    private static void checkAccess() throws Exception {
+        int result = javax.swing.JOptionPane.showConfirmDialog( null, "ARE YOU SURE YOU WISH TO RE_INIT THE DATABASE (AND LOSE ALL CURRENT DATA) ?" , "WARNING", javax.swing.JOptionPane.YES_NO_OPTION);
+        if (result == javax.swing.JOptionPane.YES_OPTION) {
+            checkAccess();
+            return;
+        }
+        throw new Exception("DENIED RE-CREATION OF DATABASE");
+        
+            
     }
     
     public static void exportDatabase() throws Exception {

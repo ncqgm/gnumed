@@ -57,8 +57,10 @@ public class DomainPrinter {
         ps.print("birthdate ");
         ps.print(id.getDob());
         ps.print(", ");
+        if ( id.getKaryotype() != null) {
         ps.print("sex: ");
         ps.print( males.contains(id.getKaryotype().toUpperCase()) ? "male": "female");
+        }
         ps.print("\nAddresses:\n");
         Iterator ai = id.getIdentities_addressess().iterator();
         while (ai.hasNext()) {
@@ -200,7 +202,28 @@ public class DomainPrinter {
         state sta = u.getState();
         sta.getName();
         ps.println("Address = " +  a.getNumber() + ", "+s.getName() + ", "+u.getName()+", "+sta.getName() + " "+u.getPostcode());
+        
+        
+        Iterator i = a.getTelephones().iterator();
+        
+        while (i.hasNext()) {
+            telephone t = (telephone) i.next();
+            ps.print("\t");
+            printTelephone( ps, t);
+            ps.println();
+        }
     }
+    
+    public void printTelephone(java.io.PrintStream ps, telephone t) {
+        if (t.getEnum_telephone_role() != null) {
+            
+            ps.print( t.getEnum_telephone_role().getRole());
+            ps.print(":");
+        }
+        ps.print(" tel:");
+        ps.print(t.getNumber());
+    }
+    
     
     public  void printAddrTypes( java.io.PrintStream ps, java.util.List list) {
         for (int i  = 0; i < list.size(); ++i)  {
