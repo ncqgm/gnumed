@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -294,7 +294,7 @@ class cCfgSQL:
 				curs.close()
 				return None
 			# update option instance
-			cmd = "update cfg_%s" % data_type + " set value=%s" + " where id_item='%s'%s%s%s;" % (item_id, owner_where, machine_where, cookie_where)
+			cmd = "update cfg_%s" % data_type + " set value=%s" + " where id_item='%s';" % (item_id)
 			if self.__run_query(curs, cmd, data_value ) is None:
 				curs.close()
 				return None
@@ -335,7 +335,9 @@ class cCfgSQL:
 		# result should contain a list of strings
 		result = curs.fetchall()
 		curs.close()
+#<DEBUG>
 		_log.Log(gmLog.lData, 'options [%s@%s]: %s' % (user, machine, result))
+#</DEBUG>
 		if result is None:
 			_log.Log(gmLog.lWarn, 'no parameters stored for [%s@%s] in config database' % (user, machine))
 			return None
@@ -971,7 +973,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.48  2003-05-12 09:12:48  ncq
+# Revision 1.49  2003-06-03 21:52:23  hinnef
+# - fixed a bug in cfgSQL.set() when updating a value
+#
+# Revision 1.48  2003/05/12 09:12:48  ncq
 # - minor cleanups
 #
 # Revision 1.47  2003/05/10 18:45:52  hinnef
