@@ -6,7 +6,7 @@ a clean-room implementation).
 @license: GPL"""
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmConfigRegistry.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "H.Berger, S.Hilbert, K.Hilbert"
 
 import sys, os, string, types
@@ -369,7 +369,7 @@ class cParamCtrl(wxTextCtrl):
 # TODO: -a MenuBar allowing for import, export and options
 # 		-open a connection to backend via gmCfg
 class gmConfigEditorPanel(wxPanel):
-	def __init__(self, parent, aUser,aMachine):
+	def __init__(self, parent, aUser,aMachine, plugin = 1):
 		wxPanel.__init__(self, parent, -1)
 
 		self.currUser = aUser
@@ -393,16 +393,17 @@ class gmConfigEditorPanel(wxPanel):
 			cfgFileName = "gnumed.conf not found"
 		# now get the absolute path of the default cfg file
 		self.mConfSources['FILE:%s' % cfgFileName] = cfgFileDefault
-
-		if not (self.currUser is None or self.currMachine is None) :
-			self.mConfSources['DB:CURRENT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_CURRENT_MACHINE',aMachine=self.currMachine)
-		if not (self.currUser is None) :
-			self.mConfSources['DB:CURRENT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_DEFAULT_MACHINE')
-		if not (self.currMachine is None) :
-			self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='xxxDEFAULTxxx',aMachine=self.currMachine)
-		# this should always work
-		self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='xxxDEFAULTxxx')
-		
+		try:
+			if not (self.currUser is None or self.currMachine is None) :
+				self.mConfSources['DB:CURRENT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_CURRENT_MACHINE',aMachine=self.currMachine)
+			if not (self.currUser is None) :
+				self.mConfSources['DB:CURRENT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:CURRENT_USER_DEFAULT_MACHINE')
+			if not (self.currMachine is None) :
+				self.mConfSources['DB:DEFAULT_USER_CURRENT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_CURRENT_MACHINE',aUser='xxxDEFAULTxxx',aMachine=self.currMachine)
+			# this should always work
+			self.mConfSources['DB:DEFAULT_USER_DEFAULT_MACHINE'] = gmConfigCommon.ConfigSourceDB('DB:DEFAULT_USER_DEFAULT_MACHINE',aUser='xxxDEFAULTxxx')
+		except:
+			pass
 # main sizers
 		self.mainSizer = wxBoxSizer(wxHORIZONTAL)
 		self.rightSizer = wxBoxSizer(wxVERTICAL)
@@ -479,6 +480,9 @@ class gmConfigEditorPanel(wxPanel):
 		self.mainSizer.Fit(self)
 		self.mainSizer.SetSizeHints(self)
 		self.Layout()
+# this is not particularly beautiful, but necessary for standalone use
+		if not plugin:
+			self.configTree.update()
 
 	def ApplyChanges(self,event):
 		if self.configEntryParamCtrl.IsModified():
@@ -491,15 +495,16 @@ class gmConfigEditorPanel(wxPanel):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmPlugin
+	from Gnumed.wxpython import gmPlugin
 	_log.Log (gmLog.lInfo, "starting config browser")
 	
 	workplace = raw_input("Please enter a workplace name: ")
 	# catch all remaining exceptions
 	try:
 		application = wxPyWidgetTester(size=(640,480))
-		application.SetWidget(gmConfigEditorPanel,"test-doc",workplace)
+		application.SetWidget(gmConfigEditorPanel,"any-doc",workplace, 0)
 		application.MainLoop()
+		print application.__dict__['this'].__dict__
 	except:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), verbose=0)
 		# but re-raise them
@@ -534,7 +539,10 @@ else:
 
 #------------------------------------------------------------                   
 # $Log: gmConfigRegistry.py,v $
-# Revision 1.18  2004-06-13 22:31:48  ncq
+# Revision 1.19  2004-06-28 22:34:09  hinnef
+# fixed missing tree population in standalone use
+#
+# Revision 1.18  2004/06/13 22:31:48  ncq
 # - gb['main.toolbar'] -> gb['main.top_panel']
 # - self.internal_name() -> self.__class__.__name__
 # - remove set_widget_reference()
