@@ -9,7 +9,9 @@
 # if you need to set a special base directory for some reason
 #GMSHOWMEDDOCS_DIR = ""
 
+CONF=~/.gnumed/gnumed-archive.conf
+
 python ./gmShowMedDocs.py \
-	--conf-file=/home/ncq/.gnumed/gnumed-archive.conf \
+	--conf-file=$CONF \
 	--text-domain=gnumed \
 	--log-file=/var/log/gnumed/archive-view.log
