@@ -2,22 +2,21 @@
 
 This widget was suggested by David Guest on the mailing list.
 
-All it does is to provide a single multi-line textbox for
-typing clear-text clinical notes which are stored in clin_narrative.
+All it does is to provide a single multi-line textbox for typing
+clear-text clinical notes which are stored in clin_narrative.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.14 2004-07-15 23:30:15 ncq Exp $
-__version__ = "$Revision: 1.14 $"
-__author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+# $Id: gmSingleBoxSOAP.py,v 1.15 2004-10-11 20:09:30 ncq Exp $
+__version__ = "$Revision: 1.15 $"
+__author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, string
-
-from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N
-from Gnumed.business import gmPatient 
-from Gnumed.pycommon.gmExceptions import ConstructorError
+import sys
 
 from wxPython.wx import *
+
+from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmExceptions
+from Gnumed.business import gmPatient
 
 wxID_BTN_save = wxNewId()
 wxID_BTN_discard = wxNewId()
@@ -32,10 +31,8 @@ class gmSingleBoxSOAPPanel(wxPanel):
         #kwargs["style"] = wxDEFAULT_FRAME_STYLE
         wxPanel.__init__(self, *args, **kwargs)
         self.__do_layout()
-
         if not self.__register_events():
-            raise ConstructorError, 'cannot register interests'
-
+            raise gmExceptions.ConstructorError, 'cannot register interests'
         self.__pat = gmPatient.gmCurrentPatient()
     #--------------------------------------------------------
     def __do_layout(self):
@@ -94,13 +91,13 @@ class gmSingleBoxSOAPPanel(wxPanel):
     #--------------------------------------------------------
     def __save_note(self):
         # sanity checks
-        if self.__pat is None:
-            return 1
+        if not self.__pat.is_connected():
+            return True
         if not self.soap_box.IsModified():
-            return 1
+            return True
         note = self.soap_box.GetValue()
-        if string.strip(note) == '':
-            return 1
+        if note.strip() == '':
+            return True
         # now save note
         emr = self.__pat.get_clinical_record()
         if emr is None:
@@ -108,11 +105,11 @@ class gmSingleBoxSOAPPanel(wxPanel):
             return None
         if not emr.add_clin_narrative(note, soap_cat='s'):
             _log.Log(gmLog.lErr, 'error saving clinical note')
-            return None
+            return False
         else:
             self.soap_box.SetValue('')
-            return 1
-        return 1
+            return True
+        return True
 #============================================================
 # main
 #------------------------------------------------------------
@@ -123,7 +120,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.14  2004-07-15 23:30:15  ncq
+# Revision 1.15  2004-10-11 20:09:30  ncq
+# - cleanup, bring up to date
+#
+# Revision 1.14  2004/07/15 23:30:15  ncq
 # - 'clinical_record' -> get_clinical_record()
 #
 # Revision 1.13  2004/06/30 20:33:41  ncq
