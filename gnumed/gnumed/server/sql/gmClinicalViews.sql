@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.76 2004-06-28 12:38:30 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.77 2004-06-28 15:04:31 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -292,18 +292,20 @@ create view v_lab_requests as
 select
 	lr.pk as pk_request,
 	torg.internal_name as lab_name,
-	request_id as request_id,
-	lab_request_id as lab_request_id,
-	clin_when as sampled_when,
-	lab_rxd_when as lab_rxd_when,
-	results_reported_when as results_reported_when,
-	request_status as request_status,
-	_(request_status) as l10n_request_status,
-	is_pending as is_pending,
-	fk_test_org as pk_test_org,
-	fk_requestor as pk_requestor,
-	fk_encounter as pk_encounter,
-	fk_episode as pk_episode
+	lr.request_id as request_id,
+	lr.lab_request_id as lab_request_id,
+	lr.clin_when as sampled_when,
+	lr.lab_rxd_when as lab_rxd_when,
+	lr.results_reported_when as results_reported_when,
+	lr.request_status as request_status,
+	_(lr.request_status) as l10n_request_status,
+	lr.is_pending as is_pending,
+	lr.narrative as progress_note,
+	lr.fk_test_org as pk_test_org,
+	lr.fk_requestor as pk_requestor,
+	lr.fk_encounter as pk_encounter,
+	lr.fk_episode as pk_episode,
+	lr.pk_item as pk_item
 from
 	lab_request lr,
 	test_org torg
@@ -862,11 +864,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.76 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.77 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.76  2004-06-28 12:38:30  ncq
+-- Revision 1.77  2004-06-28 15:04:31  ncq
+-- - add pk_item to v_lab_requests
+--
+-- Revision 1.76  2004/06/28 12:38:30  ncq
 -- - fixed on fk_ -> pk_
 --
 -- Revision 1.75  2004/06/28 12:15:38  ncq
