@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.10 2003-12-02 02:14:40 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.11 2003-12-29 15:35:15 uid66147 Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -34,10 +34,14 @@ create unique index idx_uniq_active_name on names(id_identity) where active;
 -- it's behaviour is to set all other names to inactive when
 -- a name is made active
 \unset ON_ERROR_STOP
-drop trigger TR_uniq_active_name on names;
-drop function F_uniq_active_name();
+drop trigger tr_uniq_active_name on names;
+drop function f_uniq_active_name();
+
+drop trigger tr_always_active_name on names;
+drop function f_always_active_name();
 \set ON_ERROR_STOP 1
 
+-- do not allow multiple active names per person
 create FUNCTION F_uniq_active_name() RETURNS OPAQUE AS '
 DECLARE
 --	tmp text;
@@ -45,16 +49,34 @@ BEGIN
 --	tmp := ''identity:'' || NEW.id_identity || '',id:'' || NEW.id || '',name:'' || NEW.firstnames || '' '' || NEW.lastnames;
 --	raise notice ''uniq_active_name: [%]'', tmp;
 	if NEW.active = true then
-		update names set active = false where id_identity = NEW.id_identity and active = true;
-		return NEW;
+		update names set active = false
+		where
+			id_identity = NEW.id_identity
+				and
+			active = true;
 	end if;
 	return NEW;
 END;' LANGUAGE 'plpgsql';
 
--- only re-enable this once we know how to do it !!
---create TRIGGER TR_uniq_active_name
---	BEFORE insert or update ON names
+--create TRIGGER tr_uniq_active_name
+--	BEFORE insert ON names
 --	FOR EACH ROW EXECUTE PROCEDURE F_uniq_active_name();
+
+-- ensure we always have an active name
+create function f_always_active_name() returns opaque as '
+BEGIN
+	if NEW.active = false then
+		raise exception ''Cannot delete/disable active name. Another name must be activated first.'';
+		return 1;
+	end if;
+	return NEW;
+END;
+' language 'plpgsql';
+
+--create trigger tr_always_active_name
+--	before update or delete on names
+--	for each row execute procedure f_always_active_name();
+
 
 -- FIXME: we don't actually want this to be available
 \unset ON_ERROR_STOP
@@ -165,9 +187,39 @@ create RULE r_update_basic_person2 AS ON UPDATE TO v_basic_person
 create RULE r_delete_basic_person AS ON DELETE TO v_basic_person DO INSTEAD
        DELETE FROM identity WHERE id=OLD.i_id;
 
+-- =============================================
+-- staff views
+\unset ON_ERROR_STOP
+drop view v_staff;
+\set ON_ERROR_STOP 1
+
+create view v_staff as
+select
+	vbp.i_id as pk_identity,
+	s.pk as pk_staff,
+	vbp.title as title,
+	vbp.firstnames as firstnames,
+	vbp.lastnames as lastnames,
+	s.sign as sign,
+	_(sr.name) as role,
+	vbp.dob as dob,
+	vbp.gender as gender,
+	s.db_user as db_user,
+	s.comment as comment
+from
+	staff s,
+	staff_role sr,
+	v_basic_person vbp
+where
+	s.fk_role = sr.pk
+		and
+	s.fk_identity = vbp.i_id
+;
+
 -- ==========================================================
 GRANT SELECT ON
-	v_basic_person
+	v_basic_person,
+	v_staff
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -176,11 +228,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.10  2003-12-02 02:14:40  ncq
+-- Revision 1.11  2003-12-29 15:35:15  uid66147
+-- - staff views and grants
+--
+-- Revision 1.10  2003/12/02 02:14:40  ncq
 -- - comment out triggers on name.active until we know how to to them :-(
 -- - at least we CAN do active names now
 -- - ensure unique active name by means of an index, though
