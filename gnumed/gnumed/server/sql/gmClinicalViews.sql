@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.55 2004-04-24 12:59:17 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.56 2004-04-26 09:38:43 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -261,19 +261,25 @@ drop view v_test_org_profile;
 create view v_test_org_profile as
 select
 	torg.pk as pk_test_org,
-	torg.fk_org as pk_org,
 	torg.internal_name,
-	torg.comment as org_comment,
+	tt.id as pk_test_type,
 	tt.code as test_code,
 	tt.coding_system,
+	ttu.internal_code as unified_code,
 	tt.name as test_name,
+	ttu.internal_name as unified_name,
+	tt.basic_unit,
 	tt.comment as test_comment,
-	tt.basic_unit
+	torg.comment as org_comment,
+	torg.fk_org as pk_org
 from
 	test_org torg,
-	test_type tt
+	test_type tt,
+	test_type_uni ttu
 where
 	tt.fk_test_org=torg.pk
+		and
+	ttu.fk_test_type=tt.id
 ;
 
 
@@ -753,11 +759,14 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.55 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.56 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.55  2004-04-24 12:59:17  ncq
+-- Revision 1.56  2004-04-26 09:38:43  ncq
+-- - enhance test_org_profile
+--
+-- Revision 1.55  2004/04/24 12:59:17  ncq
 -- - all shiny and new, vastly improved vaccinations
 --   handling via clinical item objects
 -- - mainly thanks to Carlos Moro
