@@ -11,7 +11,7 @@ hand it over to an appropriate viewer.
 For that it relies on proper mime type handling at the OS level.
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmShowMedDocs.py,v $
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, os
@@ -116,8 +116,8 @@ class cDocTree(wxTreeCtrl):
 		self.SetItemHasChildren(self.root, FALSE)
 
 		# read documents from database
-		self.doc_list = self.pat['document list']
-		if self.doc_list is None:
+		doc_ids = self.pat['document id list']
+		if doc_ids is None:
 			name = self.pat['active name']
 			dlg = wxMessageDialog(
 				self,
@@ -133,11 +133,14 @@ class cDocTree(wxTreeCtrl):
 		self.SetItemHasChildren(self.root, TRUE)
 
 		# add our documents as first level nodes
-		for doc_id in self.doc_list:
+		self.doc_list = []
+		for doc_id in doc_ids:
 			try:
 				doc = gmMedDoc.gmMedDoc(aPKey = doc_id)
 			except:
 				continue
+
+			self.doc_list[doc_id] = doc
 
 			mdata = doc['metadata']
 			date = '%s' % mdata['date'] + " " * 10
@@ -150,18 +153,20 @@ class cDocTree(wxTreeCtrl):
 			label =  tmp % (date[:10], typ[:25], cmt[:25], page_num, ref[:15])
 			doc_node = self.AppendItem(self.root, label)
 			self.SetItemBold(doc_node, bold=TRUE)
-			# we need to distinguish documents from objects in OnActivate
-			# this is ugly
-			data = {'doc_id': doc_id,
-					'id'	: doc_id,
-					'date'	: mdata['date']}
+			# id: doc_med.id for access
+			# date: for sorting
+			data = {
+				'type': 'document',
+				'id': doc_id,
+				'date': mdata['date']
+			}
 			self.SetPyData(doc_node, data)
 			self.SetItemHasChildren(doc_node, TRUE)
 
 			# now add objects as child nodes
 			i = 1
-			for oid in mdata['objects'].keys():
-				obj = mdata['objects'][oid]
+			for obj_id in mdata['objects'].keys():
+				obj = mdata['objects'][obj_id]
 				p = str(obj['index']) +  " "
 				c = str(obj['comment'])
 				s = str(obj['size'])
@@ -170,9 +175,13 @@ class cDocTree(wxTreeCtrl):
 				tmp = _('page %s: \"%s\" (%s bytes)')
 				label = tmp % (p[:2], c, s)
 				obj_node = self.AppendItem(doc_node, label)
-				data = {'doc_id'	: doc_id,
-						'id'		: oid,
-						'seq_idx'	: obj['index']}
+				# id = doc_med.id for retrieval
+				# seq_idx for sorting
+				data = {
+					'type': 'object',
+					'id': obj_id,
+					'seq_idx'	: obj['index']
+				}
 				self.SetPyData(obj_node, data)
 				i += 1
 			# and expand
@@ -194,7 +203,7 @@ class cDocTree(wxTreeCtrl):
 		data2 = self.GetPyData(item2)
 
 		# doc node
-		if data1['id'] == data1['doc_id']:
+		if data1['type'] == 'document':
 			# compare dates
 			if data1['date'] > data2['date']:
 				return -1
@@ -215,47 +224,57 @@ class cDocTree(wxTreeCtrl):
 		node_data = self.GetPyData(item)
 
 		# exclude pseudo root node
-		if node_data == None:
-			return
+		if node_data is None:
+			return None
 
 		# do nothing with documents yet
-		if node_data['id'] == node_data['doc_id']:
-			return
-
-		gb = gmGuiBroker.GuiBroker()
+		if node_data['type'] == 'document':
+			return None
 
 		# but do everything with objects
-		_log.Log(gmLog.lData, "User selected object %s from document %s" % (node_data['id'], node_data['doc_id']))
+		obj_id = node_data['id']
+		_log.Log(gmLog.lData, "User selected object [%s]" % obj_id)
+
+		gb = gmGuiBroker.GuiBroker()
 		exp_base = self.__dbcfg.get(
 			machine = gb['workplace_name'],
-			option = "doc export dir",
+			option = "doc export dir"
 		)
 		if exp_base is None:
 			exp_base = ''
 		else:
 			exp_base = os.path.abspath(os.path.expanduser(exp_base))
 		if not os.path.exists(exp_base):
-			_log.Log(gmLog.lErr, "The directory '%s' does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
+			_log.Log(gmLog.lErr, "The directory [%s] does not exist ! Falling back to default temporary directory." % exp_base) # which is tempfile.tempdir == None == use system defaults
 		else:
-			_log.Log(gmLog.lData, "working into directory '%s'" % exp_base)
+			_log.Log(gmLog.lData, "working into directory [%s]" % exp_base)
 
-		# document handle
-		doc = self.doc_list[node_data['doc_id']]
-		mdata = doc.getMetaData()
-		_log.Log(gmLog.lData, "document: %s" % mdata)
+		# instantiate object
+		try:
+			obj = gmMedDoc.gmMedObj(aPKey = obj_id)
+		except:
+			_log.LogException('Cannot instantiate object [%s]' % obj_id, sys.exc_info())
+			return None
+
+		chunksize = self.__dbcfg.get(
+			machine = gb['workplace_name'],
+			option = "doc export chunk size"
+		)
+		if chunksize is None:
+			# 1 MB
+			chunksize = 1 * 1024 * 1024
 
 		# retrieve object
-		if not doc.exportObjFromGNUmed(self.__conn, exp_base, node_data['id']):
-			_log.Log(gmLog.lErr, "Cannot export object (%s) data from database !" % node_data['id'])
-			return (1==0)
+		if not obj.export_to_file(aTempDir = exp_base, aChunkSize = chunksize):
+			_log.Log(gmLog.lErr, "Cannot export object [%s] data from database !" % node_data['id'])
+			return None
 
-		obj = mdata['objects'][node_data['id']]
-		fname = obj['file name']
+		fname = obj['filename']
 		(result, msg) = docDocument.call_viewer_on_file(fname)
 		if not result:
 			dlg = wxMessageDialog(
 				self,
-				_('Cannot display page.\n%s.') % msg,
+				_('Cannot display object.\n%s.') % msg,
 				_('displaying page'),
 				wxOK | wxICON_ERROR
 			)
@@ -432,7 +451,11 @@ else:
 	pass
 #================================================================
 # $Log: gmShowMedDocs.py,v $
-# Revision 1.3  2003-02-11 18:26:16  ncq
+# Revision 1.4  2003-02-15 14:21:49  ncq
+# - on demand loading of Manual
+# - further pluginization of showmeddocs
+#
+# Revision 1.3  2003/02/11 18:26:16  ncq
 # - fix exp_base buglet in OnActivate
 #
 # Revision 1.2  2003/02/09 23:41:09  ncq

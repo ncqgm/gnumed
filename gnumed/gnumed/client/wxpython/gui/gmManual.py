@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.8 2003-02-13 17:38:35 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmManual.py,v 1.9 2003-02-15 14:21:49 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import sys, os
@@ -64,7 +64,6 @@ class ManualHtmlPanel(wxPanel):
     def __init__(self, parent, frame):
         wxPanel.__init__(self, parent, -1)
         self.frame = frame
-        # CHANGED CODE Haywood 26/2/02
         # get base directory for manuals from broker
         # Ideally this should be something like "/usr/doc/gnumed/"
         self.docdir = gmGuiBroker.GuiBroker ()['gnumed_dir']
@@ -89,8 +88,6 @@ class ManualHtmlPanel(wxPanel):
 
         self.OnShowDefault(None)
 
-##     def __del__(self):
-##         print 'ManualHtmlPanel.__del__'
 
     def ShowTitle(self, title):
         self.infoline.Clear()
@@ -101,7 +98,7 @@ class ManualHtmlPanel(wxPanel):
         if os.access (name, os.F_OK):
             self.html.LoadPage(name)
         else:
-            gmLog.gmDefLog.Log (gmLog.lErr, "cannot load document %s" % name)
+            _log.Log (gmLog.lErr, "cannot load document %s" % name)
 
 
     def OnLoadFile(self, event):
@@ -114,12 +111,12 @@ class ManualHtmlPanel(wxPanel):
 
     def OnBack(self, event):
         if not self.html.HistoryBack():
-            gmLog.gmDefLog.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+            _log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
     def OnForward(self, event):
         if not self.html.HistoryForward():
-            gmLog.gmDefLog.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
+            _log.Log (gmLog.lInfo, _("ManualHtmlWindow: No more items in history!\n"))
 
 
     def OnViewSource(self, event):
@@ -184,6 +181,10 @@ class gmManual (gmPlugin.wxNotebookPlugin):
 	EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint)	
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.8  2003-02-13 17:38:35  ncq
+# Revision 1.9  2003-02-15 14:21:49  ncq
+# - on demand loading of Manual
+# - further pluginization of showmeddocs
+#
+# Revision 1.8  2003/02/13 17:38:35  ncq
 # - cvs keywords, cleanup
 #
