@@ -127,6 +127,8 @@ class SQLListControl(wxListCtrl):
 
 		#clear results from previous query
 		self.ClearAll()
+		#workaround for mysterious wxGTK bug
+		wxYield()
 		#time needed for database AND gui handling
         	t1f = time.time()
         	#time needed for database query
