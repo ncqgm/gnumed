@@ -2,7 +2,7 @@
 	GnuMed SOAP input panel
 """
 #================================================================
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -139,7 +139,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# business objects setup
 		self.patient = gmPatient.gmCurrentPatient()
 		self.exporter = gmPatientExporter.cEmrExport(patient = self.patient)
-		self.selected_issue = None
+		self.selected_issue = None		
 		
 		# ui contruction and event interests
 		self.do_layout()
@@ -275,6 +275,7 @@ class cSOAPInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.selected_issue = sel_item_obj				
 			if not (isinstance(self.soap_multisash.GetDefaultChildClass(), cSOAPControl)):
 				self.soap_multisash.SetDefaultChildClassAndControllerObject(cSOAPControl,self)
+				self.Refresh()
 			
 				
 

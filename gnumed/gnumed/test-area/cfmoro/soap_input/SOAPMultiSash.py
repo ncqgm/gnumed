@@ -6,7 +6,7 @@
 #
 # Created:      2002/11/20
 # Version:      0.1
-# RCS-ID:       $Id: SOAPMultiSash.py,v 1.2 2004-11-21 13:02:21 cfmoro Exp $
+# RCS-ID:       $Id: SOAPMultiSash.py,v 1.3 2004-11-21 16:53:04 cfmoro Exp $
 # License:      wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (wxMultiViewLeaf)
@@ -456,6 +456,7 @@ class MultiClient(wxWindow):
         self.childController = childController
         self.child.MoveXY(2,2)
         print "Creating view object  (%s), controller (%s)"%(childCls,childController)
+	
 
     def OnSetFocus(self,evt):
         self.Select()
