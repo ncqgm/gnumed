@@ -4,10 +4,32 @@ import fileinput
 import re
 
 import string
-import sys
+import sys, os
 
 
 class generator:
+	"""generates a empty event hooking class something like borland delphi events editing tab on property panel, for a panel that exposes controls as 
+	self. pointed attributes at the top level. NB won't recurse into contained panels that contain controls, must process the script of the contained panels to generate their handlers. 
+	
+	USAGE: 
+		1. manual method:
+			a. parse the relevant script into lines with fileinput package.
+			b. for each line, call get_name_type_for_line to get back a tuple of the control name vs. its type name (e.g. text_ctrl_1 vs. wxTextCtrl)
+			c. add this tuple to a list. 
+			d. When finished processing all lines, call process_list(list) and standout output will be the generated empty handler script
+			
+		2. single file :
+			a. call process_ui_definition( filename), and the
+			above steps will be done. Won't work for conditional
+			creational scripts like gmEditArea. The handler name 
+			will be derived from the filename.
+		
+		3. directory of files:
+			a. call process_directory(directory)
+			and the steps for single file.
+			
+			"""
+			
 	def __init__(self):
 		self.funcs = []
 		self.evts = []
@@ -81,9 +103,48 @@ class generator:
 		#don't need
 		for comp, type in list:
 			self.comps.append(comp)
+
+	def process_ui_definition( self, filename, has_import_statements = 1):
+		lines = fileinput.input(filename)
+		list = []
+		for l in lines:
+			tuple = self.get_name_type_for_line(l)
+			if tuple <> None:
+				list.append(tuple)
+		print "#", list
+		if list == []:
+			return
+		self.process_list(list)
+		self.print_single_class( string.split(os.path.basename(filename),'.' )[0] , has_import_statements)
 		
-	def print_single_class(self, name):
+
+	def process_directory( self, dir_path, filter_list=['.py'] , exclude_list=['__']):
+		import dircache, os
+		dir_list = dircache.listdir(os.path.abspath(dir_path))
+		dir_list=dir_list[:]  # copy into a real list  as per python library reference 
+		dircache.annotate('/', dir_list)
+		list = filter( lambda x: x[-1] <> '/', dir_list)
+		list = filter( lambda x: x[-3:] in filter_list, list)
+		list = filter(lambda x: not filter( lambda z: x.startswith(z), exclude_list ) , list)
+			
+		print "#",  list	
 		self.print_imports()
+		for x in list:
+			path = os.path.join( dir_path, x)
+			if os.path.isfile(path):
+				self.create_handler_file( x, path)
+				
+		
+	def create_handler_file(self, x, path):
+		l = string.split(x, '.')
+		prefix = l[0]
+		print "#creating a handler as %s_handler from %s"%(prefix, path)
+		self.process_ui_definition( path, has_import_statements = 0)
+
+		
+	def print_single_class(self, name, has_import_statements):
+		if has_import_statements:
+			self.print_imports()
 		self.print_class(name)
 		
 	def print_imports(self):
@@ -133,6 +194,35 @@ class %s_handler:
 			""" % i
 
 
+
+def usage():
+	print """
+	
+	generates empty handler scripts for wxPython ui scripts.
+
+	python handler_generator -h | -d directory | -f file
+
+			where 
+				-h  this hekp
+
+				-d  directory to find source files of ui definitions
+				-f  file of ui definition
+
+"""
+
+if __name__=="__main__":
+	import getopt
+	gen = generator()
+	options, other_args  = getopt.getopt(sys.argv[1:], "hd:f:")
+	for opt, value in options:
+		if opt == '-h':
+			print usage() 
+			sys.exit(0)
 		
+		if opt == '-f':
+			generator().process_ui_definition(value, has_import_statements = 1)
+			sys.exit(0)
 
-
+		if opt == '-d' and value <> None :	
+			generator().process_directory(value)
+			sys.exit(0)
