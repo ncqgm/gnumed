@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPG.py,v $
-__version__ = "$Revision: 1.81 $"
+__version__ = "$Revision: 1.82 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -35,6 +35,9 @@ del gmCLI
 
 # first, do we have the preferred postgres-python library available ?
 try:
+	import pyPgSQL
+	_log.Log(gmLog.lData, pyPgSQL.__version__)
+	del pyPgSQL
 	import pyPgSQL.PgSQL # try preferred backend library
 	dbapi = pyPgSQL.PgSQL
 	_isPGDB = 0
@@ -1015,7 +1018,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.81  2003-11-04 00:19:24  ncq
+# Revision 1.82  2003-11-07 20:34:04  ncq
+# - more logging yet
+#
+# Revision 1.81  2003/11/04 00:19:24  ncq
 # - GetConnection now toggles query printing via extra_verbose if dbapi=pyPgSql
 #
 # Revision 1.80  2003/10/26 15:07:47  ncq
