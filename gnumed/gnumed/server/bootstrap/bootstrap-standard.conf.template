@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.5 $
+version = $Revision: 1.6 $
 
 #----------------------------------
 [installation]
@@ -84,6 +84,15 @@ name = gnumed
 # which [section] holds specifics about the server
 # hosting this databse -> [server ...]
 server alias = local host
+
+# audit trail related options:
+# name of table that all audited table inherit from, this
+# is used as a marker for audit trail schema generation
+audit marker table = audit_mark
+# all audit trail tables inherit from this table
+audit trail parent table = audit_trail
+# all audit trail tables start with this prefix
+audit trail table prefix = log_
 
 # here you can import some schema files once per database
 # such as revision tracking, translation, auditing etc.
@@ -224,7 +233,11 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.5  2003-05-14 07:27:54  ncq
+# Revision 1.6  2003-05-22 12:53:41  ncq
+# - add automatic audit trail generation
+# - add options for that
+#
+# Revision 1.5  2003/05/14 07:27:54  ncq
 # - add gmAudit.sql to database level schema
 #
 # Revision 1.4  2003/05/12 12:47:25  ncq

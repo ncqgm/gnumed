@@ -30,7 +30,7 @@ further details.
 # - option to drop databases
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/Attic/bootstrap-gm_db_system.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -83,6 +83,8 @@ except ImportError:
 			raise
 
 from gmExceptions import ConstructorError
+
+import gmAuditSchemaGenerator
 
 _interactive = 0
 _bootstrapped_servers = {}
@@ -469,6 +471,10 @@ class database:
 
 		return None
 	#--------------------------------------------------------------
+	def __del__(self):
+		if self.conn is not None:
+			self.conn.close()
+	#--------------------------------------------------------------
 	def __bootstrap(self):
 		global _dbowner
 
@@ -597,6 +603,35 @@ class database:
 		if not self.__db_exists():
 			return None
 		_log.Log(gmLog.lInfo, "Successfully created GnuMed database [%s]." % self.name)
+		return 1
+	#--------------------------------------------------------------
+	def bootstrap_auditing(self):
+		# get audit trail configuration
+		audit_marker_table = _cfg.get(self.section, 'audit marker table')
+		if audit_marker_table is None:
+			return None
+		audit_parent_table = _cfg.get(self.section, 'audit trail parent table')
+		if audit_parent_table is None:
+			return None
+		audit_trail_prefix = _cfg.get(self.section, 'audit trail table prefix')
+		if audit_trail_prefix is None:
+			return None
+		# create auditing schema
+		curs = self.conn.cursor()
+		audit_schema = gmAuditSchemaGenerator.create_audit_schema(curs, audit_marker_table, audit_parent_table, audit_trail_prefix)
+		curs.close()
+		if audit_schema is None:
+			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GnuMed database [%s]' % self.name)
+			return None
+		# write schema to file
+		file = open ('/tmp/audit-triggers.sql', 'wb')
+		for line in audit_schema:
+			file.write("%s\n" % line)
+		file.close()
+		# import auditing schema
+		if not _import_schema_file(anSQL_file = '/tmp/audit-triggers.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
+			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
+			return None
 		return 1
 #==================================================================
 class gmService:
@@ -861,6 +896,14 @@ def bootstrap_services():
 			return None
 	return 1
 #--------------------------------------------------------------
+def bootstrap_auditing():
+	"""bootstrap auditing in all bootstrapped databases"""
+	for db_key in _bootstrapped_dbs.keys():
+		db = _bootstrapped_dbs[db_key]
+		if not db.bootstrap_auditing():
+			return None
+	return 1
+#--------------------------------------------------------------
 def _import_schema(aSection = None, aSrv_name = None, aDB_name = None, aUser = None):
 	# load schema
 	schema_files = _cfg.get(aSection, "schema")
@@ -992,6 +1035,10 @@ if __name__ == "__main__":
 	if not bootstrap_services():
 		exit_with_msg("Cannot bootstrap services.")
 
+	# bootstrap auditing
+	if not bootstrap_auditing():
+		exit_with_msg("Cannot bootstrap audit trail.")
+
 	_log.Log(gmLog.lInfo, "shutdown")
 	print "Done bootstrapping: We probably succeeded."
 else:
@@ -1024,7 +1071,11 @@ else:
 
 #==================================================================
 # $Log: bootstrap-gm_db_system.py,v $
-# Revision 1.11  2003-05-12 12:47:25  ncq
+# Revision 1.12  2003-05-22 12:53:41  ncq
+# - add automatic audit trail generation
+# - add options for that
+#
+# Revision 1.11  2003/05/12 12:47:25  ncq
 # - import some schema files at the database level, too
 # - add corresponding schema list in the config files
 #
