@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.126 2004-06-30 15:31:22 shilbert Exp $
-__version__ = "$Revision: 1.126 $"
+# $Id: gmClinicalRecord.py,v 1.127 2004-06-30 20:33:40 ncq Exp $
+__version__ = "$Revision: 1.127 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -205,12 +205,12 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# API
 	#--------------------------------------------------------
-	def add_clinical_note(self, note = None):
+	def add_clin_narrative(self, note = None, soap_cat='s'):
 		if note is None:
 			_log.Log(gmLog.lInfo, 'will not create empty clinical note')
 			return 1
-		cmd = "insert into clin_note(fk_encounter, fk_episode, narrative) values (%s, %s, %s)"
-		return gmPG.run_commit('historica', [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], note])])
+		cmd = "insert into clin_narrative(fk_encounter, fk_episode, narrative, soap_cat) values (%s, %s, %s, %s)"
+		return gmPG.run_commit('historica', [(cmd, [self.__encounter['pk_encounter'], self.__episode['pk_episode'], note, soap_cat])])
 	#--------------------------------------------------------
 	# __getitem__ handling
 	#--------------------------------------------------------
@@ -486,8 +486,7 @@ class cClinicalRecord:
 
 				if not emr_data.has_key(age):
 					emr_data[age] = []
-				
-				# temp addition :
+
 				emr_data[age].append(
 					_('%s: encounter (%s)') % (
 						view_row[view_col_idx['clin_when']],
@@ -1319,7 +1318,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.126  2004-06-30 15:31:22  shilbert
+# Revision 1.127  2004-06-30 20:33:40  ncq
+# - add_clinical_note() -> add_clin_narrative()
+#
+# Revision 1.126  2004/06/30 15:31:22  shilbert
 # - fk/pk issue fixed
 #
 # Revision 1.125  2004/06/28 16:05:42  ncq

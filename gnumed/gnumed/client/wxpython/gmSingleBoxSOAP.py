@@ -3,12 +3,12 @@
 This widget was suggested by David Guest on the mailing list.
 
 All it does is to provide a single multi-line textbox for
-typing clear-text clinical notes which are stored in clin_note.
+typing clear-text clinical notes which are stored in clin_narrative.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmSingleBoxSOAP.py,v $
-# $Id: gmSingleBoxSOAP.py,v 1.12 2004-03-09 07:54:32 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmSingleBoxSOAP.py,v 1.13 2004-06-30 20:33:41 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, string
@@ -110,7 +110,7 @@ class gmSingleBoxSOAPPanel(wxPanel):
         if emr is None:
             _log.Log(gmLog.lErr, 'cannot access clinical record of patient')
             return None
-        if not emr.add_clinical_note(note):
+        if not emr.add_clin_narrative(note, soap_cat='s'):
             _log.Log(gmLog.lErr, 'error saving clinical note')
             return None
         else:
@@ -127,7 +127,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSingleBoxSOAP.py,v $
-# Revision 1.12  2004-03-09 07:54:32  ncq
+# Revision 1.13  2004-06-30 20:33:41  ncq
+# - add_clinical_note() -> add_clin_narrative()
+#
+# Revision 1.12  2004/03/09 07:54:32  ncq
 # - can call __save_note() from button press handler directly
 #
 # Revision 1.11  2004/03/08 23:35:10  shilbert
