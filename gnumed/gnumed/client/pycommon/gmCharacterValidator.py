@@ -166,8 +166,100 @@ class CharValidator:
 			
 
 if __name__ == "__main__":
-	import richards_editor
-	app = richards_editor.REApp()
+
+
+	from wxPython.wx import *
+
+
+	class REWResizer:
+		def __init__(self, txtCtrl):
+			self.c = txtCtrl
+			EVT_TEXT( txtCtrl, txtCtrl.GetId(), self.checkSize)
+
+		def checkSize(self, event):
+			#print self.c, self.c.GetNumberOfLines(), self.c.GetTextExtent('A')
+			yc = self.c.GetTextExtent('X')[1]
+			y = self.c.GetNumberOfLines() * yc
+			x0, y0 = self.c.GetClientSizeTuple()
+			print y, y0 
+			if y > y0 :
+				self.c.SetClientSize( (x0, y0 + yc ))
+				print "window", self.c.GetId(), "size changed"
+				self.adjustParentsChildren(yc)
+
+				c = self.c
+				while c <> None:
+					if c.GetParent() is None:
+						(w,h) = c.GetSizeTuple()
+						c.SetSize( (w, h + yc))
+						break
+					c = c.GetParent()
+
+		def adjustParentsChildren(self, yc):
+			c = self.c.GetParent()
+			l = c.GetChildren()
+			for w in l:
+				(x,y) = w.GetPositionTuple()
+				if y > self.c.GetPositionTuple()[1]:
+					w.SetPosition( ( x, y + yc) )
+					
+
+	class REPanel(wxPanel):
+		def __init__(self, parent, id):
+			wxPanel.__init__(self, parent, id)
+			szr1 = wxBoxSizer(wxVERTICAL)
+			self.wmap = {}
+			self.smap = {}
+			#for i in range(0,4):
+			#	szr1.AddGrowableRow(i)
+
+			labels = [ 'S', 'O', 'A', 'P' ]
+			for i in range(0,4):		
+				self.getLine(labels[i],szr1)
+			szr1.Add(1,1)
+			szr1.Add(1,1)
+			self.SetSizer(szr1)
+			szr1.Fit(self)
+			
+
+		def getLine( self, text, szr):
+			szr2 = wxBoxSizer(wxHORIZONTAL)
+			szr2.Add(wxStaticText(self, -1, text) )
+			#ctrl = wxTextCtrl(self, -1, "")
+			ctrl = wxTextCtrl(self, -1, "\n", wxDefaultPosition,
+				wxDefaultSize, wxTE_MULTILINE  ) 
+			self.wmap[text] = ctrl
+			szr2.Add(ctrl, 1, wxGROW )
+			self.smap[text] = REWResizer(ctrl) # hold on so not garbage collected
+			szr.Add(szr2, 1, wxGROW)
+			return szr
+			
+			
+			
+					
+
+
+	class REFrame(wxFrame):
+		def __init__(self, parent, id, title):
+			wxFrame.__init__(self,parent, id, title)
+			self.p = REPanel(self,-1)
+
+	class REApp(wxApp):
+
+		def OnInit(self):
+			f = REFrame(None, -1, "Richards XPEditor")	
+			f.Show(true)
+			f.p.SetSizer(None)
+			self.SetTopWindow(f)
+			self.f = f
+			return true
+
+		def getSOAPMap(self):
+			return  self.f.p.wmap
+			
+
+	
+	app = REApp()
 	v = CharValidator()
 
 	m = app.getSOAPMap()
