@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/indexFrame.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 from wxPython.wx import *
@@ -65,11 +65,9 @@ class indexFrame(wxFrame):
 		# checkpoint file whether indexing can start
 		self.can_index_file = __cfg__.get("metadata", "can_index")
 
-		print "__init__() before phrase wheel"
 		# items for phraseWheel
 		if not self._init_phrase_wheel():
 			raise ValueError
-		print "__init__() done"
 	#---------------------------------------------------------------------------
 	def _init_utils(self):
 		pass
@@ -85,7 +83,7 @@ class indexFrame(wxFrame):
 			pos = wxPoint(361, 150),
 			size = wxSize(763, 616),
 			style = wxDEFAULT_FRAME_STYLE,
-			title = _('Associating documents with patients.')
+			title = _('Please select a document for this patient.')
 		)
 		self._init_utils()
 		self.SetClientSize(wxSize(763, 616))
@@ -355,7 +353,7 @@ class indexFrame(wxFrame):
 	#----------------------------------------
 
 	#---------------------------------------------------------------------------
-	def wheel_callback (data):
+	def wheel_callback (self, data):
 		print "Selected :%s" % data
 	#---------------------------------------------------------------------------
 	def show_pic(self,bild):
@@ -419,7 +417,7 @@ class indexFrame(wxFrame):
 			_log.Log(gmLog.lErr, 'No document ID typed in yet !')
 			dlg = wxMessageDialog(
 				self,
-				_('You must type in a document ID !\nUsually you will find the document ID written on the physical sheet of paper. There should be only one per document even if there are multiple pages.'),
+				_('You must type in a document ID !\n\nUsually you will find the document ID written on\nthe physical sheet of paper. There should be only one\nper document even if there are multiple pages.'),
 				_('Attention'),
 				wxOK | wxICON_INFORMATION
 			)
@@ -436,7 +434,7 @@ class indexFrame(wxFrame):
 		if not os.path.exists (fname):
 			_log.Log(gmLog.lErr, 'Cannot access metadata file [%s].' % fname)
 			dlg = wxMessageDialog(self, 
-				_('Cannot access metadata file [%s].\nPlease see error log for details.' % fname),
+				_('Cannot access metadata file\n[%s].\nPlease see error log for details.' % fname),
 				_('Attention'),
 				wxOK | wxICON_INFORMATION
 			)
