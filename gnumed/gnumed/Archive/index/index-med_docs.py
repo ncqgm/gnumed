@@ -12,30 +12,30 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 from wxPython.wx import *
-from wxPython.lib.anchors import LayoutAnchors
 
 #import Image
 import os, time, shutil, os.path
 
 # location of our modules
 sys.path.append(os.path.join('.', 'modules'))
+sys.path.append('../../client/business')
+sys.path.append('../../client/python-common')
+sys.path.append('../../client/wxpython')
 
 import gmLog
-#<DEBUG>
-gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
-#</DEBUG>
-
-import gmCfg, gmI18N
-from gmPhraseWheel import *
-import docDocument					# -> neu schreiben, gmXMLDoc.py
-
 _log = gmLog.gmDefLog
+if __name__ == '__main__':
+	_log.SetAllLogLevels(gmLog.lData)
+
+import gmCfg, gmI18N, gmXmlDocDesc, gmXdtObjects
+from gmPhraseWheel import *
+
 _cfg = gmCfg.gmDefCfgFile
 
 [	wxID_INDEXFRAME,
@@ -329,7 +329,7 @@ class indexFrame(wxPanel):
 				continue
 
 			if not self.__could_be_locked(full_dir):
-				_log.Log(gmLog.lInfo, "Document directory [%s] not yet checkpointed for indexing. Skipping." % full_dir)
+				_log.Log(gmLog.lInfo, "Document directory [%s] not checkpointed for indexing. Skipping." % full_dir)
 				continue
 
 			# same weight for all of them
@@ -459,21 +459,16 @@ class indexFrame(wxPanel):
 	# event handlers
 	#----------------------------------------
 	def on_load_pages(self, event):
-		_log.Log(gmLog.lData, "Trying to load document.")
 
 		curr_doc_id = self.doc_id_wheel.GetLineText(0)
 
 		# has the user supplied anything ?
 		if curr_doc_id == '':
 			_log.Log(gmLog.lErr, 'No document ID typed in yet !')
-			dlg = wxMessageDialog(
-				self,
-				_('You must type in a document ID !\n\nUsually you will find the document ID written on\nthe physical sheet of paper. There should be only one\nper document even if there are multiple pages.'),
-				_('missing document ID'),
-				wxOK | wxICON_EXCLAMATION
+			self.__show_error (
+				_('You must type in a document ID !\n\nUsually you will find the document ID written on\nthe physical sheet of paper. There should only be one\nper document even if there are multiple pages.'),
+				_('loading document')
 			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 
 		full_dir = os.path.join(self.repository, curr_doc_id)
@@ -481,27 +476,19 @@ class indexFrame(wxPanel):
 		# lock this directory now
 		if not self.__lock_for_indexing(full_dir):
 			_log.Log(gmLog.lErr, "Cannot lock directory [%s] for indexing." % full_dir)
-			dlg = wxMessageDialog(
-				self,
-				_('Cannot lock document directory for indexing.\n(%s)\n\nPlease consult the error log for details.' % full_dir),
-				_('Error'),
-				wxOK | wxICON_ERROR
+			self.__show_error (
+				_('Cannot lock document directory for indexing.\n(%s)' % full_dir),
+				_('loading document')
 			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 
 		# actually try loading pages
 		if not self.__load_doc(full_dir):
 			_log.Log(gmLog.lErr, "Cannot load document object file list.")
-			dlg = wxMessageDialog(
-				self,
-				_('Cannot load document object file list from xDT file.\n\nPlease consult the error log for details.'),
-				_('Error'),
-				wxOK | wxICON_ERROR
+			self.__show_error (
+				_('Cannot load document object list from xDT file.'),
+				_('loading document')
 			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 
 		self.__fill_doc_fields()
@@ -541,16 +528,13 @@ class indexFrame(wxPanel):
 		page_data = self.LBOX_doc_pages.GetClientData(page_idx)
 		page_fname = page_data['file name']
 
-		(result, msg) = docDocument.call_viewer_on_file(page_fname)
+		import gmMimeLib
+		(result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
 		if not result:
-			dlg = wxMessageDialog(
-				self,
+			self.__show_error (
 				_('Cannot display page %s.\n%s') % (page_idx+1, msg),
-				_('displaying page'),
-				wxOK | wxICON_ERROR
+				_('displaying page')
 			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 		return 1
 	#----------------------------------------
@@ -572,16 +556,12 @@ class indexFrame(wxPanel):
 
 		# remove page from document
 		page_oid = page_data['oid']
-		if not self.myDoc.removeObject(page_oid):
+		if not self.__xml_doc_desc.remove_object(page_oid):
 			_log.Log(gmLog.lErr, 'Cannot delete page from document.' % page_fname)
-			dlg = wxMessageDialog(
-				self,
+			self.__show_error (
 				_('Cannot delete page %s. It does not seem to belong to the document.') % page_idx+1,
-				_('deleting page'),
-				wxOK | wxICON_ERROR
+				_('deleting page')
 			)
-			dlg.ShowModal()
-			dlg.Destroy()
 			return None
 
 		# remove physical file
@@ -590,8 +570,6 @@ class indexFrame(wxPanel):
 			_log.Log(gmLog.lErr, 'Cannot delete page. File [%s] does not exist !' % page_fname)
 		else:
 			os.remove(page_fname)
-
-		_log.Log(gmLog.lInfo, "Deleted file [%s] from document." % page_fname)
 
 		# reload LBOX_doc_pages
 		self.__reload_doc_pages()
@@ -620,7 +598,7 @@ class indexFrame(wxPanel):
 		pass
 		#print "Selected :%s" % data
 	#----------------------------------------
-	# internal methods
+	# patient related helpers
 	#----------------------------------------
 	def __load_patient(self):
 		"""Get data of patient for which to index documents.
@@ -632,7 +610,7 @@ class indexFrame(wxPanel):
 		# FIXME: actually handle pat_format, too  :-)
 		pat_format = _cfg.get("index", "patient file format")
 		_log.Log(gmLog.lWarn, 'patient file format is [%s]' % pat_format)
-		_log.Log(gmLog.lWarn, 'however, we only handle xDT files so far')
+		_log.Log(gmLog.lWarn, 'note that we only handle xDT files so far')
 
 		# get patient data from xDT file
 		try:
@@ -652,59 +630,57 @@ class indexFrame(wxPanel):
 		self.TBOX_last_name.SetValue(self.__xdt_patient['last name'])
 		self.TBOX_dob.SetValue("%s.%s.%s" % (self.__xdt_patient['dob day'], self.__xdt_patient['dob month'], self.__xdt_patient['dob year']))
 	#----------------------------------------
-	def __clear_doc_fields(self):
-		# clear fields
-		self.TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
-		self.TBOX_desc_short.SetValue(_('please fill in'))
-		self.TBOX_desc_long.SetValue(_('please fill in'))
-		self.SelBOX_doc_type.SetValue(_('choose document type'))
-		self.LBOX_doc_pages.Clear()
+	def __keep_patient_file(self, aDir):
+		# keep patient file for import
+		tmp = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
+		fname = os.path.split(tmp)[1]
+		new_name = os.path.join(aDir, fname)
+		try:
+			shutil.copyfile(tmp, new_name)
+		except:
+			_log.LogException("Cannot copy patient data file.", sys.exc_info(), fatal=1)
+			self.__show_error (
+				_('Cannot copy patient file\n[%s]\ninto data directory\n[%s].') % (tmp, aDir),
+				_('Error')
+			)
+			return None
+		return 1
+	#----------------------------------------
+	# document related helpers
 	#----------------------------------------
 	def __load_doc(self, aDir):
-		# well, so load the document from that directory
-		_log.Log(gmLog.lData, 'working in [%s]' % aDir)
-
-		# check for metadata file
-		fname = os.path.join(aDir, _cfg.get("metadata", "description"))
-		if not os.path.exists (fname):
-			_log.Log(gmLog.lErr, 'Cannot access metadata file [%s].' % fname)
-			dlg = wxMessageDialog(self, 
-				_('Cannot access metadata file\n[%s].\nPlease see error log for details.') % fname,
-				_('Error'),
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
+		# try to init XML document description
+		try:
+			self.__xml_doc_desc = gmXmlDocDesc.xmlDocDesc(aBaseDir = aDir)
+		except:
+			_log.LogException('cannot access XML document description in metadata file [%s]' % fname, sys.exc_info())
 			return None
-
-		# actually get pages
-		self.myDoc = docDocument.cDocument()
-		if not self.myDoc.loadImgListFromXML(fname, aDir, _cfg, "metadata"):
-			_log.Log(gmLog.lErr, 'Cannot load image list from metadata file [%s].' % fname)
-			dlg = wxMessageDialog(self, 
-				_('Cannot load image list from metadata file\n[%s].\n\nPlease see error log for details.') % fname,
-				_('Error'),
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return None
-
 		return 1
 	#----------------------------------------
 	def __fill_doc_fields(self):
 		self.__clear_doc_fields()
 		self.__reload_doc_pages()
 	#----------------------------------------
+	def __clear_doc_fields(self):
+		# clear fields
+		# FIXME: make this configurable: either now() or last_date()
+		self.TBOX_doc_date.SetValue(time.strftime('%Y-%m-%d', time.localtime()))
+		self.TBOX_desc_short.SetValue(_('please fill in'))
+		self.TBOX_desc_long.SetValue(_('please fill in'))
+		self.SelBOX_doc_type.SetValue(_('choose document type'))
+		self.LBOX_doc_pages.Clear()
+	#----------------------------------------
 	def __reload_doc_pages(self):
 		self.LBOX_doc_pages.Clear()
-		objLst = self.myDoc.getMetaData()['objects']
+		objLst = self.__xml_doc_desc['objects']
 		# FIXME: sort !
 		for oid, obj in objLst.items():
 			page_num = obj['index']
 			path, name = os.path.split(obj['file name'])
 			obj['oid'] = oid
 			self.LBOX_doc_pages.Append(_('page %s (%s in %s)') % (page_num, name, path), obj)
+	#----------------------------------------
+	# 
 	#----------------------------------------
 	def __dump_metadata_to_xml(self, aDir):
 
@@ -740,7 +716,7 @@ class indexFrame(wxPanel):
 
 		# FIXME: take reordering into account
 		tag = _cfg.get("metadata", "obj_tag")
-		objLst = self.myDoc.getMetaData()['objects']
+		objLst = self.__xml_doc_desc['objects']
 		for object in objLst.values():
 			dirname, fname = os.path.split(object['file name'])
 			content.append('<%s>%s</%s>\n' % (tag, fname, tag))
@@ -753,26 +729,6 @@ class indexFrame(wxPanel):
 		xml_file = open(xml_fname, "w")
 		map(xml_file.write, content)
 		xml_file.close()
-	#----------------------------------------
-	def __keep_patient_file(self, aDir):
-		# keep patient file for import
-		tmp = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
-		fname = os.path.split(tmp)[1]
-		new_name = os.path.join(aDir, fname)
-		try:
-			shutil.copyfile(tmp, new_name)
-		except:
-			exc = sys.exc_info()
-			_log.LogException("Cannot copy patient data file.", exc, fatal=1)
-			dlg = wxMessageDialog(self, 
-				_('Cannot copy patient file\n[%s]\nto data directory\n[%s]\n\nPlease see error log for details.') % (tmp, aDir),
-				_('Error'),
-				wxOK | wxICON_ERROR
-			)
-			dlg.ShowModal()
-			dlg.Destroy()
-			return None
-		return 1
 	#----------------------------------------
 	def __valid_input(self):
 		# check whether values for date of record, record type, short comment and extended comment
@@ -829,6 +785,8 @@ class indexFrame(wxPanel):
 
 		return 0
 	#----------------------------------------
+	# locking related helpers
+	#----------------------------------------
 	def __unlock_for_import(self, aDir):
 		"""three-stage locking"""
 
@@ -864,7 +822,7 @@ class indexFrame(wxPanel):
 
 		# 1) anyone indexing already ?
 		if os.path.exists(indexing_file):
-			_log.Log(gmLog.lInfo, 'Someone seems to be indexing this directory already. Indexing lock [%s] exists.' % indexing_file)
+			_log.Log(gmLog.lInfo, 'Indexing lock [%s] exists.' % indexing_file)
 			# did _we_ lock this dir earlier and then died unexpectedly ?
 			fhandle = open(indexing_file, 'r')
 			tmp = fhandle.readline()
@@ -873,9 +831,9 @@ class indexFrame(wxPanel):
 			tmp = string.replace(tmp,'\012','')
 			# yep, it's our cookie
 			if (tmp == cookie) and (os.path.exists(can_index_file)):
-				_log.Log(gmLog.lInfo, 'Seems like _we_ locked this directory earlier and subsequently died without completing our task.')
-				_log.Log(gmLog.lInfo, 'At least the cookie we found is the one we use, too (%s).' % cookie)
-				_log.Log(gmLog.lInfo, 'Unlocking this directory.')
+				_log.Log(gmLog.lInfo, 'Seems like *we* locked this directory.')
+				_log.Log(gmLog.lInfo, 'At least it is locked with our cookie ([%s]).' % cookie)
+				_log.Log(gmLog.lInfo, 'Unlocking directory.')
 				os.remove(indexing_file)
 			# nope, someone else
 			else:
@@ -883,7 +841,7 @@ class indexFrame(wxPanel):
 
 		# 2) check for ready-for-indexing checkpoint
 		if not os.path.exists(can_index_file):
-			_log.Log(gmLog.lInfo, 'Not ready for indexing yet. Checkpoint [%s] does not exist.' % can_index_file)
+			_log.Log(gmLog.lInfo, 'Checkpoint [%s] does not exist.' % can_index_file)
 			return None
 
 		return 1
@@ -916,13 +874,33 @@ class indexFrame(wxPanel):
 			return None
 
 		# 3) check for ready-for-indexing checkpoint
-		# this should not happen, really, since we check on _init_phrasewheel() already
+		# this should not happen, really, since we check in _init_phrasewheel() already
 		if not os.path.exists(can_index_file):
 			# unlock again
 			_log.Log(gmLog.lInfo, 'Not ready for indexing yet. Releasing indexing lock [%s] again.' % indexing_file)
 			os.remove(indexing_file)
 			return None
 
+		return 1
+	#----------------------------------------
+	# error handling
+	#----------------------------------------
+	def __show_error(self, aMessage = None, aTitle = ''):
+		# sanity checks
+		tmp = aMessage
+		if aMessage is None:
+			tmp = _('programmer forgot to specify error message')
+
+		tmp = tmp + _("\n\nPlease consult the error log for further information !")
+
+		dlg = wxMessageDialog(
+			NULL,
+			tmp,
+			aTitle,
+			wxOK | wxICON_ERROR
+		)
+		dlg.ShowModal()
+		dlg.Destroy()
 		return 1
 #======================================================
 # main
@@ -958,7 +936,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.2  2003-04-19 22:51:57  ncq
+# Revision 1.3  2003-04-20 15:29:49  ncq
+# - adapted to getting away from old doc*.py modules
+#
+# Revision 1.2  2003/04/19 22:51:57  ncq
 # - switch from docPatient to xdtPatient go get away from docPatient's import gmPG
 #
 # Revision 1.1  2003/04/06 09:43:14  ncq
