@@ -23,11 +23,11 @@ echo "----------------"
 echo "adding test data"
 rm -rf redo-max-test_data.log
 ./bootstrap-gm_db_system.py --log-file=redo-max-test_data.log --conf-file=bootstrap-test_data.conf
+echo "-------------------"
+echo "importing AMIS data"
+./install_AMIS_data.sh
 echo "--------------------"
 echo "importing some blobs"
 cd ~/Bilder/Vietnam/archive
 python import-test-blobs.py
 cd -
-echo "-------------------"
-echo "importing AMIS data"
-./install_AMIS_data.sh
