@@ -14,7 +14,7 @@
 # @TODO: Almost everything
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, traceback, cPickle, zlib
@@ -96,7 +96,7 @@ class wxBasePlugin (gmPlugin):
 			return wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_data)))
 	#-----------------------------------------------------
 	def GetIconData(self):
-		pass
+		return None
 	#-----------------------------------------------------
 	def GetWidget (self, parent):
 		"""
