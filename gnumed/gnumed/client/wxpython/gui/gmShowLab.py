@@ -3,10 +3,10 @@
 """
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmShowLab.py,v $
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 #================================================================
-import os.path, sys, os, re, string
+import os.path, sys, os, re, string, random
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -32,6 +32,43 @@ _whoami = gmWhoAmI.cWhoAmI()
 	wxID_LAB_GRID
 ] = map(lambda _init_ctrls: wxNewId(), range(2))
 #================================================================
+class MyCustomRenderer(wxPyGridCellRenderer):
+    def __init__(self):
+        wxPyGridCellRenderer.__init__(self)
+
+    def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+        dc.SetBackgroundMode(wxSOLID)
+        dc.SetBrush(wxBrush(wxBLACK, wxSOLID))
+        dc.SetPen(wxTRANSPARENT_PEN)
+        dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+
+        dc.SetBackgroundMode(wxTRANSPARENT)
+        dc.SetFont(attr.GetFont())
+
+        text = grid.GetCellValue(row, col)
+        colors = [wxRED, wxWHITE, wxCYAN]
+        x = rect.x + 1
+        y = rect.y + 1
+        for ch in text:
+            dc.SetTextForeground(random.choice(colors))
+            dc.DrawText(ch, x, y)
+            w, h = dc.GetTextExtent(ch)
+            x = x + w
+            if x > rect.right - 5:
+                break
+
+
+    def GetBestSize(self, grid, attr, dc, row, col):
+        text = grid.GetCellValue(row, col)
+        dc.SetFont(attr.GetFont())
+        w, h = dc.GetTextExtent(text)
+        return wxSize(w, h)
+
+
+    def Clone(self):
+        return MyCustomRenderer()
+
+
 class cLabDataGrid(wxGrid):
 	"""This wxGrid derivative displays a grid view of stored lab data.
 	"""
@@ -50,20 +87,34 @@ class cLabDataGrid(wxGrid):
 			aConn = self.__backend.GetConnection('default'),
 			aDBAPI = gmPG.dbapi
 		)
-		wxGrid.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,style=wxWANTS_CHARS)
-		# attribute objects let you keep a set of formatting values
-		# in one spot, and reuse them if needed
-		attr = wxGridCellAttr()
-		attr.SetTextColour(wxBLACK)
-		attr.SetBackgroundColour(wxRED)
-		attr.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD))
-
-		# you can set cell attributes for the whole row (or column)
-		self.SetRowAttr(0, attr)
+		
+		wxGrid.__init__(
+			self,
+			parent,
+			id,
+			wxDefaultPosition,
+			wxDefaultSize,
+			style=wxWANTS_CHARS
+			)
 		
 		self.curr_pat = gmPatient.gmCurrentPatient()
 		_log.Log(gmLog.lData, self.curr_pat)
-		# connect handlers
+		
+		
+
+        # There is a bug in wxGTK for this method...
+        #grid.AutoSizeColumns(True)
+        #grid.AutoSizeRows(True)
+
+        #EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
+
+
+	# I do this because I don't like the default behaviour of not starting the
+	# cell editor on double clicks, but only a second click.
+	def OnLeftDClick(self, evt):
+		if self.CanEnableCellControl():
+			self.EnableCellEditControl()
+
 	#------------------------------------------------------------------------
 	def update(self):
 		if self.curr_pat['ID'] is None:
@@ -131,15 +182,33 @@ class cLabDataGrid(wxGrid):
 			
 			# create new grid
 			self.CreateGrid(0, 0, wxGrid.wxGridSelectCells )
+			self.SetDefaultCellAlignment(wxALIGN_RIGHT,wxALIGN_CENTRE)
+			renderer = apply(wxGridCellStringRenderer, ())
+			self.SetDefaultRenderer(renderer)
 			
-			# add as many columns as different dates
+			# attribute objects let you keep a set of formatting values
+			# in one spot, and reuse them if needed
+			font = self.GetFont()
+			#font.SetWeight(wxBOLD)
+			attr = wxGridCellAttr()
+			attr.SetFont(font)
+			#attr.SetBackgroundColour(wxLIGHT_GREY)
+			attr.SetReadOnly(True)
+			#attr.SetAlignment(wxRIGHT, -1)
+			#attr.IncRef()
+			
+			self.SetLabelFont(font)
+			
+			# add columns
 			self.AppendCols(len(dates))
-			# set Column Labels
+			
+			# set column labels
 			for i in range(len(dates)):
 				self.SetColLabelValue(i, dates[i])
 			
 			# add rows
 			self.AppendRows(len(test_names))
+			
 			# add labels
 			for i in range(len(test_names)):
 				self.SetRowLabelValue(i, test_names[i])
@@ -147,21 +216,27 @@ class cLabDataGrid(wxGrid):
 			#push data onto the grid
 			cells = []
 			for item in lab:
-				# get position x,y for data entry
-				x,y = self.__GetDataCell(item, xorder=dates, yorder=test_names)
-				#print x,y
 				data = str(item['val_num'])
 				unit = str(item['val_unit'])
-				# same test might have been issued multiple times (same day)
-				# we keep reference of used cells 
-				# if a cell needs to be filled but already contains data we get the data and join the values
-				# this is crap but I don't know a better solution
+				
+				# get position x,y for data entry
+				x,y = self.__GetDataCell(item, xorder=dates, yorder=test_names)
+				"""same test might have been issued multiple times (same day)
+				 we keep reference of used cells 
+				 if a cell needs to be filled but already contains data we get the data and join the values
+				 this is crap but I don't know a better solution"""
 				cells.append([int(x),int(y)])
-				#print cells
 				if [int(x),int(y)] in cells:
 					celldata = self.GetCellValue(int(x), int(y))
 					data = celldata+'\n'+ data
+				
+				# you can set cell attributes for the whole row (or column)
+				#self.SetRowAttr(int(y), attr)
+				self.SetColAttr(int(x), attr)
+				
+				#self.SetCellRenderer(int(x), int(y), renderer)
 				self.SetCellValue(int(x), int(y), data+unit)
+				
 				self.AutoSize() 
 			return 1
 	
@@ -189,7 +264,7 @@ class cLabDataGrid(wxGrid):
 	#def __handle_obj_context(self, data):
 	#    print "handling object context menu"
 	#--------------------------------------------------------
-
+	
 #== classes for standalone use ==================================
 if __name__ == '__main__':
 
@@ -470,7 +545,11 @@ else:
 	pass
 #================================================================
 # $Log: gmShowLab.py,v $
-# Revision 1.2  2004-04-15 09:52:22  shilbert
+# Revision 1.3  2004-04-15 20:14:14  shilbert
+# - supports multiline text, uses custom renderer
+# - changes in font, data alignment
+#
+# Revision 1.2  2004/04/15 09:52:22  shilbert
 # - display unified_name instead of lab_name as requested by ncq
 #
 # Revision 1.1  2004/04/15 09:45:31  ncq
