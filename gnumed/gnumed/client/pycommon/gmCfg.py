@@ -53,12 +53,11 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.21 $"
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import os.path, fileinput, string, sys, shutil
-from types import *
+import os.path, fileinput, string, sys, shutil, types
 
 # gnumed modules
 import gmLog, gmNull
@@ -132,18 +131,30 @@ class cCfgSQL:
 		curs = self.conn.cursor()
 
 		# retrieve option definition
-		if _gmPG.run_query(curs, None, """
-select
-	cfg_item.id, cfg_template.type
-from
-	cfg_item, cfg_template
+#"""
+#select
+#	cfg_item.id, cfg_template.type
+#from
+#	cfg_item, cfg_template
+#where
+#	cfg_template.name like %s and
+#	cfg_item.workplace like %s and
+#	cfg_item.cookie like %s and
+#	cfg_template.id = cfg_item.id_template and
+#	(cfg_item.owner = CURRENT_USER or cfg_item.owner like %s)
+#limit 1
+#"""
+
+		success = _gmPG.run_query(curs, None, """
+select vco.pk_cfg_item, vco.type
+from v_cfg_options vco
 where
-	cfg_template.name like %s and
-	cfg_item.workplace like %s and
-	cfg_item.cookie like %s and
-	cfg_template.id = cfg_item.id_template and
-	(cfg_item.owner = CURRENT_USER or cfg_item.owner like %s)
-limit 1""", option, workplace, cookie, user) is None:
+	vco.option = %s and
+	vco.workplace = %s and
+	vco.cookie = %s and
+	(vco.owner = CURRENT_USER or vco.owner like %s)
+limit 1""", option, workplace, cookie, user)
+		if success is None:
 			curs.close()
 			return None
 
@@ -219,11 +230,11 @@ limit 1""", option, workplace, cookie, user) is None:
 
 		cache_key = self.__make_key(workplace, user, cookie, option)
 		opt_value = value
-		if type(value) is StringType:
+		if type(value) is types.StringType:
 			opt_type = 'string'
-		elif type(value) in [FloatType, IntType, LongType]:
+		elif type(value) in [types.FloatType, types.IntType, types.LongType]:
 			opt_type = 'numeric'
-		elif type(value) is ListType:
+		elif type(value) is types.ListType:
 			opt_type = 'str_array'
 			try:
 				opt_value = self.dbapi.PgArray(value)
@@ -237,7 +248,7 @@ limit 1""", option, workplace, cookie, user) is None:
 			opt_type = 'str_array'
 		# FIXME: UnicodeType ?
 		else:
-			_log.Log(gmLog.lErr, "Don't know how to store option of type [%s] (%s -> %s)." % (type(value), cache_key, opt_value))
+			_log.Log(gmLog.lErr, "Don't know how to store option of type [%s] (key: %s, value: %s)." % (type(value), cache_key, opt_value))
 			return False
 
 		# set up field/value pairs
@@ -999,7 +1010,7 @@ def create_default_cfg_file():
 	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
 #-------------------------------------------------------------
-def getDBParam(workplace = None, cookie = cfg_DEFAULT, option = None, personalize = True):
+def getDBParam(workplace = None, cookie = cfg_DEFAULT, option = None):
 	"""Convenience function to get config value from database.
 
 	will search for context dependant match in this order:
@@ -1052,21 +1063,11 @@ def getDBParam(workplace = None, cookie = cfg_DEFAULT, option = None, personaliz
 		if result is not None:
 			matchingSet = set[0]
 			break
-
 		_log.Log(gmLog.lData, '[%s] not found for [%s@%s]' % (option, set[1], set[2]))
-
-	if matchingSet != 'CURRENT_USER_CURRENT_WORKPLACE' \
-			and personalize and workplace is not None and matchingSet is not None:
-		setDBParam (
-			workplace = workplace,
-			user = None,
-			option = option,
-			value = result
-		)
 
 	# cleanup
 	db.ReleaseConnection(service = "default")
-	return (result,matchingSet)
+	return (result, matchingSet)
 #-------------------------------------------------------------
 def setDBParam(workplace = None, user = None, cookie = None, option = None, value = None):
 	"""Convenience function to store config values in database.
@@ -1090,7 +1091,7 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 	dbcfg = cCfgSQL(aConn = conn, aDBAPI = _gmPG.dbapi)
 	rwconn = db.GetConnection(service = "default", readonly = 0)
 	if rwconn is None:
-		_log.Log(gmLog.lWarn, 'Could not get a rw connection.')
+		_log.Log(gmLog.lWarn, 'unable to get a rw connection')
 		db.ReleaseConnection(service = "default")
 		return False
 	# set value
@@ -1223,7 +1224,11 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.21  2004-08-24 13:40:43  ncq
+# Revision 1.22  2004-09-02 00:39:27  ncq
+# - use new v_cfg_options
+# - remove personalize argument from getDBParam() in favour of clarity
+#
+# Revision 1.21  2004/08/24 13:40:43  ncq
 # - when cleaning up cfgSQL.set() I screwed up, fixed
 #
 # Revision 1.20  2004/08/23 10:24:10  ncq
