@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.44 2003-11-28 16:20:31 hinnef Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmEditArea.py,v 1.45 2003-11-29 01:32:55 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -22,7 +22,7 @@ _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	import gmI18N
 
-import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals
+import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals, gmPatient
 import time
 
 
@@ -332,7 +332,7 @@ class cEditAreaField(wxTextCtrl):
 		setValueStyle(self)
 #====================================================================
 #====================================================================
-class gmEditArea( wxPanel):
+class gmEditArea(wxPanel):
 	def __init__(self, parent, id, aType = None):
 		# sanity checks
 		if aType not in _known_edit_area_types:
@@ -378,10 +378,9 @@ class gmEditArea( wxPanel):
 		self.dataId  = None
 		self.old_data = {} 
 
-		#self._out_yaml()
-
 		self.Show(true)
 
+		self.patient = gmPatient.gmCurrentPatient()
 	#----------------------------------------------------------------
 	def _make_prompt(self, parent, aLabel, aColor):
 		# FIXME: style for centering in vertical direction ?
@@ -555,7 +554,7 @@ class gmEditArea( wxPanel):
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._check_unsaved_data)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._check_unsaved_data)
-		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._changePatient)
+		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
 
 		return 1
 
@@ -593,6 +592,8 @@ class gmEditArea( wxPanel):
 #----------------------------------------------------------------------------------------------------------------------			
 
 	def _check_unsaved_data(self, **kwds):
+		if not self.patient.is_connected():
+			return 1
 		self._pre_save_data()
 		self._init_fields()
 
@@ -688,26 +689,15 @@ class gmEditArea( wxPanel):
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
 
-
 #-------------------------------------------------------------------------------------------------------------
 
-	def _changePatient( self, kwds = None):
-		from gmPatient import gmCurrentPatient
-		self._setPatientModel(gmCurrentPatient())
+	def on_patient_selected( self, **kwds):
 		try:
 			self._updateUI()
 			self._init_fields()
 		except:
 			_print( sys.exc_info()[0])
 
-
-	def _setPatientModel(self, patient):
-		_print( self, "received", patient)
-		self.patient = patient
-
-	def get_demographic_record(self):
-		return self.patient.get_demographic_record()
-	
 	def _updateUI(self):
 		_print( "you may want to override _updateUI for " , self.__class__.__name__)
 		
@@ -1142,7 +1132,7 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getBirthYear(self):
 		try:
-			birthyear = int(str(self.get_demographic_record().getDOB()).split('-')[0]) 
+			birthyear = int(str(self.patient.get_demographic_record().getDOB()).split('-')[0]) 
 		except:
 			birthyear = time.localtime()[0]
 		
@@ -2215,7 +2205,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.44  2003-11-28 16:20:31  hinnef
+# Revision 1.45  2003-11-29 01:32:55  ncq
+# - fix no-exit-without-patient error
+# - start cleaning up the worst mess
+#
+# Revision 1.44  2003/11/28 16:20:31  hinnef
 # - commented out all yaml code; this code should be removed lateron
 #
 # Revision 1.43  2003/11/25 16:38:46  hinnef
