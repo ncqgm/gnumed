@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.12 2004-03-27 04:37:01 ihaywood Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.13 2004-03-27 18:35:56 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -216,12 +216,15 @@ where
 	s.fk_identity = vbp.i_id
 ;
 
-
 -- =========================================================
 -- emulate previous structure of address linktables
-CREATE VIEW lnk_person2address AS SELECT id_identity, id_address, id_type FROM lnk_person_org_address;
+CREATE VIEW lnk_person2address AS
+	SELECT id_identity, id_address, id_type
+	FROM lnk_person_org_address;
 
-CREATE VIEW lnk_org2address AS SELECT id_org, id_address FROM lnk_person_org_address;
+CREATE VIEW lnk_org2address AS
+	SELECT id_org, id_address
+	FROM lnk_person_org_address;
 
 -- ==========================================================
 GRANT SELECT ON
@@ -237,11 +240,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.12  2004-03-27 04:37:01  ihaywood
+-- Revision 1.13  2004-03-27 18:35:56  ncq
+-- - cleanup
+--
+-- Revision 1.12  2004/03/27 04:37:01  ihaywood
 -- lnk_person2address now lnk_person_org_address
 -- sundry bugfixes
 --
