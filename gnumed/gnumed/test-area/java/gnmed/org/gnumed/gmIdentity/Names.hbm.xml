@@ -20,16 +20,6 @@
             </generator>
         </id>
 
-        <many-to-one
-            name="identity"
-            class="org.gnumed.gmIdentity.identity"
-            cascade="none"
-            outer-join="auto"
-            update="true"
-            insert="true"
-            column="identity"
-        />
-
         <property
             name="active"
             type="java.lang.Boolean"

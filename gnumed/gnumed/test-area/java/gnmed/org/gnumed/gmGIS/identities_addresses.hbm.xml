@@ -40,16 +40,6 @@
             column="address"
         />
 
-        <many-to-one
-            name="identity"
-            class="org.gnumed.gmIdentity.identity"
-            cascade="none"
-            outer-join="auto"
-            update="true"
-            insert="true"
-            column="identity"
-        />
-
         <!--
             To add non XDoclet property mappings, create a file named
                 hibernate-properties-identities_addresses.xml
