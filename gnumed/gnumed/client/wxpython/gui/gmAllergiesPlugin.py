@@ -3,12 +3,12 @@
 # --------------------------------
 #
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmAllergiesPlugin.py,v $
-# $Id: gmAllergiesPlugin.py,v 1.2 2004-08-04 17:16:02 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmAllergiesPlugin.py,v 1.3 2004-10-11 20:12:09 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
+__license__ = "GPL (details at http://www.gnu.org)"
 
 from wxPython.wx import *
 
@@ -19,7 +19,7 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
-class gmAllergiesPlugin(gmPlugin.cNotebookPluginOld):
+class gmAllergiesPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate the allergies window."""
 
 	__icons = {
@@ -42,13 +42,6 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 	def MenuInfo (self):
 		return ('view', '&Allergies')
 
-	def populate_with_data(self):
-		# no use reloading if invisible
-		if self.gb['main.notebook.raised_plugin'] != self.__class__.__name__:
-			return 1
-		self._widget.populate()
-		return 1
-
 	def can_receive_focus(self):
 		# need patient
 		if not self._verify_patient_avail():
@@ -64,7 +57,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmAllergiesPlugin.py,v $
-# Revision 1.2  2004-08-04 17:16:02  ncq
+# Revision 1.3  2004-10-11 20:12:09  ncq
+# - turn into new-style notebook plugin
+#
+# Revision 1.2  2004/08/04 17:16:02  ncq
 # - wxNotebookPlugin -> cNotebookPlugin
 # - derive cNotebookPluginOld from cNotebookPlugin
 # - make cNotebookPluginOld warn on use and implement old
