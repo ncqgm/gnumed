@@ -73,6 +73,28 @@ class NoSuchClinItemError(ConstructorError):
 
 	def __str__(self):
 		return str(self.errmsg)
+
+class NoSuchClinItemAttributeError(KeyError):
+	"""Raised when a clinical item attribute can not be found."""
+	def __init__(self, errmsg = None):
+		if errmsg is None:
+			self.errmsg = "no such clinical item attribute found"
+		else:
+			self.errmsg = errmsg
+
+	def __str__(self):
+		return str(self.errmsg)
+
+class ClinItemAttributeNotSettableError(KeyError):
+	"""Raised when a clinical item attribute is not settable."""
+	def __init__(self, errmsg = None):
+		if errmsg is None:
+			self.errmsg = "clinical item attribute not settable"
+		else:
+			self.errmsg = errmsg
+
+	def __str__(self):
+		return str(self.errmsg)
 #------------------------------------------------------------
 class InvalidInputError(Exception):
 	"""Raised by business layers when an attempt is made to input
@@ -88,7 +110,11 @@ class InvalidInputError(Exception):
 
 #=====================================================================
 # $Log: gmExceptions.py,v $
-# Revision 1.4  2004-05-08 17:31:31  ncq
+# Revision 1.5  2004-06-02 12:51:45  ncq
+# - add exceptions tailored to cClinItem __set/getitem__()
+#   errors as per Syan's suggestion
+#
+# Revision 1.4  2004/05/08 17:31:31  ncq
 # - add NoSuchClinItemError
 #
 # Revision 1.3  2004/03/27 04:37:01  ihaywood

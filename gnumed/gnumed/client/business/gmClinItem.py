@@ -4,8 +4,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmClinItem.py,v $
-# $Id: gmClinItem.py,v 1.14 2004-05-22 08:09:10 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmClinItem.py,v 1.15 2004-06-02 12:51:47 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmPG
@@ -64,15 +64,15 @@ class cClinItem:
 			return self._payload[self._idx[attribute]]
 		except KeyError:
 			_log.Log(gmLog.lWarn, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
-			return False
+			raise gmExceptions.NoSuchClinItemAttributeError, '[%s]: no attribute [%s]' % (self.__class__.__name__, attribute)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute not in self.__class__._updatable_fields:
-			raise KeyError, '[%s]: attribute <%s> not settable' % (self.__class__.__name__, attribute)
+			raise gmExceptions.ClinItemAttributeNotSettableError, '[%s]: attribute <%s> not settable' % (self.__class__.__name__, attribute)
 		try:
 			self._idx[attribute]
 		except KeyError:
-			raise KeyError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
+			raise gmExceptions.NoSuchClinItemAttributeError, '[%s]: no attribute <%s>' % (self.__class__.__name__, attribute)
 		self._payload[self._idx[attribute]] = value
 		self._is_modified = True
 		return True
@@ -127,7 +127,11 @@ class cClinItem:
 		return (True, None)
 #============================================================
 # $Log: gmClinItem.py,v $
-# Revision 1.14  2004-05-22 08:09:10  ncq
+# Revision 1.15  2004-06-02 12:51:47  ncq
+# - add exceptions tailored to cClinItem __set/getitem__()
+#   errors as per Syan's suggestion
+#
+# Revision 1.14  2004/05/22 08:09:10  ncq
 # - more in line w/ coding style
 # - _service will never change (or else it wouldn't
 #   be cCLINitem) but it's still good coding practice
