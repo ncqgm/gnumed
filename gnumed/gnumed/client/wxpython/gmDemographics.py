@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.14 2004-03-03 23:53:22 ihaywood Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmDemographics.py,v 1.15 2004-03-04 11:19:05 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "R.Terry, SJ Tan"
 
 if __name__ == "__main__":
@@ -606,7 +606,10 @@ class PatientsPanel(wxPanel, gmPatientHolder.PatientHolder):
 		if m['birthdate'].IsModified ():
 			myPatient.setDOB( self.value_map['birthdate'])
 		if m['country'].IsModified ():
-			myPatient.setCOB (self.value_map['country'])
+			success, err = myPatient.setCOB (self.value_map['country'])
+			# FIXME: handle errors
+			#if not success:
+				
 		if self.value_map['title'] != self.old_title:
 			myPatient.setTitle( self.value_map['title'])
 		for str, const in [('fax', gmDemographicRecord.FAX), ('homephone', gmDemographicRecord.HOME_PHONE), ('workphone', gmDemographicRecord.WORK_PHONE), ('mobile', gmDemographicRecord.MOBILE), ('web', gmDemographicRecord.WEB), ('email', gmDemographicRecord.EMAIL)]:
@@ -803,7 +806,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.14  2004-03-03 23:53:22  ihaywood
+# Revision 1.15  2004-03-04 11:19:05  ncq
+# - put a comment as to where to handle result from setCOB
+#
+# Revision 1.14  2004/03/03 23:53:22  ihaywood
 # GUI now supports external IDs,
 # Demographics GUI now ALPHA (feature-complete w.r.t. version 1.0)
 # but happy to consider cosmetic changes
