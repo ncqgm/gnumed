@@ -12,7 +12,7 @@ self.__metadata		{}
  |
  >- 'comment'		""
  |
- >- 'date'			""		(time stamp)
+ >- 'date'			mxDateTime
  |
  >- 'reference'		""
  |
@@ -34,10 +34,12 @@ self.__metadata		{}
 
 @copyright: GPL
 """
+#============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmMedDoc.py,v $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMedDoc.py,v 1.4 2003-02-26 23:22:04 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-#=======================================================================================
+
 import sys, tempfile, os, shutil
 
 import gmLog
@@ -540,3 +542,7 @@ def call_viewer_on_file(aFile = None):
 
 	return 1, ""
 #============================================================
+# $Log: gmMedDoc.py,v $
+# Revision 1.4  2003-02-26 23:22:04  ncq
+# - metadata write support
+#
