@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -11,6 +11,7 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
+reset client_encoding;
 -- ===================================================================
 create table org_AU (
 	id serial primary key,
@@ -29,11 +30,14 @@ comment on column org_AU.ACN is
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.5 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.4  2003-10-01 16:12:01  ncq
+-- Revision 1.5  2003-12-29 15:49:46  uid66147
+-- - reset client_encoding
+--
+-- Revision 1.4  2003/10/01 16:12:01  ncq
 -- - AU -> au
 --
 -- Revision 1.3  2003/10/01 15:45:20  ncq
