@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.81 $
+-- $Revision: 1.82 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -290,13 +290,14 @@ create table vaccine (
 	id serial primary key,
 	id_route integer not null references vacc_route(id) default 1,
 	trade_name text unique not null,
-	short_name text unique not null,
+	short_name text not null,
 	is_live boolean not null default false,
 	is_licensed boolean not null default true,
 	min_age interval not null,
 	max_age interval default null,
 	last_batch_no text default null,
-	comment text
+	comment text,
+	unique (trade_name, short_name)
 ) inherits (audit_fields);
 
 select add_table_for_audit('vaccine');
@@ -789,11 +790,14 @@ TO GROUP "_gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.81 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.82 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.81  2004-01-10 01:43:34  ncq
+-- Revision 1.82  2004-01-12 13:16:22  ncq
+-- - make vaccine unique on short/long name not short name alone
+--
+-- Revision 1.81  2004/01/10 01:43:34  ncq
 -- - add grants
 --
 -- Revision 1.80  2004/01/06 23:44:40  ncq
