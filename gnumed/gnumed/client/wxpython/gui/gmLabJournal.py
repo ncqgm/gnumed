@@ -2,7 +2,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmLabJournal.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -47,29 +47,28 @@ _whoami = gmWhoAmI.cWhoAmI()
 
 #====================================
 class MyCustomRenderer(wxPyGridCellRenderer):
-    def __init__(self):
-        wxPyGridCellRenderer.__init__(self)
+	def __init__(self):
+		wxPyGridCellRenderer.__init__(self)
 
-    def Draw(self, grid, attr, dc, rect, row, col, isSelected):
-        dc.SetBackgroundMode(wxSOLID)
-        dc.SetBrush(wxBrush(wxBLACK, wxSOLID))
-        dc.SetPen(wxTRANSPARENT_PEN)
-        dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+	def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+		dc.SetBackgroundMode(wxSOLID)
+		dc.SetBrush(wxBrush(wxBLACK, wxSOLID))
+		dc.SetPen(wxTRANSPARENT_PEN)
+		dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+		dc.SetBackgroundMode(wxTRANSPARENT)
+		dc.SetFont(attr.GetFont())
 
-        dc.SetBackgroundMode(wxTRANSPARENT)
-        dc.SetFont(attr.GetFont())
-
-        text = grid.GetCellValue(row, col)
-        colors = [wxRED, wxWHITE, wxCYAN]
-        x = rect.x + 1
-        y = rect.y + 1
-        for ch in text:
-            dc.SetTextForeground(random.choice(colors))
-            dc.DrawText(ch, x, y)
-            w, h = dc.GetTextExtent(ch)
-            x = x + w
-            if x > rect.right - 5:
-                break
+		text = grid.GetCellValue(row, col)
+		colors = [wxRED, wxWHITE, wxCYAN]
+		x = rect.x + 1
+		y = rect.y + 1
+		for ch in text:
+			dc.SetTextForeground(random.choice(colors))
+			dc.DrawText(ch, x, y)
+			w, h = dc.GetTextExtent(ch)
+			x = x + w
+			if x > rect.right - 5:
+				break
 
 #=======================================
 class cLabReviewGrid(wxGrid):
@@ -273,7 +272,7 @@ class cLabJournalNB(wxNotebook):
 		self.DataGrid.SetDefaultCellAlignment(wxALIGN_LEFT,wxALIGN_CENTRE)
 		renderer = apply(MyCustomRenderer, ())
 		self.DataGrid.SetDefaultRenderer(renderer)
-		
+
 		# There is a bug in wxGTK for this method...
 		self.DataGrid.AutoSizeColumns(True)
 		self.DataGrid.AutoSizeRows(True)
@@ -406,14 +405,14 @@ class cLabJournalNB(wxNotebook):
 		# populate grid
 		for item_idx in range(len(data)):
 			result = data[item_idx]
-			
+
 			# -- chose boolean renderer for first and second column
 			renderer = apply(wxGridCellBoolRenderer, ())
 			self.DataGrid.SetCellRenderer(item_idx, 0 , renderer)
 			self.DataGrid.SetCellRenderer(item_idx, 1 , renderer)
 			self.DataGrid.SetReadOnly(item_idx, 0, 1)
 			self.DataGrid.SetReadOnly(item_idx, 1, 1)
-			
+
 			# -- put reviewed status checkbox in first column
 			self.DataGrid.SetCellValue(item_idx, 0, '1')
 			# -- put relevant status checkbox in second column
@@ -429,7 +428,6 @@ class cLabJournalNB(wxNotebook):
 				self.DataGrid.SetCellTextColour(item_idx,8,wxRED)
 				# abnormal status from lab
 				info = '(%s)' % result['abnormal']
-				
 				# technically abnormal -> defaults to relevant = true
 				self.DataGrid.SetCellValue(item_idx, 1, '1')
 			else:
@@ -459,7 +457,7 @@ class cLabJournalNB(wxNotebook):
 				self.DataGrid.SetCellValue(item_idx, 8, result['note_provider'])
 			# we need to track the request to be able to identify the request later
 			self.dict_req_unreviewed[item_idx] = result
-			
+
 		# we show 50 items at once , notify user if there are more
 		if more_avail:
 			gmGuiHelpers.gm_beep_statustext(_('More unreviewed results available. Review some to see more.'))
@@ -533,7 +531,6 @@ class cLabJournalNB(wxNotebook):
 	def on_select_all(self, event):
 		for item_idx in range(self.DataGrid.GetNumberRows()):
 			self.DataGrid.SetCellValue(item_idx,0,'1')
-	
 	#------------------------------------------------
 	def on_mark_reviewed(self, event):
 		# look for checkmark
@@ -707,7 +704,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.23  2004-05-30 21:19:01  shilbert
+# Revision 1.24  2004-06-02 00:02:32  ncq
+# - cleanup, indentation fixes
+#
+# Revision 1.23  2004/05/30 21:19:01  shilbert
 # - completely redone review panel
 #
 # Revision 1.22  2004/05/29 20:20:30  shilbert
