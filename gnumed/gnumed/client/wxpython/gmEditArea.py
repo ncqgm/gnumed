@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.49 2003-12-02 02:03:35 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmEditArea.py,v 1.50 2003-12-29 16:48:14 uid66147 Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -22,9 +22,9 @@ _log = gmLog.gmDefLog
 if __name__ == "__main__":
 	import gmI18N
 
-import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals, gmPatient
-import time
+import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals, gmPatient, gmGuiBroker
 
+_gb = gmGuiBroker.GuiBroker()
 
 from wxPython.wx import *
 
@@ -34,7 +34,6 @@ gmSECTION_DEMOGRAPHICS = 2
 gmSECTION_CLINICALNOTES = 3
 gmSECTION_FAMILYHISTORY = 4
 gmSECTION_PASTHISTORY = 5
-gmSECTION_VACCINATION = 6
 gmSECTION_SCRIPT = 8
 
 #--------------------------------------------
@@ -183,14 +182,9 @@ requestColumn2 = [
 
 
 _prompt_defs = {
-	'allergy': [
-		_("Date"),
-		_("Drug/Subst."),
-		_("Generics"),
-		_("Drug class"),
-		_("Reaction"),
-		_("Type")
-	],
+	'vaccination': [],
+	'allergy': [],
+
 	'family history': [
 		_("Name"),
 		_("Relationship"),
@@ -209,16 +203,6 @@ _prompt_defs = {
 		"" ,
 		_("Progress Notes") ,
 		""
-	]
-	,
-	'vaccination': [
-		_("Target Disease"),
-		_("Type"),
-		_("Date"),
-		
-		_("Serial No"),
-		_("Site"),
-		_("Progress Notes") , ""
 	]
 	,'measurement': [
 		_("Type"),
@@ -285,11 +269,6 @@ _prompt_defs = {
 
 _known_edit_area_types = []
 _known_edit_area_types.extend(_prompt_defs.keys() )
-#	['allergy',
-#	'family history',
-#	'past history',
-#	'vaccination'
-#	]
 
 def setValueStyle( control):
 		control.SetForegroundColour(wxColor(255, 0, 0))
@@ -312,61 +291,211 @@ class gmEditArea(wxPanel):
 			raise gmExceptions.ConstructorError, 'unknown edit area type: [%s]' % aType
 		self._type = aType
 
-		# init background panel
-		wxPanel.__init__(
-			self,
-			parent,
-			id,
-			wxDefaultPosition,
-			wxDefaultSize,
-			style = wxNO_BORDER | wxTAB_TRAVERSAL
-		)
-		self.SetName(self._type)
-#		self.SetBackgroundColour(wxColor(222,222,222))
+		# init main background panel
+		wxPanel.__init__(self, parent, id, style = wxNO_BORDER | wxTAB_TRAVERSAL)
+		self.SetBackgroundColour(wxColor(222,222,222))
+
+		self.fields = {}
+		self.prompts = {}
+		self.__do_layout()
 
 		self.input_fields = {}
+#		szr_prompts = self.__make_prompts(_prompt_defs[self._type])
+#		self.szr_editing_area = self.__make_editing_area()
+		# stack prompts and fields horizontally
+#		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
+#		self.szr_main_panels.Add(szr_prompts, 11, wxEXPAND)
+#		self.szr_main_panels.Add(5, 0, 0, wxEXPAND)
+#		self.szr_main_panels.Add(self.szr_editing_area, 90, wxEXPAND)
 
-		szr_prompts = self.__make_prompts(_prompt_defs[self._type])
-		self.szr_editing_area = self.__make_editing_area()
+		# use sizer for border around everything plus a little gap
+		# FIXME: fold into szr_main_panels ?
+#		self.szr_central_container = wxBoxSizer(wxHORIZONTAL)
+#		self.szr_central_container.Add(self.szr_main_panels, 1, wxEXPAND | wxALL, 5)
+
+#		self.SetSizer(self.szr_central_container)
+#		self.szr_central_container.Fit(self)
+#		self.SetAutoLayout(true)
+
+		self._postInit()
+		self.old_data = {} 
+
+		self.data_ID = None
+		self.patient = gmPatient.gmCurrentPatient()
+		self.__register_events()
+		self.Show(true)
+	#----------------------------------------------------------------
+	# internal helpers
+	#----------------------------------------------------------------
+	def __do_layout(self):
+		self._define_prompts()
+		fields_pnl = wxPanel(self, -1, style = wxRAISED_BORDER | wxTAB_TRAVERSAL)
+		self._define_fields(parent = fields_pnl)
+		# and generate edit area from it
+		szr_prompts = self.__generate_prompts()
+		szr_fields = self.__generate_fields(parent = fields_pnl)
+
 		# stack prompts and fields horizontally
 		self.szr_main_panels = wxBoxSizer(wxHORIZONTAL)
 		self.szr_main_panels.Add(szr_prompts, 11, wxEXPAND)
 		self.szr_main_panels.Add(5, 0, 0, wxEXPAND)
-		self.szr_main_panels.Add(self.szr_editing_area, 90, wxEXPAND)
+		self.szr_main_panels.Add(szr_fields, 90, wxEXPAND)
 
 		# use sizer for border around everything plus a little gap
 		# FIXME: fold into szr_main_panels ?
 		self.szr_central_container = wxBoxSizer(wxHORIZONTAL)
 		self.szr_central_container.Add(self.szr_main_panels, 1, wxEXPAND | wxALL, 5)
+
+		# and do the layouting
 		self.SetSizer(self.szr_central_container)
 		self.szr_central_container.Fit(self)
 		self.SetAutoLayout(true)
-
-		self.__register_events()
-		
-
-		self._postInit()
-		
-		self.dataId  = None
-		self.old_data = {} 
-
-		self.Show(true)
-
-		self.patient = gmPatient.gmCurrentPatient()
 	#----------------------------------------------------------------
-	def _make_prompt(self, parent, aLabel, aColor):
+	def __generate_prompts(self):
+		if len(self.fields) != len(self.prompts):
+			_log.Log(gmLog.lErr, '[%s]: #fields != #prompts' % self.__class__.__name__)
+			return None
+		# prompts live on a panel
+		prompt_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER)
+		prompt_pnl.SetBackgroundColour(richards_light_gray)
+		# make them
+		gszr = wxGridSizer (len(self.fields), 1, 2, 2)
+		color = richards_aqua
+		lines = self.prompts.keys()
+		lines.sort()
+		for line in lines:
+			label, color = self.prompts[line]
+			prompt = self.__make_prompt(prompt_pnl, "%s " % label, color)
+			gszr.Add(prompt, 0, wxEXPAND | wxALIGN_RIGHT)
+		# put sizer on panel
+		prompt_pnl.SetSizer(gszr)
+		gszr.Fit(prompt_pnl)
+		prompt_pnl.SetAutoLayout(true)
+
+		# make shadow below prompts in gray
+		shadow_below_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
+		shadow_below_prompts.SetBackgroundColour(richards_dark_gray)
+		szr_shadow_below_prompts = wxBoxSizer (wxHORIZONTAL)
+		szr_shadow_below_prompts.Add(5, 0, 0, wxEXPAND)
+		szr_shadow_below_prompts.Add(shadow_below_prompts, 10, wxEXPAND)
+
+		# stack prompt panel and shadow vertically
+		vszr_prompts = wxBoxSizer(wxVERTICAL)
+		vszr_prompts.Add(prompt_pnl, 97, wxEXPAND)
+		vszr_prompts.Add(szr_shadow_below_prompts, 5, wxEXPAND)
+
+		# make shadow to the right of the prompts
+		shadow_rightof_prompts = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
+		shadow_rightof_prompts.SetBackgroundColour(richards_dark_gray)
+		szr_shadow_rightof_prompts = wxBoxSizer(wxVERTICAL)
+		szr_shadow_rightof_prompts.Add(0,5,0,wxEXPAND)
+		szr_shadow_rightof_prompts.Add(shadow_rightof_prompts, 1, wxEXPAND)
+
+		# stack vertical prompt sizer and shadow horizontally
+		hszr_prompts = wxBoxSizer(wxHORIZONTAL)
+		hszr_prompts.Add(vszr_prompts, 10, wxEXPAND)
+		hszr_prompts.Add(szr_shadow_rightof_prompts, 1, wxEXPAND)
+
+		return hszr_prompts
+	#----------------------------------------------------------------
+	def __generate_fields(self, parent):
+		parent.SetBackgroundColour(wxColor(222,222,222))
+		# rows, cols, hgap, vgap
+		gszr = wxGridSizer(len(self.fields), 1, 2, 2)
+
+		lines = self.fields.keys()
+		lines.sort()
+		for line in lines:
+			szr_line = wxBoxSizer(wxHORIZONTAL)
+			positions = self.fields[line].keys()
+			positions.sort()
+			for pos in positions:
+				field, weight = self.fields[line][pos]
+				szr_line.Add(field, weight, wxEXPAND)
+			gszr.Add(szr_line, 0, flag = wxEXPAND | wxALIGN_LEFT)
+		# put them on the panel
+		parent.SetSizer(gszr)
+		gszr.Fit(parent)
+		parent.SetAutoLayout(true)
+
+		# make shadow below edit fields in gray
+		shadow_below_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
+		shadow_below_edit_fields.SetBackgroundColour(richards_coloured_gray)
+		szr_shadow_below_edit_fields = wxBoxSizer(wxHORIZONTAL)
+		szr_shadow_below_edit_fields.Add(5, 0, 0, wxEXPAND)
+		szr_shadow_below_edit_fields.Add(shadow_below_edit_fields, 12, wxEXPAND)
+
+		# stack edit fields and shadow vertically
+		vszr_edit_fields = wxBoxSizer(wxVERTICAL)
+		vszr_edit_fields.Add(parent, 92, wxEXPAND)
+		vszr_edit_fields.Add(szr_shadow_below_edit_fields, 5, wxEXPAND)
+
+		# make shadow to the right of the edit area
+		shadow_rightof_edit_fields = wxWindow(self, -1, wxDefaultPosition, wxDefaultSize, 0)
+		shadow_rightof_edit_fields.SetBackgroundColour(richards_coloured_gray)
+		szr_shadow_rightof_edit_fields = wxBoxSizer(wxVERTICAL)
+		szr_shadow_rightof_edit_fields.Add(0, 5, 0, wxEXPAND)
+		szr_shadow_rightof_edit_fields.Add(shadow_rightof_edit_fields, 1, wxEXPAND)
+
+		# stack vertical edit fields sizer and shadow horizontally
+		hszr_edit_fields = wxBoxSizer(wxHORIZONTAL)
+		hszr_edit_fields.Add(vszr_edit_fields, 89, wxEXPAND)
+		hszr_edit_fields.Add(szr_shadow_rightof_edit_fields, 1, wxEXPAND)
+
+		return hszr_edit_fields
+	#----------------------------------------------------------------
+	def __make_prompt(self, parent, aLabel, aColor):
 		# FIXME: style for centering in vertical direction ?
 		prompt = wxStaticText(
 			parent,
 			-1,
 			aLabel,
-			wxDefaultPosition,
-			wxDefaultSize,
-			wxALIGN_RIGHT | wxST_NO_AUTORESIZE
+			style = wxALIGN_RIGHT | wxST_NO_AUTORESIZE
 		)
 		prompt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 		prompt.SetForegroundColour(aColor)
 		return prompt
+	#----------------------------------------------------------------
+	# intra-class API
+	#----------------------------------------------------------------
+	def _add_prompt(self, line=None, label=None, color=richards_blue):
+		if None in (line, label):
+			_log.Log(gmLog.lErr, 'argument error in [%s]: line=%s, label=%s' % (self.__class__.__name__, line, prompt))
+		if not self.prompts.has_key(line):
+			self.prompts[line] = {}
+		self.prompts[line] = (label, color)
+	#----------------------------------------------------------------
+	def _add_field(self, line=None, pos=None, widget=None, weight=0):
+		if None in (line, pos, widget):
+			_log.Log(gmLog.lErr, 'argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
+		if not self.fields.has_key(line):
+			self.fields[line] = {}
+		self.fields[line][pos] = (widget, weight)
+	#----------------------------------------------------------------
+	def _define_fields(self, parent):
+		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+	#----------------------------------------------------------------
+	def _define_prompts(self):
+		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+	#----------------------------------------------------------------
+	def _make_standard_buttons(self, parent):
+		self.btn_Save = wxButton(parent, wxID_BTN_Save, _("Save"))
+		self.btn_Save.SetToolTipString(_('save new/modified entry in medical record'))
+		self.btn_Clear = wxButton(parent, wxID_BTN_Clear, _("Clear"))
+		self.btn_Clear.SetToolTipString(_('clear input fields for new entry'))
+		self.btn_Delete = wxButton(parent, wxID_BTN_Delete, _("Delete"))
+		self.btn_Delete.SetToolTipString(_('delete entry from medical record'))
+
+		szr_buttons = wxBoxSizer(wxHORIZONTAL)
+		szr_buttons.Add(self.btn_Save, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(5, 0, 0)
+		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(5, 0, 0)
+		szr_buttons.Add(self.btn_Delete, 1, wxEXPAND | wxALL, 1)
+
+		return szr_buttons
+	#----------------------------------------------------------------
+	# to be obsoleted
 	#----------------------------------------------------------------
 	def __make_prompts(self, prompt_labels):
 		# prompts live on a panel
@@ -376,7 +505,7 @@ class gmEditArea(wxPanel):
 		gszr = wxGridSizer (len(prompt_labels)+1, 1, 2, 2)
 		color = richards_aqua
 		for prompt in prompt_labels:
-			label = self._make_prompt(prompt_pnl, "%s " % prompt, color)
+			label = self.__make_prompt(prompt_pnl, "%s " % prompt, color)
 			gszr.Add(label, 0, wxEXPAND | wxALIGN_RIGHT)
 			color = richards_blue
 		# put sizer on panel
@@ -410,42 +539,6 @@ class gmEditArea(wxPanel):
 
 		return hszr_prompts
 	#----------------------------------------------------------------
-	def _make_standard_buttons(self, parent):
-		self.btn_Save = wxButton(parent, wxID_BTN_Save, _("Save"))
-		self.btn_Clear = wxButton(parent, wxID_BTN_Clear, _("Clear"))
-		self.btn_Delete = wxButton(parent, wxID_BTN_Delete, _("Delete"))
-
-		# back pointers for panel type identification
-		# FIXME: you mean, like, for finding out what type of edit area ?
-		# why can't we use self._type for that ?
-		self.btn_Save.owner = self
-		self.btn_Clear.owner = self
-		self.btn_Delete.owner = self
-
-
-		szr_buttons = wxBoxSizer(wxHORIZONTAL)
-		szr_buttons.Add(self.btn_Save, 1, wxEXPAND | wxALL, 1)
-		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
-		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Delete, 1, wxEXPAND | wxALL, 1)
-		
-		#self.buttons = {
-		#	'save': self.btn_Save,
-		#	'clear': self.btn_Clear,
-		#	'delete': self.btn_Delete
-		#	}
-
-		return szr_buttons
-
-	#def setButtonAction( self, name, action):
-	#		if self.buttons.has_key(name):
-	#			EVT_BUTTON( self.buttons[name], self.buttons[name].GetId(),  action )
-			
-
-		
-			
-	#----------------------------------------------------------------
 	def _make_edit_lines(self, parent):
 		_log.Log(gmLog.lErr, 'programmer forgot to define edit area lines for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
@@ -461,7 +554,6 @@ class gmEditArea(wxPanel):
 		# get lines
 		lines = self._make_edit_lines(parent = fields_pnl)
 
-		
 		self.lines = lines
 		if len(lines) != len(_prompt_defs[self._type]):
 			_log.Log(gmLog.lErr, '#(edit lines) not equal #(prompts) for [%s], something is fishy' % self._type)
@@ -513,6 +605,36 @@ class gmEditArea(wxPanel):
 		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
 
 		return 1
+	#--------------------------------------------------------
+	# handlers
+	#--------------------------------------------------------
+	def _on_save_btn_pressed(self, event):
+		event.Skip()
+		if self.data_ID is None:
+			print "must be new entry"
+			self._save_new_entry()
+		else:
+			print "must be modified entry"
+			self._save_modified_entry()
+#		self._pre_save_data()
+	#--------------------------------------------------------
+	def _on_clear_btn_pressed(self, event):
+#		self._init_fields()
+		# FIXME: check for unsaved data
+		self.set_data()
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_delete_btn_pressed(self, event):
+		event.Skip()
+		self._pre_delete_data()
+	#--------------------------------------------------------
+	def on_patient_selected( self, **kwds):
+		pass
+#		self._updateUI()
+#		self._init_fields()
+
+
+
 
 #-------NOT USED , obsolete dirty check mechanism
 #-------------------------------------------------------------------------------------------------------------
@@ -589,7 +711,7 @@ class gmEditArea(wxPanel):
 	def _default_init_fields(self):
 		#self.dirty = 0  #this flag is for patient_activating event to save any unsaved entries
 		self.setInputFieldValues( self._get_init_values())
-		self.dataId = None
+		self.data_ID = None
 
 	def _get_init_values(self):
 		map = {}
@@ -597,28 +719,6 @@ class gmEditArea(wxPanel):
 			map[k] = ''
 		return map	
 
-
-				
-
-	#--------------------------------------------------------
-	# handlers
-	#--------------------------------------------------------
-	def _on_save_btn_pressed(self, event):
-		event.Skip()
-		self._pre_save_data()
-
-	#--------------------------------------------------------
-	def _on_clear_btn_pressed(self, event):
-		self._init_fields()
-		event.Skip()
-	
-	#--------------------------------------------------------
-	def _on_delete_btn_pressed(self, event):
-		event.Skip()
-		self._pre_delete_data()
-
-	
-	
 	#--------------------------------------------------------
 	def _init_fields(self):
 		self._default_init_fields()
@@ -640,11 +740,6 @@ class gmEditArea(wxPanel):
 		raise AttributeError
 
 #-------------------------------------------------------------------------------------------------------------
-
-	def on_patient_selected( self, **kwds):
-		self._updateUI()
-		self._init_fields()
-
 	def _updateUI(self):
 		_log.Log(gmLog.lWarn, "you may want to override _updateUI for [%s]" % self.__class__.__name__)
 		
@@ -718,8 +813,6 @@ class gmEditArea(wxPanel):
 			i += 1
 		return newlines	
 
-
-
 	def setInputFieldValues(self, map, id = None ):
 		#self.monitoring_dirty = 0
 		for k,v in map.items():
@@ -741,10 +834,10 @@ class gmEditArea(wxPanel):
 		self.set_old_data(self.getInputFieldValues())
 	
 	def getDataId(self):
-		return self.dataId 
+		return self.data_ID 
 
 	def setDataId(self, id):
-		self.dataId = id
+		self.data_ID = id
 	
 
 	def _getInputFieldValues(self):
@@ -763,132 +856,6 @@ class gmEditArea(wxPanel):
 			except:
 				pass
 		return values		
-				
-
-
-#====================================================================
-class gmAllergyEditArea(gmEditArea):
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'allergy')
-		except gmExceptions.ConstructorError:
-			_log.LogExceptions('cannot instantiate allergies edit area', sys.exc_info())
-			raise
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making allergy lines")
-		lines = []
-		# line 1
-		self.input_fields['date recorded'] = gmDateTimeInput.gmDateInput(
-			parent = parent,
-			id = -1,
-			size = wxPyDefaultSize,
-			pos = wxPyDefaultPosition,
-			style = wxSIMPLE_BORDER
-		)
-		lines.append(self.input_fields['date recorded'])
-		# line 2
-		self.input_fields['substance'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.input_fields['substance'])
-		# FIXME: add substance_code
-		# line 3
-		self.input_fields['generic'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		self.cb_generic_specific = wxCheckBox(parent, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
-		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.input_fields['generic'], 6, wxEXPAND)
-		szr.Add(self.cb_generic_specific, 0, wxEXPAND)
-		lines.append(szr)
-		# line 4
-		self.input_fields['allergy class'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.input_fields['allergy class'])
-		# line 5
-		self.input_fields['reaction'] = cEditAreaField(parent, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.input_fields['reaction'])
-		# FIXME: add allergene, atc_code
-		# line 6
-		self.RBtn_is_allergy = wxRadioButton(parent, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
-		self.RBtn_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
-		self.cb_is_definite_allergy = wxCheckBox(parent, -1, _("Definite"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		self.input_fields['sensitivity'] = self.RBtn_is_sensitivity
-		self.input_fields['is allergy'] = self.RBtn_is_allergy
-
-		self.input_fields['definite'] = self.cb_is_definite_allergy
-
-		self.input_fields['generic_specific'] = self.cb_generic_specific
-		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(5, 0, 0)
-		szr.Add(self.RBtn_is_allergy, 2, wxEXPAND)
-		szr.Add(self.RBtn_is_sensitivity, 2, wxEXPAND)
-		szr.Add(self.cb_is_definite_allergy, 2, wxEXPAND)
-		szr.Add(self._make_standard_buttons(parent), 0, wxEXPAND)
-		lines.append(szr)
-
-		return lines
-
-	__init_values = {
-		'date recorded' : str( time.strftime('%x') ),
-		'substance' : '',
-		'generic': '',
-		'allergy class' : '',
-		'reaction': '',
-		'definite': 0,
-		'sensitivity': 0,
-		'is allergy' : 0,
-		'generic_specific' : 0
-		}
-	
-	def _get_init_values(self):
-		return gmAllergyEditArea.__init_values
-
-	#--------------------------------------------------------
-	def _save_data(self):
-		clinical = self.patient.get_clinical_record().get_allergies_manager()
-		if self.getDataId() == None:
-			id = clinical.create_allergy( self.get_fields_formatting_values() )
-			self.setDataId(id)
-			return 1	
-
-		clinical.update_allergy( self.get_fields_formatting_values(), self.getDataId() )
-			
-		return 1
-	#--------------------------------------------------------
-
-	def _delete_data(self):
-		if self.getDataId() == None:
-			return
-		clinical = self.patient.get_clinical_record().get_allergies_manager()
-		clinical.delete_allergy( self.getDataId())
-		self._init_fields()
-
-
-
-	def get_fields_formatting_values(self):
-		fields =  ['date recorded', 'substance', 'generic', 'allergy class', 'reaction', 'definite', 'sensitivity', 'is allergy' , 'generic_specific' ]
-		values = self.getInputFieldValues(fields)
-
-		
-		formatting = {}
-		formatting.update(gmAllergyEditArea.__formatting)
-
-		return fields, formatting, values	
-
-	def get_formatting():
-		return gmAllergyEditArea.__formatting
-	
-	S , N = "'%s'", "%d"
-	__formatting =  { 
-				'date recorded': S,
-				'substance': S,
-				'generic' : S,
-				'allergy class': S,
-				'reaction' : S,
-				'definite' : N,
-				'sensitivity': N,
-				'is allergy': N,
-				'generic_specific' : N
-			}	
-
-		
 #====================================================================
 class gmFamilyHxEditArea(gmEditArea):
 	def __init__(self, parent, id):
@@ -1174,76 +1141,352 @@ class gmPastHistoryEditArea(gmEditArea):
 		clinical = self.patient.get_clinical_record().get_past_history()
 		clinical.delete_history( self.getDataId())
 		self.setDataId(None)
+#========================================================
+class gmAllergyEditArea(gmEditArea):
 
-		
+	def __init__(self, parent, id):
+		try:
+			gmEditArea.__init__(self, parent, id, aType = 'allergy')
+		except gmExceptions.ConstructorError:
+			_log.LogException('cannot instantiate vaccination edit area', sys.exc_info(), verbose=1)
+			raise
+	#----------------------------------------------------
+	def _define_fields(self, parent):
+		# line 1
+		self.fld_date_noted = gmDateTimeInput.gmDateInput(
+			parent = parent,
+			id = -1,
+			style = wxSIMPLE_BORDER
+		)
+		self._add_field(
+			line = 1,
+			pos = 1,
+			widget = self.fld_date_noted,
+			weight = 1
+		)
+		# line 2
+		self.fld_substance = cEditAreaField(parent)
+		self._add_field(
+			line = 2,
+			pos = 1,
+			widget = self.fld_substance,
+			weight = 1
+		)
+		# line 3
+		self.fld_generic = cEditAreaField(parent)
+		self._add_field(
+			line = 3,
+			pos = 1,
+			widget = self.fld_generic,
+			weight = 6
+		)
+		self.fld_generic_specific = wxCheckBox(
+			parent,
+			-1,
+			_("generics specific"),
+			style = wxNO_BORDER
+		)
+		self._add_field(
+			line = 3,
+			pos = 2,
+			widget = self.fld_generic_specific,
+			weight = 0
+		)
+		# line 4
+		self.fld_drug_class = cEditAreaField(parent)
+		self._add_field(
+			line = 4,
+			pos = 1,
+			widget = self.fld_drug_class,
+			weight = 0
+		)
+		# line 5
+		# FIXME: add allergene, atc_code ?
+		self.fld_reaction = cEditAreaField(parent)
+		self._add_field(
+			line = 5,
+			pos = 1,
+			widget = self.fld_reaction,
+			weight = 1
+		)
+		# line 6
+		self.fld_progress_note = cEditAreaField(parent)
+		self._add_field(
+			line = 6,
+			pos = 1,
+			widget = self.fld_progress_note,
+			weight = 1
+		)
+		# line 7
+		self.fld_is_allergy = wxRadioButton(parent, -1, _("Allergy"))
+		self._add_field(
+			line = 7,
+			pos = 1,
+			widget = self.fld_is_allergy,
+			weight = 2
+		)
+		self.fld_is_sensitivity = wxRadioButton(parent, -1, _("Sensitivity"))
+		self._add_field(
+			line = 7,
+			pos = 2,
+			widget = self.fld_is_sensitivity,
+			weight = 2
+		)
+		self.fld_is_definite_allergy = wxCheckBox(
+			parent,
+			-1,
+			_("Definite"),
+			style = wxNO_BORDER
+		)
+		self._add_field(
+			line = 7,
+			pos = 3,
+			widget = self.fld_is_definite_allergy,
+			weight = 2
+		)
+		self._add_field(
+			line = 7,
+			pos = 4,
+			widget = self._make_standard_buttons(parent),
+			weight = 1
+		)
+	#----------------------------------------------------
+	def _define_prompts(self):
+		self._add_prompt(line = 1, label = _("Date Noted"))
+		self._add_prompt(line = 2, label = _("Brand/Substance"))
+		self._add_prompt(line = 3, label = _("Generic"))
+		self._add_prompt(line = 4, label = _("Drug Class"))
+		self._add_prompt(line = 5, label = _("Reaction"))
+		self._add_prompt(line = 6, label = _("Progress Note"))
+		self._add_prompt(line = 7, label = '')
+	#----------------------------------------------------
+	def _save_new_entry(self):
+		print "saving new allergy entry from edit area"
+		allergy = {}
+		allergy['date noted'] = self.fld_date_noted.GetValue()
+		allergy['substance'] = self.fld_substance.GetValue()
+		allergy['generic'] = self.fld_generic.GetValue()
+		allergy['is generic specific'] = self.fld_generic_specific.GetValue()
+		allergy['drug class'] = self.fld_drug_class.GetValue()
+		allergy['reaction'] = self.fld_reaction.GetValue()
+		allergy['progress note'] = self.fld_progress_note.GetValue()
+		allergy['is allergy'] = self.fld_is_allergy.GetValue()
+		allergy['is sensitivity'] = self.fld_is_sensitivity.GetValue()
+		allergy['is definite'] = self.fld_is_definite_allergy.GetValue()
+		# FIXME: validation
+		epr = self.patient.get_clinical_record()
+		status, data = epr.add_allergy(allergy)
+		if status is None:
+			wxBell()
+			_gb['main.statustext'](_('Cannot save allergy.'))
+			return None
+		_gb['main.statustext'](_('Allergy saved.'))
+		self.data_ID = data
+		return 1
+	#----------------------------------------------------
+	def set_data(self, allergy = None):
+		try:
+			self.data_ID = allergy['ID']
+		except KeyError:
+			_log.LogException('must have ID in allergy', sys.exc_info(), verbose=0)
+			return None
+		# defaults
+		if allergy is None:
+			self.fld_date_noted.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
+			self.fld_substance.SetValue('')
+			self.fld_generic.SetValue('')
+			self.fld_generic_specific.SetValue(0)
+			self.fld_drug_class.SetValue('')
+			self.fld_reaction.SetValue('')
+			self.fld_progress_note.SetValue('')
+			self.fld_is_allergy.SetValue(1)
+			self.fld_is_sensitivity.SetValue(0)
+			self.fld_is_definite_allergy.SetValue(1)
+			return 1
+		# or data
+		try: self.fld_date_noted.SetValue(allergy['date noted'])
+		except KeyError: pass
+		try: self.fld_substance.SetValue(allergy['substance'])
+		except KeyError: pass
 
-		
+		try: self.fld_progress_note.SetValue(allergy['progress note'])
+		except KeyError: pass
+
+
+		try:
+			if allergy['is booster']:
+				self.fld_is_booster.SetValue(1)
+			else:
+				self.fld_is_booster.SetValue(0)
+		except KeyError: pass
+
+		return 1
+#========================================================
 class gmVaccinationEditArea(gmEditArea):
-	TD = 'target_disease'
-	V = 'vaccine'
-	D = 'date_given'
-	SN = 'serial_no'
-	SG = 'site_given'
-	P = 'progress_notes'
-	
+
 	def __init__(self, parent, id):
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'vaccination')
 		except gmExceptions.ConstructorError:
-			_log.LogException('cannot instantiate Vaccination edit area', sys.exc_info(),verbose=1)
+			_log.LogException('cannot instantiate vaccination edit area', sys.exc_info(), verbose=1)
 			raise
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making vaccine lines")
-		lines = []
-		self.txt_targetdisease = cEditAreaField(parent)
-		self.txt_vaccine = cEditAreaField(parent)
-		self.txt_dategiven= cEditAreaField(parent)
-		self.txt_serialno= cEditAreaField(parent)
-		self.txt_sitegiven	= cEditAreaField(parent)
-		self.txt_progressnotes= cEditAreaField(parent)
-		
-		lines.append(self.txt_targetdisease)
-		lines.append(self.txt_vaccine)
-		lines.append(self.txt_dategiven)
-		lines.append(self.txt_serialno)
-		lines.append(self.txt_sitegiven)
-		lines.append(self.txt_progressnotes)
-		lines.append(self._make_standard_buttons(parent))
-
-		c = gmVaccinationEditArea
-		self.input_fields = {
-			c.TD: self.txt_targetdisease,
-			c.V: self.txt_vaccine,
-			c.D: self.txt_dategiven,
-			c.SN: self.txt_serialno,
-			c.SG: self.txt_sitegiven,
-			c.P: self.txt_progressnotes
-		}
-
-		return lines
-
-	def get_fields_formatting_values(self):
-		c = gmVaccinationEditArea
-		fields = [ c.TD, c.V, c.D, c.SN, c.SG, c.P , 'id_vaccination']
-		s = "'%s'"
-		n = '%d'
-		formatting = { 	c.TD : s,
-				c.V : s, 
-				c.D : s,
-				c.SN : s,
-				c.SG : s, 
-				c.P : s
-			    }
-			    
-		values = self.getInputFieldValues(self, fields)
-		values['id_vaccination'] = self.getDataId()
-		return fields, formatting, values
-
-	def _save_data(self):
+	#----------------------------------------------------
+	def _define_fields(self, parent):
+		self.fld_disease_sched = cEditAreaField(parent)
+		self._add_field(
+			line = 1,
+			pos = 1,
+			widget = self.fld_disease_sched,
+			weight = 1
+		)
+		self.fld_vaccine = cEditAreaField(parent)
+		self._add_field(
+			line = 2,
+			pos = 1,
+			widget = self.fld_vaccine,
+			weight = 1
+		)
+		# FIXME: gmDateTimeInput
+		self.fld_date_given = cEditAreaField(parent)
+		self._add_field(
+			line = 3,
+			pos = 1,
+			widget = self.fld_date_given,
+			weight = 2
+		)
+		self.fld_seq_no_lbl = wxStaticText(
+			parent,
+			-1,
+			_('  Seq # '),
+			style = wxALIGN_CENTER_VERTICAL
+		)
+		self._add_field(
+			line = 3,
+			pos = 2,
+			widget = self.fld_seq_no_lbl,
+			weight = 0
+		)
+		# FIXME: numeric input only
+		self.fld_seq_no = cEditAreaField(parent)
+		self._add_field(
+			line = 3,
+			pos = 3,
+			widget = self.fld_seq_no,
+			weight = 0
+		)
+		self.fld_is_booster = wxCheckBox(
+			parent,
+			-1,
+			_('booster'),
+			style = wxNO_BORDER
+		)
+		self._add_field(
+			line = 3,
+			pos = 4,
+			widget = self.fld_is_booster,
+			weight = 0
+		)
+		# Batch No
+		# http://www.fao.org/docrep/003/v9952E12.htm
+		self.fld_batch_no = cEditAreaField(parent)
+		self._add_field(
+			line = 4,
+			pos = 1,
+			widget = self.fld_batch_no,
+			weight = 1
+		)
+		self.fld_site_given = cEditAreaField(parent)
+		self._add_field(
+			line = 5,
+			pos = 1,
+			widget = self.fld_site_given,
+			weight = 1
+		)
+		self.fld_progress_note = cEditAreaField(parent)
+		self._add_field(
+			line = 6,
+			pos = 1,
+			widget = self.fld_progress_note,
+			weight = 1
+		)
+		self._add_field(
+			line = 7,
+			pos = 1,
+			widget = self._make_standard_buttons(parent),
+			weight = 1
+		)
 		return 1
-
-
+	#----------------------------------------------------
+	def _define_prompts(self):
+		self._add_prompt(line = 1, label = _("Disease/Schedule"))
+		self._add_prompt(line = 2, label = _("Vaccine"))
+		self._add_prompt(line = 3, label = _("Date given"))
+		self._add_prompt(line = 4, label = _("Serial #"))
+		self._add_prompt(line = 5, label = _("Site injected"))
+		self._add_prompt(line = 6, label = _("Progress Note"))
+		self._add_prompt(line = 7, label = '')
+	#----------------------------------------------------
+	def _save_new_entry(self):
+		print "saving new vaccination entry from edit area"
+		vacc = {}
+		vacc['disease schedule'] = self.fld_disease_sched.GetValue()
+		vacc['vaccine'] = self.fld_vaccine.GetValue()
+		vacc['date given'] = self.fld_date_given.GetValue()
+		vacc['seq no'] = self.fld_seq_no.GetValue()
+		vacc['is booster'] = self.fld_is_booster.GetValue()
+		vacc['batch no'] = self.fld_batch_no.GetValue()
+		vacc['site given'] = self.fld_site_given.GetValue()
+		vacc['progress note'] = self.fld_progress_note.GetValue()
+		# FIXME: validation
+		epr = self.patient.get_clinical_record()
+		status, data = epr.add_vaccination(vacc)
+		if status is None:
+			wxBell()
+			_gb['main.statustext'](_('Cannot save vaccination.'))
+			return None
+		_gb['main.statustext'](_('Vaccination saved.'))
+		self.data_ID = data
+		return 1
+	#----------------------------------------------------
+	def set_data(self, aVacc = None):
+		# defaults
+		self.data_ID = None
+		if aVacc is None:
+			self.fld_disease_sched.SetValue('')
+			self.fld_vaccine.SetValue('')
+			self.fld_date_given.SetValue((time.strftime('%Y-%m-%d', time.localtime())))
+			self.fld_seq_no.SetValue('1')
+			self.fld_is_booster.SetValue(0)
+			self.fld_batch_no.SetValue('')
+			self.fld_site_given.SetValue('left/right deltoid')
+			self.fld_progress_note.SetValue('')
+			return 1
+		# or data
+		try: self.data_ID = aVacc['ID']
+		except KeyError:
+			_log.LogException('must have ID in aVacc', sys.exc_info(), verbose=0)
+			return None
+		try: self.fld_disease_sched.SetValue(aVacc['disease schedule'])
+		except KeyError: pass
+		try: self.fld_vaccine.SetValue(aVacc['vaccine'])
+		except KeyError: pass
+		try: self.fld_date_given.SetValue(aVacc['date given'])
+		except KeyError: pass
+		try: self.fld_seq_no.SetValue(aVacc['seq no'])
+		except KeyError: pass
+		try:
+			if aVacc['is booster']:
+				self.fld_is_booster.SetValue(1)
+			else:
+				self.fld_is_booster.SetValue(0)
+		except KeyError: pass
+		try: self.fld_batch_no.SetValue(aVacc['batch no'])
+		except KeyError: pass
+		try: self.fld_site_given.SetValue(aVacc['site given'])
+		except KeyError: pass
+		try: self.fld_progress_note.SetValue(aVacc['progress note'])
+		except KeyError: pass
+		return 1
 #====================================================================
 class gmMeasurementEditArea(gmEditArea):
 
@@ -1272,8 +1515,6 @@ class gmMeasurementEditArea(gmEditArea):
 		self.txt_comment = cEditAreaField(parent)
 		self.txt_progressnotes= cEditAreaField(parent)
 		
-		#lines.append(self.txt_targetdisease)
-
 		lines.append(self.txt_type)
 		lines.append(self.txt_date)
 		lines.append(self.txt_value)
@@ -1550,7 +1791,7 @@ class gmRequestEditArea(gmEditArea):
 		if not self.__class__.__dict__.has_key('billingChoices'):
 			self.__class__.__dict__['billingChoices'] = auBillingChoices
 		billings = self._makeRadioButtons( parent,  choices = self.__class__.billingChoices)
-		#lines.append(self.txt_targetdisease)
+		#lines.append(self.fld_disease_sched)
 
 		
 		lines.append(atype)
@@ -1703,8 +1944,6 @@ class EditTextBoxes(wxPanel):
 			self.gszr.Add(szr8,0,wxEXPAND)
 			#self.anylist = wxListCtrl(self, -1,  wxDefaultPosition,wxDefaultSize,wxLC_REPORT|wxLC_LIST|wxSUNKEN_BORDER)
 
-		elif section == gmSECTION_VACCINATION:
-			pass
 		elif section == gmSECTION_SCRIPT:
 			pass
 		elif section == gmSECTION_REQUESTS:
@@ -1732,44 +1971,6 @@ class EditTextBoxes(wxPanel):
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND, wxALL, 1)
 		return szr_buttons
-	#----------------------------------------------------------------
-	def __make_allergy_lines(self):
-		lines = []
-		self.input_fields = {}
-		# line 1
-		self.input_fields['date recorded'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.input_fields['date recorded'])
-		# line 2
-		self.input_fields['substance'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.input_fields['substance'])
-		# FIXME: add substance_code
-		# line 3
-		self.input_fields['generic'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		self.cb_generic_specific = wxCheckBox(self, -1, _("generics specific"), wxDefaultPosition, wxDefaultSize, wxNO_BORDER)
-		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(self.input_fields['generic'], 6, wxEXPAND)
-		szr.Add(self.cb_generic_specific, 0, wxEXPAND)
-		lines.append(szr)
-		# line 4
-		self.input_fields['allergy class'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.input_fields['allergy class'])
-		# line 5
-		self.input_fields['reaction'] = cEditAreaField(self, -1, wxDefaultPosition, wxDefaultSize)
-		lines.append(self.input_fields['reaction'])
-		# FIXME: add allergene, atc_code
-		# line 6
-		self.RBtn_is_allergy = wxRadioButton(self, -1, _("Allergy"), wxDefaultPosition,wxDefaultSize)
-		self.RBtn_is_sensitivity = wxRadioButton(self, -1, _("Sensitivity"), wxDefaultPosition,wxDefaultSize)
-		self.cb_is_definite_allergy = wxCheckBox(self, -1, _("Definate"), wxDefaultPosition,wxDefaultSize, wxNO_BORDER)
-		szr = wxBoxSizer(wxHORIZONTAL)
-		szr.Add(5, 0, 0)
-		szr.Add(self.RBtn_is_allergy, 2, wxEXPAND)
-		szr.Add(self.RBtn_is_sensitivity, 2, wxEXPAND)
-		szr.Add(self.cb_is_definite_allergy, 2, wxEXPAND)
-		szr.Add(self._make_standard_buttons(), 0, wxEXPAND)
-		lines.append(szr)
-
-		return lines
 #====================================================================
 class EditArea(wxPanel):
 	def __init__(self, parent, id, line_labels, section):
@@ -1843,20 +2044,6 @@ class EditArea(wxPanel):
 #====================================================================
 
 #====================================================================
-
-#		elif section == gmSECTION_VACCINATION:
-#		     
-#	              self.gszr.Add(self.txt_targetdisease,0,wxEXPAND)
-#		      self.gszr.Add(self.txt_vaccine,0,wxEXPAND)
-#		      self.gszr.Add(self.txt_dategiven,0,wxEXPAND)
-#		      self.gszr.Add(self.txt_serialno,0,wxEXPAND)
-#		      self.gszr.Add(self.txt_sitegiven,0,wxEXPAND)
-#		      self.gszr.Add(self.txt_progressnotes,0,wxEXPAND)
-#		      self.sizer_line6.Add(5,0,6)
-#		      self.sizer_line6.Add(self.btn_Save,1,wxEXPAND|wxALL,2)
-#	              self.sizer_line6.Add(self.btn_Clear,1,wxEXPAND|wxALL,2)    
-#		      self.gszr.Add(self.sizer_line6,1,wxEXPAND)
-
 
 #		elif section == gmSECTION_SCRIPT:
 #		      gmLog.gmDefLog.Log (gmLog.lData, "in script section now")
@@ -2127,7 +2314,7 @@ class EditArea(wxPanel):
 #--------------------------------------------------------------------
 if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (400, 200))
-	app.SetWidget(gmAllergyEditArea, -1)
+	app.SetWidget(gmVaccinationEditArea, -1)
 	app.MainLoop()
 #	app = wxPyWidgetTester(size = (400, 200))
 #	app.SetWidget(gmFamilyHxEditArea, -1)
@@ -2137,7 +2324,17 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.49  2003-12-02 02:03:35  ncq
+# Revision 1.50  2003-12-29 16:48:14  uid66147
+# - try to merge the "good" concepts so far
+# - overridden _define_fields|prompts() now use generic _add_field|prompt()
+#   helpers to define the layout
+# - generic do_layout() actually creates the layout
+# - generic _on_*_button_pressed() now call overridden _save_new|updated_entry()
+# - apply concepts to vaccination and allergy edit areas
+# - vaccination edit area actually saves new entries by way of gmClinicalRecord.add_vaccination()
+# - other edit areas still broken
+#
+# Revision 1.49  2003/12/02 02:03:35  ncq
 # - improve logging
 #
 # Revision 1.48  2003/12/02 02:01:24  ncq
