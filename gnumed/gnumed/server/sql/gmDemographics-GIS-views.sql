@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -173,12 +173,11 @@ BEGIN
 	END IF;
 END;' language 'plpgsql';
 
-
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ====================================================
 \unset ON_ERROR_STOP
-drop rule insert_address;
-drop rule delete_address;
-drop rule update_address;
+drop rule insert_address on v_basic_address;
+drop rule delete_address on v_basic_address;
+drop rule update_address on v_basic_address;
 \set ON_ERROR_STOP 1
 
 CREATE RULE insert_address AS ON INSERT TO v_basic_address DO INSTEAD
@@ -368,11 +367,14 @@ TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.7  2003-12-29 15:33:43  uid66147
+-- Revision 1.8  2004-01-05 00:45:41  ncq
+-- - drop rule wants relation name
+--
+-- Revision 1.7  2003/12/29 15:33:43  uid66147
 -- - translate country.name in views
 --
 -- Revision 1.6  2003/09/21 06:54:13  ihaywood
