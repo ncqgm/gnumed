@@ -224,14 +224,14 @@ end;' language 'plpgsql';
 create view v_basic_person as
 select
 	i.id as id,
-	n.title as title, n.firstnames as firstnames, n.lastnames as lastname, 
+	n.title as title, n.firstnames as firstnames, n.lastnames as lastnames,
 	--n.aka as aka,
 	i.dob as dob, i.cob as cob, i.gender as gender
 from
 	identity i, names n
 where
 	i.deceased = NULL and n.id_identity=i.id and n.active=true;
- 
+
 -- IH 9/3/02 Add some rules
 
 CREATE FUNCTION new_pupic () RETURNS char (24) AS '
@@ -249,7 +249,7 @@ CREATE RULE r_insert_basic_person AS ON INSERT TO v_basic_person DO INSTEAD
 	INSERT INTO identity (pupic, gender, dob, cob) values
 	       (new_pupic (), NEW.gender, NEW.dob, NEW.cob);
 	INSERT INTO names (title, firstnames, lastnames, id_identity)
-	VALUES (NEW.title, NEW.firstnames, NEW.lastnames, 
+	VALUES (NEW.title, NEW.firstnames, NEW.lastnames,
 	       currval ('identity_id_seq'));
 );
 
