@@ -5,7 +5,7 @@
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 #python standard modules
@@ -614,19 +614,29 @@ def run_query(aCursor = None, aQuery = None, *args):
 #	print t2-t1, aQuery
 	return 1
 #---------------------------------------------------
+def noop(*args, **kargs):
+	pass
+#---------------------------------------------------
 def run_commit (link_obj = None, queries = None, return_err_msg = None):
 	"""Convenience function for running a transaction
 	   that is supposed to get committed.
 
-	The point is to handle errors so the calling code can
-	avoid the highly repetitive try..except bureaucracy.
+	- link_obj can be
+	  - a cursor: rollback/commit must be done by the caller
+	  - a connection: rollback/commit is handled
+	  - a service name: rollback/commit is handled
 
-	Takes a list of (query, [args]) to execute as a single transaction.
+	- queries is a list of (query, [args])
+	  - executed as a single transaction
 
-	If the last query returned data (i.e. was a SELECT query), the
-	data will be returned.
+	- returns:
+	  - a tuple (<value>, error) if return_err_msg is True
+	  - a scalar <value> if return_err_msg is False
 
-	If there were no queries to execute it returns 1.
+	- <value> will be
+	  - None: if any query failed
+	  - 1: if all queries succeeded (also 0 queries)
+      - data: if the last query returned rows
 	"""
 	# sanity checks
 	if link_obj is None:
@@ -639,16 +649,20 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 			return (1, 'no queries to execute ?!?')
 		return 1
 
-	close_cursor = 0
-	close_conn = 0
+	close_cursor = noop
+	close_conn = noop
+	commit = noop
+	rollback = noop
 	# is it a cursor ?
 	if hasattr(link_obj, 'fetchone') and hasattr(link_obj, 'description'):
 		curs = link_obj
 	# is it a connection ?
 	elif (hasattr(link_obj, 'commit') and hasattr(link_obj, 'cursor')):
 		curs = link_obj.cursor()
-		close_cursor = 1
+		close_cursor = curs.close
 		conn = link_obj
+		commit = link_obj.commit
+		rollback = link_obj.rollback
 	# take it to be a service name then
 	else:
 		pool = ConnectionPool()
@@ -659,22 +673,23 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 				return (None, _('cannot connect to service [%s]') % link_obj)
 			return None
 		curs = conn.cursor()
-		close_cursor = 1
-		close_conn = 1
+		close_cursor = curs.close
+		close_conn = conn.close
+		commit = conn.commit
+		rollback = conn.rollback
 	# run queries
 	for query, args in queries:
 #		t1 = time.time()
 		try:
 			curs.execute (query, *args)
 		except:
-			if close_cursor:
-				curs.close()
-			if close_conn:
-				conn.close()
-			info = sys.exc_info()
-			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), info, verbose = _query_logging_verbosity)
+			rollback()
+			close_cursor()
+			close_conn()
+			exc_info = sys.exc_info()
+			_log.LogException ("RW query >>>%s<<< with args >>>%s<<< failed" % (query, args), exc_info, verbose = _query_logging_verbosity)
 			if return_err_msg:
-				typ, val, tb = info
+				typ, val, tb = exc_info
 				tmp = string.replace(str(val), 'ERROR:', '')
 				tmp = string.replace(tmp, 'ExecAppend:', '')
 				tmp = string.strip(tmp)
@@ -699,43 +714,20 @@ def run_commit (link_obj = None, queries = None, return_err_msg = None):
 		if _query_logging_verbosity == 1:
 			_log.Log(gmLog.lData, 'fetchall(): last query did not return rows')
 		# something seems odd
-		if (curs.rowcount > 0) or (curs.description is not None):
-			_log.Log(gmLog.lWarn, 'there seem to be rows but fetchall() failed -- DB API violation ?')
-			_log.Log(gmLog.lWarn, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
+		if curs.description is not None:
+			if curs.rowcount > 0:
+				_log.Log(gmLog.lWarn, 'there seem to be rows but fetchall() failed -- DB API violation ?')
+				_log.Log(gmLog.lWarn, 'rowcount: %s, description: %s' % (curs.rowcount, curs.description))
 
 	# clean up
-	if close_cursor:
-		conn.commit()
-		curs.close()
-	if close_conn:
-		conn.close()
+	commit()
+	close_cursor()
+	close_conn()
 
-	# FIXME:
-	# this is very wasteful, why can't we save this read-write connection
-	# for the next time it's used (I understand it can't be shared at once)
-	#> def run_commit():
-	#>     conn = rw_conn_pool.get_cached()
-	#>     if conn is None:
-	#>       if rw_conn_pool.curr_size_per_service() > rw_conn_hard_limit_per_service:
-	#>           _log('insufficient connections, getting temporary one')
-	#>           conn = rw_conn_pool.establish_new(keep=false)
-	#>       else:
-	#>           _log('insufficient connections, increasing pool')
-	#>           conn = rw_conn_pool.establish_new(keep=true)
-	#>     ... error checking ...
-	#>     do_stuff()
-	#>     conn.commit()
-
-	if data is None:
-		status = 1
-	else:
-		status = data
-	if return_err_msg:
-		return (status, '')
+	if data is None: status = 1
+	else: status = data
+	if return_err_msg: return (status, '')
 	return status
-#---------------------------------------------------
-def noop(*args, **kargs):
-	pass
 #---------------------------------------------------
 def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	"""Runs a read-only query.
@@ -1131,7 +1123,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.9  2004-04-16 16:18:37  ncq
+# Revision 1.10  2004-04-19 12:46:24  ncq
+# - much improved docs on run_commit()
+# - use noop() in run_commit()
+# - fix rollback/commit behaviour in run_commit() - I wonder why it ever worked !?!
+#
+# Revision 1.9  2004/04/16 16:18:37  ncq
 # - correctly check for returned rows in run_commit()
 #
 # Revision 1.8  2004/04/16 00:21:22  ncq
