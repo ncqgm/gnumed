@@ -187,7 +187,7 @@ class gmGP_Measurements (gmPlugin.wxPatientPlugin):
 	"""
 
 	__icons = {
-"""Set Square""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"S\x05Cu\xae\xc4`\xf5|\x85d\x05\xa7\x9c\xc4\
+"""icon_Set_Square""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"S\x05Cu\xae\xc4`\xf5|\x85d\x05\xa7\x9c\xc4\
 \xe4l0O\x0f\xc8S6\xb70w60\x00\xf3\xfda|s\x0b0?\x02\xc4w\xb3p\x83\xc9+\x00\
 \xf9~\xf9y\xa9P\x8e\x82\x82^D\x84\x9e\x02\x14 \x0b\xe6c\x11\xd4\xcb\'\xac2\
 \x1f\r@\\\x19\x81\n\xa1\x82\xa8\x00\xb7\xa0?\x10\xe4\xeb\xe9\xe5\xfbC\x015\
@@ -202,12 +202,12 @@ class gmGP_Measurements (gmPlugin.wxPatientPlugin):
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons["""Set Square"""]
+			return self.__icons[_("""icon_Set_Square""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons["""Set Square"""]
+				return self.__icons[_("""icon_Set_Square""")]
 
 	def GetWidget (self, parent):
 		return  MeasurementPanel (parent, -1)

@@ -120,15 +120,12 @@ class RecallsPanel(wxPanel):
 		self.mainsizer.Fit
 		self.SetAutoLayout(true)
 		self.Show(true)
-	
-		
-		
 #----------------------------------------------------------------------
 class gmGP_Recalls(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
 
 	__icons = {
-"""0""": 'x\xda\x8d\x8e=\x0b\xc3 \x10\x86\xf7\xfc\x8a\x03\x85\x14\x02\xa2Kc\xb7\xa0\
+"""icon_talking_head""": 'x\xda\x8d\x8e=\x0b\xc3 \x10\x86\xf7\xfc\x8a\x03\x85\x14\x02\xa2Kc\xb7\xa0\
 \x901\x0eY\\C\xe8\xd4P\xfb\xff\xa7z\xa7\xd1\xa6\xcd\xd0\xd3\xe5yx\xef\xe3\
 \xb2\xbdT3\xb7\xea\n\xf1\xdf@\xb5\xcd2\xb7\x02V0\xdb\xb2>\x88X$\xd6\xeb\xdeJ\
 I\xdc![\x89\x8f\xd8!\x8f\xba\xf0\xb0\xf3\xa8\x899\xb2\x96Z\xe6~\x88<\x85\xe7\
@@ -146,12 +143,12 @@ I\xdc![\x89\x8f\xd8!\x8f\xba\xf0\xb0\xf3\xa8\x899\xb2\x96Z\xe6~\x88<\x85\xe7\
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons["""0"""]
+			return self.__icons[_("""icon_talking_head""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons["""0"""]
+				return self.__icons[_("""icon_talking_head""")]
 
 	def GetWidget (self, parent):
 		return RecallsPanel (parent, -1)

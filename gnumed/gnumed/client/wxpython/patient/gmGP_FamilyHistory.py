@@ -176,7 +176,7 @@ class gmGP_FamilyHistory(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the family history window."""
 
 	__icons = {
-0: 'x\xda\x9d\x90\xb1\x0e\x83 \x10\x86w\x9f\xe2\x12@\x9b\x98\x10X\xaa#\x81\xc4\
+"""icon_two_people""": 'x\xda\x9d\x90\xb1\x0e\x83 \x10\x86w\x9f\xe2\x12@\x9b\x98\x10X\xaa#\x81\xc4\
 \xb1\x0c.\xae\xc6t\xaa)}\xff\xa9w\x07\xd8\xb4n\x05\xf5\xf2}w?$^\xf6\x97m\xe6\
 \xce^\x81\x1e\x0b\xb6k\xd6\xb9\x93\xb0\x81\xdf\xd7\xed\xc1\xd4"\x89a\x1c\x82\
 1\xcc\x82x\x1a\x8d\x99F\xe6\x85\xd8\xe0\n\xb9\x1f+\x97\xbe\xcey2\xcc)\xe7C\
@@ -195,12 +195,12 @@ class gmGP_FamilyHistory(gmPlugin.wxPatientPlugin):
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons[0]
+			return self.__icons[_("""icon_two_people""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons[0]
+				return self.__icons[_("""icon_two_people""")]
 
 	def GetWidget (self, parent):
 		return FamilyHistoryPanel (parent, -1)

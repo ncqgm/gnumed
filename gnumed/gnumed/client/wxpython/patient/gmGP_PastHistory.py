@@ -168,7 +168,7 @@ class gmGP_PastHistory(gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the immunisation window."""
 
 	__icons = {
-"""ship""": 'x\xdaU\x8e1\x0b\x830\x10\x85\xf7\xfe\x8a\x80\x82\x85@\xa8K\xb5\xdb\x11\xc1\
+"""icon_hx_ship""": 'x\xdaU\x8e1\x0b\x830\x10\x85\xf7\xfe\x8a\x80\x82\x85@\xa8K\xb5\xdb\x11\xc1\
 \xb17\xb8\xbcU\xa4S\xa5\xe9\xff\x9fz\x97\xc44^$\xe4{w\xef\x9d\xd7\xfd\xdb_\
 \x96\xae\xbf\x1b\xf9\x1e\xa6\xef.\xeb\xd2\xc1l\xc6\xef\xeb\xf6\x8ed\x85\x9a\
 \x9b\xd40F&\xe5a\x1c\xa6\xcc\xcd\xd1\x9f\x13\x9b\xd4W%r\x10~\x86\xcf+\x02ks\
@@ -187,12 +187,12 @@ E\xbd\x08\x95\x1d\xf9:\xeci\x83\x84\xe6my\xb2\xae\xb2\xe8\xa4e\xbb\xadO\x14\
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons["""ship"""]
+			return self.__icons[_("""icon_hx_ship""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons["""ship"""]
+				return self.__icons[_("""icon_hx_ship""")]
 
 	def GetWidget (self, parent):
 		return PastHistoryPanel (parent, -1)

@@ -167,7 +167,7 @@ class gmGP_AnteNatal_3 (gmPlugin.wxPatientPlugin):
 	Plugin to encapsulate the antenatalcare window
 	"""
 	__icons = {
-"""Ante-natal symbol""":"x\xdam\x90?o\x830\x10\xc5\xf7|\nKNB\x15\x1cd\xc0\x80!\x7fDm`\xac\x87,\xacQ\
+"""icon-future_mom""":"x\xdam\x90?o\x830\x10\xc5\xf7|\nKNB\x15\x1cd\xc0\x80!\x7fDm`\xac\x87,\xacQ\
 \xd4\xa9Q\xe9\xf7\x9f\xea\xf3\xd9Uq\xeb[\xf8\xbd\xf7\xee\x0e\xfb\xe5\xf9\x95\
 onI^\x93\\\x92\xa2%y\xb2\xb9\xdf\x12I\x1eD=\xef\x8f\x0fG\xc6\x12-9\x94\xe3\
 \x12\xb8\xe5\x927\xc8\x15\xb0\xe6\x9ck\xe4\x03\xf0 \xb5P\xc8[\xe0\x89\x0f\
@@ -190,12 +190,12 @@ i\x8e\xa7.^te\xe7\x8e\xe6\xab\x99\x861Vt\xb4\x8c\xb63&\xba\xfeo\x92EI\xc3\
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons["""Ante-natal symbol"""]
+			return self.__icons[_("""icon-future_mom""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons["""Ante-natal symbol"""]
+				return self.__icons[_("""icon-future_mom""")]
 	   
 	def GetWidget (self, parent):
 		return  AntenatalPanel (parent, -1)

@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+
+#############################################################################
+# gmGP_XXXX
+#
+# This panel will hold all the XXXX details.
+#
+# It allows to do bar with particular foo-ness.
+#
+# @copyright: author
+# @license: GPL (details at http://www.gnu.org)
+# @dependencies: wxPython (>= version 2.3.1)
+############################################################################
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_PatientPlugin.py.template,v $
+__version__ = "$Revision: 1.1 $"
+__author__ = "you <you@yourdomain.org>"
+
+# import here whatever is needed
+#import gmLog
+#_log = gmLog.gmDefLog
+#import gmCfg
+#_cfg = gmCfg.gmDefCfgFile
+
+# create IDs if needed
+#ID_xxx_xxx = wxNewId()
+#======================================================================
+class XXXX_Panel(wxPanel):
+	"""Implements the widget based on a panel."""
+	#-----------------------------
+	def __init__(self, parent, id):
+		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+	#-----------------------------
+	# your stuff goes here
+#======================================================================
+# this class must have the same name as the module file
+# such that the plugin parser can find it
+class gmPlugin_template(gmPlugin.wxPatientPlugin):
+	"""Plugin to encapsulate the XXX window."""
+
+	# you need to replace this with an appropriate icon
+	__icons = {
+"""icon_XXXX_YYYY""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"\x13\x05Cu\xae\xc4`\xf5|\x85d\x05e\x17W\x10\
+\x04\xf3\xf5@|77\x03 \x00\xf3\x15\x80|\xbf\xfc\xbcT0\'\x02$i\xee\x06\x82PIT@\
+HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
+\x14&\xa8\x07\x05h\x82\x11\x11 \xfd\x11H\x82 1\x84[\x11\x82Hn\x85i\x8f\x80\
+\xba&"\x82\x08\xbf\x13\x16\xd4\x03\x00\xe4\xa2I\x9c'
+}
+	#-----------------------------
+	def name (self):
+		return _('XXXX Window')
+	#-----------------------------
+	def MenuInfo (self):
+		return ('a menu name', 'a name for the menu entry')
+	#-----------------------------
+	def GetIconData(self, anIconID = None):
+		if anIconID == None:
+			return self.__icons[_("""icon_XXXX_YYYY""")]
+		else:
+			if self.__icons.has_key(anIconID):
+				return self.__icons[anIconID]
+			else:
+				return self.__icons[_("""icon_XXXX_YYYY""")]
+	#-----------------------------
+	def GetWidget (self, parent):
+		return XXXX_Panel (parent, -1)
+#======================================================================
+if __name__ == "__main__":
+	app = wxPyWidgetTester(size = (600, 600))
+	app.SetWidget(XXXX_Panel, -1)
+	app.MainLoop()
+#======================================================================
+# $Log: gmGP_PatientPlugin.py.template,v $
+# Revision 1.1  2002-09-17 05:37:33  ncq
+# - moved over to l10n-able icon keys
+# - added plugin template
+#
+#

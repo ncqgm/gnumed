@@ -143,7 +143,7 @@ class gmGP_Allergies (gmPlugin.wxPatientPlugin):
 	"""Plugin to encapsulate the allergies window"""
 
 	__icons = {
-0: 'x\xda\xd3\xc8)0\xe4\nV74S\x00"\x13\x05Cu\xae\xc4`\xf5|\x85d\x05e\x17W\x10\
+"""icon_letter_A""": 'x\xda\xd3\xc8)0\xe4\nV74S\x00"\x13\x05Cu\xae\xc4`\xf5|\x85d\x05e\x17W\x10\
 \x04\xf3\xf5@|77\x03 \x00\xf3\x15\x80|\xbf\xfc\xbcT0\'\x02$i\xee\x06\x82PIT@\
 HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 \x14&\xa8\x07\x05h\x82\x11\x11 \xfd\x11H\x82 1\x84[\x11\x82Hn\x85i\x8f\x80\
@@ -158,12 +158,12 @@ HPO\x0f\xab`\x04\x86\xa0\x9e\x1e\\)\xaa`\x04\x9a P$\x02\xa6\x14Y0\x1f\xa6\
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons[0]
+			return self.__icons[_("""icon_letter_A""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons[0]
+				return self.__icons[_("""icon_letter_A""")]
 
 	def GetWidget (self, parent):
 		return AllergyPanel (parent, -1)

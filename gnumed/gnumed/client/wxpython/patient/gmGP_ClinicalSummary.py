@@ -86,7 +86,7 @@ class gmGP_ClinicalSummary (gmPlugin.wxPatientPlugin):
 	"""
 
 	__icons = {
-"""clinical_summary""": "x\xda]\x93IS\xab@\x14\x85\xf7\xfe\n\xaaP\xf3J4\x05\xf4\x88SIC\xe3\xca\xb8H\
+"""icon_clinical_summary""": "x\xda]\x93IS\xab@\x14\x85\xf7\xfe\n\xaaP\xf3J4\x05\xf4\x88SIC\xe3\xca\xb8H\
 \x95e\xb9s\xc0Y\x89q\xf6\xd7?\xee\xb9mLrO6\xdfI\xf7\x9d\x80\x7f\x8f\x93le<\
 \xc8t\xd4\xff\xb4\x8a\xb2\xc1\xca\xf9x\xf0\x19]F\xb1\xb7F\xa6\xcco\xc4\x95\
 \xd5*\xcd\xc15q\x99\x15\xc22g\xc4\xb2&\x81\x87\xc4i\x1f2\x05\xdf\x10\x9b\\\
@@ -120,12 +120,12 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 
 	def GetIconData(self, anIconID = None):
 		if anIconID == None:
-			return self.__icons["""clinical_summary"""]
+			return self.__icons[_("""icon_clinical_summary""")]
 		else:
 			if self.__icons.has_key(anIconID):
 				return self.__icons[anIconID]
 			else:
-				return self.__icons["""clinical_summary"""]
+				return self.__icons[_("""icon_clinical_summary""")]
 
 	def GetWidget (self, parent):
 		return ClinicalSummary (parent, -1)
