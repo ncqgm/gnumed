@@ -5,7 +5,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.7 $ $Date: 2004-07-17 20:57:53 $ $Author: ncq $
+-- $Revision: 1.8 $ $Date: 2005-01-12 12:29:29 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -75,57 +75,57 @@ comment on column form_queue.status is
 -- This is a highly classical accounting system, with medical-specific
 -- updatable views.
 
-create table schedule (
-	id serial primary key,
-	code varchar (20),
-	name varchar (100),
-	min_duration integer,
-	description text
-);
+--create table schedule (
+--	id serial primary key,
+--	code varchar (20),
+--	name varchar (100),
+--	min_duration integer,
+--	description text
+--);
 
-create table billing_scheme (
-	id serial primary key,
-	name varchar (100),
-	iso_countrycode char (2)
-);
+--create table billing_scheme (
+--	id serial primary key,
+--	name varchar (100),
+--	iso_countrycode char (2)
+--);
 
-create table prices (
-	id_consult integer references schedule (id),
-	id_scheme integer references billing_scheme (id),
-	patient float,
-	bulkbill float
-);
+--create table prices (
+--	id_consult integer references schedule (id),
+--	id_scheme integer references billing_scheme (id),
+--	patient float,
+--	bulkbill float
+--);
 
-comment on column prices.patient is
-	'the amount of money paid by the patient';
-comment on column prices.bulkbill is
-	'the amount billed directly (bulk-billed) to the payor';
+--comment on column prices.patient is
+--	'the amount of money paid by the patient';
+--comment on column prices.bulkbill is
+--	'the amount billed directly (bulk-billed) to the payor';
 
-create table accounts (
-	id serial primary key,
-	name varchar (50),
-	extra integer
-);
+--create table accounts (
+--	id serial primary key,
+--	name varchar (50),
+--	extra integer
+--);
 
-alter table accounts add column parent integer references accounts (id);
+--alter table accounts add column parent integer references accounts (id);
 
-create table ledger (
-	stamp timestamp,
-	amount float,
-	debit integer references accounts (id),
-	credit integer references accounts (id)
-);
+--create table ledger (
+--	stamp timestamp,
+--	amount float,
+--	debit integer references accounts (id),
+--	credit integer references accounts (id)
+--);
 
-create table consults
-(
-	start timestamp,
-	finish timestamp,
-	id_location integer,
-	id_doctor integer,
-	id_patient integer,
-	id_type integer references schedule (id),
-	id_scheme integer references billing_scheme (id)
-);
+--create table consults
+--(
+--	start timestamp,
+--	finish timestamp,
+--	id_location integer,
+--	id_doctor integer,
+--	id_patient integer,
+--	id_type integer references schedule (id),
+--	id_scheme integer references billing_scheme (id)
+--);
 
 -- ===================================================================
 -- permissions
@@ -143,11 +143,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.8 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.7  2004-07-17 20:57:53  ncq
+-- Revision 1.8  2005-01-12 12:29:29  ncq
+-- - comment out some unused tables
+--
+-- Revision 1.7  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --
