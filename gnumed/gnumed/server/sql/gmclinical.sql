@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.122 $
+-- $Revision: 1.123 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -63,6 +63,7 @@ comment on column clin_health_issue.description is
 create table clin_episode (
 	pk serial primary key,
 	fk_patient integer
+		default null
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
@@ -79,9 +80,9 @@ create table clin_episode (
 
 alter table clin_episode add constraint non_redundant_patient
 	check (
-		(fk_patient is not null and fk_health_issue is null)
+		((fk_health_issue is null) and (fk_patient is not null))
 			or
-		(fk_patient is null and fk_health_issue is not null)
+		((fk_health_issue is not null) and (fk_patient is null))
 	);
 
 select add_table_for_audit('clin_episode');
@@ -537,7 +538,6 @@ comment on table lnk_vaccine2inds is
 	'links vaccines to their indications';
 
 -- --------------------------------------------
--- FIXME: do we need lnk_vaccine2vacc_reg ?
 create table vacc_regime (
 	id serial primary key,
 	name text unique not null,
@@ -1006,11 +1006,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.122 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.123 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.122  2004-09-17 20:14:06  ncq
+-- Revision 1.123  2004-09-17 21:02:04  ncq
+-- - further tighten clin_episode
+--
+-- Revision 1.122  2004/09/17 20:14:06  ncq
 -- - curr_medication -> clin_medication + propagate
 -- - partial index on clin_episode.fk_health_issue where fk_health_issue not null
 -- - index on clin_medication.discontinued where discontinued not null
