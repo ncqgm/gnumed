@@ -4,13 +4,13 @@
 """
 #==================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/scan/Attic/gmScanMedDocs.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __license__ = "GPL"
 __author__ =	"Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, \
 				 Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 #==================================================
-import sys, os.path, os
+import sys, os.path, os, Image
 
 # location of our modules
 if __name__ == "__main__":
@@ -502,25 +502,41 @@ class ScanPanel(wxPanel):
 		_log.Log(gmLog.lData, '%s pending images' % more_images_pending)
 
 		# make tmp file name
-		# for now we know it's bitmap
-		# FIXME: should be JPEG, perhaps ?
 		tempfile.tempdir = self.scan_tmp_dir
 		tempfile.template = 'obj-'
-		fname = tempfile.mktemp('.bmp')
+		bmp_name = tempfile.mktemp('.bmp')
 		try:
 			# convert to bitmap file
-			_twain.DIBToBMFile(external_data_handle, fname)
+			_twain.DIBToBMFile(external_data_handle, bmp_name)
 		except:
 			exc = sys.exc_info()
-			_log.LogException('Unable to convert image in global heap handle into file [%s] !' % fname, exc, fatal=1)
+			_log.LogException('Unable to convert image in global heap handle into file [%s] !' % bmp_name, exc, fatal=1)
 			# free external image memory
 			_twain.GlobalHandleFree(external_data_handle)
 			# hide the scanner user interface again
 			self.TwainScanner.HideUI()
 			return None
-
 		# free external image memory
 		_twain.GlobalHandleFree(external_data_handle)
+
+		# convert to JPEG ?
+		do_jpeg = _cfg.get("scanning", "convert to JPEG")
+		if do_jpeg in ["yes", "on"]:
+			jpg_name = tempfile.mktemp('.jpg')
+			# get JPEG quality factor
+			quality_value = _cfg.get("scanning", "JPEG quality level")
+			if quality_value is None:
+				quality_value = 75
+			# do we want progression ?
+			progression_flag = _cfg.get("scanning", "progressive JPEG")
+			# actually convert to JPEG
+			if progression_flag in ["yes", "on"]:
+				Image.open(bmp_name).save(jpg_name, quality = quality_value, optimize = 1, progression = 1)
+			else:
+				Image.open(bmp_name).save(jpg_name, quality = quality_value, optimize = 1)
+			# remove bitmap
+			os.remove(bmp_name)
+
 		# hide the scanner user interface again
 		self.TwainScanner.HideUI()
 		# and keep a reference
@@ -961,7 +977,10 @@ else:
 			return ('tools', _('&scan documents'))
 #======================================================
 # $Log: gmScanMedDocs.py,v $
-# Revision 1.14  2002-12-08 12:40:54  ncq
+# Revision 1.15  2002-12-27 11:17:00  ncq
+# - implemented conversion to JPEG in TWAIN, too
+#
+# Revision 1.14  2002/12/08 12:40:54  ncq
 # - fixed wxID list off by one
 #
 # Revision 1.13  2002/12/05 15:19:25  ncq
