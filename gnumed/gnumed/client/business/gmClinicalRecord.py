@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.60 2004-01-18 21:41:49 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmClinicalRecord.py,v 1.61 2004-01-19 13:30:46 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -533,20 +533,22 @@ class gmClinicalRecord:
 		return rows[0][0]
 	#--------------------------------------------------------
 	def __load_last_active_episode(self):
+		id_episode = None
 		# check if there's an active episode
 		cmd = "select id_episode from last_act_episode where id_patient=%s limit 1"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
-		# error
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
 			return None
-		# no last_active_episode recorded so far
-		episode_name = 'xxxDEFAULTxxx'
-		if len(rows) == 0:
-			# find episode with the most recently modified clinical item
+		if len(rows) != 0:
+			id_episode = rows[0][0]
+
+		# no last_active_episode recorded, so try to find the
+		# episode with the most recently modified clinical item
+		if id_episode is None:
 			# FIXME: optimize query
 			cmd = """
-				select description
+				select id
 				from clin_episode
 				where id=(
 					select distinct on(id_episode) id_episode
@@ -554,26 +556,49 @@ class gmClinicalRecord:
 					where
 						id_patient=%s
 							and
-						modified_when=(select max(modified_when) where id_patient=%s)
-				)"""
+						modified_when=(select max(modified_when) where id_patient=%s))"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient, self.id_patient)
-			# error
 			if rows is None:
-				_log.Log(gmLog.lErr, 'cannot check for most recently used episode on patient [%s]' % self.id_patient)
-				return None
-			# no episode-connected clinical items recorded so far
-			if len(rows) == 0:
 				_log.Log(gmLog.lErr, 'no episodes in v_patient_items for patient [%s]' % self.id_patient)
-			else:
-				episode_name = rows[0][0]
-			# try to activate episode
-			if self.set_active_episode(episode_name):
-				return 1
-			_log.Log(gmLog.lErr, 'cannot activate episode [%s] for patient [%s]' % (episode_name, self.id_patient))
-			return None
-		# found last_active_episode
-		self.id_episode = rows[0][0]
+				return None
+			if len(rows) != 0:
+				id_episode = rows[0][0]
+				self.set_active_episode(episode_id=id_episode)
 
+		# no clinical items recorded, so try to find
+		# the youngest episode for this patient
+		if id_episode is None:
+			cmd = """
+				select id
+				from clin_episode cle, clin_health_issue chi
+				where
+					chi.id_patient = %s
+						and
+					chi.id = cle.id_health_issue
+						and
+					cle.modfied_when = (
+						select max(cle.modified_when)
+					)"""
+			rows = gmPG.run_ro_query('historica', cmd, None, self.id_patient)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot check for most recently touched episode on patient [%s]' % self.id_patient)
+				return None
+			if len(rows) != 0:
+				id_episode = rows[0][0]
+				self.set_active_episode(episode_id=id_episode)
+
+		# none found whatsoever
+		if id_episode is None:
+			# so try to at least create a default one ...
+			id_episode = self.add_episode()
+			if id_episode is None:
+				_log.Log(gmLog.lErr, 'cannot even create default episode for patient [%s], aborting' %  self.id_patient)
+				return None
+			if not self.set_active_episode():
+				_log.Log(gmLog.lErr, 'cannot activate newly created default episode for patient [%s], aborting' %  self.id_patient)
+				return None
+
+		self.id_episode = id_episode
 		# load corresponding health issue
 		cmd = "select id_health_issue from v_patient_episodes where id_episode=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self.id_episode)
@@ -1211,7 +1236,10 @@ if __name__ == "__main__":
 #	f.close()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.60  2004-01-18 21:41:49  ncq
+# Revision 1.61  2004-01-19 13:30:46  ncq
+# - substantially smarten up __load_last_active_episode() after cleaning it up
+#
+# Revision 1.60  2004/01/18 21:41:49  ncq
 # - get_vaccinated_indications()
 # - make get_vaccinations() work against v_patient_vacc4ind
 # - don't store vacc_def/link on saving vaccination
