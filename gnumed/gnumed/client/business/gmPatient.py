@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.44 2004-06-15 19:14:30 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmPatient.py,v 1.45 2004-07-05 22:26:24 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -120,16 +120,20 @@ class gmPerson:
 			return self.__db_cache['clinical record']
 		except KeyError:
 			pass
+		tstart = time.time()
 		try:
 			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self.__ID)
 		except StandardError:
 			_log.LogException('cannot instantiate clinical record for person [%s]' % self.__ID, sys.exc_info())
 			return None
+		duration = time.time() - tstart
+		print "get_clinical_record() took %s seconds" % duration
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
 	def get_demographic_record(self):
 		if self.__db_cache.has_key('demographic record'):
 			return self.__db_cache['demographic record']
+		tstart = time.time()
 		try:
 			# FIXME: we need some way of setting the type of backend such that
 			# to instantiate the correct type of demographic record class
@@ -137,6 +141,8 @@ class gmPerson:
 		except StandardError:
 			_log.LogException('cannot instantiate demographic record for person [%s]' % self.__ID, sys.exc_info())
 			return None
+		duration = time.time() - tstart
+		print "get_demographic_record() took %s seconds" % duration
 		return self.__db_cache['demographic record']
 	#--------------------------------------------------------
 	def get_document_folder(self):
@@ -853,6 +859,7 @@ def create_dummy_identity():
 	return data[0][0]
 #============================================================
 def set_active_patient(anID = None):
+	tstart = time.time()
 	# argument error
 	if anID is None:
 		return None
@@ -874,6 +881,8 @@ def set_active_patient(anID = None):
 	if new_ID == old_ID:
 		_log.Log (gmLog.lErr, 'error changing active patient')
 		return None
+	duration = time.time() - tstart
+	print "set_active_patient took %s seconds" % duration
 	return 1
 #============================================================
 # main/testing
@@ -915,7 +924,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.44  2004-06-15 19:14:30  ncq
+# Revision 1.45  2004-07-05 22:26:24  ncq
+# - do some timings to find patient change time sinks
+#
+# Revision 1.44  2004/06/15 19:14:30  ncq
 # - add cleanup() to current patient calling gmPerson.cleanup()
 #
 # Revision 1.43  2004/06/01 23:58:01  ncq
