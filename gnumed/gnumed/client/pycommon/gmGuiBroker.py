@@ -9,12 +9,12 @@ variables needed for a gnumed GUI client interface
 """
 #-----------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmGuiBroker.py,v $
-# $Id: gmGuiBroker.py,v 1.3 2004-06-20 06:49:21 ihaywood Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmGuiBroker.py,v 1.4 2004-06-20 15:44:28 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "H.Herb <hherb@gnumed.net>, H.Berger <Hilmar.Berger@gmx.de>"
 #===========================================================
-import gettext
-_ = gettext.gettext
+if __name__ == '__main__':
+	_ = lambda x:x
 
 # FIXME !!! hack moved here from gmConf. This definitely must be replaced by some 
 # structure getting data from the backend
@@ -160,7 +160,10 @@ if __name__ == "__main__":
 
 #===========================================================
 # $Log: gmGuiBroker.py,v $
-# Revision 1.3  2004-06-20 06:49:21  ihaywood
+# Revision 1.4  2004-06-20 15:44:28  ncq
+# - we need to be more careful in pleasing epydoc
+#
+# Revision 1.3  2004/06/20 06:49:21  ihaywood
 # changes required due to Epydoc's OCD
 #
 # Revision 1.2  2004/03/10 00:14:04  ncq
