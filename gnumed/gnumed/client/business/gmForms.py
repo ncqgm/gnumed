@@ -9,8 +9,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmForms.py,v $
-# $Id: gmForms.py,v 1.7 2004-03-09 07:50:56 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmForms.py,v 1.8 2004-03-10 13:30:21 ihaywood Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>"
  
 import sys, os.path, string, time, re, tempfile, cStringIO, types
@@ -122,21 +122,15 @@ class LaTeXForm (TextForm):
             item = item.replace ("\n", "\\\\ ")
             if len (item.strip ()) == 0:
                 item = "\relax " # sometimes TeX really hates empty strings, this seems to mollify it
-            
-            item = item.replace ("ß ", "\\\ss\\ ")
-            item = item.replace ("ß", "\\ss ")
-            item = item.replace ("ä ", '\\"{a}\\ ')
-            item = item.replace ("ä", '\\"{a}')
-            item = item.replace ("Ä ", '\\"{A}\\ ')
-            item = item.replace ("Ä", '\\"{A}')
-            item = item.replace ("ö ", '\\"{o}\\ ')
-            item = item.replace ("ö", '\\"{o}')
-            item = item.replace ("Ö ", '\\"{O}\\ ')
-            item = item.replace ("Ö", '\\"{O}')
-            item = item.replace ("ü ", '\\"{u}\\ ')
-            item = item.replace ("ü", '\\"{u}')
-            item = item.replace ("Ü ", '\\"{U}\\ ')
-            item = item.replace ("Ü", '\\"{U}')
+	    # FIXME: cover all of ISO-Latin-1 which can be expressed in TeX
+	    trans = {'ß':'\\ss{}', 'ä': '\\"{a}', 'Ä' :'\\"{A}', "ö ": '\\"{o}', "Ö": '\\"{O}',  "ü": '\\"{u}', "Ü": '\\"{U}',
+		     '\x8a':'\\v{S}', 'x8a':'\\OE{}', '\x9a':'\\v{s}', '\x9c': '\\oe{}', '\a9f':'\\"{Y}', #Microsloth extensions
+		     '\x86': '{\\dag}', '\x87': '{\\ddag}', '\xa7':'{\\S}', '\xb6': '{\\P}', '\xa9': '{\\copyright}', '\xbf': '?`',
+		     '\xc0':'\\`{A}', '\xa1': "\\'{A}", '\xa2': '\\^{A}', '\xa3':'\\~{A}', '\\xc5': '{\\AA}',
+		     '\xa1': '!`',
+		     '\xb5':'$\mu$', '\xa3': '\pounds{}'}
+	    for k, i in trans.items ():
+		    item = item.replace (k, i)
             if type (item) is types.UnicodeType:
                 item = item.encode ('ascii') # TeX only works on plain ASCII!
         if type (item) is types.ListType: 
@@ -224,12 +218,12 @@ def test ():
 		'PENSIONER':1,
 		'VETERAN':0,
 		'PADS':0,
-		'INSTRUCTIONS':'Take the blue pill, Neo'
+		'INSTRUCTIONS':'Take the blue pill, Neo\nThis is \xa9 copyright.'
 	}
-    form = LaTeXForm (f.read())
-    form.process (params)
-    form.xdvi ()
-    form.cleanup ()
+	form = LaTeXForm (f.read())
+	form.process (params)
+	form.xdvi ()
+	form.cleanup ()
 
 #============================================================
 # main
