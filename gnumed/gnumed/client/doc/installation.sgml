@@ -5,13 +5,16 @@
      <date>26-2-2002</date>
      <title>GNUMed</title>
      <subtitle>User's Manual</subtitle>
-    <author><firstname>Ian</firstname><surname>Haywood</surname></author>
+    
 	<author>
 		<firstname>Ian</firstname>
 		<surname>Haywood</surname>
-		<firstname>Gerardo</firstname>
+      </author>
+	<author>	
+      		<firstname>Gerardo</firstname>
 		<surname>Arnaez</surname>
-	</author>
+      
+      </author>
 
 <abstract>
 	<para>      
@@ -26,13 +29,14 @@
       A copy of the license is included in the section entitled "GNU
       Free Documentation License".</para>
    </abstract>
+
 <revhistory>
 	<revision>
 		<revnumber>0.1.1</revnumber>
 		<date>2002-09-01</date>
 		<authorinitials>gea</authorinitials>
-		<revremark>Took into.sgml and modified.  Adding a section of thigs noted while trying to get GnuMed up and running
-		</revremark>
+		<revremark>Took into.sgml and modified.  Adding a section of thigs noted while trying to get GnuMed up and running	
+	</revremark>
 	</revision>
 </revhistory>
 
@@ -238,6 +242,11 @@ executed and simply add <command>-i</command> as an argument.
 <para>Once PostgreSQL is set up, go to the section on
 setting up the database (<xref linkend="pgsql">.)</para>
 
+	<sect3>
+	  <title>Creating a database with PostgresQL</title>
+	  <para>This may be too simplistic but there a few things that need to be cleared up. The first is that when <emphasis>postgresQL</emphasis> gets installed, <emphasis>postgresQL</emphasis> will create a user called <emphasis>postgres</emphasis>. This user <emphasis>postgres</emphasis> can only create other users.  I suggest you create another user with the same name as you normally use to login.</para>
+	  <para>So to create another user to create the database you would first <screen>su root</screen> then you would <screen>su postgres</screen> then you would type <screen>createuser $USER</screen> where $USER is whatever login name you normally use. Be sure to let this new created user make new databases.
+	  <para>Once you have created this second user, which you allow to create databases, you then would type, as this new user, ie first you would login back as a normal user and type <screen>createdb gnumed</screen>.  
 </sect2>
 
 <sect1 id="mac"><title>Mac</title>
@@ -410,12 +419,23 @@ feed in the ER scripts?</para>
 
 <sect1>
 	<title>Getting GnuMed to run</title>
-	<para>
-	These are collected notes from trying to get Gnumed up and running.</para>
 
-	<sect2><title>GNUMED_DIR</title>
-		<para></para>
+
+	<sect2><title>Starting GnuMed</title>
+		<para>Simple I would have thought but to start Gnumed you must go all the way to</para>
+	<screen>~/gnumed/gnumed/client/wxpython</screen>
+	<para>And one you are here, you should type: <screen>python gnumed.py</screen></para>
+
+	<para>Do not be surprised with a multitude of [WARN} and [INFO] the the python interpreter will spew out. With any luck you will see a login gui</para>
 	</sect2>
+
+      <sect2>
+	<title>Logging in</title>
+	<para>You will then be faced with login parameters. If you have set up the postgresql correctly, you only need to fill in the follow parameters.</para>
+
+	<para>For <emphasis>Login</emphasis> you enter in the usernamem you used to create the database.</para>
+	<para>For <emphasis>database</emphasis> enter in <emphasis>gnumed</emphasis>. Remember this is the database name you created initally. <emphasis>If</emphasis> all goes well, you will see a very nice GUI</para>
+
 </sect1>
 
 
