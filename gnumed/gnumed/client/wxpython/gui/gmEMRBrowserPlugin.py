@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,7 +20,7 @@ _log.Log(gmLog.lInfo, __version__)
 class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient EMR browser window."""
 
-	tab_name = _('EMR browser')
+	tab_name = _('EMR tree')
 
 	def name (self):
 		return gmEMRBrowserPlugin.tab_name
@@ -30,7 +30,7 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('tools', 'EMR &browser')
+		return ('tools', 'EMR tree')
 
 	def can_receive_focus(self):
 		# need patient
@@ -97,7 +97,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.4  2005-03-11 22:53:37  ncq
+# Revision 1.5  2005-03-29 07:33:47  ncq
+# - fix naming
+#
+# Revision 1.4  2005/03/11 22:53:37  ncq
 # - ask_for_patient() is now in gmPerson
 #
 # Revision 1.3  2004/10/31 00:35:40  cfmoro
