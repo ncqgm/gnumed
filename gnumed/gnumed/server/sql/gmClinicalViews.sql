@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.89 2004-07-05 22:47:34 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.90 2004-07-07 15:07:34 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -719,12 +719,14 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
-
+-- this view has a row for each code-per-diagnosis-per-patient,
+-- hence one patient-diagnosis can appear several times, namely
+-- once per associated code
 \unset ON_ERROR_STOP
-drop view v_coded_diags;
+drop view v_pat_diag_codes;
 \set ON_ERROR_STOP 1
 
-create view v_coded_diags as
+create view v_pat_diag_codes as
 select
 	vpd.pk_diag as pk_diag,
 	vpd.diagnosis as diagnosis,
@@ -736,6 +738,27 @@ from
 where
 	lc2d.fk_diag = vpd.pk_diag
 ;
+
+-- this view is a lookup table for locally used
+-- code/diagnosis associations irrespective of
+-- patient association, hence any diagnosis-code
+-- combination will appear only once
+\unset ON_ERROR_STOP
+drop view v_codes4diag;
+\set ON_ERROR_STOP 1
+
+create view v_codes4diag as
+select distinct on (diagnosis, code, xfk_coding_system)
+	vpd.diagnosis as diagnosis,
+	lc2d.code as code,
+	lc2d.xfk_coding_system as coding_system
+from
+	v_pat_diag vpd,
+	lnk_code2diag lc2d
+where
+	lc2d.fk_diag = vpd.pk_diag
+;
+
 
 -- =============================================
 -- types of narrative
@@ -797,10 +820,6 @@ GRANT SELECT ON
 	, curr_encounter
 	, clin_narrative
 	, clin_aux_note
---	, _enum_hx_type
---	, _enum_hx_source
---	, clin_history
---	, clin_physical
 	, _enum_allergy_type
 	, allergy
 	, allergy_state
@@ -837,14 +856,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_narrative_pk_seq,
 	clin_aux_note,
 	clin_aux_note_pk_seq,
---	_enum_hx_type,
---	_enum_hx_type_id_seq,
---	_enum_hx_source,
---	_enum_hx_source_id_seq,
---	clin_history,
---	clin_history_id_seq,
---	clin_physical,
---	clin_physical_id_seq,
 	_enum_allergy_type,
 	_enum_allergy_type_id_seq,
 	allergy,
@@ -918,7 +929,8 @@ GRANT SELECT ON
 	, v_results4lab_req
 	, v_test_org_profile
 	, v_pat_diag
-	, v_coded_diags
+	, v_pat_diag_codes
+	, v_codes4diag
 	, v_pat_rfe
 	, v_pat_aoe
 TO GROUP "gm-doctors";
@@ -927,11 +939,15 @@ TO GROUP "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.89 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.90 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.89  2004-07-05 22:47:34  ncq
+-- Revision 1.90  2004-07-07 15:07:34  ncq
+-- - v_pat_diag_codes
+-- - v_codes4diag
+--
+-- Revision 1.89  2004/07/05 22:47:34  ncq
 -- - added pk_diag to v_coded_diag
 --
 -- Revision 1.88  2004/07/05 18:46:51  ncq
