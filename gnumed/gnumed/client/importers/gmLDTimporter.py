@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.15 2004-06-25 12:27:58 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmLDTimporter.py,v 1.16 2004-07-05 22:28:40 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -56,7 +56,7 @@ class cLDTImporter:
 		'8311': 'lab_request_id',
 		'8301': 'lab_rxd_when',
 		'8401': 'request_status',
-		'8405': 'narrative'
+		'8405': 'progress_note'
 	}
 
 	def __init__(self, cfg=None):
@@ -301,7 +301,7 @@ class cLDTImporter:
 				where
 					vpi.id_patient=i.id
 						and
-					vpi.id_item=%s
+					vpi.pk_item=%s
 						and
 					date_trunc('day', i.dob)=%s::timestamp
 			)"""
@@ -338,7 +338,7 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	def __xform_8405(self, request_data):
 		new_comment = '\n'.join(request_data['8405'])
-		old_narrative = self.__request['narrative']
+		old_narrative = self.__request['progress_note']
 		if old_narrative is None:
 			return new_comment
 		if old_narrative.find(new_comment) == -1:
@@ -366,7 +366,7 @@ class cLDTImporter:
 				where
 					vpi.id_patient=i.id
 						and
-					vpi.id_item=%s"""
+					vpi.pk_item=%s"""
 		data = gmPG.run_ro_query('personalia', cmd, None, self.__request['pk_item'])
 		if data is None:
 			_log.Log(gmLog.lErr, 'cannot sanity check patient ref group [%s]' % gmXdtMappings.map_8407_2str[tmp])
@@ -626,18 +626,18 @@ class cLDTImporter:
 		return True
 	#-----------------------------------------------------------
 	def __xform_8432(self, result_data):
-		self.__request['clin_when'] = mxDT.strptime(
+		self.__request['sampled_when'] = mxDT.strptime(
 			result_data['8432'][0],
 			'%d%m%Y',
-			self.__request['clin_when']
+			self.__request['sampled_when']
 			)
 		self.__request.save_payload()
 	#-----------------------------------------------------------
 	def __xform_8433(self, result_data):
-		self.__request['clin_when'] = mxDT.strptime(
+		self.__request['sampled_when'] = mxDT.strptime(
 			result_data['8433'][0],
 			'%H%M',
-			self.__request['clin_when']
+			self.__request['sampled_when']
 			)
 		self.__request.save_payload()
 	#-----------------------------------------------------------
@@ -691,13 +691,13 @@ class cLDTImporter:
 	#-----------------------------------------------------------
 	def __xform_8490(self, result_data):
 		new_comment = '\n'.join(result_data['8490'])
-		old_narrative = self.__request['narrative']
+		old_narrative = self.__request['progress_note']
 		if old_narrative is None:
-			self.__request['narrative'] = new_comment
+			self.__request['progress_note'] = new_comment
 			self.__request.save_payload()
 			return True
 		if old_narrative.find(new_comment) == -1:
-			self.__request['narrative'] = old_narrative + '\n' + new_comment
+			self.__request['progress_note'] = old_narrative + '\n' + new_comment
 			self.__request.save_payload()
 		return True
 	#-----------------------------------------------------------
@@ -776,7 +776,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.15 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.16 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -931,7 +931,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.15 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.16 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -965,7 +965,13 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.15  2004-06-25 12:27:58  ncq
+# Revision 1.16  2004-07-05 22:28:40  ncq
+# - lab_request -> v_lab_request, therefore:
+#   - clin_when -> sampled_when
+#   - narrative -> progress_note
+# - v_pat_items.id_item -> pk_item
+#
+# Revision 1.15  2004/06/25 12:27:58  ncq
 # - correctly cross-check db<->ldt patient
 # - 8461/8462
 #
