@@ -2,12 +2,18 @@
 
 import gmGuiBroker 
 import EditAreaHandler
+from handler_gmSelectPersonImpl import *
+
+def configure_handlers():
+	gb = gmGuiBroker.GuiBroker()
+	gb['DlgSelectPerson_handler'] = gmSelectPerson_handler_impl()
 
 def load_handlers():
 	gb = gmGuiBroker.GuiBroker()
 	if gb.has_key('widgets'):
 		map = gb['widgets']
 		for k, widget  in map.items():
+			print "widget found = ",k, widget
 			if widget.__dict__.has_key('editarea'):
 				#all set to put in hooks
 				section = widget.editarea.rightside.section
@@ -29,5 +35,6 @@ def load_handlers():
 				handler = gb[handler_name]
 				handler.create_handler(widget)
 			continue
-	
+
+configure_handlers()
 load_handlers()	

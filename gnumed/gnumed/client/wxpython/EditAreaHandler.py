@@ -12,13 +12,17 @@ from wxPython.wx import *
 class gmSECTION_SUMMARY_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_SUMMARY_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -52,12 +56,18 @@ class gmSECTION_SUMMARY_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
@@ -66,13 +76,17 @@ class gmSECTION_SUMMARY_handler:
 class gmSECTION_DEMOGRAPHICS_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_DEMOGRAPHICS_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -106,12 +120,18 @@ class gmSECTION_DEMOGRAPHICS_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
@@ -120,13 +140,17 @@ class gmSECTION_DEMOGRAPHICS_handler:
 class gmSECTION_CLINICALNOTES_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_CLINICALNOTES_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -160,12 +184,18 @@ class gmSECTION_CLINICALNOTES_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
@@ -174,13 +204,17 @@ class gmSECTION_CLINICALNOTES_handler:
 class gmSECTION_FAMILYHISTORY_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_FAMILYHISTORY_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -335,78 +369,117 @@ class gmSECTION_FAMILYHISTORY_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def txt_familymembername_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymembername_text_entered(self, event) 
+			
 
 		print "txt_familymembername_text_entered received ", event
 			
 
 	def txt_familymemberrelationship_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymemberrelationship_text_entered(self, event) 
+			
 
 		print "txt_familymemberrelationship_text_entered received ", event
 			
 
 	def txt_familymembercondition_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymembercondition_text_entered(self, event) 
+			
 
 		print "txt_familymembercondition_text_entered received ", event
 			
 
 	def txt_familymemberconditioncomment_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymemberconditioncomment_text_entered(self, event) 
+			
 
 		print "txt_familymemberconditioncomment_text_entered received ", event
 			
 
 	def txt_familymemberage_onset_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymemberage_onset_text_entered(self, event) 
+			
 
 		print "txt_familymemberage_onset_text_entered received ", event
 			
 
 	def txt_familymembercaused_death_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymembercaused_death_text_entered(self, event) 
+			
 
 		print "txt_familymembercaused_death_text_entered received ", event
 			
 
 	def txt_familymemberage_death_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymemberage_death_text_entered(self, event) 
+			
 
 		print "txt_familymemberage_death_text_entered received ", event
 			
 
 	def txt_familymemberprogressnotes_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymemberprogressnotes_text_entered(self, event) 
+			
 
 		print "txt_familymemberprogressnotes_text_entered received ", event
 			
 
 	def txt_familymemberdate_of_birth_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_familymemberdate_of_birth_text_entered(self, event) 
+			
 
 		print "txt_familymemberdate_of_birth_text_entered received ", event
 			
 
 	def rb_familymember_conditionconfidential_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_familymember_conditionconfidential_radiobutton_clicked(self, event) 
+			
 
 		print "rb_familymember_conditionconfidential_radiobutton_clicked received ", event
 			
 
 	def btn_familymembernextcondition_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btn_familymembernextcondition_button_clicked(self, event) 
+			
 
 		print "btn_familymembernextcondition_button_clicked received ", event
 			
@@ -415,13 +488,17 @@ class gmSECTION_FAMILYHISTORY_handler:
 class gmSECTION_PASTHISTORY_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_PASTHISTORY_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -598,90 +675,135 @@ class gmSECTION_PASTHISTORY_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def txt_condition_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_condition_text_entered(self, event) 
+			
 
 		print "txt_condition_text_entered received ", event
 			
 
 	def rb_sideleft_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_sideleft_radiobutton_clicked(self, event) 
+			
 
 		print "rb_sideleft_radiobutton_clicked received ", event
 			
 
 	def rb_sideright_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_sideright_radiobutton_clicked(self, event) 
+			
 
 		print "rb_sideright_radiobutton_clicked received ", event
 			
 
 	def rb_sideboth_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_sideboth_radiobutton_clicked(self, event) 
+			
 
 		print "rb_sideboth_radiobutton_clicked received ", event
 			
 
 	def txt_notes1_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_notes1_text_entered(self, event) 
+			
 
 		print "txt_notes1_text_entered received ", event
 			
 
 	def txt_notes2_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_notes2_text_entered(self, event) 
+			
 
 		print "txt_notes2_text_entered received ", event
 			
 
 	def txt_agenoted_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_agenoted_text_entered(self, event) 
+			
 
 		print "txt_agenoted_text_entered received ", event
 			
 
 	def txt_yearnoted_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_yearnoted_text_entered(self, event) 
+			
 
 		print "txt_yearnoted_text_entered received ", event
 			
 
 	def cb_active_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_active_checkbox_clicked(self, event) 
+			
 
 		print "cb_active_checkbox_clicked received ", event
 			
 
 	def cb_operation_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_operation_checkbox_clicked(self, event) 
+			
 
 		print "cb_operation_checkbox_clicked received ", event
 			
 
 	def cb_confidential_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_confidential_checkbox_clicked(self, event) 
+			
 
 		print "cb_confidential_checkbox_clicked received ", event
 			
 
 	def cb_significant_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_significant_checkbox_clicked(self, event) 
+			
 
 		print "cb_significant_checkbox_clicked received ", event
 			
 
 	def txt_progressnotes_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_progressnotes_text_entered(self, event) 
+			
 
 		print "txt_progressnotes_text_entered received ", event
 			
@@ -690,13 +812,17 @@ class gmSECTION_PASTHISTORY_handler:
 class gmSECTION_VACCINATION_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_VACCINATION_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -796,48 +922,72 @@ class gmSECTION_VACCINATION_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def txt_targetdisease_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_targetdisease_text_entered(self, event) 
+			
 
 		print "txt_targetdisease_text_entered received ", event
 			
 
 	def txt_vaccine_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_vaccine_text_entered(self, event) 
+			
 
 		print "txt_vaccine_text_entered received ", event
 			
 
 	def txt_dategiven_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_dategiven_text_entered(self, event) 
+			
 
 		print "txt_dategiven_text_entered received ", event
 			
 
 	def txt_serialno_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_serialno_text_entered(self, event) 
+			
 
 		print "txt_serialno_text_entered received ", event
 			
 
 	def txt_sitegiven_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_sitegiven_text_entered(self, event) 
+			
 
 		print "txt_sitegiven_text_entered received ", event
 			
 
 	def txt_progressnotes_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_progressnotes_text_entered(self, event) 
+			
 
 		print "txt_progressnotes_text_entered received ", event
 			
@@ -846,13 +996,17 @@ class gmSECTION_VACCINATION_handler:
 class gmSECTION_ALLERGIES_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_ALLERGIES_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -985,66 +1139,99 @@ class gmSECTION_ALLERGIES_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def text1_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text1_text_entered(self, event) 
+			
 
 		print "text1_text_entered received ", event
 			
 
 	def text2_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text2_text_entered(self, event) 
+			
 
 		print "text2_text_entered received ", event
 			
 
 	def text3_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text3_text_entered(self, event) 
+			
 
 		print "text3_text_entered received ", event
 			
 
 	def text4_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text4_text_entered(self, event) 
+			
 
 		print "text4_text_entered received ", event
 			
 
 	def text5_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text5_text_entered(self, event) 
+			
 
 		print "text5_text_entered received ", event
 			
 
 	def cb1_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb1_checkbox_clicked(self, event) 
+			
 
 		print "cb1_checkbox_clicked received ", event
 			
 
 	def rb1_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb1_radiobutton_clicked(self, event) 
+			
 
 		print "rb1_radiobutton_clicked received ", event
 			
 
 	def rb2_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb2_radiobutton_clicked(self, event) 
+			
 
 		print "rb2_radiobutton_clicked received ", event
 			
 
 	def cb2_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb2_checkbox_clicked(self, event) 
+			
 
 		print "cb2_checkbox_clicked received ", event
 			
@@ -1053,13 +1240,17 @@ class gmSECTION_ALLERGIES_handler:
 class gmSECTION_SCRIPT_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_SCRIPT_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -1258,102 +1449,153 @@ class gmSECTION_SCRIPT_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def text1_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text1_text_entered(self, event) 
+			
 
 		print "text1_text_entered received ", event
 			
 
 	def text2_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text2_text_entered(self, event) 
+			
 
 		print "text2_text_entered received ", event
 			
 
 	def text3_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text3_text_entered(self, event) 
+			
 
 		print "text3_text_entered received ", event
 			
 
 	def text4_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text4_text_entered(self, event) 
+			
 
 		print "text4_text_entered received ", event
 			
 
 	def text5_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text5_text_entered(self, event) 
+			
 
 		print "text5_text_entered received ", event
 			
 
 	def text6_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text6_text_entered(self, event) 
+			
 
 		print "text6_text_entered received ", event
 			
 
 	def text7_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text7_text_entered(self, event) 
+			
 
 		print "text7_text_entered received ", event
 			
 
 	def text8_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text8_text_entered(self, event) 
+			
 
 		print "text8_text_entered received ", event
 			
 
 	def text9_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text9_text_entered(self, event) 
+			
 
 		print "text9_text_entered received ", event
 			
 
 	def cb_veteran_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_veteran_checkbox_clicked(self, event) 
+			
 
 		print "cb_veteran_checkbox_clicked received ", event
 			
 
 	def cb_reg24_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_reg24_checkbox_clicked(self, event) 
+			
 
 		print "cb_reg24_checkbox_clicked received ", event
 			
 
 	def cb_usualmed_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_usualmed_checkbox_clicked(self, event) 
+			
 
 		print "cb_usualmed_checkbox_clicked received ", event
 			
 
 	def btn_authority_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btn_authority_button_clicked(self, event) 
+			
 
 		print "btn_authority_button_clicked received ", event
 			
 
 	def btn_briefPI_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btn_briefPI_button_clicked(self, event) 
+			
 
 		print "btn_briefPI_button_clicked received ", event
 			
 
 	def text10_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.text10_text_entered(self, event) 
+			
 
 		print "text10_text_entered received ", event
 			
@@ -1362,13 +1604,17 @@ class gmSECTION_SCRIPT_handler:
 class gmSECTION_REQUESTS_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_REQUESTS_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -1567,102 +1813,153 @@ class gmSECTION_REQUESTS_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def txt_request_type_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_type_text_entered(self, event) 
+			
 
 		print "txt_request_type_text_entered received ", event
 			
 
 	def txt_request_company_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_company_text_entered(self, event) 
+			
 
 		print "txt_request_company_text_entered received ", event
 			
 
 	def txt_request_street_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_street_text_entered(self, event) 
+			
 
 		print "txt_request_street_text_entered received ", event
 			
 
 	def txt_request_suburb_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_suburb_text_entered(self, event) 
+			
 
 		print "txt_request_suburb_text_entered received ", event
 			
 
 	def txt_request_phone_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_phone_text_entered(self, event) 
+			
 
 		print "txt_request_phone_text_entered received ", event
 			
 
 	def txt_request_requests_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_requests_text_entered(self, event) 
+			
 
 		print "txt_request_requests_text_entered received ", event
 			
 
 	def txt_request_notes_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_notes_text_entered(self, event) 
+			
 
 		print "txt_request_notes_text_entered received ", event
 			
 
 	def txt_request_medications_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_medications_text_entered(self, event) 
+			
 
 		print "txt_request_medications_text_entered received ", event
 			
 
 	def txt_request_copyto_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_copyto_text_entered(self, event) 
+			
 
 		print "txt_request_copyto_text_entered received ", event
 			
 
 	def txt_request_progressnotes_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_request_progressnotes_text_entered(self, event) 
+			
 
 		print "txt_request_progressnotes_text_entered received ", event
 			
 
 	def cb_includeallmedications_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.cb_includeallmedications_checkbox_clicked(self, event) 
+			
 
 		print "cb_includeallmedications_checkbox_clicked received ", event
 			
 
 	def rb_request_bill_bb_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_request_bill_bb_radiobutton_clicked(self, event) 
+			
 
 		print "rb_request_bill_bb_radiobutton_clicked received ", event
 			
 
 	def rb_request_bill_private_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_request_bill_private_radiobutton_clicked(self, event) 
+			
 
 		print "rb_request_bill_private_radiobutton_clicked received ", event
 			
 
 	def rb_request_bill_rebate_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_request_bill_rebate_radiobutton_clicked(self, event) 
+			
 
 		print "rb_request_bill_rebate_radiobutton_clicked received ", event
 			
 
 	def rb_request_bill_wcover_radiobutton_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.rb_request_bill_wcover_radiobutton_clicked(self, event) 
+			
 
 		print "rb_request_bill_wcover_radiobutton_clicked received ", event
 			
@@ -1671,13 +1968,17 @@ class gmSECTION_REQUESTS_handler:
 class gmSECTION_MEASUREMENTS_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_MEASUREMENTS_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -1788,54 +2089,81 @@ class gmSECTION_MEASUREMENTS_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def combo_measurement_type_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.combo_measurement_type_text_entered(self, event) 
+			
 
 		print "combo_measurement_type_text_entered received ", event
 			
 
 	def txt_measurement_value_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_measurement_value_text_entered(self, event) 
+			
 
 		print "txt_measurement_value_text_entered received ", event
 			
 
 	def txt_txt_measurement_date_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_txt_measurement_date_text_entered(self, event) 
+			
 
 		print "txt_txt_measurement_date_text_entered received ", event
 			
 
 	def txt_txt_measurement_comment_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_txt_measurement_comment_text_entered(self, event) 
+			
 
 		print "txt_txt_measurement_comment_text_entered received ", event
 			
 
 	def txt_txt_measurement_progressnote_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_txt_measurement_progressnote_text_entered(self, event) 
+			
 
 		print "txt_txt_measurement_progressnote_text_entered received ", event
 			
 
 	def btn_nextvalue_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btn_nextvalue_button_clicked(self, event) 
+			
 
 		print "btn_nextvalue_button_clicked received ", event
 			
 
 	def btn_graph_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btn_graph_button_clicked(self, event) 
+			
 
 		print "btn_graph_button_clicked received ", event
 			
@@ -1844,13 +2172,17 @@ class gmSECTION_MEASUREMENTS_handler:
 class gmSECTION_REFERRALS_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_REFERRALS_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -2137,150 +2469,225 @@ class gmSECTION_REFERRALS_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def btnpreview_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnpreview_button_clicked(self, event) 
+			
 
 		print "btnpreview_button_clicked received ", event
 			
 
 	def txt_referralcategory_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralcategory_text_entered(self, event) 
+			
 
 		print "txt_referralcategory_text_entered received ", event
 			
 
 	def txt_referralname_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralname_text_entered(self, event) 
+			
 
 		print "txt_referralname_text_entered received ", event
 			
 
 	def txt_referralorganisation_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralorganisation_text_entered(self, event) 
+			
 
 		print "txt_referralorganisation_text_entered received ", event
 			
 
 	def txt_referralstreet1_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralstreet1_text_entered(self, event) 
+			
 
 		print "txt_referralstreet1_text_entered received ", event
 			
 
 	def txt_referralstreet2_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralstreet2_text_entered(self, event) 
+			
 
 		print "txt_referralstreet2_text_entered received ", event
 			
 
 	def txt_referralstreet3_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralstreet3_text_entered(self, event) 
+			
 
 		print "txt_referralstreet3_text_entered received ", event
 			
 
 	def txt_referralsuburb_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralsuburb_text_entered(self, event) 
+			
 
 		print "txt_referralsuburb_text_entered received ", event
 			
 
 	def txt_referralpostcode_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralpostcode_text_entered(self, event) 
+			
 
 		print "txt_referralpostcode_text_entered received ", event
 			
 
 	def txt_referralfor_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralfor_text_entered(self, event) 
+			
 
 		print "txt_referralfor_text_entered received ", event
 			
 
 	def txt_referralwphone_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralwphone_text_entered(self, event) 
+			
 
 		print "txt_referralwphone_text_entered received ", event
 			
 
 	def txt_referralwfax_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralwfax_text_entered(self, event) 
+			
 
 		print "txt_referralwfax_text_entered received ", event
 			
 
 	def txt_referralwemail_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralwemail_text_entered(self, event) 
+			
 
 		print "txt_referralwemail_text_entered received ", event
 			
 
 	def txt_referralcopyto_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralcopyto_text_entered(self, event) 
+			
 
 		print "txt_referralcopyto_text_entered received ", event
 			
 
 	def txt_referralprogressnotes_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_referralprogressnotes_text_entered(self, event) 
+			
 
 		print "txt_referralprogressnotes_text_entered received ", event
 			
 
 	def chkbox_referral_usefirstname_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_usefirstname_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_usefirstname_checkbox_clicked received ", event
 			
 
 	def chkbox_referral_headoffice_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_headoffice_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_headoffice_checkbox_clicked received ", event
 			
 
 	def chkbox_referral_medications_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_medications_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_medications_checkbox_clicked received ", event
 			
 
 	def chkbox_referral_socialhistory_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_socialhistory_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_socialhistory_checkbox_clicked received ", event
 			
 
 	def chkbox_referral_familyhistory_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_familyhistory_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_familyhistory_checkbox_clicked received ", event
 			
 
 	def chkbox_referral_pastproblems_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_pastproblems_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_pastproblems_checkbox_clicked received ", event
 			
 
 	def chkbox_referral_activeproblems_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_activeproblems_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_activeproblems_checkbox_clicked received ", event
 			
 
 	def chkbox_referral_habits_checkbox_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.chkbox_referral_habits_checkbox_clicked(self, event) 
+			
 
 		print "chkbox_referral_habits_checkbox_clicked received ", event
 			
@@ -2289,13 +2696,17 @@ class gmSECTION_REFERRALS_handler:
 class gmSECTION_RECALLS_handler:
 
 	def create_handler(self, panel):
-		return gmSECTION_RECALLS_handler(panel)
+		return self.__init__(panel)
 
 	def __init__(self, panel):
 		self.panel = panel
 		if panel <> None:
 			self.__set_id()
 			self.__set_evt()
+			self.impl = None
+	
+	def set_impl(self, impl):
+		self.impl = impl
 
 	def __set_id(self):
 		self.id_map = {}
@@ -2417,60 +2828,90 @@ class gmSECTION_RECALLS_handler:
 
 	def btnOK_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnOK_button_clicked(self, event) 
+			
 
 		print "btnOK_button_clicked received ", event
 			
 
 	def btnClear_button_clicked( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.btnClear_button_clicked(self, event) 
+			
 
 		print "btnClear_button_clicked received ", event
 			
 
 	def combo_tosee_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.combo_tosee_text_entered(self, event) 
+			
 
 		print "combo_tosee_text_entered received ", event
 			
 
 	def combo_recall_method_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.combo_recall_method_text_entered(self, event) 
+			
 
 		print "combo_recall_method_text_entered received ", event
 			
 
 	def combo_apptlength_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.combo_apptlength_text_entered(self, event) 
+			
 
 		print "combo_apptlength_text_entered received ", event
 			
 
 	def txt_recall_for_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_recall_for_text_entered(self, event) 
+			
 
 		print "txt_recall_for_text_entered received ", event
 			
 
 	def txt_recall_due_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_recall_due_text_entered(self, event) 
+			
 
 		print "txt_recall_due_text_entered received ", event
 			
 
 	def txt_recall_addtext_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_recall_addtext_text_entered(self, event) 
+			
 
 		print "txt_recall_addtext_text_entered received ", event
 			
 
 	def txt_recall_include_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_recall_include_text_entered(self, event) 
+			
 
 		print "txt_recall_include_text_entered received ", event
 			
 
 	def txt_recall_progressnotes_text_entered( self, event):
 		pass
+		if self.impl <> None:
+			self.impl.txt_recall_progressnotes_text_entered(self, event) 
+			
 
 		print "txt_recall_progressnotes_text_entered received ", event
 			
