@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 if __name__ == "__main__":
 	print
@@ -85,10 +85,12 @@ class cLnkPersonOrgAddress(gmClinItem.cClinItem):
 	_updatable_fields=["id_identity", "id_address" , "id_type", 
 		"id_org" ,"id_occupation", "address_source"]
 
+	# FIXME: this doesn't belong here
 	def findByOrgId(id):
-		cmds = """select id from lnk_person_org_address 
-			where id_org = %s and id_identity = NULL
-			"""
+		print tmp
+#		cmds = """select id from lnk_person_org_address 
+#			where id_org = %s and id_identity = NULL
+#			"""
 
 
 class cCatFinder(gmBorg.cBorg):
@@ -109,7 +111,7 @@ class cCatFinder(gmBorg.cBorg):
 
 	def reload(self, categoryType):
 		result = gmPG.run_ro_query("personalia","select id, description from %s" % categoryType)
-		if result == None:
+		if result is None:
 			gmLog.gmDefLog(gmLog.lErr, "failed to load %s" % categoryType)
 		
 		for (id, description) in result:
@@ -243,8 +245,8 @@ class cOrgHelperImpl1(cOrgHelper):
 	
 	
 	def _save_comm_channels(self):
-		if self.getPk() == None:
-			gmLog.gmDefLog.Log(gmLog.lInfo, "Unable to save comm channel %s : %s due to no org id" % (k,v) )
+		if self.getId() is None:
+			gmLog.gmDefLog.log(gmLog.lInfo, "Unable to save comm channel %s : %s due to no org id" % (k,v) )
 			return False
 	
 		comm_changes = {}
@@ -261,7 +263,7 @@ class cOrgHelperImpl1(cOrgHelper):
 		cmd = [
 		("""select id, url, id_type from comm_channel where url in( %s )""" % format, urls) ]
 		result = gmPG.run_commit('personalia', cmd)
-		if result == None:
+		if result is None:
 			gmLog.gmDefLog.Log(gmLog.lInfo, "find existing org comms failed" )
 			return False
 		
@@ -516,7 +518,6 @@ class cOrgHelperImpl1(cOrgHelper):
 		if not m.has_key('name') or m['name'].strip() =='':
 			print "PLEASE ENTER ORG NAME" #change this
 			return False
-	
 		print "self.Pk() = ", self.getPk() , " is None : ", self.getPk() is None
 		if self.getPk() is None:
 			if not self._create():
@@ -673,7 +674,10 @@ if __name__== "__main__":
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.4  2004-05-21 15:39:22  sjtan
+# Revision 1.5  2004-05-22 10:31:29  ncq
+# - == None -> is None
+#
+# Revision 1.4  2004/05/21 15:39:22  sjtan
 #
 # passed unit test for save, load, shallow_del, save again, update and save.
 #
