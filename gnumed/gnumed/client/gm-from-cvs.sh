@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/gm-from-cvs.sh,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 # start kvkd
 # FIXME: needs logic to prevent more than one kvkd from running
@@ -18,6 +18,7 @@ cd -
 export PYTHONPATH="${PYTHONPATH}:../"
 rm -vf gm-from-cvs.log
 python wxpython/gnumed.py --log-file=gm-from-cvs.log --debug
+# --unicode-gettext=0
 # --layout status_quo
 # --layout terry
 # --profile=gm-from-cvs.prof
