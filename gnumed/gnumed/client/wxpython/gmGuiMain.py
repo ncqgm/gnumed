@@ -177,9 +177,15 @@ class MainFrame(wxFrame):
 		pnl = gmmanual.ManualHtmlPanel(nb, self, self.log)
 		nb.AddPage(pnl, _("Manual"))
 
+		import gmSQLWindow
+		self.SQLWindow = gmSQLWindow.SQLWindow(nb, -1)
+		nb.AddPage(self.SQLWindow, _("SQL"))
+
 		import gmCryptoText
 		self.txt= gmCryptoText.gmCryptoText(nb, -1, size=(480,300))
 		nb.AddPage(self.txt, _("Test Cryptowidget"))
+
+
 
 		self.PythonShellWindow(nb)
 
@@ -309,6 +315,7 @@ class gmApp(wxApp):
 		import gmLogin
 		self.__backend = gmLogin.Login()
 		if self.__backend == None:
+			print _("Login attempt unsuccesful\nCan't run GNUMed without database connetcion")
 			return false
 		# create a static GUI element dictionary;
 		# will be static and alive as long as app runs
