@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -444,17 +444,6 @@ comment on column staff.sign is
 -- ===================================================================
 -- organisation related tables
 -- ===================================================================
--- FIXME: that way lieth great peril
--- FIXME: missing alter table ... primary key
-create table org_address (
-	is_postal_address bool not null default true,
-	id integer unique not null default nextval ('address_id_seq')
-) inherits (address);
-
-comment on table org_address is
-	'tailors the standard address table for use by organisations';
-comment on column org_address.is_postal_address is
-	'whether this is the address to send snail mail to';
 
 -- ===================================================================
 create table org_category (
@@ -468,8 +457,11 @@ create table org (
 	id serial primary key,
 	id_org integer references org (id),
 	id_category integer not null references org_category(id),
+	type char default 'o' check (type in ('o', 'b', 'd')),
 	description text not null,
 	memo text,
+	id_address integer not null references address (id),
+	is_postal boolean,
 	unique(id_category, description)
 );
 
@@ -477,14 +469,8 @@ comment on column org.id_org is
 'the super-organisation in the hierarchy of branches/offices. head offices have NULL here.';
 comment on column org.memo is
 'a short note regarding the organisation.';
-
--- ===================================================================
-create table lnk_org2address (
-	id serial primary key,
-	id_org integer not null references org(id),
-	id_address integer not null references org_address(id),
-	unique (id_org, id_address)
-);
+comment on column org.type is
+'the type in the hierarchy: o) organisation, b) branch, d) department';
 
 -- ====================================================================
 create table lnk_org2comm (
@@ -519,10 +505,8 @@ GRANT SELECT ON
 	lnk_person2relative,
 	occupation,
 	lnk_job2person,
-	org_address,
 	org_category,
 	org,
-	lnk_org2address,
 	lnk_org2comm,
 	staff_role,
 	staff
@@ -554,22 +538,24 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	lnk_person2relative_id_seq,	
 	lnk_job2person,
 	lnk_job2person_id_seq,
-	org_address,
 	org,
 	org_id_seq,
-	lnk_org2address,
-	lnk_org2address_id_seq,
 	lnk_org2comm,
 	lnk_org2comm_id_seq
 TO GROUP "_gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.20 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.21 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.20  2004-02-18 14:18:51  ncq
+-- Revision 1.21  2004-02-27 07:05:30  ihaywood
+-- org_address is dead. Doesn't make
+-- sense for orgs to have multiple addresses IMHO
+-- as we allow branch organisations
+--
+-- Revision 1.20  2004/02/18 14:18:51  ncq
 -- - since we dare let org_address inherit from address
 --   there's no org_address_id_seq to be granted rights on
 --

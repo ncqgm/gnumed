@@ -20,12 +20,23 @@
 --	mobile text,
 
 -- ===================================================================
--- do NOT alter the id of home !
+-- do NOT alter the id of home or work !
 INSERT INTO address_type(id, name) values(1, i18n('home'));
 INSERT INTO address_type(id, name) values(2, i18n('work'));
 INSERT INTO address_type(id, name) values(3, i18n('parents'));
 INSERT INTO address_type(id, name) values(4, i18n('holidays'));
 INSERT INTO address_type(id, name) values(5, i18n('temporary'));
+
+-- comms types. Don't change ID numbers
+
+insert into enum_comm_types (id, description) values (1, i18n('email'));
+insert into enum_comm_types (id, description) values (2, i18n('fax'));
+insert into enum_comm_types (id, description) values (3, i18n('homephone'));
+insert into enum_comm_types (id, description) values (4, i18n('workphone'));
+insert into enum_comm_types (id, description) values (5, i18n('mobile'));
+insert into enum_comm_types (id, description) values (6, i18n('web'));
+insert into enum_comm_types (id, description) values (7, i18n('jabber'));
+
 
 -- ===================================================================
 -- here come the ISO country codes ...
@@ -259,11 +270,16 @@ insert into country(code, name) values('US', i18n('UNITED STATES'));
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%phics-GIS-data%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.3 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.2  2003-12-29 15:32:59  uid66147
+-- Revision 1.3  2004-02-27 07:05:30  ihaywood
+-- org_address is dead. Doesn't make
+-- sense for orgs to have multiple addresses IMHO
+-- as we allow branch organisations
+--
+-- Revision 1.2  2003/12/29 15:32:59  uid66147
 -- - remove begin/commit as it does not play well with transactions in python
 --
 -- Revision 1.1  2003/08/02 10:41:29  ncq
