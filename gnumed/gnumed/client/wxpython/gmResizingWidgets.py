@@ -3,8 +3,8 @@
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.3 2004-12-07 21:54:56 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmResizingWidgets.py,v 1.4 2004-12-13 19:03:00 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Ian Haywood, Karsten Hilbert"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -352,6 +352,8 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		wx.EVT_KEY_DOWN (self, self.__OnKeyDown)
 		wx.EVT_KEY_UP (self, self.__OnKeyUp)
 
+		self.__popup_keywords = {}
+
 		self.parent = parent
 		self.__show_list = 1
 		self.__embed = {}
@@ -359,9 +361,11 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 		self.no_list = 0			# ??
 		self.__matcher = None
 	#------------------------------------------------
-	def SetText (self, text):
+	# public API
+	#------------------------------------------------
+	def SetText(self, text):
 		self.__show_list = 0
-		wx.wxStyledTextCtrl.SetText (self, text)
+		wx.wxStyledTextCtrl.SetText(self, text)
 		self.__show_list = 1
 	#------------------------------------------------
 	def ReplaceText (self, start, end, text, style=-1, space=0):
@@ -381,87 +385,118 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 			self.StartStyling(start, 0xFF)
 			self.SetStyling(len(text), style)
 	#------------------------------------------------
+	def set_keywords(self, popup_keywords=None):
+		if popup_keywords is None:
+			return
+		self.__popup_keywords = popup_keywords
+	#------------------------------------------------
+	def Embed (self, text, data=None):
+		self.no_list = 1
+		self.ReplaceText (self.fragment_start, self.fragment_end, text+';', STYLE_EMBED, 1)
+		self.GotoPos (self.fragment_start+len (text)+1)
+		self.SetFocus ()
+		if data:
+			self.__embed[text] = data
+		self.no_list = 0
+	#------------------------------------------------
+	def DelPhrase (self, pos):
+		end = pos+1
+		while end < self.GetLength () and self.GetCharAt (end) != ord(';'):
+			end += 1
+		start = pos
+		while start > 0 and self.GetCharAt (start and start-1) != ord (';'):
+			start -= 1
+		self.SetTargetStart (start)
+		self.SetTargetEnd (end)
+		self.ReplaceTarget ('')
+	#------------------------------------------------
+	def SetFocus (self):
+		wx.wxStyledTextCtrl.SetFocus(self)
+		cur = self.PointFromPosition(self.GetCurrentPos())
+		self.parent.EnsureVisible (self, cur.x, cur.y)
+	#------------------------------------------------
+	def AttachMatcher (self, matcher):
+		"""
+		Attaches a gmMatchProvider to the STC,this will be used to drive auto-completion
+		"""
+		self.__matcher = matcher
+	#------------------------------------------------
+	# event handlers
+	#------------------------------------------------
 	def __on_STC_modified(self, event):
 		event.Skip()
-		# - is current string in keyword dict ?
-		# - if so execute action defined there and return
-		# - is timeout gone ?
-		# - if so get matches and popup select list
+		# did the user do anything of note ?
+		if not (event.GetModificationType() & (wx.wxSTC_MOD_INSERTTEXT | wx.wxSTC_MOD_DELETETEXT)):
+			return
+		# do we need to resize ?
+		last_char_pos = self.GetLength()
+		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + self.TextHeight(0)
+		x, visible_height = self.GetSizeTuple()
+		if visible_height != true_txt_height:
+			self.parent.ReSize(self, true_txt_height)
+		# get current relevant string
+		curs_pos = self.GetCurrentPos()
+		text = self.GetText()
+		self.fragment_start = text.rfind(';', 0, curs_pos)				# FIXME: ';' hardcoded as separator
+		if self.fragment_start == -1:
+			self.fragment_start = 0
+		else:
+			self.fragment_start += 1
+		self.fragment_end = text.find(';', curs_pos, last_char_pos)		# FIXME: ';' hardcoded as separator
+		if self.fragment_end == -1:
+			self.fragment_end = last_char_pos
+		fragment = text[self.fragment_start:self.fragment_end].strip()
+		# is it a keyword for popping up an edit area or something ?
+		if fragment in self.__popup_keywords.keys():
+			print fragment, "is a popup keyword"
+			return
+
+		return
+
+		# FIXME: we need to use a timeout here !
+
+		# - get matches and popup select list
 		if self.no_list:
 			return
-		length = self.GetLength()
-		height = self.PointFromPosition(length).y - self.PointFromPosition(0).y + self.TextHeight(0)
-		x, y = self.GetSizeTuple()
-		if y != height:
-			self.parent.ReSize(self, height)
 		if self.__matcher is None:
 			return
 		if not self.__show_list:
 			return
-		if not (event.GetModificationType() & (wx.wxSTC_MOD_INSERTTEXT | wx.wxSTC_MOD_DELETETEXT)):
-			return
+
 		# do indeed show list
-		pos = self.GetCurrentPos()
-		text = self.GetText()
-		self.start = text.rfind(';', 0, pos)
-		if self.start == -1:
-			self.start = 0
-		else:
-			self.start += 1
-		self.end = text.find(';', pos, length)
-		if self.end == -1:
-			self.end = length
-		text = text[self.start:self.end].strip()
-		if len(text) == 0:
+		if len(fragment) == 0:
 			if self.list and self.list.alive:
 				self.list.Destroy()
 			return
-		matches_found, matches = self.__matcher.getMatches(text)
+		matches_found, matches = self.__matcher.getMatches(fragment)
 		if not matches_found:
 			if self.list and self.list.alive:
 				self.list.Destroy()
 			return
 		if not (self.list and self.list.alive):
 			x, y = self.GetPositionTuple()
-			p = self.PointFromPosition(pos)
+			p = self.PointFromPosition(curs_pos)
 			self.list = self.parent.GetPickList(self.__userlist, x+p.x, y+p.y)
 		self.list.SetItems(matches)
 	#------------------------------------------------
-	def __userlist (self, text, data=None):
-		# this is a callback
-		# FIXME: need explanation on instance/callable business, it seems complicated
-		if issubclass(data, cResizingWindow):
-			win = data(self, -1, pos = pos, size = wxSize(300, 150))
-			cPopupFrame(text, win, self, self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))).Show()
-		elif callable (data):
-			data (text, self.parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
-		else:
-			self.Embed (text, data)
-	#------------------------------------------------
-	def Embed (self, text, data=None):
-		self.no_list = 1
-		self.ReplaceText (self.start, self.end, text+';', STYLE_EMBED, 1)
-		self.GotoPos (self.start+len (text)+1)
-		self.SetFocus ()
-		if data:
-			self.__embed[text] = data
-		self.no_list = 0
-	#------------------------------------------------
 	def __OnKeyDown (self, event):
 		if self.list and not self.list.alive:
-			self.list = None #someone else has destroyed our list!
-		pos = self.GetCurrentPos ()
+			self.list = None # someone else has destroyed our list!
+		pos = self.GetCurrentPos()
+
 		if event.KeyCode () == wx.WXK_TAB:
 			if event.m_shiftDown:
 				if self.prev:
-					self.prev.SetFocus ()
+					self.prev.SetFocus()
 			else:
 				if self.next:
-					self.next.SetFocus ()
+					self.next.SetFocus()
 				elif self.parent.complete:
-					self.parent.complete ()
-		elif self.parent.complete and event.KeyCode () == wx.WXK_F12:
+					self.parent.complete()
+
+		elif self.parent.complete and event.KeyCode() == wx.WXK_F12:
 			self.parent.complete ()
+
 		elif event.KeyCode () == ord (';'):
 			if self.GetLength () == 0:
 				wx.wxBell ()
@@ -469,16 +504,19 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 				wx.wxBell ()
 			else:
 				event.Skip ()
+
 		elif event.KeyCode () == wx.WXK_DELETE:
 			if self.GetStyleAt (pos) == STYLE_EMBED:
 				self.DelPhrase (pos)
 			else:
 				event.Skip ()
+
 		elif event.KeyCode () == wx.WXK_BACK:
 			if self.GetStyleAt (pos and pos-1) == STYLE_EMBED:
 				self.DelPhrase (pos and pos-1)
 			else:
 				event.Skip ()
+
 		elif event.KeyCode () == wx.WXK_RETURN and not event.m_shiftDown:
 			if self.list and self.list.alive:
 				self.list.Enter ()
@@ -493,46 +531,38 @@ class cResizingSTC (wx.wxStyledTextCtrl):
 			elif self.GetLength () == 0 and self.next ():
 				self.next.SetFocus ()
 			else:
-				event.Skip ()
+				event.Skip()
+
 		elif self.list and self.list.alive and event.KeyCode () == wx.WXK_UP:
-			self.list.Up ()
+			self.list.Up()
+
 		elif self.list and self.list.alive and event.KeyCode () == wx.WXK_DOWN:
-			self.list.Down ()
+			self.list.Down()
+
 		else:
 			event.Skip ()
 	#------------------------------------------------
-	def DelPhrase (self, pos):
-		end = pos+1
-		while end < self.GetLength () and self.GetCharAt (end) != ord(';'):
-			end += 1
-		start = pos
-		while start > 0 and self.GetCharAt (start and start-1) != ord (';'):
-			start -= 1
-		self.SetTargetStart (start)
-		self.SetTargetEnd (end)
-		self.ReplaceTarget ('')
-
 	def __OnKeyUp (self, event):
 		if not self.list:
 			cur = self.PointFromPosition (self.GetCurrentPos())
 			self.parent.EnsureVisible (self, cur.x, cur.y)
-
-	def SetFocus (self):
-		wx.wxStyledTextCtrl.SetFocus(self)
-		cur = self.PointFromPosition(self.GetCurrentPos())
-		self.parent.EnsureVisible (self, cur.x, cur.y)
-
-	def AttachMatcher (self, matcher):
-		"""
-		Attaches a gmMatchProvider to the STC,this will be used to drive auto-completion
-		"""
-		self.__matcher = matcher
-
-
-
+	#------------------------------------------------
+	def __userlist (self, text, data=None):
+		# this is a callback
+		# FIXME: need explanation on instance/callable business, it seems complicated
+		if issubclass(data, cResizingWindow):
+			win = data(self, -1, pos = pos, size = wxSize(300, 150))
+			cPopupFrame(text, win, self, self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))).Show()
+		elif callable (data):
+			data (text, self.parent, self, self.ClientToScreen (self.PointFromPosition (self.GetCurrentPos ())))
+		else:
+			self.Embed (text, data)
 #====================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.3  2004-12-07 21:54:56  ncq
+# Revision 1.4  2004-12-13 19:03:00  ncq
+# - inching close to code that I actually understand
+#
+# Revision 1.3  2004/12/07 21:54:56  ncq
 # - add some comments on proposed plan
 #
 # Revision 1.2  2004/12/06 20:46:49  ncq
