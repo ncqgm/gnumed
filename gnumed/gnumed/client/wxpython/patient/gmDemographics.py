@@ -15,8 +15,8 @@
 # @TODO:
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.18 2003-02-09 12:05:02 sjtan Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmDemographics.py,v 1.19 2003-02-09 23:42:50 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "R.Terry, SJ Tan"
 
 from wxPython.wx import *
@@ -449,14 +449,14 @@ class gmDemographics(gmPlugin.wxBasePlugin):
 		self.txt_findpatient.SetValue(names)
 		age = kwds['dob']
 		age = age.strip ()
-		try:
-			dmy = DateTime.strptime(age, "%d/%m/%y")
-		except:
-			dmy = DateTime.strptime(age, "%d/%m/%Y")
-		years = DateTime.Age(DateTime.now(), dmy).years
+		# FIXME:
+#		try:
+#			dmy = DateTime.strptime(age, "%d/%m/%y")
+#		except:
+#			dmy = DateTime.strptime(age, "%d/%m/%Y")
+#		years = DateTime.Age(DateTime.now(), dmy).years
+		years = 20
 		self.txt_age.SetValue(str(years))
-		#gmLog.gmDefLog.Log (gmLog.lInfo, "selected patient ID %s" % str(kwds['ID']))
-
 
 #----------------------------------------------------------------------
 def getToolbar_FindPatientData():
@@ -485,7 +485,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #----------------------------------------------------------------------
 # $Log: gmDemographics.py,v $
-# Revision 1.18  2003-02-09 12:05:02  sjtan
+# Revision 1.19  2003-02-09 23:42:50  ncq
+# - date time conversion to age string does not work, set to 20 for now, fix soon
+#
+# Revision 1.18  2003/02/09 12:05:02  sjtan
 #
 #
 # wxBasePlugin is unnecessarily specific.
