@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -88,7 +88,6 @@ class cCfgBase:
 	def set(workplace = None, user = None, cookie = None, option = None, value = None):
 		pass
 #================================
-# FIXME: notify/listen on set() to ensure cache coherency across clients
 class cCfgSQL:
 	def __init__(self, aConn = None, aDBAPI = None):
 		if aConn is None:
@@ -97,12 +96,10 @@ class cCfgSQL:
 
 		self.dbapi = aDBAPI
 		self.conn = aConn
-		self.__cache = {}
 	#----------------------------
-	def __del__(self):
-		pass
+	# external API
 	#----------------------------
-	def get(self, workplace = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
+	def get(self, workplace = None, user = None, cookie = None, option = None):
 		"""Get config value from database.
 
 		- works for
@@ -112,107 +109,116 @@ class cCfgSQL:
 		- string lists currently only work with pyPgSQL >= 2.3
 		  due to the need for a PgArray data type
 		- also string lists will work with PostgreSQL only
-		- caches items for faster repeat retrieval
-		"""
-		# fastpath
-		cache_key = self.__make_key(workplace, user, cookie, option)
-		if self.__cache.has_key(cache_key):
-			return self.__cache[cache_key]
 
+		- unset arguments are assumed to mean database defaults except for <cookie>
+		"""
 		# sanity checks
 		if option is None:
 			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
 			return None
 
-		# if no user given: current db user
+		cache_key = self.__make_key(workplace, user, cookie, option)
+
+		# construct query
+		where_parts = [
+			'vco.option=%(opt)s',
+			'vco.workplace=%(wplace)s'
+			]
+		where_args = {
+			'opt': option,
+			'wplace': workplace
+		}
+		if workplace is None:
+			where_args['wplace'] = cfg_DEFAULT
 		if user is None:
-			user = "NONE"
-
-		curs = self.conn.cursor()
-
-		# retrieve option definition
-#"""
-#select
-#	cfg_item.id, cfg_template.type
-#from
-#	cfg_item, cfg_template
-#where
-#	cfg_template.name like %s and
-#	cfg_item.workplace like %s and
-#	cfg_item.cookie like %s and
-#	cfg_template.id = cfg_item.id_template and
-#	(cfg_item.owner = CURRENT_USER or cfg_item.owner like %s)
-#limit 1
-#"""
-
-		success = _gmPG.run_query(curs, None, """
+			where_parts.append('vco.owner=CURRENT_USER')
+		else:
+			where_parts.append('vco.owner=%(owner)s')
+			where_args['owner'] = user
+		if cookie is not None:
+			where_parts.append('vco.cookie=%(cookie)s')
+			where_args['cookie'] = cookie
+		where_clause = ' and '.join(where_parts)
+		cmd = """
 select vco.pk_cfg_item, vco.type
 from v_cfg_options vco
-where
-	vco.option = %s and
-	vco.workplace = %s and
-	vco.cookie = %s and
-	(vco.owner = CURRENT_USER or vco.owner like %s)
-limit 1""", option, workplace, cookie, user)
-		if success is None:
-			curs.close()
-			return None
-
-		result = curs.fetchone()
-		if result is None:
-			curs.close()
-			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
-			return None
-		(item_id, value_type) = result
-
-		# retrieve values from appropriate table
-		cmd = "select value from cfg_%s where id_item=%%s limit 1" % value_type
-		if _gmPG.run_query(curs, None, cmd, item_id) is None:
-			curs.close()
-			return None
-		result = curs.fetchone()
-		curs.close()
-
-		if result is None:
-			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
-			return None
-		else:
-			self.__cache[cache_key] = result[0]
-
-		return result[0]
-	#----------------------------
-	def getID(self, workplace = cfg_DEFAULT, user = None, cookie = cfg_DEFAULT, option = None):
-		# sanity checks
-		if option is None:
-			_log.Log(gmLog.lErr, "Need to know which option to retrieve the ID for.")
-			return None
-		if user is None:
-			user = "NONE"
+where %s
+limit 1""" % where_clause
 
 		curs = self.conn.cursor()
-		# retrieve option definition
-		if _gmPG.run_query(curs, None, """
-select
-	cfg_item.id, cfg_template.type
-from
-	cfg_item, cfg_template
-where
-	cfg_template.name like %s and
-	cfg_item.workplace like %s and
-	cfg_item.cookie like %s and
-	cfg_template.id = cfg_item.id_template and
-	(cfg_item.owner like CURRENT_USER or cfg_item.owner like %s)
-limit 1""", option, workplace, cookie, user) is None:
+		rows = _gmPG.run_ro_query (curs, cmd, None, where_args)
+		if rows is None:
 			curs.close()
+			_log.Log(gmLog.lErr, 'unable to get option definition for [%s]' % cache_key)
 			return None
-		result = curs.fetchone()
-		if result is None:
-			cache_key = self.__make_key(workplace, user, cookie, option)
-			_log.Log(gmLog.lWarn, 'option [%s] not in config database' % cache_key)
+		if len(rows) == 0:
 			curs.close()
+			_log.Log(gmLog.lWarn, 'option definition for [%s] not in config database' % cache_key)
+			return None
+		item_id = rows[0][0]
+		value_type = rows[0][1]
+
+		# retrieve value from appropriate table
+		cmd = "select value from cfg_%s where id_item=%%s limit 1" % value_type
+		rows = _gmPG.run_ro_query(curs, cmd, None, item_id)
+		curs.close()
+		if rows is None:
+			_log.Log(gmLog.lErr, 'unable to get option value for [%s]' % cache_key)
+			return None
+		if len(rows) == 0:
+			_log.Log(gmLog.lWarn, 'option value for [%s] not in config database' % cache_key)
+			return None
+		return rows[0][0]
+	#----------------------------
+	def getID(self, workplace = None, user = None, cookie = None, option = None):
+		"""Get config value from database.
+
+		- unset arguments are assumed to mean database defaults except for <cookie>
+		"""
+		# sanity checks
+		if option is None:
+			_log.Log(gmLog.lErr, "Need to know which option to retrieve.")
 			return None
 
-		return result[0]
+		cache_key = self.__make_key(workplace, user, cookie, option)
+
+		# construct query
+		where_parts = [
+			'vco.option=%(opt)s',
+			'vco.workplace=%(wplace)s'
+			]
+		where_args = {
+			'opt': option,
+			'wplace': workplace
+		}
+		if workplace is None:
+			where_args['wplace'] = cfg_DEFAULT
+		if user is None:
+			where_parts.append('vco.owner=CURRENT_USER')
+		else:
+			where_parts.append('vco.owner=%(owner)s')
+			where_args['owner'] = user
+		if cookie is not None:
+			where_parts.append('vco.cookie=%(cookie)s')
+			where_args['cookie'] = cookie
+		where_clause = ' and '.join(where_parts)
+		cmd = """
+select vco.pk_cfg_item
+from v_cfg_options vco
+where %s
+limit 1""" % where_clause
+
+		curs = self.conn.cursor()
+		rows = _gmPG.run_ro_query (curs, cmd, None, where_args)
+		if rows is None:
+			curs.close()
+			_log.Log(gmLog.lErr, 'unable to get option definition for [%s]' % cache_key)
+			return None
+		if len(rows) == 0:
+			curs.close()
+			_log.Log(gmLog.lWarn, 'option definition for [%s] not in config database' % cache_key)
+			return None
+		return rows[0][0]
 	#----------------------------
 	def set(self, workplace = None, user = None, cookie = None, option = None, value = None, aRWConn = None):
 		"""Set (insert or update) option value in database.
@@ -251,6 +257,32 @@ limit 1""", option, workplace, cookie, user) is None:
 			_log.Log(gmLog.lErr, "Don't know how to store option of type [%s] (key: %s, value: %s)." % (type(value), cache_key, opt_value))
 			return False
 
+		# FIXME: we must check if template with same name and 
+		# different type exists -> error (wont find double entry on get())
+		# get id of option template
+		curs = aRWConn.cursor()
+		cmd = "select id from cfg_template where name=%s and type=%s limit 1"
+		rows = _gmPG.run_ro_query(curs, cmd, None, option, opt_type)
+		if rows is None:
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot find cfg item template for [%s->%s]' % (opt_type, option))
+			return False
+		# if not in database insert new option template
+		if len(rows) == 0:
+			# insert new template
+			queries = []
+			cmd = "insert into cfg_template (name, type) values (%s, %s)"
+			queries.append((cmd, [option, opt_type]))
+			cmd = "select currval('cfg_template_id_seq')"
+			queries.append((cmd, []))
+			rows = _gmPG.run_commit(curs, queries)
+			if rows is None:
+				curs.close()
+				_log.Log(gmLog.lErr, 'cannot insert cfg item template for [%s->%s]' % (opt_type, option))
+				return False
+			aRWConn.commit()
+		template_id = rows[0][0]
+
 		# set up field/value pairs
 		ins_fields = ['id_template']
 		ins_val_templates = ['%(templ_id)s']
@@ -270,51 +302,27 @@ limit 1""", option, workplace, cookie, user) is None:
 			ins_val_templates.append('%(cookie)s')
 			ins_where_args[''] = str(cookie)
 
-		# FIXME: we must check if template with same name and 
-		# different type exists -> error (wont find double entry on get())
-		# get id of option template
-		curs = aRWConn.cursor()
-		cmd = "select id from cfg_template where name like %s and type like %s limit 1"
-		if _gmPG.run_query(curs, None, cmd, option, opt_type) is None:
-			curs.close()
-			return False
-		# if not in database insert new option template
-		result = curs.fetchone()
-		if result is None:
-			# insert new template
-			cmd = "insert into cfg_template (name, type) values ( %s , %s );"
-			if _gmPG.run_query(curs, None, cmd, option, opt_type) is None:
-				curs.close()
-				return False
-			cmd = "select id from cfg_template where name like %s and type like %s limit 1;"
-			if _gmPG.run_query(curs, None, cmd, option, opt_type) is None:
-				curs.close()
-				return False
-			result = curs.fetchone()
-		template_id = result[0]
-
 		# FIXME: this does not always find the existing entry (in particular if user=None)
 		# reason: different handling of None in set() and get()
 		# do we need to insert a new option or update an existing one ?
 		# FIXME: this should be autofixed now since we don't do user/_user anymore, please verify
 		if self.get(workplace, user, cookie, option) is None:
-			# insert new option
-			# insert option instance
+			_log.Log(gmLog.lData, 'inserting new option [%s]' % cache_key)
 			ins_fields_str = ', '.join(ins_fields)
 			ins_val_templates_str = ', '.join(ins_val_templates)
 			ins_where_args['templ_id'] = template_id
+			queries = []
 			cmd = "insert into cfg_item (%s) values (%s)" % (ins_fields_str, ins_val_templates_str)
-			if _gmPG.run_query(curs, None, cmd, ins_where_args) is None:
+			queries.append((cmd, [ins_where_args]))
+			cmd = "insert into cfg_%s (id_item, value)" % opt_type + " values (currval('cfg_item_id_seq'), %s)"
+			queries.append((cmd, [opt_value]))
+			success = _gmPG.run_commit(curs, queries)
+			if success is None:
 				curs.close()
-				return False
-			# insert option value
-			cmd = "insert into cfg_%s (id_item, value)" % opt_type + " values (currval('cfg_item_id_seq'), %s);"
-			if _gmPG.run_query(curs, None, cmd, opt_value) is None:
-				curs.close()
+				_log.Log(gmLog.lErr, 'cannot insert option [%s]' % cache_key)
 				return False
 		else:
-			# update existing option
-			# get item id
+			_log.Log(gmLog.lData, 'updating existing option [%s]' % cache_key)
 			item_id = self.getID(workplace, user, cookie, option)
 			if item_id is None:
 				curs.close()
@@ -328,19 +336,12 @@ limit 1""", option, workplace, cookie, user) is None:
 
 		aRWConn.commit()
 		curs.close()
-
-		# don't update the cache BEFORE successfully committing to the
-		# database because that would make the get() fastpath valid
-		# without knowing whether the option is stored in the database
-		self.__cache[cache_key] = value
-
 		return True
 	#-------------------------------------------
 	def getAllParams(self, user = None, workplace = cfg_DEFAULT):
 		"""Get names of all stored parameters for a given workplace/(user)/cookie-key.
 		This will be used by the ConfigEditor object to create a parameter tree.
 		"""
-
 		global _gmPG
 		if _gmPG is None:
 			from Gnumed.pycommon import gmPG
@@ -444,13 +445,8 @@ where %s""" % where_clause
 		# actually commit our stuff
 		aRWConn.commit()
 		curs.close()
-		
-		# delete cache entry for this parameter
-		if self.__cache.has_key(cache_key):
-			del self.__cache[cache_key]
-			
-		return 1		
-		
+
+		return 1
 	#----------------------------
 	def __make_key(self, workplace, user, cookie, option):
 		return '%s-%s-%s-%s' % (workplace, user, cookie, option)
@@ -1010,7 +1006,7 @@ def create_default_cfg_file():
 	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
 #-------------------------------------------------------------
-def getDBParam(workplace = None, cookie = cfg_DEFAULT, option = None):
+def getDBParam(workplace = None, cookie = None, option = None):
 	"""Convenience function to get config value from database.
 
 	will search for context dependant match in this order:
@@ -1037,7 +1033,7 @@ def getDBParam(workplace = None, cookie = cfg_DEFAULT, option = None):
 
 	# connect to database (imports gmPG if need be)
 	db = _gmPG.ConnectionPool()
-	conn = db.GetConnection(service = "default")
+	conn = db.GetConnection(service = "default", extra_verbose=0)
 	dbcfg = cCfgSQL (
 		aConn = conn,
 		aDBAPI = _gmPG.dbapi
@@ -1047,14 +1043,15 @@ def getDBParam(workplace = None, cookie = cfg_DEFAULT, option = None):
 	sets2search = []
 	if workplace is not None:
 		sets2search.append(['CURRENT_USER_CURRENT_WORKPLACE', None, workplace])
-	sets2search.append(['CURRENT_USER_DEFAULT_WORKPLACE', None, cfg_DEFAULT])
+	sets2search.append(['CURRENT_USER_DEFAULT_WORKPLACE', None, None])
 	if workplace is not None:
 		sets2search.append(['DEFAULT_USER_CURRENT_WORKPLACE', cfg_DEFAULT, workplace])
-	sets2search.append(['DEFAULT_USER_DEFAULT_WORKPLACE', cfg_DEFAULT, cfg_DEFAULT])
+	sets2search.append(['DEFAULT_USER_DEFAULT_WORKPLACE', cfg_DEFAULT, None])
 	# loop over sets
 	matchingSet = None
+	result = None
 	for set in sets2search:
-		result = dbcfg.get (
+		result = dbcfg.get(
 			workplace = set[2],
 			user = set[1],
 			option = option,
@@ -1075,7 +1072,7 @@ def setDBParam(workplace = None, user = None, cookie = None, option = None, valu
 	We assume that the config tables are found on service "default".
 	That way we can handle the db connection inside this function.
 
-	Setting any parameter to None will store database defaults for it.
+	Omitting any parameter (or setting to None) will store database defaults for it.
 
 	- returns True/False
 	"""
@@ -1224,7 +1221,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.22  2004-09-02 00:39:27  ncq
+# Revision 1.23  2004-09-06 22:18:12  ncq
+# - eventually fix the get/setDBParam(), at least it appears to work
+#
+# Revision 1.22  2004/09/02 00:39:27  ncq
 # - use new v_cfg_options
 # - remove personalize argument from getDBParam() in favour of clarity
 #
