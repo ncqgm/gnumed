@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.18 $"
+__version__ = "$Revision: 1.19 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -146,8 +146,9 @@ END;' LANGUAGE 'plpgsql'"""
 
 template_create_audit_trail_table = """create table %s (
 %s
-) inherits (%s)"""
+) inherits (%s);
 
+grant insert on %s to group "gm-public" """
 #------------------------------------------------------------------
 def get_columns(aCursor, aTable):
 	"""Return column attributes of table
@@ -199,7 +200,7 @@ def audit_trail_table_schema(aCursor, table2audit):
 			continue
 		attribute_list.append("\t%s %s" % (col, audited_col_defs[1][col]))
 	attributes = string.join(attribute_list, ',\n')
-	table_def = template_create_audit_trail_table % (audit_trail_table, attributes, audit_trail_parent_table)
+	table_def = template_create_audit_trail_table % (audit_trail_table, attributes, audit_trail_parent_table, audit_trail_table)
 	return [table_def, '']
 #------------------------------------------------------------------
 def trigger_schema(aCursor, audited_table):
@@ -327,7 +328,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.18  2003-10-25 16:58:40  ncq
+# Revision 1.19  2003-11-05 16:03:02  ncq
+# - allow gm-public to insert into log tables
+#
+# Revision 1.18  2003/10/25 16:58:40  ncq
 # - fix audit trigger function generation omitting target column names
 #
 # Revision 1.17  2003/10/19 12:56:27  ncq
