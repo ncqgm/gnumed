@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmTmpPatient.py,v $
-# $Id: gmTmpPatient.py,v 1.26 2003-06-26 21:28:02 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmTmpPatient.py,v 1.27 2003-06-27 16:04:40 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -126,7 +126,7 @@ class gmPerson:
 		- true/false/None
 		"""
 		curs = self._defconn_ro.cursor()
-		cmd = "select exists(select id from identity where id = %s);"
+		cmd = "select exists(select id from identity where id = %s)"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -178,7 +178,7 @@ class gmPerson:
 			return None
 
 		curs = blobs_conn.cursor()
-		cmd = "SELECT id from doc_med WHERE patient_id=%s ;"
+		cmd = "SELECT id from doc_med WHERE patient_id=%s"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -204,7 +204,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _getActiveName(self):
 		curs = self._defconn_ro.cursor()
-		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s ;"
+		cmd = "select firstnames, lastnames from v_basic_person where i_id = %s"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -224,7 +224,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _getTitle(self):
 		curs = self._defconn_ro.cursor()
-		cmd = "select title from v_basic_person where i_id = %s ;"
+		cmd = "select title from v_basic_person where i_id = %s"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -247,7 +247,7 @@ class gmPerson:
 	def _getDOB(self):
 		curs = self._defconn_ro.cursor()
 		# FIXME: invent a mechanism to set the desired format
-		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s ;"
+		cmd = "select to_char(dob, 'DD.MM.YYYY') from v_basic_person where i_id = %s"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -263,7 +263,7 @@ class gmPerson:
 	#--------------------------------------------------------
 	def _get_medical_age(self):
 		curs = self._defconn_ro.cursor()
-		cmd = "select dob from identity where id = %s ;"
+		cmd = "select dob from identity where id = %s"
 		try:
 			curs.execute(cmd, self.ID)
 		except:
@@ -459,7 +459,7 @@ def get_patient_ids(cooked_search_terms = None, raw_search_terms = None):
 
 		# start our transaction (done implicitely by defining a cursor)
 		cursor = conn.cursor()
-		cmd = "SELECT i_id FROM v_basic_person WHERE %s ;" % where_clause
+		cmd = "SELECT i_id FROM v_basic_person WHERE %s" % where_clause
 		if not gmPG.run_query(cursor, cmd):
 			cursor.close()
 			backend.ReleaseConnection('personalia')
@@ -569,7 +569,7 @@ def create_patient(data):
 	where_clause = string.join(where_fragments, ' AND ')
 
 	# check for patient
-	cmd = "SELECT exists(SELECT i_id FROM v_basic_person WHERE %s);" % where_clause
+	cmd = "SELECT exists(SELECT i_id FROM v_basic_person WHERE %s)" % where_clause
 	if not gmPG.run_query(rocurs, cmd):
 		_log.Log(gmLog.lErr, 'Cannot check for patient existence.')
 		rocurs.close()
@@ -596,7 +596,7 @@ def create_patient(data):
 		field_clause = string.join(field_fragments, ',')
 		value_clause = string.join(value_fragments, ',')
 
-		cmd =  "INSERT INTO v_basic_person (%s) VALUES (%s);" % (field_clause, value_clause)
+		cmd =  "INSERT INTO v_basic_person (%s) VALUES (%s)" % (field_clause, value_clause)
 		if not gmPG.run_query(rwcurs, cmd):
 			_log.Log(gmLog.lErr, 'Cannot insert patient.')
 			_log.Log(gmLog.lErr, data)
@@ -615,7 +615,7 @@ def create_patient(data):
 		_log.Log(gmLog.lData, 'patient already in database')
 
 	# get patient ID
-	cmd = "SELECT i_id FROM v_basic_person WHERE %s LIMIT 2;" % where_clause
+	cmd = "SELECT i_id FROM v_basic_person WHERE %s LIMIT 2" % where_clause
 	if not gmPG.run_query(rocurs, cmd):
 		rocurs.close()
 		backend.ReleaseConnection('personalia')
@@ -688,7 +688,10 @@ if __name__ == "__main__":
 			print call['description']
 #============================================================
 # $Log: gmTmpPatient.py,v $
-# Revision 1.26  2003-06-26 21:28:02  ncq
+# Revision 1.27  2003-06-27 16:04:40  ncq
+# - no ; in DB-API
+#
+# Revision 1.26  2003/06/26 21:28:02  ncq
 # - fatal->verbose, %s; quoting bug
 #
 # Revision 1.25  2003/06/22 16:18:34  ncq
