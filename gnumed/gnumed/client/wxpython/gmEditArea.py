@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.46 2003-11-30 01:08:25 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmEditArea.py,v 1.47 2003-12-01 01:04:01 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -295,17 +295,6 @@ def setValueStyle( control):
 		control.SetForegroundColour(wxColor(255, 0, 0))
 		control.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 
-def _print( *kwds):
-	strList = []
-	for x in kwds:
-		strList.append(str(x))
-	
-	gmLog.gmDefLog.Log( gmLog.lInfo, "  ".join(strList) )
-#====================================================================
-
-
-
-
 #====================================================================
 #text control class to be later replaced by the gmPhraseWheel
 #--------------------------------------------------------------------
@@ -538,7 +527,6 @@ class gmEditArea(wxPanel):
 			#	if c.__name__ == 'wxTextCtrl':
 
 			if widget.__class__.__name__ in ['wxTextCtrl', 'cEditAreaField']:
-					_print( widget, ' is a wxTextCtrl')
 					EVT_TEXT( widget, widget.GetId(), self._mark_dirty)
 			if widget.__class__.__name__ in ['wxRadioButton']:
 					EVT_RADIOBUTTON(widget, widget.GetId(), self._mark_dirty)
@@ -550,10 +538,9 @@ class gmEditArea(wxPanel):
 	def _mark_dirty(self, event):
 		event.Skip()
 		if self.monitoring_dirty:
-			_print( self, ' IS MARKED DIRTY')
 			self.dirty = 1
 		else:
-			_print( "not monitoring dirty")
+			pass
 
 #----------DIRTY DATA CHECK: checks original loaded data with current input values , and sets dirty if any changes
 #----------------------------------------------------------------------------------------------------------------------			
@@ -567,10 +554,7 @@ class gmEditArea(wxPanel):
 	def _pre_save_data(self):
 		#if not self.__dict__.has_key('dirty') or self.dirty == 0:
 		if not self.is_dirty():
-			_print( self, 'NOT SAVING BECAUSE UNCHANGED')
 			return
-		_print( "ATTEMPTING SAVE", self)
-
 		self._save_data()
 
 	
@@ -583,9 +567,7 @@ class gmEditArea(wxPanel):
 		for k,v in map.items():
 			if self.old_data.get(k, None) <>  v:
 				dirty = 1
-				_print( " field ", k, " WAS DIRTY WITH VALUE",v , " and old value",  self.old_data.get(k, None) )
 				break
-		_print( "IS DIRTY ", dirty		)
 		return dirty	
 
 
@@ -617,19 +599,16 @@ class gmEditArea(wxPanel):
 	# handlers
 	#--------------------------------------------------------
 	def _on_save_btn_pressed(self, event):
-		_print( "SAVE button pressed")
 		event.Skip()
 		self._pre_save_data()
 
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
-		_print( "CLEAR button pressed")
 		self._init_fields()
 		event.Skip()
 	
 	#--------------------------------------------------------
 	def _on_delete_btn_pressed(self, event):
-		_print( "DELETE button pressed")
 		event.Skip()
 		self._pre_delete_data()
 
@@ -646,7 +625,6 @@ class gmEditArea(wxPanel):
 	#--------------------------------------------------------
 	
 	def _save_data(self):
-		_print( "SAVING ", self._getInputFieldValues())
 		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
@@ -659,14 +637,11 @@ class gmEditArea(wxPanel):
 #-------------------------------------------------------------------------------------------------------------
 
 	def on_patient_selected( self, **kwds):
-		try:
-			self._updateUI()
-			self._init_fields()
-		except:
-			_print( sys.exc_info()[0])
+		self._updateUI()
+		self._init_fields()
 
 	def _updateUI(self):
-		_print( "you may want to override _updateUI for " , self.__class__.__name__)
+		_log.Log(gmLog.lWarn, "you may want to override _updateUI for " , self.__class__.__name__)
 		
 
 	def _postInit(self):
@@ -755,14 +730,12 @@ class gmEditArea(wxPanel):
 
 					field.SetValue( v)
 				except:
-					
-					_print( "field ", k, ":", sys.exc_info()[0])
+					pass
 		self.setDataId(id)
 		#self.monitoring_dirty = 1
 		self.set_old_data(self.getInputFieldValues())
 	
 	def getDataId(self):
-		_print( "data id ", self.dataId)
 		return self.dataId 
 
 	def setDataId(self, id):
@@ -864,7 +837,6 @@ class gmAllergyEditArea(gmEditArea):
 
 	#--------------------------------------------------------
 	def _save_data(self):
-		_print( "saving allergy data")
 		clinical = self.patient.get_clinical_record().get_allergies_manager()
 		if self.getDataId() == None:
 			id = clinical.create_allergy( self.get_fields_formatting_values() )
@@ -985,7 +957,6 @@ class gmFamilyHxEditArea(gmEditArea):
 		return lines
 
 	def _save_data(self):
-		_print( "saving family history data")
 		return 1
 
 #====================================================================
@@ -1095,7 +1066,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			year = self._getBirthYear() + int(self.input_fields['age'].GetValue().strip() )
 			self.input_fields['year'].SetValue( str (year) )
 		except:
-			_print( "failed to get year from age")
+			pass
 
 	def _getBirthYear(self):
 		try:
@@ -1111,7 +1082,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			age = int(self.input_fields['year'].GetValue().strip() ) - self._getBirthYear() 
 			self.input_fields['age'].SetValue( str (age) )
 		except:
-			_print( "failed to get age from year")
+			pass
 
 	def get_fields_formatting_values(self):
 		fields = [	"condition", 
@@ -1187,7 +1158,6 @@ class gmPastHistoryEditArea(gmEditArea):
 		if self.getDataId() == None:
 			id = clinical.create_history( self.get_fields_formatting_values() )
 			self.setDataId(id)
-			_print( "called clinical.create_history; saved id = ", id	)
 			return
 
 		clinical.update_history( self.get_fields_formatting_values(), self.getDataId() )
@@ -1266,7 +1236,6 @@ class gmVaccinationEditArea(gmEditArea):
 		return fields, formatting, values
 
 	def _save_data(self):
-		_print( "saving vaccination data")
 		return 1
 
 
@@ -1328,7 +1297,6 @@ class gmMeasurementEditArea(gmEditArea):
 		return fields, formatting, values
 
 	def _save_data(self):
-		_print( "saving measurement data")
 		return 1
 
 
@@ -1396,7 +1364,6 @@ class gmPrescriptionEditArea(gmEditArea):
 	
 	
 	def _save_data(self):
-		_print( "saving prescription data")
 		return 1
 	
 
@@ -1471,7 +1438,6 @@ class gmReferralEditArea(gmEditArea):
 		return self._makeExtraColumns( parent, lines)
 
 	def _save_data(self):
-		_print( "saving referral data")
 		return 1
 
 
@@ -1537,7 +1503,6 @@ class gmRecallEditArea(gmEditArea):
 		return self._makeExtraColumns( parent, lines, weightMap)
 
 	def _save_data(self):
-		_print( "saving recall data")
 		return 1
 
 
@@ -1621,7 +1586,6 @@ class gmRequestEditArea(gmEditArea):
 	
 	
 	def _save_data(self):
-		_print( "saving request data")
 		return 1
 
 #====================================================================
@@ -2168,7 +2132,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.46  2003-11-30 01:08:25  ncq
+# Revision 1.47  2003-12-01 01:04:01  ncq
+# - remove excess verbosity
+#
+# Revision 1.46  2003/11/30 01:08:25  ncq
 # - removed dead yaml code
 #
 # Revision 1.45  2003/11/29 01:32:55  ncq
