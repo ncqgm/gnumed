@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/index/Attic/index-med_docs.py,v $
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 			  Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -592,7 +592,7 @@ class indexFrame(wxPanel):
 
 		# get patient data from BDT/XDT file
 		pat_file = os.path.abspath(os.path.expanduser(_cfg.get("index", "patient file")))
-		pat_format = _cfg.get("index", "patient format")
+		pat_format = _cfg.get("index", "patient file format")
 		self.myPatient = cPatient()
 		if not self.myPatient.loadFromFile(pat_format, pat_file):
 			_log.Log(gmLog.lPanic, "Cannot read patient from %s file [%s]" % (pat_format, pat_file))
@@ -919,7 +919,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_INDEXFRAMEBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: index-med_docs.py,v $
-# Revision 1.23  2002-12-13 10:39:30  ncq
+# Revision 1.24  2002-12-22 11:51:24  ncq
+# - patient format -> patient file format
+#
+# Revision 1.23  2002/12/13 10:39:30  ncq
 # - fixed shutils -> shutil
 #
 # Revision 1.22  2002/12/09 23:06:11  ncq
