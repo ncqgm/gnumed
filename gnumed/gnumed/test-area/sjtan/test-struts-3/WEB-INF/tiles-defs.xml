@@ -81,7 +81,13 @@
          <definition name="printablerecord" page="/pages/summaryAndPastNotesPrintable.jsp">
          </definition>         
          
+       <definition name="framesetClinEntry" page="/pages/main_2tiles.jsp">
+            <put name="summary" value="clinSummary"/>
+            <put name="pastNotes" value="pastNotes"/>
+            <put name="clinEntry" value="encounterEntry"/>
+        </definition>
         
+       
           
 <!--
 	<definition name="news" page="/WEB-INF/jsp/news.jsp" controllerClass="org.springframework.samples.tiles.NewsFeedController">

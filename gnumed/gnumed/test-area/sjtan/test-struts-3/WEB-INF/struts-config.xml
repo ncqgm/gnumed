@@ -344,6 +344,11 @@
         
         <action path="/AppMain" forward="appmain"/> 
         
+        <action path="/PastNotes" forward="pastNotes"/>
+        
+        <action path="/Summary" forward="clinSummary"/>
+        <action path="/ClinEntry" forward="encounterEntry"/>
+        
         <action path="/GetDemoEntry" forward="/DemographicEdit.do"/>
         
         <action path="/Testdb" forward="testdb"/>
@@ -408,8 +413,9 @@
             attribute="clinicalUpdateForm"
             scope="request"
             >
+            <!-- <forward name="successLoadClinical" path="clinicalentry"/>
+            -->
             <forward name="successLoadClinical" path="clinicalentry"/>
-        
         </action>
         
             

@@ -218,15 +218,22 @@ e.g. getNarrative(index) ...  id='narrative'
                 <table > 
                 
                     <tr>
-                   
+                    <td>
                     <bean:message key="narrative.notes" />
                     <bean:message key="narrative.soap"/>
                     <html-el:select styleId="soapCat${index}" name="narrative" property="soapCat" indexed="true" 
-                        onchange="if ( this.value =='o' ) {
+                        onmouseout="if ( this.value =='o' ) {
                         document.getElementById('vitals${index}').style.display='block'; 
                         } else{
                         document.getElementById('vitals${index}').style.display='none'; 
-                        }" >
+                        }
+                        if ( this.value=='p') {
+                            document.getElementById('medications${index}').style.display='block';
+                        } else {
+                            document.getElementById('medications${index}').style.display='none';
+                        }
+                        "
+                        >
                         <html:option key="s" value="s" >S</html:option>
                         <html:option key="o" value="o">O</html:option>
                         <html:option key="a" value="a">A</html:option>
@@ -249,7 +256,8 @@ e.g. getNarrative(index) ...  id='narrative'
                         <td  >
                             <bean:message key="allergy"/> 
                             <html-el:checkbox styleId="isAllergy${index}" 
-                            name="clinicalUpdateForm" property="encounter.allergy[${index}].marked" value="0"    
+                            name="clinicalUpdateForm" property="encounter.allergy[${index}].marked" value="0"  
+                            
                             onchange="if (this.checked) {
                             document.getElementById('allergyInput${index}').style.display='block'; 
                          
@@ -315,6 +323,15 @@ e.g. getNarrative(index) ...  id='narrative'
                     
                     </td>
                     </tr>
+                   <tr>
+                   <td COLSPAN='6'>
+                   
+                        <div id="medications<%=index%>" style='display: none'>
+                                
+                                <jsp:include page="./medicationEntry.jsp"/>
+                        </div>
+                   </td>
+                   </tr>
                    
                 </table>
                 <sub>

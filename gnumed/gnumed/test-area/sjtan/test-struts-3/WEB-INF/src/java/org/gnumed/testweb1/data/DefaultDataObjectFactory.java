@@ -20,20 +20,21 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     static Log log = LogFactory.getLog(DefaultDataObjectFactory.class);
     
     public static int nEntry =4;
-    
+     
     public final static String[] itemTypes = new String[] { "narrative", "medication", "vaccination", "allergy", "vital" };
     public final static String[] factoryMethods = new String[]
     { "createEntryClinNarrative", "createEntryMedication",
       "createEntryVaccination", "createEntryAllergy",
       "createEntryVitals"
     };
-    
+    public final static int[] counts = { nEntry, nEntry * MEDS_PER_ITEM, 0, 0, 0 };
     
     private  ClinicalEncounter loadEntryObjects( ClinicalEncounter ce) {
         log.info( ce + "BEING LOADED");
         for (int i = 0; i < itemTypes.length ; ++i) {
             try {
-            	for (int j = 0; j < nEntry ; ++j) {
+                int  n = counts[i] != 0 ? counts[i] : nEntry;
+            	for (int j = 0; j < n ; ++j) {
                 	log.info("Setting property *" + itemTypes[i] + "* index " + j + " method " + factoryMethods[i]);
                     PropertyUtils.setIndexedProperty( ce, itemTypes[i], j,
                     getClass().getMethod( factoryMethods[i], new Class[0] ).invoke( this, new Object[0] ) );

@@ -23,8 +23,7 @@ import org.gnumed.testweb1.data.EntryClinNarrative;
 import org.gnumed.testweb1.data.EntryClinRootItem;
 import org.gnumed.testweb1.data.EntryVaccination;
 import org.gnumed.testweb1.data.Vaccination;
-
- 
+import org.gnumed.testweb1.data.Medication;
 /**
  *
  * @author  sjtan
@@ -355,4 +354,27 @@ public class ClinicalUpdateForm extends  /*org.apache.struts.action.ActionForm *
         return getEncounter().getVaccinations();
     }
      
+    /**
+     * Indexed getter for property medication.
+     * @param index Index of the property.
+     * @return Value of the property at <CODE>index</CODE>.
+     */
+    public Medication getMedication(int index) {
+        return getEncounter().getMedication(index);
+    }
+    
+    /**
+     * Indexed setter for property medication.
+     * @param index Index of the property.
+     * @param medication New value of the property at <CODE>index</CODE>.
+     */
+    public void setMedication(int index, Medication medication) {
+        getEncounter().setMedication(index, medication);
+    }
+    
+    public List getMedications() {
+        return getEncounter().getMedications();
+        
+    }
+    
 }

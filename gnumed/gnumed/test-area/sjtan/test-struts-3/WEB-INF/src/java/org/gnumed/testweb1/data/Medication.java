@@ -41,8 +41,10 @@ public interface  Medication extends ClinRootItem {
      public void setPeriod(int period);
      public Date getDiscontinued();
      public void setDiscontinued(Date d);
+
      public String getForm();
      public void setForm(String form);
      public String getAmountUnit();
      public void setAmountUnit(String unit);
+
 }

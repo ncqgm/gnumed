@@ -12,6 +12,8 @@ import java.util.ResourceBundle;
  * @author  sjtan
  */
 public interface DataObjectFactory {
+    public final static int MEDS_PER_ITEM=4;
+    
     DemographicDetail createDemographicDetail();
     
     

@@ -23,6 +23,7 @@ public class MedicationImpl1 extends ClinRootItemImpl1 implements Medication {
     private String DB_drug_id, DB_origin;
     private String directions;
     private String ATC;
+
     private String amountUnit, form;
     
     /** Creates a new instance of MedicationImpl1 */
