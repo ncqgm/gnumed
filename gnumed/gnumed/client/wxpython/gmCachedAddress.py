@@ -60,6 +60,24 @@ class CachedAddress(gmDBCache.CachedDBObject):
 			cursor.execute(x)
 
 
+	def update_address_link(self, addressMap, db):
+			queries = []
+                        queries.append("""update v_basic_address set number= '%(number)s',street= '%(street)s',
+                         street2='%(street2)s',  city=upper('%(city)s'),state=upper('%(state)s'), country='%(country)s',
+                        postcode='%(postcode)s' where  id=%(id)d"""%addressMap)
+
+			cursor = db.cursor()
+
+	                for x in queries:
+        	                print x
+                	        cursor.execute(x)
+
+			
+
+
+
+
+
 	def dictresult(self, id=None):
 		if id is not None:
 			self.get(id, refresh_only=1)

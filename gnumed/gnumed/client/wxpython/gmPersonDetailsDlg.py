@@ -206,26 +206,25 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 
 
 		personMap = self.GetPersonMap()
+		personMap = self.LowerMap( personMap,  self.__GetPersonMapping())
 		addressMap = self.GetAddressMap()
+		addressMap = self.LowerMap( addressMap,  self.__GetAddressMapping())
 		
-		queries = []
+		db = self.getDB()
 	
 		if self.personId == None or self.personId == -1:
 
-
-				db = self.getDB()
 				try:
 					db.commit()
 					cursor = db.cursor()
 					setup = self.getSqlSettings()
 					for x in setup:
+						print x
 						cursor.execute(x)
 
-					map = self.LowerMap( personMap,  self.__GetPersonMapping())
-					self.__person.create_person( map, db)
+					self.__person.create_person( personMap, db)
 
-					map = self.LowerMap( addressMap,  self.__GetAddressMapping())
-					self.__address.create_address_link( map, db)
+					self.__address.create_address_link( addressMap, db)
 
 					stmt  = """select currval('identity_id_seq'), currval('identities_addresses_id_seq')"""
 					print stmt
@@ -254,41 +253,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 				
 			
 		else:
-			queries.append("""update v_basic_person set title='%(Title)s',  lastnames='%(Surnames)s', firstnames='%(Given Names)s',
-						gender= '%(Gender)s',  dob='%(Dob)s', cob ='%(Cob)s' where id=%(id)d""" %personMap )
-
-			
-			queries.append("""update v_basic_address set number= '%(Street No)s',street= '%(Street)s',
-			 street2='%(Address 1)s',  city=upper('%(City)s'),state=upper('%(State)s'), country='%(Country)s', 
-			postcode='%(Postcode)s' where  id=%(id)d"""%addressMap) 
-
-			
-			
-	
-			#self.execute2("""select urb.id from urb, state, country c where urb.name=upper('%(City)s')
-			#	 and urb.postcode='%(Postcode)s' and urb.statecode = state.id and trim(state.code)=upper('%(State)s') 
-			#	and state.country = c.code and c.name = '%(Country)s' """%addressMap)
-		
-			#urbId = self.cursor.fetchone()[0]
-		
-			#self.execute2("select find_street( '%s', %d)" % ( addressMap['Street'], urbId )  )
-			#streetId = self.cursor.fetchone()[0] 	
-
-			#self.execute2("SELECT address_type.id FROM address_type WHERE (btrim((address_type.name)::text) = btrim(lower(('%s')::text)))"% ( addressMap['address At'] )  )	
-			#addrtypeId = self.cursor.fetchone()[0]
-
-			#self.execute2("select id_address from identities_addresses where id_identity = %d"%( self.personId))
-			#addrId = self.cursor.fetchone()[0]
-
-			#queries.append("update address set number='%s', street=%d, addrtype=%d ,addendum='%s' where id=%d" %
-			#		(addressMap['Street No'], streetId, addrtypeId, addressMap['Address 1'], addrId) ) 
-			
-			#self.executeUpdate(queries)	
-					
-
 			
 			try:
-                                        db = self.getDB()
                                         db.commit()
                                         setup = self.getSqlSettings()
                                         cursor = db.cursor()
@@ -296,9 +262,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
                                                 print x
                                                 cursor.execute(x)
 
-                                        for x in queries:
-                                                print x
-                                                cursor.execute(x)
+					self.__person.update_person( personMap, db)
+					self.__address.update_address_link(addressMap, db)	
 
                                         db.commit()
                                         self.__person.reset()
@@ -347,6 +312,13 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails, gmPlugin.wxGuiPlugin):
 				except Exception , errorStr:
 					print errorStr, 'in LowerMap in PersonDlg'
 			print "lower case map = ", newMap
+	
+			# to map invisible values. will also map redundant values that have a name2	
+			for x in map.keys():
+				if not newMap.has_key(x):
+					newMap[x] = map[x]
+
+			
 			return newMap
 
 				

@@ -67,6 +67,17 @@ class CachedPerson(gmDBCache.CachedDBObject):
 					print x
 					cursor.execute(x)
 
+	def update_person(self, personMap, db):
+			queries = []
+			queries.append("""update v_basic_person set title='%(title)s',  lastnames='%(lastnames)s', firstnames='%(firstnames)s',
+				gender= '%(gender)s',  dob='%(dob)s', cob ='%(cob)s' where id=%(id)d""" %personMap )
+
+                        cursor = db.cursor()
+
+                        for x in queries:
+				print x
+				cursor.execute(x)
+
 
 
 
