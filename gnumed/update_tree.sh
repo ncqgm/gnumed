@@ -1,8 +1,9 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/update_tree.sh,v $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
+export CVS_RSH="ssh"
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'
 echo "diffing against CVS just to be sure"
