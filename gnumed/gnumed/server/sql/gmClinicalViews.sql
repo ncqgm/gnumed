@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.14 2003-05-12 12:43:39 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.15 2003-05-14 22:07:13 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -15,15 +15,12 @@
 \unset ON_ERROR_STOP
 drop index idx_item_encounter;
 drop index idx_item_episode;
---drop index idx_narrative_value;
 drop index idx_episode_h_issue;
 drop index idx_allergy_comment;
 \set ON_ERROR_STOP 1
 
-create index idx_item_encounter on clin_item(id_encounter);
-create index idx_item_episode on clin_item(id_episode);
--- this is dangerous as it will NOT index child tables:
---create index idx_narrative_value on clin_narrative(value);
+create index idx_item_encounter on clin_root_item(id_encounter);
+create index idx_item_episode on clin_root_item(id_episode);
 create index idx_episode_h_issue on clin_episode(id_health_issue);
 
 -- =============================================
@@ -50,8 +47,7 @@ select
 	chi.id_patient as id_patient,
 	chi.id as id_health_issue,
 	cep.description as episode,
-	chi.description as health_issue,
-	cep.narrative as "comment"
+	chi.description as health_issue
 from
 	clin_episode cep, clin_health_issue chi
 where
@@ -65,19 +61,19 @@ drop view v_patient_items;
 
 create view v_patient_items as
 select
-	ci.pk_item as id_item,
-	ci.id_encounter as id_encounter,
-	ci.id_episode as id_episode,
+	cri.pk_item as id_item,
+	cri.id_encounter as id_encounter,
+	cri.id_episode as id_episode,
 	vpep.id_patient as id_patient,
 	vpep.id_health_issue as id_health_issue,
-	ci.narrative as narrative,
+	cri.narrative as narrative,
 	sys.relname as src_table
 from
-	clin_item ci, v_patient_episodes vpep, pg_class sys
+	clin_root_item cri, v_patient_episodes vpep, pg_class sys
 where
-	vpep.id_episode=ci.id_episode
+	vpep.id_episode=cri.id_episode
 		and
-	ci.tableoid=sys.oid
+	cri.tableoid=sys.oid
 ;
 
 -- =============================================
@@ -91,8 +87,7 @@ select distinct on (vpi.id_encounter)
 	ce.id_location as id_location,
 	ce.id_provider as id_provider,
 	vpi.id_patient as id_patient,
-	_(et.description) as type,
-	ce.narrative as "comment"
+	_(et.description) as type
 from
 	(clin_encounter ce inner join v_patient_items vpi on (ce.id=vpi.id_encounter)),
 	_enum_encounter_type et
@@ -176,11 +171,14 @@ TO GROUP "_gm-doctors";
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
 \set ON_ERROR_STOP 1
 
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.14 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.15 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.14  2003-05-12 12:43:39  ncq
+-- Revision 1.15  2003-05-14 22:07:13  ncq
+-- - adapt to changes in gmclinical.sql, particularly the narrative/item merge
+--
+-- Revision 1.14  2003/05/12 12:43:39  ncq
 -- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
 --   database level now, don't include them in individual schema file anymore
 --
