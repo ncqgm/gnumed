@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.99 2004-05-22 12:42:53 ncq Exp $
-__version__ = "$Revision: 1.99 $"
+# $Id: gmClinicalRecord.py,v 1.100 2004-05-23 12:28:58 ncq Exp $
+__version__ = "$Revision: 1.100 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -613,11 +613,12 @@ class cClinicalRecord:
 		# already there ?
 		for episode in self.__db_cache['episodes']:
 			if episode['episode'] == episode_name:
-				if episode['id_health_issue'] == id_health_issue
+				if episode['id_health_issue'] == id_health_issue:
 					return episode
 				else:
 					_log.Log(gmLog.lErr, 'episode [%s] already exists for patient [%s]' % (episode_name, self.id_patient))
 					_log.Log(gmLog.lErr, 'cannot change health issue link from [%s] to [%s]' % (episode['id_health_issue'], id_health_issue))
+					return None
 		# no, try to create it
 		success, episode = gmEMRStructItems.create_episode(id_patient=self.id_patient, id_health_issue=id_health_issue, episode_name=episode_name)
 		if not success:
@@ -632,12 +633,12 @@ class cClinicalRecord:
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot load last active episode for patient [%s]' % self.id_patient)
 			return None
+		episode = None
 		if len(rows) != 0:
 			try:
 				episode = gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
 			except gmExceptions.ConstructorError, msg:
 				_log.Log(str(msg), sys.exc_info(), verbose=0)
-				episode = None
 
 		# no last_active_episode recorded, so try to find the
 		# episode with the most recently modified clinical item
@@ -1223,7 +1224,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.99  2004-05-22 12:42:53  ncq
+# Revision 1.100  2004-05-23 12:28:58  ncq
+# - fix missing : and episode reference before assignment
+#
+# Revision 1.99  2004/05/22 12:42:53  ncq
 # - add create_episode()
 # - cleanup add_episode()
 #
