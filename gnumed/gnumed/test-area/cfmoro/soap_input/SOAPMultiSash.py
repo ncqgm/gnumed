@@ -6,7 +6,7 @@
 #
 # Created:	  2002/11/20
 # Version:	  0.1
-# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.22 2005-01-18 19:51:13 cfmoro Exp $
+# RCS-ID:	   $Id: SOAPMultiSash.py,v 1.23 2005-01-28 18:37:17 cfmoro Exp $
 # License:	  wxWindows licensie
 # GnuMed customization (Carlos): 
 #		Disabled vertical MultiSizer and MultiCreator (cMultiSashLeaf)
@@ -210,7 +210,7 @@ class cMultiSashSplitter(wxWindow):
 			soap_issue = soap_widget.GetProblem()			
 			if len(self.leaf1.content.childController.get_managed_episodes()) > 0 and \
 				not soap_widget.IsSaved():
-				self.leaf1.content.childController.get_managed_episodes().remove(soap_issue[1]['pk_episode'])
+				self.leaf1.content.childController.get_managed_episodes().remove(soap_issue['pk_episode'])
 			#soap_widget.ResetAndHide()
 			self.leaf1.content.MakeEmptyWidget()
 			#self.leaf1.creatorHor.Hide()

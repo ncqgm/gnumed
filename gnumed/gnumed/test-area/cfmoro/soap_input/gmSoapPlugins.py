@@ -12,7 +12,7 @@
 		-Add context information widgets
 """
 #================================================================
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -25,7 +25,7 @@ from Gnumed.business import gmEMRStructItems, gmPatient, gmSOAPimporter
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmSOAPWidgets
 from Gnumed.pycommon.gmPyCompat import *
 
-import SOAPMultiSash
+import SOAPMultiSash, gmEMRStructWidgets
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -123,7 +123,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# right hand side
 		# - problem list
 #		PNL_problems = wx.wxPanel(self.__splitter, -1)
-		self.__problem_list = wx.wxListBox (
+		self.__LST_problems = wx.wxListBox (
 			self.__splitter,
 #			PNL_problems,
 			-1,
@@ -131,13 +131,13 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		)
 #		# - arrange widgets
 #		szr_right = wx.wxBoxSizer(wx.wxVERTICAL)
-#		szr_right.Add(self.__problem_list, 1, wx.wxEXPAND)
+#		szr_right.Add(self.__LST_problems, 1, wx.wxEXPAND)
 #		PNL_problems.SetSizerAndFit(szr_right)
 
 		# arrange widgets
 		self.__splitter.SetMinimumPaneSize(20)
 #		self.__splitter.SplitVertically(PNL_soap_editors, PNL_problems)
-		self.__splitter.SplitVertically(PNL_soap_editors, self.__problem_list)
+		self.__splitter.SplitVertically(PNL_soap_editors, self.__LST_problems)
 
 		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
 		szr_main.Add(self.__splitter, 1, wx.wxEXPAND, 0)
@@ -147,16 +147,11 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		Updates health problems list
 		"""
-#		if self.__problem_list.GetCount() > 0:
-#			return False
-		self.__problem_list.Clear()
+		self.__LST_problems.Clear()
 		problems = self.__emr.get_problems()
 		print 'PROBLEMS: %s' % problems
-		idx = 1
 		for problem in problems:
-			label = '#%s %s' % (idx, problem['problem'])
-			self.__problem_list.Append(label, problem)
-			idx = idx+1
+			self.__LST_problems.Append(problem['problem'], problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
 		return True
@@ -186,7 +181,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# allow new when soap stack is empty
 		# avoid enabling new button to create more than one soap per issue.
-		if self.__selected_episode[1]['pk_episode'] in self.__managed_episodes:
+		if self.__selected_episode['pk_episode'] in self.__managed_episodes:
 			self.__BTN_new.Enable(False)
 		else:
 			self.__BTN_new.Enable(True)
@@ -223,7 +218,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Configure enabled event signals
 		"""
 		# wxPython events
-		wx.EVT_LISTBOX_DCLICK(self.__problem_list, self.__problem_list.GetId(), self.__on_problem_selected)
+		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_selected)
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
 		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
 		wx.EVT_BUTTON(self.__BTN_new, self.__BTN_new.GetId(), self.__on_new)
@@ -244,22 +239,37 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			- if no editor for episode exists: create one and focus it
 			- update button status
 		"""
-		problem_idx = self.__problem_list.GetSelection()
-		problem = self.__problem_list.GetClientData(problem_idx)
+		problem_idx = self.__LST_problems.GetSelection()
+		problem = self.__LST_problems.GetClientData(problem_idx)
 
 		# FIXME constant in gmEMRStructIssues 
 		if problem['type'] == 'issue':
-			self.__selected_episode = problem.add_episode()
-			self.__refresh_problem_list()
+			# health issue selected, show episode selector dialog
+			pk_issue = problem['id']
+			episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg(None, -1,
+			'Episode selector', _('Add episode and start progress note'),
+			pk_health_issue = pk_issue)
+			retval = episode_selector.ShowModal() # Shows it
+				
+			if retval == dialog_OK:
+				# FIXME refresh only if episode selector action button was performed
+				self.__refresh_problem_list()
+				self.__selected_episode = episode_selector.get_selected_episode()
+				print 'Creating progress note for episode: %s' % selected_episode
+			elif retval == dialog_CANCELLED:
+				print 'User canceled'
+			else:
+				raise Exception('Invalid dialog return code [%s]' % retval)
+			episode_selector.Destroy() # finally destroy it when finished.	
 		elif problem['type'] == 'episode':
-			self.__selected_episode = (problem_idx, problem)
+			self.__selected_episode = problem
 		else:
 			msg = _('Cannot open progress note editor for problem:\n%s') % problem
 			gmGuiHelpers.gm_show_error(msg, _('progress note editor'), gmLog.lErr)
 			_log.Log(gmLog.lErr, 'invalid problem type [%s]' % type(problem))
 			return False
 
-		episode_id = self.__selected_episode[1]['pk_episode']
+		episode_id = self.__selected_episode['pk_episode']
 		if episode_id not in self.__managed_episodes:
 			# create						
 			self.__focussed_soap_editor.AddLeaf(SOAPMultiSash.MV_VER, 130)
@@ -433,7 +443,7 @@ class cMultiSashedSoapPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		self.__selected_episode = None
 		self.__managed_episodes = []
-		self.__problem_list.Clear()
+		self.__LST_problems.Clear()
 		self.__soap_multisash.Clear()
 
 #== Module convenience functions (for standalone use) =======================
