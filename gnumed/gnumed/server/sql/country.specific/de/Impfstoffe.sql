@@ -6,7 +6,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfstoffe.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -197,14 +197,74 @@ insert into vaccine (
 insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
 values (currval('vaccine_id_seq'), (select id from vacc_indication where description='meningococcus C'));
 
+-------------
+-- Repevax --
+-------------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'REPEVAX',
+	'Repevax',
+	false,
+	'10 years'::interval,
+	'nicht zur Grundimmunisierung verwenden, Tetanus-Diphtherie-azellulärer-5-Komponenten-Pertussis-inaktivierter Poliomyelitis-Adsorbat-Impfstoff'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tetanus'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='diphtherie'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='pertussis'));
+
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='poliomyelitis'));
+
+----------
+-- FSME --
+----------
+insert into vaccine (
+	id_route,
+	trade_name,
+	short_name,
+	is_live,
+	min_age,
+	max_age,
+	comment
+) values (
+	(select id from vacc_route where abbreviation='i.m.'),
+	'FSME-IMMUN 0.25ml Junior',
+	'FSME',
+	false,
+	'1 year'::interval,
+	'16 years'::interval,
+	'nicht zur Grundimmunisierung verwenden, Tetanus-Diphtherie-azellulärer-5-Komponenten-Pertussis-inaktivierter Poliomyelitis-Adsorbat-Impfstoff'
+);
+
+-- link to indications
+insert into lnk_vaccine2inds (fk_vaccine, fk_indication)
+values (currval('vaccine_id_seq'), (select id from vacc_indication where description='tick-borne meningoencephalitis'));
+
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfstoffe.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfstoffe.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: Impfstoffe.sql,v $
--- Revision 1.7  2004-01-18 21:58:22  ncq
+-- Revision 1.8  2004-01-22 23:45:12  ncq
+-- - REPEVAX/FSME Junior
+--
+-- Revision 1.7  2004/01/18 21:58:22  ncq
 -- - remove is_licensed
 -- - add Havrix 1440
 --
