@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.35 2003-09-30 19:11:58 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmClinicalRecord.py,v 1.36 2003-10-19 12:12:36 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -25,9 +25,6 @@ if __name__ == "__main__":
 _log.Log(gmLog.lData, __version__)
 
 import gmExceptions, gmPG, gmSignals, gmDispatcher
-
-# 3rd party
-#import mx.DateTime as mxDateTime
 #============================================================
 class gmClinicalRecord:
 
@@ -290,7 +287,6 @@ class gmClinicalRecord:
 				# format table specific data columns
 				# - ignore those, they are metadata
 				cols2ignore = [
-					'audit_this_table',
 					'pk_audit', 'row_version', 'modified_when', 'modified_by',
 					'pk_item', 'id', 'id_encounter', 'id_episode'
 				]
@@ -304,7 +300,6 @@ class gmClinicalRecord:
 					view_row[view_col_idx['modified_string']],
 					table_name
 				))
-#				emr_data[age].append("------------------------------------")
 		return emr_data
 	#--------------------------------------------------------
 	def _get_patient_ID(self):
@@ -333,16 +328,18 @@ class gmClinicalRecord:
 		return self.__db_cache['allergies']
 	#--------------------------------------------------------
 	def _get_allergy_names(self):
-		data = []
 		try:
 			self.__db_cache['allergies']
 		except KeyError:
 			if self._get_allergies() is None:
-				# remember empty list will return false
+				# remember: empty list will return false
 				# even though this is what we get with no allergies
 				_log.Log(gmLog.lErr, "Could not load allergies")
-				return data
+				return []
 		for allergy in self.__db_cache['allergies']:
+			# filter out sensitivities
+			if allergy[15] == 2:
+				continue
 			tmp = {}
 			# FIXME: this should be accessible by col name, not position
 			tmp['id'] = allergy[0]
@@ -441,6 +438,51 @@ class gmClinicalRecord:
 			self.__db_cache['health issue names'][row[idx_id]] = row[idx_name]
 		return self.__db_cache['health issue names']
 	#--------------------------------------------------------
+	def _get_vaccination_status(self):
+		try:
+			return self.__db_cache['vaccination status']
+		except KeyError:
+			pass
+		self.__db_cache['vaccination status'] = {}
+		tmp = {}
+
+		# need to actually fetch data:
+		curs = self._ro_conn_clin.cursor()
+
+		# - some vaccinations the patient may have never had
+		cmd = """
+select distinct on (description) description
+from vacc_indication
+where description not in (
+	select indication
+	from v_patient_vaccinations
+	where id_patient=%s
+)"""
+		if not gmPG.run_query(curs, cmd, self.id_patient):
+			curs.close()
+			_log.Log(gmLog.lErr, 'cannot load vaccination indications')
+			del self.__db_cache['vaccination status']
+			return None
+		rows = curs.fetchall()
+		tmp['missing'] = []
+		for row in rows:
+			tmp['missing'].append(row[0])
+
+		# - some will be incomplete but not due currently
+		cmd = """
+select distinct on (vpv.indication) vpv.indication
+from v_patient_vaccinations vpv
+where
+	id_patient=%s
+		and
+	(select age(dob) from v_basic_person where id=%s) not between a and b
+"""
+
+
+		curs.close()
+
+		return self.__db_cache['vaccination status']
+	#--------------------------------------------------------
 	# set up handler map
 	_get_handler['patient ID'] = _get_patient_ID
 #	_get_handler['allergy IDs'] = _get_allergies_list
@@ -450,6 +492,9 @@ class gmClinicalRecord:
 	_get_handler['episode names'] = _get_episode_names
 	_get_handler['health issues'] = _get_health_issues
 	_get_handler['health issue names'] = _get_health_issue_names
+	_get_handler['vaccination status'] = _get_vaccination_status
+	_get_handler['immunisation status'] = _get_vaccination_status
+	_get_handler['immunization status'] = _get_vaccination_status
 	#------------------------------------------------------------------
 	# health issue related helpers
 	#------------------------------------------------------------------
@@ -775,7 +820,12 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.35  2003-09-30 19:11:58  ncq
+# Revision 1.36  2003-10-19 12:12:36  ncq
+# - remove obsolete code
+# - filter out sensitivities on get_allergy_names
+# - start get_vacc_status
+#
+# Revision 1.35  2003/09/30 19:11:58  ncq
 # - remove dead code
 #
 # Revision 1.34  2003/07/19 20:17:23  ncq
