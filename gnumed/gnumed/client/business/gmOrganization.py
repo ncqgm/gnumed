@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 
 if __name__ == "__main__":
 			
@@ -822,7 +822,9 @@ if __name__== "__main__":
 		conn = p.GetConnection("personalia")
 		
 		cursor = conn.cursor()
-		cursor.execute( "insert into org_category(description) values('hospital')")
+		cursor.execute("select last_value from org_id_seq")
+		[org_id_seq] = cursor.fetchone()
+		cursor.execute( "insert into org_category(description, id) values('hospital', %d)" % (org_id_seq + 1) )
 		cursor.execute("select id from org_category where description in ('hospital')")
 		result =  cursor.fetchone()
 		if result == None or len(result) == 0:
@@ -903,7 +905,12 @@ if __name__== "__main__":
 	
 #============================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.9  2004-05-23 15:27:56  sjtan
+# Revision 1.10  2004-05-24 00:32:24  sjtan
+#
+# don't want to increment the sequence number for a temporary org_category, as there is no way
+# of restoring it.
+#
+# Revision 1.9  2004/05/23 15:27:56  sjtan
 #
 # allow test case to run without sql test data script for org tables.
 #
