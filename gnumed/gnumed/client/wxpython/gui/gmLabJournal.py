@@ -64,7 +64,7 @@ class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 	def __init__(self, parent, ID, pos=wxDefaultPosition, size=wxDefaultSize, style=0):
 		wxListCtrl.__init__(self, parent, ID, pos, size, style)
 		wxListCtrlAutoWidthMixin.__init__(self)
-	
+
 	def AppendColouredItem(self, sLabel = None): 
 		NewItem = wxListItem()
 		NewItem.SetMask(wxLIST_MASK_TEXT);
@@ -73,12 +73,9 @@ class gmLabIDListCtrl(wxListCtrl, wxListCtrlAutoWidthMixin):
 		NewItem.SetFont(wxITALIC_FONT);
 		NewItem.SetTextColour(wxRED);
 		NewItem.SetBackgroundColour(wxColour(235, 235, 235));
-		
+
 		#self.InsertItem(NewItem)
 		return NewItem
-
-
-
 #====================================
 class cLabJournalNB(wxNotebook):
 	"""This wxNotebook derivative displays 'records still due' and lab-import related errors.
@@ -108,9 +105,9 @@ class cLabJournalNB(wxNotebook):
 		self.PNL_due_tab.SetAutoLayout( True )
 		self.PNL_due_tab.SetSizer( szr_due )
 		szr_due.Fit( self.PNL_due_tab )
-		szr_due.SetSizeHints( self.PNL_due_tab )
+		szr_due.SetSizeHints(self.PNL_due_tab)
 
-		self.AddPage( self.PNL_due_tab, _("pending lab results"))
+		self.AddPage( self.PNL_due_tab, _("pending results"))
 
 		# tab with errors
 		self.PNL_errors_tab = wxPanel( self, -1)
@@ -132,7 +129,7 @@ class cLabJournalNB(wxNotebook):
 		szr_review.Fit( self.PNL_review_tab )
 		szr_review.SetSizeHints( self.PNL_review_tab )
 
-		self.AddPage( self.PNL_review_tab, _("unreviewed lab results"))
+		self.AddPage( self.PNL_review_tab, _("unreviewed results"))
 		
 		self.curr_pat = gmPatient.gmCurrentPatient()
 	#------------------------------------------------------------------------
@@ -144,7 +141,7 @@ class cLabJournalNB(wxNotebook):
 			name = 'lablabel',
 			parent = self.PNL_due_tab,
 			id = -1,
-			label = _("processing laboratory")
+			label = _('Lab')
 		)
 		
 		# available labs go here
@@ -159,7 +156,7 @@ class cLabJournalNB(wxNotebook):
 			name = 'req_id_label',
 			parent = self.PNL_due_tab,
 			id = -1,
-			label = _("request id for above laboratory")
+			label = _("Specimen ID")
 		)
 		
 		# request_id field
@@ -215,7 +212,7 @@ class cLabJournalNB(wxNotebook):
 			size=wxDefaultSize,
 			style=wxLC_REPORT|wxSUNKEN_BORDER|wxLC_VRULES
 		)
-		
+
 		vbszr.AddWindow(self.lbox_errors, 1, wxEXPAND| wxALIGN_CENTER | wxALL, 5)
 
 		self.lbox_errors.InsertColumn(0, _("noticed when"))
@@ -270,103 +267,85 @@ class cLabJournalNB(wxNotebook):
 		self.lab_wheel.Clear()
 		self.lbox_pending.DeleteAllItems()
 		#------ due PNL ------------------------------------
-		#pending_requests = self.__get_pending_requests()
+		# FIXME: make limit configurable
 		too_many, pending_requests = gmPathLab.get_pending_requests(limit=250)
+		# FIXME: make use of too_many
 		for request in pending_requests:
-			# for pending requests
-			if request['is_pending']:
-				self.idx = self.lbox_pending.InsertItem(info=wxListItem())
-				idx=self.idx
-				# -- display request date ------------------- 
-				self.lbox_pending.SetStringItem(index = idx, col=0, label=request['clin_when'].date)
-				# -- display request lab ---------------------
-				lab = self.__get_labname(request['fk_test_org'])
-				self.lbox_pending.SetStringItem(index = idx, col=1, label=lab[0][0])
-				# -- display associated req id ---
-				self.lbox_pending.SetStringItem(index = idx, col=2, label=request['request_id'])
-				# -- display associated patient name ---
-				name, dobobj = self.__get_pat4result(request)
-				# FIXME: make use of rest data in patient via mouse over context
-				self.lbox_pending.SetStringItem(index = idx, col=3, label=name)
-				self.lbox_pending.SetStringItem(index = idx, col=4, label=_('pending'))
-		
+			item_idx = self.lbox_pending.InsertItem(info=wxListItem())
+			# request date
+			self.lbox_pending.SetStringItem(index = item_idx, col=0, label=request['clin_when'].date)
+			# request lab
+			lab = self.__get_labname(request['fk_test_org'])
+			self.lbox_pending.SetStringItem(index = item_idx, col=1, label=lab[0][0])
+			# request id
+			self.lbox_pending.SetStringItem(index = item_idx, col=2, label=request['request_id'])
+			# patient name
+			name, dobobj = self.__get_pat4result(request)
+			self.lbox_pending.SetStringItem(index = item_idx, col=3, label=name)
+			self.lbox_pending.SetStringItem(index = item_idx, col=4, label=_('pending'))
+			# FIXME: make use of rest data in patient via mouse over context
 		#----- import errors PNL -----------------------
-		lab_errors = self.__show_import_errors()
+		lab_errors = self.__get_import_errors()
 		for lab_error in lab_errors:
-			self.idx = self.lbox_errors.InsertItem(info=wxListItem())
-			idx=self.idx
-			# -- display  when error was reported ------------------- 
-			self.lbox_errors.SetStringItem(index = idx, col=0, label=lab_error[1].date)
-			# -- what's the problem ---------------------
-			self.lbox_errors.SetStringItem(index = idx, col=1, label=lab_error[4])
-			# -- how can we fix it ---
-			self.lbox_errors.SetStringItem(index = idx, col=2, label=lab_error[5])
-			# -- context --
-			self.lbox_errors.SetStringItem(index = idx, col=3, label=lab_error[6])
-		
+			item_idx = self.lbox_errors.InsertItem(info=wxListItem())
+			# when was error reported
+			self.lbox_errors.SetStringItem(index = item_idx, col=0, label=lab_error[1].date)
+			# error
+			self.lbox_errors.SetStringItem(index = item_idx, col=1, label=lab_error[4])
+			# solution
+			self.lbox_errors.SetStringItem(index = item_idx, col=2, label=lab_error[5])
+			# context
+			self.lbox_errors.SetStringItem(index = item_idx, col=3, label=lab_error[6])
 		#------ unreviewed lab results PNL ------------------------------------
-		#t1 = time.time()  
-		more_avail, unreviewed_results = gmPathLab.get_unreviewed_results(limit=50)
-		#t2 = time.time() 
+		#t1 = time.time()
+		# FIXME: make configurable
+		more_avail, data = gmPathLab.get_unreviewed_results(limit=50)
+		#t2 = time.time()
 		#print t2-t1
-		
-		if more_avail and unreviewed_results is None:
-			self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
-			idx=self.idx
-			item = self.review_Ctrl.GetItem(idx)
+		if more_avail is None:
+			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
+			item = self.review_Ctrl.GetItem(item_idx)
 			item.SetTextColour(wxRED)
 			self.review_Ctrl.SetItem(item)
-			self.review_Ctrl.SetStringItem(index = idx, col=2, label=_('error retrieving unreviewed lab results'))
+			self.review_Ctrl.SetStringItem(index = item_idx, col=2, label=data)
 			return None
-		else:
-			for result in unreviewed_results:
-				self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
-				idx=self.idx
-				# result abnormal ? --> change item color to red
-				if not result['abnormal'] is None and not result['abnormal'].strip()=="":
-					item = self.review_Ctrl.GetItem(idx)
-					item.SetTextColour(wxRED)
-					self.review_Ctrl.SetItem(item)
-					
-				# -- display  patient name ------------------- 
-				#id = result['pk_patient']
-				name, dobobj = self.__get_pat4result(result)
-				self.review_Ctrl.SetStringItem(index = idx, col=0, label=name)
-				self.review_Ctrl.SetStringItem(index = idx, col=1, label=dobobj.date)
-				# -- when rxd ---
-				self.review_Ctrl.SetStringItem(index = idx, col=2, label=result['lab_rxd_when'].date)
-				# -- test name ---
-				self.review_Ctrl.SetStringItem(index = idx, col=3, label=result['unified_name'])
-				# -- result including unit
-				self.review_Ctrl.SetStringItem(index = idx, col=4, label=result['unified_val']+result['val_unit'])
-				# -- val normal range
-				if not result['val_normal_range'] is None:
-					self.review_Ctrl.SetStringItem(index = idx, col=5, label=result['val_normal_range'])
-				else:
-					self.review_Ctrl.SetStringItem(index = idx, col=5, label=_('missing'))
-				# -- notes from provider 
-				if not result['note_provider'] is None:
-					self.review_Ctrl.SetStringItem(index = idx, col=6, label=result['note_provider'])
-				else :
-					self.review_Ctrl.SetStringItem(index = idx, col=6, label=_('no message'))
-					
-			# we show 50 items at once , notify user if there are more
-			if more_avail:
-				self.idx = self.review_Ctrl.InsertItem(info=wxListItem())
-				idx=self.idx
-				self.review_Ctrl.SetStringItem(index = idx, col=6, label=_('more results to be reviewed than shown'))
-	#-------------------------------------------------------------------------
-	#def get_patient_for_lab_request(self,req_id,lab):
-	#	lab_req = gmPathLab.cLabRequest(req_id=req_id, lab=lab)
-	#	patient = lab_req.get_patient()
-	#	return patient
-	#-------------------------------------------------------------------------		
-	#def __get_pending_requests(self):
-	#	query = """select clin_when, fk_test_org, request_id, is_pending from lab_request where is_pending is true"""
-	#	pending_requests = gmPG.run_ro_query('historica', query)
-	#	return pending_requests
+
+		for result in data:
+			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
+			# abnormal ? -> display in red
+			if (result['abnormal'] is not None) and (result['abnormal'].strip() != ''):
+				item = self.review_Ctrl.GetItem(item_idx)
+				item.SetTextColour(wxRED)
+				self.review_Ctrl.SetItem(item)
+			# patient name
+#			#id = result['pk_patient']
+			name, dobobj = self.__get_pat4result(result)
+			self.review_Ctrl.SetStringItem(index = item_idx, col=0, label=name)
+			self.review_Ctrl.SetStringItem(index = item_idx, col=1, label=dobobj.date)
+			# when rxd
+			self.review_Ctrl.SetStringItem(index = item_idx, col=2, label=result['lab_rxd_when'].date)
+			# test name
+			self.review_Ctrl.SetStringItem(index = item_idx, col=3, label=result['unified_name'])
+			# result including unit
+			# FIXME: what about val_unit empty ?
+			self.review_Ctrl.SetStringItem(index = item_idx, col=4, '%s %s' % (label=result['unified_val'], result['val_unit']))
+			# normal range
+			if not result['val_normal_range'] is None:
+				self.review_Ctrl.SetStringItem(index = item_idx, col=5, label=result['val_normal_range'])
+			else:
+				self.review_Ctrl.SetStringItem(index = item_idx, col=5, label='')
+			# notes from provider 
+			if not result['note_provider'] is None:
+				self.review_Ctrl.SetStringItem(index = item_idx, col=6, label=result['note_provider'])
+			else:
+				self.review_Ctrl.SetStringItem(index = item_idx, col=6, label='')
+
+		# we show 50 items at once , notify user if there are more
+		if more_avail:
+			item_idx = self.review_Ctrl.InsertItem(info=wxListItem())
+			self.review_Ctrl.SetStringItem(index = item_idx, col=6, label=_('more results available for review'))
 	#------------------------------------------------------------------------
-	def __show_import_errors(self):
+	def __get_import_errors(self):
 		query = """select * from housekeeping_todo where category='lab'"""
 		import_errors = gmPG.run_ro_query('historica', query)
 		return import_errors
@@ -681,7 +660,10 @@ else:
 	pass
 #================================================================
 # $Log: gmLabJournal.py,v $
-# Revision 1.13  2004-05-25 08:15:20  shilbert
+# Revision 1.14  2004-05-25 13:26:49  ncq
+# - cleanup
+#
+# Revision 1.13  2004/05/25 08:15:20  shilbert
 # - make use of gmPathLab for db querries
 # - introduce limit for user visible list items
 #
