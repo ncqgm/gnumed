@@ -8,8 +8,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/Attic/gmPatient.py,v $
-# $Id: gmPatient.py,v 1.24 2004-03-10 13:44:33 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPatient.py,v 1.25 2004-03-19 11:46:24 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -355,16 +355,27 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def get_patient_ids(self, a_search_term = None, a_locale = None):
-		# handle temporary change of locale
-		if a_locale is not None:
-			print "temporary change of locale on patient search not implemented"
-			_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
-		# generate queries
-		if a_search_term is None:
-			_log.Log(gmLog.lErr, 'need search term')
-			return None
-		query_lists = self.__generate_queries(a_search_term)
+	def get_patient_ids(self, search_term = None, a_locale = None, search_dict = None):
+		"""Get patient IDs for given parameters.
+
+		- either search term or search dict
+		- search dict contains structured data that doesn't need to be parsed
+		- search_dict takes precedence of search_term
+		"""
+		query_lists = []
+		if search_dict is not None:
+			query_lists = self.__generate_queries_generic(search_dict)
+		if len(query_lists) == 0:
+			# temporary change of locale for selecting query generator
+			if a_locale is not None:
+				print "temporary change of locale on patient search not implemented"
+				_log.Log(gmLog.lWarn, "temporary change of locale on patient search not implemented")
+			# generate queries
+			if search_term is None:
+				_log.Log(gmLog.lErr, 'need search term')
+				return None
+			query_lists = self.__generate_queries(search_term)
+
 		# anything to do ?
 		if query_lists is None:
 			_log.Log(gmLog.lErr, 'query tree empty')
@@ -494,6 +505,52 @@ class cPatientSearcher_SQL:
 			return queries
 
 		return None
+	#--------------------------------------------------------
+	# generic, locale independant queries
+	#--------------------------------------------------------
+	def __generate_queries_generic(self, data = None):
+		"""Generate generic queries.
+
+		- not locale dependant
+		- data -> firstnames, lastnames, dob, ID
+		"""
+		if data is None:
+			return []
+
+		vals = {}
+		where_snippets = ()
+		try:
+			vals['fname'] = data['firstnames']
+			where_snippets.append('firstnames=%(fname)s')
+		except KeyError:
+			pass
+		try:
+			vals['lname'] = data['lastnames']
+			where_snippets.append('lastnames=%(lname)s')
+		except KeyError:
+			pass
+		try:
+			vals['dob'] = data['dob']
+			where_snippets.append("datetrunc('day', dob)=%(dob)s")
+		except KeyError:
+			pass
+		try:
+			vals['ID'] = data['ID']
+			where_snippets.append('i_id=%(ID)s')
+		except KeyError:
+			pass
+
+		# sufficient data ?
+		if len(where_snippets) == 0:
+			_log.Log(gmLog.lErr, 'invalid search dict structure')
+			_log.Log(gmLog.lData, data)
+			return []
+		# shall we mogrify name parts ? probably not
+
+		queries = []
+		queries.append(['select i_id, n_id from v_basic_person where %s'] % ' and '.join(where_snippets))
+	#--------------------------------------------------------
+	# queries for DE
 	#--------------------------------------------------------
 	def __generate_queries_de(self, a_search_term = None):
 		if a_search_term is None:
@@ -816,7 +873,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmPatient.py,v $
-# Revision 1.24  2004-03-10 13:44:33  ncq
+# Revision 1.25  2004-03-19 11:46:24  ncq
+# - add search_term to get_pat_ids()
+#
+# Revision 1.24  2004/03/10 13:44:33  ncq
 # - shouldn't just import gmI18N, needs fix, I guess
 #
 # Revision 1.23  2004/03/10 12:56:01  ihaywood
