@@ -33,10 +33,28 @@ import gmPlugin
 import gmLog
 import gmI18N
 
-ID_SCRIPTICON = wxNewId ()
-ID_SCRIPTLIST = wxNewId ()
-ID_SCRIPTMENU = wxNewId ()
 gmSECTION_SCRIPT = 8
+# script popup
+ID_AuthInd = wxNewId()
+ID_Interactions = wxNewId()
+ID_PregInfo = wxNewId()
+ID_Restrictions = wxNewId()
+ID_EditItem = wxNewId()
+ID_DelItem = wxNewId()
+ID_DelAll = wxNewId()
+ID_MakeItemReg24 = wxNewId()
+ID_DrugInfoBrief = wxNewId()
+ID_DrugInfoFull = wxNewId()
+ID_PrintItem = wxNewId()
+ID_PrintAll = wxNewId()
+ID_ReprintItem = wxNewId()
+ID_ReprintAll = wxNewId()
+ID_JustSaveItem = wxNewId()
+ID_JustSaveAll = wxNewId()
+ID_ChangeFont = wxNewId()
+ID_SaveListLayout = wxNewId()
+ID_Help = wxNewId()
+ID_Exit = wxNewId()
 #------------------------------------
 #Dummy data to simulate script items
 #------------------------------------
@@ -116,7 +134,7 @@ class PrescriptionPanel (wxPanel):
 		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
 		#
 		#--------------------------------------------------------------------------------------
-		self.list_script = wxListCtrl(self, ID_SCRIPTLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.list_script = wxListCtrl(self, -1,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.list_script.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, false, ''))
 		EVT_RIGHT_UP(self.list_script, self.OnRightClickUp)
 		#----------------------------------------
@@ -168,40 +186,41 @@ class PrescriptionPanel (wxPanel):
 
 		# create a temporary local popup menu
 		aMenu = wxMenu()
-		aMenu.Append(0, _("Authority Indications"))
-		aMenu.Append(1, _("Interactions"))
-		aMenu.Append(2, _("Pregnancy Information"))
-		aMenu.Append(3, _("Resticted use Information"))
+		# Auth Ind: Australia: some drugs will only be subsidised given certain indications and explicit approval by authorities
+		# like German "Positivliste"
+		aMenu.Append(ID_AuthInd, _("Authority Indications"))
+		aMenu.Append(ID_Interactions, _("Interactions"))
+		aMenu.Append(ID_PregInfo, _("Pregnancy Information"))
+		aMenu.Append(ID_Restrictions, _("Restricted Use Information"))
 		aMenu.AppendSeparator()
-		aMenu.Append(4, _("Edit Item"))
-		aMenu.Append(5, _("Delete Item"))
-		aMenu.Append(6, _("Delete all Items"))
-		aMenu.Append(7, _("Make Item Reg 24"))
+		aMenu.Append(ID_EditItem, _("Edit Item"))
+		aMenu.Append(ID_DelItem, _("Delete Item"))
+		aMenu.Append(ID_DelAll, _("Delete all Items"))
+		# Reg 24: Australia: dispense all repeats at once
+		aMenu.Append(ID_MakeItemReg24, _("Make Item Reg 24"))
 		aMenu.AppendSeparator()
-		aMenu.Append(8, _("Brief Product Information"))
-		aMenu.Append(9, _("Full Product Information"))
+		aMenu.Append(ID_DrugInfoBrief, _("Brief Product Information"))
+		aMenu.Append(ID_DrugInfoFull, _("Full Product Information"))
 		aMenu.AppendSeparator()
-		aMenu.Append(10, _("Print Single Item"))
-		aMenu.Append(11, _("Print All Items"))
+		aMenu.Append(ID_PrintItem, _("Print Single Item"))
+		aMenu.Append(ID_PrintAll, _("Print All Items"))
 		aMenu.AppendSeparator()
-		aMenu.Append(12, _("Reprint Item"))
-		aMenu.Append(13, _("Reprint All Items"))
+		aMenu.Append(ID_ReprintItem, _("Reprint Item"))
+		aMenu.Append(ID_ReprintAll, _("Reprint All Items"))
 		aMenu.AppendSeparator()
-		aMenu.Append(14, _("Save Item no print"))
-		aMenu.Append(15, _("Save All Items no print"))
+		aMenu.Append(ID_JustSaveItem, _("Save Item no print"))
+		aMenu.Append(ID_JustSaveAll, _("Save All Items no print"))
 		aMenu.AppendSeparator()
-		aMenu.Append(16, _("Change Font"))
-		aMenu.Append(17, _("Save list layout"))
+		aMenu.Append(ID_ChangeFont, _("Change Font"))
+		aMenu.Append(ID_SaveListLayout, _("Save list layout"))
 		aMenu.AppendSeparator()
-		aMenu.Append(18, _("Help"))
+		aMenu.Append(ID_Help, _("Help"))
 		aMenu.AppendSeparator()
-		aMenu.Append(19, _("Exit"))
+		aMenu.Append(ID_Exit, _("Exit"))
 
 		##connect the events to event handler functions
-		#EVT_MENU(self, 0, self.OnEncrypt)
-		EVT_MENU(self, 2, gmLog.gmDefLog.Log(gmLog.lErr, "This should display Pregnancy Information !"))
-		#EVT_MENU(self, 1, self.OnDecrypt)
-		#EVT_MENU(self, 2, self.OnSetPassphrase)
+		EVT_MENU(self, ID_PregInfo, gmLog.gmDefLog.Log(gmLog.lErr, "This should display Pregnancy Information !"))
+		#EVT_MENU(self, ID_, gmLog.gmDefLog.Log(gmLog.lErr, "This should ... !")
 
 		# show the menu 
 		#self.PopupMenu(aMenu, event.GetPosition())
