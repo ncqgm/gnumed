@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+###############################################################
+# This is a tool to find places marked with FIXME that need work.
+#
+# example:
+# --------
+# FIXME: plugin loading should be optional
+#--------------------------------------------------------------
+# @author: Karsten Hilbert
+# @copyright: author
+# @license: GPL (details at http://www.gnu.org)
+# @Date: $Date: 2002-07-07 23:28:04 $
+# @version $Revision: 1.1 $ $Date: 2002-07-07 23:28:04 $ $Author: ncq $
+###############################################################
+
+import string, sys, fileinput
+
+if len(sys.argv) < 2:
+	print "Usage: find_todo.py <a_python_script> <a_python_script> ..."
+	sys.exit(1)
+
+print "Searching for places to fix in", sys.argv[1:]
+
+prev_file = ""
+
+for line in fileinput.input():
+	curr_file = fileinput.filename()
+
+	if prev_file != curr_file:
+		print "%s:" % curr_file
+		prev_file = curr_file
+
+	if string.find(line, "FIXME") != -1:
+		line_no = fileinput.filelineno()
+		line = string.replace(line, '\015','')
+		line = string.replace(line, '\012','')
+		print line_no, ":", line
