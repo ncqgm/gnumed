@@ -11,7 +11,7 @@
 #  - phrasewheel on Kurzkommentar
 #=====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/Archive/index/Attic/gmIndexMedDocs.py,v $
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
               Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -20,7 +20,6 @@ from wxPython.wx import *
 
 #import Image
 import os, time, shutil, os.path
-
 
 from Gnumed.pycommon import gmLog
 _log = gmLog.gmDefLog
@@ -61,13 +60,13 @@ _cfg = gmCfg.gmDefCfgFile
     wxID_PNL_main
 ] = map(lambda _init_ctrls: wxNewId(), range(23))
 #====================================
-class cDocWheel(cPhraseWheel):
+class cDocWheel(gmPhraseWheel.cPhraseWheel):
     def __init__(self, parent):
         # FIXME: we need to set this to non-learning mode
         self.mp = gmMatchProvider.cMatchProvider_FixedList([])
         self.mp.setWordSeparators(separators = '[ \t=+&:@]+')
         
-        cPhraseWheel.__init__(
+        gmPhraseWheel.cPhraseWheel.__init__(
             self,
             parent = parent,
             id = -1,
@@ -623,20 +622,20 @@ class indexPnl(wxPanel):
         return 1
     #----------------------------------------
     def on_show_doc_dirs(self, event):
-                choices = []
-                doc_dirs = self.doc_id_wheel.get_choices( aRepository = self.repository)
+        choices = []
+        doc_dirs = self.doc_id_wheel.get_choices( aRepository = self.repository)
         for i in doc_dirs:
-                        choices.append(i['label'])
-                dlg = wxSingleChoiceDialog(
-            self,
-            _('You must select a directory before you can index its documents.'),
-            _('showing indexable document directories'),
-            choices,
-            wxOK | wxICON_INFORMATION
+            choices.append(i['label'])
+            dlg = wxSingleChoiceDialog(
+                self,
+                _('You must select a directory before you can index its documents.'),
+                _('showing indexable document directories'),
+                choices,
+                wxOK | wxICON_INFORMATION
             )
-        dlg.ShowModal()
-        dlg.Destroy()
-        return None
+            dlg.ShowModal()
+            dlg.Destroy()
+            return None
     
     
     #----------------------------------------
@@ -979,8 +978,8 @@ if __name__ == '__main__':
 # == classes for plugin use ===========================
 else:
 
-    import gmPlugin, gmGuiBroker ,gmPG, images_Archive_plugin, images_Archive_plugin1
-    
+    from Gnumed.wxpython import gmPlugin, images_Archive_plugin, images_Archive_plugin1
+    from Gnumed.pycommon import gmGuiBroker, gmPG
     class gmIndexMedDocs(gmPlugin.wxNotebookPlugin):
         
         def name (self):
@@ -1008,7 +1007,7 @@ else:
             return 1
         # ---------------------------------------------
         def DoToolbar (self, tb, widget):
-                        tool1 = tb.AddTool(
+            tool1 = tb.AddTool(
                 wxID_TB_BTN_select_files,
                 images_Archive_plugin1.getfoldersearchBitmap(),
                 shortHelpString=_("select files"),
@@ -1016,7 +1015,7 @@ else:
             )
             EVT_TOOL (tb, wxID_TB_BTN_select_files, widget.on_select_files)
                         
-                        tb.AddControl(wxStaticBitmap(
+            tb.AddControl(wxStaticBitmap(
                 tb,
                 -1,
                 images_Archive_plugin.getvertical_separator_thinBitmap(),
@@ -1024,11 +1023,11 @@ else:
                 wxDefaultSize
             ))
                         
-                        self.doc_id_wheel = cDocWheel(tb)
+            self.doc_id_wheel = cDocWheel(tb)
             self.panel.set_wheel_link(self.doc_id_wheel)
-                        tool1 = tb.AddControl(
-                                self.doc_id_wheel
-                        )
+            tool1 = tb.AddControl(
+                self.doc_id_wheel
+                )
             self.doc_id_wheel.on_resize (None)
 
             tool1 = tb.AddTool(
@@ -1039,7 +1038,7 @@ else:
             )
             EVT_TOOL (tb, wxID_TB_BTN_load_pages, widget.on_load_pages)
                         
-                        tb.AddControl(wxStaticBitmap(
+            tb.AddControl(wxStaticBitmap(
                 tb,
                 -1,
                 images_Archive_plugin.getvertical_separator_thinBitmap(),
@@ -1047,7 +1046,7 @@ else:
                 wxDefaultSize
             ))
                         
-                        tool1 = tb.AddTool(
+            tool1 = tb.AddTool(
                 wxID_TB_BTN_show_page,
                 images_Archive_plugin.getreportsBitmap(),
                 shortHelpString=_("show page"),
@@ -1063,7 +1062,7 @@ else:
             )
             EVT_TOOL (tb, wxID_TB_BTN_del_page, widget.on_del_page)
                         
-                        tool1 = tb.AddTool(
+            tool1 = tb.AddTool(
                 wxID_TB_BTN_save_data,
                 images_Archive_plugin.getsaveBitmap(),
                 shortHelpString=_("save document"),
@@ -1102,7 +1101,10 @@ else:
 #self.doc_id_wheel = wxTextCtrl(id = wxID_indexPnlBEFNRBOX, name = 'textCtrl1', parent = self.PNL_main, pos = wxPoint(48, 112), size = wxSize(176, 22), style = 0, value = _('document#'))
 #======================================================
 # $Log: gmIndexMedDocs.py,v $
-# Revision 1.16  2004-03-08 22:06:54  shilbert
+# Revision 1.17  2004-03-19 20:49:21  shilbert
+# - fixed import
+#
+# Revision 1.16  2004/03/08 22:06:54  shilbert
 # - adapt to new API from Gnumed.foo import bar
 #
 # Revision 1.15  2004/02/25 09:46:19  ncq
