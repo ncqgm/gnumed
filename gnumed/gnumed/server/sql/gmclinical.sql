@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: 
 
@@ -214,7 +214,7 @@ create table enum_confidentiality_level (
 )inherits (audit_clinical);
 
 comment on table enum_confidentiality_level is
-'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating docotr, etc.';
+'Various levels of confidentialoty of a coded diagnosis, such as public, clinical staff, treating doctor, etc.';
 
 INSERT INTO enum_confidentiality_level (description)
 	values ('public');
@@ -241,15 +241,32 @@ create table clinical_diagnosis_extra (
 comment on table clinical_diagnosis_extra is
 'Extra information about a diagnosis, just the confidentiality level at present.';
 
+-- =============================================
+-- episode related tables
+create table episode (
+	id serial primary key,
+	id_patient integer not null,
+	name varchar(128) default 'unspecified'
+) inherits (audit_clinical);
+
+comment on table episode is
+	'clinical episodes such as "recurrent Otitis media", "traffic accident 7/99", "Hepatitis B"';
+comment on column episode.id_patient is
+	'id of patient this episode relates to';
+comment on column episode.name is
+	'descriptive name of this episode, may change over time';
 
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.6 $');
+INSERT INTO schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.6  2002-12-01 13:53:09  ncq
+-- Revision 1.7  2002-12-05 12:45:43  ncq
+-- - added episode table, fixed typo
+--
+-- Revision 1.6  2002/12/01 13:53:09  ncq
 -- - missing ; at end of schema tracking line
 --
 -- Revision 1.5  2002/11/23 13:18:09  ncq
