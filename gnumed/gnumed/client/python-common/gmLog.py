@@ -51,7 +51,7 @@ Usage:
 @license: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmLog.py,v $
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #-------------------------------------------
 # don't use gmCLI in here since that would give a circular reference
@@ -315,7 +315,7 @@ class cLogTarget:
 	#---------------------------
 	# stdout equivalent for lWarn and above
 	def dump2stdout (self, aTimestamp, aSeverity, aCaller, aMsg):
-		# for most log targest we make no distinction between stderr and stdout
+		# for most log targets we make no distinction between stderr and stdout
 		self.dump2stderr (aTimestamp, aSeverity, aCaller, aMsg)
 	#---------------------------
 	# stderr equivalent for lPanic, lErr
@@ -549,16 +549,16 @@ def __open_default_logfile():
 
 	- we don't have a logger available yet
 	"""
+	loghandle = None
+
+	# config file given on command line ?
 	cmd_line = []
 	known_opts = []
-	loghandle = None
 	# long options only !
 	try:
 		cmd_line = getopt.getopt(sys.argv[1:], '', ['log-file=',])
 	except getopt.GetoptError:
 		pass
-
-	# config file given on command line ?
 	# 1) tuple(cmd_line) -> (known options, junk)
 	if len(cmd_line) > 0:
 		known_opts = cmd_line[0]
@@ -566,7 +566,8 @@ def __open_default_logfile():
 		# 2) sequence(known_opt) -> (opt 1, opt 2, ..., opt n)
 		first_opt = known_opts[0]
 		# 3) tuple(first_opt) -> (option name, option value)
-		logName = os.path.abspath(first_opt[1])
+		logName = os.path.abspath(os.path.expanduser(first_opt[1]))
+		print "trying log file [%s]" % logName
 		try:
 			loghandle = cLogTargetFile (lInfo, logName, "wb")
 			return loghandle
@@ -574,44 +575,47 @@ def __open_default_logfile():
 			return None
 
 	# else look in standard locations
-	else:
-		# get base dir from name of script
-		base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-		# get base name from name of script
-		base_name = base_dir + ".log"
+	# get base dir from name of script
+	base_dir = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+	# get base name from name of script
+	base_name = base_dir + ".log"
 
-		# ~/.base_dir/base_name.log
-		logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
-		try:
-			loghandle = cLogTargetFile (lInfo, logName, "wb")
-			return loghandle
-		except:
-			pass
+	# ~/.base_dir/base_name.log
+	logName = os.path.expanduser(os.path.join('~', '.' + base_dir, base_name))
+	print "trying log file [%s]" % logName
+	try:
+		loghandle = cLogTargetFile (lInfo, logName, "wb")
+		return loghandle
+	except:
+		pass
 
-		# /var/log/base_dir/base_name.log
-		logName = os.path.join('/var/log', base_dir, base_name)
-		try:
-			loghandle = cLogTargetFile (lInfo, logName, "ab")
-			return loghandle
-		except:
-			pass
+	# /var/log/base_dir/base_name.log
+	logName = os.path.join('/var/log', base_dir, base_name)
+	print "trying log file [%s]" % logName
+	try:
+		loghandle = cLogTargetFile (lInfo, logName, "ab")
+		return loghandle
+	except:
+		pass
 
-		# /var/log/base_name.log
-		logName = os.path.join('/var/log', base_name)
-		try:
-			loghandle = cLogTargetFile (lInfo, logName, "ab")
-			return loghandle
-		except:
-			pass
+	# /var/log/base_name.log
+	logName = os.path.join('/var/log', base_name)
+	print "trying log file [%s]" % logName
+	try:
+		loghandle = cLogTargetFile (lInfo, logName, "ab")
+		return loghandle
+	except:
+		pass
 
-		# ./base_name.log
-		# last resort for inferior operating systems such as DOS/Windows
-		logName = os.path.abspath(os.path.join(os.path.split(sys.argv[0])[0], base_name))
-		try:
-			loghandle = cLogTargetFile (lInfo, logName, "wb")
-			return loghandle
-		except:
-			pass
+	# ./base_name.log
+	# last resort for inferior operating systems such as DOS/Windows
+	logName = os.path.abspath(os.path.join(os.path.split(sys.argv[0])[0], base_name))
+	print "trying log file [%s]" % logName
+	try:
+		loghandle = cLogTargetFile (lInfo, logName, "wb")
+		return loghandle
+	except:
+		pass
 
 	print "Cannot open any log file. Aborting."
 	return None
