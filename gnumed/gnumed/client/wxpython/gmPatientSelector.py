@@ -9,8 +9,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmPatientSelector.py,v $
-# $Id: gmPatientSelector.py,v 1.5 2003-04-01 09:08:27 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmPatientSelector.py,v 1.6 2003-04-01 12:28:14 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -30,7 +30,7 @@ from wxPython.wx import *
 ID_PatPickList = wxNewId()
 
 #============================================================
-def sensitize(aName = None):
+def _sensitize(aName = None):
 	"""Make user input suitable for case-sensitive matching.
 
 	- this mostly applies to names
@@ -45,6 +45,37 @@ def sensitize(aName = None):
 		return None
 	else:
 		return aName[:1].upper() + aName[1:]
+#------------------------------------------------------------
+def _normalize_soundalikes(aString = None, aggressive = 0):
+	if aString is None:
+		return None
+	elif:
+		len(aString) == 0:
+			return aString
+	else:
+		# umlauts
+		normalized =    aString.replace('Ä', '(Ä|AE|Ae|E)')
+		normalized = normalized.replace('Ö', '(Ö|OE|Oe)')
+		normalized = normalized.replace('Ü', '(Ü|UE|Ue)')
+		normalized = normalized.replace('ä', '(ä|ae|e)')
+		normalized = normalized.replace('ö', '(ö|oe)')
+		normalized = normalized.replace('ü', '(ü|ue|y)')
+		normalized = normalized.replace('ß', '(ß|sz|ss)')
+		# common soundalikes
+		# - René, Desiré, ...
+		normalized = normalized.replace('é', '(é|e)')
+		# FIXME: how to sanely replace t -> th ?
+		normalized = normalized.replace('Th', '(Th|T)')
+		normalized = normalized.replace('th', '(th|t)')
+		# FIXME: how to prevent replacing (f|v|ph) -> (f|(v|f|ph)|ph) ?
+		#normalized = normalized.replace('v','(v|f|ph)')
+		#normalized = normalized.replace('f','(f|v|ph)')
+		#normalized = normalized.replace('ph','(ph|f|v)')
+
+		if aggressive == 1:
+			pass
+			# some more here
+		return normalized
 #============================================================
 # country-specific functions
 #------------------------------------------------------------
@@ -157,15 +188,18 @@ def queries_de(raw = None):
 
 	# replace Umlauts
 	# (names of months do not contain Umlauts in German, so ...
-	no_umlauts =        raw.replace('Ä', '(Ä|AE|Ae|E)')
-	no_umlauts = no_umlauts.replace('Ö', '(Ö|OE|Oe)')
-	no_umlauts = no_umlauts.replace('Ü', '(Ü|UE|Ue)')
-	no_umlauts = no_umlauts.replace('ä', '(ä|ae|e)')
-	no_umlauts = no_umlauts.replace('ö', '(ö|oe)')
-	no_umlauts = no_umlauts.replace('ü', '(ü|ue|y)')
-	no_umlauts = no_umlauts.replace('ß', '(ß|sz|ss)')
+	# actually this should be done when needed so we can
+	# leave out raw[0] for the case-sensitive queries
+	no_umlauts = _normalize_soundalikes(raw)
+#	no_umlauts =        raw.replace('Ä', '(Ä|AE|Ae|E)')
+#	no_umlauts = no_umlauts.replace('Ö', '(Ö|OE|Oe)')
+#	no_umlauts = no_umlauts.replace('Ü', '(Ü|UE|Ue)')
+#	no_umlauts = no_umlauts.replace('ä', '(ä|ae|e)')
+#	no_umlauts = no_umlauts.replace('ö', '(ö|oe)')
+#	no_umlauts = no_umlauts.replace('ü', '(ü|ue|y)')
+#	no_umlauts = no_umlauts.replace('ß', '(ß|sz|ss)')
 	# René, Desiré, ...
-	no_umlauts = no_umlauts.replace('é', '(é|e)')
+#	no_umlauts = no_umlauts.replace('é', '(é|e)')
 
 	# "<CHARS>" - single name part
 	# yes, I know, this is culture specific (did you read the docs ?)
@@ -173,10 +207,10 @@ def queries_de(raw = None):
 		# there's no intermediate whitespace due to the regex
 		tmp = no_umlauts.strip()
 		# assumption: this is a last name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~ '^%s';" % sensitize(tmp)])
+		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~ '^%s';" % _sensitize(tmp)])
 		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE lastnames  ~* '^%s';" % tmp])
 		# assumption: this is a first name
-		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s';" % sensitize(tmp)])
+		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s';" % _sensitize(tmp)])
 		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s';" % tmp])
 		# name parts anywhere in name
 		queries.append(["SELECT i_id, n_id FROM v_basic_person WHERE firstnames || lastnames ~* '%s';" % tmp])
@@ -209,7 +243,7 @@ def queries_de(raw = None):
 				# assumption: first last
 				queries.append(
 					[
-					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s';" % (sensitize(name_parts[0]), sensitize(name_parts[1]))
+					 "SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s';" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]))
 					]
 				)
 				queries.append([
@@ -217,7 +251,7 @@ def queries_de(raw = None):
 				])
 				# assumption: last first
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s';" % (sensitize(name_parts[1]), sensitize(name_parts[0]))
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s';" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]))
 				])
 				queries.append([
 					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s';" % (name_parts[1], name_parts[0])
@@ -237,14 +271,14 @@ def queries_de(raw = None):
 			if date_count == 1:
 				# assumption: first, last, dob - first order
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (sensitize(name_parts[0]), sensitize(name_parts[1]), date_part)
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (_sensitize(name_parts[0]), _sensitize(name_parts[1]), date_part)
 				])
 				queries.append([
 					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[0], name_parts[1], date_part)
 				])
 				# assumption: last, first, dob - second order query
 				queries.append([
-					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (sensitize(name_parts[1]), sensitize(name_parts[0]), date_part)
+					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~ '^%s' AND lastnames ~ '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (_sensitize(name_parts[1]), _sensitize(name_parts[0]), date_part)
 				])
 				queries.append([
 					"SELECT i_id, n_id FROM v_basic_person WHERE firstnames ~* '^%s' AND lastnames ~* '^%s' AND date_trunc('day', dob) LIKE (select timestamp '%s');" % (name_parts[1], name_parts[0], date_part)
@@ -285,8 +319,8 @@ def queries_de(raw = None):
 		if (len(name_parts) == 1) and (name_count == 2):
 			# usually "first last"
 			wheres.append([
-				"firstnames ~ '^%s'" % sensitize(name_parts[0][0]),
-				"lastnames ~ '^%s'"  % sensitize(name_parts[0][1])
+				"firstnames ~ '^%s'" % _sensitize(name_parts[0][0]),
+				"lastnames ~ '^%s'"  % _sensitize(name_parts[0][1])
 			])
 			wheres.append([
 				"firstnames ~* '^%s'" % name_parts[0][0],
@@ -294,8 +328,8 @@ def queries_de(raw = None):
 			])
 			# but sometimes "last first""
 			wheres.append([
-				"firstnames ~ '^%s'" % sensitize(name_parts[0][1]),
-				"lastnames ~ '^%s'"  % sensitize(name_parts[0][0])
+				"firstnames ~ '^%s'" % _sensitize(name_parts[0][1]),
+				"lastnames ~ '^%s'"  % _sensitize(name_parts[0][0])
 			])
 			wheres.append([
 				"firstnames ~* '^%s'" % name_parts[0][1],
@@ -311,8 +345,8 @@ def queries_de(raw = None):
 		elif len(name_parts) == 2:
 			# usually "last, first"
 			wheres.append([
-				"firstnames ~ '^%s'" % string.join(map(sensitize, name_parts[1]), ' '),
-				"lastnames ~ '^%s'"  % string.join(map(sensitize, name_parts[0]), ' ')
+				"firstnames ~ '^%s'" % string.join(map(_sensitize, name_parts[1]), ' '),
+				"lastnames ~ '^%s'"  % string.join(map(_sensitize, name_parts[0]), ' ')
 			])
 			wheres.append([
 				"firstnames ~* '^%s'" % string.join(name_parts[1], ' '),
@@ -320,8 +354,8 @@ def queries_de(raw = None):
 			])
 			# but sometimes "first, last"
 			wheres.append([
-				"firstnames ~ '^%s'" % string.join(map(sensitize, name_parts[0]), ' '),
-				"lastnames ~ '^%s'"  % string.join(map(sensitize, name_parts[1]), ' ')
+				"firstnames ~ '^%s'" % string.join(map(_sensitize, name_parts[0]), ' '),
+				"lastnames ~ '^%s'"  % string.join(map(_sensitize, name_parts[1]), ' ')
 			])
 			wheres.append([
 				"firstnames ~* '^%s'" % string.join(name_parts[0], ' '),
@@ -910,11 +944,17 @@ if __name__ == "__main__":
 
 # F1 -> context help with hotkey listing
 
-# bäcker vw. becker (ä -> e)
+# th -> th|t
+# v/f/ph -> f|v|ph
+# maybe don't do umlaut translation in the first 2-3 letters
+# such that not to defeat index use for the first level query ?
 
 #============================================================
 # $Log: gmPatientSelector.py,v $
-# Revision 1.5  2003-04-01 09:08:27  ncq
+# Revision 1.6  2003-04-01 12:28:14  ncq
+# - factored out _normalize_soundalikes()
+#
+# Revision 1.5  2003/04/01 09:08:27  ncq
 # - better Umlaut replacement
 # - safer cursor.close() handling
 #
