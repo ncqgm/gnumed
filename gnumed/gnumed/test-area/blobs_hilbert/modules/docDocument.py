@@ -35,7 +35,7 @@ self.__metadata		{}
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docDocument.py,v $
-__version__ = "$Revision: 1.28 $"
+__version__ = "$Revision: 1.29 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, fileinput, string, types, sys, tempfile, os, shutil
@@ -215,7 +215,8 @@ class cDocument:
 			# translate document type
 			cmd = "SELECT count(id) FROM v_i18n_doc_type WHERE name='%s'" % (self.__metadata['type'])
 			cursor.execute(cmd)
-			if cursor.fetchone()[0] != 1:
+			result = cursor.fetchone()
+			if result[0] != 1:
 				_log.Log(gmLog.lErr, 'Document type "%s" is not valid for this database !' % (self.__metadata['type']))
 				cursor.close()
 				return None
@@ -708,7 +709,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: docDocument.py,v $
-# Revision 1.28  2003-01-24 13:16:08  ncq
+# Revision 1.29  2003-01-24 14:57:55  ncq
+# - date is a timestamp now
+#
+# Revision 1.28  2003/01/24 13:16:08  ncq
 # - verbosify doc_type on getMetadataFromGnumed()
 #
 # Revision 1.27  2003/01/24 12:29:33  ncq
