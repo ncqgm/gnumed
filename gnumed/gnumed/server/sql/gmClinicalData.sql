@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.5 2003-04-25 13:05:49 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.6 2003-04-28 20:56:16 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -29,6 +29,10 @@ INSERT INTO _enum_encounter_type (description) values (i18n('emergency encounter
 INSERT INTO _enum_encounter_type (description) values (i18n('other encounter'));
 
 -- ===================================================================
+insert into _enum_allergy_type (value) values (i18n('allergy'));
+insert into _enum_allergy_type (value) values (i18n('sensitivity'));
+
+-- ===================================================================
 INSERT INTO _enum_hx_type (description) values (i18n('past'));
 INSERT INTO _enum_hx_type (description) values (i18n('presenting complaint'));
 INSERT INTO _enum_hx_type (description) values (i18n('history of present illness'));
@@ -36,7 +40,7 @@ INSERT INTO _enum_hx_type (description) values (i18n('social'));
 INSERT INTO _enum_hx_type (description) values (i18n('family'));
 INSERT INTO _enum_hx_type (description) values (i18n('immunisation'));
 INSERT INTO _enum_hx_type (description) values (i18n('requests'));
-INSERT INTO _enum_hx_type (description) values (i18n('allergy'));
+INSERT INTO _enum_hx_type (description) values (i18n('allergies'));
 INSERT INTO _enum_hx_type (description) values (i18n('drug'));
 INSERT INTO _enum_hx_type (description) values (i18n('sexual'));
 INSERT INTO _enum_hx_type (description) values (i18n('psychiatric'));
@@ -121,11 +125,15 @@ insert into enum_immunities (name) values ('tetanus');
 -- ===================================================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.5  2003-04-25 13:05:49  ncq
+-- Revision 1.6  2003-04-28 20:56:16  ncq
+-- - unclash "allergy" in hx type and type of allergic reaction + translations
+-- - some useful indices
+--
+-- Revision 1.5  2003/04/25 13:05:49  ncq
 -- - adapt to frontend hookup for encounter types
 --
 -- Revision 1.4  2003/04/12 15:43:17  ncq

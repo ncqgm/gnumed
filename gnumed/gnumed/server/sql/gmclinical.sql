@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.29 $
+-- $Revision: 1.30 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -29,13 +29,12 @@ comment on table audit_clinical is
 create table clin_narrative (
 	id serial primary key,
 	id_patient integer not null,
-	src_table name,
-
+	src_table name,					-- references pg_class(relname) ??
 	value text
 ) inherits (audit_clinical);
 
---create index idx_narrative_pat_src on clin_narrative(id_patient, src_table);
--- references pg_class(relname) ??
+create index idx_narrative_patient on clin_narrative(id_patient);
+create index idx_narrative_src_table on clin_narrative(src_table);
 
 comment on table clin_narrative is
 	'contains all the clinical narrative aggregated for full text search';
@@ -45,8 +44,6 @@ comment on column clin_narrative.src_table is
 	'name of table this entry belongs into';
 comment on column clin_narrative.value is
 	'well, the narrative itself';
-
--- id_type integer references _enum_narrative_type(id),
 
 -- ===================================================================
 -- generic EMR structure
@@ -207,26 +204,28 @@ create table _enum_allergy_type (
 	value varchar(32) unique not null
 ) ;
 
-create view vi18n_enum_allergy_type as
-	select _enum_allergy_type.id, _(_enum_allergy_type.value)
-	from _enum_allergy_type;
+--create view vi18n_enum_allergy_type as
+--	select _enum_allergy_type.id, _(_enum_allergy_type.value)
+--	from _enum_allergy_type;
 
 -- --------------------------------------------
 create table allergy (
 	id serial primary key,
-	id_clin_transaction integer references clin_transaction(id),
+	id_clin_transaction integer not null references clin_transaction(id),
 	substance varchar(128) not null,
 	id_substance varchar(256) default null,
 	generics varchar(256) default null,
 	allergene varchar(256) default null,
 	atc_code varchar(32) default null,
-	id_type integer references _enum_allergy_type(id),
+	id_type integer not null references _enum_allergy_type(id),
 	reaction text default '',
 	generic_specific boolean default false,
 	definate boolean default false,
 	had_hypo boolean default false,
 	id_comment integer references clin_narrative(id)
 ) inherits (audit_clinical);
+
+create index idx_allergy_transaction on allergy(id_clin_transaction);
 
 comment on table allergy is
 	'patient allergy details';
@@ -258,6 +257,10 @@ comment on column allergy.had_hypo is
 	'true: has been treated with hyposensibilization, if true hypo data is recorded elsewhere';
 comment on column allergy.id_comment is
 	'free text comment, such as first/last time observed, etc.';
+
+create rule r_announce_new_allergy as
+	on insert to allergy do
+		notify "new_allergy";
 
 -- ===================================================================
 -- -------------------------------------------------------------------
@@ -495,11 +498,15 @@ TO GROUP "_gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 \i gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.29 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.30 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.29  2003-04-25 12:43:52  ncq
+-- Revision 1.30  2003-04-28 20:56:16  ncq
+-- - unclash "allergy" in hx type and type of allergic reaction + translations
+-- - some useful indices
+--
+-- Revision 1.29  2003/04/25 12:43:52  ncq
 -- - add grants
 --
 -- Revision 1.28  2003/04/25 12:32:39  ncq

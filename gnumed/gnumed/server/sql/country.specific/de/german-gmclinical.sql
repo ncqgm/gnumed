@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Attic/german-gmclinical.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- part of GnuMed
 -- GPL
@@ -70,11 +70,11 @@ insert into i18n_translations(lang, orig, trans) values
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'family', 'Familienanamnese');
 insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'immunisation', 'Impfanamnese');
+	('de_DE', 'immunisation', 'Impfungen');
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'requests', '?? requests');
 insert into i18n_translations(lang, orig, trans) values
-	('de_DE', 'allergy', 'Allergieanamnese');
+	('de_DE', 'allergies', 'Allergien');
 insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'drug', 'Medikamentenanamnese');
 insert into i18n_translations(lang, orig, trans) values
@@ -100,6 +100,13 @@ insert into i18n_translations(lang, orig, trans) values
 	('de_DE', 'correspondence', 'Korrespondenz');
 
 -- =============================================
+-- allergy types
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'allergy', 'Allergie');
+insert into i18n_translations(lang, orig, trans) values
+	('de_DE', 'sensitivity', 'Unverträglichkeit');
+
+-- =============================================
 -- description
 --insert into i18n_translations(lang, orig, trans) values
 --	('de_DE', '', '');
@@ -115,11 +122,15 @@ insert into i18n_translations(lang, orig, trans) values
 -- =============================================
 -- do simple revision tracking
 \i ../../gmSchemaRevision.sql
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: german-gmclinical.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: german-gmclinical.sql,v $
--- Revision 1.4  2003-04-25 12:02:04  ncq
+-- Revision 1.5  2003-04-28 20:56:16  ncq
+-- - unclash "allergy" in hx type and type of allergic reaction + translations
+-- - some useful indices
+--
+-- Revision 1.4  2003/04/25 12:02:04  ncq
 -- - better translation of encounter types
 --
 -- Revision 1.3  2003/02/09 10:13:25  hinnef
