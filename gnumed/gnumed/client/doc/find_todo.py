@@ -5,9 +5,9 @@ example:
 FIXME: plugin loading should be optional
 """
 #=====================================================================
-# $Id
+# $Id: find_todo.py,v 1.2 2005-01-19 09:16:32 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/find_todo.py,v $
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -17,15 +17,13 @@ if len(sys.argv) < 2:
 	print "Usage: find_todo.py <a_python_script> <a_python_script> ..."
 	sys.exit(1)
 
-print "Searching for places to fix in", sys.argv[1:]
+#print "Searching for places to fix in", sys.argv[1:]
 
-prev_file = ""
-
+prev_file = ''
 for line in fileinput.input():
 	curr_file = fileinput.filename()
-
-	if prev_file != curr_file:
-		print "%s:" % curr_file
+	if curr_file != prev_file:
+		print '=> %s' % curr_file
 		prev_file = curr_file
 
 	line = line.strip()
@@ -37,7 +35,10 @@ for line in fileinput.input():
 
 #=====================================================================
 # $Log: find_todo.py,v $
-# Revision 1.1  2005-01-19 08:39:49  ncq
+# Revision 1.2  2005-01-19 09:16:32  ncq
+# - improved readability
+#
+# Revision 1.1  2005/01/19 08:39:49  ncq
 # - moved here from pycommon/tools/
 #
 # Revision 1.2  2004/06/25 12:29:47  ncq
