@@ -5,8 +5,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.67 2004-01-17 10:37:24 ncq Exp $
-__version__ = "$Revision: 1.67 $"
+# $Id: gmPlugin.py,v 1.68 2004-02-12 23:54:39 ncq Exp $
+__version__ = "$Revision: 1.68 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
 import os, sys, re, cPickle, zlib
@@ -230,8 +230,9 @@ class wxNotebookPlugin (wxBasePlugin):
 		# fail if no patient selected
 		pat = gmPatient.gmCurrentPatient()
 		if not pat.is_connected():
-			# FIXME: people want an optional beep and an optional red backgound here
+			# FIXME: people want an optional red backgound here
 			self._set_status_txt(_('Cannot switch to [%s]: no patient selected') % self.name())
+			wxBell()
 			return None
 		return 1
 	#-----------------------------------------------------
@@ -240,20 +241,17 @@ class wxNotebookPlugin (wxBasePlugin):
 		set_statustext(txt)
 		return 1
 	#-----------------------------------------------------
-	def Raise (self, plugin_name = None):
-		"""plugin_name is a plugin internal name
-		"""
-		if plugin_name is None:
-			plugin_name = self.internal_name()
+	def Raise (self):
+		"""Raise ourselves."""
 		try:
-			plugin = self.gb['modules.gui'][plugin_name]
+			plugin = self.gb['modules.gui'][self.internal_name()]
 		except KeyError:
-			_log.LogException("Cannot raise [%s], plugin not available" % plugin_name(), sys.exc_info(), verbose=0)
-			return (None, _('Cannot activate plugin [%s]. It is not loaded.') % plugin.name())
+			_log.LogException("cannot raise me (%s), plugin not available" % self.internal_name(), sys.exc_info(), verbose=0)
+			return None
 		plugin_list = self.gb['main.notebook.plugins']
 		plugin_idx = plugin_list.index(plugin)
 		self.nb.SetSelection (plugin_idx)
-		return (1, '')
+		return 1
 	#-----------------------------------------------------
 	def OnMenu (self, event):
 		self.Raise()
@@ -276,7 +274,7 @@ class wxNotebookPlugin (wxBasePlugin):
 	# =----------------------------------------------------
 	def OnShow (self, evt):
 		self.register () # register without changing configuration
-		
+
 #------------------------------------------------------------------
 class wxPatientPlugin (wxBasePlugin):
 	"""
@@ -335,6 +333,21 @@ class wxPatientPlugin (wxBasePlugin):
 		"""Called whenever this module receives focus and is thus shown onscreen.
 		"""
 		pass
+#=========================================================
+# some convenience functions
+#---------------------------------------------------------
+def raise_plugin (plugin_name = None):
+	"""plugin_name is a plugin internal name"""
+	gb = gmGuiBroker.GuiBroker()
+	try:
+		plugin = gb['modules.gui'][plugin_name]
+	except KeyError:
+		_log.LogException("cannot raise [%s], plugin not available" % plugin_name, sys.exc_info(), verbose=0)
+		return None
+	if plugin.can_receive_focus():
+		plugin.Raise()
+		return 1
+	return 0
 #------------------------------------------------------------------
 def InstPlugin (aPackage, plugin_name, guibroker = None):
 	"""Instantiates a plugin object from a package directory, returning the object.
@@ -501,7 +514,11 @@ def UnloadPlugin (set, name):
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.67  2004-01-17 10:37:24  ncq
+# Revision 1.68  2004-02-12 23:54:39  ncq
+# - add wxBell to can_receive_focus()
+# - move raise_plugin out of class gmPlugin
+#
+# Revision 1.67  2004/01/17 10:37:24  ncq
 # - don't ShowBar() in Raise() as GuiMain.OnNotebookPageChanged()
 #   takes care of that
 #
