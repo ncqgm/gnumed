@@ -40,6 +40,7 @@ It features combo boxes which "remember" any number of previously entered settin
 from wxPython.wx import *
 import os.path, time
 import gmLoginInfo, gmGuiMain, gmGuiBroker, gmCfg, gmLog
+import cPickle, zlib
 _cfg = gmCfg.gmDefCfgFile
 _log = gmLog.gmDefLog
 #############################################################################
@@ -382,24 +383,45 @@ For assistance on using GnuMed please contact:
 ########################################################################################
 
 class LoginDialog(wxDialog):
+
+	icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
+\xc1\x85\xd5\x98N5\xa5\xef?\xf5N\xd0\x8a\xdcA\xc2\xf7qw\x84\xdb\xfa\xb5\xcd\
+\xd4\xda;\xc9\x1a\xc8\xb6\xcd<\xb5\xa0\x85\x1e\xeb\xbc\xbc7b!\xf6\xdeHl\x1c\
+\x94\x073\xec<*\xf7\xbe\xf7\x99\x9d\xb21~\xe7.\xf5\x1f\x1c\xd3\xbdVlL\xc2\
+\xcf\xf8ye\xd0\x00\x90\x0etH \x84\x80B\xaa\x8a\x88\x85\xc4(U\x9d$\xfeR;\xc5J\
+\xa6\x01\xbbt9\xceR\xc8\x81e_$\x98\xb9\x9c\xa9\x8d,y\xa9t\xc8\xcf\x152\xe0x\
+\xe9$\xf5\x07\x95\x0cD\x95t:\xb1\x92\xae\x9cI\xa8~\x84\x1f\xe0\xa3ec'
+
 	def __init__(self, parent, id, title=_("Welcome to the")):
 		wxDialog.__init__(self, parent, id, title)
 		self.panel = LoginPanel(self, -1, isDialog=1)
 		self.Fit () # needed for Windoze.
-		self.Centre()		
+		self.Centre()
+
+		# set window icon
+		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent)))
+		icon = wxEmptyIcon()
+		icon.CopyFromBitmap(icon_bmp_data)
+		self.SetIcon(icon)
 
 
 ########################################################################################
 #  Advanced options window
 ########################################################################################
 
-class OptionWindow(wxDialog):
+class OptionWindow(wxDialog, LoginDialog):
 	def __init__(self, parent, id=wxNewId(), title=_("Advanced login options"),loginparams=None):
 		wxDialog.__init__(self, parent, id, title)
 		self.panel = OptionPanel(self, -1, isDialog=1,loginparams=loginparams)
 		self.Fit () # needed for Windoze.
 		self.Centre()
-    	    	
+		
+		# set window icon
+		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(self.icon_serpent)))
+		icon = wxEmptyIcon()
+		icon.CopyFromBitmap(icon_bmp_data)
+		self.SetIcon(icon)
+
 
 class OptionPanel(wxPanel):
 	"GUI panel class that gets interactively advanced login parameters"
@@ -578,7 +600,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.28  2003-01-16 09:22:28  ncq
+# Revision 1.29  2003-02-02 07:38:29  michaelb
+# set serpent as window icon - login dialog & option dialog
+#
+# Revision 1.28  2003/01/16 09:22:28  ncq
 # - changed default workplace name to "__default__" to play better with the database
 #
 # Revision 1.27  2003/01/07 10:22:52  ncq
