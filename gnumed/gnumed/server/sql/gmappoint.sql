@@ -1,15 +1,7 @@
 -- suggested server ER script for clinic appointments
 -- 29/10/01 Ian Haywood
--- Interface needs to be writte.
+-- Interface needs to be written.
 -- PHP interface for Web: good idea?
-
-
-CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
-    '/usr/lib/postgresql/lib/plpgsql.so' LANGUAGE 'C';
-
-CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
-    HANDLER plpgsql_call_handler
-    LANCOMPILER 'PL/pgSQL';
 
 
 CREATE TABLE clinician -- temporary ??

@@ -12,22 +12,15 @@
 --              All data integrity checking and versioning taken out of this code, now handled
 --              by backend driven log mechanism resp. generated automatically by another script.
 --
---              In order to simplfy and heed performance, normalization of "names" undone
+--              In order to simplfy and speed performance, normalization of "names" undone
 --
---              All address related items have been moved into a separate database
---              in order to use GIS servers where available
---
+--    All address related items have been moved into a separate database
+--    in order to use GIS servers where available
 -- 07.03.2002:  (hherb) "title" attribute added to "names" table
 -- 07.03.2002:  (hherb) view "v_basic_person" added
+-- 09.03.02 (ihaywood) Rules for basic_person view.
 
--- ==========================================================
-
-CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS
-    '/usr/lib/pgsql/plpgsql.so' LANGUAGE 'C';
-
-CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql'
-    HANDLER plpgsql_call_handler
-    LANCOMPILER 'PL/pgSQL';
+-- ================================================
 
 -- any table that needs auditing MUST inherit audit_identity.
 -- A python script (gmhistorian.py) generates automatically all triggers
@@ -48,7 +41,7 @@ create table identity (
 	id serial primary key,
 	pupic char(24),
 	gender character(2) DEFAULT '?' check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
-	karyotype character(10),
+	karyotype character(10) DEFAULT NULL,
 	dob char(8),
 	cob char(2),
 	deceased date default NULL
@@ -89,7 +82,8 @@ create table names (
 	active boolean default 't',
 	lastnames varchar (80),
 	firstnames varchar(255),
-	aka varchar (80),
+	--aka varchar (80),
+	--IMHO, AKAs should be multiple "name" entries
 	preferred varchar(80),
 	title varchar(80) --yes, there are some incredible rants of titles ...
 ) inherits (audit_identity);
@@ -106,11 +100,11 @@ COMMENT ON COLUMN names.firstnames IS
 COMMENT ON COLUMN names.lastnames IS
 'all last names of an identity in legal order';
 
-COMMENT ON COLUMN names.aka IS
-'also known as ...';
+--COMMENT ON COLUMN names.aka IS
+--'also known as ...';
 
 COMMENT ON COLUMN names.preferred IS
-'the preferred first name, the name a person is usually called';
+'the preferred first name, the name a person is usually called (nickname)';
 
 -- IH: 9/3/02
 -- trigger function to ensure one name is active.
@@ -129,6 +123,8 @@ END;' LANGUAGE 'plpgsql';
 
 CREATE TRIGGER t_check_active_name BEFORE INSERT OR UPDATE ON names
 FOR EACH ROW EXECUTE PROCEDURE check_active_name ();
+
+-- for the observant: yes this trigger is recursive, but only once
 
 -- ==========================================================
 
@@ -228,35 +224,61 @@ end;' language 'plpgsql';
 create view v_basic_person as
 select
 	i.id as id,
-	n.title as title, n.firstnames as firstnames , n.lastnames as lastnames, n.aka as aka,
+	n.title as title, n.firstnames as firstnames, n.lastnames as lastname, 
+	--n.aka as aka,
 	i.dob as dob, i.cob as cob, i.gender as gender
 from
 	identity i, names n
 where
-	i.deceased = NULL and n.id=i.id and n.active=true;
+	i.deceased = NULL and n.id_identity=i.id and n.active=true;
+ 
+-- IH 9/3/02 Add some rules
 
+CREATE FUNCTION new_pupic () RETURNS char (24) AS '
+DECLARE
+BEGIN
+   -- how does this work? How do we get new ''unique'' numbers?
+   RETURN ''0000000000'';
+END;' LANGUAGE 'plpgsql';
+
+
+-- create new name and new identity.
 
 CREATE RULE r_insert_basic_person AS ON INSERT TO v_basic_person DO INSTEAD
 (
 	INSERT INTO identity (pupic, gender, dob, cob) values
-	       (new_pupic('dummy'), NEW.gender, NEW.dob, NEW.cob);
-	INSERT INTO names (title, firstnames, lastnames, aka, id_identity)
-	VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.aka,
+	       (new_pupic (), NEW.gender, NEW.dob, NEW.cob);
+	INSERT INTO names (title, firstnames, lastnames, id_identity)
+	VALUES (NEW.title, NEW.firstnames, NEW.lastnames, 
 	       currval ('identity_id_seq'));
 );
 
 
-CREATE RULE r_update_basic_person AS ON UPDATE TO v_basic_person
-    WHERE NEW.dob = OLD.dob AND NEW.cob = OLD.cob AND NEW.gender
-    = OLD.gender DO INSTEAD INSERT INTO names (title, firstnames,
-    lastnames, aka, id_identity, active) VALUES (NEW.title, NEW.firstnames,
-    NEW.lastnames, NEW.aka, NEW.id, 't');
+-- rule for name change - add new name to list, making it active.
+CREATE RULE r_update_basic_person1 AS ON UPDATE TO v_basic_person 
+    WHERE NEW.firstnames != OLD.firstnames OR NEW.lastnames != OLD.lastnames 
+    OR NEW.title != OLD.title DO INSTEAD 
+    INSERT INTO names (title, firstnames, lastnames, id_identity, active)
+     VALUES (NEW.title, NEW.firstnames, NEW.lastnames, NEW.id, 't');
 
-
+-- rule for identity change
+-- yes, you would use this, think carefully.....
+CREATE RULE r_update_basic_person2 AS ON UPDATE TO v_basic_person
+    DO INSTEAD UPDATE identity SET dob=NEW.dob, cob=NEW.cob, gender=NEW.gender
+    WHERE id=NEW.id;
+       
+-- deletes names as well by use of a trigger (double rule would be simpler, 
+-- but didn't work)
 CREATE RULE r_delete_basic_person AS ON DELETE TO v_basic_person DO INSTEAD
-(
+       DELETE FROM identity WHERE id=OLD.id;
+
+CREATE FUNCTION delete_names () RETURNS OPAQUE AS '
+DECLARE
+BEGIN
 	DELETE FROM names WHERE id_identity=OLD.id;
-	DELETE FROM identity WHERE id=OLD.id;
-);
+	RETURN OLD;
+END;' LANGUAGE 'plpgsql';
 
 
+CREATE TRIGGER t_delete_names BEFORE DELETE ON identity 
+FOR EACH ROW EXECUTE PROCEDURE delete_names (); 

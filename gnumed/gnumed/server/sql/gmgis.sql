@@ -9,10 +9,9 @@
 -- 17.11.2001:  (hherb) first useable version
 -- 04.03.2002:  (hherb) address_type bug in view basic_addess fixed
 -- 04.03.2002:  (hherb) table state constraint added
+-- 08.03.2002:  (ihaywood) rules for basic_address, address_info altered
 
 -- =============================================
-
-\connect - ian
 
 
 -- any table that needs auditing MUST inherit audit_gis
