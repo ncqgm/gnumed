@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.13 2003-11-05 14:56:32 sjtan Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmEditArea.py,v 1.16 2003-11-08 18:12:58 sjtan Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
@@ -23,7 +23,7 @@ if __name__ == "__main__":
 	import gmI18N
 
 import gmExceptions, gmDateTimeInput, gmDispatcher, gmSignals
-
+import time
 
 
 from wxPython.wx import *
@@ -300,7 +300,7 @@ f.close()
 #import yaml
 #for k,v in   list( yaml.load( "".join(file("../editarea.yaml")) ) )[0].items(): 
 #						#the file is at ../ to this dir,wxpython
-#	print k, v
+#	_print( k, v)
 
 
 def stacktrace():
@@ -310,6 +310,13 @@ def stacktrace():
 def setValueStyle( control):
 		control.SetForegroundColour(wxColor(255, 0, 0))
 		control.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, false, ''))
+
+def _print( *kwds):
+	strList = []
+	for x in kwds:
+		strList.append(str(x))
+	
+	gmLog.gmDefLog.Log( gmLog.lInfo, "  ".join(strList) )
 #====================================================================
 
 
@@ -368,7 +375,7 @@ class gmEditArea( wxPanel):
 		self._postInit()
 		
 		self.dataId  = None
-		self.oldData = {} 
+		self.old_data = {} 
 
 		#self._out_yaml()
 
@@ -474,7 +481,7 @@ class gmEditArea( wxPanel):
 	#----------------------------------------------------------------
 
 	def _out_yaml(self):
-		print "appending to editarea.yaml"
+		_print( "appending to editarea.yaml")
 		f = file('editarea.yaml','a')
 		list = []
 		list.extend(self.input_fields.keys())
@@ -564,7 +571,7 @@ class gmEditArea( wxPanel):
 			#	if c.__name__ == 'wxTextCtrl':
 
 			if widget.__class__.__name__ in ['wxTextCtrl', 'cEditAreaField']:
-					print widget, ' is a wxTextCtrl'
+					_print( widget, ' is a wxTextCtrl')
 					EVT_TEXT( widget, widget.GetId(), self._mark_dirty)
 			if widget.__class__.__name__ in ['wxRadioButton']:
 					EVT_RADIOBUTTON(widget, widget.GetId(), self._mark_dirty)
@@ -576,10 +583,10 @@ class gmEditArea( wxPanel):
 	def _mark_dirty(self, event):
 		event.Skip()
 		if self.monitoring_dirty:
-			print self, ' IS MARKED DIRTY'
+			_print( self, ' IS MARKED DIRTY')
 			self.dirty = 1
 		else:
-			print "not monitoring dirty"
+			_print( "not monitoring dirty")
 
 #----------DIRTY DATA CHECK: checks original loaded data with current input values , and sets dirty if any changes
 #----------------------------------------------------------------------------------------------------------------------			
@@ -591,9 +598,9 @@ class gmEditArea( wxPanel):
 	def _pre_save_data(self):
 		#if not self.__dict__.has_key('dirty') or self.dirty == 0:
 		if not self.is_dirty():
-			print self, 'NOT SAVING BECAUSE UNCHANGED'
+			_print( self, 'NOT SAVING BECAUSE UNCHANGED')
 			return
-		print "ATTEMPTING SAVE", self
+		_print( "ATTEMPTING SAVE", self)
 
 		self._save_data()
 
@@ -607,9 +614,9 @@ class gmEditArea( wxPanel):
 		for k,v in map.items():
 			if self.old_data.get(k, None) <>  v:
 				dirty = 1
-				print " field ", k, " WAS DIRTY WITH VALUE",v , " and old value",  self.old_data.get(k, None) 
+				_print( " field ", k, " WAS DIRTY WITH VALUE",v , " and old value",  self.old_data.get(k, None) )
 				break
-		print "IS DIRTY ", dirty		
+		_print( "IS DIRTY ", dirty		)
 		return dirty	
 
 
@@ -641,19 +648,19 @@ class gmEditArea( wxPanel):
 	# handlers
 	#--------------------------------------------------------
 	def _on_save_btn_pressed(self, event):
-		print "SAVE button pressed"
+		_print( "SAVE button pressed")
 		event.Skip()
 		self._pre_save_data()
 
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
-		print "CLEAR button pressed"
+		_print( "CLEAR button pressed")
 		self._init_fields()
 		event.Skip()
 	
 	#--------------------------------------------------------
 	def _on_delete_btn_pressed(self, event):
-		print "DELETE button pressed"
+		_print( "DELETE button pressed")
 		event.Skip()
 		self._pre_delete_data()
 
@@ -670,7 +677,7 @@ class gmEditArea( wxPanel):
 	#--------------------------------------------------------
 	
 	def _save_data(self):
-		print "SAVING ", self._getInputFieldValues()
+		_print( "SAVING ", self._getInputFieldValues())
 		_log.Log(gmLog.lErr, 'programmer forgot to define _save_data() for [%s]' % self._type)
 		_log.Log(gmLog.lInfo, 'child classes of gmEditArea *must* override this function')
 		raise AttributeError
@@ -690,18 +697,18 @@ class gmEditArea( wxPanel):
 			self._updateUI()
 			self._init_fields()
 		except:
-			print sys.exc_info()[0]
+			_print( sys.exc_info()[0])
 
 
 	def _setPatientModel(self, patient):
-		print self, "received", patient
+		_print( self, "received", patient)
 		self.patient = patient
 
 	def get_demographic_record(self):
 		return self.patient.get_demographic_record()
 	
 	def _updateUI(self):
-		print "you may want to override _updateUI for " , self.__class__.__name__
+		_print( "you may want to override _updateUI for " , self.__class__.__name__)
 		
 
 	def _postInit(self):
@@ -791,13 +798,13 @@ class gmEditArea( wxPanel):
 					field.SetValue( v)
 				except:
 					
-					print "field ", k, ":", sys.exc_info()[0]
+					_print( "field ", k, ":", sys.exc_info()[0])
 		self.setDataId(id)
 		#self.monitoring_dirty = 1
 		self.set_old_data(self.getInputFieldValues())
 	
 	def getDataId(self):
-		print "data id ", self.dataId
+		_print( "data id ", self.dataId)
 		return self.dataId 
 
 	def setDataId(self, id):
@@ -899,7 +906,7 @@ class gmAllergyEditArea(gmEditArea):
 
 	#--------------------------------------------------------
 	def _save_data(self):
-		print "saving allergy data"
+		_print( "saving allergy data")
 		clinical = self.patient.get_clinical_record().get_allergies()
 		if self.getDataId() == None:
 			id = clinical.create_allergy( self.get_fields_formatting_values() )
@@ -1128,7 +1135,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			year = birthyear + int(self.input_fields['age'].GetValue().strip() )
 			self.input_fields['year'].SetValue( str (year) )
 		except:
-			print "failed to get year from age"
+			_print( "failed to get year from age")
 		
 	def _yearKillFocus( self, event):	
 		event.Skip()	
@@ -1137,7 +1144,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			age = int(self.input_fields['year'].GetValue().strip() ) - birthyear
 			self.input_fields['age'].SetValue( str (age) )
 		except:
-			print "failed to get age from year"
+			_print( "failed to get age from year")
 
 	def get_fields_formatting_values(self):
 		fields = [	"condition", 
@@ -1184,7 +1191,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			"notes1": "",
 			"notes2": "",
 			"age": "",
-			"year": "",
+			"year": str(time.localtime()[0]),
 			"progress": "",
 			"active": 1,
 			"operation": 0,
@@ -1196,8 +1203,16 @@ class gmPastHistoryEditArea(gmEditArea):
 			"none" : 1
 			}
 
+	def _getDefaultAge(self):
+		try:
+			return	time.localtime()[0] - self.patient.get_demographic_record().getBirthYear()
+		except:
+			return 0
+
 	def _get_init_values(self):
-		return gmPastHistoryEditArea.__init_values
+		values = gmPastHistoryEditArea.__init_values
+		values["age"] = str( self._getDefaultAge())
+		return values 
 		
 		
 	def _save_data(self):
@@ -1205,7 +1220,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		if self.getDataId() == None:
 			id = clinical.create_history( self.get_fields_formatting_values() )
 			self.setDataId(id)
-			print "called clinical.create_history; saved id = ", id	
+			_print( "called clinical.create_history; saved id = ", id	)
 			return
 
 		clinical.update_history( self.get_fields_formatting_values(), self.getDataId() )
@@ -2166,8 +2181,9 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.13  2003-11-05 14:56:32  sjtan
-# *** empty log message ***
+# Revision 1.16  2003-11-08 18:12:58  sjtan
+#
+# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
 #
 # Revision 1.6  2003/10/26 00:58:53  sjtan
 #

@@ -9,10 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.2 2003-11-05 14:56:32 sjtan Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.2 2003-11-05 14:56:32 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPhraseWheel.py,v 1.4 2003-11-06 02:06:26 sjtan Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -31,104 +29,6 @@ from wxPython.wx import *
 
 _true = (1==1)
 _false = (1==0)
-#------------------------------------------------------------
-# generic base class
-#------------------------------------------------------------
-class cMatchProvider:
-	"""Base class for match providing objects.
-
-	Match sources might be:
-	- database tables
-	- flat files
-	- previous input
-	- config files
-	- in-memory list created on the fly
-	"""
-	__threshold = {}
-	default_word_separators = re.compile('[- \t=+&:@]+')
-	default_ignored_chars = re.compile("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
-	#--------------------------------------------------------
-	def __init__(self):
-		self.enableMatching()
-		self.enableLearning()
-		self.setThresholds()
-		self.setWordSeparators()
-		self.setIgnoredChars()
-	#--------------------------------------------------------
-	# actions
-	#--------------------------------------------------------
-	def getMatches(self, aFragment = None):
-		"""Return matches according to aFragment and matching thresholds.
-
-		FIXME: design decision: we don't worry about data source changes
-			   during the lifetime of a MatchProvider
-		FIXME: sort according to weight
-		FIXME: append _("*get all items*") on truncation
-		"""
-		# do we return matches at all ?
-		if not self.__deliverMatches:
-			return (_false, [])
-
-		# sanity check
-		if aFragment is None:
-			_log.Log(gmLog.lErr, 'Cannot find matches without a fragment.')
-			raise ValueError, 'Cannot find matches without a fragment.'
-
-		# user explicitely wants all matches
-		if aFragment == "*":
-			return self.getAllMatches()
-
-		# case insensitivity
-		tmpFragment = string.lower(aFragment)
-		# remove ignored chars
-		tmpFragment = self.ignored_chars.sub('', tmpFragment)
-		# normalize word separators
-		tmpFragment = string.join(self.word_separators.split(tmpFragment), ' ')
-		# length in number of significant characters only
-		lngFragment = len(tmpFragment)
-		# order is important !
-		if lngFragment >= self.__threshold['substring']:
-			return self.getMatchesBySubstr(tmpFragment)
-		elif lngFragment >= self.__threshold['word']:
-			return self.getMatchesByWord(tmpFragment)
-		elif lngFragment >= self.__threshold['phrase']:
-			return self.getMatchesByPhrase(tmpFragment)
-		else:
-			return (_false, [])
-	#--------------------------------------------------------
-	def getAllMatches(self):
-		pass
-	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
-		pass
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		pass
-	#--------------------------------------------------------
-	def getMatchesBySubstr(self, aFragment):
-		pass
-	#--------------------------------------------------------
-	def increaseScore(self, anItem):
-		"""Increase the score/weighting for a particular item due to it being used."""
-		pass
-	#--------------------------------------------------------
-	def learn(self, anItem, aContext):
-		"""Add this item to the match source so we can find it next time around."""
-
-	def enableMatching(self):
-		pass
-	
-	def enableLearning(self):
-		pass
-		
-	def setThresholds(self, aWord = None, aSubstring = None):
-		pass
-	def setWordSeparators(self, param = None):
-		pass
-
-	def setIgnoredChars(self, param = None):
-		pass
-
 
 #============================================================
 class cWheelTimer(wxTimer):
@@ -165,22 +65,33 @@ class cPhraseWheel (wxTextCtrl):
 
 	default_phrase_separators = re.compile('[;/|]+')
 
-	def __init__( self, parent, id = -1, value = "",  pos =wxDefaultPosition, size = wxDefaultSize, style = 0,
+	def __init__ (
+		self,
 		aMatchProvider = None,
-		aDelay = 300 , id_callback = None):
-		
-		wxTextCtrl.__init__(self, parent, id,value, pos, size,  style)
-		
+		aDelay = 300,
+		*args,
+		**kwargs):
 
 		if not isinstance(aMatchProvider, gmMatchProvider.cMatchProvider):
 			_log.Log(gmLog.lErr, "aMatchProvider must be a match provider object")
 			return None
 		self.__matcher = aMatchProvider
+		self.__real_matcher = None
 		self.__currMatches = []
 		self.phrase_separators = cPhraseWheel.default_phrase_separators
 		self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 		self.allow_multiple_phrases()
 		self.relevant_input = ''
+
+		self.notify_caller = []
+		self.data = None
+		self.have_called = 0
+
+		if kwargs.has_key('id_callback'):
+			self.addCallback(kwargs['id_callback'])
+			del kwargs['id_callback']
+
+		wxTextCtrl.__init__ (self, *args, **kwargs)
 		# unnecessary as we are using styles
 		#self.SetBackgroundColour (wxColour (200, 100, 100))
 
@@ -194,17 +105,14 @@ class cPhraseWheel (wxTextCtrl):
 		# 3) evil user wants to resize widget
 		EVT_SIZE (self, self.on_resize)
 		# parent notification callback
-		self.notify_caller = []
-		self.data = None
-		self.have_called = 0
-		tmp = { 'parent': parent, 'id': id,  'pos': pos, 'size': size, 'style': style }
-		
-		width, height = tmp['size']
-		x, y = tmp['pos']
+
+		tmp = kwargs.copy()
+		width, height = kwargs['size']
+		x, y = kwargs['pos']
 		tmp['pos'] = (x, y + height)
 		tmp['size'] = (width, height*6)
 		tmp['id'] = -1
-		self.__picklist_win = wxWindow( **tmp)
+		self.__picklist_win = wxWindow(*args, **tmp)
 		self.panel = wxPanel(self.__picklist_win, -1)
 		self._picklist = wxListBox(self.panel, -1, style=wxLB_SINGLE | wxLB_NEEDED_SB)
 		self._picklist.Clear()
@@ -213,9 +121,6 @@ class cPhraseWheel (wxTextCtrl):
 
 		self.left_part = ''
 		self.right_part = ''
-
-		if id_callback <> None:
-			self.addCallback( id_callback)
 	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = _true):
 		self.__handle_multiple_phrases = state
@@ -234,7 +139,35 @@ class cPhraseWheel (wxTextCtrl):
 		return self.data
 	#--------------------------------------------------------
 	def setContext (self, context, val):
+		if self.__real_matcher:
+			# forget any caching, as it's now invalid
+			self.__matcher = self.__real_matcher
+			self.__real_matcher = None
 		self.__matcher.setContext (context, val)
+	#---------------------------------------------------------
+	def snap (self):
+		"""
+		This is called when the context is rich enough that
+		it is likely matching will return one or only
+		a few values. If there is only one value,
+		the phrasewheel will 'snap' to that value
+		"""
+		if self.__real_matcher:
+			# this should never happen, just in case
+			self.__matcher = self.__real_matcher
+			self.__real_matcher = None
+		matches = self.__matcher.getAllMatches ()
+		if len (matches) == 1:
+			self.data = matches[0]['data']
+			self.SetValue (matches[0]['label'])
+			for call in self.notify_caller:
+				# get data associated with selected item
+				call (self.data)
+			self.have_called = 1
+		if len (matches) > 1:
+			# cache these results
+			self.__real_matcher = self.__matcher
+			self.__matcher = gmMatchProvider.cMatchProvider_FixedList (matches)
 	#---------------------------------------------------------
 	def setNextFocus (self, focus):
 		"""
@@ -294,6 +227,7 @@ class cPhraseWheel (wxTextCtrl):
 		if matched:
 			for item in self.__currMatches:
 				self._picklist.Append(item['label'], clientData = item['data'])
+				
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
@@ -512,7 +446,7 @@ if __name__ == '__main__':
 			ww1 = cPhraseWheel(
 				parent = frame,
 				id = -1,
-				id_callback = clicked,
+				#id_callback = clicked,
 				pos = (50, 50),
 				size = (180, 30),
 				aMatchProvider = mp1
@@ -537,7 +471,7 @@ if __name__ == '__main__':
 				ww2 = cPhraseWheel(
 					parent = frame,
 					id = -1,
-					id_callback = clicked,
+					#id_callback = clicked,
 					pos = (50, 250),
 					size = (180, 30),
 					aMatchProvider = mp2
@@ -552,17 +486,24 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.2  2003-11-05 14:56:32  sjtan
-# *** empty log message ***
+# Revision 1.4  2003-11-06 02:06:26  sjtan
 #
-# Revision 1.1  2003/10/23 06:02:39  sjtan
+# ui test fixes.
+#
+# Revision 1.23  2003/11/05 22:21:06  sjtan
+#
+# let's gmDateInput specify id_callback in constructor list.
+#
+# Revision 1.22  2003/11/04 10:35:23  ihaywood
+# match providers in gmDemographicRecord
+#
 # Revision 1.21  2003/11/04 01:40:27  ihaywood
 # match providers moved to python-common
 #
 # Revision 1.20  2003/10/26 11:27:10  ihaywood
 # gmPatient is now the "patient stub", all demographics stuff in gmDemographics.
 #
-# manual edit areas modelled after r.terry's specs.
+# Ergregious breakages are fixed, but needs more work
 #
 # Revision 1.19  2003/10/09 15:45:16  ncq
 # - validate cookie column in score tables, too

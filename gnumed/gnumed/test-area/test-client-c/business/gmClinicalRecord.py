@@ -7,10 +7,10 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.9 2003-11-05 14:56:31 sjtan Exp $
+# $Id: gmClinicalRecord.py,v 1.12 2003-11-08 18:12:58 sjtan Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/business/Attic/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.9 2003-11-05 14:56:31 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmClinicalRecord.py,v 1.12 2003-11-08 18:12:58 sjtan Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # access our modules
@@ -888,14 +888,26 @@ class gmClinicalPart:
 		#print sys.exc_info()[0], sys.exc_info()[1]
 		#traceback.print_tb(sys.exc_info()[2])
 
-	def _print(self, list):
-		if type(list) in [ type([]), type(()) ]:
-			strList = []
-			for x in list:
-				strList.append(str(list))
-			list = "   ".join(strList)
-		import gmLog
-		gmLog.gmDefLog.Log(gmLog.lInfo, list)
+	def _print(self, *kargs):
+
+		try:
+			if len(kargs) > 1:
+				list = kargs
+			else:
+				list = kargs[0]
+
+			if type(list) in [ type([]), type(()) ]:
+				strList = []
+				for x in list:
+					strList.append(str(list))
+				msg  = "   ".join(strList)
+			else:
+				msg = str(list)
+				
+			import gmLog
+			gmLog.gmDefLog.Log(gmLog.lInfo, msg)
+		except:
+			print list
 	
 	
 	def validate_not_null( self, values, fields):
@@ -938,8 +950,9 @@ if __name__ == "__main__":
 	del record
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.9  2003-11-05 14:56:31  sjtan
-# *** empty log message ***
+# Revision 1.12  2003-11-08 18:12:58  sjtan
+#
+# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
 #
 # Revision 1.3  2003/10/25 16:13:26  sjtan
 #

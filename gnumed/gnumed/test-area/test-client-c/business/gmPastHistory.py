@@ -54,7 +54,7 @@ class gmPastHistory(gmClinicalPart):
 			map['year'] = int(map['age']) + self._getBirthYear()
 
 		except:
-			print "failed to calc year from age", map['age']
+			self._print( [ "failed to calc year from age", map['age'] ])
 		
 	def _getBirthDate(self):
 		if not self.__dict__.has_key('birthdate') :
@@ -76,7 +76,7 @@ class gmPastHistory(gmClinicalPart):
 		ro_curs = conn.cursor()
 
 		#<DEBUG>
-		print  "executing ", cmd % params
+		self._print( (  "executing ", cmd % params ) )
 		#</DEBUG>
 		_log.Log(gmLog.lData,  "executing ", cmd % params )
 
@@ -198,7 +198,7 @@ class gmPastHistory(gmClinicalPart):
 	def _delete_history(self, conn, id):
 		cmd = "delete from clin_history where id = %d" % id
 		cu = conn.cursor()
-		print cmd
+		self._print (cmd)
 		cu.execute(cmd)
 
 
@@ -209,7 +209,7 @@ class gmPastHistory(gmClinicalPart):
 		cmd = "update clin_history set  narrative='%s', id_type= 1, id_episode=%d, id_encounter=%d where id = %d"
 		params = ( self.get_narrative(values) , self.id_episode(), self.id_encounter() , ix)
 		curs = conn.cursor()
-		print "using ", cmd , " and params ", params
+		self._print( ("using ", cmd , " and params ", params) )
 		curs.execute( cmd % params)
 	#	self.editarea_update_data( conn, fields, formatting, values)
 		curs.close()
@@ -220,7 +220,7 @@ class gmPastHistory(gmClinicalPart):
 	
 	
 	def get_all_history(self):
-		print """gets the history from the local store , else fetches it with load_past_history"""
+		self._print ("""gets the history from the local store , else fetches it with load_past_history""" )
 		if not self.__dict__.has_key('past'):
 			self.load_all_history()
 
@@ -244,7 +244,8 @@ class gmPastHistory(gmClinicalPart):
 									hi.id_patient = %d
 									"""
 		params = self.id_patient()
-		print "self.id_patient=", params
+		self._print( ("self.id_patient=", params ))
+
 		try:
 			conn = self._backend.GetConnection('historica', readonly = 0)
 			curs = conn.cursor()
@@ -253,10 +254,7 @@ class gmPastHistory(gmClinicalPart):
 			curs.close()
 		except:
 			fetched_items=[]
-			import sys, traceback
-			e = sys.exc_info()
-			print e[0], e[1]
-			traceback.print_tb(e[2])
+			self._traceback()
 			
 
 		list = []
@@ -296,29 +294,30 @@ class gmPastHistory(gmClinicalPart):
 		
 	
 	def load_all_history(self):
-		print """loads the past history for the patient"""
+		self._print( """loads the past history for the patient""" )
 		list = self._get_history_list()
 		self.past = list
 									
 
 	
 	def filter_history(self, key, range, list = [], includeAsDefault = 0):
-		print "filtering with ", key, " in ", range
-		
+		self._print (("filtering with ", key, " in ", range ))
+	
 		l = []
 		for id, map in list:
-			print "checking ", map.get(key, None) 
+			self._print ("checking ", map.get(key, None) )
 			if map.get(key , None) in range:
-				print "key ", key, " value is in ", range
+				self._print (("key ", key, " value is in ", range))
 				l.append( (id,map) )
 			elif includeAsDefault  and not map.has_key(key): 
-				print "key ", key, "is not in range ", range, " but included as default."
+				self._print(( "key ", key, "is not in range ", range, " but included as default."))
 				l.append( (id,map) )
 			else:
-				print "key ", key, "is not in range ", range, " and not included."
+				self._print (("key ", key, "is not in range ", range, " and not included."))
 				pass
 				
-		print " got filtered history ", l		
+		self._print ((" got filtered history ", l))
+		
 		return l
 
 	def get_accepted_history(self):
@@ -327,7 +326,7 @@ class gmPastHistory(gmClinicalPart):
 	
 	def get_active_history(self, active = 1 ):
 		list =  self.filter_history( 'active', [active], list = self.get_accepted_history() )
-		#print "** active =", active, " history =", list
+		self._print( "** active =", active, " history =", list)
 
 		return list
 
@@ -336,7 +335,7 @@ class gmPastHistory(gmClinicalPart):
 
 		list =  self.filter_history( 'significant', [significant], list, includeAsDefault = 0)
 
-		#print "** significant history =  ", list
+		self._print( "** significant history =  ", list)
 
 		return list
 

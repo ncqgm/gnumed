@@ -6,6 +6,13 @@ from wxPython.grid import *
 
 EXTRA_ROW_SPACE = 40
 
+def _print(*kargs):
+	import gmLog
+	l = []
+	for x in kargs:
+		l.append(str(x))
+	gmLog.gmDefLog.Log(gmLog.lInfo, "  ".join(l))
+
 class MultiColumnList( wxGrid):
 	def __init__(self, parent, id = -1):
 		wxGrid.__init__(self, parent, id)
@@ -20,15 +27,15 @@ class MultiColumnList( wxGrid):
 		
 	
 	def _cellDoubleClicked( self, event):
-		#print self.GetSelectedCells()
-		#print self.GetSelectionBlockTopLeft()
+		#_print( self.GetSelectedCells())
+		#_print( self.GetSelectionBlockTopLeft())
 		event.Skip()
 		x, y =  self.GetGridCursorRow(), self.GetGridCursorCol()
-		print x,y
+		_print( x,y)
 		items = self.data.items()
 		ix = y * self.col_rows[1] + x
 		if ix < len(items):
-			print items[ix]
+			#_print( items[ix])
 			self.selData = items[ix]
 			self._notifyObservers()
 	
@@ -90,12 +97,12 @@ class MultiColumnList( wxGrid):
 			predictedCols = maxCols 
 			predictedRows = len(items) / predictedCols + 1
 			
-		print "text extent", x, y,"  ;row height ", self.GetRowSize(0), "; client size", w, h , "  ;maxCols", maxCols, "  predictedCols", predictedCols, "  predictedRows", predictedRows	
+		_print( "text extent", x, y,"  ;row height ", self.GetRowSize(0), "; client size", w, h , "  ;maxCols", maxCols, "  predictedCols", predictedCols, "  predictedRows", predictedRows	)
 
 		return predictedRows
 
 	def SetData(self, map, maxRows = 8, fitClientSize = 0):
-		print self, " GOT DATA = ", map
+		#_print( self, " GOT DATA = ", map)
 		self.SetDataItems( map.items(), maxRows, fitClientSize) 
 
 

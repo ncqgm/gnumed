@@ -3,7 +3,15 @@
 import gmDispatcher, gmSignals
 from gmPatient import gmCurrentPatient
 import sys, traceback
+import gmLog
 
+def _print(*kargs):
+	l = []
+	for x in kargs:
+		l.append(str(x))
+	msg = "  ".join(l)
+
+	gmLog.gmDefLog.Log( gmLog.lInfo, msg )	
 
 class PatientHolder:
 	def __init__(self):
@@ -11,13 +19,11 @@ class PatientHolder:
 
 	def _setPatientModel( self, kwds):
 		print kwds
-		self.patient = gmCurrentPatient(kwds['ID'])
+		self.patient = gmCurrentPatient()
 		try:
 			self._updateUI()
 		except:
-			for i in xrange(0,1):
-				print sys.exc_info()[i]
-			traceback.print_tb( sys.exc_info()[2])
+			gmLog.gmDefLog.LogException( "updateUI problem", sys.exc_info(), verbose=1)
 	
 	def get_patient(self):
 		return self.patient
@@ -32,4 +38,4 @@ class PatientHolder:
 		return self.get_clinical_record().get_allergies()
 	
 	def _updateUI(self):
-		print "please override _updateUI() in ", self.__class__.__name__
+		_print("please override _updateUI() in ", self.__class__.__name__)

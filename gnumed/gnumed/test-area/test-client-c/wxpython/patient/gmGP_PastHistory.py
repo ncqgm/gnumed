@@ -35,6 +35,7 @@ import gmPlugin, gmLog
 import gmDispatcher, gmSignals
 
 from gmPatientHolder import PatientHolder
+import gmPatientHolder
 
 from gmListCtrlMapper import gmListCtrlMapper
 
@@ -209,12 +210,12 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 			if id == selId:
 				clinical = self.get_past_history()
 				self.editarea.setInputFieldValues(map, id)
-				print "set editarea with ", map, "and id ", id
+				gmPatientHolder._print( "set editarea with ", map, "and id ", id)
 
 
 	def _updateUI(self):
 		clinical = self.get_past_history()
-		#print "past history specific ui update"
+		#gmPatientHolder._print( "past history specific ui update")
 		significant_past = clinical.get_significant_past_history()
 		active_hx = clinical.get_active_history()
 		self.active_problem_list.SetData(  self._get_list_map( active_hx) , fitClientSize = 1)
@@ -225,7 +226,7 @@ class PastHistoryPanel(wxPanel, PatientHolder):
 	def _get_list_map(self, clin_history_list):
 		newMap = {}
 		for (id, map) in clin_history_list:
-			print map
+			gmPatientHolder._print( map)
 			newMap[id] =   self.get_past_history().short_format(map)   
 		return newMap	
 	

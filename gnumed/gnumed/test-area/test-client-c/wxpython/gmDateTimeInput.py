@@ -7,8 +7,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/Attic/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.2 2003-11-05 14:56:32 sjtan Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmDateTimeInput.py,v 1.7 2003-11-15 11:49:50 sjtan Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, re, string
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 import gmLog
 _log = gmLog.gmDefLog
 
-import gmExceptions, gmPhraseWheel
+import gmExceptions, gmPhraseWheel, gmMatchProvider
 
 import mx.DateTime as mxDT
 
@@ -27,14 +27,14 @@ from wxPython.wx import *
 _true = (1==1)
 _false = not true
 #============================================================
-class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
+class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	def __init__(self):
-		self.__allow_past = None
+		self.__allow_past = 1 
 		self.__shifting_base = None
 		self.__expanders = []
 		self.__expanders.append(self.__single_number)
 		self.__expanders.append(self.__explicit_offset)
-		gmPhraseWheel.cMatchProvider.__init__(self)
+		gmMatchProvider.cMatchProvider.__init__(self)
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -119,7 +119,7 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 		# allow past ?
 		is_future = 1
 		if string.find(aFragment, '-') > -1:
-			is_future = None
+			is_future = 0 
 			if not self.__allow_past:
 				return None
 
@@ -155,23 +155,22 @@ class cMatchProvider_Date(gmPhraseWheel.cMatchProvider):
 		return [tmp]
 #==================================================
 class gmDateInput(gmPhraseWheel.cPhraseWheel):
-	def __init__(self,parent, id = -1, value = "",   pos = wxDefaultPosition, size = wxDefaultSize, style = 0):
+	def __init__(self, *args, **kwargs):
 		matcher = cMatchProvider_Date()
 		matcher.setWordSeparators('xxx_do_not_separate_words_xxx')
 #		matcher.setIgnoredChars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
 		matcher.setThresholds(aWord = 998, aSubstring = 999)
-		
-		if value == "":
-			value = self.__default_text = _('enter date here')
 
-		gmPhraseWheel.cPhraseWheel.__init__(self, parent, id, value,  pos, size,  style, matcher, id_callback= self.__selected)
-		wxTextCtrl.__init__(self, parent, id, value , pos, size,  style)
-
-
+		if not kwargs.has_key('id_callback'):
+			kwargs['id_callback'] =  self.__selected
+		kwargs['aMatchProvider'] = matcher
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.allow_multiple_phrases(None)
 		
 		self.__display_format = _('%Y-%m-%d')
+		self.__default_text = _('enter date here')
 
+		self.SetValue(self.__default_text)
 		self.SetSelection (-1,-1)
 
 		EVT_CHAR(self, self.__on_char)
@@ -198,7 +197,8 @@ Date input field
 		self.SetValue(data.strftime(self.__display_format))
 
 		if self.notify_caller is not None:
-			self.notify_caller (data)
+			for f in self.notify_caller:
+				f(data)
 	#----------------------------------------------
 	# event handlers
 	#----------------------------------------------
@@ -322,12 +322,16 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.2  2003-11-05 14:56:32  sjtan
-# *** empty log message ***
+# Revision 1.7  2003-11-15 11:49:50  sjtan
 #
-# Revision 1.1  2003/10/23 06:02:39  sjtan
+# extra fields table appended in gmclinical.sql.
 #
-# manual edit areas modelled after r.terry's specs.
+# Revision 1.7  2003/11/05 22:21:06  sjtan
+#
+# let's gmDateInput specify id_callback in constructor list.
+#
+# Revision 1.6  2003/11/04 10:35:23  ihaywood
+# match providers in gmDemographicRecord
 #
 # Revision 1.5  2003/10/06 17:49:40  ncq
 # - remove dependancy on gmI18N on standalone test run

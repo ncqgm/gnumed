@@ -17,7 +17,7 @@
 #
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/test-client-c/wxpython/patient/Attic/gmGP_Allergies.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -36,6 +36,7 @@ import gmGuiElement_HeadingCaptionPanel        #panel class to display top headi
 import gmGuiElement_DividerCaptionPanel        #panel class to display sub-headings or divider headings
 import gmGuiElement_AlertCaptionPanel          #panel to hold flashing alert messages
 from  gmPatientHolder import PatientHolder
+import gmPatientHolder
 from wxPython.wx import *
 
 ID_ALLERGYLIST = wxNewId()
@@ -137,7 +138,7 @@ class AllergyPanel(wxPanel , PatientHolder ):
 		allergy_map = self.get_allergies().get_allergy_items()
 		for id, values in allergy_map.items():
 			if ix == 0:
-				print values
+				gmPatientHolder._print( values)
 				self.editarea.setInputFieldValues( values, id)
 			ix -= 1
 			
@@ -244,8 +245,9 @@ if __name__ == "__main__":
 	app.MainLoop()
 #============================================================================
 # $Log: gmGP_Allergies.py,v $
-# Revision 1.6  2003-11-05 14:56:32  sjtan
-# *** empty log message ***
+# Revision 1.9  2003-11-08 18:12:58  sjtan
+#
+# resurrected gmDemographics: will manage multiple addresses, to update existing identities.
 #
 # Revision 1.3  2003/10/27 14:01:26  sjtan
 #
