@@ -50,7 +50,7 @@ NOTE: DATABASE CONFIG DOES NOT WORK YET !
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -58,6 +58,7 @@ import os.path, fileinput, string, sys, shutil
 
 # gnumed modules
 import gmLog, gmCLI
+import gmExceptions
 
 _log = gmLog.gmDefLog
 #================================
@@ -106,16 +107,21 @@ class cCfgFile:
 		|-> 'comment' [list of strings]
 		`-> 'value'
 	"""
-	_cfg_data = {}
+
 	_modified = None
 	#----------------------------
 	def __init__(self, aPath = None, aFile = None):
+	    	"""Init ConfigFile object. For valid combinations of these
+		parameters see above. Raises a ConfigError exception if
+		no config file could be found. 
+    		"""
+    	    	self._cfg_data = {}
 		# get conf file name
 		if not self.__get_conf_name(aPath, aFile):
-			raise "cannot find config file"
+			raise ConfigError,"cannot find config file"
 		# load config file
 		if not self.__parse_conf_file():
-			raise "cannot parse config file"
+			raise ConfigError,"cannot parse config file"
 	#----------------------------
 	# API - access config data
 	#----------------------------
@@ -264,9 +270,10 @@ class cCfgFile:
 	# internal methods
 	#----------------------------
 	def __get_conf_name(self, aDir = None, aName = None):
-		"""Try to construct a valid config file name."""
-
-		_log.Log(gmLog.lData, '(<aDir=%s>, <aName=%s>)' % (aDir, aName))
+		"""Try to construct a valid config file name.
+		Returns None if no valid name could be found, else TRUE(1)."""
+    	    	
+    		_log.Log(gmLog.lData, '(<aDir=%s>, <aName=%s>)' % (aDir, aName))
 		# 1) has the programmer manually specified a config file ?
 		if aName != None:
 			self.cfgName = os.path.abspath(aName)
@@ -283,7 +290,9 @@ class cCfgFile:
 					else:
 						_log.Log(gmLog.lWarn, 'Config file [%s] not found. Aborting.' % self.cfgName)
 						return None
-
+    	    	    	    	else:
+				    return None
+				    
 		# 2) has the user manually supplied a config file on the command line ?
 		if gmCLI.has_arg('--conf-file'):
 			self.cfgName = gmCLI.arg['--conf-file']
@@ -539,11 +548,22 @@ if __name__ == "__main__":
 	myCfg.set("date", "modified", "jetzt", ["sollte eigentlich immer aktuell sein"])
 	myCfg.store()
 else:
-	gmDefCfgFile = cCfgFile()
+	# if gmCfg was imported by gnumed.py, it should find a default config file
+	try:
+	    gmDefCfgFile = cCfgFile()
+	# else somebody might just have included it for some other purpose
+    	except:
+    	    _log.Log(gmLog.lWarn, "gmCfg included but no CfgFile specified. Continuing.")
 
+	    	    
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.15  2002-09-30 10:58:27  ncq
+# Revision 1.16  2002-10-18 19:57:09  hinnef
+# fixed problems when a invalid filename is given, static class variables and
+# changed the initialization of gmDefCfgFile so that it can be imported from
+# standalone modules
+#
+# Revision 1.15  2002/09/30 10:58:27  ncq
 # - consistently spell GnuMed
 #
 # Revision 1.14  2002/09/26 13:21:37  ncq
