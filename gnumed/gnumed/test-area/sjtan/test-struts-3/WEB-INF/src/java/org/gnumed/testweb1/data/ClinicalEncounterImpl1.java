@@ -177,9 +177,9 @@ public class ClinicalEncounterImpl1 implements ClinicalEncounter {
     
     public List getNarratives() {
         Collection sorted = new TreeSet(narratives);
-        
+        narratives = new ArrayList(sorted);
         log.info("Returning " + sorted + " after sorting narratives");
-        return new ArrayList(sorted);
+        return narratives;
     }
     
     public void sortRootItems(final java.util.Comparator comparator) {

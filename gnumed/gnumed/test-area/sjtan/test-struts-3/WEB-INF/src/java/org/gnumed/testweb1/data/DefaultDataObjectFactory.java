@@ -131,7 +131,7 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
     
     public ClinicalEncounter createEntryClinicalEncounter() {
         
-        ClinicalEncounter e = loadEntryObjects( createClinicalEncounter() );
+        ClinicalEncounter e = loadEntryObjects( createEntryClinicalEncounterImpl() );
         
         setIndexOnEncounterEntryMedications(e);
        
@@ -139,7 +139,15 @@ public class DefaultDataObjectFactory implements DataObjectFactory {
         
     }
     
-    
+    /** this method returns entryClinicalEncounterImpl() which
+     * keeps its narrative collection unsorted and stable
+     * this stops the BeanUtil.populate from choking when a form
+     * is submitted.
+     * @return
+     */
+    private ClinicalEncounter createEntryClinicalEncounterImpl() {
+        return new EntryClinicalEncounterImpl1();
+    }
     
     public ClinNarrative createClinNarrative() {
         ClinNarrative cn =  new ClinNarrativeImpl1();
