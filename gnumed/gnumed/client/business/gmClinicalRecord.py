@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.168 2005-03-23 18:30:40 ncq Exp $
-__version__ = "$Revision: 1.168 $"
+# $Id: gmClinicalRecord.py,v 1.169 2005-03-30 22:07:35 ncq Exp $
+__version__ = "$Revision: 1.169 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -800,6 +800,8 @@ where pk=(
 			from v_pat_items vpi
 			where vpi.pk_patient=%s
 		)
+	-- guard against several episodes created at the same moment of time
+	limit 1
 	)"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient, self.pk_patient)
 			if rows is None:
@@ -1720,7 +1722,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.168  2005-03-23 18:30:40  ncq
+# Revision 1.169  2005-03-30 22:07:35  ncq
+# - guard against several "latest episodes"
+# - maybe do away with the *explicit* "latest episode" stuff ?
+#
+# Revision 1.168  2005/03/23 18:30:40  ncq
 # - v_patient_items -> v_pat_items
 # - add problem2issue()
 #
