@@ -49,7 +49,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/python-common/Attic/gmCfg.py,v $
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -869,6 +869,60 @@ def create_default_cfg_file():
 	_log.Log(gmLog.lErr, 'Created empty config file [%s].' % tmp)
 	print "Had to create empty (default) config file [%s].\nPlease check the docs for possible settings." % tmp
 	return 1
+
+#=============================================================
+
+def getFirstMatchingDBSet(machine = cfg_DEFAULT, cookie = cfg_DEFAULT, option = None):
+	"""
+	Convenience funtion to get config value from database. This will 
+	search in descending order from CURRENT_USER_CURRENT_MACHINE to 
+	DEFAULT_USER_DEFAULT_MACHINE. It will not try to find entries for other
+	than the current user.
+	We assume that the config tables are found on service "default". That
+	way we can handle the db connection inside this function.
+	Returns value and position of first match.
+	"""
+
+	# first create list of sets to search
+	setList=[]
+
+	# if no machine is given, search only sets for DEFAULT_MACHINE
+	if not machine == cfg_DEFAULT:
+		setList.append(['CURRENT_USER_CURRENT_MACHINE',None,machine])
+	setList.append(['CURRENT_USER_DEFAULT_MACHINE',None,cfg_DEFAULT])
+	if not machine == cfg_DEFAULT:
+		setList.append(['DEFAULT_USER_CURRENT_MACHINE',cfg_DEFAULT,machine])
+	setList.append(['DEFAULT_USER_DEFAULT_MACHINE',cfg_DEFAULT,cfg_DEFAULT])
+
+	# connect to database
+	db = gmPG.ConnectionPool()
+	conn = db.GetConnection(service = "default")
+	dbcfg = cCfgSQL(
+		aConn = conn,
+		aDBAPI = gmPG.dbapi
+	)
+
+	matchingSet = None
+	for set in (setList):
+		user = set[1]
+		machine = set[2]
+		result = dbcfg.get(
+			machine = machine,
+			user = user,
+			option = option,
+			cookie = cookie
+		)
+#DEBUG
+#		_log.Log(gmLog.lData, 'Set [%s@%s]: %s' % (user, machine, result))
+
+		if not result is None:
+			matchingSet = set[0]
+			break
+
+	db.ReleaseConnection(service = "default")
+
+	return (result,matchingSet)
+
 #=============================================================
 # main
 #=============================================================
@@ -929,7 +983,7 @@ if __name__ == "__main__":
 		print "testing database config"
 		print "======================="
 		from pyPgSQL import PgSQL
-		dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'test', 'postgres', '', '', '')
+		dsn = "%s:%s:%s:%s:%s:%s:%s" % ('localhost', '5432', 'gnumed', 'postgres', '', '', '')
 		conn = PgSQL.connect(dsn)
 		myDBCfg = cCfgSQL(aConn = conn, aDBAPI=PgSQL)
 
@@ -965,6 +1019,11 @@ if __name__ == "__main__":
 		myDBCfg.set(option=new_opt, value = aList, aRWConn=conn)
 
 		conn.close()
+		
+		val,set = getFirstMatchingDBSet(machine = "test", cookie = "gui", 
+			option = "plugin load order")
+		print "found set for [plugin load order.gui] for %s: \n%s" % (set,str(val))
+
 else:
 	# - we are being imported
 
@@ -981,7 +1040,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.59  2003-08-24 08:01:44  ncq
+# Revision 1.60  2003-08-24 13:36:39  hinnef
+# added getFirstMatchingDBSet() for convenient config data retrieval
+#
+# Revision 1.59  2003/08/24 08:01:44  ncq
 # - removed some dead code, cleanup
 #
 # Revision 1.58  2003/08/23 18:33:50  hinnef
