@@ -12,7 +12,7 @@ index of this list or
 The list item can be accessed via GetSelection()"""
 
 
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
 __license__ = "GPL"
@@ -47,6 +47,8 @@ class QuickSelectionDlg(wxDialog):
 		self.selection = -1
 
 		GenerateDialog( self, true )
+		#won't work on Windoze otherwise:
+		self.listctrl.SetFocus()
 
 		EVT_LIST_ITEM_SELECTED(self, ID_LISTCTRL, self.OnItemCursor)
 		EVT_LIST_ITEM_ACTIVATED(self, ID_LISTCTRL, self.OnItemSelected)
