@@ -3,23 +3,23 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.62 2004-03-05 11:22:35 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmEditArea.py,v 1.63 2004-03-09 13:46:54 ihaywood Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "R.Terry, K.Hilbert"
 
 # TODO: standard SOAP edit area
-#====================================================================
+#======================================================================
+
 import sys, traceback, time
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions
-from Gnumed.business import gmPatient
+from Gnumed.business import gmPatient, gmDemographicRecord
 from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel
 
 from wxPython.wx import *
 
 _log = gmLog.gmDefLog
 _gb = gmGuiBroker.GuiBroker()
-
 
 ID_PROGRESSNOTES = wxNewId()
 gmSECTION_SUMMARY = 1
@@ -344,17 +344,17 @@ class gmEditArea(wxPanel):
 		prompt_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER)
 		prompt_pnl.SetBackgroundColour(richards_light_gray)
 		# make them
-		gszr = wxGridSizer (len(self.fields), 1, 2, 2)
+		vszr = wxBoxSizer (wxVERTICAL)
 		color = richards_aqua
 		lines = self.prompts.keys()
 		lines.sort()
 		for line in lines:
-			label, color = self.prompts[line]
+			label, color, weight = self.prompts[line]
 			prompt = self.__make_prompt(prompt_pnl, "%s " % label, color)
-			gszr.Add(prompt, 0, wxEXPAND | wxALIGN_RIGHT)
+			vszr.Add(prompt, weight, wxEXPAND)
 		# put sizer on panel
-		prompt_pnl.SetSizer(gszr)
-		gszr.Fit(prompt_pnl)
+		prompt_pnl.SetSizer(vszr)
+		vszr.Fit(prompt_pnl)
 		prompt_pnl.SetAutoLayout(true)
 
 		# make shadow below prompts in gray
@@ -386,8 +386,7 @@ class gmEditArea(wxPanel):
 	def __generate_fields(self, parent):
 		parent.SetBackgroundColour(wxColor(222,222,222))
 		# rows, cols, hgap, vgap
-		gszr = wxGridSizer(len(self.fields), 1, 2, 2)
-
+		vszr = wxBoxSizer(wxVERTICAL)
 		lines = self.fields.keys()
 		lines.sort()
 		for line in lines:
@@ -397,10 +396,10 @@ class gmEditArea(wxPanel):
 			for pos in positions:
 				field, weight = self.fields[line][pos]
 				szr_line.Add(field, weight, wxEXPAND)
-			gszr.Add(szr_line, 0, flag = wxEXPAND | wxALIGN_LEFT)
+			vszr.Add(szr_line, self.prompts[line][2], flag = wxEXPAND) # use same lineweight as prompts
 		# put them on the panel
-		parent.SetSizer(gszr)
-		gszr.Fit(parent)
+		parent.SetSizer(vszr)
+		vszr.Fit(parent)
 		parent.SetAutoLayout(true)
 
 		# make shadow below edit fields in gray
@@ -435,7 +434,7 @@ class gmEditArea(wxPanel):
 			parent,
 			-1,
 			aLabel,
-			style = wxALIGN_RIGHT | wxST_NO_AUTORESIZE
+			style = wxALIGN_RIGHT
 		)
 		prompt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD, false, ''))
 		prompt.SetForegroundColour(aColor)
@@ -443,12 +442,8 @@ class gmEditArea(wxPanel):
 	#----------------------------------------------------------------
 	# intra-class API
 	#----------------------------------------------------------------
-	def _add_prompt(self, line=None, label=None, color=richards_blue):
-		if None in (line, label):
-			_log.Log(gmLog.lErr, 'argument error in [%s]: line=%s, label=%s' % (self.__class__.__name__, line, prompt))
-		if not self.prompts.has_key(line):
-			self.prompts[line] = {}
-		self.prompts[line] = (label, color)
+	def _add_prompt(self, line, label, color=richards_blue, weight=1):
+		self.prompts[line] = (label, color, weight)
 	#----------------------------------------------------------------
 	def _add_field(self, line=None, pos=None, widget=None, weight=0):
 		if None in (line, pos, widget):
@@ -483,12 +478,13 @@ class gmEditArea(wxPanel):
 		prompt_pnl = wxPanel(self, -1, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER)
 		prompt_pnl.SetBackgroundColour(richards_light_gray)
 		# make them
-		gszr = wxGridSizer (len(prompt_labels)+1, 1, 2, 2)
+		gszr = wxFlexGridSizer (len(prompt_labels)+1, 1, 2, 2)
 		color = richards_aqua
 		for prompt in prompt_labels:
 			label = self.__make_prompt(prompt_pnl, "%s " % prompt, color)
 			gszr.Add(label, 0, wxEXPAND | wxALIGN_RIGHT)
 			color = richards_blue
+			gszr.RemoveGrowableRow (line-1)
 		# put sizer on panel
 		prompt_pnl.SetSizer(gszr)
 		gszr.Fit(prompt_pnl)
@@ -1610,73 +1606,120 @@ class gmPrescriptionEditArea(gmEditArea):
 
 #====================================================================
 class gmReferralEditArea(gmEditArea):
-	extraColumns = [referralColumn2]
 		
-	def __init__(self, parent, id):
+	def __init__(self, parent, id): 
 		try:
 			gmEditArea.__init__(self, parent, id, aType = 'referral')
 		except gmExceptions.ConstructorError:
-			stacktrace()
+			_log.LogException('cannot instantiate referral edit area', sys.exc_info(), verbose=0)
 
-			_log.LogExceptions('cannot instantiate referral edit area', sys.exc_info(),4)
-			raise
+	def _define_prompts(self):
+		self._add_prompt (line = 1, label = _ ("Specialty"))
+		self._add_prompt (line = 2, label = _ ("Name"))
+		self._add_prompt (line = 3, label = _ ("Address"))
+		self._add_prompt (line = 4, label = _ ("Options"))
+		self._add_prompt (line = 5, label = _("Text"), weight =3)
+		self._add_prompt (line = 6, label = "")
 
-	
-	def _getCheckBoxSizer(self,  list):
-		szr = wxBoxSizer(wxHORIZONTAL)
-		for x in list:
-			szr.Add( x, 1, 0)
-		
-		return szr
-
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.Log(gmLog.lData, "making referral lines")
-		lines = []
-		self.txt_who = cEditAreaField(parent)
-		self.txt_org = cEditAreaField(parent)
-		self.txt_street1 = cEditAreaField(parent)
-		self.txt_street2 = cEditAreaField(parent)
-		self.txt_suburb= cEditAreaField(parent)
-		self.txt_postcode= cEditAreaField(parent)
-		self.txt_for = cEditAreaField(parent)
-		#self.txt_copyto = cEditAreaField(parent)
-
-		cb_med = self._makeCheckBox( parent, "medications") 
-		cb_fhx = self._makeCheckBox( parent, "family history")
-		cb_active = self._makeCheckBox(parent, "active problems")
-		cb_past = self._makeCheckBox( parent, "past problems")
-		cb_social = self._makeCheckBox(parent, "social history")
-		cb_habits = self._makeCheckBox( parent, "habits")
-		lines.append(self.txt_who)
-		lines.append(self.txt_org)
-		lines.append(self.txt_street1)
-		lines.append(self.txt_street2)
-		lines.append(self.txt_suburb)
-		lines.append(self.txt_postcode)
-		lines.append(self.txt_for)
-		lines.append(self._getCheckBoxSizer( [ cb_med, cb_fhx, cb_social]) )
-		lines.append(self._getCheckBoxSizer( [ cb_active, cb_past, cb_habits]) )
-
-		#lines.append(self.txt_progress)
-		lines.append(self._make_standard_buttons(parent))
-		self.input_fields = {
-			"name": self.txt_who,
-			"org" : self.txt_org,
-			"street1": self.txt_street1,
-			"street2": self.txt_street2,
-			"suburb": self.txt_suburb,
-			"postcode" : self.txt_postcode,
-			"for": self.txt_for,
-			"include Meds": cb_med,
-			"include Family Hx" : cb_fhx,
-			"include Active Problems": cb_active,
-			"include Past Problems" : cb_past,
-			"include Social Hx": cb_social,
-			"include Habits": cb_habits
-		}
-		#return lines
-		return self._makeExtraColumns( parent, lines)
+	def _define_fields (self, parent):
+		self.fld_specialty = gmPhraseWheel.cPhraseWheel (
+			parent = parent,
+			id = -1,
+			aMatchProvider = gmDemographicRecord.OccupationMP (),
+			style = wxSIMPLE_BORDER
+			)
+		#_decorate_editarea_field (self.fld_specialty)
+		self._add_field (
+			line = 1,
+			pos = 1,
+			widget = self.fld_specialty,
+			weight = 1
+			)
+		self.fld_name = gmPhraseWheel.cPhraseWheel (
+			parent = parent,
+			id = -1,
+			aMatchProvider = gmDemographicRecord.OccupationMP (),
+			style = wxSIMPLE_BORDER
+			)
+		#_decorate_editarea_field (self.fld_name)
+		self._add_field (
+			line = 2,
+			pos = 1,
+			widget = self.fld_name,
+			weight = 1
+			)
+		self.fld_address = gmPhraseWheel.cPhraseWheel (
+			parent = parent,
+			id = -1,
+			aMatchProvider = gmDemographicRecord.OccupationMP (),
+			style = wxSIMPLE_BORDER
+			)
+		#_decorate_editarea_field (self.fld_address)
+		self._add_field (
+			line = 3,
+			pos = 1,
+			widget = self.fld_address,
+			weight = 1
+			)
+		self.fld_specialty.setDependent (self.fld_name, "occupation")
+		self.fld_name.setDependent (self.fld_address, "identity")
+		# flags line
+		self.fld_med = wxCheckBox (parent, -1, _("Meds"), style=wxNO_BORDER)
+		self._add_field (
+			line = 4,
+			pos = 1,
+			widget = self.fld_med,
+			weight = 1
+			)
+		self.fld_fhx = wxCheckBox (parent, -1, _("Fam Hx"), style=wxNO_BORDER)
+		self._add_field (
+			line = 4,
+			pos = 2,
+			widget = self.fld_fhx,
+			weight = 1
+			)
+		self.fld_active = wxCheckBox (parent, -1, _("Active Hx"), style=wxNO_BORDER)
+		self._add_field (
+			line = 4,
+			pos = 3,
+			widget = self.fld_active,
+			weight = 1
+			)
+		self.fld_past = wxCheckBox (parent, -1, _("Past Hx"), style=wxNO_BORDER)
+		self._add_field (
+			line = 4,
+			pos = 4,
+			widget = self.fld_past,
+			weight = 1
+			)
+		self.fld_social = wxCheckBox (parent, -1, _("Social Hx"), style=wxNO_BORDER)
+		self._add_field (
+			line = 4,
+			pos = 5,
+			widget = self.fld_social,
+			weight = 1
+			)
+		self.fld_habits = wxCheckBox (parent, -1, _("Habits"), style=wxNO_BORDER)
+		self._add_field (
+			line = 4,
+			pos = 6,
+			widget = self.fld_habits,
+			weight = 1
+			)
+		self.fld_text = wxTextCtrl (parent, -1, style= wxTE_MULTILINE)
+		self._add_field (
+			line = 5,
+			pos = 1,
+			widget = self.fld_text,
+			weight = 1)
+		# final line
+		self._add_field(
+			line = 6,
+			pos = 1,
+			widget = self._make_standard_buttons(parent),
+			weight = 1
+		)
+		return 1
 
 	def _save_data(self):
 		return 1
@@ -2320,8 +2363,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.62  2004-03-05 11:22:35  ncq
-# - import from Gnumed.<pkg>
+# Revision 1.63  2004-03-09 13:46:54  ihaywood
+# edit area now has resizable lines
+# referrals loads with this feature
+# BUG: the first line is bigger than the rest: why??
 #
 # Revision 1.61  2004/02/25 09:46:22  ncq
 # - import from pycommon now, not python-common
