@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.52 $
+-- $Revision: 1.53 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -246,16 +246,11 @@ insert into clin_diag (
 );
 
 -- codes
-insert into lnk_code2narr (
-	fk_narrative,
-	code,
-	xfk_coding_system
-) values (
-	currval('clin_narrative_pk_seq'),
+select add_coded_term (
+	'?contaminated laceration L forearm',
 	'T11.1',
 	'ICD-10-GM 2004'
 );
-
 
 -- given Td booster shot
 insert into vaccination (
@@ -492,22 +487,14 @@ insert into clin_diag (
 );
 
 -- codes
-insert into lnk_code2narr (
-	fk_narrative,
-	code,
-	xfk_coding_system
-) values (
-	currval('clin_narrative_pk_seq'),
+select add_coded_term (
+	'postop infected laceration L forearm',
 	'T79.3',
 	'ICD-10-GM 2004'
 );
 
-insert into lnk_code2narr (
-	fk_narrative,
-	code,
-	xfk_coding_system
-) values (
-	currval('clin_narrative_pk_seq'),
+select add_coded_term (
+	'postop infected laceration L forearm',
 	'B97.8!',
 	'ICD-10-GM 2004'
 );
@@ -652,11 +639,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.52 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.53 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.52  2005-03-21 20:11:36  ncq
+-- Revision 1.53  2005-04-08 10:01:28  ncq
+-- - adapt to changed coding of narrative
+--
+-- Revision 1.52  2005/03/21 20:11:36  ncq
 -- - adjust family history
 --
 -- Revision 1.51  2005/03/20 18:10:30  ncq
