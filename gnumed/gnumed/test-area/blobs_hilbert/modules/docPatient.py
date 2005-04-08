@@ -5,7 +5,7 @@
 @copyright: GPL
 """
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/blobs_hilbert/modules/Attic/docPatient.py,v $
-__version__	= "$Revision: 1.9 $"
+__version__	= "$Revision: 1.10 $"
 __author__	= "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #=======================================================================================
 import os.path, string, fileinput, sys
@@ -153,8 +153,8 @@ class cPatient:
 		cursor = aConn.cursor()
 
 		# first check out whether the patient is already in the database
-		#cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s' LIMIT 2" % (self.firstnames, self.lastnames, self.dob, self.gender)
-		cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s'" % (self.firstnames, self.lastnames, self.dob, self.gender)
+		#cmd = "SELECT pk_identity FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s' LIMIT 2" % (self.firstnames, self.lastnames, self.dob, self.gender)
+		cmd = "SELECT pk_identity FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s'" % (self.firstnames, self.lastnames, self.dob, self.gender)
 		try:
 			cursor.execute(cmd)
 		except:
@@ -220,7 +220,7 @@ class cPatient:
 		cursor = aConn.cursor()
 
 		# get matching patients
-		cmd = "SELECT id FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s'" % (self.firstnames, self.lastnames, self.dob, self.gender)
+		cmd = "SELECT pk_identity FROM v_basic_person WHERE firstnames='%s' AND lastnames='%s' AND dob='%s' AND gender='%s'" % (self.firstnames, self.lastnames, self.dob, self.gender)
 		cursor.execute(cmd)
 		pat_ids = cursor.fetchall()
 		_log.Log(gmLog.lData, "matching patient ID(s): " + str(pat_ids))
