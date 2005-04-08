@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/emr_browser/gmClinicalRecord.py.old,v $
-# $Id: gmClinicalRecord.py.old,v 1.1 2004-12-21 23:52:59 sjtan Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmClinicalRecord.py.old,v 1.2 2005-04-08 10:03:03 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1242,7 +1242,7 @@ where
 		# ask user whether to attach or not
 		cmd = """
 			select title, firstnames, lastnames, gender, dob
-			from v_basic_person	where i_id=%s"""
+			from v_basic_person	where pk_identity=%s"""
 		pat = gmPG.run_ro_query('personalia', cmd, None, self.id_patient)
 		if (pat is None) or (len(pat) == 0):
 			_log.Log(gmLog.lErr, 'cannot access patient [%s]' % self.id_patient)
@@ -1617,7 +1617,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py.old,v $
-# Revision 1.1  2004-12-21 23:52:59  sjtan
+# Revision 1.2  2005-04-08 10:03:03  ncq
+# - i_id -> pk_identity
+#
+# Revision 1.1  2004/12/21 23:52:59  sjtan
 #
 # diff shows the difference b/n latest cvs and proposed changes to have working menu items.
 #
