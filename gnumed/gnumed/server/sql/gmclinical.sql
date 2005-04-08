@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.157 $
+-- $Revision: 1.158 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -380,40 +380,57 @@ comment on column clin_narrative.is_aoe is
 	'if TRUE the narrative stores an Assessment of Encounter
 	 which also implies soap_cat = a';
 
---alter table clin_episode
---add constraint rfi_fk_clin_narrative
---	foreign key (fk_clin_narrative)
---		references clin_narrative(pk)
---		on update cascade
---		on delete restrict
---		deferrable
---		initially deferred
---;
-
 -- --------------------------------------------
-create table lnk_code2narr (
+-- coded narrative
+create table coded_narrative (
 	pk serial primary key,
-	fk_narrative integer
+	term text
 		not null
-		references clin_narrative(pk)
-		on update cascade
-		on delete cascade,
+		check (trim(term) != ''),
 	code text
-		not null,
+		not null
+		check (trim(code) != ''),
 	xfk_coding_system text
-		not null,
-	unique (fk_narrative, code, xfk_coding_system)
+		not null
+		check (trim(code) != ''),
+	unique (term, code, xfk_coding_system)
 ) inherits (audit_fields);
 
-select add_table_for_audit('lnk_code2narr');
-select add_x_db_fk_def('lnk_code2narr', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
+select add_table_for_audit('coded_narrative');
+select add_x_db_fk_def('coded_narrative', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
 
-comment on table lnk_code2narr is
-	'links codes to narrative items';
-comment on column lnk_code2narr.code is
+comment on table coded_narrative is
+	'associates codes with text snippets which may be in use in clinical tables';
+comment on column coded_narrative.term is
+	'the text snippet that is to be coded';
+comment on column coded_narrative.code is
 	'the code in the coding system';
-comment on column lnk_code2narr.xfk_coding_system is
-	'the coding system used to code the narrative item';
+comment on column coded_narrative.xfk_coding_system is
+	'the coding system used to code the text snippet';
+
+--create table lnk_code2narr (
+--	pk serial primary key,
+--	fk_narrative integer
+--		not null
+--		references clin_narrative(pk)
+--		on update cascade
+--		on delete cascade,
+--	code text
+--		not null,
+--	xfk_coding_system text
+--		not null,
+--	unique (fk_narrative, code, xfk_coding_system)
+--) inherits (audit_fields);
+
+--select add_table_for_audit('lnk_code2narr');
+--select add_x_db_fk_def('lnk_code2narr', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
+
+--comment on table lnk_code2narr is
+--	'links codes to narrative items';
+--comment on column lnk_code2narr.code is
+--	'the code in the coding system';
+--comment on column lnk_code2narr.xfk_coding_system is
+--	'the coding system used to code the narrative item';
 
 -- --------------------------------------------
 -- general FH storage
@@ -1214,11 +1231,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.157 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.158 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.157  2005-03-31 20:10:47  ncq
+-- Revision 1.158  2005-04-08 10:00:46  ncq
+-- - cleanup
+-- - remove lnk_code2narr, add coded_narrative instead
+--
+-- Revision 1.157  2005/03/31 20:10:47  ncq
 -- - missing () in check constraint
 --
 -- Revision 1.156  2005/03/31 17:52:18  ncq
