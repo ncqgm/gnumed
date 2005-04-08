@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -49,27 +49,12 @@ class cDiag(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def get_codes(self):
 		"""
-			Retrieves codes linked to *this* diagnosis
+			Retrieves codes linked to this diagnosis
 		"""
-		# Note: caching won't work without having a mechanism
-		# to evict the cache when the backend changes
-		cmd = "select code, coding_system from v_pat_diag_codes where pk_diag=%s"
-		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_obj)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get codes linked to diagnosis [%s] (%s)' % (self._payload[self._idx['diagnosis']], self.pk_obj))
-			return []
-		return rows
-	#--------------------------------------------------------
-	def get_possible_codes(self):
-		"""
-			Retrieves codes linked to *any* diagnosis of this name
-		"""
-		# Note: caching won't work without a having a mechanism
-		# to evict the cache when the backend changes
 		cmd = "select code, coding_system from v_codes4diag where diagnosis=%s"
 		rows = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['diagnosis']])
 		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get codes for diagnosis [%s]' % self._payload[self._idx['diagnosis']])
+			_log.Log(gmLog.lErr, 'error getting codes for diagnosis [%s] (%s)' % (self._payload[self._idx['diagnosis']], self.pk_obj))
 			return []
 		return rows
 	#--------------------------------------------------------
@@ -79,8 +64,8 @@ class cDiag(gmClinItem.cClinItem):
 		"""
 		# insert new code
 		queries = []
-		cmd = """insert into lnk_code2diag (fk_diag, code, xfk_coding_system) values (%s, %s, %s)"""
-		queries.append((cmd, [self._payload[self._idx['pk_diag']], code, coding_system]))
+		cmd = "select add_coded_term (%s, %s, %s)"
+		queries.append((cmd, [self._payload[self._idx['diagnosis']], code, coding_system]))
 		result, msg = gmPG.run_commit('historica', queries, True)
 		if result is None:
 			return (False, msg)
@@ -120,10 +105,10 @@ class cNarrative(gmClinItem.cClinItem):
 		"""
 		# Note: caching won't work without having a mechanism
 		# to evict the cache when the backend changes
-		cmd = "select code, xfk_coding_system from lnk_code2narr where fk_narrative=%s"
-		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_obj)
+		cmd = "select code, xfk_coding_system from coded_narrative where term=%s"
+		rows = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['narrative']])
 		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get codes linked to narrative [%s]' % self.pk_obj)
+			_log.Log(gmLog.lErr, 'error getting codes for narrative [%s]' % self.pk_obj)
 			return []
 		return rows
 	#--------------------------------------------------------
@@ -133,8 +118,8 @@ class cNarrative(gmClinItem.cClinItem):
 		"""
 		# insert new code
 		queries = []
-		cmd = """insert into lnk_code2narr (fk_narrative, code, xfk_coding_system) values (%s, %s, %s)"""
-		queries.append((cmd, [self.pk_obj, code, coding_system]))
+		cmd = "select add_coded_term (%s, %s, %s)"
+		queries.append((cmd, [self._payload[self._idx['narrative']], code, coding_system]))
 		result, msg = gmPG.run_commit('historica', queries, True)
 		if result is None:
 			return (False, msg)
@@ -306,7 +291,6 @@ if __name__ == '__main__':
 		print field, ':', diagnose[field]
 	print "updatable:", diagnose.get_updatable_fields()
 	print "codes:", diagnose.get_codes()
-	print "possible codes:", diagnose.get_possible_codes()
 	#print "adding code..."
 	#diagnose.add_code('Test code', 'Test coding system')
 	#print "codes:", diagnose.get_codes()
@@ -331,7 +315,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.12  2005-01-31 09:21:48  ncq
+# Revision 1.13  2005-04-08 13:27:54  ncq
+# - adapt get_codes()
+#
+# Revision 1.12  2005/01/31 09:21:48  ncq
 # - use commit2()
 # - add delete_clin_narrative()
 #
