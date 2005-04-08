@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.138 2005-04-03 20:14:04 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.139 2005-04-08 09:59:34 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -105,9 +105,19 @@ drop index idx_clin_medication;
 create index idx_clin_medication on clin_medication(discontinued) where discontinued is not null;
 \set ON_ERROR_STOP 1
 
-
 -- =============================================
 -- encounters
+
+\unset ON_ERROR_STOP
+drop index idx_pat_per_encounter on clin_encounter(fk_patient);
+drop index idx_encounter_started on clin_encounter(started);
+drop index idx_encounter_affirmed on clin_encounter(last_affirmed);
+\set ON_ERROR_STOP 1
+
+create index idx_pat_per_encounter on clin_encounter(fk_patient);
+create index idx_encounter_started on clin_encounter(started);
+create index idx_encounter_affirmed on clin_encounter(last_affirmed);
+
 
 \unset ON_ERROR_STOP
 drop trigger tr_set_encounter_timezone on clin_encounter;
@@ -180,26 +190,22 @@ from
 where
 	ce1.fk_type = et.pk
 		and
-	ce1.id = (
-		select max(id)
+	ce1.started = (
+		-- find max of started in ...
+		select max(started)
 		from clin_encounter ce2
 		where
-			ce2.fk_patient = ce1.fk_patient
-				and
-			ce2.started = (
-				select max(started)
+			ce2.last_affirmed = (
+				-- ... max of last_affirmed for patient
+				select max(last_affirmed)
 				from clin_encounter ce3
 				where
-					ce3.fk_patient = ce2.fk_patient
-						and
-					ce3.last_affirmed = (
-						select max(last_affirmed)
-						from clin_encounter ce4
-						where ce4.fk_patient = ce3.fk_patient
-					)
+					ce3.fk_patient = ce1.fk_patient
 			)
+		limit 1
 	)
 ;
+
 -- =============================================
 -- episodes stuff
 
@@ -1113,6 +1119,32 @@ create trigger at_curr_encounter_upd
 -- should really be "for each statement" but that isn't supported yet by PostgreSQL
 
 -- =============================================
+-- coded narrative
+\unset ON_ERROR_STOP
+drop index idx_coded_terms;
+drop function add_coded_term(text, text, text);
+\set ON_ERROR_STOP 1
+
+create index idx_coded_terms on coded_narrative(term);
+
+create function add_coded_term(text, text, text) returns boolean as '
+declare
+	_term alias for $1;
+	_code alias for $2;
+	_system alias for $3;
+	_tmp text;
+begin
+	select into _tmp ''1'' from coded_narrative
+		where term = _term and code = _code and xfk_coding_system = _system;
+	if found then
+		return True;
+	end if;
+	insert into coded_narrative (term, code, xfk_coding_system)
+		values (_term, _code, _system);
+	return True;
+end;' language 'plpgsql';
+
+-- =============================================
 -- diagnosis views
 \unset ON_ERROR_STOP
 drop view v_pat_diag;
@@ -1121,8 +1153,6 @@ drop view v_pat_diag;
 create view v_pat_diag as
 select
 	vpi.pk_patient as pk_patient,
-	cd.pk as pk_diag,
-	cd.fk_narrative as pk_narrative,
 	cn.clin_when as diagnosed_when,
 	cn.narrative as diagnosis,
 	cd.laterality as laterality,
@@ -1130,6 +1160,8 @@ select
 	cd.is_active as is_active,
 	cd.is_definite as is_definite,
 	cd.clinically_relevant as clinically_relevant,
+	cd.pk as pk_diag,
+	cd.fk_narrative as pk_narrative,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	cd.xmin as xmin_clin_diag,
@@ -1146,47 +1178,29 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
--- this view has a row for each code-per-diagnosis-per-patient,
--- hence one patient-diagnosis can appear several times, namely
--- once per associated code
-\unset ON_ERROR_STOP
-drop view v_pat_diag_codes;
-\set ON_ERROR_STOP 1
+comment on view v_pat_diag is
+	'denormalizing view over diagnoses per patient';
 
--- FIXME: patient missing
-create view v_pat_diag_codes as
-select
-	vpd.pk_diag as pk_diag,
-	vpd.diagnosis as diagnosis,
-	lc2n.code as code,
-	lc2n.xfk_coding_system as coding_system
-from
-	v_pat_diag vpd,
-	lnk_code2narr lc2n
-where
-	lc2n.fk_narrative = vpd.pk_narrative
-;
-
--- this view is a lookup table for locally used
--- code/diagnosis associations irrespective of
--- patient association, hence any diagnosis-code
--- combination will appear only once
+-- -----------------------
 \unset ON_ERROR_STOP
 drop view v_codes4diag;
 \set ON_ERROR_STOP 1
 
 create view v_codes4diag as
 select distinct on (diagnosis, code, xfk_coding_system)
-	vpd.diagnosis as diagnosis,
-	lc2n.code as code,
-	lc2n.xfk_coding_system as coding_system
+	con.term as diagnosis,
+	con.code as code,
+	con.xfk_coding_system as coding_system
 from
-	v_pat_diag vpd,
-	lnk_code2narr lc2n
+	coded_narrative con
 where
-	lc2n.fk_narrative = vpd.pk_narrative
+	exists(select 1 from v_pat_diag vpd where vpd.diagnosis = con.term)
 ;
 
+comment on view v_codes4diag is
+	'a lookup view for all the codes associated with a
+	 diagnosis, a diagnosis can appear several times,
+	  namely once per associated code';
 
 -- =============================================
 -- types of narrative
@@ -1883,8 +1897,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, lnk_type2item_pk_seq
 	, clin_narrative
 	, clin_narrative_pk_seq
-	, lnk_code2narr
-	, lnk_code2narr_pk_seq
+	, coded_narrative
+	, coded_narrative_pk_seq
 	, clin_hx_family
 	, clin_hx_family_pk_seq
 	, clin_diag
@@ -1963,7 +1977,6 @@ grant select on
 	, v_results4lab_req
 	, v_test_org_profile
 	, v_pat_diag
-	, v_pat_diag_codes
 	, v_codes4diag
 	, v_pat_rfe
 	, v_pat_aoe
@@ -1979,11 +1992,18 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.138 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.139 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.138  2005-04-03 20:14:04  ncq
+-- Revision 1.139  2005-04-08 09:59:34  ncq
+-- - dramatically speed up (read: make usable) v_most_recent_encounters
+-- - add three indices on clin_encounter for v_most_recent_encounters
+-- - index on coded_narrative
+-- - function add_coded_term()
+-- - rewrite diagnosis views based on coded_narrative
+--
+-- Revision 1.138  2005/04/03 20:14:04  ncq
 -- - soap_cat_ranks grant
 --
 -- Revision 1.137  2005/03/31 18:02:35  ncq
