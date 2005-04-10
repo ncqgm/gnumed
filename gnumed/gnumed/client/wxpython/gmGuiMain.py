@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.186 2005-04-03 20:12:12 ncq Exp $
-__version__ = "$Revision: 1.186 $"
+# $Id: gmGuiMain.py,v 1.187 2005-04-10 17:12:09 cfmoro Exp $
+__version__ = "$Revision: 1.187 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -24,7 +24,7 @@ from wxPython.wx import *
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
-from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser
+from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographics
 from Gnumed.business import gmPerson
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -54,6 +54,7 @@ ID_HELP = wx.wxNewId ()
 ID_NOTEBOOK = wx.wxNewId ()
 ID_LEFTBOX = wx.wxNewId ()
 ID_EXPORT_EMR = wx.wxNewId()
+ID_CREATE_PATIENT = wx.wxNewId()
 #==============================================================================
 
 icon_serpent = \
@@ -235,6 +236,12 @@ class gmTopLevelFrame(wx.wxFrame):
 		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export this patient's EMR as a text file"))
 		EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
 		self.mainmenu.Append(menu_emr, _("&EMR"))
+		
+		# menu "Patient"
+		menu_patient = wxMenu()
+		menu_patient.Append(ID_CREATE_PATIENT, _('Create new'), _("create new patient"))
+		EVT_MENU(self, ID_CREATE_PATIENT, self.OnCreatePatient)
+		self.mainmenu.Append(menu_patient, _("&Patient"))		
 
 		# menu "View"
 		self.menu_view = wxMenu()
@@ -317,6 +324,12 @@ class gmTopLevelFrame(wx.wxFrame):
 		Export selected patient EMR to a file
 		"""
 		gmEMRBrowser.export_emr_to_ascii(parent=self)
+	#----------------------------------------------
+	def OnCreatePatient(self, event):
+		"""
+		Launch create patient wizard
+		"""
+		gmDemographics.NewPatientWizard(parent=self)		
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -667,7 +680,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.186  2005-04-03 20:12:12  ncq
+# Revision 1.187  2005-04-10 17:12:09  cfmoro
+# Added create patient menu option
+#
+# Revision 1.186  2005/04/03 20:12:12  ncq
 # - better wording in status line
 # - add menu "EMR" with "export" item and use gmEMRBrowser.export_emr_to_ascii()
 #
