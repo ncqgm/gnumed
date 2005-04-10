@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.60 2005-03-20 17:49:45 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmDemographics.py,v 1.61 2005-04-10 12:09:17 cfmoro Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,9 +20,10 @@ import cPickle, zlib, shutil, time, string, sys, os
 from mx import DateTime
 import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
+import wxPython.wizard
 
 # GnuMed specific
-from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers
+from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput
 from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
 from Gnumed.business import gmDemographicRecord, gmPerson
 
@@ -156,7 +157,9 @@ class SmartCombo (wx.ComboBox):
 			self.SetSelection (self.FindString (self.pam[value]))
 
 	def GetValue (self):
-		return self.map[self.GetValue ()]
+		# Call parent class method (avoid recursive loop using validator)
+		# and return empty string when no option was selected
+		return self.map.get(wx.ComboBox.GetValue (self),'')
 		
 		
 class ExtIDPanel:
@@ -247,7 +250,7 @@ class Demographics(wx.Panel):
 		#  --------------------------------------
 		# | patient search multiple results list |
 		# |--------------------------------------
-		# |      patient data entry are          |
+		# |	  patient data entry are		  |
 		#  --------------------------------------
 		self.main_splitWindow = wx.SplitterWindow( self, -1, point = wx.DefaultPosition,  size = wx.DefaultSize, style=wx.SP_3DSASH)
 		self.patientDetailWin = DemographicDetailWindow(self.main_splitWindow)
@@ -461,7 +464,7 @@ class PatientListWindow(wx.ListCtrl):
 		wx.EndBusyCursor ()
 
 	def _on_Popup_AddPerson(self, event):
-	       print 'I\'m adding a person.....'
+		   print 'I\'m adding a person.....'
 		#self.log.WriteText("Popup one\n")
 
 	def _on_Popup_AddAddressForPerson(self, event):
@@ -504,11 +507,11 @@ class PatientListWindow(wx.ListCtrl):
 
 	def _on_SelectFontPatientList(self, evt):
 		self.curFont = self.patientlist.GetFont()
-        	self.curClr = wx.BLACK
+		self.curClr = wx.BLACK
 		print 'Selecting font list'
 		data = wx.FontData()
 		data.EnableEffects(True)
-		data.SetColour(self.curClr)         # set colour
+		data.SetColour(self.curClr)		 # set colour
 		data.SetInitialFont(self.curFont)
 
 		dlg = wx.FontDialog(self, data)
@@ -729,15 +732,15 @@ class DemographicDetailWindow(wx.Panel):
 		# | DOB: __________  marital status: ___________ |
 		# | occupation: ________________________________ |
 		# | country of birth: __________________________ |
-		# |           Next Of Kin                        |
+		# |		   Next Of Kin						|
 		# | details: ___________________________________ |
-		# |          ___________________________________ |
+		# |		  ___________________________________ |
 		# | relationship: ______________________________ |
-		# |       .-------------------.                  |
-		# |       | browse DB for NOK |                  |
-		# |       `-------------------'                  |
-		# |         External IDs                         |
-		# |                                              |
+		# |	   .-------------------.				  |
+		# |	   | browse DB for NOK |				  |
+		# |	   `-------------------'				  |
+		# |		 External IDs						 |
+		# |											  |
 		#  ----------------------------------------------
 		#-----------------------------------------------------------
 
@@ -1039,17 +1042,160 @@ class DemographicDetailWindow(wx.Panel):
 			self.contacts_widgets[c['id_type']].SetValue (c['url'])		   
 		self.__update_addresses()
 		self.__update_nok()
+#============================================================
+class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
+	"""
+	Wizard page for entering patient's basic demographic information
+	"""
+	#--------------------------------------------------------
+	def __init__(self, parent, title):
+		"""
+		Creates a new instance of BasicPatDetailsPage
+		@param parent - The parent widget
+		@type parent - A wxWindow instance
+		@param tile - The title of the page
+		@type title - A StringType instance				
+		"""
+		wxPython.wizard.wxWizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
+		
+		gendermap = {
+			_('Male'): 'm',
+			_("Female"): 'f',
+			_("Unknown"): '?',
+			_('Transexual to Male'): 'tm',
+			_('Transexual to Female'): 'tf',
+			_('Hermaphrodite'): 'h'
+		}
+		
+		# FIXME: configure, attach matchers
+		# instantiate widgets
+		STT_surname = wx.StaticText(self, -1, _('Surname'))
+		STT_surname.SetForegroundColour('red')
+		self.PRW_surname = gmPhraseWheel.cPhraseWheel(self, -1,
+		validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))
+		self.PRW_surname.SetToolTipString(_("The surname of the patient's active name"))
+		STT_name = wx.StaticText(self, -1, _('Name'))
+		STT_name.SetForegroundColour('red')
+		self.PRW_name = gmPhraseWheel.cPhraseWheel(self, -1,
+		validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))
+		self.PRW_name.SetToolTipString(_("The patient's active name"))
+		STT_nick = wx.StaticText(self, -1, _('Nick name'))
+		self.PRW_nick = gmPhraseWheel.cPhraseWheel(self, -1)
+		self.PRW_nick.SetToolTipString(_("The patient's nick name"))
+		STT_dob = wx.StaticText(self, -1, _('Date of birth'))
+		STT_dob.SetForegroundColour('red')
+		self.TTC_dob = gmDateTimeInput.gmDateInput(self, -1,
+		validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))
+		self.TTC_dob.SetToolTipString(_("The patient's date of birth (dob)"))
+		STT_gender = wx.StaticText(self, -1, _('Gender'))
+		STT_gender.SetForegroundColour('red')		
+		self.SCB_gender = SmartCombo(self, gendermap)
+		self.SCB_gender.SetValidator(gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))		
+		self.SCB_gender.SetToolTipString(_("The patient's gender"))
+		STT_zip_code = wx.StaticText(self, -1, _('Zip code'))
+		self.TTC_zip_code = wx.TextCtrl(self, -1)
+		self.TTC_zip_code.SetToolTipString(_("The Zip code of the primary/home address"))
+		STT_street = wx.StaticText(self, -1, _('Street'))
+		self.PRW_street = gmPhraseWheel.cPhraseWheel(self, -1)
+		self.PRW_street.SetToolTipString(_("The street of the primary/home address"))
+		STT_town = wx.StaticText(self, -1, _('Town'))
+		self.PRW_town = gmPhraseWheel.cPhraseWheel(self, -1)
+		self.PRW_town.SetToolTipString(_("The town of the primary/home address"))
+		STT_phone = wx.StaticText(self, -1, _('Phone'))
+		self.TTC_phone = wx.TextCtrl(self, -1,
+		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
+		self.TTC_phone.SetToolTipString(_("The the primary/home phone number"))
+		  
+		# layout input widgets
+		SZR_input = wx.FlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
+		SZR_input.AddGrowableCol(1)
+		SZR_input.Add(STT_surname, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_surname, 1, wx.EXPAND)
+		SZR_input.Add(STT_name, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_name, 1, wx.EXPAND)  
+		SZR_input.Add(STT_nick, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)  		
+		SZR_input.Add(STT_dob, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)	
+		SZR_input.Add(STT_gender, 0, wx.SHAPED)
+		SZR_input.Add(self.SCB_gender, 1, wx.EXPAND)					
+		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)	
+		SZR_input.Add(STT_street, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)	
+		SZR_input.Add(STT_town, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)	
+		SZR_input.Add(STT_phone, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
+		
+		# layout page
+		SZR_main = gmGuiHelpers.makePageTitle(self, title)  
+		SZR_main.Add(SZR_input, 1, wx.EXPAND)
+#============================================================
+class NewPatientWizard:
+	"""
+	Wizard to create a new patient.
+	"""
+	#--------------------------------------------------------
+	def __init__(self, parent):
+		"""
+		Creates a new instance of NewPatientWizard
+		@param parent - The parent widget
+		@type parent - A wxWindow instance
+		"""
+		self.__id_wiz = wx.NewId()
+		self.__parent = parent
 
+		self.__do_layout()
+		  				
+		if self.__wizard.RunWizard(self.basic_pat_details):			
+			# dump data to backend
+			msg = _('Code to validate and dump data to backend coming soon...')
+			gmGuiHelpers.gm_show_warning(msg, _('new patient wizard'), gmLog.lWarn)
+		self.__wizard.Destroy()				
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __do_layout(self):
+		"""Arrange widgets.
 
+		left: problem list (mix of issues and episodes)
+		right: soap editors
+		"""
+		# Create the wizard and the pages
+		self.__wizard = wxPython.wizard.wxWizard(self.__parent, self.__id_wiz, _('New patient wizard')) #images.getWizTest1Bitmap()
+		self.__wizard.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
+		self.basic_pat_details = BasicPatDetailsPage(self.__wizard, _('Basic patient details'))
+		self.__wizard.FitToPage(self.basic_pat_details)
+#============================================================
+class TestPanel(wx.Panel):   
+	"""
+	Utility class to test the new patient wizard.
+	"""
+	#--------------------------------------------------------
+	def __init__(self, parent, id):
+		"""
+		Create a new instance of TestPanel.
+		@param parent The parent widget
+		@type parent A wxWindow instance
+		"""
+		wx.Panel.__init__(self, parent, id)
+		wizard = NewPatientWizard(self)
 #============================================================
 if __name__ == "__main__":
 	from Gnumed.pycommon import gmGuiBroker
-	app = wx.PyWidgetTester(size = (800, 600))
-	app.SetWidget(PatientsPanel, -1)
-	app.MainLoop()
+	app1 = wx.PyWidgetTester(size = (800, 600))
+	app1.SetWidget(TestPanel, -1)
+	app1.MainLoop()
+	app2 = wx.PyWidgetTester(size = (800, 600))
+	app2.SetWidget(DemographicDetailWindow, -1)
+	app2.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.60  2005-03-20 17:49:45  ncq
+# Revision 1.61  2005-04-10 12:09:17  cfmoro
+# GUI implementation of the first-basic (wizard) page for patient details input
+#
+# Revision 1.60  2005/03/20 17:49:45  ncq
 # - improve split window handling, cleanup
 #
 # Revision 1.59  2005/03/06 09:21:08  ihaywood

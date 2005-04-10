@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.17 2005-03-06 09:21:08 ihaywood Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmGuiHelpers.py,v 1.18 2005-04-10 12:09:16 cfmoro Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -156,9 +156,129 @@ def gm_icon (name):
 	fname = os.path.join(gmGuiBroker.GuiBroker ()['gnumed_dir'], 'bitmaps', '%s.png' % name)
 	img = wxImage(fname, wxBITMAP_TYPE_ANY)
 	return wxBitmapFromImage(img)
+#----------------------------------------------------------------------
+def makePageTitle(wizPg, title):
+	"""
+	Utility function to create the main sizer of a wizard's page.
+	
+	@param wizPg The wizard page widget
+	@type wizPg A wxWizardPageSimple instance	
+	@param title The wizard page's descriptive title
+	@type title A StringType instance		
+	"""
+	sizer = wxBoxSizer(wxVERTICAL)
+	wizPg.SetSizer(sizer)
+	title = wxStaticText(wizPg, -1, title)
+	title.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD))
+	sizer.AddWindow(title, 0, wxALIGN_CENTRE|wxALL, 2)
+	sizer.AddWindow(wxStaticLine(wizPg, -1), 0, wxEXPAND|wxALL, 2)
+	return sizer	
+#============================================================
+class cTextObjectValidator(wxPyValidator):
+	"""
+	This validator is used to ensure that the user has entered any value
+	into the input object (wxTextControl, gmPhraseWheel, gmDateInput,
+	wxCombo). Any wxWindow control with a GetValue method returning
+	a StringType.
+	"""
+	#--------------------------------------------------------
+	def __init__(self, required = True, only_digits = False):
+		"""
+		Standard constructor, defining the behaviour of the validator.
+		@param required - When true, the input text control must be filled
+		@type required - BooleanType
+		
+		@param only_digits - When true, only digits are valid entries
+		@type only_digits - BooleanType
+		"""
+		wxPyValidator.__init__(self)
+		
+		self.__required = required
+		self.__only_digits = only_digits
+		if self.__only_digits:
+			EVT_CHAR(self, self.OnChar)
+	#--------------------------------------------------------
+	def Clone(self):
+		"""
+		Standard cloner.
+		Note that every validator must implement the Clone() method.
+		"""
+		return cTextObjectValidator(self.__required, self.__only_digits)
+	#--------------------------------------------------------
+	def Validate(self):
+		"""
+		Validate the contents of the given text control.
+		"""
+		textCtrl = self.GetWindow()
+		text = textCtrl.GetValue()
+		
+		if len(text) == 0 and self.__required:
+			msg = _('A text object must contain some text!')
+			gm_show_error(msg, _('Required field'), gmLog.lErr)
+			textCtrl.SetBackgroundColour('pink')
+			textCtrl.SetFocus()
+			textCtrl.Refresh()
+			return False
+		elif self.__only_digits:
+			for char in text:
+				if not char in string.digits:
+					msg = _('A text object must contain only digits!')
+					gm_show_error(msg, _('Numeric field'), gmLog.lErr)
+					textCtrl.SetBackgroundColour('pink')
+					textCtrl.SetFocus()
+					textCtrl.Refresh()					
+					return False
+		else:
+			textCtrl.SetBackgroundColour(
+			wxSystemSettings_GetColour(wxSYS_COLOUR_WINDOW))
+			textCtrl.Refresh()
+			return True
+	#--------------------------------------------------------
+	def TransferToWindow(self):
+		""" Transfer data from validator to window.
+		The default implementation returns False, indicating that an error
+		occurred.  We simply return True, as we don't do any data transfer.
+		"""
+		return True # Prevent wxDialog from complaining.	
+	#--------------------------------------------------------
+	def TransferFromWindow(self):
+		""" Transfer data from window to validator.
+		The default implementation returns False, indicating that an error
+		occurred.  We simply return True, as we don't do any data transfer.
+		"""
+		# FIXME: workaround for Validate to be called when clicking a wizard's
+		# Finish button
+		return self.Validate()
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def OnChar(self, event):
+		"""
+		Callback function invoked on key press.
+		
+		@param event - The event object containing context information
+		@type event - wxEvent
+		"""
+		key = event.KeyCode()
+		if key < WXK_SPACE or key == WXK_DELETE or key > 255:
+			event.Skip()
+			return
+		if self.__only_digits and chr(key) in string.digits:
+			event.Skip()
+			return
+
+		if not wxValidator_IsSilent():
+			wxBell()
+
+		# Returning without calling even.Skip eats the event before it
+		# gets to the text control
+		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.17  2005-03-06 09:21:08  ihaywood
+# Revision 1.18  2005-04-10 12:09:16  cfmoro
+# GUI implementation of the first-basic (wizard) page for patient details input
+#
+# Revision 1.17  2005/03/06 09:21:08  ihaywood
 # stole a couple of icons from Richard's demo code
 #
 # Revision 1.16  2004/12/21 21:00:35  ncq
