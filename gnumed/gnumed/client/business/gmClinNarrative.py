@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.13 $"
+__version__ = "$Revision: 1.14 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -233,7 +233,7 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the patient ?
-	cmd = """select id_patient from v_pat_episodes where pk_episode=%s 
+	cmd = """select pk_patient from v_pat_episodes where pk_episode=%s 
 				 union 
 			 select pk_patient from v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
@@ -252,7 +252,7 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	cmd = "select currval('clin_narrative_pk_seq')"
 	queries.append((cmd, []))
 
-	successful, data = gmPG.run_commit2('historica', queries, extra_verbose=True)
+	successful, data = gmPG.run_commit2('historica', queries)
 	if not successful:
 		err, msg = data
 		return (False, msg)
@@ -315,7 +315,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.13  2005-04-08 13:27:54  ncq
+# Revision 1.14  2005-04-11 17:53:47  ncq
+# - id_patient -> pk_patient fix
+#
+# Revision 1.13  2005/04/08 13:27:54  ncq
 # - adapt get_codes()
 #
 # Revision 1.12  2005/01/31 09:21:48  ncq
