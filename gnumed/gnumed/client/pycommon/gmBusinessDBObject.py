@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.18 2005-03-20 16:49:56 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmBusinessDBObject.py,v 1.19 2005-04-11 17:55:10 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -198,6 +198,9 @@ class cBusinessDBObject:
 		self.pk_obj = aPK_obj
 		result = self.refetch_payload()
 		if result is True:
+			self.original_payload = {}
+			for field in self._idx.keys():
+				self.original_payload[field] = self._payload[self._idx[field]]
 			return True
 		if result is None:
 			raise gmExceptions.NoSuchBusinessObjectError, "[%s:%s]: cannot find instance" % (self.__class__.__name__, self.pk_obj)
@@ -337,9 +340,6 @@ class cBusinessDBObject:
 			_log.Log(gmLog.lErr, '[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
 			return False
 		self._payload = data[0]
-		self.original_payload = {}
-		for field in self._idx.keys():
-			self.original_payload[field] = self._payload[self._idx[field]]
 		return True
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
@@ -443,6 +443,10 @@ class cBusinessDBObject:
 			typ, val, tb = sys.exc_info() 
 			return (False, (1, val))
 		self._is_modified = False
+		# update to new "original" payload
+		self.original_payload = {}
+		for field in self._idx.keys():
+			self.original_payload[field] = self._payload[self._idx[field]]
 		return (True, None)
 	#----------------------------------------------------
 	def del_subtable (self, table, item):
@@ -505,7 +509,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.18  2005-03-20 16:49:56  ncq
+# Revision 1.19  2005-04-11 17:55:10  ncq
+# - update self.original_payload in the right places
+#
+# Revision 1.18  2005/03/20 16:49:56  ncq
 # - improve concurrency error handling docs
 #
 # Revision 1.17  2005/03/14 14:31:17  ncq
