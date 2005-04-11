@@ -45,16 +45,15 @@ Command line arguments:
  (< 2.5) and non-unicode compiled wxWidgets/wxPython libraries.
 --help, -h, or -?
  Well, show this help.
-
-License: GPL (details at http://www.gnu.org)
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.73 $"
+__version__ = "$Revision: 1.74 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
+__license__ = "GPL (details at http://www.gnu.org)"
 
 # standard modules
-import sys, os, os.path
+import sys, os, os.path, signal
 
 if __name__ != "__main__":
 	print "This shouldn't be used as a module !"
@@ -87,6 +86,8 @@ _log = None
 _cfg = None
 _email_logger = None
 gmLog = None
+_old_sig_hup = None
+_old_sig_term = None
 #==========================================================
 def setup_logging():
 	try:
@@ -181,6 +182,30 @@ def setup_cfg_file():
 			sys.exit(0)
 	global _cfg
 	_cfg = gmCfg.gmDefCfgFile
+#==========================================================
+def handle_sig_hup(signum, frame):
+	print "SIGHUP caught"
+	print signum
+	print frame
+	if _old_sig_hup in [None, signal.SIG_IGN]:
+		sys.exit(signal.SIGHUP)
+	else:
+		_old_sig_hup(signum, frame)
+#----------------------------------------------------------
+def handle_sig_term(signum, frame):
+	print "SIGTERM caught"
+	print signum
+	print frame
+	if _old_sig_term in [None, signal.SIG_IGN]:
+		sys.exit(signal.SIGTERM)
+	else:
+		_old_sig_term(signum, frame)
+#----------------------------------------------------------
+def setup_signal_handlers():
+	global _old_sig_hup
+	old_sig_hup = signal.signal(signal.SIGHUP, handle_sig_hup)
+	global _old_sig_term
+	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
 #==========================================================
 def get_resource_dir():
 	"""Detect resource directory base.
@@ -319,6 +344,8 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 	print __doc__
 	sys.exit(0)
 
+#setup_signal_handlers()
+
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
@@ -394,7 +421,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.73  2005-03-30 22:10:39  ncq
+# Revision 1.74  2005-04-11 18:02:34  ncq
+# - initial code to handle signals
+#
+# Revision 1.73  2005/03/30 22:10:39  ncq
 # - even more better logging ...
 #
 # Revision 1.72  2005/03/29 07:32:36  ncq
