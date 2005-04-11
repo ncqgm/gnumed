@@ -2,8 +2,8 @@
 Unit tests for GnuMed gmClinicalRecord
 """
 #============================================================
-# $Id: gmClinicalRecordTest.py,v 1.8 2004-09-18 13:53:26 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmClinicalRecordTest.py,v 1.9 2005-04-11 18:01:33 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -63,12 +63,6 @@ class EMR_StructureTests(unittest.TestCase):
 	def testGetEpisodes(self):
 		"""Check that patient episodes can be obtained"""
 		self.assertEqual(isinstance(self.emr.get_episodes()[0], gmEMRStructItems.cEpisode), True)
-
-	def testSetActiveEpisode(self):
-		"""Check that a concrete episode can be set as the active one"""
-		an_episode = self.emr.get_episodes()[0]
-		status = self.emr.set_active_episode(an_episode['description'])
-		self.assertEqual(status, True)
 
 	def testAddEpisode(self):
 		""" Check that a new episode can be created"""
@@ -134,7 +128,8 @@ class AllergyTests(unittest.TestCase):
 		gmLog.gmDefLog.flush()
 		# create new allergy
 		pk_encounter = self.emr.get_active_encounter()['pk_encounter']
-		pk_episode = self.emr.get_active_episode()['pk_episode']
+		# FIXME: get_active_episode() is no more
+		#pk_episode = self.emr.get_active_episode()['pk_episode']
 		new_allergy = self.emr.add_allergy (
 			substance='Test substance',
 			allg_type = 1,
@@ -301,7 +296,10 @@ if __name__ == "__main__":
 	main()
 #============================================================
 # $Log: gmClinicalRecordTest.py,v $
-# Revision 1.8  2004-09-18 13:53:26  ncq
+# Revision 1.9  2005-04-11 18:01:33  ncq
+# - some cleanup
+#
+# Revision 1.8  2004/09/18 13:53:26  ncq
 # - id -> pk
 #
 # Revision 1.7  2004/06/28 12:18:52  ncq
