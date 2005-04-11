@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.171 2005-04-03 20:04:56 ncq Exp $
-__version__ = "$Revision: 1.171 $"
+# $Id: gmClinicalRecord.py,v 1.172 2005-04-11 17:54:19 ncq Exp $
+__version__ = "$Revision: 1.172 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -230,7 +230,7 @@ class cClinicalRecord:
 			narrative = note,
 			soap_cat = soap_cat,
 			episode_id = episode['pk_episode'],
-			encounter_id=self.__encounter['pk_encounter']
+			encounter_id = self.__encounter['pk_encounter']
 		)
 		if not status:
 			_log.Log(gmLog.lErr, str(data))
@@ -1653,7 +1653,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.171  2005-04-03 20:04:56  ncq
+# Revision 1.172  2005-04-11 17:54:19  ncq
+# - cleanup
+#
+# Revision 1.171  2005/04/03 20:04:56  ncq
 # - remove __load_active_episode() sillyness and related stuff
 #
 # Revision 1.170  2005/04/03 09:26:48  ncq
