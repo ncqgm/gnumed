@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmDemographics.py,v $
-# $Id: gmDemographics.py,v 1.61 2005-04-10 12:09:17 cfmoro Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmDemographics.py,v 1.62 2005-04-11 18:03:32 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "R.Terry, SJ Tan, I Haywood"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,7 +24,7 @@ import wxPython.wizard
 
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput
-from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N
+from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N, gmMatchProvider
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
@@ -1047,7 +1047,6 @@ class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
 	"""
 	Wizard page for entering patient's basic demographic information
 	"""
-	#--------------------------------------------------------
 	def __init__(self, parent, title):
 		"""
 		Creates a new instance of BasicPatDetailsPage
@@ -1066,22 +1065,48 @@ class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
 			_('Transexual to Female'): 'tf',
 			_('Hermaphrodite'): 'h'
 		}
-		
+
 		# FIXME: configure, attach matchers
-		# instantiate widgets
-		STT_surname = wx.StaticText(self, -1, _('Surname'))
-		STT_surname.SetForegroundColour('red')
-		self.PRW_surname = gmPhraseWheel.cPhraseWheel(self, -1,
-		validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))
-		self.PRW_surname.SetToolTipString(_("The surname of the patient's active name"))
-		STT_name = wx.StaticText(self, -1, _('Name'))
-		STT_name.SetForegroundColour('red')
-		self.PRW_name = gmPhraseWheel.cPhraseWheel(self, -1,
-		validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))
-		self.PRW_name.SetToolTipString(_("The patient's active name"))
+		# first name
+		STT_firstname = wx.StaticText(self, -1, _('First name'))
+		STT_firstname.SetForegroundColour('red')
+		cmd = "select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(2, 3, 6)
+		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
+			parent = self,
+			id = -1,
+			aMatchProvider = mp,
+			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+		)
+		self.PRW_firstname.SetToolTipString(_("surname/given name/first name"))
+		# last name
+		STT_lastname = wx.StaticText(self, -1, _('Last name'))
+		STT_lastname.SetForegroundColour('red')
+		cmd = "select distinct lastnames, lastnames from names where lastnames %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(2, 3, 6)
+		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
+			parent = self,
+			id = -1,
+			aMatchProvider = mp,
+			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+		)
+		self.PRW_lastname.SetToolTipString(_("last name/family name"))
+		# nickname
 		STT_nick = wx.StaticText(self, -1, _('Nick name'))
-		self.PRW_nick = gmPhraseWheel.cPhraseWheel(self, -1)
-		self.PRW_nick.SetToolTipString(_("The patient's nick name"))
+		cmd = """
+select distinct preferred, preferred from names where preferred %(fragment_condition)s
+	union
+select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"""
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		self.PRW_nick = gmPhraseWheel.cPhraseWheel (
+			parent = self,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_nick.SetToolTipString(_("nick name/preferred name/call name/warrior name"))
+		# DOB
 		STT_dob = wx.StaticText(self, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
 		self.TTC_dob = gmDateTimeInput.gmDateInput(self, -1,
@@ -1105,14 +1130,14 @@ class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
 		self.TTC_phone = wx.TextCtrl(self, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
 		self.TTC_phone.SetToolTipString(_("The the primary/home phone number"))
-		  
+
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)
-		SZR_input.Add(STT_surname, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_surname, 1, wx.EXPAND)
-		SZR_input.Add(STT_name, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_name, 1, wx.EXPAND)  
+		SZR_input.Add(STT_firstname, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_firstname, 1, wx.EXPAND)
+		SZR_input.Add(STT_lastname, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_lastname, 1, wx.EXPAND)  
 		SZR_input.Add(STT_nick, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)  		
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
@@ -1152,15 +1177,13 @@ class NewPatientWizard:
 			# dump data to backend
 			msg = _('Code to validate and dump data to backend coming soon...')
 			gmGuiHelpers.gm_show_warning(msg, _('new patient wizard'), gmLog.lWarn)
-		self.__wizard.Destroy()				
+		self.__wizard.Destroy()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""Arrange widgets.
 
-		left: problem list (mix of issues and episodes)
-		right: soap editors
 		"""
 		# Create the wizard and the pages
 		self.__wizard = wxPython.wizard.wxWizard(self.__parent, self.__id_wiz, _('New patient wizard')) #images.getWizTest1Bitmap()
@@ -1183,16 +1206,20 @@ class TestPanel(wx.Panel):
 		wizard = NewPatientWizard(self)
 #============================================================
 if __name__ == "__main__":
-	from Gnumed.pycommon import gmGuiBroker
+	from Gnumed.pycommon import gmPG
+	db = gmPG.ConnectionPool()
 	app1 = wx.PyWidgetTester(size = (800, 600))
 	app1.SetWidget(TestPanel, -1)
 	app1.MainLoop()
-	app2 = wx.PyWidgetTester(size = (800, 600))
-	app2.SetWidget(DemographicDetailWindow, -1)
-	app2.MainLoop()
+#	app2 = wx.PyWidgetTester(size = (800, 600))
+#	app2.SetWidget(DemographicDetailWindow, -1)
+#	app2.MainLoop()
 #============================================================
 # $Log: gmDemographics.py,v $
-# Revision 1.61  2005-04-10 12:09:17  cfmoro
+# Revision 1.62  2005-04-11 18:03:32  ncq
+# - attach some match providers to first new-patient wizard page
+#
+# Revision 1.61  2005/04/10 12:09:17  cfmoro
 # GUI implementation of the first-basic (wizard) page for patient details input
 #
 # Revision 1.60  2005/03/20 17:49:45  ncq
