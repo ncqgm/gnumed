@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.6 2005-03-14 14:35:27 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmMatchProvider.py,v 1.7 2005-04-11 18:00:54 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -432,7 +432,6 @@ class cMatchProvider_SQL2(cMatchProvider):
 	#--------------------------------------------------------
 	def __find_matches(self, fragment_condition):
 		matches = []
-		# FIXME: deal with gmpw_score...
 		query = self._query % {'fragment_condition': fragment_condition}
 		rows = gmPG.run_ro_query(self._service, query, None, self._context_vals)
 		if rows is None:
@@ -625,7 +624,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.6  2005-03-14 14:35:27  ncq
+# Revision 1.7  2005-04-11 18:00:54  ncq
+# - cleanup
+#
+# Revision 1.6  2005/03/14 14:35:27  ncq
 # - add match provider class cMatchProvider_Func which pulls
 #   match candidates through a function
 #

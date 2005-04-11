@@ -14,7 +14,7 @@ def resultset_functional_batchgene rator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.46 $"
+__version__ = "$Revision: 1.47 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1026,9 +1026,8 @@ def run_ro_query(link_obj = None, aQuery = None, get_col_idx = None, *args):
 	- data is a list of tuples [(w,x,y,z), (a,b,c,d), ...] where each tuple is a table row
 	- idx is a map of column name to their position in the row tuples
 		e.g. { 'name': 3, 'id':0, 'job_description': 2, 'location':1 }
-		
+
 		usage:  e.g. data[0][idx['name']] would return z from [(w,x,y,z ),(a,b,c,d)]
-	
 	"""
 	# sanity checks
 	if link_obj is None:
@@ -1218,7 +1217,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.46 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.47 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1436,7 +1435,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.46  2005-03-30 22:09:34  ncq
+# Revision 1.47  2005-04-11 18:00:54  ncq
+# - cleanup
+#
+# Revision 1.46  2005/03/30 22:09:34  ncq
 # - better logging, as usual
 #
 # Revision 1.45  2005/03/29 07:26:38  ncq
