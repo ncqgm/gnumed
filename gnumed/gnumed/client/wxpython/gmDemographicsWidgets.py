@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.2 2005-04-12 16:18:00 ncq Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmDemographicsWidgets.py,v 1.3 2005-04-12 18:49:04 cfmoro Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1116,20 +1116,85 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		self.TTC_dob = gmDateTimeInput.gmDateInput(self, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))
 		self.TTC_dob.SetToolTipString(_("The patient's date of birth (dob)"))
+		# gender
 		STT_gender = wx.StaticText(self, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')		
 		self.SCB_gender = SmartCombo(self, gendermap)
 		self.SCB_gender.SetValidator(gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))		
 		self.SCB_gender.SetToolTipString(_("The patient's gender"))
+		# title
+		STT_title = wx.StaticText(self, -1, _('Title'))
+		cmd = "select distinct title, title from identity where title %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)				
+		self.PRW_title = gmPhraseWheel.cPhraseWheel(
+			parent = self,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_title.SetToolTipString(_("The title of the patient"))
+		# occupation
+		STT_occupation = wx.StaticText(self, -1, _('Occupation'))
+		cmd = "select distinct name, name from occupation where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)		
+		self.PRW_occupation = gmPhraseWheel.cPhraseWheel(
+			parent = self,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_occupation.SetToolTipString(_("The primary occupation of the patient"))
+		# zip code
 		STT_zip_code = wx.StaticText(self, -1, _('Zip code'))
 		self.TTC_zip_code = wx.TextCtrl(self, -1)
 		self.TTC_zip_code.SetToolTipString(_("The Zip code of the primary/home address"))
+		# street
 		STT_street = wx.StaticText(self, -1, _('Street'))
-		self.PRW_street = gmPhraseWheel.cPhraseWheel(self, -1)
+		cmd = "select distinct name, name from street where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)				
+		self.PRW_street = gmPhraseWheel.cPhraseWheel(
+			parent = self,
+			id = -1,
+			aMatchProvider = mp
+		)
 		self.PRW_street.SetToolTipString(_("The street of the primary/home address"))
+		# town
 		STT_town = wx.StaticText(self, -1, _('Town'))
-		self.PRW_town = gmPhraseWheel.cPhraseWheel(self, -1)
+		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)		
+		self.PRW_town = gmPhraseWheel.cPhraseWheel(
+			parent = self,
+			id = -1,
+			aMatchProvider = mp
+		)
 		self.PRW_town.SetToolTipString(_("The town of the primary/home address"))
+		# state
+		# FIXME: default in config
+		STT_state = wx.StaticText(self, -1, _('State'))
+		cmd = "select distinct name, name from state where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)
+		self.PRW_state = gmPhraseWheel.cPhraseWheel(
+			parent = self,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_state.SetToolTipString(_("The state of the primary/home address"))
+		# country
+		# FIXME: default in config
+		STT_country = wx.StaticText(self, -1, _('Country'))
+		cmd = "select distinct name, name from country where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)		
+		self.PRW_country = gmPhraseWheel.cPhraseWheel(
+			parent = self,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_country.SetToolTipString(_("The country of the primary/home address"))
+		# phone
 		STT_phone = wx.StaticText(self, -1, _('Phone'))
 		self.TTC_phone = wx.TextCtrl(self, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
@@ -1148,12 +1213,20 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)	
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
 		SZR_input.Add(self.SCB_gender, 1, wx.EXPAND)					
+		SZR_input.Add(STT_title, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)					
+		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)							
 		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)	
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)	
 		SZR_input.Add(STT_town, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)	
+		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)			
+		SZR_input.Add(STT_state, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)	
+		SZR_input.Add(STT_country, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
 		
@@ -1220,7 +1293,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.2  2005-04-12 16:18:00  ncq
+# Revision 1.3  2005-04-12 18:49:04  cfmoro
+# Added missing fields and matcher providers
+#
+# Revision 1.2  2005/04/12 16:18:00  ncq
 # - match firstnames against name_gender_map, too
 #
 # Revision 1.1  2005/04/11 18:09:55  ncq
