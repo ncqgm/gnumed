@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.35 2005-04-12 10:06:06 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmSOAPWidgets.py,v 1.36 2005-04-12 16:22:28 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -170,7 +170,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if not last_encounter is None:
 					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
-			item = _('%s "%s" (last: %s)') % (_(problem['l10n_type']), problem['problem'], last)
+			item = _('%s "%s" (last: %s)') % (problem['l10n_type'], problem['problem'], last)
 			self.__LST_problems.Append(item, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
@@ -1156,7 +1156,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.35  2005-04-12 10:06:06  ncq
+# Revision 1.36  2005-04-12 16:22:28  ncq
+# - remove faulty _()
+#
+# Revision 1.35  2005/04/12 10:06:06  ncq
 # - cleanup
 #
 # Revision 1.34  2005/04/03 20:18:27  ncq
