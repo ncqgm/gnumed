@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.1 2005-04-11 18:09:55 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmDemographicsWidgets.py,v 1.2 2005-04-12 16:18:00 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1066,13 +1066,16 @@ class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
 			_('Hermaphrodite'): 'h'
 		}
 
-		# FIXME: configure, attach matchers
 		# first name
 		STT_firstname = wx.StaticText(self, -1, _('First name'))
 		STT_firstname.SetForegroundColour('red')
-		cmd = "select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"
+		cmd = """
+select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s
+	union
+select distinct name, name from name_gender_map where name %(fragment_condition)s
+"""
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(2, 3, 6)
+		mp.setThresholds(3, 5, 15)
 		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
 			parent = self,
 			id = -1,
@@ -1085,7 +1088,7 @@ class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
 		STT_lastname.SetForegroundColour('red')
 		cmd = "select distinct lastnames, lastnames from names where lastnames %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(2, 3, 6)
+		mp.setThresholds(3, 5, 15)
 		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
 			parent = self,
 			id = -1,
@@ -1100,6 +1103,7 @@ select distinct preferred, preferred from names where preferred %(fragment_condi
 	union
 select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)
 		self.PRW_nick = gmPhraseWheel.cPhraseWheel (
 			parent = self,
 			id = -1,
@@ -1216,7 +1220,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.1  2005-04-11 18:09:55  ncq
+# Revision 1.2  2005-04-12 16:18:00  ncq
+# - match firstnames against name_gender_map, too
+#
+# Revision 1.1  2005/04/11 18:09:55  ncq
 # - offers demographic widgets
 #
 # Revision 1.62  2005/04/11 18:03:32  ncq
