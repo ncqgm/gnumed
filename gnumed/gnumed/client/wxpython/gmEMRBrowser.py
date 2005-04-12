@@ -2,13 +2,13 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.25 2005-04-05 16:21:54 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmEMRBrowser.py,v 1.26 2005-04-12 16:19:49 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
 # std lib
-import sys, types, os.path
+import sys, types, os.path, StringIO
 
 # 3rd party
 from wxPython import wx
@@ -579,8 +579,71 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 						
 		else:
 			self.Append(self.ID_NEW_HEALTH_ISSUE, "New Health Issue")
+#================================================================
+class cEMRJournalPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+	def __init__(self, *args, **kwargs):
+		wx.wxPanel.__init__(self, *args, **kwargs)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
+		self.__do_layout()
 
+		if not self.__register_events():
+			raise gmExceptions.ConstructorError, 'cannot register interests'
+	#--------------------------------------------------------
+	def __do_layout(self):
+		self.__journal = wx.wxTextCtrl (
+			self,
+			-1,
+			_('No EMR data loaded.'),
+			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY
+		)
+		self.__journal.SetFont(wx.wxFont(12, wx.wxMODERN, wx.wxNORMAL, wx.wxNORMAL))
+		# arrange widgets
+		szr_outer = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_outer.Add(self.__journal, 1, wx.wxEXPAND, 0)
+		# and do layout
+		self.SetAutoLayout(1)
+		self.SetSizer(szr_outer)
+		szr_outer.Fit(self)
+		szr_outer.SetSizeHints(self)
+		self.Layout()
+	#--------------------------------------------------------
+	def __register_events(self):
+		# client internal signals
+		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self._on_patient_selected)
+		return 1
+	#--------------------------------------------------------
+	def _on_patient_selected(self):
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		"""Fills UI with data.
+		"""
+#		self.__reset_ui_content()
+		if self.refresh_journal():
+			return True
+		return False
+	#--------------------------------------------------------
+	def refresh_journal(self):
+
+		# get data from backend
+		txt = StringIO.StringIO()
+		exporter = gmPatientExporter.cEMRJournalExporter()
+		# FIXME: if journal is large this will error out
+		successful = exporter.export(txt)
+		if not successful:
+			_log.Log(gmLog.lErr, 'cannot get EMR journal')
+			self.__journal.SetValue (_(
+				'An error occurred while retrieving the EMR\n'
+				'in journal form for the active patient.\n\n'
+				'Please check the log file for details.'
+			))
+			return False
+		self.__journal.SetValue(txt.getvalue())
+		txt.close()
+		return True
 #================================================================
 # MAIN
 #----------------------------------------------------------------
@@ -610,9 +673,9 @@ if __name__ == '__main__':
 		# display standalone browser
 		application = wx.wxPyWidgetTester(size=(800,600))
 		emr_browser = cEMRBrowserPanel(application.frame, -1)
-#		emr_browser.set_patient(patient)		
+		emr_browser.set_patient(patient)		
 		emr_browser.refresh_tree()
-		
+
 		application.frame.Show(True)
 		application.MainLoop()
 		
@@ -636,7 +699,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.25  2005-04-05 16:21:54  ncq
+# Revision 1.26  2005-04-12 16:19:49  ncq
+# - add cEMRJournalPanel for plugin
+#
+# Revision 1.25  2005/04/05 16:21:54  ncq
 # - a fix by Syan
 # - cleanup
 #
