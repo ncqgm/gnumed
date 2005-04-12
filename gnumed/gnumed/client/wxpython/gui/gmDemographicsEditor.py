@@ -2,15 +2,15 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-# $Id: gmDemographicsEditor.py,v 1.12 2005-02-18 11:16:41 ihaywood Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmDemographicsEditor.py,v 1.13 2005-04-12 10:06:40 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL'
 
 import sys
 
 from Gnumed.pycommon import gmLog, gmI18N
-from Gnumed.wxpython import gmPlugin, gmDemographics
+from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
 
 gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
 
@@ -23,7 +23,7 @@ class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
 
 	def GetWidget (self, parent):
 		try:
-			self._widget = gmDemographics.DemographicDetailWindow( parent, -1, True)
+			self._widget = gmDemographicsWidgets.DemographicDetailWindow( parent, -1, True)
 		except:
 			gmLog.gmDefLog.LogException("failed to instantiate gmDemographics.PatientsPanel", sys.exc_info(), verbose=1)
 			return None
@@ -56,7 +56,10 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.12  2005-02-18 11:16:41  ihaywood
+# Revision 1.13  2005-04-12 10:06:40  ncq
+# - fix import
+#
+# Revision 1.12  2005/02/18 11:16:41  ihaywood
 # new demographics UI code won't crash the whole client now ;-)
 # still needs much work
 # RichardSpace working
