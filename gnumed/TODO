@@ -1,11 +1,38 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.7 2005-01-12 12:41:52 ncq Exp $
-$Revision: 1.7 $
+$Id: TODO,v 1.8 2005-04-12 16:14:50 ncq Exp $
+$Revision: 1.8 $
 ====================================================
+pre-0.1
+- fix ASCII exporter (creates multiple entries per encounter)
+- after saving progress note the header disappears
+- add label "Episode" before phrase wheel when unattached
+  in progress note editor
 
-gmCfg
+====================================================
+post-0.1
 
+- configurable buttons in gui helpers message windows
+
+database API:
+- re-evaluate DB-API drivers
 - make PgArray into a stub
+- move to psycopg ?
+	- only if it supports NOTIFY/LISTEN
+	- pyPgSQL is not well-maintained
+
+database schema:
+	- define groups as "treatment team"
+	- grant access to treatment teams
+	- hide data from unrelated treatment teams
+
+client startup:
+- gnumed.py: rework use of resource_dir/base_dir
+
+EMR journal plugin:
+ - turn into proper list
+
+====================================================
+gmCfg
 
 - note on "__default__" behaviour
 ---------
@@ -34,10 +61,6 @@ date ctrl
 - input "tuesday march 2000" -> popup with all 4 or 5 possible tuesdays in march 2000
 
 -------------
-i18n
-- script to del lang in db when no translation avail for lang
-
---------------
 patient search
 - enter -> search and make active
 - button -> search and start new client instance with patient
@@ -62,9 +85,6 @@ encounter handling
 ------------------------
 vaccinations widget
 - delete entries
-------------------------
-gnumed.py
-- rework use of resource_dir/base_dir
 --------------------------
 main GUI
 - on new patient
@@ -179,13 +199,3 @@ Richard space INBOX
 --------------------
 lab link
  - Standard ASTM E1394-91 (frei: Datenaustausch-Formate zwischen Laborgeräten und PC-Systemen)
-
---------------------
-2.0:
-- move to psycopg
-	- only if it supports NOTIFY/LISTEN
-	- pyPgSQL is not well-maintained
-- schema:
-	- define groups as "treatment team"
-	- grant access to treatment teams
-	- hide data from unrelated treatment teams
