@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.188 2005-04-12 10:03:20 ncq Exp $
-__version__ = "$Revision: 1.188 $"
+# $Id: gmGuiMain.py,v 1.189 2005-04-12 18:33:29 cfmoro Exp $
+__version__ = "$Revision: 1.189 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -652,7 +652,7 @@ class gmApp(wx.wxApp):
 			parent = None,
 			message = msg,
 			caption = _('checking database language settings'),
-			style = wx.wxYES_NO | wx.xCENTRE | wx.wxICON_QUESTION
+			style = wx.wxYES_NO | wx.wxCENTRE | wx.wxICON_QUESTION
 		)
 		result = dlg.ShowModal()
 		dlg.Destroy()
@@ -702,7 +702,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.188  2005-04-12 10:03:20  ncq
+# Revision 1.189  2005-04-12 18:33:29  cfmoro
+# typo fix
+#
+# Revision 1.188  2005/04/12 10:03:20  ncq
 # - slightly rearrange main menu
 # - add journal export function
 # - move to wx.wx* use
