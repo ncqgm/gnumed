@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.48 2005-04-12 10:00:19 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmPatientExporter.py,v 1.49 2005-04-12 16:15:36 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -799,6 +799,8 @@ class cEMRJournalExporter:
 	# external API
 	#--------------------------------------------------------
 	def export_to_file(self, filename=None):
+		if not self.__pat.is_connected():
+			return (False, 'no active patient')
 		if filename is None:
 			ident = self.__pat.get_identity()
 			path = os.path.abspath(os.path.expanduser('~/gnumed/export'))
@@ -813,9 +815,14 @@ class cEMRJournalExporter:
 		f.close()
 		return (status, filename)
 	#--------------------------------------------------------
+	def export(self, target):
+		return self.__export(target)
+	#--------------------------------------------------------
 	# interal API
 	#--------------------------------------------------------
 	def __export(self, target = None):
+		if not self.__pat.is_connected():
+			return False
 		ident = self.__pat.get_identity()
 		# write header
 		txt = _('Chronological EMR Journal\n')
@@ -993,7 +1000,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.48  2005-04-12 10:00:19  ncq
+# Revision 1.49  2005-04-12 16:15:36  ncq
+# - improve journal style exporter
+#
+# Revision 1.48  2005/04/12 10:00:19  ncq
 # - add cEMRJournalExporter class
 #
 # Revision 1.47  2005/04/03 20:08:18  ncq
