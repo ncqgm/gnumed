@@ -45,8 +45,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.5 2005-01-31 13:00:40 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmSOAPimporter.py,v 1.6 2005-04-12 09:59:16 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -146,26 +146,19 @@ class cSOAPImporter:
 			enc_id = soap_entry[soap_bundle_CLIN_CTX_KEY][soap_bundle_ENCOUNTER_ID_KEY]
 		except KeyError:
 			emr = self.__pat.get_clinical_record()
-			print emr
 			enc = emr.get_active_encounter()
-			print enc
-			enc_id = emr.get_active_encounter()['pk_encounter']
+			enc_id = enc['pk_encounter']
 
 		# create narrative row
-		status = True
+		status, narr = gmClinNarrative.create_clin_narrative (
+			narrative = soap_entry[soap_bundle_TEXT_KEY],
+			soap_cat = soap_entry[soap_bundle_SOAP_CAT_KEY],
+			episode_id = epi_id,
+			encounter_id = enc_id
+		)
 
-#		status, narr = gmClinNarrative.create_clin_narrative (
-#			narrative = soap_entry[soap_bundle_TEXT_KEY],
-#			soap_cat = soap_entry[soap_bundle_SOAP_CAT_KEY],
-#			episode_id = epi_id,
-#			encounter_id = enc_id
-#		)
-
-		print "SOAP row created"
-		print "episode  : %s" % epi_id
-		print "encounter: %s" % enc_id
-		print "category : %s" % soap_entry[soap_bundle_SOAP_CAT_KEY]
-		print "narrative: %s" % soap_entry[soap_bundle_TEXT_KEY]
+		print "episode: %s // encounter: %s" % (epi_id, enc_id)
+		print "category: %s" % soap_entry[soap_bundle_SOAP_CAT_KEY], "narrative: %s" % soap_entry[soap_bundle_TEXT_KEY]
 
 		# attach types
 		if soap_entry.has_key(soap_bundle_TYPES_KEY):
@@ -374,7 +367,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.5  2005-01-31 13:00:40  ncq
+# Revision 1.6  2005-04-12 09:59:16  ncq
+# - cleanup
+# - enable actual backend storage
+#
+# Revision 1.5  2005/01/31 13:00:40  ncq
 # - use ask_for_patient() in gmPerson
 #
 # Revision 1.4  2005/01/31 10:37:26  ncq
