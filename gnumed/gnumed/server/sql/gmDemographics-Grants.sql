@@ -1,13 +1,17 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+grant select on
+	name_gender_map
+to group "gm-public";
 
 -- do not allow anyone other the gm-dbo to DELETE on identity ...
 grant select, insert, update on
@@ -58,7 +62,10 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.11  2005-03-31 17:47:52  ncq
+-- Revision 1.12  2005-04-12 16:23:23  ncq
+-- - grant on name_gender_map
+--
+-- Revision 1.11  2005/03/31 17:47:52  ncq
 -- - missing grant
 --
 -- Revision 1.10  2005/02/13 14:39:31  ncq
