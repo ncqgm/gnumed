@@ -10,12 +10,12 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.47 2005-04-03 20:08:18 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPatientExporter.py,v 1.48 2005-04-12 10:00:19 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
-import os.path, sys, traceback, string, types
+import os.path, sys, traceback, string, types, time
 
 import mx.DateTime.Parser as mxParser
 import mx.DateTime as mxDT
@@ -777,6 +777,115 @@ class cEmrExport:
             self.__target.write('-'*(len(head_txt)-2))
             self.__first_constraint = False
 #============================================================
+class cEMRJournalExporter:
+	"""Exports patient EMR into a simple chronological journal.
+	"""
+	def __init__(self, patient=None):
+		if patient is None:
+			self.__pat = gmPerson.gmCurrentPatient()
+		else:
+			if not isinstance(patient, gmPerson.cPerson):
+				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cPerson>, but is: %s' % type(gmPerson.cPerson)
+			self.__pat = patient
+
+		self.__part_len = 72
+		self.__tx_soap = {
+			's': _('S'),
+			'o': _('O'),
+			'a': _('A'),
+			'p': _('P')
+		}
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def export_to_file(self, filename=None):
+		if filename is None:
+			ident = self.__pat.get_identity()
+			path = os.path.abspath(os.path.expanduser('~/gnumed/export'))
+			filename = '%s-%s-%s-%s.txt' % (
+				os.path.join(path, _('emr-journal')),
+				ident['lastnames'].replace(' ', '-'),
+				ident['firstnames'].replace(' ', '_'),
+				ident['dob'].Format('%Y-%m-%d')
+			)
+		f = open(filename, 'wb')
+		status = self.__export(target = f)
+		f.close()
+		return (status, filename)
+	#--------------------------------------------------------
+	# interal API
+	#--------------------------------------------------------
+	def __export(self, target = None):
+		ident = self.__pat.get_identity()
+		# write header
+		txt = _('Chronological EMR Journal\n')
+		target.write(txt)
+		target.write('=' * (len(txt)-1))
+		target.write('\n')
+		target.write(_('Patient: %s (%s), No: %s\n') % (ident['description'], ident['gender'], self.__pat['ID']))
+		target.write(_('Born   : %s, age: %s\n\n') % (ident['dob'].Format('%Y-%m-%d'), ident.get_medical_age()))
+		target.write('.-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
+		target.write('| %10.10s | %9.9s |   | %s\n' % (_('Date'), _('Doc'), _('Narrative')))
+		target.write('|-%10.10s---%9.9s-------%72.72s\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
+		# get data
+		cmd = """
+select
+	to_char(vemrj.clin_when, 'YYYY-MM-DD') as date,
+	vemrj.*,
+	(select rank from soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
+from v_emr_journal vemrj
+where pk_patient=%s order by date, scr"""
+		rows, idx = gmPG.run_ro_query (
+			'clinical',
+			cmd,
+			True,
+			self.__pat['ID']
+		)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'cannot export EMR as journal')
+			return False
+		# write data
+		prev_date = ''
+		prev_doc = ''
+		for row in rows:
+			# narrative
+			txt = row[idx['narrative']].replace('\n', ' ').replace('\r', ' ')
+			no_parts = (len(txt) / self.__part_len) + 1
+			# doc
+			curr_doc = row[idx['modified_by']]
+			if curr_doc != prev_doc:
+				prev_doc = curr_doc
+			else:
+				curr_doc = ''
+			# date
+			curr_date = row[idx['date']]
+			if curr_date != prev_date:
+				prev_date = curr_date
+				curr_doc = row[idx['modified_by']]
+			else:
+				curr_date = ''
+			# display first part
+			target.write('| %10.10s | %9.9s | %s | %s\n' % (
+				curr_date,
+				curr_doc,
+				self.__tx_soap[row[idx['soap_cat']]],
+				txt[0:self.__part_len]
+			))
+			# more parts ?
+			if no_parts == 1:
+				continue
+			for part in range(1, no_parts):
+				target.write('| %10.10s | %9.9s | %s | %s\n' % (
+					'',
+					'',
+					self.__tx_soap[row[idx['soap_cat']]],
+					txt[(part * self.__part_len):((part+1) * self.__part_len)]
+				))
+		# write footer
+		target.write('`-%10.10s---%9.9s-------%72.72s\n\n' % ('-' * 10, '-' * 9, '-' * self.__part_len))
+		target.write(_('Exported: %s\n') % time.asctime())
+		return True
+#============================================================
 # main
 #------------------------------------------------------------
 def usage():
@@ -884,7 +993,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.47  2005-04-03 20:08:18  ncq
+# Revision 1.48  2005-04-12 10:00:19  ncq
+# - add cEMRJournalExporter class
+#
+# Revision 1.47  2005/04/03 20:08:18  ncq
 # - GUI stuff does not belong here (eg move to gmEMRBrowser which is to become gmEMRWidgets, eventually)
 #
 # Revision 1.46  2005/04/03 09:27:25  ncq
