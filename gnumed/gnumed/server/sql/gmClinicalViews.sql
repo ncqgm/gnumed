@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.139 2005-04-08 09:59:34 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.140 2005-04-12 10:08:34 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -109,9 +109,9 @@ create index idx_clin_medication on clin_medication(discontinued) where disconti
 -- encounters
 
 \unset ON_ERROR_STOP
-drop index idx_pat_per_encounter on clin_encounter(fk_patient);
-drop index idx_encounter_started on clin_encounter(started);
-drop index idx_encounter_affirmed on clin_encounter(last_affirmed);
+drop index idx_pat_per_encounter;
+drop index idx_encounter_started;
+drop index idx_encounter_affirmed;
 \set ON_ERROR_STOP 1
 
 create index idx_pat_per_encounter on clin_encounter(fk_patient);
@@ -1561,6 +1561,7 @@ select	-- all the episodes
 	vpep.pk_patient as pk_patient,
 	vpep.description as problem,
 	'episode' as type,
+	_('episode') as l10n_type,
 	vpep.episode_open as problem_active,
 	'true'::boolean as clinically_relevant,
 	vpep.pk_episode as pk_episode,
@@ -1574,6 +1575,7 @@ select	-- all the issues
 	chi.id_patient as pk_patient,
 	chi.description as problem,
 	'issue' as type,
+	_('health issue') as l10n_type,
 	chi.is_active as problem_active,
 	chi.clinically_relevant as clinically_relevant,
 	null as pk_episode,
@@ -1992,11 +1994,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.139 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.140 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.139  2005-04-08 09:59:34  ncq
+-- Revision 1.140  2005-04-12 10:08:34  ncq
+-- - fix faulty index drop
+-- - add l10n_type to v_problem_list
+--
+-- Revision 1.139  2005/04/08 09:59:34  ncq
 -- - dramatically speed up (read: make usable) v_most_recent_encounters
 -- - add three indices on clin_encounter for v_most_recent_encounters
 -- - index on coded_narrative
