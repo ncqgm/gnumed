@@ -8,12 +8,12 @@
 #
 # Created:		2002/11/20
 # Version:		0.1
-# RCS-ID:		$Id: gmMultiSash.py,v 1.3 2005-03-18 16:48:41 cfmoro Exp $
+# RCS-ID:		$Id: gmMultiSash.py,v 1.4 2005-04-12 10:04:59 ncq Exp $
 # License:		wxWindows licensie
 #----------------------------------------------------------------------
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmMultiSash.py,v $
-# $Id: gmMultiSash.py,v 1.3 2005-03-18 16:48:41 cfmoro Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmMultiSash.py,v 1.4 2005-04-12 10:04:59 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "Gerrit van Dyk, Carlos, Karsten"
 #__license__ = "GPL"
 	   
@@ -114,22 +114,22 @@ class cMultiSash(wxWindow):
 		"""
 		if id(splitter) == id(self.child):
 			self.displayed_leafs = []
-		print "__refresh_displayed_leafs()"
-		print "splitter: %s [%s]" % (splitter.__class__.__name__, id(splitter))
-		print "- leaf 1: %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))
-		print "- leaf 2: %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
+#		print "__refresh_displayed_leafs()"
+#		print "splitter: %s [%s]" % (splitter.__class__.__name__, id(splitter))
+#		print "- leaf 1: %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))
+#		print "- leaf 2: %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
 		if isinstance(splitter.leaf1, cMultiSashSplitter):
-			print "leaf 1 is splitter, recurse down"
+#			print "leaf 1 is splitter, recurse down"
 			self.refresh_displayed_leafs(splitter.leaf1)
 		if isinstance(splitter.leaf2, cMultiSashSplitter):
-			print "leaf 2 is splitter, recurse down"
+#			print "leaf 2 is splitter, recurse down"
 			self.refresh_displayed_leafs(splitter.leaf2)
-		print "found bottom split: %s [%s]" % (splitter.__class__.__name__, id(splitter))
+#		print "found bottom split: %s [%s]" % (splitter.__class__.__name__, id(splitter))
 		if not splitter.leaf2 is None and not isinstance(splitter.leaf2, cMultiSashSplitter):
-			print "found leaf (leaf2): %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
+#			print "found leaf (leaf2): %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
 			self.displayed_leafs.append(splitter.leaf2)
 		if not splitter.leaf1 is None and not isinstance(splitter.leaf1, cMultiSashSplitter):
-			print "found leaf (leaf1): %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))			
+#			print "found leaf (leaf1): %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))			
 			self.displayed_leafs.append(splitter.leaf1)
 	#---------------------------------------------
 	# event handlers
@@ -143,22 +143,22 @@ class cMultiSash(wxWindow):
 		"""
 		Recursively find and return the bottom leaf.
 		"""
-		print "__find_bottom_leaf()"
-		print "splitter: %s [%s]" % (splitter.__class__.__name__, id(splitter))
-		print "- leaf 1: %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))
-		print "- leaf 2: %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
+#		print "__find_bottom_leaf()"
+#		print "splitter: %s [%s]" % (splitter.__class__.__name__, id(splitter))
+#		print "- leaf 1: %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))
+#		print "- leaf 2: %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
 		if isinstance(splitter.leaf1, cMultiSashSplitter):
-			print "leaf 1 is splitter, recurse down"
+#			print "leaf 1 is splitter, recurse down"
 			return self.__find_bottom_leaf(splitter.leaf1)
 		if isinstance(splitter.leaf2, cMultiSashSplitter):
-			print "leaf 2 is splitter, recurse down"
+#			print "leaf 2 is splitter, recurse down"
 			return self.__find_bottom_leaf(splitter.leaf2)
-		print "found bottom split: %s [%s]" % (splitter.__class__.__name__, id(splitter))
+#		print "found bottom split: %s [%s]" % (splitter.__class__.__name__, id(splitter))
 		if not splitter.leaf2 is None:
-			print "bottom leaf (leaf2): %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
+#			print "bottom leaf (leaf2): %s [%s]" % (splitter.leaf2.__class__.__name__, id(splitter.leaf2))
 			return splitter.leaf2
 		else:
-			print "bottom leaf (leaf1): %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))
+#			print "bottom leaf (leaf1): %s [%s]" % (splitter.leaf1.__class__.__name__, id(splitter.leaf1))
 			return splitter.leaf1
 	#---------------------------------------------
 	def _unselect(self):
@@ -205,39 +205,39 @@ class cMultiSashSplitter(wxWindow):
 
 	#---------------------------------------------
 	def AddLeaf(self,direction,caller,pos):		
-		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
-		print "leaf 1: %s [%s]" % (self.leaf1.__class__.__name__, id(self.leaf1))
-		print "leaf 2: %s [%s]" % (self.leaf2.__class__.__name__, id(self.leaf2))
+#		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
+#		print "leaf 1: %s [%s]" % (self.leaf1.__class__.__name__, id(self.leaf1))
+#		print "leaf 2: %s [%s]" % (self.leaf2.__class__.__name__, id(self.leaf2))
 		if self.leaf2:
-			print "we have two leafs"
-			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))	 
+#			print "we have two leafs"
+#			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))	 
 			if caller == self.leaf1:
-				print "caller was leaf 1, hence splitting leaf 1"
+#				print "caller was leaf 1, hence splitting leaf 1"
 				self.leaf1 = cMultiSashSplitter(self.top_parent,self,
 										  caller.GetPosition(),
 										  caller.GetSize(),
 										  caller)
 				self.leaf1.AddLeaf(direction,caller,pos)
 			else:
-				print "caller was leaf 2, hence splitting leaf 2"
+#				print "caller was leaf 2, hence splitting leaf 2"
 				self.leaf2 = cMultiSashSplitter(self.top_parent,self,
 										  caller.GetPosition(),
 										  caller.GetSize(),
 										  caller)
 				self.leaf2.AddLeaf(direction,caller,pos)
 		else:
-			print "we have only one leaf"
-			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))
-			print "hence caller must have been leaf 1 hence adding leaf 2 ..."	  
+#			print "we have only one leaf"
+#			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))
+#			print "hence caller must have been leaf 1 hence adding leaf 2 ..."	  
 			self.direction = direction
 			w,h = self.GetSizeTuple()
 			if direction == MV_HOR:
-				print "... next to leaf 1"
+#				print "... next to leaf 1"
 				x,y = (pos,0)
 				w1,h1 = (w-pos,h)
 				w2,h2 = (pos,h)
 			else:
-				print "... below leaf 1"
+#				print "... below leaf 1"
 				x,y = (0,pos)
 				w1,h1 = (w,h-pos)
 				w2,h2 = (w,pos)
@@ -252,17 +252,17 @@ class cMultiSashSplitter(wxWindow):
 			self.leaf2.set_focus()
 
 	def DestroyLeaf(self,caller):
-		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))
+#		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))
 		top_parent = self.top_parent
 		if not self.leaf2:
 			self.leaf1.set_content(cEmptyChild(self))	# We will only have 2 windows if
 			return						# we need to destroy any
 		parent = self.GetParent()		# Another splitview
 		if parent == self.top_parent:	# We'r at the root
-			print "parent is root view"
-			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))	 
+#			print "parent is root view"
+#			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))	 
 			if caller == self.leaf1:
-				print "caller is leaf 1, hence destroying leaf 1 and copying leaf 2 to leaf 1"
+#				print "caller is leaf 1, hence destroying leaf 1 and copying leaf 2 to leaf 1"
 				old = self.leaf1
 				self.leaf1 = self.leaf2
 				self.leaf2 = None
@@ -271,7 +271,7 @@ class cMultiSashSplitter(wxWindow):
 				#self.top_parent.displayed_leafs.remove(old)
 				old.Destroy()
 			else:
-				print "caller is leaf 2, hence destroying leaf 2"
+#				print "caller is leaf 2, hence destroying leaf 2"
 				# Gnumed: remove content from displayed leafs
 				#print "Removing leaf2: %s [%s]" % (self.leaf2.__class__.__name__, id(self.leaf2))
 				#self.top_parent.displayed_leafs.remove(self.leaf2)
@@ -280,33 +280,33 @@ class cMultiSashSplitter(wxWindow):
 			self.leaf1.SetSize(self.GetSize())
 			self.leaf1.Move(self.GetPosition())
 		else:
-			print "parent is NOT root view"
-			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))
-			print "Removing caller"
+#			print "parent is NOT root view"
+#			print "caller: %s [%s]" % (caller.__class__.__name__, id(caller))
+#			print "Removing caller"
 			# Gnumed: remove content from displayed leafs
 			self.top_parent.displayed_leafs.remove(caller)
 			w,h = self.GetSizeTuple()
 			x,y = self.GetPositionTuple()
 			if caller == self.leaf1:
 				if self == parent.leaf1:
-					print "... leaf 1 ..."
+#					print "... leaf 1 ..."
 					parent.leaf1 = self.leaf2
 				else:
-					print "... leaf 2 ..."
+#					print "... leaf 2 ..."
 					parent.leaf2 = self.leaf2
-					print "... so replacing ourselves in the parent with our leaf 2"					
+#					print "... so replacing ourselves in the parent with our leaf 2"					
 				self.leaf2.Reparent(parent)
 				self.leaf2.SetDimensions(x,y,w,h)
-				print "caller is leaf 2"
-				print "in the parent we are ..."
+#				print "caller is leaf 2"
+#				print "in the parent we are ..."
 			else:
 				if self == parent.leaf1:
-					print "... leaf 1 ..."
+#					print "... leaf 1 ..."
 					parent.leaf1 = self.leaf1
 				else:
-					print "... leaf 2 ..."
+#					print "... leaf 2 ..."
 					parent.leaf2 = self.leaf1
-					print "... so replacing ourselves in the parent with our leaf 1"
+#					print "... so replacing ourselves in the parent with our leaf 1"
 				self.leaf1.Reparent(parent)
 				self.leaf1.SetDimensions(x,y,w,h)
 
@@ -314,22 +314,22 @@ class cMultiSashSplitter(wxWindow):
 			self.leaf2 = None
 			top_parent = self.top_parent
 			self.Destroy()
-			try:
-				print "leaf 1: %s [%s]" % (self.leaf1.__class__.__name__, id(self.leaf1))
-			except:
-				pass
-			try:
-				print "leaf 2: %s [%s]" % (self.leaf2.__class__.__name__, id(self.leaf2))
-			except:
-				pass
+#			try:
+#				print "leaf 1: %s [%s]" % (self.leaf1.__class__.__name__, id(self.leaf1))
+#			except:
+#				pass
+#			try:
+#				print "leaf 2: %s [%s]" % (self.leaf2.__class__.__name__, id(self.leaf2))
+#			except:
+#				pass
 		# Gnumed: find and update the bottom leaf
 		top_parent.refresh_bottom_leaf()
 		top_parent.refresh_displayed_leafs(top_parent.child)
-		print "\nGuessed leafs:"
-		cont = 0
-		for a_leaf in top_parent.displayed_leafs:
-			cont +=1
-			print "leaf %d: %s [%s]" % (cont, a_leaf.__class__.__name__, id(a_leaf))
+#		print "\nGuessed leafs:"
+#		cont = 0
+#		for a_leaf in top_parent.displayed_leafs:
+#			cont +=1
+#			print "leaf %d: %s [%s]" % (cont, a_leaf.__class__.__name__, id(a_leaf))
 	#---------------------------------------------
 	def CanSize(self,side,view):
 		if self.SizeTarget(side,view):
@@ -421,7 +421,7 @@ class cMultiSashLeaf(wxWindow):
 		will be required to further actions and processing.
 		"""
 		self.top_parent.focussed_leaf = self
-		print "focussed soap editor leaf:", self.__class__.__name__, id(self)
+#		print "focussed soap editor leaf:", self.__class__.__name__, id(self)
 
 	def _unselect(self):
 		self.content._unselect()
@@ -457,14 +457,14 @@ class cMultiSashLeaf(wxWindow):
 		errors:
 			1: lacking space to add leaf
 		"""
-		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
+#		print '%s[%s].AddLeaf()' % (self.__class__.__name__, id(self))
 		if pos < 10:
 			pos = 10
 		w,h = self.GetSizeTuple()
 		if direction == MV_VER:
 			if pos > h - 10:
-				print "pos", pos
-				print "w,h", w, h
+#				print "pos", pos
+#				print "w,h", w, h
 				return (False, 1)
 		else:
 			if pos > w - 10: return (False, 1)
@@ -480,7 +480,7 @@ class cMultiSashLeaf(wxWindow):
 		
 	#---------------------------------------------
 	def DestroyLeaf(self):
-		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))		
+#		print '%s[%s].DestroyLeaf()' % (self.__class__.__name__, id(self))		
 		self.GetParent().DestroyLeaf(self)
 		
 	#-----------------------------------------------------
@@ -894,7 +894,10 @@ def DrawSash(win,x,y,direction):
 	dc.EndDrawingOnTop()
 #----------------------------------------------------------------------
 # $Log: gmMultiSash.py,v $
-# Revision 1.3  2005-03-18 16:48:41  cfmoro
+# Revision 1.4  2005-04-12 10:04:59  ncq
+# - cleanup
+#
+# Revision 1.3  2005/03/18 16:48:41  cfmoro
 # Fixes to integrate multisash notes input plugin in wxclient
 #
 # Revision 1.2  2005/03/17 19:54:20  cfmoro

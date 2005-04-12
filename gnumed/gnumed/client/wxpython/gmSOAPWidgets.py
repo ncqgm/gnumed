@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.34 2005-04-03 20:18:27 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmSOAPWidgets.py,v 1.35 2005-04-12 10:06:06 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -166,11 +166,11 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 				if not last_encounter is None:
 					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
 			elif problem['type'] == 'episode':
-				epi = emr.problem2episode(problem)				
+				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if not last_encounter is None:
-					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')				
-			item = _('%s "%s" (last %s)') % (_(problem['type']), problem['problem'], last)
+					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
+			item = _('%s "%s" (last: %s)') % (_(problem['l10n_type']), problem['problem'], last)
 			self.__LST_problems.Append(item, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
@@ -443,7 +443,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 				msg = _('Cannot create episode [%s] to save progress note under.' % episode_name)
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
 				return False
-			print "SAVING UNASSOCIATED note for episode: %s " % episode
 		# set up clinical context in soap bundle
 		encounter = emr.get_active_encounter()
 		staff_id = gmWhoAmI.cWhoAmI().get_staff_ID()
@@ -457,8 +456,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		editor_content = soap_editor.GetValue()
 #		for input_label in editor_content.keys():
 		for input_label in editor_content.values():
-			print "Data: %s" % input_label.data
-			print "Value: %s" % input_label.value
 			bundle.append ({
 				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label.data['soap_cat'],
 				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
@@ -468,7 +465,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			})
 
 		# let's dump soap contents
-		print 'Saving: %s' % bundle
 		importer = gmSOAPimporter.cSOAPImporter()
 		importer.import_soap(bundle)
 
@@ -516,17 +512,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			gmGuiHelpers.gm_show_warning(msg, _('remove progress note editor'), gmLog.lWarn)
 			return		
 		selected_leaf.DestroyLeaf()
-
-		#print "problems with soap: %s" % (self.__managed_episodes)
-		# there's no leaf selected after deletion, so disable all buttons
-		#self.__BTN_save.Disable()
-		#self.__BTN_clear.Disable()
-		#self.__BTN_remove.Disable()
-		# enable new button is soap stack is empty
-		#selected_leaf = self.__soap_multisash.GetSelectedLeaf()
-		#if self.__selected_soap.GetHealthIssue() is None:
-		#	self.__BTN_new.Enable(True)
-		
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1171,7 +1156,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.34  2005-04-03 20:18:27  ncq
+# Revision 1.35  2005-04-12 10:06:06  ncq
+# - cleanup
+#
+# Revision 1.34  2005/04/03 20:18:27  ncq
 # - I feel haphazardous - enable actual progress note writing on [save]  :-))
 #
 # Revision 1.33  2005/03/29 18:43:06  cfmoro
