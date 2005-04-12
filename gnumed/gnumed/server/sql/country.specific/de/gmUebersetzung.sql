@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -84,20 +84,13 @@ select i18n_upd_tx
 
 -- =============================================
 -- confidentiality levels
-select i18n_upd_tx
-	('de_DE', 'public', 'öffentlich');
-select i18n_upd_tx
-	('de_DE', 'relatives', 'Angehörige');
-select i18n_upd_tx
-	('de_DE', 'receptionist', 'Personal');
-select i18n_upd_tx
-	('de_DE', 'clinical staff', 'klinisches Personal');
-select i18n_upd_tx
-	('de_DE', 'doctors', 'Ärzte');
-select i18n_upd_tx
-	('de_DE', 'doctors of practice only', 'Ärzte dieser Einrichtung');
-select i18n_upd_tx
-	('de_DE', 'treating doctor', 'behandelnder Arzt');
+select i18n_upd_tx ('de_DE', 'public', 'öffentlich');
+select i18n_upd_tx ('de_DE', 'relatives', 'Angehörige');
+select i18n_upd_tx ('de_DE', 'receptionist', 'Personal');
+select i18n_upd_tx ('de_DE', 'clinical staff', 'klinisches Personal');
+select i18n_upd_tx ('de_DE', 'doctors', 'Ärzte');
+select i18n_upd_tx ('de_DE', 'doctors of practice only', 'Ärzte dieser Einrichtung');
+select i18n_upd_tx ('de_DE', 'treating doctor', 'behandelnder Arzt');
 
 -- =============================================
 -- encounter types
@@ -238,14 +231,38 @@ select i18n_upd_tx('de_DE', 'mobile', 'Funktelefon');
 select i18n_upd_tx('de_DE', 'web', 'WWW');
 select i18n_upd_tx('de_DE', 'jabber', 'Jabber');
 
+select i18n_upd_tx('de_DE', 'health issue', 'Grunderkrankung');
+select i18n_upd_tx('de_DE', 'episode', 'Episode');
+select i18n_upd_tx('de_DE', 'encounter', 'APK');
+select i18n_upd_tx('de_DE', 'vaccine', 'Impfstoff');
+select i18n_upd_tx('de_DE', 'batch no', 'Charge');
+select i18n_upd_tx('de_DE', 'indication', 'Indikation');
+select i18n_upd_tx('de_DE', 'site', 'Ort');
+select i18n_upd_tx('de_DE', 'notes', 'Bemerkung');
+select i18n_upd_tx('de_DE', 'allergene', 'Allergen');
+select i18n_upd_tx('de_DE', 'substance', 'Substanz');
+select i18n_upd_tx('de_DE', 'generic', 'Generikum');
+select i18n_upd_tx('de_DE', 'ATC code', 'ATC-Code');
+select i18n_upd_tx('de_DE', 'type', 'Typ');
+select i18n_upd_tx('de_DE', 'reaction', 'Reaktion');
+select i18n_upd_tx('de_DE', 'lab', 'Labor');
+select i18n_upd_tx('de_DE', 'sample ID', 'Probennummer');
+select i18n_upd_tx('de_DE', 'sample taken', 'Probe genommen');
+select i18n_upd_tx('de_DE', 'status', 'Status');
+select i18n_upd_tx('de_DE', 'code', 'Code');
+select i18n_upd_tx('de_DE', 'name', 'Name');
+select i18n_upd_tx('de_DE', 'value', 'Wert');
 
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmUebersetzung.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.2 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.1  2005-03-31 19:15:41  ncq
+-- Revision 1.2  2005-04-12 10:08:57  ncq
+-- - add some translations
+--
+-- Revision 1.1  2005/03/31 19:15:41  ncq
 -- - consolidate translations
 --
