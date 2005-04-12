@@ -12,20 +12,21 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.187 2005-04-10 17:12:09 cfmoro Exp $
-__version__ = "$Revision: 1.187 $"
+# $Id: gmGuiMain.py,v 1.188 2005-04-12 10:03:20 ncq Exp $
+__version__ = "$Revision: 1.188 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time, os, cPickle, zlib
-from wxPython.wx import *
+#from wxPython.wx import *
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
-from Gnumed.wxpython import gmSelectPerson, gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographics
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets
 from Gnumed.business import gmPerson
+from Gnumed.exporters import gmPatientExporter
 from Gnumed.pycommon.gmPyCompat import *
 
 _cfg = gmCfg.gmDefCfgFile
@@ -54,6 +55,7 @@ ID_HELP = wx.wxNewId ()
 ID_NOTEBOOK = wx.wxNewId ()
 ID_LEFTBOX = wx.wxNewId ()
 ID_EXPORT_EMR = wx.wxNewId()
+ID_EXPORT_EMR_JOURNAL = wx.wxNewId()
 ID_CREATE_PATIENT = wx.wxNewId()
 #==============================================================================
 
@@ -75,16 +77,16 @@ class gmTopLevelFrame(wx.wxFrame):
 	"""
 
 	#----------------------------------------------
-	def __init__(self, parent, id, title, size=wxPyDefaultSize, layout=None):
+	def __init__(self, parent, id, title, size=wx.wxPyDefaultSize, layout=None):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
-		wxFrame.__init__(
+		wx.wxFrame.__init__(
 			self,
 			parent,
 			id,
 			title,
 			size,
-			style = wxDEFAULT_FRAME_STYLE
+			style = wx.wxDEFAULT_FRAME_STYLE
 		)
 
 		#initialize the gui broker
@@ -135,15 +137,15 @@ class gmTopLevelFrame(wx.wxFrame):
 			l = layout.split (".")
 			self.LayoutMgr = getattr (__import__ (".".join (l[:-1])), l[-1]) (self, -1)
 		# set window icon
-		icon_bmp_data = wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
-		icon = wxEmptyIcon()
+		icon_bmp_data = wx.wxBitmapFromXPMData(cPickle.loads(zlib.decompress(icon_serpent)))
+		icon = wx.wxEmptyIcon()
 		icon.CopyFromBitmap(icon_bmp_data)
 		self.SetIcon(icon)
 		self.acctbl = []
 		self.__gb['main.accelerators'] = self.acctbl
 		self.__register_events()
-		self.vbox = wxBoxSizer(wxVERTICAL)
-		self.vbox.Add(self.LayoutMgr, 10, wxEXPAND | wxALL, 1)
+		self.vbox = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.vbox.Add(self.LayoutMgr, 10, wx.wxEXPAND | wx.wxALL, 1)
 
 		self.SetAutoLayout(True)
 		self.SetSizer(self.vbox)
@@ -155,7 +157,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		#self.vbox.SetSizeHints(self)
 		self.__set_GUI_size()
 
-		self.Centre(wxBOTH)
+		self.Centre(wx.wxBOTH)
 		self.Show(True)
 	#----------------------------------------------
 	def __set_GUI_size(self):
@@ -193,26 +195,26 @@ class gmTopLevelFrame(wx.wxFrame):
 			desired_height = int(prev_height)
 
 		_log.Log(gmLog.lData, 'setting GUI size to [%s:%s]' % (desired_width, desired_height))
- 		self.SetClientSize(wxSize(desired_width, desired_height))
+ 		self.SetClientSize(wx.wxSize(desired_width, desired_height))
 	#----------------------------------------------
 	def __setup_platform(self):
 		#do the platform dependent stuff
-		if wxPlatform == '__WXMSW__':
+		if wx.wxPlatform == '__WXMSW__':
 			#windoze specific stuff here
 			_log.Log(gmLog.lInfo,'running on MS Windows')
-		elif wxPlatform == '__WXGTK__':
+		elif wx.wxPlatform == '__WXGTK__':
 			#GTK (Linux etc.) specific stuff here
 			_log.Log(gmLog.lInfo,'running on GTK (probably Linux)')
-		elif wxPlatform == '__WXMAC__':
+		elif wx.wxPlatform == '__WXMAC__':
 			#Mac OS specific stuff here
 			_log.Log(gmLog.lInfo,'running on Mac OS')
 		else:
-			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wxPlatform)
+			_log.Log(gmLog.lInfo,'running on an unknown platform (%s)' % wx.wxPlatform)
 	#----------------------------------------------
 	def __setup_accelerators(self):
-		self.acctbl.append ((wxACCEL_ALT | wxACCEL_CTRL, ord('X'), ID_EXIT))
-		self.acctbl.append ((wxACCEL_CTRL, ord('H'), ID_HELP))
-		self.SetAcceleratorTable(wxAcceleratorTable (self.acctbl))
+		self.acctbl.append ((wx.wxACCEL_ALT | wx.wxACCEL_CTRL, ord('X'), ID_EXIT))
+		self.acctbl.append ((wx.wxACCEL_CTRL, ord('H'), ID_HELP))
+		self.SetAcceleratorTable(wx.wxAcceleratorTable (self.acctbl))
 	#----------------------------------------------
 	def __setup_main_menu(self):
 		"""Create the main menu entries.
@@ -220,48 +222,50 @@ class gmTopLevelFrame(wx.wxFrame):
 		Individual entries are farmed out to the modules.
 		"""
 		# create main menu
-		self.mainmenu = wxMenuBar()
+		self.mainmenu = wx.wxMenuBar()
 		self.__gb['main.mainmenu'] = self.mainmenu
-		# menu "File"
-		self.menu_file = wxMenu()
-		self.menu_file.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
-		EVT_MENU(self, ID_EXIT, self.OnFileExit)
-		self.__gb['main.filemenu'] = self.menu_file
-		# FIXME: this isn't really appropriate
-		self.mainmenu.Append(self.menu_file, _("&File"))
+
+		# menu "Patient"
+		menu_patient = wx.wxMenu()
+		menu_patient.Append(ID_CREATE_PATIENT, _('Add patient'), _("Add new patient to GNUmed database"))
+		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.OnCreatePatient)
+		menu_patient.AppendSeparator()
+		menu_patient.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
+		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
+		self.mainmenu.Append(menu_patient, _("&Patient"))
+		self.__gb['main.filemenu'] = menu_patient
 
 		# menu "EMR"
-		menu_emr = wxMenu()
-		#self.__gb['main.toolsmenu'] = self.menu_tools
-		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export this patient's EMR as a text file"))
-		EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
+		menu_emr = wx.wxMenu()
+		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export this patient's EMR into a text file"))
+		wx.EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
+		menu_emr.Append (
+			ID_EXPORT_EMR_JOURNAL,
+			_('Export as Journal'),
+			_("export this patient's EMR as a chronological journal into a text file")
+		)
+		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		
-		# menu "Patient"
-		menu_patient = wxMenu()
-		menu_patient.Append(ID_CREATE_PATIENT, _('Create new'), _("create new patient"))
-		EVT_MENU(self, ID_CREATE_PATIENT, self.OnCreatePatient)
-		self.mainmenu.Append(menu_patient, _("&Patient"))		
-
 		# menu "View"
-		self.menu_view = wxMenu()
+		self.menu_view = wx.wxMenu()
 		self.__gb['main.viewmenu'] = self.menu_view
 		self.mainmenu.Append(self.menu_view, _("&View"));
 
 		# menu "Tools"
-		self.menu_tools = wxMenu()
+		self.menu_tools = wx.wxMenu()
 		self.__gb['main.toolsmenu'] = self.menu_tools
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
 
 		# menu "Reference"
-		self.menu_reference = wxMenu()
+		self.menu_reference = wx.wxMenu()
 		self.__gb['main.referencemenu'] = self.menu_reference
 		self.mainmenu.Append(self.menu_reference, _("&Reference"))
 
 		# menu "Help"
-		self.menu_help = wxMenu()
+		self.menu_help = wx.wxMenu()
 		self.menu_help.Append(ID_ABOUT, _("About GnuMed"), "")
-		EVT_MENU (self, ID_ABOUT, self.OnAbout)
+		wx.EVT_MENU (self, ID_ABOUT, self.OnAbout)
 		self.menu_help.AppendSeparator()
 		self.__gb['main.helpmenu'] = self.menu_help
 		self.mainmenu.Append(self.menu_help, "&Help")
@@ -277,10 +281,10 @@ class gmTopLevelFrame(wx.wxFrame):
 	def __register_events(self):
 		"""register events we want to react to"""
 		# wxPython events
-#		EVT_IDLE(self, self.OnIdle)
-		EVT_CLOSE(self, self.OnClose)
-		EVT_ICONIZE(self, self.OnIconize)
-		EVT_MAXIMIZE(self, self.OnMaximize)
+#		wx.EVT_IDLE(self, self.OnIdle)
+		wx.EVT_CLOSE(self, self.OnClose)
+		wx.EVT_ICONIZE(self, self.OnIconize)
+		wx.EVT_MAXIMIZE(self, self.OnMaximize)
 
 		# intra-client signals
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
@@ -300,8 +304,8 @@ class gmTopLevelFrame(wx.wxFrame):
 	#----------------------------------------------
 	def OnAbout(self, event):
 		from Gnumed.wxpython import gmAbout
-		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wxMAXIMIZE_BOX)
-		gmAbout.Centre(wxBOTH)
+		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wx.wxMAXIMIZE_BOX)
+		gmAbout.Centre(wx.wxBOTH)
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
 		del gmAbout
@@ -325,11 +329,29 @@ class gmTopLevelFrame(wx.wxFrame):
 		"""
 		gmEMRBrowser.export_emr_to_ascii(parent=self)
 	#----------------------------------------------
+	def __on_export_emr_as_journal(self, event):
+		wx.wxBeginBusyCursor()
+		exporter = gmPatientExporter.cEMRJournalExporter()
+		successful, fname = exporter.export_to_file()
+		wx.wxEndBusyCursor()
+		if not successful:
+			gmGuiHelpers.gm_show_error (
+				_('Error exporting patient EMR as chronological journal.'),
+				_('EMR journal export'),
+				gmLog.lErr
+			)
+		else:
+			gmGuiHelpers.gm_show_info (
+				_('Successfully exported EMR as chronological journal into file\n\n[%s]') % fname,
+				_('EMR journal export'),
+				gmLog.lInfo
+			)
+	#----------------------------------------------
 	def OnCreatePatient(self, event):
 		"""
 		Launch create patient wizard
 		"""
-		gmDemographics.NewPatientWizard(parent=self)		
+		gmDemographicsWidgets.NewPatientWizard(parent=self)		
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -416,9 +438,9 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.SetTitle(title)
 	#----------------------------------------------
 	def SetupStatusBar(self):
-		self.CreateStatusBar(2, wxST_SIZEGRIP)
+		self.CreateStatusBar(2, wx.wxST_SIZEGRIP)
 		#add time and date display to the right corner of the status bar
-		self.timer = wxPyTimer(self.Callback_UpdateTime)
+		self.timer = wx.wxPyTimer(self.Callback_UpdateTime)
 		self.Callback_UpdateTime()
 		#update every second
 		self.timer.Start(1000)
@@ -432,7 +454,7 @@ class gmTopLevelFrame(wx.wxFrame):
 	def on_user_error (self, signal, message):
 		"response to user_error event"
 		self.SetStatusText (message, 0)
-		wxBell()
+		wx.wxBell()
 	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
@@ -455,18 +477,18 @@ class gmTopLevelFrame(wx.wxFrame):
 		return
 	#-----------------------------------------------
 	def OnPanelSize (self, event):
-		wxLayoutAlgorithm ().LayoutWindow (self.LayoutMgr, self.nb)
+		wx.wxLayoutAlgorithm().LayoutWindow (self.LayoutMgr, self.nb)
 	#------------------------------------------------
 	def OnSashDrag (self, event):
-		if event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE:
+		if event.GetDragStatus() == wx.wxSASH_STATUS_OUT_OF_RANGE:
 			return
 		self.leftbox.SetDefaultSize(wxSize(event.GetDragRect().width, 1000))
-		self.bar_width = event.GetDragRect ().width
-		wxLayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
+		self.bar_width = event.GetDragRect().width
+		wx.wxLayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
 		self.nb.Refresh()
 
 #==============================================================================
-class gmApp(wxApp):
+class gmApp(wx.wxApp):
 
 	def OnInit(self):
 		# create a GUI element dictionary that
@@ -512,8 +534,8 @@ class gmApp(wxApp):
 			gmGuiHelpers.gm_show_error(msg, _('Checking access permissions'))
 			return False
 
-		EVT_QUERY_END_SESSION(self, self._on_query_end_session)
-		EVT_END_SESSION(self, self._on_end_session)
+		wx.EVT_QUERY_END_SESSION(self, self._on_query_end_session)
+		wx.EVT_END_SESSION(self, self._on_end_session)
 
 		# set up language in database
 		self.__set_db_lang()
@@ -526,7 +548,7 @@ class gmApp(wxApp):
 		# NOTE: the following only works under Windows according
 		# to the docs and bombs under wxPython-2.4 on GTK/Linux
 		#frame.Maximize(True)
-		frame.CentreOnScreen(wxBOTH)
+		frame.CentreOnScreen(wx.wxBOTH)
 		frame.Show(True)
 
 		# last but not least: start macro listener if so desired
@@ -562,11 +584,11 @@ class gmApp(wxApp):
 	# internal helpers
 	#----------------------------------------------
 	def __setup_platform(self):
-		if wxPlatform == '__WXMSW__':
+		if wx.wxPlatform == '__WXMSW__':
 			# windoze specific stuff here
 			_log.Log(gmLog.lInfo,'running on Microsoft Windows')
 			# need to explicitely init image handlers on windows
-			wxInitAllImageHandlers()
+			wx.wxInitAllImageHandlers()
 	#----------------------------------------------
 	def __set_db_lang(self):
 		if gmI18N.system_locale is None or gmI18N.system_locale == '':
@@ -626,16 +648,16 @@ class gmApp(wxApp):
 			_log.Log(gmLog.lInfo, 'configured to ignore system-to-database locale mismatch')
 			return 1
 		# no, so ask user
-		dlg = wxMessageDialog(
+		dlg = wx.wxMessageDialog(
 			parent = None,
 			message = msg,
 			caption = _('checking database language settings'),
-			style = wxYES_NO | wxCENTRE | wxICON_QUESTION
+			style = wx.wxYES_NO | wx.xCENTRE | wx.wxICON_QUESTION
 		)
 		result = dlg.ShowModal()
 		dlg.Destroy()
 
-		if result == wxID_NO:
+		if result == wx.wxID_NO:
 			_log.Log(gmLog.lInfo, 'User did not want to set database locale. Ignoring mismatch next time.')
 			comment = [
 				"If the system locale matches this value a mismatch",
@@ -680,7 +702,12 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.187  2005-04-10 17:12:09  cfmoro
+# Revision 1.188  2005-04-12 10:03:20  ncq
+# - slightly rearrange main menu
+# - add journal export function
+# - move to wx.wx* use
+#
+# Revision 1.187  2005/04/10 17:12:09  cfmoro
 # Added create patient menu option
 #
 # Revision 1.186  2005/04/03 20:12:12  ncq
