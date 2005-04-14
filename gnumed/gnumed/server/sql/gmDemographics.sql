@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.45 $
+-- $Revision: 1.46 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -181,12 +181,35 @@ create table enum_comm_types (
 -- ===================================================================
 -- person related tables
 -- ===================================================================
+create table gender_label (
+	pk serial primary key,
+	tag text
+		not null
+		unique
+		check (gender in ('m', 'f', 'h', 'tm', 'tf')),
+	label text
+		unique
+		not null,
+	sort_rank integer
+		not null,
+	comment text
+		not null
+) inherits (audit_fields);
+
+select add_table_for_audit('gender_label');
+
+comment on table gender_label is
+	'This table stores the genders known to GNUmed.
+	 FIXME: cross-check with CDA:administrative-gender-code';
+
+-- ==========================================================
 create table identity (
 	pk serial primary key,
 	pupic char(24),
 	gender text
-		default '?'
-		check (gender in ('m', 'f', 'h', 'tm', 'tf', '?')),
+		references gender_label(tag)
+		on update cascade
+		on delete restrict,
 	karyotype text
 		default null,
 	dob timestamp with time zone
@@ -208,13 +231,7 @@ comment on table identity IS
 comment on column identity.pupic IS
 	'Portable Unique Person Identification Code as per gnumed white papers';
 comment on column identity.gender is
-	'(m)ale,
-	 (f)emale,
-	 (h)ermaphrodite,
-	 tm - (t)ranssexual phenotype (m)ale,
-	 tf - (t)ranssexual phenotype (f)emale,
-	 ? - unknown
-	 FIXME: cross-check with CDA:administrative-gender-code';
+	'the gender code';
 comment on column identity.dob IS
 	'date/time of birth';
 comment on column identity.cob IS
@@ -274,10 +291,6 @@ comment on column lnk_identity2ext_id.fk_origin is
 	'originating system';
 
 -- ==========================================================
--- as opposed to the versioning of all other tables, changed names
--- should not be moved into the audit trail tables. Search functionality
--- must be available at any time for all names a person ever had.
-
 create table names (
 	id serial primary key,
 	id_identity integer
@@ -292,8 +305,11 @@ create table names (
 	unique(id_identity, lastnames, firstnames)
 );
 
-comment on table names IS
-	'all the names an identity is known under';
+comment on table names is
+	'all the names an identity is known under;
+	 As opposed to the versioning of all other tables, changed names
+	 should not be moved into the audit trail tables. Search functionality
+	 must be available at any time for all names a person ever had.';
 comment on column names.active IS
 	'true if the name is still in use';
 comment on column names.firstnames IS
@@ -309,6 +325,21 @@ comment on column names.preferred IS
 comment on column names.comment is
 	'a comment regarding this name, useful in things like "this was
 	 the name before marriage" etc';
+
+-- ==========================================================
+create table name_gender_map (
+	id serial primary key,
+	name text unique not null,
+	gender character(1) check (gender in ('m', 'f'))
+);
+
+COMMENT on table name_gender_map is
+	'maps (first) names to their most frequently locally assigned gender,
+	 this table is updated nightly by a cron script,
+	 names whose gender distribution is between 70/30 and 30/70 are
+	 ignored for ambiguity reasons,
+	 names with "ambigous" gender are also ignored';
+
 
 -- ==========================================================
 create table lnk_identity2comm (
@@ -538,11 +569,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.45 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.46 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.45  2005-03-31 17:48:41  ncq
+-- Revision 1.46  2005-04-14 16:46:51  ncq
+-- - name_gender_map moved here from DE specific section
+--
+-- Revision 1.45  2005/03/31 17:48:41  ncq
 -- - missing on update/delete clauses on FKs
 --
 -- Revision 1.44  2005/03/14 14:40:35  ncq
