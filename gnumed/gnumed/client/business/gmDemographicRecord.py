@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.70 2005-04-14 08:49:29 ncq Exp $
-__version__ = "$Revision: 1.70 $"
+# $Id: gmDemographicRecord.py,v 1.71 2005-04-14 18:58:14 cfmoro Exp $
+__version__ = "$Revision: 1.71 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -28,13 +28,14 @@ import mx.DateTime as mxDT
 #============================================================
 # map gender abbreviations in a GnuMed demographic service
 # to a meaningful localised string
-map_gender_gm2long = {
-	'm': _('male'),
-	'f': _('female'),
-	'tf': _('transsexual, female phenotype'),
-	'tm': _('transsexual, male phenotype')
-}
-
+demographics_GENDER_DICT = {
+			'm' : _('Male'),
+			'f' : _('Female'),
+			'?' : _('Unknown'),
+			'tm' : _('Transexual to Male'),
+			'tf' : _('Transexual to Female'),
+			'h' : _('Hermaphrodite')
+		}
 #===================================================================
 #class cComm (gmBusinessDBObject.cBusinessDBObject):
 	
@@ -379,7 +380,8 @@ if __name__ == "__main__":
 		if pID == '':
 			break
 		try:
-			myPatient = cIdentity (aPK_obj = pID)
+			print pID
+			myPatient = gmPerson.cIdentity (aPK_obj = pID)
 		except:
 			_log.LogException('Unable to set up patient with ID [%s]' % pID, sys.exc_info())
 			print "patient", pID, "can not be set up"
@@ -394,7 +396,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.70  2005-04-14 08:49:29  ncq
+# Revision 1.71  2005-04-14 18:58:14  cfmoro
+# Added create occupation method and minor gender map clean up, to replace later by get_gender_list
+#
+# Revision 1.70  2005/04/14 08:49:29  ncq
 # - move cIdentity and dob2medical_age() to gmPerson.py
 #
 # Revision 1.69  2005/03/30 21:04:01  cfmoro

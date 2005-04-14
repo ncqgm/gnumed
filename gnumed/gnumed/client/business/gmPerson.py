@@ -6,20 +6,20 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.17 2005-04-14 18:23:59 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPerson.py,v 1.18 2005-04-14 18:58:14 cfmoro Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, os.path, time, re, string
+import sys, os.path, time, re, string, types
 
 # 3rd party
 import mx.DateTime as mxDT
 
 # GNUmed
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmSignals, gmDispatcher, gmBorg, gmPyCompat, gmI18N, gmNull, gmBusinessDBObject
-from Gnumed.business import gmClinicalRecord, gmMedDoc
+from Gnumed.business import gmClinicalRecord, gmMedDoc, gmDemographicRecord
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -159,6 +159,30 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			del self._ext_cache['all_names']
 		active = (active and 't') or 'f'
 		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])]) 
+	#--------------------------------------------------------
+	def create_occupation(self, occupation):
+		"""Create an occupation """
+		
+		# sanity check
+		if not isinstance(occupation, types.StringType) or len(occupation.strip()) == 0:
+			_log.Log(gmLog.lErr, 'cannot create occupation [%s]' % occupation)
+			return None
+		# junk the cache and dump to backend and 				
+		cmd = """insert into lnk_job2person (id_identity, id_occupation)
+values (%s, create_occupation(%s)) """
+		if self._ext_cache.has_key ('occupations'):
+			del self._ext_cache['occupations']		
+		successful, data =  gmPG.run_commit2 (
+			link_obj = 'personalia',
+			queries = [
+			(cmd, [self._payload[self._idx['pk_identity']], occupation])
+			],
+			max_tries = 2
+		)
+		if not successful:
+			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
+			return None
+		return successful
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
@@ -1100,18 +1124,18 @@ def dob2medical_age(dob):
 		return "%sm" % (age.minutes)
 	return "%sm%ss" % (age.minutes, age.seconds)
 #============================================================
-def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
+def create_identity(gender=None, dob=None, lastnames=None, firstnames=None, nickname=None):
 	cmd1 = """insert into identity (gender, dob)
 values (coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, CURRENT_TIMESTAMP))"""
-	cmd2 = """insert into names (id_identity, lastnames, firstnames)
-values (currval('identity_id_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
-	cmd3 = """select currval('identity_id_seq')"""
+	cmd2 = """insert into names (id_identity, lastnames, firstnames, preferred)
+values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
+	cmd3 = """select currval('identity_pk_seq')"""
 
 	successful, data = gmPG.run_commit2 (
-		service = 'personalia',
+		link_obj = 'personalia',
 		queries = [
 			(cmd1, [gender, dob]),
-			(cmd2, [lastnames, firstnames]),
+			(cmd2, [lastnames, firstnames, nickname]),
 			(cmd3, [])
 		],
 		max_tries = 2
@@ -1122,7 +1146,7 @@ values (currval('identity_id_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 
 	rows, idx = data
 	return cIdentity(aPK_obj=rows[0][0])
 #============================================================
-def create_dummy_identity():
+def create_dummy_identity():	
 	cmd1 = "insert into identity(gender, dob) values('xxxDEFAULTxxx', CURRENT_TIMESTAMP)"
 	cmd2 = "select currval('identity_id_seq')"
 
@@ -1130,7 +1154,7 @@ def create_dummy_identity():
 	if data is None:
 		_log.Log(gmLog.lPanic, 'failed to create dummy identity')
 		return None
-	return data[0][0]
+	return gmDemographicRecord.cIdentity (aPK_obj = int(data[0][0]))
 #============================================================
 def set_active_patient(person = None):
 	"""Set active patient.
@@ -1207,7 +1231,16 @@ def get_gender_list():
 #============================================================
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
-
+	
+	# create patient
+	print "Creating identity..."
+	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames', nickname='test nickname')
+	print 'Identity created: %s' % new_identity
+	print 'Identity occupations: %s' % new_identity['occupations']
+	print 'Creating identity occupation...'
+	new_identity.create_occupation('test occupation')
+	print 'Identity occupations: %s' % new_identity['occupations']
+	
 	searcher = cPatientSearcher_SQL()
 	p_data = None
 	while 1:
@@ -1226,7 +1259,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.17  2005-04-14 18:23:59  ncq
+# Revision 1.18  2005-04-14 18:58:14  cfmoro
+# Added create occupation method and minor gender map clean up, to replace later by get_gender_list
+#
+# Revision 1.17  2005/04/14 18:23:59  ncq
 # - get_gender_list()
 #
 # Revision 1.16  2005/04/14 08:51:13  ncq
