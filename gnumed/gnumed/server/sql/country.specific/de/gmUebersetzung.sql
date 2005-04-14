@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -253,14 +253,28 @@ select i18n_upd_tx('de_DE', 'code', 'Code');
 select i18n_upd_tx('de_DE', 'name', 'Name');
 select i18n_upd_tx('de_DE', 'value', 'Wert');
 
+select i18n_upd_tx('de_DE', 'm', 'm');
+select i18n_upd_tx('de_DE', 'male', 'männlich');
+select i18n_upd_tx('de_DE', 'f', 'w');
+select i18n_upd_tx('de_DE', 'female', 'weiblich');
+select i18n_upd_tx('de_DE', 'tm', 'tm');
+select i18n_upd_tx('de_DE', 'transsexual phenotype male', 'transsexuell, männlicher Phänotyp');
+select i18n_upd_tx('de_DE', 'tf', 'tf');
+select i18n_upd_tx('de_DE', 'transsexual phenotype female', 'transsexuell, weiblicher Phänotyp');
+select i18n_upd_tx('de_DE', 'h', 'h');
+select i18n_upd_tx('de_DE', 'hermaphrodite', 'Hermaphrodit');
+
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmUebersetzung.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.2  2005-04-12 10:08:57  ncq
+-- Revision 1.3  2005-04-14 18:26:53  ncq
+-- - translate gender stuff
+--
+-- Revision 1.2  2005/04/12 10:08:57  ncq
 -- - add some translations
 --
 -- Revision 1.1  2005/03/31 19:15:41  ncq
