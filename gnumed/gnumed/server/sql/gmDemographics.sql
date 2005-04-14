@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.46 $
+-- $Revision: 1.47 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -186,7 +186,7 @@ create table gender_label (
 	tag text
 		not null
 		unique
-		check (gender in ('m', 'f', 'h', 'tm', 'tf')),
+		check (tag in ('m', 'f', 'h', 'tm', 'tf')),
 	label text
 		unique
 		not null,
@@ -569,11 +569,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.46 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.47 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.46  2005-04-14 16:46:51  ncq
+-- Revision 1.47  2005-04-14 16:56:33  ncq
+-- - fixed faulty field name
+--
+-- Revision 1.46  2005/04/14 16:46:51  ncq
 -- - name_gender_map moved here from DE specific section
 --
 -- Revision 1.45  2005/03/31 17:48:41  ncq
