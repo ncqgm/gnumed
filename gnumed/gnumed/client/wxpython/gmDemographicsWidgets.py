@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.4 2005-04-14 08:53:56 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmDemographicsWidgets.py,v 1.5 2005-04-14 18:26:19 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1095,7 +1095,7 @@ select distinct name, name from name_gender_map where name %(fragment_condition)
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.PRW_lastname.SetToolTipString(_("last name/family name"))
+		self.PRW_lastname.SetToolTipString(_("last name, family name"))
 		# nickname
 		STT_nick = wx.StaticText(self, -1, _('Nick name'))
 		cmd = """
@@ -1109,19 +1109,42 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_nick.SetToolTipString(_("nick name/preferred name/call name/warrior name"))
+		self.PRW_nick.SetToolTipString(_("nick name, preferred name, call name, warrior name, artist name, alias"))
 		# DOB
 		STT_dob = wx.StaticText(self, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
-		self.TTC_dob = gmDateTimeInput.gmDateInput(self, -1,
-		validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))
-		self.TTC_dob.SetToolTipString(_("The patient's date of birth (dob)"))
+		self.TTC_dob = gmDateTimeInput.gmDateInput (
+			self,
+			-1,
+			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+		)
+		self.TTC_dob.SetToolTipString(_("date of birth, if unknown or aliasing wanted then invent one"))
 		# gender
 		STT_gender = wx.StaticText(self, -1, _('Gender'))
-		STT_gender.SetForegroundColour('red')		
-		self.SCB_gender = SmartCombo(self, gendermap)
-		self.SCB_gender.SetValidator(gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))		
-		self.SCB_gender.SetToolTipString(_("The patient's gender"))
+		STT_gender.SetForegroundColour('red')
+		genders, idx = gmPerson.get_gender_list()
+		_genders = []
+		for gender in genders:
+			_genders.append({
+				'data': gender[idx['tag']],
+				'label': gender[idx['l10n_label']],
+				'weight': gender[idx['sort_weight']]
+			})
+		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = _genders)
+		mp.setThresholds(1, 2, 3)
+		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
+			parent = self,
+			id = -1,
+			aMatchProvider = mp,
+			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
+			aDelay = 100
+		)
+		self.PRW_gender.SetToolTipString(_("gender of patient"))
+
+#		self.SCB_gender = SmartCombo(self, gendermap)
+#		self.SCB_gender.SetValidator(gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))		
+#		self.SCB_gender.SetToolTipString(_("The patient's gender"))
+
 		# title
 		STT_title = wx.StaticText(self, -1, _('Title'))
 		cmd = "select distinct title, title from identity where title %(fragment_condition)s"
@@ -1212,7 +1235,8 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)	
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-		SZR_input.Add(self.SCB_gender, 1, wx.EXPAND)					
+#		SZR_input.Add(self.SCB_gender, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)					
 		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
@@ -1250,7 +1274,7 @@ class NewPatientWizard:
 
 		self.__do_layout()
 		  				
-		if self.__wizard.RunWizard(self.basic_pat_details):			
+		if self.__wizard.RunWizard(self.basic_pat_details):
 			# dump data to backend
 			msg = _('Code to validate and dump data to backend coming soon...')
 			gmGuiHelpers.gm_show_warning(msg, _('new patient wizard'), gmLog.lWarn)
@@ -1293,7 +1317,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.4  2005-04-14 08:53:56  ncq
+# Revision 1.5  2005-04-14 18:26:19  ncq
+# - turn gender input into phrase wheel with fixed list
+# - some cleanup
+#
+# Revision 1.4  2005/04/14 08:53:56  ncq
 # - cIdentity moved
 # - improved tooltips and phrasewheel thresholds
 #
