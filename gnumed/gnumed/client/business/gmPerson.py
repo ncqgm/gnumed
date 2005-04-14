@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.18 2005-04-14 18:58:14 cfmoro Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPerson.py,v 1.19 2005-04-14 19:04:01 cfmoro Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -160,7 +160,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		active = (active and 't') or 'f'
 		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])]) 
 	#--------------------------------------------------------
-	def create_occupation(self, occupation):
+	def add_occupation(self, occupation):
 		"""Create an occupation """
 		
 		# sanity check
@@ -1238,7 +1238,7 @@ if __name__ == "__main__":
 	print 'Identity created: %s' % new_identity
 	print 'Identity occupations: %s' % new_identity['occupations']
 	print 'Creating identity occupation...'
-	new_identity.create_occupation('test occupation')
+	new_identity.add_occupation('test occupation')
 	print 'Identity occupations: %s' % new_identity['occupations']
 	
 	searcher = cPatientSearcher_SQL()
@@ -1259,7 +1259,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.18  2005-04-14 18:58:14  cfmoro
+# Revision 1.19  2005-04-14 19:04:01  cfmoro
+# create_occupation -> add_occupation
+#
+# Revision 1.18  2005/04/14 18:58:14  cfmoro
 # Added create occupation method and minor gender map clean up, to replace later by get_gender_list
 #
 # Revision 1.17  2005/04/14 18:23:59  ncq
