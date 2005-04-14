@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.69 2005-03-30 21:04:01 cfmoro Exp $
-__version__ = "$Revision: 1.69 $"
+# $Id: gmDemographicRecord.py,v 1.70 2005-04-14 08:49:29 ncq Exp $
+__version__ = "$Revision: 1.70 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -145,208 +145,6 @@ class cOrg (gmBusinessDBObject.cBusinessDBObject):
 		"""
 		return self['id']
 #==============================================================================
-class cIdentity (cOrg):
-	_table = "identity"
-	_cmd_fetch_payload = "select * from v_basic_person where pk_identity=%s"
-	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(pk_identity)s and xmin_identity = %(xmin_identity)"]
-	_cmds_store_payload = [
-		"""update identity set
-			title=%(title)s,
-			dob=%(dob)s,
-			cob=%(cob)s,
-			gender=%(gender)s,
-			pk_marital_status = %(pk_marital_status)s,
-			karyotype = %(karyotype)s,
-			pupic = %(pupic)s
-		where pk=%(pk_identity)s""",
-		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
-	]
-	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
-	_subtables = {'addresses':{
-		'select':"""select
-				vba.id as pk,
-				vba.number,
-				vba.addendum, 
-				vba.street,
-				vba.urb,
-				vba.postcode,
-				at.name as type,
-				lpoa.id_type as id_type
-			from
-				v_basic_address vba,
-				lnk_person_org_address lpoa,
-				address_type at
-			where
-				lpoa.id_address = vba.id
-				and lpoa.id_type = at.id
-				and lpoa.id_identity = %s""",
-		'insert':"""insert into lnk_person_org_address (id_identity, id_address) values
-		(%(pk_master)s, create_address (%(number)s, %(addendum)s, %(street)s,
-		%(city)s, %(postcode)s))""",
-		'delete':"""delete from lnk_person_org_address where id_identity = $s and id_address = %s"""
-		      },
-		      'ext_ids':{
-		'select':"""select external_id as pk,
-		fk_origin as id_type, comment, external_id, eeid.name as type, eeid.context as context
-		from lnk_identity2ext_id, enum_ext_id_types eeid where
-		id_identity = %s and fk_origin = eeid.pk""",
-		'delete':"""
-		delete from lnk_identity2ext_id where id_identity = %s and external_id = %s""",
-		'insert':"""
-		insert into lnk_identity2ext_id (external_id, fk_origin, comment, id_identity) values
-		(%(external_id)s, %(id_type)s, %(comment)s, %(pk_master)s)"""},
-		      'comms':{
-		'select':"""select
-				l2c.id_type,
-				l2c.url,
-				l2c.url as pk,
-				l2c.is_confidential,
-				ect.description as type
-				
-			from
-				lnk_identity2comm l2c,
-				enum_comm_types ect
-			where
-				l2c.id_identity = %s
-				and ect.id = id_type
-				""",
-		'insert':"""
-		insert into lnk_identity2ext_id (id_identity, id_type, url, is_confidential)
-		values (%(pk_master)s, %(id_type)s, %(url)s, %(is_confidential)s)""",
-		'delete':"""delete from lnk_identity2ext_id where id_identity = %s and url = %s"""},
-		      'occupations':{
-		'select':"select o.name as occupation, o.id as pk from occupation o, lnk_job2person lj2p where o.id = lj2p.id_occupation and lj2p.id_identity = %s",
-		'delete':"delete from lnk_job2person lj2p where id_identity = %s and id_occupation = %s",
-		'insert':"insert into lnk_job2person (id_identity, id_occupation) values (%(pk_mase)s, create_occupation (%(occupation)s))"}
-		      }
-	#----------------------------------------------------------
-	def getId(self):
-		return self['pk_identity']
-	#--------------------------------------------------------
-	def get_all_names(self):
-		cmd = """
-				select n.firstnames, n.lastnames, i.title, n.preferred
-				from names n, identity i
-				where n.id_identity=%s and i.pk=%s"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'], self['pk_identity'])
-		if rows is None:
-			return None
-		if len(rows) == 0:
-			return [{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}]
-		else:
-			names = []
-			for row in rows:
-				names.append({'first': row[0], 'last': row[1], 'title': row[2], 'preferred':row[3]})
-			return names
-	#--------------------------------------------------------
-	def get_description (self):
-		"""
-		Again, allow code reuse where we don't care whether we are talking to a person
-		or organisation"""
-		title = self._payload[self._idx['title']]
-		if title is None:
-			title = ''
-		else:
-			title = title[:4] + '.'
-		return "%s%s %s" % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
-	#--------------------------------------------------------
-	def add_name(self, firstnames, lastnames, active=True):
-		"""Add a name """
-		cmd = "select add_name(%s, %s, %s, %s)"
-		if active:
-			# junk the cache appropriately
-			if self._ext_cache.has_key ('description'):
-				del self._ext_cache['description']
-			self._payload[self._idx['firstnames']] = firstnames
-			self._payload[self._idx['lastnames']] = lastnames
-		if self._ext_cache['all_names']:
-			del self._ext_cache['all_names']
-		active = (active and 't') or 'f'
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])]) 
-	#----------------------------------------------------------------------
-	def get_relatives(self):
-		cmd = """
-select
-        t.description, vbp.pk_identity as id, title, firstnames, lastnames, dob, cob, gender, karyotype, pupic, pk_marital_status,
-	marital_status, xmin_identity, preferred
-from
-	v_basic_person vbp, relation_types t, lnk_person2relative l
-where
-	(l.id_identity = %s and
-	vbp.pk_identity = l.id_relative and
-	t.id = l.id_relation_type) or
-	(l.id_relative = %s and
-	vbp.pk_identity = l.id_identity and
-	t.inverse = l.id_relation_type)
-"""
-		data, idx = gmPG.run_ro_query('personalia', cmd, 1, [self.getId(), self.getId()])
-		if data is None:
-			return []
-		if len(data) == 0:
-			return []
-		return [(r[0], cIdentity (row = {'data':r[1:], 'idx':idx, 'pk_field': 'pk'})) for r in data ]
-	#--------------------------------------------------------
-	def link_new_relative(self, rel_type = 'parent'):
-		from Gnumed.business.gmPerson import create_dummy_identity
-		# create new relative
-		id_new_relative = create_dummy_identity()
-		relative = gmPerson(id_new_relative)
-		# pre-fill with data from ourselves
-		relative_ident = relative.get_identity()
-		relative_ident.copyAddresses(self)
-		relative_ident.addName( '**?**', self.get_names()['last'], activate = 1)
-		# and link the two
-		cmd2 = """
-			insert into lnk_person2relative (
-				id_identity, id_relative, id_relation_type
-			) values (
-				%s, %s, (select id from relation_types where description = %s)
-			)"""
-		if self._ext_cache.has_key ('relatives'):
-			del self._ext_cache['relatives']
-		if rel_type:
-			return gmPG.run_commit2 (
-				'personalia',
-				[(cmd1, [self.getId(), relation['id'], relation['id'], self.getId()]),
-				 (cmd2, [relation['id'], self.getId(), rel_type])]
-			)
-		else:
-			return gmPG.run_commit2 ('personalia', [(cmd1, [self.getId(), relation['id'], relation['id'], self.getId()])])
-	#----------------------------------------------------------------------
-	def delete_relative(self, relation):
-		self.set_relative (None, relation)
-	#----------------------------------------------------------------------
-	def get_medical_age(self):
-		dob = self['dob']
-		if dob is None:
-			return '??'
-		return dob2medical_age(dob)
-
-#================================================================
-# convenience functions
-#================================================================
-def dob2medical_age(dob):
-	"""format patient age in a hopefully meaningful way"""
-
-	age = mxDT.Age(mxDT.now(), dob)
-
-	if age.years > 0:
-		return "%sy%sm" % (age.years, age.months)
-	weeks = age.days / 7
-	if weeks > 4:
-		return "%sm%sw" % (age.months, age.weeks)
-	if weeks > 1:
-		return "%sd" % age.days
-	if age.days > 1:
-		return "%sd (%sh)" % (age.days, age.hours)
-	if age.hours > 3:
-		return "%sh" % age.hours
-	if age.hours > 0:
-		return "%sh%sm" % (age.hours, age.minutes)
-	if age.minutes > 5:
-		return "%sm" % (age.minutes)
-	return "%sm%ss" % (age.minutes, age.seconds)
-
 def get_time_tuple (mx):
 	"""
 	wrap mx.DateTime brokenness
@@ -596,7 +394,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.69  2005-03-30 21:04:01  cfmoro
+# Revision 1.70  2005-04-14 08:49:29  ncq
+# - move cIdentity and dob2medical_age() to gmPerson.py
+#
+# Revision 1.69  2005/03/30 21:04:01  cfmoro
 # id -> pk_identity
 #
 # Revision 1.68  2005/03/29 18:55:39  cfmoro
