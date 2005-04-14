@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -169,7 +169,7 @@ def wish_display_plugin ():
 def search_result ():
 	"""
 	The results of a patient search
-	- ids: a list of gmDemographicRecord.cIdentity objects
+	- ids: a list of gmPerson.cIdentity objects
 	- display_fields: a list of fields to display
 	"""
 	return "search_result"
@@ -201,7 +201,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.8  2005-02-23 19:39:37  ncq
+# Revision 1.9  2005-04-14 08:51:51  ncq
+# - cIdentity has moved
+#
+# Revision 1.8  2005/02/23 19:39:37  ncq
 # - episodes_updated -> episodes_modified
 #
 # Revision 1.7  2005/02/01 10:16:07  ihaywood
