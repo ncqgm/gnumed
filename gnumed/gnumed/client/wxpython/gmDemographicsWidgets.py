@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.3 2005-04-12 18:49:04 cfmoro Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmDemographicsWidgets.py,v 1.4 2005-04-14 08:53:56 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -545,7 +545,7 @@ class PatientListWindow(wx.ListCtrl):
 	#----------------------------------------------------------
 	def on_search (self, ids, display_fields = ['name', 'dob', 'home_address', 'gender', 'home_phone']):
 		"""
-		Receives a list of gmDemographicRecord.cIdentity objects to display
+		Receives a list of gmPerson.cIdentity objects to display
 		"""
 		n = 0
 		self.patientlist.ClearAll ()
@@ -1126,7 +1126,7 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		STT_title = wx.StaticText(self, -1, _('Title'))
 		cmd = "select distinct title, title from identity where title %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(3, 5, 15)				
+		mp.setThresholds(1, 3, 15)
 		self.PRW_title = gmPhraseWheel.cPhraseWheel(
 			parent = self,
 			id = -1,
@@ -1147,53 +1147,53 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		# zip code
 		STT_zip_code = wx.StaticText(self, -1, _('Zip code'))
 		self.TTC_zip_code = wx.TextCtrl(self, -1)
-		self.TTC_zip_code.SetToolTipString(_("The Zip code of the primary/home address"))
+		self.TTC_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
 		# street
 		STT_street = wx.StaticText(self, -1, _('Street'))
 		cmd = "select distinct name, name from street where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 15)				
-		self.PRW_street = gmPhraseWheel.cPhraseWheel(
+		self.PRW_street = gmPhraseWheel.cPhraseWheel (
 			parent = self,
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_street.SetToolTipString(_("The street of the primary/home address"))
+		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 		# town
 		STT_town = wx.StaticText(self, -1, _('Town'))
 		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(3, 5, 15)		
+		mp.setThresholds(3, 5, 6)
 		self.PRW_town = gmPhraseWheel.cPhraseWheel(
 			parent = self,
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_town.SetToolTipString(_("The town of the primary/home address"))
+		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(self, -1, _('State'))
-		cmd = "select distinct name, name from state where name %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_state = gmPhraseWheel.cPhraseWheel(
+		cmd = "select distinct name, code from state where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
+		mp.setThresholds(3, 5, 6)
+		self.PRW_state = gmPhraseWheel.cPhraseWheel (
 			parent = self,
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_state.SetToolTipString(_("The state of the primary/home address"))
+		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(self, -1, _('Country'))
-		cmd = "select distinct name, name from country where name %(fragment_condition)s"
+		cmd = "select distinct name, code from country where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(3, 5, 15)		
-		self.PRW_country = gmPhraseWheel.cPhraseWheel(
+		mp.setThresholds(2, 5, 15)
+		self.PRW_country = gmPhraseWheel.cPhraseWheel (
 			parent = self,
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_country.SetToolTipString(_("The country of the primary/home address"))
+		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 		# phone
 		STT_phone = wx.StaticText(self, -1, _('Phone'))
 		self.TTC_phone = wx.TextCtrl(self, -1,
@@ -1293,7 +1293,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.3  2005-04-12 18:49:04  cfmoro
+# Revision 1.4  2005-04-14 08:53:56  ncq
+# - cIdentity moved
+# - improved tooltips and phrasewheel thresholds
+#
+# Revision 1.3  2005/04/12 18:49:04  cfmoro
 # Added missing fields and matcher providers
 #
 # Revision 1.2  2005/04/12 16:18:00  ncq
