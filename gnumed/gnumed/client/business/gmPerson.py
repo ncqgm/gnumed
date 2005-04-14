@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.20 2005-04-14 19:27:20 cfmoro Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmPerson.py,v 1.21 2005-04-14 22:34:50 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -112,7 +112,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			'delete':
 				"""delete from lnk_job2person lj2p where id_identity = %s and id_occupation = %s""",
 			'insert':
-				"""insert into lnk_job2person (id_identity, id_occupation) values (%(pk_mase)s, create_occupation (%(occupation)s))"""
+				"""insert into lnk_job2person (id_identity, id_occupation) values (%(pk_master)s, create_occupation(%(occupation)s))"""
 		}
 	}
 	#--------------------------------------------------------
@@ -158,31 +158,34 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if self._ext_cache['all_names']:
 			del self._ext_cache['all_names']
 		active = (active and 't') or 'f'
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])]) 
+		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])])
 	#--------------------------------------------------------
+	# FIXME: should this perhaps be named link_occupation() ?
 	def add_occupation(self, occupation):
-		"""Create an occupation """
-		
+		"""Create an occupation"""
 		# sanity check
-		if not isinstance(occupation, types.StringType) or len(occupation.strip()) == 0:
+		try:
+			occupation = str(occupation)
+		except:
 			_log.Log(gmLog.lErr, 'cannot create occupation [%s]' % occupation)
-			return None
-		# junk the cache and dump to backend and 				
-		cmd = """insert into lnk_job2person (id_identity, id_occupation)
-values (%s, create_occupation(%s)) """
-		if self._ext_cache.has_key ('occupations'):
-			del self._ext_cache['occupations']		
+			return False
+		# junk the cache
+		if self._ext_cache.has_key('occupations'):
+			del self._ext_cache['occupations']
+		# dump to backend
+		cmd = """
+insert into lnk_job2person (id_identity, id_occupation)
+values (%s, create_occupation(%s))"""
 		successful, data =  gmPG.run_commit2 (
 			link_obj = 'personalia',
 			queries = [
-			(cmd, [self._payload[self._idx['pk_identity']], occupation])
-			],
-			max_tries = 2
+				(cmd, [self._payload[self._idx['pk_identity']], occupation])
+			]
 		)
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
-			return None
-		return successful
+			return False
+		return True
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
@@ -216,14 +219,14 @@ where
 		relative_ident.copyAddresses(self)
 		relative_ident.addName( '**?**', self.get_names()['last'], activate = 1)
 		# and link the two
+		if self._ext_cache.has_key('relatives'):
+			del self._ext_cache['relatives']
 		cmd2 = """
 			insert into lnk_person2relative (
 				id_identity, id_relative, id_relation_type
 			) values (
 				%s, %s, (select id from relation_types where description = %s)
 			)"""
-		if self._ext_cache.has_key ('relatives'):
-			del self._ext_cache['relatives']
 		if rel_type:
 			return gmPG.run_commit2 (
 				'personalia',
@@ -1125,10 +1128,11 @@ def dob2medical_age(dob):
 	return "%sm%ss" % (age.minutes, age.seconds)
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None, nickname=None, title=None):
+	# FIXME: I am not so sure about title/nickname - does it belong here ?
 	cmd1 = """insert into identity (gender, dob, title)
-values (coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, CURRENT_TIMESTAMP), coalesce(%s, 'xxxDEFAULTxxx'))"""
+values (%s, coalesce(%s, CURRENT_TIMESTAMP), %s)"""
 	cmd2 = """insert into names (id_identity, lastnames, firstnames, preferred)
-values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
+values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), %s)"""
 	cmd3 = """select currval('identity_pk_seq')"""
 
 	successful, data = gmPG.run_commit2 (
@@ -1259,7 +1263,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.20  2005-04-14 19:27:20  cfmoro
+# Revision 1.21  2005-04-14 22:34:50  ncq
+# - some streamlining of create_identity
+#
+# Revision 1.20  2005/04/14 19:27:20  cfmoro
 # Added title param to create_identity, to cover al fields in basic patient details
 #
 # Revision 1.19  2005/04/14 19:04:01  cfmoro
