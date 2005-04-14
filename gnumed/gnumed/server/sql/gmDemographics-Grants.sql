@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -36,7 +36,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	address_type_id_seq,
 	enum_comm_types,
 	enum_ext_id_types,
-	enum_ext_id_types_pk_seq,
+	enum_ext_id_types_pk_seq
+	, gender_label
+	, gender_label_pk_seq,
 	lnk_identity2ext_id,
 	lnk_identity2ext_id_id_seq,
 	lnk_person_org_address,
@@ -62,7 +64,10 @@ TO GROUP "gm-doctors";
 
 -- ===================================================================
 -- $Log: gmDemographics-Grants.sql,v $
--- Revision 1.12  2005-04-12 16:23:23  ncq
+-- Revision 1.13  2005-04-14 16:58:18  ncq
+-- - gender_label grants
+--
+-- Revision 1.12  2005/04/12 16:23:23  ncq
 -- - grant on name_gender_map
 --
 -- Revision 1.11  2005/03/31 17:47:52  ncq
