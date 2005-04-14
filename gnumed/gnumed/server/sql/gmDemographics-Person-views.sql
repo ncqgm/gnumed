@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.32 2005-04-14 16:57:00 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.33 2005-04-14 17:45:21 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -176,7 +176,7 @@ select
 	gl.label,
 	_(gl.label) as l10n_label,
 	gl.comment,
-	gl.sort_rank,
+	gl.sort_weight as sort_weight,
 	gl.pk as pk_gender_label
 from
 	gender_label gl
@@ -342,6 +342,7 @@ GRANT SELECT ON
 	, lnk_person2address
 	, lnk_org2address
 	, v_person_comms_flat
+	, v_gender_labels
 TO GROUP "gm-doctors";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON
@@ -351,11 +352,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.32 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.33 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.32  2005-04-14 16:57:00  ncq
+-- Revision 1.33  2005-04-14 17:45:21  ncq
+-- - gender_label.sort_rank -> sort_weight
+--
+-- Revision 1.32  2005/04/14 16:57:00  ncq
 -- - typo fix
 --
 -- Revision 1.31  2005/02/13 14:41:52  ncq

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.47 $
+-- $Revision: 1.48 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -190,7 +190,7 @@ create table gender_label (
 	label text
 		unique
 		not null,
-	sort_rank integer
+	sort_weight integer
 		not null,
 	comment text
 		not null
@@ -569,11 +569,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.47 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.48 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.47  2005-04-14 16:56:33  ncq
+-- Revision 1.48  2005-04-14 17:45:21  ncq
+-- - gender_label.sort_rank -> sort_weight
+--
+-- Revision 1.47  2005/04/14 16:56:33  ncq
 -- - fixed faulty field name
 --
 -- Revision 1.46  2005/04/14 16:46:51  ncq

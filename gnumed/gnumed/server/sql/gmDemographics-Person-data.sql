@@ -4,7 +4,7 @@
 -- identity related data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-data.sql,v $
--- $Id: gmDemographics-Person-data.sql,v 1.6 2005-04-14 16:57:50 ncq Exp $
+-- $Id: gmDemographics-Person-data.sql,v 1.7 2005-04-14 17:45:21 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -38,29 +38,32 @@ insert into marital_status(name) values (i18n ('separated'));
 insert into marital_status(name) values (i18n ('widowed'));
 
 
-insert into gender_label (tag, label, sort_rank, comment) values (
-	i18n('m'), i18n('male'), 1, '(m)ale'
+insert into gender_label (tag, label, sort_weight, comment) values (
+	i18n('m'), i18n('male'), 3, '(m)ale'
 );
-insert into gender_label (tag, label, sort_rank, comment) values (
-	i18n('f'), i18n('female'), 1, '(f)emale'
+insert into gender_label (tag, label, sort_weight, comment) values (
+	i18n('f'), i18n('female'), 3, '(f)emale'
 );
-insert into gender_label (tag, label, sort_rank, comment) values (
+insert into gender_label (tag, label, sort_weight, comment) values (
 	i18n('tm'), i18n('transsexual phenotype male'), 2, 'tm - (t)ranssexual phenotype (m)ale'
 );
-insert into gender_label (tag, label, sort_rank, comment) values (
+insert into gender_label (tag, label, sort_weight, comment) values (
 	i18n('tf'), i18n('transsexual phenotype female'), 2, 'tf - (t)ranssexual phenotype (f)emale'
 );
-insert into gender_label (tag, label, sort_rank, comment) values (
-	i18n('h'), i18n('hermaphrodite'), 3, '(h)ermaphrodite: intersexual'
+insert into gender_label (tag, label, sort_weight, comment) values (
+	i18n('h'), i18n('hermaphrodite'), 1, '(h)ermaphrodite: intersexual'
 );
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-data.sql,v $
--- Revision 1.6  2005-04-14 16:57:50  ncq
+-- Revision 1.7  2005-04-14 17:45:21  ncq
+-- - gender_label.sort_rank -> sort_weight
+--
+-- Revision 1.6  2005/04/14 16:57:50  ncq
 -- - add gender_label data
 --
 -- Revision 1.5  2005/02/12 13:49:14  ncq
