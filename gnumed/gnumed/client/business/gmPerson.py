@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.19 2005-04-14 19:04:01 cfmoro Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmPerson.py,v 1.20 2005-04-14 19:27:20 cfmoro Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1124,9 +1124,9 @@ def dob2medical_age(dob):
 		return "%sm" % (age.minutes)
 	return "%sm%ss" % (age.minutes, age.seconds)
 #============================================================
-def create_identity(gender=None, dob=None, lastnames=None, firstnames=None, nickname=None):
-	cmd1 = """insert into identity (gender, dob)
-values (coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, CURRENT_TIMESTAMP))"""
+def create_identity(gender=None, dob=None, lastnames=None, firstnames=None, nickname=None, title=None):
+	cmd1 = """insert into identity (gender, dob, title)
+values (coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, CURRENT_TIMESTAMP), coalesce(%s, 'xxxDEFAULTxxx'))"""
 	cmd2 = """insert into names (id_identity, lastnames, firstnames, preferred)
 values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
 	cmd3 = """select currval('identity_pk_seq')"""
@@ -1134,7 +1134,7 @@ values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 
 	successful, data = gmPG.run_commit2 (
 		link_obj = 'personalia',
 		queries = [
-			(cmd1, [gender, dob]),
+			(cmd1, [gender, dob, title]),
 			(cmd2, [lastnames, firstnames, nickname]),
 			(cmd3, [])
 		],
@@ -1234,7 +1234,7 @@ if __name__ == "__main__":
 	
 	# create patient
 	print "Creating identity..."
-	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames', nickname='test nickname')
+	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames', nickname='test nickname', title='test title')
 	print 'Identity created: %s' % new_identity
 	print 'Identity occupations: %s' % new_identity['occupations']
 	print 'Creating identity occupation...'
@@ -1259,7 +1259,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.19  2005-04-14 19:04:01  cfmoro
+# Revision 1.20  2005-04-14 19:27:20  cfmoro
+# Added title param to create_identity, to cover al fields in basic patient details
+#
+# Revision 1.19  2005/04/14 19:04:01  cfmoro
 # create_occupation -> add_occupation
 #
 # Revision 1.18  2005/04/14 18:58:14  cfmoro
