@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 
 -- part of GnuMed
 -- license: GPL
@@ -12,20 +12,6 @@
 \set ON_ERROR_STOP 1
 
 -- set client_encoding to 'LATIN1';
--- ===================================================================
-create table name_gender_map (
-	id serial primary key,
-	name text unique not null,
-	gender character(1) check (gender in ('m', 'f'))
-);
-
-COMMENT on table name_gender_map is
-	'maps (first) names to their most frequently locally assigned gender,
-	 this table is updated nightly by a cron script,
-	 names whose gender distribution is between 70/30 and 30/70 are
-	 ignored for ambiguity reasons,
-	 names with "ambigous" gender are also ignored';
-
 -- ===================================================================
 -- tables related to the German Krankenversichtenkarte KVK
 create table de_kvk (
@@ -169,11 +155,14 @@ comment on table prax_geb_paid is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.3  2005-02-12 13:49:14  ncq
+-- Revision 1.4  2005-04-14 16:48:33  ncq
+-- - name_gender_map moved to generic demographics script
+--
+-- Revision 1.3  2005/02/12 13:49:14  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes
