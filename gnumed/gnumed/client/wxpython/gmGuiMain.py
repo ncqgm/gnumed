@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.189 2005-04-12 18:33:29 cfmoro Exp $
-__version__ = "$Revision: 1.189 $"
+# $Id: gmGuiMain.py,v 1.190 2005-04-14 08:54:48 ncq Exp $
+__version__ = "$Revision: 1.190 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -36,11 +36,11 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 _log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.wxVERSION_STRING)
 
-try:
-	vm = wx.VideoMode()
-	_log.Log(gmLog.lInfo, 'display: %s:%s@%s' % (vm.v, vm.h, vm.bpp))
-except AttributeError:
-	pass
+#try:
+#	vm = wx.VideoMode()
+#	_log.Log(gmLog.lInfo, 'display: %s:%s@%s' % (vm.v, vm.h, vm.bpp))
+#except AttributeError:
+#	pass
 
 encoding = _cfg.get('backend', 'client encoding')
 if encoding is None:
@@ -290,7 +290,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
 	#-----------------------------------------------
 	def on_patient_selected(self, **kwargs):
-		wxCallAfter(self.__on_patient_selected, **kwargs)
+		wx.wxCallAfter(self.__on_patient_selected, **kwargs)
 	#----------------------------------------------
 	def __on_patient_selected(self, **kwargs):
 		pat = gmPerson.gmCurrentPatient()
@@ -702,7 +702,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.189  2005-04-12 18:33:29  cfmoro
+# Revision 1.190  2005-04-14 08:54:48  ncq
+# - comment out a display logging change that just might crash Richard
+# - add missing wx. prefix
+#
+# Revision 1.189  2005/04/12 18:33:29  cfmoro
 # typo fix
 #
 # Revision 1.188  2005/04/12 10:03:20  ncq
