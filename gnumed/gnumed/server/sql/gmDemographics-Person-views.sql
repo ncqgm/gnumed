@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.31 2005-02-13 14:41:52 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.32 2005-04-14 16:57:00 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -163,6 +163,24 @@ BEGIN
    -- how does this work? How do we get new ''unique'' numbers?
    RETURN ''0000000000'';
 END;' LANGUAGE 'plpgsql';
+
+-- ==========================================================
+\unset ON_ERROR_STOP
+drop view v_gender_labels;
+\set ON_ERROR_STOP 1
+
+create view v_gender_labels as
+select
+	gl.tag,
+	_(gl.tag) as l10n_tag,
+	gl.label,
+	_(gl.label) as l10n_label,
+	gl.comment,
+	gl.sort_rank,
+	gl.pk as pk_gender_label
+from
+	gender_label gl
+;
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -333,11 +351,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.31 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.32 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.31  2005-02-13 14:41:52  ncq
+-- Revision 1.32  2005-04-14 16:57:00  ncq
+-- - typo fix
+--
+-- Revision 1.31  2005/02/13 14:41:52  ncq
 -- - v_basic_person.i_pk was an exceptionally bad choice, make that pk_identity
 -- - remove legacy identity.pk mappings in v_basic_person
 --
