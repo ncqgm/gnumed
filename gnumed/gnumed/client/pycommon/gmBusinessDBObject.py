@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.19 2005-04-11 17:55:10 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmBusinessDBObject.py,v 1.20 2005-04-14 18:58:59 cfmoro Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -172,7 +172,7 @@ class cBusinessDBObject:
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
-		self.__class__._subtables = {}
+		#self.__class__._subtables = {}
 		self._subtable_changes = []
 		if cBusinessDBObject._conn_pool is None:
 			# once for ALL descendants :-)
@@ -509,7 +509,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.19  2005-04-11 17:55:10  ncq
+# Revision 1.20  2005-04-14 18:58:59  cfmoro
+# Commented line to avoid hiding _subtables
+#
+# Revision 1.19  2005/04/11 17:55:10  ncq
 # - update self.original_payload in the right places
 #
 # Revision 1.18  2005/03/20 16:49:56  ncq
