@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.71 2005-04-14 18:58:14 cfmoro Exp $
-__version__ = "$Revision: 1.71 $"
+# $Id: gmDemographicRecord.py,v 1.72 2005-04-14 19:14:51 cfmoro Exp $
+__version__ = "$Revision: 1.72 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -28,14 +28,14 @@ import mx.DateTime as mxDT
 #============================================================
 # map gender abbreviations in a GnuMed demographic service
 # to a meaningful localised string
-demographics_GENDER_DICT = {
-			'm' : _('Male'),
-			'f' : _('Female'),
-			'?' : _('Unknown'),
-			'tm' : _('Transexual to Male'),
-			'tf' : _('Transexual to Female'),
-			'h' : _('Hermaphrodite')
-		}
+#demographics_GENDER_DICT = {
+#			'm' : _('Male'),
+#			'f' : _('Female'),
+#			'?' : _('Unknown'),
+#			'tm' : _('Transexual to Male'),
+#			'tf' : _('Transexual to Female'),
+#			'h' : _('Hermaphrodite')
+#		}
 #===================================================================
 #class cComm (gmBusinessDBObject.cBusinessDBObject):
 	
@@ -396,7 +396,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.71  2005-04-14 18:58:14  cfmoro
+# Revision 1.72  2005-04-14 19:14:51  cfmoro
+# Gender dict was replaced by get_genders method
+#
+# Revision 1.71  2005/04/14 18:58:14  cfmoro
 # Added create occupation method and minor gender map clean up, to replace later by get_gender_list
 #
 # Revision 1.70  2005/04/14 08:49:29  ncq
