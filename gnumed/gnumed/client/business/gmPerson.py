@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.16 2005-04-14 08:51:13 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPerson.py,v 1.17 2005-04-14 18:23:59 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -23,10 +23,11 @@ from Gnumed.business import gmClinicalRecord, gmMedDoc
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+__gender_list = None
+__gender_idx = None
 #============================================================
-#class cIdentity (cOrg):
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
-#	_table = "identity"
 	_service = "personalia"
 	_cmd_fetch_payload = "select * from v_basic_person where pk_identity=%s"
 	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(pk_identity)s and xmin_identity = %(xmin_identity)"]
@@ -1192,6 +1193,16 @@ def ask_for_patient():
 		return None
 	return patient
 #============================================================
+def get_gender_list():
+	global __gender_idx
+	global __gender_list
+	if __gender_list is None:
+		cmd = "select tag, l10n_tag, label, l10n_label, sort_weight from v_gender_labels order by sort_weight desc"
+		__gender_list, __gender_idx = gmPG.run_ro_query('personalia', cmd, True)
+		if __gender_list is None:
+			_log.Log(gmLog.lPanic, 'cannot retrieve gender values from database')
+	return (__gender_list, __gender_idx)
+#============================================================
 # main/testing
 #============================================================
 if __name__ == "__main__":
@@ -1215,7 +1226,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.16  2005-04-14 08:51:13  ncq
+# Revision 1.17  2005-04-14 18:23:59  ncq
+# - get_gender_list()
+#
+# Revision 1.16  2005/04/14 08:51:13  ncq
 # - add cIdentity/dob2medical_age() from gmDemographicRecord.py
 # - make cIdentity inherit from cBusinessDBObject
 # - add create_identity()
