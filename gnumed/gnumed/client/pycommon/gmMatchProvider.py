@@ -8,22 +8,18 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.7 2005-04-11 18:00:54 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmMatchProvider.py,v 1.8 2005-04-14 18:24:57 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
+# std lib
 import string, types, time, sys, re
-import gmPG, gmExceptions
 
-_true = (1==1)
-_false = (1==0)
+# GNUmed
+import gmPG, gmExceptions, gmLog
 
-import gmLog
 _log = gmLog.gmDefLog
-
-#------------------------------------------------------------
-# generic base class
-#------------------------------------------------------------
+#============================================================
 class cMatchProvider:
 	"""Base class for match providing objects.
 
@@ -58,7 +54,7 @@ class cMatchProvider:
 		"""
 		# do we return matches at all ?
 		if not self.__deliverMatches:
-			return (_false, [])
+			return (False, [])
 
 		# sanity check
 		if aFragment is None:
@@ -78,14 +74,14 @@ class cMatchProvider:
 		# length in number of significant characters only
 		lngFragment = len(tmpFragment)
 		# order is important !
-		if lngFragment >= self.__threshold['substring']:
+		if lngFragment >= self.__threshold_substring:
 			return self.getMatchesBySubstr(tmpFragment)
-		elif lngFragment >= self.__threshold['word']:
+		elif lngFragment >= self.__threshold_word:
 			return self.getMatchesByWord(tmpFragment)
-		elif lngFragment >= self.__threshold['phrase']:
+		elif lngFragment >= self.__threshold_phrase:
 			return self.getMatchesByPhrase(tmpFragment)
 		else:
-			return (_false, [])
+			return (False, [])
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		pass
@@ -128,18 +124,18 @@ class cMatchProvider:
 		"""
 		# sanity checks
 		if aSubstring < aWord:
-			_log.Log(gmLog.lErr, 'Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['substring'], self.__threshold['word']))
+			_log.Log(gmLog.lErr, 'Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_substring, self.__threshold_word))
 			return (1==0)
 		if aWord < aPhrase:
-			_log.Log(gmLog.lErr, 'Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold['word'], self.__threshold['phrase']))
+			_log.Log(gmLog.lErr, 'Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_word, self.__threshold_phrase))
 			return (1==0)
 
 		# now actually reassign thresholds
-		self.__threshold['phrase']	= aPhrase
-		self.__threshold['word']	= aWord
-		self.__threshold['substring']	= aSubstring
+		self.__threshold_phrase	= aPhrase
+		self.__threshold_word	= aWord
+		self.__threshold_substring	= aSubstring
 
-		return _true
+		return True
 	#--------------------------------------------------------
 	def setWordSeparators(self, separators = None):
 		if separators is None:
@@ -153,7 +149,7 @@ class cMatchProvider:
 		except:
 			_log.LogException('cannot compile word separators regex >>>%s<<<, keeping previous setting' % separators)
 			return None
-		return _true
+		return True
 	#--------------------------------------------------------
 	def setIgnoredChars(self, ignored_chars = None):
 		if ignored_chars is None:
@@ -164,25 +160,25 @@ class cMatchProvider:
 		except:
 			_log.LogException('cannot compile ignored_chars regex >>>%s<<<, keeping previous setting' % ignored_chars)
 			return None
-		return _true
+		return True
 	#--------------------------------------------------------
 	def disableMatching(self):
 		"""Don't search for matches.
 
 		Useful if a slow network database link is detected, for example.
 		"""
-		self.__deliverMatches = _false
+		self.__deliverMatches = False
 	#--------------------------------------------------------
 	def enableMatching(self):
-		self.__deliverMatches = _true
+		self.__deliverMatches = True
 	#--------------------------------------------------------
 	def disableLearning(self):
 		"""Immediately stop learning new items."""
-		self.__learnNewItems = _false
+		self.__learnNewItems = False
 	#--------------------------------------------------------
 	def enableLearning(self):
 		"""Immediately start learning new items."""
-		self.__learnNewItems = _true
+		self.__learnNewItems = True
 	#--------------------------------------------------------
 	def setContext (self, name, val):
 		"""Set value to provide context information	for matches.
@@ -226,10 +222,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_items)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -247,10 +243,10 @@ class cMatchProvider_FixedList(cMatchProvider):
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_items)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -261,20 +257,20 @@ class cMatchProvider_FixedList(cMatchProvider):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_items)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
 		matches = self.__items
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_items)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def setItems(self, items):
 		"""items must be a list of dicts. Each dict must have the keys (data, label, weight)"""
@@ -322,10 +318,10 @@ class cMatchProvider_Func(cMatchProvider):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_candidates)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -343,10 +339,10 @@ class cMatchProvider_Func(cMatchProvider):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_candidates)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
@@ -359,10 +355,10 @@ class cMatchProvider_Func(cMatchProvider):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_candidates)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all candidates."""
@@ -437,15 +433,15 @@ class cMatchProvider_SQL2(cMatchProvider):
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
 			_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
-			return (_false, [])
+			return (False, [])
 		# no matches found
 		if len(rows) == 0:
-			return (_false, [])
+			return (False, [])
 		for row in rows:
 			# FIXME: deal with gmpw_score...
 			matches.append({'data': row[0], 'label': row[1], 'weight': 0})
 		matches.sort(self.__cmp_items)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""naive ordering"""
@@ -595,7 +591,7 @@ class cMatchProvider_SQL(cMatchProvider):
 			if not gmPG.run_query(curs, None, cmd, values):
 				curs.close()
 				_log.Log(gmLog.lErr, 'cannot check for matches in %s' % src)
-				return (_false, [])
+				return (False, [])
 			matching_rows = curs.fetchall()
 			curs.close()
 			for row in matching_rows:
@@ -603,10 +599,10 @@ class cMatchProvider_SQL(cMatchProvider):
 
 		# no matches found
 		if len(matches) == 0:
-			return (_false, [])
+			return (False, [])
 
 		matches.sort(self.__cmp_items)
-		return (_true, matches)
+		return (True, matches)
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""naive ordering"""
@@ -624,7 +620,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.7  2005-04-11 18:00:54  ncq
+# Revision 1.8  2005-04-14 18:24:57  ncq
+# - some cleanup of funky magic so we are faster
+#
+# Revision 1.7  2005/04/11 18:00:54  ncq
 # - cleanup
 #
 # Revision 1.6  2005/03/14 14:35:27  ncq
