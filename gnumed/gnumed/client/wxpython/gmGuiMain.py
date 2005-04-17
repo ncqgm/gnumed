@@ -12,15 +12,14 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.190 2005-04-14 08:54:48 ncq Exp $
-__version__ = "$Revision: 1.190 $"
+# $Id: gmGuiMain.py,v 1.191 2005-04-17 16:30:34 ncq Exp $
+__version__ = "$Revision: 1.191 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time, os, cPickle, zlib
-#from wxPython.wx import *
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
@@ -225,24 +224,28 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.mainmenu = wx.wxMenuBar()
 		self.__gb['main.mainmenu'] = self.mainmenu
 
+		# menu "GNUmed"
+		menu_gnumed = wx.wxMenu()
+#		menu_gnumed.AppendSeparator()
+		menu_gnumed.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GNUmed client'))
+		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
+		self.mainmenu.Append(menu_gnumed, '&GNUmed')
+#		self.__gb['main.filemenu'] = menu_gnumed
+
 		# menu "Patient"
 		menu_patient = wx.wxMenu()
-		menu_patient.Append(ID_CREATE_PATIENT, _('Add patient'), _("Add new patient to GNUmed database"))
+		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.OnCreatePatient)
-		menu_patient.AppendSeparator()
-		menu_patient.Append(ID_EXIT, _('E&xit\tAlt-X'), _('Close this GnuMed client'))
-		wx.EVT_MENU(self, ID_EXIT, self.OnFileExit)
-		self.mainmenu.Append(menu_patient, _("&Patient"))
-		self.__gb['main.filemenu'] = menu_patient
+		self.mainmenu.Append(menu_patient, '&Patient')
 
 		# menu "EMR"
 		menu_emr = wx.wxMenu()
-		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export this patient's EMR into a text file"))
+		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export the EMR of the active patient into a text file"))
 		wx.EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
 		menu_emr.Append (
 			ID_EXPORT_EMR_JOURNAL,
 			_('Export as Journal'),
-			_("export this patient's EMR as a chronological journal into a text file")
+			_("export the EMR of the active patient as a chronological journal into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
 		self.mainmenu.Append(menu_emr, _("&EMR"))
@@ -702,7 +705,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.190  2005-04-14 08:54:48  ncq
+# Revision 1.191  2005-04-17 16:30:34  ncq
+# - improve menu structure
+#
+# Revision 1.190  2005/04/14 08:54:48  ncq
 # - comment out a display logging change that just might crash Richard
 # - add missing wx. prefix
 #
