@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.158 $
+-- $Revision: 1.159 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -41,10 +41,17 @@ create table clin_health_issue (
 	description text
 		not null
 		default null,
+	age_noted interval
+		default null,
 	is_active boolean
 		default true,
 	clinically_relevant boolean
 		default true,
+	is_confidential boolean
+		default false,
+	is_cause_of_death boolean
+		not null
+		default false,
 	unique (id_patient, description)
 ) inherits (audit_fields);
 
@@ -53,8 +60,11 @@ alter table clin_health_issue add constraint issue_name_not_empty
 
 select add_table_for_audit('clin_health_issue');
 
+-- FIXME: Richard also has is_operation, laterality
+
 comment on table clin_health_issue is
-	'longer-ranging, underlying, encompassing issue with one''s
+	'this is pretty much what others would call "Past Medical History",
+	 eg. longer-ranging, underlying, encompassing issues with one''s
 	 health such as "mild immunodeficiency", "diabetes type 2",
 	 in Belgium it is called "problem",
 	 L.L.Weed includes lots of little things into it, we do not';
@@ -64,8 +74,10 @@ comment on column clin_health_issue.id_patient is
 comment on column clin_health_issue.description is
 	'descriptive name of this health issue, may
 	 change over time as evidence increases';
+comment on column clin_health_issue.age_noted is
+	'at what age the patient acquired the condition';
 comment on column clin_health_issue.is_active is
-	'whether this health issue (problem) is still active';
+	'whether this health issue (problem) is active';
 comment on column clin_health_issue.clinically_relevant is
 	'whether this health issue (problem) has any clinical relevance';
 
@@ -1231,11 +1243,16 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.158 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.159 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.158  2005-04-08 10:00:46  ncq
+-- Revision 1.159  2005-04-17 16:40:36  ncq
+-- - after more discussion on the list realize that clin_health_issue
+--   is pretty much the same as past_history, hence add the sensible
+--   fields from Richard's experience
+--
+-- Revision 1.158  2005/04/08 10:00:46  ncq
 -- - cleanup
 -- - remove lnk_code2narr, add coded_narrative instead
 --
