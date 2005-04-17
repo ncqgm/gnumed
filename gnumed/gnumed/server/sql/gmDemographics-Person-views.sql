@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.33 2005-04-14 17:45:21 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.34 2005-04-17 16:36:45 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -104,56 +104,94 @@ drop function add_name(integer, text, text, bool);
 
 create function add_name(integer, text, text, bool) returns integer as '
 DECLARE
-	identity_id alias for $1;
-	first alias for $2;
-	last alias for $3;
-	activate_name alias for $4;
+	_id_identity alias for $1;
+	_first alias for $2;
+	_last alias for $3;
+	_active alias for $4;
 
-	name_rec record;
+	_id integer;
 BEGIN
 	-- name already there for this identity ?
-	select into name_rec * from names where id_identity = identity_id and firstnames = first and lastnames = last;
+	select into _id id from names where id_identity = _id_identity and firstnames = _first and lastnames = _last;
 	if FOUND then
-		update names set active = activate_name where id = name_rec.id;
-		if FOUND then
-			return name_rec.id;
-		end if;
-		return NULL;
+		update names set active = _active where id = _id;
+		return _id;
 	end if;
 	-- no, insert new name
-	if activate_name then
+	if _active then
 	    -- deactivate all the existing names
-		update names set active=''f'' where id_identity = identity_id;
+		update names set active = false where id_identity = _id_identity;
 	end if;
-	insert into names (id_identity, firstnames, lastnames, active) values (identity_id, first, last, activate_name);
+	insert into names (id_identity, firstnames, lastnames, active) values (_id_identity, _first, _last, _active);
 	if FOUND then
-		return name_rec.id;
+		return currval(''names_id_seq'');
 	end if;
 	return NULL;
 END;' language 'plpgsql';
 
--- ==========================================================
-
-\unset ON_ERROR_STOP 
-drop function create_occupation (text);
+\unset ON_ERROR_STOP
+drop function set_nickname(integer, text);
 \set ON_ERROR_STOP 1
 
-CREATE FUNCTION create_occupation (text) RETURNS integer AS '
+create function set_nickname(integer, text) returns integer as '
 DECLARE
-	occ_name alias for $1;
-	occ_id integer;
-	n_rec RECORD;
+	_id_identity alias for $1;
+	_nick alias for $2;
+
+	_names_row record;
 BEGIN
-	select into n_rec * from occupation where name = occ_name;
-	if FOUND then
-		return n_rec.id;
-	else
-		insert into occupation (name) values (occ_name);
-		return currval (''occupation_id_seq'');
+	-- does name exist ?
+	select into _names_row * from names where id_identity = _id_identity and active = true;
+	if not found then
+		msg = ''Cannot set nickname ['' || _nick || '']. No active <names> row with id_identity ['' || _id_identity || ''] found.''
+		raise exception msg;
 	end if;
+	-- can directly set nickname ?
+	if _names_row.preferred is null then
+		update names set preferred = _nick where id = _names_row.id;
+		return _names_row.id;
+	end if;
+	-- must create new row
+	-- 1) deactivate old row ...
+	update names set active = false where id = _names_row.id;
+	-- 2) insert new row from old row  and new data ...
+	insert into names (id_identity, active, firstnames, lastnames, preferred, comment)
+		values (_id_identity, true, _names_row.firstnames, _names_row.lastnames, _nick, _names_row.comment);
+	if found then
+		return currval(''names_id_seq'');
+	end if;
+	return NULL;
+END;' language 'plpgsql';
+
+comment on function set_nickname(integer, text) is
+	'Setting the nickname only makes sense for the currently active\n
+	 name. However, we also want to keep track of previous nicknames.\n
+	 Hence we would set the nickname right in the active name if\n
+	 it is NULL. It it contains a previous nickname (eg IS NOT NULL)\n
+	 we will inactivate the currently active name and copy it into\n
+	 a new active name but with the nickname set to the new one.\n
+	 Unsetting works the same (IOW *setting* to NULL).';
+
+-- ==========================================================
+\unset ON_ERROR_STOP 
+drop function create_occupation(text);
+\set ON_ERROR_STOP 1
+
+CREATE FUNCTION create_occupation(text) RETURNS integer AS '
+DECLARE
+	_name alias for $1;
+	_id integer;
+BEGIN
+	select into _id id from occupation where name = _name;
+	if FOUND then
+		return _id;
+	end if;
+	insert into occupation (name) values (_name);
+	return currval(''occupation_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
 \unset ON_ERROR_STOP
+drop function new_pupic() cascade;
 drop function new_pupic();
 \set ON_ERROR_STOP 1
 
@@ -184,6 +222,7 @@ from
 
 -- ==========================================================
 \unset ON_ERROR_STOP
+drop view v_basic_person cascade;
 drop view v_basic_person;
 \set ON_ERROR_STOP 1
 
@@ -293,7 +332,7 @@ CREATE VIEW lnk_org2address AS
 	FROM lnk_person_org_address;
 
 -- ==========================================================
-\unset ON_ERROR_STOP			-- cascade doesn't work on 7.1
+\unset ON_ERROR_STOP
 drop view v_person_comms_flat cascade;
 drop view v_person_comms_flat;
 \set ON_ERROR_STOP 1
@@ -352,11 +391,16 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.33 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.34 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.33  2005-04-14 17:45:21  ncq
+-- Revision 1.34  2005-04-17 16:36:45  ncq
+-- - improve add_name()
+-- - add set_nickname()
+-- - improve create_occupation()
+--
+-- Revision 1.33  2005/04/14 17:45:21  ncq
 -- - gender_label.sort_rank -> sort_weight
 --
 -- Revision 1.32  2005/04/14 16:57:00  ncq
