@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.140 2005-04-12 10:08:34 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.141 2005-04-17 16:33:49 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1699,7 +1699,9 @@ select
 		else (select sign from v_staff where db_user = chi.modified_by)
 	end as modified_by,
 	'a' as soap_cat,
-	_('health issue') || ': ' || chi.description as narrative,
+	_('health issue') || ': ' || chi.description || '; '
+		|| _('noted at age') || ': ' || chi.age_noted || ';'
+	as narrative,
 	-1 as pk_encounter,
 	-1 as pk_episode,
 	chi.id as pk_health_issue,
@@ -1994,11 +1996,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.140 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.141 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.140  2005-04-12 10:08:34  ncq
+-- Revision 1.141  2005-04-17 16:33:49  ncq
+-- - improve clin_health_issue display in v_emr_journal
+--
+-- Revision 1.140  2005/04/12 10:08:34  ncq
 -- - fix faulty index drop
 -- - add l10n_type to v_problem_list
 --
