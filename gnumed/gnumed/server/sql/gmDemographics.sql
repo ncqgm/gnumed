@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.48 $
+-- $Revision: 1.49 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -294,6 +294,7 @@ comment on column lnk_identity2ext_id.fk_origin is
 create table names (
 	id serial primary key,
 	id_identity integer
+		not null
 		references identity(pk)
 		on update cascade
 		on delete cascade,
@@ -414,8 +415,11 @@ comment on column lnk_person2relative.ended IS
 
 -- ==========================================================
 create table occupation (
-	id serial primary key,
+	id serial
+		primary key,
 	name text
+		not null
+		check (trim(name) != '')
 ) inherits (audit_fields);
 
 select add_table_for_audit('occupation');
@@ -569,11 +573,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.48 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.49 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.48  2005-04-14 17:45:21  ncq
+-- Revision 1.49  2005-04-17 16:37:40  ncq
+-- - some cleanup/tightened constraints
+--
+-- Revision 1.48  2005/04/14 17:45:21  ncq
 -- - gender_label.sort_rank -> sort_weight
 --
 -- Revision 1.47  2005/04/14 16:56:33  ncq
