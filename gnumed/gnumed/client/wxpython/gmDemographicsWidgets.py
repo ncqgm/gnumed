@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.5 2005-04-14 18:26:19 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmDemographicsWidgets.py,v 1.6 2005-04-18 19:19:54 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1131,7 +1131,7 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 				'weight': gender[idx['sort_weight']]
 			})
 		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = _genders)
-		mp.setThresholds(1, 2, 3)
+		mp.setThresholds(1, 1, 3)
 		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
 			parent = self,
 			id = -1,
@@ -1196,7 +1196,7 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(self, -1, _('State'))
-		cmd = "select distinct name, code from state where name %(fragment_condition)s"
+		cmd = "select distinct code, name from state where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
@@ -1208,7 +1208,7 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(self, -1, _('Country'))
-		cmd = "select distinct name, code from country where name %(fragment_condition)s"
+		cmd = "select distinct code, name from country where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
@@ -1221,7 +1221,7 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		STT_phone = wx.StaticText(self, -1, _('Phone'))
 		self.TTC_phone = wx.TextCtrl(self, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
-		self.TTC_phone.SetToolTipString(_("The the primary/home phone number"))
+		self.TTC_phone.SetToolTipString(_("the primary/home phone number"))
 
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
@@ -1317,7 +1317,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.5  2005-04-14 18:26:19  ncq
+# Revision 1.6  2005-04-18 19:19:54  ncq
+# - wrong field order in some match providers
+#
+# Revision 1.5  2005/04/14 18:26:19  ncq
 # - turn gender input into phrase wheel with fixed list
 # - some cleanup
 #
