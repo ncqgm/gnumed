@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.14 2005-03-08 16:46:55 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmVaccWidgets.py,v 1.15 2005-04-18 19:26:43 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -24,14 +24,14 @@ _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
-class cVaccinationEditArea(gmEditArea.cEditArea):
+class cVaccinationEditArea(gmEditArea.cEditArea2):
 	"""
 	- warn on apparent duplicates
 	- ask if "missing" (= previous, non-recorded) vaccinations
 	  should be estimated and saved (add note "auto-generated")
 	"""
-	def __init__(self, parent, id):
-		gmEditArea.cEditArea.__init__(self, parent, id)
+	def __init__(self, parent, id, pos, size, style):
+		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
 	#----------------------------------------------------
 	def _define_fields(self, parent):
 #		# regime/disease
@@ -144,7 +144,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea):
 			weight = 1
 		)
 
-		self._add_field(
+		self._add_field (
 			line = 6,
 			pos = 1,
 			widget = self._make_standard_buttons(parent),
@@ -257,7 +257,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea):
 #======================================================================
 class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
-	def __init__(self, parent,id):
+	def __init__(self, parent, id):
 		wxPanel.__init__(self, parent, id, wxPyDefaultPosition, wxPyDefaultSize, wxRAISED_BORDER)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pat = gmPerson.gmCurrentPatient()
@@ -275,7 +275,7 @@ class cImmunisationsPanel(wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# top part
 		#-----------------------------------------------
 		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("  IMMUNISATIONS  "))
-		self.editarea = cVaccinationEditArea(self, -1)
+		self.editarea = cVaccinationEditArea(self, -1, wxPyDefaultPosition, wxPyDefaultSize, wxNO_BORDER)
 
 		#-----------------------------------------------
 		# middle part
@@ -525,7 +525,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.14  2005-03-08 16:46:55  ncq
+# Revision 1.15  2005-04-18 19:26:43  ncq
+# - inherit vaccinations edit area from cEditArea2
+#
+# Revision 1.14  2005/03/08 16:46:55  ncq
 # - add FIXME for virtual indication suggestion by Syan
 #
 # Revision 1.13  2005/01/31 10:37:26  ncq
