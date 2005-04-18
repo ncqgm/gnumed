@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.21 2005-04-14 22:34:50 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmPerson.py,v 1.22 2005-04-18 15:55:37 cfmoro Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -30,14 +30,14 @@ __gender_idx = None
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	_service = "personalia"
 	_cmd_fetch_payload = "select * from v_basic_person where pk_identity=%s"
-	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(pk_identity)s and xmin_identity = %(xmin_identity)"]
+	_cmds_lock_rows_for_update = ["select 1 from identity where pk=%(pk_identity)s and xmin = %(xmin_identity)s"]
 	_cmds_store_payload = [
 		"""update identity set
 			title=%(title)s,
 			dob=%(dob)s,
 			cob=%(cob)s,
 			gender=%(gender)s,
-			pk_marital_status = %(pk_marital_status)s,
+			fk_marital_status = %(pk_marital_status)s,
 			karyotype = %(karyotype)s,
 			pupic = %(pupic)s
 		where pk=%(pk_identity)s""",
@@ -145,24 +145,76 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		else:
 			title = title[:4] + '.'
 		return "%s%s %s" % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
-	#--------------------------------------------------------
-	def add_name(self, firstnames, lastnames, active=True):
-		"""Add a name """
-		cmd = "select add_name(%s, %s, %s, %s)"
-		if active:
-			# junk the cache appropriately
-			if self._ext_cache.has_key ('description'):
-				del self._ext_cache['description']
-			self._payload[self._idx['firstnames']] = firstnames
-			self._payload[self._idx['lastnames']] = lastnames
-		if self._ext_cache['all_names']:
-			del self._ext_cache['all_names']
+	#-------------------------------------------------------- 	
+	def add_name(self, firstnames, lastnames, active=True, nickname=None):
+		"""
+		Add a name.
+		@param firstnames The first names.
+		@param lastnames The last names.
+		@param active When True, the new name will become the active one (hence setting other names to inactive)
+		@type active A types.BooleanType instance
+		@param nickname The /preferred/nick/warrior name.
+		"""
+		cmd = "select add_name(%s, %s, %s, %s, %s)"		
+		# sanity check
+		try:
+			firstnames = str(firstnames)
+			lastnames = str(lastnames)
+		except:
+			_log.Log(gmLog.lErr, 'cannot create name: firstnames [%s], lastnames [%s], '
+			'active [%s], nickname[%s]' % (firstnames, lastnames, active,nickname))
+			return False		
+		# FIXME: cache pending
+		#if active:
+		#	# junk the cache appropriately
+		#	if self._ext_cache.has_key ('description'):
+		#		del self._ext_cache['description']
+		#	self._payload[self._idx['first']] = firstnames
+		#	self._payload[self._idx['last']] = lastnames
+		#if self._ext_cache['all_names']:
+		#	del self._ext_cache['all_names']
 		active = (active and 't') or 'f'
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), firstnames, lastnames, active])])
-	#--------------------------------------------------------
-	# FIXME: should this perhaps be named link_occupation() ?
-	def add_occupation(self, occupation):
-		"""Create an occupation"""
+		successful, data = gmPG.run_commit2 (
+			link_obj = 'personalia',
+			queries = [
+				(cmd, [self.getId(), firstnames, lastnames, active, nickname])
+			]			
+		)
+		if not successful:
+			_log.Log(gmLog.lPanic, 'failed to add name: %s' % data)
+			return False
+		return True		
+	#-------------------------------------------------------- 	
+	def set_nickname(self, nickname=None):
+		"""
+		Set the nickname. Setting the nickname only makes sense for the currently
+		active name.
+		@param nickname The preferred/nick/warrior name to set.
+		"""
+		# sanity check
+		try:
+			nickname = str(nickname)
+		except:
+			_log.Log(gmLog.lErr, 'cannot create nickname [%s]' % nickname)
+			return False
+		# dump to backend			
+		cmd = "select set_nickname(%s, %s)"
+		successful, data = gmPG.run_commit2 (
+			link_obj = 'personalia',
+			queries = [
+				(cmd, [self.getId(), nickname])
+			]			
+		)
+		if not successful:
+			_log.Log(gmLog.lPanic, 'failed to set nickname: %s' % data)
+			return False
+		return True				
+	 #--------------------------------------------------------
+	def link_occupation(self, occupation):
+		"""
+		Link an occupation with a patient, creating the occupation if it does not exists.
+		@param occupation The name of the occupation to link the patient to.
+		"""
 		# sanity check
 		try:
 			occupation = str(occupation)
@@ -174,8 +226,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			del self._ext_cache['occupations']
 		# dump to backend
 		cmd = """
-insert into lnk_job2person (id_identity, id_occupation)
-values (%s, create_occupation(%s))"""
+		insert into lnk_job2person (id_identity, id_occupation)
+		values (%s, create_occupation(%s))"""
 		successful, data =  gmPG.run_commit2 (
 			link_obj = 'personalia',
 			queries = [
@@ -1127,19 +1179,18 @@ def dob2medical_age(dob):
 		return "%sm" % (age.minutes)
 	return "%sm%ss" % (age.minutes, age.seconds)
 #============================================================
-def create_identity(gender=None, dob=None, lastnames=None, firstnames=None, nickname=None, title=None):
-	# FIXME: I am not so sure about title/nickname - does it belong here ?
-	cmd1 = """insert into identity (gender, dob, title)
-values (%s, coalesce(%s, CURRENT_TIMESTAMP), %s)"""
-	cmd2 = """insert into names (id_identity, lastnames, firstnames, preferred)
-values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), %s)"""
+def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
+	cmd1 = """insert into identity (gender, dob)
+values (%s, coalesce(%s, CURRENT_TIMESTAMP))"""
+	cmd2 = """insert into names (id_identity, lastnames, firstnames)
+values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'))"""
 	cmd3 = """select currval('identity_pk_seq')"""
 
 	successful, data = gmPG.run_commit2 (
 		link_obj = 'personalia',
 		queries = [
-			(cmd1, [gender, dob, title]),
-			(cmd2, [lastnames, firstnames, nickname]),
+			(cmd1, [gender, dob]),
+			(cmd2, [lastnames, firstnames]),
 			(cmd3, [])
 		],
 		max_tries = 2
@@ -1236,13 +1287,29 @@ def get_gender_list():
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 	
-	# create patient
-	print "Creating identity..."
-	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames', nickname='test nickname', title='test title')
-	print 'Identity created: %s' % new_identity
-	print 'Identity occupations: %s' % new_identity['occupations']
+	 # create patient
+	print '\n\nCreating identity...'
+	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
+	print 'Identity created: %s' % new_identity	 
+	
+	print '\nSetting title and gender...'
+	new_identity['title'] = 'test title';
+	new_identity['gender'] = 'f';
+	new_identity.save_payload()
+	print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
+	
+	print '\nGetting all names...'
+	for a_name in new_identity.get_all_names():
+		print a_name
+	print 'Setting nickname...'
+	new_identity.set_nickname(nickname='test nickname')
+	print 'Refetching all names...'
+	for a_name in new_identity.get_all_names():
+		print a_name	
+	 
+	print '\nIdentity occupations: %s' % new_identity['occupations']
 	print 'Creating identity occupation...'
-	new_identity.add_occupation('test occupation')
+	new_identity.link_occupation('test occupation')
 	print 'Identity occupations: %s' % new_identity['occupations']
 	
 	searcher = cPatientSearcher_SQL()
@@ -1263,7 +1330,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.21  2005-04-14 22:34:50  ncq
+# Revision 1.22  2005-04-18 15:55:37  cfmoro
+# added set_nickname method, test code and minor update string fixes
+#
+# Revision 1.21  2005/04/14 22:34:50  ncq
 # - some streamlining of create_identity
 #
 # Revision 1.20  2005/04/14 19:27:20  cfmoro
