@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.22 2005-04-18 15:55:37 cfmoro Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmPerson.py,v 1.23 2005-04-18 16:07:11 cfmoro Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -160,6 +160,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		try:
 			firstnames = str(firstnames)
 			lastnames = str(lastnames)
+			active = str(active)
+			nickname = str(nickname)
 		except:
 			_log.Log(gmLog.lErr, 'cannot create name: firstnames [%s], lastnames [%s], '
 			'active [%s], nickname[%s]' % (firstnames, lastnames, active,nickname))
@@ -1290,7 +1292,7 @@ if __name__ == "__main__":
 	 # create patient
 	print '\n\nCreating identity...'
 	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
-	print 'Identity created: %s' % new_identity	 
+	print 'Identity created: %s' % new_identity
 	
 	print '\nSetting title and gender...'
 	new_identity['title'] = 'test title';
@@ -1311,7 +1313,7 @@ if __name__ == "__main__":
 	print 'Creating identity occupation...'
 	new_identity.link_occupation('test occupation')
 	print 'Identity occupations: %s' % new_identity['occupations']
-	
+		
 	searcher = cPatientSearcher_SQL()
 	p_data = None
 	while 1:
@@ -1330,7 +1332,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.22  2005-04-18 15:55:37  cfmoro
+# Revision 1.23  2005-04-18 16:07:11  cfmoro
+# Improved sanity check in add_name
+#
+# Revision 1.22  2005/04/18 15:55:37  cfmoro
 # added set_nickname method, test code and minor update string fixes
 #
 # Revision 1.21  2005/04/14 22:34:50  ncq
