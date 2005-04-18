@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.36 2005-04-12 16:22:28 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmSOAPWidgets.py,v 1.37 2005-04-18 19:25:50 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ from wxPython import wx
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmWhoAmI
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmMultiSash
+from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmMultiSash, gmVaccWidgets
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
@@ -26,8 +26,35 @@ _log.Log(gmLog.lInfo, __version__)
 
 NOTE_SAVED = -2
 
+#============================================================
+def create_vacc_editarea(parent, pos, size, style, completion_callback):
+	print "ignoring completion callback for now"
+	print completion_callback
+	print "parent", parent
+	editarea = gmVaccWidgets.cVaccinationEditArea (
+		parent = parent,
+		id = -1,
+		pos = pos,
+#		size = wx.wxDefaultSize,
+		size = size,
+		style = style
+	)
+	return editarea
+#============================================================
+# FIXME: keywords hardcoded for now, load from cfg in backend instead
+progress_note_keywords = {
+	's': {
+		'phx': {'widget_factory': create_vacc_editarea},
+		'$missing_action': {}
+	},
+	'o': {},
+	'a': {},
+	'p': {
+		'$vacc': {'widget_factory': create_vacc_editarea}
+	}
+}
+
 # FIXME attribute encapsulation and private methods
-# FIXME i18n
 #============================================================
 class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
@@ -627,10 +654,8 @@ class cSOAPLineDef:
 	def __init__(self):
 		self.label = _('label missing')
 		self.text = ''
-		self.data = {
-			'soap_cat': _('soap cat missing'),
-			'narrative instance': None
-		}
+		self.soap_cat = _('soap cat missing')
+		self.data = None
 #============================================================
 class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 
@@ -656,6 +681,9 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		for line_def in self.__input_defs:
 			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def.data)
 			input_field.SetText(line_def.text)
+			kwds = progress_note_keywords[line_def.soap_cat]
+			input_field.set_keywords(popup_keywords=kwds)
+			# FIXME: pending matcher setup
 			self.AddWidget(widget=input_field, label=line_def.label)
 			self.Newline()
 			input_fields.append(input_field)
@@ -671,12 +699,6 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				input_fields[field_idx].next_in_tab_order = input_fields[field_idx+1]
 			except IndexError:
 				input_fields[field_idx].next_in_tab_order = None
-		# FIXME: PENDING keywords set up
-		#kwds = {}
-		#kwds['$test_keyword'] = {'widget_factory': create_widget_on_test_kwd2}
-		#self.input2.set_keywords(popup_keywords=kwds)
-		# FIXME: pending matcher setup
-
 #============================================================
 class cResizingSoapPanel(wx.wxPanel):
 	"""Basic progress note panel.
@@ -690,8 +712,6 @@ class cResizingSoapPanel(wx.wxPanel):
 	Can work as:
 		a) Progress note creation: displays an empty set of soap entries to
 		create a new soap note for the given episode (or unassociated)
-		b) Progress note editor: displays the narrative entries (format and
-		narrative text) encapsulated in each element of input_defs.
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent, episode=None, input_defs=None):
@@ -751,27 +771,27 @@ class cResizingSoapPanel(wx.wxPanel):
 			# make Richard the default ;-)
 			line = cSOAPLineDef()
 			line.label = _('Patient Request')
-			line.data['soap_cat'] = 's'
+			line.soap_cat = 's'
 			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('History Taken')
-			line.data['soap_cat'] = 's'
+			line.soap_cat = 's'
 			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('Findings')
-			line.data['soap_cat'] = 'o'
+			line.soap_cat = 'o'
 			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('Assessment')
-			line.data['soap_cat'] = 'a'
+			line.soap_cat = 'a'
 			soap_lines.append(line)
 
 			line = cSOAPLineDef()
 			line.label = _('Plan')
-			line.data['soap_cat'] = 'p'
+			line.soap_cat = 'p'
 			soap_lines.append(line)
 		else:
 			soap_lines = input_defs
@@ -1067,7 +1087,7 @@ if __name__ == "__main__":
 				line = cSOAPLineDef()
 				line.label = label_txt
 				line.text = narrative['narrative']
-				line.data['narrative instance'] = narrative
+#				line.data['narrative instance'] = narrative
 				soap_lines.append(line)
 		return soap_lines
 
@@ -1102,7 +1122,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-	
+
 		# multisash soap
 		print 'testing multisashed soap input...'
 		application = wx.wxPyWidgetTester(size=(800,500))
@@ -1156,7 +1176,13 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.36  2005-04-12 16:22:28  ncq
+# Revision 1.37  2005-04-18 19:25:50  ncq
+# - configure Plan input field to popup vaccinations edit area
+#   on keyword $vacc
+# - simplify cSoapLineDef because progress note input widget
+#   is not used to *edit* progress notes ...
+#
+# Revision 1.36  2005/04/12 16:22:28  ncq
 # - remove faulty _()
 #
 # Revision 1.35  2005/04/12 10:06:06  ncq
