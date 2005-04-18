@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.19 2005-03-03 21:14:24 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmResizingWidgets.py,v 1.20 2005-04-18 19:23:44 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -191,7 +191,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 	   to change their size, and adjusts accordingly.
 	"""
 #	def __init__ (self, parent, id, pos = wx.wxDefaultPosition, size = wx.wxDefaultSize, complete = None):
-	def __init__ (self, parent, id, pos = wx.wxPyDefaultPosition, size = wx.wxPyDefaultSize):
+	def __init__ (self, parent, id, pos = wx.wxDefaultPosition, size = wx.wxDefaultSize):
 
 		wx.wxScrolledWindow.__init__(self, parent, id, pos = pos, size = size, style=wx.wxVSCROLL)
 		self.SetScrollRate(0, 20) # suppresses X scrolling by setting X rate to zero
@@ -831,8 +831,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		return (wx.wxPoint(popup_x_pos, popup_y_pos), wx.wxSize(popup_width, popup_height))
 	#------------------------------------------------
 	def __handle_keyword(self, kwd=None):
-		print "detected popup keyword:", kwd
-
 		try:
 			create_widget = self.__popup_keywords[kwd]['widget_factory']
 		except KeyError:
@@ -842,13 +840,17 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			)
 			return False
 
-		best_pos, best_size = self.__get_best_popup_geom()
+#		best_pos, best_size = self.__get_best_popup_geom()
+		screen_pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos()))
+		top_parent = wx.wxGetTopLevelParent(self)
+		best_pos = top_parent.ScreenToClient(screen_pos)
 		try:
 			self.__popup = create_widget (
-				parent = self.__parent,
+				parent = top_parent,
 				pos = best_pos,
-				size = best_size,
-				style = wx.wxSIMPLE_BORDER,
+#				size = best_size,
+				size = wx.wxSize(400, 300),
+				style = wx.wxRAISED_BORDER,
 				completion_callback = self._cb_on_popup_completion
 			)
 		except StandardError:
@@ -859,7 +861,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			)
 			return False
 
-		print "popup is:", type(self.__popup), str(self.__popup)
+#		print "popup is:", type(self.__popup), str(self.__popup)
 
 		# FIXME: issubclass() ?
 #		if not isinstance(self.__popup, wx.wxWindow):
@@ -868,7 +870,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
 			)
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
-			_log.Log(gmLog.lErr, 'the result (%s) is not a wxWindow subclass instance, however' % str(self.__popup))
+			_log.Log(gmLog.lErr, 'the result (%s) is not a wxPanel subclass instance, however' % str(self.__popup))
 			return False
 
 		# make new popup window to put widget inside
@@ -1121,7 +1123,12 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.19  2005-03-03 21:14:24  ncq
+# Revision 1.20  2005-04-18 19:23:44  ncq
+# - use To/From global screen coords to get edit area popup to
+#   be correctly positioned
+# - use GetTopLevelFrame() to properly show edit area popup
+#
+# Revision 1.19  2005/03/03 21:14:24  ncq
 # - use cSTCval instead of complex dict
 # - apply Carlos' patch for progress note *editing*
 #
