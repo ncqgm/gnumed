@@ -3,11 +3,10 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.84 2005-03-20 17:50:15 ncq Exp $
-__version__ = "$Revision: 1.84 $"
+# $Id: gmEditArea.py,v 1.85 2005-04-18 19:21:57 ncq Exp $
+__version__ = "$Revision: 1.85 $"
 __author__ = "R.Terry, K.Hilbert"
 
-# TODO: standard SOAP edit area
 #======================================================================
 
 import sys, traceback, time
@@ -257,6 +256,194 @@ def _decorate_editarea_field(widget):
 	widget.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 
 #====================================================================
+class cEditArea2(wxPanel):
+	def __init__(self, parent, id, pos, size, style):
+		# init main background panel
+		wxPanel.__init__ (
+			self,
+			parent,
+			id,
+			pos = pos,
+			size = size,
+			style = wxRAISED_BORDER | wxTAB_TRAVERSAL
+		)
+		self.SetBackgroundColour(wxColor(222,222,222))
+
+		self.data = None		# a placeholder for opaque data
+		self.fields = {}
+		self.prompts = {}
+
+		self._wxID_BTN_OK = wxNewId()
+		self._wxID_BTN_Clear = wxNewId()
+		self.__do_layout()
+		self.__register_events()
+		self.Show()
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_events(self):
+		# connect standard buttons
+		EVT_BUTTON(self.btn_OK, self._wxID_BTN_OK, self._on_OK_btn_pressed)
+		EVT_BUTTON(self.btn_Clear, self._wxID_BTN_Clear, self._on_clear_btn_pressed)
+
+		# client internal signals
+		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
+		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+
+		return 1
+	#--------------------------------------------------------
+	# handlers
+	#--------------------------------------------------------
+	def _on_OK_btn_pressed(self, event):
+		# FIXME: this try: except: block seems to large
+		try:
+			event.Skip()
+			if self.data is None:
+				self._save_new_entry()
+				self.set_data()
+			else:
+				self._save_modified_entry()
+				self.set_data()
+		except gmExceptions.InvalidInputError, err:
+			# nasty evil popup dialogue box
+			# but for invalid input we want to interrupt user
+			try:
+				gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
+			except:
+				_log.LogException ('', sys.exc_info (), verbose = 0)
+		except:
+			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
+	#--------------------------------------------------------
+	def _on_clear_btn_pressed(self, event):
+		# FIXME: check for unsaved data
+		self.set_data()
+		event.Skip()
+	#--------------------------------------------------------
+	def on_patient_selected( self, **kwds):
+		# remember to use wxCallAfter()
+		self.set_data()
+	#--------------------------------------------------------
+	def _on_application_closing(self, **kwds):
+		# remember wxCallAfter
+		if not self._patient.is_connected():
+			return True
+		if self._save_data():
+			return True
+		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		return False
+	#--------------------------------------------------------
+	def _on_activating_patient(self, **kwds):
+		# remember wxCallAfter
+		if not self._patient.is_connected():
+			return True
+		if self._save_data():
+			return True
+		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
+		return False
+	#----------------------------------------------------------------
+	# internal helpers
+	#----------------------------------------------------------------
+	def __do_layout(self):
+
+		# define prompts and fields
+		self._define_prompts()
+		self._define_fields(parent = self)
+		if len(self.fields) != len(self.prompts):
+			_log.Log(gmLog.lErr, '[%s]: #fields != #prompts' % self.__class__.__name__)
+			return None
+
+		# and generate edit area from it
+		szr_main_fgrid = wxFlexGridSizer(rows = len(self.prompts), cols=2)
+		color = richards_aqua
+		lines = self.prompts.keys()
+		lines.sort()
+		for line in lines:
+			# 1) prompt
+			label, color, weight = self.prompts[line]
+			# FIXME: style for centering in vertical direction ?
+			prompt = wxStaticText (
+				parent = self,
+				id = -1,
+				label = label,
+				style = wxALIGN_CENTRE
+			)
+			# FIXME: resolution dependant
+			prompt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD, False, ''))
+			prompt.SetForegroundColour(color)
+			prompt.SetBackgroundColour(richards_light_gray)
+			szr_main_fgrid.Add(prompt, flag=wxEXPAND | wxALIGN_RIGHT)
+
+			# 2) widget(s) for line
+			szr_line = wxBoxSizer(wxHORIZONTAL)
+			positions = self.fields[line].keys()
+			positions.sort()
+			for pos in positions:
+				field, weight = self.fields[line][pos]
+#				field.SetBackgroundColour(wxColor(222,222,222))
+				szr_line.Add(field, weight, wxEXPAND)
+			szr_main_fgrid.Add(szr_line, flag=wxGROW | wxALIGN_LEFT)
+
+		# grid can grow column 1 only, not column 0
+		szr_main_fgrid.AddGrowableCol(1)
+
+#		# use sizer for border around everything plus a little gap
+#		# FIXME: fold into szr_main_panels ?
+#		self.szr_central_container = wxBoxSizer(wxHORIZONTAL)
+#		self.szr_central_container.Add(self.szr_main_panels, 1, wxEXPAND | wxALL, 5)
+
+		# and do the layouting
+		self.SetSizerAndFit(szr_main_fgrid)
+#		self.FitInside()
+	#----------------------------------------------------------------
+	# intra-class API
+	#----------------------------------------------------------------
+	def _define_prompts(self):
+		"""Child classes override this to define their prompts using _add_prompt()"""
+		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+	#----------------------------------------------------------------
+	def _add_prompt(self, line, label='missing label', color=richards_blue, weight=0):
+		"""Add a new prompt line.
+
+		To be used from _define_fields in child classes.
+
+		- label, the label text
+		- color
+		- weight, the weight given in sizing the various rows. 0 means the row
+		  always has minimum size 
+		"""
+		self.prompts[line] = (label, color, weight)
+	#----------------------------------------------------------------
+	def _define_fields(self, parent):
+		"""Defines the fields.
+
+		- override in child classes
+		- mostly uses _add_field()
+		"""
+		_log.Log(gmLog.lErr, 'missing override in [%s]' % self.__class__.__name__)
+	#----------------------------------------------------------------
+	def _add_field(self, line=None, pos=None, widget=None, weight=0):
+		if None in (line, pos, widget):
+			_log.Log(gmLog.lErr, 'argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
+		if not self.fields.has_key(line):
+			self.fields[line] = {}
+		self.fields[line][pos] = (widget, weight)
+	#----------------------------------------------------------------
+	def _make_standard_buttons(self, parent):
+		"""Generates OK/CLEAR buttons for edit area."""
+		self.btn_OK = wxButton(parent, self._wxID_BTN_OK, _("OK"))
+		self.btn_OK.SetToolTipString(_('save entry into medical record'))
+		self.btn_Clear = wxButton(parent, self._wxID_BTN_Clear, _("Clear"))
+		self.btn_Clear.SetToolTipString(_('initialize input fields for new entry'))
+
+		szr_buttons = wxBoxSizer(wxHORIZONTAL)
+		szr_buttons.Add(self.btn_OK, 1, wxEXPAND | wxALL, 1)
+		szr_buttons.Add(5, 0, 0)
+		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
+
+		return szr_buttons
+#====================================================================
+#====================================================================
 #text control class to be later replaced by the gmPhraseWheel
 #--------------------------------------------------------------------
 class cEditAreaField(wxTextCtrl):
@@ -265,9 +452,13 @@ class cEditAreaField(wxTextCtrl):
 		_decorate_editarea_field(self)
 #====================================================================
 class cEditArea(wxPanel):
-	def __init__(self, parent, id):
+	def __init__(self, parent, id, pos, size, style):
+
+		print parent
+		print type(parent)
+
 		# init main background panel
-		wxPanel.__init__(self, parent, id, style = wxNO_BORDER | wxTAB_TRAVERSAL)
+		wxPanel.__init__(self, parent, id, pos=pos, size=size, style=wxNO_BORDER | wxTAB_TRAVERSAL)
 		self.SetBackgroundColour(wxColor(222,222,222))
 
 		self.data = None
@@ -286,7 +477,7 @@ class cEditArea(wxPanel):
 
 		self._patient = gmPerson.gmCurrentPatient()
 		self.__register_events()
-#		self.Show(True)
+		self.Show(True)
 	#----------------------------------------------------------------
 	# internal helpers
 	#----------------------------------------------------------------
@@ -1999,7 +2190,12 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.84  2005-03-20 17:50:15  ncq
+# Revision 1.85  2005-04-18 19:21:57  ncq
+# - added cEditArea2 which - being based on a wxFlexGridSizer - is a lot
+#   simpler (hence easier to debug) but lacks some eye candy (shadows and
+#   separate prompt panel)
+#
+# Revision 1.84  2005/03/20 17:50:15  ncq
 # - catch another exception on doing the layout
 #
 # Revision 1.83  2005/02/03 20:19:16  ncq
