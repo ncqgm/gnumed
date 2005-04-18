@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.23 2005-04-18 16:07:11 cfmoro Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmPerson.py,v 1.24 2005-04-18 19:18:44 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -153,53 +153,30 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param lastnames The last names.
 		@param active When True, the new name will become the active one (hence setting other names to inactive)
 		@type active A types.BooleanType instance
-		@param nickname The /preferred/nick/warrior name.
+		@param nickname The preferred/nick/warrior name to set.
 		"""
-		cmd = "select add_name(%s, %s, %s, %s, %s)"		
-		# sanity check
-		try:
-			firstnames = str(firstnames)
-			lastnames = str(lastnames)
-			active = str(active)
-			nickname = str(nickname)
-		except:
-			_log.Log(gmLog.lErr, 'cannot create name: firstnames [%s], lastnames [%s], '
-			'active [%s], nickname[%s]' % (firstnames, lastnames, active,nickname))
-			return False		
-		# FIXME: cache pending
-		#if active:
-		#	# junk the cache appropriately
-		#	if self._ext_cache.has_key ('description'):
-		#		del self._ext_cache['description']
-		#	self._payload[self._idx['first']] = firstnames
-		#	self._payload[self._idx['last']] = lastnames
-		#if self._ext_cache['all_names']:
-		#	del self._ext_cache['all_names']
+		queries = []
 		active = (active and 't') or 'f'
-		successful, data = gmPG.run_commit2 (
-			link_obj = 'personalia',
-			queries = [
-				(cmd, [self.getId(), firstnames, lastnames, active, nickname])
-			]			
+		queries.append (
+			("select add_name(%s, %s, %s, %s)", [self.getId(), firstnames, lastnames, active])
 		)
+		if nickname is not None:
+			queries.append (
+				("select set_nickname(%s, %s)", [self.getId(), nickname])
+			)
+		successful, data = gmPG.run_commit2('personalia', queries)
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to add name: %s' % data)
 			return False
-		return True		
-	#-------------------------------------------------------- 	
+		return True
+	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
 		"""
 		Set the nickname. Setting the nickname only makes sense for the currently
 		active name.
 		@param nickname The preferred/nick/warrior name to set.
 		"""
-		# sanity check
-		try:
-			nickname = str(nickname)
-		except:
-			_log.Log(gmLog.lErr, 'cannot create nickname [%s]' % nickname)
-			return False
-		# dump to backend			
+		# dump to backend
 		cmd = "select set_nickname(%s, %s)"
 		successful, data = gmPG.run_commit2 (
 			link_obj = 'personalia',
@@ -210,19 +187,13 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to set nickname: %s' % data)
 			return False
-		return True				
-	 #--------------------------------------------------------
+		return True
+	#--------------------------------------------------------
 	def link_occupation(self, occupation):
 		"""
 		Link an occupation with a patient, creating the occupation if it does not exists.
 		@param occupation The name of the occupation to link the patient to.
 		"""
-		# sanity check
-		try:
-			occupation = str(occupation)
-		except:
-			_log.Log(gmLog.lErr, 'cannot create occupation [%s]' % occupation)
-			return False
 		# junk the cache
 		if self._ext_cache.has_key('occupations'):
 			del self._ext_cache['occupations']
@@ -1332,7 +1303,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.23  2005-04-18 16:07:11  cfmoro
+# Revision 1.24  2005-04-18 19:18:44  ncq
+# - cleanup, link_occuption doesn't work right yet
+#
+# Revision 1.23  2005/04/18 16:07:11  cfmoro
 # Improved sanity check in add_name
 #
 # Revision 1.22  2005/04/18 15:55:37  cfmoro
