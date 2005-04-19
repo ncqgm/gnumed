@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.24 2005-04-18 19:18:44 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmPerson.py,v 1.25 2005-04-19 19:51:49 cfmoro Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -119,21 +119,61 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	def getId(self):
 		return self['pk_identity']
 	#--------------------------------------------------------
-	def get_all_names(self):
-		cmd = """
-				select n.firstnames, n.lastnames, i.title, n.preferred
-				from names n, identity i
-				where n.id_identity=%s and i.pk=%s"""
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self['pk_identity'], self['pk_identity'])
-		if rows is None:
+	def get_active_name(self):
+		"""
+		Retrieve the patient's active name.
+		"""
+		try:
+			self._ext_cache['names']
+		except KeyError:
+			# ensure the cache of names is created
+			self.get_all_names()
+		try:
+			return self._ext_cache['names']['active']
+		except:
+			_log.Log(gmLog.lErr, 'cannot retrieve active name for patient [%s]' % self._payload[self._idx['pk_identity']])
 			return None
-		if len(rows) == 0:
-			return [{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}]
-		else:
-			names = []
-			for row in rows:
-				names.append({'first': row[0], 'last': row[1], 'title': row[2], 'preferred':row[3]})
-			return names
+	#--------------------------------------------------------
+	def get_all_names(self):
+		"""
+		Retrieve a list containing all the patient's names, in the
+		form of a dictionary of keys: first, last, title, preferred.
+		"""
+		try:
+			self._ext_cache['names']
+		except KeyError:
+			# create cache of names		
+			self._ext_cache['names'] = {}
+			# fetch names from backend
+			pk_identity = self._payload[self._idx['pk_identity']]
+			cmd = """
+					select n.firstnames, n.lastnames, i.title, n.preferred, n.active
+					from names n, identity i
+					where n.id_identity=%s and i.pk=%s"""
+			rows, idx = gmPG.run_ro_query('personalia', cmd, 1, pk_identity, pk_identity)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot load names for patient [%s]' % pk_identity)
+				del self._ext_cache['names']
+				return None
+			# fill in cache with values
+			self._ext_cache['names']['all'] = []
+			self._ext_cache['names']['active'] = None
+			name = None
+			if len(rows) == 0:				
+				# no names registered for patient
+				self._ext_cache['names']['all'].append(
+					{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}
+				)
+			else:
+				for row in rows:
+					name = {'first': row[0], 'last': row[1], 'title': row[2], 'preferred':row[3]}
+					# fill 'all' names cache
+					self._ext_cache['names']['all'].append(name)
+					if row[4]:
+						# fill 'active' name cache
+						self._ext_cache['names']['active'] = name
+						
+		return self._ext_cache['names']['all']
 	#--------------------------------------------------------
 	def get_description (self):
 		"""
@@ -168,6 +208,14 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to add name: %s' % data)
 			return False
+		# delete names cache so will be refetched next time it is queried
+		try:
+			del self._ext_cache['names']['all']
+			del self._ext_cache['names']['active']
+			del self._ext_cache['names']
+		except:
+			# didn't exists before, no problem, we're not getting angry ;)
+			pass
 		return True
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
@@ -187,6 +235,14 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to set nickname: %s' % data)
 			return False
+		# delete names cache so will be refetched next time it is queried
+		try:
+			del self._ext_cache['names']['all']
+			del self._ext_cache['names']['active']
+			del self._ext_cache['names']
+		except:
+			# didn't exists before, no problem, we're not getting angry ;)
+			pass			
 		return True
 	#--------------------------------------------------------
 	def link_occupation(self, occupation):
@@ -1274,11 +1330,13 @@ if __name__ == "__main__":
 	print '\nGetting all names...'
 	for a_name in new_identity.get_all_names():
 		print a_name
+	print 'Active name: %s' % (new_identity.get_active_name())
 	print 'Setting nickname...'
 	new_identity.set_nickname(nickname='test nickname')
 	print 'Refetching all names...'
 	for a_name in new_identity.get_all_names():
-		print a_name	
+		print a_name
+	print 'Active name: %s' % (new_identity.get_active_name())		
 	 
 	print '\nIdentity occupations: %s' % new_identity['occupations']
 	print 'Creating identity occupation...'
@@ -1303,7 +1361,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.24  2005-04-18 19:18:44  ncq
+# Revision 1.25  2005-04-19 19:51:49  cfmoro
+# Names cached in get_all_names. Added get_active_name
+#
+# Revision 1.24  2005/04/18 19:18:44  ncq
 # - cleanup, link_occuption doesn't work right yet
 #
 # Revision 1.23  2005/04/18 16:07:11  cfmoro
