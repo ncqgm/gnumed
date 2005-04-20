@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.20 2005-04-18 19:23:44 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmResizingWidgets.py,v 1.21 2005-04-20 22:21:41 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -436,7 +436,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 		self.__popup_keywords = {}
 		self.__popup = None
-		self.__popup_visible = False
 		# FIXME: delay configurable
 		self.__timer = gmTimer.cTimer (
 			callback = self._on_timer_fired,
@@ -580,15 +579,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 	def __on_key_down(self, event):
 		"""Act on some key presses we want to process ourselves."""
 
-		if self.__popup is not None:
-			print "proxying keypress to popup"
-			try:
-				self.__popup.on_key_down(event)
-				if not event.GetSkipped():
-					return
-			except AttributeError:
-				pass
-
 #		if (self.list is not None) and not self.list.alive:
 #			self.list = None # someone else has destroyed our list!
 
@@ -723,10 +713,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		  be ignored and no further action taken on it
 		"""
 		print "popup interaction completed"
-		self.__popup_visible = False
-		if self.__popup is None:
-			_log.Log(gmLog.lErr, 'got called from non-existing popup')
-			return
 		if was_cancelled:
 			print "popup cancelled, ignoring data"
 			self.__popup.Destroy()
@@ -850,13 +836,13 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 				pos = best_pos,
 #				size = best_size,
 				size = wx.wxSize(400, 300),
-				style = wx.wxRAISED_BORDER,
-				completion_callback = self._cb_on_popup_completion
+				style = wx.wxSUNKEN_BORDER
+#				completion_callback = self._cb_on_popup_completion
 			)
 		except StandardError:
 			_log.LogException('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd), sys.exc_info(), verbose=1)
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot invoke action [%s] for keyword [%s].') % (create_widget, kwd),
+				aMessage = _('Cannot invoke [%s] for keyword [%s].') % (create_widget, kwd),
 				aTitle = _('showing keyword popup')
 			)
 			return False
@@ -865,12 +851,13 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 		# FIXME: issubclass() ?
 #		if not isinstance(self.__popup, wx.wxWindow):
-		if not isinstance(self.__popup, wx.wxPanel):
+#		if not isinstance(self.__popup, wx.wxPanel):
+		if not isinstance(self.__popup, wx.wxDialog):
 			gmGuiHelpers.gm_beep_statustext (
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
 			)
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
-			_log.Log(gmLog.lErr, 'the result (%s) is not a wxPanel subclass instance, however' % str(self.__popup))
+			_log.Log(gmLog.lErr, 'the result (%s) is not a wxDialog subclass instance, however' % str(self.__popup))
 			return False
 
 		# make new popup window to put widget inside
@@ -888,9 +875,9 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		# FIXME: with later by calling widget_to_show.get_embed_string()
 		# FIXME: same with originator
 
-		self.__popup_visible = True
-		self.__popup.Show()
-		print "after popup.Show()"
+		result = self.__popup.ShowModal()
+		if result == wx.wxID_OK:
+			print "getting data from popup and acting on it"
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -1123,7 +1110,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.20  2005-04-18 19:23:44  ncq
+# Revision 1.21  2005-04-20 22:21:41  ncq
+# - cleanup, use ShowModal (this isn't quite yet what was intended)
+#
+# Revision 1.20  2005/04/18 19:23:44  ncq
 # - use To/From global screen coords to get edit area popup to
 #   be correctly positioned
 # - use GetTopLevelFrame() to properly show edit area popup
