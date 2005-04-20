@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.34 2005-04-17 16:36:45 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.35 2005-04-20 16:04:58 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -179,14 +179,14 @@ drop function create_occupation(text);
 
 CREATE FUNCTION create_occupation(text) RETURNS integer AS '
 DECLARE
-	_name alias for $1;
+	_job alias for $1;
 	_id integer;
 BEGIN
-	select into _id id from occupation where name = _name;
+	select into _id id from occupation where name = _job;
 	if FOUND then
 		return _id;
 	end if;
-	insert into occupation (name) values (_name);
+	insert into occupation (name) values (_job);
 	return currval(''occupation_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
@@ -391,11 +391,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.34 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.35 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.34  2005-04-17 16:36:45  ncq
+-- Revision 1.35  2005-04-20 16:04:58  ncq
+-- - 7.1 did not like _name for some strange reason, make it _job
+--
+-- Revision 1.34  2005/04/17 16:36:45  ncq
 -- - improve add_name()
 -- - add set_nickname()
 -- - improve create_occupation()
