@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.37 2005-04-18 19:25:50 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmSOAPWidgets.py,v 1.38 2005-04-20 22:22:41 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -27,30 +27,41 @@ _log.Log(gmLog.lInfo, __version__)
 NOTE_SAVED = -2
 
 #============================================================
-def create_vacc_editarea(parent, pos, size, style, completion_callback):
-	print "ignoring completion callback for now"
-	print completion_callback
-	print "parent", parent
-	editarea = gmVaccWidgets.cVaccinationEditArea (
+def create_issue_popup(parent, pos, size, style):
+	popup = gmEMRStructWidgets.cNewHealthIssuePopup (
 		parent = parent,
 		id = -1,
+		title = '',
 		pos = pos,
-#		size = wx.wxDefaultSize,
 		size = size,
-		style = style
+		style = style,
+		name = ''
 	)
-	return editarea
+	return popup
+#============================================================
+def create_vacc_popup(parent, pos, size, style):
+	popup = gmVaccWidgets.cNewVaccinationPopup (
+		parent = parent,
+		id = -1,
+		title = _('Enter vaccination given'),
+		pos = pos,
+		size = size,
+		style = style,
+		name = ''
+	)
+	return popup
 #============================================================
 # FIXME: keywords hardcoded for now, load from cfg in backend instead
 progress_note_keywords = {
 	's': {
-		'phx': {'widget_factory': create_vacc_editarea},
-		'$missing_action': {}
+		'phx': {'widget_factory': create_issue_popup},
+		'$missing_action': {},
+		'ea:': {'widget_factory': create_issue_popup}
 	},
 	'o': {},
 	'a': {},
 	'p': {
-		'$vacc': {'widget_factory': create_vacc_editarea}
+		'$vacc': {'widget_factory': create_vacc_popup}
 	}
 }
 
@@ -1176,7 +1187,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.37  2005-04-18 19:25:50  ncq
+# Revision 1.38  2005-04-20 22:22:41  ncq
+# - create_vacc_popup/create_issue_popup
+#
+# Revision 1.37  2005/04/18 19:25:50  ncq
 # - configure Plan input field to popup vaccinations edit area
 #   on keyword $vacc
 # - simplify cSoapLineDef because progress note input widget
