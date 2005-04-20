@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.25 2005-04-19 19:51:49 cfmoro Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmPerson.py,v 1.26 2005-04-20 21:55:39 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -142,7 +142,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		try:
 			self._ext_cache['names']
 		except KeyError:
-			# create cache of names		
+			# create cache of names
 			self._ext_cache['names'] = {}
 			# fetch names from backend
 			pk_identity = self._payload[self._idx['pk_identity']]
@@ -159,9 +159,9 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			self._ext_cache['names']['all'] = []
 			self._ext_cache['names']['active'] = None
 			name = None
-			if len(rows) == 0:				
+			if len(rows) == 0:
 				# no names registered for patient
-				self._ext_cache['names']['all'].append(
+				self._ext_cache['names']['all'].append (
 					{'first': '**?**', 'last': '**?**', 'title': '**?**', 'preferred':'**?**'}
 				)
 			else:
@@ -172,7 +172,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					if row[4]:
 						# fill 'active' name cache
 						self._ext_cache['names']['active'] = name
-						
 		return self._ext_cache['names']['all']
 	#--------------------------------------------------------
 	def get_description (self):
@@ -1361,7 +1360,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.25  2005-04-19 19:51:49  cfmoro
+# Revision 1.26  2005-04-20 21:55:39  ncq
+# - just some cleanup
+#
+# Revision 1.25  2005/04/19 19:51:49  cfmoro
 # Names cached in get_all_names. Added get_active_name
 #
 # Revision 1.24  2005/04/18 19:18:44  ncq
