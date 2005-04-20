@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.85 2005-04-18 19:21:57 ncq Exp $
-__version__ = "$Revision: 1.85 $"
+# $Id: gmEditArea.py,v 1.86 2005-04-20 22:19:01 ncq Exp $
+__version__ = "$Revision: 1.86 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -265,7 +265,7 @@ class cEditArea2(wxPanel):
 			id,
 			pos = pos,
 			size = size,
-			style = wxRAISED_BORDER | wxTAB_TRAVERSAL
+			style = style | wxTAB_TRAVERSAL
 		)
 		self.SetBackgroundColour(wxColor(222,222,222))
 
@@ -282,10 +282,6 @@ class cEditArea2(wxPanel):
 	# event handling
 	#--------------------------------------------------------
 	def __register_events(self):
-		# connect standard buttons
-		EVT_BUTTON(self.btn_OK, self._wxID_BTN_OK, self._on_OK_btn_pressed)
-		EVT_BUTTON(self.btn_Clear, self._wxID_BTN_Clear, self._on_clear_btn_pressed)
-
 		# client internal signals
 		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
@@ -441,6 +437,10 @@ class cEditArea2(wxPanel):
 		szr_buttons.Add(5, 0, 0)
 		szr_buttons.Add(self.btn_Clear, 1, wxEXPAND | wxALL, 1)
 
+		# connect standard buttons
+		EVT_BUTTON(self.btn_OK, self._wxID_BTN_OK, self._on_OK_btn_pressed)
+		EVT_BUTTON(self.btn_Clear, self._wxID_BTN_Clear, self._on_clear_btn_pressed)
+
 		return szr_buttons
 #====================================================================
 #====================================================================
@@ -454,8 +454,7 @@ class cEditAreaField(wxTextCtrl):
 class cEditArea(wxPanel):
 	def __init__(self, parent, id, pos, size, style):
 
-		print parent
-		print type(parent)
+		print "class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__
 
 		# init main background panel
 		wxPanel.__init__(self, parent, id, pos=pos, size=size, style=wxNO_BORDER | wxTAB_TRAVERSAL)
@@ -737,6 +736,9 @@ class cEditArea(wxPanel):
 #====================================================================
 class gmEditArea(cEditArea):
 	def __init__(self, parent, id, aType = None):
+
+		print "class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__
+
 		# sanity checks
 		if aType not in _known_edit_area_types:
 			_log.Log(gmLog.lErr, 'unknown edit area type: [%s]' % aType)
@@ -2190,7 +2192,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.85  2005-04-18 19:21:57  ncq
+# Revision 1.86  2005-04-20 22:19:01  ncq
+# - move std button event registration to after definition of buttons
+#
+# Revision 1.85  2005/04/18 19:21:57  ncq
 # - added cEditArea2 which - being based on a wxFlexGridSizer - is a lot
 #   simpler (hence easier to debug) but lacks some eye candy (shadows and
 #   separate prompt panel)
