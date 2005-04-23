@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.6 2005-04-18 19:19:54 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmDemographicsWidgets.py,v 1.7 2005-04-23 06:34:11 cfmoro Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -145,9 +145,9 @@ class TextBox_BlackNormal(wx.TextCtrl):
 class SmartCombo (wx.ComboBox):
 	def __init__ (self, parent, _map):
 		self.map = _map
-		self.pam = dict ([(y,x) for x, y in _map.items ()])
+		self.map = dict ([(y,x) for x, y in _map.items ()])
 		wx.ComboBox.__init__ (self, parent, -1, "", wx.DefaultPosition, wx.DefaultSize,
-			self.map.keys (), wx.CB_DROPDOWN
+			self.pam.keys (), wx.CB_DROPDOWN
 		)
 
 	def SetValue (self, value):
@@ -1057,15 +1057,6 @@ class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
 		"""
 		wxPython.wizard.wxWizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
 		
-		gendermap = {
-			_('Male'): 'm',
-			_("Female"): 'f',
-			_("Unknown"): '?',
-			_('Transexual to Male'): 'tm',
-			_('Transexual to Female'): 'tf',
-			_('Hermaphrodite'): 'h'
-		}
-
 		# first name
 		STT_firstname = wx.StaticText(self, -1, _('First name'))
 		STT_firstname.SetForegroundColour('red')
@@ -1140,11 +1131,6 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			aDelay = 100
 		)
 		self.PRW_gender.SetToolTipString(_("gender of patient"))
-
-#		self.SCB_gender = SmartCombo(self, gendermap)
-#		self.SCB_gender.SetValidator(gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False))		
-#		self.SCB_gender.SetToolTipString(_("The patient's gender"))
-
 		# title
 		STT_title = wx.StaticText(self, -1, _('Title'))
 		cmd = "select distinct title, title from identity where title %(fragment_condition)s"
@@ -1167,10 +1153,14 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			aMatchProvider = mp
 		)
 		self.PRW_occupation.SetToolTipString(_("The primary occupation of the patient"))
-		# zip code
-		STT_zip_code = wx.StaticText(self, -1, _('Zip code'))
-		self.TTC_zip_code = wx.TextCtrl(self, -1)
-		self.TTC_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
+		# address number
+		STT_address_number = wx.StaticText(self, -1, _('Number'))
+		self.TTC_address_number = wx.TextCtrl(self, -1)
+		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))		
+		# street zip code
+		STT_street_zip_code = wx.StaticText(self, -1, _('Zip code (street)'))
+		self.TTC_street_zip_code = wx.TextCtrl(self, -1)
+		self.TTC_street_zip_code.SetToolTipString(_("primary/home address: street zip code/postcode"))
 		# street
 		STT_street = wx.StaticText(self, -1, _('Street'))
 		cmd = "select distinct name, name from street where name %(fragment_condition)s"
@@ -1182,6 +1172,10 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			aMatchProvider = mp
 		)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
+		# town zip code
+		STT_town_zip_code = wx.StaticText(self, -1, _('Zip code (town)'))
+		self.TTC_town_zip_code = wx.TextCtrl(self, -1)
+		self.TTC_town_zip_code.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc. zip code/postcode"))		
 		# town
 		STT_town = wx.StaticText(self, -1, _('Town'))
 		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
@@ -1235,18 +1229,21 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)	
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-#		SZR_input.Add(self.SCB_gender, 1, wx.EXPAND)
 		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)					
 		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)							
-		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)	
+		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)		
+		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)								
+		SZR_input.Add(STT_street_zip_code, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_street_zip_code, 1, wx.EXPAND)	
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)	
+		SZR_input.Add(STT_town_zip_code, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_town_zip_code, 1, wx.EXPAND)					
 		SZR_input.Add(STT_town, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)			
+		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 		SZR_input.Add(STT_state, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)	
 		SZR_input.Add(STT_country, 0, wx.SHAPED)
@@ -1317,7 +1314,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.6  2005-04-18 19:19:54  ncq
+# Revision 1.7  2005-04-23 06:34:11  cfmoro
+# Added address number and street zip code missing fields
+#
+# Revision 1.6  2005/04/18 19:19:54  ncq
 # - wrong field order in some match providers
 #
 # Revision 1.5  2005/04/14 18:26:19  ncq
