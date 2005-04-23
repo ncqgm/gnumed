@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.26 2005-04-20 21:55:39 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmPerson.py,v 1.27 2005-04-23 06:14:25 cfmoro Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -266,6 +266,44 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
 			return False
 		return True
+	#--------------------------------------------------------
+	def link_address(self, number, street, street_postcode, urb, urb_postcode,
+		state, country):
+		"""
+		Link an address with a patient, creating the address if it does not exists.
+		@param number The number of the address.
+		@param number A types.StringType instance.
+		@param street The name of the street.
+		@param street A types.StringType instance.
+		@param street_postcode The postal code of the street.
+		@param urb The name of town/city/etc.
+		@param urb A types.StringType instance.
+		@param urb_postcode The postal code of town/city/etc.
+		@param urb_postcode A types.StringType instance.
+		@param state The name of the state.
+		@param state A types.StringType instance.
+		@param country The name of the country.
+		@param country A types.StringType instance.
+		"""
+		# junk the cache
+		if self._ext_cache.has_key('addresses'):
+			del self._ext_cache['addresses']
+		# dump to backend
+		cmd = """
+		INSERT INTO lnk_person_org_address (id_identity, id_address)
+		VALUES (%s, create_address(%s,%s,%s,%s,%s,%s,%s));
+		"""
+		successful, data =  gmPG.run_commit2 (
+			link_obj = 'personalia',
+			queries = [
+				(cmd, [self._payload[self._idx['pk_identity']], number, street,
+				street_postcode, urb, urb_postcode,	state, country])
+			]
+		)
+		if not successful:
+			_log.Log(gmLog.lPanic, 'failed to link address: %s' % str(data))
+			return False
+		return True		
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = """
@@ -1341,6 +1379,13 @@ if __name__ == "__main__":
 	print 'Creating identity occupation...'
 	new_identity.link_occupation('test occupation')
 	print 'Identity occupations: %s' % new_identity['occupations']
+	
+	print '\nIdentity addresses: %s' % new_identity['addresses']
+	print 'Creating identity address...'
+	# make sure the state exists in the backend
+	new_identity.link_address('test 1234', 'test street', 'test street_postcode', 'test urb', 'test urb_postcode',
+		'test', 'argentina')
+	print 'Identity addresses: %s' % new_identity['addresses']
 		
 	searcher = cPatientSearcher_SQL()
 	p_data = None
@@ -1360,7 +1405,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.26  2005-04-20 21:55:39  ncq
+# Revision 1.27  2005-04-23 06:14:25  cfmoro
+# Added cIdentity.link_address method
+#
+# Revision 1.26  2005/04/20 21:55:39  ncq
 # - just some cleanup
 #
 # Revision 1.25  2005/04/19 19:51:49  cfmoro
