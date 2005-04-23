@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.28 2005-04-23 07:52:38 cfmoro Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmPerson.py,v 1.29 2005-04-23 08:48:52 cfmoro Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -27,7 +27,6 @@ _log.Log(gmLog.lInfo, __version__)
 __gender_list = None
 __gender_idx = None
 __comm_list = None
-__comm_idx = None
 #============================================================
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	_service = "personalia"
@@ -279,13 +278,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@type is_confidential A types.BooleanType instance.
 		"""
 		# locate communication in enum list and sanity check
-		comm_list, comm_idx = get_comm_list()		
-		comm = None		
-		for tmp in comm_list:
-			if comm_medium == tmp[comm_idx['description']]:
-				comm = tmp
-				break;
-		if comm is None:
+		comm_list = get_comm_list()		
+		if comm_medium not in comm_list:
 			_log.Log(gmLog.lErr, 'cannot create communication of type: %s' % comm_medium)
 			return False			
 		# junk the cache
@@ -293,12 +287,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			del self._ext_cache['comms']
 		# dump to backend
 		cmd = """
-		insert into lnk_identity2comm (id_identity, id_type, url, is_confidential)
-		values (%s, %s, %s, %s)"""
+		select create_person_comm(%s, %s, %s, %s)"""
 		successful, data =  gmPG.run_commit2 (
 			link_obj = 'personalia',
 			queries = [
-				(cmd, [self._payload[self._idx['pk_identity']], comm[comm_idx['id']], url,
+				(cmd, [self._payload[self._idx['pk_identity']], comm_medium, url,
 				is_confidential])
 			]
 		)
@@ -1390,13 +1383,15 @@ def get_gender_list():
 #============================================================
 def get_comm_list():	
 	global __comm_list
-	global __comm_idx
 	if __comm_list is None:
-		cmd = "select id, description from enum_comm_types order by description"
-		__comm_list, __comm_idx  = gmPG.run_ro_query('personalia', cmd, True)
-		if __comm_list is None:
+		cmd = "select description from enum_comm_types order by description"
+		rows = gmPG.run_ro_query('personalia', cmd, False)
+		if rows is None:
 			_log.Log(gmLog.lPanic, 'cannot retrieve communication media values from database')
-	return (__comm_list, __comm_idx)
+		__comm_list = []
+		for row in rows:
+			__comm_list.append(row[0])
+	return __comm_list
 #============================================================
 # main/testing
 #============================================================
@@ -1409,10 +1404,8 @@ if __name__ == "__main__":
 	for gender in genders:
 		print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
 	
-	comms, idx = get_comm_list()
-	print "\n\nRetrieving communication media enum (id, description):"	
-	for comm in comms:
-		print "%s, %s" % (comm[idx['id']], comm[idx['description']])
+	comms = get_comm_list()
+	print "\n\nRetrieving communication media enum (id, description): %s" % comms
 				
 	# create patient
 	print '\n\nCreating identity...'
@@ -1471,7 +1464,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.28  2005-04-23 07:52:38  cfmoro
+# Revision 1.29  2005-04-23 08:48:52  cfmoro
+# Improved version of linking communications, controlling duplicates and medium in plpgsql
+#
+# Revision 1.28  2005/04/23 07:52:38  cfmoro
 # Added get_comm_list and cIdentity.link_communication methods
 #
 # Revision 1.27  2005/04/23 06:14:25  cfmoro
