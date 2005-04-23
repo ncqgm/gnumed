@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.27 2005-04-23 06:14:25 cfmoro Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmPerson.py,v 1.28 2005-04-23 07:52:38 cfmoro Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -26,6 +26,8 @@ _log.Log(gmLog.lInfo, __version__)
 
 __gender_list = None
 __gender_idx = None
+__comm_list = None
+__comm_idx = None
 #============================================================
 class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 	_service = "personalia"
@@ -266,6 +268,44 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
 			return False
 		return True
+#--------------------------------------------------------
+	def link_communication(self, comm_medium, url, is_confidential = False):
+		"""
+		Link a communication medium with a patient.
+		@param comm_medium The name of the communication medium.
+		@param url The communication resource locator.
+		@type url A types.StringType instance.
+		@param is_confidential Wether the data must be treated as confidential.
+		@type is_confidential A types.BooleanType instance.
+		"""
+		# locate communication in enum list and sanity check
+		comm_list, comm_idx = get_comm_list()		
+		comm = None		
+		for tmp in comm_list:
+			if comm_medium == tmp[comm_idx['description']]:
+				comm = tmp
+				break;
+		if comm is None:
+			_log.Log(gmLog.lErr, 'cannot create communication of type: %s' % comm_medium)
+			return False			
+		# junk the cache
+		if self._ext_cache.has_key('comms'):
+			del self._ext_cache['comms']
+		# dump to backend
+		cmd = """
+		insert into lnk_identity2comm (id_identity, id_type, url, is_confidential)
+		values (%s, %s, %s, %s)"""
+		successful, data =  gmPG.run_commit2 (
+			link_obj = 'personalia',
+			queries = [
+				(cmd, [self._payload[self._idx['pk_identity']], comm[comm_idx['id']], url,
+				is_confidential])
+			]
+		)
+		if not successful:
+			_log.Log(gmLog.lPanic, 'failed to create communication: %s' % data)
+			return False
+		return True		
 	#--------------------------------------------------------
 	def link_address(self, number, street, street_postcode, urb, urb_postcode,
 		state, country):
@@ -1348,12 +1388,33 @@ def get_gender_list():
 			_log.Log(gmLog.lPanic, 'cannot retrieve gender values from database')
 	return (__gender_list, __gender_idx)
 #============================================================
+def get_comm_list():	
+	global __comm_list
+	global __comm_idx
+	if __comm_list is None:
+		cmd = "select id, description from enum_comm_types order by description"
+		__comm_list, __comm_idx  = gmPG.run_ro_query('personalia', cmd, True)
+		if __comm_list is None:
+			_log.Log(gmLog.lPanic, 'cannot retrieve communication media values from database')
+	return (__comm_list, __comm_idx)
+#============================================================
 # main/testing
 #============================================================
 if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 	
-	 # create patient
+	# module functions
+	genders, idx = get_gender_list()
+	print "\n\nRetrieving gender enum (tag, label, weight):"	
+	for gender in genders:
+		print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
+	
+	comms, idx = get_comm_list()
+	print "\n\nRetrieving communication media enum (id, description):"	
+	for comm in comms:
+		print "%s, %s" % (comm[idx['id']], comm[idx['description']])
+				
+	# create patient
 	print '\n\nCreating identity...'
 	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
 	print 'Identity created: %s' % new_identity
@@ -1387,6 +1448,11 @@ if __name__ == "__main__":
 		'test', 'argentina')
 	print 'Identity addresses: %s' % new_identity['addresses']
 		
+	print '\nIdentity communications: %s' % new_identity['comms']
+	print 'Creating identity communication...'
+	new_identity.link_communication('homephone', '1234566')
+	print 'Identity communications: %s' % new_identity['comms']
+			
 	searcher = cPatientSearcher_SQL()
 	p_data = None
 	while 1:
@@ -1405,7 +1471,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.27  2005-04-23 06:14:25  cfmoro
+# Revision 1.28  2005-04-23 07:52:38  cfmoro
+# Added get_comm_list and cIdentity.link_communication methods
+#
+# Revision 1.27  2005/04/23 06:14:25  cfmoro
 # Added cIdentity.link_address method
 #
 # Revision 1.26  2005/04/20 21:55:39  ncq
