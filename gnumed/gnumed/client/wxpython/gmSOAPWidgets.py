@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.38 2005-04-20 22:22:41 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmSOAPWidgets.py,v 1.39 2005-04-24 14:52:15 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -18,7 +18,7 @@ from wxPython import wx
 # GnuMed
 from Gnumed.pycommon import gmDispatcher, gmSignals, gmI18N, gmLog, gmExceptions, gmMatchProvider, gmWhoAmI
 from Gnumed.pycommon.gmPyCompat import *
-from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmMultiSash, gmVaccWidgets
+from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmMultiSash, gmVaccWidgets, gmEditArea
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
@@ -28,14 +28,22 @@ NOTE_SAVED = -2
 
 #============================================================
 def create_issue_popup(parent, pos, size, style):
-	popup = gmEMRStructWidgets.cNewHealthIssuePopup (
+	ea = gmEMRStructWidgets.cHealthIssueEditArea (
+		parent,
+		-1,
+		wx.wxDefaultPosition,
+		wx.wxDefaultSize,
+		wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+	)
+	popup = gmEditArea.cEditAreaPopup (
 		parent = parent,
 		id = -1,
 		title = '',
 		pos = pos,
 		size = size,
 		style = style,
-		name = ''
+		name = '',
+		edit_area = ea
 	)
 	return popup
 #============================================================
@@ -1187,7 +1195,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.38  2005-04-20 22:22:41  ncq
+# Revision 1.39  2005-04-24 14:52:15  ncq
+# - use generic edit area popup for health issues
+#
+# Revision 1.38  2005/04/20 22:22:41  ncq
 # - create_vacc_popup/create_issue_popup
 #
 # Revision 1.37  2005/04/18 19:25:50  ncq
