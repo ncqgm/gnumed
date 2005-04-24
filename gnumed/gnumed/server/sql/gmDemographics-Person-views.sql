@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.35 2005-04-20 16:04:58 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.36 2005-04-24 14:53:51 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -188,6 +188,41 @@ BEGIN
 	end if;
 	insert into occupation (name) values (_job);
 	return currval(''occupation_id_seq'');
+END;' LANGUAGE 'plpgsql';
+
+-- ==========================================================
+\unset ON_ERROR_STOP 
+drop function create_person_comm(integer, text, text, bool);
+\set ON_ERROR_STOP 1
+
+CREATE FUNCTION create_person_comm(integer, text, text, bool) RETURNS integer AS '
+DECLARE
+	_id_identity alias for $1;
+	_comm_medium alias for $2;
+	_url alias for $3;
+	_is_confidential alias for $4;
+	
+	_id_comm integer;
+	_id_lnk2identity integer;
+	
+	msg text;
+BEGIN
+	SELECT INTO _id_lnk2identity id FROM lnk_identity2comm WHERE id_identity = _id_identity AND url ILIKE _url;
+	IF FOUND THEN
+		RETURN _id_lnk2identity;
+	END IF;
+	-- does comm_medium exist ?
+	SELECT INTO _id_comm id FROM enum_comm_types WHERE description ILIKE _comm_medium;
+	IF NOT FOUND THEN
+		msg := ''Cannot set person comm ['' || _id_identity || '', '' || _comm_medium || '','' || _url || '']. No enum_comms_types row with description ['' || _comm_medium || ''] found.'';
+		RAISE EXCEPTION ''---> %'', msg;
+	END IF;	
+	-- create new communication2identity link
+	INSERT INTO lnk_identity2comm (id_identity, url, id_type, is_confidential) values (_id_identity, _url, _id_comm, _is_confidential);
+	IF FOUND THEN
+		RETURN currval(''lnk_identity2comm_id_seq'');
+	END IF;
+	RETURN NULL;
 END;' LANGUAGE 'plpgsql';
 
 \unset ON_ERROR_STOP
@@ -391,11 +426,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.36 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.35  2005-04-20 16:04:58  ncq
+-- Revision 1.36  2005-04-24 14:53:51  ncq
+-- - add create_person_comm from Carlos
+--
+-- Revision 1.35  2005/04/20 16:04:58  ncq
 -- - 7.1 did not like _name for some strange reason, make it _job
 --
 -- Revision 1.34  2005/04/17 16:36:45  ncq
