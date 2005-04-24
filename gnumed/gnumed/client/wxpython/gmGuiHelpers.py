@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.18 2005-04-10 12:09:16 cfmoro Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmGuiHelpers.py,v 1.19 2005-04-24 14:48:57 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -41,7 +41,7 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 	aMessage = str(aMessage) + _("\n\nPlease consult the error log for all the gory details !")
 
 	if aTitle is None:
-		aTitle = _('generic error message dialog')
+		aTitle = _('generic error message')
 
 	print "-" * len(aTitle)
 	print aTitle
@@ -68,7 +68,7 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 		_log.Log(aLogLevel, log_msg)
 
 	if aTitle is None:
-		aTitle = _('generic info message dialog')
+		aTitle = _('generic info message')
 
 	dlg = wxMessageDialog (
 		parent = NULL,
@@ -90,7 +90,7 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 		_log.Log(aLogLevel, log_msg)
 
 	if aTitle is None:
-		aTitle = _('generic warning message dialog')
+		aTitle = _('generic warning message')
 
 	dlg = wxMessageDialog (
 		parent = NULL,
@@ -275,7 +275,10 @@ class cTextObjectValidator(wxPyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.18  2005-04-10 12:09:16  cfmoro
+# Revision 1.19  2005-04-24 14:48:57  ncq
+# - improved wording
+#
+# Revision 1.18  2005/04/10 12:09:16  cfmoro
 # GUI implementation of the first-basic (wizard) page for patient details input
 #
 # Revision 1.17  2005/03/06 09:21:08  ihaywood
