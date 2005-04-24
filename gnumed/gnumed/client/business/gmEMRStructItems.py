@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -26,12 +26,14 @@ class cHealthIssue(gmClinItem.cClinItem):
 	]
 	_cmds_store_payload = [
 		"""update clin_health_issue set
-				description=%(description)s
+				description=%(description)s,
+				age_noted=%(age_noted)s
 			where id=%(id)s""",
 		"""select xmin from clin_health_issue where id=%(id)s"""
 	]
 	_updatable_fields = [
-		'description'
+		'description',
+		'age_noted'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, patient_id=None, name='xxxDEFAULTxxx'):
@@ -288,7 +290,7 @@ class cProblem(gmClinItem.cClinItem):
 		return episode
 #============================================================
 # convenience functions
-#------------------------------------------------------------	
+#------------------------------------------------------------
 def create_health_issue(patient_id=None, description=None):
 	"""Creates a new health issue for a given patient.
 
@@ -505,7 +507,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.48  2005-04-03 20:05:38  ncq
+# Revision 1.49  2005-04-24 14:42:22  ncq
+# - add age_noted as changable
+#
+# Revision 1.48  2005/04/03 20:05:38  ncq
 # - cEpisode.set_active() doesn't make sense no more
 #
 # Revision 1.47  2005/03/29 07:22:38  ncq
