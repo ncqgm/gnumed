@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.172 2005-04-11 17:54:19 ncq Exp $
-__version__ = "$Revision: 1.172 $"
+# $Id: gmClinicalRecord.py,v 1.173 2005-04-24 14:41:04 ncq Exp $
+__version__ = "$Revision: 1.173 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -744,7 +744,7 @@ class cClinicalRecord:
 				patient_id = self.pk_patient
 			)
 		else:
-			# create episode for given health issue			
+			# create episode for given health issue
 			success, episode = gmEMRStructItems.create_episode (
 				pk_health_issue = pk_health_issue,
 				episode_name = episode_name
@@ -896,20 +896,17 @@ where
 				filtered_issues.append(issue)
 		return filtered_issues
 	#------------------------------------------------------------------
-	def add_health_issue(self, health_issue_name=None):
+	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue.
-
-		- silently returns if it already exists
 		"""
 		# FIXME: use constraints to get*
 		issues = self.get_health_issues()
-		l = [i for i in issues if  i['description'] == health_issue_name]
-		if len(l) > 0:
-			return l[0]
-
-		success, issue = gmEMRStructItems.create_health_issue(patient_id=self.pk_patient, description=health_issue_name)
+		for issue in issues:
+			if issue['description'] == issue_name:
+				return False
+		success, issue = gmEMRStructItems.create_health_issue(patient_id=self.pk_patient, description=issue_name)
 		if not success:
-			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (health_issue_name, self.pk_patient))
+			_log.Log(gmLog.lErr, 'cannot create health issue [%s] for patient [%s]' % (issue_name, self.pk_patient))
 			return None
 		return issue
 	#--------------------------------------------------------
@@ -1653,7 +1650,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.172  2005-04-11 17:54:19  ncq
+# Revision 1.173  2005-04-24 14:41:04  ncq
+# - cleanup, fail in add_health_issue if issue exists
+#
+# Revision 1.172  2005/04/11 17:54:19  ncq
 # - cleanup
 #
 # Revision 1.171  2005/04/03 20:04:56  ncq
