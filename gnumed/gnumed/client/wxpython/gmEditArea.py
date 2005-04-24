@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.86 2005-04-20 22:19:01 ncq Exp $
-__version__ = "$Revision: 1.86 $"
+# $Id: gmEditArea.py,v 1.87 2005-04-24 14:47:14 ncq Exp $
+__version__ = "$Revision: 1.87 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -256,6 +256,83 @@ def _decorate_editarea_field(widget):
 	widget.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 
 #====================================================================
+class cEditAreaPopup(wx.wxDialog):
+	def __init__ (self, parent, id, title, pos, size, style, name, edit_area = None):
+		if not isinstance(edit_area, cEditArea2):
+			raise gmExceptions.ConstructorError, '<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area)
+		wx.wxDialog.__init__(self, parent, id, title, pos, size, style, name)
+		self.__wxID_BTN_SAVE = wx.wxNewId()
+		self.__wxID_BTN_RESET = wx.wxNewId()
+		self.__editarea = edit_area
+		self.__do_layout()
+		self.__register_events()
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	def get_summary(self):
+		return self.__editarea.get_summary()
+	#--------------------------------------------------------
+	def __do_layout(self):
+		self.__editarea.Reparent(self)
+
+		self.__btn_SAVE = wx.wxButton(self, self.__wxID_BTN_SAVE, _("Save"))
+		self.__btn_SAVE.SetToolTipString(_('save entry into medical record'))
+		self.__btn_RESET = wx.wxButton(self, self.__wxID_BTN_RESET, _("Reset"))
+		self.__btn_RESET.SetToolTipString(_('reset entry'))
+		self.__btn_CANCEL = wx.wxButton(self, wx.wxID_CANCEL, _("Cancel"))
+		self.__btn_CANCEL.SetToolTipString(_('discard entry and cancel'))
+
+		szr_buttons = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		szr_buttons.Add(self.__btn_SAVE, 1, wx.wxEXPAND | wx.wxALL, 1)
+		szr_buttons.Add(self.__btn_RESET, 1, wx.wxEXPAND | wx.wxALL, 1)
+		szr_buttons.Add(self.__btn_CANCEL, 1, wx.wxEXPAND | wx.wxALL, 1)
+
+		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_main.Add(self.__editarea, 1, wx.wxEXPAND)
+		szr_main.Add(szr_buttons, 0, wx.wxEXPAND)
+
+		self.SetSizerAndFit(szr_main)
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_events(self):
+		# connect standard buttons
+		wx.EVT_BUTTON(self.__btn_SAVE, self.__wxID_BTN_SAVE, self._on_SAVE_btn_pressed)
+		wx.EVT_BUTTON(self.__btn_RESET, self.__wxID_BTN_RESET, self._on_RESET_btn_pressed)
+		wx.EVT_BUTTON(self.__btn_CANCEL, wx.wxID_CANCEL, self._on_CANCEL_btn_pressed)
+
+		wx.EVT_CLOSE(self, self._on_CANCEL_btn_pressed)
+
+		# client internal signals
+#		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+#		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
+#		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+
+		return 1
+	#--------------------------------------------------------
+	def _on_SAVE_btn_pressed(self, evt):
+		if self.__editarea.save_data():
+			self.EndModal(wx.wxID_OK)
+			return
+		short_err = self.__editarea.get_short_error()
+		long_err = self.__editarea.get_long_error()
+		if (short_err is None) and (long_err is None):
+			long_err = _(
+				'Unspecified error saving data in edit area.\n\n'
+				'Programmer forgot to specify proper error\n'
+				'message in [%s].'
+			) % self.__editarea.__class__.__name__
+		if short_err is not None:
+			gmGuiHelpers.gm_beep_statustext(short_err, gmLog.lErr)
+		if long_err is not None:
+			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'), gmLog.lErr)
+	#--------------------------------------------------------
+	def _on_CANCEL_btn_pressed(self, evt):
+		self.EndModal(wx.wxID_CANCEL)
+	#--------------------------------------------------------
+	def _on_RESET_btn_pressed(self, evt):
+		self.__editarea.reset_ui()
+#====================================================================
 class cEditArea2(wxPanel):
 	def __init__(self, parent, id, pos, size, style):
 		# init main background panel
@@ -272,12 +349,46 @@ class cEditArea2(wxPanel):
 		self.data = None		# a placeholder for opaque data
 		self.fields = {}
 		self.prompts = {}
+		self._short_error = None
+		self._long_error = None
+		self._summary = None
 
 		self._wxID_BTN_OK = wxNewId()
 		self._wxID_BTN_Clear = wxNewId()
 		self.__do_layout()
 		self.__register_events()
 		self.Show()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def save_data(self):
+		self._long_error = _(
+			'Cannot save data from edit area.\n\n'
+			'Programmer forgot to override method:\n'
+			'  <%s.save_data>'
+		) % self.__class__.__name__
+		return False
+	#--------------------------------------------------------
+	def reset_ui(self):
+		msg = _(
+			'Cannot reset fields in edit area.\n\n'
+			'Programmer forgot to override method:\n'
+			'  <%s.reset_ui>'
+		) % self.__class__.__name__
+		gmGuiHelpers.gm_show_error(msg, aLogLevel = gmLog.lErr)
+	#--------------------------------------------------------
+	def get_short_error(self):
+		tmp = self._short_error
+		self._short_error = None
+		return tmp
+	#--------------------------------------------------------
+	def get_long_error(self):
+		tmp = self._long_error
+		self._long_error = None
+		return tmp
+	#--------------------------------------------------------
+	def get_summary(self):
+		return _('<No embed string for [%s]>') % self.__class__.__name__
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -2192,7 +2303,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.86  2005-04-20 22:19:01  ncq
+# Revision 1.87  2005-04-24 14:47:14  ncq
+# - add generic edit area popup dialog
+# - improve cEditArea2
+#
+# Revision 1.86  2005/04/20 22:19:01  ncq
 # - move std button event registration to after definition of buttons
 #
 # Revision 1.85  2005/04/18 19:21:57  ncq
