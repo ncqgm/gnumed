@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.21 2005-04-20 22:21:41 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmResizingWidgets.py,v 1.22 2005-04-24 14:57:15 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -124,62 +124,6 @@ class cPopupFrame(wx.wxFrame):
 		if self.originator:
 			self.originator.Embed ("%s: %s" % (self.embed_header, self.win.GetSummary()))
 		self.Close ()
-#====================================================================
-class cPopupFrameNew(wx.wxFrame):
-	"""This serves as a generic container around whatever is popped up.
-
-	It has no functionality in itself. Given that should it
-	be either a wxMiniFrame or a wxWindow ?
-	"""
-	def __init__ (self, widget=None, pos=wx.wxPyDefaultPosition):
-		self.__ID = wx.wxNewId()
-		wx.wxFrame.__init__(
-			self,
-			parent = None,
-			id = self.__ID,
-			title = widget.__class__.__name__,
-			pos = pos,
-			style = wx.wxSIMPLE_BORDER
-		)
-#		widget.set_completion_callback(self.OnOK)
-#		self.embed_header = embed_header
-#		self.originator = originator
-
-		self.__widget = widget
-
-		self.__do_layout()
-#		self.__register_events()
-		self.__widget.SetFocus()
-	#------------------------------------------------
-#	def __register_events(self):
-#		EVT_BUTTON(self.__BTN_OK, self.__BTN_OK.GetId(), self.OnOK)
-#		EVT_BUTTON(self.__BTN_Cancel, self.__BTN_Cancel.GetId(), self._on_cancel)
-	#------------------------------------------------
-	def __do_layout(self):
-#		self.__BTN_OK = wx.wxButton (self, -1, _("OK"), style=wx.wxBU_EXACTFIT)
-#		self.__BTN_Cancel = wx.wxButton (self, -1, _("Cancel"), style=wx.wxBU_EXACTFIT)
-#		szr_btns = wx.wxBoxSizer(wx.wxHORIZONTAL)
-#		szr_btns.Add(self.__BTN_OK, 0, 0)
-#		szr_btns.Add(self.__BTN_Cancel, 0, 0)
-
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.__widget, 1, wx.wxEXPAND, 0)
-		szr_main.Add(szr_btns, 0, wx.wxEXPAND)
-
-		self.SetAutoLayout(1)
-		self.SetSizer(szr_main)
-		szr_main.Fit(self)
-		szr_main.SetSizeHints(self)
-		self.Layout()
-	#------------------------------------------------
-#	def _on_cancel(self, event):
-#		self.Close()
-	#------------------------------------------------
-#	def OnOK(self, event=None):
-		# FIXME: deal with self.__widget here
-#		if self.originator:
-#			self.originator.Embed ("%s: %s" % (self.embed_header, self.__widget.GetSummary()))
-#		self.Close()
 #====================================================================
 class cSTCval:
 	def __init__(self):
@@ -472,21 +416,25 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		@param text: the new string
 		@param style: the style for the replaced string
 		"""
+		print "replacing from", start, "to", end
 		self.SetTargetStart(start)
 		self.SetTargetEnd(end)
 		self.ReplaceTarget(text)
 		if style > -1:
 			self.StartStyling(start, 0xFF)
 			self.SetStyling(len(text), style)
+		print "done replacing"
 	#------------------------------------------------
 	def Embed (self, text, data=None):
+		print "embedding:", text
 		self.no_list = 1
-		self.ReplaceText (self.fragment_start, self.fragment_end, text+';', STYLE_EMBED, 1)
-		self.GotoPos (self.fragment_start+len (text)+1)
+		self.ReplaceText(self.fragment_start, self.fragment_end, text+';', STYLE_EMBED, 1)
+		self.GotoPos(self.fragment_start+len (text)+1)
 		self.SetFocus()
-		if data:
-			self.__embed[text] = data
+#		if data:
+#			self.__embed[text] = data
 		self.no_list = 0
+		print "done embedding"
 	#------------------------------------------------
 	def DelPhrase (self, pos):
 		# FIXME: optimize
@@ -570,7 +518,9 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		fragment = self.__get_focussed_fragment()
 		if fragment in self.__popup_keywords.keys():
 			self.__timer.Stop()
-			self.__handle_keyword(fragment)
+			# need to use wxCallAfter because new modifications
+			# aren't allowed inside wxSTC_MODIFIED handlers ...
+			wx.wxCallAfter(self.__handle_keyword(fragment))
 #			# keep this so the parent class handler inserts the character for us
 #			event.Skip()
 			return
@@ -715,14 +665,14 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		print "popup interaction completed"
 		if was_cancelled:
 			print "popup cancelled, ignoring data"
-			self.__popup.Destroy()
+#			self.__popup.Destroy()
 			self.__popup = None
 			return
 		print "getting data from popup and acting on it"
 		print self.__popup.GetData()
 		# FIXME: wxCallAfter(embed) and store
 		# maybe be a little smarter here
-		self.__popup.Destroy()
+#		self.__popup.Destroy()
 		self.__popup = None
 	#------------------------------------------------
 	def _on_timer_fired(self, cookie):
@@ -858,6 +808,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			)
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
 			_log.Log(gmLog.lErr, 'the result (%s) is not a wxDialog subclass instance, however' % str(self.__popup))
+			self.__popup = None
 			return False
 
 		# make new popup window to put widget inside
@@ -877,7 +828,10 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 
 		result = self.__popup.ShowModal()
 		if result == wx.wxID_OK:
-			print "getting data from popup and acting on it"
+			summary = self.__popup.get_summary()
+			print "summary is:", summary
+			self.Embed(summary)
+		self.__popup = None
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -1110,7 +1064,13 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.21  2005-04-20 22:21:41  ncq
+# Revision 1.22  2005-04-24 14:57:15  ncq
+# - cleanup
+# - added debugging code for embedding popup summary - still doesn't work
+#   Ian, can you look at this ?
+# - use wxCallAfter since STC mods aren't allowed inside a ON_MODIFIED handler
+#
+# Revision 1.21  2005/04/20 22:21:41  ncq
 # - cleanup, use ShowModal (this isn't quite yet what was intended)
 #
 # Revision 1.20  2005/04/18 19:23:44  ncq
