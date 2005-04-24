@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.6 2005-03-30 22:08:57 ncq Exp $
+# $Id: gmI18N.py,v 1.7 2005-04-24 15:48:47 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -55,8 +55,16 @@ if __name__ == "__main__":
 system_locale = ''
 system_locale_level = {}
 
-# default is to use unicode conversion for gettext
-unicode_flag = 1
+# Q: I can't use non-ascii characters in labels and menus.
+# A: This can happen if your Python's sytem encoding is ascii and
+#    wxPython is non-unicode. Edit/create the file sitecustomize.py
+#    (should be somewhere in your PYTHONPATH), and put these magic lines:
+#
+#	import sys
+#	sys.setdefaultencoding('iso8859-1') # replace with encoding you want to be the default one
+
+# default is to not force unicode conversion for gettext
+unicode_flag = 0
 if gmCLI.has_arg('--unicode-gettext'):
 	try:
 		unicode_flag = int(gmCLI.arg['--unicode-gettext'])
@@ -239,7 +247,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.6  2005-03-30 22:08:57  ncq
+# Revision 1.7  2005-04-24 15:48:47  ncq
+# - change unicode_flag default to 0
+# - add comment on proper fix involving sitecustomize.py
+#
+# Revision 1.6  2005/03/30 22:08:57  ncq
 # - properly handle 0/1 in --unicode-gettext
 #
 # Revision 1.5  2005/03/29 07:25:39  ncq
