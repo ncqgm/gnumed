@@ -9,23 +9,21 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.11 2004-12-23 16:20:15 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmDateTimeInput.py,v 1.12 2005-04-24 15:05:22 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
 import re, string
 
-from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions
+import mx.DateTime as mxDT
+from wxPython.wx import *
+
+from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions, gmI18N
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
-
-import mx.DateTime as mxDT
-
-from wxPython.wx import *
-
 #============================================================
 class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	def __init__(self):
@@ -285,7 +283,6 @@ class gmTimeInput(wxTextCtrl):
 # main
 #--------------------------------------------------
 if __name__ == '__main__':
-	_ = lambda x:x
 	#----------------------------------------------------
 	def clicked (data):
 		print "Selected :%s" % data
@@ -322,7 +319,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.11  2004-12-23 16:20:15  ncq
+# Revision 1.12  2005-04-24 15:05:22  ncq
+# - use gmI18N properly
+#
+# Revision 1.11  2004/12/23 16:20:15  ncq
 # - add licence
 #
 # Revision 1.10  2004/07/18 20:30:53  ncq
