@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.26 2005-04-12 16:19:49 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmEMRBrowser.py,v 1.27 2005-04-24 14:44:05 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -158,7 +158,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_TREE_ITEM_RIGHT_CLICK(self.__emr_tree, self.__emr_tree.GetId(), self.__on_tree_item_right_clicked)
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
-		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self.__on_episodes_modified)
+		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
 	#--------------------------------------------------------
 	def __on_dump_emr(self, event):
 		"""Dump EMR to file."""		   
@@ -168,10 +168,11 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		"""Patient changed."""
 		self._schedule_data_reget()
 	#--------------------------------------------------------
-	def __on_episodes_modified(self):
+	def _on_episodes_modified(self):
 		"""Episode changed."""
 		# FIXME: should *actually* be self._schedule_data_reget() but does not work properly yet
-		self.refresh_tree()
+		self._schedule_data_reget()
+		#self.refresh_tree()
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		"""
@@ -390,7 +391,7 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		"""
 		# wx.wxPython events
 		wx.EVT_MENU(self.__browser, self.ID_NEW_HEALTH_ISSUE , self.__on_new_health_issue)
-#		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR, self.__on_episode_editor)
+#		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR, self._on_episode_editor)
 #		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR, self.__browser.edit_episode)
 		wx.EVT_MENU(self.__browser, self.ID_NEW_ENCOUNTER , self.__on_new_encounter)
 		wx.EVT_MENU(self.__browser, self.ID_EDIT_ENCOUNTER_NOTES , self.__on_edit_encounter_notes)
@@ -404,7 +405,7 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening health issue editor'))
 	
 	#--------------------------------------------------------
-	def __on_episode_editor(self, event):
+	def _on_episode_editor(self, event):
 		"""
 		On new episode menu item selection: create a new episode
 		"""
@@ -699,7 +700,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.26  2005-04-12 16:19:49  ncq
+# Revision 1.27  2005-04-24 14:44:05  ncq
+# - callbacks must be _* not __* or else namespace invisibility will ensue
+#
+# Revision 1.26  2005/04/12 16:19:49  ncq
 # - add cEMRJournalPanel for plugin
 #
 # Revision 1.25  2005/04/05 16:21:54  ncq
