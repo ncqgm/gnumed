@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.4 2005-04-20 22:09:54 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmEMRStructWidgets.py,v 1.5 2005-04-24 14:45:18 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -30,67 +30,6 @@ dialog_CANCELLED = -1
 dialog_OK = -2
 
 #============================================================
-class cNewHealthIssuePopup(wx.wxDialog):
-	def __init__ (self, parent, id, title, pos, size, style, name):
-		wx.wxDialog.__init__(self, parent, id, title, pos, size, style, name)
-		self.__wxID_BTN_SAVE = wx.wxNewId()
-		self.__wxID_BTN_RESET = wx.wxNewId()
-		self.__do_layout()
-		self.__register_events()
-	#------------------------------------------------------------------
-	def __do_layout(self):
-		self.__editarea = cHealthIssueEditArea(self, -1, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL)
-
-		self.__btn_SAVE = wx.wxButton(self, self.__wxID_BTN_SAVE, _("Save"))
-		self.__btn_SAVE.SetToolTipString(_('save entry into medical record'))
-		self.__btn_RESET = wx.wxButton(self, self.__wxID_BTN_RESET, _("Reset"))
-		self.__btn_RESET.SetToolTipString(_('reset entry'))
-		self.__btn_CANCEL = wx.wxButton(self, wx.wxID_CANCEL, _("Cancel"))
-#		self.__btn_CANCEL.SetToolTipString(_('discard entry and cancel'))
-
-		szr_buttons = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_buttons.Add(self.__btn_SAVE, 1, wx.wxEXPAND | wx.wxALL, 1)
-		szr_buttons.Add(self.__btn_RESET, 1, wx.wxEXPAND | wx.wxALL, 1)
-		szr_buttons.Add(self.__btn_CANCEL, 1, wx.wxEXPAND | wx.wxALL, 1)
-
-		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		szr_main.Add(self.__editarea, 1, wx.wxEXPAND)
-		szr_main.Add(szr_buttons, 0, wx.wxEXPAND)
-
-		self.SetSizerAndFit(szr_main)
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_events(self):
-		# connect standard buttons
-		wx.EVT_BUTTON(self.__btn_SAVE, self.__wxID_BTN_SAVE, self._on_SAVE_btn_pressed)
-		wx.EVT_BUTTON(self.__btn_RESET, self.__wxID_BTN_RESET, self._on_RESET_btn_pressed)
-		wx.EVT_BUTTON(self.__btn_CANCEL, wx.wxID_CANCEL, self._on_CANCEL_btn_pressed)
-
-		wx.EVT_CLOSE(self, self._on_CANCEL_btn_pressed)
-
-		# client internal signals
-#		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
-#		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
-#		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
-
-		return 1
-	#--------------------------------------------------------
-	def _on_SAVE_btn_pressed(self, evt):
-		print "saving"
-		self.EndModal(wx.wxID_OK)
-	#--------------------------------------------------------
-	def _on_CANCEL_btn_pressed(self, evt):
-		"""
-		Configure appropiate *dialog* return value when the user clicks the
-		window system's closer (usually X)
-		"""
-		print "cancelling"
-		self.EndModal(wx.wxID_CANCEL)
-	#--------------------------------------------------------
-	def _on_RESET_btn_pressed(self, evt):
-		print "resetting fields"
-#============================================================
 class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	"""Edit Area for Health Issues.
 
@@ -99,9 +38,34 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 	def __init__(self, parent, id, pos, size, style):
 		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
 	#----------------------------------------------------
+	# public API
+	#----------------------------------------------------
+	def reset_ui(self):
+		self.fld_condition.SetValue('')
+		self.fld_age_onset.SetValue('')
+		self.fld_year_onset.SetValue('')
+		self.fld_progress_note.SetValue('')
+	#----------------------------------------------------
+	def save_data(self):
+		# no pre-existing issue to deal with
+		if self.data is None:
+			return self.__save_new_entry()
+		else:
+			print self.__class__.__name__, "updating entry not implemented yet"
+	#----------------------------------------------------
+	def get_summary(self):
+		tmp = _('pHx: %s (noticed at age %s in %s)') % (
+			self.fld_condition.GetValue(),
+			self.fld_age_onset.GetValue(),
+			self.fld_year_onset.GetValue()
+		)
+		return tmp
+	#----------------------------------------------------
+	# intra-class API
+	#----------------------------------------------------
 	def _define_prompts(self):
 		self._add_prompt(line = 1, label = _('Condition'))
-		self._add_prompt(line = 2, label = _('Onset'))
+		self._add_prompt(line = 2, label = _('Noticed'))
 		self._add_prompt(line = 3, label = _('Progress Note'))
 	#----------------------------------------------------
 	def _define_fields(self, parent):
@@ -185,6 +149,37 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			weight = 1
 		)
 		return 1
+	#----------------------------------------------------
+	# internal helpers
+	#----------------------------------------------------
+	def __save_new_entry(self):
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_clinical_record()
+		# create issue
+		condition = self.fld_condition.GetValue()
+		new_issue = emr.add_health_issue(issue_name = condition)
+		if new_issue is False:
+			self._short_error = _('Health issue [%s] already exists. Cannot add duplicate.') % condition
+			# FIXME: ask whether should update existing issue
+			return False
+		if new_issue is None:
+			self._short_error = _('Error adding health issue [%s]') % condition
+			return False
+		# age onset
+		age_onset = self.fld_age_onset.GetValue()
+		# FIXME: plausibility checks until proper gmDateTimeInput used
+		if age_onset != '':
+			new_issue['age_noted'] = age_onset
+			# FIXME: error handling
+			new_issue.save_payload()
+		# FIXME: handle fld_year_onset
+		# progress note
+		epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['id'])
+		# FIXME: error handling
+		if epi is not None:
+			# FIXME: error handling
+			emr.add_clin_narrative(note = self.fld_progress_note.GetValue(), episode=epi)
+		return True
 #============================================================
 class cEpisodeSelectorDlg(wx.wxDialog):
 	"""
@@ -863,7 +858,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.4  2005-04-20 22:09:54  ncq
+# Revision 1.5  2005-04-24 14:45:18  ncq
+# - cleanup, use generic edit area popup dialog
+# - "finalize" (as for 0.1) health issue edit area
+#
+# Revision 1.4  2005/04/20 22:09:54  ncq
 # - add edit area and popup dialog for health issue
 #
 # Revision 1.3  2005/03/14 14:36:31  ncq
