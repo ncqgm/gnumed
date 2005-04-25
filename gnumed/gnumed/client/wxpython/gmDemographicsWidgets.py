@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.9 2005-04-25 16:59:11 cfmoro Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmDemographicsWidgets.py,v 1.10 2005-04-25 21:22:17 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -20,7 +20,7 @@ import cPickle, zlib, shutil, time, string, sys, os
 from mx import DateTime
 import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
-import wxPython.wizard
+from wxPython import wizard
 
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput
@@ -1048,7 +1048,7 @@ class DemographicDetailWindow(wx.Panel):
 		self.__update_addresses()
 		self.__update_nok()
 #============================================================
-class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
+class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 	"""
 	Wizard page for entering patient's basic demographic information
 	"""
@@ -1060,11 +1060,11 @@ class BasicPatDetailsPage(wxPython.wizard.wxWizardPageSimple):
 		@param tile - The title of the page
 		@type title - A StringType instance				
 		"""
-		wxPython.wizard.wxWizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
+		wizard.wxWizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
 
 		# main panel (required for a correct propagation of validator calls)
 		PNL_form = wx.Panel(self, -1)
-		PNL_form.SetValidator(cBasicPatDetailsValidator())
+		PNL_form.SetValidator(cBasicPatDetailsPageValidator())
 
 		# FIXME: improve cTextObjectValidator to accept regexp (gender, telephones, etc).
 
@@ -1261,16 +1261,24 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
-		
+
 		PNL_form.SetSizerAndFit(SZR_input)
-										
+
 		# layout page
-		SZR_main = gmGuiHelpers.makePageTitle(self, title)  
+		SZR_main = gmGuiHelpers.makePageTitle(self, title)
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
 #============================================================
-class NewPatientWizard:
+class cNewPatientWizard(wizard.wxWizard):
 	"""
 	Wizard to create a new patient.
+
+	TODO:
+	- write pages for different "themes" of patient creation
+	- make it configurable which pages are loaded
+	- make available sets of pages that apply to a country
+	- make loading of some pages depend upon values in earlier pages, eg
+	  when the patient is female and older than 15 include a page about
+	  "female" data (number of kids etc)
 	"""
 	#--------------------------------------------------------
 	def __init__(self, parent):
@@ -1279,118 +1287,115 @@ class NewPatientWizard:
 		@param parent - The parent widget
 		@type parent - A wxWindow instance
 		"""
-		self.__id_wiz = wx.NewId()
-		self.__parent = parent
+		id_wiz = wx.NewId()
+		wizard.wxWizard.__init__(self, parent, id_wiz, _('Register new patient')) #images.getWizTest1Bitmap()
+		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 
 		self.__do_layout()
-		  				
-		if self.__wizard.RunWizard(self.basic_pat_details):
-			# dump data to backend			
-			# FIXME: replace gmPerson.link_XXX by subtables saving
-			# FIXME: although the logger is defaulting to INFO, the logs won't be
-			# logged unless set explicitely
-			_log.SetInfoLevel()
+	#--------------------------------------------------------
+	def RunWizard(self):
+		if not wizard.wxWizard.RunWizard(self, self.basic_pat_details):
+			return False
+
+		# dump data to backend			
+		# FIXME: replace gmPerson.link_XXX by subtables saving
+		# FIXME: although the logger is defaulting to INFO, the logs won't be
+		# logged unless set explicitely
+#		_log.SetInfoLevel()
+
+		genders, idx = gmPerson.get_gender_list()
+		input_gender = None
+		for gender in genders:
+			if gender[idx['l10n_label']] == self.basic_pat_details.PRW_gender.GetValue():
+				input_gender = gender[idx['tag']]
+				break
+
+		# create patient
+		_log.Log(gmLog.lInfo, _('\n\nCreating identity... '))
+		new_identity = gmPerson.create_identity (
+			gender = input_gender,
+			dob = self.basic_pat_details.TTC_dob.GetValue(),
+			lastnames = self.basic_pat_details.PRW_firstname.GetValue(),
+			firstnames = self.basic_pat_details.PRW_lastname.GetValue()
+		)
+		_log.Log(gmLog.lInfo, _('Identity created: %s') % new_identity)
+
+		input_title = self.basic_pat_details.PRW_title.GetValue()
+		if len(input_title) > 0:
+			_log.Log(gmLog.lInfo, _('\nSetting title and gender...'))
+			new_identity['title'] = input_title
+			new_identity.save_payload()
+			_log.Log(gmLog.lInfo, _('Refetching identity from db: %s') % gmPerson.cIdentity(aPK_obj=new_identity['pk_identity']))
+
+		input_nickname = self.basic_pat_details.PRW_nick.GetValue()
+		if len(input_nickname) > 0:
+			_log.Log(gmLog.lInfo, _('\nGetting all names...'))
+			for a_name in new_identity.get_all_names():
+				_log.Log(gmLog.lInfo, '%s' % a_name)
+			_log.Log(gmLog.lInfo, _('Active name: %s') % (new_identity.get_active_name()))
+			_log.Log(gmLog.lInfo, _('Setting nickname...'))
+			new_identity.set_nickname(nickname = input_nickname)
+			_log.Log(gmLog.lInfo, _('Refetching all names...'))
+			for a_name in new_identity.get_all_names():
+				_log.Log(gmLog.lInfo, '%s' % a_name)
+
+		input_occupation = self.basic_pat_details.PRW_occupation.GetValue()
+		if len(input_occupation) > 0:
+			_log.Log(gmLog.lInfo, _('\nIdentity occupations: %s') % new_identity['occupations'])
+			_log.Log(gmLog.lInfo, _('Creating identity occupation...'))
+			new_identity.link_occupation(occupation = input_occupation)
+			_log.Log(gmLog.lInfo, _('Identity occupations: %s') % new_identity['occupations'])
 			
-			genders, idx = gmPerson.get_gender_list()
-			input_gender = None
-			for gender in genders:
-				if gender[idx['l10n_label']] == self.basic_pat_details.PRW_gender.GetValue():
-					input_gender = gender[idx['tag']]
-					break
-						
-			# create patient
-			_log.Log(gmLog.lInfo, _('\n\nCreating identity... '))
-			new_identity = gmPerson.create_identity(
-				gender = input_gender,
-				dob = self.basic_pat_details.TTC_dob.GetValue(),
-				lastnames = self.basic_pat_details.PRW_firstname.GetValue(),
-				firstnames = self.basic_pat_details.PRW_lastname.GetValue()
+		input_number = self.basic_pat_details.TTC_address_number.GetValue()
+		input_street = self.basic_pat_details.PRW_street.GetValue()
+		input_street_postcode = self.basic_pat_details.TTC_street_zip_code.GetValue()
+		input_urb = self.basic_pat_details.PRW_town.GetValue()
+		input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetValue()
+		input_state = self.basic_pat_details.PRW_state.GetValue()
+		input_country = self.basic_pat_details.PRW_country.GetValue()
+		# FIXME improve by using validations in wizard page
+		if len(input_number) > 0 and len(input_street) > 0 and len(input_street_postcode) > 0 and \
+		len(input_urb_postcode) > 0 and len(input_state) > 0 and len(input_country) > 0:
+			_log.Log(gmLog.lInfo, _('\nIdentity addresses: %s') % new_identity['addresses'])
+			_log.Log(gmLog.lInfo, _('Creating identity address...'))
+			# make sure the state exists in the backend
+			new_identity.link_address(
+				number = input_number,
+				street = input_street,
+				street_postcode = input_street_postcode,
+				urb = input_urb,
+				urb_postcode = input_urb_postcode,
+				state = input_state,
+				country = input_country
 			)
-			_log.Log(gmLog.lInfo, _('Identity created: %s') % new_identity)
-			
-			input_title = self.basic_pat_details.PRW_title.GetValue()
-			if len(input_title) > 0:
-				_log.Log(gmLog.lInfo, _('\nSetting title and gender...'))
-				new_identity['title'] = input_title
-				new_identity.save_payload()
-				_log.Log(gmLog.lInfo, _('Refetching identity from db: %s') % gmPerson.cIdentity(aPK_obj=new_identity['pk_identity']))
-			
-			input_nickname = self.basic_pat_details.PRW_nick.GetValue()
-			if len(input_nickname) > 0:
-				_log.Log(gmLog.lInfo, _('\nGetting all names...'))
-				for a_name in new_identity.get_all_names():
-					_log.Log(gmLog.lInfo, '%s' % a_name)
-				_log.Log(gmLog.lInfo, _('Active name: %s') % (new_identity.get_active_name()))
-				_log.Log(gmLog.lInfo, _('Setting nickname...'))
-				new_identity.set_nickname(
-					nickname = input_nickname
-				)
-				_log.Log(gmLog.lInfo, _('Refetching all names...'))
-				for a_name in new_identity.get_all_names():
-					_log.Log(gmLog.lInfo, '%s' % a_name)
+			_log.Log(gmLog.lInfo, _('Identity addresses: %s') % new_identity['addresses'])
 
-			input_occupation = self.basic_pat_details.PRW_occupation.GetValue()
-			if len(input_occupation) > 0:
-				_log.Log(gmLog.lInfo, _('\nIdentity occupations: %s') % new_identity['occupations'])
-				_log.Log(gmLog.lInfo, _('Creating identity occupation...'))
-				new_identity.link_occupation(
-					occupation = input_occupation
-				)
-				_log.Log(gmLog.lInfo, _('Identity occupations: %s') % new_identity['occupations'])
-			
-			input_number = self.basic_pat_details.TTC_address_number.GetValue()
-			input_street = self.basic_pat_details.PRW_street.GetValue()
-			input_street_postcode = self.basic_pat_details.TTC_street_zip_code.GetValue()
-			input_urb = self.basic_pat_details.PRW_town.GetValue()
-			input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetValue()
-			input_state = self.basic_pat_details.PRW_state.GetValue()
-			input_country = self.basic_pat_details.PRW_country.GetValue()
-			# FIXME improve by using validations in wizard page
-			if len(input_number) > 0 and len(input_street) > 0 and len(input_street_postcode) > 0 and \
-			len(input_urb_postcode) > 0 and len(input_state) > 0 and len(input_country) > 0:
-				_log.Log(gmLog.lInfo, _('\nIdentity addresses: %s') % new_identity['addresses'])
-				_log.Log(gmLog.lInfo, _('Creating identity address...'))
-				# make sure the state exists in the backend
-				new_identity.link_address(
-					number = input_number,
-					street = input_street,
-					street_postcode = input_street_postcode,
-					urb = input_urb,
-					urb_postcode = input_urb_postcode,
-					state = input_state,
-					country = input_country
-				)
-				_log.Log(gmLog.lInfo, _('Identity addresses: %s') % new_identity['addresses'])
+		input_phone = self.basic_pat_details.TTC_phone.GetValue()
+		if len(input_phone) > 0:
+			_log.Log(gmLog.lInfo, _('\nIdentity communications: %s') % new_identity['comms'])
+			_log.Log(gmLog.lInfo, _('Creating identity communication...'))
+			new_identity.link_communication (
+				comm_medium = 'homephone',
+				url = input_phone,
+				is_confidential = False
+			)
+			# FIXME: why isn't this line completely logged? (at least in my localhost)
+			_log.Log(gmLog.lInfo, _('Identity communications: %s') % new_identity['comms'])
 
-			input_phone = self.basic_pat_details.TTC_phone.GetValue()
-			if len(input_phone) > 0:
-				_log.Log(gmLog.lInfo, _('\nIdentity communications: %s') % new_identity['comms'])
-				_log.Log(gmLog.lInfo, _('Creating identity communication...'))
-				new_identity.link_communication(
-					comm_medium = 'homephone',
-					url = input_phone,
-					is_confidential = False
-				)
-				# FIXME: why isn't this line completely logged? (at least in my localhost)
-				_log.Log(gmLog.lInfo, _('Identity communications: %s') % new_identity['comms'])
-				
-		self.__wizard.Destroy()
+#	self.__wizard.Destroy()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __do_layout(self):
 		"""Arrange widgets.
-
 		"""
-		# Create the wizard and the pages
-		self.__wizard = wxPython.wizard.wxWizard(self.__parent, self.__id_wiz, _('New patient wizard')) #images.getWizTest1Bitmap()
-		self.__wizard.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)		
-		self.basic_pat_details = BasicPatDetailsPage(self.__wizard, _('Basic patient details'))
-		self.__wizard.FitToPage(self.basic_pat_details)
+		# Create the wizard pages
+		self.basic_pat_details = cBasicPatDetailsPage(self, _('Basic patient details'))
+		self.FitToPage(self.basic_pat_details)
 #============================================================
-class cBasicPatDetailsValidator(wx.PyValidator):
+class cBasicPatDetailsPageValidator(wx.PyValidator):
 	"""
-	This validator is used to ensure that the user has entered al
+	This validator is used to ensure that the user has entered all
 	the required conditional values in the page (eg., to properly
 	create an address, all the related fields mut be filled).
 	"""
@@ -1400,31 +1405,36 @@ class cBasicPatDetailsValidator(wx.PyValidator):
 		Standard cloner.
 		Note that every validator must implement the Clone() method.
 		"""
-		return cBasicPatDetailsValidator()
+		return cBasicPatDetailsPageValidator()
 	#--------------------------------------------------------
 	def Validate(self):
 		"""
 		Validate the contents of the given text control.
 		"""
-		pageCtrl = self.GetWindow().GetParent()		
-		address_fields = (pageCtrl.TTC_address_number, pageCtrl.TTC_street_zip_code, pageCtrl.PRW_street,
-		pageCtrl.TTC_town_zip_code, pageCtrl.PRW_town, pageCtrl.PRW_state, pageCtrl.PRW_country)
-		is_any_field_filled = False
-		
+		pageCtrl = self.GetWindow().GetParent()
+		address_fields = (
+			pageCtrl.TTC_address_number,
+			pageCtrl.TTC_street_zip_code,
+			pageCtrl.PRW_street,
+			pageCtrl.PRW_town,
+			pageCtrl.PRW_state,
+			pageCtrl.PRW_country
+		)
 		# validate required fields
+		is_any_field_filled = False
 		for field in address_fields:
 			if len(field.GetValue()) > 0:
 				is_any_field_filled = True
 				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()				
-			elif len(field.GetValue()) == 0 and is_any_field_filled:
-				msg = _('To properly create an address, all the related fields mut be filled')
+				field.Refresh()
+				continue
+			if is_any_field_filled:
+				msg = _('To properly create an address, all the related fields must be filled in.')
 				gmGuiHelpers.gm_show_error(msg, _('Required fields'), gmLog.lErr)
 				field.SetBackgroundColour('pink')
 				field.SetFocus()
 				field.Refresh()
 				return False
-
 		return True
 	#--------------------------------------------------------
 	def TransferToWindow(self):
@@ -1455,7 +1465,8 @@ class TestPanel(wx.Panel):
 		@type parent A wxWindow instance
 		"""
 		wx.Panel.__init__(self, parent, id)
-		wizard = NewPatientWizard(self)
+		wizard = cNewPatientWizard(self)
+		print wizard.RunWizard()
 #============================================================
 if __name__ == "__main__":
 	from Gnumed.pycommon import gmPG
@@ -1468,7 +1479,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.9  2005-04-25 16:59:11  cfmoro
+# Revision 1.10  2005-04-25 21:22:17  ncq
+# - some cleanup
+# - make cNewPatientWizard inherit directly from wxWizard as it should IMO
+#
+# Revision 1.9  2005/04/25 16:59:11  cfmoro
 # Implemented patient creation. Added conditional validator
 #
 # Revision 1.8  2005/04/25 08:29:24  ncq
