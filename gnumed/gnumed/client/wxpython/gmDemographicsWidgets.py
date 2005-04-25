@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.7 2005-04-23 06:34:11 cfmoro Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmDemographicsWidgets.py,v 1.8 2005-04-25 08:29:24 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -145,9 +145,16 @@ class TextBox_BlackNormal(wx.TextCtrl):
 class SmartCombo (wx.ComboBox):
 	def __init__ (self, parent, _map):
 		self.map = _map
-		self.map = dict ([(y,x) for x, y in _map.items ()])
-		wx.ComboBox.__init__ (self, parent, -1, "", wx.DefaultPosition, wx.DefaultSize,
-			self.pam.keys (), wx.CB_DROPDOWN
+		self.pam = dict ([(str(y),x) for x, y in _map.items()])
+		wx.ComboBox.__init__ (
+			self,
+			parent,
+			-1,
+			"",
+			wx.DefaultPosition,
+			wx.DefaultSize,
+			self.pam.keys(),
+			wx.CB_DROPDOWN
 		)
 
 	def SetValue (self, value):
@@ -160,7 +167,7 @@ class SmartCombo (wx.ComboBox):
 		# Call parent class method (avoid recursive loop using validator)
 		# and return empty string when no option was selected
 		return self.map.get(wx.ComboBox.GetValue (self),'')
-		
+
 		
 class ExtIDPanel:
 	def __init__ (self, parent, sizer, context = 'p'):
@@ -748,7 +755,7 @@ class DemographicDetailWindow(wx.Panel):
 		lbl_dob = BlueLabel_Normal(self,-1, _("Birthdate"), wx.LEFT)
 		self.txt_dob = TextBox_BlackNormal(self,-1)
 		lbl_maritalstatus = BlueLabel_Normal(self,-1, _("Marital Status"), wx.ALIGN_CENTER)
-		self.pk_marital_status = SmartCombo (self, gmDemographicRecord.getMaritalStatusTypes ())
+		self.pk_marital_status = SmartCombo (self, gmDemographicRecord.getMaritalStatusTypes())
 		sizer_dob_marital = wx.BoxSizer(wx.HORIZONTAL)
 		sizer_dob_marital.Add(lbl_dob, 3, wx.EXPAND)
 		sizer_dob_marital.Add(self.txt_dob, 5, wx.EXPAND)
@@ -941,8 +948,6 @@ class DemographicDetailWindow(wx.Panel):
 		self.validate_fields()
 		self._save_addresses()
 		myPatient = self.patient.get_identity()
-		print myPatient
-		pass
 		if m['firstname'].IsModified () or m['surname'].IsModified ():
 			print "name is modified"
 			myPatient.addName(self.value_map['firstname'].strip(), self.value_map['surname'].strip(), activate=1)
@@ -1314,7 +1319,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.7  2005-04-23 06:34:11  cfmoro
+# Revision 1.8  2005-04-25 08:29:24  ncq
+# - combobox items must be strings
+#
+# Revision 1.7  2005/04/23 06:34:11  cfmoro
 # Added address number and street zip code missing fields
 #
 # Revision 1.6  2005/04/18 19:19:54  ncq
