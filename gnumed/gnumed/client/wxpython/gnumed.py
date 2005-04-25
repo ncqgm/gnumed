@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.75 $"
+__version__ = "$Revision: 1.76 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -335,7 +335,7 @@ def get_base_dir():
 # main - launch the GnuMed wxPython GUI client
 #----------------------------------------------------------
 setup_logging()
-setup_locale()
+#setup_locale()
 
 # help requested ?
 if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
@@ -421,7 +421,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.75  2005-04-24 14:06:38  ncq
+# Revision 1.76  2005-04-25 17:32:58  ncq
+# - entirely comment out setup_locale
+#
+# Revision 1.75  2005/04/24 14:06:38  ncq
 # - commented out a few locale queries that seemed to crash Richard's system ...
 #
 # Revision 1.74  2005/04/11 18:02:34  ncq
