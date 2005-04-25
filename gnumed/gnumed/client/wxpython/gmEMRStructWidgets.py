@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.5 2005-04-24 14:45:18 ncq Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmEMRStructWidgets.py,v 1.6 2005-04-25 08:30:59 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -175,6 +175,8 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		# FIXME: handle fld_year_onset
 		# progress note
 		epi = emr.add_episode(episode_name = _('past medical history'), pk_health_issue = new_issue['id'])
+		epi['episode_open'] = False
+		epi.save_payload()
 		# FIXME: error handling
 		if epi is not None:
 			# FIXME: error handling
@@ -858,7 +860,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.5  2005-04-24 14:45:18  ncq
+# Revision 1.6  2005-04-25 08:30:59  ncq
+# - make past medical history proxy episodes closed by default
+#
+# Revision 1.5  2005/04/24 14:45:18  ncq
 # - cleanup, use generic edit area popup dialog
 # - "finalize" (as for 0.1) health issue edit area
 #
