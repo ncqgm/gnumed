@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.87 2005-04-24 14:47:14 ncq Exp $
-__version__ = "$Revision: 1.87 $"
+# $Id: gmEditArea.py,v 1.88 2005-04-25 17:43:55 ncq Exp $
+__version__ = "$Revision: 1.88 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -12,6 +12,7 @@ __author__ = "R.Terry, K.Hilbert"
 import sys, traceback, time
 
 from wxPython.wx import *
+from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmGuiBroker, gmMatchProvider, gmDispatcher, gmSignals, gmExceptions, gmWhoAmI, gmI18N
 from Gnumed.business import gmPerson, gmDemographicRecord, gmForms
@@ -2303,7 +2304,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.87  2005-04-24 14:47:14  ncq
+# Revision 1.88  2005-04-25 17:43:55  ncq
+# - smooth changeover to from wxPython import wx
+#
+# Revision 1.87  2005/04/24 14:47:14  ncq
 # - add generic edit area popup dialog
 # - improve cEditArea2
 #
