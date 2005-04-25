@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.72 2005-04-14 19:14:51 cfmoro Exp $
-__version__ = "$Revision: 1.72 $"
+# $Id: gmDemographicRecord.py,v 1.73 2005-04-25 08:26:48 ncq Exp $
+__version__ = "$Revision: 1.73 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -169,7 +169,7 @@ def getMaritalStatusTypes():
 		return {}
 	if len(row_list) == 0:
 		return {}
-	return dict (row_list)
+	return dict(row_list)
 #------------------------------------------------------------------
 def getExtIDTypes (context = 'p'):
 	"""Gets dictionary mapping ext ID names to internal code from the backend for the given context
@@ -396,7 +396,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.72  2005-04-14 19:14:51  cfmoro
+# Revision 1.73  2005-04-25 08:26:48  ncq
+# - cleanup
+#
+# Revision 1.72  2005/04/14 19:14:51  cfmoro
 # Gender dict was replaced by get_genders method
 #
 # Revision 1.71  2005/04/14 18:58:14  cfmoro
