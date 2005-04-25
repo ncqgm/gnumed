@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.22 2005-04-24 14:57:15 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmResizingWidgets.py,v 1.23 2005-04-25 08:31:53 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -416,17 +416,14 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		@param text: the new string
 		@param style: the style for the replaced string
 		"""
-		print "replacing from", start, "to", end
 		self.SetTargetStart(start)
 		self.SetTargetEnd(end)
 		self.ReplaceTarget(text)
 		if style > -1:
 			self.StartStyling(start, 0xFF)
 			self.SetStyling(len(text), style)
-		print "done replacing"
 	#------------------------------------------------
 	def Embed (self, text, data=None):
-		print "embedding:", text
 		self.no_list = 1
 		self.ReplaceText(self.fragment_start, self.fragment_end, text+';', STYLE_EMBED, 1)
 		self.GotoPos(self.fragment_start+len (text)+1)
@@ -434,7 +431,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 #		if data:
 #			self.__embed[text] = data
 		self.no_list = 0
-		print "done embedding"
 	#------------------------------------------------
 	def DelPhrase (self, pos):
 		# FIXME: optimize
@@ -504,11 +500,10 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			event.Skip()
 			return
 		last_char_pos = self.GetLength()
-		# do we need to restart timer ?
+		# stop timer if empty
 		if last_char_pos == 0:
 			self.__timer.Stop()
-		else:
-			self.__timer.Start(oneShot = True)
+			return
 		# do we need to resize ?
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + self.TextHeight(0)
 		x, visible_height = self.GetSizeTuple()
@@ -520,10 +515,11 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			self.__timer.Stop()
 			# need to use wxCallAfter because new modifications
 			# aren't allowed inside wxSTC_MODIFIED handlers ...
-			wx.wxCallAfter(self.__handle_keyword(fragment))
-#			# keep this so the parent class handler inserts the character for us
-#			event.Skip()
+			self.__handle_keyword(fragment)
 			return
+		# else restart timer for match list
+		self.__timer.Start(oneShot = True)
+#		event.Skip()
 		return
 	#------------------------------------------------
 	def __on_key_down(self, event):
@@ -654,26 +650,26 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			curs_pos = self.PointFromPosition(self.GetCurrentPos())
 			self.__parent.EnsureVisible (self, curs_pos.x, curs_pos.y)
 	#------------------------------------------------
-	def _cb_on_popup_completion(self, was_cancelled=False):
-		"""Callback for popup completion.
-
-		- this is called when the user has signalled
-		  being done interacting with the popup
-		- if was_cancelled is True the popup content should
-		  be ignored and no further action taken on it
-		"""
-		print "popup interaction completed"
-		if was_cancelled:
-			print "popup cancelled, ignoring data"
-#			self.__popup.Destroy()
-			self.__popup = None
-			return
-		print "getting data from popup and acting on it"
-		print self.__popup.GetData()
-		# FIXME: wxCallAfter(embed) and store
-		# maybe be a little smarter here
+#	def _cb_on_popup_completion(self, was_cancelled=False):
+#		"""Callback for popup completion.
+#
+#		- this is called when the user has signalled
+#		  being done interacting with the popup
+#		- if was_cancelled is True the popup content should
+#		  be ignored and no further action taken on it
+#		"""
+#		print "popup interaction completed"
+#		if was_cancelled:
+#			print "popup cancelled, ignoring data"
+##			self.__popup.Destroy()
+#			self.__popup = None
+#			return
+#		print "getting data from popup and acting on it"
+#		print self.__popup.GetData()
+#		# FIXME: wxCallAfter(embed) and store
+#		# maybe be a little smarter here
 #		self.__popup.Destroy()
-		self.__popup = None
+#		self.__popup = None
 	#------------------------------------------------
 	def _on_timer_fired(self, cookie):
 		print 'timer <%s> fired' % cookie
@@ -784,10 +780,8 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			self.__popup = create_widget (
 				parent = top_parent,
 				pos = best_pos,
-#				size = best_size,
 				size = wx.wxSize(400, 300),
 				style = wx.wxSUNKEN_BORDER
-#				completion_callback = self._cb_on_popup_completion
 			)
 		except StandardError:
 			_log.LogException('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd), sys.exc_info(), verbose=1)
@@ -797,11 +791,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			)
 			return False
 
-#		print "popup is:", type(self.__popup), str(self.__popup)
-
-		# FIXME: issubclass() ?
-#		if not isinstance(self.__popup, wx.wxWindow):
-#		if not isinstance(self.__popup, wx.wxPanel):
 		if not isinstance(self.__popup, wx.wxDialog):
 			gmGuiHelpers.gm_beep_statustext (
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
@@ -811,16 +800,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			self.__popup = None
 			return False
 
-		# make new popup window to put widget inside
-#		self.__popup_win = wx.wxWindow (
-#			parent = self.__parent,
-#			id = -1,
-#			pos = self.ClientToScreen(self.PointFromPosition(self.GetCurrentPos())),
-#			size = ,
-#			style = wx.wxSIMPLE_BORDER,
-#			name = self.__class__.__name__
-#		)
-
 		# display widget
 		# FIXME: the embed_header business needs to go away, eg. be dealt
 		# FIXME: with later by calling widget_to_show.get_embed_string()
@@ -829,8 +808,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		result = self.__popup.ShowModal()
 		if result == wx.wxID_OK:
 			summary = self.__popup.get_summary()
-			print "summary is:", summary
-			self.Embed(summary)
+			wx.wxCallAfter(self.Embed, summary)
 		self.__popup = None
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
@@ -1064,7 +1042,11 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.22  2005-04-24 14:57:15  ncq
+# Revision 1.23  2005-04-25 08:31:53  ncq
+# - cleanup
+# - properly embed summary from popup
+#
+# Revision 1.22  2005/04/24 14:57:15  ncq
 # - cleanup
 # - added debugging code for embedding popup summary - still doesn't work
 #   Ian, can you look at this ?
