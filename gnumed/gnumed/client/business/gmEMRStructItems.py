@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -63,14 +63,14 @@ class cEpisode(gmClinItem.cClinItem):
 		"""update clin_episode set
 				fk_health_issue=%(pk_health_issue)s,
 				is_open=%(episode_open)s::boolean,
-				fk_clin_narrative=%(pk_narrative)s
+				description=%(description)s
 			where pk=%(pk_episode)s""",
 		"""select xmin_clin_episode from v_pat_episodes where pk_episode=%(pk_episode)s"""
 	]
 	_updatable_fields = [
 		'pk_health_issue',
 		'episode_open',
-		'pk_narrative'
+		'description'
 	]
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx'):
@@ -507,7 +507,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.49  2005-04-24 14:42:22  ncq
+# Revision 1.50  2005-04-25 08:28:28  ncq
+# - episode now has .description
+#
+# Revision 1.49  2005/04/24 14:42:22  ncq
 # - add age_noted as changable
 #
 # Revision 1.48  2005/04/03 20:05:38  ncq
