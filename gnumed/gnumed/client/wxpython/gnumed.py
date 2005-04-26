@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.76 $"
+__version__ = "$Revision: 1.77 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -150,11 +150,11 @@ def setup_locale():
 		locale.THOUSEP : 'thousand separator',
 		locale.YESEXPR : 'regex for "yes"',
 		locale.NOEXPR : 'regex for "no"',
-		locale.CRNCYSTR : 'currency symbol',
-#		locale.ERA : 'era',
+		locale.CRNCYSTR : 'currency symbol'
+#		, locale.ERA : 'era',
 #		locale.ERA_D_T_FMT : 'date/time format for era',
 #		locale.ERA_D_FMT : 'date format for era',
-		locale.ALT_DIGITS : 'alternative digit representation'
+#		locale.ALT_DIGITS : 'alternative digit representation'
 	}
 	for code in info_codes.keys():
 		try:
@@ -335,7 +335,7 @@ def get_base_dir():
 # main - launch the GnuMed wxPython GUI client
 #----------------------------------------------------------
 setup_logging()
-#setup_locale()
+setup_locale()
 
 # help requested ?
 if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
@@ -421,7 +421,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.76  2005-04-25 17:32:58  ncq
+# Revision 1.77  2005-04-26 20:02:48  ncq
+# - cleanup
+#
+# Revision 1.76  2005/04/25 17:32:58  ncq
 # - entirely comment out setup_locale
 #
 # Revision 1.75  2005/04/24 14:06:38  ncq
