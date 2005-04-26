@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.191 2005-04-17 16:30:34 ncq Exp $
-__version__ = "$Revision: 1.191 $"
+# $Id: gmGuiMain.py,v 1.192 2005-04-26 20:02:20 ncq Exp $
+__version__ = "$Revision: 1.192 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -354,7 +354,8 @@ class gmTopLevelFrame(wx.wxFrame):
 		"""
 		Launch create patient wizard
 		"""
-		gmDemographicsWidgets.NewPatientWizard(parent=self)		
+		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
+		wiz.RunWizard()
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -705,7 +706,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.191  2005-04-17 16:30:34  ncq
+# Revision 1.192  2005-04-26 20:02:20  ncq
+# - proper call cNewPatientWizard
+#
+# Revision 1.191  2005/04/17 16:30:34  ncq
 # - improve menu structure
 #
 # Revision 1.190  2005/04/14 08:54:48  ncq
