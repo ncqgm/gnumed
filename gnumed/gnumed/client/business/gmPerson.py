@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.29 2005-04-23 08:48:52 cfmoro Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmPerson.py,v 1.30 2005-04-26 18:16:13 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -116,6 +116,9 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 				"""insert into lnk_job2person (id_identity, id_occupation) values (%(pk_master)s, create_occupation(%(occupation)s))"""
 		}
 	}
+	#--------------------------------------------------------
+	def cleanup(self):
+		pass
 	#--------------------------------------------------------
 	def getId(self):
 		return self['pk_identity']
@@ -1464,7 +1467,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.29  2005-04-23 08:48:52  cfmoro
+# Revision 1.30  2005-04-26 18:16:13  ncq
+# - cIdentity needs a cleanup()
+#
+# Revision 1.29  2005/04/23 08:48:52  cfmoro
 # Improved version of linking communications, controlling duplicates and medium in plpgsql
 #
 # Revision 1.28  2005/04/23 07:52:38  cfmoro
