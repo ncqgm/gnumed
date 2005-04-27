@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.173 2005-04-24 14:41:04 ncq Exp $
-__version__ = "$Revision: 1.173 $"
+# $Id: gmClinicalRecord.py,v 1.174 2005-04-27 12:24:23 sjtan Exp $
+__version__ = "$Revision: 1.174 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -469,7 +469,7 @@ class cClinicalRecord:
 		# handle constraint conditions
 		where_snippets = []
 		params = {}
-		where_snippets.append('id_patient=%(pat_id)s')
+		where_snippets.append('pk_patient=%(pat_id)s')
 		params['pat_id'] = self.pk_patient
 		if not since is None:
 			where_snippets.append('clin_when >= %(since)s')
@@ -1650,7 +1650,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.173  2005-04-24 14:41:04  ncq
+# Revision 1.174  2005-04-27 12:24:23  sjtan
+#
+# id_patient should be pk_patient ? changed a while ago. effect: enables emr_dump window to display.
+#
+# Revision 1.173  2005/04/24 14:41:04  ncq
 # - cleanup, fail in add_health_issue if issue exists
 #
 # Revision 1.172  2005/04/11 17:54:19  ncq
