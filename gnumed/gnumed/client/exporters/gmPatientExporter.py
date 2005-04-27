@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.49 2005-04-12 16:15:36 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmPatientExporter.py,v 1.50 2005-04-27 19:59:19 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -856,7 +856,8 @@ where pk_patient=%s order by date, scr"""
 		prev_doc = ''
 		for row in rows:
 			# narrative
-			txt = row[idx['narrative']].replace('\n', ' ').replace('\r', ' ')
+			if row[idx['narrative']] is not None:
+				txt = row[idx['narrative']].replace('\n', ' ').replace('\r', ' ')
 			no_parts = (len(txt) / self.__part_len) + 1
 			# doc
 			curr_doc = row[idx['modified_by']]
@@ -1000,7 +1001,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.49  2005-04-12 16:15:36  ncq
+# Revision 1.50  2005-04-27 19:59:19  ncq
+# - deal with narrative rows that are empty
+#
+# Revision 1.49  2005/04/12 16:15:36  ncq
 # - improve journal style exporter
 #
 # Revision 1.48  2005/04/12 10:00:19  ncq
