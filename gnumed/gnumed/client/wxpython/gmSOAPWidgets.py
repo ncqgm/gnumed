@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.41 2005-04-27 14:49:38 sjtan Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmSOAPWidgets.py,v 1.42 2005-04-27 18:51:06 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -438,7 +438,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		"""
 		Obtain SOAP data from selected editor and dump to backend
 		"""
-		emr = self.__pat.get_clinical_record()
 		focussed_leaf = self.__soap_multisash.get_focussed_leaf()
 		soap_widget = focussed_leaf.get_content()
 		# sanity check
@@ -446,9 +445,9 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			msg = _('Cannot save. No valid editor to be saved is selected.')
 			gmGuiHelpers.gm_show_warning(msg, _('save progress note'), gmLog.lWarn)
 			return
-		soap_editor = soap_widget.get_editor()
 		episode = soap_widget.GetEpisode()
 		# do we need to create a new episode ?
+		emr = self.__pat.get_clinical_record()
 		if episode is None:
 			episode_name = soap_widget.GetHeadingTxt()
 			if episode_name is None or episode_name.strip() == '':
@@ -456,10 +455,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 						'Please type a new episode name or select an existing one from the list.')
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
 				return False
-			emr = self.__pat.get_clinical_record()
 			episode = emr.add_episode(episode_name = episode_name)
-#			stat, problem = self.__check_problem(episode_name)
-#			if not stat:
 			if episode is None:
 				msg = _('Cannot create episode [%s] to save progress note under.' % episode_name)
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
@@ -473,14 +469,14 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			gmSOAPimporter.soap_bundle_STAFF_ID_KEY: staff_id
 		}
 		# fill bundle for import
+		soap_editor = soap_widget.get_editor()
 		bundle = []
 		editor_content = soap_editor.GetValue()
-#		for input_label in editor_content.keys():
-		for input_label in editor_content.values():
+		for editor_val in editor_content.values():
 			bundle.append ({
-				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label.tag,
+				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: editor_val.data.soap_cat,
 				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
-				gmSOAPimporter.soap_bundle_TEXT_KEY: input_label.value,
+				gmSOAPimporter.soap_bundle_TEXT_KEY: editor_val.value,
 				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY: clin_ctx,
 				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY: {}	# this data needs to come from the editor
 			})
@@ -656,7 +652,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		if input_defs is None or len(input_defs) == 0:
 			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % (input_defs)
 		self.__input_defs = input_defs
-		gmResizingWidgets.cResizingWindow.__init__(self, parent, id= -1, size=size)
+		gmResizingWidgets.cResizingWindow.__init__(self, parent, id=-1, size=size)
 	#--------------------------------------------------------
 	def DoLayout(self):
 		"""Visually display input note according to user defined labels.
@@ -665,8 +661,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		# add fields to edit widget
 		# note: this may produce identically labelled lines
 		for line_def in self.__input_defs:
-			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def.data)
-			input_field.SetTag(line_def.soap_cat)
+			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def)
 			input_field.SetText(line_def.text)
 			kwds = progress_note_keywords[line_def.soap_cat]
 			input_field.set_keywords(popup_keywords=kwds)
@@ -686,8 +681,6 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				input_fields[field_idx].next_in_tab_order = input_fields[field_idx+1]
 			except IndexError:
 				input_fields[field_idx].next_in_tab_order = None
-		self.__input_fields = input_fields
-
 #============================================================
 class cResizingSoapPanel(wx.wxPanel):
 	"""Basic progress note panel.
@@ -1165,7 +1158,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.41  2005-04-27 14:49:38  sjtan
+# Revision 1.42  2005-04-27 18:51:06  ncq
+# - slightly change Syans fix for the failing soap import to properly
+#   take advantage of the existing infrastructure, my bad
+#
+# Revision 1.41  2005/04/27 14:49:38  sjtan
 #
 # allow the save clin_item to work by fixing a small bug where soap_cat isn't passed.
 #
