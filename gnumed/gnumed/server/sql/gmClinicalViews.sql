@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.141 2005-04-17 16:33:49 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.142 2005-04-27 20:00:11 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1700,7 +1700,7 @@ select
 	end as modified_by,
 	'a' as soap_cat,
 	_('health issue') || ': ' || chi.description || '; '
-		|| _('noted at age') || ': ' || chi.age_noted || ';'
+		|| _('noted at age') || ': ' || coalesce(chi.age_noted::text, '?') || ';'
 	as narrative,
 	-1 as pk_encounter,
 	-1 as pk_episode,
@@ -1996,11 +1996,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.141 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.142 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.141  2005-04-17 16:33:49  ncq
+-- Revision 1.142  2005-04-27 20:00:11  ncq
+-- - add missing coalesce in v_emr_journal
+--
+-- Revision 1.141  2005/04/17 16:33:49  ncq
 -- - improve clin_health_issue display in v_emr_journal
 --
 -- Revision 1.140  2005/04/12 10:08:34  ncq
