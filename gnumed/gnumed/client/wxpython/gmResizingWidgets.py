@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.24 2005-04-27 14:49:38 sjtan Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmResizingWidgets.py,v 1.25 2005-04-27 18:40:49 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -129,7 +129,6 @@ class cSTCval:
 	def __init__(self):
 		self.value = None
 		self.data = None
-		self.tag = None
 #====================================================================
 class cResizingWindow(wx.wxScrolledWindow):
 	"""A vertically-scrolled window which allows subwindows
@@ -261,7 +260,6 @@ class cResizingWindow(wx.wxScrolledWindow):
 				if isinstance(widget['instance'], cResizingSTC):
 					result.value = widget['instance'].GetText()
 					result.data = widget['instance'].GetData()
-					result.tag = widget['instance'].GetTag()
 				elif isinstance(widget['instance'], stc.wxStyledTextCtrl):
 					result.value = widget['instance'].GetText()
 				elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
@@ -394,8 +392,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		self.list = None
 		self.no_list = 0			# ??
 
-		self.__data = data			# this is just a placeholder for data to be attached to this STC, will be returned from get_data()
-		self.__tag= None
+		self.__data = data			# this is just a placeholder for data to be attached to this STC, will be returned from GetData()
 	#------------------------------------------------
 	# public API
 	#------------------------------------------------
@@ -494,12 +491,6 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		Retrieves the data associated with this STC
 		"""
 		return self.__data
-
-	def SetTag(self, tag):
-		self.__tag = tag
-
-	def GetTag(self):
-		return self.__tag
 	#------------------------------------------------
 	# event handlers
 	#------------------------------------------------
@@ -1051,7 +1042,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.24  2005-04-27 14:49:38  sjtan
+# Revision 1.25  2005-04-27 18:40:49  ncq
+# - changed Syans bug fix to make the widgets more generic
+#
+# Revision 1.24  2005/04/27 14:49:38  sjtan
 #
 # allow the save clin_item to work by fixing a small bug where soap_cat isn't passed.
 #
