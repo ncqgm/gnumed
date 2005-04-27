@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.40 2005-04-25 08:34:03 ncq Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmSOAPWidgets.py,v 1.41 2005-04-27 14:49:38 sjtan Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -478,7 +478,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 #		for input_label in editor_content.keys():
 		for input_label in editor_content.values():
 			bundle.append ({
-				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label.data['soap_cat'],
+				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: input_label.tag,
 				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
 				gmSOAPimporter.soap_bundle_TEXT_KEY: input_label.value,
 				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY: clin_ctx,
@@ -666,6 +666,7 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 		# note: this may produce identically labelled lines
 		for line_def in self.__input_defs:
 			input_field = gmResizingWidgets.cResizingSTC(self, -1, data = line_def.data)
+			input_field.SetTag(line_def.soap_cat)
 			input_field.SetText(line_def.text)
 			kwds = progress_note_keywords[line_def.soap_cat]
 			input_field.set_keywords(popup_keywords=kwds)
@@ -685,6 +686,8 @@ class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
 				input_fields[field_idx].next_in_tab_order = input_fields[field_idx+1]
 			except IndexError:
 				input_fields[field_idx].next_in_tab_order = None
+		self.__input_fields = input_fields
+
 #============================================================
 class cResizingSoapPanel(wx.wxPanel):
 	"""Basic progress note panel.
@@ -1162,7 +1165,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.40  2005-04-25 08:34:03  ncq
+# Revision 1.41  2005-04-27 14:49:38  sjtan
+#
+# allow the save clin_item to work by fixing a small bug where soap_cat isn't passed.
+#
+# Revision 1.40  2005/04/25 08:34:03  ncq
 # - cleanup
 # - don't display closed episodes in problem list
 # - don't wipe out half-baked progress notes when switching
