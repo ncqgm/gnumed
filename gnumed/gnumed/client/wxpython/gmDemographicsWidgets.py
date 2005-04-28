@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.12 2005-04-28 16:24:47 cfmoro Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmDemographicsWidgets.py,v 1.13 2005-04-28 16:58:45 cfmoro Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1379,7 +1379,6 @@ class cNewPatientWizard(wizard.wxWizard):
 				url = input_phone,
 				is_confidential = False
 			)
-			# FIXME: why isn't this line completely logged? (at least in my localhost)
 			_log.Log(gmLog.lInfo, _('Identity communications: %s') % new_identity['comms'])
 
 #	self.__wizard.Destroy()
@@ -1479,7 +1478,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.12  2005-04-28 16:24:47  cfmoro
+# Revision 1.13  2005-04-28 16:58:45  cfmoro
+# Removed fixme, was dued to log buffer
+#
+# Revision 1.12  2005/04/28 16:24:47  cfmoro
 # Remove last references to town zip code
 #
 # Revision 1.11  2005/04/28 16:21:17  cfmoro
