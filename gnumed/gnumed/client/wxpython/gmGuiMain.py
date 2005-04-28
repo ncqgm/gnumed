@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.192 2005-04-26 20:02:20 ncq Exp $
-__version__ = "$Revision: 1.192 $"
+# $Id: gmGuiMain.py,v 1.193 2005-04-28 21:29:58 ncq Exp $
+__version__ = "$Revision: 1.193 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -442,23 +442,24 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.SetTitle(title)
 	#----------------------------------------------
 	def SetupStatusBar(self):
-		self.CreateStatusBar(2, wx.wxST_SIZEGRIP)
+		sb = self.CreateStatusBar(2, wx.wxST_SIZEGRIP)
+		sb.SetStatusWidths([-1, 150])
 		#add time and date display to the right corner of the status bar
-		self.timer = wx.wxPyTimer(self.Callback_UpdateTime)
-		self.Callback_UpdateTime()
+		self.timer = wx.wxPyTimer(self._cb_update_clock)
+		self._cb_update_clock()
 		#update every second
 		self.timer.Start(1000)
 	#----------------------------------------------
-	def Callback_UpdateTime(self):
+	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
 		st = time.strftime(gmI18N.gmTimeformat, t)
 		self.SetStatusText(st,1)
 	#----------------------------------------------
-	def on_user_error (self, signal, message):
-		"response to user_error event"
-		self.SetStatusText (message, 0)
-		wx.wxBell()
+#	def on_user_error (self, signal, message):
+#		"response to user_error event"
+#		self.SetStatusText (message, 0)
+#		wx.wxBell()
 	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
@@ -706,7 +707,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.192  2005-04-26 20:02:20  ncq
+# Revision 1.193  2005-04-28 21:29:58  ncq
+# - improve status bar
+#
+# Revision 1.192  2005/04/26 20:02:20  ncq
 # - proper call cNewPatientWizard
 #
 # Revision 1.191  2005/04/17 16:30:34  ncq
