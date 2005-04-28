@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.21 2005-04-18 19:19:15 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmBusinessDBObject.py,v 1.22 2005-04-28 21:10:20 ncq Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -155,19 +155,23 @@ class cBusinessDBObject:
 			# this is used for establishing connections
 		# FIXME: if you want this check to be done please update all the child classes, too
 #		self.__class__._subtables
-			# a dictionary of subtables by name, values are dictionaries
-			# of 3 queries keyed 'select', 'insert' and 'delete'
-			# 'select' accepts one parameter (this objects primary key) and
-			# returns some rows. One column must be 'pk'. This rows, as
-			# dictionaries, are avaiable as an attribute of this object, by
-			# the name of the key in _subtables
-			# 'insert' is called by add_subtable, it must have labelled
-			# parameters for the columns to insert into from the dictionary
-			# passed to add_subtable. 'pk_master' is also available in this
-			# dictionary, being the primary key of the 'master' table
-			# 'delete' is called from del_subtable. Two parameters in order
-			# the pk for the master object, and the pk of the subtable row
-			# to be deleted.
+			# a dictionary of subtables by name,
+			# values are dictionaries  of 3 queries keyed 'select', 'insert' and 'delete',
+			#
+			# The 'select' query accepts one parameter (this object's primary
+			# key) and returns some rows. One column in which must be 'pk'.
+			# These rows, as dictionaries, are avaiable as attributes of the
+			# business object, by the name of the key in _subtables.
+			#
+			# The 'insert' query is called by add_to_subtable(). It must have
+			# %(labelled)s parameters for the columns to insert into from
+			# the dictionary passed to add_to_subtable(). 'pk_master' is also
+			# available in this dictionary, being the primary key of the
+			# 'master' table.
+			#
+			# The 'delete' is called from del_from_subtable(). Two parameters
+			# in the order: pk for the master object and pk of the
+			# subtable row to be deleted.
 		#</DEBUG>
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
@@ -448,23 +452,37 @@ class cBusinessDBObject:
 			self.original_payload[field] = self._payload[self._idx[field]]
 		return (True, None)
 	#----------------------------------------------------
-	def del_subtable (self, table, item):
+	def del_from_subtable (self, table, item):
+		"""Delete a row from a subtable.
+
+		1) remove from subtable cache
+		2) queue backend subtable delete for save_payload()
+		"""
 		self._subtable_changes.append ((self._subtables[table]['delete'], [self.pk_obj, item['pk']]))
-		for i in range (0, self[table]):
+		# FIXME: what's this wondrous strange self[table] doing in that range() ?
+		# FIXME: should it not be len(self[table]) ?
+		for i in range(0, self[table]):
 			if self[table][i]['pk'] == item['pk']:
 				del self[table][i]
 	#-----------------------------------------------------
-	def add_subtable (self, table, item):
+	def add_to_subtable (self, table, item):
+		"""Add a row to a subtable.
+
+		1) add to subtable cache
+		2) queue backend subtable insert for save_payload()
+		"""
 		self[table].append(item)
 		item['pk_master'] = self.pk_obj
 		self._subtable_changes.append((self._subtables[table]['insert'], [item]))
 	#----------------------------------------------------
 	def sync_subtable (self, table, items):
-		"""
+		"""FIXME: is this actually used anywhere ?
+
 		Ensures that a new version of the subtable matches whats in the
-		database, adding and deleting as appropriate
+		database, adding and deleting as appropriate.
 		"""
-		table2 = self[table][:]
+		table_cache = self[table][:]
+		# FIXME: this ain't gonna work as t is undefined
 		for i in range (len(t)):
 			for j in range (items):
 				eqn = 1
@@ -473,13 +491,13 @@ class cBusinessDBObject:
 						eqn = 0
 				if eqn: # these dicts are considered equal
 					items[j]['__same'] = 1
-					table2[i]['__same'] = 1
+					table_cache[i]['__same'] = 1
 		for i in items:
 			if not i.has_key('__same'):
-				self.add_subtable (table, i)
-		for i in table2:
+				self.add_to_subtable (table, i)
+		for i in table_cache:
 			if not i.has_key('__same'):
-				self.del_subtable (table, i)
+				self.del_from_subtable (table, i)
 #============================================================
 if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
@@ -508,7 +526,13 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.21  2005-04-18 19:19:15  ncq
+# Revision 1.22  2005-04-28 21:10:20  ncq
+# - improved _subtable docs
+# - avoid confusion:
+#   - add_subtable -> add_to_subtable
+#   - del_subtable -> del_from_subtable
+#
+# Revision 1.21  2005/04/18 19:19:15  ncq
 # - cleanup
 #
 # Revision 1.20  2005/04/14 18:58:59  cfmoro
