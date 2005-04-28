@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.13 2005-04-28 16:58:45 cfmoro Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmDemographicsWidgets.py,v 1.14 2005-04-28 19:21:18 cfmoro Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1168,10 +1168,10 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		STT_address_number = wx.StaticText(PNL_form, -1, _('Number'))
 		self.TTC_address_number = wx.TextCtrl(PNL_form, -1)
 		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))		
-		# street zip code
-		STT_street_zip_code = wx.StaticText(PNL_form, -1, _('Zip code (street)'))
-		self.TTC_street_zip_code = wx.TextCtrl(PNL_form, -1)
-		self.TTC_street_zip_code.SetToolTipString(_("primary/home address: street zip code/postcode"))
+		# zip code
+		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
+		self.TTC_zip_code = wx.TextCtrl(PNL_form, -1)
+		self.TTC_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
 		cmd = "select distinct name, name from street where name %(fragment_condition)s"
@@ -1247,8 +1247,8 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)		
 		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)								
-		SZR_input.Add(STT_street_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_street_zip_code, 1, wx.EXPAND)	
+		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)	
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)	
 		#SZR_input.Add(STT_town_zip_code, 0, wx.SHAPED)
@@ -1348,13 +1348,13 @@ class cNewPatientWizard(wizard.wxWizard):
 			
 		input_number = self.basic_pat_details.TTC_address_number.GetValue()
 		input_street = self.basic_pat_details.PRW_street.GetValue()
-		input_street_postcode = self.basic_pat_details.TTC_street_zip_code.GetValue()
+		input_postcode = self.basic_pat_details.TTC_zip_code.GetValue()
 		input_urb = self.basic_pat_details.PRW_town.GetValue()
 		#input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetValue()
 		input_state = self.basic_pat_details.PRW_state.GetValue()
 		input_country = self.basic_pat_details.PRW_country.GetValue()
 		# FIXME improve by using validations in wizard page
-		if len(input_number) > 0 and len(input_street) > 0 and len(input_street_postcode) > 0 and \
+		if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and \
 		len(input_state) > 0 and len(input_country) > 0:
 			_log.Log(gmLog.lInfo, _('\nIdentity addresses: %s') % new_identity['addresses'])
 			_log.Log(gmLog.lInfo, _('Creating identity address...'))
@@ -1362,7 +1362,7 @@ class cNewPatientWizard(wizard.wxWizard):
 			new_identity.link_address(
 				number = input_number,
 				street = input_street,
-				street_postcode = input_street_postcode,
+				postcode = input_postcode,
 				urb = input_urb,
 				#urb_postcode = input_urb_postcode,
 				state = input_state,
@@ -1413,7 +1413,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		pageCtrl = self.GetWindow().GetParent()
 		address_fields = (
 			pageCtrl.TTC_address_number,
-		#	pageCtrl.TTC_street_zip_code, ... optional
+			pageCtrl.TTC_zip_code,
 			pageCtrl.PRW_street,
 			pageCtrl.PRW_town,
 			pageCtrl.PRW_state,
@@ -1478,7 +1478,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.13  2005-04-28 16:58:45  cfmoro
+# Revision 1.14  2005-04-28 19:21:18  cfmoro
+# zip code streamlining
+#
+# Revision 1.13  2005/04/28 16:58:45  cfmoro
 # Removed fixme, was dued to log buffer
 #
 # Revision 1.12  2005/04/28 16:24:47  cfmoro

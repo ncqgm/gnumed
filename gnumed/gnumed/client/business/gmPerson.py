@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.31 2005-04-28 16:32:19 cfmoro Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmPerson.py,v 1.32 2005-04-28 19:21:18 cfmoro Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -303,7 +303,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			return False
 		return True		
 	#--------------------------------------------------------
-	def link_address(self, number, street, street_postcode, urb, 
+	def link_address(self, number, street, postcode, urb, 
 		state, country):
 		"""
 		Link an address with a patient, creating the address if it does not exists.
@@ -311,7 +311,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param number A types.StringType instance.
 		@param street The name of the street.
 		@param street A types.StringType instance.
-		@param street_postcode The postal code of the street.
+		@param postcode The postal code of the address.
 		@param urb The name of town/city/etc.
 		@param urb A types.StringType instance.
 		@param state The name of the state.
@@ -331,7 +331,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			link_obj = 'personalia',
 			queries = [
 				(cmd, [self._payload[self._idx['pk_identity']], number, street,
-				street_postcode, urb, state, country])
+				postcode, urb, state, country])
 			]
 		)
 		if not successful:
@@ -1438,7 +1438,7 @@ if __name__ == "__main__":
 	print '\nIdentity addresses: %s' % new_identity['addresses']
 	print 'Creating identity address...'
 	# make sure the state exists in the backend
-	new_identity.link_address('test 1234', 'test street', 'test street_postcode', 'test urb',
+	new_identity.link_address('test 1234', 'test street', 'test postcode', 'test urb',
 		'test', 'argentina')
 	print 'Identity addresses: %s' % new_identity['addresses']
 		
@@ -1465,7 +1465,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.31  2005-04-28 16:32:19  cfmoro
+# Revision 1.32  2005-04-28 19:21:18  cfmoro
+# zip code streamlining
+#
+# Revision 1.31  2005/04/28 16:32:19  cfmoro
 # Leave town postcode out of linking an address
 #
 # Revision 1.30  2005/04/26 18:16:13  ncq
