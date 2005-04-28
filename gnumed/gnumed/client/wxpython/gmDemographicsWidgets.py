@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.11 2005-04-28 16:21:17 cfmoro Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmDemographicsWidgets.py,v 1.12 2005-04-28 16:24:47 cfmoro Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1355,7 +1355,7 @@ class cNewPatientWizard(wizard.wxWizard):
 		input_country = self.basic_pat_details.PRW_country.GetValue()
 		# FIXME improve by using validations in wizard page
 		if len(input_number) > 0 and len(input_street) > 0 and len(input_street_postcode) > 0 and \
-		len(input_urb_postcode) > 0 and len(input_state) > 0 and len(input_country) > 0:
+		len(input_state) > 0 and len(input_country) > 0:
 			_log.Log(gmLog.lInfo, _('\nIdentity addresses: %s') % new_identity['addresses'])
 			_log.Log(gmLog.lInfo, _('Creating identity address...'))
 			# make sure the state exists in the backend
@@ -1364,7 +1364,7 @@ class cNewPatientWizard(wizard.wxWizard):
 				street = input_street,
 				street_postcode = input_street_postcode,
 				urb = input_urb,
-				urb_postcode = input_urb_postcode,
+				#urb_postcode = input_urb_postcode,
 				state = input_state,
 				country = input_country
 			)
@@ -1479,7 +1479,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.11  2005-04-28 16:21:17  cfmoro
+# Revision 1.12  2005-04-28 16:24:47  cfmoro
+# Remove last references to town zip code
+#
+# Revision 1.11  2005/04/28 16:21:17  cfmoro
 # Leave town zip code out and street zip code optional as in schema
 #
 # Revision 1.10  2005/04/25 21:22:17  ncq
