@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.10 2005-04-25 21:22:17 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmDemographicsWidgets.py,v 1.11 2005-04-28 16:21:17 cfmoro Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1184,9 +1184,9 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 		# town zip code
-		STT_town_zip_code = wx.StaticText(PNL_form, -1, _('Zip code (town)'))
-		self.TTC_town_zip_code = wx.TextCtrl(PNL_form, -1)
-		self.TTC_town_zip_code.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc. zip code/postcode"))		
+		#STT_town_zip_code = wx.StaticText(PNL_form, -1, _('Zip code (town)'))
+		#self.TTC_town_zip_code = wx.TextCtrl(PNL_form, -1)
+		#self.TTC_town_zip_code.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc. zip code/postcode"))		
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
 		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
@@ -1251,8 +1251,8 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 		SZR_input.Add(self.TTC_street_zip_code, 1, wx.EXPAND)	
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)	
-		SZR_input.Add(STT_town_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_town_zip_code, 1, wx.EXPAND)					
+		#SZR_input.Add(STT_town_zip_code, 0, wx.SHAPED)
+		#SZR_input.Add(self.TTC_town_zip_code, 1, wx.EXPAND)					
 		SZR_input.Add(STT_town, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 		SZR_input.Add(STT_state, 0, wx.SHAPED)
@@ -1350,7 +1350,7 @@ class cNewPatientWizard(wizard.wxWizard):
 		input_street = self.basic_pat_details.PRW_street.GetValue()
 		input_street_postcode = self.basic_pat_details.TTC_street_zip_code.GetValue()
 		input_urb = self.basic_pat_details.PRW_town.GetValue()
-		input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetValue()
+		#input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetValue()
 		input_state = self.basic_pat_details.PRW_state.GetValue()
 		input_country = self.basic_pat_details.PRW_country.GetValue()
 		# FIXME improve by using validations in wizard page
@@ -1414,7 +1414,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		pageCtrl = self.GetWindow().GetParent()
 		address_fields = (
 			pageCtrl.TTC_address_number,
-			pageCtrl.TTC_street_zip_code,
+		#	pageCtrl.TTC_street_zip_code, ... optional
 			pageCtrl.PRW_street,
 			pageCtrl.PRW_town,
 			pageCtrl.PRW_state,
@@ -1479,7 +1479,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.10  2005-04-25 21:22:17  ncq
+# Revision 1.11  2005-04-28 16:21:17  cfmoro
+# Leave town zip code out and street zip code optional as in schema
+#
+# Revision 1.10  2005/04/25 21:22:17  ncq
 # - some cleanup
 # - make cNewPatientWizard inherit directly from wxWizard as it should IMO
 #
