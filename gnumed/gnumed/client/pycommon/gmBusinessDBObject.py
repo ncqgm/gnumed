@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.22 2005-04-28 21:10:20 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmBusinessDBObject.py,v 1.23 2005-04-29 15:28:47 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -452,46 +452,46 @@ class cBusinessDBObject:
 			self.original_payload[field] = self._payload[self._idx[field]]
 		return (True, None)
 	#----------------------------------------------------
-	def del_from_subtable (self, table, item):
+	def del_from_subtable(self, table, item):
 		"""Delete a row from a subtable.
 
 		1) remove from subtable cache
 		2) queue backend subtable delete for save_payload()
 		"""
-		self._subtable_changes.append ((self._subtables[table]['delete'], [self.pk_obj, item['pk']]))
-		# FIXME: what's this wondrous strange self[table] doing in that range() ?
-		# FIXME: should it not be len(self[table]) ?
-		for i in range(0, self[table]):
-			if self[table][i]['pk'] == item['pk']:
-				del self[table][i]
+		self._subtable_changes.append((self._subtables[table]['delete'], [self.pk_obj, item['pk']]))
+		for i in range(len(self._ext_cache[table])):
+			if self._ext_cache[table][i]['pk'] == item['pk']:
+				del self._ext_cache[table][i]
 	#-----------------------------------------------------
-	def add_to_subtable (self, table, item):
+	def add_to_subtable(self, table, item):
 		"""Add a row to a subtable.
 
 		1) add to subtable cache
 		2) queue backend subtable insert for save_payload()
 		"""
-		self[table].append(item)
+		self._ext_cache[table].append(item)
 		item['pk_master'] = self.pk_obj
 		self._subtable_changes.append((self._subtables[table]['insert'], [item]))
 	#----------------------------------------------------
-	def sync_subtable (self, table, items):
+	def sync_subtable(self, table, items):
 		"""FIXME: is this actually used anywhere ?
 
 		Ensures that a new version of the subtable matches whats in the
 		database, adding and deleting as appropriate.
 		"""
-		table_cache = self[table][:]
+		table_cache = self._ext_cache[table][:]
 		# FIXME: this ain't gonna work as t is undefined
-		for i in range (len(t)):
+		# FIXME: leave it in for now so we find out whether this method is used anywhere
+		# FIXME: should be: for row_idx in range (len(table_cache)):
+		for row_idx in range (len(t)):
 			for j in range (items):
 				eqn = 1
 				for k in items[j].keys():
-					if items[j][k] != self[table][i][k]:
+					if items[j][k] != self._ext_cache[table][row_idx][k]:
 						eqn = 0
 				if eqn: # these dicts are considered equal
 					items[j]['__same'] = 1
-					table_cache[i]['__same'] = 1
+					table_cache[row_idx]['__same'] = 1
 		for i in items:
 			if not i.has_key('__same'):
 				self.add_to_subtable (table, i)
@@ -526,7 +526,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.22  2005-04-28 21:10:20  ncq
+# Revision 1.23  2005-04-29 15:28:47  ncq
+# - one fix to del_from_subtable() as approved by Ian
+# - some internal renaming to clear things up
+#
+# Revision 1.22  2005/04/28 21:10:20  ncq
 # - improved _subtable docs
 # - avoid confusion:
 #   - add_subtable -> add_to_subtable
