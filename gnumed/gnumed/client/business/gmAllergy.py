@@ -3,8 +3,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmAllergy.py,v $
-# $Id: gmAllergy.py,v 1.18 2005-01-02 19:55:30 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmAllergy.py,v 1.19 2005-04-30 13:30:02 sjtan Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL"
 
@@ -68,7 +68,7 @@ def create_allergy(substance=None, allg_type=None, episode_id=None, encounter_id
 	# 1) any of the args being None should fail the SQL code
 	# 2) do episode/encounter belong to the same patient ?
 	cmd = """
-		select id_patient from v_pat_episodes where pk_episode=%s
+		select pk_patient from v_pat_episodes where pk_episode=%s
 			union
 		select pk_patient from v_pat_encounters where pk_encounter=%s"""
 	rows = gmPG.run_ro_query('historica', cmd, None, episode_id, encounter_id)
@@ -137,7 +137,11 @@ if __name__ == '__main__':
 	print allg
 #============================================================
 # $Log: gmAllergy.py,v $
-# Revision 1.18  2005-01-02 19:55:30  ncq
+# Revision 1.19  2005-04-30 13:30:02  sjtan
+#
+# id_patient is  now pk_patient.
+#
+# Revision 1.18  2005/01/02 19:55:30  ncq
 # - don't need _xmins_refetch_col_pos anymore
 #
 # Revision 1.17  2004/12/20 16:45:49  ncq
