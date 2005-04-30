@@ -25,8 +25,8 @@ FIXME: check status on save_payload()s
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/importers/gmLDTimporter.py,v $
-# $Id: gmLDTimporter.py,v 1.21 2005-03-23 18:48:10 ncq Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmLDTimporter.py,v 1.22 2005-04-30 13:30:38 sjtan Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL, details at http://www.gnu.org"
 
@@ -299,7 +299,7 @@ class cLDTImporter:
 				select 1
 				from v_pat_items vpi, lab_request lr, identity i
 				where
-					vpi.id_patient=i.pk
+					vpi.pk_patient=i.pk
 						and
 					vpi.pk_item=%s
 						and
@@ -776,7 +776,7 @@ class cLDTImporter:
 			_log.Log(gmLog.lErr, 'cannot create/retrieve test type')
 			return False
 		if ttype['comment'] in [None, '']:
-			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.21 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
+			ttype['comment'] = 'created [%s] by [$RCSfile: gmLDTimporter.py,v $ $Revision: 1.22 $] from [%s]' % (time.strftime('%Y-%m-%d %H:%M'), self.ldt_filename)
 			ttype.save_payload()
 		# try to create test result row
 		whenfield = 'lab_rxd_when'		# FIXME: make this configurable
@@ -931,7 +931,7 @@ def run_import():
 #---------------------------------------------------------------
 def add_todo(problem, solution, context):
 	cat = 'lab'
-	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.21 $'
+	by = '$RCSfile: gmLDTimporter.py,v $ $Revision: 1.22 $'
 	rcvr = 'user'
 	gmPG.add_housekeeping_todo(reporter=by, receiver=rcvr, problem=problem, solution=solution, context=context, category=cat)
 #===============================================================
@@ -965,7 +965,11 @@ if __name__ == '__main__':
 
 #===============================================================
 # $Log: gmLDTimporter.py,v $
-# Revision 1.21  2005-03-23 18:48:10  ncq
+# Revision 1.22  2005-04-30 13:30:38  sjtan
+#
+# v_pat_items.id_patient -> v_pat_items.pk_patient
+#
+# Revision 1.21  2005/03/23 18:48:10  ncq
 # - v_patient_items -> v_pat_items
 #
 # Revision 1.20  2005/02/15 18:31:35  ncq
