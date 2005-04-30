@@ -23,8 +23,8 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.8 2005-03-20 17:51:41 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmRegetMixin.py,v 1.9 2005-04-30 13:32:14 sjtan Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -81,7 +81,7 @@ class cRegetOnPaintMixin:
 		- if not visible schedule reget only
 		- if visible redisplay immediately
 		"""
-		if self.GetUpdateRegion().IsEmpty() == 1:
+		if self.GetUpdateRegion().IsEmpty() == 1 and not self.IsShown():
 			self._data_stale = True
 			return True
 		else:
@@ -99,7 +99,12 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.8  2005-03-20 17:51:41  ncq
+# Revision 1.9  2005-04-30 13:32:14  sjtan
+#
+# if current wxWindow that inherits gmRegetMixin IsShown() is true, then it requires
+# refresh, so Reget is not scheduled , but immediate.
+#
+# Revision 1.8  2005/03/20 17:51:41  ncq
 # - although not sure whether conceptually it's the right thing to do it
 #   sure seems appropriated to Refresh() on focus events
 #
