@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.14 2005-04-28 19:21:18 cfmoro Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmDemographicsWidgets.py,v 1.15 2005-04-30 20:31:03 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1297,12 +1297,8 @@ class cNewPatientWizard(wizard.wxWizard):
 		if not wizard.wxWizard.RunWizard(self, self.basic_pat_details):
 			return False
 
-		# dump data to backend			
+		# dump data to backend
 		# FIXME: replace gmPerson.link_XXX by subtables saving
-		# FIXME: although the logger is defaulting to INFO, the logs won't be
-		# logged unless set explicitely
-#		_log.SetInfoLevel()
-
 		genders, idx = gmPerson.get_gender_list()
 		input_gender = None
 		for gender in genders:
@@ -1315,8 +1311,8 @@ class cNewPatientWizard(wizard.wxWizard):
 		new_identity = gmPerson.create_identity (
 			gender = input_gender,
 			dob = self.basic_pat_details.TTC_dob.GetValue(),
-			lastnames = self.basic_pat_details.PRW_firstname.GetValue(),
-			firstnames = self.basic_pat_details.PRW_lastname.GetValue()
+			lastnames = self.basic_pat_details.PRW_lastname.GetValue(),
+			firstnames = self.basic_pat_details.PRW_firstname.GetValue()
 		)
 		_log.Log(gmLog.lInfo, _('Identity created: %s') % new_identity)
 
@@ -1448,8 +1444,8 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		# FIXME: workaround for Validate to be called when clicking a wizard's
-		# Finish button
+		# FIXME: workaround for Validate to be called when clicking
+		# a wizard's  Finish button
 		return self.Validate()
 #============================================================
 class TestPanel(wx.Panel):   
@@ -1478,7 +1474,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.14  2005-04-28 19:21:18  cfmoro
+# Revision 1.15  2005-04-30 20:31:03  ncq
+# - first-/lastname were switched around when saving identity into backend
+#
+# Revision 1.14  2005/04/28 19:21:18  cfmoro
 # zip code streamlining
 #
 # Revision 1.13  2005/04/28 16:58:45  cfmoro
