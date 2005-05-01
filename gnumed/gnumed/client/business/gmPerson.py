@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.32 2005-04-28 19:21:18 cfmoro Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmPerson.py,v 1.33 2005-05-01 10:15:59 cfmoro Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -66,8 +66,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					and lpoa.id_type = at.id
 					and lpoa.id_identity = %s""",
 			'insert':
-				"""insert into lnk_person_org_address (id_identity, id_address)
-				values (%(pk_master)s, create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s))""",
+				"""
+					INSERT INTO lnk_person_org_address (id_identity, id_address)
+					VALUES (%(pk_master)s, create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));				
+				""",
 			'delete':
 				"""delete from lnk_person_org_address where id_identity = $s and id_address = %s"""
 		},
@@ -103,8 +105,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					l2c.id_identity = %s
 					and ect.id = id_type""",
 			'insert':
-				"""insert into lnk_identity2ext_id (id_identity, id_type, url, is_confidential)
-				values (%(pk_master)s, %(id_type)s, %(url)s, %(is_confidential)s)""",
+				"""SELECT create_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)""",
 			'delete':
 				"""delete from lnk_identity2ext_id where id_identity = %s and url = %s"""},
 		'occupations': {
@@ -113,7 +114,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			'delete':
 				"""delete from lnk_job2person lj2p where id_identity = %s and id_occupation = %s""",
 			'insert':
-				"""insert into lnk_job2person (id_identity, id_occupation) values (%(pk_master)s, create_occupation(%(occupation)s))"""
+				"""
+					INSERT INTO lnk_job2person (id_identity, id_occupation)
+					VALUES (%(pk_master)s, create_occupation(%(occupation)s))
+				"""
 		}
 	}
 	#--------------------------------------------------------
@@ -253,19 +257,17 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		Link an occupation with a patient, creating the occupation if it does not exists.
 		@param occupation The name of the occupation to link the patient to.
 		"""
-		# junk the cache
-		if self._ext_cache.has_key('occupations'):
-			del self._ext_cache['occupations']
+		
 		# dump to backend
-		cmd = """
-		insert into lnk_job2person (id_identity, id_occupation)
-		values (%s, create_occupation(%s))"""
-		successful, data =  gmPG.run_commit2 (
-			link_obj = 'personalia',
-			queries = [
-				(cmd, [self._payload[self._idx['pk_identity']], occupation])
-			]
+		self.add_to_subtable
+		(
+			'occupations',
+				{
+					'occupation': occupation
+				}
 		)
+		successful, data = self.save_payload()		
+		
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
 			return False
@@ -285,19 +287,19 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if comm_medium not in comm_list:
 			_log.Log(gmLog.lErr, 'cannot create communication of type: %s' % comm_medium)
 			return False			
-		# junk the cache
-		if self._ext_cache.has_key('comms'):
-			del self._ext_cache['comms']
+		
 		# dump to backend
-		cmd = """
-		select create_person_comm(%s, %s, %s, %s)"""
-		successful, data =  gmPG.run_commit2 (
-			link_obj = 'personalia',
-			queries = [
-				(cmd, [self._payload[self._idx['pk_identity']], comm_medium, url,
-				is_confidential])
-			]
+		self.add_to_subtable
+		(
+			'comms',
+				{
+					'comm_medium': comm_medium,
+					'url': url,
+					'is_confidential' : is_confidential
+				}
 		)
+		successful, data = self.save_payload()
+		
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create communication: %s' % data)
 			return False
@@ -319,21 +321,27 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param country The name of the country.
 		@param country A types.StringType instance.
 		"""
-		# junk the cache
-		if self._ext_cache.has_key('addresses'):
-			del self._ext_cache['addresses']
+
+		# dump to backend
+		self.add_to_subtable
+		(
+			'addresses',
+				{
+					'number': number,
+					'street': street,
+					'postcode' : postcode,
+					'urb' : urb,
+					'state' : state,
+					'country' : country
+				}
+		)
+		successful, data = self.save_payload()
+		
 		# dump to backend
 		cmd = """
-		INSERT INTO lnk_person_org_address (id_identity, id_address)
-		VALUES (%s, create_address(%s,%s,%s,%s,%s,%s));
+
 		"""
-		successful, data =  gmPG.run_commit2 (
-			link_obj = 'personalia',
-			queries = [
-				(cmd, [self._payload[self._idx['pk_identity']], number, street,
-				postcode, urb, state, country])
-			]
-		)
+		
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to link address: %s' % str(data))
 			return False
@@ -1465,7 +1473,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.32  2005-04-28 19:21:18  cfmoro
+# Revision 1.33  2005-05-01 10:15:59  cfmoro
+# Link_XXX methods ported to take advantage of subtables framework. save_payload seems need fixing, as no values are dumped to backed
+#
+# Revision 1.32  2005/04/28 19:21:18  cfmoro
 # zip code streamlining
 #
 # Revision 1.31  2005/04/28 16:32:19  cfmoro
