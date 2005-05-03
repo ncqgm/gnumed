@@ -1,15 +1,13 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.8 2005-04-12 16:14:50 ncq Exp $
-$Revision: 1.8 $
-====================================================
-pre-0.1
-- fix ASCII exporter (creates multiple entries per encounter)
-- after saving progress note the header disappears
-- add label "Episode" before phrase wheel when unattached
-  in progress note editor
-
+$Id: TODO,v 1.9 2005-05-03 21:09:15 ncq Exp $
+$Revision: 1.9 $
 ====================================================
 post-0.1
+
+
+1) move to wxPython 2.6.x
+2) move to PostgreSQL 8.x
+
 
 - configurable buttons in gui helpers message windows
 
@@ -21,15 +19,42 @@ database API:
 	- pyPgSQL is not well-maintained
 
 database schema:
-	- define groups as "treatment team"
 	- grant access to treatment teams
 	- hide data from unrelated treatment teams
+	- soap_cat domain
+	- gender domain
+	- laterality domain
+	- session-temporary setting of curr_lang
+	- support "care team" and row level ACLs (nested groups ?)
+	- coded_term: trigger on delete: restrict if term in clin_root_item.narrative
 
 client startup:
-- gnumed.py: rework use of resource_dir/base_dir
+	- gnumed.py: rework use of resource_dir/base_dir
 
 EMR journal plugin:
- - turn into proper list
+	- turn into proper list
+
+EMR exporters:
+	- refactor into formatters, make more generic
+	- have one exporter that supports several target formats
+
+progress note input:
+- add NotebookProgressNoteInput class
+- configurable popup keywords
+- make popups non-modal
+- allowing renaming episode from STC header
+- make problem list an issue-episode shallow tree ?
+
+forms layer
+- generic forms GUI (edit area ?)
+
+active patient privacy dilemma
+- find a sane way preventing patients waiting in the exam room
+  to freely glean other people's details
+
+patient search/active patient
+- find a sane way to empty the client of any patient so people
+  can't casually glance over other 
 
 ====================================================
 gmCfg
