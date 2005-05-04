@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -12,6 +12,9 @@
 \set ON_ERROR_STOP 1
 
 set client_encoding to 'LATIN1';
+-- =============================================
+select i18n_upd_tx('de_DE', 'Germany', 'Deutschland');
+
 -- =============================================
 -- doc types translated into German
 
@@ -267,11 +270,14 @@ select i18n_upd_tx('de_DE', 'hermaphrodite', 'Hermaphrodit');
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmUebersetzung.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.3  2005-04-14 18:26:53  ncq
+-- Revision 1.4  2005-05-04 08:57:33  ncq
+-- - translate "Germany"
+--
+-- Revision 1.3  2005/04/14 18:26:53  ncq
 -- - translate gender stuff
 --
 -- Revision 1.2  2005/04/12 10:08:57  ncq
