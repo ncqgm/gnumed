@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.23 2005-04-29 15:28:47 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmBusinessDBObject.py,v 1.24 2005-05-04 08:54:00 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -154,14 +154,14 @@ class cBusinessDBObject:
 			# the service in which our source relation is found,
 			# this is used for establishing connections
 		# FIXME: if you want this check to be done please update all the child classes, too
-#		self.__class__._subtables
+#		self.__class__._subtable_dml_templates
 			# a dictionary of subtables by name,
 			# values are dictionaries  of 3 queries keyed 'select', 'insert' and 'delete',
 			#
 			# The 'select' query accepts one parameter (this object's primary
 			# key) and returns some rows. One column in which must be 'pk'.
 			# These rows, as dictionaries, are avaiable as attributes of the
-			# business object, by the name of the key in _subtables.
+			# business object, by the name of the key in _subtable_dml_templates.
 			#
 			# The 'insert' query is called by add_to_subtable(). It must have
 			# %(labelled)s parameters for the columns to insert into from
@@ -176,7 +176,7 @@ class cBusinessDBObject:
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._idx = {}
-		self._subtable_changes = []
+		self._subtable_cmd_queue = []		# must be suitable to be passed as <queries> argument to gmPG.run_commit2()
 		if cBusinessDBObject._conn_pool is None:
 			# once for ALL descendants :-)
 			cBusinessDBObject._conn_pool = gmPG.ConnectionPool()
@@ -258,10 +258,10 @@ class cBusinessDBObject:
 			return self._ext_cache[attribute] # FIXME: when do we evict this cache ?
 		except KeyError:
 			pass
-		# 3) sub-table
+		# 3) subtable
 		try:
-			# FIXME: there is no collision detection on <attribute>
-			query = self._subtables[attribute]['select']
+			# FIXME: there is no collision detection on <attribute> between subtables and getters
+			query = self._subtable_dml_templates[attribute]['select']
 			rows, idx = gmPG.run_ro_query(self.__class__._service, query, True, self.pk_obj)
 			if rows is not None:
 				self._ext_cache[attribute] = [dict([(name, row[i]) for name, i in idx.items()]) for row in rows]
@@ -287,27 +287,34 @@ class cBusinessDBObject:
 			try:
 				self._payload[self._idx[attribute]] = value
 				self._is_modified = True
-				return True
+				return
+			except KeyError:
+				_log.Log(gmLog.lWarn, '[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
+				_log.Log(gmLog.lWarn, '[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
+				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+		# 2) setters providing extensions
+		if hasattr(self, 'set_%s' % attribute):
+			setter = getattr(self, "set_%s" % attribute)
+			if not callable(setter):
+				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute)
+			try:
+				del self._ext_cache[attribute]
 			except KeyError:
 				pass
-		# 2) setters providing extensions
-		setter = getattr(self, "set_%s" % attribute, None)
-		if not callable(setter):
-			_log.Log(gmLog.lWarn, '[%s]: unsettable/invalid attribute: <%s>' % (self.__class__.__name__, attribute))
-			_log.Log(gmLog.lWarn, '[%s]: valid attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-			_log.Log(gmLog.lWarn, '[%s]: no setter method [set_%s]' % (self.__class__.__name__, attribute))
-			methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
-			_log.Log(gmLog.lWarn, '[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
-			raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: cannot set [%s]' % (self.__class__.__name__, attribute)
-		try:
-			del self._ext_cache[attribute]
-		except KeyError:
-			pass
-		if type(value) is types.TupleType:
-			setter(*value)
-		else:
-			setter(value)
-		return True
+			if type(value) is types.TupleType:
+				if setter(*value):
+					self._is_modified = True
+					return
+				raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value)
+			if setter(value):
+				self._is_modified = True
+				return
+		# 3) don't know what to do with <attribute>
+		_log.Log(gmLog.lErr, '[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
+		_log.Log(gmLog.lWarn, '[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
+		methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
+		_log.Log(gmLog.lWarn, '[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
+		raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: cannot set [%s]' % (self.__class__.__name__, attribute)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -432,13 +439,14 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lErr, params)
 				return (False, data)
 		# execute cached changes to subtables
-		if self._subtable_changes:
-			successful, result = gmPG.run_commit2(link_obj = conn, queries=self._subtable_changes)
+		if len(self._subtable_cmd_queue) > 0:
+			successful, result = gmPG.run_commit2(link_obj = conn, queries=self._subtable_cmd_queue)
 			if not successful:
 				conn.rollback()
 				conn.close()
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot change subtables' % (self.__class__.__name__, self.pk_obj))
 				return (False, result)
+			self._subtable_cmd_queue = []
 		try:
 			conn.commit()
 			conn.close()
@@ -452,26 +460,39 @@ class cBusinessDBObject:
 			self.original_payload[field] = self._payload[self._idx[field]]
 		return (True, None)
 	#----------------------------------------------------
-	def del_from_subtable(self, table, item):
+	def del_from_subtable(self, table, row):
 		"""Delete a row from a subtable.
 
 		1) remove from subtable cache
 		2) queue backend subtable delete for save_payload()
 		"""
-		self._subtable_changes.append((self._subtables[table]['delete'], [self.pk_obj, item['pk']]))
-		for i in range(len(self._ext_cache[table])):
-			if self._ext_cache[table][i]['pk'] == item['pk']:
+		try:
+			row_count = len(self._ext_cache[table])
+		except KeyError:
+			_log.Log(gmLog.lErr, 'table [%s] not registered as subtable in class [%s]' % (table, self.__class__.__name__))
+			return False
+		for i in range(row_count):
+			if self._ext_cache[table][i]['pk'] == row['pk']:
 				del self._ext_cache[table][i]
+		self._subtable_cmd_queue.append((self._subtable_dml_templates[table]['delete'], [self.pk_obj, row['pk']]))
+		self._is_modified = True
+		return True
 	#-----------------------------------------------------
-	def add_to_subtable(self, table, item):
+	def add_to_subtable(self, table, row):
 		"""Add a row to a subtable.
 
 		1) add to subtable cache
 		2) queue backend subtable insert for save_payload()
 		"""
-		self._ext_cache[table].append(item)
-		item['pk_master'] = self.pk_obj
-		self._subtable_changes.append((self._subtables[table]['insert'], [item]))
+		row['pk_master'] = self.pk_obj
+		try:
+			self._ext_cache[table].append(row)
+			self._subtable_cmd_queue.append((self._subtable_dml_templates[table]['insert'], [row]))
+		except KeyError:
+			_log.Log(gmLog.lErr, 'table [%s] not registered as subtable in class [%s]' % (table, self.__class__.__name__))
+			return False
+		self._is_modified = True
+		return True
 	#----------------------------------------------------
 	def sync_subtable(self, table, items):
 		"""FIXME: is this actually used anywhere ?
@@ -479,6 +500,7 @@ class cBusinessDBObject:
 		Ensures that a new version of the subtable matches whats in the
 		database, adding and deleting as appropriate.
 		"""
+		print "WARNING: %s.sync_subtable() is likely broken" % self.__class__.__name__
 		table_cache = self._ext_cache[table][:]
 		# FIXME: this ain't gonna work as t is undefined
 		# FIXME: leave it in for now so we find out whether this method is used anywhere
@@ -526,7 +548,12 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.23  2005-04-29 15:28:47  ncq
+# Revision 1.24  2005-05-04 08:54:00  ncq
+# - improved __setitem__ handling
+# - add_to_subtable()/del_from_subtable() now set _is_modified appropriately
+# - some internal renaming for clarification
+#
+# Revision 1.23  2005/04/29 15:28:47  ncq
 # - one fix to del_from_subtable() as approved by Ian
 # - some internal renaming to clear things up
 #
