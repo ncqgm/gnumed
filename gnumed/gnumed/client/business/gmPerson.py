@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.33 2005-05-01 10:15:59 cfmoro Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmPerson.py,v 1.34 2005-05-04 08:55:08 ncq Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -45,7 +45,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
-	_subtables = {
+	_subtable_dml_templates = {
 		'addresses': {
 			'select': """
 				select
@@ -217,11 +217,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			return False
 		# delete names cache so will be refetched next time it is queried
 		try:
-			del self._ext_cache['names']['all']
-			del self._ext_cache['names']['active']
 			del self._ext_cache['names']
 		except:
-			# didn't exists before, no problem, we're not getting angry ;)
 			pass
 		return True
 	#--------------------------------------------------------
@@ -244,11 +241,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			return False
 		# delete names cache so will be refetched next time it is queried
 		try:
-			del self._ext_cache['names']['all']
-			del self._ext_cache['names']['active']
 			del self._ext_cache['names']
 		except:
-			# didn't exists before, no problem, we're not getting angry ;)
 			pass			
 		return True
 	#--------------------------------------------------------
@@ -257,22 +251,16 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		Link an occupation with a patient, creating the occupation if it does not exists.
 		@param occupation The name of the occupation to link the patient to.
 		"""
-		
 		# dump to backend
-		self.add_to_subtable
-		(
-			'occupations',
-				{
-					'occupation': occupation
-				}
+		self.add_to_subtable (
+			'occupations', {'occupation': occupation}
 		)
-		successful, data = self.save_payload()		
-		
+		successful, data = self.save_payload()
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
 			return False
 		return True
-#--------------------------------------------------------
+	#--------------------------------------------------------
 	def link_communication(self, comm_medium, url, is_confidential = False):
 		"""
 		Link a communication medium with a patient.
@@ -1473,7 +1461,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.33  2005-05-01 10:15:59  cfmoro
+# Revision 1.34  2005-05-04 08:55:08  ncq
+# - streamlining
+# - comply with slightly changed subtables API
+#
+# Revision 1.33  2005/05/01 10:15:59  cfmoro
 # Link_XXX methods ported to take advantage of subtables framework. save_payload seems need fixing, as no values are dumped to backed
 #
 # Revision 1.32  2005/04/28 19:21:18  cfmoro
