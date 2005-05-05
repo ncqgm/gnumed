@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.19 2005-04-24 14:48:57 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmGuiHelpers.py,v 1.20 2005-05-05 06:27:52 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -52,7 +52,7 @@ def gm_show_error(aMessage = None, aTitle = None, aLogLevel = None):
 		parent = NULL,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wxICON_ERROR
+		style = wxOK | wxICON_ERROR | wxSTAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -74,7 +74,7 @@ def gm_show_info(aMessage = None, aTitle = None, aLogLevel = None):
 		parent = NULL,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wxICON_INFORMATION
+		style = wxOK | wxICON_INFORMATION | wxSTAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -96,7 +96,7 @@ def gm_show_warning(aMessage = None, aTitle = None, aLogLevel = None):
 		parent = NULL,
 		message = aMessage,
 		caption = aTitle,
-		style = wxOK | wxICON_EXCLAMATION
+		style = wxOK | wxICON_EXCLAMATION | wxSTAY_ON_TOP
 	)
 	dlg.ShowModal()
 	dlg.Destroy()
@@ -113,7 +113,7 @@ def gm_show_question(aMessage = None, aTitle = None):
 		NULL,
 		aMessage,
 		aTitle,
-		wxYES_NO | wxICON_QUESTION
+		wxYES_NO | wxICON_QUESTION | wxSTAY_ON_TOP
 	)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
@@ -275,7 +275,10 @@ class cTextObjectValidator(wxPyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.19  2005-04-24 14:48:57  ncq
+# Revision 1.20  2005-05-05 06:27:52  ncq
+# - add wxSTAY_ON_TOP in an effort to keep popups up front
+#
+# Revision 1.19  2005/04/24 14:48:57  ncq
 # - improved wording
 #
 # Revision 1.18  2005/04/10 12:09:16  cfmoro
