@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.43 2005-03-14 14:37:56 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmPhraseWheel.py,v 1.44 2005-05-05 06:31:06 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -27,33 +27,6 @@ if __name__ == "__main__":
 
 _log.Log(gmLog.lInfo, __version__)
 
-#============================================================
-class cWheelTimer(wxTimer):
-	"""Timer for delayed fetching of matches.
-
-	It would be quite useful to tune the delay
-	according to current network speed either at
-	application startup or even during runtime.
-
-	No logging in here as this should be as fast as possible.
-	"""
-	def __init__(self, aCallback = None, aDelay = 300):
-		"""Set up our timer with reasonable defaults.
-
-		- delay default is 300ms as per Richard Terry's experience
-		- delay should be tailored to network speed/user speed
-		"""
-		# sanity check
-		if aCallback is None:
-			_log.Log(gmLog.lErr, "No use setting up a timer without a callback function.")
-			return None
-		else:
-			self.__callback = aCallback
-		self.__delay = aDelay
-		wxTimer.__init__(self)
-
-	def Notify(self):
-		self.__callback()
 #============================================================
 class cPhraseWheel (wxTextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface."""
@@ -84,11 +57,12 @@ class cPhraseWheel (wxTextCtrl):
 		self._has_focus = False
 		self._is_modified  = False
 
-		self.listener_callbacks = []
+		self._on_selection_callbacks = []
+		self._on_enter_callbacks = []
 		self.notified_listeners = False
 
 		if kwargs.has_key('id_callback'):
-			self.addCallback(kwargs['id_callback'])
+			self.add_callback_on_selection(kwargs['id_callback'])
 			del kwargs['id_callback']
 
 		wxTextCtrl.__init__ (self, parent, id, **kwargs)
@@ -118,7 +92,6 @@ class cPhraseWheel (wxTextCtrl):
 				callback = self._on_timer_fired,
 				delay = aDelay
 			)
-			#self.__timer = cWheelTimer(self._on_timer_fired, aDelay)
 	#--------------------------------------------------------
 	def __register_events(self):
 		# 1) entered text changed
@@ -132,6 +105,8 @@ class cPhraseWheel (wxTextCtrl):
 		EVT_SET_FOCUS (self, self.on_set_focus)
 		EVT_KILL_FOCUS (self, self.on_kill_focus)
 	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
 	def allow_multiple_phrases(self, state = True):
 		self.__handle_multiple_phrases = state
 	#--------------------------------------------------------
@@ -139,7 +114,7 @@ class cPhraseWheel (wxTextCtrl):
 		self.__matcher = mp
 		self.__real_matcher = None
 	#--------------------------------------------------------
-	def addCallback (self, callback_func):
+	def add_callback_on_selection(self, callback=None):
 		"""Add a callback for a listener.
 
 		The callback will be invoked whenever an item is selected
@@ -148,7 +123,16 @@ class cPhraseWheel (wxTextCtrl):
 		None as the data parameter as that is sent whenever the
 		user changes a previously selected value.
 		"""
-		self.listener_callbacks.append(callback_func)
+		if not callable(callback):
+			_log.Log(gmLog.lWarn, 'ignoring callback [%s], it is not callable' % callback)
+			return False
+		self._on_selection_callbacks.append(callback)
+	#---------------------------------------------------------
+	def add_callback_on_enter(self, callback=None):	
+		if not callable(callback):
+			_log.Log(gmLog.lWarn, 'ignoring callback [%s], it is not callable' % callback)
+			return False
+		self._on_enter_callbacks.append(callback)
 	#---------------------------------------------------------
 	def getData (self):
 		return self.data
@@ -186,7 +170,7 @@ class cPhraseWheel (wxTextCtrl):
 #			self.data = matches[0]['data']
 #			self.SetValue (matches[0]['label'])
 #			self.input_was_selected = True
-#			for notify_listener in self.listener_callbacks:
+#			for notify_listener in self._on_selection_callbacks:
 				# get data associated with selected item
 #				notify_listener(self.data)
 #			self.notified_listeners = 1
@@ -200,14 +184,14 @@ class cPhraseWheel (wxTextCtrl):
 		sets the next widget that recieves the focus
 		Can be any object with a method SetFocus ()
 		"""
-		self.addCallback (lambda x: x and aWidget.SetFocus ()) 
+		self.add_callback_on_selection(lambda x: x and aWidget.SetFocus())
 	#--------------------------------------------------------
 	def setDependent (self, wheel, context_var):
 		"""
 		Convience function to make one phrasewheel's match context
 		dependent upon another's value
 		"""
-		self.addCallback (lambda x: wheel.setContext (context_var, x))
+		self.add_callback_on_selection(lambda x: wheel.setContext(context_var, x))
 	#---------------------------------------------------------------------
 	def _updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
@@ -316,7 +300,7 @@ class cPhraseWheel (wxTextCtrl):
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
 		# and tell the listeners about the user's selection
-		for call_listener in self.listener_callbacks:
+		for call_listener in self._on_selection_callbacks:
 			call_listener(self.data)
 		# remember that we did so
 		self.notified_listeners = 1
@@ -330,6 +314,11 @@ class cPhraseWheel (wxTextCtrl):
 
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
+		for callback in self._on_enter_callbacks:
+			try:
+				callback()
+			except:
+				print "error calling", callback
 		# if we have a pick list
 		if self.__picklist_visible:
 			# tell the input field about it
@@ -408,10 +397,10 @@ class cPhraseWheel (wxTextCtrl):
 			self.__timer.Start(oneShot = True)
 
 		if self.notified_listeners:
-			# Aargh! we told the listeners that we selected "foo"
+			# Aargh! we told the listeners that we selected <foo>
 			# but now the user is typing again !
 			self.data = None
-			for notify_listener in self.listener_callbacks:
+			for notify_listener in self._on_selection_callbacks:
 				notify_listener(None)
 			self.notified_listeners = False
 	#--------------------------------------------------------
@@ -541,7 +530,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.43  2005-03-14 14:37:56  ncq
+# Revision 1.44  2005-05-05 06:31:06  ncq
+# - remove dead cWheelTimer code in favour of gmTimer.py
+# - add self._on_enter_callbacks and add_callback_on_enter()
+# - addCallback() -> add_callback_on_selection()
+#
+# Revision 1.43  2005/03/14 14:37:56  ncq
 # - only disable timer if slave mode is really active
 #
 # Revision 1.42  2004/12/27 16:23:39  ncq
