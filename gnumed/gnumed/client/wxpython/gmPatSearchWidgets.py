@@ -10,10 +10,10 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.16 2005-03-08 16:54:13 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmPatSearchWidgets.py,v 1.17 2005-05-05 06:29:22 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (for details see http://www.gnu.org/'
+__license__ = 'GPL (for details see http://www.gnu.org/)'
 
 import sys, os.path, time, string, re
 
@@ -22,7 +22,7 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmDispatcher, gmSignals, gmPG, gmI18N, gmWhoAmI, gmCfg
 from Gnumed.business import gmPerson, gmKVK
-from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets
 
 _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
@@ -566,9 +566,11 @@ and hit <ENTER>
 		if len(idents) == 0:
 			wx.wxEndBusyCursor()
 			gmGuiHelpers.gm_show_warning (
-				_('Cannot find any matching patients.\n\nSearch term: "%s"\n\n(We should offer to jump to entering a new patient from here.)' % curr_search_term),
+				_('Cannot find any matching patients.\n\nSearch term: "%s"\n\nYou will be taken to the "New Patient" wizard now.' % curr_search_term),
 				_('selecting patient')
 			)
+			wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self.GetParent())
+			wiz.RunWizard(activate=True)
 			return None
 
 		# only one matching identity
@@ -713,7 +715,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.16  2005-03-08 16:54:13  ncq
+# Revision 1.17  2005-05-05 06:29:22  ncq
+# - if patient not found invoke new patient wizard with activate=true
+#
+# Revision 1.16  2005/03/08 16:54:13  ncq
 # - teach patient picklist about cIdentity
 #
 # Revision 1.15  2005/02/20 10:33:26  sjtan
