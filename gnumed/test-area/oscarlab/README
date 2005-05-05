@@ -1,0 +1,16 @@
+
+
+do `sh run_py.sh`  to run the python translation of the java program.
+It will first parse richard's test data , 2001-09-21 17-56.HL7 ,
+ and then it  prompts to parse the oscar-ba.xml ,  which is the PathNet test data.
+
+The sources are in the py directory.
+
+
+For the java test on the original modified PathNet code,
+do  `sh run.sh`
+
+to see this slightly modified HL7 pathnet parse Richard's message.
+
+do  `sh run.sh oscar-ba.xml`  to view parsing of the BA data.
+
