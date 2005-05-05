@@ -1,3 +1,0 @@
-@echo Lade "index.htm"...
-@start index.htm
-@exit
