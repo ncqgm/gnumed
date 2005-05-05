@@ -23,8 +23,8 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.9 2005-04-30 13:32:14 sjtan Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmRegetMixin.py,v 1.10 2005-05-05 06:35:02 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -81,7 +81,10 @@ class cRegetOnPaintMixin:
 		- if not visible schedule reget only
 		- if visible redisplay immediately
 		"""
-		if self.GetUpdateRegion().IsEmpty() == 1 and not self.IsShown():
+		dc = wx.wxPaintDC(self)
+		print "%s._schedule_data_reget(): %s" % (self.__class__.__name__, str(dc.GetClippingBox()))
+		#if self.GetUpdateRegion().IsEmpty() == 1 and not self.IsShown():
+		if self.GetUpdateRegion().IsEmpty() == 1:
 			self._data_stale = True
 			return True
 		else:
@@ -99,7 +102,12 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.9  2005-04-30 13:32:14  sjtan
+# Revision 1.10  2005-05-05 06:35:02  ncq
+# - add some device context measurements in _schedule_data_reget
+#   so we can maybe find a way to detect whether we are indeed
+#   visible or obscured
+#
+# Revision 1.9  2005/04/30 13:32:14  sjtan
 #
 # if current wxWindow that inherits gmRegetMixin IsShown() is true, then it requires
 # refresh, so Reget is not scheduled , but immediate.
