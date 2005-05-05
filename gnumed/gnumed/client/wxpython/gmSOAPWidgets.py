@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.42 2005-04-27 18:51:06 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmSOAPWidgets.py,v 1.43 2005-05-05 06:50:27 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -64,12 +64,22 @@ progress_note_keywords = {
 	's': {
 		'phx': {'widget_factory': create_issue_popup},
 		'$missing_action': {},
-		'ea:': {'widget_factory': create_issue_popup}
+		'ea:': {'widget_factory': create_issue_popup},
+		'icpc:': {},
+		'icpc?': {}
 	},
-	'o': {},
-	'a': {},
+	'o': {
+		'icpc:': {},
+		'icpc?': {}
+	},
+	'a': {
+		'icpc:': {},
+		'icpc?': {}
+	},
 	'p': {
-		'$vacc': {'widget_factory': create_vacc_popup}
+		'$vacc': {'widget_factory': create_vacc_popup},
+		'icpc:': {},
+		'icpc?': {}
 	}
 }
 
@@ -105,8 +115,8 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			self,
 			parent = parent,
 			id = id,
-			pos = wx.wxPyDefaultPosition,
-			size = wx.wxPyDefaultSize,
+			pos = wx.wxDefaultPosition,
+			size = wx.wxDefaultSize,
 			style = wx.wxNO_BORDER
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
@@ -724,12 +734,13 @@ class cResizingSoapPanel(wx.wxPanel):
 			raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(episode)
 		self.__episode = episode
 		# do layout
-		wx.wxPanel.__init__ (self,
+		wx.wxPanel.__init__ (
+			self,
 			parent,
 			-1,
-			wx.wxPyDefaultPosition,
-			wx.wxPyDefaultSize,
-			wx.wxNO_BORDER
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
+			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
 		)
 		# - heading
 		if episode is None:
@@ -779,16 +790,20 @@ class cResizingSoapPanel(wx.wxPanel):
 			soap_lines = input_defs
 		self.__soap_text_editor = cResizingSoapWin (
 			self,
-			size = wx.wxSize(300, 150),
+#			size = wx.wxSize(300, 150),
+			size = wx.wxDefaultSize,
 			input_defs = soap_lines
 		)
 		# - arrange
-		self.__szr_main = wx.wxFlexGridSizer(cols = 1, rows = 3, vgap = 4, hgap = 4)
-		self.__szr_main.Add(self.__soap_heading, 1, wx.wxEXPAND)
-		self.__szr_main.Add(self.__soap_text_editor, 0, wx.wxSHAPED)
+		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		self.__szr_main.Add(self.__soap_heading, 0, wx.wxEXPAND)
+		self.__szr_main.Add(self.__soap_text_editor, 1, wx.wxSHAPED)
 		self.SetSizerAndFit(self.__szr_main)
 
 		self.__is_saved = False
+
+		# drop down to progress note STC on <ENTER>
+		self.__soap_heading.add_callback_on_enter(self._prw_enter_cb)
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -893,11 +908,15 @@ class cResizingSoapPanel(wx.wxPanel):
 	#--------------------------------------------------------
 	def IsSaved(self):
 		"""
-		Check  SOAP input widget saved (dumped to backend) state
+		Check SOAP input widget saved (dumped to backend) state
 		"""
 		return self.__is_saved
 	#--------------------------------------------------------
 	# internal API
+	#--------------------------------------------------------
+	def _prw_enter_cb(self):
+		# FIXME: why does this not work ?
+		self.__soap_text_editor.SetFocus()
 	#--------------------------------------------------------
 	def __set_heading(self, txt):
 		"""
@@ -1158,7 +1177,16 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.42  2005-04-27 18:51:06  ncq
+# Revision 1.43  2005-05-05 06:50:27  ncq
+# - more work on pre-0.1 issues: use BoxSizer instead of FlexGridSizer
+#   for progress note editor so STC *should* occupy whole width of
+#   multisash, however, redrawing makes it wrong again at times
+# - add dummy popup keywords for pending ICPC coding
+# - try to drop from heading to STC on enter
+# - make TAB move from heading to STC
+# - we might want to make the header part of the same TAB container as the STC
+#
+# Revision 1.42  2005/04/27 18:51:06  ncq
 # - slightly change Syans fix for the failing soap import to properly
 #   take advantage of the existing infrastructure, my bad
 #
