@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.89 2005-04-26 20:01:43 ncq Exp $
-__version__ = "$Revision: 1.89 $"
+# $Id: gmEditArea.py,v 1.90 2005-05-05 06:27:00 ncq Exp $
+__version__ = "$Revision: 1.90 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -1434,7 +1434,7 @@ class gmReferralEditArea(gmEditArea):
 			weight = 1
 			)
 		self.fld_specialty.setDependent (self.fld_name, "occupation")
-		self.fld_name.addCallback (self.setAddresses)
+		self.fld_name.add_callback_on_selection(self.setAddresses)
 		# flags line
 		self.fld_med = wx.wxCheckBox (parent, -1, _("Meds"), style=wx.wxNO_BORDER)
 		self._add_field (
@@ -2304,7 +2304,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.89  2005-04-26 20:01:43  ncq
+# Revision 1.90  2005-05-05 06:27:00  ncq
+# - phrasewheel has renamed methods
+#
+# Revision 1.89  2005/04/26 20:01:43  ncq
 # - cleanup
 #
 # Revision 1.88  2005/04/25 17:43:55  ncq
