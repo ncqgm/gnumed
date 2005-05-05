@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -210,7 +210,7 @@ class cLabJournalNB(wxNotebook):
 		# phrase wheel
 		self.lab_wheel = cLabWheel(pnl_page)
 		self.lab_wheel.on_resize (None)
-		self.lab_wheel.addCallback(self.on_lab_selected)
+		self.lab_wheel.add_callback_on_selection(self.on_lab_selected)
 		# label
 		req_id_label = wxStaticText(
 			name = 'req_id_label',
@@ -864,7 +864,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.10  2005-03-06 14:54:19  ncq
+# Revision 1.11  2005-05-05 06:28:23  ncq
+# - renamed phrasewheel methods
+#
+# Revision 1.10  2005/03/06 14:54:19  ncq
 # - szr.AddWindow() -> Add() such that wx2.5 works
 # - 'demographic record' -> get_identity()
 #
