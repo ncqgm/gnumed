@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.15 2005-04-30 20:31:03 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmDemographicsWidgets.py,v 1.16 2005-05-05 06:25:56 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1068,23 +1068,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# FIXME: improve cTextObjectValidator to accept regexp (gender, telephones, etc).
 
-		# first name
-		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
-		STT_firstname.SetForegroundColour('red')
-		cmd = """
-select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s
-	union
-select distinct name, name from name_gender_map where name %(fragment_condition)s
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(3, 5, 15)
-		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
-		)
-		self.PRW_firstname.SetToolTipString(_("surname/given name/first name"))
 		# last name
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
@@ -1097,13 +1080,31 @@ select distinct name, name from name_gender_map where name %(fragment_condition)
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.PRW_lastname.SetToolTipString(_("last name, family name"))
+		self.PRW_lastname.SetToolTipString(_("required: last name, family name"))
+
+		# first name
+		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
+		STT_firstname.SetForegroundColour('red')
+		cmd = """
+			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s
+				union
+			select distinct name, name from name_gender_map where name %(fragment_condition)s"""
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)
+		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
+			parent = PNL_form,
+			id = -1,
+			aMatchProvider = mp,
+			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
+		)
+		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))
+
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
 		cmd = """
-select distinct preferred, preferred from names where preferred %(fragment_condition)s
-	union
-select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"""
+			select distinct preferred, preferred from names where preferred %(fragment_condition)s
+				union
+			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_nick = gmPhraseWheel.cPhraseWheel (
@@ -1112,6 +1113,7 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			aMatchProvider = mp
 		)
 		self.PRW_nick.SetToolTipString(_("nick name, preferred name, call name, warrior name, artist name, alias"))
+
 		# DOB
 		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
@@ -1120,7 +1122,8 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			id = -1,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.TTC_dob.SetToolTipString(_("date of birth, if unknown or aliasing wanted then invent one"))
+		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
+
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
@@ -1141,7 +1144,8 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
 			aDelay = 100
 		)
-		self.PRW_gender.SetToolTipString(_("gender of patient"))
+		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
+
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
 		cmd = "select distinct title, title from identity where title %(fragment_condition)s"
@@ -1152,7 +1156,8 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_title.SetToolTipString(_("The title of the patient"))
+		self.PRW_title.SetToolTipString(_("title of patient"))
+
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
 		cmd = "select distinct name, name from occupation where name %(fragment_condition)s"
@@ -1163,15 +1168,13 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			id = -1,
 			aMatchProvider = mp
 		)
-		self.PRW_occupation.SetToolTipString(_("The primary occupation of the patient"))
-		# address number
-		STT_address_number = wx.StaticText(PNL_form, -1, _('Number'))
-		self.TTC_address_number = wx.TextCtrl(PNL_form, -1)
-		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))		
+		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
 		self.TTC_zip_code = wx.TextCtrl(PNL_form, -1)
 		self.TTC_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
+
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
 		cmd = "select distinct name, name from street where name %(fragment_condition)s"
@@ -1183,21 +1186,24 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			aMatchProvider = mp
 		)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
-		# town zip code
-		#STT_town_zip_code = wx.StaticText(PNL_form, -1, _('Zip code (town)'))
-		#self.TTC_town_zip_code = wx.TextCtrl(PNL_form, -1)
-		#self.TTC_town_zip_code.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc. zip code/postcode"))		
+
+		# address number
+		STT_address_number = wx.StaticText(PNL_form, -1, _('Number'))
+		self.TTC_address_number = wx.TextCtrl(PNL_form, -1)
+		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
+
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
 		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 6)
-		self.PRW_town = gmPhraseWheel.cPhraseWheel(
+		self.PRW_town = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
+
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
@@ -1210,10 +1216,11 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			aMatchProvider = mp
 		)
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
+
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		cmd = "select distinct code, name from country where name %(fragment_condition)s"
+		cmd = "select distinct code, _(name) from country where _(name) %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
@@ -1222,41 +1229,40 @@ select distinct firstnames, firstnames from names where firstnames %(fragment_co
 			aMatchProvider = mp
 		)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
+
 		# phone
 		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
 		self.TTC_phone = wx.TextCtrl(PNL_form, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
-		self.TTC_phone.SetToolTipString(_("the primary/home phone number"))
+		self.TTC_phone.SetToolTipString(_("phone number at home"))
 				
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)
+		SZR_input.Add(STT_lastname, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_lastname, 1, wx.EXPAND)
 		SZR_input.Add(STT_firstname, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_firstname, 1, wx.EXPAND)
-		SZR_input.Add(STT_lastname, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_lastname, 1, wx.EXPAND)  
 		SZR_input.Add(STT_nick, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)  		
+		SZR_input.Add(self.PRW_nick, 1, wx.EXPAND)
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)	
+		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)					
+		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
 		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)		
-		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)								
+		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
 		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)	
+		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)	
-		#SZR_input.Add(STT_town_zip_code, 0, wx.SHAPED)
-		#SZR_input.Add(self.TTC_town_zip_code, 1, wx.EXPAND)					
+		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
+		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
+		SZR_input.Add(self.TTC_address_number, 1, wx.EXPAND)
 		SZR_input.Add(STT_town, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 		SZR_input.Add(STT_state, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)	
+		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
 		SZR_input.Add(STT_country, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
@@ -1290,10 +1296,13 @@ class cNewPatientWizard(wizard.wxWizard):
 		id_wiz = wx.NewId()
 		wizard.wxWizard.__init__(self, parent, id_wiz, _('Register new patient')) #images.getWizTest1Bitmap()
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
-
 		self.__do_layout()
 	#--------------------------------------------------------
-	def RunWizard(self):
+	def RunWizard(self, activate=False):
+		"""Create new patient.
+
+		activate, too, if told to do so (and patient successfully created
+		"""
 		if not wizard.wxWizard.RunWizard(self, self.basic_pat_details):
 			return False
 
@@ -1307,40 +1316,40 @@ class cNewPatientWizard(wizard.wxWizard):
 				break
 
 		# create patient
-		_log.Log(gmLog.lInfo, _('\n\nCreating identity... '))
+		_log.Log(gmLog.lInfo, 'Creating identity... ')
 		new_identity = gmPerson.create_identity (
 			gender = input_gender,
 			dob = self.basic_pat_details.TTC_dob.GetValue(),
 			lastnames = self.basic_pat_details.PRW_lastname.GetValue(),
 			firstnames = self.basic_pat_details.PRW_firstname.GetValue()
 		)
-		_log.Log(gmLog.lInfo, _('Identity created: %s') % new_identity)
+		_log.Log(gmLog.lInfo, 'Identity created: %s' % new_identity)
 
 		input_title = self.basic_pat_details.PRW_title.GetValue()
 		if len(input_title) > 0:
-			_log.Log(gmLog.lInfo, _('\nSetting title and gender...'))
+			_log.Log(gmLog.lInfo, 'Setting title and gender...')
 			new_identity['title'] = input_title
-			new_identity.save_payload()
-			_log.Log(gmLog.lInfo, _('Refetching identity from db: %s') % gmPerson.cIdentity(aPK_obj=new_identity['pk_identity']))
+#			new_identity.save_payload()
+			_log.Log(gmLog.lInfo, 'Refetching identity from db: %s' % gmPerson.cIdentity(aPK_obj=new_identity['pk_identity']))
 
 		input_nickname = self.basic_pat_details.PRW_nick.GetValue()
 		if len(input_nickname) > 0:
-			_log.Log(gmLog.lInfo, _('\nGetting all names...'))
+			_log.Log(gmLog.lInfo, 'Getting all names...')
 			for a_name in new_identity.get_all_names():
 				_log.Log(gmLog.lInfo, '%s' % a_name)
-			_log.Log(gmLog.lInfo, _('Active name: %s') % (new_identity.get_active_name()))
-			_log.Log(gmLog.lInfo, _('Setting nickname...'))
+			_log.Log(gmLog.lInfo, 'Active name: %s' % (new_identity.get_active_name()))
+			_log.Log(gmLog.lInfo, 'Setting nickname...')
 			new_identity.set_nickname(nickname = input_nickname)
-			_log.Log(gmLog.lInfo, _('Refetching all names...'))
+			_log.Log(gmLog.lInfo, 'Refetching all names...')
 			for a_name in new_identity.get_all_names():
 				_log.Log(gmLog.lInfo, '%s' % a_name)
 
 		input_occupation = self.basic_pat_details.PRW_occupation.GetValue()
 		if len(input_occupation) > 0:
-			_log.Log(gmLog.lInfo, _('\nIdentity occupations: %s') % new_identity['occupations'])
-			_log.Log(gmLog.lInfo, _('Creating identity occupation...'))
+			_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
+			_log.Log(gmLog.lInfo, 'Creating identity occupation...')
 			new_identity.link_occupation(occupation = input_occupation)
-			_log.Log(gmLog.lInfo, _('Identity occupations: %s') % new_identity['occupations'])
+			_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
 			
 		input_number = self.basic_pat_details.TTC_address_number.GetValue()
 		input_street = self.basic_pat_details.PRW_street.GetValue()
@@ -1352,8 +1361,8 @@ class cNewPatientWizard(wizard.wxWizard):
 		# FIXME improve by using validations in wizard page
 		if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and \
 		len(input_state) > 0 and len(input_country) > 0:
-			_log.Log(gmLog.lInfo, _('\nIdentity addresses: %s') % new_identity['addresses'])
-			_log.Log(gmLog.lInfo, _('Creating identity address...'))
+			_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
+			_log.Log(gmLog.lInfo, 'Creating identity address...')
 			# make sure the state exists in the backend
 			new_identity.link_address(
 				number = input_number,
@@ -1364,20 +1373,24 @@ class cNewPatientWizard(wizard.wxWizard):
 				state = input_state,
 				country = input_country
 			)
-			_log.Log(gmLog.lInfo, _('Identity addresses: %s') % new_identity['addresses'])
+			_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
 
 		input_phone = self.basic_pat_details.TTC_phone.GetValue()
 		if len(input_phone) > 0:
-			_log.Log(gmLog.lInfo, _('\nIdentity communications: %s') % new_identity['comms'])
-			_log.Log(gmLog.lInfo, _('Creating identity communication...'))
+			_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
+			_log.Log(gmLog.lInfo, 'Creating identity communication...')
 			new_identity.link_communication (
 				comm_medium = 'homephone',
 				url = input_phone,
 				is_confidential = False
 			)
-			_log.Log(gmLog.lInfo, _('Identity communications: %s') % new_identity['comms'])
+			_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
 
-#	self.__wizard.Destroy()
+		new_identity.save_payload()
+
+		if activate:
+			person = gmPerson.cPerson(new_identity)
+			gmPerson.gmCurrentPatient(person)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -1474,7 +1487,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.15  2005-04-30 20:31:03  ncq
+# Revision 1.16  2005-05-05 06:25:56  ncq
+# - cleanup, remove _() in log statements
+# - re-ordering in new patient wizard due to user feedback
+# - add <activate> to RunWizard(): if true activate patient after creation
+#
+# Revision 1.15  2005/04/30 20:31:03  ncq
 # - first-/lastname were switched around when saving identity into backend
 #
 # Revision 1.14  2005/04/28 19:21:18  cfmoro
