@@ -15,7 +15,7 @@ whenever you learn of backend data changes. This will
 in most cases happen after you receive a gmDispatcher
 signal indicating a change in the backend.
 
-The _populate_with_data() method must be overriden in the
+The _populate_with_data(self) method must be overriden in the
 including class and must return True if the contents was
 redrawn successfully.
 
@@ -23,8 +23,8 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.10 2005-05-05 06:35:02 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmRegetMixin.py,v 1.11 2005-05-06 15:31:03 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -102,7 +102,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.10  2005-05-05 06:35:02  ncq
+# Revision 1.11  2005-05-06 15:31:03  ncq
+# - slightly improved docs
+#
+# Revision 1.10  2005/05/05 06:35:02  ncq
 # - add some device context measurements in _schedule_data_reget
 #   so we can maybe find a way to detect whether we are indeed
 #   visible or obscured
