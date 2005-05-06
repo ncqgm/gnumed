@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.6 2005-04-25 08:30:59 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmEMRStructWidgets.py,v 1.7 2005-05-06 15:30:15 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -45,6 +45,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		self.fld_age_onset.SetValue('')
 		self.fld_year_onset.SetValue('')
 		self.fld_progress_note.SetValue('')
+		self.fld_condition.SetFocus()
 	#----------------------------------------------------
 	def save_data(self):
 		# no pre-existing issue to deal with
@@ -88,6 +89,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 			widget = self.fld_condition,
 			weight = 3
 		)
+		self.fld_condition.SetFocus()
 		# Onset
 		label = wx.wxStaticText (
 			parent = parent,
@@ -860,7 +862,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.6  2005-04-25 08:30:59  ncq
+# Revision 1.7  2005-05-06 15:30:15  ncq
+# - attempt to properly set focus
+#
+# Revision 1.6  2005/04/25 08:30:59  ncq
 # - make past medical history proxy episodes closed by default
 #
 # Revision 1.5  2005/04/24 14:45:18  ncq
