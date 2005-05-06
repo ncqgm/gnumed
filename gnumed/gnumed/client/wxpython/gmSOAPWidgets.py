@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.43 2005-05-05 06:50:27 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmSOAPWidgets.py,v 1.44 2005-05-06 15:32:11 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -82,7 +82,95 @@ progress_note_keywords = {
 		'icpc?': {}
 	}
 }
+#============================================================
+class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin):
+	"""Notebook style widget displaying progress note editors.
 
+	This notebook has a dummy page that is always display as
+	the right-most page. It is labelled "new note". Clicking
+	this page will generate a new, unassociated progress note
+	editor page.
+	"""
+	def __init__(self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize):
+		wx.wxNotebook.__init__ (
+			self,
+			parent = parent,
+			id = id,
+			pos = pos,
+			size = size,
+			style = wx.wxNB_TOP | wx.wxNB_MULTILINE | wx.wxNO_BORDER | wx.wxVSCROLL | wx.wxHSCROLL,
+			name = self.__class__.__name__
+		)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
+		self.__do_layout()
+
+		self.__pat = gmPerson.gmCurrentPatient()
+		self.__register_interests()
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	def AddPage(self, episode=None):
+		"""Add a progress note editor page."""
+		label = episode['description']
+		if len(label) > 23:
+			label = label[:20] + '...'
+		new_page = cResizingSoapPanel(parent = self, episode = episode)
+		return wx.wxNotebook.InsertPage (
+			self,
+			index = self.GetPageCount() - 1,
+			page = new_page,
+			text = label,
+			select = True
+		)
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __do_layout(self):
+		# add dummy page "new progress note" that always stays right-most
+		pnl = wx.wxPanel(parent=self, id=-1)
+		wx.wxNotebook.AddPage(self, pnl, _('new progress note'))
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		print "re-populating notebook with data"
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		"""Configure enabled event signals
+		"""
+		# wxPython events
+
+		# client internal signals
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
+		gmDispatcher.connect(signal=gmSignals.application_closing(), receiver=self._on_application_closing)
+	#--------------------------------------------------------
+	def _on_patient_selected(self):
+		"""Patient changed."""
+		print "[%s]: another patient was made active" % self.__class__.__name__
+		print "need code to:"
+		print "- ask user about unsaved data"
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_episodes_modified(self):
+		print "[%s]: episode modified" % self.__class__.__name__
+		print "need code to deal with:"
+		print "- deleted episode that we show so we can notify the user"
+		print "- renamed episode so we can update our episode label"
+#		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_application_closing(self):
+		"""Patient changed."""
+		print "[%s]: the application is closing down" % self.__class__.__name__
+		print "need code to:"
+		print "- ask user about unsaved data"
+	#--------------------------------------------------------
+
+#============================================================
 # FIXME attribute encapsulation and private methods
 #============================================================
 class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
@@ -1124,51 +1212,58 @@ if __name__ == "__main__":
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
 
-		# multisash soap
-		print 'testing multisashed soap input...'
+		# notebook soap
+		print 'testing notebooked soap input...'
 		application = wx.wxPyWidgetTester(size=(800,500))
-		soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
+		soap_input = cProgressNoteInputNotebook(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
+
+#		# multisash soap
+#		print 'testing multisashed soap input...'
+#		application = wx.wxPyWidgetTester(size=(800,500))
+#		soap_input = cMultiSashedProgressNoteInputPanel(application.frame, -1)
+#		application.frame.Show(True)
+#		application.MainLoop()
 				
-		# soap widget displaying all narratives for an issue along an encounter
-		print 'testing soap editor for encounter narratives...'
-		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
-		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
-		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
-		default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
-		app = wx.wxPyWidgetTester(size=(300,500))		
-		app.SetWidget(cResizingSoapPanel, episode, narrative)
-		app.MainLoop()
-		del app				
+#		# soap widget displaying all narratives for an issue along an encounter
+#		print 'testing soap editor for encounter narratives...'
+#		episode = gmEMRStructItems.cEpisode(aPK_obj=1)
+#		encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
+#		narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
+#		default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
+#		app = wx.wxPyWidgetTester(size=(300,500))		
+#		app.SetWidget(cResizingSoapPanel, episode, narrative)
+#		app.MainLoop()
+#		del app
 		
-		# soap progress note for episode
-		print 'testing soap editor for episode...'
-		app = wx.wxPyWidgetTester(size=(300,300))
-		app.SetWidget(cResizingSoapPanel, episode)
-		app.MainLoop()
-		del app
+#		# soap progress note for episode
+#		print 'testing soap editor for episode...'
+#		app = wx.wxPyWidgetTester(size=(300,300))
+#		app.SetWidget(cResizingSoapPanel, episode)
+#		app.MainLoop()
+#		del app
 		
-		# soap progress note for problem
-		print 'testing soap editor for problem...'
-		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
-		app = wx.wxPyWidgetTester(size=(300,300))
-		app.SetWidget(cResizingSoapPanel, problem)
-		app.MainLoop()
-		del app		
+#		# soap progress note for problem
+#		print 'testing soap editor for problem...'
+#		problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
+#		app = wx.wxPyWidgetTester(size=(300,300))
+#		app.SetWidget(cResizingSoapPanel, problem)
+#		app.MainLoop()
+#		del app		
 		
-		# unassociated soap progress note
-		print 'testing unassociated soap editor...'
-		app = wx.wxPyWidgetTester(size=(300,300))
-		app.SetWidget(cResizingSoapPanel, None)
-		app.MainLoop()
-		del app		
+#		# unassociated soap progress note
+#		print 'testing unassociated soap editor...'
+#		app = wx.wxPyWidgetTester(size=(300,300))
+#		app.SetWidget(cResizingSoapPanel, None)
+#		app.MainLoop()
+#		del app		
 		
-		# unstructured progress note
-		print 'testing unstructured progress note...'
-		app = wx.wxPyWidgetTester(size=(600,600))
-		app.SetWidget(cSingleBoxSOAPPanel, -1)
-		app.MainLoop()
+#		# unstructured progress note
+#		print 'testing unstructured progress note...'
+#		app = wx.wxPyWidgetTester(size=(600,600))
+#		app.SetWidget(cSingleBoxSOAPPanel, -1)
+#		app.MainLoop()
 		
 	except StandardError:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
@@ -1177,7 +1272,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.43  2005-05-05 06:50:27  ncq
+# Revision 1.44  2005-05-06 15:32:11  ncq
+# - initial notebooked progress note input widget and test code
+#
+# Revision 1.43  2005/05/05 06:50:27  ncq
 # - more work on pre-0.1 issues: use BoxSizer instead of FlexGridSizer
 #   for progress note editor so STC *should* occupy whole width of
 #   multisash, however, redrawing makes it wrong again at times
