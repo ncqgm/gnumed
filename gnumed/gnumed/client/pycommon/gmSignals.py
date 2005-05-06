@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -118,14 +118,16 @@ def waitingroom_left():
 	"a aptient has left the waiting room, finished his consultation"
 	return 'waitingroom_left'
 
+#-------------------------------------------------------------
 def application_closing():
-	"""an application is intentionally closing"""
+	"""The main application is intentionally closing down."""
 	return "application_closing"
 
 def application_init():
 	"an application is starting"
 	return "application_init"
 
+#-------------------------------------------------------------
 def user_error ():
 	"an error of interest to the user"
 	return "user_error"
@@ -201,7 +203,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.9  2005-04-14 08:51:51  ncq
+# Revision 1.10  2005-05-06 15:29:47  ncq
+# - cleanup
+#
+# Revision 1.9  2005/04/14 08:51:51  ncq
 # - cIdentity has moved
 #
 # Revision 1.8  2005/02/23 19:39:37  ncq
