@@ -1,6 +1,6 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.9 2005-05-03 21:09:15 ncq Exp $
-$Revision: 1.9 $
+$Id: TODO,v 1.10 2005-05-06 15:28:40 ncq Exp $
+$Revision: 1.10 $
 ====================================================
 post-0.1
 
@@ -8,8 +8,9 @@ post-0.1
 1) move to wxPython 2.6.x
 2) move to PostgreSQL 8.x
 
-
-- configurable buttons in gui helpers message windows
+gui_helpers message dialogs:
+- configurable buttons (names, types)
+- stay on top of client window
 
 database API:
 - re-evaluate DB-API drivers
@@ -27,6 +28,10 @@ database schema:
 	- session-temporary setting of curr_lang
 	- support "care team" and row level ACLs (nested groups ?)
 	- coded_term: trigger on delete: restrict if term in clin_root_item.narrative
+	- encounter_type chart review -> in surger on write
+	- get_best_matching_cfg_option stored proc
+	- cfg.owner -> user
+	- allow normal users to hide identity rows since they cannot delete them
 
 client startup:
 	- gnumed.py: rework use of resource_dir/base_dir
@@ -35,8 +40,11 @@ EMR journal plugin:
 	- turn into proper list
 
 EMR exporters:
-	- refactor into formatters, make more generic
-	- have one exporter that supports several target formats
+- refactor into formatters, make more generic
+- have one exporter that supports several target formats
+- CDA exporter
+- XML exporter
+- xDT exporter ?
 
 progress note input:
 - add NotebookProgressNoteInput class
@@ -44,6 +52,10 @@ progress note input:
 - make popups non-modal
 - allowing renaming episode from STC header
 - make problem list an issue-episode shallow tree ?
+- "ICPC:" popup with "[ ] embed"
+- "ICPC?" popup showing ICPC codings for term
+- ALT-C/"$code" popup for coding w/ any coding system
+- make enter/tab/cursor up/down movement more consistent including STC header
 
 forms layer
 - generic forms GUI (edit area ?)
@@ -54,7 +66,14 @@ active patient privacy dilemma
 
 patient search/active patient
 - find a sane way to empty the client of any patient so people
-  can't casually glance over other 
+  can't casually glance over other patients details
+
+new patient wizard:
+- make values pre-settable
+- allow cursor up/down instead of TAB
+- consider: | zip code: __________ town: ___________ |
+- consider: | street  : __________ no:   ___________ |
+- consider: | zip/town: ____________________________ | with parsing
 
 ====================================================
 gmCfg
