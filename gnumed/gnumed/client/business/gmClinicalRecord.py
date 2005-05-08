@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.174 2005-04-27 12:24:23 sjtan Exp $
-__version__ = "$Revision: 1.174 $"
+# $Id: gmClinicalRecord.py,v 1.175 2005-05-08 21:40:27 ncq Exp $
+__version__ = "$Revision: 1.175 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1410,8 +1410,10 @@ where pk_episode in %s and pk_patient = %s"""
 		if episode_id is not None:
 			epis = [episode_id]
 		encounters = self.get_encounters(issues=h_iss, episodes=epis)
-		if encounters is None or len(encounters) == 0:
+		if encounters is None:
 			_log.Log(gmLog.lErr, 'cannot retrieve first encounter for episodes [%s], issues [%s] (patient PK [%s])' % (str(epis), str(h_iss), self.pk_patient))
+			return None
+		if len(encounters) == 0:
 			return None
 		# FIXME: this does not scale particularly well
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
@@ -1431,8 +1433,10 @@ where pk_episode in %s and pk_patient = %s"""
 		if episode_id is not None:
 			epis = [episode_id]
 		encounters = self.get_encounters(issues=h_iss, episodes=epis)
-		if encounters is None or len(encounters) == 0:
+		if encounters is None:
 			_log.Log(gmLog.lErr, 'cannot retrieve last encounter for episodes [%s], issues [%s]. Patient PK [%s]' % (str(epis), str(h_iss), self.pk_patient))
+			return None
+		if len(encounters) == 0:
 			return None
 		# FIXME: this does not scale particularly well
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
@@ -1650,7 +1654,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.174  2005-04-27 12:24:23  sjtan
+# Revision 1.175  2005-05-08 21:40:27  ncq
+# - robustify get_first/last_encounter() as there may really be None
+#
+# Revision 1.174  2005/04/27 12:24:23  sjtan
 #
 # id_patient should be pk_patient ? changed a while ago. effect: enables emr_dump window to display.
 #
