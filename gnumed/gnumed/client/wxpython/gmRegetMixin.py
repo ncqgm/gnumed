@@ -23,14 +23,18 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.11 2005-05-06 15:31:03 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmRegetMixin.py,v 1.12 2005-05-08 21:42:17 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 
 from wxPython import wx
 
+from Gnumed.pycommon import gmLog
+
+_log = gmLog.gmDefLog
+_log.Log(gmLog.lInfo, __version__)
 #===========================================================================
 class cRegetOnPaintMixin:
 	"""Mixin to add redisplay_data-on-EVT_PAINT aspect.
@@ -102,7 +106,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.11  2005-05-06 15:31:03  ncq
+# Revision 1.12  2005-05-08 21:42:17  ncq
+# - import gmLog
+#
+# Revision 1.11  2005/05/06 15:31:03  ncq
 # - slightly improved docs
 #
 # Revision 1.10  2005/05/05 06:35:02  ncq
