@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.35 2005-04-17 16:31:34 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.36 2005-05-08 21:50:42 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -39,9 +39,9 @@ insert into _enum_allergy_type (value) values (i18n('sensitivity'));
 -- ===================================================================
 -- soap cat ranking for sorting
 insert into soap_cat_ranks (rank, soap_cat) values (1, 's');
-insert into soap_cat_ranks (rank, soap_cat) values (1, 'o');
-insert into soap_cat_ranks (rank, soap_cat) values (1, 'a');
-insert into soap_cat_ranks (rank, soap_cat) values (1, 'p');
+insert into soap_cat_ranks (rank, soap_cat) values (2, 'o');
+insert into soap_cat_ranks (rank, soap_cat) values (3, 'a');
+insert into soap_cat_ranks (rank, soap_cat) values (4, 'p');
 
 -- ===================================================================
 -- v_emr_journal
@@ -627,11 +627,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.36 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.35  2005-04-17 16:31:34  ncq
+-- Revision 1.36  2005-05-08 21:50:42  ncq
+-- - ranking only makes sense if ranks are different :-)
+--
+-- Revision 1.35  2005/04/17 16:31:34  ncq
 -- - added some strings
 --
 -- Revision 1.34  2005/03/31 18:02:07  ncq
