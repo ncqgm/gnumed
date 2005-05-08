@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.44 2005-05-06 15:32:11 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmSOAPWidgets.py,v 1.45 2005-05-08 21:49:11 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -23,6 +23,7 @@ from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+_whoami = gmWhoAmI.cWhoAmI()
 
 NOTE_SAVED = -2
 
@@ -102,23 +103,21 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 			name = self.__class__.__name__
 		)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-
-		self.__do_layout()
-
 		self.__pat = gmPerson.gmCurrentPatient()
+		self.__do_layout()
 		self.__register_interests()
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def AddPage(self, episode=None):
+	def add_editor(self, episode=None):
 		"""Add a progress note editor page."""
-		label = episode['description']
-		if len(label) > 23:
-			label = label[:20] + '...'
+		label = _('new episode')
+		if episode is not None:
+			label = episode['description']
+			if len(label) > 23:
+				label = label[:20] + '...'
 		new_page = cResizingSoapPanel(parent = self, episode = episode)
-		return wx.wxNotebook.InsertPage (
-			self,
-			index = self.GetPageCount() - 1,
+		return self.AddPage (
 			page = new_page,
 			text = label,
 			select = True
@@ -127,9 +126,10 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 	# internal API
 	#--------------------------------------------------------
 	def __do_layout(self):
-		# add dummy page "new progress note" that always stays right-most
-		pnl = wx.wxPanel(parent=self, id=-1)
-		wx.wxNotebook.AddPage(self, pnl, _('new progress note'))
+		# add one empty unassociated progress note editor - which to
+		# have (by all sensible accounts) seems to be the intent when
+		# instantiating this class
+		self.add_editor()
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -169,7 +169,275 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 		print "need code to:"
 		print "- ask user about unsaved data"
 	#--------------------------------------------------------
+#============================================================
+class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
+	"""Notebook based progress note input panel.
 
+	Left hand side:
+	- problem list (health issues and active episodes)
+
+	Right hand side:
+	- progress note editors notebook
+	"""
+	#--------------------------------------------------------
+	def __init__(self, parent, id):
+		"""Contructs a new instance of SOAP input panel
+
+		@param parent: Wx parent widget
+		@param id: Wx widget id
+		"""
+		# Call parents constructors
+		wx.wxPanel.__init__ (
+			self,
+			parent = parent,
+			id = id,
+			pos = wx.wxDefaultPosition,
+			size = wx.wxDefaultSize,
+			style = wx.wxNO_BORDER
+		)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
+		self.__pat = gmPerson.gmCurrentPatient()
+
+		# ui contruction and event handling set up
+		self.__do_layout()
+		self.__register_interests()
+		self.reset_ui_content()
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------
+	def reset_ui_content(self):
+		"""
+		Clear all information from input panel
+		"""
+		self.__LST_problems.Clear()
+		self.__soap_notebook.DeleteAllPages()
+		self.__soap_notebook.add_editor()
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __do_layout(self):
+		"""Arrange widgets.
+
+		left: problem list (mix of issues and episodes)
+		right: soap editors
+		"""
+		# SOAP input panel main splitter window
+		self.__splitter = wx.wxSplitterWindow(self, -1)
+
+		# left hand side
+		PNL_list = wx.wxPanel(self.__splitter, -1)
+		# - header
+		list_header = wx.wxStaticText (
+			parent = PNL_list,
+			id = -1,
+			label = _('Problem List (health issues and episodes)'),
+			style = wx.wxNO_BORDER | wx.wxALIGN_CENTRE
+		)
+		# - problem list
+		self.__LST_problems = wx.wxListBox (
+			PNL_list,
+			-1,
+			style= wx.wxNO_BORDER
+		)
+		# - arrange
+		szr_left = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_left.Add(list_header, 0)
+		szr_left.Add(self.__LST_problems, 1, wx.wxEXPAND)
+		PNL_list.SetSizerAndFit(szr_left)
+
+		# right hand side
+		# - soap inputs panel
+		PNL_soap_editors = wx.wxPanel(self.__splitter, -1)
+		# - progress note notebook
+		self.__soap_notebook = cProgressNoteInputNotebook(PNL_soap_editors, -1)
+		# - buttons
+		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
+		self.__BTN_save.SetToolTipString(_('save progress note into medical record'))
+
+		self.__BTN_clear = wx.wxButton(PNL_soap_editors, -1, _('&Clear'))
+		self.__BTN_clear.SetToolTipString(_('clear progress note editor'))
+
+		self.__BTN_discard = wx.wxButton(PNL_soap_editors, -1, _('&Discard'))
+		self.__BTN_discard.SetToolTipString(_('Discard progress note and close editor. This will loose any data you already typed into this editor !'))
+
+		self.__BTN_add_unassociated = wx.wxButton(PNL_soap_editors, -1, _('&New'))
+		self.__BTN_add_unassociated.SetToolTipString(_('add editor for new unassociated progress note'))
+		# - arrange
+		szr_btns_right = wx.wxBoxSizer(wx.wxHORIZONTAL)
+		szr_btns_right.Add(self.__BTN_save, 0, wx.wxSHAPED)
+		szr_btns_right.Add(self.__BTN_clear, 0, wx.wxSHAPED)		
+		szr_btns_right.Add(self.__BTN_discard, 0, wx.wxSHAPED)
+		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.wxSHAPED)
+		szr_right = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_right.Add(self.__soap_notebook, 1, wx.wxEXPAND)
+		szr_right.Add(szr_btns_right)
+		PNL_soap_editors.SetSizerAndFit(szr_right)
+
+		# arrange widgets
+		self.__splitter.SetMinimumPaneSize(20)
+		self.__splitter.SplitVertically(PNL_list, PNL_soap_editors)
+
+		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_main.Add(self.__splitter, 1, wx.wxEXPAND, 0)
+		self.SetSizerAndFit(szr_main)
+	#--------------------------------------------------------
+	def __refresh_problem_list(self):
+		"""Update health problems list.
+		"""
+		self.__LST_problems.Clear()
+		emr = self.__pat.get_clinical_record()
+		problems = emr.get_problems()
+		for problem in problems:
+			if not problem['problem_active']:
+				continue
+			last = _('unknown')
+			if problem['type'] == 'issue':
+				issue = emr.problem2issue(problem)
+				last_encounter = emr.get_last_encounter(issue_id = issue['id'])
+			elif problem['type'] == 'episode':
+				epi = emr.problem2episode(problem)
+				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
+			if not last_encounter is None:
+				last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
+			item = _('%s "%s" (last: %s)') % (problem['l10n_type'], problem['problem'], last)
+			self.__LST_problems.Append(item, problem)
+		splitter_width = self.__splitter.GetSizeTuple()[0]
+		self.__splitter.SetSashPosition((splitter_width / 2), True)
+		return True
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		"""Configure enabled event signals
+		"""
+		# wxPython events
+		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
+		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
+		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
+		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
+		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
+
+		# client internal signals
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
+		# FIXME: issues modified missing
+	#--------------------------------------------------------
+	def _on_patient_selected(self):
+		"""Patient changed."""
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_episodes_modified(self):
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def __on_clear(self, event):
+		"""Clear raised SOAP input widget.
+		"""
+		soap_nb_page = self.__soap_notebook.GetPage(self.__soap_notebook.GetSelection())
+		soap_nb_page.Clear()
+	#--------------------------------------------------------
+	def __on_discard(self, event):
+		"""Discard raised SOAP input widget.
+
+		Will throw away data !
+		"""
+		self.__soap_notebook.DeletePage(self.__soap_notebook.GetSelection())
+	#--------------------------------------------------------
+	def __on_add_unassociated(self, evt):
+		"""Add new editor for as-yet unassociated progress note.
+		"""
+		self.__soap_notebook.add_editor()
+	#--------------------------------------------------------
+	def __on_problem_activated(self, event):
+		"""
+		When the user changes health issue selection, update selected issue
+		reference and update buttons according its input status.
+
+		when the user selects a problem in the problem list:
+			- check whether selection is issue or episode
+			- if issue: create episode
+			- if editor for episode exists: focus it
+			- if no editor for episode exists: create one and focus it
+			- if currently selected editor is an unassociated one and its episode name is empty,
+			  set its episode name in phrasewheel
+		"""
+		problem_idx = self.__LST_problems.GetSelection()
+		problem = self.__LST_problems.GetClientData(problem_idx)
+		emr = self.__pat.get_clinical_record()
+
+		# make sure we have an episode
+		if problem['type'] == 'episode':
+			selected_episode = emr.get_episodes(id_list=[problem['pk_episode']])[0]
+		elif problem['type'] == 'issue':
+			# health issue selected: user wants to start new episode
+			# FIXME: ask whether closing "previous" episodes for issue
+			pk_issue = problem['pk_health_issue']
+			episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
+				None,
+				-1,
+				_('Create or select episode'),
+				_('Add episode and start progress note'),
+				pk_health_issue = pk_issue
+			)
+			retval = episode_selector.ShowModal()
+			if retval == gmEMRStructWidgets.dialog_OK:
+				# FIXME refresh only if episode selector action button was performed
+				print "would be refreshing problem list now"
+#				self.__refresh_problem_list()
+				selected_episode = episode_selector.get_selected_episode()
+			elif retval == gmEMRStructWidgets.dialog_CANCELLED:
+				return False
+			else:
+				raise Exception('Invalid dialog return code [%s]' % retval)
+#			episode_selector.Destroy() # finally destroy it when finished.
+		else:
+			msg = _('Cannot open progress note editor for problem:\n%s') % problem
+			gmGuiHelpers.gm_show_error(msg, _('opening progress note editor'), gmLog.lErr)
+			_log.Log(gmLog.lErr, 'invalid problem type [%s]' % type(problem))
+			return False
+
+		# editor for this episode already there ?
+		for page_idx in range(self.__soap_notebook.GetPageCount()):
+			page = self.__soap_notebook.GetPage(page_idx)
+			pnl_epi = page.GetEpisode()
+			if pnl_epi is None:
+				continue
+			if pnl_epi['pk_episode'] == selected_episode['pk_episode']:
+				# yes, so raise that editor (returns idx of old page)
+				self.__soap_notebook.SetSelection(page_idx)
+				return True
+
+		# no, add editor for episode
+		# FIXME: actually, if the raised editor is unassociated and the heading
+		# FIXME: is empty we should use selected_episode to associate it
+		if self.__soap_notebook.add_editor(episode = selected_episode):
+			return True
+		# error
+		msg = _('Cannot open progress note editor for\n\n'
+				'[%s].\n\n') % selected_episode['description']
+		gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('opening progress note editor'))
+		return False
+	#--------------------------------------------------------
+	def __on_save(self, event):
+		"""Save data to backend and close editor.
+		"""
+		page_idx = self.__soap_notebook.GetSelection()
+		soap_nb_page = self.__soap_notebook.GetPage(page_idx)
+		if not soap_nb_page.save():
+			return False
+		self.__soap_notebook.DeletePage(page_idx)
+		return True
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		"""
+		Fills UI with data.
+		"""
+#		self.reset_ui_content()
+		if self.__refresh_problem_list():
+			return True
+		return False
 #============================================================
 # FIXME attribute encapsulation and private methods
 #============================================================
@@ -214,8 +482,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		# ui contruction and event handling set up
 		self.__do_layout()
 		self.__register_interests()
-		self.reset_ui_content()		
-
+		self.reset_ui_content()
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -523,7 +790,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			# let's find and focus the displayed note for the selected episode
 			self.__focus_episode(episode_name)
 		self.__update_button_state()
-
 	#--------------------------------------------------------
 	def _on_patient_selected(self):
 		"""Patient changed."""
@@ -625,7 +891,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		if not isinstance(selected_leaf.get_content(), cResizingSoapPanel):
 			msg = _('Cannot remove. No progress note editor is selected.')
 			gmGuiHelpers.gm_show_warning(msg, _('remove progress note editor'), gmLog.lWarn)
-			return		
+			return
 		selected_leaf.DestroyLeaf()
 	#--------------------------------------------------------
 	# reget mixin API
@@ -638,7 +904,6 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		if self.__refresh_problem_list():
 			return True
 		return False
-		
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -647,7 +912,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		Clear all information from input panel
 		"""
 		self.__LST_problems.Clear()
-		self.__soap_multisash.Clear()	
+		self.__soap_multisash.Clear()
 		
 	#def activate_selected_problem(self):
 	#	"""
@@ -789,6 +1054,8 @@ class cResizingSoapPanel(wx.wxPanel):
 	entering an episode name. The episode name either names
 	an existing episode or is the name for a new episode.
 
+	This panel knows how to save it's data into the backend.
+
 	Can work as:
 		a) Progress note creation: displays an empty set of soap entries to
 		create a new soap note for the given episode (or unassociated)
@@ -807,7 +1074,6 @@ class cResizingSoapPanel(wx.wxPanel):
 
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
-
 		"""
 		# problem -> episode conversion
 		if isinstance(episode, gmEMRStructItems.cProblem):
@@ -821,6 +1087,8 @@ class cResizingSoapPanel(wx.wxPanel):
 		if not isinstance(episode, (gmEMRStructItems.cEpisode, types.NoneType)):
 			raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(episode)
 		self.__episode = episode
+		self.__is_saved = False
+		self.__pat = gmPerson.gmCurrentPatient()
 		# do layout
 		wx.wxPanel.__init__ (
 			self,
@@ -840,6 +1108,8 @@ class cResizingSoapPanel(wx.wxPanel):
 				-1,
 				aMatchProvider = mp
 			)
+			# drop down to progress note STC on <ENTER>
+			self.__soap_heading.add_callback_on_enter(self._prw_enter_cb)
 		else:
 			self.__soap_heading = wx.wxStaticText (
 				self,
@@ -850,6 +1120,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		if input_defs is None:
 			soap_lines = []
 			# make Richard the default ;-)
+			# FIXME: actually, should be read from backend
 			line = cSOAPLineDef()
 			line.label = _('Patient Request')
 			line.soap_cat = 's'
@@ -878,22 +1149,58 @@ class cResizingSoapPanel(wx.wxPanel):
 			soap_lines = input_defs
 		self.__soap_text_editor = cResizingSoapWin (
 			self,
-#			size = wx.wxSize(300, 150),
 			size = wx.wxDefaultSize,
 			input_defs = soap_lines
 		)
 		# - arrange
 		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
 		self.__szr_main.Add(self.__soap_heading, 0, wx.wxEXPAND)
-		self.__szr_main.Add(self.__soap_text_editor, 1, wx.wxSHAPED)
+		self.__szr_main.Add(self.__soap_text_editor, 1, wx.wxEXPAND)
 		self.SetSizerAndFit(self.__szr_main)
-
-		self.__is_saved = False
-
-		# drop down to progress note STC on <ENTER>
-		self.__soap_heading.add_callback_on_enter(self._prw_enter_cb)
 	#--------------------------------------------------------
 	# public API
+	#--------------------------------------------------------
+	def save(self):
+		"""Save data into backend."""
+		# do we need to create a new episode ?
+		emr = self.__pat.get_clinical_record()
+		if self.__episode is None:
+			episode_name = self.__soap_heading.GetValue()
+			if episode_name is None or episode_name.strip() == '':
+				msg = _('Need a name for the new episode to save new progress note under.\n'
+						'Please type a new episode name or select an existing one from the list.')
+				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
+				return False
+			self.__episode = emr.add_episode(episode_name = episode_name)
+			if self.__episode is None:
+				msg = _('Cannot create episode [%s] to save progress note under.' % episode_name)
+				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
+				return False
+		# set up clinical context in soap bundle
+		encounter = emr.get_active_encounter()
+		staff_id = _whoami.get_staff_ID()
+		clin_ctx = {
+			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: self.__episode['pk_episode'],
+			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: encounter['pk_encounter'],
+			gmSOAPimporter.soap_bundle_STAFF_ID_KEY: staff_id
+		}
+		# fill bundle for import
+		bundle = []
+		editor_content = self.__soap_text_editor.GetValue()
+		for editor_val in editor_content.values():
+			bundle.append ({
+				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: editor_val.data.soap_cat,
+				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
+				gmSOAPimporter.soap_bundle_TEXT_KEY: editor_val.value,
+				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY: clin_ctx,
+				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY: {}	# this data needs to come from the editor
+			})
+		# dump soap contents
+		importer = gmSOAPimporter.cSOAPImporter()
+		if not importer.import_soap(bundle):
+			gmGuiHelpers.gm_show_error(_('Error saving progress note.'), _('saving progress note'), gmLog.lErr)
+			return False
+		return True
 	#--------------------------------------------------------
 	def SetEpisode(self, episode):
 		"""
@@ -1128,7 +1435,7 @@ if __name__ == "__main__":
 	_log.SetAllLogLevels(gmLog.lData)
 	from Gnumed.pycommon import gmPG
 	gmPG.set_default_client_encoding('latin1')
-
+	#--------------------------------------------------------
 	def get_narrative(pk_encounter=None, pk_health_issue = None, default_labels=None):
 		"""
 		Retrieve the soap editor input lines definitions built from
@@ -1179,8 +1486,7 @@ if __name__ == "__main__":
 #				line.data['narrative instance'] = narrative
 				soap_lines.append(line)
 		return soap_lines
-
-
+	#--------------------------------------------------------
 	def create_widget_on_test_kwd1(*args, **kwargs):
 		print "test keyword must have been typed..."
 		print "actually this would have to return a suitable wxWindow subclass instance"
@@ -1188,7 +1494,7 @@ if __name__ == "__main__":
 		print "kwd args:"
 		for key in kwargs.keys():
 			print key, "->", kwargs[key]
-
+	#--------------------------------------------------------
 	def create_widget_on_test_kwd2(*args, **kwargs):
 		msg = (
 			"test keyword must have been typed...\n"
@@ -1202,7 +1508,21 @@ if __name__ == "__main__":
 			aMessage = msg,
 			aTitle = 'msg box on create_widget from test_keyword'
 		)
-
+	#--------------------------------------------------------
+	def test_soap_notebook():
+		print 'testing notebooked soap input...'
+		application = wx.wxPyWidgetTester(size=(800,500))
+		soap_input = cProgressNoteInputNotebook(application.frame, -1)
+		application.frame.Show(True)
+		application.MainLoop()
+	#--------------------------------------------------------
+	def test_soap_notebook_panel():
+		print 'testing notebooked soap panel...'
+		application = wx.wxPyWidgetTester(size=(800,500))
+		soap_input = cNotebookedProgressNoteInputPanel(application.frame, -1)
+		application.frame.Show(True)
+		application.MainLoop()
+	#--------------------------------------------------------
 	_log.SetAllLogLevels(gmLog.lData)
 
 	try:
@@ -1212,12 +1532,8 @@ if __name__ == "__main__":
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
 
-		# notebook soap
-		print 'testing notebooked soap input...'
-		application = wx.wxPyWidgetTester(size=(800,500))
-		soap_input = cProgressNoteInputNotebook(application.frame, -1)
-		application.frame.Show(True)
-		application.MainLoop()
+		#test_soap_notebook()
+		test_soap_notebook_panel()
 
 #		# multisash soap
 #		print 'testing multisashed soap input...'
@@ -1272,7 +1588,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.44  2005-05-06 15:32:11  ncq
+# Revision 1.45  2005-05-08 21:49:11  ncq
+# - cleanup, improve test code
+# - add progress note editor notebook and use it
+# - teach cResizingSoapPanel how to save itself
+#
+# Revision 1.44  2005/05/06 15:32:11  ncq
 # - initial notebooked progress note input widget and test code
 #
 # Revision 1.43  2005/05/05 06:50:27  ncq
