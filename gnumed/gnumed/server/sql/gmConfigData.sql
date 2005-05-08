@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -32,7 +32,7 @@ insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmManual","gmDemographicsEditor","gmEMRBrowserPlugin","gmMultiSashedProgressNoteInputPlugin","gmEMRJournalPlugin","gmConfigRegistry"}'
+	'{"gmManual","gmDemographicsEditor","gmEMRBrowserPlugin","gmMultiSashedProgressNoteInputPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
@@ -181,11 +181,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.10  2005-04-12 16:35:42  ncq
+-- Revision 1.11  2005-05-08 21:51:20  ncq
+-- - add notebooked progress note editor to Release 0.1 config
+--
+-- Revision 1.10  2005/04/12 16:35:42  ncq
 -- - add journal as alternative view for EMR
 --
 -- Revision 1.9  2005/04/02 22:32:50  ncq
