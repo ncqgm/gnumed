@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.25 2005-04-27 18:40:49 ncq Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmResizingWidgets.py,v 1.26 2005-05-08 21:43:09 ncq Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -140,11 +140,10 @@ class cResizingWindow(wx.wxScrolledWindow):
 		wx.wxScrolledWindow.__init__(self, parent, id, pos = pos, size = size, style=wx.wxVSCROLL)
 		self.SetScrollRate(0, 20) # suppresses X scrolling by setting X rate to zero
 
-		self.__input_lines = [[]]
 #		self.__list = None
-
 #		self.complete = complete	# ??
 
+		self.__input_lines = [[]]
 		self.__szr_main = None
 		self.DoLayout()
 		self.__szr_main = wx.wxFlexGridSizer(len(self.__input_lines), 2)
@@ -157,12 +156,12 @@ class cResizingWindow(wx.wxScrolledWindow):
 					self.__szr_main.Add((1, 1))
 				# the rest gets crammed into column 2
 				h_szr = wx.wxBoxSizer (wx.wxHORIZONTAL)
-				h_szr.Add(line[0]['instance'], 1, wx.wxGROW)
+				h_szr.Add(line[0]['instance'], 1, wx.wxEXPAND)
 				for widget in line[1:]:
 					if widget['label'] is not None:
 						h_szr.Add(widget['label'], 0)
-					h_szr.Add(widget['instance'], 1, wx.wxGROW)
-				self.__szr_main.Add(h_szr, 1, wx.wxGROW)
+					h_szr.Add(widget['instance'], 1, wx.wxEXPAND)
+				self.__szr_main.Add(h_szr, 1, wx.wxEXPAND)
 		self.__szr_main.AddGrowableCol(1)
 		self.__szr_main.Add((1, 1))
 
@@ -200,7 +199,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 	def ReSize (self, widget, new_height):
 		"""Called when a child widget has a new height, redoes the layout.
 		"""
-		if self.__szr_main:
+		if self.__szr_main is not None:
 			self.__szr_main.SetItemMinSize (widget, -1, new_height)
 			self.__szr_main.FitInside (self)
 	#------------------------------------------------
@@ -1042,7 +1041,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.25  2005-04-27 18:40:49  ncq
+# Revision 1.26  2005-05-08 21:43:09  ncq
+# - cleanup, use wxEXPAND not wxGROW
+#
+# Revision 1.25  2005/04/27 18:40:49  ncq
 # - changed Syans bug fix to make the widgets more generic
 #
 # Revision 1.24  2005/04/27 14:49:38  sjtan
