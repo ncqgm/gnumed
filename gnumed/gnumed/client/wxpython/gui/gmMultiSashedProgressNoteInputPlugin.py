@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -48,7 +48,6 @@ if __name__ == "__main__":
     from wxPython import wx
 
     from Gnumed.pycommon import gmPG, gmCfg
-    from Gnumed.exporters import gmPatientExporter
     from Gnumed.business import gmPerson
 
     _cfg = gmCfg.gmDefCfgFile	
@@ -97,7 +96,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.4  2005-03-29 07:34:20  ncq
+# Revision 1.5  2005-05-08 21:44:08  ncq
+# - cleanup
+#
+# Revision 1.4  2005/03/29 07:34:20  ncq
 # - improve naming
 #
 # Revision 1.3  2005/03/18 16:48:42  cfmoro

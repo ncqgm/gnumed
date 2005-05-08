@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.8 2005-04-14 18:24:57 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmMatchProvider.py,v 1.9 2005-05-08 21:40:57 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -297,7 +297,6 @@ class cMatchProvider_Func(cMatchProvider):
 			raise gmException.ConstructorError, 'must define match candidates function'
 		self._get_candidates = get_candidates
 		cMatchProvider.__init__(self)
-		print "setting up function() match provider"
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -620,7 +619,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.8  2005-04-14 18:24:57  ncq
+# Revision 1.9  2005-05-08 21:40:57  ncq
+# - cleanup
+#
+# Revision 1.8  2005/04/14 18:24:57  ncq
 # - some cleanup of funky magic so we are faster
 #
 # Revision 1.7  2005/04/11 18:00:54  ncq
