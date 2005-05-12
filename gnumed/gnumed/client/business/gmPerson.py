@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.34 2005-05-04 08:55:08 ncq Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmPerson.py,v 1.35 2005-05-12 15:07:25 ncq Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -481,7 +481,7 @@ class cPerson:
 			return None
 		return docs
 	#----------------------------------------------------------
-	def get_clinical_record(self):
+	def get_emr(self):
 		try:
 			return self.__db_cache['clinical record']
 		except KeyError:
@@ -495,6 +495,9 @@ class cPerson:
 		duration = time.time() - tstart
 		print "get_clinical_record() took %s seconds" % duration
 		return self.__db_cache['clinical record']
+	#--------------------------------------------------------
+	def get_clinical_record(self):
+		return self.get_emr()
 	#--------------------------------------------------------
 	def get_identity(self):
 		# because we are instantiated with it, it always exists
@@ -615,8 +618,11 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def cleanup(self):
 		self._person.cleanup()
 	#--------------------------------------------------------
+	def get_emr(self):
+		return self._person.get_emr()
+	#--------------------------------------------------------
 	def get_clinical_record(self):
-		return self._person.get_clinical_record()
+		return self._person.get_emr()
 	#--------------------------------------------------------
 	def get_identity(self):
 		return self._person.get_identity()
@@ -1461,7 +1467,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.34  2005-05-04 08:55:08  ncq
+# Revision 1.35  2005-05-12 15:07:25  ncq
+# - add get_emr()
+#
+# Revision 1.34  2005/05/04 08:55:08  ncq
 # - streamlining
 # - comply with slightly changed subtables API
 #
