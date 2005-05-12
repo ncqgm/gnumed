@@ -1,8 +1,8 @@
 ; =============================================================================
 ; Medistar-Formular zum Import von MD-Daten aus GNUmed
 ; 
-; Dieses Formular ermöglich den Import von Karteieinträgen aus GNUmed in die
-; medizinischen Daten (MD) von Medistar.
+; Dieses Formular ermöglich den Import von Karteieinträgen aus
+; GNUmed in die medizinischen Daten (MD) von Medistar.
 ;
 ; Installation:
 ; - diese Datei nach LW:\medistar\forms\ kopieren
@@ -14,11 +14,11 @@
 ;
 ; Nutzung:
 ; - in GNUmed Patienten anlegen oder aufrufen
-; - in Verlaufsnotizen Konsultationsdaten eingeben
-; - die Daten für Medistar exportieren (FIXME: wie)
+; - in Verlaufsnotizen Konsultationsdaten eingeben und speichern
+; - im Menü "Karteikarte" den Punkt "Medistar-Export" aufrufen
 ; - die Exportdatei nach LW:\medistar\inst\soap.txt verschieben
 ; - in Medistar den Patienten anlegen oder aufrufen
-; - bei Direktbefehl "FAx" eingeben (x siehe Installation)
+; - bei Direktbefehl "FA95" eingeben (95 je nach Installation)
 ; - den Dateinamen (soap.txt) bestätigen
 ; - Erfolgsmeldung sollte erscheinen
 ; - in den MD sollten die GNUmed-Daten erscheinen
@@ -37,8 +37,8 @@
 ;
 ; =============================================================================
 ; $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/medistar/gmimp.s,v $ 
-; $Id: gmimp.s,v 1.1 2005-05-12 10:02:34 ncq Exp $
-; Version: $Revision: 1.1 $
+; $Id: gmimp.s,v 1.2 2005-05-12 15:10:17 ncq Exp $
+; Version: $Revision: 1.2 $
 ; Autor  : "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 ; Lizenz : "GPL (details at http://www.gnu.org)"
 
@@ -116,6 +116,9 @@ FORMEND
 
 ; =============================================================================
 ; $Log: gmimp.s,v $
-; Revision 1.1  2005-05-12 10:02:34  ncq
+; Revision 1.2  2005-05-12 15:10:17  ncq
+; - improved docs
+;
+; Revision 1.1  2005/05/12 10:02:34  ncq
 ; - Medistar import form for GNUmed progress notes
 ;
