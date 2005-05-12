@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.45 2005-05-08 21:49:11 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmSOAPWidgets.py,v 1.46 2005-05-12 15:12:57 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -231,7 +231,7 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		list_header = wx.wxStaticText (
 			parent = PNL_list,
 			id = -1,
-			label = _('Problem List (health issues and episodes)'),
+			label = _('Active Problems'),
 			style = wx.wxNO_BORDER | wx.wxALIGN_CENTRE
 		)
 		# - problem list
@@ -291,16 +291,21 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		for problem in problems:
 			if not problem['problem_active']:
 				continue
-			last = _('unknown')
 			if problem['type'] == 'issue':
 				issue = emr.problem2issue(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['id'])
+				if last_encounter is None:
+					last = issue['modified_when'].Format('%m/%Y')
+				else:
+					last = last_encounter['last_affirmed'].Format('%m/%Y')
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
-			if not last_encounter is None:
-				last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
-			item = _('%s "%s" (last: %s)') % (problem['l10n_type'], problem['problem'], last)
+				if last_encounter is None:
+					last = epi['episode_modified_when'].Format('%m/%Y')
+				else:
+					last = last_encounter['last_affirmed'].Format('%m/%Y')
+			item = _('%s "%s" (%s)') % (last, problem['problem'], problem['l10n_type'])
 			self.__LST_problems.Append(item, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
@@ -501,7 +506,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		list_header = wx.wxStaticText (
 			parent = PNL_list,
 			id = -1,
-			label = _('Problem List (health issues and episodes)'),
+			label = _('Active Problems'),
 			style = wx.wxNO_BORDER | wx.wxALIGN_CENTRE
 		)
 		# - problem list
@@ -562,8 +567,7 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		self.SetSizerAndFit(szr_main)
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
-		"""
-		Updates health problems list
+		"""Update health problems list.
 		"""
 		self.__LST_problems.Clear()
 		emr = self.__pat.get_clinical_record()
@@ -571,18 +575,21 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 		for problem in problems:
 			if not problem['problem_active']:
 				continue
-			last = _('unknown')
 			if problem['type'] == 'issue':
 				issue = emr.problem2issue(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['id'])
-				if not last_encounter is None:
-					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
+				if last_encounter is None:
+					last = issue['modified_when'].Format('%m/%Y')
+				else:
+					last = last_encounter['last_affirmed'].Format('%m/%Y')
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
-				if not last_encounter is None:
-					last = last_encounter['last_affirmed'].Format('%Y-%m-%d')
-			item = _('%s "%s" (last: %s)') % (problem['l10n_type'], problem['problem'], last)
+				if last_encounter is None:
+					last = epi['episode_modified_when'].Format('%m/%Y')
+				else:
+					last = last_encounter['last_affirmed'].Format('%m/%Y')
+			item = _('%s "%s" (%s)') % (last, problem['problem'], problem['l10n_type'])
 			self.__LST_problems.Append(item, problem)
 		splitter_width = self.__splitter.GetSizeTuple()[0]
 		self.__splitter.SetSashPosition((splitter_width / 2), True)
@@ -1588,7 +1595,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.45  2005-05-08 21:49:11  ncq
+# Revision 1.46  2005-05-12 15:12:57  ncq
+# - improved problem list look and feel
+#
+# Revision 1.45  2005/05/08 21:49:11  ncq
 # - cleanup, improve test code
 # - add progress note editor notebook and use it
 # - teach cResizingSoapPanel how to save itself
