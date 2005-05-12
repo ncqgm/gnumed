@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.193 2005-04-28 21:29:58 ncq Exp $
-__version__ = "$Revision: 1.193 $"
+# $Id: gmGuiMain.py,v 1.194 2005-05-12 15:11:08 ncq Exp $
+__version__ = "$Revision: 1.194 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -55,6 +55,7 @@ ID_NOTEBOOK = wx.wxNewId ()
 ID_LEFTBOX = wx.wxNewId ()
 ID_EXPORT_EMR = wx.wxNewId()
 ID_EXPORT_EMR_JOURNAL = wx.wxNewId()
+ID_EXPORT_MEDISTAR = wx.wxNewId()
 ID_CREATE_PATIENT = wx.wxNewId()
 #==============================================================================
 
@@ -240,16 +241,26 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		# menu "EMR"
 		menu_emr = wx.wxMenu()
+		# - text export
 		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export the EMR of the active patient into a text file"))
 		wx.EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
+		# - journal export
 		menu_emr.Append (
 			ID_EXPORT_EMR_JOURNAL,
 			_('Export as Journal'),
 			_("export the EMR of the active patient as a chronological journal into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
+		# - Medistar export
+		menu_emr.Append (
+			ID_EXPORT_MEDISTAR,
+			_('Medistar-Export'),
+			_("GNUmed -> Medistar. Export progress notes of active patient's active encounter into a text file.")
+		)
+		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
+
 		self.mainmenu.Append(menu_emr, _("&EMR"))
-		
+
 		# menu "View"
 		self.menu_view = wx.wxMenu()
 		self.__gb['main.viewmenu'] = self.menu_view
@@ -347,6 +358,24 @@ class gmTopLevelFrame(wx.wxFrame):
 			gmGuiHelpers.gm_show_info (
 				_('Successfully exported EMR as chronological journal into file\n\n[%s]') % fname,
 				_('EMR journal export'),
+				gmLog.lInfo
+			)
+	#----------------------------------------------
+	def __on_export_for_medistar(self, event):
+		wx.wxBeginBusyCursor()
+		exporter = gmPatientExporter.cMedistarSOAPExporter()
+		successful, fname = exporter.export_to_file()
+		wx.wxEndBusyCursor()
+		if not successful:
+			gmGuiHelpers.gm_show_error (
+				'Fehler beim Exportieren der heutigen Karteieinträge für Medistar.',
+				'Medistar-Export',
+				gmLog.lErr
+			)
+		else:
+			gmGuiHelpers.gm_show_info (
+				'Heutige Karteieinträge erfolgreich für Medistar exportiert. Datei:\n\n[%s]' % fname,
+				'Medistar-Export',
 				gmLog.lInfo
 			)
 	#----------------------------------------------
@@ -707,7 +736,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.193  2005-04-28 21:29:58  ncq
+# Revision 1.194  2005-05-12 15:11:08  ncq
+# - add Medistar export menu item
+#
+# Revision 1.193  2005/04/28 21:29:58  ncq
 # - improve status bar
 #
 # Revision 1.192  2005/04/26 20:02:20  ncq
