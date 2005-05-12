@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -21,7 +21,7 @@ _log.Log(gmLog.lInfo, __version__)
 class gmMultiSashedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate multisash based progress note input window."""
 
-	tab_name = _('progress notes')
+	tab_name = _('progress notes (sash)')
 
 	def name (self):
 		return gmMultiSashedProgressNoteInputPlugin.tab_name
@@ -96,7 +96,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmMultiSashedProgressNoteInputPlugin.py,v $
-# Revision 1.5  2005-05-08 21:44:08  ncq
+# Revision 1.6  2005-05-12 15:13:28  ncq
+# - cleanup
+#
+# Revision 1.5  2005/05/08 21:44:08  ncq
 # - cleanup
 #
 # Revision 1.4  2005/03/29 07:34:20  ncq
