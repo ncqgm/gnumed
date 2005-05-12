@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.50 2005-04-27 19:59:19 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPatientExporter.py,v 1.51 2005-05-12 15:08:31 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -894,6 +894,92 @@ where pk_patient=%s order by date, scr"""
 		target.write(_('Exported: %s\n') % time.asctime())
 		return True
 #============================================================
+class cMedistarSOAPExporter:
+	"""Export SOAP data per encounter into Medistar import format."""
+	def __init__(self, patient=None):
+		if patient is None:
+			self.__pat = gmPerson.gmCurrentPatient()
+		else:
+			if not isinstance(patient, gmPerson.cPerson):
+				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cPerson>, but is: %s' % type(gmPerson.cPerson)
+			self.__pat = patient
+		self.__tx_soap = {
+			's': 'A',
+			'o': 'B',
+			'a': 'D',
+			'p': 'T'
+		}
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def export_to_file(self, filename=None):
+		if not self.__pat.is_connected():
+			return (False, 'no active patient')
+		if filename is None:
+			ident = self.__pat.get_identity()
+			path = os.path.abspath(os.path.expanduser('~/gnumed/export'))
+			filename = '%s-%s-%s-%s-%s.txt' % (
+				os.path.join(path, 'Medistar-MD'),
+				time.strftime('%Y-%m-%d',time.localtime()),
+				ident['lastnames'].replace(' ', '-'),
+				ident['firstnames'].replace(' ', '_'),
+				ident['dob'].Format('%Y-%m-%d')
+			)
+		f = open(filename, 'wb')
+		status = self.__export(target = f)
+		f.close()
+		return (status, filename)
+	#--------------------------------------------------------
+	def export(self, target):
+		return self.__export(target)
+	#--------------------------------------------------------
+	# interal API
+	#--------------------------------------------------------
+	def __export(self, target = None, encounter = None):
+		if not self.__pat.is_connected():
+			return False
+		emr = self.__pat.get_clinical_record()
+		if encounter is None:
+			encounter = emr.get_active_encounter()
+		# get data
+		cmd = "select narrative from v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
+		for soap_cat in 'soap':
+			rows = gmPG.run_ro_query (
+				'clinical',
+				cmd,
+				False,
+				self.__pat['ID'],
+				encounter['pk_encounter'],
+				soap_cat
+			)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot export SOAP from EMR')
+				return False
+			target.write('*MD%s*\n' % self.__tx_soap[soap_cat])
+			for row in rows:
+				target.write('%s\n' % wrap(row[0], 64))
+		return True
+#============================================================
+def wrap(text, width):
+	"""
+	A word-wrap function that preserves existing line breaks
+	and most spaces in the text. Expects that existing line
+	breaks are posix newlines (\n).
+	"""
+	return reduce (
+		lambda line, word, width=width: '%s%s%s' % (
+			line,
+			' \n'[(
+				len(line)
+				- line.rfind('\n')
+				- 1
+				+ len(word.split('\n',1)[0])
+				>= width
+			)],
+			word),
+		text.split(' ')
+	)
+#============================================================
 # main
 #------------------------------------------------------------
 def usage():
@@ -959,7 +1045,7 @@ def run():
     while patient_term != 'bye':
         patient = gmPerson.ask_for_patient()
         if patient is None:
-                        break
+            break
         export_tool.set_patient(patient)
         # Dump patient EMR sections
         export_tool.dump_constraints()
@@ -980,7 +1066,7 @@ if __name__ == "__main__":
     gmLog.gmDefLog.SetAllLogLevels(gmLog.lData)
 
     print "\n\nGNUmed ASCII EMR Export"
-    print      "======================="
+    print     "======================="
 
     if gmCLI.has_arg('--help'):
         usage()
@@ -1001,7 +1087,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.50  2005-04-27 19:59:19  ncq
+# Revision 1.51  2005-05-12 15:08:31  ncq
+# - add Medistar SOAP exporter and wrap(text, width) convenience function
+#
+# Revision 1.50  2005/04/27 19:59:19  ncq
 # - deal with narrative rows that are empty
 #
 # Revision 1.49  2005/04/12 16:15:36  ncq
