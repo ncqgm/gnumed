@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.194 2005-05-12 15:11:08 ncq Exp $
-__version__ = "$Revision: 1.194 $"
+# $Id: gmGuiMain.py,v 1.195 2005-05-14 14:57:37 ncq Exp $
+__version__ = "$Revision: 1.195 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -384,7 +384,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		Launch create patient wizard
 		"""
 		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-		wiz.RunWizard()
+		wiz.RunWizard(activate=True)
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -736,7 +736,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.194  2005-05-12 15:11:08  ncq
+# Revision 1.195  2005-05-14 14:57:37  ncq
+# - activate new patient after creation
+#
+# Revision 1.194  2005/05/12 15:11:08  ncq
 # - add Medistar export menu item
 #
 # Revision 1.193  2005/04/28 21:29:58  ncq
