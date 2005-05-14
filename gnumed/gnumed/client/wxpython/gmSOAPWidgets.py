@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.46 2005-05-12 15:12:57 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmSOAPWidgets.py,v 1.47 2005-05-14 14:59:41 ncq Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -86,11 +86,6 @@ progress_note_keywords = {
 #============================================================
 class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin):
 	"""Notebook style widget displaying progress note editors.
-
-	This notebook has a dummy page that is always display as
-	the right-most page. It is labelled "new note". Clicking
-	this page will generate a new, unassociated progress note
-	editor page.
 	"""
 	def __init__(self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize):
 		wx.wxNotebook.__init__ (
@@ -134,7 +129,7 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		print "re-populating notebook with data"
+		print "re-populating notebook with data - nothing to do, really..."
 		return True
 	#--------------------------------------------------------
 	# event handling
@@ -145,15 +140,21 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 		# wxPython events
 
 		# client internal signals
+		gmDispatcher.connect(signal=gmSignals.activating_patient(), receiver=self._on_activating_patient)
 		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.episodes_modified(), receiver=self._on_episodes_modified)
 		gmDispatcher.connect(signal=gmSignals.application_closing(), receiver=self._on_application_closing)
 	#--------------------------------------------------------
+	def _on_activating_patient(self):
+		"""Another patient is about to be activated."""
+		print "[%s]: another patient is about to become active" % self.__class__.__name__
+		print "need code to:"
+		print "- ask user about unsaved progress notes"
+	#--------------------------------------------------------
 	def _on_patient_selected(self):
 		"""Patient changed."""
-		print "[%s]: another patient was made active" % self.__class__.__name__
-		print "need code to:"
-		print "- ask user about unsaved data"
+		self.DeleteAllPages()
+		self.add_editor()
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
@@ -1175,7 +1176,7 @@ class cResizingSoapPanel(wx.wxPanel):
 			episode_name = self.__soap_heading.GetValue()
 			if episode_name is None or episode_name.strip() == '':
 				msg = _('Need a name for the new episode to save new progress note under.\n'
-						'Please type a new episode name or select an existing one from the list.')
+						'Please type a new episode name or select an existing one.')
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
 				return False
 			self.__episode = emr.add_episode(episode_name = episode_name)
@@ -1595,7 +1596,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.46  2005-05-12 15:12:57  ncq
+# Revision 1.47  2005-05-14 14:59:41  ncq
+# - cleanups, teach proper levels to listen to signals
+# - listen to "activating_patient" so we can save progress notes *before* changing patient
+# - reset SOAP notebook on patient_selected
+#
+# Revision 1.46  2005/05/12 15:12:57  ncq
 # - improved problem list look and feel
 #
 # Revision 1.45  2005/05/08 21:49:11  ncq
