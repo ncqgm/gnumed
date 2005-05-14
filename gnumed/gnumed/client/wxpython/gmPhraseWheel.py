@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.44 2005-05-05 06:31:06 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmPhraseWheel.py,v 1.45 2005-05-14 15:06:48 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -134,7 +134,7 @@ class cPhraseWheel (wxTextCtrl):
 			return False
 		self._on_enter_callbacks.append(callback)
 	#---------------------------------------------------------
-	def getData (self):
+	def GetData (self):
 		return self.data
 	#---------------------------------------------------------
 	def SetValue (self, value):
@@ -530,7 +530,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.44  2005-05-05 06:31:06  ncq
+# Revision 1.45  2005-05-14 15:06:48  ncq
+# - GetData()
+#
+# Revision 1.44  2005/05/05 06:31:06  ncq
 # - remove dead cWheelTimer code in favour of gmTimer.py
 # - add self._on_enter_callbacks and add_callback_on_enter()
 # - addCallback() -> add_callback_on_selection()
