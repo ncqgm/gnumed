@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -63,11 +63,11 @@ DECLARE
 	msg text;
 BEGIN
  	-- get country
- 	SELECT INTO _country_code c.code FROM country c WHERE c.name ILIKE _country;
- 	IF NOT FOUND THEN
+	SELECT INTO _country_code c.code FROM country c WHERE c.name ILIKE _country;
+	IF NOT FOUND THEN
 		msg := ''Cannot set address ['' || _country || '', '' || _state || '', '' || _urb || '', '' || _urb_postcode || '']. No countries row with name ['' || _country || ''] found.'';
 		RAISE EXCEPTION ''---> %'', msg;
- 	END IF;
+	END IF;
  	-- get state
  	SELECT INTO _state_id s.id FROM state s WHERE s.name ILIKE _state and s.country = _country_code;
  	IF NOT FOUND THEN
@@ -107,10 +107,10 @@ DECLARE
 	_urb ALIAS FOR $3;
 	_state ALIAS FOR $4;
 	_country ALIAS FOR $5;
-		
+
 	_urb_id integer;
 	_street_id integer;
-	
+
 	msg text;
 BEGIN
 	-- create/get urb
@@ -118,15 +118,15 @@ BEGIN
 	IF FOUND THEN
 		-- create/get and return street
 		SELECT INTO _street_id s.id FROM street s WHERE s.name ILIKE _street AND s.id_urb = _urb_id AND postcode ILIKE _postcode;
- 		IF FOUND THEN
- 			RETURN _street_id;
- 		END IF;
+		IF FOUND THEN
+			RETURN _street_id;
+		END IF;
 		INSERT INTO street (name, postcode, id_urb) VALUES (_street, _postcode, _urb_id);
 		IF FOUND THEN
 			RETURN currval(''street_id_seq'');
-		END IF;	
- 	END IF;
-	RETURN NULL; 	
+		END IF;
+	END IF;
+	RETURN NULL;
 END;' LANGUAGE 'plpgsql';
 
 COMMENT ON FUNCTION create_street(text, text, text, text, text) IS
@@ -175,77 +175,16 @@ BEGIN
 END;' LANGUAGE 'plpgsql';
 
 COMMENT ON FUNCTION create_address(text, text, text, text, text, text) IS
-	'This function takes a parameters the number of the address, the name of the street,\n
-	the postal code of the address, the name of the urb,\n
-	the name of the state and the name of the country.\n
-	If the country or the state does not exists in the tables,\n
-	the function fails.\n
-	At first,  the urb, the street and the address are tried to be retrieved
-	according to the supplied information. If the fields do not match exactly an\n
-	existing row, a new urb or street is created or a new address is created and returned.';
-	
--- ===================================================================
--- this function guarantees an ID for a given address, it will create
--- streets and addresses if required. It insists that the urb exists.
--- it will set street.postcode if urb.postcode is NULL.
-\unset ON_ERROR_STOP
-DROP function create_address_OLD (text, text, text, text, text);
-\set ON_ERROR_STOP 1
+	'This function takes a parameters the number of the address,\n
+	the name of the street, the postal code of the address, the\n
+	name of the urb, the name of the state and the name of the\n
+	country. If the country or the state does not exists in the\n
+	database, the function fails.\n
+	At first, the urb, the street and the address are tried to be\n
+	retrieved according to the supplied information. If the fields\n
+	do not match exactly an existing row, a new urb or street is\n
+	created or a new address is created and returned.';
 
-create function create_address_OLD (text, text, text, text, text) RETURNS text AS '
-DECLARE
-	p_number alias for $1;
-	p_addendum alias for $2;
-	p_street alias for $3;
-	city alias for $4;
-	pcode alias for $5;
-	r_addr address%ROWTYPE;
-	r_urb urb%ROWTYPE;
-	r_street street%ROWTYPE;
-	street_id integer;
-	
-BEGIN
-	SELECT INTO r_urb * FROM urb WHERE name ilike city;
-	IF NOT FOUND THEN
-		SELECT INTO r_urb * FROM urb WHERE postcode ilike pcode;
-		IF NOT FOUND THEN
-			RAISE EXCEPTION ''No such urb %'', city;
-		END IF;
-	END IF;
-	IF r_urb.postcode IS NULL THEN		
-		SELECT INTO r_street * FROM street WHERE
-			name = street
-				AND
-			id_urb = r_urb.id
-				AND
-			postcode = pcode;
-	ELSE
-		SELECT INTO r_street * FROM street WHERE
-			name = p_street
-				AND
-			id_urb = r_urb.id;
-	END IF;
-	IF FOUND THEN
-		street_id := r_street.id;
-	ELSE
-		IF r_urb.postcode IS NULL THEN
-			INSERT INTO street (id_urb, name, postcode) VALUES (r_urb.id, p_street, pcode);
-		ELSE 
-			INSERT INTO street (id_urb, name) VALUES (r_urb.id, p_street);
-		END IF;
-		street_id := currval (''street_id_seq'');
-		INSERT INTO address (number, addendum, id_street) VALUES (p_number, p_addendum, street_id);
-		RETURN currval (''address_id_seq'');
-	END IF;
-	SELECT INTO r_addr * FROM address WHERE
-		number = p_number AND addendum = p_addendum AND id_street = street_id;
-	IF FOUND THEN
-		RETURN r_addr.id;
-	ELSE
-		INSERT INTO address (number, addendum, id_street) VALUES (p_number, p_addendum, street_id);
-		RETURN currval (''address_id_seq'');
-	END IF; 
-END;' LANGUAGE 'plpgsql';
 
 -- ===================================================================
 \unset ON_ERROR_STOP
@@ -400,11 +339,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.18 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.19 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.18  2005-04-28 19:52:59  ncq
+-- Revision 1.19  2005-05-14 15:03:29  ncq
+-- - lots of cleanup
+--
+-- Revision 1.18  2005/04/28 19:52:59  ncq
 -- - some fixes by Carlos
 --
 -- Revision 1.17  2005/04/23 17:45:16  ncq
