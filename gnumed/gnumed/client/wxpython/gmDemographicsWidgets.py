@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.16 2005-05-05 06:25:56 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmDemographicsWidgets.py,v 1.17 2005-05-14 14:56:41 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1052,6 +1052,12 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 	"""
 	Wizard page for entering patient's basic demographic information
 	"""
+	
+	form_fields = (
+			'firstname', 'lastname', 'nick', 'dob', 'gender', 'title', 'occupation',
+			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone'
+	)
+	
 	def __init__(self, parent, title):
 		"""
 		Creates a new instance of BasicPatDetailsPage
@@ -1064,7 +1070,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# main panel (required for a correct propagation of validator calls)
 		PNL_form = wx.Panel(self, -1)
-		PNL_form.SetValidator(cBasicPatDetailsPageValidator())
 
 		# FIXME: improve cTextObjectValidator to accept regexp (gender, telephones, etc).
 
@@ -1142,7 +1147,8 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 			id = -1,
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
-			aDelay = 100
+			aDelay = 50,
+			selection_only = True
 		)
 		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
 
@@ -1157,18 +1163,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 			aMatchProvider = mp
 		)
 		self.PRW_title.SetToolTipString(_("title of patient"))
-
-		# occupation
-		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
-		cmd = "select distinct name, name from occupation where name %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(3, 5, 15)		
-		self.PRW_occupation = gmPhraseWheel.cPhraseWheel(
-			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp
-		)
-		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
 
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
@@ -1213,7 +1207,8 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
 			id = -1,
-			aMatchProvider = mp
+			aMatchProvider = mp,
+			selection_only = True
 		)
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
@@ -1226,7 +1221,8 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
 			id = -1,
-			aMatchProvider = mp
+			aMatchProvider = mp,
+			selection_only = True
 		)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
@@ -1235,6 +1231,23 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.TTC_phone = wx.TextCtrl(PNL_form, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
 		self.TTC_phone.SetToolTipString(_("phone number at home"))
+
+		# occupation
+		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
+		cmd = "select distinct name, name from occupation where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)		
+		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
+			parent = PNL_form,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+
+		# form main validator
+		# FIXME: get DTD from init parameter for editing
+		self.form_DTD = cFormDTD(fields = self.__class__.form_fields)
+		PNL_form.SetValidator(cBasicPatDetailsPageValidator(dtd = self.form_DTD))
 				
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
@@ -1251,8 +1264,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
-		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
 		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
@@ -1267,6 +1278,8 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
+		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
+		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
 
 		PNL_form.SetSizerAndFit(SZR_input)
 
@@ -1306,90 +1319,11 @@ class cNewPatientWizard(wizard.wxWizard):
 		if not wizard.wxWizard.RunWizard(self, self.basic_pat_details):
 			return False
 
-		# dump data to backend
-		# FIXME: replace gmPerson.link_XXX by subtables saving
-		genders, idx = gmPerson.get_gender_list()
-		input_gender = None
-		for gender in genders:
-			if gender[idx['l10n_label']] == self.basic_pat_details.PRW_gender.GetValue():
-				input_gender = gender[idx['tag']]
-				break
-
-		# create patient
-		_log.Log(gmLog.lInfo, 'Creating identity... ')
-		new_identity = gmPerson.create_identity (
-			gender = input_gender,
-			dob = self.basic_pat_details.TTC_dob.GetValue(),
-			lastnames = self.basic_pat_details.PRW_lastname.GetValue(),
-			firstnames = self.basic_pat_details.PRW_firstname.GetValue()
-		)
-		_log.Log(gmLog.lInfo, 'Identity created: %s' % new_identity)
-
-		input_title = self.basic_pat_details.PRW_title.GetValue()
-		if len(input_title) > 0:
-			_log.Log(gmLog.lInfo, 'Setting title and gender...')
-			new_identity['title'] = input_title
-#			new_identity.save_payload()
-			_log.Log(gmLog.lInfo, 'Refetching identity from db: %s' % gmPerson.cIdentity(aPK_obj=new_identity['pk_identity']))
-
-		input_nickname = self.basic_pat_details.PRW_nick.GetValue()
-		if len(input_nickname) > 0:
-			_log.Log(gmLog.lInfo, 'Getting all names...')
-			for a_name in new_identity.get_all_names():
-				_log.Log(gmLog.lInfo, '%s' % a_name)
-			_log.Log(gmLog.lInfo, 'Active name: %s' % (new_identity.get_active_name()))
-			_log.Log(gmLog.lInfo, 'Setting nickname...')
-			new_identity.set_nickname(nickname = input_nickname)
-			_log.Log(gmLog.lInfo, 'Refetching all names...')
-			for a_name in new_identity.get_all_names():
-				_log.Log(gmLog.lInfo, '%s' % a_name)
-
-		input_occupation = self.basic_pat_details.PRW_occupation.GetValue()
-		if len(input_occupation) > 0:
-			_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
-			_log.Log(gmLog.lInfo, 'Creating identity occupation...')
-			new_identity.link_occupation(occupation = input_occupation)
-			_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
-			
-		input_number = self.basic_pat_details.TTC_address_number.GetValue()
-		input_street = self.basic_pat_details.PRW_street.GetValue()
-		input_postcode = self.basic_pat_details.TTC_zip_code.GetValue()
-		input_urb = self.basic_pat_details.PRW_town.GetValue()
-		#input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetValue()
-		input_state = self.basic_pat_details.PRW_state.GetValue()
-		input_country = self.basic_pat_details.PRW_country.GetValue()
-		# FIXME improve by using validations in wizard page
-		if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and \
-		len(input_state) > 0 and len(input_country) > 0:
-			_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
-			_log.Log(gmLog.lInfo, 'Creating identity address...')
-			# make sure the state exists in the backend
-			new_identity.link_address(
-				number = input_number,
-				street = input_street,
-				postcode = input_postcode,
-				urb = input_urb,
-				#urb_postcode = input_urb_postcode,
-				state = input_state,
-				country = input_country
-			)
-			_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
-
-		input_phone = self.basic_pat_details.TTC_phone.GetValue()
-		if len(input_phone) > 0:
-			_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
-			_log.Log(gmLog.lInfo, 'Creating identity communication...')
-			new_identity.link_communication (
-				comm_medium = 'homephone',
-				url = input_phone,
-				is_confidential = False
-			)
-			_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
-
-		new_identity.save_payload()
+		# retrieve DTD and create patient
+		ident = create_identity_from_dtd(dtd = self.basic_pat_details.form_DTD)
 
 		if activate:
-			person = gmPerson.cPerson(new_identity)
+			person = gmPerson.cPerson(ident)
 			gmPerson.gmCurrentPatient(person)
 	#--------------------------------------------------------
 	# internal helpers
@@ -1408,12 +1342,24 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 	create an address, all the related fields mut be filled).
 	"""
 	#--------------------------------------------------------
+	def __init__(self, dtd):
+		"""
+		Validator initialization.
+		@param dtd The object containing the data model.
+		@type dtd A cFormDTD instance
+		"""
+		# initialize parent class
+		wx.PyValidator.__init__(self)
+		
+		# validator's storage object
+		self.form_DTD = dtd
+	#--------------------------------------------------------
 	def Clone(self):
 		"""
 		Standard cloner.
 		Note that every validator must implement the Clone() method.
 		"""
-		return cBasicPatDetailsPageValidator()
+		return cBasicPatDetailsPageValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
 	#--------------------------------------------------------
 	def Validate(self):
 		"""
@@ -1446,20 +1392,195 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		return True
 	#--------------------------------------------------------
 	def TransferToWindow(self):
-		""" Transfer data from validator to window.
+		"""
+		Transfer data from validator to window.
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
+		pageCtrl = self.GetWindow().GetParent()
+		# fill in controls with values from self.form_DTD
+		pageCtrl.PRW_gender.SetValue(self.form_DTD['gender'])
+		pageCtrl.TTC_dob.SetValue(self.form_DTD['dob'])
+		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastname'])
+		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstname'])
+		pageCtrl.PRW_title.SetValue(self.form_DTD['title'])
+		pageCtrl.PRW_nick.SetValue(self.form_DTD['nick'])
+		pageCtrl.PRW_occupation.SetValue(self.form_DTD['occupation'])
+		pageCtrl.TTC_address_number.SetValue(self.form_DTD['address_number'])
+		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
+		pageCtrl.TTC_zip_code.SetValue(self.form_DTD['zip_code'])
+		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
+		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
+		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
+		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
 	def TransferFromWindow(self):
-		""" Transfer data from window to validator.
+		"""
+		Transfer data from window to validator.
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		# FIXME: workaround for Validate to be called when clicking
-		# a wizard's  Finish button
-		return self.Validate()
+		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
+		if self.Validate():
+			pageCtrl = self.GetWindow().GetParent()
+			# fill in self.form_DTD with values from controls
+			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
+			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
+			self.form_DTD['lastname'] = pageCtrl.PRW_lastname.GetValue()
+			self.form_DTD['firstname'] = pageCtrl.PRW_firstname.GetValue()
+			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
+			self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
+			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
+			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
+			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
+			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
+			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
+			self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
+			self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
+			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
+			return True
+		return False
+#============================================================
+class cFormDTD:
+	"""
+	Simple Data Transfer Dictionary class to make easy the trasfer of
+	data between the form (view) and the business logic.
+
+	Maybe later consider turning this into a standard dict by
+	{}.fromkeys([key, key, ...], default) when it becomes clear that
+	we really don't need the added potential of a full-fledged class.
+	"""
+	def __init__(self, fields):		
+		"""
+		Initialize the DTD with the supplied field names.
+		@param fields The names of the fields.
+		@type fields A TupleType instance.
+		"""
+		self.data = {}		
+		for a_field in fields:
+			self.data[a_field] = ''
+		
+	def __getitem__(self, attribute):
+		"""
+		Retrieve the value of the given attribute (key)
+		@param attribute The attribute (key) to retrieve its value for.
+		@type attribute a StringType instance.
+		"""
+		return self.data[attribute]
+
+	def __setitem__(self, attribute, value):
+		"""
+		Set the value of a given attribute (key).
+		@param attribute The attribute (key) to set its value for.
+		@type attribute a StringType instance.		
+		@param avaluee The value to set.
+		@rtpe attribute a StringType instance.
+		"""
+		self.data[attribute] = value
+#============================================================
+def create_identity_from_dtd(dtd=None):
+	"""
+	Register a new patient, given the data supplied in the 
+	Data Transfer Dictionary object.
+
+	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+	supplied data.
+	@type basic_details_DTD A cFormDTD instance.
+	"""
+	# FIXME sanity check, FIXME: turn excessive logging into print()s
+
+	# dump data to backend
+	# FIXME: replace gmPerson.link_XXX by subtables saving
+#	genders, idx = gmPerson.get_gender_list()
+#	input_gender = None
+#	for gender in genders:
+#		if gender[idx['l10n_label']] == dtd['gender']:
+#			input_gender = gender[idx['tag']]
+#			break
+
+	# create patient
+	_log.Log(gmLog.lInfo, 'creating identity')
+	# FIXME: error checking
+	new_identity = gmPerson.create_identity (
+#		gender = input_gender,
+		gender = dtd['gender'],
+		dob = dtd['dob'],
+		lastnames = dtd['lastname'],
+		firstnames = dtd['firstname']
+	)
+	_log.Log(gmLog.lInfo, 'Identity created: %s' % new_identity)
+
+	input_title = dtd['title']
+	if len(input_title) > 0:
+		_log.Log(gmLog.lInfo, 'Setting title and gender...')
+		new_identity['title'] = input_title
+#		new_identity.save_payload()
+#		_log.Log(gmLog.lInfo, 'Refetching identity from db: %s' % gmPerson.cIdentity(aPK_obj=new_identity['pk_identity']))
+
+	input_nickname = dtd['nick']
+	if len(input_nickname) > 0:
+		_log.Log(gmLog.lInfo, 'Getting all names...')
+		for a_name in new_identity.get_all_names():
+			_log.Log(gmLog.lInfo, '%s' % a_name)
+		_log.Log(gmLog.lInfo, 'Active name: %s' % (new_identity.get_active_name()))
+		_log.Log(gmLog.lInfo, 'Setting nickname...')
+		new_identity.set_nickname(nickname = input_nickname)
+		_log.Log(gmLog.lInfo, 'Refetching all names...')
+		for a_name in new_identity.get_all_names():
+			_log.Log(gmLog.lInfo, '%s' % a_name)
+
+	input_occupation = dtd['occupation']
+	if len(input_occupation) > 0:
+		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
+		_log.Log(gmLog.lInfo, 'Creating identity occupation...')
+		new_identity.link_occupation(occupation = input_occupation)
+		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
+			
+	input_number = dtd['address_number']
+	input_street = dtd['street']
+	input_postcode = dtd['zip_code']
+	input_urb = dtd['town']
+	#input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetData()
+	input_state = dtd['state']
+	input_country = dtd['country']
+	print "number", input_number
+	print "street", input_street
+	print "zip", input_postcode
+	print "state", input_state
+	print "country", input_country
+	print "urb", input_urb
+	# FIXME improve by using validations in wizard page
+	if len(input_number + input_street + input_postcode + input_state + input_country + input_urb) > 6:
+#	if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and \
+#	len(input_state) > 0 and len(input_country) > 0:
+		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
+		_log.Log(gmLog.lInfo, 'Creating identity address...')
+		# FIXME: make sure the state exists in the backend
+		new_identity.link_address (
+			number = input_number,
+			street = input_street,
+			postcode = input_postcode,
+			urb = input_urb,
+			state = input_state,
+			country = input_country
+		)
+		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
+
+	input_phone = dtd['phone']
+	if len(input_phone) > 0:
+		_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
+		_log.Log(gmLog.lInfo, 'Creating identity communication...')
+		new_identity.link_communication (
+			comm_medium = 'homephone',
+			url = input_phone,
+			is_confidential = False
+		)
+		_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
+
+	new_identity.save_payload()			# FIXME: error checking
+
+	return new_identity
 #============================================================
 class TestPanel(wx.Panel):   
 	"""
@@ -1477,6 +1598,9 @@ class TestPanel(wx.Panel):
 		print wizard.RunWizard()
 #============================================================
 if __name__ == "__main__":
+	
+	a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
+	
 	from Gnumed.pycommon import gmPG
 	db = gmPG.ConnectionPool()
 	app1 = wx.PyWidgetTester(size = (800, 600))
@@ -1487,7 +1611,12 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.16  2005-05-05 06:25:56  ncq
+# Revision 1.17  2005-05-14 14:56:41  ncq
+# - add Carlos' DTD code
+# - numerous fixes/robustification
+# move occupation down based on user feedback
+#
+# Revision 1.16  2005/05/05 06:25:56  ncq
 # - cleanup, remove _() in log statements
 # - re-ordering in new patient wizard due to user feedback
 # - add <activate> to RunWizard(): if true activate patient after creation
