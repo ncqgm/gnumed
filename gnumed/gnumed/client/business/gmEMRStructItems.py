@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -373,7 +373,7 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 	"""
 	# sanity check:
 	if description is None:
-		description = _('auto-created %s') % mxDT.today().Format('%A %Y-%m-%d %H:%M')
+		description = _('auto-created %s') % mxDT.now().Format('%A %Y-%m-%d %H:%M')
 	# FIXME: look for MRU/MCU encounter type config here
 	if enc_type is None:
 		enc_type = 'chart review'
@@ -507,7 +507,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.50  2005-04-25 08:28:28  ncq
+# Revision 1.51  2005-05-14 15:05:40  ncq
+# - show HH:MM in auto-created encounters
+#
+# Revision 1.50  2005/04/25 08:28:28  ncq
 # - episode now has .description
 #
 # Revision 1.49  2005/04/24 14:42:22  ncq
