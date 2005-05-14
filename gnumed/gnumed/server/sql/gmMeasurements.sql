@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.41 $
+-- $Revision: 1.42 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -65,8 +65,7 @@ create table test_type (
 	coding_system text default null,
 	name text,
 	comment text,
-	conversion_unit text
-		not null,
+	conversion_unit text,
 	unique (fk_test_org, code, coding_system)
 ) inherits (audit_fields);
 
@@ -223,7 +222,8 @@ create table test_result (
 		),
 	val_alpha text
 		default null,
-	val_unit text,
+	val_unit text
+		default null,
 	val_normal_min numeric,
 	val_normal_max numeric,
 	val_normal_range text,
@@ -257,6 +257,12 @@ select add_table_for_audit('test_result');
 select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
 
 alter table test_result alter column soap_cat set default 'o';
+alter table test_result add constraint numval_needs_unit
+	check (
+		((val_num is not null) and (trim(coalesce(val_unit, '') != '')))
+			or
+		(val_num is null)
+	);
 
 COMMENT ON TABLE test_result is
 	'the results of a single measurement';
@@ -433,11 +439,15 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.41 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.42 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.41  2005-03-31 17:50:45  ncq
+-- Revision 1.42  2005-05-14 15:04:39  ncq
+-- - make conversion unit nullable
+-- - numeric test results need a unit
+--
+-- Revision 1.41  2005/03/31 17:50:45  ncq
 -- - improved check constraint on lab_request.request_status
 -- - strings moved to gmClinicalData.sql
 --
