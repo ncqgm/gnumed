@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.35 2005-05-12 15:07:25 ncq Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmPerson.py,v 1.36 2005-05-14 15:06:18 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1298,7 +1298,7 @@ values (currval('identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 
 		max_tries = 2
 	)
 	if not successful:
-		_log.Log(gmLog.lPanic, 'failed to create identity: %s' % data)
+		_log.Log(gmLog.lPanic, 'failed to create identity: %s' % str(data))
 		return None
 	rows, idx = data
 	return cIdentity(aPK_obj=rows[0][0])
@@ -1467,7 +1467,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.35  2005-05-12 15:07:25  ncq
+# Revision 1.36  2005-05-14 15:06:18  ncq
+# - fix logging error
+#
+# Revision 1.35  2005/05/12 15:07:25  ncq
 # - add get_emr()
 #
 # Revision 1.34  2005/05/04 08:55:08  ncq
