@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.51 2005-05-12 15:08:31 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPatientExporter.py,v 1.52 2005-05-17 18:11:41 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -730,7 +730,7 @@ class cEmrExport:
         self.__target.write('    Gender: %s\n' % ident['gender'])
         self.__target.write('    Title: %s\n' % ident['title'])
         self.__target.write('    Dob: %s\n' % ident['dob'].Format('%Y-%m-%d'))
-        self.__target.write('    Medical age: %s\n' % gmDemographicRecord.dob2medical_age(ident['dob']))
+        self.__target.write('    Medical age: %s\n' % gmPerson.dob2medical_age(ident['dob']))
         #addr_types = ident['addresses'].keys()
         #for addr_t in addr_types:
         #    addr_lst = ident['addresses'][addr_t]
@@ -1087,7 +1087,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.51  2005-05-12 15:08:31  ncq
+# Revision 1.52  2005-05-17 18:11:41  ncq
+# - dob2medical_age is in gmPerson
+#
+# Revision 1.51  2005/05/12 15:08:31  ncq
 # - add Medistar SOAP exporter and wrap(text, width) convenience function
 #
 # Revision 1.50  2005/04/27 19:59:19  ncq
