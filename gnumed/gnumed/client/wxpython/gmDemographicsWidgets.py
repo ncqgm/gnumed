@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.20 2005-05-17 14:56:02 cfmoro Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmDemographicsWidgets.py,v 1.21 2005-05-17 15:09:28 cfmoro Exp $
+__version__ = "$Revision: 1.21 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1518,8 +1518,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 		
 		# identity object
-		self.__identity = gmPerson.gmCurrentPatient().get_identity()
-		print self.__identity
+		self.__identity = None
 		# identity page/form/validator DTD
 		self.__ident_form_DTD = cFormDTD(fields = self.__class__.ident_form_fields)
 		# contacts page/form/validator DTD
@@ -1597,7 +1596,11 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		Populate fields in pages with data from model.
 		"""
 		
-		print "re-populating notebook with data ..."		
+		print "re-populating notebook with data ..."
+		# refresh identity object
+		self.__identity = gmPerson.gmCurrentPatient().get_identity()		
+		print self.__identity
+				
 		# fill in ident_form_DTD with values from controls
 		txt = self.__identity['gender']
 		for gender in self.__genders:
@@ -1859,7 +1862,7 @@ class cPatIdentityPageValidator(wx.PyValidator):
 		"""
 		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
 		if self.Validate():
-			pageCtrl = self.GetWindow().GetParent()
+			pageCtrl = self.GetWindow()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
 			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
@@ -2246,6 +2249,7 @@ class cNotebookedPatEditionPanel(wx.Panel):
 		"""Save data to backend and close editor.
 		"""
 		print "code to save changes... coming soon"
+		self.__patient_notebook.TransferDataFromWindow()
 		return True
 	#--------------------------------------------------------
 	def __on_restore(self, event):
@@ -2383,7 +2387,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.20  2005-05-17 14:56:02  cfmoro
+# Revision 1.21  2005-05-17 15:09:28  cfmoro
+# Reloading values from backend in repopulate to properly reflect patient activated
+#
+# Revision 1.20  2005/05/17 14:56:02  cfmoro
 # Restore values from model to window action function
 #
 # Revision 1.19  2005/05/17 14:41:36  cfmoro
