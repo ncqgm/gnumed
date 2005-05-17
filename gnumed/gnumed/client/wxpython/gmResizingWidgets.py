@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.26 2005-05-08 21:43:09 ncq Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmResizingWidgets.py,v 1.27 2005-05-17 08:08:56 ncq Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -166,6 +166,7 @@ class cResizingWindow(wx.wxScrolledWindow):
 		self.__szr_main.Add((1, 1))
 
 		self.SetSizer(self.__szr_main)
+		self.__szr_main.Fit(self)
 		self.FitInside()
 	#------------------------------------------------
 	def AddWidget(self, widget, label=None):
@@ -200,8 +201,8 @@ class cResizingWindow(wx.wxScrolledWindow):
 		"""Called when a child widget has a new height, redoes the layout.
 		"""
 		if self.__szr_main is not None:
-			self.__szr_main.SetItemMinSize (widget, -1, new_height)
-			self.__szr_main.FitInside (self)
+			self.__szr_main.SetItemMinSize(widget, -1, new_height)
+			self.__szr_main.FitInside(self)
 	#------------------------------------------------
 	def EnsureVisible (self, widget, cur_x = 0, cur_y = 0):
 		"""
@@ -504,16 +505,39 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			self.__timer.Stop()
 			return
 		# do we need to resize ?
-		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + self.TextHeight(0)
+		line_height = self.TextHeight(0)
+		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + line_height
 		x, visible_height = self.GetSizeTuple()
-		if visible_height != true_txt_height:
-			self.__parent.ReSize(self, true_txt_height)
+		if visible_height < true_txt_height:
+			print "line:", line_height
+			print "before resize: too small"
+			print "visible height", visible_height
+			print "true text hgt", true_txt_height
+			n, remainder = divmod((true_txt_height - visible_height), line_height)
+			if remainder > 0: n = n + 1
+			target_height = visible_height + (n * line_height)
+			self.__parent.ReSize(self, target_height)
+			print "after resize"
+			x, y = self.GetSizeTuple()
+			print "visible height", y
+
+		if ((visible_height - line_height) > true_txt_height):
+			print "line:", line_height
+			print "before resize: too big"
+			print "visible height", visible_height
+			print "true text hgt", true_txt_height
+#			n, delta = divmod((visible_height - true_txt_height), line_height)
+#			target_height = visible_height - (n * line_height)
+			target_height = visible_height - line_height
+			self.__parent.ReSize(self, target_height)
+			print "after resize"
+			x, y = self.GetSizeTuple()
+			print "visible height", y
+
 		# is currently relevant term a keyword for popping up an edit area or something ?
 		fragment = self.__get_focussed_fragment()
 		if fragment in self.__popup_keywords.keys():
 			self.__timer.Stop()
-			# need to use wxCallAfter because new modifications
-			# aren't allowed inside wxSTC_MODIFIED handlers ...
 			self.__handle_keyword(fragment)
 			return
 		# else restart timer for match list
@@ -1041,7 +1065,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.26  2005-05-08 21:43:09  ncq
+# Revision 1.27  2005-05-17 08:08:56  ncq
+# - refine ReSize() algo such that effect of erratic scrollbar display is reduced
+#
+# Revision 1.26  2005/05/08 21:43:09  ncq
 # - cleanup, use wxEXPAND not wxGROW
 #
 # Revision 1.25  2005/04/27 18:40:49  ncq
