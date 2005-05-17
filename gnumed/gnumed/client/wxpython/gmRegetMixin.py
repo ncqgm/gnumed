@@ -23,8 +23,8 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.12 2005-05-08 21:42:17 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmRegetMixin.py,v 1.13 2005-05-17 08:07:19 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -85,18 +85,21 @@ class cRegetOnPaintMixin:
 		- if not visible schedule reget only
 		- if visible redisplay immediately
 		"""
-		dc = wx.wxPaintDC(self)
-		print "%s._schedule_data_reget(): %s" % (self.__class__.__name__, str(dc.GetClippingBox()))
+#		dc = wx.wxPaintDC(self)
+#		print "%s._schedule_data_reget(): %s" % (self.__class__.__name__, str(dc.GetClippingBox()))
 		#if self.GetUpdateRegion().IsEmpty() == 1 and not self.IsShown():
 		if self.GetUpdateRegion().IsEmpty() == 1:
 			self._data_stale = True
 			return True
 		else:
+			print '%s: repopulating immediately' % self.__class__.__name__
 			if self.__populate_with_data():
 				self.Refresh()
 				return True
 			else:
 				return False
+
+#		wx.wxTheApp.GetTopWindow().Refresh()
 
 #===========================================================================
 # main
@@ -106,7 +109,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.12  2005-05-08 21:42:17  ncq
+# Revision 1.13  2005-05-17 08:07:19  ncq
+# - cleanup
+#
+# Revision 1.12  2005/05/08 21:42:17  ncq
 # - import gmLog
 #
 # Revision 1.11  2005/05/06 15:31:03  ncq

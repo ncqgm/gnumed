@@ -45,8 +45,8 @@ This script is designed for importing GnuMed SOAP input "bundle".
 """
 #===============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSOAPimporter.py,v $
-# $Id: gmSOAPimporter.py,v 1.6 2005-04-12 09:59:16 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmSOAPimporter.py,v 1.7 2005-05-17 08:03:30 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -157,12 +157,10 @@ class cSOAPImporter:
 			encounter_id = enc_id
 		)
 
-		print "episode: %s // encounter: %s" % (epi_id, enc_id)
-		print "category: %s" % soap_entry[soap_bundle_SOAP_CAT_KEY], "narrative: %s" % soap_entry[soap_bundle_TEXT_KEY]
-
 		# attach types
 		if soap_entry.has_key(soap_bundle_TYPES_KEY):
-			print "types	: %s" % soap_entry[soap_bundle_TYPES_KEY]
+			pass
+#			print "types	: %s" % soap_entry[soap_bundle_TYPES_KEY]
 #			for narr_type in soap_entry[soap_bundle_TYPES_KEY]:
 #				narr.attach_type(item_type = narr_type)
 
@@ -367,7 +365,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing SOAP importer...")
 #================================================================
 # $Log: gmSOAPimporter.py,v $
-# Revision 1.6  2005-04-12 09:59:16  ncq
+# Revision 1.7  2005-05-17 08:03:30  ncq
+# - cleanup
+#
+# Revision 1.6  2005/04/12 09:59:16  ncq
 # - cleanup
 # - enable actual backend storage
 #
