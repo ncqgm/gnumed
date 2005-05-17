@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.142 2005-04-27 20:00:11 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.143 2005-05-17 08:17:04 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1677,7 +1677,10 @@ select
 		else (select sign from v_staff where db_user = cn.modified_by)
 	end as modified_by,
 	cn.soap_cat as soap_cat,
-	cn.narrative as narrative,
+	case when cn.is_rfe
+		then _('RFE') || ': ' || cn.narrative
+		else cn.narrative
+	end as narrative,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	vpi.pk_health_issue as pk_health_issue,
@@ -1996,11 +1999,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.142 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.143 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.142  2005-04-27 20:00:11  ncq
+-- Revision 1.143  2005-05-17 08:17:04  ncq
+-- - refine clin_narrative row mapping in v_emr_journal to display is_rfe status
+--
+-- Revision 1.142  2005/04/27 20:00:11  ncq
 -- - add missing coalesce in v_emr_journal
 --
 -- Revision 1.141  2005/04/17 16:33:49  ncq
