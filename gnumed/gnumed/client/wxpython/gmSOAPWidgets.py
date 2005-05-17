@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.47 2005-05-14 14:59:41 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmSOAPWidgets.py,v 1.48 2005-05-17 08:10:44 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -253,23 +253,25 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		# - progress note notebook
 		self.__soap_notebook = cProgressNoteInputNotebook(PNL_soap_editors, -1)
 		# - buttons
+		self.__BTN_add_unassociated = wx.wxButton(PNL_soap_editors, -1, _('&New'))
+		self.__BTN_add_unassociated.SetToolTipString(_('add editor for new unassociated progress note'))
+
+		self.__BTN_clear = wx.wxButton(PNL_soap_editors, -1, _('&Reset'))
+		self.__BTN_clear.SetToolTipString(_('clear progress note editor'))
+
 		self.__BTN_save = wx.wxButton(PNL_soap_editors, -1, _('&Save'))
 		self.__BTN_save.SetToolTipString(_('save progress note into medical record'))
 
-		self.__BTN_clear = wx.wxButton(PNL_soap_editors, -1, _('&Clear'))
-		self.__BTN_clear.SetToolTipString(_('clear progress note editor'))
+#		self.__BTN_discard = wx.wxButton(PNL_soap_editors, -1, _('&Discard'))
+#		self.__BTN_discard.SetToolTipString(_('Discard progress note and close editor. This will loose any data you already typed into this editor !'))
 
-		self.__BTN_discard = wx.wxButton(PNL_soap_editors, -1, _('&Discard'))
-		self.__BTN_discard.SetToolTipString(_('Discard progress note and close editor. This will loose any data you already typed into this editor !'))
-
-		self.__BTN_add_unassociated = wx.wxButton(PNL_soap_editors, -1, _('&New'))
-		self.__BTN_add_unassociated.SetToolTipString(_('add editor for new unassociated progress note'))
 		# - arrange
 		szr_btns_right = wx.wxBoxSizer(wx.wxHORIZONTAL)
-		szr_btns_right.Add(self.__BTN_save, 0, wx.wxSHAPED)
-		szr_btns_right.Add(self.__BTN_clear, 0, wx.wxSHAPED)		
-		szr_btns_right.Add(self.__BTN_discard, 0, wx.wxSHAPED)
 		szr_btns_right.Add(self.__BTN_add_unassociated, 0, wx.wxSHAPED)
+		szr_btns_right.Add(self.__BTN_clear, 0, wx.wxSHAPED)
+		szr_btns_right.Add(self.__BTN_save, 0, wx.wxSHAPED)
+#		szr_btns_right.Add(self.__BTN_discard, 0, wx.wxSHAPED)
+
 		szr_right = wx.wxBoxSizer(wx.wxVERTICAL)
 		szr_right.Add(self.__soap_notebook, 1, wx.wxEXPAND)
 		szr_right.Add(szr_btns_right)
@@ -321,7 +323,7 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		wx.EVT_LISTBOX_DCLICK(self.__LST_problems, self.__LST_problems.GetId(), self.__on_problem_activated)
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self.__on_save)
 		wx.EVT_BUTTON(self.__BTN_clear, self.__BTN_clear.GetId(), self.__on_clear)
-		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
+#		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self.__on_discard)
 		wx.EVT_BUTTON(self.__BTN_add_unassociated, self.__BTN_add_unassociated.GetId(), self.__on_add_unassociated)
 
 		# client internal signals
@@ -334,6 +336,12 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
+#		print "should be refreshing problem list, either now or later"
+#		dc = wx.wxPaintDC(self)
+#		print "%s clipping box       : %s" % (self.__class__.__name__, str(dc.GetClippingBox()))
+#		print "%s update region empty: %s" % (self.__class__.__name__, str(self.GetUpdateRegion().IsEmpty()))
+#		print "%s update region      : %s" % (self.__class__.__name__, str(self.GetUpdateRegion()))
+#		print "%s IsShown            : %s" % (self.__class__.__name__, str(self.IsShown()))
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def __on_clear(self, event):
@@ -432,6 +440,7 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 		if not soap_nb_page.save():
 			return False
 		self.__soap_notebook.DeletePage(page_idx)
+#		self.__soap_notebook.GetSelection()
 		return True
 	#--------------------------------------------------------
 	# reget mixin API
@@ -1596,7 +1605,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.47  2005-05-14 14:59:41  ncq
+# Revision 1.48  2005-05-17 08:10:44  ncq
+# - rearrange/relabel buttons/drop "discard" button on progress
+#    notes notebook according to user feedback
+#
+# Revision 1.47  2005/05/14 14:59:41  ncq
 # - cleanups, teach proper levels to listen to signals
 # - listen to "activating_patient" so we can save progress notes *before* changing patient
 # - reset SOAP notebook on patient_selected
