@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -232,6 +232,9 @@ def create_clin_narrative(narrative = None, soap_cat = None, episode_id=None, en
 	"""
 	# sanity check
 	# 1) any of the args being None should fail the SQL code
+	#    but silently do not insert empty narrative
+	if narrative.strip() == '':
+		return (True, None)
 	# 2) do episode/encounter belong to the patient ?
 	cmd = """select pk_patient from v_pat_episodes where pk_episode=%s 
 				 union 
@@ -315,7 +318,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.14  2005-04-11 17:53:47  ncq
+# Revision 1.15  2005-05-17 08:00:09  ncq
+# - in create_narrative() ignore empty narrative
+#
+# Revision 1.14  2005/04/11 17:53:47  ncq
 # - id_patient -> pk_patient fix
 #
 # Revision 1.13  2005/04/08 13:27:54  ncq
