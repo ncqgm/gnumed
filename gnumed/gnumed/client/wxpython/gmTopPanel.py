@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.58 2005-04-03 20:13:35 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmTopPanel.py,v 1.59 2005-05-17 08:12:11 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -76,18 +76,31 @@ class cMainTopPanel(wxPanel):
 		self.szr_top_row = wxBoxSizer(wxHORIZONTAL)
 
 		#  - details button
-		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'binoculars_form.png')
+#		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'binoculars_form.png')
+#		img = wxImage(fname, wxBITMAP_TYPE_ANY)
+#		bmp = wxBitmapFromImage(img)
+#		self.btn_pat_demographics = wxBitmapButton (
+#			parent = self,
+#			id = ID_BTN_pat_demographics,
+#			bitmap = bmp,
+#			style = wxBU_EXACTFIT | wxNO_BORDER
+#		)
+#		self.btn_pat_demographics.SetToolTip(wxToolTip(_("display patient demographics")))
+#		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wxBOTTOM, 3)
+
+		# padlock button - Dare I say HIPAA ?
+		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'padlock_closed.png')
 		img = wxImage(fname, wxBITMAP_TYPE_ANY)
 		bmp = wxBitmapFromImage(img)
-
-		self.btn_pat_demographics = wxBitmapButton (
+		self.btn_lock = wxBitmapButton (
 			parent = self,
-			id = ID_BTN_pat_demographics,
+			id = ID_LOCKBUTTON,
 			bitmap = bmp,
 			style = wxBU_EXACTFIT | wxNO_BORDER
 		)
-		self.btn_pat_demographics.SetToolTip(wxToolTip(_("display patient demographics")))
-		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wxBOTTOM, 3)
+		self.btn_lock.SetToolTip(wxToolTip(_('lock client')))
+		self.szr_top_row.Add(self.btn_lock, 0, wxEXPAND | wxBOTTOM, 3)
+
 		#  - patient selector
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
 		if self.__gb['main.slave_mode']:
@@ -110,7 +123,7 @@ class cMainTopPanel(wxPanel):
 		self.lbl_allergies.SetForegroundColour(col_brightred)
 		self.txt_allergies = wxTextCtrl (self, -1, "", style = wxTE_READONLY)
 		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
-		self.txt_allergies.SetBackgroundColour(bg_col)
+		#self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
 		self.szr_top_row.Add (self.lbl_allergies, 0, wxEXPAND | wxBOTTOM, 3)
 		self.szr_top_row.Add (self.txt_allergies, 6, wxEXPAND | wxBOTTOM, 3)
@@ -188,19 +201,6 @@ class cMainTopPanel(wxPanel):
 		)
 		self.combo_consultation_type.SetToolTip(wxToolTip(_('choose consultation type')))
 		self.szr_bottom_row.Add(self.combo_consultation_type, 2, wxEXPAND, 0)
-
-		# padlock button - Dare I say HIPAA ?
-		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'padlock_closed.png')
-		img = wxImage(fname, wxBITMAP_TYPE_ANY)
-		bmp = wxBitmapFromImage(img)
-		self.btn_lock = wxBitmapButton (
-			parent = self,
-			id = ID_LOCKBUTTON,
-			bitmap = bmp,
-			style = wxBU_EXACTFIT | wxNO_BORDER
-		)
-		self.btn_lock.SetToolTip(wxToolTip(_('lock client')))
-		self.szr_bottom_row.Add(self.btn_lock, 0, wxEXPAND | wxBOTTOM, 3)
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
@@ -452,7 +452,12 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.58  2005-04-03 20:13:35  ncq
+# Revision 1.59  2005-05-17 08:12:11  ncq
+# - move padlock tool button to inbetween patient picture and patient name
+#   as users found that more consistent and drop "demographic details" tool
+#   button from there
+#
+# Revision 1.58  2005/04/03 20:13:35  ncq
 # - episode selector in top panel didn't help very much as we
 #   always work on several episodes - just as the patient suffers
 #   several problems at once
