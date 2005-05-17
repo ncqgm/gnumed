@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.19 2005-05-17 14:41:36 cfmoro Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmDemographicsWidgets.py,v 1.20 2005-05-17 14:56:02 cfmoro Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2249,9 +2249,12 @@ class cNotebookedPatEditionPanel(wx.Panel):
 		return True
 	#--------------------------------------------------------
 	def __on_restore(self, event):
-		"""Save data to backend and close editor.
 		"""
-		print "code to restore values... coming soon"
+		Restore patient edition form with values originally
+		fecthed from backed, prior to any modification by
+		the user.		
+		"""
+		self.__patient_notebook.TransferDataToWindow()
 		return True		
 #============================================================				
 def create_identity_from_dtd(dtd=None):
@@ -2380,7 +2383,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.19  2005-05-17 14:41:36  cfmoro
+# Revision 1.20  2005-05-17 14:56:02  cfmoro
+# Restore values from model to window action function
+#
+# Revision 1.19  2005/05/17 14:41:36  cfmoro
 # Notebooked patient editor initial code
 #
 # Revision 1.18  2005/05/17 08:04:28  ncq
