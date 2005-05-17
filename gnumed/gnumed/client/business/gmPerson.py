@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.37 2005-05-17 08:03:05 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmPerson.py,v 1.38 2005-05-17 14:41:36 cfmoro Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -45,6 +45,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
+	# FIXME: fetch state and country real name in v_basic_address vba
 	_subtable_dml_templates = {
 		'addresses': {
 			'select': """
@@ -55,6 +56,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					vba.street,
 					vba.urb,
 					vba.postcode,
+					vba.state,
+					vba.country,
 					at.name as type,
 					lpoa.id_type as id_type
 				from
@@ -324,11 +327,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 				}
 		)
 		successful, data = self.save_payload()
-		
-		# dump to backend
-		cmd = """
-
-		"""
 		
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to link address: %s' % str(data))
@@ -1467,7 +1465,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.37  2005-05-17 08:03:05  ncq
+# Revision 1.38  2005-05-17 14:41:36  cfmoro
+# Notebooked patient editor initial code
+#
+# Revision 1.37  2005/05/17 08:03:05  ncq
 # - fix unicode errors in DE query generator normalizer
 #
 # Revision 1.36  2005/05/14 15:06:18  ncq
