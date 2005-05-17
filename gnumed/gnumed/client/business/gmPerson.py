@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.38 2005-05-17 14:41:36 cfmoro Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmPerson.py,v 1.39 2005-05-17 18:01:19 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -71,10 +71,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			'insert':
 				"""
 					INSERT INTO lnk_person_org_address (id_identity, id_address)
-					VALUES (%(pk_master)s, create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));				
+					VALUES (%(pk_master)s, create_address(%(number)s,%(street)s,%(postcode)s,%(urb)s,%(state)s,%(country)s));
 				""",
 			'delete':
-				"""delete from lnk_person_org_address where id_identity = $s and id_address = %s"""
+				"""delete from lnk_person_org_address where id_identity = %s and id_address = %s"""
 		},
 		'ext_ids': {
 			'select':"""
@@ -296,8 +296,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			return False
 		return True		
 	#--------------------------------------------------------
-	def link_address(self, number, street, postcode, urb, 
-		state, country):
+	def link_address(self, number, street, postcode, urb, state, country):
 		"""
 		Link an address with a patient, creating the address if it does not exists.
 		@param number The number of the address.
@@ -314,8 +313,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		"""
 
 		# dump to backend
-		self.add_to_subtable
-		(
+		self.add_to_subtable (
 			'addresses',
 				{
 					'number': number,
@@ -325,9 +323,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					'state' : state,
 					'country' : country
 				}
-		)
+			)
 		successful, data = self.save_payload()
-		
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to link address: %s' % str(data))
 			return False
@@ -1396,56 +1393,63 @@ def get_comm_list():
 #============================================================
 # main/testing
 #============================================================
-if __name__ == "__main__":
+if __name__ == '__main__':
 	_log.SetAllLogLevels(gmLog.lData)
-	
+	gmPG.set_default_client_encoding('latin1')
+
 	# module functions
-	genders, idx = get_gender_list()
-	print "\n\nRetrieving gender enum (tag, label, weight):"	
-	for gender in genders:
-		print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
+#	genders, idx = get_gender_list()
+#	print "\n\nRetrieving gender enum (tag, label, weight):"	
+#	for gender in genders:
+#		print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
 	
-	comms = get_comm_list()
-	print "\n\nRetrieving communication media enum (id, description): %s" % comms
+#	comms = get_comm_list()
+#	print "\n\nRetrieving communication media enum (id, description): %s" % comms
 				
 	# create patient
 	print '\n\nCreating identity...'
 	new_identity = create_identity(gender='m', dob='2005-01-01', lastnames='test lastnames', firstnames='test firstnames')
 	print 'Identity created: %s' % new_identity
 	
-	print '\nSetting title and gender...'
-	new_identity['title'] = 'test title';
-	new_identity['gender'] = 'f';
-	new_identity.save_payload()
-	print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
+#	print '\nSetting title and gender...'
+#	new_identity['title'] = 'test title';
+#	new_identity['gender'] = 'f';
+#	new_identity.save_payload()
+#	print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
 	
-	print '\nGetting all names...'
-	for a_name in new_identity.get_all_names():
-		print a_name
-	print 'Active name: %s' % (new_identity.get_active_name())
-	print 'Setting nickname...'
-	new_identity.set_nickname(nickname='test nickname')
-	print 'Refetching all names...'
-	for a_name in new_identity.get_all_names():
-		print a_name
-	print 'Active name: %s' % (new_identity.get_active_name())		
+#	print '\nGetting all names...'
+#	for a_name in new_identity.get_all_names():
+#		print a_name
+#	print 'Active name: %s' % (new_identity.get_active_name())
+#	print 'Setting nickname...'
+#	new_identity.set_nickname(nickname='test nickname')
+#	print 'Refetching all names...'
+#	for a_name in new_identity.get_all_names():
+#		print a_name
+#	print 'Active name: %s' % (new_identity.get_active_name())		
 	 
-	print '\nIdentity occupations: %s' % new_identity['occupations']
-	print 'Creating identity occupation...'
-	new_identity.link_occupation('test occupation')
-	print 'Identity occupations: %s' % new_identity['occupations']
+#	print '\nIdentity occupations: %s' % new_identity['occupations']
+#	print 'Creating identity occupation...'
+#	new_identity.link_occupation('test occupation')
+#	print 'Identity occupations: %s' % new_identity['occupations']
 	
 	print '\nIdentity addresses: %s' % new_identity['addresses']
 	print 'Creating identity address...'
 	# make sure the state exists in the backend
-	new_identity.link_address('test 1234', 'test street', 'test postcode', 'test urb',
-		'test', 'argentina')
+	new_identity.link_address (
+		'test 1234',
+		'test street',
+		'test postcode',
+		'test urb',
+		'Sachsen',
+		'Germany'
+	)
 	print 'Identity addresses: %s' % new_identity['addresses']
 		
-	print '\nIdentity communications: %s' % new_identity['comms']
-	print 'Creating identity communication...'
-	new_identity.link_communication('homephone', '1234566')
-	print 'Identity communications: %s' % new_identity['comms']
+#	print '\nIdentity communications: %s' % new_identity['comms']
+#	print 'Creating identity communication...'
+#	new_identity.link_communication('homephone', '1234566')
+#	print 'Identity communications: %s' % new_identity['comms']
 			
 	searcher = cPatientSearcher_SQL()
 	p_data = None
@@ -1456,7 +1460,7 @@ if __name__ == "__main__":
 		print "ID       ", myPatient['id']
 		identity = myPatient.get_identity()
 		print "identity  ", identity
-		print "get_names() apparently missing ?"
+#		print "get_names() apparently missing ?"
 #		print "name     ", identity.get_names(1)
 		print "doc ids  ", myPatient['document id list']
 		emr = myPatient.get_clinical_record()
@@ -1465,7 +1469,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.38  2005-05-17 14:41:36  cfmoro
+# Revision 1.39  2005-05-17 18:01:19  ncq
+# - cleanup
+#
+# Revision 1.38  2005/05/17 14:41:36  cfmoro
 # Notebooked patient editor initial code
 #
 # Revision 1.37  2005/05/17 08:03:05  ncq
