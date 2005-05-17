@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.36 2005-05-08 21:50:42 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.37 2005-05-17 08:13:49 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -45,6 +45,8 @@ insert into soap_cat_ranks (rank, soap_cat) values (4, 'p');
 
 -- ===================================================================
 -- v_emr_journal
+select i18n('RFE');
+
 select i18n('health issue');
 select i18n('noted at age');
 select i18n('episode');
@@ -627,11 +629,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.36 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.37 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.36  2005-05-08 21:50:42  ncq
+-- Revision 1.37  2005-05-17 08:13:49  ncq
+-- - prepare "RFE" for translation
+--
+-- Revision 1.36  2005/05/08 21:50:42  ncq
 -- - ranking only makes sense if ranks are different :-)
 --
 -- Revision 1.35  2005/04/17 16:31:34  ncq
