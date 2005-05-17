@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -66,24 +66,21 @@ BEGIN
 	SELECT INTO _country_code c.code FROM country c WHERE c.name ILIKE _country;
 	IF NOT FOUND THEN
 		msg := ''Cannot set address ['' || _country || '', '' || _state || '', '' || _urb || '', '' || _urb_postcode || '']. No countries row with name ['' || _country || ''] found.'';
-		RAISE EXCEPTION ''---> %'', msg;
+		RAISE EXCEPTION ''=> %'', msg;
 	END IF;
  	-- get state
  	SELECT INTO _state_id s.id FROM state s WHERE s.name ILIKE _state and s.country = _country_code;
  	IF NOT FOUND THEN
 		msg := ''Cannot set address ['' || _country || '', '' || _state || '', '' || _urb || '', '' || _urb_postcode || '']. No states row with name, country code ['' || _state || '', '' || _country_code || ''] found.'';
-		RAISE EXCEPTION ''---> %'', msg;
+		RAISE EXCEPTION ''=> %'', msg;
  	END IF;
 	-- get/create and return urb
-	SELECT INTO _urb_id u.id FROM urb u WHERE u.name ILIKE _urb  AND u.postcode ILIKE _urb_postcode and u.id_state = _state_id;
+	SELECT INTO _urb_id u.id FROM urb u WHERE u.name ILIKE _urb AND u.id_state = _state_id;
 	IF FOUND THEN
 		RETURN _urb_id;
-	END IF;		
-	INSERT INTO urb (name, postcode, id_state) VALUES (_urb, _urb_postcode, _state_id);
-	IF FOUND THEN
-		RETURN currval(''urb_id_seq'');
 	END IF;
-	RETURN NULL;        	
+	INSERT INTO urb (name, postcode, id_state) VALUES (_urb, _urb_postcode, _state_id);
+	RETURN currval(''urb_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
 COMMENT ON FUNCTION create_urb(text, text, text, text) IS
@@ -115,18 +112,13 @@ DECLARE
 BEGIN
 	-- create/get urb
 	SELECT INTO _urb_id create_urb(_urb, _postcode, _state, _country);
+	-- create/get and return street
+	SELECT INTO _street_id s.id FROM street s WHERE s.name ILIKE _street AND s.id_urb = _urb_id AND postcode ILIKE _postcode;
 	IF FOUND THEN
-		-- create/get and return street
-		SELECT INTO _street_id s.id FROM street s WHERE s.name ILIKE _street AND s.id_urb = _urb_id AND postcode ILIKE _postcode;
-		IF FOUND THEN
-			RETURN _street_id;
-		END IF;
-		INSERT INTO street (name, postcode, id_urb) VALUES (_street, _postcode, _urb_id);
-		IF FOUND THEN
-			RETURN currval(''street_id_seq'');
-		END IF;
+		RETURN _street_id;
 	END IF;
-	RETURN NULL;
+	INSERT INTO street (name, postcode, id_urb) VALUES (_street, _postcode, _urb_id);
+	RETURN currval(''street_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
 COMMENT ON FUNCTION create_street(text, text, text, text, text) IS
@@ -160,22 +152,17 @@ DECLARE
 BEGIN
 	-- create/get street
 	SELECT INTO _street_id create_street(_street, _postcode, _urb, _state, _country);
+	-- create/get and return address
+	SELECT INTO _address_id a.id FROM address a WHERE a.number ILIKE _number and a.id_street = _street_id;
 	IF FOUND THEN
-		-- create/get and return address
-		SELECT INTO _address_id a.id FROM address a WHERE a.number ILIKE _number and a.id_street = _street_id;
-		IF FOUND THEN
-			RETURN _address_id;
-		END IF;
-		INSERT INTO address (number, id_street) VALUES ( _number, _street_id);
-		IF FOUND THEN
-			RETURN currval(''address_id_seq'');
-		END IF;
+		RETURN _address_id;
 	END IF;
-	RETURN NULL;	 	
+	INSERT INTO address (number, id_street) VALUES ( _number, _street_id);
+	RETURN currval(''address_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
 COMMENT ON FUNCTION create_address(text, text, text, text, text, text) IS
-	'This function takes a parameters the number of the address,\n
+	'This function takes as parameters the number of the address,\n
 	the name of the street, the postal code of the address, the\n
 	name of the urb, the name of the state and the name of the\n
 	country. If the country or the state does not exists in the\n
@@ -339,11 +326,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.19 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.20 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.19  2005-05-14 15:03:29  ncq
+-- Revision 1.20  2005-05-17 17:34:37  ncq
+-- - make create_*() work
+--
+-- Revision 1.19  2005/05/14 15:03:29  ncq
 -- - lots of cleanup
 --
 -- Revision 1.18  2005/04/28 19:52:59  ncq
