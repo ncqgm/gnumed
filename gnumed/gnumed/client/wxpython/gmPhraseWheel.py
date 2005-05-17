@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.45 2005-05-14 15:06:48 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPhraseWheel.py,v 1.46 2005-05-17 08:06:38 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -59,6 +59,7 @@ class cPhraseWheel (wxTextCtrl):
 
 		self._on_selection_callbacks = []
 		self._on_enter_callbacks = []
+		self._on_lose_focus_callbacks = []
 		self.notified_listeners = False
 
 		if kwargs.has_key('id_callback'):
@@ -102,8 +103,8 @@ class cPhraseWheel (wxTextCtrl):
 		EVT_KEY_DOWN (self, self.__on_key_pressed)
 		# 3) evil user wants to resize widget
 		EVT_SIZE (self, self.on_resize)
-		EVT_SET_FOCUS (self, self.on_set_focus)
-		EVT_KILL_FOCUS (self, self.on_kill_focus)
+		EVT_SET_FOCUS(self, self.on_set_focus)
+		EVT_KILL_FOCUS(self, self._on_lose_focus)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -133,6 +134,12 @@ class cPhraseWheel (wxTextCtrl):
 			_log.Log(gmLog.lWarn, 'ignoring callback [%s], it is not callable' % callback)
 			return False
 		self._on_enter_callbacks.append(callback)
+	#---------------------------------------------------------
+	def add_callback_on_lose_focus(self, callback=None):	
+		if not callable(callback):
+			_log.Log(gmLog.lWarn, 'ignoring callback [%s] - not callable' % callback)
+			return False
+		self._on_lose_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def GetData (self):
 		return self.data
@@ -447,7 +454,7 @@ class cPhraseWheel (wxTextCtrl):
 		self._has_focus = True
 		event.Skip()
 	#--------------------------------------------------------
-	def on_kill_focus(self, event):
+	def _on_lose_focus(self, event):
 		# don't need timer and pick list anymore
 		self.__timer.Stop()
 		self._hide_picklist()
@@ -456,6 +463,11 @@ class cPhraseWheel (wxTextCtrl):
 			if not self.input_was_selected:
 				# FIXME: if len(matches) == 1 -> select
 				self.Clear()
+		for callback in self._on_lose_focus_callbacks:
+			try:
+				callback()
+			except:
+				print "[%s:_on_lose_focus]: error calling %s" % (self.__class__.__name__, str(callback))
 		self._has_focus = False
 		event.Skip()
 #--------------------------------------------------------
@@ -530,7 +542,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.45  2005-05-14 15:06:48  ncq
+# Revision 1.46  2005-05-17 08:06:38  ncq
+# - support for callbacks on lost focus
+#
+# Revision 1.45  2005/05/14 15:06:48  ncq
 # - GetData()
 #
 # Revision 1.44  2005/05/05 06:31:06  ncq
