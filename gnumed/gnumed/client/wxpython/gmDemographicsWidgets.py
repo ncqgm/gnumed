@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.17 2005-05-14 14:56:41 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmDemographicsWidgets.py,v 1.18 2005-05-17 08:04:28 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1489,21 +1489,12 @@ def create_identity_from_dtd(dtd=None):
 	@type basic_details_DTD A cFormDTD instance.
 	"""
 	# FIXME sanity check, FIXME: turn excessive logging into print()s
-
-	# dump data to backend
 	# FIXME: replace gmPerson.link_XXX by subtables saving
-#	genders, idx = gmPerson.get_gender_list()
-#	input_gender = None
-#	for gender in genders:
-#		if gender[idx['l10n_label']] == dtd['gender']:
-#			input_gender = gender[idx['tag']]
-#			break
 
 	# create patient
 	_log.Log(gmLog.lInfo, 'creating identity')
 	# FIXME: error checking
 	new_identity = gmPerson.create_identity (
-#		gender = input_gender,
 		gender = dtd['gender'],
 		dob = dtd['dob'],
 		lastnames = dtd['lastname'],
@@ -1515,8 +1506,6 @@ def create_identity_from_dtd(dtd=None):
 	if len(input_title) > 0:
 		_log.Log(gmLog.lInfo, 'Setting title and gender...')
 		new_identity['title'] = input_title
-#		new_identity.save_payload()
-#		_log.Log(gmLog.lInfo, 'Refetching identity from db: %s' % gmPerson.cIdentity(aPK_obj=new_identity['pk_identity']))
 
 	input_nickname = dtd['nick']
 	if len(input_nickname) > 0:
@@ -1541,19 +1530,10 @@ def create_identity_from_dtd(dtd=None):
 	input_street = dtd['street']
 	input_postcode = dtd['zip_code']
 	input_urb = dtd['town']
-	#input_urb_postcode = self.basic_pat_details.TTC_town_zip_code.GetData()
 	input_state = dtd['state']
 	input_country = dtd['country']
-	print "number", input_number
-	print "street", input_street
-	print "zip", input_postcode
-	print "state", input_state
-	print "country", input_country
-	print "urb", input_urb
 	# FIXME improve by using validations in wizard page
 	if len(input_number + input_street + input_postcode + input_state + input_country + input_urb) > 6:
-#	if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and \
-#	len(input_state) > 0 and len(input_country) > 0:
 		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
 		_log.Log(gmLog.lInfo, 'Creating identity address...')
 		# FIXME: make sure the state exists in the backend
@@ -1578,7 +1558,8 @@ def create_identity_from_dtd(dtd=None):
 		)
 		_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
 
-	new_identity.save_payload()			# FIXME: error checking
+	# FIXME: error checking
+	new_identity.save_payload()
 
 	return new_identity
 #============================================================
@@ -1611,7 +1592,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.17  2005-05-14 14:56:41  ncq
+# Revision 1.18  2005-05-17 08:04:28  ncq
+# - some cleanup
+#
+# Revision 1.17  2005/05/14 14:56:41  ncq
 # - add Carlos' DTD code
 # - numerous fixes/robustification
 # move occupation down based on user feedback
