@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -14,8 +14,23 @@ set client_encoding to 'LATIN1';
 delete from urb where id_state = (select id from state where code='SAC');
 delete from state where country='DE';
 
--- Sachsen
-insert into state (code, country, name) values ('SAC', 'DE', 'Sachsen');
+-- Bundesländer
+insert into state (code, country, name) values ('BW', 'DE', 'Baden-Württemberg');
+insert into state (code, country, name) values ('BY', 'DE', 'Bayern');
+insert into state (code, country, name) values ('BE', 'DE', 'Berlin');
+insert into state (code, country, name) values ('BB', 'DE', 'Brandenburg');
+insert into state (code, country, name) values ('HB', 'DE', 'Bremen');
+insert into state (code, country, name) values ('HH', 'DE', 'Hamburg');
+insert into state (code, country, name) values ('HE', 'DE', 'Hessen');
+insert into state (code, country, name) values ('MV', 'DE', 'Mecklenburg-Vorpommern');
+insert into state (code, country, name) values ('NI', 'DE', 'Niedersachsen');
+insert into state (code, country, name) values ('NW', 'DE', 'Nordrhein-Westfalen');
+insert into state (code, country, name) values ('RP', 'DE', 'Rheinland-Pfalz');
+insert into state (code, country, name) values ('SL', 'DE', 'Saarland');
+insert into state (code, country, name) values ('SN', 'DE', 'Sachsen');
+insert into state (code, country, name) values ('ST', 'DE', 'Sachsen-Anhalt');
+insert into state (code, country, name) values ('SH', 'DE', 'Schleswig-Holstein');
+insert into state (code, country, name) values ('TH', 'DE', 'Thüringen');
 
 ------------------
 -- Groß Särchen --
@@ -112,11 +127,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.3 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.3  2004-09-20 21:17:39  ncq
+-- Revision 1.4  2005-05-17 08:17:53  ncq
+-- - Bundesländer
+--
+-- Revision 1.3  2004/09/20 21:17:39  ncq
 -- - add a few suburbs
 --
 -- Revision 1.2  2004/04/07 18:16:06  ncq
