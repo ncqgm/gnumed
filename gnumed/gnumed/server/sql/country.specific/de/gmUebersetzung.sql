@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -234,6 +234,7 @@ select i18n_upd_tx('de_DE', 'mobile', 'Funktelefon');
 select i18n_upd_tx('de_DE', 'web', 'WWW');
 select i18n_upd_tx('de_DE', 'jabber', 'Jabber');
 
+select i18n_upd_tx('de_DE', 'RFE', 'BA');
 select i18n_upd_tx('de_DE', 'health issue', 'Grunderkrankung');
 select i18n_upd_tx('de_DE', 'episode', 'Episode');
 select i18n_upd_tx('de_DE', 'encounter', 'APK');
@@ -270,11 +271,14 @@ select i18n_upd_tx('de_DE', 'hermaphrodite', 'Hermaphrodit');
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmUebersetzung.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.4  2005-05-04 08:57:33  ncq
+-- Revision 1.5  2005-05-17 08:18:22  ncq
+-- - RFE -> BA
+--
+-- Revision 1.4  2005/05/04 08:57:33  ncq
 -- - translate "Germany"
 --
 -- Revision 1.3  2005/04/14 18:26:53  ncq
