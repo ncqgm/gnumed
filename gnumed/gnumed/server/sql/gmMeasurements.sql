@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.42 $
+-- $Revision: 1.43 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -259,7 +259,7 @@ select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_sho
 alter table test_result alter column soap_cat set default 'o';
 alter table test_result add constraint numval_needs_unit
 	check (
-		((val_num is not null) and (trim(coalesce(val_unit, '') != '')))
+		((val_num is not null) and (trim(coalesce(val_unit, '')) != ''))
 			or
 		(val_num is null)
 	);
@@ -439,11 +439,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.42 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.43 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.42  2005-05-14 15:04:39  ncq
+-- Revision 1.43  2005-05-18 15:28:24  ncq
+-- - fix misplaced )
+--
+-- Revision 1.42  2005/05/14 15:04:39  ncq
 -- - make conversion unit nullable
 -- - numeric test results need a unit
 --
