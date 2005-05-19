@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.41 2005-05-19 15:19:48 cfmoro Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPerson.py,v 1.42 2005-05-19 15:55:51 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -211,12 +211,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			("select add_name(%s, %s, %s, %s)", [self.getId(), firstnames, lastnames, active])
 		)
 		if nickname is not None:
-			queries.append (
-				("select set_nickname(%s, %s)", [self.getId(), nickname])
-			)
+			queries.append (("select set_nickname(%s, %s)", [self.getId(), nickname]))
 		successful, data = gmPG.run_commit2('personalia', queries)
 		if not successful:
-			_log.Log(gmLog.lPanic, 'failed to add name: %s' % str(data))
+			_log.Log(gmLog.lErr, 'failed to add name: %s' % str(data))
 			return False
 		# delete names cache so will be refetched next time it is queried
 		try:
@@ -233,14 +231,10 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		"""
 		# dump to backend
 		cmd = "select set_nickname(%s, %s)"
-		successful, data = gmPG.run_commit2 (
-			link_obj = 'personalia',
-			queries = [
-				(cmd, [self.getId(), nickname])
-			]			
-		)
+		queries = [(cmd, [self.getId(), nickname])]
+		successful, data = gmPG.run_commit2(link_obj = 'personalia', queries)
 		if not successful:
-			_log.Log(gmLog.lPanic, 'failed to set nickname: %s' % str(data))
+			_log.Log(gmLog.lErr, 'failed to set nickname: %s' % str(data))
 			return False
 		# delete names cache so will be refetched next time it is queried
 		try:
@@ -1468,7 +1462,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.41  2005-05-19 15:19:48  cfmoro
+# Revision 1.42  2005-05-19 15:55:51  ncq
+# - de-escalated error level from Panic to Error on failing to add name/nickname
+#
+# Revision 1.41  2005/05/19 15:19:48  cfmoro
 # Minor fixes when object is None
 #
 # Revision 1.40  2005/05/18 08:27:14  cfmoro
