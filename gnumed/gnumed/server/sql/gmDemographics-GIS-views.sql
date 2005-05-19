@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -21,8 +21,10 @@ drop view v_basic_address;
 create view v_basic_address as
 select
 	adr.id as id,
-	s.country as country,
-	s.code as state,
+	s.country as country_code,
+	s.code as state_code,
+	s.name as state,
+	c.name as country,
 	coalesce (str.postcode, urb.postcode) as postcode,
 	urb.name as urb,
 	adr.number as number,
@@ -32,9 +34,12 @@ select
 from
 	address adr,
 	state s,
+	country c,
 	urb,
 	street str
 where
+	s.country = c.code
+		and
 	adr.id_street = str.id
 		and
 	str.id_urb = urb.id
@@ -326,11 +331,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.21 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.20  2005-05-17 17:34:37  ncq
+-- Revision 1.21  2005-05-19 16:33:34  ncq
+-- - in v_basic_address properly handle country/state + *_code
+--
+-- Revision 1.20  2005/05/17 17:34:37  ncq
 -- - make create_*() work
 --
 -- Revision 1.19  2005/05/14 15:03:29  ncq
