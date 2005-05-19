@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.42 2005-05-19 15:55:51 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmPerson.py,v 1.43 2005-05-19 16:31:45 ncq Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -45,7 +45,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		"""select xmin_identity from v_basic_person where pk_identity=%(pk_identity)s"""
 	]
 	_updatable_fields = ["title", "dob", "cob", "gender", "pk_marital_status", "karyotype", "pupic"]
-	# FIXME: fetch state and country real name in v_basic_address vba
 	_subtable_dml_templates = {
 		'addresses': {
 			'select': """
@@ -58,6 +57,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					vba.postcode,
 					vba.state,
 					vba.country,
+					vba.state_code,
+					vba.country_code,					
 					at.name as type,
 					lpoa.id_type as id_type
 				from
@@ -1462,7 +1463,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.42  2005-05-19 15:55:51  ncq
+# Revision 1.43  2005-05-19 16:31:45  ncq
+# - handle state_code/country_code in identity.addresses subtable select
+#
+# Revision 1.42  2005/05/19 15:55:51  ncq
 # - de-escalated error level from Panic to Error on failing to add name/nickname
 #
 # Revision 1.41  2005/05/19 15:19:48  cfmoro
