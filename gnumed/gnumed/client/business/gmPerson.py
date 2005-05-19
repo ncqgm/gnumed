@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.43 2005-05-19 16:31:45 ncq Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmPerson.py,v 1.44 2005-05-19 17:33:07 cfmoro Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -233,7 +233,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		# dump to backend
 		cmd = "select set_nickname(%s, %s)"
 		queries = [(cmd, [self.getId(), nickname])]
-		successful, data = gmPG.run_commit2(link_obj = 'personalia', queries)
+		successful, data = gmPG.run_commit2('personalia', queries)
 		if not successful:
 			_log.Log(gmLog.lErr, 'failed to set nickname: %s' % str(data))
 			return False
@@ -1463,7 +1463,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.43  2005-05-19 16:31:45  ncq
+# Revision 1.44  2005-05-19 17:33:07  cfmoro
+# Minor fix
+#
+# Revision 1.43  2005/05/19 16:31:45  ncq
 # - handle state_code/country_code in identity.addresses subtable select
 #
 # Revision 1.42  2005/05/19 15:55:51  ncq
