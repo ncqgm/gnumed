@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.22 2005-05-19 15:25:53 cfmoro Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmDemographicsWidgets.py,v 1.23 2005-05-19 16:06:50 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1506,14 +1506,14 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	# fields in every page/form/validator
 	ident_form_fields = (
 			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title'
-	)	
+	)
 	contacts_form_fields = (
 			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone'
-	)	
+	)
 	occupations_form_fields = (
 			'occupation',
-	)	
-	
+	)
+
 	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize):
 		wx.Notebook.__init__ (
 			self,
@@ -1691,7 +1691,6 @@ class cPatIdentityPage(wx.Panel):
 	"""
 	Page containing patient identity edition fields.
 	"""
-		
 	def __init__(self, parent, id, dtd):
 		"""
 		Creates a new instance of cPatIdentityPage
@@ -1702,7 +1701,7 @@ class cPatIdentityPage(wx.Panel):
 		@param dtd The object containing the data model.
 		@type dtd A cFormDTD instance
 		"""
-		wx.Panel.__init__(self, parent, id)		
+		wx.Panel.__init__(self, parent, id)
 
 		# last name
 		STT_lastname = wx.StaticText(self, -1, _('Last name'))
@@ -2463,7 +2462,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.22  2005-05-19 15:25:53  cfmoro
+# Revision 1.23  2005-05-19 16:06:50  ncq
+# - just silly cleanup, as usual
+#
+# Revision 1.22  2005/05/19 15:25:53  cfmoro
 # Initial logic to update patient details. Needs fixing.
 #
 # Revision 1.21  2005/05/17 15:09:28  cfmoro
