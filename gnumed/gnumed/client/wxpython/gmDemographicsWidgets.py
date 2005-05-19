@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.21 2005-05-17 15:09:28 cfmoro Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmDemographicsWidgets.py,v 1.22 2005-05-19 15:25:53 cfmoro Exp $
+__version__ = "$Revision: 1.22 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1321,6 +1321,9 @@ class cNewPatientWizard(wizard.wxWizard):
 
 		# retrieve DTD and create patient
 		ident = create_identity_from_dtd(dtd = self.basic_pat_details.form_DTD)
+		update_identity_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
+		link_contacts_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
+		link_occupation_from_dtd(identity = ident, dtd = self.basic_pat_details.form_DTD)
 
 		if activate:
 			person = gmPerson.cPerson(ident)
@@ -1467,7 +1470,7 @@ class cFormDTD:
 		@param attribute The attribute (key) to retrieve its value for.
 		@type attribute a StringType instance.
 		"""
-		return self.data[attribute]
+		return str(self.data[attribute])
 
 	def __setitem__(self, attribute, value):
 		"""
@@ -1478,6 +1481,13 @@ class cFormDTD:
 		@rtpe attribute a StringType instance.
 		"""
 		self.data[attribute] = value
+	
+	def __str__(self):
+		"""
+		Print string representation of the DTD object.
+		"""
+		return str(self.data)
+		
 #============================================================
 class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	"""
@@ -1495,7 +1505,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	
 	# fields in every page/form/validator
 	ident_form_fields = (
-			'firstname', 'lastname', 'nick', 'dob', 'gender', 'title'
+			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title'
 	)	
 	contacts_form_fields = (
 			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone'
@@ -1518,13 +1528,13 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
 		
 		# identity object
-		self.__identity = None
+		self.identity = None
 		# identity page/form/validator DTD
-		self.__ident_form_DTD = cFormDTD(fields = self.__class__.ident_form_fields)
+		self.ident_form_DTD = cFormDTD(fields = self.__class__.ident_form_fields)
 		# contacts page/form/validator DTD
-		self.__contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)
+		self.contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)
 		# occupations page/form/validator DTD
-		self.__occupations_form_DTD = cFormDTD(fields = self.__class__.occupations_form_fields)
+		self.occupations_form_DTD = cFormDTD(fields = self.__class__.occupations_form_fields)
 		# genders
 		genders, idx = gmPerson.get_gender_list()
 		self.__genders = []
@@ -1557,7 +1567,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		new_page = cPatIdentityPage (
 			parent = self,
 			id = -1,
-			dtd = self.__ident_form_DTD
+			dtd = self.ident_form_DTD
 		)
 		self.AddPage (
 			page = new_page,
@@ -1569,7 +1579,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		new_page = cPatContactsPage (
 			parent = self,
 			id = -1,
-			dtd = self.__contacts_form_DTD
+			dtd = self.contacts_form_DTD
 		)
 		self.AddPage (
 			page = new_page,
@@ -1581,7 +1591,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		new_page = cPatOccupationsPage (
 			parent = self,
 			id = -1,
-			dtd = self.__occupations_form_DTD
+			dtd = self.occupations_form_DTD
 		)
 		self.AddPage (
 			page = new_page,
@@ -1598,51 +1608,54 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		
 		print "re-populating notebook with data ..."
 		# refresh identity object
-		self.__identity = gmPerson.gmCurrentPatient().get_identity()		
-		print self.__identity
+		self.identity = gmPerson.gmCurrentPatient().get_identity()		
+		#print self.identity
 				
 		# fill in ident_form_DTD with values from controls
-		txt = self.__identity['gender']
+		txt = self.identity['gender']
 		for gender in self.__genders:
 			if gender['data'] == txt:
 				txt = gender['label']
 				break
-		self.__ident_form_DTD['gender'] = txt
-		self.__ident_form_DTD['dob'] = self.__identity['dob'].Format('%Y-%m-%d')
-		self.__ident_form_DTD['lastname'] = self.__identity['lastnames']
-		self.__ident_form_DTD['firstname'] = self.__identity['firstnames']
+		self.ident_form_DTD['gender'] = txt
+		self.ident_form_DTD['dob'] = self.identity['dob'].Format('%Y-%m-%d')
+		self.ident_form_DTD['lastnames'] = self.identity['lastnames']
+		self.ident_form_DTD['firstnames'] = self.identity['firstnames']
 		txt = ''
-		if not self.__identity['title'] is None:
-			txt = self.__identity['title']
-		self.__ident_form_DTD['title'] = txt
+		if not self.identity['title'] is None:
+			txt = self.identity['title']
+		self.ident_form_DTD['title'] = txt
 		txt = ''
-		if not self.__identity['preferred'] is None:
-			txt = self.__identity['preferred']
-		self.__ident_form_DTD['nick'] = txt
+		if not self.identity['preferred'] is None:
+			txt = self.identity['preferred']
+		self.ident_form_DTD['nick'] = txt
 		
 		# fill in contacts_form_DTD with values from controls
-		addresses = self.__identity['addresses']
-		print addresses
-		if len(addresses) > 0:		
-			self.__contacts_form_DTD['address_number'] = addresses[0]['number']
-			self.__contacts_form_DTD['street'] = addresses[0]['street']
-			self.__contacts_form_DTD['zip_code'] = addresses[0]['postcode']
-			self.__contacts_form_DTD['town'] = addresses[0]['urb']
-			self.__contacts_form_DTD['state'] = addresses[0]['state']
-			self.__contacts_form_DTD['country'] = addresses[0]['country']			
-		comms = self.__identity['comms']
-		print comms
+		addresses = self.identity['addresses']
+		#print addresses
+		if len(addresses) > 0:
+			last_idx = len(addresses) -1
+			self.contacts_form_DTD['address_number'] = addresses[last_idx]['number']
+			self.contacts_form_DTD['street'] = addresses[last_idx]['street']
+			self.contacts_form_DTD['zip_code'] = addresses[last_idx]['postcode']
+			self.contacts_form_DTD['town'] = addresses[last_idx]['urb']
+			self.contacts_form_DTD['state'] = addresses[last_idx]['state']
+			self.contacts_form_DTD['country'] = addresses[last_idx]['country']			
+			
+		comms = self.identity['comms']
+		#print comms
 		if len(comms) > 0:
 			for a_comm in comms:
 				if a_comm['type'] == 'homephone':
-					self.__contacts_form_DTD['phone'] = a_comm['url']
+					self.contacts_form_DTD['phone'] = a_comm['url']
 					break
 					
 		# fill in occupations_form_DTD with values from controls
-		occupations = self.__identity['occupations']
-		print occupations
-		if len(occupations) > 0:		
-			self.__occupations_form_DTD['occupation'] = occupations[0]['occupation']
+		occupations = self.identity['occupations']
+		#print occupations
+		if len(occupations) > 0:
+			last_idx = len(occupations) -1
+			self.occupations_form_DTD['occupation'] = occupations[last_idx]['occupation']
 
 		return True
 	#--------------------------------------------------------
@@ -1848,8 +1861,8 @@ class cPatIdentityPageValidator(wx.PyValidator):
 		# fill in controls with values from self.form_DTD
 		pageCtrl.PRW_gender.SetValue(self.form_DTD['gender'])
 		pageCtrl.TTC_dob.SetValue(self.form_DTD['dob'])
-		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastname'])
-		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstname'])
+		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastnames'])
+		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstnames'])
 		pageCtrl.PRW_title.SetValue(self.form_DTD['title'])
 		pageCtrl.PRW_nick.SetValue(self.form_DTD['nick'])
 		return True # Prevent wxDialog from complaining.	
@@ -1866,8 +1879,8 @@ class cPatIdentityPageValidator(wx.PyValidator):
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
 			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
-			self.form_DTD['lastname'] = pageCtrl.PRW_lastname.GetValue()
-			self.form_DTD['firstname'] = pageCtrl.PRW_firstname.GetValue()
+			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
+			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
 			self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
 			return True
@@ -2051,8 +2064,8 @@ class cPatContactsPageValidator(wx.PyValidator):
 		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
 		pageCtrl.TTC_zip_code.SetValue(self.form_DTD['zip_code'])
 		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
-		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
-		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
+		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])		
+		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])		
 		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
@@ -2070,8 +2083,8 @@ class cPatContactsPageValidator(wx.PyValidator):
 			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
 			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
 			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-			self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
-			self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
+			self.form_DTD['state'] = pageCtrl.PRW_state.GetValue()
+			self.form_DTD['country'] = pageCtrl.PRW_country.GetValue()
 			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
 			return True
 		return False
@@ -2249,8 +2262,13 @@ class cNotebookedPatEditionPanel(wx.Panel):
 		"""Save data to backend and close editor.
 		"""
 		print "code to save changes... coming soon"
-		self.__patient_notebook.TransferDataFromWindow()
-		return True
+		if self.__patient_notebook.TransferDataFromWindow():
+			ident = self.__patient_notebook.identity
+			update_identity_from_dtd(identity = ident, dtd = self.__patient_notebook.ident_form_DTD)
+			link_contacts_from_dtd(identity = ident, dtd = self.__patient_notebook.contacts_form_DTD)
+			link_occupation_from_dtd(identity = ident, dtd = self.__patient_notebook.occupations_form_DTD)
+			return True
+		return False
 	#--------------------------------------------------------
 	def __on_restore(self, event):
 		"""
@@ -2283,43 +2301,72 @@ def create_identity_from_dtd(dtd=None):
 		firstnames = dtd['firstname']
 	)
 	_log.Log(gmLog.lInfo, 'Identity created: %s' % new_identity)
+	
+	return new_identity
+#============================================================				
+def update_identity_from_dtd(identity, dtd=None):
+	"""
+	Update patient details with data supplied by
+	Data Transfer Dictionary object.
 
-	input_title = dtd['title']
-	if len(input_title) > 0:
+	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+	supplied data.
+	@type basic_details_DTD A cFormDTD instance.
+	"""
+
+	# identity
+	if identity['gender'] != dtd['gender']:
+		identity['gender'] = dtd['gender']
+	if identity['dob'] != dtd['dob']:
+		identity['dob'] = dtd['dob']
+				
+	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
 		_log.Log(gmLog.lInfo, 'Setting title and gender...')
-		new_identity['title'] = input_title
-
-	input_nickname = dtd['nick']
-	if len(input_nickname) > 0:
-		_log.Log(gmLog.lInfo, 'Getting all names...')
-		for a_name in new_identity.get_all_names():
-			_log.Log(gmLog.lInfo, '%s' % a_name)
-		_log.Log(gmLog.lInfo, 'Active name: %s' % (new_identity.get_active_name()))
-		_log.Log(gmLog.lInfo, 'Setting nickname...')
-		new_identity.set_nickname(nickname = input_nickname)
-		_log.Log(gmLog.lInfo, 'Refetching all names...')
-		for a_name in new_identity.get_all_names():
-			_log.Log(gmLog.lInfo, '%s' % a_name)
-
-	input_occupation = dtd['occupation']
-	if len(input_occupation) > 0:
-		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
-		_log.Log(gmLog.lInfo, 'Creating identity occupation...')
-		new_identity.link_occupation(occupation = input_occupation)
-		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % new_identity['occupations'])
+		identity['title'] = dtd['title']
 			
+	# FIXME: error checking
+	identity.save_payload()
+
+	# names
+	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
+		identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True, nickname = None)
+	
+	# nickname
+	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
+		identity.set_nickname(nickname = dtd['nick'])
+			
+	return True
+#============================================================				
+def link_contacts_from_dtd(identity, dtd=None):
+	"""
+	Update patient details with data supplied by
+	Data Transfer Dictionary object.
+
+	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+	supplied data.
+	@type basic_details_DTD A cFormDTD instance.
+	"""
+			
+	# current addresses in backend
+	addresses = identity['addresses']
+	last_idx = -1
+	if len(addresses) > 0:
+		last_idx = len(addresses) -1		
+		
+	# form addresses
 	input_number = dtd['address_number']
 	input_street = dtd['street']
 	input_postcode = dtd['zip_code']
 	input_urb = dtd['town']
 	input_state = dtd['state']
 	input_country = dtd['country']
-	# FIXME improve by using validations in wizard page
-	if len(input_number + input_street + input_postcode + input_state + input_country + input_urb) > 6:
-		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
+	if (len(input_number + input_street + input_postcode + input_state + input_country + input_urb) > 6) and (last_idx == -1 or (input_number != addresses[last_idx]['number'] or input_street != addresses[last_idx]['street'] or
+	 input_postcode != addresses[last_idx]['postcode'] or input_urb  != addresses[last_idx]['urb'] or
+	 input_state != addresses[last_idx]['state'] or input_country != addresses[last_idx]['country'])):
+		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % identity['addresses'])
 		_log.Log(gmLog.lInfo, 'Creating identity address...')
 		# FIXME: make sure the state exists in the backend
-		new_identity.link_address (
+		identity.link_address (
 			number = input_number,
 			street = input_street,
 			postcode = input_postcode,
@@ -2327,23 +2374,52 @@ def create_identity_from_dtd(dtd=None):
 			state = input_state,
 			country = input_country
 		)
-		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % new_identity['addresses'])
+		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % identity['addresses'])
 
-	input_phone = dtd['phone']
-	if len(input_phone) > 0:
-		_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
-		_log.Log(gmLog.lInfo, 'Creating identity communication...')
-		new_identity.link_communication (
-			comm_medium = 'homephone',
-			url = input_phone,
-			is_confidential = False
-		)
-		_log.Log(gmLog.lInfo, 'Identity communications: %s' % new_identity['comms'])
+	# FIXME: update phone
+	comms = self.identity['comms']
+	if len(comms) == 0:	
+		input_phone = dtd['phone']
+		if len(input_phone) > 0:
+			_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
+			_log.Log(gmLog.lInfo, 'Creating identity communication...')
+			identity.link_communication (
+				comm_medium = 'homephone',
+				url = input_phone,
+				is_confidential = False
+			)
+			_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
 
 	# FIXME: error checking
-	new_identity.save_payload()
+	identity.save_payload()
+	return True
+#============================================================				
+def link_occupation_from_dtd(identity, dtd=None):
+	"""
+	Update patient details with data supplied by
+	Data Transfer Dictionary object.
 
-	return new_identity
+	@param basic_details_DTD Data Transfer Dictionary encapsulating all the
+	supplied data.
+	@type basic_details_DTD A cFormDTD instance.
+	"""
+
+	occupations = identity['occupations']
+	#print occupations
+	last_idx = -1
+	if len(occupations) > 0:
+		last_idx = len(occupations) -1		
+
+	input_occupation = dtd['occupation']
+	if len(input_occupation) > 0 and (last_idx == 1 or occupations[last_idx]['occupation'] !=input_occupation):
+		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % identity['occupations'])
+		_log.Log(gmLog.lInfo, 'Creating identity occupation...')
+		identity.link_occupation(occupation = input_occupation)
+		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % identity['occupations'])
+
+	# FIXME: error checking
+	identity.save_payload()
+	return True	
 #============================================================
 class TestWizardPanel(wx.Panel):   
 	"""
@@ -2387,7 +2463,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.21  2005-05-17 15:09:28  cfmoro
+# Revision 1.22  2005-05-19 15:25:53  cfmoro
+# Initial logic to update patient details. Needs fixing.
+#
+# Revision 1.21  2005/05/17 15:09:28  cfmoro
 # Reloading values from backend in repopulate to properly reflect patient activated
 #
 # Revision 1.20  2005/05/17 14:56:02  cfmoro
