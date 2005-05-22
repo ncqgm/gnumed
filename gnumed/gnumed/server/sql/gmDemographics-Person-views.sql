@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.36 2005-04-24 14:53:51 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.37 2005-05-22 21:44:22 cfmoro Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -140,6 +140,8 @@ DECLARE
 
 	_names_row record;
 BEGIN
+	-- 0.1: Just always set the nickname inside the active name
+	-- post 0.1: openEHR-like (name: pk, fk_identity, name, fk_type, comment, is_legal, is_active ...)
 	-- does name exist ?
 	select into _names_row * from names where id_identity = _id_identity and active = true;
 	if not found then
@@ -147,20 +149,20 @@ BEGIN
 		raise exception msg;
 	end if;
 	-- can directly set nickname ?
-	if _names_row.preferred is null then
-		update names set preferred = _nick where id = _names_row.id;
-		return _names_row.id;
-	end if;
+	-- if _names_row.preferred is null then
+	update names set preferred = _nick where id = _names_row.id;
+	return _names_row.id;
+	-- end if;
 	-- must create new row
 	-- 1) deactivate old row ...
-	update names set active = false where id = _names_row.id;
+	-- update names set active = false where id = _names_row.id;
 	-- 2) insert new row from old row  and new data ...
-	insert into names (id_identity, active, firstnames, lastnames, preferred, comment)
-		values (_id_identity, true, _names_row.firstnames, _names_row.lastnames, _nick, _names_row.comment);
-	if found then
-		return currval(''names_id_seq'');
-	end if;
-	return NULL;
+	--insert into names (id_identity, active, firstnames, lastnames, preferred, comment)
+	--	values (_id_identity, true, _names_row.firstnames, _names_row.lastnames, _nick, _names_row.comment);
+	--if found then
+	--	return currval(''names_id_seq'');
+	--end if;
+	--return NULL;
 END;' language 'plpgsql';
 
 comment on function set_nickname(integer, text) is
@@ -426,11 +428,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.36 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.37 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.36  2005-04-24 14:53:51  ncq
+-- Revision 1.37  2005-05-22 21:44:22  cfmoro
+-- For 0.1, update set nickname inside the active name
+--
+-- Revision 1.36  2005/04/24 14:53:51  ncq
 -- - add create_person_comm from Carlos
 --
 -- Revision 1.35  2005/04/20 16:04:58  ncq
