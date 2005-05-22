@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.46 2005-05-17 08:06:38 ncq Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmPhraseWheel.py,v 1.47 2005-05-22 23:09:13 cfmoro Exp $
+__version__ = "$Revision: 1.47 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -142,11 +142,19 @@ class cPhraseWheel (wxTextCtrl):
 		self._on_lose_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def GetData (self):
+		"""
+		Retrieve the data associated with the displayed string.
+		"""
 		return self.data
 	#---------------------------------------------------------
 	def SetValue (self, value):
 		wxTextCtrl.SetValue (self, value)
 		self._is_modified = False
+		if self.selection_only:
+			stat, matches = self.__matcher.getAllMatches()
+			for item in matches:
+				if item['label'] == value:
+					self.data = item['data']
 	#-------------------------------------------------------
 	def IsModified (self):
 		return wxTextCtrl.IsModified (self) or self._is_modified
@@ -542,7 +550,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.46  2005-05-17 08:06:38  ncq
+# Revision 1.47  2005-05-22 23:09:13  cfmoro
+# Adjust the underlying data when setting the phrasewheel value
+#
+# Revision 1.46  2005/05/17 08:06:38  ncq
 # - support for callbacks on lost focus
 #
 # Revision 1.45  2005/05/14 15:06:48  ncq
