@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.47 2005-05-22 23:09:13 cfmoro Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPhraseWheel.py,v 1.48 2005-05-23 16:42:50 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -151,7 +151,7 @@ class cPhraseWheel (wxTextCtrl):
 		wxTextCtrl.SetValue (self, value)
 		self._is_modified = False
 		if self.selection_only:
-			stat, matches = self.__matcher.getAllMatches()
+			stat, matches = self.__matcher.getMatches(aFragment = value)
 			for item in matches:
 				if item['label'] == value:
 					self.data = item['data']
@@ -550,7 +550,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.47  2005-05-22 23:09:13  cfmoro
+# Revision 1.48  2005-05-23 16:42:50  ncq
+# - when we SetValue(val) we need to only check those matches
+#   that actually *can* match, eg the output of getMatches(val)
+#
+# Revision 1.47  2005/05/22 23:09:13  cfmoro
 # Adjust the underlying data when setting the phrasewheel value
 #
 # Revision 1.46  2005/05/17 08:06:38  ncq
