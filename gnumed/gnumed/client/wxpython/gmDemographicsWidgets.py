@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.25 2005-05-23 09:20:37 cfmoro Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmDemographicsWidgets.py,v 1.26 2005-05-23 11:16:18 cfmoro Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -17,7 +17,7 @@ __license__ = 'GPL (details at http://www.gnu.org)'
 import cPickle, zlib, shutil, time, string, sys, os
 
 # 3rd party
-from mx import DateTime
+import mx.DateTime as mxDT
 import wx
 from wxPython.lib.mixins.listctrl import wxColumnSorterMixin, wxListCtrlAutoWidthMixin
 from wxPython import wizard
@@ -31,6 +31,8 @@ from Gnumed.business import gmDemographicRecord, gmPerson
 _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
 _cfg = gmCfg.gmDefCfgFile
+
+DATE_FORMAT = '%Y-%m-%d'
 
 ID_Popup_OpenPatient = wx.NewId ()
 ID_Popup_SaveDisplayLayout = wx.NewId()
@@ -1470,7 +1472,9 @@ class cFormDTD:
 		@param attribute The attribute (key) to retrieve its value for.
 		@type attribute a StringType instance.
 		"""
-		return str(self.data[attribute])
+		if not self.data[attribute]:
+			return ''
+		return self.data[attribute]
 
 	def __setitem__(self, attribute, value):
 		"""
@@ -1529,7 +1533,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.ident_form_DTD = cFormDTD(fields = self.__class__.ident_form_fields)
-		self.contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)
+		self.contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)		
 		self.occupations_form_DTD = cFormDTD(fields = self.__class__.occupations_form_fields)
 		# genders
 		genders, idx = gmPerson.get_gender_list()
@@ -1545,8 +1549,9 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		self.__do_layout()
 		self.__register_interests()
 		# fire pages' TransferDataToWindow: dtd -> form
-		print "calling InitDialog()"
-		self.InitDialog()
+		#print "calling InitDialog()"
+		#self.InitDialog()
+		self._populate_with_data()		
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -1622,7 +1627,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 				txt = gender['label']
 				break
 		self.ident_form_DTD['gender'] = txt
-		self.ident_form_DTD['dob'] = identity['dob'].Format('%Y-%m-%d')
+		self.ident_form_DTD['dob'] = identity['dob']
 		self.ident_form_DTD['lastnames'] = identity['lastnames']
 		self.ident_form_DTD['firstnames'] = identity['firstnames']
 		txt = ''
@@ -1714,18 +1719,24 @@ class cPatIdentityPanel(wx.Panel):
 		self.__dtd = dtd
 		self.__ident = ident
 		self.__do_layout()
-		# form main validator
-		self.SetValidator(cPatIdentityPanelValidator(dtd = dtd))
 	#--------------------------------------------------------
 	def __do_layout(self):
+		
+		# FIXME: main panel, required for a correct propagation of validator calls.
+		# If this panel doesn't exists and the validator is set
+		# direclty to self, calling self.transferDataFromWindow
+		# just returns true without the method in validator being
+		# called. It seems that works for the children of self.
+		PNL_form = wx.Panel(self, -1)
+		
 		# last name
-		STT_lastname = wx.StaticText(self, -1, _('Last name'))
+		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
 		cmd = "select distinct lastnames, lastnames from names where lastnames %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
@@ -1733,7 +1744,7 @@ class cPatIdentityPanel(wx.Panel):
 		self.PRW_lastname.SetToolTipString(_("required: last name, family name"))
 
 		# first name
-		STT_firstname = wx.StaticText(self, -1, _('First name'))
+		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
 		STT_firstname.SetForegroundColour('red')
 		cmd = """
 			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s
@@ -1742,7 +1753,7 @@ class cPatIdentityPanel(wx.Panel):
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
@@ -1750,7 +1761,7 @@ class cPatIdentityPanel(wx.Panel):
 		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))
 
 		# nickname
-		STT_nick = wx.StaticText(self, -1, _('Nick name'))
+		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
 		cmd = """
 			select distinct preferred, preferred from names where preferred %(fragment_condition)s
 				union
@@ -1758,24 +1769,24 @@ class cPatIdentityPanel(wx.Panel):
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_nick = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_nick.SetToolTipString(_("nick name, preferred name, call name, warrior name, artist name, alias"))
 
 		# DOB
-		STT_dob = wx.StaticText(self, -1, _('Date of birth'))
+		STT_dob = wx.StaticText(PNL_form, -1, _('Date of birth'))
 		STT_dob.SetForegroundColour('red')
 		self.TTC_dob = gmDateTimeInput.gmDateInput (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
 		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
 
 		# gender
-		STT_gender = wx.StaticText(self, -1, _('Gender'))
+		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
 		genders, idx = gmPerson.get_gender_list()
 		_genders = []
@@ -1788,7 +1799,7 @@ class cPatIdentityPanel(wx.Panel):
 		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = _genders)
 		mp.setThresholds(1, 1, 3)
 		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
@@ -1798,17 +1809,20 @@ class cPatIdentityPanel(wx.Panel):
 		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
 
 		# title
-		STT_title = wx.StaticText(self, -1, _('Title'))
+		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
 		cmd = "select distinct title, title from identity where title %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(1, 3, 15)
 		self.PRW_title = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_title.SetToolTipString(_("title of patient"))
 
+		# Set validator for identity form
+		PNL_form.SetValidator(cPatIdentityPanelValidator(dtd = self.__dtd))
+		
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)
@@ -1824,20 +1838,26 @@ class cPatIdentityPanel(wx.Panel):
 		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
-
+		PNL_form.SetSizerAndFit(SZR_input)
 		# layout page
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
-		SZR_main.Add(SZR_input, 1, wx.EXPAND)
-		self.SetSizerAndFit(SZR_main)
+		SZR_main.Add(PNL_form, 1, wx.EXPAND)
+		self.SetSizer(SZR_main)
 	#--------------------------------------------------------
 	def save(self):
-		if not self.Validate():
+		print "Saving identity..."
+		# FIXME: calling Validate() from widget rises:
+		#	TypeError: Validate() takes exactly 1 argument (2 given)
+		#if not self.Validate():
 			# FIXME: inform user
-			return False
+		#	print "Can't validate"
+		#	return False
 		if not self.TransferDataFromWindow():
 			# FIXME: inform user
+			print "Can't TransferDataFromWindow"
 			return False
 		if not update_identity_from_dtd(identity = self.__ident, dtd = self.__dtd):
+			print "Can't update_identity_from_dtd"
 			# FIXME: inform user
 			return False
 		return True
@@ -1871,10 +1891,10 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
 		print '[%s]: TransferToWindow()' % self.__class__.__name__
-		pageCtrl = self.GetWindow()
+		pageCtrl = self.GetWindow().GetParent()
 		# FIXME: add appropriate SetData()
 		pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
-		pageCtrl.TTC_dob.SetValue(self.__dtd['dob'])
+		pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].Format(DATE_FORMAT))
 		pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
 		pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
 		pageCtrl.PRW_title.SetValue(self.__dtd['title'])
@@ -1894,10 +1914,10 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
 		print '[%s]: TransferFromWindow()' % self.__class__.__name__
-		pageCtrl = self.GetWindow()
+		pageCtrl = self.GetWindow().GetParent()
 		# fill in self.__dtd with values from controls
 		self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
-		self.__dtd['dob'] = pageCtrl.TTC_dob.GetValue()
+		self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 		self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 		self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 		self.__dtd['title'] = pageCtrl.PRW_title.GetValue()
@@ -1923,51 +1943,55 @@ class cPatContactsPanel(wx.Panel):
 		self.__dtd = dtd
 		self.__ident = ident
 		self.__do_layout()
-		# form main validator
-		self.SetValidator(cPatContactsPanelValidator(dtd = dtd))
 	#--------------------------------------------------------
 	def __do_layout(self):
+		# FIXME: main panel, required for a correct propagation of validator calls.
+		# If this panel doesn't exists and the validator is set
+		# direclty to self, calling self.transferDataFromWindow
+		# just returns true without the method in validator being
+		# called. It seems that works for the children of self.
+		PNL_form = wx.Panel(self, -1)		
 		# zip code
-		STT_zip_code = wx.StaticText(self, -1, _('Zip code'))
-		self.TTC_zip_code = wx.TextCtrl(self, -1)
+		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
+		self.TTC_zip_code = wx.TextCtrl(PNL_form, -1)
 		self.TTC_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
 
 		# street
-		STT_street = wx.StaticText(self, -1, _('Street'))
+		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
 		cmd = "select distinct name, name from street where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_street = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 
 		# address number
-		STT_address_number = wx.StaticText(self, -1, _('Number'))
-		self.TTC_address_number = wx.TextCtrl(self, -1)
+		STT_address_number = wx.StaticText(PNL_form, -1, _('Number'))
+		self.TTC_address_number = wx.TextCtrl(PNL_form, -1)
 		self.TTC_address_number.SetToolTipString(_("primary/home address: address number"))
 
 		# town
-		STT_town = wx.StaticText(self, -1, _('Town'))
+		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
 		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_town = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 
 		# state
-		STT_state = wx.StaticText(self, -1, _('State'))
+		STT_state = wx.StaticText(PNL_form, -1, _('State'))
 		cmd = "select distinct code, name from state where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
 			selection_only = True
@@ -1975,12 +1999,12 @@ class cPatContactsPanel(wx.Panel):
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
-		STT_country = wx.StaticText(self, -1, _('Country'))
+		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
 		cmd = "select distinct code, _(name) from country where _(name) %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp,
 			selection_only = True
@@ -1988,10 +2012,13 @@ class cPatContactsPanel(wx.Panel):
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
-		STT_phone = wx.StaticText(self, -1, _('Phone'))
-		self.TTC_phone = wx.TextCtrl(self, -1,
+		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
+		self.TTC_phone = wx.TextCtrl(PNL_form, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
 		self.TTC_phone.SetToolTipString(_("phone number at home"))
+
+		# Set validator for identity form
+		PNL_form.SetValidator(cPatContactsPanelValidator(dtd = self.__dtd))
 				
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
@@ -2010,20 +2037,24 @@ class cPatContactsPanel(wx.Panel):
 		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
-
+		PNL_form.SetSizerAndFit(SZR_input)
+		
 		# layout page
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
-		SZR_main.Add(SZR_input, 1, wx.EXPAND)
+		SZR_main.Add(PNL_form, 1, wx.EXPAND)
 		self.SetSizer(SZR_main)
 	#--------------------------------------------------------
 	def save(self):
-		if not self.Validate():
+		print "saving contacts..."
+		# FIXME: calling Validate() from widget rises:
+		#	TypeError: Validate() takes exactly 1 argument (2 given)		
+		#if not self.Validate():
 			# FIXME: inform user
-			return False
+		#	return False
 		if not self.TransferDataFromWindow():
 			# FIXME: inform user
 			return False
-		if not update_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
+		if not link_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
 			# FIXME: inform user
 			return False
 		return True		
@@ -2058,7 +2089,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		Validate the contents of the given text control.
 		"""
 		print '[%s]: Validate()' % self.__class__.__name__
-		pageCtrl = self.GetWindow()
+		pageCtrl = self.GetWindow().GetParent()
 		address_fields = (
 			pageCtrl.TTC_address_number,
 			pageCtrl.TTC_zip_code,
@@ -2091,7 +2122,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
 		print '[%s]: TransferToWindow()' % self.__class__.__name__
-		pageCtrl = self.GetWindow()
+		pageCtrl = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
 		pageCtrl.TTC_address_number.SetValue(self.form_DTD['address_number'])
 		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
@@ -2111,7 +2142,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		print '[%s]: TransferFromWindow()' % self.__class__.__name__
 		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
 		if self.Validate():
-			pageCtrl = self.GetWindow()
+			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
 			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
@@ -2141,41 +2172,56 @@ class cPatOccupationsPanel(wx.Panel):
 		self.__dtd = dtd
 		self.__ident = ident
 		self.__do_layout()
-		# form main validator
-		self.SetValidator(cPatOccupationsPanelValidator(dtd = dtd))
 	#--------------------------------------------------------
 	def __do_layout(self):
+		# FIXME: main panel, required for a correct propagation of validator calls.
+		# If this panel doesn't exists and the validator is set
+		# direclty to self, calling self.transferDataFromWindow
+		# just returns true without the method in validator being
+		# called. It seems that works for the children of self.
+		PNL_form = wx.Panel(self, -1)		
 		# occupation
-		STT_occupation = wx.StaticText(self, -1, _('Occupation'))
+		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
 		cmd = "select distinct name, name from occupation where name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 15)		
 		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
-			parent = self,
+			parent = PNL_form,
 			id = -1,
 			aMatchProvider = mp
 		)
 		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
+
+		# Set validator for identity form
+		PNL_form.SetValidator(cPatOccupationsPanelValidator(dtd = self.__dtd))
 
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)				
 		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_occupation, 1, wx.EXPAND)
-
+		PNL_form.SetSizerAndFit(SZR_input)
+		
 		# layout page
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
-		SZR_main.Add(SZR_input, 1, wx.EXPAND)
+		SZR_main.Add(PNL_form, 1, wx.EXPAND)
 		self.SetSizer(SZR_main)				
 	#--------------------------------------------------------
 	def save(self):
-		if not self.Validate():
+		print "saving occupations..."
+		# FIXME: calling Validate() from widget rises:
+		#	TypeError: Validate() takes exactly 1 argument (2 given)
+		#if not self.Validate():
 			# FIXME: inform user
-			return False
+		#	print "Can't validate"
+		#	return False		
+		#if not self.Validate():
+			# FIXME: inform user
+		#	return False
 		if not self.TransferDataFromWindow():
 			# FIXME: inform user
 			return False
-		if not update_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
+		if not link_occupation_from_dtd(identity = self.__ident, dtd = self.__dtd):
 			# FIXME: inform user
 			return False
 		return True		
@@ -2219,7 +2265,7 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
 		print '[%s]: TransferToWindow()' % self.__class__.__name__
-		pageCtrl = self.GetWindow()
+		pageCtrl = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD		
 		pageCtrl.PRW_occupation.SetValue(self.form_DTD['occupation'])
 		return True # Prevent wxDialog from complaining.	
@@ -2232,7 +2278,7 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 		"""
 		print '[%s]: TransferFromWindow()' % self.__class__.__name__
 		if self.Validate():
-			pageCtrl = self.GetWindow()
+			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
 			return True
@@ -2307,20 +2353,17 @@ class cNotebookedPatEditionPanel(wx.Panel):
 	#--------------------------------------------------------
 	def _on_save(self, event):
 		"""Save data to backend and close editor.
-		"""
-		print "code to save changes... coming soon"
-		if not self.__patient_notebook.save():
-			return False
-
-		ident = self.__patient_notebook.identity
-#xxxxxxxxxxxxxx
-		link_contacts_from_dtd(identity = ident, dtd = self.__patient_notebook.contacts_form_DTD)
-		link_occupation_from_dtd(identity = ident, dtd = self.__patient_notebook.occupations_form_DTD)
-		
-		# Refresh values from backend rather than from the
+		"""		
+		# FIXME: Refresh values from backend rather than from the
 		# original version of the DTD, so data integrity
-		# can be assured.
-		self.__patient_notebook._populate_with_data()		
+		# can be assured. Currenlty, pat.get_identity() is
+		# returning its version before save_payload().
+		if not self.__patient_notebook.save():
+			#self.__patient_notebook._populate_with_data()
+			return False
+		
+
+		#self.__patient_notebook._populate_with_data()
 		return True
 	#--------------------------------------------------------
 	def _on_restore(self, event):
@@ -2396,7 +2439,7 @@ def link_contacts_from_dtd(identity, dtd=None):
 	supplied data.
 	@type basic_details_DTD A cFormDTD instance.
 	"""
-			
+		
 	# current addresses in backend
 	addresses = identity['addresses']
 	last_idx = -1
@@ -2513,7 +2556,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.25  2005-05-23 09:20:37  cfmoro
+# Revision 1.26  2005-05-23 11:16:18  cfmoro
+# More cleanups and test functional fixes
+#
+# Revision 1.25  2005/05/23 09:20:37  cfmoro
 # More cleaning up
 #
 # Revision 1.24  2005/05/22 22:12:06  ncq
