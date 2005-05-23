@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.26 2005-05-23 11:16:18 cfmoro Exp $
-__version__ = "$Revision: 1.26 $"
+# $Id: gmDemographicsWidgets.py,v 1.27 2005-05-23 12:01:08 cfmoro Exp $
+__version__ = "$Revision: 1.27 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2469,19 +2469,16 @@ def link_contacts_from_dtd(identity, dtd=None):
 		)
 		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % identity['addresses'])
 
-	# FIXME: update phone
-	comms = identity['comms']
-	if len(comms) == 0:	
-		input_phone = dtd['phone']
-		if len(input_phone) > 0:
-			_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
-			_log.Log(gmLog.lInfo, 'Creating identity communication...')
-			identity.link_communication (
-				comm_medium = 'homephone',
-				url = input_phone,
-				is_confidential = False
-			)
-			_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
+	input_phone = dtd['phone']
+	if len(input_phone) > 0:
+		_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
+		_log.Log(gmLog.lInfo, 'Creating identity communication...')
+		identity.link_communication (
+			comm_medium = 'homephone',
+			url = input_phone,
+			is_confidential = False
+		)
+		_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
 
 	# FIXME: error checking
 	identity.save_payload()
@@ -2556,7 +2553,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.26  2005-05-23 11:16:18  cfmoro
+# Revision 1.27  2005-05-23 12:01:08  cfmoro
+# Create/update comms
+#
+# Revision 1.26  2005/05/23 11:16:18  cfmoro
 # More cleanups and test functional fixes
 #
 # Revision 1.25  2005/05/23 09:20:37  cfmoro

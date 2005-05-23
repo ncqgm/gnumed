@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.44 2005-05-19 17:33:07 cfmoro Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmPerson.py,v 1.45 2005-05-23 12:01:07 cfmoro Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -109,7 +109,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 					l2c.id_identity = %s
 					and ect.id = id_type""",
 			'insert':
-				"""SELECT create_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)""",
+				"""SELECT link_person_comm(%(pk_master)s, %(comm_medium)s, %(url)s, %(is_confidential)s)""",
 			'delete':
 				"""delete from lnk_identity2ext_id where id_identity = %s and url = %s"""},
 		'occupations': {
@@ -1463,7 +1463,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.44  2005-05-19 17:33:07  cfmoro
+# Revision 1.45  2005-05-23 12:01:07  cfmoro
+# Create/update comms
+#
+# Revision 1.44  2005/05/19 17:33:07  cfmoro
 # Minor fix
 #
 # Revision 1.43  2005/05/19 16:31:45  ncq
