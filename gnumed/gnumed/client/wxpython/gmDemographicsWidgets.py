@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.24 2005-05-22 22:12:06 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmDemographicsWidgets.py,v 1.25 2005-05-23 09:20:37 cfmoro Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1551,7 +1551,7 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 	# public API
 	#--------------------------------------------------------
 	def save(self):
-		for page_idx in self.GetPageCount():
+		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
 			page.save()
 	#--------------------------------------------------------
@@ -1576,10 +1576,11 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		# contacts page
 		label = _('Contacts')		
-		new_page = cPatContactsPage (
+		new_page = cPatContactsPanel (
 			parent = self,
 			id = -1,
-			dtd = self.contacts_form_DTD
+			dtd = self.contacts_form_DTD,
+			ident = ident
 		)
 		self.AddPage (
 			page = new_page,
@@ -1588,10 +1589,11 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		)				
 		# occupations page
 		label = _('Occupations')
-		new_page = cPatOccupationsPage (
+		new_page = cPatOccupationsPanel (
 			parent = self,
 			id = -1,
-			dtd = self.occupations_form_DTD
+			dtd = self.occupations_form_DTD,
+			ident = ident
 		)
 		self.AddPage (
 			page = new_page,
@@ -1656,10 +1658,13 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			self.occupations_form_DTD['occupation'] = occupations[last_idx]['occupation']
 
 		# cycle through notebook pages
-		for page_idx in self.GetPageCount():
-			page = self.GetPage(page_idx)
+		#for page_idx in self.GetPageCount():
+		#	page = self.GetPage(page_idx)
 			# DTD -> window
-			page.TransferDataToWindow()
+		#	page.TransferDataToWindow()
+		# Recursively calls TransferDataToWindow in notebook
+		# children, thanks to wx.WS_EX_VALIDATE_RECURSIVELY
+		self.TransferDataToWindow()
 
 		return True
 	#--------------------------------------------------------
@@ -1899,14 +1904,14 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		self.__dtd['nick'] = pageCtrl.PRW_nick.GetValue()
 		return True
 #============================================================
-class cPatContactsPage(wx.Panel):
+class cPatContactsPanel(wx.Panel):
 	"""
 	Page containing patient contacts edition fields.
 	"""
 		
-	def __init__(self, parent, id, dtd):
+	def __init__(self, parent, id, dtd=None, ident=None):
 		"""
-		Creates a new instance of BasicPatDetailsPage
+		Creates a new instance of BasicPatDetailsPanel
 		@param parent - The parent widget
 		@type parent - A wxWindow instance
 		@param id - The widget id
@@ -1915,7 +1920,13 @@ class cPatContactsPage(wx.Panel):
 		@type dtd A cFormDTD instance
 		"""
 		wx.Panel.__init__(self, parent, id)		
-
+		self.__dtd = dtd
+		self.__ident = ident
+		self.__do_layout()
+		# form main validator
+		self.SetValidator(cPatContactsPanelValidator(dtd = dtd))
+	#--------------------------------------------------------
+	def __do_layout(self):
 		# zip code
 		STT_zip_code = wx.StaticText(self, -1, _('Zip code'))
 		self.TTC_zip_code = wx.TextCtrl(self, -1)
@@ -1981,9 +1992,6 @@ class cPatContactsPage(wx.Panel):
 		self.TTC_phone = wx.TextCtrl(self, -1,
 		validator = gmGuiHelpers.cTextObjectValidator(required = False, only_digits = True))
 		self.TTC_phone.SetToolTipString(_("phone number at home"))
-
-		# form main validator
-		self.SetValidator(cPatContactsPageValidator(dtd = dtd))
 				
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
@@ -2006,9 +2014,21 @@ class cPatContactsPage(wx.Panel):
 		# layout page
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
 		SZR_main.Add(SZR_input, 1, wx.EXPAND)
-		self.SetSizer(SZR_main)		
+		self.SetSizer(SZR_main)
+	#--------------------------------------------------------
+	def save(self):
+		if not self.Validate():
+			# FIXME: inform user
+			return False
+		if not self.TransferDataFromWindow():
+			# FIXME: inform user
+			return False
+		if not update_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
+			# FIXME: inform user
+			return False
+		return True		
 #============================================================		
-class cPatContactsPageValidator(wx.PyValidator):
+class cPatContactsPanelValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered all
 	the required conditional values in patietn contacts page.
@@ -2031,7 +2051,7 @@ class cPatContactsPageValidator(wx.PyValidator):
 		Standard cloner.
 		Note that every validator must implement the Clone() method.
 		"""
-		return cPatContactsPageValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
+		return cPatContactsPanelValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
 	#--------------------------------------------------------
 	def Validate(self):
 		"""
@@ -2103,11 +2123,11 @@ class cPatContactsPageValidator(wx.PyValidator):
 			return True
 		return False
 #============================================================
-class cPatOccupationsPage(wx.Panel):
+class cPatOccupationsPanel(wx.Panel):
 	"""
 	Page containing patient occupations edition fields.
 	"""
-	def __init__(self, parent, id, dtd):
+	def __init__(self, parent, id, dtd=None, ident=None):
 		"""
 		Creates a new instance of BasicPatDetailsPage
 		@param parent - The parent widget
@@ -2117,8 +2137,14 @@ class cPatOccupationsPage(wx.Panel):
 		@param dtd The object containing the data model.
 		@type dtd A cFormDTD instance
 		"""
-		wx.Panel.__init__(self, parent, id)		
-
+		wx.Panel.__init__(self, parent, id)
+		self.__dtd = dtd
+		self.__ident = ident
+		self.__do_layout()
+		# form main validator
+		self.SetValidator(cPatOccupationsPanelValidator(dtd = dtd))
+	#--------------------------------------------------------
+	def __do_layout(self):
 		# occupation
 		STT_occupation = wx.StaticText(self, -1, _('Occupation'))
 		cmd = "select distinct name, name from occupation where name %(fragment_condition)s"
@@ -2131,9 +2157,6 @@ class cPatOccupationsPage(wx.Panel):
 		)
 		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
 
-		# form main validator
-		self.SetValidator(cPatOccupationsPageValidator(dtd = dtd))
-		
 		# layout input widgets
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)				
@@ -2144,8 +2167,20 @@ class cPatOccupationsPage(wx.Panel):
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
 		SZR_main.Add(SZR_input, 1, wx.EXPAND)
 		self.SetSizer(SZR_main)				
+	#--------------------------------------------------------
+	def save(self):
+		if not self.Validate():
+			# FIXME: inform user
+			return False
+		if not self.TransferDataFromWindow():
+			# FIXME: inform user
+			return False
+		if not update_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
+			# FIXME: inform user
+			return False
+		return True		
 #============================================================		
-class cPatOccupationsPageValidator(wx.PyValidator):
+class cPatOccupationsPanelValidator(wx.PyValidator):
 	"""
 	This validator is used to ensure that the user has entered all
 	the required conditional values in patient occupations page.
@@ -2169,7 +2204,7 @@ class cPatOccupationsPageValidator(wx.PyValidator):
 		Standard cloner.
 		Note that every validator must implement the Clone() method.
 		"""
-		return cPatOccupationsPageValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
+		return cPatOccupationsPanelValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
 	#--------------------------------------------------------
 	def Validate(self):
 		"""Validate the contents of the given text control.
@@ -2281,6 +2316,11 @@ class cNotebookedPatEditionPanel(wx.Panel):
 #xxxxxxxxxxxxxx
 		link_contacts_from_dtd(identity = ident, dtd = self.__patient_notebook.contacts_form_DTD)
 		link_occupation_from_dtd(identity = ident, dtd = self.__patient_notebook.occupations_form_DTD)
+		
+		# Refresh values from backend rather than from the
+		# original version of the DTD, so data integrity
+		# can be assured.
+		self.__patient_notebook._populate_with_data()		
 		return True
 	#--------------------------------------------------------
 	def _on_restore(self, event):
@@ -2473,7 +2513,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.24  2005-05-22 22:12:06  ncq
+# Revision 1.25  2005-05-23 09:20:37  cfmoro
+# More cleaning up
+#
+# Revision 1.24  2005/05/22 22:12:06  ncq
 # - cleaning up patient edition notebook
 #
 # Revision 1.23  2005/05/19 16:06:50  ncq
