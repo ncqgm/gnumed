@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -11,7 +11,7 @@
 
 set client_encoding to 'LATIN1';
 -- ===================================================================
-delete from urb where id_state = (select id from state where code='SAC');
+delete from urb where id_state = (select id from state where code='SN');
 delete from state where country='DE';
 
 -- Bundesländer
@@ -36,7 +36,7 @@ insert into state (code, country, name) values ('TH', 'DE', 'Thüringen');
 -- Groß Särchen --
 ------------------
 insert into urb (id_state, name, postcode) values (
-	(select id from state where code = 'SAC'),
+	(select id from state where code = 'SN'),
 	'Groß Särchen',
 	'02999'
 );
@@ -46,13 +46,13 @@ insert into urb (id_state, name, postcode) values (
 -------------
 -- no street
 insert into urb (id_state, postcode, name) values (
-	(select id from state where code = 'SAC'),
+	(select id from state where code = 'SN'),
 	'04318',
 	'Leipzig'
 );
 
 insert into urb (id_state, postcode, name) values (
-	(select id from state where code = 'SAC'),
+	(select id from state where code = 'SN'),
 	'04317',
 	'Leipzig'
 );
@@ -127,11 +127,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.4  2005-05-17 08:17:53  ncq
+-- Revision 1.5  2005-05-24 19:44:31  ncq
+-- - use proper state abbreviations
+--
+-- Revision 1.4  2005/05/17 08:17:53  ncq
 -- - Bundesländer
 --
 -- Revision 1.3  2004/09/20 21:17:39  ncq
