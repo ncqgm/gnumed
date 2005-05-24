@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.195 2005-05-14 14:57:37 ncq Exp $
-__version__ = "$Revision: 1.195 $"
+# $Id: gmGuiMain.py,v 1.196 2005-05-24 19:50:26 ncq Exp $
+__version__ = "$Revision: 1.196 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -238,6 +238,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.OnCreatePatient)
 		self.mainmenu.Append(menu_patient, '&Patient')
+		self.__gb['main.patientmenu'] = menu_patient
 
 		# menu "EMR"
 		menu_emr = wx.wxMenu()
@@ -736,7 +737,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.195  2005-05-14 14:57:37  ncq
+# Revision 1.196  2005-05-24 19:50:26  ncq
+# - make "patient" menu available globally
+#
+# Revision 1.195  2005/05/14 14:57:37  ncq
 # - activate new patient after creation
 #
 # Revision 1.194  2005/05/12 15:11:08  ncq
