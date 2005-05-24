@@ -1,12 +1,14 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.10 2005-05-06 15:28:40 ncq Exp $
-$Revision: 1.10 $
+$Id: TODO,v 1.11 2005-05-24 19:30:36 ncq Exp $
+$Revision: 1.11 $
 ====================================================
 post-0.1
 
-
 1) move to wxPython 2.6.x
 2) move to PostgreSQL 8.x
+
+plugin API:
+- cNotebookPlugin.MenuInfo() to return Help String as third argument
 
 gui_helpers message dialogs:
 - configurable buttons (names, types)
@@ -28,7 +30,7 @@ database schema:
 	- session-temporary setting of curr_lang
 	- support "care team" and row level ACLs (nested groups ?)
 	- coded_term: trigger on delete: restrict if term in clin_root_item.narrative
-	- encounter_type chart review -> in surger on write
+	- encounter_type chart review -> in surgery on write
 	- get_best_matching_cfg_option stored proc
 	- cfg.owner -> user
 	- allow normal users to hide identity rows since they cannot delete them
@@ -45,6 +47,7 @@ EMR exporters:
 - CDA exporter
 - XML exporter
 - xDT exporter ?
+- patient specific GNUmed specific SQL script exporter
 
 progress note input:
 - add NotebookProgressNoteInput class
@@ -56,6 +59,7 @@ progress note input:
 - "ICPC?" popup showing ICPC codings for term
 - ALT-C/"$code" popup for coding w/ any coding system
 - make enter/tab/cursor up/down movement more consistent including STC header
+- pre-set RFE from waiting list
 
 forms layer
 - generic forms GUI (edit area ?)
@@ -74,6 +78,12 @@ new patient wizard:
 - consider: | zip code: __________ town: ___________ |
 - consider: | street  : __________ no:   ___________ |
 - consider: | zip/town: ____________________________ | with parsing
+- allow creation of state / make optional ?
+- gender: make smart combobox
+
+top panel allergy field
+- make it CAVE field
+- show "no allergies recorded" in black
 
 ====================================================
 gmCfg
@@ -82,9 +92,22 @@ gmCfg
 ---------
 gmLoginDialog
 
-- phrase wheel
-----------
-gmShadow
+
+phrase wheel:
+- allow injecting alternate translations ...
+- on get_data:
+  - if selection_only is true
+    - if is_selected is false
+	  - check getvalue against matches
+	    - set self.data if found
+		- if not found: then what ???
+- on lose_focus:
+  - if selection_only is true
+    - if is_selected is false
+	  - check getvalue against matches
+	    - if found: set self.data
+		- if not found: veto lose_focus (but how ?)
+
 
 - cfg.*
 ---------
