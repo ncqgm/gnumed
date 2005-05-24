@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.49 $
+-- $Revision: 1.50 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -349,6 +349,10 @@ create table lnk_identity2comm (
 		references identity(pk)
 		on update cascade
 		on delete cascade,
+	id_address integer not null
+		references address(id)
+		on update set null
+		on delete set null,
 	url text,
 	id_type integer references enum_comm_types,
 	is_confidential bool not null default false,
@@ -573,11 +577,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.49 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.50 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.49  2005-04-17 16:37:40  ncq
+-- Revision 1.50  2005-05-24 19:53:53  ncq
+-- - prepare for allowing communications channels to be tied to addresses
+--
+-- Revision 1.49  2005/04/17 16:37:40  ncq
 -- - some cleanup/tightened constraints
 --
 -- Revision 1.48  2005/04/14 17:45:21  ncq
