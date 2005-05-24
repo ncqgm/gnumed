@@ -23,11 +23,10 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.13 2005-05-17 08:07:19 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmRegetMixin.py,v 1.14 2005-05-24 19:46:47 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
-
 
 from wxPython import wx
 
@@ -58,7 +57,7 @@ class cRegetOnPaintMixin:
 		"""Repopulate UI if data is stale."""
 		if self._data_stale:
 			self.__populate_with_data()
-		event.Skip()
+#		event.Skip()		# FIXME: needed ?
 	#-----------------------------------------------------
 	def _on_focus_event(self, event):
 		"""Doubtful whether that's the proper way to do it but seems OK."""
@@ -75,7 +74,7 @@ class cRegetOnPaintMixin:
 
 		- must fill widget controls with data
 		"""
-		print "%s._populate_with_data() not implemented" % self.__class__.__name__
+		print "[%s] _populate_with_data() not implemented" % self.__class__.__name__
 		_log.Log(gmLog.lErr, 'not implemented for %s' % self.__class__.__name__)
 		return False
 	#-----------------------------------------------------
@@ -85,22 +84,18 @@ class cRegetOnPaintMixin:
 		- if not visible schedule reget only
 		- if visible redisplay immediately
 		"""
-#		dc = wx.wxPaintDC(self)
-#		print "%s._schedule_data_reget(): %s" % (self.__class__.__name__, str(dc.GetClippingBox()))
-		#if self.GetUpdateRegion().IsEmpty() == 1 and not self.IsShown():
-		if self.GetUpdateRegion().IsEmpty() == 1:
-			self._data_stale = True
-			return True
-		else:
-			print '%s: repopulating immediately' % self.__class__.__name__
-			if self.__populate_with_data():
-				self.Refresh()
-				return True
-			else:
-				return False
-
-#		wx.wxTheApp.GetTopWindow().Refresh()
-
+		self._data_stale = True
+		# Master Robin Dunn says this is The Way.
+		# The issues I have with this are:
+		# 1) It appears to cause refreshes "too often", eg whenever
+		#    *any*  child of self calls this method - but this may
+		#    not matter much as only those that have self._data_stale
+		#    set to True will trigger backend refetches.
+		# 2) Even this does not in all cases cause a proper redraw
+		#    of the visible widgets - likely because nothing has
+		#    really changed in them, visually.
+		wx.wxGetApp().GetTopWindow().Refresh()
+		return True
 #===========================================================================
 # main
 #---------------------------------------------------------------------------
@@ -109,7 +104,14 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.13  2005-05-17 08:07:19  ncq
+# Revision 1.14  2005-05-24 19:46:47  ncq
+# - call top level window refresh at the end of _schedule_data_reget()
+#   which should cause a repaint of the visible widgets, which in turn
+#   will cause them to reget data from the business objects which in
+#   turn will cause those to reload from the backend, suggested by
+#   Robin Dunn
+#
+# Revision 1.13  2005/05/17 08:07:19  ncq
 # - cleanup
 #
 # Revision 1.12  2005/05/08 21:42:17  ncq
