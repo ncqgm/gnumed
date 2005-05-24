@@ -2,51 +2,47 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/Attic/gmDemographicsEditor.py,v $
-# $Id: gmDemographicsEditor.py,v 1.13 2005-04-12 10:06:40 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmDemographicsEditor.py,v 1.14 2005-05-24 19:59:44 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL'
-
-import sys
 
 from Gnumed.pycommon import gmLog, gmI18N
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
 
 gmLog.gmDefLog.Log(gmLog.lInfo, __version__)
 
-#================================================================
-class gmDemographicsEditor(gmPlugin.cNotebookPluginOld):
+#======================================================================
+class gmDemographicsEditor(gmPlugin.cNotebookPlugin):
+	"""Plugin to encapsulate patient demographics editor."""
 	tab_name = _("Patient Details")
 
 	def name (self):
 		return gmDemographicsEditor.tab_name
 
 	def GetWidget (self, parent):
-		try:
-			self._widget = gmDemographicsWidgets.DemographicDetailWindow( parent, -1, True)
-		except:
-			gmLog.gmDefLog.LogException("failed to instantiate gmDemographics.PatientsPanel", sys.exc_info(), verbose=1)
-			return None
+		self._widget = gmDemographicsWidgets.cNotebookedPatEditionPanel(parent, -1)
 		return self._widget
 
 	def MenuInfo (self):
-		return ('tools', _("demographics editor"))
+		return ('patient', 'Edit demographics')
 
 	def can_receive_focus(self):
-		# need patient (unless we use this as a first-off patient input widget)
-	#	if not self._verify_patient_avail():
-	#		return None
+		# need patient
+		if not self._verify_patient_avail():
+			return None
 		return 1
-
 #================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
+	import sys
 	from wxPython import wx
 
 	# catch all remaining exceptions
 	try:
-		application = wx.wxPyWidgetTester(gmDemographicsEditor, (640, 400) )
+		application = wx.wxPyWidgetTester(size = (640, 400))
+		application.SetWidget(gmDemographicsEditor, -1)
 		application.MainLoop()
 	except StandardError:
 		gmLog.gmDefLog.LogException("unhandled exception caught !", sys.exc_info(), verbose=1)
@@ -56,7 +52,11 @@ if __name__ == '__main__':
 #================================================================
 
 # $Log: gmDemographicsEditor.py,v $
-# Revision 1.13  2005-04-12 10:06:40  ncq
+# Revision 1.14  2005-05-24 19:59:44  ncq
+# - use Carlos' new notebooked demographics editor - ugly but
+#   promises to be ready in time for 0.1
+#
+# Revision 1.13  2005/04/12 10:06:40  ncq
 # - fix import
 #
 # Revision 1.12  2005/02/18 11:16:41  ihaywood
