@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.37 2005-05-22 21:44:22 cfmoro Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.38 2005-05-24 19:54:47 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -194,37 +194,41 @@ END;' LANGUAGE 'plpgsql';
 
 -- ==========================================================
 \unset ON_ERROR_STOP 
-drop function create_person_comm(integer, text, text, bool);
+drop function link_person_comm(integer, text, text, bool);
 \set ON_ERROR_STOP 1
 
-CREATE FUNCTION create_person_comm(integer, text, text, bool) RETURNS integer AS '
+CREATE FUNCTION link_person_comm(integer, text, text, bool) RETURNS integer AS '
 DECLARE
 	_id_identity alias for $1;
 	_comm_medium alias for $2;
 	_url alias for $3;
 	_is_confidential alias for $4;
-	
-	_id_comm integer;
-	_id_lnk2identity integer;
-	
+
+	_id_comm_type integer;
+	_id_lnk_identity2comm integer;
+
 	msg text;
 BEGIN
-	SELECT INTO _id_lnk2identity id FROM lnk_identity2comm WHERE id_identity = _id_identity AND url ILIKE _url;
+	-- FIXME: maybe need to update is_confidential
+	SELECT INTO _id_lnk_identity2comm id FROM lnk_identity2comm WHERE id_identity = _id_identity AND url ILIKE _url;
 	IF FOUND THEN
-		RETURN _id_lnk2identity;
+		RETURN _id_lnk_identity2comm;
 	END IF;
 	-- does comm_medium exist ?
-	SELECT INTO _id_comm id FROM enum_comm_types WHERE description ILIKE _comm_medium;
+	SELECT INTO _id_comm_type id FROM enum_comm_types WHERE description ILIKE _comm_medium;
 	IF NOT FOUND THEN
 		msg := ''Cannot set person comm ['' || _id_identity || '', '' || _comm_medium || '','' || _url || '']. No enum_comms_types row with description ['' || _comm_medium || ''] found.'';
 		RAISE EXCEPTION ''---> %'', msg;
-	END IF;	
-	-- create new communication2identity link
-	INSERT INTO lnk_identity2comm (id_identity, url, id_type, is_confidential) values (_id_identity, _url, _id_comm, _is_confidential);
-	IF FOUND THEN
-		RETURN currval(''lnk_identity2comm_id_seq'');
 	END IF;
-	RETURN NULL;
+	-- update existing comm. 0.1 Release (FIXME: rewrite later to allow for any number of type entries per identity)
+	SELECT INTO _id_lnk_identity2comm id FROM lnk_identity2comm WHERE id_identity = _id_identity AND id_type = _id_comm_type;
+	IF FOUND THEN
+		UPDATE lnk_identity2comm SET url = _url, is_confidential = _is_confidential WHERE id = _id_lnk_identity2comm;
+		RETURN _id_lnk_identity2comm;
+	END IF;
+	-- create new communication2identity link
+	INSERT INTO lnk_identity2comm (id_identity, url, id_type, is_confidential) values (_id_identity, _url, _id_comm_type, _is_confidential);
+	RETURN currval(''lnk_identity2comm_id_seq'');
 END;' LANGUAGE 'plpgsql';
 
 \unset ON_ERROR_STOP
@@ -428,11 +432,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.37 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.38 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.37  2005-05-22 21:44:22  cfmoro
+-- Revision 1.38  2005-05-24 19:54:47  ncq
+-- - create_person_comm() -> link_person_comm() with some caveat for post-0.1
+--
+-- Revision 1.37  2005/05/22 21:44:22  cfmoro
 -- For 0.1, update set nickname inside the active name
 --
 -- Revision 1.36  2005/04/24 14:53:51  ncq
