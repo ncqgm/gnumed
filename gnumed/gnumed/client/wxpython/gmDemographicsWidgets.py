@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.27 2005-05-23 12:01:08 cfmoro Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmDemographicsWidgets.py,v 1.28 2005-05-24 19:57:14 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1050,6 +1050,8 @@ class DemographicDetailWindow(wx.Panel):
 		self.__update_addresses()
 		self.__update_nok()
 #============================================================
+# new patient wizard classes
+#============================================================
 class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 	"""
 	Wizard page for entering patient's basic demographic information
@@ -1491,11 +1493,12 @@ class cFormDTD:
 		Print string representation of the DTD object.
 		"""
 		return str(self.data)
-		
 #============================================================
-class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
-	"""
-	Notebook style widget displaying patient edition pages:
+# patient demographics editing classes
+#============================================================
+class cPatEditionNotebook(wx.Notebook):
+	"""Notebook style widget displaying patient edition pages:
+
 		-Identity
 		-Contacts (addresses, phone numbers, etc)
 		-Occupations
@@ -1530,7 +1533,6 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			name = self.__class__.__name__
 		)
 		self.SetExtraStyle(wx.WS_EX_VALIDATE_RECURSIVELY)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.ident_form_DTD = cFormDTD(fields = self.__class__.ident_form_fields)
 		self.contacts_form_DTD = cFormDTD(fields = self.__class__.contacts_form_fields)		
@@ -1544,14 +1546,9 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 				'label': gender[idx['l10n_label']],
 				'weight': gender[idx['sort_weight']]
 			})
-
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__do_layout()
 		self.__register_interests()
-		# fire pages' TransferDataToWindow: dtd -> form
-		#print "calling InitDialog()"
-		#self.InitDialog()
-		self._populate_with_data()		
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -1560,64 +1557,10 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			page = self.GetPage(page_idx)
 			page.save()
 	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __do_layout(self):
-		"""
-		Build patient edition notebook pages.
-		"""
-		ident = self.__pat.get_identity()
-		# identity page
-		new_page = cPatIdentityPanel (
-			parent = self,
-			id = -1,
-			dtd = self.ident_form_DTD,
-			ident = ident
-		)
-		self.AddPage (
-			page = new_page,
-			text = _('Identity'),
-			select = True
-		)
-		# contacts page
-		label = _('Contacts')		
-		new_page = cPatContactsPanel (
-			parent = self,
-			id = -1,
-			dtd = self.contacts_form_DTD,
-			ident = ident
-		)
-		self.AddPage (
-			page = new_page,
-			text = label,
-			select = False
-		)				
-		# occupations page
-		label = _('Occupations')
-		new_page = cPatOccupationsPanel (
-			parent = self,
-			id = -1,
-			dtd = self.occupations_form_DTD,
-			ident = ident
-		)
-		self.AddPage (
-			page = new_page,
-			text = label,
-			select = False
-		)
-	#--------------------------------------------------------
-	# reget mixin API
-	#--------------------------------------------------------
-	def _populate_with_data(self):
+	def refresh(self):
 		"""
 		Populate fields in pages with data from model.
 		"""
-
-		############################################################
-		# FIXME: I don't understand why this does not get called !?!
-		############################################################
-
-		print "re-populating notebook with data ..."
 		identity = self.__pat.get_identity()
 
 		# business class -> identity DTD
@@ -1662,16 +1605,57 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			last_idx = len(occupations)-1
 			self.occupations_form_DTD['occupation'] = occupations[last_idx]['occupation']
 
-		# cycle through notebook pages
-		#for page_idx in self.GetPageCount():
-		#	page = self.GetPage(page_idx)
-			# DTD -> window
-		#	page.TransferDataToWindow()
 		# Recursively calls TransferDataToWindow in notebook
 		# children, thanks to wx.WS_EX_VALIDATE_RECURSIVELY
 		self.TransferDataToWindow()
 
 		return True
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __do_layout(self):
+		"""
+		Build patient edition notebook pages.
+		"""
+		ident = self.__pat.get_identity()
+		# identity page
+		new_page = cPatIdentityPanel (
+			parent = self,
+			id = -1,
+			dtd = self.ident_form_DTD,
+			ident = ident
+		)
+		self.AddPage (
+			page = new_page,
+			text = _('Identity'),
+			select = True
+		)
+		# contacts page
+		label = _('Contacts')		
+		new_page = cPatContactsPanel (
+			parent = self,
+			id = -1,
+			dtd = self.contacts_form_DTD,
+			ident = ident
+		)
+		self.AddPage (
+			page = new_page,
+			text = label,
+			select = False
+		)
+		# occupations page
+		label = _('Occupations')
+		new_page = cPatOccupationsPanel (
+			parent = self,
+			id = -1,
+			dtd = self.occupations_form_DTD,
+			ident = ident
+		)
+		self.AddPage (
+			page = new_page,
+			text = label,
+			select = False
+		)
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -1681,25 +1665,16 @@ class cPatEditionNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		"""
 		# client internal signals
 		gmDispatcher.connect(signal=gmSignals.activating_patient(), receiver=self._on_activating_patient)
-		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
 		gmDispatcher.connect(signal=gmSignals.application_closing(), receiver=self._on_application_closing)
 	#--------------------------------------------------------
 	def _on_activating_patient(self):
 		"""Another patient is about to be activated."""
 		print "[%s]: another patient is about to become active" % self.__class__.__name__
-		print "need code to:"
-		print "- ask user about unsaved patient details"
-	#--------------------------------------------------------
-	def _on_patient_selected(self):
-		"""Patient changed."""
-		print "[%s]: patient selected, scheduling data reget" % self.__class__.__name__
-		self._schedule_data_reget()
+		print "need code to ask user about unsaved patient details"
 	#--------------------------------------------------------
 	def _on_application_closing(self):
-		"""Patient changed."""
 		print "[%s]: the application is closing down" % self.__class__.__name__
-		print "need code to:"
-		print "- ask user about unsaved patient details"
+		print "need code to  ask user about unsaved patient details"
 #============================================================
 class cPatIdentityPanel(wx.Panel):
 	"""
@@ -1721,14 +1696,14 @@ class cPatIdentityPanel(wx.Panel):
 		self.__do_layout()
 	#--------------------------------------------------------
 	def __do_layout(self):
-		
+
 		# FIXME: main panel, required for a correct propagation of validator calls.
 		# If this panel doesn't exists and the validator is set
 		# direclty to self, calling self.transferDataFromWindow
 		# just returns true without the method in validator being
 		# called. It seems that works for the children of self.
 		PNL_form = wx.Panel(self, -1)
-		
+
 		# last name
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
@@ -1890,7 +1865,6 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		print '[%s]: TransferToWindow()' % self.__class__.__name__
 		pageCtrl = self.GetWindow().GetParent()
 		# FIXME: add appropriate SetData()
 		pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
@@ -1904,7 +1878,6 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 	def Validate(self):
 		"""Validate the contents of the given text control.
 		"""
-		print '[%s]: Validate()' % self.__class__.__name__
 		return True
 	#--------------------------------------------------------
 	def TransferFromWindow(self):
@@ -1913,7 +1886,6 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		print '[%s]: TransferFromWindow()' % self.__class__.__name__
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in self.__dtd with values from controls
 		self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
@@ -2088,7 +2060,6 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		"""
 		Validate the contents of the given text control.
 		"""
-		print '[%s]: Validate()' % self.__class__.__name__
 		pageCtrl = self.GetWindow().GetParent()
 		address_fields = (
 			pageCtrl.TTC_address_number,
@@ -2121,7 +2092,6 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		print '[%s]: TransferToWindow()' % self.__class__.__name__
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
 		pageCtrl.TTC_address_number.SetValue(self.form_DTD['address_number'])
@@ -2139,7 +2109,6 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		print '[%s]: TransferFromWindow()' % self.__class__.__name__
 		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
 		if self.Validate():
 			pageCtrl = self.GetWindow().GetParent()
@@ -2238,12 +2207,8 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 		@param dtd The object containing the data model.
 		@type dtd A cFormDTD instance
 		"""
-		# initialize parent class
 		wx.PyValidator.__init__(self)
-		
-		# validator's storage object
 		self.form_DTD = dtd
-		print self.form_DTD['occupation']
 	#--------------------------------------------------------
 	def Clone(self):
 		"""
@@ -2255,7 +2220,6 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 	def Validate(self):
 		"""Validate the contents of the given text control.
 		"""
-		print '[%s]: Validate()' % self.__class__.__name__
 		return True
 	#--------------------------------------------------------
 	def TransferToWindow(self):
@@ -2264,7 +2228,6 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		print '[%s]: TransferToWindow()' % self.__class__.__name__
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD		
 		pageCtrl.PRW_occupation.SetValue(self.form_DTD['occupation'])
@@ -2276,7 +2239,6 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		print '[%s]: TransferFromWindow()' % self.__class__.__name__
 		if self.Validate():
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
@@ -2284,7 +2246,7 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 			return True
 		return False
 #============================================================
-class cNotebookedPatEditionPanel(wx.Panel):
+class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
 	Notebook based patient edition panel.
 	Composed of: notebooked patient details; restore and save buttons
@@ -2306,9 +2268,8 @@ class cNotebookedPatEditionPanel(wx.Panel):
 			size = wx.DefaultSize,
 			style = wx.NO_BORDER
 		)
-
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pat = gmPerson.gmCurrentPatient()
-
 		# ui construction and event handling set up
 		self.__do_layout()
 		self.__register_interests()
@@ -2350,6 +2311,12 @@ class cNotebookedPatEditionPanel(wx.Panel):
 		# wxPython events
 		wx.EVT_BUTTON(self.__BTN_save, self.__BTN_save.GetId(), self._on_save)
 		wx.EVT_BUTTON(self.__BTN_restore, self.__BTN_restore.GetId(), self._on_restore)
+		# internal signals
+		gmDispatcher.connect(signal=gmSignals.patient_selected(), receiver=self._on_patient_selected)
+	#--------------------------------------------------------
+	def _on_patient_selected(self):
+		"""Patient changed."""
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_save(self, event):
 		"""Save data to backend and close editor.
@@ -2361,7 +2328,6 @@ class cNotebookedPatEditionPanel(wx.Panel):
 		if not self.__patient_notebook.save():
 			#self.__patient_notebook._populate_with_data()
 			return False
-		
 
 		#self.__patient_notebook._populate_with_data()
 		return True
@@ -2369,11 +2335,21 @@ class cNotebookedPatEditionPanel(wx.Panel):
 	def _on_restore(self, event):
 		"""
 		Restore patient edition form with values originally
-		fecthed from backed, prior to any modification by
-		the user.		
+		fetched from backed, prior to any modification by
+		the user.
 		"""
 		self.__patient_notebook.TransferDataToWindow()
-		return True		
+		return True
+	#--------------------------------------------------------
+	# reget mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		"""
+		Populate fields in pages with data from model.
+		"""
+		if self.__patient_notebook.refresh():
+			return True
+		return False
 #============================================================				
 def create_identity_from_dtd(dtd=None):
 	"""
@@ -2384,20 +2360,16 @@ def create_identity_from_dtd(dtd=None):
 	supplied data.
 	@type basic_details_DTD A cFormDTD instance.
 	"""
-	# FIXME sanity check, FIXME: turn excessive logging into print()s
-	# FIXME: replace gmPerson.link_XXX by subtables saving
-
-	# create patient
-	_log.Log(gmLog.lInfo, 'creating identity')
-	# FIXME: error checking
 	new_identity = gmPerson.create_identity (
 		gender = dtd['gender'],
 		dob = dtd['dob'],
 		lastnames = dtd['lastname'],
 		firstnames = dtd['firstname']
 	)
-	_log.Log(gmLog.lInfo, 'Identity created: %s' % new_identity)
-	
+	if new_identity is None:
+		_log.Log(gmLog.lErr, 'cannot create identity from %s' % str(dtd))
+		return None
+	_log.Log(gmLog.lData, 'identity created: %s' % new_identity)
 	return new_identity
 #============================================================				
 def update_identity_from_dtd(identity, dtd=None):
@@ -2409,14 +2381,12 @@ def update_identity_from_dtd(identity, dtd=None):
 	supplied data.
 	@type basic_details_DTD A cFormDTD instance.
 	"""
-
 	# identity
 	if identity['gender'] != dtd['gender']:
 		identity['gender'] = dtd['gender']
 	if identity['dob'] != dtd['dob']:
 		identity['dob'] = dtd['dob']
 	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
-		_log.Log(gmLog.lInfo, 'Setting title and gender...')
 		identity['title'] = dtd['title']
 	# FIXME: error checking
 	identity.save_payload()
@@ -2456,8 +2426,6 @@ def link_contacts_from_dtd(identity, dtd=None):
 	if (len(input_number + input_street + input_postcode + input_state + input_country + input_urb) > 6) and (last_idx == -1 or (input_number != addresses[last_idx]['number'] or input_street != addresses[last_idx]['street'] or
 	 input_postcode != addresses[last_idx]['postcode'] or input_urb  != addresses[last_idx]['urb'] or
 	 input_state != addresses[last_idx]['state'] or input_country != addresses[last_idx]['country'])):
-		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % identity['addresses'])
-		_log.Log(gmLog.lInfo, 'Creating identity address...')
 		# FIXME: make sure the state exists in the backend
 		identity.link_address (
 			number = input_number,
@@ -2467,18 +2435,14 @@ def link_contacts_from_dtd(identity, dtd=None):
 			state = input_state,
 			country = input_country
 		)
-		_log.Log(gmLog.lInfo, 'Identity addresses: %s' % identity['addresses'])
 
 	input_phone = dtd['phone']
 	if len(input_phone) > 0:
-		_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
-		_log.Log(gmLog.lInfo, 'Creating identity communication...')
 		identity.link_communication (
 			comm_medium = 'homephone',
 			url = input_phone,
 			is_confidential = False
 		)
-		_log.Log(gmLog.lInfo, 'Identity communications: %s' % identity['comms'])
 
 	# FIXME: error checking
 	identity.save_payload()
@@ -2495,18 +2459,12 @@ def link_occupation_from_dtd(identity, dtd=None):
 	"""
 
 	occupations = identity['occupations']
-	#print occupations
 	last_idx = -1
 	if len(occupations) > 0:
-		last_idx = len(occupations) -1		
-
+		last_idx = len(occupations) -1
 	input_occupation = dtd['occupation']
 	if len(input_occupation) > 0 and (last_idx == 1 or occupations[last_idx]['occupation'] !=input_occupation):
-		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % identity['occupations'])
-		_log.Log(gmLog.lInfo, 'Creating identity occupation...')
 		identity.link_occupation(occupation = input_occupation)
-		_log.Log(gmLog.lInfo, 'Identity occupations: %s' % identity['occupations'])
-
 	# FIXME: error checking
 	identity.save_payload()
 	return True	
@@ -2553,7 +2511,11 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.27  2005-05-23 12:01:08  cfmoro
+# Revision 1.28  2005-05-24 19:57:14  ncq
+# - cleanup
+# - make cNotebookedPatEditionPanel a gmRegetMixin child instead of cPatEditionNotebook
+#
+# Revision 1.27  2005/05/23 12:01:08  cfmoro
 # Create/update comms
 #
 # Revision 1.26  2005/05/23 11:16:18  cfmoro
