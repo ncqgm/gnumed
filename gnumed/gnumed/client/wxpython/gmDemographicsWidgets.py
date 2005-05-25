@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.28 2005-05-24 19:57:14 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmDemographicsWidgets.py,v 1.29 2005-05-25 23:03:02 cfmoro Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2321,15 +2321,16 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	def _on_save(self, event):
 		"""Save data to backend and close editor.
 		"""		
-		# FIXME: Refresh values from backend rather than from the
+		# FIXME 0.1: Refresh values from backend rather than from the
 		# original version of the DTD, so data integrity
 		# can be assured. Currenlty, pat.get_identity() is
 		# returning its version before save_payload().
+		# FIXME post 0.1: internal signal
 		if not self.__patient_notebook.save():
-			#self.__patient_notebook._populate_with_data()
+			self.__patient_notebook.refresh()
 			return False
 
-		#self.__patient_notebook._populate_with_data()
+		self.__patient_notebook.refresh()
 		return True
 	#--------------------------------------------------------
 	def _on_restore(self, event):
@@ -2463,7 +2464,7 @@ def link_occupation_from_dtd(identity, dtd=None):
 	if len(occupations) > 0:
 		last_idx = len(occupations) -1
 	input_occupation = dtd['occupation']
-	if len(input_occupation) > 0 and (last_idx == 1 or occupations[last_idx]['occupation'] !=input_occupation):
+	if len(input_occupation) > 0 and (last_idx == -1 or occupations[last_idx]['occupation'] !=input_occupation):
 		identity.link_occupation(occupation = input_occupation)
 	# FIXME: error checking
 	identity.save_payload()
@@ -2511,7 +2512,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.28  2005-05-24 19:57:14  ncq
+# Revision 1.29  2005-05-25 23:03:02  cfmoro
+# Minor fixes
+#
+# Revision 1.28  2005/05/24 19:57:14  ncq
 # - cleanup
 # - make cNotebookedPatEditionPanel a gmRegetMixin child instead of cPatEditionNotebook
 #
