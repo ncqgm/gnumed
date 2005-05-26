@@ -7,7 +7,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -21,7 +21,7 @@ _log.Log(gmLog.lInfo, __version__)
 class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebooked patient edition window."""
 
-	tab_name = _('patient edition')
+	tab_name = _('Patient Details')
 
 	def name (self):
 		return gmNotebookedPatientEditionPlugin.tab_name
@@ -31,7 +31,7 @@ class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('tools', _('patient edition (NB)'))
+		return ('patient', _('Edit demographics'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -96,6 +96,9 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmNotebookedPatientEditionPlugin.py,v $
-# Revision 1.1  2005-05-25 22:52:47  cfmoro
+# Revision 1.2  2005-05-26 15:57:03  ncq
+# - slightly better strings
+#
+# Revision 1.1  2005/05/25 22:52:47  cfmoro
 # Added notebooked patient edition plugin
 #
