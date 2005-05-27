@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.50 $
+-- $Revision: 1.51 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -345,11 +345,13 @@ COMMENT on table name_gender_map is
 -- ==========================================================
 create table lnk_identity2comm (
 	id serial primary key,
-	id_identity integer not null
+	id_identity integer
+		not null
 		references identity(pk)
 		on update cascade
 		on delete cascade,
-	id_address integer not null
+	id_address integer
+		default null
 		references address(id)
 		on update set null
 		on delete set null,
@@ -577,11 +579,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.50 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.51 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.50  2005-05-24 19:53:53  ncq
+-- Revision 1.51  2005-05-27 16:16:41  ncq
+-- - Carlos rightly points out that id_address must be nullable in lnk_identity2comm
+--
+-- Revision 1.50  2005/05/24 19:53:53  ncq
 -- - prepare for allowing communications channels to be tied to addresses
 --
 -- Revision 1.49  2005/04/17 16:37:40  ncq
