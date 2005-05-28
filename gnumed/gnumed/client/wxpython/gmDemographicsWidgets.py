@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.30 2005-05-28 11:45:19 cfmoro Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmDemographicsWidgets.py,v 1.31 2005-05-28 12:00:53 cfmoro Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2393,8 +2393,9 @@ def update_identity_from_dtd(identity, dtd=None):
 	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
 		identity['title'] = dtd['title']
 	# FIXME: error checking
-	# FIXME: next call to identity['updated_key'] does not
-	# reflect the changem though it is updated in backend
+	# FIXME: we need a trigger to update the values of the
+	# view, identity['keys'], eg. lastnames and firstnames
+	# are not refreshed.
 	identity.save_payload()
 	# names
 	# FIXME: proper handling of "active"
@@ -2517,7 +2518,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.30  2005-05-28 11:45:19  cfmoro
+# Revision 1.31  2005-05-28 12:00:53  cfmoro
+# Trigger FIXME to reflect changes in v_basic_person
+#
+# Revision 1.30  2005/05/28 11:45:19  cfmoro
 # Retrieve names from identity cache, so refreshing will be reflected
 #
 # Revision 1.29  2005/05/25 23:03:02  cfmoro
