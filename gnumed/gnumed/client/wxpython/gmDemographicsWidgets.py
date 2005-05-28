@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.31 2005-05-28 12:00:53 cfmoro Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmDemographicsWidgets.py,v 1.32 2005-05-28 12:18:01 cfmoro Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2367,8 +2367,8 @@ def create_identity_from_dtd(dtd=None):
 	new_identity = gmPerson.create_identity (
 		gender = dtd['gender'],
 		dob = dtd['dob'],
-		lastnames = dtd['lastname'],
-		firstnames = dtd['firstname']
+		lastnames = dtd['lastname'].capitalize(),
+		firstnames = dtd['firstname'].capitalize()
 	)
 	if new_identity is None:
 		_log.Log(gmLog.lErr, 'cannot create identity from %s' % str(dtd))
@@ -2391,7 +2391,7 @@ def update_identity_from_dtd(identity, dtd=None):
 	if identity['dob'] != dtd['dob']:
 		identity['dob'] = dtd['dob']
 	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
-		identity['title'] = dtd['title']
+		identity['title'] = dtd['title'].capitalize()
 	# FIXME: error checking
 	# FIXME: we need a trigger to update the values of the
 	# view, identity['keys'], eg. lastnames and firstnames
@@ -2400,10 +2400,10 @@ def update_identity_from_dtd(identity, dtd=None):
 	# names
 	# FIXME: proper handling of "active"
 	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
-		identity.add_name(firstnames = dtd['firstnames'], lastnames = dtd['lastnames'], active = True, nickname = None)
+		identity.add_name(firstnames = dtd['firstnames'].capitalize(), lastnames = dtd['lastnames'].capitalize(), active = True, nickname = None)
 	# nickname
 	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
-		identity.set_nickname(nickname = dtd['nick'])
+		identity.set_nickname(nickname = dtd['nick'].capitalize())
 
 	return True
 #============================================================				
@@ -2425,9 +2425,9 @@ def link_contacts_from_dtd(identity, dtd=None):
 		
 	# form addresses
 	input_number = dtd['address_number']
-	input_street = dtd['street']
+	input_street = dtd['street'].capitalize()
 	input_postcode = dtd['zip_code']
-	input_urb = dtd['town']
+	input_urb = dtd['town'].capitalize()
 	input_state = dtd['state']
 	input_country = dtd['country']
 	if (len(input_number + input_street + input_postcode + input_state + input_country + input_urb) > 6) and (last_idx == -1 or (input_number != addresses[last_idx]['number'] or input_street != addresses[last_idx]['street'] or
@@ -2518,7 +2518,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.31  2005-05-28 12:00:53  cfmoro
+# Revision 1.32  2005-05-28 12:18:01  cfmoro
+# Capitalize name, street, etc
+#
+# Revision 1.31  2005/05/28 12:00:53  cfmoro
 # Trigger FIXME to reflect changes in v_basic_person
 #
 # Revision 1.30  2005/05/28 11:45:19  cfmoro
