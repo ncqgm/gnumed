@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.45 2005-05-23 12:01:07 cfmoro Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPerson.py,v 1.46 2005-05-28 11:46:28 cfmoro Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -218,8 +218,8 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			_log.Log(gmLog.lErr, 'failed to add name: %s' % str(data))
 			return False
 		# delete names cache so will be refetched next time it is queried
-		try:
-			del self._ext_cache['names']
+		try:			
+			del self._ext_cache['names']			
 		except:
 			pass
 		return True
@@ -257,6 +257,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
 			return False
+		# delete occupations cache so will be refetched next time it is queried
+		try:			
+			del self._ext_cache['occupations']
+		except:
+			pass			
 		return True
 	#--------------------------------------------------------
 	def link_communication(self, comm_medium, url, is_confidential = False):
@@ -288,6 +293,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create communication: %s' % data)
 			return False
+		# delete comms cache so will be refetched next time it is queried
+		try:			
+			del self._ext_cache['comms']
+		except:
+			pass			
 		return True		
 	#--------------------------------------------------------
 	def link_address(self, number, street, postcode, urb, state, country):
@@ -322,6 +332,11 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to link address: %s' % str(data))
 			return False
+		# delete addresses cache so will be refetched next time it is queried
+		try:			
+			del self._ext_cache['addresses']
+		except:
+			pass			
 		return True		
 	#----------------------------------------------------------------------
 	def get_relatives(self):
@@ -1463,7 +1478,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.45  2005-05-23 12:01:07  cfmoro
+# Revision 1.46  2005-05-28 11:46:28  cfmoro
+# Evict cache in identity linking/add methods
+#
+# Revision 1.45  2005/05/23 12:01:07  cfmoro
 # Create/update comms
 #
 # Revision 1.44  2005/05/19 17:33:07  cfmoro
