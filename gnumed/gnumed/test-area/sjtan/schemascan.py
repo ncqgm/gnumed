@@ -143,8 +143,17 @@ class SchemaScan:
 			
 				print
 
+		a = raw_input("export to file?")
+
+		if a <> "" and a[0] == 'y':
+			f = raw_input("file_name to export to:")
+			o = file(f, "w")
+			sys.stdout = o
+			
+		
+
+
 		print
-		print "The vals are " 
 		for k,v in vals.items():
 			print k
 			for id,v2 in v.items():
@@ -159,6 +168,8 @@ class SchemaScan:
 
 					
 			print
+
+		sys.stdout = sys.__stdout__
 			
 
 
