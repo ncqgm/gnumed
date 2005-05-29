@@ -23,8 +23,8 @@ redrawn successfully.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.14 2005-05-24 19:46:47 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmRegetMixin.py,v 1.15 2005-05-29 22:06:19 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -94,7 +94,12 @@ class cRegetOnPaintMixin:
 		# 2) Even this does not in all cases cause a proper redraw
 		#    of the visible widgets - likely because nothing has
 		#    really changed in them, visually.
+		# neither this:
 		wx.wxGetApp().GetTopWindow().Refresh()
+		# nor this:
+		#top_parent = wx.wxGetTopLevelParent(self)
+		#top_parent.Refresh()
+		# appears to work as expected :-(
 		return True
 #===========================================================================
 # main
@@ -104,7 +109,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.14  2005-05-24 19:46:47  ncq
+# Revision 1.15  2005-05-29 22:06:19  ncq
+# - unsuccessfully try yet another technique for forcing a repaint
+#
+# Revision 1.14  2005/05/24 19:46:47  ncq
 # - call top level window refresh at the end of _schedule_data_reget()
 #   which should cause a repaint of the visible widgets, which in turn
 #   will cause them to reget data from the business objects which in
