@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -32,7 +32,7 @@ insert into cfg_str_array
 	(id_item, value)
 values (
 	currval('cfg_item_id_seq'),
-	'{"gmManual","gmDemographicsEditor","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmConfigRegistry"}'
+	'{"gmManual","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmNotebookedProgressNoteInputPlugin","gmEMRJournalPlugin","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Labor
@@ -181,11 +181,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.13 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.12  2005-05-24 19:58:39  ncq
+-- Revision 1.13  2005-05-30 09:14:52  ncq
+-- - make notebooked patient editor the default
+--
+-- Revision 1.12  2005/05/24 19:58:39  ncq
 -- - favour notebook over sash for progress note input, the
 --   code is more maintainable
 --
