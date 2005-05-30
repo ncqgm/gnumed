@@ -7,15 +7,14 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
 import zlib, cPickle
 
-
-ID_MENU = wxNewId ()
-ID_EXIT = wxNewId ()
+ID_MENU = wxNewId()
+ID_EXIT = wxNewId()
 #====================================================================
 
 class ScrollTxtWin (wxWindow):
@@ -26,9 +25,21 @@ class ScrollTxtWin (wxWindow):
 	# control parameters
 	__scroll_speed=.3 	# pixels/milliseconds (?)
 	__delay=500		# milliseconds
-	name_list=['Dr Gerardo Arnaez', 'Dr Hilmar Berger', 'Michael Bonert', 'Dr Elizabeth Dodd', \
-'Engelbert Gruber', 'Dr David Guest', 'Ian Haywood', 'Dr Tony Lembke', 'Thierry Michel', \
-'Dr Richard Terry', 'Sian J Tan', 'Andreas Tille' ]
+	name_list = [
+		'Dr Gerardo Arnaez',
+		'Dr Hilmar Berger',
+		'Michael Bonert',
+		'Dr Elizabeth Dodd',
+		'Engelbert Gruber',
+		'Dr David Guest',
+		'Ian Haywood',
+		'Dr Tony Lembke',
+		'Thierry Michel',
+		'Dr Richard Terry',
+		'Syan J Tan',
+		'Andreas Tille',
+		'Dr Carlos Moro'
+	]
 
 	# initializations
 	__scroll_ctr=+230
@@ -159,15 +170,16 @@ if __name__ == '__main__':
 			frame.Show(1)
 			return 1
 	#---------------------
-	import gettext
-	_ = gettext.gettext
-	gettext.textdomain ('gnumed')
+	_ = lambda x:x
 	app = TestApp ()
 	app.MainLoop ()
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.9  2004-07-18 20:30:53  ncq
+# Revision 1.10  2005-05-30 09:20:51  ncq
+# - add Carlos Moro
+#
+# Revision 1.9  2004/07/18 20:30:53  ncq
 # - wxPython.true/false -> Python.True/False as Python tells us to do
 #
 # Revision 1.8  2004/06/30 15:56:14  shilbert
