@@ -11,7 +11,7 @@ FIXME: allow definition of how to retrieve the patient ID
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -53,9 +53,10 @@ begin
 end;
 ' language 'plpgsql';
 
-create trigger tr_%(sig)s_mod
+create constraint trigger tr_%(sig)s_mod
 	after insert or delete or update
 	on %(tbl)s
+	deferrable
 	for each row
 		execute procedure trf_announce_%(sig)s_mod()
 ;
@@ -104,7 +105,11 @@ if __name__ == "__main__" :
 
 #==================================================================
 # $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.11  2005-03-14 14:39:49  ncq
+# Revision 1.12  2005-06-01 23:19:38  ncq
+# - make notification triggers deferrable - useful for special
+#   situations such as when loading a patient SQL dump
+#
+# Revision 1.11  2005/03/14 14:39:49  ncq
 # - id_patient -> pk_patient
 #
 # Revision 1.10  2004/11/24 15:38:07  ncq
