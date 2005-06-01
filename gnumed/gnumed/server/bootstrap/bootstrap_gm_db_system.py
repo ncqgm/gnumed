@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-"""GnuMed schema installation.
+"""GNUmed schema installation.
 
-This script bootstraps a GnuMed database system. All the
+This script bootstraps a GNUmed database system. All the
 infrastructure is in place to support distributed
 services. However, until further notice one should stick
 to monolithic database design as cross-database links
@@ -21,7 +21,7 @@ This script does NOT set up user specific configuration options.
 
 All definitions are loaded from a config file.
 
-Please consult the User Manual in the GnuMed CVS for
+Please consult the User Manual in the GNUmed CVS for
 further details.
 """
 #==================================================================
@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -66,11 +66,11 @@ except ImportError:
 			_log.LogException("Cannot load pgdb database adapter module.", sys.exc_info(), verbose=0)
 			raise
 
-# GnuMed imports
+# GNUmed imports
 try:
 	from Gnumed.pycommon import gmLog
 except ImportError:
-	print """Please make sure the GnuMed Python modules are in the Python path !"""
+	print """Please make sure the GNUmed Python modules are in the Python path !"""
 	raise
 from Gnumed.pycommon import gmCfg, gmPsql
 from Gnumed.pycommon.gmExceptions import ConstructorError
@@ -79,8 +79,10 @@ from Gnumed.pycommon.gmPyCompat import *
 # local imports
 import gmAuditSchemaGenerator
 aud_gen = gmAuditSchemaGenerator
+
 #import gmScoringSchemaGenerator
 #score_gen = gmScoringSchemaGenerator
+
 import gmNotificationSchemaGenerator
 notify_gen = gmNotificationSchemaGenerator
 
@@ -207,12 +209,12 @@ def connect (host, port, db, user, passwd, superuser=0):
 		elif re.search ("no password supplied", m):
 			# didn't like blank password trick
 			_log.Log (gmLog.lWarn, "blank password failed -- retrying")
-			passwd = getpass.getpass ("I need the password for the GnuMed database user [%s].\nPlease type password: " % user)
+			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("^FATAL:.*Password authentication failed.*", m):
 			# didn't like supplied password
 			_log.Log (gmLog.lWarn, "password failed -- retrying")
-			passwd = getpass.getpass ("I need the correct password for the GnuMed database user [%s].\nPlease type password: " % user)
+			passwd = getpass.getpass ("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("could not connect to server", m):
 			if len (host) == 0:
@@ -269,7 +271,7 @@ class user:
 			if self.password is None:
 				# but we can ask the user
 				if _interactive:
-					self.password = getpass.getpass("I need the password for the GnuMed database user [%s].\nPlease type password: " % self.name)
+					self.password = getpass.getpass("I need the password for the GNUmed database user [%s].\nPlease type password: " % self.name)
 				# or we cannot, fail
 				else:
 					raise ConstructorError, "cannot load database user password from config file"
@@ -462,14 +464,14 @@ class db_server:
 	def __bootstrap_db_users(self):
 		_log.Log(gmLog.lInfo, "bootstrapping database users and groups")
 
-		# create GnuMed owner
+		# create GNUmed owner
 		if self.__create_dbowner() is None:
-			_log.Log(gmLog.lErr, "Cannot install GnuMed database owner.")
+			_log.Log(gmLog.lErr, "Cannot install GNUmed database owner.")
 			return None
 
 		# insert standard groups
 		if self.__create_groups() is None:
-			_log.Log(gmLog.lErr, "Cannot create GnuMed standard groups.")
+			_log.Log(gmLog.lErr, "Cannot create GNUmed standard groups.")
 			return None
 
 		# insert some users if so desired
@@ -504,7 +506,7 @@ class db_server:
 		# get owner
 		if _dbowner is None:
 			print "We are about to check whether we need to create the"
-			print "database user who owns all GnuMed database objects."
+			print "database user who owns all GNUmed database objects."
 			print ""
 			print "Unless the password for this user is given in the"
 			print "config file you will be asked to provide it."
@@ -516,7 +518,7 @@ class db_server:
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
 
 		if _dbowner is None:
-			_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
+			_log.Log(gmLog.lErr, "Cannot load GNUmed database owner name from config file.")
 			return None
 
 		cursor = self.conn.cursor()
@@ -530,7 +532,7 @@ class db_server:
 			cursor.execute(cmd)
 		except:
 			_log.Log(gmLog.lErr, ">>>[%s]<<< failed." % cmd)
-			_log.LogException("Cannot create GnuMed database owner [%s]." % _dbowner.name, sys.exc_info(), verbose=1)
+			_log.LogException("Cannot create GNUmed database owner [%s]." % _dbowner.name, sys.exc_info(), verbose=1)
 			cursor.close()
 			return None
 
@@ -588,7 +590,7 @@ class db_server:
 
 		groups = cfg.get(section, "groups")
 		if groups is None:
-			_log.Log(gmLog.lErr, "Cannot load GnuMed group names from config file (section [%s])." % section)
+			_log.Log(gmLog.lErr, "Cannot load GNUmed group names from config file (section [%s])." % section)
 			return None
 
 		cursor = self.conn.cursor()
@@ -616,8 +618,17 @@ class database:
 		self.cfg = aCfg
 		self.section = "database %s" % aDB_alias
 
-		self.name = self.cfg.get(self.section, 'name')
-		if self.name is None:
+		overrider = self.cfg.get(self.section, 'override name by')
+		if overrider is not None:
+			_log.Log(gmLog.lInfo, 'environment variable [%s] overrides database name in config file' % overrider)
+			self.name = os.getenv(overrider)
+			if self.name is None:
+				_log.Log(gmLog.lInfo, 'environment variable [%s] is not set, using database name from config file' % overrider)
+				self.name = self.cfg.get(self.section, 'name')
+		else:
+			self.name = self.cfg.get(self.section, 'name')
+
+		if self.name is None or str(self.name).strip() == '':
 			_log.Log(gmLog.lErr, "Need to know database name.")
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
@@ -645,7 +656,7 @@ class database:
 			_dbowner = user(anAlias = self.cfg.get("GnuMed defaults", "database owner alias"))
 
 		if _dbowner is None:
-			_log.Log(gmLog.lErr, "Cannot load GnuMed database owner name from config file.")
+			_log.Log(gmLog.lErr, "Cannot load GNUmed database owner name from config file.")
 			return None
 
 		# get owner
@@ -739,7 +750,7 @@ class database:
 
 		if not self.__db_exists():
 			return None
-		_log.Log(gmLog.lInfo, "Successfully created GnuMed database [%s]." % self.name)
+		_log.Log(gmLog.lInfo, "Successfully created GNUmed database [%s]." % self.name)
 		return 1
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
@@ -771,7 +782,7 @@ class database:
 		audit_schema = gmAuditSchemaGenerator.create_audit_schema(curs)
 		curs.close()
 		if audit_schema is None:
-			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GnuMed database [%s]' % self.name)
+			_log.Log(gmLog.lErr, 'cannot generate audit trail schema for GNUmed database [%s]' % self.name)
 			return None
 		# write schema to file
 		file = open('/tmp/audit-trail-schema.sql', 'wb')
@@ -819,7 +830,7 @@ class database:
 #		scoring_schema = score_gen.create_scoring_schema(curs)
 #		curs.close()
 #		if scoring_schema is None:
-#			_log.Log(gmLog.lErr, 'cannot generate scoring schema for GnuMed database [%s]' % self.name)
+#			_log.Log(gmLog.lErr, 'cannot generate scoring schema for GNUmed database [%s]' % self.name)
 #			return None
 #
 #		# write schema to file
@@ -858,7 +869,7 @@ class database:
 		notification_schema = notify_gen.create_notification_schema(curs)
 		curs.close()
 		if notification_schema is None:
-			_log.Log(gmLog.lErr, 'cannot generate notification schema for GnuMed database [%s]' % self.name)
+			_log.Log(gmLog.lErr, 'cannot generate notification schema for GNUmed database [%s]' % self.name)
 			return None
 
 		# write schema to file
@@ -937,7 +948,7 @@ class gmService:
 		*  0 = no, please import
 		* -1 = not sure: error or yes, but different version
 		"""
-		# we need the GnuMed name of the service late, so we store it here
+		# we need the GNUmed name of the service late, so we store it here
 		self.name = _cfg.get(self.section, "name")
 
 		curs = self.db.conn.cursor()
@@ -956,8 +967,8 @@ class gmService:
 			# if we don't find the gm_services table we assume it's
 			# OK to setup our service
 			_log.Log(gmLog.lInfo, "didn't find 'gm_services' table")
-			_log.Log(gmLog.lInfo, "assuming this is not a GnuMed database")
-			_log.Log(gmLog.lInfo, "hence assuming it's OK to install GnuMed services here")
+			_log.Log(gmLog.lInfo, "assuming this is not a GNUmed database")
+			_log.Log(gmLog.lInfo, "hence assuming it's OK to install GNUmed services here")
 			curs.close()
 			return 0
 
@@ -1031,7 +1042,7 @@ class gmService:
 		# a) in its own database - TODO
 		# FIXME : We don't check for invalid service entries here 
 		# (e.g. multiple service aliases linking to the same internal gnumed service)
-		_log.Log(gmLog.lInfo, "Registering service [%s] (GnuMed internal name: [%s])." % (self.alias, self.name))
+		_log.Log(gmLog.lInfo, "Registering service [%s] (GNUmed internal name: [%s])." % (self.alias, self.name))
 
 		# note: this is not entirely safe
 		core_alias = _cfg.get(self.section, "registration database")
@@ -1060,8 +1071,8 @@ class gmService:
 			# b) create a new service name without further inquiry
 			# The latter could lead to creation of new services on spelling
 			# errors, so we don't register those services automatically
-			_log.Log(gmLog.lInfo, "Service [%s] not defined in GnuMed." % self.name)
-			_log.Log(gmLog.lInfo, "Check configuration file or ask GnuMed admins")
+			_log.Log(gmLog.lInfo, "Service [%s] not defined in GNUmed." % self.name)
+			_log.Log(gmLog.lInfo, "Check configuration file or ask GNUmed admins")
 			_log.Log(gmLog.lInfo, "for inclusion of new service name.")
 			curs.close()
 			return None
@@ -1072,7 +1083,7 @@ class gmService:
 		# no need to store the core database definition
 		if self.db is coreDB:
 			_log.Log(gmLog.lInfo, "Service [%s] resides in core database." % self.name)
-			_log.Log(gmLog.lInfo, "It will be automatically recognized by GnuMed.")
+			_log.Log(gmLog.lInfo, "It will be automatically recognized by GNUmed.")
 			curs.close()
 			return 1
 		# if not, insert database definition in table db
@@ -1191,7 +1202,7 @@ def ask_for_confirmation():
 	services = _cfg.get("installation", "services")
 	if services is None:
 		return 1
-	print "You are about to install the following parts of GnuMed:"
+	print "You are about to install the following parts of GNUmed:"
 	print "-------------------------------------------------------"
 	for service in services:
 		service_name = _cfg.get("service %s" % service, "name")
@@ -1199,7 +1210,7 @@ def ask_for_confirmation():
 		db_name = _cfg.get("database %s" % db_alias, "name")
 		srv_alias = _cfg.get("database %s" % db_alias, "server alias")
 		srv_name = _cfg.get("server %s" % srv_alias, "name")
-		print 'part "%s" (service <%s> in <%s> on <%s>)' % (service, service_name, db_name, srv_name)
+		print 'part "%s" (service <%s> in <%s> (or overriden) on <%s>)' % (service, service_name, db_name, srv_name)
 	print "-------------------------------------------------------"
 	desc = _cfg.get("installation", "description")
 	if desc is not None:
@@ -1382,7 +1393,7 @@ def get_cfg_in_nice_mode():
 	return cfgs[choice]
 #==================================================================
 def handle_cfg():
-	_log.Log(gmLog.lInfo, "bootstrapping GnuMed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
+	_log.Log(gmLog.lInfo, "bootstrapping GNUmed database system from file [%s] (%s)" % (_cfg.get("revision control", "file"), _cfg.get("revision control", "version")))
 
 	print "Using config file [%s]." % _cfg.cfgName
 
@@ -1426,7 +1437,7 @@ if __name__ == "__main__":
 			sys.exit(0)
 
 	print "======================================="
-	print "Bootstrapping GnuMed database system..."
+	print "Bootstrapping GNUmed database system..."
 	print "======================================="
 
 	cfg_files = _cfg.get('installation', 'config files')
@@ -1469,7 +1480,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.5  2005-04-02 22:08:00  ncq
+# Revision 1.6  2005-06-01 23:17:43  ncq
+# - support overriding target database name via environment variable
+#
+# Revision 1.5  2005/04/02 22:08:00  ncq
 # - comment out scoring bootstrapping
 # - bootstrap several conf files in one go
 #
@@ -1698,7 +1712,7 @@ else:
 # - moved here from server/utils/
 #
 # Revision 1.25  2003/02/23 19:07:06  ncq
-# - moved language library dirs to [GnuMed defaults]
+# - moved language library dirs to [GNUmed defaults]
 #
 # Revision 1.24  2003/02/14 00:43:39  ncq
 # - fix whitespace
@@ -1794,7 +1808,7 @@ else:
 # - typo
 #
 # Revision 1.2  2002/11/01 13:56:05  ncq
-# - now also installs the GnuMed core database "gnumed"
+# - now also installs the GNUmed core database "gnumed"
 #
 # Revision 1.1  2002/10/31 22:59:19  ncq
 # - tests environment, bootstraps users, bootstraps procedural languages

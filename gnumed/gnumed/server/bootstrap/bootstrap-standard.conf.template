@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.22 $
+version = $Revision: 1.23 $
 
 #----------------------------------
 [installation]
@@ -84,6 +84,10 @@ registration database = gnumed
 
 # the real name of the database in the PostgreSQL system
 name = gnumed
+
+# the name of an environment variable which can be used
+# to override the database name from the shell
+override name by = GM_CORE_DB
 
 # which [section] holds specifics about the server
 # hosting this databse -> [server ...]
@@ -281,7 +285,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.22  2005-04-02 22:12:53  ncq
+# Revision 1.23  2005-06-01 23:17:43  ncq
+# - support overriding target database name via environment variable
+#
+# Revision 1.22  2005/04/02 22:12:53  ncq
 # - document option [installation] -> "config files"
 #
 # Revision 1.21  2005/03/03 21:34:56  ncq
