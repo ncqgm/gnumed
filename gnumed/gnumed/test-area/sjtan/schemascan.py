@@ -253,6 +253,8 @@ class SchemaScan:
 		o = file(f, "w")
 		sys.stdout = o
 
+		print "\unset ON_ERROR_STOP;"
+
 		#this section creates static types that should exist in target schema, but are inserted
 		# outside of the main transaction to ensure they are there.
 		
@@ -269,14 +271,9 @@ class SchemaScan:
 						values.append("'"+str(v) + "'")
 				print "insert into %s ( %s) values ( %s);" % ( table, ", ".join(fields), ", ".join(values))
 				
-		
 			
-			
-
 			
 		print "drop table id_remap;"
-
-		
 		
 
 		# generate a remap id temporary table on the target schema, using update and nextval and block update
@@ -310,8 +307,10 @@ class SchemaScan:
 		# if a field is xfk_identity, then instead of mapping to xlnk_identity.pk , map to xlnk_identity.xfk_identity ( which is same as identity.pk) 
 		# a bytea type field is encoded by python base64.encodestring , and is transferred by postgres decode(x, 'base64') function
 		# the str result of interval values returned by pyPgSQL.PgSQL cursor has the form "xx:xx:xx:xx.xx" 
-		# change this to "xx xx:xx:xx" by inserting a space between the 1st and second xx, and deleting the .xx part
-		# this form is parseable by postgres sql lexer.
+		#    change this to "xx xx:xx:xx" by inserting a space between the 1st and second xx, and deleting the .xx part
+		#    this form is parseable by postgres sql lexer.
+
+		# escape for ' is done for 'text' type fields. 
 		
 		stmts = {}
 		for t, v in vals.items():
@@ -424,9 +423,12 @@ class SchemaScan:
 			print x
 
 		
+		print "now_fails; - REMOVE ME"
 		print "commit;"
 				
 		print "drop table id_remap;"
+		print "\set ON_ERROR_STOP;"
+
 
 	def get_inherits(self):
 
