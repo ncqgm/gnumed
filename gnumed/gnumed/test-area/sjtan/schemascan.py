@@ -8,15 +8,15 @@ import traceback as tb
 import base64
 import binascii
 
-"""uncomment the credentials you want to test with
-this is meant to sit on a server object, either local machine or LAN. 
-and will take a long time across the internet. 
-The values in self.model, self.values, self.collections, self.refs
-need to be packed up and serialized by a server for sending to a client.
+""" uncomment the credentials below for local testing.
 """
 #credentials = "hherb.com:gnumed:any-doc:any-doc"
-credentials = "127.0.0.1::gnumed:any-doc:any-doc"
+credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+#<DEBUG> 
+# problem with fk_fhx_item permission denied when using gnumed:any-doc:any-doc
+#</DEBUG>
 #credentials = "salaam::gnumed:any-doc:any-doc"
+#credentials = "127.0.0.1::gnumed:any-doc:any-doc"
 
 class SchemaScan:
 	
@@ -103,6 +103,7 @@ class SchemaScan:
 		# not used, for debugging
 		step_through = 0
 
+		# skip all tables appearing in constants, as they should already be loaded in the target database
 		constants = ['test_type_unified', 'encounter_type', 'vacc_indication', 'lnk_vacc_ind2code', 
 				'_enum_allergy_type',
 				'vacc_regime', 'vacc_def',
@@ -111,6 +112,21 @@ class SchemaScan:
 				
 				]
 
+		# q = a queue, initially loaded with the instance of identity and instance of xlnk_identity
+		# each item in q is   
+		#  (tablename, keyfield, keyvalue) passed to select * from tablename where keyfield=keyvalue
+		#  to select the rows and description that match. More than one row may be returned,
+		# if the table is the many end of a one_to_many link.
+
+		# each pass in q, searches the current tablename in the many_to_one and one_to_many 
+		# table, and gets any tables associated and puts the a set of tablename, keyfield,keyvalue
+		# into the queue, for each association
+
+		# when the q is empty, the search is exhausted, and vals should contain a mapping
+		# of tablename :  map of rows by id to row contents.  
+		# the key values in id and key fields are the original id values of the original schema instance,
+		# and will be remapped later by selecting from an id_remap table.
+		
 		while q <> []:
 			t, key , kval  = q.pop(0)
 			if t in constants:
@@ -156,6 +172,8 @@ class SchemaScan:
 				
 				#print "v of id=", id , " is ", vals[t][id]
 
+				
+
 				m = many_to_one.get(t, {})
 				for fk in m.keys():
 					try:
@@ -169,6 +187,10 @@ class SchemaScan:
 						print " entry[fk]", entry.get(fk, None)
 						#raw_input("continue ?")
 
+				
+				# one to many tables use the current entry's pk as the foreign key val
+				# for the child table's foreign key field
+				
 				m = one_to_many.get(t, {})
 				#print "one_to_many for t is ", m
 				for t_fk in m.keys():
@@ -196,13 +218,16 @@ class SchemaScan:
 			f = raw_input("file_name to export to:")
 			o = file(f, "w")
 			sys.stdout = o
-			
+		
+		# "abstract" tables such as clin_root_item, which should not have any rows not inherited
+		# in a child table, need to be excluded.
 		
 		abstract = ['clin_root_item']
 		for t in abstract:
 			del vals[t]
 
-
+		# prints out the vals table: id : row  map , possibly as a file for transfer.
+		# file import not implemented yet though. sql export is the default. (next section)
 		print
 		for k,v in vals.items():
 			print k
@@ -228,7 +253,9 @@ class SchemaScan:
 		o = file(f, "w")
 		sys.stdout = o
 
-		#this section creates static types that should exist in target schema
+		#this section creates static types that should exist in target schema, but are inserted
+		# outside of the main transaction to ensure they are there.
+		
 		types = ['test_type_unified']
 		for table in types:
 			r,desc = self.execute("select * from %s" % table)
@@ -248,17 +275,22 @@ class SchemaScan:
 
 			
 		print "drop table id_remap;"
-		print "begin;"
-		print "set constraints all deferred;"
+
+		
+		
+
+		# generate a remap id temporary table on the target schema, using update and nextval and block update
+		# by selecting by tablename ( multiple rows updated with sequential calls on nextval).
+		
 		print "create temp table id_remap ( relname text, old_id integer, new_id integer);"
 		sql = {}
 		new_ids = {}
 		for t, v in vals.items():
-			sql[t] = {}
+			sql[t] = []
 			for id, v2 in v.items():
-				print "insert into id_remap values ('%s', %d);" % ( t, id)
+				sql[t].append( "insert into id_remap values ('%s', %d, %d);" % ( t, id, id) )
 			
-			print "update id_remap set new_id = nextval('%s_%s_seq') where relname='%s';" % ( t, self._pks[t], t)
+			sql[t].append( "update id_remap set new_id = nextval('%s_%s_seq') where relname='%s';" % ( t, self._pks[t], t))
 
 	
 		# remove static application inserts
@@ -266,6 +298,21 @@ class SchemaScan:
 			if vals.has_key(x):
 				del vals[x]
 
+		# create the insert statements, and select from id_remap temp table ( tablename, old_id, new_id)
+		#   which has new_id= nextval( 'table_id_seq') filled in by the first part of the script 
+		#   run on the target database.
+		#comments:
+		# stmts is a map of "tablename" : list of insert statements for the table
+		# find_id ,  is the id_remap select which remaps and ok pk value to a new pk value
+		# coalesce used in case of null select
+		# skip_fields, let pk_audit be autogenerated on insert
+		# integer fields, if a none value stored in val of vals[table][id]= (val,type) , then skip as well
+		# if a field is xfk_identity, then instead of mapping to xlnk_identity.pk , map to xlnk_identity.xfk_identity ( which is same as identity.pk) 
+		# a bytea type field is encoded by python base64.encodestring , and is transferred by postgres decode(x, 'base64') function
+		# the str result of interval values returned by pyPgSQL.PgSQL cursor has the form "xx:xx:xx:xx.xx" 
+		# change this to "xx xx:xx:xx" by inserting a space between the 1st and second xx, and deleting the .xx part
+		# this form is parseable by postgres sql lexer.
+		
 		stmts = {}
 		for t, v in vals.items():
 			stmts[t]= []
@@ -303,16 +350,17 @@ class SchemaScan:
 					else:
 						if str(val) == 'None':
 							m[field] = 'null'
+						elif str(type) == 'interval':
+							s = str(val).split(':')
+
+							if s[-1].find('.') >= 0:
+								s[-1] = s[-1].split('.')[0]
+
+							m[field] = "'" + s[0] + " " + ":".join(s[1:]) + "'"
+						elif str(type) == 'text':
+							m[field] ="'"+ str(val).replace("'","\\\'")+"'" 
 						else:
-							if str(type) == 'interval':
-								s = str(val).split(':')
-
-								if s[-1].find('.') >= 0:
-									s[-1] = s[-1].split('.')[0]
-
-								m[field] = "'" + s[0] + " " + ":".join(s[1:]) + "'"
-							else:
-								m[field] = "'" + str(val) + "'"
+							m[field] = "'" + str(val) + "'"
 				fields = []
 				values = []
 				for f,v in m.items():
@@ -331,7 +379,9 @@ class SchemaScan:
 			if not depends.has_key(t1):
 				depends[t1] = {} 
 			depends[t1][t2] = 1
-			
+		
+		separate_transactions = {'test_org':[] }
+		
 		ordered = []
 		while len(stmts) > 0:
 			for t, statements in stmts.items():
@@ -341,17 +391,42 @@ class SchemaScan:
 						found_dependency = 1
 						break	
 				if not found_dependency:
-					ordered.extend(statements)
+					if t in separate_transactions.keys():
+						separate_transactions[t].extend(statements)
+					else:	
+						ordered.extend(statements)
 					del stmts[t]
 			
+		# this is to cater for "test_org" where some default orgs exist, but some new ones might be
+		# added for an import
+		print
+		print
+		for t in separate_transactions.keys():
+			for x in sql[t][:-1]:
+				print x
+			
+			print "begin;"
+			print  sql[t][-1]
+			del sql[t]
+			for x in separate_transactions[t]:
+				print x
+			print "commit;"
+
+		print 
+		print
+		print "begin;"
+		for t,l in sql.items():
+			print
+			for x in l:
+				print x
+
 		for x in ordered:
 			print x
 
-		print "set constraints all immediate;"
-		print "drop table id_remap;"
 		
 		print "commit;"
 				
+		print "drop table id_remap;"
 
 	def get_inherits(self):
 
