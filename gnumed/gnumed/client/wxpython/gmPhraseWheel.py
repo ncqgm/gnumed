@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.48 2005-05-23 16:42:50 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmPhraseWheel.py,v 1.49 2005-06-01 23:09:02 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -36,7 +36,7 @@ class cPhraseWheel (wxTextCtrl):
 	def __init__ (
 		self, parent=None, id=-1, value="",
 		aMatchProvider = None,
-		aDelay = 300,
+		aDelay = 150,
 		selection_only = False,
 		*args,
 		**kwargs):
@@ -550,7 +550,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.48  2005-05-23 16:42:50  ncq
+# Revision 1.49  2005-06-01 23:09:02  ncq
+# - set default phrasewheel delay to 150ms
+#
+# Revision 1.48  2005/05/23 16:42:50  ncq
 # - when we SetValue(val) we need to only check those matches
 #   that actually *can* match, eg the output of getMatches(val)
 #
