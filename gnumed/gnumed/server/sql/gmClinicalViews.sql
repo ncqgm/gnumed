@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.143 2005-05-17 08:17:04 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.144 2005-06-01 23:18:48 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1908,6 +1908,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, coded_narrative_pk_seq
 	, clin_hx_family
 	, clin_hx_family_pk_seq
+	, hx_family_item
+	, hx_family_item_pk_seq
 	, clin_diag
 	, clin_diag_pk_seq
 	, clin_aux_note
@@ -1999,11 +2001,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.143 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.144 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.143  2005-05-17 08:17:04  ncq
+-- Revision 1.144  2005-06-01 23:18:48  ncq
+-- - missing grants on hx_family_item
+--
+-- Revision 1.143  2005/05/17 08:17:04  ncq
 -- - refine clin_narrative row mapping in v_emr_journal to display is_rfe status
 --
 -- Revision 1.142  2005/04/27 20:00:11  ncq
