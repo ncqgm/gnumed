@@ -7,16 +7,16 @@ import sys
 import traceback as tb
 import base64
 import binascii
-credentials = "hherb.com:gnumed:any-doc:any-doc"
 
-""" uncomment the credentials below for local testing.
+"""uncomment the credentials you want to test with
 this is meant to sit on a server object, either local machine or LAN. 
 and will take a long time across the internet. 
 The values in self.model, self.values, self.collections, self.refs
 need to be packed up and serialized by a server for sending to a client.
 """
-#credentials = "127.0.0.1::gnumed:gm-dbo:pass"
-credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+#credentials = "hherb.com:gnumed:any-doc:any-doc"
+credentials = "127.0.0.1::gnumed:any-doc:any-doc"
+#credentials = "salaam::gnumed:any-doc:any-doc"
 
 class SchemaScan:
 	
@@ -221,12 +221,12 @@ class SchemaScan:
 
 		sys.stdout = sys.__stdout__
 
-		f = raw_input("sql file to export (default rec.sql):")
+		f = raw_input("sql file to export (default emr-dump-#%s.sql):" % id)
 		if f == "":
-			f = "rec.sql"
+			f = "emr-dump-#%s.sql" % id
 
-			o = file(f, "w")
-			sys.stdout = o
+		o = file(f, "w")
+		sys.stdout = o
 
 		#this section creates static types that should exist in target schema
 		types = ['test_type_unified']
