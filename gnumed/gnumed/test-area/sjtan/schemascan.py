@@ -374,6 +374,8 @@ class SchemaScan:
 		print
 		print
 		for t in separate_transactions.keys():
+			if not sql.has_key(t):
+				continue
 			for x in sql[t][:-1]:
 				print x
 			
