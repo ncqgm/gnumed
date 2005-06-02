@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.13 2005-04-25 17:11:33 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmDateTimeInput.py,v 1.14 2005-06-02 23:28:54 cfmoro Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -21,7 +21,7 @@ import mx.DateTime as mxDT
 from wxPython.wx import *
 
 from Gnumed.pycommon import gmLog, gmMatchProvider, gmExceptions, gmI18N
-from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -173,6 +173,7 @@ class gmDateInput(gmPhraseWheel.cPhraseWheel):
 		self.SetSelection (-1,-1)
 
 		EVT_CHAR(self, self.__on_char)
+		EVT_KILL_FOCUS(self, self.__on_lose_focus)
 		#EVT_KEY_DOWN (self, self.__on_key_pressed)
 
 		self.__tooltip = _(
@@ -230,6 +231,28 @@ Date input field
 				return True
 
 		evt.Skip()
+	#--------------------------------------------------------
+	def __on_lose_focus(self, event):
+		# don't allow invalid input
+		#mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
+		try:
+			date = mxDT.strptime(self.GetValue(), self.__display_format)
+		except:
+			# invalid date			
+			# FIXME: Gtk-WARNING **: GtkEntry - did not receive focus-out-event
+			#        in wxwindows 2.4.x
+			#gmGuiHelpers.gm_show_error(msg, _('Invalid date format'), gmLog.lErr)						
+			msg = _('Invalid date. Date format: %s ' % self.__display_format)
+			gmGuiHelpers.gm_beep_statustext(msg, gmLog.lErr)
+			self.SetBackgroundColour('pink')
+			self.Refresh()
+			event.Skip()
+			return
+			
+		# valid date		
+		self.SetBackgroundColour(wxSystemSettings_GetColour(wxSYS_COLOUR_WINDOW))
+		self.Refresh()		
+		event.Skip()
 	#----------------------------------------------
 	def __on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
@@ -320,7 +343,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.13  2005-04-25 17:11:33  ncq
+# Revision 1.14  2005-06-02 23:28:54  cfmoro
+# Date validation
+#
+# Revision 1.13  2005/04/25 17:11:33  ncq
 # - set encoding for file
 #
 # Revision 1.12  2005/04/24 15:05:22  ncq
