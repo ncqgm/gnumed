@@ -354,6 +354,7 @@ class SchemaScan:
 		separate_transactions = {'test_org':[] }
 		
 		ordered = []
+
 		while len(stmts) > 0:
 			for t, statements in stmts.items():
 				found_dependency = 0
@@ -386,6 +387,7 @@ class SchemaScan:
 		print 
 		print
 		print "begin;"
+		print "set constraints all deferred;"
 		for t,l in sql.items():
 			print
 			for x in l:
