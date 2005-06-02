@@ -12,11 +12,8 @@ import binascii
 """
 #credentials = "hherb.com:gnumed:any-doc:any-doc"
 #credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
-#<DEBUG> 
-# problem with fk_fhx_item permission denied when using gnumed:any-doc:any-doc
-#</DEBUG>
-#credentials = "salaam::gnumed:any-doc:any-doc"
-credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
+#credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
 
 class SchemaScan:
 
@@ -261,7 +258,10 @@ class SchemaScan:
 		
 		types = ['test_type_unified', 'vacc_route', 'vaccine', 'vacc_regime' ]
 		for table in types:
-			r,desc = self.execute("select * from %s" % table)
+			try:
+				r,desc = self.execute("select * from %s" % table)
+			except: # ? permission denied
+				continue
 			for row in r:
 				id = row[[x[0] for x in desc].index(self._pks[table])]
 				fields, values = [], []
