@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.34 2005-06-02 23:26:41 cfmoro Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmDemographicsWidgets.py,v 1.35 2005-06-02 23:49:21 cfmoro Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -169,7 +169,7 @@ class SmartCombo (wx.ComboBox):
 	def GetValue (self):
 		# Call parent class method (avoid recursive loop using validator)
 		# and return empty string when no option was selected
-		return self.map.get(wx.ComboBox.GetValue (self),'')
+		return self.pam.get(wx.ComboBox.GetValue (self),'')
 
 		
 class ExtIDPanel:
@@ -1140,7 +1140,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 			id = -1,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
+		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
 
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
@@ -1456,7 +1456,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		if self.Validate():
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
-			self.form_DTD['gender'] = pageCtrl.CMB_gender.GetData()
+			self.form_DTD['gender'] = pageCtrl.CMB_gender.GetValue()
 			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
 			self.form_DTD['lastname'] = pageCtrl.PRW_lastname.GetValue()
 			self.form_DTD['firstname'] = pageCtrl.PRW_firstname.GetValue()
@@ -1795,15 +1795,9 @@ class cPatIdentityPanel(wx.Panel):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		self.CMB_gender = wx.ComboBox(			
+		self.CMB_gender = SmartCombo(			
 			parent = PNL_form,
-			id = -1,
-			value = "",
-			pos = wx.DefaultPosition,
-			size = wx.DefaultSize,
-			choices = self.__gender_map.values(),
-			style = wx.CB_DROPDOWN
-		)
+			_map = self.__gender_map)
 		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
 
 		# title
@@ -1936,7 +1930,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in self.__dtd with values from controls
-		self.__dtd['gender'] = pageCtrl.CMB_gender.GetData()
+		self.__dtd['gender'] = pageCtrl.CMB_gender.GetValue()
 		self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 		self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 		self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
@@ -2575,7 +2569,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.34  2005-06-02 23:26:41  cfmoro
+# Revision 1.35  2005-06-02 23:49:21  cfmoro
+# Gender use SmartCombo, several fixes
+#
+# Revision 1.34  2005/06/02 23:26:41  cfmoro
 # Name auto-selection in new patient wizard
 #
 # Revision 1.33  2005/06/02 12:17:25  cfmoro
