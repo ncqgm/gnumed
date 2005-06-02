@@ -11,15 +11,15 @@ import binascii
 """ uncomment the credentials below for local testing.
 """
 #credentials = "hherb.com:gnumed:any-doc:any-doc"
-credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+#credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
 #<DEBUG> 
 # problem with fk_fhx_item permission denied when using gnumed:any-doc:any-doc
 #</DEBUG>
 #credentials = "salaam::gnumed:any-doc:any-doc"
-#credentials = "127.0.0.1::gnumed:any-doc:any-doc"
+credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
 
 class SchemaScan:
-	
+
 	def __init__(self, config = None):
 		global credentials
 		print "running from credentials = ", credentials
@@ -224,7 +224,8 @@ class SchemaScan:
 		
 		abstract = ['clin_root_item']
 		for t in abstract:
-			del vals[t]
+			if vals.has_key(t):
+				del vals[t]
 
 		# prints out the vals table: id : row  map , possibly as a file for transfer.
 		# file import not implemented yet though. sql export is the default. (next section)
@@ -258,17 +259,18 @@ class SchemaScan:
 		#this section creates static types that should exist in target schema, but are inserted
 		# outside of the main transaction to ensure they are there.
 		
-		types = ['test_type_unified']
+		types = ['test_type_unified', 'vacc_route', 'vaccine', 'vacc_regime' ]
 		for table in types:
 			r,desc = self.execute("select * from %s" % table)
 			for row in r:
+				id = row[[x[0] for x in desc].index(self._pks[table])]
 				fields, values = [], []
 				for (f,type ), v in zip ( [ (d[0],d[1]) for d in desc], row):
+					nv = self.convert_to_pg_val( table, f, v, type)
+					if nv == None:
+						continue
 					fields.append(f)
-					if str(type) == 'integer':
-						values.append(str(v))
-					else:
-						values.append("'"+str(v) + "'")
+					values.append(nv)
 				print "insert into %s ( %s) values ( %s);" % ( table, ", ".join(fields), ", ".join(values))
 				
 			
@@ -281,7 +283,6 @@ class SchemaScan:
 		
 		print "create temp table id_remap ( relname text, old_id integer, new_id integer);"
 		sql = {}
-		new_ids = {}
 		for t, v in vals.items():
 			sql[t] = []
 			for id, v2 in v.items():
@@ -316,58 +317,29 @@ class SchemaScan:
 		for t, v in vals.items():
 			stmts[t]= []
 			for id , v2 in v.items():
-				find_id = "select new_id from id_remap where relname='"+t+"' and old_id = " + str(id) 
-				find_id = "coalesce(("+find_id+"))"
-				if not new_ids.has_key(t) :
-					new_ids[t] = {}
-				new_ids[t][id] = find_id
 
 				m = {}
 				skip_fields= ["pk_audit"]
 
-				for field, (val, type) in v2.items():
-					if str(type) == 'integer' :
-						m[field] = str(val)
-						if str(val) in ["", "None"]:
-							skip_fields.append(field)
-							continue
-						if self._pks[t] == field:
-							m[field] = find_id
-						elif field == "xfk_identity":
-							m[field] = "( select new_id from id_remap where relname='identity' and old_id = %d)" % int(val) 
-						elif self._many_to_one.get(t,{}).has_key(field):
-							t2,pk = self._many_to_one[t][field]
-							if not t2 in constants:
-								t3 = t2
-								if t2 == 'xlnk_identity':
-									t3 = 'identity'
-								m[field] = "coalesce((select %s from %s where %s = ( select new_id from id_remap where relname='%s' and old_id = %d)))" % ( pk, t2, pk ,t3, int(val))
-						
-
-					elif str(type) == 'bytea':
-						m[field] = "decode('" + base64.encodestring(str(val)) +"','base64')"
-					else:
-						if str(val) == 'None':
-							m[field] = 'null'
-						elif str(type) == 'interval':
-							s = str(val).split(':')
-
-							if s[-1].find('.') >= 0:
-								s[-1] = s[-1].split('.')[0]
-
-							m[field] = "'" + s[0] + " " + ":".join(s[1:]) + "'"
-						elif str(type) == 'text':
-							m[field] ="'"+ str(val).replace("'","\\\'")+"'" 
-						else:
-							m[field] = "'" + str(val) + "'"
 				fields = []
 				values = []
-				for f,v in m.items():
-					if f in skip_fields:
+
+				for field, (val, type) in v2.items():
+					if field in skip_fields:
 						continue
-						
-					fields.append(f)
-					values.append(v)
+
+					new_val = self.convert_to_pg_val( t, field, val, type)
+					if new_val is None:
+						continue
+					
+					if str(type) == 'integer':
+						new_val = self.remap_integer_val( t, field, val, type, id, constants)
+
+					
+					
+					fields.append(field)
+					values.append(str(new_val))
+
 				stmt = "insert into "+t+"  ("+ ', '.join(fields)+ ") values("+', '.join(values)+")" + ";" 
 				stmts[t].append(stmt)		
 
@@ -429,6 +401,48 @@ class SchemaScan:
 		print "drop table id_remap;"
 		print "\set ON_ERROR_STOP;"
 
+	def _convert_interval_str(self, val):
+		s = str(val).split(':')
+
+		if s[-1].find('.') >= 0:
+			s[-1] = s[-1].split('.')[0]
+		return s[0] + " " + ":".join(s[1:])
+
+
+	def convert_to_pg_val(self, t, field,  val, type ): 
+		if str(type) == 'integer' :
+			new_val = str(val)
+			if str(val) in ["", "None"]:
+				return None
+
+		elif str(type) == 'bytea':
+			new_val = "decode('" + base64.encodestring(str(val)) +"','base64')"
+		else:
+			if str(val) == 'None':
+				new_val = 'null'
+			elif str(type) == 'interval':
+				new_val = "'" + self._convert_interval_str(val) + "'"
+			elif str(type) == 'text':
+				new_val ="'"+ str(val).replace("'","\\\'")+"'" 
+			else:
+				new_val = "'" + str(val) + "'"
+		return new_val
+
+	def remap_integer_val( self, t, field, val ,type,  id, excludetables = [] ):
+			new_val = val
+			if self._pks[t] == field:
+				new_val = "(select new_id from id_remap where relname='%s' and old_id = %s)" % (t, str(id))
+			elif field == "xfk_identity":
+				new_val = "( select new_id from id_remap where relname='identity' and old_id = %d)" % int(val) 
+			elif self._many_to_one.get(t,{}).has_key(field):
+				t2,pk = self._many_to_one[t][field]
+				if not t2 in excludetables:
+					t3 = t2
+					if t2 == 'xlnk_identity':
+						t3 = 'identity'
+					new_val = "coalesce((select %s from %s where %s = ( select new_id from id_remap where relname='%s' and old_id = %d)))" % ( pk, t2, pk ,t3, int(val))
+			return new_val
+			
 
 	def get_inherits(self):
 
