@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.33 2005-06-02 12:17:25 cfmoro Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmDemographicsWidgets.py,v 1.34 2005-06-02 23:26:41 cfmoro Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1072,7 +1072,15 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		@type title - A StringType instance				
 		"""
 		wizard.wxWizardPageSimple.__init__(self, parent) #, bitmap = gmGuiHelpers.gm_icon(_('oneperson'))
-
+		self.__title = title
+		genders, idx = gmPerson.get_gender_list()
+		self.__gender_map = {}
+		for gender in genders:
+			self.__gender_map[gender[idx['tag']]] = gender[idx['l10n_label']]		
+		self.__do_layout()
+		self.__register_interests()
+	#--------------------------------------------------------
+	def __do_layout(self):
 		# main panel (required for a correct propagation of validator calls)
 		PNL_form = wx.Panel(self, -1)
 
@@ -1137,25 +1145,17 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		genders, idx = gmPerson.get_gender_list()
-		_genders = []
-		for gender in genders:
-			_genders.append({
-				'data': gender[idx['tag']],
-				'label': gender[idx['l10n_label']],
-				'weight': gender[idx['sort_weight']]
-			})
-		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = _genders)
-		mp.setThresholds(1, 1, 3)
-		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
+		STT_gender.SetForegroundColour('red')
+		self.CMB_gender = wx.ComboBox(			
 			parent = PNL_form,
 			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
-			aDelay = 50,
-			selection_only = True
+			value = "",
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			choices = self.__gender_map.values(),
+			style = wx.CB_DROPDOWN
 		)
-		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
+		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
@@ -1266,7 +1266,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
+		SZR_input.Add(self.CMB_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
 		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
@@ -1289,8 +1289,31 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		PNL_form.SetSizerAndFit(SZR_input)
 
 		# layout page
-		SZR_main = gmGuiHelpers.makePageTitle(self, title)
+		SZR_main = gmGuiHelpers.makePageTitle(self, self.__title)
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		"""
+		Configure enabled event signals
+		"""
+		# wxpython
+		wx.EVT_KILL_FOCUS(self.PRW_firstname, self.__on_name_set)
+	#--------------------------------------------------------
+	def __on_name_set(self, event):
+		"""
+		Set the gender according to entered firstname.
+		Matches are fetched from existing records in backend.
+		"""
+		# FIXME: if we load gender_l10n in v_basic_person, we
+		# dont need to obtain gender_map
+		map = get_name_gender_map()
+		firstname = string.lower(self.PRW_firstname.GetValue())
+		if(map.has_key(firstname)):
+			gender = self.__gender_map[map[firstname]] 
+			self.CMB_gender.SetSelection(self.CMB_gender.FindString(gender))
+		event.Skip()				
 #============================================================
 class cNewPatientWizard(wizard.wxWizard):
 	"""
@@ -1407,7 +1430,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
-		pageCtrl.PRW_gender.SetValue(self.form_DTD['gender'])
+		pageCtrl.CMB_gender.SetSelection(pageCtrl.CMB_gender.FindString(self.form_DTD['gender']))
 		pageCtrl.TTC_dob.SetValue(self.form_DTD['dob'])
 		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastname'])
 		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstname'])
@@ -1433,7 +1456,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		if self.Validate():
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
-			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
+			self.form_DTD['gender'] = pageCtrl.CMB_gender.GetData()
 			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
 			self.form_DTD['lastname'] = pageCtrl.PRW_lastname.GetValue()
 			self.form_DTD['firstname'] = pageCtrl.PRW_firstname.GetValue()
@@ -1767,7 +1790,7 @@ class cPatIdentityPanel(wx.Panel):
 			id = -1,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one"))
+		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
 
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
@@ -2552,7 +2575,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.33  2005-06-02 12:17:25  cfmoro
+# Revision 1.34  2005-06-02 23:26:41  cfmoro
+# Name auto-selection in new patient wizard
+#
+# Revision 1.33  2005/06/02 12:17:25  cfmoro
 # Auto select gender according to firstname
 #
 # Revision 1.32  2005/05/28 12:18:01  cfmoro
