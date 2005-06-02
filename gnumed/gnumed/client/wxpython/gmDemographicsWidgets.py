@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.32 2005-05-28 12:18:01 cfmoro Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmDemographicsWidgets.py,v 1.33 2005-06-02 12:17:25 cfmoro Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -24,13 +24,14 @@ from wxPython import wizard
 
 # GnuMed specific
 from Gnumed.wxpython import gmPlugin, gmPatientHolder, images_patient_demographics, images_contacts_toolbar16_16, gmPhraseWheel, gmCharacterValidator, gmGuiHelpers, gmDateTimeInput, gmRegetMixin
-from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N, gmMatchProvider
+from Gnumed.pycommon import  gmGuiBroker,  gmLog, gmDispatcher, gmSignals, gmCfg, gmWhoAmI, gmI18N, gmMatchProvider, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
 
 # constant defs
 _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
 _cfg = gmCfg.gmDefCfgFile
+__name_gender_map = None
 
 DATE_FORMAT = '%Y-%m-%d'
 
@@ -1696,7 +1697,12 @@ class cPatIdentityPanel(wx.Panel):
 		wx.Panel.__init__(self, parent, id)
 		self.__dtd = dtd
 		self.__ident = ident
+		genders, idx = gmPerson.get_gender_list()
+		self.__gender_map = {}
+		for gender in genders:
+			self.__gender_map[gender[idx['tag']]] = gender[idx['l10n_label']]
 		self.__do_layout()
+		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_layout(self):
 
@@ -1736,7 +1742,7 @@ class cPatIdentityPanel(wx.Panel):
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))
+		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))		
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
@@ -1766,25 +1772,16 @@ class cPatIdentityPanel(wx.Panel):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		genders, idx = gmPerson.get_gender_list()
-		_genders = []
-		for gender in genders:
-			_genders.append({
-				'data': gender[idx['tag']],
-				'label': gender[idx['l10n_label']],
-				'weight': gender[idx['sort_weight']]
-			})
-		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = _genders)
-		mp.setThresholds(1, 1, 3)
-		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
+		self.CMB_gender = wx.ComboBox(			
 			parent = PNL_form,
 			id = -1,
-			aMatchProvider = mp,
-			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
-			aDelay = 50,
-			selection_only = True
+			value = "",
+			pos = wx.DefaultPosition,
+			size = wx.DefaultSize,
+			choices = self.__gender_map.values(),
+			style = wx.CB_DROPDOWN
 		)
-		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
+		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
@@ -1813,7 +1810,7 @@ class cPatIdentityPanel(wx.Panel):
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
+		SZR_input.Add(self.CMB_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
 		PNL_form.SetSizerAndFit(SZR_input)
@@ -1822,6 +1819,31 @@ class cPatIdentityPanel(wx.Panel):
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
 		self.SetSizer(SZR_main)
 	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		"""
+		Configure enabled event signals
+		"""
+		# wxpython
+		wx.EVT_KILL_FOCUS(self.PRW_firstname, self.__on_name_set)
+	#--------------------------------------------------------
+	def __on_name_set(self, event):
+		"""
+		Set the gender according to entered firstname.
+		Matches are fetched from existing records in backend.
+		"""
+		# FIXME: if we load gender_l10n in v_basic_person, we
+		# dont need to obtain gender_map
+		map = get_name_gender_map()
+		firstname = string.lower(self.PRW_firstname.GetValue())
+		if(map.has_key(firstname)):
+			gender = self.__gender_map[map[firstname]] 
+			self.CMB_gender.SetSelection(self.CMB_gender.FindString(gender))
+		event.Skip()
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------		
 	def save(self):
 		print "Saving identity..."
 		# FIXME: calling Validate() from widget rises:
@@ -1870,7 +1892,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# FIXME: add appropriate SetData()
-		pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
+		pageCtrl.CMB_gender.SetSelection (pageCtrl.CMB_gender.FindString(self.__dtd['gender']))
 		pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].Format(DATE_FORMAT))
 		pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
 		pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
@@ -1891,7 +1913,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in self.__dtd with values from controls
-		self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
+		self.__dtd['gender'] = pageCtrl.CMB_gender.GetData()
 		self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 		self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 		self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
@@ -2476,6 +2498,18 @@ def link_occupation_from_dtd(identity, dtd=None):
 	identity.save_payload()
 	return True	
 #============================================================
+def get_name_gender_map():	
+	global __name_gender_map
+	if __name_gender_map is None:
+		cmd = "SELECT DISTINCT(firstnames), gender FROM v_basic_person"
+		rows = gmPG.run_ro_query('personalia', cmd, False)
+		if rows is None:
+			_log.Log(gmLog.lPanic, 'cannot retrieve name-genders from database')
+		__name_gender_map= {}
+		for row in rows:
+			__name_gender_map[string.lower(row[0])] = row[1]
+	return __name_gender_map
+#============================================================
 class TestWizardPanel(wx.Panel):   
 	"""
 	Utility class to test the new patient wizard.
@@ -2518,7 +2552,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.32  2005-05-28 12:18:01  cfmoro
+# Revision 1.33  2005-06-02 12:17:25  cfmoro
+# Auto select gender according to firstname
+#
+# Revision 1.32  2005/05/28 12:18:01  cfmoro
 # Capitalize name, street, etc
 #
 # Revision 1.31  2005/05/28 12:00:53  cfmoro
