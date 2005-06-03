@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.14 2005-06-02 23:28:54 cfmoro Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmDateTimeInput.py,v 1.15 2005-06-03 00:36:54 cfmoro Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -232,7 +232,7 @@ Date input field
 
 		evt.Skip()
 	#--------------------------------------------------------
-	def __on_lose_focus(self, event):
+	def __validate(self, event = None):
 		# don't allow invalid input
 		#mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 		try:
@@ -246,13 +246,22 @@ Date input field
 			gmGuiHelpers.gm_beep_statustext(msg, gmLog.lErr)
 			self.SetBackgroundColour('pink')
 			self.Refresh()
-			event.Skip()
+			if not event is None:
+				event.Skip()
 			return
 			
 		# valid date		
 		self.SetBackgroundColour(wxSystemSettings_GetColour(wxSYS_COLOUR_WINDOW))
-		self.Refresh()		
-		event.Skip()
+		self.Refresh()
+		if not event is None:
+			event.Skip()		
+	#--------------------------------------------------------
+	def __on_lose_focus(self, event):
+		self.__validate(event)
+	#--------------------------------------------------------		
+	def SetValue(self, val):
+		gmPhraseWheel.cPhraseWheel.SetValue(self, val)
+		self.__validate()
 	#----------------------------------------------
 	def __on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
@@ -343,7 +352,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.14  2005-06-02 23:28:54  cfmoro
+# Revision 1.15  2005-06-03 00:36:54  cfmoro
+# Validate date on setValue
+#
+# Revision 1.14  2005/06/02 23:28:54  cfmoro
 # Date validation
 #
 # Revision 1.13  2005/04/25 17:11:33  ncq
