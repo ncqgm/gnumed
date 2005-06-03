@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.15 2005-06-03 00:36:54 cfmoro Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmDateTimeInput.py,v 1.16 2005-06-03 00:54:33 cfmoro Exp $
+__version__ = "$Revision: 1.16 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -258,10 +258,6 @@ Date input field
 	#--------------------------------------------------------
 	def __on_lose_focus(self, event):
 		self.__validate(event)
-	#--------------------------------------------------------		
-	def SetValue(self, val):
-		gmPhraseWheel.cPhraseWheel.SetValue(self, val)
-		self.__validate()
 	#----------------------------------------------
 	def __on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
@@ -288,6 +284,11 @@ Date input field
 			return
 
 		key.Skip()
+	#--------------------------------------------------------		
+	def SetValue(self, val):
+		gmPhraseWheel.cPhraseWheel.SetValue(self, val)
+		if len(val.strip()) and val != self.__default_text > 0:
+			self.__validate()		
 	#----------------------------------------------
 	def __selected(self, data):
 		pass
@@ -352,7 +353,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.15  2005-06-03 00:36:54  cfmoro
+# Revision 1.16  2005-06-03 00:54:33  cfmoro
+# Validte date in SetValue
+#
+# Revision 1.15  2005/06/03 00:36:54  cfmoro
 # Validate date on setValue
 #
 # Revision 1.14  2005/06/02 23:28:54  cfmoro
