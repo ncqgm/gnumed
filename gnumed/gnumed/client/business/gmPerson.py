@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.46 2005-05-28 11:46:28 cfmoro Exp $
-__version__ = "$Revision: 1.46 $"
+# $Id: gmPerson.py,v 1.47 2005-06-03 15:24:27 cfmoro Exp $
+__version__ = "$Revision: 1.47 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -255,7 +255,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		)
 		successful, data = self.save_payload()
 		if not successful:
-			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % data)
+			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % str(data))
 			return False
 		# delete occupations cache so will be refetched next time it is queried
 		try:			
@@ -280,6 +280,12 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 			return False			
 		
 		# dump to backend
+		# FIXME: when adding to subtable, need that 'comms' exists
+		#        does not happen with addresses, occupations. Why?
+		try :
+			self._ext_cache['comms']
+		except:
+			self._ext_cache['comms'] = []
 		self.add_to_subtable(
 			'comms',
 				{
@@ -291,7 +297,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		successful, data = self.save_payload()
 		
 		if not successful:
-			_log.Log(gmLog.lPanic, 'failed to create communication: %s' % data)
+			_log.Log(gmLog.lPanic, 'failed to create communication: %s' % str(data))
 			return False
 		# delete comms cache so will be refetched next time it is queried
 		try:			
@@ -1478,7 +1484,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.46  2005-05-28 11:46:28  cfmoro
+# Revision 1.47  2005-06-03 15:24:27  cfmoro
+# Fix to make lin_comm work. FIXME added
+#
+# Revision 1.46  2005/05/28 11:46:28  cfmoro
 # Evict cache in identity linking/add methods
 #
 # Revision 1.45  2005/05/23 12:01:07  cfmoro
