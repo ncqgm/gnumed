@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.36 2005-06-03 00:01:41 cfmoro Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmDemographicsWidgets.py,v 1.37 2005-06-03 00:37:33 cfmoro Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1913,6 +1913,21 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 	def Validate(self):
 		"""Validate the contents of the given text control.
 		"""
+		pageCtrl = self.GetWindow().GetParent()
+		# dob validation
+		try:
+			date = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
+		except:
+			msg = _('Invalid date. Date format: %s ' % DATE_FORMAT)
+			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)			
+			pageCtrl.TTC_dob.SetBackgroundColour('pink')
+			pageCtrl.TTC_dob.Refresh()
+			pageCtrl.TTC_dob.SetFocus()
+			return False
+			
+		# valid date		
+		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		pageCtrl.TTC_dob.Refresh()		
 		return True
 	#--------------------------------------------------------
 	def TransferFromWindow(self):
@@ -1921,15 +1936,18 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		pageCtrl = self.GetWindow().GetParent()
-		# fill in self.__dtd with values from controls
-		self.__dtd['gender'] = pageCtrl.CMB_gender.GetValue()
-		self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
-		self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
-		self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
-		self.__dtd['title'] = pageCtrl.PRW_title.GetValue()
-		self.__dtd['nick'] = pageCtrl.PRW_nick.GetValue()
-		return True
+		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
+		if self.Validate():		
+			pageCtrl = self.GetWindow().GetParent()
+			# fill in self.__dtd with values from controls
+			self.__dtd['gender'] = pageCtrl.CMB_gender.GetValue()
+			self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
+			self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
+			self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
+			self.__dtd['title'] = pageCtrl.PRW_title.GetValue()
+			self.__dtd['nick'] = pageCtrl.PRW_nick.GetValue()
+			return True
+		return False		
 #============================================================
 class cPatContactsPanel(wx.Panel):
 	"""
@@ -2362,10 +2380,10 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		# returning its version before save_payload().
 		# FIXME post 0.1: internal signal
 		if not self.__patient_notebook.save():
-			self.__patient_notebook.refresh()
+			#self.__patient_notebook.refresh()
 			return False
 
-		self.__patient_notebook.refresh()
+		#self.__patient_notebook.refresh()
 		return True
 	#--------------------------------------------------------
 	def _on_restore(self, event):
@@ -2374,7 +2392,7 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 		fetched from backed, prior to any modification by
 		the user.
 		"""
-		self.__patient_notebook.TransferDataToWindow()
+		self.__patient_notebook.refresh()
 		return True
 	#--------------------------------------------------------
 	# reget mixin API
@@ -2548,8 +2566,8 @@ if __name__ == "__main__":
 		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 		
 		app1 = wx.PyWidgetTester(size = (800, 600))
-		#app1.SetWidget(cNotebookedPatEditionPanel, -1)
-		app1.SetWidget(TestWizardPanel, -1)
+		app1.SetWidget(cNotebookedPatEditionPanel, -1)
+		#app1.SetWidget(TestWizardPanel, -1)
 		app1.MainLoop()
 	
 	except StandardError:
@@ -2562,7 +2580,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.36  2005-06-03 00:01:41  cfmoro
+# Revision 1.37  2005-06-03 00:37:33  cfmoro
+# Validate dob in patient identity page
+#
+# Revision 1.36  2005/06/03 00:01:41  cfmoro
 # Key fixes in new patient wizard
 #
 # Revision 1.35  2005/06/02 23:49:21  cfmoro
