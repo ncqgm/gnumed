@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -58,25 +58,18 @@ CREATE FUNCTION create_urb(text, text, text, text) RETURNS integer AS '
 DECLARE
 	_urb ALIAS FOR $1;
 	_urb_postcode ALIAS FOR $2;	
-	_state ALIAS FOR $3;
-	_country ALIAS FOR $4;
+	_state_code ALIAS FOR $3;
+	_country_code ALIAS FOR $4;
 
- 	_country_code text;
  	_state_id integer;
 	_urb_id integer;
 
 	msg text;
 BEGIN
- 	-- get country
-	SELECT INTO _country_code c.code FROM country c WHERE c.name ILIKE _country;
-	IF NOT FOUND THEN
-		msg := ''Cannot set address ['' || _country || '', '' || _state || '', '' || _urb || '', '' || _urb_postcode || '']. No countries row with name ['' || _country || ''] found.'';
-		RAISE EXCEPTION ''=> %'', msg;
-	END IF;
  	-- get state
- 	SELECT INTO _state_id s.id FROM state s WHERE s.name ILIKE _state and s.country = _country_code;
+ 	SELECT INTO _state_id s.id FROM state s WHERE s.code = _state_code and s.country = _country_code;
  	IF NOT FOUND THEN
-		msg := ''Cannot set address ['' || _country || '', '' || _state || '', '' || _urb || '', '' || _urb_postcode || '']. No states row with name, country code ['' || _state || '', '' || _country_code || ''] found.'';
+		msg := ''Cannot set address ['' || _country_code || '', '' || _state_code || '', '' || _urb || '', '' || _urb_postcode || ''].'';
 		RAISE EXCEPTION ''=> %'', msg;
  	END IF;
 	-- get/create and return urb
@@ -331,11 +324,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.21 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.22 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.21  2005-05-19 16:33:34  ncq
+-- Revision 1.22  2005-06-03 13:36:11  cfmoro
+-- Pass state and country codes instead of their names, safer and more consistent
+--
+-- Revision 1.21  2005/05/19 16:33:34  ncq
 -- - in v_basic_address properly handle country/state + *_code
 --
 -- Revision 1.20  2005/05/17 17:34:37  ncq
