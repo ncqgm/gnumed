@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.39 2005-06-03 13:37:45 cfmoro Exp $
-__version__ = "$Revision: 1.39 $"
+# $Id: gmDemographicsWidgets.py,v 1.40 2005-06-03 15:50:38 cfmoro Exp $
+__version__ = "$Revision: 1.40 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1957,7 +1957,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# FIXME: add appropriate SetData()
-		pageCtrl.CMB_gender.SetSelection (pageCtrl.CMB_gender.FindString(self.__dtd['gender']))
+		pageCtrl.CMB_gender.SetValue(self.__dtd['gender'])
 		pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].Format(DATE_FORMAT))
 		pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
 		pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
@@ -1995,7 +1995,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		if self.Validate():		
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.__dtd with values from controls
-			self.__dtd['gender'] = pageCtrl.CMB_gender.GetValue()
+			self.__dtd['gender'] = pageCtrl.CMB_gender.GetData(pageCtrl.CMB_gender.GetValue())
 			self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 			self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
@@ -2023,6 +2023,7 @@ class cPatContactsPanel(wx.Panel):
 		self.__dtd = dtd
 		self.__ident = ident
 		self.__do_layout()
+		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_layout(self):
 		# FIXME: main panel, required for a correct propagation of validator calls.
@@ -2066,30 +2067,22 @@ class cPatContactsPanel(wx.Panel):
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 
 		# state
+		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		cmd = "select distinct code, name from state where name %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
-		mp.setThresholds(3, 5, 6)
-		self.PRW_state = gmPhraseWheel.cPhraseWheel (
+		self.CMB_state = SmartCombo(
 			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			selection_only = True
+			_map = {}
 		)
-		self.PRW_state.SetToolTipString(_("primary/home address: state"))
+		self.CMB_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
+		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		cmd = "select distinct code, _(name) from country where _(name) %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
-		mp.setThresholds(2, 5, 15)
-		self.PRW_country = gmPhraseWheel.cPhraseWheel (
+		self.CMB_country = SmartCombo(
 			parent = PNL_form,
-			id = -1,
-			aMatchProvider = mp,
-			selection_only = True
+			_map = get_country_map()
 		)
-		self.PRW_country.SetToolTipString(_("primary/home address: country"))
+		self.CMB_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
 		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
@@ -2112,9 +2105,9 @@ class cPatContactsPanel(wx.Panel):
 		SZR_input.Add(STT_town, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 		SZR_input.Add(STT_state, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
+		SZR_input.Add(self.CMB_state, 1, wx.EXPAND)
 		SZR_input.Add(STT_country, 0, wx.SHAPED)
-		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
+		SZR_input.Add(self.CMB_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
 		PNL_form.SetSizerAndFit(SZR_input)
@@ -2123,6 +2116,34 @@ class cPatContactsPanel(wx.Panel):
 		SZR_main = wx.BoxSizer(wx.VERTICAL)
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
 		self.SetSizer(SZR_main)
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		"""
+		Configure enabled event signals
+		"""
+		# wxpython
+		wx.EVT_COMBOBOX(self.CMB_country, self.CMB_country.GetId(), self.__on_country_set)
+	#--------------------------------------------------------
+	def __on_country_set(self, event):
+		"""
+		When the user change the country selection in the combobox.
+		"""
+		self.refresh_states(event.GetString())
+		event.Skip()
+	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------			
+	def refresh_states(self, country):
+		"""
+		Set the states according to entered country.
+		"""
+		#print country
+		country_code = self.CMB_country.GetData(country)
+		print country_code
+		states = get_states4country(country_code)
+		self.CMB_state.RefreshContents(states)
 	#--------------------------------------------------------
 	def save(self):
 		print "saving contacts..."
@@ -2174,8 +2195,8 @@ class cPatContactsPanelValidator(wx.PyValidator):
 			pageCtrl.TTC_zip_code,
 			pageCtrl.PRW_street,
 			pageCtrl.PRW_town,
-			pageCtrl.PRW_state,
-			pageCtrl.PRW_country
+			pageCtrl.CMB_state,
+			pageCtrl.CMB_country
 		)
 		# validate required fields
 		is_any_field_filled = False
@@ -2206,8 +2227,10 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
 		pageCtrl.TTC_zip_code.SetValue(self.form_DTD['zip_code'])
 		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
-		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])		
-		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])		
+		country = string.capitalize(self.form_DTD['country'])
+		pageCtrl.CMB_country.SetValue(country)
+		pageCtrl.refresh_states(country)
+		pageCtrl.CMB_state.SetValue(string.capitalize(self.form_DTD['state']))
 		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
@@ -2225,8 +2248,8 @@ class cPatContactsPanelValidator(wx.PyValidator):
 			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
 			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
 			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-			self.form_DTD['state'] = pageCtrl.PRW_state.GetValue()
-			self.form_DTD['country'] = pageCtrl.PRW_country.GetValue()
+			self.form_DTD['state'] = pageCtrl.CMB_state.GetData(pageCtrl.CMB_state.GetValue())
+			self.form_DTD['country'] = pageCtrl.CMB_country.GetData(pageCtrl.CMB_country.GetValue())
 			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
 			return True
 		return False
@@ -2675,8 +2698,8 @@ if __name__ == "__main__":
 		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 		
 		app1 = wx.PyWidgetTester(size = (800, 600))
-		#app1.SetWidget(cNotebookedPatEditionPanel, -1)
-		app1.SetWidget(TestWizardPanel, -1)
+		app1.SetWidget(cNotebookedPatEditionPanel, -1)
+		#app1.SetWidget(TestWizardPanel, -1)
 		app1.MainLoop()
 	
 	except StandardError:
@@ -2689,7 +2712,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.39  2005-06-03 13:37:45  cfmoro
+# Revision 1.40  2005-06-03 15:50:38  cfmoro
+# State and country combos y patient edition
+#
+# Revision 1.39  2005/06/03 13:37:45  cfmoro
 # States and country combo selection. SmartCombo revamped. Passing country and state codes instead of names
 #
 # Revision 1.38  2005/06/03 00:56:19  cfmoro
