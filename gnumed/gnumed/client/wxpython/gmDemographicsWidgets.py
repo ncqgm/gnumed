@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.37 2005-06-03 00:37:33 cfmoro Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmDemographicsWidgets.py,v 1.38 2005-06-03 00:56:19 cfmoro Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1390,6 +1390,22 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		Validate the contents of the given text control.
 		"""
 		pageCtrl = self.GetWindow().GetParent()
+		# dob validation
+		try:
+			date = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
+		except:
+			msg = _('Invalid date. Date format: %s ' % DATE_FORMAT)
+			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)			
+			pageCtrl.TTC_dob.SetBackgroundColour('pink')
+			pageCtrl.TTC_dob.Refresh()
+			pageCtrl.TTC_dob.SetFocus()
+			return False
+			
+		# valid date		
+		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		pageCtrl.TTC_dob.Refresh()
+				
+		# address		
 		address_fields = (
 			pageCtrl.TTC_address_number,
 			pageCtrl.TTC_zip_code,
@@ -1398,7 +1414,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			pageCtrl.PRW_state,
 			pageCtrl.PRW_country
 		)
-		# validate required fields
 		is_any_field_filled = False
 		for field in address_fields:
 			if len(field.GetValue()) > 0:
@@ -2566,8 +2581,8 @@ if __name__ == "__main__":
 		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 		
 		app1 = wx.PyWidgetTester(size = (800, 600))
-		app1.SetWidget(cNotebookedPatEditionPanel, -1)
-		#app1.SetWidget(TestWizardPanel, -1)
+		#app1.SetWidget(cNotebookedPatEditionPanel, -1)
+		app1.SetWidget(TestWizardPanel, -1)
 		app1.MainLoop()
 	
 	except StandardError:
@@ -2580,7 +2595,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.37  2005-06-03 00:37:33  cfmoro
+# Revision 1.38  2005-06-03 00:56:19  cfmoro
+# Validate dob in patient wizard
+#
+# Revision 1.37  2005/06/03 00:37:33  cfmoro
 # Validate dob in patient identity page
 #
 # Revision 1.36  2005/06/03 00:01:41  cfmoro
