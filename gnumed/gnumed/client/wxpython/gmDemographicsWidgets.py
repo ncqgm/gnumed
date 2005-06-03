@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.35 2005-06-02 23:49:21 cfmoro Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmDemographicsWidgets.py,v 1.36 2005-06-03 00:01:41 cfmoro Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1059,7 +1059,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 	"""
 	
 	form_fields = (
-			'firstname', 'lastname', 'nick', 'dob', 'gender', 'title', 'occupation',
+			'firstnames', 'lastnames', 'nick', 'dob', 'gender', 'title', 'occupation',
 			'address_number', 'zip_code', 'street', 'town', 'state', 'country', 'phone'
 	)
 	
@@ -1145,16 +1145,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		STT_gender.SetForegroundColour('red')
-		self.CMB_gender = wx.ComboBox(			
+		self.CMB_gender = SmartCombo(
 			parent = PNL_form,
-			id = -1,
-			value = "",
-			pos = wx.DefaultPosition,
-			size = wx.DefaultSize,
-			choices = self.__gender_map.values(),
-			style = wx.CB_DROPDOWN
-		)
+			_map = self.__gender_map)
 		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
 
 		# title
@@ -1432,8 +1425,8 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# fill in controls with values from self.form_DTD
 		pageCtrl.CMB_gender.SetSelection(pageCtrl.CMB_gender.FindString(self.form_DTD['gender']))
 		pageCtrl.TTC_dob.SetValue(self.form_DTD['dob'])
-		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastname'])
-		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstname'])
+		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastnames'])
+		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstnames'])
 		pageCtrl.PRW_title.SetValue(self.form_DTD['title'])
 		pageCtrl.PRW_nick.SetValue(self.form_DTD['nick'])
 		pageCtrl.PRW_occupation.SetValue(self.form_DTD['occupation'])
@@ -1458,8 +1451,8 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = pageCtrl.CMB_gender.GetValue()
 			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
-			self.form_DTD['lastname'] = pageCtrl.PRW_lastname.GetValue()
-			self.form_DTD['firstname'] = pageCtrl.PRW_firstname.GetValue()
+			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
+			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
 			self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
 			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
@@ -1795,7 +1788,7 @@ class cPatIdentityPanel(wx.Panel):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		self.CMB_gender = SmartCombo(			
+		self.CMB_gender = SmartCombo(
 			parent = PNL_form,
 			_map = self.__gender_map)
 		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
@@ -2406,8 +2399,8 @@ def create_identity_from_dtd(dtd=None):
 	new_identity = gmPerson.create_identity (
 		gender = dtd['gender'],
 		dob = dtd['dob'],
-		lastnames = dtd['lastname'].capitalize(),
-		firstnames = dtd['firstname'].capitalize()
+		lastnames = dtd['lastnames'].capitalize(),
+		firstnames = dtd['firstnames'].capitalize()
 	)
 	if new_identity is None:
 		_log.Log(gmLog.lErr, 'cannot create identity from %s' % str(dtd))
@@ -2555,8 +2548,8 @@ if __name__ == "__main__":
 		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 		
 		app1 = wx.PyWidgetTester(size = (800, 600))
-		app1.SetWidget(cNotebookedPatEditionPanel, -1)
-		#app1.SetWidget(TestWizardPanel, -1)
+		#app1.SetWidget(cNotebookedPatEditionPanel, -1)
+		app1.SetWidget(TestWizardPanel, -1)
 		app1.MainLoop()
 	
 	except StandardError:
@@ -2569,7 +2562,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.35  2005-06-02 23:49:21  cfmoro
+# Revision 1.36  2005-06-03 00:01:41  cfmoro
+# Key fixes in new patient wizard
+#
+# Revision 1.35  2005/06/02 23:49:21  cfmoro
 # Gender use SmartCombo, several fixes
 #
 # Revision 1.34  2005/06/02 23:26:41  cfmoro
