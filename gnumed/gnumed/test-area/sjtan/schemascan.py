@@ -11,9 +11,15 @@ import binascii
 """ uncomment the credentials below for local testing.
 """
 #credentials = "hherb.com:gnumed:any-doc:any-doc"
-#credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
-#credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
 credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+#<DEBUG> 
+# problem with fk_fhx_item permission denied when using gnumed:any-doc:any-doc
+#</DEBUG>
+credentials = "salaam::gnumed:any-doc:any-doc"
+#credentials = "127.0.0.1::gnumed:any-doc:any-doc"
+#credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
+#credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
 
 class SchemaScan:
 
@@ -80,6 +86,7 @@ class SchemaScan:
 
 		
 		id = int(raw_input("id of identity:"))
+		pat_id = id
 
 		q = [("identity", self._pks['identity'], id), ("xlnk_identity", "xfk_identity", id) ]
 
@@ -244,14 +251,14 @@ class SchemaScan:
 
 		sys.stdout = sys.__stdout__
 
-		f = raw_input("sql file to export (default emr-dump-#%s.sql):" % id)
+		f = raw_input("sql file to export (default emr-dump-#%s.sql):" % pat_id)
 		if f == "":
-			f = "emr-dump-#%s.sql" % id
+			f = "emr-dump-#%s.sql" % pat_id
 
 		o = file(f, "w")
 		sys.stdout = o
 
-		print "\unset ON_ERROR_STOP;"
+		print "\unset ON_ERROR_STOP"
 
 		#this section creates static types that should exist in target schema, but are inserted
 		# outside of the main transaction to ensure they are there.
@@ -388,6 +395,7 @@ class SchemaScan:
 
 		print 
 		print
+		print "\set ON_ERROR_STOP 1"
 		print "begin;"
 		print "set constraints all deferred;"
 		for t,l in sql.items():
@@ -399,11 +407,10 @@ class SchemaScan:
 			print x
 
 		
-		print "now_fails; - REMOVE ME"
+		print "now_fails; -- REMOVE ME"
 		print "commit;"
-				
+
 		print "drop table id_remap;"
-		print "\set ON_ERROR_STOP;"
 
 	def _convert_interval_str(self, val):
 		s = str(val).split(':')
