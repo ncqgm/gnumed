@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.47 2005-06-03 15:24:27 cfmoro Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPerson.py,v 1.48 2005-06-04 09:30:08 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -217,7 +217,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lErr, 'failed to add name: %s' % str(data))
 			return False
-		# delete names cache so will be refetched next time it is queried
 		try:			
 			del self._ext_cache['names']			
 		except:
@@ -257,7 +256,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create occupation: %s' % str(data))
 			return False
-		# delete occupations cache so will be refetched next time it is queried
 		try:			
 			del self._ext_cache['occupations']
 		except:
@@ -295,11 +293,9 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 				}
 		)
 		successful, data = self.save_payload()
-		
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to create communication: %s' % str(data))
 			return False
-		# delete comms cache so will be refetched next time it is queried
 		try:			
 			del self._ext_cache['comms']
 		except:
@@ -321,7 +317,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		@param country The name of the country.
 		@param country A types.StringType instance.
 		"""
-
 		# dump to backend
 		self.add_to_subtable (
 			'addresses',
@@ -338,7 +333,6 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if not successful:
 			_log.Log(gmLog.lPanic, 'failed to link address: %s' % str(data))
 			return False
-		# delete addresses cache so will be refetched next time it is queried
 		try:			
 			del self._ext_cache['addresses']
 		except:
@@ -1484,7 +1478,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.47  2005-06-03 15:24:27  cfmoro
+# Revision 1.48  2005-06-04 09:30:08  ncq
+# - just silly whitespace cleanup
+#
+# Revision 1.47  2005/06/03 15:24:27  cfmoro
 # Fix to make lin_comm work. FIXME added
 #
 # Revision 1.46  2005/05/28 11:46:28  cfmoro
