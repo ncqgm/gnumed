@@ -12,8 +12,8 @@ import binascii
 """
 #credentials = "hherb.com:gnumed:any-doc:any-doc"
 #credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
-credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
-#credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+#credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
+credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
 
 class SchemaScan:
 
@@ -351,7 +351,7 @@ class SchemaScan:
 				depends[t1] = {} 
 			depends[t1][t2] = 1
 		
-		separate_transactions = {'test_org':[] }
+		separate_transactions = {'org':[],'test_org':[] }
 		
 		ordered = []
 
