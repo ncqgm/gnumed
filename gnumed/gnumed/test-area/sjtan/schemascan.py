@@ -11,15 +11,9 @@ import binascii
 """ uncomment the credentials below for local testing.
 """
 #credentials = "hherb.com:gnumed:any-doc:any-doc"
-credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
-#<DEBUG> 
-# problem with fk_fhx_item permission denied when using gnumed:any-doc:any-doc
-#</DEBUG>
-credentials = "salaam::gnumed:any-doc:any-doc"
-#credentials = "127.0.0.1::gnumed:any-doc:any-doc"
 #credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
-credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
-#credentials = "127.0.0.1::gnumedtest:gm-dbo:pass"
+#credentials = "salaam.homeunix.com::gnumed:any-doc:any-doc"
+credentials = "127.0.0.1::gnumed:gm-dbo:pass"
 
 class SchemaScan:
 
@@ -56,6 +50,16 @@ class SchemaScan:
 		
 		#  map of parent: list of children		
 		self._inherits = m
+		
+		# map of child ; list of parents
+
+		m = {}
+		for child, parent in self.get_inherits():
+			l = m.get(child, [])
+			l.append(parent)
+			m[child ] = l
+		
+		self._parents = m
 
 
 		# map of referring table, referring foreign key field: tuple of (referred table, referred field)
@@ -66,24 +70,27 @@ class SchemaScan:
 		one_to_many = {}
 
 
-		self._many_to_one = many_to_one
-
-		self._one_to_many = one_to_many
 
 		for t1, fk, t2, pk in self.get_fk_details():
 			print t1,".", fk ,"->" ,t2,".", pk
+			#if t1 == 'clin_narrative':
+			#	raw_input("continue")
 
 		for t1, fk, t2, pk in self.get_fk_details():
 			if not many_to_one.has_key(t1):
 				many_to_one[t1] = {}
-
+			
 			many_to_one[t1][fk]= (t2, pk)
+	
 
 			if not one_to_many.has_key(t2):
 				one_to_many[t2] =  {}
 
 			one_to_many[t2][t1+"."+fk] = ( t1, fk, pk)
 
+		self._many_to_one = many_to_one
+
+		self._one_to_many = one_to_many
 		
 		id = int(raw_input("id of identity:"))
 		pat_id = id
@@ -255,8 +262,8 @@ class SchemaScan:
 		if f == "":
 			f = "emr-dump-#%s.sql" % pat_id
 
-		o = file(f, "w")
-		sys.stdout = o
+		output = file(f, "w")
+		sys.stdout = output
 
 		print "\unset ON_ERROR_STOP"
 
@@ -283,12 +290,13 @@ class SchemaScan:
 			
 			
 		print "drop table id_remap;"
-		
+		print "create temp table id_remap ( relname text, old_id integer, new_id integer);"
+	
+		sys.stdout = sys.__stdout__
 
 		# generate a remap id temporary table on the target schema, using update and nextval and block update
 		# by selecting by tablename ( multiple rows updated with sequential calls on nextval).
 		
-		print "create temp table id_remap ( relname text, old_id integer, new_id integer);"
 		sql = {}
 		for t, v in vals.items():
 			sql[t] = []
@@ -338,7 +346,6 @@ class SchemaScan:
 					new_val = self.convert_to_pg_val( t, field, val, type)
 					if new_val is None:
 						continue
-					
 					if str(type) == 'integer':
 						new_val = self.remap_integer_val( t, field, val, type, id, constants)
 
@@ -366,16 +373,20 @@ class SchemaScan:
 			for t, statements in stmts.items():
 				found_dependency = 0
 				for t2 in stmts.keys():
-					if t <> t2 and depends.get(t,{}).has_key(t2):
-						found_dependency = 1
-						break	
+					# also need to check parent dependencies
+					for tt in [t] + self._parents.get(t,[]):
+						if tt <> t2 and depends.get(tt,{}).has_key(t2):
+							found_dependency = 1
+							break	
 				if not found_dependency:
 					if t in separate_transactions.keys():
 						separate_transactions[t].extend(statements)
 					else:	
 						ordered.extend(statements)
 					del stmts[t]
-			
+
+		sys.stdout = output
+
 		# this is to cater for "test_org" where some default orgs exist, but some new ones might be
 		# added for an import
 		print
@@ -444,14 +455,25 @@ class SchemaScan:
 			if self._pks[t] == field:
 				new_val = "(select new_id from id_remap where relname='%s' and old_id = %s)" % (t, str(id))
 			elif field == "xfk_identity":
-				new_val = "( select new_id from id_remap where relname='identity' and old_id = %d)" % int(val) 
-			elif self._many_to_one.get(t,{}).has_key(field):
-				t2,pk = self._many_to_one[t][field]
-				if not t2 in excludetables:
-					t3 = t2
-					if t2 == 'xlnk_identity':
-						t3 = 'identity'
-					new_val = "coalesce((select %s from %s where %s = ( select new_id from id_remap where relname='%s' and old_id = %d)))" % ( pk, t2, pk ,t3, int(val))
+				new_val = "( select new_id from id_remap where relname='identity' and old_id = %d)" % int(val) 	
+			
+			# cope with inherited foreign keys
+			else: 
+				for tt in self._parents.get(t,[]) + [t]:
+					#if t == 'clin_narrative':
+					#	print "t", tt, "field", field
+					#	print "Is a many to one ", self._many_to_one.get(tt, {}).has_key(field)
+					#	raw_input("continue?")
+
+					if self._many_to_one.get(tt,{}).has_key(field):
+						t2,pk = self._many_to_one[tt][field]
+						if not t2 in excludetables:
+							t3 = t2
+							if t2 == 'xlnk_identity':
+								t3 = 'identity'
+								pk = 'pk'
+							new_val = "coalesce((select %s from %s where %s = ( select new_id from id_remap where relname='%s' and old_id = %d)))" % ( pk, t3, pk ,t3, int(val))
+						break
 			return new_val
 			
 
