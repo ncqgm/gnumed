@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.40 2005-06-03 15:50:38 cfmoro Exp $
-__version__ = "$Revision: 1.40 $"
+# $Id: gmDemographicsWidgets.py,v 1.41 2005-06-04 10:17:51 ncq Exp $
+__version__ = "$Revision: 1.41 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -147,7 +147,7 @@ class TextBox_BlackNormal(wx.TextCtrl):
 		self.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 
 
-class SmartCombo (wx.ComboBox):
+class cSmartCombo (wx.ComboBox):
 	"""
 	This Combobox implementation is designed to deal with
 	list choices in the form of dictionaries of pairs code-string
@@ -169,17 +169,18 @@ class SmartCombo (wx.ComboBox):
 			style = wx.CB_DROPDOWN
 		)
 		self.RefreshContents(_map)
-			
+
 	def RefreshContents(self, _map):
 		"""
 		Update the contents of the combo with new data.
 		@param _map The dictionary of pairs code-string
 		@type A DictType instance		
 		"""
+		# FIXME: rework this strange reverse() business
 		pam = dict ([(str(y),x) for x, y in _map.items()])
 		options = []
 		options.extend(pam.keys())
-		options.sort()		
+		options.sort()
 		cont = 0
 		self.Clear()
 		for option in options:
@@ -689,7 +690,7 @@ class DemographicDetailWindow(wx.Panel):
 		lbl_firstname = BlueLabel_Normal(self,-1, _("Firstname"), wx.LEFT)
 		self.firstnames = TextBox_RedBold(self,-1)
 		lbl_sex = BlueLabel_Normal(self,-1, _("Sex"), wx.ALIGN_CENTRE)
-		self.gender = SmartCombo (self, self.gendermap)
+		self.gender = cSmartCombo (self, self.gendermap)
 		lbl_preferredname =  BlueLabel_Normal(self,-1, _("Salutation"), wx.LEFT)
 		self.preferred = TextBox_RedBold(self,-1)
 		sizer_line2 = wx.BoxSizer(wx.HORIZONTAL)  		#holds firstname label + textbox, sex label + combobox
@@ -794,7 +795,7 @@ class DemographicDetailWindow(wx.Panel):
 		lbl_dob = BlueLabel_Normal(self,-1, _("Birthdate"), wx.LEFT)
 		self.txt_dob = TextBox_BlackNormal(self,-1)
 		lbl_maritalstatus = BlueLabel_Normal(self,-1, _("Marital Status"), wx.ALIGN_CENTER)
-		self.pk_marital_status = SmartCombo (self, gmDemographicRecord.getMaritalStatusTypes())
+		self.pk_marital_status = cSmartCombo (self, gmDemographicRecord.getMaritalStatusTypes())
 		sizer_dob_marital = wx.BoxSizer(wx.HORIZONTAL)
 		sizer_dob_marital.Add(lbl_dob, 3, wx.EXPAND)
 		sizer_dob_marital.Add(self.txt_dob, 5, wx.EXPAND)
@@ -844,7 +845,7 @@ class DemographicDetailWindow(wx.Panel):
 		# NOK relationship/phone
 		lbl_relationshipNOK = BlueLabel_Normal(self, -1, _("Relationship"), wx.LEFT)
 		# FIXME: get from database
-		self.combo_relationshipNOK = SmartCombo (self, gmDemographicRecord.getRelationshipTypes ())
+		self.combo_relationshipNOK = cSmartCombo (self, gmDemographicRecord.getRelationshipTypes ())
 		sizer_nok_relationship = wx.BoxSizer(wx.HORIZONTAL)
 		sizer_nok_relationship.Add(lbl_relationshipNOK, 3, wx.EXPAND)
 		sizer_nok_relationship.Add(self.combo_relationshipNOK, 13, wx.EXPAND)
@@ -1087,6 +1088,8 @@ class DemographicDetailWindow(wx.Panel):
 		self.__update_addresses()
 		self.__update_nok()
 #============================================================
+#============================================================
+#============================================================
 # new patient wizard classes
 #============================================================
 class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
@@ -1181,7 +1184,12 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		self.CMB_gender = SmartCombo(
+		# FIXME: this will not allow selecting "transsexual female" by typing "f",
+		#        eg: when I type "f" it is because I enter a female patient, however
+		#        the female patient I see could actually be "transsexual female phenotype"
+		#        so it makes sense to present both options, the phrasewheel allows to do
+		#        that, the smart combo does not
+		self.CMB_gender = cSmartCombo (
 			parent = PNL_form,
 			_map = self.__gender_map)
 		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
@@ -1233,9 +1241,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 
 		# state
-		# FIXME: default in config
+		# FIXME: default in config, dynamically set from zip code value
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		self.CMB_state = SmartCombo(
+		self.CMB_state = cSmartCombo (
 			parent = PNL_form,
 			_map = {}
 		)
@@ -1244,7 +1252,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		self.CMB_country = SmartCombo(
+		self.CMB_country = cSmartCombo (
 			parent = PNL_form,
 			_map = get_country_map()
 		)
@@ -1813,7 +1821,8 @@ class cPatIdentityPanel(wx.Panel):
 			aMatchProvider = mp,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))		
+		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))
+		self.PRW_firstname.add_callback_on_lose_focus(self._on_set_firstname)
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
@@ -1843,7 +1852,7 @@ class cPatIdentityPanel(wx.Panel):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		self.CMB_gender = SmartCombo(
+		self.CMB_gender = cSmartCombo (
 			parent = PNL_form,
 			_map = self.__gender_map)
 		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
@@ -1886,14 +1895,7 @@ class cPatIdentityPanel(wx.Panel):
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
-	def __register_interests(self):
-		"""
-		Configure enabled event signals
-		"""
-		# wxpython
-		wx.EVT_KILL_FOCUS(self.PRW_firstname, self.__on_name_set)
-	#--------------------------------------------------------
-	def __on_name_set(self, event):
+	def _on_set_firstname(self):
 		"""
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
@@ -1902,10 +1904,10 @@ class cPatIdentityPanel(wx.Panel):
 		# dont need to obtain gender_map
 		map = get_name_gender_map()
 		firstname = string.lower(self.PRW_firstname.GetValue())
-		if(map.has_key(firstname)):
-			gender = self.__gender_map[map[firstname]] 
+		if map.has_key(firstname):
+			gender = self.__gender_map[map[firstname]]
 			self.CMB_gender.SetSelection(self.CMB_gender.FindString(gender))
-		event.Skip()
+		return True
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------		
@@ -2069,7 +2071,7 @@ class cPatContactsPanel(wx.Panel):
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		self.CMB_state = SmartCombo(
+		self.CMB_state = cSmartCombo (
 			parent = PNL_form,
 			_map = {}
 		)
@@ -2078,7 +2080,7 @@ class cPatContactsPanel(wx.Panel):
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		self.CMB_country = SmartCombo(
+		self.CMB_country = cSmartCombo (
 			parent = PNL_form,
 			_map = get_country_map()
 		)
@@ -2712,7 +2714,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.40  2005-06-03 15:50:38  cfmoro
+# Revision 1.41  2005-06-04 10:17:51  ncq
+# - cleanup, cSmartCombo, some comments
+#
+# Revision 1.40  2005/06/03 15:50:38  cfmoro
 # State and country combos y patient edition
 #
 # Revision 1.39  2005/06/03 13:37:45  cfmoro
