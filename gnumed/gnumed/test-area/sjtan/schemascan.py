@@ -256,6 +256,7 @@ class SchemaScan:
 					
 			print
 
+		skip_fields= ["pk_audit"]
 		sys.stdout = sys.__stdout__
 
 		f = raw_input("sql file to export (default emr-dump-#%s.sql):" % pat_id)
@@ -280,6 +281,8 @@ class SchemaScan:
 				id = row[[x[0] for x in desc].index(self._pks[table])]
 				fields, values = [], []
 				for (f,type ), v in zip ( [ (d[0],d[1]) for d in desc], row):
+					if f in skip_fields:
+						continue
 					nv = self.convert_to_pg_val( table, f, v, type)
 					if nv == None:
 						continue
@@ -334,7 +337,6 @@ class SchemaScan:
 			for id , v2 in v.items():
 
 				m = {}
-				skip_fields= ["pk_audit"]
 
 				fields = []
 				values = []
