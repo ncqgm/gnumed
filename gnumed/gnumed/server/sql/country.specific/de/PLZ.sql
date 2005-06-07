@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -31,6 +31,17 @@ insert into state (code, country, name) values ('SN', 'DE', 'Sachsen');
 insert into state (code, country, name) values ('ST', 'DE', 'Sachsen-Anhalt');
 insert into state (code, country, name) values ('SH', 'DE', 'Schleswig-Holstein');
 insert into state (code, country, name) values ('TH', 'DE', 'Thüringen');
+
+-- Österreich
+insert into state (code, country, name) values ('Wien', 'AT', 'Wien');				-- Vienna
+insert into state (code, country, name) values ('Tirol', 'AT', 'Tirol');			-- the Tyrol
+insert into state (code, country, name) values ('OÖ', 'AT', 'Oberösterreich');		-- Upper Austria
+insert into state (code, country, name) values ('NÖ', 'AT', 'Niederösterreich');	-- Lower Austria
+insert into state (code, country, name) values ('Stmk', 'AT', 'Steiermark');		-- Styria
+insert into state (code, country, name) values ('Sbg', 'AT', 'Salzburg');
+insert into state (code, country, name) values ('Vlbg', 'AT', 'Vorarlberg');
+insert into state (code, country, name) values ('Bgld', 'AT', 'Burgenland');
+insert into state (code, country, name) values ('Ktn', 'AT', 'Kärnten');			-- Carinthia
 
 ------------------
 -- Groß Särchen --
@@ -127,11 +138,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.5 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.5  2005-05-24 19:44:31  ncq
+-- Revision 1.6  2005-06-07 20:59:18  ncq
+-- - Austrian states
+--
+-- Revision 1.5  2005/05/24 19:44:31  ncq
 -- - use proper state abbreviations
 --
 -- Revision 1.4  2005/05/17 08:17:53  ncq
