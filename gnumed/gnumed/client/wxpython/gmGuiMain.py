@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.196 2005-05-24 19:50:26 ncq Exp $
-__version__ = "$Revision: 1.196 $"
+# $Id: gmGuiMain.py,v 1.197 2005-06-07 20:52:49 ncq Exp $
+__version__ = "$Revision: 1.197 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -240,29 +240,36 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.mainmenu.Append(menu_patient, '&Patient')
 		self.__gb['main.patientmenu'] = menu_patient
 
-		# menu "EMR"
+		# menu "EMR" ---------------------------
 		menu_emr = wx.wxMenu()
-		# - text export
-		menu_emr.Append(ID_EXPORT_EMR, _('Export to file'), _("export the EMR of the active patient into a text file"))
+		self.mainmenu.Append(menu_emr, _("&EMR"))
+		self.__gb['main.emrmenu'] = menu_emr
+		# - submenu "export as"
+		menu_emr_export = wx.wxMenu()
+		menu_emr.AppendMenu(wx.wxNewId(), _('Export as ...'), menu_emr_export)
+		#   1) ASCII
+		menu_emr_export.Append(ID_EXPORT_EMR, _('structured text'), _("export the EMR of the active patient into a text file"))
 		wx.EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
-		# - journal export
-		menu_emr.Append (
+		#   2) journal format
+		menu_emr_export.Append (
 			ID_EXPORT_EMR_JOURNAL,
-			_('Export as Journal'),
+			_('as journal'),
 			_("export the EMR of the active patient as a chronological journal into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
-		# - Medistar export
-		menu_emr.Append (
+		#   3) Medistar import format
+		menu_emr_export.Append (
 			ID_EXPORT_MEDISTAR,
-			_('Medistar-Export'),
-			_("GNUmed -> Medistar. Export progress notes of active patient's active encounter into a text file.")
+			_('MEDISTAR import format'),
+			_("GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file.")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
+		# - submenu "show as"
+		menu_emr_show = wx.wxMenu()
+		menu_emr.AppendMenu(wx.wxNewId(), _('Show as ...'), menu_emr_show)
+		self.__gb['main.emr_showmenu'] = menu_emr_show
 
-		self.mainmenu.Append(menu_emr, _("&EMR"))
-
-		# menu "View"
+		# menu "View" ---------------------------
 		self.menu_view = wx.wxMenu()
 		self.__gb['main.viewmenu'] = self.menu_view
 		self.mainmenu.Append(self.menu_view, _("&View"));
@@ -737,7 +744,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.196  2005-05-24 19:50:26  ncq
+# Revision 1.197  2005-06-07 20:52:49  ncq
+# - improved EMR menu structure
+#
+# Revision 1.196  2005/05/24 19:50:26  ncq
 # - make "patient" menu available globally
 #
 # Revision 1.195  2005/05/14 14:57:37  ncq
