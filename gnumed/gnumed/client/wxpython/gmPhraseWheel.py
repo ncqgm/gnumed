@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.49 2005-06-01 23:09:02 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmPhraseWheel.py,v 1.50 2005-06-07 10:18:23 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -103,7 +103,7 @@ class cPhraseWheel (wxTextCtrl):
 		EVT_KEY_DOWN (self, self.__on_key_pressed)
 		# 3) evil user wants to resize widget
 		EVT_SIZE (self, self.on_resize)
-		EVT_SET_FOCUS(self, self.on_set_focus)
+		EVT_SET_FOCUS(self, self._on_set_focus)
 		EVT_KILL_FOCUS(self, self._on_lose_focus)
 	#--------------------------------------------------------
 	# external API
@@ -135,7 +135,7 @@ class cPhraseWheel (wxTextCtrl):
 			return False
 		self._on_enter_callbacks.append(callback)
 	#---------------------------------------------------------
-	def add_callback_on_lose_focus(self, callback=None):	
+	def add_callback_on_lose_focus(self, callback=None):
 		if not callable(callback):
 			_log.Log(gmLog.lWarn, 'ignoring callback [%s] - not callable' % callback)
 			return False
@@ -159,13 +159,13 @@ class cPhraseWheel (wxTextCtrl):
 	def IsModified (self):
 		return wxTextCtrl.IsModified (self) or self._is_modified
 	#--------------------------------------------------------
-	def setContext (self, context, val):
+	def set_context (self, context, val):
 		if self.__real_matcher:
 			# forget any caching, as it's now invalid
 			self.__matcher = self.__real_matcher
 			self.__real_matcher = None
 		if self.__matcher:
-			self.__matcher.setContext (context, val)
+			self.__matcher.set_context (context, val)
 		else:
 			_log.Log(gmLog.lErr, "aMatchProvider must be set to set context")
 	#---------------------------------------------------------
@@ -206,7 +206,7 @@ class cPhraseWheel (wxTextCtrl):
 		Convience function to make one phrasewheel's match context
 		dependent upon another's value
 		"""
-		self.add_callback_on_selection(lambda x: wheel.setContext(context_var, x))
+		self.add_callback_on_selection(lambda x: wheel.set_context(context_var, x))
 	#---------------------------------------------------------------------
 	def _updateMatches(self):
 		"""Get the matches for the currently typed input fragment."""
@@ -458,7 +458,7 @@ class cPhraseWheel (wxTextCtrl):
 			# more than one item anymore
 			self._hide_picklist()
 	#--------------------------------------------------------
-	def on_set_focus(self, event):
+	def _on_set_focus(self, event):
 		self._has_focus = True
 		event.Skip()
 	#--------------------------------------------------------
@@ -473,7 +473,8 @@ class cPhraseWheel (wxTextCtrl):
 				self.Clear()
 		for callback in self._on_lose_focus_callbacks:
 			try:
-				callback()
+				if not callback():
+					print "[%s:_on_lose_focus]: %s returned False" % (self.__class__.__name__, str(callback))
 			except:
 				print "[%s:_on_lose_focus]: error calling %s" % (self.__class__.__name__, str(callback))
 		self._has_focus = False
@@ -550,7 +551,11 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.49  2005-06-01 23:09:02  ncq
+# Revision 1.50  2005-06-07 10:18:23  ncq
+# - cleanup
+# - setContext -> set_context
+#
+# Revision 1.49  2005/06/01 23:09:02  ncq
 # - set default phrasewheel delay to 150ms
 #
 # Revision 1.48  2005/05/23 16:42:50  ncq
