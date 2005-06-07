@@ -7,8 +7,8 @@ license: GPL
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmDemographicRecord.py,v $
-# $Id: gmDemographicRecord.py,v 1.73 2005-04-25 08:26:48 ncq Exp $
-__version__ = "$Revision: 1.73 $"
+# $Id: gmDemographicRecord.py,v 1.74 2005-06-07 10:15:47 ncq Exp $
+__version__ = "$Revision: 1.74 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # access our modules
@@ -258,7 +258,7 @@ class StreetMP (gmMatchProvider.cMatchProvider_SQL):
 
 	accepts "urb" and "postcode" contexts  
 		e.g.
-			using cMatchProvider_SQL's  self.setContext("urb",...) 
+			using cMatchProvider_SQL's  self.set_context("urb",...) 
 					
 	"""
 	def __init__ (self):
@@ -396,7 +396,10 @@ if __name__ == "__main__":
 		print "--------------------------------------"
 #============================================================
 # $Log: gmDemographicRecord.py,v $
-# Revision 1.73  2005-04-25 08:26:48  ncq
+# Revision 1.74  2005-06-07 10:15:47  ncq
+# - setContext -> set_context
+#
+# Revision 1.73  2005/04/25 08:26:48  ncq
 # - cleanup
 #
 # Revision 1.72  2005/04/14 19:14:51  cfmoro

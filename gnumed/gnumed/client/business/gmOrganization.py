@@ -5,7 +5,7 @@ re-used working code form gmClinItem and followed Script Module layout of gmEMRS
 
 license: GPL"""
 #============================================================
-__version__ = "$Revision: 1.32 $"
+__version__ = "$Revision: 1.33 $"
 
 from Gnumed.pycommon import gmExceptions, gmLog, gmBorg, gmPG
 from Gnumed.business import gmDemographicRecord, gmPerson
@@ -1996,7 +1996,7 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
          if pwheel is None:
                  return False
          if postcode == '':
-                 pwheel.setContext("postcode", "%")
+                 pwheel.set_context("postcode", "%")
                  return True
          urbs = getUrbsForPostcode(postcode)
          if urbs is None:
@@ -2017,12 +2017,15 @@ def setUrbPhraseWheelFromPostcode(pwheel, postcode):
          # then the "*" will try to pull all thousands of urb names, freezing the app.
          # so needs a fixup (? have SQL select ... LIMIT n in Phrasewheel )
 
-         pwheel.setContext("postcode", postcode)
+         pwheel.set_context("postcode", postcode)
          return True
 
 #===========================================================
 # $Log: gmOrganization.py,v $
-# Revision 1.32  2005-01-31 10:37:26  ncq
+# Revision 1.33  2005-06-07 10:15:47  ncq
+# - setContext -> set_context
+#
+# Revision 1.32  2005/01/31 10:37:26  ncq
 # - gmPatient.py -> gmPerson.py
 #
 # Revision 1.31  2005/01/12 14:47:48  ncq
