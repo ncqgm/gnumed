@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.52 2005-05-17 18:11:41 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmPatientExporter.py,v 1.53 2005-06-07 09:04:45 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -553,44 +553,55 @@ class cEmrExport:
             left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'),
             left_margin * ' ', episode['description']
         )
-        return txt                                  
-    #--------------------------------------------------------  
+        return txt
+    #--------------------------------------------------------
     def get_encounter_info(self, episode, encounter, left_margin = 0):
         """
         Dumps encounter specific data (title, rfe, aoe and soap)
-                                                              
         """
         emr = self.__patient.get_clinical_record()
-        txt = ''
         # general
-        txt += left_margin *' ' + 'Type: ' + encounter['l10n_type'] + '\n'          
-        txt += left_margin *' ' + 'Date: ' + encounter['started'].Format('%Y-%m-%d %H:%M') + \
-            ' - ' + encounter['last_affirmed'].Format('%Y-%m-%d %H:%M') + '\n'
-        if encounter['description'] is not None and len(encounter['description']) > 0:
-            txt += left_margin *' ' + 'Description: ' + encounter['description'] + '\n'           
+        txt = (' ' * left_margin) + '%s: %s (%s - %s)' % (
+            encounter['started'].Format('%Y-%m-%d'),
+            encounter['l10n_type'],
+            encounter['started'].Format('%H:%M'),
+            encounter['last_affirmed'].Format('%H:%M')
+        )
+        if (encounter['description'] is not None) and (len(encounter['description']) > 0):
+            txt += '"%s"' % encounter['description']
+        txt += '\n'
         # rfe
         rfes = encounter.get_rfes()
         for rfe in rfes:
-            txt += left_margin *' ' + 'RFE: ' + rfe['clin_when'].Format('%Y-%m-%d %H:%M') + ', ' +    rfe['rfe'] + '\n'
-        
+            txt += (' ' * left_margin) + '%s: %s\n' % (_('RFE'), rfe['rfe'])
         # soap
-        soap_cats = ['s', 'o', 'a', 'p']
-        soap_cat_narratives = []
-        for soap_cat in soap_cats:
-            soap_cat_narratives = emr.get_clin_narrative(
+        soap_cat_labels = {
+            's': _('Subjective'),
+            'o': _('Objective'),
+            'a': _('Assessment'),
+            'p': _('Plan'),
+        }
+        for soap_cat in 'soap':
+            txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
+            soap_cat_narratives = emr.get_clin_narrative (
                 episodes = [episode['pk_episode']],
                 encounters = [encounter['pk_encounter']],
                 soap_cats = [soap_cat],
                 exclude_rfe_aoe = True
             )
-            txt += left_margin *' ' +  string.upper(soap_cat) +':\n'
-            if soap_cat_narratives is None or len(soap_cat_narratives) == 0:
-                txt +=''
-            else:
-                for soap_entry in soap_cat_narratives:
-                    narrative_txt = string.replace(soap_entry['narrative'], '\n',
-                        '\n' + (left_margin+3)*' ')
-                    txt += (left_margin+3)*' ' + narrative_txt + '\n'
+            if soap_cat_narratives is None:
+				continue
+
+            if len(soap_cat_narratives) == 0:
+                continue
+
+            for soap_entry in soap_cat_narratives:
+                narr = soap_entry['narrative'].replace (
+                    '\n',
+                    '\n' + (' ' * (left_margin+3))
+                )
+                txt += (' ' * (left_margin+3)) + narr + '\n'
+
         # aoe
         aoes = encounter.get_aoes()               
         for aoe in aoes:
@@ -598,7 +609,7 @@ class cEmrExport:
             if aoe.is_diagnosis():
                 diagnosis = aoe.get_diagnosis()
                 for a_code in diagnosis.get_codes():
-                    txt += (left_margin+3)*' ' + a_code[0] +'(' + a_code[1] + ')\n' 
+                    txt += (left_margin+3)*' ' + a_code[0] +'(' + a_code[1] + ')\n'
         # items
         for an_item     in self.__filtered_items:
             if an_item['pk_encounter'] == encounter['pk_encounter']:
@@ -1087,7 +1098,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.52  2005-05-17 18:11:41  ncq
+# Revision 1.53  2005-06-07 09:04:45  ncq
+# - cleanup, better encounter data display
+#
+# Revision 1.52  2005/05/17 18:11:41  ncq
 # - dob2medical_age is in gmPerson
 #
 # Revision 1.51  2005/05/12 15:08:31  ncq
