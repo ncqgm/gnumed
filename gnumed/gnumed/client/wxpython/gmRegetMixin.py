@@ -16,15 +16,15 @@ in most cases happen after you receive a gmDispatcher
 signal indicating a change in the backend.
 
 The _populate_with_data(self) method must be overriden in the
-including class and must return True if the contents was
-redrawn successfully.
+including class and must return True if the UI was successfully
+repopulated with content.
 
 @copyright: authors
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.15 2005-05-29 22:06:19 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmRegetMixin.py,v 1.16 2005-06-07 09:05:53 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -109,7 +109,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.15  2005-05-29 22:06:19  ncq
+# Revision 1.16  2005-06-07 09:05:53  ncq
+# - better docs
+#
+# Revision 1.15  2005/05/29 22:06:19  ncq
 # - unsuccessfully try yet another technique for forcing a repaint
 #
 # Revision 1.14  2005/05/24 19:46:47  ncq
