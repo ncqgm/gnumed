@@ -6,7 +6,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -22,22 +22,22 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 
 	tab_name = _('EMR tree')
 
-	def name (self):
+	def name(self):
 		return gmEMRBrowserPlugin.tab_name
 
-	def GetWidget (self, parent):
+	def GetWidget(self, parent):
 		self._widget = gmEMRBrowser.cEMRBrowserPanel(parent, -1)
 		return self._widget
 
-	def MenuInfo (self):
-		return ('tools', 'EMR tree')
+	def MenuInfo(self):
+		return ('emr_show', _('tree view'))
 
 	def can_receive_focus(self):
 		# need patient
 		if not self._verify_patient_avail():
 			return None
 		return 1
-		    
+
 #======================================================================
 # main
 #----------------------------------------------------------------------
@@ -97,7 +97,10 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRBrowserPlugin.py,v $
-# Revision 1.5  2005-03-29 07:33:47  ncq
+# Revision 1.6  2005-06-07 20:56:56  ncq
+# - take advantage of improved EMR menu
+#
+# Revision 1.5  2005/03/29 07:33:47  ncq
 # - fix naming
 #
 # Revision 1.4  2005/03/11 22:53:37  ncq

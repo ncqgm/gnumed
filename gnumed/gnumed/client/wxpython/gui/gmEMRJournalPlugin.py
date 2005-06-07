@@ -4,7 +4,7 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -28,7 +28,7 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('tools', 'EMR journal')
+		return ('emr_show', _('chronological journal'))
 
 	def can_receive_focus(self):
 		# need patient
@@ -95,6 +95,9 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmEMRJournalPlugin.py,v $
-# Revision 1.1  2005-04-12 16:26:33  ncq
+# Revision 1.2  2005-06-07 20:56:56  ncq
+# - take advantage of improved EMR menu
+#
+# Revision 1.1  2005/04/12 16:26:33  ncq
 # - added Journal style EMR display plugin
 #
