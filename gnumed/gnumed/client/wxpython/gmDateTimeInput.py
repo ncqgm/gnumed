@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.18 2005-06-08 21:19:50 cfmoro Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmDateTimeInput.py,v 1.19 2005-06-08 22:01:42 cfmoro Exp $
+__version__ = "$Revision: 1.19 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -233,8 +233,10 @@ Date input field
 		evt.Skip()
 	#--------------------------------------------------------
 	def __validate(self):
+		# skip empty value
+		if self.GetValue() == '':
+			return True
 		# don't allow invalid input
-		#mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 		try:
 			# FIXME: make this way more generous in accepting data input
 			date = mxDT.strptime(self.GetValue(), self.__display_format)
@@ -356,7 +358,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.18  2005-06-08 21:19:50  cfmoro
+# Revision 1.19  2005-06-08 22:01:42  cfmoro
+# Avoid validating when empty date
+#
+# Revision 1.18  2005/06/08 21:19:50  cfmoro
 # Crash fix
 #
 # Revision 1.17  2005/06/04 09:55:32  ncq
