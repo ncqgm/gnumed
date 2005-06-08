@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.41 2005-06-04 10:17:51 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmDemographicsWidgets.py,v 1.42 2005-06-08 01:25:42 cfmoro Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -32,8 +32,6 @@ _log = gmLog.gmDefLog
 _whoami = gmWhoAmI.cWhoAmI()
 _cfg = gmCfg.gmDefCfgFile
 _name_gender_map = None
-_country_names_map = None
-_country_states_map = None
 
 DATE_FORMAT = '%Y-%m-%d'
 
@@ -1241,22 +1239,35 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 
 		# state
-		# FIXME: default in config, dynamically set from zip code value
+		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		self.CMB_state = cSmartCombo (
+		cmd = "select distinct code, name from state where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
+		mp.setThresholds(3, 5, 6)
+		self.PRW_state = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
-			_map = {}
+			id = -1,
+			aMatchProvider = mp,
+			selection_only = True
 		)
-		self.CMB_state.SetToolTipString(_("primary/home address: state"))
+		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		self.CMB_country = cSmartCombo (
+		cmd = "select distinct code, _(name) from country where _(name) %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(2, 5, 15)
+		self.PRW_country = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
-			_map = get_country_map()
+			id = -1,
+			aMatchProvider = mp,
+			selection_only = True
 		)
-		self.CMB_country.SetToolTipString(_("primary/home address: country"))
+		self.PRW_country.add_callback_on_selection(self.on_country_selected)
+		self.PRW_country.SetToolTipString(_("primary/home address: country"))
+
+
 
 		# phone
 		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
@@ -1305,9 +1316,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		SZR_input.Add(STT_town, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 		SZR_input.Add(STT_state, 0, wx.SHAPED)
-		SZR_input.Add(self.CMB_state, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
 		SZR_input.Add(STT_country, 0, wx.SHAPED)
-		SZR_input.Add(self.CMB_country, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
 		SZR_input.Add(STT_occupation, 0, wx.SHAPED)
@@ -1326,21 +1337,14 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		Configure enabled event signals
 		"""
 		# wxpython
-		wx.EVT_KILL_FOCUS(self.PRW_firstname, self.__on_name_set)
-		wx.EVT_COMBOBOX(self.CMB_country, self.CMB_country.GetId(), self.__on_country_set)
-		#wx.EVT_TEXT(self.CMB_country, self.CMB_country.GetId(), self.__on_country_set)
+		wx.EVT_KILL_FOCUS(self.PRW_firstname, self.__on_name_set)		
+		#wx.EVT_COMBOBOX(self.CMB_country, self.CMB_country.GetId(), self.__on_country_set)
 	#--------------------------------------------------------
-	def __on_country_set(self, event):
+	def on_country_selected(self, data):
 		"""
 		Set the states according to entered country.
 		"""
-		country = event.GetString()
-		#print country
-		country_code = self.CMB_country.GetData(country)
-		print country_code
-		states = get_states4country(country_code)
-		self.CMB_state.RefreshContents(states)
-		event.Skip()		
+		self.PRW_state.set_context(context='country', val=data)
 	#--------------------------------------------------------
 	def __on_name_set(self, event):
 		"""
@@ -1433,7 +1437,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		"""
 		return cBasicPatDetailsPageValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
 	#--------------------------------------------------------
-	def Validate(self):
+	def Validate(self, parent = None):
 		"""
 		Validate the contents of the given text control.
 		"""
@@ -1453,14 +1457,23 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		pageCtrl.TTC_dob.Refresh()
 				
+		# gender
+		if pageCtrl.CMB_gender.GetValue() == '':
+			msg = _('A gender must be selected')
+			gmGuiHelpers.gm_show_error(msg, _('Empty gender'), gmLog.lErr)
+			pageCtrl.CMB_gender.SetBackgroundColour('pink')
+			pageCtrl.CMB_gender.Refresh()
+			pageCtrl.CMB_gender.SetFocus()
+			return False			
+		
 		# address		
 		address_fields = (
 			pageCtrl.TTC_address_number,
 			pageCtrl.TTC_zip_code,
 			pageCtrl.PRW_street,
 			pageCtrl.PRW_town,
-			pageCtrl.CMB_state,
-			pageCtrl.CMB_country
+			pageCtrl.PRW_state,
+			pageCtrl.PRW_country
 		)
 		is_any_field_filled = False
 		for field in address_fields:
@@ -1497,8 +1510,8 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
 		pageCtrl.TTC_zip_code.SetValue(self.form_DTD['zip_code'])
 		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
-		pageCtrl.CMB_state.SetValue(string.capitalize(self.form_DTD['state']))
-		pageCtrl.CMB_country.SetValue(string.capitalize(self.form_DTD['country']))
+		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
+		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
 		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
@@ -1508,26 +1521,28 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
-		if self.Validate():
-			pageCtrl = self.GetWindow().GetParent()
-			# fill in self.form_DTD with values from controls
-			self.form_DTD['gender'] = pageCtrl.CMB_gender.GetData(pageCtrl.CMB_gender.GetValue())
-			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
-			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
-			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
-			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
-			self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
-			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
-			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
-			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
-			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
-			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-			self.form_DTD['state'] = pageCtrl.CMB_state.GetData(pageCtrl.CMB_state.GetValue())
-			self.form_DTD['country'] = pageCtrl.CMB_country.GetData(pageCtrl.CMB_country.GetValue())
-			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
-			return True
-		return False
+		# FIXME: should be called automatically
+		if not self.GetWindow().GetParent().Validate():
+			return False
+		pageCtrl = self.GetWindow().GetParent()
+		# fill in self.form_DTD with values from controls
+		self.form_DTD['gender'] = pageCtrl.CMB_gender.GetData(pageCtrl.CMB_gender.GetValue())
+		self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
+		self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
+		self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
+		self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
+		self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
+		self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
+		self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
+		self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
+		self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
+		self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
+		self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
+		self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
+		self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
+		#print self.form_DTD
+		#sys.exit(0)
+		return True
 #============================================================
 class cFormDTD:
 	"""
@@ -1781,7 +1796,7 @@ class cPatIdentityPanel(wx.Panel):
 		for gender in genders:
 			self.__gender_map[gender[idx['tag']]] = gender[idx['l10n_label']]
 		self.__do_layout()
-		self.__register_interests()
+		#self.__register_interests()
 	#--------------------------------------------------------
 	def __do_layout(self):
 
@@ -2621,57 +2636,6 @@ def get_name_gender_map():
 			_name_gender_map[string.lower(row[0])] = row[1]
 	return _name_gender_map
 #============================================================
-def get_country_map():
-	"""
-	Build from backend a cached dictionary of pairs 'country_code' : 'country_name'
-	"""
-	global _country_names_map
-	if _country_names_map is None:
-		# fetch countries
-		cmd = "SELECT code, _(name) FROM country"
-		rows = gmPG.run_ro_query('personalia', cmd, False)
-		if rows is None:
-			_log.Log(gmLog.lPanic, 'cannot retrieve countries from database')
-		_country_names_map = {}
-		for row in rows:
-			_country_names_map[row[0]] = string.capitalize(row[1])
-	return _country_names_map	
-#============================================================
-def get_country_state_map(country_code = None):
-	"""
-	Build from backend a cached dictionary of pairs 'country_name' : [state_name]
-	@param country_code The code of the country we want to retrieve its states
-	@type country A StringType instance
-	"""
-	global _country_states_map
-	# sanity check
-	if country_code is None or len(country_code) == 0:
-		return {}
-	# country-states dictionary
-	if _country_states_map is None:
-		_country_states_map = {}	
-	# states for country
-	if not _country_states_map.has_key(country_code):
-		cmd = """
-		SELECT code, name FROM state WHERE country=%s
-		"""
-		rows = gmPG.run_ro_query('personalia', cmd, False, country_code)
-		if rows is None:
-			_log.Log(gmLog.lPanic, 'cannot retrieve states for country [%s] from database') % country
-		_country_states_map[country_code] = {}
-		for row in rows:
-			_country_states_map[country_code][row[0].strip()] = row[1]
-	return _country_states_map
-#============================================================
-def get_states4country(country):
-	"""
-	Retrieve the states for a country.
-	@param country The name of the country to retrieve the states for
-	@type country a StringType instance
-	"""
-	country_states_map = get_country_state_map(country)
-	return country_states_map[country]
-#============================================================
 class TestWizardPanel(wx.Panel):   
 	"""
 	Utility class to test the new patient wizard.
@@ -2700,8 +2664,8 @@ if __name__ == "__main__":
 		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 		
 		app1 = wx.PyWidgetTester(size = (800, 600))
-		app1.SetWidget(cNotebookedPatEditionPanel, -1)
-		#app1.SetWidget(TestWizardPanel, -1)
+		#app1.SetWidget(cNotebookedPatEditionPanel, -1)
+		app1.SetWidget(TestWizardPanel, -1)
 		app1.MainLoop()
 	
 	except StandardError:
@@ -2714,7 +2678,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.41  2005-06-04 10:17:51  ncq
+# Revision 1.42  2005-06-08 01:25:42  cfmoro
+# PRW in wizards state and country. Validator fixes
+#
+# Revision 1.41  2005/06/04 10:17:51  ncq
 # - cleanup, cSmartCombo, some comments
 #
 # Revision 1.40  2005/06/03 15:50:38  cfmoro
