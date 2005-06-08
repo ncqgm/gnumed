@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.20 2005-05-05 06:27:52 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmGuiHelpers.py,v 1.21 2005-06-08 01:27:50 cfmoro Exp $
+__version__ = "$Revision: 1.21 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -205,7 +205,7 @@ class cTextObjectValidator(wxPyValidator):
 		"""
 		return cTextObjectValidator(self.__required, self.__only_digits)
 	#--------------------------------------------------------
-	def Validate(self):
+	def Validate(self, parent = None):
 		"""
 		Validate the contents of the given text control.
 		"""
@@ -275,7 +275,10 @@ class cTextObjectValidator(wxPyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.20  2005-05-05 06:27:52  ncq
+# Revision 1.21  2005-06-08 01:27:50  cfmoro
+# Validator fix
+#
+# Revision 1.20  2005/05/05 06:27:52  ncq
 # - add wxSTAY_ON_TOP in an effort to keep popups up front
 #
 # Revision 1.19  2005/04/24 14:48:57  ncq
