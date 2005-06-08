@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.10 2005-06-07 10:16:37 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmMatchProvider.py,v 1.11 2005-06-08 01:27:12 cfmoro Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -389,7 +389,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		self._context_vals = {}
 		cMatchProvider.__init__(self)
 	#--------------------------------------------------------
-	def set_context(self, values=None):
+	def set_context_values(self, values=None):
 		if values is None:
 			_log.Log(gmLog.lErr, 'programming error: values is None')
 			return 1
@@ -619,7 +619,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.10  2005-06-07 10:16:37  ncq
+# Revision 1.11  2005-06-08 01:27:12  cfmoro
+# Renamed function to make parent set_context work
+#
+# Revision 1.10  2005/06/07 10:16:37  ncq
 # - setContext -> set_context
 #
 # Revision 1.9  2005/05/08 21:40:57  ncq
