@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.17 2005-06-04 09:55:32 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmDateTimeInput.py,v 1.18 2005-06-08 21:19:50 cfmoro Exp $
+__version__ = "$Revision: 1.18 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -259,9 +259,8 @@ Date input field
 		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
-		if not self.__validate():
-			return
-		gmPhrasewheel.cPhrasewheel._on_lose_focus()
+		self.__validate()
+		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
 	#----------------------------------------------
 	def __on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
@@ -357,7 +356,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.17  2005-06-04 09:55:32  ncq
+# Revision 1.18  2005-06-08 21:19:50  cfmoro
+# Crash fix
+#
+# Revision 1.17  2005/06/04 09:55:32  ncq
 # - also call parent class _on_lose_focus so we don't loose
 #   callbacks set by other people
 #
