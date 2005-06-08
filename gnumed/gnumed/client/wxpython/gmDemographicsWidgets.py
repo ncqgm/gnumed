@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.42 2005-06-08 01:25:42 cfmoro Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmDemographicsWidgets.py,v 1.43 2005-06-08 22:03:02 cfmoro Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1113,7 +1113,11 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		genders, idx = gmPerson.get_gender_list()
 		self.__gender_map = {}
 		for gender in genders:
-			self.__gender_map[gender[idx['tag']]] = gender[idx['l10n_label']]		
+			self.__gender_map[gender[idx['tag']]] = {
+				'data': gender[idx['tag']],
+				'label': gender[idx['l10n_label']],
+				'weight': gender[idx['sort_weight']]
+			}
 		self.__do_layout()
 		self.__register_interests()
 	#--------------------------------------------------------
@@ -1182,15 +1186,17 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		# FIXME: this will not allow selecting "transsexual female" by typing "f",
-		#        eg: when I type "f" it is because I enter a female patient, however
-		#        the female patient I see could actually be "transsexual female phenotype"
-		#        so it makes sense to present both options, the phrasewheel allows to do
-		#        that, the smart combo does not
-		self.CMB_gender = cSmartCombo (
+		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = self.__gender_map.values())
+		mp.setThresholds(1, 1, 3)
+		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
-			_map = self.__gender_map)
-		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
+			id = -1,
+			aMatchProvider = mp,
+			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
+			aDelay = 50,
+			selection_only = True
+		)
+		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
@@ -1267,8 +1273,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_country.add_callback_on_selection(self.on_country_selected)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
-
-
 		# phone
 		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
 		self.TTC_phone = wx.TextCtrl(PNL_form, -1,
@@ -1288,7 +1292,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_occupation.SetToolTipString(_("primary occupation of the patient"))
 
 		# form main validator
-		# FIXME: get DTD from init parameter for editing
 		self.form_DTD = cFormDTD(fields = self.__class__.form_fields)
 		PNL_form.SetValidator(cBasicPatDetailsPageValidator(dtd = self.form_DTD))
 				
@@ -1304,7 +1307,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-		SZR_input.Add(self.CMB_gender, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
 		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
@@ -1351,13 +1354,11 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
 		"""
-		# FIXME: if we load gender_l10n in v_basic_person, we
-		# dont need to obtain gender_map
-		map = get_name_gender_map()
+		name_gender_map = get_name_gender_map()
 		firstname = string.lower(self.PRW_firstname.GetValue())
-		if(map.has_key(firstname)):
-			gender = self.__gender_map[map[firstname]] 
-			self.CMB_gender.SetSelection(self.CMB_gender.FindString(gender))
+		if(name_gender_map.has_key(firstname)):
+			gender = self.__gender_map[name_gender_map[firstname]]['label']
+			self.PRW_gender.SetValue(gender)
 		event.Skip()
 #============================================================
 class cNewPatientWizard(wizard.wxWizard):
@@ -1456,16 +1457,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# valid date		
 		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		pageCtrl.TTC_dob.Refresh()
-				
-		# gender
-		if pageCtrl.CMB_gender.GetValue() == '':
-			msg = _('A gender must be selected')
-			gmGuiHelpers.gm_show_error(msg, _('Empty gender'), gmLog.lErr)
-			pageCtrl.CMB_gender.SetBackgroundColour('pink')
-			pageCtrl.CMB_gender.Refresh()
-			pageCtrl.CMB_gender.SetFocus()
-			return False			
-		
+						
 		# address		
 		address_fields = (
 			pageCtrl.TTC_address_number,
@@ -1499,7 +1491,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		"""
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in controls with values from self.form_DTD
-		pageCtrl.CMB_gender.SetValue(self.form_DTD['gender'])
+		pageCtrl.PRW_gender.SetValue(self.form_DTD['gender'])
 		pageCtrl.TTC_dob.SetValue(self.form_DTD['dob'])
 		pageCtrl.PRW_lastname.SetValue(self.form_DTD['lastnames'])
 		pageCtrl.PRW_firstname.SetValue(self.form_DTD['firstnames'])
@@ -1526,7 +1518,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			return False
 		pageCtrl = self.GetWindow().GetParent()
 		# fill in self.form_DTD with values from controls
-		self.form_DTD['gender'] = pageCtrl.CMB_gender.GetData(pageCtrl.CMB_gender.GetValue())
+		self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
 		self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
 		self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 		self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
@@ -1541,7 +1533,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
 		self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
 		#print self.form_DTD
-		#sys.exit(0)
 		return True
 #============================================================
 class cFormDTD:
@@ -2678,7 +2669,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.42  2005-06-08 01:25:42  cfmoro
+# Revision 1.43  2005-06-08 22:03:02  cfmoro
+# Restored phrasewheel gender in wizard
+#
+# Revision 1.42  2005/06/08 01:25:42  cfmoro
 # PRW in wizards state and country. Validator fixes
 #
 # Revision 1.41  2005/06/04 10:17:51  ncq
