@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.51 $
+-- $Revision: 1.52 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -33,7 +33,7 @@ COMMENT ON COLUMN country.deprecated IS
 -- yes, in Germany we have up to 6
 create table state (
 	id serial primary key,
-	code char(10) not null,
+	code varchar(10) not null,
 	country char(2) not null references country(code),
 	name text not null,
 	unique (code, country)
@@ -579,11 +579,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.51 $');
+--INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.52 $');
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.51  2005-05-27 16:16:41  ncq
+-- Revision 1.52  2005-06-09 00:24:25  cfmoro
+-- State code text -> varchar to avoid extra spaces when fetching
+--
+-- Revision 1.51  2005/05/27 16:16:41  ncq
 -- - Carlos rightly points out that id_address must be nullable in lnk_identity2comm
 --
 -- Revision 1.50  2005/05/24 19:53:53  ncq
