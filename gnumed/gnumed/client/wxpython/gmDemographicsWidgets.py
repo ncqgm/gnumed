@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.44 2005-06-09 00:26:07 cfmoro Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmDemographicsWidgets.py,v 1.45 2005-06-09 01:56:41 cfmoro Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2053,11 +2053,19 @@ class cPatContactsPanel(wx.Panel):
 		# direclty to self, calling self.transferDataFromWindow
 		# just returns true without the method in validator being
 		# called. It seems that works for the children of self.
-		PNL_form = wx.Panel(self, -1)		
+		PNL_form = wx.Panel(self, -1)
+		
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
-		self.TTC_zip_code = wx.TextCtrl(PNL_form, -1)
-		self.TTC_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
+		cmd = "select distinct postcode, postcode from street where postcode %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(3, 5, 15)				
+		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
+			parent = PNL_form,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
 
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
@@ -2078,7 +2086,7 @@ class cPatContactsPanel(wx.Panel):
 
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
-		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
+		cmd = "select distinct u.name, u.name from urb u, v_basic_address a where u.name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_town = gmPhraseWheel.cPhraseWheel (
@@ -2091,7 +2099,7 @@ class cPatContactsPanel(wx.Panel):
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		cmd = "select distinct code, name from state where name %(fragment_condition)s"
+		cmd = "select distinct s.code, s.name from state s, v_basic_address a where s.name %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
@@ -2105,7 +2113,7 @@ class cPatContactsPanel(wx.Panel):
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		cmd = "select distinct code, _(name) from country where _(name) %(fragment_condition)s"
+		cmd = "select distinct c.code, _(c.name) from country c, v_basic_address a where _(c.name) %(fragment_condition)s"
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
@@ -2129,7 +2137,7 @@ class cPatContactsPanel(wx.Panel):
 		SZR_input = wx.FlexGridSizer(cols = 2, rows = 15, vgap = 4, hgap = 4)
 		SZR_input.AddGrowableCol(1)
 		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
 		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
@@ -2157,13 +2165,27 @@ class cPatContactsPanel(wx.Panel):
 		"""
 		# custom
 		self.PRW_country.add_callback_on_selection(self.on_country_selected)
+		self.PRW_zip_code.add_callback_on_lose_focus(self.on_zip_set)
 	#--------------------------------------------------------
 	def on_country_selected(self, data):
 		"""
 		Set the states according to entered country.
 		"""
 		self.PRW_state.set_context(context='country', val=data)
+		print 'country [%s] -> state' % data
 		return True
+	#--------------------------------------------------------
+	def on_zip_set(self):
+		"""
+		Set the street, town, state and country according to entered zip code.
+		"""
+		zip_code = self.PRW_zip_code.GetValue()
+		self.PRW_street.set_context(context='postcode', val=zip_code)
+		self.PRW_town.set_context(context='a.postcode', val=zip_code)
+		self.PRW_state.set_context(context='a.postcode', val=zip_code)
+		self.PRW_country.set_context(context='a.postcode', val=zip_code)
+		print "zip [%s]-> street, town, state, country" % zip_code
+		return True		
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------			
@@ -2213,7 +2235,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		pageCtrl = self.GetWindow().GetParent()
 		address_fields = (
 			pageCtrl.TTC_address_number,
-			pageCtrl.TTC_zip_code,
+			pageCtrl.PRW_zip_code,
 			pageCtrl.PRW_street,
 			pageCtrl.PRW_town,
 			pageCtrl.PRW_state,
@@ -2246,7 +2268,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		# fill in controls with values from self.form_DTD
 		pageCtrl.TTC_address_number.SetValue(self.form_DTD['address_number'])
 		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
-		pageCtrl.TTC_zip_code.SetValue(self.form_DTD['zip_code'])
+		pageCtrl.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
 		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
 		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
 		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
@@ -2264,7 +2286,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
 			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
-			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
+			self.form_DTD['zip_code'] = pageCtrl.PRW_zip_code.GetValue()
 			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
 			if not pageCtrl.PRW_state.GetData() is None:
 				self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
@@ -2684,7 +2706,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.44  2005-06-09 00:26:07  cfmoro
+# Revision 1.45  2005-06-09 01:56:41  cfmoro
+# Initial code on zip -> (auto) address
+#
+# Revision 1.44  2005/06/09 00:26:07  cfmoro
 # PhraseWheels in patient editor. Tons of cleanups and validator fixes
 #
 # Revision 1.43  2005/06/08 22:03:02  cfmoro
