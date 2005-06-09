@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.15 $"
+__version__ = "$Revision: 1.16 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -86,7 +86,7 @@ class cNarrative(gmClinItem.cClinItem):
 				clin_when=%(date)s,
 				is_rfe=%(is_rfe)s::boolean,
 				is_aoe=%(is_aoe)s::boolean,
-				soap_cat=lower(%(soap_cat))
+				soap_cat=lower(%(soap_cat)s)
 			where pk=%(pk_narrative)s""",
 		"""select xmin_clin_narrative from v_pat_narrative where pk_narrative=%(pk_narrative)s"""
 		]
@@ -318,7 +318,10 @@ if __name__ == '__main__':
 	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.15  2005-05-17 08:00:09  ncq
+# Revision 1.16  2005-06-09 21:29:16  ncq
+# - added missing s in %()s
+#
+# Revision 1.15  2005/05/17 08:00:09  ncq
 # - in create_narrative() ignore empty narrative
 #
 # Revision 1.14  2005/04/11 17:53:47  ncq
