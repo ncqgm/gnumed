@@ -14,7 +14,7 @@ def resultset_functional_batchgene rator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -96,6 +96,7 @@ else:
 # is this safe or will it return things like 13.5 hours ?
 _default_time_zone = "%+.1f" % (-tz / 3600.0)
 
+_serialize_failure = "serialize access due to concurrent update"
 #======================================================================
 # a bunch of useful queries
 #----------------------------------------------------------------------
@@ -717,7 +718,6 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 				conn.rollback()
 				exc_info = sys.exc_info()
 				typ, val, tb = exc_info
-				_serialize_failure = "not serialize access due to concurrent update"
 				if str(val).find(_serialize_failure) > 0:
 					_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
 					if attempt < max_tries:
@@ -726,7 +726,7 @@ def __commit2service(service=None, queries=None, max_tries=1, extra_verbose=Fals
 						continue
 					curs.close()
 					conn.close()
-					return (False, (2, _('Cannot save data. Database row locked by another user.')))
+					return (False, (2, 'l'))
 				# FIXME: handle more types of errors
 				_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], service), exc_info)
 				if extra_verbose:
@@ -791,14 +791,13 @@ def __commit2conn(conn=None, queries=None, end_tx=False, extra_verbose=False, ge
 			conn.rollback()
 			exc_info = sys.exc_info()
 			typ, val, tb = exc_info
-			_serialize_failure = "not serialize access due to concurrent update"
 			if str(val).find(_serialize_failure) > 0:
 				_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
 				curs.close()
 				if extra_verbose:
 					if dbapi == pyPgSQL.PgSQL:
 						conn.conn.toggleShowQuery
-				return (False, (2, _('Cannot save data. Database row locked by another user.')))
+				return (False, (2, 'l'))
 			# FIXME: handle more types of errors
 			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], conn), exc_info)
 			if extra_verbose:
@@ -858,10 +857,9 @@ def __commit2cursor(curosr=None, queries=None, extra_verbose=False, get_col_idx=
 				_log.Log(gmLog.lData, 'query took %3.3f seconds' % duration)
 			exc_info = sys.exc_info()
 			typ, val, tb = exc_info
-			_serialize_failure = "not serialize access due to concurrent update"
 			if str(val).find(_serialize_failure) > 0:
 				_log.Log(gmLog.lData, 'concurrency conflict detected, cannot serialize access due to concurrent update')
-				return (False, (2, _('Cannot save data. Database row locked by another user.')))
+				return (False, (2, 'l'))
 			# FIXME: handle more types of errors
 			_log.LogException("query >>>%s<<< with args >>>%s<<< failed on link [%s]" % (query[:250], str(args)[:1024], cursor), exc_info)
 			if extra_verbose:
@@ -1217,7 +1215,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.47 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.48 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1435,7 +1433,12 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.47  2005-04-11 18:00:54  ncq
+# Revision 1.48  2005-06-09 21:32:12  ncq
+# - torture test fixes :-)
+#   - properly detect "cannot serialize access due to concurrent update"
+#   - return (2, 'l') when it happens (that is, the row is 'l'ocked)
+#
+# Revision 1.47  2005/04/11 18:00:54  ncq
 # - cleanup
 #
 # Revision 1.46  2005/03/30 22:09:34  ncq
