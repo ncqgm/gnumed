@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.43 2005-06-08 22:03:02 cfmoro Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmDemographicsWidgets.py,v 1.44 2005-06-09 00:26:07 cfmoro Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1270,7 +1270,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 			aMatchProvider = mp,
 			selection_only = True
 		)
-		self.PRW_country.add_callback_on_selection(self.on_country_selected)
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
@@ -1339,17 +1338,18 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		"""
 		Configure enabled event signals
 		"""
-		# wxpython
-		wx.EVT_KILL_FOCUS(self.PRW_firstname, self.__on_name_set)		
-		#wx.EVT_COMBOBOX(self.CMB_country, self.CMB_country.GetId(), self.__on_country_set)
+		# custom
+		self.PRW_country.add_callback_on_selection(self.on_country_selected)
+		self.PRW_firstname.add_callback_on_lose_focus(self.on_name_set)
 	#--------------------------------------------------------
 	def on_country_selected(self, data):
 		"""
 		Set the states according to entered country.
 		"""
 		self.PRW_state.set_context(context='country', val=data)
+		return True
 	#--------------------------------------------------------
-	def __on_name_set(self, event):
+	def on_name_set(self):
 		"""
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
@@ -1359,7 +1359,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		if(name_gender_map.has_key(firstname)):
 			gender = self.__gender_map[name_gender_map[firstname]]['label']
 			self.PRW_gender.SetValue(gender)
-		event.Skip()
+		return True
 #============================================================
 class cNewPatientWizard(wizard.wxWizard):
 	"""
@@ -1516,23 +1516,27 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# FIXME: should be called automatically
 		if not self.GetWindow().GetParent().Validate():
 			return False
-		pageCtrl = self.GetWindow().GetParent()
-		# fill in self.form_DTD with values from controls
-		self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
-		self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
-		self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
-		self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
-		self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
-		self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
-		self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
-		self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
-		self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
-		self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
-		self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-		self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
-		self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
-		self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
-		#print self.form_DTD
+		try:
+			pageCtrl = self.GetWindow().GetParent()
+			# fill in self.form_DTD with values from controls
+			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
+			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
+			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
+			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
+			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
+			self.form_DTD['nick'] = pageCtrl.PRW_nick.GetValue()
+			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
+			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
+			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
+			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
+			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
+			self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
+			self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
+			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
+			#print self.form_DTD
+			#sys.exit(0)
+		except:
+			return False
 		return True
 #============================================================
 class cFormDTD:
@@ -1785,9 +1789,13 @@ class cPatIdentityPanel(wx.Panel):
 		genders, idx = gmPerson.get_gender_list()
 		self.__gender_map = {}
 		for gender in genders:
-			self.__gender_map[gender[idx['tag']]] = gender[idx['l10n_label']]
+			self.__gender_map[gender[idx['tag']]] = {
+				'data': gender[idx['tag']],
+				'label': gender[idx['l10n_label']],
+				'weight': gender[idx['sort_weight']]
+			}
 		self.__do_layout()
-		#self.__register_interests()
+		self.__register_interests()
 	#--------------------------------------------------------
 	def __do_layout(self):
 
@@ -1828,7 +1836,6 @@ class cPatIdentityPanel(wx.Panel):
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
 		self.PRW_firstname.SetToolTipString(_("required: surname/given name/first name"))
-		self.PRW_firstname.add_callback_on_lose_focus(self._on_set_firstname)
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
@@ -1858,10 +1865,17 @@ class cPatIdentityPanel(wx.Panel):
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
 		STT_gender.SetForegroundColour('red')
-		self.CMB_gender = cSmartCombo (
+		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = self.__gender_map.values())
+		mp.setThresholds(1, 1, 3)
+		self.PRW_gender = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
-			_map = self.__gender_map)
-		self.CMB_gender.SetToolTipString(_("required: gender of patient"))
+			id = -1,
+			aMatchProvider = mp,
+			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False),
+			aDelay = 50,
+			selection_only = True
+		)
+		self.PRW_gender.SetToolTipString(_("required: gender of patient"))
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
@@ -1890,7 +1904,7 @@ class cPatIdentityPanel(wx.Panel):
 		SZR_input.Add(STT_dob, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_dob, 1, wx.EXPAND)
 		SZR_input.Add(STT_gender, 0, wx.SHAPED)
-		SZR_input.Add(self.CMB_gender, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_gender, 1, wx.EXPAND)
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
 		PNL_form.SetSizerAndFit(SZR_input)
@@ -1901,37 +1915,38 @@ class cPatIdentityPanel(wx.Panel):
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
-	def _on_set_firstname(self):
+	def __register_interests(self):
+		"""
+		Configure enabled event signals
+		"""
+		# custom
+		self.PRW_firstname.add_callback_on_lose_focus(self.on_name_set)
+	#--------------------------------------------------------
+	def on_name_set(self):
 		"""
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
 		"""
-		# FIXME: if we load gender_l10n in v_basic_person, we
-		# dont need to obtain gender_map
-		map = get_name_gender_map()
+		name_gender_map = get_name_gender_map()
 		firstname = string.lower(self.PRW_firstname.GetValue())
-		if map.has_key(firstname):
-			gender = self.__gender_map[map[firstname]]
-			self.CMB_gender.SetSelection(self.CMB_gender.FindString(gender))
+		if(name_gender_map.has_key(firstname)):
+			gender = self.__gender_map[name_gender_map[firstname]]['label']
+			self.PRW_gender.SetValue(gender)
 		return True
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------		
 	def save(self):
-		print "Saving identity..."
-		# FIXME: calling Validate() from widget rises:
-		#	TypeError: Validate() takes exactly 1 argument (2 given)
-		#if not self.Validate():
-			# FIXME: inform user
-		#	print "Can't validate"
-		#	return False
+		msg = _("Data in Identity section can't be saved.\nPlease, correct any invalid input.")
+		if not self.Validate():
+			gmGuiHelpers.gm_show_error(msg, _('Identity invalid input'), gmLog.lErr)
+			return False
 		if not self.TransferDataFromWindow():
-			# FIXME: inform user
-			print "Can't TransferDataFromWindow"
+			gmGuiHelpers.gm_show_error(msg, _('Identity invalid input'), gmLog.lErr)					
 			return False
 		if not update_identity_from_dtd(identity = self.__ident, dtd = self.__dtd):
-			print "Can't update_identity_from_dtd"
-			# FIXME: inform user
+			msg = _("An error happened while saving Identity section.\nPlease, refresh and check all the data.")
+			gmGuiHelpers.gm_show_error(msg, _('Identity saving error'), gmLog.lErr)					
 			return False
 		return True
 #============================================================		
@@ -1964,8 +1979,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
 		pageCtrl = self.GetWindow().GetParent()
-		# FIXME: add appropriate SetData()
-		pageCtrl.CMB_gender.SetValue(self.__dtd['gender'])
+		pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
 		pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].Format(DATE_FORMAT))
 		pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
 		pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
@@ -1973,7 +1987,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		pageCtrl.PRW_nick.SetValue(self.__dtd['nick'])
 		return True
 	#--------------------------------------------------------
-	def Validate(self):
+	def Validate(self, parent = None):
 		"""Validate the contents of the given text control.
 		"""
 		pageCtrl = self.GetWindow().GetParent()
@@ -1999,18 +2013,18 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
-		if self.Validate():		
+		try:
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.__dtd with values from controls
-			self.__dtd['gender'] = pageCtrl.CMB_gender.GetData(pageCtrl.CMB_gender.GetValue())
+			self.__dtd['gender'] = pageCtrl.PRW_gender.GetData()
 			self.__dtd['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 			self.__dtd['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.__dtd['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 			self.__dtd['title'] = pageCtrl.PRW_title.GetValue()
 			self.__dtd['nick'] = pageCtrl.PRW_nick.GetValue()
-			return True
-		return False		
+		except:
+			return False
+		return True
 #============================================================
 class cPatContactsPanel(wx.Panel):
 	"""
@@ -2077,20 +2091,30 @@ class cPatContactsPanel(wx.Panel):
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		self.CMB_state = cSmartCombo (
+		cmd = "select distinct code, name from state where name %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
+		mp.setThresholds(3, 5, 6)
+		self.PRW_state = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
-			_map = {}
+			id = -1,
+			aMatchProvider = mp,
+			selection_only = True
 		)
-		self.CMB_state.SetToolTipString(_("primary/home address: state"))
+		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		self.CMB_country = cSmartCombo (
+		cmd = "select distinct code, _(name) from country where _(name) %(fragment_condition)s"
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		mp.setThresholds(2, 5, 15)
+		self.PRW_country = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
-			_map = get_country_map()
+			id = -1,
+			aMatchProvider = mp,
+			selection_only = True
 		)
-		self.CMB_country.SetToolTipString(_("primary/home address: country"))
+		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
 		STT_phone = wx.StaticText(PNL_form, -1, _('Phone'))
@@ -2113,9 +2137,9 @@ class cPatContactsPanel(wx.Panel):
 		SZR_input.Add(STT_town, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_town, 1, wx.EXPAND)
 		SZR_input.Add(STT_state, 0, wx.SHAPED)
-		SZR_input.Add(self.CMB_state, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_state, 1, wx.EXPAND)
 		SZR_input.Add(STT_country, 0, wx.SHAPED)
-		SZR_input.Add(self.CMB_country, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_country, 1, wx.EXPAND)
 		SZR_input.Add(STT_phone, 0, wx.SHAPED)
 		SZR_input.Add(self.TTC_phone, 1, wx.EXPAND)
 		PNL_form.SetSizerAndFit(SZR_input)
@@ -2131,40 +2155,29 @@ class cPatContactsPanel(wx.Panel):
 		"""
 		Configure enabled event signals
 		"""
-		# wxpython
-		wx.EVT_COMBOBOX(self.CMB_country, self.CMB_country.GetId(), self.__on_country_set)
+		# custom
+		self.PRW_country.add_callback_on_selection(self.on_country_selected)
 	#--------------------------------------------------------
-	def __on_country_set(self, event):
-		"""
-		When the user change the country selection in the combobox.
-		"""
-		self.refresh_states(event.GetString())
-		event.Skip()
-	#--------------------------------------------------------
-	# public API
-	#--------------------------------------------------------			
-	def refresh_states(self, country):
+	def on_country_selected(self, data):
 		"""
 		Set the states according to entered country.
 		"""
-		#print country
-		country_code = self.CMB_country.GetData(country)
-		print country_code
-		states = get_states4country(country_code)
-		self.CMB_state.RefreshContents(states)
+		self.PRW_state.set_context(context='country', val=data)
+		return True
 	#--------------------------------------------------------
+	# public API
+	#--------------------------------------------------------			
 	def save(self):
-		print "saving contacts..."
-		# FIXME: calling Validate() from widget rises:
-		#	TypeError: Validate() takes exactly 1 argument (2 given)		
-		#if not self.Validate():
-			# FIXME: inform user
-		#	return False
+		msg = _("Data in Contacts section can't be saved.\nPlease, correct any invalid input.")
+		if not self.Validate():
+			gmGuiHelpers.gm_show_error(msg, _('Contacts invalid input'), gmLog.lErr)
+			return False
 		if not self.TransferDataFromWindow():
-			# FIXME: inform user
+			gmGuiHelpers.gm_show_error(msg, _('Contacts invalid input'), gmLog.lErr)			
 			return False
 		if not link_contacts_from_dtd(identity = self.__ident, dtd = self.__dtd):
-			# FIXME: inform user
+			msg = _("An error happened while saving Contacts section.\nPlease, refresh and check all the data.")
+			gmGuiHelpers.gm_show_error(msg, _('Contacts saving error'), gmLog.lErr)
 			return False
 		return True		
 #============================================================		
@@ -2193,7 +2206,7 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		"""
 		return cPatContactsPanelValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
 	#--------------------------------------------------------
-	def Validate(self):
+	def Validate(self, parent = None):
 		"""
 		Validate the contents of the given text control.
 		"""
@@ -2203,8 +2216,8 @@ class cPatContactsPanelValidator(wx.PyValidator):
 			pageCtrl.TTC_zip_code,
 			pageCtrl.PRW_street,
 			pageCtrl.PRW_town,
-			pageCtrl.CMB_state,
-			pageCtrl.CMB_country
+			pageCtrl.PRW_state,
+			pageCtrl.PRW_country
 		)
 		# validate required fields
 		is_any_field_filled = False
@@ -2235,10 +2248,8 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
 		pageCtrl.TTC_zip_code.SetValue(self.form_DTD['zip_code'])
 		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
-		country = string.capitalize(self.form_DTD['country'])
-		pageCtrl.CMB_country.SetValue(country)
-		pageCtrl.refresh_states(country)
-		pageCtrl.CMB_state.SetValue(string.capitalize(self.form_DTD['state']))
+		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
+		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
 		pageCtrl.TTC_phone.SetValue(self.form_DTD['phone'])
 		return True # Prevent wxDialog from complaining.	
 	#--------------------------------------------------------
@@ -2248,19 +2259,21 @@ class cPatContactsPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		# FIXME: workaround for Validate to be called when clicking a wizard's  Finish button
-		if self.Validate():
+		try:
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
 			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
 			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
 			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
-			self.form_DTD['state'] = pageCtrl.CMB_state.GetData(pageCtrl.CMB_state.GetValue())
-			self.form_DTD['country'] = pageCtrl.CMB_country.GetData(pageCtrl.CMB_country.GetValue())
+			if not pageCtrl.PRW_state.GetData() is None:
+				self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
+			if not pageCtrl.PRW_country.GetData() is None:
+				self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
 			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
-			return True
-		return False
+		except:
+			return False
+		return True
 #============================================================
 class cPatOccupationsPanel(wx.Panel):
 	"""
@@ -2316,21 +2329,16 @@ class cPatOccupationsPanel(wx.Panel):
 		self.SetSizer(SZR_main)				
 	#--------------------------------------------------------
 	def save(self):
-		print "saving occupations..."
-		# FIXME: calling Validate() from widget rises:
-		#	TypeError: Validate() takes exactly 1 argument (2 given)
-		#if not self.Validate():
-			# FIXME: inform user
-		#	print "Can't validate"
-		#	return False		
-		#if not self.Validate():
-			# FIXME: inform user
-		#	return False
+		msg = _("Data in Occupations section can't be saved.\nPlease, correct any invalid input.")
+		if not self.Validate():
+			gmGuiHelpers.gm_show_error(msg, _('Occupations invalid input'), gmLog.lErr)			
+			return False		
 		if not self.TransferDataFromWindow():
-			# FIXME: inform user
+			gmGuiHelpers.gm_show_error(msg, _('Occupations invalid input'), gmLog.lErr)			
 			return False
 		if not link_occupation_from_dtd(identity = self.__ident, dtd = self.__dtd):
-			# FIXME: inform user
+			msg = _("An error happened while saving Occupations section.\nPlease, refresh and check all the data.")
+			gmGuiHelpers.gm_show_error(msg, _('Occupations saving error'), gmLog.lErr)
 			return False
 		return True		
 #============================================================		
@@ -2356,7 +2364,7 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 		"""
 		return cPatOccupationsPanelValidator(dtd = self.form_DTD)		# FIXME: probably need new instance of DTD ?
 	#--------------------------------------------------------
-	def Validate(self):
+	def Validate(self, parent = None):
 		"""Validate the contents of the given text control.
 		"""
 		return True
@@ -2378,12 +2386,13 @@ class cPatOccupationsPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		if self.Validate():
+		try:
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
-			return True
-		return False
+		except:
+			return False
+		return True
 #============================================================
 class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""
@@ -2503,8 +2512,8 @@ def create_identity_from_dtd(dtd=None):
 	new_identity = gmPerson.create_identity (
 		gender = dtd['gender'],
 		dob = dtd['dob'],
-		lastnames = dtd['lastnames'].capitalize(),
-		firstnames = dtd['firstnames'].capitalize()
+		lastnames = capitalize_first(dtd['lastnames']),
+		firstnames = capitalize_first(dtd['firstnames'])
 	)
 	if new_identity is None:
 		_log.Log(gmLog.lErr, 'cannot create identity from %s' % str(dtd))
@@ -2526,8 +2535,8 @@ def update_identity_from_dtd(identity, dtd=None):
 		identity['gender'] = dtd['gender']
 	if identity['dob'] != dtd['dob']:
 		identity['dob'] = dtd['dob']
-	if len(dtd['title']) > 0 and identity['title'] != dtd['title']:
-		identity['title'] = dtd['title'].capitalize()
+	if len(dtd['title']) > 0 and identity['title'] != capitalize_first(dtd['title']):
+		identity['title'] = capitalize_first(dtd['title'])
 	# FIXME: error checking
 	# FIXME: we need a trigger to update the values of the
 	# view, identity['keys'], eg. lastnames and firstnames
@@ -2535,11 +2544,11 @@ def update_identity_from_dtd(identity, dtd=None):
 	identity.save_payload()
 	# names
 	# FIXME: proper handling of "active"
-	if identity['firstnames'] != dtd['firstnames'] or identity['lastnames'] != dtd['lastnames']:
-		identity.add_name(firstnames = dtd['firstnames'].capitalize(), lastnames = dtd['lastnames'].capitalize(), active = True, nickname = None)
+	if identity['firstnames'] != capitalize_first(dtd['firstnames']) or identity['lastnames'] != capitalize_first(dtd['lastnames']):
+		identity.add_name(firstnames = capitalize_first(dtd['firstnames']), lastnames = capitalize_first(dtd['lastnames']), active = True, nickname = None)
 	# nickname
-	if len(dtd['nick']) > 0 and identity['preferred'] != dtd['nick']:
-		identity.set_nickname(nickname = dtd['nick'].capitalize())
+	if len(dtd['nick']) > 0 and identity['preferred'] != capitalize_first(dtd['nick']):
+		identity.set_nickname(nickname = capitalize_first(dtd['nick']))
 
 	return True
 #============================================================				
@@ -2552,24 +2561,25 @@ def link_contacts_from_dtd(identity, dtd=None):
 	supplied data.
 	@type basic_details_DTD A cFormDTD instance.
 	"""
-		
+
 	# current addresses in backend
 	addresses = identity['addresses']
 	last_idx = -1
 	if len(addresses) > 0:
-		last_idx = len(addresses) -1		
-		
+		last_idx = len(addresses) - 1
+		print addresses[last_idx]
+
 	# form addresses
 	input_number = dtd['address_number']
-	input_street = dtd['street'].capitalize()
+	input_street = capitalize_first(dtd['street'])
 	input_postcode = dtd['zip_code']
-	input_urb = dtd['town'].capitalize()
+	input_urb = capitalize_first(dtd['town'])
 	input_state = dtd['state']
 	input_country = dtd['country']
-	if (len(input_number + input_street + input_postcode + input_state + input_country + input_urb) > 6) and (last_idx == -1 or (input_number != addresses[last_idx]['number'] or input_street != addresses[last_idx]['street'] or
+	if len(input_number) > 0 and len(input_street) > 0 and len(input_postcode) > 0 and len(input_state) > 0 and\
+	 len(input_country) > 0 and len(input_urb) > 0 and (last_idx == -1 or (input_number != addresses[last_idx]['number'] or input_street != addresses[last_idx]['street'] or
 	 input_postcode != addresses[last_idx]['postcode'] or input_urb  != addresses[last_idx]['urb'] or
-	 input_state != addresses[last_idx]['state'] or input_country != addresses[last_idx]['country'])):
-		# FIXME: make sure the state exists in the backend
+	 input_state != addresses[last_idx]['state_code'] or input_country != addresses[last_idx]['country_code'])):
 		identity.link_address (
 			number = input_number,
 			street = input_street,
@@ -2608,8 +2618,6 @@ def link_occupation_from_dtd(identity, dtd=None):
 	input_occupation = dtd['occupation']
 	if len(input_occupation) > 0 and (last_idx == -1 or occupations[last_idx]['occupation'] !=input_occupation):
 		identity.link_occupation(occupation = input_occupation)
-	# FIXME: error checking
-	identity.save_payload()
 	return True	
 #============================================================
 def get_name_gender_map():
@@ -2626,6 +2634,13 @@ def get_name_gender_map():
 		for row in rows:
 			_name_gender_map[string.lower(row[0])] = row[1]
 	return _name_gender_map
+#============================================================
+def capitalize_first(txt):
+	txt_lst = txt.split(' ')
+	if len(txt_lst) > 0:
+		txt_lst[0] = txt_lst[0].capitalize()
+		txt = ' '.join(txt_lst)
+	return txt
 #============================================================
 class TestWizardPanel(wx.Panel):   
 	"""
@@ -2655,8 +2670,8 @@ if __name__ == "__main__":
 		a = cFormDTD(fields = cBasicPatDetailsPage.form_fields)
 		
 		app1 = wx.PyWidgetTester(size = (800, 600))
-		#app1.SetWidget(cNotebookedPatEditionPanel, -1)
-		app1.SetWidget(TestWizardPanel, -1)
+		app1.SetWidget(cNotebookedPatEditionPanel, -1)
+		#app1.SetWidget(TestWizardPanel, -1)
 		app1.MainLoop()
 	
 	except StandardError:
@@ -2669,7 +2684,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.43  2005-06-08 22:03:02  cfmoro
+# Revision 1.44  2005-06-09 00:26:07  cfmoro
+# PhraseWheels in patient editor. Tons of cleanups and validator fixes
+#
+# Revision 1.43  2005/06/08 22:03:02  cfmoro
 # Restored phrasewheel gender in wizard
 #
 # Revision 1.42  2005/06/08 01:25:42  cfmoro
