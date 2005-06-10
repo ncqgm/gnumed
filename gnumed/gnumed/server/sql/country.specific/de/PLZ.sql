@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -14,7 +14,7 @@ set client_encoding to 'LATIN1';
 delete from urb where id_state = (select id from state where code='SN');
 delete from state where country='DE';
 
--- Bundesländer
+-- Deutschland (Bundesländer)
 insert into state (code, country, name) values ('BW', 'DE', 'Baden-Württemberg');
 insert into state (code, country, name) values ('BY', 'DE', 'Bayern');
 insert into state (code, country, name) values ('BE', 'DE', 'Berlin');
@@ -32,7 +32,7 @@ insert into state (code, country, name) values ('ST', 'DE', 'Sachsen-Anhalt');
 insert into state (code, country, name) values ('SH', 'DE', 'Schleswig-Holstein');
 insert into state (code, country, name) values ('TH', 'DE', 'Thüringen');
 
--- Österreich
+-- Österreich (Bundesländer)
 insert into state (code, country, name) values ('Wien', 'AT', 'Wien');				-- Vienna
 insert into state (code, country, name) values ('Tirol', 'AT', 'Tirol');			-- the Tyrol
 insert into state (code, country, name) values ('OÖ', 'AT', 'Oberösterreich');		-- Upper Austria
@@ -138,11 +138,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.6  2005-06-07 20:59:18  ncq
+-- Revision 1.7  2005-06-10 07:21:35  ncq
+-- - better docs
+--
+-- Revision 1.6  2005/06/07 20:59:18  ncq
 -- - Austrian states
 --
 -- Revision 1.5  2005/05/24 19:44:31  ncq
