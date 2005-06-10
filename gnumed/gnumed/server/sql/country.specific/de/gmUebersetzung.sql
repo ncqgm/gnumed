@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -17,6 +17,7 @@ select i18n_upd_tx('de_DE', 'Germany', 'Deutschland');
 select i18n_upd_tx('de_DE', 'Austria', 'Österreich');
 select i18n_upd_tx('de_DE', 'Spain', 'Spanien');
 select i18n_upd_tx('de_DE', 'Australia', 'Australien');
+select i18n_upd_tx('de_DE', 'Canada', 'Kanada');
 
 -- =============================================
 -- doc types translated into German
@@ -274,11 +275,14 @@ select i18n_upd_tx('de_DE', 'hermaphrodite', 'Hermaphrodit');
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmUebersetzung.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.6  2005-06-07 20:58:48  ncq
+-- Revision 1.7  2005-06-10 07:22:09  ncq
+-- - translate Canada to German
+--
+-- Revision 1.6  2005/06/07 20:58:48  ncq
 -- - add some translated countries
 --
 -- Revision 1.5  2005/05/17 08:18:22  ncq
