@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.11 2005-06-08 01:27:12 cfmoro Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmMatchProvider.py,v 1.12 2005-06-10 17:07:34 cfmoro Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -188,6 +188,7 @@ class cMatchProvider:
 		on what is being matched.
 		"""
 		self._context_val[name] = val
+		#print 'context %s : %s' % (name, val)
 #------------------------------------------------------------
 # usable instances
 #------------------------------------------------------------
@@ -389,12 +390,22 @@ class cMatchProvider_SQL2(cMatchProvider):
 		self._context_vals = {}
 		cMatchProvider.__init__(self)
 	#--------------------------------------------------------
-	def set_context_values(self, values=None):
-		if values is None:
-			_log.Log(gmLog.lErr, 'programming error: values is None')
-			return 1
-		for key in values.keys():
-			self._context_vals[key] = values[key]
+	def set_context (self, name, val):
+		"""Set value to provide context information	for matches.
+
+		The matching code may ignore it depending on its exact
+		implementation. Names and values of the context depend
+		on what is being matched.
+		"""
+		self._context_vals[name] = val
+		#print 'context %s : %s' % (name, val)
+	#--------------------------------------------------------			
+	#def set_context_values(self, values=None):
+	#	if values is None:
+	#		_log.Log(gmLog.lErr, 'programming error: values is None')
+	#		return 1
+	#	for key in values.keys():
+	#		self._context_vals[key] = values[key]
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -428,7 +439,10 @@ class cMatchProvider_SQL2(cMatchProvider):
 	def __find_matches(self, fragment_condition):
 		matches = []
 		query = self._query % {'fragment_condition': fragment_condition}
+		#print query
+		#print self._context_vals
 		rows = gmPG.run_ro_query(self._service, query, None, self._context_vals)
+		#print rows
 		if rows is None:
 			_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
 			_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
@@ -619,7 +633,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.11  2005-06-08 01:27:12  cfmoro
+# Revision 1.12  2005-06-10 17:07:34  cfmoro
+# Fixed set_context in SQL2
+#
+# Revision 1.11  2005/06/08 01:27:12  cfmoro
 # Renamed function to make parent set_context work
 #
 # Revision 1.10  2005/06/07 10:16:37  ncq
