@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.21 2005-06-08 01:27:50 cfmoro Exp $
-__version__ = "$Revision: 1.21 $"
+# $Id: gmGuiHelpers.py,v 1.22 2005-06-10 16:11:14 shilbert Exp $
+__version__ = "$Revision: 1.22 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -170,8 +170,8 @@ def makePageTitle(wizPg, title):
 	wizPg.SetSizer(sizer)
 	title = wxStaticText(wizPg, -1, title)
 	title.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxBOLD))
-	sizer.AddWindow(title, 0, wxALIGN_CENTRE|wxALL, 2)
-	sizer.AddWindow(wxStaticLine(wizPg, -1), 0, wxEXPAND|wxALL, 2)
+	sizer.Add(title, 0, wxALIGN_CENTRE|wxALL, 2)
+	sizer.Add(wxStaticLine(wizPg, -1), 0, wxEXPAND|wxALL, 2)
 	return sizer	
 #============================================================
 class cTextObjectValidator(wxPyValidator):
@@ -275,7 +275,10 @@ class cTextObjectValidator(wxPyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.21  2005-06-08 01:27:50  cfmoro
+# Revision 1.22  2005-06-10 16:11:14  shilbert
+# szr.AddWindow() -> Add() such that wx2.5 works
+#
+# Revision 1.21  2005/06/08 01:27:50  cfmoro
 # Validator fix
 #
 # Revision 1.20  2005/05/05 06:27:52  ncq
