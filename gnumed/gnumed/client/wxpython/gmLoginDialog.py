@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.57 2005-03-06 14:54:19 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmLoginDialog.py,v 1.58 2005-06-10 16:09:36 shilbert Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -194,10 +194,10 @@ class LoginPanel(wx.wxPanel):
 		self.button_gridsizer.Add (button_help,0,wx.wxEXPAND|wx.wxALL,5)
 		self.button_gridsizer.Add (button_login_ok,0,wx.wxEXPAND|wx.wxALL,5)
 		self.button_gridsizer.Add (button_cancel,0,wx.wxEXPAND|wx.wxALL,5)
-               
-		self.paramsboxsizer.AddSizer(self.pboxgrid, 1, wx.wxGROW|wx.wxALL, 10)
-		self.topsizer.AddSizer(self.paramsboxsizer, 1, wx.wxGROW|wx.wxALL, 10)
-		self.topsizer.AddSizer( self.button_gridsizer, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
+		
+		self.paramsboxsizer.Add(self.pboxgrid, 1, wx.wxGROW|wx.wxALL, 10)
+		self.topsizer.Add(self.paramsboxsizer, 1, wx.wxGROW|wx.wxALL, 10)
+		self.topsizer.Add( self.button_gridsizer, 0, wx.wxGROW|wx.wxALIGN_CENTER_VERTICAL|wx.wxALL, 5 )
 
 		self.SetAutoLayout(True)
 		self.SetSizer( self.topsizer)
@@ -456,7 +456,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.57  2005-03-06 14:54:19  ncq
+# Revision 1.58  2005-06-10 16:09:36  shilbert
+# foo.AddSizer()-> foo.Add() such that wx2.5 works
+#
+# Revision 1.57  2005/03/06 14:54:19  ncq
 # - szr.AddWindow() -> Add() such that wx2.5 works
 # - 'demographic record' -> get_identity()
 #
