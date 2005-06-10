@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.7 2005-05-06 15:30:15 ncq Exp $
-__version__ = "$Revision: 1.7 $"
+# $Id: gmEMRStructWidgets.py,v 1.8 2005-06-10 23:22:43 ncq Exp $
+__version__ = "$Revision: 1.8 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -74,7 +74,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		cmd = """
 			select distinct on (description) id, description
 			from clin_health_issue where description %(fragment_condition)s"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', cmd)
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [cmd])
 		mp.setThresholds(aWord=2, aSubstring=5)
 		self.fld_condition = gmPhraseWheel.cPhraseWheel (
 			parent = parent
@@ -135,7 +135,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 		cmd = """
 			select distinct on (narrative) pk, narrative
 			from clin_narrative where narrative %(fragment_condition)s limit 30"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', cmd)
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [cmd])
 		mp.setThresholds(2, 4, 6)
 		self.fld_progress_note = gmPhraseWheel.cPhraseWheel (
 			parent = parent
@@ -862,7 +862,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.7  2005-05-06 15:30:15  ncq
+# Revision 1.8  2005-06-10 23:22:43  ncq
+# - SQL2 match provider now requires query *list*
+#
+# Revision 1.7  2005/05/06 15:30:15  ncq
 # - attempt to properly set focus
 #
 # Revision 1.6  2005/04/25 08:30:59  ncq

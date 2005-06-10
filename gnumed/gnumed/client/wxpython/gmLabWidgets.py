@@ -7,7 +7,7 @@
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmLabWidgets.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 
 # system
@@ -127,7 +127,7 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 			select pk, internal_name
 			from test_org
 			"""
-		self.mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
+		self.mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
 		self.mp.setThresholds(aWord=2, aSubstring=4)
 
 		gmPhraseWheel.cPhraseWheel.__init__(
@@ -864,7 +864,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
 # $Log: gmLabWidgets.py,v $
-# Revision 1.11  2005-05-05 06:28:23  ncq
+# Revision 1.12  2005-06-10 23:22:43  ncq
+# - SQL2 match provider now requires query *list*
+#
+# Revision 1.11  2005/05/05 06:28:23  ncq
 # - renamed phrasewheel methods
 #
 # Revision 1.10  2005/03/06 14:54:19  ncq

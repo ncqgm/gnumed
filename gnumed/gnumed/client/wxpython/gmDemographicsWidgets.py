@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.45 2005-06-09 01:56:41 cfmoro Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmDemographicsWidgets.py,v 1.46 2005-06-10 23:22:43 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1130,8 +1130,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# last name
 		STT_lastname = wx.StaticText(PNL_form, -1, _('Last name'))
 		STT_lastname.SetForegroundColour('red')
-		cmd = "select distinct lastnames, lastnames from names where lastnames %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries = []
+		queries.append("select distinct lastnames, lastnames from names where lastnames %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_lastname = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -1144,11 +1145,13 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# first name
 		STT_firstname = wx.StaticText(PNL_form, -1, _('First name'))
 		STT_firstname.SetForegroundColour('red')
+		queries = []
 		cmd = """
 			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s
 				union
 			select distinct name, name from name_gender_map where name %(fragment_condition)s"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries.append(cmd)
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_firstname = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -1160,11 +1163,13 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# nickname
 		STT_nick = wx.StaticText(PNL_form, -1, _('Nick name'))
+		queries = []
 		cmd = """
 			select distinct preferred, preferred from names where preferred %(fragment_condition)s
 				union
 			select distinct firstnames, firstnames from names where firstnames %(fragment_condition)s"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries.append(cmd)
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)
 		self.PRW_nick = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -1200,8 +1205,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# title
 		STT_title = wx.StaticText(PNL_form, -1, _('Title'))
-		cmd = "select distinct title, title from identity where title %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries = []
+		queries.append("select distinct title, title from identity where title %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(1, 3, 15)
 		self.PRW_title = gmPhraseWheel.cPhraseWheel(
 			parent = PNL_form,
@@ -1217,8 +1223,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
-		cmd = "select distinct name, name from street where name %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries = []
+		queries.append("select distinct name, name from street where name %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_street = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -1234,8 +1241,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
-		cmd = "select distinct name, name from urb where name %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries = []
+		queries.append("select distinct name, name from urb where name %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_town = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -1247,8 +1255,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
-		cmd = "select distinct code, name from state where name %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', cmd)
+		queries = []
+		queries.append("select distinct code, name from state where name %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -1261,8 +1270,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
-		cmd = "select distinct code, _(name) from country where _(name) %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries = []
+		queries.append("select distinct code, _(name) from country where _(name) %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -1280,8 +1290,9 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# occupation
 		STT_occupation = wx.StaticText(PNL_form, -1, _('Occupation'))
-		cmd = "select distinct name, name from occupation where name %(fragment_condition)s"
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', cmd)
+		queries = []
+		queries.append("select distinct name, name from occupation where name %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(3, 5, 15)		
 		self.PRW_occupation = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -2706,7 +2717,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.45  2005-06-09 01:56:41  cfmoro
+# Revision 1.46  2005-06-10 23:22:43  ncq
+# - SQL2 match provider now requires query *list*
+#
+# Revision 1.45  2005/06/09 01:56:41  cfmoro
 # Initial code on zip -> (auto) address
 #
 # Revision 1.44  2005/06/09 00:26:07  cfmoro

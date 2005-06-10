@@ -6,8 +6,8 @@ copyright: authors
 """
 #======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmVaccWidgets.py,v $
-# $Id: gmVaccWidgets.py,v 1.16 2005-04-20 22:23:36 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmVaccWidgets.py,v 1.17 2005-06-10 23:22:43 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -55,7 +55,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			where
 				short_name || ' ' || trade_name %(fragment_condition)s
 			limit 25"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
 		mp.setThresholds(aWord=2, aSubstring=4)
 		self.fld_vaccine = gmPhraseWheel.cPhraseWheel(
 			parent = parent
@@ -102,7 +102,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			where
 				tmp.site %(fragment_condition)s
 			limit 10"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
 		mp.setThresholds(aWord=1, aSubstring=3)
 		self.fld_site_given = gmPhraseWheel.cPhraseWheel(
 			parent = parent
@@ -127,7 +127,7 @@ class cVaccinationEditArea(gmEditArea.cEditArea2):
 			where
 				narrative %(fragment_condition)s
 			limit 30"""
-		mp = gmMatchProvider.cMatchProvider_SQL2('historica', query)
+		mp = gmMatchProvider.cMatchProvider_SQL2('historica', [query])
 		mp.setThresholds(aWord=3, aSubstring=5)
 		self.fld_progress_note = gmPhraseWheel.cPhraseWheel(
 			parent = parent
@@ -599,7 +599,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #======================================================================
 # $Log: gmVaccWidgets.py,v $
-# Revision 1.16  2005-04-20 22:23:36  ncq
+# Revision 1.17  2005-06-10 23:22:43  ncq
+# - SQL2 match provider now requires query *list*
+#
+# Revision 1.16  2005/04/20 22:23:36  ncq
 # - cNewVaccinationPopup
 #
 # Revision 1.15  2005/04/18 19:26:43  ncq
