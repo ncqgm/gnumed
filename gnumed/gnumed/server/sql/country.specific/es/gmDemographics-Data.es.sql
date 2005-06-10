@@ -3,7 +3,7 @@
 
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/es/gmDemographics-Data.es.sql,v $
--- $Id: gmDemographics-Data.es.sql,v 1.1 2005-05-15 12:03:51 ncq Exp $
+-- $Id: gmDemographics-Data.es.sql,v 1.2 2005-06-10 07:22:53 ncq Exp $
 -- author: Carlos Moro
 -- license: GPL
 
@@ -13,8 +13,9 @@
 
 set client_encoding to 'LATIN1';
 -- ===================================================================
--- spanish geographic information (mostly of type 'state')
+select i18n_upd_tx('es_ES', 'Spain', 'España');
 
+-- spanish geographic information (mostly of type 'state')
 INSERT INTO state(code,country,name) VALUES ('01','ES',i18n('Álava'));
 INSERT INTO state(code,country,name) VALUES ('02','ES',i18n('Albacete'));
 INSERT INTO state(code,country,name) VALUES ('03','ES',i18n('Alicante'));
@@ -68,10 +69,13 @@ INSERT INTO state(code,country,name) VALUES ('50','ES',i18n('Zaragoza'));
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.es.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.es.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.es.sql,v $', '$Revision: 1.2 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-Data.es.sql,v $
--- Revision 1.1  2005-05-15 12:03:51  ncq
+-- Revision 1.2  2005-06-10 07:22:53  ncq
+-- - translate Spain into Spanish
+--
+-- Revision 1.1  2005/05/15 12:03:51  ncq
 -- - Spanish counties/states
 --
