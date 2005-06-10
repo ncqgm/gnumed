@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.38 2005-05-24 19:54:47 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.39 2005-06-10 07:21:05 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -277,6 +277,7 @@ select
 	i.dob as dob,
 	i.cob as cob,
 	i.gender as gender,
+	_(i.gender) as l10n_gender,
 	i.karyotype as karyotype,
 	i.pupic as pupic,
 	case when fk_marital_status is null
@@ -432,11 +433,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.38 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.39 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.38  2005-05-24 19:54:47  ncq
+-- Revision 1.39  2005-06-10 07:21:05  ncq
+-- - add v_basic_person.l10n_gender
+--
+-- Revision 1.38  2005/05/24 19:54:47  ncq
 -- - create_person_comm() -> link_person_comm() with some caveat for post-0.1
 --
 -- Revision 1.37  2005/05/22 21:44:22  cfmoro
