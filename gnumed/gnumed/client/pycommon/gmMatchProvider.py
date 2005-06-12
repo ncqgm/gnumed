@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.12 2005-06-10 17:07:34 cfmoro Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmMatchProvider.py,v 1.13 2005-06-12 21:16:55 ncq Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -379,14 +379,14 @@ class cMatchProvider_SQL2(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
 	"""
-	def __init__(self, service = None, query = None):
-		if query is None:
-			_log.Log(gmLog.lErr, 'must define query')
-			raise gmException.ConstructorError, 'must define query'
+	def __init__(self, service = None, queries = None):
+		if type(queries) != types.ListType:
+			_log.Log(gmLog.lErr, 'must define query list')
+			raise gmException.ConstructorError, 'must define query list'
 		if service is None:
 			service = 'default'
 		self._service = service
-		self._query = query
+		self._queries = queries
 		self._context_vals = {}
 		cMatchProvider.__init__(self)
 	#--------------------------------------------------------
@@ -438,23 +438,23 @@ class cMatchProvider_SQL2(cMatchProvider):
 	#--------------------------------------------------------
 	def __find_matches(self, fragment_condition):
 		matches = []
-		query = self._query % {'fragment_condition': fragment_condition}
-		#print query
-		#print self._context_vals
-		rows = gmPG.run_ro_query(self._service, query, None, self._context_vals)
-		#print rows
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
-			_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
-			return (False, [])
-		# no matches found
-		if len(rows) == 0:
-			return (False, [])
-		for row in rows:
-			# FIXME: deal with gmpw_score...
-			matches.append({'data': row[0], 'label': row[1], 'weight': 0})
-		matches.sort(self.__cmp_items)
-		return (True, matches)
+		for query in self._queries:
+			query = query % {'fragment_condition': fragment_condition}
+			rows = gmPG.run_ro_query(self._service, query, None, self._context_vals)
+			if rows is None:
+				_log.Log(gmLog.lErr, 'cannot check for matches with %s' % query)
+				_log.Log(gmLog.lErr, 'context: %s' % self._context_vals)
+				return (False, [])
+			# no matches found: try next query
+			if len(rows) == 0:
+				continue
+			for row in rows:
+				# FIXME: deal with gmpw_score...
+				matches.append({'data': row[0], 'label': row[1], 'weight': 0})
+			matches.sort(self.__cmp_items)
+			return (True, matches)
+		# none found whatsoever
+		return (False, [])
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
 		"""naive ordering"""
@@ -633,7 +633,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.12  2005-06-10 17:07:34  cfmoro
+# Revision 1.13  2005-06-12 21:16:55  ncq
+# - make SQL2 match provider accept a query list
+#
+# Revision 1.12  2005/06/10 17:07:34  cfmoro
 # Fixed set_context in SQL2
 #
 # Revision 1.11  2005/06/08 01:27:12  cfmoro
