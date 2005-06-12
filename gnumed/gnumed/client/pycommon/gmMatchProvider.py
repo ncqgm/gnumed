@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.13 2005-06-12 21:16:55 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmMatchProvider.py,v 1.14 2005-06-12 21:20:55 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -379,12 +379,9 @@ class cMatchProvider_SQL2(cMatchProvider):
 	"""Match provider which searches matches
 	   in possibly several database tables.
 	"""
-	def __init__(self, service = None, queries = None):
+	def __init__(self, service = 'default', queries = None):
 		if type(queries) != types.ListType:
-			_log.Log(gmLog.lErr, 'must define query list')
-			raise gmException.ConstructorError, 'must define query list'
-		if service is None:
-			service = 'default'
+			queries = [str(queries)]
 		self._service = service
 		self._queries = queries
 		self._context_vals = {}
@@ -399,13 +396,6 @@ class cMatchProvider_SQL2(cMatchProvider):
 		"""
 		self._context_vals[name] = val
 		#print 'context %s : %s' % (name, val)
-	#--------------------------------------------------------			
-	#def set_context_values(self, values=None):
-	#	if values is None:
-	#		_log.Log(gmLog.lErr, 'programming error: values is None')
-	#		return 1
-	#	for key in values.keys():
-	#		self._context_vals[key] = values[key]
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -449,7 +439,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 			if len(rows) == 0:
 				continue
 			for row in rows:
-				# FIXME: deal with gmpw_score...
+				# FIXME: make queries return weights !
 				matches.append({'data': row[0], 'label': row[1], 'weight': 0})
 			matches.sort(self.__cmp_items)
 			return (True, matches)
@@ -633,7 +623,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.13  2005-06-12 21:16:55  ncq
+# Revision 1.14  2005-06-12 21:20:55  ncq
+# - make SQL2 match provider more robust regarding query list
+#
+# Revision 1.13  2005/06/12 21:16:55  ncq
 # - make SQL2 match provider accept a query list
 #
 # Revision 1.12  2005/06/10 17:07:34  cfmoro
