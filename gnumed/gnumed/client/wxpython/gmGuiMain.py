@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.197 2005-06-07 20:52:49 ncq Exp $
-__version__ = "$Revision: 1.197 $"
+# $Id: gmGuiMain.py,v 1.198 2005-06-12 22:16:22 ncq Exp $
+__version__ = "$Revision: 1.198 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -41,12 +41,19 @@ _log.Log(gmLog.lInfo, 'GUI framework: %s' % wx.wxVERSION_STRING)
 #except AttributeError:
 #	pass
 
+# set up database connection encoding
 encoding = _cfg.get('backend', 'client encoding')
 if encoding is None:
 	print 'WARNING: option <client encoding> not set in config file'
 	_log.Log(gmLog.lWarn, 'you need to set the parameter <client encoding> in the config file')
 	_log.Log(gmLog.lWarn, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
 gmPG.set_default_client_encoding(encoding)
+# FIXME: set default encoding for Python here as well ?
+
+# set up database connection timezone
+timezone = _cfg.get('backend', 'client timezone')
+if timezone is not None:
+	gmPG.set_default_client_timezone(timezone)
 
 ID_ABOUT = wx.wxNewId ()
 ID_EXIT = wx.wxNewId ()
@@ -57,6 +64,7 @@ ID_EXPORT_EMR = wx.wxNewId()
 ID_EXPORT_EMR_JOURNAL = wx.wxNewId()
 ID_EXPORT_MEDISTAR = wx.wxNewId()
 ID_CREATE_PATIENT = wx.wxNewId()
+ID_SEARCH_EMR = wx.wxNewId()
 #==============================================================================
 
 icon_serpent = \
@@ -244,16 +252,27 @@ class gmTopLevelFrame(wx.wxFrame):
 		menu_emr = wx.wxMenu()
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
+		# - search
+		menu_emr.Append (
+			ID_SEARCH_EMR,
+			_('Search'),
+			_('Search for data in the EMR of the active patient')
+		)
+		wx.EVT_MENU(self, ID_SEARCH_EMR, self.__on_search_emr)
 		# - submenu "export as"
 		menu_emr_export = wx.wxMenu()
 		menu_emr.AppendMenu(wx.wxNewId(), _('Export as ...'), menu_emr_export)
 		#   1) ASCII
-		menu_emr_export.Append(ID_EXPORT_EMR, _('structured text'), _("export the EMR of the active patient into a text file"))
+		menu_emr_export.Append (
+			ID_EXPORT_EMR,
+			_('text document'),
+			_("export the EMR of the active patient into a text file")
+		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
 		#   2) journal format
 		menu_emr_export.Append (
 			ID_EXPORT_EMR_JOURNAL,
-			_('as journal'),
+			_('journal'),
 			_("export the EMR of the active patient as a chronological journal into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
@@ -270,9 +289,9 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.__gb['main.emr_showmenu'] = menu_emr_show
 
 		# menu "View" ---------------------------
-		self.menu_view = wx.wxMenu()
-		self.__gb['main.viewmenu'] = self.menu_view
-		self.mainmenu.Append(self.menu_view, _("&View"));
+#		self.menu_view = wx.wxMenu()
+#		self.__gb['main.viewmenu'] = self.menu_view
+#		self.mainmenu.Append(self.menu_view, _("&View"));
 
 		# menu "Tools"
 		self.menu_tools = wx.wxMenu()
@@ -744,7 +763,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.197  2005-06-07 20:52:49  ncq
+# Revision 1.198  2005-06-12 22:16:22  ncq
+# - allow for explicitely setting timezone via config file
+# - cleanup, prepare for EMR search
+#
+# Revision 1.197  2005/06/07 20:52:49  ncq
 # - improved EMR menu structure
 #
 # Revision 1.196  2005/05/24 19:50:26  ncq
