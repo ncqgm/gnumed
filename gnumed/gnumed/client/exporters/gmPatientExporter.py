@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.53 2005-06-07 09:04:45 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmPatientExporter.py,v 1.54 2005-06-12 22:09:39 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -561,14 +561,13 @@ class cEmrExport:
         """
         emr = self.__patient.get_clinical_record()
         # general
-        txt = (' ' * left_margin) + '%s: %s (%s - %s)' % (
-            encounter['started'].Format('%Y-%m-%d'),
-            encounter['l10n_type'],
-            encounter['started'].Format('%H:%M'),
-            encounter['last_affirmed'].Format('%H:%M')
+        txt = (' ' * left_margin) + '%s - %s: %s' % (
+            encounter['started'].Format('%Y-%m-%d  %H:%M'),
+            encounter['last_affirmed'].Format('%H:%M'),
+            encounter['l10n_type']
         )
         if (encounter['description'] is not None) and (len(encounter['description']) > 0):
-            txt += '"%s"' % encounter['description']
+            txt += ' "%s"' % encounter['description']
         txt += '\n'
         # rfe
         rfes = encounter.get_rfes()
@@ -1098,7 +1097,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.53  2005-06-07 09:04:45  ncq
+# Revision 1.54  2005-06-12 22:09:39  ncq
+# - better encounter formatting yet
+#
+# Revision 1.53  2005/06/07 09:04:45  ncq
 # - cleanup, better encounter data display
 #
 # Revision 1.52  2005/05/17 18:11:41  ncq
