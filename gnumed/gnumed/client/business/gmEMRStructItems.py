@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.51 $"
+__version__ = "$Revision: 1.52 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -217,21 +217,6 @@ class cEncounter(gmClinItem.cClinItem):
 		for row in rows:
 		  aoes.append(gmClinNarrative.cAOE(aPK_obj=row[0]))
 		return aoes
-	#--------------------------------------------------------
-	def set_attached_to(self, staff_id=None):
-#		"""Attach staff/provider to the encounter.
-#
-#		staff_id - Staff/provider's primary key
-#		"""
-#		cmd = """update clin_encounter set fk_provider=%s where id=%s"""
-#		success, msg = gmPG.run_commit('historica', [(cmd, [staff_id, self.pk_obj])], True)
-#		if not success:
-#			_log.Log(gmLog.lErr, 'cannot attach to encounter [%s]' % self.pk_obj)
-#			_log.Log(gmLog.lErr, str(msg))
-#			return False
-#		return True
-		pass
-		
 #============================================================		
 class cProblem(gmClinItem.cClinItem):
 	"""Represents one problem.
@@ -507,7 +492,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.51  2005-05-14 15:05:40  ncq
+# Revision 1.52  2005-06-12 21:40:42  ncq
+# - cleanup
+#
+# Revision 1.51  2005/05/14 15:05:40  ncq
 # - show HH:MM in auto-created encounters
 #
 # Revision 1.50  2005/04/25 08:28:28  ncq
