@@ -14,7 +14,7 @@ def resultset_functional_batchgene rator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -94,7 +94,7 @@ else:
 	tz = time.timezone
 # do some magic to convert Python's timezone to a valid ISO timezone
 # is this safe or will it return things like 13.5 hours ?
-_default_time_zone = "%+.1f" % (-tz / 3600.0)
+_default_client_timezone = "%+.1f" % (-tz / 3600.0)
 
 _serialize_failure = "serialize access due to concurrent update"
 #======================================================================
@@ -448,13 +448,13 @@ class ConnectionPool:
 				_log.Log(gmLog.lWarn, 'cannot set client_encoding on connection to [%s]' % encoding)
 				_log.Log(gmLog.lWarn, 'not setting this may in some cases lead to data corruption')
 		# - client time zone
-#		cmd = "set session time zone interval '%s'" % _default_time_zone
-		cmd = "set time zone '%s'" % _default_time_zone
+#		cmd = "set session time zone interval '%s'" % _default_client_timezone
+		cmd = "set time zone '%s'" % _default_client_timezone
 		if not run_query(curs, None, cmd):
-			_log.Log(gmLog.lErr, 'cannot set client time zone to [%s]' % _default_time_zone)
+			_log.Log(gmLog.lErr, 'cannot set client time zone to [%s]' % _default_client_timezone)
 			_log.Log(gmLog.lWarn, 'not setting this will lead to incorrect dates/times')
 		else:
-			_log.Log (gmLog.lData, 'time zone set to [%s]' % _default_time_zone)
+			_log.Log (gmLog.lData, 'time zone set to [%s]' % _default_client_timezone)
 		# - datestyle
 		# FIXME: add DMY/YMD handling
 		cmd = "set datestyle to 'ISO'"
@@ -1215,7 +1215,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.48 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.49 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1238,12 +1238,21 @@ def getBackendName():
 	return __backend
 #---------------------------------------------------
 def set_default_client_encoding(encoding = None):
-	if encoding is not None:
-		_log.Log(gmLog.lInfo, 'setting default client encoding to [%s]' % encoding)
-		global _default_client_encoding
-		_default_client_encoding = encoding
-		return 1
-	return None
+	if encoding is None:
+		return None
+	_log.Log(gmLog.lInfo, 'setting default client encoding to [%s]' % encoding)
+	global _default_client_encoding
+	_default_client_encoding = encoding
+	return 1
+#---------------------------------------------------
+def set_default_client_timezone(timezone = None):
+	if timezone is None:
+		return None
+	# FIXME: verify against database before setting
+	_log.Log(gmLog.lInfo, 'setting default client time zone to [%s]' % timezone)
+	global _default_client_timezone
+	_default_client_timezone = timezone
+	return 1
 #===================================================
 def __prompted_input(prompt, default=None):
 	usr_input = raw_input(prompt)
@@ -1433,7 +1442,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.48  2005-06-09 21:32:12  ncq
+# Revision 1.49  2005-06-12 22:18:36  ncq
+# - allow importers to set default client timezone
+#
+# Revision 1.48  2005/06/09 21:32:12  ncq
 # - torture test fixes :-)
 #   - properly detect "cannot serialize access due to concurrent update"
 #   - return (2, 'l') when it happens (that is, the row is 'l'ocked)
