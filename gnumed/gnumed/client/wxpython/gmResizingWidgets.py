@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.27 2005-05-17 08:08:56 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmResizingWidgets.py,v 1.28 2005-06-12 22:17:55 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -697,6 +697,8 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 	def _on_timer_fired(self, cookie):
 		print 'timer <%s> fired' % cookie
 		fragment = self.__get_focussed_fragment()
+		if fragment.strip() == '':
+			return 1
 		print 'should popup context pick list on <%s> now' % fragment
 
 		return 1
@@ -1065,7 +1067,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.27  2005-05-17 08:08:56  ncq
+# Revision 1.28  2005-06-12 22:17:55  ncq
+# - don't attempt to pop up context lists for empty fragments
+#
+# Revision 1.27  2005/05/17 08:08:56  ncq
 # - refine ReSize() algo such that effect of erratic scrollbar display is reduced
 #
 # Revision 1.26  2005/05/08 21:43:09  ncq
