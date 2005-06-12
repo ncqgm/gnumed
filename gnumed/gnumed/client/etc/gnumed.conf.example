@@ -5,11 +5,6 @@
 help desk = GnuMed developers <gnumed-devel@gnu.org>
 name = <config file example workplace>
 
-[profile GnuMed - Public DB at hherb.com]
-host = hherb.com
-port = 5432
-database = gnumed
-
 [profile gnumed at localhost]
 host = localhost
 port = 5432
@@ -34,7 +29,6 @@ profiles = $profiles$
 gnumed at localhost
 GnuMed - Public DB at anubis.homeunix.com
 GnuMed - Public DB at salaam.homeunix.com
-GnuMed - Public DB at hherb.com
 $profiles$
 
 # If the system locale matches this value a mismatch
@@ -43,3 +37,14 @@ $profiles$
 ignored mismatching system locale = de_DE@euro
 
 client encoding = ISO-8859-15
+
+# If GNUmed cannot detect the proper timezone from system
+# information or you want to use a timezone different from
+# the system GNUmed is running on you can explicitely set
+# the time zone here.
+# Note that the timezone must be a valid PostgreSQL timezone
+# string. If in doubt consult the PostgreSQL docs.
+# If you don't want to change the timezone GNUmed detects
+# in the system you need to remove, rename or comment out
+# this option.
+client timezone = 'CETDST'
