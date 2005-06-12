@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.41 2005-03-29 07:28:20 ncq Exp $
-__version__ = "$Revision: 1.41 $"
+# $Id: gmPlugin.py,v 1.42 2005-06-12 22:17:24 ncq Exp $
+__version__ = "$Revision: 1.42 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -113,7 +113,7 @@ class cNotebookPlugin:
 			self.menu_id = wxNewId()
 			# FIXME: this shouldn't be self.name() but rather self.menu_help_string()
 			menu.Append (self.menu_id, menu_item_name, self.name())			# (id, item name, help string)
-			EVT_MENU (self.gb['main.frame'], self.menu_id, self._on_menu)
+			EVT_MENU (self.gb['main.frame'], self.menu_id, self._on_raise_by_menu)
 
 		# so notebook can find this widget
 		self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__] = self
@@ -196,8 +196,11 @@ class cNotebookPlugin:
 		nb.SetSelection(plugin_page)
 		return True
 	#-----------------------------------------------------
-	def _on_menu (self, event):
+	def _on_raise_by_menu(self, event):
+		if not self.can_receive_focus():
+			return False
 		self.Raise()
+		return True
 	#----------------------------------------------------
 	def populate_toolbar (self, tb, widget):
 		"""Populates the toolbar for this widget.
@@ -384,7 +387,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.41  2005-03-29 07:28:20  ncq
+# Revision 1.42  2005-06-12 22:17:24  ncq
+# - raise by menu only if activatable
+#
+# Revision 1.41  2005/03/29 07:28:20  ncq
 # - add FIXME on plugin scanning
 #
 # Revision 1.40  2005/02/01 10:16:07  ihaywood
