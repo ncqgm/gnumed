@@ -61,7 +61,7 @@ def main():
 	# Default settings, may be overriden for specific platforms
 	#pypgsql_rt_dirs = None
 	#optional_libs = ["pq"]
-	modname = "GNUmed"
+	modname = "Gnumed"
 	
 	sources = []
 
@@ -119,7 +119,7 @@ def main():
 		"""
 		optional_libs = [""]
 		#optional_libs = ["libpq", "wsock32", "advapi32"]
-		modname="GNUmed"
+		modname="Gnumed"
 	else:
 		# Assume a Unixish system
 		include_dirs = ["/usr/local/include"]
@@ -142,7 +142,7 @@ def main():
 		"Topic :: Scientific/Engineering :: Medical Science Apps."]
 
 	setup (
-		name = "GNUmed",
+		name = "Gnumed",
 		version = __version__,
 		description = \
 			"GNUmed - An open source practice management software",
@@ -150,14 +150,13 @@ def main():
 		maintainer_email = "gnumed-devel@gnu.org",
 		url = "http://www.gnumed.org",
 		license = "GPL",
-		packages = [
-			"GNUmed", 
-			"GNUmed.bitmaps",
-			"GNUmed.business",
-			"GNUmed.doc",
-			"GNUmed.locale",
-			"GNUmed.pycommon",
-			"GNUmed.wxpython"
+		packages = [ 
+			"Gnumed.bitmaps",
+			"Gnumed.business",
+			"Gnumed.doc",
+			"Gnumed.locale",
+			"Gnumed.pycommon",
+			"Gnumed.wxpython"
 			],
 		#ext_modules = [Extension(
 		#	name=modname,
