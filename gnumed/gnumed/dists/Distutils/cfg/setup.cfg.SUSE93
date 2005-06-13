@@ -1,0 +1,22 @@
+#
+# setup.cfg
+#
+# the GNUmed config file dor distutils.  Just as with the GNUmed setup script, this
+# has the dual purpose of being used to distribute the GNUmed and
+# serving as an example of some of the things you can do with Distutils
+# config files.  Currently, this is only useful for me (assuming I'm the
+# only person who creates GNUmed source and RPM distributions), but you
+# could add build and installation preferences here, too.  (Although those
+# sorts of things are probably best handled on a site-wide or per-user
+# basis, rather than in the config file for each module distribution.)
+#
+
+[sdist]
+formats=gztar,zip
+
+[bdist_rpm]
+release = SUSE93
+packager = S. Hilbert <sebastian.hilbert@gmx.net>
+doc_files = Gnumed/doc/
+
+  
