@@ -1,0 +1,26 @@
+Welcome to GNUmed!
+
+To build packages for GNUmed you need python's distutils. Normally they come with python.
+
+
+step 1:
+------
+execute ./setup_workspace.sh "xyz"
+
+xyz is the revision tag. e.g "0.1"
+
+
+step 2:
+-------
+to build simple *.tgz archives 
+	
+	execute python setup.py bdist
+
+to build rpms for your distribution
+	
+	cd ./cfg
+
+	select appropriate setup.cfg.* file
+	copy file to ../setup.cfg
+
+	python setup.py bdist_rpm
