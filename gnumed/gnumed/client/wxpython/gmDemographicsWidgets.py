@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.47 2005-06-12 22:12:35 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmDemographicsWidgets.py,v 1.48 2005-06-13 01:18:24 cfmoro Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1218,8 +1218,16 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 
 		# zip code
 		STT_zip_code = wx.StaticText(PNL_form, -1, _('Zip code'))
-		self.TTC_zip_code = wx.TextCtrl(PNL_form, -1)
-		self.TTC_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
+		queries = []
+		queries.append("select distinct postcode, postcode from street where postcode %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
+		mp.setThresholds(3, 5, 15)				
+		self.PRW_zip_code = gmPhraseWheel.cPhraseWheel (
+			parent = PNL_form,
+			id = -1,
+			aMatchProvider = mp
+		)
+		self.PRW_zip_code.SetToolTipString(_("primary/home address: zip code/postcode"))
 
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
@@ -1321,7 +1329,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		SZR_input.Add(STT_title, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_title, 1, wx.EXPAND)
 		SZR_input.Add(STT_zip_code, 0, wx.SHAPED)
-		SZR_input.Add(self.TTC_zip_code, 1, wx.EXPAND)
+		SZR_input.Add(self.PRW_zip_code, 1, wx.EXPAND)
 		SZR_input.Add(STT_street, 0, wx.SHAPED)
 		SZR_input.Add(self.PRW_street, 1, wx.EXPAND)
 		SZR_input.Add(STT_address_number, 0, wx.SHAPED)
@@ -1472,7 +1480,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		# address		
 		address_fields = (
 			pageCtrl.TTC_address_number,
-			pageCtrl.TTC_zip_code,
+			pageCtrl.PRW_zip_code,
 			pageCtrl.PRW_street,
 			pageCtrl.PRW_town,
 			pageCtrl.PRW_state,
@@ -1511,7 +1519,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		pageCtrl.PRW_occupation.SetValue(self.form_DTD['occupation'])
 		pageCtrl.TTC_address_number.SetValue(self.form_DTD['address_number'])
 		pageCtrl.PRW_street.SetValue(self.form_DTD['street'])
-		pageCtrl.TTC_zip_code.SetValue(self.form_DTD['zip_code'])
+		pageCtrl.PRW_zip_code.SetValue(self.form_DTD['zip_code'])
 		pageCtrl.PRW_town.SetValue(self.form_DTD['town'])
 		pageCtrl.PRW_state.SetValue(self.form_DTD['state'])
 		pageCtrl.PRW_country.SetValue(self.form_DTD['country'])
@@ -1539,7 +1547,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			self.form_DTD['occupation'] = pageCtrl.PRW_occupation.GetValue()
 			self.form_DTD['address_number'] = pageCtrl.TTC_address_number.GetValue()
 			self.form_DTD['street'] = pageCtrl.PRW_street.GetValue()
-			self.form_DTD['zip_code'] = pageCtrl.TTC_zip_code.GetValue()
+			self.form_DTD['zip_code'] = pageCtrl.PRW_zip_code.GetValue()
 			self.form_DTD['town'] = pageCtrl.PRW_town.GetValue()
 			self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
 			self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
@@ -1944,6 +1952,8 @@ class cPatIdentityPanel(wx.Panel):
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
 		"""
+		print "Value: %s" % self.PRW_firstname.GetValue()
+		print "Data: %s" % self.PRW_firstname.GetData()
 		name_gender_map = get_name_gender_map()
 		firstname = string.lower(self.PRW_firstname.GetValue())
 		if(name_gender_map.has_key(firstname)):
@@ -2088,6 +2098,7 @@ class cPatContactsPanel(wx.Panel):
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
 		queries = []
+		queries.append("select distinct street, street from v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s")
 		queries.append("select distinct name, name from street where name %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)				
@@ -2096,6 +2107,7 @@ class cPatContactsPanel(wx.Panel):
 			id = -1,
 			aMatchProvider = mp
 		)
+		self.PRW_street.set_context(context='zip', val='%')
 		self.PRW_street.SetToolTipString(_("primary/home address: name of street"))
 
 		# address number
@@ -2106,7 +2118,8 @@ class cPatContactsPanel(wx.Panel):
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
 		queries = []
-		queries.append("select distinct u.name, u.name from urb u, v_basic_address a where u.name %(fragment_condition)s")
+		queries.append("select distinct urb, urb from v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s")
+		queries.append("select distinct name, name from urb where name %(fragment_condition)s")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_town = gmPhraseWheel.cPhraseWheel (
@@ -2114,14 +2127,16 @@ class cPatContactsPanel(wx.Panel):
 			id = -1,
 			aMatchProvider = mp
 		)
+		self.PRW_town.set_context(context='zip', val='%')
 		self.PRW_town.SetToolTipString(_("primary/home address: town/village/dwelling/city/etc."))
 
 		# state
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
 		queries = []
-		queries.append("select distinct s.code, s.name from state s, v_basic_address a where s.name %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries=queries)
+		queries.append("select distinct code_state, state from v_zip2data where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s")
+		queries.append("select distinct code, name from state where name %(fragment_condition)s and country ilike %%(country)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -2129,14 +2144,17 @@ class cPatContactsPanel(wx.Panel):
 			aMatchProvider = mp,
 			selection_only = True
 		)
+		self.PRW_state.set_context(context='zip', val='%')
+		self.PRW_state.set_context(context='country', val='%')
 		self.PRW_state.SetToolTipString(_("primary/home address: state"))
 
 		# country
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
 		queries = []
-		queries.append("select distinct c.code, _(c.name) from country c, v_basic_address a where _(c.name) %(fragment_condition)s")
-		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
+		queries.append("select distinct code_country, country from v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s")
+		queries.append("select distinct code, _(name) from country where _(name) %(fragment_condition)s")
+		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
@@ -2144,6 +2162,7 @@ class cPatContactsPanel(wx.Panel):
 			aMatchProvider = mp,
 			selection_only = True
 		)
+		self.PRW_country.set_context(context='zip', val='%')
 		self.PRW_country.SetToolTipString(_("primary/home address: country"))
 
 		# phone
@@ -2193,6 +2212,8 @@ class cPatContactsPanel(wx.Panel):
 		"""
 		Set the states according to entered country.
 		"""
+		if data is None:
+			data = '%'
 		self.PRW_state.set_context(context='country', val=data)
 		print 'country [%s] -> state' % data
 		return True
@@ -2202,10 +2223,10 @@ class cPatContactsPanel(wx.Panel):
 		Set the street, town, state and country according to entered zip code.
 		"""
 		zip_code = self.PRW_zip_code.GetValue()
-		self.PRW_street.set_context(context='postcode', val=zip_code)
-		self.PRW_town.set_context(context='a.postcode', val=zip_code)
-		self.PRW_state.set_context(context='a.postcode', val=zip_code)
-		self.PRW_country.set_context(context='a.postcode', val=zip_code)
+		self.PRW_street.set_context(context='zip', val=zip_code)
+		self.PRW_town.set_context(context='zip', val=zip_code)
+		self.PRW_state.set_context(context='zip', val=zip_code)
+		self.PRW_country.set_context(context='zip', val=zip_code)
 		print "zip [%s]-> street, town, state, country" % zip_code
 		return True		
 	#--------------------------------------------------------
@@ -2729,7 +2750,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.47  2005-06-12 22:12:35  ncq
+# Revision 1.48  2005-06-13 01:18:24  cfmoro
+# Improved input system support by zip, country
+#
+# Revision 1.47  2005/06/12 22:12:35  ncq
 # - prepare for staged (constrained) queries in demographics
 #
 # Revision 1.46  2005/06/10 23:22:43  ncq
