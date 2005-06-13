@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.198 2005-06-12 22:16:22 ncq Exp $
-__version__ = "$Revision: 1.198 $"
+# $Id: gmGuiMain.py,v 1.199 2005-06-13 21:41:29 ncq Exp $
+__version__ = "$Revision: 1.199 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -369,6 +369,9 @@ class gmTopLevelFrame(wx.wxFrame):
 		Export selected patient EMR to a file
 		"""
 		gmEMRBrowser.export_emr_to_ascii(parent=self)
+	#----------------------------------------------
+	def __on_search_emr(self, event):
+		print "lacking code to search EMR"
 	#----------------------------------------------
 	def __on_export_emr_as_journal(self, event):
 		wx.wxBeginBusyCursor()
@@ -763,7 +766,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.198  2005-06-12 22:16:22  ncq
+# Revision 1.199  2005-06-13 21:41:29  ncq
+# - add missing function
+#
+# Revision 1.198  2005/06/12 22:16:22  ncq
 # - allow for explicitely setting timezone via config file
 # - cleanup, prepare for EMR search
 #
