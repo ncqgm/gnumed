@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.52 $"
+__version__ = "$Revision: 1.53 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -130,11 +130,11 @@ class cEpisode(gmClinItem.cClinItem):
 			return False
 		# update the episode description
 		old_description = self._payload[self._idx['description']]
-		self._payload[self._idx['description']] = description
+		self._payload[self._idx['description']] = description.strip()
+		self._is_modified = True
 		successful, data = self.save_payload()
 		if not successful:
 			_log.Log(gmLog.lErr, 'cannot rename episode [%s] with [%s]' % (self, description))
-			# clean up
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
@@ -492,7 +492,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.52  2005-06-12 21:40:42  ncq
+# Revision 1.53  2005-06-14 18:53:37  ncq
+# - really do rename in rename(), needs to set _is_modified to work
+#
+# Revision 1.52  2005/06/12 21:40:42  ncq
 # - cleanup
 #
 # Revision 1.51  2005/05/14 15:05:40  ncq
