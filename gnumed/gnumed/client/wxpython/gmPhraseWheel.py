@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.50 2005-06-07 10:18:23 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPhraseWheel.py,v 1.51 2005-06-14 19:55:37 cfmoro Exp $
+__version__ = "$Revision: 1.51 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -154,7 +154,8 @@ class cPhraseWheel (wxTextCtrl):
 			stat, matches = self.__matcher.getMatches(aFragment = value)
 			for item in matches:
 				if item['label'] == value:
-					self.data = item['data']
+					self.data = item['data']							
+					self.input_was_selected = True
 	#-------------------------------------------------------
 	def IsModified (self):
 		return wxTextCtrl.IsModified (self) or self._is_modified
@@ -551,7 +552,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.50  2005-06-07 10:18:23  ncq
+# Revision 1.51  2005-06-14 19:55:37  cfmoro
+# Set selection flag when setting value
+#
+# Revision 1.50  2005/06/07 10:18:23  ncq
 # - cleanup
 # - setContext -> set_context
 #
