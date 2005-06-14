@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.28 2005-06-14 18:57:50 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmEMRBrowser.py,v 1.29 2005-06-14 20:14:16 cfmoro Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -372,7 +372,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print self.__selected_episode
 	#--------------------------------------------------------
 	# encounters
-	def __handle_encounter_context(self, encounter = None):
+	def __handle_encounter_context(self, encounter = None, pos=wx.wxPyDefaultPosition):
 		print "handling encounter context menu"
 		print encounter
 		print "actions:"
@@ -692,12 +692,13 @@ if __name__ == '__main__':
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
+		gmPerson.set_active_patient(person = patient)
 
 		# display standalone browser
 		application = wx.wxPyWidgetTester(size=(800,600))
 		emr_browser = cEMRBrowserPanel(application.frame, -1)
-		emr_browser.set_patient(patient)		
-		emr_browser.refresh_tree()
+		#emr_browser.set_patient(patient)		
+		#emr_browser.refresh_tree()
 
 		application.frame.Show(True)
 		application.MainLoop()
@@ -722,7 +723,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.28  2005-06-14 18:57:50  ncq
+# Revision 1.29  2005-06-14 20:14:16  cfmoro
+# unit testing fix
+#
+# Revision 1.28  2005/06/14 18:57:50  ncq
 # - support renaming an episode
 #
 # Revision 1.27  2005/04/24 14:44:05  ncq
