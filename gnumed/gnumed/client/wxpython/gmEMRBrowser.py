@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.27 2005-04-24 14:44:05 ncq Exp $
-__version__ = "$Revision: 1.27 $"
+# $Id: gmEMRBrowser.py,v 1.28 2005-06-14 18:57:50 ncq Exp $
+__version__ = "$Revision: 1.28 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -325,15 +325,35 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print " attach issue to another patient"
 		print " move all episodes to another issue"
 	#--------------------------------------------------------
+	# episodes
 	def __handle_episode_context(self, episode=None, pos=wx.wxPyDefaultPosition):
-		print "handling episode context"
 		self.__selected_episode = episode
 		self.__epi_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
 	#--------------------------------------------------------
 	def __rename_episode(self, event):
-		print "renaming episode"
-		print self.__selected_episode
+		dlg = wx.wxTextEntryDialog (
+			parent = self,
+			message = _('Old: "%s"\nPlease type the new description:\n') % self.__selected_episode['description'],
+			caption = _('Renaming episode ...'),
+			defaultValue = ''
+		)
+		result = dlg.ShowModal()
+		if result == wx.wxID_CANCEL:
+			return
+		new_name = dlg.GetValue().strip()
+		if new_name == '':
+			return
+		if new_name == self.__selected_episode['description']:
+			return
+		if self.__selected_episode.rename(new_name):
+			return
+		gmGuiHelpers.gm_show_err (
+			_('Cannot rename episode from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_episode['description'], new_name),
+			_('Error renaming episode ...'),
+			gmLog.lErr
+		)
+		return
 	#--------------------------------------------------------
 	def __close_episode(self, event):
 		print "closing episode"
@@ -351,12 +371,14 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		print "relinking encounters of episode"
 		print self.__selected_episode
 	#--------------------------------------------------------
+	# encounters
 	def __handle_encounter_context(self, encounter = None):
 		print "handling encounter context menu"
 		print encounter
 		print "actions:"
 		print " delete encounter"
 		print " attach encounter to another patient"
+		print " attach encounter to another episode"
 		print " attach all progress notes to another encounter"
 #================================================================
 class gmPopupMenuEMRBrowser(wx.wxMenu):
@@ -700,7 +722,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.27  2005-04-24 14:44:05  ncq
+# Revision 1.28  2005-06-14 18:57:50  ncq
+# - support renaming an episode
+#
+# Revision 1.27  2005/04/24 14:44:05  ncq
 # - callbacks must be _* not __* or else namespace invisibility will ensue
 #
 # Revision 1.26  2005/04/12 16:19:49  ncq
