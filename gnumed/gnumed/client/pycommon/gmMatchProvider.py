@@ -8,8 +8,8 @@ license: GPL
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMatchProvider.py,v $
-# $Id: gmMatchProvider.py,v 1.14 2005-06-12 21:20:55 ncq Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmMatchProvider.py,v 1.15 2005-06-14 18:54:40 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
@@ -441,7 +441,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 			for row in rows:
 				# FIXME: make queries return weights !
 				matches.append({'data': row[0], 'label': row[1], 'weight': 0})
-			matches.sort(self.__cmp_items)
+#			matches.sort(self.__cmp_items)
 			return (True, matches)
 		# none found whatsoever
 		return (False, [])
@@ -623,7 +623,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmMatchProvider.py,v $
-# Revision 1.14  2005-06-12 21:20:55  ncq
+# Revision 1.15  2005-06-14 18:54:40  ncq
+# - don't sort in SQL2 matcher - queries should ORDER BY
+#
+# Revision 1.14  2005/06/12 21:20:55  ncq
 # - make SQL2 match provider more robust regarding query list
 #
 # Revision 1.13  2005/06/12 21:16:55  ncq
