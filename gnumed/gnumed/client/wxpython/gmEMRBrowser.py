@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.29 2005-06-14 20:14:16 cfmoro Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmEMRBrowser.py,v 1.30 2005-06-14 20:26:04 cfmoro Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -697,8 +697,7 @@ if __name__ == '__main__':
 		# display standalone browser
 		application = wx.wxPyWidgetTester(size=(800,600))
 		emr_browser = cEMRBrowserPanel(application.frame, -1)
-		#emr_browser.set_patient(patient)		
-		#emr_browser.refresh_tree()
+		emr_browser.refresh_tree()
 
 		application.frame.Show(True)
 		application.MainLoop()
@@ -723,7 +722,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.29  2005-06-14 20:14:16  cfmoro
+# Revision 1.30  2005-06-14 20:26:04  cfmoro
+# refresh tree on unit test startup
+#
+# Revision 1.29  2005/06/14 20:14:16  cfmoro
 # unit testing fix
 #
 # Revision 1.28  2005/06/14 18:57:50  ncq
