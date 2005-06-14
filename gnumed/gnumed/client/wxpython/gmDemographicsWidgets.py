@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.48 2005-06-13 01:18:24 cfmoro Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmDemographicsWidgets.py,v 1.49 2005-06-14 00:34:14 cfmoro Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2098,8 +2098,15 @@ class cPatContactsPanel(wx.Panel):
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
 		queries = []
-		queries.append("select distinct street, street from v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s")
-		queries.append("select distinct name, name from street where name %(fragment_condition)s")
+		queries.append("""
+		select distinct on (s1,s2) s1, s2 from (
+			select * from (
+				select street as s1, street as s2, 1 as rank from v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
+					union
+				select name as s1, name as s2, 2 as rank from street where name %(fragment_condition)s
+			) as q1 order by rank, s1
+		) as q2
+		""")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 15)				
 		self.PRW_street = gmPhraseWheel.cPhraseWheel (
@@ -2118,8 +2125,16 @@ class cPatContactsPanel(wx.Panel):
 		# town
 		STT_town = wx.StaticText(PNL_form, -1, _('Town'))
 		queries = []
-		queries.append("select distinct urb, urb from v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s")
-		queries.append("select distinct name, name from urb where name %(fragment_condition)s")
+		queries.append("""
+		select distinct on (u1,u2) u1, u2 from (
+			select * from (		
+				select urb as u1, urb as u2, 1 as rank from v_zip2data where urb %(fragment_condition)s and zip ilike %%(zip)s
+					union
+				select name as u1, name as u2, 2 as rank from urb where name %(fragment_condition)s
+			) as t1 order by rank, u1
+		) as q2
+		""")
+		queries.append("")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries=queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_town = gmPhraseWheel.cPhraseWheel (
@@ -2134,8 +2149,15 @@ class cPatContactsPanel(wx.Panel):
 		# FIXME: default in config
 		STT_state = wx.StaticText(PNL_form, -1, _('State'))
 		queries = []
-		queries.append("select distinct code_state, state from v_zip2data where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s")
-		queries.append("select distinct code, name from state where name %(fragment_condition)s and country ilike %%(country)s")
+		queries.append("""
+		select distinct on (code,name) code, name from (
+			select * from (				
+				select code_state as code, state as name, 1 as rank from v_zip2data where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
+					union
+				select code as code, name as name, 2 as rank from state where name %(fragment_condition)s and country ilike %%(country)s
+			) as q1 order by rank, name
+		) as q2				
+		""")
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
 		mp.setThresholds(3, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
@@ -2152,8 +2174,16 @@ class cPatContactsPanel(wx.Panel):
 		# FIXME: default in config
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
 		queries = []
-		queries.append("select distinct code_country, country from v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s")
-		queries.append("select distinct code, _(name) from country where _(name) %(fragment_condition)s")
+		queries.append("""
+		select distinct on (code,name) code, name from (
+			select * from (						
+				select code_country as code, country as name, 1 as rank from v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
+					union
+				select code as code, _(name) as name, 2 as rank from country where _(name) %(fragment_condition)s
+			) as q1 order by rank, name
+		) as q2								
+		""")
+		queries.append("")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(2, 5, 15)
 		self.PRW_country = gmPhraseWheel.cPhraseWheel (
@@ -2750,7 +2780,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.48  2005-06-13 01:18:24  cfmoro
+# Revision 1.49  2005-06-14 00:34:14  cfmoro
+# Matcher provider queries revisited
+#
+# Revision 1.48  2005/06/13 01:18:24  cfmoro
 # Improved input system support by zip, country
 #
 # Revision 1.47  2005/06/12 22:12:35  ncq
