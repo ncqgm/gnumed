@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.30 2005-06-14 20:26:04 cfmoro Exp $
-__version__ = "$Revision: 1.30 $"
+# $Id: gmEMRBrowser.py,v 1.31 2005-06-15 22:27:20 ncq Exp $
+__version__ = "$Revision: 1.31 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -130,22 +130,48 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__szr_main.SetSizeHints(self)
 
 		# make popup menus for later use
+
+		# - episodes
 		self.__epi_context_popup = wx.wxMenu()
 		menu_id = wx.wxNewId()
 		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('rename episode')))
 		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__rename_episode)
+#		menu_id = wx.wxNewId()
+#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('close episode')))
+#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__close_episode)
+#		menu_id = wx.wxNewId()
+#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('delete episode')))
+#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
+#		menu_id = wx.wxNewId()
+#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach episode to another health issue')))
+#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode)
+#		menu_id = wx.wxNewId()
+#		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach all encounters to another episode')))
+#		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode_encounters)
+
+		# - encounters
+		self.__enc_context_popup = wx.wxMenu()
 		menu_id = wx.wxNewId()
-		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('close episode')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__close_episode)
+		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another episode')))
+		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter2episode)
+#		menu_id = wx.wxNewId()
+#		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another patient')))
+#		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter2patient)
+#		menu_id = wx.wxNewId()
+#		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('delete encounter')))
+#		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__delete_encounter)
+#		menu_id = wx.wxNewId()
+#		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach all progress notes to another encounter')))
+#		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_notes2encounter)
+
+		# - health issues
+		self.__issue_context_popup = wx.wxMenu()
 		menu_id = wx.wxNewId()
-		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('delete episode')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
-		menu_id = wx.wxNewId()
-		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach episode to another health issue')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode)
-		menu_id = wx.wxNewId()
-		self.__epi_context_popup.AppendItem(wx.wxMenuItem(self.__epi_context_popup, menu_id, _('attach all encounters to another episode')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__relink_episode_encounters)
+		self.__issue_context_popup.AppendItem(wx.wxMenuItem(self.__issue_context_popup, menu_id, _('rename health issue')))
+		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__rename_issue)
+#		print " add new episode to issue"
+#		print " attach issue to another patient"
+#		print " move all episodes to another issue"
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -316,15 +342,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 #		self.__custom_right_widget.Destroy()
 		self.__custom_right_widget = None
 	#--------------------------------------------------------
-	def __handle_issue_context(self, issue=None, pos=wx.wxPyDefaultPosition):
-		print "handling issue context menu"
-		print issue
-		print "actions:"
-		print " rename issue"
-		print " add new episode to issue"
-		print " attach issue to another patient"
-		print " move all episodes to another issue"
-	#--------------------------------------------------------
 	# episodes
 	def __handle_episode_context(self, episode=None, pos=wx.wxPyDefaultPosition):
 		self.__selected_episode = episode
@@ -373,13 +390,53 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# encounters
 	def __handle_encounter_context(self, encounter = None, pos=wx.wxPyDefaultPosition):
-		print "handling encounter context menu"
-		print encounter
-		print "actions:"
-		print " delete encounter"
-		print " attach encounter to another patient"
-		print " attach encounter to another episode"
-		print " attach all progress notes to another encounter"
+		self.__selected_encounter = encounter
+#		self.__enc_context_popup.SetTitle(_('Episode %s') % episode['description'])
+		self.PopupMenu(self.__enc_context_popup, pos)
+	#--------------------------------------------------------
+	def __relink_encounter2episode(self, event):
+		print "relinking encounter to another episode"
+		print "this is a complex operation yet to be written"
+		return
+		emr = self.__pat.get_emr()
+		episodes = emr.get_episodes()
+		old_epi = self.__selected_encounter.get_episode()
+		dlg = wx.wxSingleChoiceDialog (
+			parent = self,
+			message = _('Encounter was attached to episode\n [%s]\n\nPlease select the episode\nyou want to attach the encounter to.\n') % 'MISSING',
+			caption = _('Re-attaching encounter ...'),
+			choices = []
+		)
+	#--------------------------------------------------------
+	# health issues
+	def __handle_issue_context(self, issue=None, pos=wx.wxPyDefaultPosition):
+		self.__selected_issue = issue
+#		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
+		self.PopupMenu(self.__issue_context_popup, pos)
+	#--------------------------------------------------------
+	def __rename_issue(self, event):
+		dlg = wx.wxTextEntryDialog (
+			parent = self,
+			message = _('Old: "%s"\nPlease type the new description:\n') % self.__selected_issue['description'],
+			caption = _('Renaming health issue ...'),
+			defaultValue = ''
+		)
+		result = dlg.ShowModal()
+		if result == wx.wxID_CANCEL:
+			return
+		new_name = dlg.GetValue().strip()
+		if new_name == '':
+			return
+		if new_name == self.__selected_issue['description']:
+			return
+		if self.__selected_issue.rename(new_name):
+			return
+		gmGuiHelpers.gm_show_err (
+			_('Cannot rename health issue from\n\n [%s]\n\nto\n\n [%s].') % (self.__selected_issue['description'], new_name),
+			_('Error renaming health issue ...'),
+			gmLog.lErr
+		)
+		return
 #================================================================
 class gmPopupMenuEMRBrowser(wx.wxMenu):
 	"""
@@ -722,7 +779,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.30  2005-06-14 20:26:04  cfmoro
+# Revision 1.31  2005-06-15 22:27:20  ncq
+# - allow issue renaming
+#
+# Revision 1.30  2005/06/14 20:26:04  cfmoro
 # refresh tree on unit test startup
 #
 # Revision 1.29  2005/06/14 20:14:16  cfmoro
