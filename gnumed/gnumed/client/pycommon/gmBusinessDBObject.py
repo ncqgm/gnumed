@@ -96,8 +96,8 @@ http://archives.postgresql.org/pgsql-general/2004-10/msg01352.php
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmBusinessDBObject.py,v $
-# $Id: gmBusinessDBObject.py,v 1.24 2005-05-04 08:54:00 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmBusinessDBObject.py,v 1.25 2005-06-15 22:26:20 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -383,8 +383,9 @@ class cBusinessDBObject:
 				_log.Log(gmLog.lErr, '[%s:%s]: cannot update instance, error locking row' % (self.__class__.__name__, self.pk_obj))
 				return (False, result)
 			# query succeeded but failed to find the row to lock
-			# because another transaction committed a change or
-			# delete *before* we attempted to lock it ...
+			# because another transaction committed an UPDATE or
+			# DELETE *before* we attempted to lock it ...
+			# FIXME: this can fail if savepoints are used since subtransactions change the xmin/xmax ...
 			data, idx = result
 			if len(data) == 0:
 				conn.rollback()
@@ -548,7 +549,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmBusinessDBObject.py,v $
-# Revision 1.24  2005-05-04 08:54:00  ncq
+# Revision 1.25  2005-06-15 22:26:20  ncq
+# - CAVEAT regarding XMIN vs. savepoints
+#
+# Revision 1.24  2005/05/04 08:54:00  ncq
 # - improved __setitem__ handling
 # - add_to_subtable()/del_from_subtable() now set _is_modified appropriately
 # - some internal renaming for clarification
