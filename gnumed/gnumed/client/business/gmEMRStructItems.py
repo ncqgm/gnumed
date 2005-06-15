@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.53 $"
+__version__ = "$Revision: 1.54 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -51,6 +51,29 @@ class cHealthIssue(gmClinItem.cClinItem):
 	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['id_patient']]
+	#--------------------------------------------------------
+	def rename(self, description=None):
+		"""Method for issue renaming.
+
+		@param description
+			- the new descriptive name for the issue
+		@type description
+			- a string instance
+		"""
+		# sanity check
+		if not isinstance(description, types.StringType) or description.strip() == '':
+			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
+			return False
+		# update the episode description
+		old_description = self._payload[self._idx['description']]
+		self._payload[self._idx['description']] = description.strip()
+		self._is_modified = True
+		successful, data = self.save_payload()
+		if not successful:
+			_log.Log(gmLog.lErr, 'cannot rename health issue [%s] with [%s]' % (self, description))
+			self._payload[self._idx['description']] = old_description
+			return False
+		return True
 #============================================================
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
@@ -492,7 +515,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.53  2005-06-14 18:53:37  ncq
+# Revision 1.54  2005-06-15 22:25:29  ncq
+# - issue.rename()
+#
+# Revision 1.53  2005/06/14 18:53:37  ncq
 # - really do rename in rename(), needs to set _is_modified to work
 #
 # Revision 1.52  2005/06/12 21:40:42  ncq
