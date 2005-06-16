@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.4 2004-08-09 00:02:20 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmBMIWidgets.py,v 1.5 2005-06-16 07:03:19 rterry Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -137,7 +137,7 @@ class BMICalc_Panel(wxPanel):
 		EVT_CHAR(self.txtheight, self.EvtChar_height)
 
 		szr_height = wxBoxSizer(wxHORIZONTAL)
-		szr_height.Add(10,1,0,0)
+		szr_height.Add((10,1),0,0)
 		szr_height.Add(label, 1, wxALIGN_CENTRE_VERTICAL, 0)
 		szr_height.Add(self.txtheight, 1, wxALIGN_CENTRE_VERTICAL | wxEXPAND, 0)
 		#------------------------------
@@ -155,11 +155,11 @@ class BMICalc_Panel(wxPanel):
 		EVT_CHAR(self.txtmass, self.EvtChar_mass)
 
 		szr_mass = wxBoxSizer(wxHORIZONTAL)
-		szr_mass.Add(10,1,0,0)
+		szr_mass.Add((10,1),0,0)
 		szr_mass.Add(label, 1, wxALIGN_CENTRE_VERTICAL, 0)
 		szr_mass.Add(self.txtmass, 1, wxALIGN_CENTRE_VERTICAL | wxEXPAND, 0)
-		szr_mass.Add(5,5,1,0)
-		#------------------------------
+		szr_mass.Add((5,5),1,0)
+		#-----------------)-------------
 		#sizer holding the BMI stuff
 		#------------------------------
 		label = wxStaticText(self,-1,_("BMI"),size = (100,20))
@@ -171,10 +171,10 @@ class BMICalc_Panel(wxPanel):
 		self.txtbmi.SetFont(wxFont(13,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 
 		szr_bmi = wxBoxSizer(wxHORIZONTAL)
-		szr_bmi.Add(10,1,0,0)
+		szr_bmi.Add((10,1),0,0)
 		szr_bmi.Add(label,1,wxALIGN_CENTRE_VERTICAL|0,0)
 		szr_bmi.Add(self.txtbmi,1,wxALIGN_CENTRE_VERTICAL | wxEXPAND,0)
-		szr_bmi.Add(5,5,1,0)
+		szr_bmi.Add((5,5),1,0)
 		#--------------------------------------------------
 		#the color ellipses to show where on scale of mass
 		#--------------------------------------------------
@@ -226,7 +226,7 @@ class BMICalc_Panel(wxPanel):
 		EVT_CHAR(self.txtgoal, self.EvtChar_goal)
 
 		szr_goal_mass = wxBoxSizer(wxHORIZONTAL)
-		szr_goal_mass.Add(10,1,0,0)
+		szr_goal_mass.Add((10,1),0,0)
 		szr_goal_mass.Add(label,1,wxALIGN_CENTRE_VERTICAL,0)
 		szr_goal_mass.Add(self.txtgoal,1,wxALIGN_CENTRE_VERTICAL | wxEXPAND, 0)
 		#-----------------------------
@@ -244,30 +244,30 @@ class BMICalc_Panel(wxPanel):
 		EVT_CHAR(self.txtloss, self.EvtChar_loss)
 
 		szr_to_loose = wxBoxSizer(wxHORIZONTAL)
-		szr_to_loose.Add(10,1,0,0)
+		szr_to_loose.Add((10,1),0,0)
 		szr_to_loose.Add(label,1,wxALIGN_CENTRE_VERTICAL,0)
 		szr_to_loose.Add(self.txtloss,1,wxALIGN_CENTRE_VERTICAL | wxEXPAND,0)
 		#-----------------------------------------------------------------
 		#finally add all the horizontal sizers from top down to main sizer
 		#-----------------------------------------------------------------
 		szr_main = wxBoxSizer(wxVERTICAL)
-		szr_main.Add(1,5,0,0)
+		szr_main.Add((1,5),0,0)
 		szr_main.Add(szr_upper_heading,0,wxEXPAND)
-		szr_main.Add(1,5,0,0)
+		szr_main.Add((1,5),0,0)
 		szr_main.Add(szr_height,0,0)
-		szr_main.Add(1,5,0,0)
+		szr_main.Add((1,5),0,0)
 		szr_main.Add(szr_mass,0,0)
-		szr_main.Add(1,5,0,0)
+		szr_main.Add((1,5),0,0)
 		szr_main.Add(szr_bmi,0,0)
-		szr_main.Add(1,20,0,0)
+		szr_main.Add((1,20),0,0)
 		szr_main.Add(szr_col_scale,0,0)
 		szr_main.Add(szr_slider,0,0)
 		szr_main.Add(szr_lower_heading,0,wxEXPAND)
-		szr_main.Add(1,5,0,0)
+		szr_main.Add((1,5),0,0)
 		szr_main.Add(szr_goal_mass,0,0)
-		szr_main.Add(1,5,0,0)
+		szr_main.Add((1,5),0,0)
 		szr_main.Add(szr_to_loose,0,0)
-		szr_main.Add(1,20,0,0)
+		szr_main.Add((1,20),0,0)
 		#---------------------------------------
 		#set, fit and layout sizer so it appears
 		#---------------------------------------
@@ -472,7 +472,7 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 		# arrange them
 		szr_right_col = wxBoxSizer(wxVERTICAL)
 		szr_right_col.Add(text4graph,1,wxEXPAND)
-		szr_right_col.Add(1,5,0,wxEXPAND)
+		szr_right_col.Add((1,5),0,wxEXPAND)
 		szr_right_col.Add(gszr_right_buttons,0,wxEXPAND)
 
 		#--------------------------------------------------
@@ -484,7 +484,7 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 		#  --------------------------
 		szr_main = wxBoxSizer(wxHORIZONTAL)
 		szr_main.Add(self.pnl_bmi, 0, wxEXPAND | wxALL, 10)
-		szr_main.Add(5, 0, 0, wxEXPAND)
+		szr_main.Add((5, 0), 0, wxEXPAND)
 		szr_main.Add(szr_right_col, 1, wxEXPAND | wxALL, 10)
 
 		self.SetSizer(szr_main)
@@ -543,7 +543,13 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.4  2004-08-09 00:02:20  ncq
+# Revision 1.5  2005-06-16 07:03:19  rterry
+# Fixed Sizer syntax to work with 2.6.1 (eg (10,0,0,0) should be ((10,0),0,0)
+# multiple occurence
+# Note this form cannot be closed currently needs fixing-
+# Richard Terry
+#
+# Revision 1.4  2004/08/09 00:02:20  ncq
 # - fix bitmap path when standalone
 #
 # Revision 1.3  2004/08/06 09:03:35  ncq
