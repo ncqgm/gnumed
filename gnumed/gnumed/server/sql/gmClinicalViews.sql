@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.144 2005-06-01 23:18:48 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.145 2005-06-19 13:36:10 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -349,15 +349,15 @@ create trigger TR_clin_item_mod
 drop function f_protect_clin_root_item();
 drop rule clin_ritem_no_ins on clin_root_item cascade;
 drop rule clin_ritem_no_ins;
-drop rule clin_ritem_no_upd on clin_root_item cascade;
-drop rule clin_ritem_no_upd;
+--drop rule clin_ritem_no_upd on clin_root_item cascade;
+--drop rule clin_ritem_no_upd;
 drop rule clin_ritem_no_del on clin_root_item cascade;
 drop rule clin_ritem_no_del;
 \set ON_ERROR_STOP 1
 
 create function f_protect_clin_root_item() returns opaque as '
 begin
-	raise exception ''INSERT/UPDATE/DELETE on <clin_root_item> not allowed.'';
+	raise exception ''INSERT/DELETE on <clin_root_item> not allowed.'';
 	return NULL;
 end;
 ' language 'plpgsql';
@@ -366,9 +366,9 @@ create rule clin_ritem_no_ins as
 	on insert to clin_root_item
 	do instead select f_protect_clin_root_item();
 
-create rule clin_ritem_no_upd as
-	on update to clin_root_item
-	do instead select f_protect_clin_root_item();
+--create rule clin_ritem_no_upd as
+--	on update to clin_root_item
+--	do instead select f_protect_clin_root_item();
 
 create rule clin_ritem_no_del as
 	on delete to clin_root_item
@@ -1557,31 +1557,35 @@ drop view v_problem_list;
 \set ON_ERROR_STOP 1
 
 create view v_problem_list as
-select	-- all the episodes
+select	-- all the (open) episodes
 	vpep.pk_patient as pk_patient,
 	vpep.description as problem,
 	'episode' as type,
 	_('episode') as l10n_type,
-	vpep.episode_open as problem_active,
+	'true'::boolean as problem_active,
 	'true'::boolean as clinically_relevant,
 	vpep.pk_episode as pk_episode,
 	vpep.pk_health_issue as pk_health_issue
 from
 	v_pat_episodes vpep
+where
+	vpep.episode_open is true
 
 union	-- and
 
-select	-- all the issues
+select	-- all the (clinically relevant) health issues
 	chi.id_patient as pk_patient,
 	chi.description as problem,
 	'issue' as type,
 	_('health issue') as l10n_type,
 	chi.is_active as problem_active,
-	chi.clinically_relevant as clinically_relevant,
+	'true'::boolean as clinically_relevant,
 	null as pk_episode,
 	chi.id as pk_health_issue
 from
 	clin_health_issue chi
+where
+	chi.clinically_relevant is true
 ;
 
 -- =============================================
@@ -2001,11 +2005,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.144 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.145 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.144  2005-06-01 23:18:48  ncq
+-- Revision 1.145  2005-06-19 13:36:10  ncq
+-- - allow updating clin_root_item directly as Syan showed it to be working
+-- - fix problem list to only include real problems
+--
+-- Revision 1.144  2005/06/01 23:18:48  ncq
 -- - missing grants on hx_family_item
 --
 -- Revision 1.143  2005/05/17 08:17:04  ncq
