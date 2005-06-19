@@ -1,3 +1,4 @@
+# -*- coding: iso-8859-1 -*-
 """GnuMed GUI client
 
 The application framework and main window of the
@@ -12,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.199 2005-06-13 21:41:29 ncq Exp $
-__version__ = "$Revision: 1.199 $"
+# $Id: gmGuiMain.py,v 1.200 2005-06-19 16:38:03 ncq Exp $
+__version__ = "$Revision: 1.200 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -766,7 +767,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.199  2005-06-13 21:41:29  ncq
+# Revision 1.200  2005-06-19 16:38:03  ncq
+# - set encoding of gmGuiMain.py to latin1
+#
+# Revision 1.199  2005/06/13 21:41:29  ncq
 # - add missing function
 #
 # Revision 1.198  2005/06/12 22:16:22  ncq
