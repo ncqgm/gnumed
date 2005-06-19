@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.43 $
+-- $Revision: 1.44 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -253,9 +253,14 @@ create table test_result (
 		check (((reviewed_by_clinician=false) and (clinically_relevant is null)) or (clinically_relevant is not null))
 ) inherits (clin_root_item);
 
-select add_table_for_audit('test_result');
-select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
-
+alter table test_result add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table test_result add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 alter table test_result alter column soap_cat set default 'o';
 alter table test_result add constraint numval_needs_unit
 	check (
@@ -263,6 +268,9 @@ alter table test_result add constraint numval_needs_unit
 			or
 		(val_num is null)
 	);
+
+select add_table_for_audit('test_result');
+select add_x_db_fk_def('test_result', 'val_unit', 'reference', 'unit', 'name_short');
 
 COMMENT ON TABLE test_result is
 	'the results of a single measurement';
@@ -372,6 +380,14 @@ create table lab_request (
 --	unique (fk_patient, request_id)
 ) inherits (clin_root_item);
 
+alter table lab_request add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table lab_request add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 alter table lab_request alter column soap_cat set default 'p';
 
 comment on table lab_request is
@@ -439,11 +455,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.43 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.44 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.43  2005-05-18 15:28:24  ncq
+-- Revision 1.44  2005-06-19 13:34:42  ncq
+-- - properly inherit foreign keys into children of clin_root_item
+--
+-- Revision 1.43  2005/05/18 15:28:24  ncq
 -- - fix misplaced )
 --
 -- Revision 1.42  2005/05/14 15:04:39  ncq
