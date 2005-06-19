@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.159 $
+-- $Revision: 1.160 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -256,10 +256,14 @@ create table clin_root_item (
 		default CURRENT_TIMESTAMP,
 	fk_encounter integer
 		not null
-		references clin_encounter(id),
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict,
 	fk_episode integer
 		not null
-		references clin_episode(pk),
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict,
 	narrative text,
 	soap_cat text
 		not null
@@ -333,6 +337,7 @@ select add_table_for_audit('lnk_type2item');
 
 comment on table lnk_type2item is
 	'allow to link many-to-many between clin_root_item and clin_item_type';
+-- FIXME: recheck for 8.0
 comment on column lnk_type2item.fk_item is
 	'the item this type is linked to,
 	 since PostgreSQL apparently cannot reference a value
@@ -367,6 +372,14 @@ create table clin_narrative (
 	unique(fk_encounter, fk_episode, narrative, soap_cat)
 ) inherits (clin_root_item);
 
+alter table clin_narrative add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table clin_narrative add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 alter table clin_narrative add constraint aoe_xor_rfe
 	check (not (is_rfe is true and is_aoe is true));
 alter table clin_narrative add constraint rfe_is_subj
@@ -530,6 +543,14 @@ create table clin_hx_family (
 		on delete restrict
 ) inherits (clin_root_item);
 
+alter table clin_hx_family add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table clin_hx_family add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 alter table clin_hx_family add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
 -- FIXME: constraint trigger has_type(fHx)
@@ -584,7 +605,7 @@ alter table clin_diag add constraint if_active_then_relevant
 		((is_active = true) and (clinically_relevant = true))
 	);
 -- not sure about that one:
---alter table add constraint if_chronic_then_relevant
+--alter table clin_diag add constraint if_chronic_then_relevant
 --	check (
 --		(is_chronic = false)
 --			or
@@ -614,6 +635,15 @@ comment on column clin_diag.clinically_relevant is
 create table clin_aux_note (
 	pk serial primary key
 ) inherits (clin_root_item);
+
+alter table clin_aux_note add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table clin_aux_note add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 
 select add_table_for_audit('clin_aux_note');
 
@@ -873,6 +903,14 @@ create table vaccination (
 ) inherits (clin_root_item);
 -- Richard tells us that "refused" should go into progress note
 
+alter table vaccination add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table vaccination add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 alter table vaccination alter column soap_cat set default 'p';
 
 select add_table_for_audit('vaccination');
@@ -954,10 +992,18 @@ create table allergy (
 
 -- narrative provided by clin_root_item
 
+alter table allergy add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table allergy add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
+alter table allergy alter column soap_cat set default 'o';
+
 select add_table_for_audit('allergy');
 select add_table_for_notifies('allergy', 'allg');
-
-alter table allergy alter column soap_cat set default 'o';
 
 comment on table allergy is
 	'patient allergy details';
@@ -1001,6 +1047,14 @@ create table form_instances (
 	form_name text not null
 ) inherits (clin_root_item);
 
+alter table form_instances add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table form_instances add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 alter table form_instances add constraint form_is_plan
 	check (soap_cat='p');
 
@@ -1098,8 +1152,14 @@ create table clin_medication (
 		default false
 ) inherits (clin_root_item);
 
-select add_table_for_audit ('clin_medication');
-
+alter table clin_medication add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table clin_medication add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
 alter table clin_medication add constraint medication_is_plan
 	check (soap_cat='p');
 alter table clin_medication add constraint brand_or_generic_required
@@ -1108,6 +1168,8 @@ alter table clin_medication add constraint prescribed_after_started
 	check (last_prescribed >= clin_when::date);
 alter table clin_medication add constraint discontinued_after_prescribed
 	check (discontinued >= last_prescribed);
+
+select add_table_for_audit ('clin_medication');
 
 comment on table clin_medication is
 	'Representing what the patient is taking *now*, eg. a medication
@@ -1230,6 +1292,15 @@ create table referral (
 		references form_instances (pk) 
 ) inherits (clin_root_item);
 
+alter table referral add foreign key (fk_encounter)
+		references clin_encounter(id)
+		on update cascade
+		on delete restrict;
+alter table referral add foreign key (fk_episode)
+		references clin_episode(pk)
+		on update cascade
+		on delete restrict;
+
 select add_table_for_audit ('referral');
 
 comment on table referral is 'table for referrals to defined individuals';
@@ -1243,11 +1314,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.159 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.160 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.159  2005-04-17 16:40:36  ncq
+-- Revision 1.160  2005-06-19 13:33:51  ncq
+-- - manually inherit foreign keys into clin_root_item children
+--
+-- Revision 1.159  2005/04/17 16:40:36  ncq
 -- - after more discussion on the list realize that clin_health_issue
 --   is pretty much the same as past_history, hence add the sensible
 --   fields from Richard's experience
