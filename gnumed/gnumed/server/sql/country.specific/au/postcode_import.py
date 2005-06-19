@@ -87,7 +87,7 @@ for line in lines:
 	tmp = string.split(line, import_delimiter)
 	#get rid of the quotation marks of the imported fields
 	# FIXME: must get rid of duplicates !!!
-	cmd = "insert into urb (id_state, postcode, name) values ((select id from state where code='%s'), %s, '%s');" % (
+	cmd = "insert into urb (id_state, postcode, name) values ((select id from state where country='AU' and code='%s'), %s, '%s');" % (
 		tmp[state][1:-1],
 		tmp[pcode][1:-1],
 		safestr(tmp[locality][1:-1])
