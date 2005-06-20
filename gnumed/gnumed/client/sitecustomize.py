@@ -1,3 +1,4 @@
+# -*- coding: iso-8859-1 -*-
 """GNUmed site customization file.
 
 This file sets up the default string encoding for Python.
@@ -22,8 +23,8 @@ but that approach may not be fool-proof.
 """
 #==============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/sitecustomize.py,v $
-# $Id: sitecustomize.py,v 1.1 2005-06-20 18:54:32 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: sitecustomize.py,v 1.2 2005-06-20 19:42:25 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -51,12 +52,16 @@ def __setup_encoding():
 		raise
 #==============================================================
 try:
-	u'Ä'.encode('latin-1')
+	tmp = u'Ä'.encode('latin-1')
+	print "GNUmed startup: Your Python string encoding seems to already be set:", sys.getdefaultencoding()
 except:
 	__setup_encoding()
 
 #==============================================================
 # $Log: sitecustomize.py,v $
-# Revision 1.1  2005-06-20 18:54:32  ncq
+# Revision 1.2  2005-06-20 19:42:25  ncq
+# - improved
+#
+# Revision 1.1  2005/06/20 18:54:32  ncq
 # - can be used as an example
 #
