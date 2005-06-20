@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.48 2005-05-17 08:10:44 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmSOAPWidgets.py,v 1.49 2005-06-20 13:15:02 cfmoro Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -389,8 +389,8 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 			episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
 				None,
 				-1,
-				_('Create or select episode'),
-				_('Add episode and start progress note'),
+				caption = _('Create or select episode'),
+				action_txt = _(' start progress note'),
 				pk_health_issue = pk_issue
 			)
 			retval = episode_selector.ShowModal()
@@ -755,8 +755,8 @@ class cMultiSashedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintM
 			episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
 				None,
 				-1,
-				_('Create or select episode'),
-				_('Add episode and start progress note'),
+				caption = _('Create or select episode'),
+				action_txt = _(' start progress note'),
 				pk_health_issue = pk_issue
 			)
 			retval = episode_selector.ShowModal()
@@ -1605,7 +1605,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.48  2005-05-17 08:10:44  ncq
+# Revision 1.49  2005-06-20 13:15:02  cfmoro
+# Port to changes in cEpisodeSelector
+#
+# Revision 1.48  2005/05/17 08:10:44  ncq
 # - rearrange/relabel buttons/drop "discard" button on progress
 #    notes notebook according to user feedback
 #
