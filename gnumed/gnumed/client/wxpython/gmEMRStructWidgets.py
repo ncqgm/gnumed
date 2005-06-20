@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.8 2005-06-10 23:22:43 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmEMRStructWidgets.py,v 1.9 2005-06-20 13:03:38 cfmoro Exp $
+__version__ = "$Revision: 1.9 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -195,8 +195,9 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 					self,
 					parent,
 					id,
-					title = _('Episode selector'),
-					action_txt = _('Select'),
+					caption = _('Episode selector'),					
+					msg = '',
+					action_txt = _('UNDEFINED action'),					
 					pk_health_issue = None,
 				 	pos = wx.wxPyDefaultPosition,
 				 	size = wx.wxPyDefaultSize,
@@ -215,8 +216,8 @@ class cEpisodeSelectorDlg(wx.wxDialog):
 		@type pk_health_issue integer
 		"""
 		# build ui
-		wx.wxDialog.__init__(self, parent, id, title, pos, size, style)
-		self.__episode_picker = cEpisodePicker(self, -1, action_txt, pk_health_issue)
+		wx.wxDialog.__init__(self, parent, id, caption, pos, size, style)
+		self.__episode_picker = cEpisodePicker(self, -1, msg, action_txt, pk_health_issue)
 		self.Fit()
 		# event handling
 		wx.EVT_CLOSE(self, self.__on_close)
@@ -252,7 +253,7 @@ class cEpisodePicker(wx.wxPanel):
 	
 	With get_selected_episode() the selected episode can be requested.
 	"""
-	def __init__(self, parent, id, action_txt, pk_health_issue):
+	def __init__(self, parent, id, msg, action_txt, pk_health_issue):
 		"""
 		Instantiate a new episode selector widget.
 		
@@ -281,7 +282,7 @@ class cEpisodePicker(wx.wxPanel):
 		self.__selected_episode = None
 		
 		# ui contruction and event handling set up
-		self.__do_layout(action_txt)
+		self.__do_layout(msg, action_txt)
 		self.__register_interests()
 		
 		self.__refresh_episode_list()
@@ -289,7 +290,7 @@ class cEpisodePicker(wx.wxPanel):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __do_layout(self, action_txt):
+	def __do_layout(self, msg, action_txt):
 		"""
 		Arrange widgets.
 
@@ -297,23 +298,32 @@ class cEpisodePicker(wx.wxPanel):
 		@type action_txt string			
 		"""
 		# instantiate and initialize widgets
-
+	
+		# status info
+		self.__STT_status = wx.wxStaticText(self, -1, msg)
+		
 		# - episode editor
 		self.__STT_description = wx.wxStaticText(self, -1, _('Description'))
+		
 		# FIXME: configure, attach matcher (Karsten)
 		self.__PRW_description = gmPhraseWheel.cPhraseWheel(self, -1)
-		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
-		szr_input.AddGrowableCol(1)
-		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED | wx.wxALIGN_CENTER)
-		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
 
 		# - buttons
-		self.__BTN_add = wx.wxButton(self, -1, action_txt)
+		action_msg = _('Create a new episode and %s') % action_txt
+		self.__BTN_add = wx.wxButton(self, -1, action_msg)
 		self.__BTN_cancel = wx.wxButton(self, -1, _('Cancel'))
+
+		# layout input
 		szr_actions = wx.wxBoxSizer(wx.wxHORIZONTAL)
 		szr_actions.Add(self.__BTN_add, 0, wx.wxSHAPED)
 		szr_actions.Add(self.__BTN_cancel, 0, wx.wxSHAPED | wx.wxALIGN_RIGHT)
 		
+		szr_input = wx.wxFlexGridSizer(cols = 2, rows = 2, vgap = 4, hgap = 4)
+		szr_input.AddGrowableCol(1)		
+		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED)
+		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
+		szr_input.AddSpacer(0,0)
+		szr_input.Add(szr_actions, 0, wx.wxALIGN_CENTER | wx.wxTOP, border = 4)
 		# - episodes list and new note for selected episode button
 		self.__LST_episodes = wx.wxListCtrl(
 			self,
@@ -322,22 +332,25 @@ class cEpisodePicker(wx.wxPanel):
 		)
 		self.__LST_episodes.InsertColumn(0, _('Last renamed'))
 		self.__LST_episodes.InsertColumn(1, _('Description'), wx.wxLIST_FORMAT_RIGHT)
-		self.__LST_episodes.InsertColumn(2, _('Is open'))
+		self.__LST_episodes.InsertColumn(2, _('Is open'), wx.wxLIST_AUTOSIZE)
+		# FIXME: dynamic calculation
 		self.__LST_episodes.SetColumnWidth(0, 100)
 		self.__LST_episodes.SetColumnWidth(1, 230)
-		self.__LST_episodes.SetColumnWidth(2, 70)		
-		self.__BTN_action = wx.wxButton(self, -1, action_txt)				
+		self.__LST_episodes.SetColumnWidth(2, 70)
+		action_msg = _('Select and episode and %s') % action_txt
+		self.__BTN_action = wx.wxButton(self, -1, action_msg)
 		szr_list = wx.wxStaticBoxSizer (
 			wx.wxStaticBox(self, -1, _('Episode list')),
 			wx.wxVERTICAL
 		)
 		szr_list.Add(self.__LST_episodes, 1, wx.wxEXPAND | wx.wxTOP, border=4)
 		szr_list.Add(self.__BTN_action, 0, wx.wxSHAPED | wx.wxALIGN_CENTER, border=4)
+		szr_list.SetItemMinSize(self.__LST_episodes, 1, 100)
 		
 		# layout sizers
 		szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_main.Add(self.__STT_status, 0, flag=wx.wxSHAPED | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
 		szr_main.Add(szr_input, 1, wx.wxEXPAND | wx.wxALIGN_LEFT | wx.wxTOP, border=4)
-		szr_main.Add(szr_actions, 1, wx.wxALIGN_CENTER | wx.wxTOP, border = 10)
 		szr_main.Add(szr_list, 2, wx.wxEXPAND)		
 
 		self.SetSizerAndFit(szr_main)
@@ -779,7 +792,8 @@ if __name__ == '__main__':
 					None,
 					-1,
 					'Episode selector test',
-					_('Add episode and start progress note'),
+					'Info about current status of things',
+					_('start progress note'),
 					pk_health_issue = pk_issue
 				)
 				retval = episode_selector.ShowModal() # Shows it
@@ -862,7 +876,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.8  2005-06-10 23:22:43  ncq
+# Revision 1.9  2005-06-20 13:03:38  cfmoro
+# Relink encounter to another episode
+#
+# Revision 1.8  2005/06/10 23:22:43  ncq
 # - SQL2 match provider now requires query *list*
 #
 # Revision 1.7  2005/05/06 15:30:15  ncq

@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.54 $"
+__version__ = "$Revision: 1.55 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -16,6 +16,7 @@ import mx.DateTime as mxDT
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
 #============================================================
 class cHealthIssue(gmClinItem.cClinItem):
 	"""Represents one health issue.
@@ -240,6 +241,34 @@ class cEncounter(gmClinItem.cClinItem):
 		for row in rows:
 		  aoes.append(gmClinNarrative.cAOE(aPK_obj=row[0]))
 		return aoes
+	#--------------------------------------------------------		
+	def transfer_clinical_data(self, target_episode, src_episode, encounter):
+		"""
+		Relinks every element currently linked to the current encounter and
+		src_episode to target_episode.
+		@param source_episode The episosode the elements are currenlty linked to.
+		@type source_episode A cEncounter intance.
+		@param target_episode The episosode the elements will berelinked linked to.
+		@type target_episode A cEncounter intance.
+		"""
+		# sanity check
+		if src_episode['pk_episode'] == target_episode['pk_episode']:
+			return
+		# insert new health issue
+		queries = []			
+		cmd = """
+			UPDATE clin_root_item SET fk_episode = %s 
+ 			WHERE fk_encounter = %s AND fk_episode = %s
+			"""
+		queries.append((cmd, [target_episode['pk_episode'], encounter['pk_encounter'], src_episode['pk_episode']]))
+		# run queries
+		success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
+		if not success:
+			_log.Log(gmLog.lErr, 'cannot relink elements of encounter [%s] to from episode [%s] to episode[%s]: %s' %\
+			(self['pk_encounter'], src_episode['pk_episode'], target_episode['pk_episode'], str(data)))
+			err, msg = data
+			return (False, msg)
+		return (True, True)			
 #============================================================		
 class cProblem(gmClinItem.cClinItem):
 	"""Represents one problem.
@@ -515,7 +544,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.54  2005-06-15 22:25:29  ncq
+# Revision 1.55  2005-06-20 13:03:38  cfmoro
+# Relink encounter to another episode
+#
+# Revision 1.54  2005/06/15 22:25:29  ncq
 # - issue.rename()
 #
 # Revision 1.53  2005/06/14 18:53:37  ncq

@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.31 2005-06-15 22:27:20 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmEMRBrowser.py,v 1.32 2005-06-20 13:03:38 cfmoro Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -22,6 +22,10 @@ from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
+
+# module level constants
+dialog_CANCELLED = -1
+dialog_OK = -2
 #============================================================
 def export_emr_to_ascii(parent=None):
 	"""
@@ -395,18 +399,29 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.PopupMenu(self.__enc_context_popup, pos)
 	#--------------------------------------------------------
 	def __relink_encounter2episode(self, event):
-		print "relinking encounter to another episode"
-		print "this is a complex operation yet to be written"
-		return
-		emr = self.__pat.get_emr()
-		episodes = emr.get_episodes()
-		old_epi = self.__selected_encounter.get_episode()
-		dlg = wx.wxSingleChoiceDialog (
-			parent = self,
-			message = _('Encounter was attached to episode\n [%s]\n\nPlease select the episode\nyou want to attach the encounter to.\n') % 'MISSING',
+
+		curr_encounter = self.__emr_tree.GetPyData(self.__emr_tree.GetSelection())
+		curr_episode = self.__emr_tree.GetPyData(self.get_item_parent(self.__emr_tree.GetSelection()))
+		episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg(
+			None,
+			-1,
 			caption = _('Re-attaching encounter ...'),
-			choices = []
+			msg = _("Encounter was attached to episode '[%s]'.\nPlease select the episode you want to attach the encounter to.") % curr_episode['description'],
+			action_txt = _('relink encounter'),
+			pk_health_issue = curr_episode['pk_health_issue']
 		)
+		retval = episode_selector.ShowModal() # Shows it
+		
+		if retval == dialog_OK:
+			target_episode = episode_selector.get_selected_episode()
+			curr_encounter.transfer_clinical_data(target_episode = target_episode, src_episode = curr_episode, encounter = curr_encounter)
+		elif retval == dialog_CANCELLED:
+			print 'User canceled'
+		else:
+			raise Exception('Invalid dialog return code [%s]' % retval)
+		episode_selector.Destroy() # finally destroy it when finished.
+		# FIXME: GNUmed internal signal
+		self._on_episodes_modified()
 	#--------------------------------------------------------
 	# health issues
 	def __handle_issue_context(self, issue=None, pos=wx.wxPyDefaultPosition):
@@ -779,7 +794,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.31  2005-06-15 22:27:20  ncq
+# Revision 1.32  2005-06-20 13:03:38  cfmoro
+# Relink encounter to another episode
+#
+# Revision 1.31  2005/06/15 22:27:20  ncq
 # - allow issue renaming
 #
 # Revision 1.30  2005/06/14 20:26:04  cfmoro
