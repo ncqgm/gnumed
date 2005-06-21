@@ -7,7 +7,7 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -102,14 +102,14 @@ class AboutFrame (wxFrame):
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 2)
 		else:
-			box.Add(0,0, 2)
+			box.Add((0,0), 2)
 		intro_txt=wxStaticText(self, -1, _("Monty the Serpent && the FSF Present"))
 		intro_txt.SetFont(wxFont(10,wxSWISS,wxNORMAL,wxNORMAL,False,''))
 		box.Add(intro_txt, 0, wxALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 3)
 		else:
-			box.Add(0,0, 3)
+			box.Add((0,0), 3)
 		gm_txt=wxStaticText(self, -1, _("GnuMed"))
 		gm_txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(gm_txt, 0, wxALIGN_CENTRE)
@@ -120,7 +120,7 @@ class AboutFrame (wxFrame):
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 4)
 		else:
-			box.Add(0,0, 4)
+			box.Add((0,0), 4)
 		ver_txt=wxStaticText(self, -1, _("Version X.X.X brought to you by"))
 		ver_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(ver_txt, 0, wxALIGN_CENTRE)
@@ -134,20 +134,20 @@ class AboutFrame (wxFrame):
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
-			box.Add(0,0, 1)
+			box.Add((0,0), 1)
 		info_txt=wxStaticText(self, -1, _("Please visit http://www.gnumed.org/ for more info"))
 		info_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(info_txt, 0, wxALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
-			box.Add(0,0, 1)
+			box.Add((0,0), 1)
 		btn = wxButton(self, ID_MENU , _("Close"))
 		box.Add(btn,0, wxALIGN_CENTRE)
 		if wxPlatform == '__WXMAC__':
 			box.Add((0,0), 1)
 		else:
-			box.Add(0,0, 1)
+			box.Add((0,0), 1)
 		EVT_BUTTON(btn, ID_MENU, self.OnClose)
 
 		self.SetAutoLayout(True)
@@ -176,7 +176,11 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.10  2005-05-30 09:20:51  ncq
+# Revision 1.11  2005-06-21 04:57:12  rterry
+# fix this to run under wxPython26
+# -e.g incorrect sizer attributes
+#
+# Revision 1.10  2005/05/30 09:20:51  ncq
 # - add Carlos Moro
 #
 # Revision 1.9  2004/07/18 20:30:53  ncq
