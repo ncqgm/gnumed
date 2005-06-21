@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.200 2005-06-19 16:38:03 ncq Exp $
-__version__ = "$Revision: 1.200 $"
+# $Id: gmGuiMain.py,v 1.201 2005-06-21 04:59:40 rterry Exp $
+__version__ = "$Revision: 1.201 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -346,7 +346,7 @@ class gmTopLevelFrame(wx.wxFrame):
 	#----------------------------------------------
 	def OnAbout(self, event):
 		from Gnumed.wxpython import gmAbout
-		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wxSize(300, 250), style = wx.wxMAXIMIZE_BOX)
+		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wx.wxSize(300, 250), style = wx.wxMAXIMIZE_BOX)
 		gmAbout.Centre(wx.wxBOTH)
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
@@ -767,7 +767,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.200  2005-06-19 16:38:03  ncq
+# Revision 1.201  2005-06-21 04:59:40  rterry
+# Fix to allow running gmAbout.py under wxpython26 wxSize > wx.wxSize
+#
+# Revision 1.200  2005/06/19 16:38:03  ncq
 # - set encoding of gmGuiMain.py to latin1
 #
 # Revision 1.199  2005/06/13 21:41:29  ncq
