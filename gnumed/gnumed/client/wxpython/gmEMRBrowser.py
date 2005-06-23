@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.32 2005-06-20 13:03:38 cfmoro Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmEMRBrowser.py,v 1.33 2005-06-23 14:59:43 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -157,7 +157,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.__enc_context_popup = wx.wxMenu()
 		menu_id = wx.wxNewId()
 		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another episode')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter2episode)
+		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
 #		menu_id = wx.wxNewId()
 #		self.__enc_context_popup.AppendItem(wx.wxMenuItem(self.__enc_context_popup, menu_id, _('attach encounter to another patient')))
 #		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter2patient)
@@ -395,33 +395,36 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	# encounters
 	def __handle_encounter_context(self, encounter = None, pos=wx.wxPyDefaultPosition):
 		self.__selected_encounter = encounter
-#		self.__enc_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__enc_context_popup, pos)
 	#--------------------------------------------------------
-	def __relink_encounter2episode(self, event):
-
-		curr_encounter = self.__emr_tree.GetPyData(self.__emr_tree.GetSelection())
-		curr_episode = self.__emr_tree.GetPyData(self.get_item_parent(self.__emr_tree.GetSelection()))
-		episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg(
+	def __relink_encounter_data2episode(self, event):
+		# find episode we are interested in
+		node = self.__emr_tree.GetSelection()
+		node_parent = self.__emr_tree.GetItemParent(node)
+		curr_episode = self.__emr_tree.GetPyData(node_parent)
+		episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
 			None,
 			-1,
-			caption = _('Re-attaching encounter ...'),
-			msg = _("Encounter was attached to episode '[%s]'.\nPlease select the episode you want to attach the encounter to.") % curr_episode['description'],
-			action_txt = _('relink encounter'),
+			caption = _('Reordering EMR ...'),
+			msg = _(
+				'Some EMR entries of this encounter were attached to episode\n "%s"\n'
+				"Please select the episode you want to move the entries to."
+			) % curr_episode['description'],
+			action_txt = _('move data'),
 			pk_health_issue = curr_episode['pk_health_issue']
 		)
 		retval = episode_selector.ShowModal() # Shows it
-		
+
 		if retval == dialog_OK:
-			target_episode = episode_selector.get_selected_episode()
-			curr_encounter.transfer_clinical_data(target_episode = target_episode, src_episode = curr_episode, encounter = curr_encounter)
+			target = episode_selector.get_selected_episode()
+			self.__selected_encounter.transfer_clinical_data(from_episode = curr_episode, to_episode = target)
 		elif retval == dialog_CANCELLED:
 			print 'User canceled'
 		else:
 			raise Exception('Invalid dialog return code [%s]' % retval)
 		episode_selector.Destroy() # finally destroy it when finished.
 		# FIXME: GNUmed internal signal
-		self._on_episodes_modified()
+#		self._on_episodes_modified()
 	#--------------------------------------------------------
 	# health issues
 	def __handle_issue_context(self, issue=None, pos=wx.wxPyDefaultPosition):
@@ -794,7 +797,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.32  2005-06-20 13:03:38  cfmoro
+# Revision 1.33  2005-06-23 14:59:43  ncq
+# - cleanup __relink_encounter_data2episode()
+#
+# Revision 1.32  2005/06/20 13:03:38  cfmoro
 # Relink encounter to another episode
 #
 # Revision 1.31  2005/06/15 22:27:20  ncq
