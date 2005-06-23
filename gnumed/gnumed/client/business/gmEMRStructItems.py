@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.56 $"
+__version__ = "$Revision: 1.57 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -241,33 +241,33 @@ class cEncounter(gmClinItem.cClinItem):
 		for row in rows:
 		  aoes.append(gmClinNarrative.cAOE(aPK_obj=row[0]))
 		return aoes
-	#--------------------------------------------------------		
-	def transfer_clinical_data(self, target_episode, src_episode, encounter):
+	#--------------------------------------------------------
+	def transfer_clinical_data(self, from_episode, to_episode):
 		"""
 		Moves every element currently linked to the current encounter
-		and the src_episode onto target_episode.
+		and the from_episode onto to_episode.
 
-		@param src_episode The episode the elements are currently linked to.
-		@type source_episode A cEpisode intance.
-		@param target_episode The episode the elements will be relinked to.
-		@type target_episode A cEpisode intance.
+		@param from_episode The episode the elements are currently linked to.
+		@type to_episode A cEpisode intance.
+		@param to_episode The episode the elements will be relinked to.
+		@type to_episode A cEpisode intance.
 		"""
 		# sanity check
-		if src_episode['pk_episode'] == target_episode['pk_episode']:
+		if from_episode['pk_episode'] == to_episode['pk_episode']:
 			return
 		queries = []
 		cmd = """
 			UPDATE clin_root_item SET fk_episode = %s 
  			WHERE fk_encounter = %s AND fk_episode = %s
 			"""
-		queries.append((cmd, [target_episode['pk_episode'], encounter['pk_encounter'], src_episode['pk_episode']]))
+		queries.append((cmd, [to_episode['pk_episode'], self.pk_obj, from_episode['pk_episode']]))
 		# run queries
 		success, data = gmPG.run_commit2(link_obj = 'historica', queries = queries)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot relink elements of encounter [%s] from episode [%s] to episode [%s]: %s' % (
-				self['pk_encounter'],
-				src_episode['pk_episode'],
-				target_episode['pk_episode'],
+				self.pk_obj,
+				from_episode['pk_episode'],
+				to_episode['pk_episode'],
 				str(data)
 			))
 			err, msg = data
@@ -548,7 +548,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.56  2005-06-20 18:48:51  ncq
+# Revision 1.57  2005-06-23 14:58:51  ncq
+# - clean up transfer_clinical_data()
+#
+# Revision 1.56  2005/06/20 18:48:51  ncq
 # - a little cleanup in transfer_data
 #
 # Revision 1.55  2005/06/20 13:03:38  cfmoro
