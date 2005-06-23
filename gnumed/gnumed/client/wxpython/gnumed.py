@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.77 $"
+__version__ = "$Revision: 1.78 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -126,6 +126,7 @@ def setup_logging():
 
 	return 1
 #==========================================================
+# FIXME: consolidate setup_locale/setup_encoding/gmI18N.py into gmLocalize etc.
 def setup_locale():
 	import locale
 	# logging state of affairs
@@ -349,7 +350,10 @@ if gmCLI.has_arg("--help") or gmCLI.has_arg("-h") or gmCLI.has_arg("-?"):
 _log.Log(gmLog.lInfo, 'Starting up as main module (%s).' % __version__)
 _log.Log(gmLog.lInfo, 'command line is: %s' % str(gmCLI.arg))
 _log.Log(gmLog.lInfo, 'Python %s on %s (%s)' % (sys.version, sys.platform, os.name))
+_log.Log(gmLog.lInfo, 'Python string encoding is set to [%s]' % sys.getdefaultencoding())
+
 setup_cfg_file()
+
 appPath = get_base_dir()
 if appPath is None:
 	sys.exit("CRITICAL ERROR: Cannot determine base path.")
@@ -421,7 +425,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.77  2005-04-26 20:02:48  ncq
+# Revision 1.78  2005-06-23 15:00:53  ncq
+# - log default string encoding
+#
+# Revision 1.77  2005/04/26 20:02:48  ncq
 # - cleanup
 #
 # Revision 1.76  2005/04/25 17:32:58  ncq
