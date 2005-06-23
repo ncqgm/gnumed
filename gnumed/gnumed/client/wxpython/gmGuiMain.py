@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.201 2005-06-21 04:59:40 rterry Exp $
-__version__ = "$Revision: 1.201 $"
+# $Id: gmGuiMain.py,v 1.202 2005-06-23 15:00:11 ncq Exp $
+__version__ = "$Revision: 1.202 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -49,7 +49,6 @@ if encoding is None:
 	_log.Log(gmLog.lWarn, 'you need to set the parameter <client encoding> in the config file')
 	_log.Log(gmLog.lWarn, 'on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
 gmPG.set_default_client_encoding(encoding)
-# FIXME: set default encoding for Python here as well ?
 
 # set up database connection timezone
 timezone = _cfg.get('backend', 'client timezone')
@@ -767,7 +766,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.201  2005-06-21 04:59:40  rterry
+# Revision 1.202  2005-06-23 15:00:11  ncq
+# - cleanup
+#
+# Revision 1.201  2005/06/21 04:59:40  rterry
 # Fix to allow running gmAbout.py under wxpython26 wxSize > wx.wxSize
 #
 # Revision 1.200  2005/06/19 16:38:03  ncq
