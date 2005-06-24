@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.59 2005-05-17 08:12:11 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmTopPanel.py,v 1.60 2005-06-24 22:17:08 shilbert Exp $
+__version__ = "$Revision: 1.60 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -20,15 +20,16 @@ from Gnumed.pycommon.gmPyCompat import *
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
 
-ID_BTN_pat_demographics = wxNewId()
-ID_CBOX_consult_type = wxNewId()
-#ID_CBOX_episode = wxNewId()
-ID_BMITOOL = wxNewId()
-ID_BMIMENU = wxNewId()
-ID_PREGTOOL = wxNewId()
-ID_PREGMENU = wxNewId()
-ID_LOCKBUTTON = wxNewId()
-ID_LOCKMENU = wxNewId()
+[	ID_BTN_pat_demographics,
+	ID_CBOX_consult_type,
+	#ID_CBOX_episode = wxNewId()
+	ID_BMITOOL,
+	ID_BMIMENU,
+	ID_PREGTOOL,
+	ID_PREGMENU,
+	ID_LOCKBUTTON,
+	ID_LOCKMENU,
+] = map(lambda _init_ctrls: wxNewId(), range(8))
 
 # FIXME: need a better name here !
 bg_col = wxColour(214,214,214)
@@ -99,7 +100,7 @@ class cMainTopPanel(wxPanel):
 			style = wxBU_EXACTFIT | wxNO_BORDER
 		)
 		self.btn_lock.SetToolTip(wxToolTip(_('lock client')))
-		self.szr_top_row.Add(self.btn_lock, 0, wxEXPAND | wxBOTTOM, 3)
+		self.szr_top_row.Add(self.btn_lock, 0, wxALL, 3)
 
 		#  - patient selector
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
@@ -107,7 +108,7 @@ class cMainTopPanel(wxPanel):
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
 		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
-		self.szr_top_row.Add (self.patient_selector, 5, wxEXPAND | wxBOTTOM, 3)
+		self.szr_top_row.Add (self.patient_selector, 5, wxBOTTOM, 3)
 		#  - age
 #		self.lbl_age = wxStaticText (self, -1, _("Age"), style = wxALIGN_CENTER_VERTICAL)
 #		self.lbl_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
@@ -115,7 +116,7 @@ class cMainTopPanel(wxPanel):
 		self.txt_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
 #		self.szr_top_row.Add (self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
-		self.szr_top_row.Add (self.txt_age, 0, wxEXPAND | wxBOTTOM | wxLEFT | wxRIGHT, 3)
+		self.szr_top_row.Add (self.txt_age, 0, wxBOTTOM | wxLEFT | wxRIGHT, 3)
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
 		self.lbl_allergies = wxStaticText (self, -1, _("Allergies"), style = wxALIGN_CENTER_VERTICAL)
 		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
@@ -125,8 +126,8 @@ class cMainTopPanel(wxPanel):
 		self.txt_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		#self.txt_allergies.SetBackgroundColour(bg_col)
 		self.txt_allergies.SetForegroundColour (col_brightred)
-		self.szr_top_row.Add (self.lbl_allergies, 0, wxEXPAND | wxBOTTOM, 3)
-		self.szr_top_row.Add (self.txt_allergies, 6, wxEXPAND | wxBOTTOM, 3)
+		self.szr_top_row.Add (self.lbl_allergies, 0, wxALL, 3)
+		self.szr_top_row.Add (self.txt_allergies, 6,wxBOTTOM, 3)
 
 		# - bottom row
 		# .----------------------------------------------------------.
@@ -151,7 +152,7 @@ class cMainTopPanel(wxPanel):
 			style = wxBU_EXACTFIT | wxNO_BORDER
 		)
 		self.btn_bmi.SetToolTip(wxToolTip(_("BMI Calculator")))
-		self.szr_bottom_row.Add(self.btn_bmi, 0, wxEXPAND | wxBOTTOM, 3)
+		self.szr_bottom_row.Add(self.btn_bmi, 0)
 
 #		tb = wxToolBar(self, -1, style=wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT)
 #		tb.AddTool (
@@ -172,8 +173,8 @@ class cMainTopPanel(wxPanel):
 			style = wxBU_EXACTFIT | wxNO_BORDER
 		)
 		self.btn_preg.SetToolTip(wxToolTip(_("Pregnancy Calculator")))
-		self.szr_bottom_row.Add(self.btn_preg, 0, wxEXPAND | wxBOTTOM, 3)
-
+		self.szr_bottom_row.Add(self.btn_preg, 0)
+		
 #		# episode selector
 #		# FIXME: handle input -> new episode
 #		# FIXME: should be cEpisodeSelector class
@@ -200,19 +201,20 @@ class cMainTopPanel(wxPanel):
 			wxCB_DROPDOWN | wxCB_READONLY
 		)
 		self.combo_consultation_type.SetToolTip(wxToolTip(_('choose consultation type')))
-		self.szr_bottom_row.Add(self.combo_consultation_type, 2, wxEXPAND, 0)
+		self.szr_bottom_row.Add(self.combo_consultation_type, 1)
 
 		# - stack them atop each other
 		self.szr_stacked_rows = wxBoxSizer(wxVERTICAL)
 		# ??? (IMHO: space is at too much of a premium for such padding)
 		# FIXME: deuglify
 		try:
-			self.szr_stacked_rows.Add(1, 3, 0, wxEXPAND)
+			self.szr_stacked_rows.Add(1, 1, 0)
 		except:
-			self.szr_stacked_rows.Add((1, 3), 0, wxEXPAND)
-
-		self.szr_stacked_rows.Add(self.szr_top_row, 1, wxEXPAND)
-		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND | wxALL, 2)
+			self.szr_stacked_rows.Add((1, 1), 0)
+		
+		# 0 here indicates the sizer cannot change its heights - which is intended
+		self.szr_stacked_rows.Add(self.szr_top_row, 0, wxEXPAND)
+		self.szr_stacked_rows.Add(self.szr_bottom_row, 1, wxEXPAND|wxTOP, 5)
 
 		# create patient picture
 		self.patient_picture = gmPatPicWidgets.cPatientPicture(self, -1)
@@ -222,9 +224,9 @@ class cMainTopPanel(wxPanel):
 		# create main sizer
 		self.szr_main = wxBoxSizer(wxHORIZONTAL)
 		# - insert patient picture
-		self.szr_main.Add(self.patient_picture, 0, wxEXPAND)
+		self.szr_main.Add(self.patient_picture, 0, wxLEFT | wxTOP | wxRight, 5)
 		# - insert stacked rows
-		self.szr_main.Add(self.szr_stacked_rows, 1, wxEXPAND)
+		self.szr_main.Add(self.szr_stacked_rows, 1)
 
 		# associate ourselves with our main sizer
 		self.SetSizer(self.szr_main)
@@ -452,7 +454,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.59  2005-05-17 08:12:11  ncq
+# Revision 1.60  2005-06-24 22:17:08  shilbert
+# - deuglyfied , reclaim wasted gui sapce in TopPanel
+#
+# Revision 1.59  2005/05/17 08:12:11  ncq
 # - move padlock tool button to inbetween patient picture and patient name
 #   as users found that more consistent and drop "demographic details" tool
 #   button from there
