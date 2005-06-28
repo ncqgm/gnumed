@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.202 2005-06-23 15:00:11 ncq Exp $
-__version__ = "$Revision: 1.202 $"
+# $Id: gmGuiMain.py,v 1.203 2005-06-28 16:48:45 cfmoro Exp $
+__version__ = "$Revision: 1.203 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -374,40 +374,94 @@ class gmTopLevelFrame(wx.wxFrame):
 		print "lacking code to search EMR"
 	#----------------------------------------------
 	def __on_export_emr_as_journal(self, event):
-		wx.wxBeginBusyCursor()
-		exporter = gmPatientExporter.cEMRJournalExporter()
-		successful, fname = exporter.export_to_file()
-		wx.wxEndBusyCursor()
-		if not successful:
-			gmGuiHelpers.gm_show_error (
-				_('Error exporting patient EMR as chronological journal.'),
-				_('EMR journal export'),
-				gmLog.lErr
-			)
-		else:
-			gmGuiHelpers.gm_show_info (
-				_('Successfully exported EMR as chronological journal into file\n\n[%s]') % fname,
-				_('EMR journal export'),
-				gmLog.lInfo
-			)
+		# sanity checks
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('Cannot export EMR journal. No active patient.'), gmLog.lErr)
+			return False
+		# get file name
+		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
+		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+		ident = pat.get_identity()
+		fname = '%s-%s_%s.txt' % (_('emr-journal'), ident['lastnames'], ident['firstnames'])
+		dlg = wx.wxFileDialog (
+			parent = self,
+			message = _("Save patient's EMR journal as..."),
+			defaultDir = aDefDir,
+			defaultFile = fname,
+			wildcard = aWildcard,
+			style = wx.wxSAVE
+		)
+		choice = dlg.ShowModal()
+		fname = dlg.GetPath()
+		dlg.Destroy()
+		if choice == wx.wxID_OK:
+			_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
+			# instantiate exporter
+			wx.wxBeginBusyCursor()
+			exporter = gmPatientExporter.cEMRJournalExporter()
+			successful, fname = exporter.export_to_file(filename = fname)
+			wx.wxEndBusyCursor()
+			if not successful:
+				gmGuiHelpers.gm_show_error (
+					_('Error exporting patient EMR as chronological journal.'),
+					_('EMR journal export'),
+					gmLog.lErr
+				)
+			else:
+				gmGuiHelpers.gm_show_info (
+					_('Successfully exported EMR as chronological journal into file\n\n[%s]') % fname,
+					_('EMR journal export'),
+					gmLog.lInfo
+				)
 	#----------------------------------------------
 	def __on_export_for_medistar(self, event):
-		wx.wxBeginBusyCursor()
-		exporter = gmPatientExporter.cMedistarSOAPExporter()
-		successful, fname = exporter.export_to_file()
-		wx.wxEndBusyCursor()
-		if not successful:
-			gmGuiHelpers.gm_show_error (
-				'Fehler beim Exportieren der heutigen Karteieinträge für Medistar.',
-				'Medistar-Export',
-				gmLog.lErr
-			)
-		else:
-			gmGuiHelpers.gm_show_info (
-				'Heutige Karteieinträge erfolgreich für Medistar exportiert. Datei:\n\n[%s]' % fname,
-				'Medistar-Export',
-				gmLog.lInfo
-			)
+		# sanity checks
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('Cannot export EMR for Medistar. No active patient.'), gmLog.lErr)
+			return False
+		# get file name
+		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
+		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+		ident = pat.get_identity()		
+		fname = '%s-%s-%s-%s-%s.txt' % (
+			'Medistar-MD',
+			time.strftime('%Y-%m-%d',time.localtime()),
+			ident['lastnames'].replace(' ', '-'),
+			ident['firstnames'].replace(' ', '_'),
+			ident['dob'].Format('%Y-%m-%d')
+		)
+		dlg = wx.wxFileDialog (
+			parent = self,
+			message = _("Save patient's EMR for Medistar as..."),
+			defaultDir = aDefDir,
+			defaultFile = fname,
+			wildcard = aWildcard,
+			style = wx.wxSAVE
+		)
+		choice = dlg.ShowModal()
+		fname = dlg.GetPath()
+		dlg.Destroy()
+		if choice == wx.wxID_OK:
+			_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
+			# instantiate exporter		
+			wx.wxBeginBusyCursor()
+			exporter = gmPatientExporter.cMedistarSOAPExporter()
+			successful, fname = exporter.export_to_file(filename=fname)
+			wx.wxEndBusyCursor()
+			if not successful:
+				gmGuiHelpers.gm_show_error (
+					'Fehler beim Exportieren der heutigen Karteieinträge für Medistar.',
+					'Medistar-Export',
+					gmLog.lErr
+				)
+			else:
+				gmGuiHelpers.gm_show_info (
+					'Heutige Karteieinträge erfolgreich für Medistar exportiert. Datei:\n\n[%s]' % fname,
+					'Medistar-Export',
+					gmLog.lInfo
+				)
 	#----------------------------------------------
 	def OnCreatePatient(self, event):
 		"""
@@ -766,7 +820,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.202  2005-06-23 15:00:11  ncq
+# Revision 1.203  2005-06-28 16:48:45  cfmoro
+# File dialog for journal and medistar EMR export
+#
+# Revision 1.202  2005/06/23 15:00:11  ncq
 # - cleanup
 #
 # Revision 1.201  2005/06/21 04:59:40  rterry
