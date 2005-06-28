@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.50 2005-06-14 19:51:27 cfmoro Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmDemographicsWidgets.py,v 1.51 2005-06-28 13:11:05 cfmoro Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2661,6 +2661,7 @@ def create_identity_from_dtd(dtd=None):
 		_log.Log(gmLog.lErr, 'cannot create identity from %s' % str(dtd))
 		return None
 	_log.Log(gmLog.lData, 'identity created: %s' % new_identity)
+	
 	return new_identity
 #============================================================				
 def update_identity_from_dtd(identity, dtd=None):
@@ -2675,8 +2676,8 @@ def update_identity_from_dtd(identity, dtd=None):
 	# identity
 	if identity['gender'] != dtd['gender']:
 		identity['gender'] = dtd['gender']
-	if identity['dob'] != dtd['dob']:
-		identity['dob'] = dtd['dob']
+	if identity['dob'].Format(DATE_FORMAT) != dtd['dob']:
+		identity['dob'] = mxDT.strptime(dtd['dob'], DATE_FORMAT)
 	if len(dtd['title']) > 0 and identity['title'] != capitalize_first(dtd['title']):
 		identity['title'] = capitalize_first(dtd['title'])
 	# FIXME: error checking
@@ -2826,7 +2827,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.50  2005-06-14 19:51:27  cfmoro
+# Revision 1.51  2005-06-28 13:11:05  cfmoro
+# Fixed bug: when updating patient details the dob was converted from date to str type
+#
+# Revision 1.50  2005/06/14 19:51:27  cfmoro
 # auto zip in patient wizard and minor cleanups
 #
 # Revision 1.49  2005/06/14 00:34:14  cfmoro
