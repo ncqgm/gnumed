@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.52 2005-06-28 14:12:55 cfmoro Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmDemographicsWidgets.py,v 1.53 2005-06-28 14:38:21 cfmoro Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1720,13 +1720,13 @@ class cPatEditionNotebook(wx.Notebook):
 		"""
 		Populate fields in pages with data from model.
 		"""
+		
 		identity = self.__pat.get_identity()
-
 		# refresh identity reference in pages
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
 			page.set_identity(identity)
-			
+
 		# business class -> identity DTD
 		txt = identity['gender']
 		for gender in self.__genders:
@@ -1747,7 +1747,7 @@ class cPatEditionNotebook(wx.Notebook):
 		txt = ''
 		if not active_name['preferred'] is None:
 			txt = active_name['preferred']
-		self.ident_form_DTD['nick'] = txt
+		self.ident_form_DTD['nick'] = txt		
 
 		# business class -> contacts DTD
 		addresses = identity['addresses']
@@ -1758,19 +1758,30 @@ class cPatEditionNotebook(wx.Notebook):
 			self.contacts_form_DTD['zip_code'] = addresses[last_idx]['postcode']
 			self.contacts_form_DTD['town'] = addresses[last_idx]['urb']
 			self.contacts_form_DTD['state'] = addresses[last_idx]['state']
-			self.contacts_form_DTD['country'] = addresses[last_idx]['country']			
+			self.contacts_form_DTD['country'] = addresses[last_idx]['country']
+		else:
+			self.contacts_form_DTD['address_number'] = ''
+			self.contacts_form_DTD['street'] = ''
+			self.contacts_form_DTD['zip_code'] = ''
+			self.contacts_form_DTD['town'] = ''
+			self.contacts_form_DTD['state'] = ''
+			self.contacts_form_DTD['country'] = ''
 		comms = identity['comms']
 		if len(comms) > 0:
 			for a_comm in comms:
 				if a_comm['type'] == 'homephone':
 					self.contacts_form_DTD['phone'] = a_comm['url']
 					break
+		else:
+			self.contacts_form_DTD['phone'] = ''
 
 		# business class -> occupations DTD
 		occupations = identity['occupations']
 		if len(occupations) > 0:
 			last_idx = len(occupations)-1
 			self.occupations_form_DTD['occupation'] = occupations[last_idx]['occupation']
+		else:
+			self.occupations_form_DTD['occupation'] = ''
 
 		# Recursively calls TransferDataToWindow in notebook
 		# children, thanks to wx.WS_EX_VALIDATE_RECURSIVELY
@@ -2842,7 +2853,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.52  2005-06-28 14:12:55  cfmoro
+# Revision 1.53  2005-06-28 14:38:21  cfmoro
+# Integration fixes
+#
+# Revision 1.52  2005/06/28 14:12:55  cfmoro
 # Integration in space fixes
 #
 # Revision 1.51  2005/06/28 13:11:05  cfmoro
