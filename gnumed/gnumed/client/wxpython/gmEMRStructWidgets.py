@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.9 2005-06-20 13:03:38 cfmoro Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmEMRStructWidgets.py,v 1.10 2005-06-28 17:14:56 cfmoro Exp $
+__version__ = "$Revision: 1.10 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -332,7 +332,7 @@ class cEpisodePicker(wx.wxPanel):
 		)
 		self.__LST_episodes.InsertColumn(0, _('Last renamed'))
 		self.__LST_episodes.InsertColumn(1, _('Description'), wx.wxLIST_FORMAT_RIGHT)
-		self.__LST_episodes.InsertColumn(2, _('Is open'), wx.wxLIST_AUTOSIZE)
+		self.__LST_episodes.InsertColumn(2, _('Is open'))
 		# FIXME: dynamic calculation
 		self.__LST_episodes.SetColumnWidth(0, 100)
 		self.__LST_episodes.SetColumnWidth(1, 230)
@@ -876,7 +876,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.9  2005-06-20 13:03:38  cfmoro
+# Revision 1.10  2005-06-28 17:14:56  cfmoro
+# Auto size flag causes the text not being displayed
+#
+# Revision 1.9  2005/06/20 13:03:38  cfmoro
 # Relink encounter to another episode
 #
 # Revision 1.8  2005/06/10 23:22:43  ncq
