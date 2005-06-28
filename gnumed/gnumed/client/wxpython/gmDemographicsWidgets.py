@@ -8,8 +8,8 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.51 2005-06-28 13:11:05 cfmoro Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmDemographicsWidgets.py,v 1.52 2005-06-28 14:12:55 cfmoro Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1589,7 +1589,7 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			pageCtrl = self.GetWindow().GetParent()
 			# fill in self.form_DTD with values from controls
 			self.form_DTD['gender'] = pageCtrl.PRW_gender.GetData()
-			self.form_DTD['dob'] = pageCtrl.TTC_dob.GetValue()
+			self.form_DTD['dob'] = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 			self.form_DTD['lastnames'] = pageCtrl.PRW_lastname.GetValue()
 			self.form_DTD['firstnames'] = pageCtrl.PRW_firstname.GetValue()
 			self.form_DTD['title'] = pageCtrl.PRW_title.GetValue()
@@ -1722,6 +1722,11 @@ class cPatEditionNotebook(wx.Notebook):
 		"""
 		identity = self.__pat.get_identity()
 
+		# refresh identity reference in pages
+		for page_idx in range(self.GetPageCount()):
+			page = self.GetPage(page_idx)
+			page.set_identity(identity)
+			
 		# business class -> identity DTD
 		txt = identity['gender']
 		for gender in self.__genders:
@@ -1780,6 +1785,8 @@ class cPatEditionNotebook(wx.Notebook):
 		Build patient edition notebook pages.
 		"""
 		ident = self.__pat.get_identity()
+		print 'Creando paginas con ident: %s' % ident
+		print 'Patient: %s' % self.__pat
 		# identity page
 		new_page = cPatIdentityPanel (
 			parent = self,
@@ -2011,6 +2018,9 @@ class cPatIdentityPanel(wx.Panel):
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------		
+	def set_identity(self, identity):
+		self.__ident = identity
+		
 	def save(self):
 		msg = _("Data in Identity section can't be saved.\nPlease, correct any invalid input.")
 		if not self.Validate():
@@ -2308,6 +2318,9 @@ class cPatContactsPanel(wx.Panel):
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------			
+	def set_identity(self, identity):
+		self.__ident = identity
+			
 	def save(self):
 		msg = _("Data in Contacts section can't be saved.\nPlease, correct any invalid input.")
 		if not self.Validate():
@@ -2470,6 +2483,9 @@ class cPatOccupationsPanel(wx.Panel):
 		SZR_main.Add(PNL_form, 1, wx.EXPAND)
 		self.SetSizer(SZR_main)				
 	#--------------------------------------------------------
+	def set_identity(self, identity):
+		self.__ident = identity
+			
 	def save(self):
 		msg = _("Data in Occupations section can't be saved.\nPlease, correct any invalid input.")
 		if not self.Validate():
@@ -2676,8 +2692,8 @@ def update_identity_from_dtd(identity, dtd=None):
 	# identity
 	if identity['gender'] != dtd['gender']:
 		identity['gender'] = dtd['gender']
-	if identity['dob'].Format(DATE_FORMAT) != dtd['dob']:
-		identity['dob'] = mxDT.strptime(dtd['dob'], DATE_FORMAT)
+	if identity['dob'] != dtd['dob']:
+		identity['dob'] = dtd['dob']
 	if len(dtd['title']) > 0 and identity['title'] != capitalize_first(dtd['title']):
 		identity['title'] = capitalize_first(dtd['title'])
 	# FIXME: error checking
@@ -2710,7 +2726,6 @@ def link_contacts_from_dtd(identity, dtd=None):
 	last_idx = -1
 	if len(addresses) > 0:
 		last_idx = len(addresses) - 1
-		#print addresses[last_idx]
 
 	# form addresses
 	input_number = dtd['address_number']
@@ -2827,7 +2842,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.51  2005-06-28 13:11:05  cfmoro
+# Revision 1.52  2005-06-28 14:12:55  cfmoro
+# Integration in space fixes
+#
+# Revision 1.51  2005/06/28 13:11:05  cfmoro
 # Fixed bug: when updating patient details the dob was converted from date to str type
 #
 # Revision 1.50  2005/06/14 19:51:27  cfmoro
