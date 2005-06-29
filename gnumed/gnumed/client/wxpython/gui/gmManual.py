@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.24 2004-12-27 18:42:05 shilbert Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmManual.py,v 1.25 2005-06-29 12:38:42 cfmoro Exp $
+__version__ = "$Revision: 1.25 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -155,7 +155,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 			ID_MANUALCONTENTS,
 			images_for_gnumed_browser16_16.getcontentsBitmap(),
 			shortHelpString=_("Gnumed Manual Contents"),
-			isToggle=True
+			isToggle=False
 		)
 		EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
 
@@ -179,53 +179,53 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 			ID_MANUALFORWARD,
 			images_for_gnumed_browser16_16.get1rightarrowBitmap(),
 			shortHelpString=_("Forward"),
-			isToggle=True
+			isToggle=False
 		)
 		EVT_TOOL (tb, ID_MANUALFORWARD, widget.OnForward)
 
-		tool1 = tb.AddTool(
-			ID_MANUALRELOAD,
-			images_for_gnumed_browser16_16.getreloadBitmap(),
-			shortHelpString=_("Reload"),
-			isToggle=True
-		)
+		#tool1 = tb.AddTool(
+		#	ID_MANUALRELOAD,
+		#	images_for_gnumed_browser16_16.getreloadBitmap(),
+		#	shortHelpString=_("Reload"),
+		#	isToggle=True
+		#)
+		
+		#tb.AddSeparator()
 
-		tb.AddSeparator()
+		#tool1 = tb.AddTool(
+		#	ID_MANUALHOME,
+		#	images_for_gnumed_browser16_16.getgohomeBitmap(),
+		#	shortHelpString=_("Home"),
+		#	isToggle=True
+		#)
+		#EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
 
-		tool1 = tb.AddTool(
-			ID_MANUALHOME,
-			images_for_gnumed_browser16_16.getgohomeBitmap(),
-			shortHelpString=_("Home"),
-			isToggle=True
-		)
-		EVT_TOOL (tb, ID_MANUALHOME, widget.OnShowDefault)
+		#tb.AddSeparator()
 
-		tb.AddSeparator()
-
-		tool1 = tb.AddTool(
-			ID_MANUALBABELFISH,
-			images_for_gnumed_browser16_16.getbabelfishBitmap(),
-			shortHelpString=_("Translate text"),
-			isToggle=False
-		)
+		#tool1 = tb.AddTool(
+		#	ID_MANUALBABELFISH,
+		#	images_for_gnumed_browser16_16.getbabelfishBitmap(),
+		#	shortHelpString=_("Translate text"),
+		#	isToggle=False
+		#)
 		#EVT_TOOL (tb, ID_MANUALBABELFISH, widget.OnBabelFish )
 
-		tb.AddSeparator()
+		#tb.AddSeparator()
 
-		tool1 = tb.AddTool(
-			ID_MANUALBOOKMARKS,
-			images_for_gnumed_browser16_16.getbookmarkBitmap(),
-			shortHelpString=_("Bookmarks"),
-			isToggle=True
-		)
+		#tool1 = tb.AddTool(
+		#	ID_MANUALBOOKMARKS,
+		#	images_for_gnumed_browser16_16.getbookmarkBitmap(),
+		#	shortHelpString=_("Bookmarks"),
+		#	isToggle=True
+		#)
 		#EVT_TOOL (tb, ID_MANUALBOOKMARKS, widget.OnBookmarks)
 
-		tool1 = tb.AddTool(
-			ID_MANUALADDBOOKMARK,
-			images_for_gnumed_browser16_16.getbookmark_addBitmap(),
-			shortHelpString=_("Add Bookmark"),
-			isToggle=True
-		)
+		#tool1 = tb.AddTool(
+		#	ID_MANUALADDBOOKMARK,
+		#	images_for_gnumed_browser16_16.getbookmark_addBitmap(),
+		#	shortHelpString=_("Add Bookmark"),
+		#	isToggle=True
+		#)
 		#EVT_TOOL (tb, ID_MANUALADDBOOKMARK, widget.OnAddBookmark)
 
 #		tool1 = tb.AddTool(
@@ -240,12 +240,15 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 			ID_MANUALPRINTER,
 			images_for_gnumed_browser16_16.getprinterBitmap(),
 			shortHelpString = _("Print Manual Page"),
-			isToggle=True
+			isToggle=False
 		)
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.24  2004-12-27 18:42:05  shilbert
+# Revision 1.25  2005-06-29 12:38:42  cfmoro
+# Keep only functional really buttons
+#
+# Revision 1.24  2004/12/27 18:42:05  shilbert
 # - added some missing _() for i18n
 #
 # Revision 1.23  2004/08/04 17:16:02  ncq
