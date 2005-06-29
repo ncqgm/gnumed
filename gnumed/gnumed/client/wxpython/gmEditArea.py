@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.90 2005-05-05 06:27:00 ncq Exp $
-__version__ = "$Revision: 1.90 $"
+# $Id: gmEditArea.py,v 1.91 2005-06-29 20:03:11 ncq Exp $
+__version__ = "$Revision: 1.91 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -258,7 +258,17 @@ def _decorate_editarea_field(widget):
 
 #====================================================================
 class cEditAreaPopup(wx.wxDialog):
-	def __init__ (self, parent, id, title, pos, size, style, name, edit_area = None):
+	def __init__ (
+		self,
+		parent,
+		id,
+		title = 'edit area popup',
+		pos=wx.wxDefaultPosition,
+		size=wx.wxDefaultSize,
+		style=wx.wxSIMPLE_BORDER,
+		name='',
+		edit_area = None
+	):
 		if not isinstance(edit_area, cEditArea2):
 			raise gmExceptions.ConstructorError, '<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area)
 		wx.wxDialog.__init__(self, parent, id, title, pos, size, style, name)
@@ -335,7 +345,7 @@ class cEditAreaPopup(wx.wxDialog):
 		self.__editarea.reset_ui()
 #====================================================================
 class cEditArea2(wxPanel):
-	def __init__(self, parent, id, pos, size, style):
+	def __init__(self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=wx.wxTAB_TRAVERSAL):
 		# init main background panel
 		wxPanel.__init__ (
 			self,
@@ -2304,7 +2314,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.90  2005-05-05 06:27:00  ncq
+# Revision 1.91  2005-06-29 20:03:11  ncq
+# - add proper __init__ defaults to edit area and edit area popup
+#
+# Revision 1.90  2005/05/05 06:27:00  ncq
 # - phrasewheel has renamed methods
 #
 # Revision 1.89  2005/04/26 20:01:43  ncq
