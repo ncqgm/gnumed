@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.33 2005-06-23 14:59:43 ncq Exp $
-__version__ = "$Revision: 1.33 $"
+# $Id: gmEMRBrowser.py,v 1.34 2005-06-29 12:53:50 cfmoro Exp $
+__version__ = "$Revision: 1.34 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -173,6 +173,12 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		menu_id = wx.wxNewId()
 		self.__issue_context_popup.AppendItem(wx.wxMenuItem(self.__issue_context_popup, menu_id, _('rename health issue')))
 		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__rename_issue)
+		
+		# - root node
+		self.__root_context_popup = wx.wxMenu()
+		menu_id = wx.wxNewId()
+		self.__root_context_popup.AppendItem(wx.wxMenuItem(self.__root_context_popup, menu_id, _('create health issue')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
 #		print " add new episode to issue"
 #		print " attach issue to another patient"
 #		print " move all episodes to another issue"
@@ -259,6 +265,8 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__handle_episode_context(episode=node_data, pos=pos)
 		elif isinstance(node_data, gmEMRStructItems.cEncounter):
 			self.__handle_encounter_context(encounter=node_data, pos=pos)
+		elif node == self.__emr_tree.GetRootItem():
+			self.__handle_root_context()
 		else:
 			print "error: unknown node type, no popup menu"
 		event.Skip()
@@ -455,6 +463,13 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			gmLog.lErr
 		)
 		return
+	#--------------------------------------------------------
+	# health issues
+	def __handle_root_context(self, pos=wx.wxPyDefaultPosition):
+		self.PopupMenu(self.__root_context_popup, pos)		
+	#--------------------------------------------------------
+	def __create_issue(self, event):
+		print "Code soon..."		
 #================================================================
 class gmPopupMenuEMRBrowser(wx.wxMenu):
 	"""
@@ -797,7 +812,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.33  2005-06-23 14:59:43  ncq
+# Revision 1.34  2005-06-29 12:53:50  cfmoro
+# Added create issue menu item to root node
+#
+# Revision 1.33  2005/06/23 14:59:43  ncq
 # - cleanup __relink_encounter_data2episode()
 #
 # Revision 1.32  2005/06/20 13:03:38  cfmoro
