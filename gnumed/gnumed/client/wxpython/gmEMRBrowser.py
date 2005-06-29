@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.34 2005-06-29 12:53:50 cfmoro Exp $
-__version__ = "$Revision: 1.34 $"
+# $Id: gmEMRBrowser.py,v 1.35 2005-06-29 18:35:17 cfmoro Exp $
+__version__ = "$Revision: 1.35 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -17,7 +17,7 @@ from wxPython import wx
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter
-from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
+from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets, gmEditArea
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
@@ -469,7 +469,30 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		self.PopupMenu(self.__root_context_popup, pos)		
 	#--------------------------------------------------------
 	def __create_issue(self, event):
-		print "Code soon..."		
+		# FIXME: refactor this code, present in three places
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('Cannot add health issue. No active patient.'), gmLog.lErr)
+			return False
+		ea = gmEMRStructWidgets.cHealthIssueEditArea (
+			self,
+			-1,
+			wx.wxDefaultPosition,
+			wx.wxDefaultSize,
+			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+		)
+			
+		popup = gmEditArea.cEditAreaPopup (
+			parent = None,
+			id = -1,
+			title = _('Add health issue/pHx item'),			
+			size = (200,200),
+			pos = wx.wxDefaultPosition,
+			style = wx.wxCENTRE | wx.wxSTAY_ON_TOP | wx.wxCAPTION | wx.wxSUNKEN_BORDER,
+			name ='',
+			edit_area = ea
+		)
+		result = popup.ShowModal()
 #================================================================
 class gmPopupMenuEMRBrowser(wx.wxMenu):
 	"""
@@ -812,7 +835,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.34  2005-06-29 12:53:50  cfmoro
+# Revision 1.35  2005-06-29 18:35:17  cfmoro
+# create encounter from EMR tree. Added FIXME for refactor duplicated code
+#
+# Revision 1.34  2005/06/29 12:53:50  cfmoro
 # Added create issue menu item to root node
 #
 # Revision 1.33  2005/06/23 14:59:43  ncq
