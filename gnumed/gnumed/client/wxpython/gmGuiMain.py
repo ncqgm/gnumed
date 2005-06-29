@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.203 2005-06-28 16:48:45 cfmoro Exp $
-__version__ = "$Revision: 1.203 $"
+# $Id: gmGuiMain.py,v 1.204 2005-06-29 15:08:47 ncq Exp $
+__version__ = "$Revision: 1.204 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -24,7 +24,7 @@ import sys, time, os, cPickle, zlib
 from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets
+from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea
 from Gnumed.business import gmPerson
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.pycommon.gmPyCompat import *
@@ -65,6 +65,7 @@ ID_EXPORT_EMR_JOURNAL = wx.wxNewId()
 ID_EXPORT_MEDISTAR = wx.wxNewId()
 ID_CREATE_PATIENT = wx.wxNewId()
 ID_SEARCH_EMR = wx.wxNewId()
+ID_ADD_HEALTH_ISSUE_TO_EMR = wx.wxNewId()
 #==============================================================================
 
 icon_serpent = \
@@ -244,7 +245,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		# menu "Patient"
 		menu_patient = wx.wxMenu()
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
-		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.OnCreatePatient)
+		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
 		self.mainmenu.Append(menu_patient, '&Patient')
 		self.__gb['main.patientmenu'] = menu_patient
 
@@ -252,13 +253,6 @@ class gmTopLevelFrame(wx.wxFrame):
 		menu_emr = wx.wxMenu()
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
-		# - search
-		menu_emr.Append (
-			ID_SEARCH_EMR,
-			_('Search'),
-			_('Search for data in the EMR of the active patient')
-		)
-		wx.EVT_MENU(self, ID_SEARCH_EMR, self.__on_search_emr)
 		# - submenu "export as"
 		menu_emr_export = wx.wxMenu()
 		menu_emr.AppendMenu(wx.wxNewId(), _('Export as ...'), menu_emr_export)
@@ -287,6 +281,24 @@ class gmTopLevelFrame(wx.wxFrame):
 		menu_emr_show = wx.wxMenu()
 		menu_emr.AppendMenu(wx.wxNewId(), _('Show as ...'), menu_emr_show)
 		self.__gb['main.emr_showmenu'] = menu_emr_show
+		# - draw a line
+		menu_emr.AppendSeparator()
+		# - search
+		menu_emr.Append (
+			ID_SEARCH_EMR,
+			_('Search'),
+			_('Search for data in the EMR of the active patient')
+		)
+		wx.EVT_MENU(self, ID_SEARCH_EMR, self.__on_search_emr)
+		# - add health issue
+		menu_emr.Append (
+			ID_ADD_HEALTH_ISSUE_TO_EMR,
+			_('Add health issue (pHx item)'),
+			_('Add a health issue (pHx item) to the EMR of the active patient')
+		)
+		wx.EVT_MENU(self, ID_ADD_HEALTH_ISSUE_TO_EMR, self.__on_add_health_issue)
+		# - draw a line
+		menu_emr.AppendSeparator()
 
 		# menu "View" ---------------------------
 #		self.menu_view = wx.wxMenu()
@@ -370,6 +382,29 @@ class gmTopLevelFrame(wx.wxFrame):
 		"""
 		gmEMRBrowser.export_emr_to_ascii(parent=self)
 	#----------------------------------------------
+	def __on_add_health_issue(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			gmGuiHelpers.gm_beep_statustext(_('Cannot add health issue. No active patient.'), gmLog.lErr)
+			return False
+		ea = gmEMRStructWidgets.cHealthIssueEditArea (
+			parent = self,
+			id = -1,
+			style = wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
+		)
+		popup = gmEditArea.cEditAreaPopup (
+			parent = None,
+			id = -1,
+			title = _('Add health issue/pHx item'),
+			style = wx.wxCENTRE | wx.wxSTAY_ON_TOP | wx.wxCAPTION | wx.wxSUNKEN_BORDER,
+			edit_area = ea
+		)
+		result = popup.ShowModal()
+#		if result == wx.wxID_OK:
+#			summary = self.__popup.get_summary()
+#			wx.wxCallAfter(self.Embed, summary)
+
+	#----------------------------------------------
 	def __on_search_emr(self, event):
 		print "lacking code to search EMR"
 	#----------------------------------------------
@@ -381,8 +416,10 @@ class gmTopLevelFrame(wx.wxFrame):
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
-		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+		# FIXME: make configurable
+		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export')))
 		ident = pat.get_identity()
+		# FIXME: make configurable
 		fname = '%s-%s_%s.txt' % (_('emr-journal'), ident['lastnames'], ident['firstnames'])
 		dlg = wx.wxFileDialog (
 			parent = self,
@@ -395,25 +432,29 @@ class gmTopLevelFrame(wx.wxFrame):
 		choice = dlg.ShowModal()
 		fname = dlg.GetPath()
 		dlg.Destroy()
-		if choice == wx.wxID_OK:
-			_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
-			# instantiate exporter
-			wx.wxBeginBusyCursor()
-			exporter = gmPatientExporter.cEMRJournalExporter()
-			successful, fname = exporter.export_to_file(filename = fname)
-			wx.wxEndBusyCursor()
-			if not successful:
-				gmGuiHelpers.gm_show_error (
-					_('Error exporting patient EMR as chronological journal.'),
-					_('EMR journal export'),
-					gmLog.lErr
-				)
-			else:
-				gmGuiHelpers.gm_show_info (
-					_('Successfully exported EMR as chronological journal into file\n\n[%s]') % fname,
-					_('EMR journal export'),
-					gmLog.lInfo
-				)
+		if choice != wx.wxID_OK:
+			return True
+
+		_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
+		# instantiate exporter
+		wx.wxBeginBusyCursor()
+		exporter = gmPatientExporter.cEMRJournalExporter()
+		successful, fname = exporter.export_to_file(filename = fname)
+		wx.wxEndBusyCursor()
+		if not successful:
+			gmGuiHelpers.gm_show_error (
+				_('Error exporting patient EMR as chronological journal.'),
+				_('EMR journal export'),
+				gmLog.lErr
+			)
+			return False
+
+#		gmGuiHelpers.gm_show_info (
+#				_('Successfully exported EMR as chronological journal into file\n\n[%s]') % fname,
+#				_('EMR journal export'),
+#				gmLog.lInfo
+#			)
+		return True
 	#----------------------------------------------
 	def __on_export_for_medistar(self, event):
 		# sanity checks
@@ -423,8 +464,10 @@ class gmTopLevelFrame(wx.wxFrame):
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*.*)|*.*" % (_("text files"), _("all files"))
-		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
+		# FIXME: make configurable
+		aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed','export')))
 		ident = pat.get_identity()		
+		# FIXME: make configurable
 		fname = '%s-%s-%s-%s-%s.txt' % (
 			'Medistar-MD',
 			time.strftime('%Y-%m-%d',time.localtime()),
@@ -434,7 +477,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		)
 		dlg = wx.wxFileDialog (
 			parent = self,
-			message = _("Save patient's EMR for Medistar as..."),
+			message = _("Save patient's EMR for MEDISTAR as..."),
 			defaultDir = aDefDir,
 			defaultFile = fname,
 			wildcard = aWildcard,
@@ -443,27 +486,32 @@ class gmTopLevelFrame(wx.wxFrame):
 		choice = dlg.ShowModal()
 		fname = dlg.GetPath()
 		dlg.Destroy()
-		if choice == wx.wxID_OK:
-			_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
-			# instantiate exporter		
-			wx.wxBeginBusyCursor()
-			exporter = gmPatientExporter.cMedistarSOAPExporter()
-			successful, fname = exporter.export_to_file(filename=fname)
-			wx.wxEndBusyCursor()
-			if not successful:
-				gmGuiHelpers.gm_show_error (
-					'Fehler beim Exportieren der heutigen Karteieinträge für Medistar.',
-					'Medistar-Export',
-					gmLog.lErr
-				)
-			else:
-				gmGuiHelpers.gm_show_info (
-					'Heutige Karteieinträge erfolgreich für Medistar exportiert. Datei:\n\n[%s]' % fname,
-					'Medistar-Export',
-					gmLog.lInfo
-				)
+		if choice != wx.wxID_OK:
+			return False
+
+		_log.Log(gmLog.lData, 'exporting EMR journal to [%s]' % fname)
+		# instantiate exporter		
+		wx.wxBeginBusyCursor()
+		exporter = gmPatientExporter.cMedistarSOAPExporter()
+		successful, fname = exporter.export_to_file(filename=fname)
+		wx.wxEndBusyCursor()
+		if not successful:
+			gmGuiHelpers.gm_show_error (
+				_('Error exporting progress notes of current encounter for MEDISTAR import.'),
+				_('MEDISTAR progress notes export'),
+				gmLog.lErr
+			)
+			return False
+
+#		else:
+#			gmGuiHelpers.gm_show_info (
+#				'Heutige Karteieinträge erfolgreich für Medistar exportiert. Datei:\n\n[%s]' % fname,
+#				'Medistar-Export',
+#				gmLog.lInfo
+#			)
+		return True
 	#----------------------------------------------
-	def OnCreatePatient(self, event):
+	def __on_create_patient(self, event):
 		"""
 		Launch create patient wizard
 		"""
@@ -505,7 +553,8 @@ class gmTopLevelFrame(wx.wxFrame):
 		gmPG.ConnectionPool().StopListeners()
 		try:
 			gmGuiBroker.GuiBroker()['scripting listener'].tell_thread_to_stop()
-		except KeyError: pass
+		except KeyError:
+			pass
 		except:
 			_log.LogException('cannot stop scripting listener thread', sys.exc_info(), verbose=0)
 		self.timer.Stop()
@@ -553,6 +602,7 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		title = self.__title_template % (_whoami.get_staff_name(), _whoami.get_workplace(), self.title_activity, pat_str)
 		self.SetTitle(title)
+	#----------------------------------------------
 	#----------------------------------------------
 	def SetupStatusBar(self):
 		sb = self.CreateStatusBar(2, wx.wxST_SIZEGRIP)
@@ -820,7 +870,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.203  2005-06-28 16:48:45  cfmoro
+# Revision 1.204  2005-06-29 15:08:47  ncq
+# - some cleanup
+# - allow adding past history item from EMR menu
+#
+# Revision 1.203  2005/06/28 16:48:45  cfmoro
 # File dialog for journal and medistar EMR export
 #
 # Revision 1.202  2005/06/23 15:00:11  ncq
