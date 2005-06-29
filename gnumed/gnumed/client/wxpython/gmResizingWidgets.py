@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.28 2005-06-12 22:17:55 ncq Exp $
-__version__ = "$Revision: 1.28 $"
+# $Id: gmResizingWidgets.py,v 1.29 2005-06-29 15:11:59 ncq Exp $
+__version__ = "$Revision: 1.29 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -379,7 +379,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		self.__parent = parent
 
 		self.__popup_keywords = {}
-		self.__popup = None
+#		self.__popup = None
 		# FIXME: delay configurable
 		self.__timer = gmTimer.cTimer (
 			callback = self._on_timer_fired,
@@ -802,7 +802,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		top_parent = wx.wxGetTopLevelParent(self)
 		best_pos = top_parent.ScreenToClient(screen_pos)
 		try:
-			self.__popup = create_widget (
+			popup = create_widget (
 				parent = top_parent,
 				pos = best_pos,
 				size = wx.wxSize(400, 300),
@@ -816,13 +816,12 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			)
 			return False
 
-		if not isinstance(self.__popup, wx.wxDialog):
+		if not isinstance(popup, wx.wxDialog):
 			gmGuiHelpers.gm_beep_statustext (
 				aMessage = _('Action [%s] on keyword [%s] is invalid.') % (create_widget, kwd)
 			)
 			_log.Log(gmLog.lErr, 'keyword [%s] triggered action [%s]' % (kwd, create_widget))
-			_log.Log(gmLog.lErr, 'the result (%s) is not a wxDialog subclass instance, however' % str(self.__popup))
-			self.__popup = None
+			_log.Log(gmLog.lErr, 'the result (%s) is not a wxDialog subclass instance, however' % str(popup))
 			return False
 
 		# display widget
@@ -830,11 +829,10 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		# FIXME: with later by calling widget_to_show.get_embed_string()
 		# FIXME: same with originator
 
-		result = self.__popup.ShowModal()
+		result = popup.ShowModal()
 		if result == wx.wxID_OK:
-			summary = self.__popup.get_summary()
+			summary = popup.get_summary()
 			wx.wxCallAfter(self.Embed, summary)
-		self.__popup = None
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -1067,7 +1065,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.28  2005-06-12 22:17:55  ncq
+# Revision 1.29  2005-06-29 15:11:59  ncq
+# - better scoping of variables
+#
+# Revision 1.28  2005/06/12 22:17:55  ncq
 # - don't attempt to pop up context lists for empty fragments
 #
 # Revision 1.27  2005/05/17 08:08:56  ncq
