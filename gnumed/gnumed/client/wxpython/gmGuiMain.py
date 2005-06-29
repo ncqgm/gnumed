@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.205 2005-06-29 18:28:33 cfmoro Exp $
-__version__ = "$Revision: 1.205 $"
+# $Id: gmGuiMain.py,v 1.206 2005-06-29 20:03:45 ncq Exp $
+__version__ = "$Revision: 1.206 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -398,9 +398,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		popup = gmEditArea.cEditAreaPopup (
 			parent = None,
 			id = -1,
-			title = _('Add health issue/pHx item'),			
-			size = (200,200),
-			pos = wx.wxDefaultPosition,
+			title = _('Add health issue (pHx item)'),
 			style = wx.wxCENTRE | wx.wxSTAY_ON_TOP | wx.wxCAPTION | wx.wxSUNKEN_BORDER,
 			name ='',
 			edit_area = ea
@@ -876,7 +874,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.205  2005-06-29 18:28:33  cfmoro
+# Revision 1.206  2005-06-29 20:03:45  ncq
+# - cleanup
+#
+# Revision 1.205  2005/06/29 18:28:33  cfmoro
 # Minor fix
 #
 # Revision 1.204  2005/06/29 15:08:47  ncq
