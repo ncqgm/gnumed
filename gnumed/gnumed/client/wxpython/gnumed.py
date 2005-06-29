@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.78 $"
+__version__ = "$Revision: 1.79 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -56,8 +56,8 @@ __license__ = "GPL (details at http://www.gnu.org)"
 import sys, os, os.path, signal
 
 if __name__ != "__main__":
-	print "This shouldn't be used as a module !"
-	print "------------------------------------"
+	print "GNUmed startup: This should not be used as a module !"
+	print "-----------------------------------------------------"
 	print __doc__
 	sys.exit(1)
 #==========================================================
@@ -112,7 +112,7 @@ def setup_logging():
 
 	# debug level logging ?
 	if gmCLI.has_arg("--debug"):
-		print "Activating verbose log level for debugging."
+		print "GNUmed startup: Activating verbose log level for debugging."
 		_log.SetAllLogLevels(gmLog.lData)
 	elif gmCLI.has_arg ("--quiet"):
 		_log.SetAllLogLevels(gmLog.lErr)
@@ -173,13 +173,13 @@ def setup_cfg_file():
 			try:
 				f = gmCfg.cCfgFile()
 			except:
-				print "Cannot open or create config file by any means."
-				print "Please see the log for details."
+				print "GNUmed startup: Cannot open or create config file by any means."
+				print "GNUmed startup: Please see the log for details."
 				_log.LogException('unhandled exception', sys.exc_info(), verbose=0)
 				sys.exit(0)
 			gmCfg.gmDefCfgFile = f
 		else:
-			print "Cannot open or create config file by any means.\nPlease see the log for details."
+			print "GNUmed startup: Cannot open or create config file by any means.\nPlease see the log for details."
 			sys.exit(0)
 	global _cfg
 	_cfg = gmCfg.gmDefCfgFile
@@ -223,7 +223,7 @@ def get_resource_dir():
 	  - this is the no-brainer for DOS/Windows
 	  - it also allows running from a local CVS copy
 	"""
-	print "Determining GnuMed resource directory ..."
+	print "GNUmed startup: Determining GnuMed resource directory ..."
 	# config file
 	candidate = _cfg.get('client', 'resource directory')
 	if candidate not in [None, '']:
@@ -258,9 +258,9 @@ def get_resource_dir():
 
 	print '- resource path [%s] not accessible' % tmp
 	print ''
-	print 'Something is really rotten here. We better'
-	print 'fail gracefully ! Please ask your administrator'
-	print 'for help.'
+	print 'GNUmed startup: Something is really rotten here. We better'
+	print 'GNUmed startup: fail gracefully ! Please ask your administrator'
+	print 'GNUmed startup: for help.'
 
 	return None
 #----------------------------------------------------------
@@ -289,7 +289,7 @@ def get_base_dir():
 		  - this is the no-brainer for DOS/Windows
 		  - it also allows running from a local CVS copy
 	"""
-	print "Determining GnuMed base directory ..."
+	print "GNUmed startup: Determining GnuMed base directory ..."
 	# environment variable
 	if os.environ.has_key('GNUMED_DIR'):
 		tmp = os.environ['GNUMED_DIR']
@@ -326,9 +326,9 @@ def get_base_dir():
 
 	print '- application installation path [%s] not accessible' % tmp
 	print ''
-	print 'Something is really rotten here. We better'
-	print 'fail gracefully ! This may be one of those'
-	print 'cases where setting GNUMED_DIR might help.'
+	print 'GNUmed startup: Something is really rotten here. We better'
+	print 'GNUmed startup: fail gracefully ! This may be one of those'
+	print 'GNUmed startup: cases where setting GNUMED_DIR might help.'
 
 	return None
 
@@ -425,7 +425,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.78  2005-06-23 15:00:53  ncq
+# Revision 1.79  2005-06-29 15:11:05  ncq
+# - make startup messages a bit more consistent
+#
+# Revision 1.78  2005/06/23 15:00:53  ncq
 # - log default string encoding
 #
 # Revision 1.77  2005/04/26 20:02:48  ncq
