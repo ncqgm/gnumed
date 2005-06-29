@@ -1,6 +1,6 @@
 """gmDemographics
 
- This panel will hold all the patients details
+Widgets dealing with patient demographics.
 
  @copyright: authors
  @dependencies: wxPython (>= version 2.3.1)
@@ -8,13 +8,13 @@
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.53 2005-06-28 14:38:21 cfmoro Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmDemographicsWidgets.py,v 1.54 2005-06-29 15:03:32 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 # standard library
-import cPickle, zlib, shutil, time, string, sys, os
+import time, string, sys
 
 # 3rd party
 import mx.DateTime as mxDT
@@ -2853,7 +2853,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.53  2005-06-28 14:38:21  cfmoro
+# Revision 1.54  2005-06-29 15:03:32  ncq
+# - some cleanup
+#
+# Revision 1.53  2005/06/28 14:38:21  cfmoro
 # Integration fixes
 #
 # Revision 1.52  2005/06/28 14:12:55  cfmoro
