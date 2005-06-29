@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.10 2005-06-28 17:14:56 cfmoro Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmEMRStructWidgets.py,v 1.11 2005-06-29 15:06:38 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -35,7 +35,7 @@ class cHealthIssueEditArea(gmEditArea.cEditArea2):
 
 	They correspond to Past History items.
 	"""
-	def __init__(self, parent, id, pos, size, style):
+	def __init__(self, parent, id, pos=wx.wxDefaultPosition, size=wx.wxDefaultSize, style=wx.wxNO_BORDER):
 		gmEditArea.cEditArea2.__init__(self, parent, id, pos, size, style)
 	#----------------------------------------------------
 	# public API
@@ -876,7 +876,10 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.10  2005-06-28 17:14:56  cfmoro
+# Revision 1.11  2005-06-29 15:06:38  ncq
+# - defaults for edit area popup/editarea2 __init__
+#
+# Revision 1.10  2005/06/28 17:14:56  cfmoro
 # Auto size flag causes the text not being displayed
 #
 # Revision 1.9  2005/06/20 13:03:38  cfmoro
