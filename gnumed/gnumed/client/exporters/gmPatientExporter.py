@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.55 2005-06-20 13:03:38 cfmoro Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmPatientExporter.py,v 1.56 2005-06-30 11:30:10 cfmoro Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -523,16 +523,20 @@ class cEmrExport:
         emr = self.__patient.get_clinical_record()
         first_encounter = emr.get_first_encounter(issue_id = issue['id'])
         last_encounter = emr.get_last_encounter(issue_id = issue['id'])
-        # dump info
-        txt = _(
-            '%sStarted: %s\n'
-            '%sLast treated: %s\n'
-            '%sDescription: %s\n'
-        ) % (
-            left_margin * ' ', first_encounter['started'].Format('%Y-%m-%d %H:%M'),
-            left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'),
-            left_margin * ' ', issue['description']
-        )
+        if first_encounter is None and last_encounter is None:
+            # newly created episode
+            txt = left_margin * ' ' + _('The issue has not any associated encounters yet.')
+        else:
+            # dump info
+            txt = _(
+                '%sStarted: %s\n'
+                '%sLast treated: %s\n'
+                '%sDescription: %s\n'
+            ) % (
+                left_margin * ' ', first_encounter['started'].Format('%Y-%m-%d %H:%M'),
+                left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'),
+                left_margin * ' ', issue['description']
+            )
         return txt
     #--------------------------------------------------------  
     def get_episode_info(self, episode, left_margin = 0):
@@ -591,7 +595,7 @@ class cEmrExport:
                 encounters = [encounter['pk_encounter']],
                 soap_cats = [soap_cat],
                 exclude_rfe_aoe = True
-            )
+            )            
             if soap_cat_narratives is None:
 				continue
 
@@ -599,6 +603,7 @@ class cEmrExport:
                 continue
 
             for soap_entry in soap_cat_narratives:
+                print soap_entry
                 narr = soap_entry['narrative'].replace (
                     '\n',
                     '\n' + (' ' * (left_margin+3))
@@ -1101,7 +1106,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.55  2005-06-20 13:03:38  cfmoro
+# Revision 1.56  2005-06-30 11:30:10  cfmoro
+# Minor fix on issue info when no encounters attached
+#
+# Revision 1.55  2005/06/20 13:03:38  cfmoro
 # Relink encounter to another episode
 #
 # Revision 1.54  2005/06/12 22:09:39  ncq
