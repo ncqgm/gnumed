@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.57 2005-06-30 11:42:05 cfmoro Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmPatientExporter.py,v 1.58 2005-06-30 16:11:55 cfmoro Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -479,13 +479,14 @@ class cEmrExport:
             return
         emr = self.__patient.get_clinical_record()
         unlinked_episodes = emr.get_episodes(issues = [None])
-        h_issues = emr.get_health_issues(id_list = self.__constraints['issues'])
+        h_issues = []
+        h_issues.extend(emr.get_health_issues(id_list = self.__constraints['issues']))
         root_node = emr_tree.GetRootItem()
         # build the tree
         # unlinked episodes
         if len(unlinked_episodes) > 0:
             h_issues.insert(0, {'description': _('episodes w/o health issue'), 'id':None})
-        # existing issues
+        # existing issues        
         for a_health_issue in h_issues:
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
             emr_tree.SetPyData(issue_node, a_health_issue)
@@ -640,7 +641,8 @@ class cEmrExport:
             self.__target.write(self.get_item_summary(an_item, 3))
                 
         # begin with the tree
-        h_issues = emr.get_health_issues(id_list = self.__constraints['issues'])
+        h_issues = []
+        h_issues.extend(emr.get_health_issues(id_list = self.__constraints['issues']))
         # unlinked episodes
         unlinked_episodes = emr.get_episodes(issues = [None])
         if len(unlinked_episodes) > 0:
@@ -1105,7 +1107,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.57  2005-06-30 11:42:05  cfmoro
+# Revision 1.58  2005-06-30 16:11:55  cfmoro
+# Bug fix: multiple episode w/o issue when refreshing tree
+#
+# Revision 1.57  2005/06/30 11:42:05  cfmoro
 # Removed debug print
 #
 # Revision 1.56  2005/06/30 11:30:10  cfmoro
