@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.56 2005-06-30 11:30:10 cfmoro Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmPatientExporter.py,v 1.57 2005-06-30 11:42:05 cfmoro Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -603,7 +603,6 @@ class cEmrExport:
                 continue
 
             for soap_entry in soap_cat_narratives:
-                print soap_entry
                 narr = soap_entry['narrative'].replace (
                     '\n',
                     '\n' + (' ' * (left_margin+3))
@@ -1106,7 +1105,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.56  2005-06-30 11:30:10  cfmoro
+# Revision 1.57  2005-06-30 11:42:05  cfmoro
+# Removed debug print
+#
+# Revision 1.56  2005/06/30 11:30:10  cfmoro
 # Minor fix on issue info when no encounters attached
 #
 # Revision 1.55  2005/06/20 13:03:38  cfmoro
