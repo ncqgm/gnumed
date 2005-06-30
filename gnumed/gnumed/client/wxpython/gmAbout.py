@@ -7,7 +7,7 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -80,7 +80,7 @@ class ScrollTxtWin (wxWindow):
 
 class AboutFrame (wxFrame):
 	"""
-	About GnuMed
+	About GNUmed
 	"""
 
 	icon_serpent='x\xdae\x8f\xb1\x0e\x83 \x10\x86w\x9f\xe2\x92\x1blb\xf2\x07\x96\xeaH:0\xd6\
@@ -110,7 +110,7 @@ class AboutFrame (wxFrame):
 			box.Add((0,0), 3)
 		else:
 			box.Add((0,0), 3)
-		gm_txt=wxStaticText(self, -1, _("GnuMed"))
+		gm_txt=wxStaticText(self, -1, _("GNUmed"))
 		gm_txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(gm_txt, 0, wxALIGN_CENTRE)
 
@@ -121,7 +121,7 @@ class AboutFrame (wxFrame):
 			box.Add((0,0), 4)
 		else:
 			box.Add((0,0), 4)
-		ver_txt=wxStaticText(self, -1, _("Version X.X.X brought to you by"))
+		ver_txt=wxStaticText(self, -1, _("Version 0.1 brought to you by"))
 		ver_txt.SetFont(wxFont(10, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(ver_txt, 0, wxALIGN_CENTRE)
 
@@ -166,7 +166,7 @@ if __name__ == '__main__':
 	# set up dummy app
 	class TestApp (wxApp):
 		def OnInit (self):
-			frame = AboutFrame(None, -1, "About GnuMed", size=wxSize(300, 250))
+			frame = AboutFrame(None, -1, "About GNUmed", size=wxSize(300, 250))
 			frame.Show(1)
 			return 1
 	#---------------------
@@ -176,7 +176,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.11  2005-06-21 04:57:12  rterry
+# Revision 1.12  2005-06-30 10:05:47  cfmoro
+# String corrections
+#
+# Revision 1.11  2005/06/21 04:57:12  rterry
 # fix this to run under wxPython26
 # -e.g incorrect sizer attributes
 #

@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.206 2005-06-29 20:03:45 ncq Exp $
-__version__ = "$Revision: 1.206 $"
+# $Id: gmGuiMain.py,v 1.207 2005-06-30 10:10:08 cfmoro Exp $
+__version__ = "$Revision: 1.207 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -111,9 +111,9 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		# set window title via template
 		if self.__gb['main.slave_mode']:
-			self.__title_template = _('Slave GnuMed [%s@%s] %s: %s')
+			self.__title_template = _('Slave GNUmed [%s@%s] %s: %s')
 		else:
-			self.__title_template = 'GnuMed [%s@%s] %s: %s'
+			self.__title_template = 'GNUmed [%s@%s] %s: %s'
 		self.updateTitle(anActivity = _("idle"))
 		self.__setup_platform()
 		#  let others have access, too
@@ -317,7 +317,7 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		# menu "Help"
 		self.menu_help = wx.wxMenu()
-		self.menu_help.Append(ID_ABOUT, _("About GnuMed"), "")
+		self.menu_help.Append(ID_ABOUT, _("About GNUmed"), "")
 		wx.EVT_MENU (self, ID_ABOUT, self.OnAbout)
 		self.menu_help.AppendSeparator()
 		self.__gb['main.helpmenu'] = self.menu_help
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.206  2005-06-29 20:03:45  ncq
+# Revision 1.207  2005-06-30 10:10:08  cfmoro
+# String corrections
+#
+# Revision 1.206  2005/06/29 20:03:45  ncq
 # - cleanup
 #
 # Revision 1.205  2005/06/29 18:28:33  cfmoro

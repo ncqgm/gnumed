@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.42 2005-06-12 22:17:24 ncq Exp $
-__version__ = "$Revision: 1.42 $"
+# $Id: gmPlugin.py,v 1.43 2005-06-30 10:11:51 cfmoro Exp $
+__version__ = "$Revision: 1.43 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -29,7 +29,7 @@ class cLoadProgressBar (wxProgressDialog):
 	def __init__(self, nr_plugins):
 		wxProgressDialog.__init__(
 			self,
-			title = _("GnuMed: configuring [%s] (%s plugins)") % (_whoami.get_workplace(), nr_plugins),
+			title = _("GNUmed: configuring [%s] (%s plugins)") % (_whoami.get_workplace(), nr_plugins),
 			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
 			parent = None,
@@ -387,7 +387,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.42  2005-06-12 22:17:24  ncq
+# Revision 1.43  2005-06-30 10:11:51  cfmoro
+# String corrections
+#
+# Revision 1.42  2005/06/12 22:17:24  ncq
 # - raise by menu only if activatable
 #
 # Revision 1.41  2005/03/29 07:28:20  ncq
