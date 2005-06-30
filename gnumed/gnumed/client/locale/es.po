@@ -1296,10 +1296,6 @@ msgstr "Usted debe seleccionar una página antes de que pueda moverla através"
 msgid "Any"
 msgstr "Cualquiera"
 
-#: ../pycommon/gmI18N.py:225
-msgid "%Y-%m-%d  %H:%M:%S"
-msgstr "%d-%m-Y  %H:%M:%S"
-
 #: ../wxpython/gmDateTimeInput.py:106 ../wxpython/gmDateTimeInput.py:136
 msgid "in %d weeks (a %s)"
 msgstr "dentro de %d semanas (%s)"
@@ -2651,10 +2647,6 @@ msgstr "operación realizada, "
 #: ../wxpython/gui/gmDrugDisplay.py:83
 msgid "Please enter at least three digits of the drug name."
 msgstr "Por favor, introduca al menos tres letras del nombre del medicamento."
-
-#: ../wxpython/gmDateTimeInput.py:168
-msgid "%Y-%m-%d"
-msgstr "%d-%m-%Y"
 
 #: ../wxpython/gui/gmContacts.py:104 ../wxpython/gui/gmContacts.py:135
 msgid "Organisation"
