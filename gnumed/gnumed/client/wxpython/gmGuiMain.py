@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.207 2005-06-30 10:10:08 cfmoro Exp $
-__version__ = "$Revision: 1.207 $"
+# $Id: gmGuiMain.py,v 1.208 2005-06-30 10:21:01 cfmoro Exp $
+__version__ = "$Revision: 1.208 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -259,15 +259,15 @@ class gmTopLevelFrame(wx.wxFrame):
 		#   1) ASCII
 		menu_emr_export.Append (
 			ID_EXPORT_EMR,
-			_('text document'),
-			_("export the EMR of the active patient into a text file")
+			_('Text document'),
+			_("Export the EMR of the active patient into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR, self.OnExportEMR)
 		#   2) journal format
 		menu_emr_export.Append (
 			ID_EXPORT_EMR_JOURNAL,
-			_('journal'),
-			_("export the EMR of the active patient as a chronological journal into a text file")
+			_('Journal'),
+			_("Export the EMR of the active patient as a chronological journal into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
 		#   3) Medistar import format
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.207  2005-06-30 10:10:08  cfmoro
+# Revision 1.208  2005-06-30 10:21:01  cfmoro
+# String corrections
+#
+# Revision 1.207  2005/06/30 10:10:08  cfmoro
 # String corrections
 #
 # Revision 1.206  2005/06/29 20:03:45  ncq

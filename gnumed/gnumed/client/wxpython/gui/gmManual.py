@@ -12,8 +12,8 @@ The manuals should reside where the manual_path points to.
 """
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmManual.py,v $
-# $Id: gmManual.py,v 1.25 2005-06-29 12:38:42 cfmoro Exp $
-__version__ = "$Revision: 1.25 $"
+# $Id: gmManual.py,v 1.26 2005-06-30 10:24:00 cfmoro Exp $
+__version__ = "$Revision: 1.26 $"
 __author__ = "H.Herb, I.Haywood, H.Berger, K.Hilbert"
 
 import os
@@ -154,7 +154,7 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALCONTENTS,
 			images_for_gnumed_browser16_16.getcontentsBitmap(),
-			shortHelpString=_("Gnumed Manual Contents"),
+			shortHelpString=_("GNUmed manual contents"),
 			isToggle=False
 		)
 		EVT_TOOL (tb, ID_MANUALCONTENTS, widget.OnShowDefault)
@@ -239,13 +239,16 @@ class gmManual (gmPlugin.cNotebookPluginOld):
 		tool1 = tb.AddTool(
 			ID_MANUALPRINTER,
 			images_for_gnumed_browser16_16.getprinterBitmap(),
-			shortHelpString = _("Print Manual Page"),
+			shortHelpString = _("Print manual page"),
 			isToggle=False
 		)
 		EVT_TOOL (tb, ID_MANUALPRINTER, widget.OnPrint) 
 #===========================================================
 # $Log: gmManual.py,v $
-# Revision 1.25  2005-06-29 12:38:42  cfmoro
+# Revision 1.26  2005-06-30 10:24:00  cfmoro
+# String corrections
+#
+# Revision 1.25  2005/06/29 12:38:42  cfmoro
 # Keep only functional really buttons
 #
 # Revision 1.24  2004/12/27 18:42:05  shilbert
