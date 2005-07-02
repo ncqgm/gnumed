@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.54 2005-06-29 15:03:32 ncq Exp $
-__version__ = "$Revision: 1.54 $"
+# $Id: gmDemographicsWidgets.py,v 1.55 2005-07-02 18:20:22 ncq Exp $
+__version__ = "$Revision: 1.55 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1186,7 +1186,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 			id = -1,
 			validator = gmGuiHelpers.cTextObjectValidator(required = True, only_digits = False)
 		)
-		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"))
+		self.TTC_dob.SetToolTipString(_("required: date of birth, if unknown or aliasing wanted then invent one (yyyy-mm-dd)"))
 
 		# gender
 		STT_gender = wx.StaticText(PNL_form, -1, _('Gender'))
@@ -1308,13 +1308,19 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		STT_country = wx.StaticText(PNL_form, -1, _('Country'))
 		queries = []
 		queries.append("""
-		select distinct on (code,name) code, name from (
-			select * from (						
-				select code_country as code, country as name, 1 as rank from v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
+		select distinct on (code, name) code, name from (
+--			select * from (
+				-- localized to user
+				select code_country as code, _(country) as name, 1 as rank from v_zip2data where _(country) %(fragment_condition)s and zip ilike %%(zip)s
 					union
 				select code as code, _(name) as name, 2 as rank from country where _(name) %(fragment_condition)s
+					union
+				-- non-localized
+				select code_country as code, country as name, 3 as rank from v_zip2data where country %(fragment_condition)s and zip ilike %%(zip)s
+					union
+				select code as code, name as name, 4 as rank from country where name %(fragment_condition)s
 			) as q1 order by rank, name
-		) as q2								
+--		) as q2
 		""")
 		mp = gmMatchProvider.cMatchProvider_SQL2('demographics', queries)
 		mp.setThresholds(2, 5, 15)
@@ -1516,8 +1522,10 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 		try:
 			date = mxDT.strptime(pageCtrl.TTC_dob.GetValue(), DATE_FORMAT)
 		except:
-			msg = _('Invalid date. Date format: %s ' % DATE_FORMAT)
-			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)			
+			# FIXME: un-hardcode the format in the error message
+			#msg = _('Invalid date. Date format: %s ' % DATE_FORMAT)
+			msg = _('Invalid date. Date format: %s ' % 'yyyy-mm-dd')
+			gmGuiHelpers.gm_show_error(msg, _('Invalid date'), gmLog.lErr)
 			pageCtrl.TTC_dob.SetBackgroundColour('pink')
 			pageCtrl.TTC_dob.Refresh()
 			pageCtrl.TTC_dob.SetFocus()
@@ -2853,7 +2861,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.54  2005-06-29 15:03:32  ncq
+# Revision 1.55  2005-07-02 18:20:22  ncq
+# - allow English input of country as well, regardless of locale
+#
+# Revision 1.54  2005/06/29 15:03:32  ncq
 # - some cleanup
 #
 # Revision 1.53  2005/06/28 14:38:21  cfmoro
