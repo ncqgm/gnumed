@@ -7,7 +7,7 @@
 # 30/01/03: inital version
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __author__ = "M.Bonert"
 
 from wxPython.wx import *
@@ -110,7 +110,7 @@ class AboutFrame (wxFrame):
 			box.Add((0,0), 3)
 		else:
 			box.Add((0,0), 3)
-		gm_txt=wxStaticText(self, -1, _("GNUmed"))
+		gm_txt=wxStaticText(self, -1, "GNUmed")
 		gm_txt.SetFont(wxFont(30, wxSWISS, wxNORMAL, wxNORMAL))
 		box.Add(gm_txt, 0, wxALIGN_CENTRE)
 
@@ -176,7 +176,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.12  2005-06-30 10:05:47  cfmoro
+# Revision 1.13  2005-07-02 18:19:01  ncq
+# - one more GnuMed -> GNUmed
+#
+# Revision 1.12  2005/06/30 10:05:47  cfmoro
 # String corrections
 #
 # Revision 1.11  2005/06/21 04:57:12  rterry
