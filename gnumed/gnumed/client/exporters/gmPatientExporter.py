@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.58 2005-06-30 16:11:55 cfmoro Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmPatientExporter.py,v 1.59 2005-07-02 18:18:26 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -485,7 +485,10 @@ class cEmrExport:
         # build the tree
         # unlinked episodes
         if len(unlinked_episodes) > 0:
-            h_issues.insert(0, {'description': _('episodes w/o health issue'), 'id':None})
+            h_issues.insert(0, {
+                'description': _('episodes w/o health issue'),
+                'id': None
+            })
         # existing issues        
         for a_health_issue in h_issues:
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
@@ -514,54 +517,82 @@ class cEmrExport:
         for an_item in self.__filtered_items:
             txt += self.get_item_summary(an_item, left_margin)
         return txt                      
-    #--------------------------------------------------------  
+    #--------------------------------------------------------
     def get_issue_info(self, issue=None, left_margin=0):
+        """Dumps health issue specific data
         """
-        Dumps health specific data
-                                                              
-        """
-        # fetch first and last encounters for the issue
+        # dummy issue for unlinked episodes ?
+        # FIXME: turn into "proper" dummy episode
+        if issue['id'] is None:
+            txt = _('Active health issue "%s"') % issue['description']
+            return txt
+
+        if issue['is_active']:
+            status = _('Active health issue')
+        else:
+            status = _('Inactive health issue')
+        txt = _('%s "%s" noted at age %s\n') % (
+            status,
+            issue['description'],
+            issue['age_noted']
+        )
+        if issue['clinically_relevant']:
+            txt += _('clinically relevant: yes\n')
+        else:
+            txt += _('clinically relevant: no\n')
+        if issue['is_cause_of_death']:
+            txt += _('health issue caused death of patient\n')
+        if issue['is_confidential']:
+            txt += _('\n***** CONFIDENTIAL *****\n\n')
+
         emr = self.__patient.get_clinical_record()
+        epis = emr.get_episodes(issues=[issue['id']])
+        if epis is None:
+            txt += left_margin * ' ' + _('Error retrieving episodes for health issue\n%s') % str(issue)
+            return txt
+        no_epis = len(epis)
+        if no_epis == 0:
+            txt += left_margin * ' ' + _('There are no episodes for this health issue.\n')
+            return txt
+
+        txt += _('%sEpisodes: %s ') % (left_margin * ' ', no_epis)
         first_encounter = emr.get_first_encounter(issue_id = issue['id'])
         last_encounter = emr.get_last_encounter(issue_id = issue['id'])
-        if first_encounter is None and last_encounter is None:
-            # newly created episode
-            txt = left_margin * ' ' + _('The issue has not any associated encounters yet.')
-        else:
-            # dump info
-            txt = _(
-                '%sStarted: %s\n'
-                '%sLast treated: %s\n'
-                '%sDescription: %s\n'
-            ) % (
-                left_margin * ' ', first_encounter['started'].Format('%Y-%m-%d %H:%M'),
-                left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'),
-                left_margin * ' ', issue['description']
-            )
+        if first_encounter is None or last_encounter is None:
+            txt += left_margin * ' ' + _('\n\nThere are no encounters for this health issue.\n')
+            return txt
+        txt += '(%s - %s)\n' % (first_encounter['started'].Format('%m/%Y'), last_encounter['last_affirmed'].Format('%m/%Y'))
+        txt += _('%sLast treated: %s\n\n') % (left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'))
+        # FIXME: list each episode with range of time
         return txt
-    #--------------------------------------------------------  
-    def get_episode_info(self, episode, left_margin = 0):
+    #--------------------------------------------------------
+    def get_episode_summary (self, episode, left_margin = 0):
+        """Dumps episode specific data
         """
-        Dumps episode specific data
-        """
-        # fetch first and last encounters for the issue
         emr = self.__patient.get_clinical_record()
+        encs = emr.get_encounters(episodes=[episode['pk_episode']], issues=[episode['pk_health_issue']])
+        if encs is None:
+            txt = left_margin * ' ' + _('Error retrieving encounters for episode\n%s') % str(episode)
+            return txt
+        no_encs = len(encs)
+        if no_encs == 0:
+            txt = left_margin * ' ' + _('There are no encounters for this episode.')
+            return txt
+        if episode['episode_open']:
+            status = _('Open episode')
+        else:
+            status = _('Closed episode')
         first_encounter = emr.get_first_encounter(episode_id = episode['pk_episode'])
         last_encounter = emr.get_last_encounter(episode_id = episode['pk_episode'])
-        if first_encounter is None and last_encounter is None:
-            # newly created episode
-            txt = left_margin * ' ' + _('The episode has not any associated encounters yet.')
-        else:
-            # dump info
-            txt = _(
-                '%sStarted: %s\n'
-                '%sLast treated: %s\n'
-                '%sDescription: %s\n'
-            ) % (
-                left_margin * ' ', first_encounter['started'].Format('%Y-%m-%d %H:%M'),
-                left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'),
-                left_margin * ' ', episode['description']
-            )
+        txt = _(
+            '%s%s "%s"\n'
+            '%sEncounters: %s (%s - %s)\n'
+            '%sLast worked on: %s\n'
+        ) % (
+            left_margin * ' ', status, episode['description'],
+            left_margin * ' ', no_encs, first_encounter['started'].Format('%m/%Y'), last_encounter['last_affirmed'].Format('%m/%Y'),
+            left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M')
+        )
         return txt
     #--------------------------------------------------------
     def get_encounter_info(self, episode, encounter, left_margin = 0):
@@ -576,8 +607,8 @@ class cEmrExport:
             encounter['l10n_type']
         )
         if (encounter['description'] is not None) and (len(encounter['description']) > 0):
-            txt += ' "%s"' % encounter['description']
-        txt += '\n'
+            txt += ' (%s)' % encounter['description']
+        txt += '\n\n'
         # rfe
         rfes = encounter.get_rfes()
         for rfe in rfes:
@@ -1055,6 +1086,8 @@ def run():
         usage()
     export_tool = cEmrExport(parse_constraints(), outFile)
 
+    export_tool.get_episode_summary()
+
     # More variable initializations
     patient = None
     patient_id = None
@@ -1107,7 +1140,11 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.58  2005-06-30 16:11:55  cfmoro
+# Revision 1.59  2005-07-02 18:18:26  ncq
+# - improve EMR tree right side info pane according to user
+#   testing and ideas gleaned from TransHIS
+#
+# Revision 1.58  2005/06/30 16:11:55  cfmoro
 # Bug fix: multiple episode w/o issue when refreshing tree
 #
 # Revision 1.57  2005/06/30 11:42:05  cfmoro
