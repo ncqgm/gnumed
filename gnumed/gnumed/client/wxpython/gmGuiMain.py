@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.208 2005-06-30 10:21:01 cfmoro Exp $
-__version__ = "$Revision: 1.208 $"
+# $Id: gmGuiMain.py,v 1.209 2005-07-02 18:21:36 ncq Exp $
+__version__ = "$Revision: 1.209 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -357,7 +357,7 @@ class gmTopLevelFrame(wx.wxFrame):
 	#----------------------------------------------
 	def OnAbout(self, event):
 		from Gnumed.wxpython import gmAbout
-		gmAbout = gmAbout.AboutFrame(self, -1, _("About GnuMed"), size=wx.wxSize(300, 250), style = wx.wxMAXIMIZE_BOX)
+		gmAbout = gmAbout.AboutFrame(self, -1, _("About GNUmed"), size=wx.wxSize(300, 250), style = wx.wxMAXIMIZE_BOX)
 		gmAbout.Centre(wx.wxBOTH)
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
@@ -874,7 +874,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.208  2005-06-30 10:21:01  cfmoro
+# Revision 1.209  2005-07-02 18:21:36  ncq
+# - GnuMed -> GNUmed
+#
+# Revision 1.208  2005/06/30 10:21:01  cfmoro
 # String corrections
 #
 # Revision 1.207  2005/06/30 10:10:08  cfmoro
