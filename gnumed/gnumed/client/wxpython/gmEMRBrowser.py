@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.35 2005-06-29 18:35:17 cfmoro Exp $
-__version__ = "$Revision: 1.35 $"
+# $Id: gmEMRBrowser.py,v 1.36 2005-07-02 18:20:52 ncq Exp $
+__version__ = "$Revision: 1.36 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -223,25 +223,17 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 
 		# update displayed text
 		if isinstance(sel_item_obj, (gmEMRStructItems.cHealthIssue, types.DictType)):
-			label = _('Health Issue')
 			txt = self.__exporter.get_issue_info(issue=sel_item_obj)
 
 		elif isinstance(sel_item_obj, gmEMRStructItems.cEpisode):
-			label = _('Episode')
-			txt = self.__exporter.get_episode_info(episode=sel_item_obj)
-
+			txt = self.__exporter.get_episode_summary(episode=sel_item_obj)
 		elif isinstance(sel_item_obj, gmEMRStructItems.cEncounter):
-			label = _('Encounter')
 			epi = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
 			txt = self.__exporter.get_encounter_info(episode=epi, encounter=sel_item_obj)
-
 		else:
-			label = _('Summary')
-			txt = self.__exporter.get_summary_info(0)
+			txt = _('Summary') + '=======\n\n' + self.__exporter.get_summary_info(0)
 
-		header = header = '%s\n%s\n\n' % (label, ('=' * len(label)))
 		self.__narr_TextCtrl.Clear()
-		self.__narr_TextCtrl.WriteText(header)
 		self.__narr_TextCtrl.WriteText(txt)
 	#--------------------------------------------------------
 	def __on_tree_item_right_clicked(self, event):
@@ -485,7 +477,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		popup = gmEditArea.cEditAreaPopup (
 			parent = None,
 			id = -1,
-			title = _('Add health issue/pHx item'),			
+			title = _('Add health issue (pHx item)'),
 			size = (200,200),
 			pos = wx.wxDefaultPosition,
 			style = wx.wxCENTRE | wx.wxSTAY_ON_TOP | wx.wxCAPTION | wx.wxSUNKEN_BORDER,
@@ -493,228 +485,6 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			edit_area = ea
 		)
 		result = popup.ShowModal()
-#================================================================
-class gmPopupMenuEMRBrowser(wx.wxMenu):
-	"""
-	Popup menu for the EMR tree
-	"""
-	
-	#--------------------------------------------------------
-	def __init__(self , browser):
-		
-		wx.wxMenu.__init__(self)
-		
-		# menu items ids
-		self.ID_NEW_ENCOUNTER=1	
-		self.ID_EDIT_ENCOUNTER_NOTES=2
-		self.ID_NEW_HEALTH_ISSUE=3
-		self.ID_EPISODE_EDITOR=4
-		
-		# target widget
-		self.__browser = browser
-		self.__sel_item_obj = None
-		
-		# configure event handling
-		self.__register_interests()
-
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		"""
-		Configures enabled event signals
-		"""
-		# wx.wxPython events
-		wx.EVT_MENU(self.__browser, self.ID_NEW_HEALTH_ISSUE , self.__on_new_health_issue)
-#		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR, self._on_episode_editor)
-#		wx.EVT_MENU(self.__browser, self.ID_EPISODE_EDITOR, self.__browser.edit_episode)
-		wx.EVT_MENU(self.__browser, self.ID_NEW_ENCOUNTER , self.__on_new_encounter)
-		wx.EVT_MENU(self.__browser, self.ID_EDIT_ENCOUNTER_NOTES , self.__on_edit_encounter_notes)
-
-	#--------------------------------------------------------
-	def __on_new_health_issue(self, event):
-		"""
-		On new health issue menu item selection: create a new health issue
-		"""
-		msg = _('We are lacking code to create a new health issue yet.')
-		gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening health issue editor'))
-	
-	#--------------------------------------------------------
-	def _on_episode_editor(self, event):
-		"""
-		On new episode menu item selection: create a new episode
-		"""
-		# obtain pk for the target health issue
-		pk_issue = None
-		if (isinstance(self.__sel_item_obj, gmEMRStructItems.cEpisode)):
-			pk_issue = self.__sel_item_obj['pk_health_issue']
-
-		elif (isinstance(self.__sel_item_obj, gmEMRStructItems.cHealthIssue)):
-			pk_issue = self.__sel_item_obj['id']
-
-		self.__browser.SetCustomRightWidget(gmEMRStructWidgets.cEpisodeEditor(self.__browser, -1, pk_issue))
-		
-		#episode_selector = gmEMRStructWidgets.cEpisodeEditorDlg (
-		#	None,
-		#	-1,
-		#	_('Create/Edit episode'),
-		#	pk_health_issue = pk_issue
-		#)
-		#retval = episode_selector.ShowModal()
-		# FIXME refresg only if an episode was created/updated
-		#self.__browser.refresh_tree()
-		#if retval == gmEMRStructWidgets.dialog_OK:
-		#	# FIXME refresh only if episode selector action button was performed
-		#	print "would be refreshing emr tree now"
-		#	self.__browser.refresh_tree()
-		#elif retval == gmEMRStructWidgets.dialog_CANCELLED:
-		#	print 'User canceled'
-		#	return False
-		#else:
-		#	raise Exception('Invalid dialog return code [%s]' % retval)
-		#episode_selector.Destroy() # finally destroy it when finished.
-		# FIXME: ensure visible the problem's episodes
-		
-	#--------------------------------------------------------
-	def __on_new_encounter(self, event):
-		"""
-		On new encounter menu item selection: create a new encounter
-		"""		
-		msg = _('We are lacking code to create a new encounter yet.')
-		gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = _('opening encounter editor'))
-		
-	#--------------------------------------------------------
-	def __on_edit_encounter_notes(self, event):
-		"""
-		On new edit encounter notes menu item selection: edit encounter's soap notes
-		"""
-		emr = gmPerson.gmCurrentPatient().get_clinical_record()
-		encounter = self.__sel_item_obj
-		item = self.__browser.get_item_parent(self.__browser.get_selection())
-		episode = self.__emr_tree.GetPyData(item)
-		narrative = self.__get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
-		problem = emr.get_problems(issues = [episode['pk_health_issue']], episodes=[episode['pk_episode']])[0]
-		self.__browser.SetCustomRightWidget(gmSOAPWidgets.cResizingSoapPanel(self.__browser, problem = problem,
-		input_defs = narrative))
-				
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __get_narrative(self, pk_encounter=None, pk_health_issue = None, default_labels=None):
-		"""
-		Retrieve the soap editor input lines definitions built from
-		all the narratives for the given issue along a specific
-		encounter.
-		
-		@param pk_health_issue The id of the health issue to obtain the narratives for.
-		@param pk_health_issue An integer instance
-
-		@param pk_encounter The id of the encounter to obtain the narratives for.
-		@type A gmEMRStructItems.cEncounter instance.
-
-		@param default_labels: The user customized labels for each
-		soap category.
-		@type default_labels: A dictionary instance which keys are
-		soap categories.
-		"""
-		
-		# custom labels
-		if default_labels is None:
-			default_labels = {
-				's': _('History Taken'),
-				'o': _('Findings'),
-				'a': _('Assessment'),
-				'p': _('Plan')
-		}		
-		
-		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_clinical_record()
-		soap_lines = []
-		# for each soap cat
-		for soap_cat in gmSOAPimporter.soap_bundle_SOAP_CATS:
-			# retrieve narrative for given problem/encounter
-			narr_items =  emr.get_clin_narrative (
-				encounters = [pk_encounter],
-				issues = [pk_health_issue],
-				soap_cats = [soap_cat]
-			)
-			for narrative in narr_items:
-				try:
-					# FIXME: add more data such as doctor sig
-					label_txt = default_labels[narrative['soap_cat']]
-				except:
-					label_txt = narrative['soap_cat']				
-				line = gmSOAPWidgets.cSOAPLineDef()
-				line.label = label_txt
-				line.text = narrative['narrative']
-				line.data['narrative instance'] = narrative
-				soap_lines.append(line)
-		return soap_lines
-		
-	#--------------------------------------------------------	
-	def __append_new_encounter_menuitem(self, episode):
-		"""
-		Adds a menu item to create a new encounter for the given episode.
-		
-		@param episode The episode to create a new encounter for.
-		@type episode A gmEMRStructItems.cEpisode instance.
-		"""		
-		self.Append(self.ID_NEW_ENCOUNTER, "Encounter editor (of episode '%s')" % episode['description'] )
-		
-	#--------------------------------------------------------		
-	def __append_new_episode_menuitem(self, health_issue):
-		"""
-		Adds a menu item to create a new episode for the given health issue.
-		
-		@param health_issue The health issue to create a new encounter for.
-		@type health_issue A gmEMRStructItems.cHealthIssue instance.
-		"""
-		self.Append(self.ID_EPISODE_EDITOR, "Episode editor (of health issue '%s')" % health_issue['description'] )
-
-	#--------------------------------------------------------
-	# public API
-	#--------------------------------------------------------		
-	def Clear(self):
-		"""
-		Clears all items from the menu
-		"""
-		for item in self.GetMenuItems():
-			self.Remove(item.GetId())
-			
-	#--------------------------------------------------------
-	def SetPopupContext(self, sel_item):
-		"""
-		Fills the menu with its items, according the selected EMR element.
-		
-		@param sel_item The selected tree item
-		@type sel_item A wxTreeItemId instance
-		"""
-		
-		# clear the menu
-		self.Clear()
-		# retrieve the EMR object associated with the selected tree item and
-		# keep cache of it		
-		self.__sel_item_obj = self.__browser.get_EMR_item(sel_item)
-		print self.__sel_item_obj
-		
-		# append menu items according the EMR struct element selection
-		if(isinstance(self.__sel_item_obj, gmEMRStructItems.cEncounter)):
-			episode = self.__browser.get_EMR_item(self.__browser.get_item_parent(self.__browser.get_selection()))
-			self.__append_new_encounter_menuitem(episode=episode)
-			self.Append(self.ID_EDIT_ENCOUNTER_NOTES, "Progress notes editor (of encounter '%s:%s')" % 
-			(self.__sel_item_obj['l10n_type'], self.__sel_item_obj['started'].Format('%Y-%m-%d')))
-			
-		elif (isinstance(self.__sel_item_obj, gmEMRStructItems.cEpisode)):
-			health_issue = self.__browser.get_EMR_item(self.__browser.get_item_parent(self.__browser.get_selection()))
-			self.__append_new_episode_menuitem(health_issue=health_issue)
-			self.__append_new_encounter_menuitem(episode=self.__browser.get_EMR_item(sel_item) )
-			
-		elif (isinstance(self.__sel_item_obj, gmEMRStructItems.cHealthIssue)):
-			self.Append(self.ID_NEW_HEALTH_ISSUE, "Health Issue editor")
-			self.__append_new_episode_menuitem(health_issue=self.__browser.get_EMR_item(sel_item))			
-						
-		else:
-			self.Append(self.ID_NEW_HEALTH_ISSUE, "New Health Issue")
 #================================================================
 class cEMRJournalPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	def __init__(self, *args, **kwargs):
@@ -835,7 +605,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.35  2005-06-29 18:35:17  cfmoro
+# Revision 1.36  2005-07-02 18:20:52  ncq
+# - quite some cleanup
+#
+# Revision 1.35  2005/06/29 18:35:17  cfmoro
 # create encounter from EMR tree. Added FIXME for refactor duplicated code
 #
 # Revision 1.34  2005/06/29 12:53:50  cfmoro
