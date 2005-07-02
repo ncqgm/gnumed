@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.57 $"
+__version__ = "$Revision: 1.58 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -417,7 +417,7 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 		description = _('auto-created %s') % mxDT.now().Format('%A %Y-%m-%d %H:%M')
 	# FIXME: look for MRU/MCU encounter type config here
 	if enc_type is None:
-		enc_type = 'chart review'
+		enc_type = 'in surgery'
 	# insert new encounter
 	queries = []
 	try:
@@ -548,7 +548,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.57  2005-06-23 14:58:51  ncq
+# Revision 1.58  2005-07-02 18:16:58  ncq
+# - default encounter type "in surgery" for 0.1, to become
+#   "in surgery"-on-write later on
+#
+# Revision 1.57  2005/06/23 14:58:51  ncq
 # - clean up transfer_clinical_data()
 #
 # Revision 1.56  2005/06/20 18:48:51  ncq
