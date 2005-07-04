@@ -9,15 +9,15 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.51 2005-06-14 19:55:37 cfmoro Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPhraseWheel.py,v 1.52 2005-07-04 11:20:59 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
 
 from wxPython.wx import *
 
-from Gnumed.wxpython import gmTimer
+from Gnumed.wxpython import gmTimer, gmGuiHelpers
 from Gnumed.pycommon import gmLog, gmExceptions, gmPG, gmMatchProvider, gmGuiBroker, gmNull
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -154,7 +154,7 @@ class cPhraseWheel (wxTextCtrl):
 			stat, matches = self.__matcher.getMatches(aFragment = value)
 			for item in matches:
 				if item['label'] == value:
-					self.data = item['data']							
+					self.data = item['data']
 					self.input_was_selected = True
 	#-------------------------------------------------------
 	def IsModified (self):
@@ -215,36 +215,25 @@ class cPhraseWheel (wxTextCtrl):
 		# get current(ly relevant part of) input
 		if self.__handle_multiple_phrases:
 			entire_input = self.GetValue()
-#			print "---------------------"
-#			print "phrase wheel content:", entire_input
 			cursor_pos = self.GetInsertionPoint()
-#			print "cursor at position:", cursor_pos
 			left_of_cursor = entire_input[:cursor_pos]
 			right_of_cursor = entire_input[cursor_pos:]
-#			print "cursor in input: %s>>>CURSOR<<<%s" % (left_of_cursor, right_of_cursor)
-				# find last phrase separator before cursor position
 			left_boundary = self.phrase_separators.search(left_of_cursor)
 			if left_boundary is not None:
-#				print "left boundary span:", left_boundary.span()
 				phrase_start = left_boundary.end()
 			else:
 				phrase_start = 0
 			self.left_part = entire_input[:phrase_start]
-#			print "phrase start:", phrase_start
 			# find next phrase separator after cursor position
 			right_boundary = self.phrase_separators.search(right_of_cursor)
 			if right_boundary is not None:
-#				print "right boundary span:", right_boundary.span()
 				phrase_end = cursor_pos + (right_boundary.start() - 1)
 			else:
 				phrase_end = len(entire_input) - 1
 			self.right_part = entire_input[phrase_end+1:]
-#			print "phrase end:", phrase_end
-
 			self.input2match = entire_input[phrase_start:phrase_end+1]
 		else:
 			self.input2match = self.GetValue()
-#		print "relevant input:", self.input2match
 
 		# get all currently matching items
 		if self.__matcher:
@@ -255,7 +244,7 @@ class cPhraseWheel (wxTextCtrl):
 				for item in self.__currMatches:
 					self._picklist.Append(str(item['label']), clientData = str(item['data']))
 		else:
-			_log.Log(gmLog.lWarn, "using phrasewheell without match provider")
+			_log.Log(gmLog.lWarn, "using phrasewheel without match provider")
 	#--------------------------------------------------------
 	def __show_picklist(self):
 		"""Display the pick list."""
@@ -311,7 +300,7 @@ class cPhraseWheel (wxTextCtrl):
 		if self.__handle_multiple_phrases:
 			wxTextCtrl.SetValue (self, '%s%s%s' % (self.left_part, self._picklist.GetString(selection_idx), self.right_part))
 		else:
-			wxTextCtrl.SetValue(self, self._picklist.GetString(selection_idx))
+			wxTextCtrl.SetValue (self, self._picklist.GetString(selection_idx))
 		self._is_modified = True
 		# get data associated with selected item
 		self.data = self._picklist.GetClientData(selection_idx)
@@ -462,24 +451,43 @@ class cPhraseWheel (wxTextCtrl):
 	def _on_set_focus(self, event):
 		self._has_focus = True
 		event.Skip()
+		if self.GetValue().strip() == '':
+			# programmers better make sure the turnaround time is limited
+			self._updateMatches()
+			if len(self.__currMatches) > 0:
+				wxTextCtrl.SetValue(self, self.__currMatches[0]['label'])
+				self.data = self.__currMatches[0]['data']
+				self.input_was_selected = True
+				self._is_modified = False
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
+		self._has_focus = False
+		event.Skip()
 		# don't need timer and pick list anymore
 		self.__timer.Stop()
 		self._hide_picklist()
-		# don't allow invalid input
-		if self.selection_only:
-			if not self.input_was_selected:
-				# FIXME: if len(matches) == 1 -> select
+		# can/must we auto-set the value from the match list ?
+		if (self.selection_only) and (not self.input_was_selected) and (self.GetValue().strip() != ''):
+			self._updateMatches()
+			no_matches = len(self.__currMatches)
+			if no_matches == 1:
+				self.data = self.__currMatches[0]['data']
+				self.input_was_selected = True
+				self._is_modified = False
+			elif no_matches > 1:
+				gmGuiHelpers.gm_beep_statustext(_('Cannot auto-select from list. There are several matches for the input.'))
+				return
+			else:
+				gmGuiHelpers.gm_beep_statustext(_('There are no matches for this input.'))
 				self.Clear()
+				return
+		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
 			try:
 				if not callback():
 					print "[%s:_on_lose_focus]: %s returned False" % (self.__class__.__name__, str(callback))
 			except:
-				print "[%s:_on_lose_focus]: error calling %s" % (self.__class__.__name__, str(callback))
-		self._has_focus = False
-		event.Skip()
+				_log.LogException("[%s:_on_lose_focus]: error calling %s" % (self.__class__.__name__, str(callback)), sys.exc_info())
 #--------------------------------------------------------
 # MAIN
 #--------------------------------------------------------
@@ -552,7 +560,12 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.51  2005-06-14 19:55:37  cfmoro
+# Revision 1.52  2005-07-04 11:20:59  ncq
+# - cleanup cruft
+# - on_set_focus() set value to first match if previously empty
+# - on_lose_focus() set value if selection_only and only one match and not yet selected
+#
+# Revision 1.51  2005/06/14 19:55:37  cfmoro
 # Set selection flag when setting value
 #
 # Revision 1.50  2005/06/07 10:18:23  ncq
