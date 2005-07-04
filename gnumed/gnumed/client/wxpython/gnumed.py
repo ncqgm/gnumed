@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ################################################################
-# gnumed - launcher for the main gnumed GUI client module
+# gnumed.py - launcher for the main gnumed GUI client module
 # --------------------------------------------------------------
 #
 # @copyright: author
@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.79 $"
+__version__ = "$Revision: 1.80 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -71,12 +71,12 @@ except:
 	pass
 
 import_error_sermon = """
-CRITICAL ERROR: Cannot load GnuMed Python modules ! - Program halted.
+CRITICAL ERROR: Cannot load GNUmed Python modules ! - Program halted.
 
 Please make sure you have:
 
 - the required third-party Python modules installed
-- the GnuMed Python modules installed in site-packages/
+- the GNUmed Python modules installed in site-packages/
 - your PYTHONPATH environment variable set up correctly
 
 If you still encounter errors after checking the above
@@ -107,7 +107,7 @@ def setup_logging():
 	if gmCLI.has_arg('--talkback'):
 		# email logger as a loop device
 		global _email_logger
-		_email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GnuMed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
+		_email_logger = gmLog.cLogTargetEMail(gmLog.lInfo, aFrom = "GNUmed client", aTo = ("fixme@gnumed.net",), anSMTPServer = "mail.best1-host.com")
 		_log.AddTarget (_email_logger)
 
 	# debug level logging ?
@@ -223,7 +223,7 @@ def get_resource_dir():
 	  - this is the no-brainer for DOS/Windows
 	  - it also allows running from a local CVS copy
 	"""
-	print "GNUmed startup: Determining GnuMed resource directory ..."
+	print "GNUmed startup: Determining GNUmed resource directory ..."
 	# config file
 	candidate = _cfg.get('client', 'resource directory')
 	if candidate not in [None, '']:
@@ -289,7 +289,7 @@ def get_base_dir():
 		  - this is the no-brainer for DOS/Windows
 		  - it also allows running from a local CVS copy
 	"""
-	print "GNUmed startup: Determining GnuMed base directory ..."
+	print "GNUmed startup: Determining GNUmed base directory ..."
 	# environment variable
 	if os.environ.has_key('GNUMED_DIR'):
 		tmp = os.environ['GNUMED_DIR']
@@ -333,7 +333,7 @@ def get_base_dir():
 	return None
 
 #==========================================================
-# main - launch the GnuMed wxPython GUI client
+# main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
 setup_logging()
 setup_locale()
@@ -371,7 +371,7 @@ gb = gmGuiBroker.GuiBroker()
 gb['gnumed_dir'] = appPath
 gb['resource dir'] = resPath
 
-# now actually run gnumed
+# now actually run GNUmed
 try:
 	from Gnumed.wxpython import gmGuiMain
 	# do we do profiling ?
@@ -425,7 +425,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.79  2005-06-29 15:11:05  ncq
+# Revision 1.80  2005-07-04 11:27:57  ncq
+# - GnuMed -> GNUmed
+#
+# Revision 1.79  2005/06/29 15:11:05  ncq
 # - make startup messages a bit more consistent
 #
 # Revision 1.78  2005/06/23 15:00:53  ncq
