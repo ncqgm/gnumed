@@ -2,7 +2,7 @@
 -- GnuMed fixed string internationalisation
 -- ========================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
--- $Id: gmI18N.sql,v 1.20 2005-03-31 20:08:38 ncq Exp $
+-- $Id: gmI18N.sql,v 1.21 2005-07-04 11:42:24 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
@@ -77,8 +77,6 @@ comment on function i18n(text) is
 	'insert original strings into i18n_keys for later translation';
 
 -- =============================================
---drop function i18n_upd_tx(text, text, text);
-
 create function i18n_upd_tx(text, text, text) returns boolean as '
 declare
 	_lang alias for $1;
@@ -135,23 +133,23 @@ comment on function _(text) is
 -- =============================================
 create function _(text, text) returns text as '
 DECLARE
-	orig_str ALIAS FOR $1;
-	my_lang = $2;
+	_orig alias for $1;
+	_lang alias for $2;
 	trans_str text;
 BEGIN
 	-- no translation available at all ?
-	if not exists(select orig from i18n_translations where orig = orig_str) then
-		return orig_str;
+	if not exists(select 1 from i18n_translations where orig = _orig) then
+		return _orig;
 	end if;
 	-- get translation
 	select into trans_str trans
 	from i18n_translations
 	where
-		lang = my_lang
+		lang = _lang
 			and
-		orig = orig_str;
+		orig = _orig;
 	if not found then
-		return orig_str;
+		return _orig;
 	end if;
 	return trans_str;
 END;
@@ -258,11 +256,14 @@ TO group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmI18N.sql,v $', '$Revision: 1.21 $');
 
 -- =============================================
 -- $Log: gmI18N.sql,v $
--- Revision 1.20  2005-03-31 20:08:38  ncq
+-- Revision 1.21  2005-07-04 11:42:24  ncq
+-- - fix _(text, text)
+--
+-- Revision 1.20  2005/03/31 20:08:38  ncq
 -- - add i18n_upd_tx() for safe update of translations
 --
 -- Revision 1.19  2005/03/01 20:38:19  ncq
