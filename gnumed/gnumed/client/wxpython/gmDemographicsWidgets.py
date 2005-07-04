@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.55 2005-07-02 18:20:22 ncq Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmDemographicsWidgets.py,v 1.56 2005-07-04 11:26:50 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1232,7 +1232,7 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		# street
 		STT_street = wx.StaticText(PNL_form, -1, _('Street'))
 		queries = []
-		queries.append("""
+		queries.append ("""
 		select distinct on (s1,s2) s1, s2 from (
 			select * from (
 				select street as s1, street as s2, 1 as rank from v_zip2data where street %(fragment_condition)s and zip ilike %%(zip)s
@@ -1417,11 +1417,16 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
 		"""
-		name_gender_map = get_name_gender_map()
-		firstname = string.lower(self.PRW_firstname.GetValue())
-		if(name_gender_map.has_key(firstname)):
-			gender = self.__gender_map[name_gender_map[firstname]]['label']
-			self.PRW_gender.SetValue(gender)
+		firstname = self.PRW_firstname.GetValue()
+		cmd = "select gender from name_gender_map where name ilike %s"
+		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error retrieving gender for [%s]' % firstname)
+			return False
+		if len(rows) == 0:
+			return True
+		gender = self.__gender_map[rows[0][0]]['label']
+		wx.CallAfter(self.PRW_gender.SetValue, gender)
 		return True
 	#--------------------------------------------------------
 	def on_zip_set(self):
@@ -1433,7 +1438,6 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		self.PRW_town.set_context(context='zip', val=zip_code)
 		self.PRW_state.set_context(context='zip', val=zip_code)
 		self.PRW_country.set_context(context='zip', val=zip_code)
-		#print "zip [%s]-> street, town, state, country" % zip_code
 		return True				
 #============================================================
 class cNewPatientWizard(wizard.wxWizard):
@@ -2028,11 +2032,16 @@ class cPatIdentityPanel(wx.Panel):
 		Set the gender according to entered firstname.
 		Matches are fetched from existing records in backend.
 		"""
-		name_gender_map = get_name_gender_map()
-		firstname = string.lower(self.PRW_firstname.GetValue())
-		if(name_gender_map.has_key(firstname)):
-			gender = self.__gender_map[name_gender_map[firstname]]['label']
-			self.PRW_gender.SetValue(gender)
+		firstname = self.PRW_firstname.GetValue()
+		cmd = "select gender from name_gender_map where name ilike %s"
+		rows = gmPG.run_ro_query('personalia', cmd, False, firstname)
+		if rows is None:
+			_log.Log(gmLog.lErr, 'error retrieving gender for [%s]' % firstname)
+			return False
+		if len(rows) == 0:
+			return True
+		gender = self.__gender_map[rows[0][0]]['label']
+		wx.CallAfter(self.PRW_gender.SetValue, gender)
 		return True
 	#--------------------------------------------------------
 	# public API
@@ -2801,15 +2810,18 @@ def get_name_gender_map():
 	"""
 	Build from backend a cached dictionary of pairs 'firstname' : gender_tag
 	"""	
+	print "get_name_gender_map()"
 	global _name_gender_map
 	if _name_gender_map is None:
-		cmd = "SELECT DISTINCT(firstnames), gender FROM v_basic_person"
+		#cmd = "select lower(name), gender from name_gender_map"
+		cmd = "select name, gender from name_gender_map"
 		rows = gmPG.run_ro_query('personalia', cmd, False)
 		if rows is None:
-			_log.Log(gmLog.lPanic, 'cannot retrieve name-genders from database')
-		_name_gender_map= {}
+			_log.Log(gmLog.lPanic, 'cannot retrieve name-gender map from database')
+			return {}
+		_name_gender_map = {}
 		for row in rows:
-			_name_gender_map[string.lower(row[0])] = row[1]
+			_name_gender_map[row[0].lower()] = row[1]
 	return _name_gender_map
 #============================================================
 def capitalize_first(txt):
@@ -2861,7 +2873,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.55  2005-07-02 18:20:22  ncq
+# Revision 1.56  2005-07-04 11:26:50  ncq
+# - re-enable auto-setting gender from firstname, and speed it up, too
+#
+# Revision 1.55  2005/07/02 18:20:22  ncq
 # - allow English input of country as well, regardless of locale
 #
 # Revision 1.54  2005/06/29 15:03:32  ncq
