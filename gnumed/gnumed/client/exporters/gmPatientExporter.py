@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.59 2005-07-02 18:18:26 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmPatientExporter.py,v 1.60 2005-07-04 11:14:36 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -579,17 +579,17 @@ class cEmrExport:
             txt = left_margin * ' ' + _('There are no encounters for this episode.')
             return txt
         if episode['episode_open']:
-            status = _('Open episode')
+            status = _('active')
         else:
-            status = _('Closed episode')
+            status = _('finished')
         first_encounter = emr.get_first_encounter(episode_id = episode['pk_episode'])
         last_encounter = emr.get_last_encounter(episode_id = episode['pk_episode'])
         txt = _(
-            '%s%s "%s"\n'
+            '%sEpisode "%s" [%s]\n'
             '%sEncounters: %s (%s - %s)\n'
             '%sLast worked on: %s\n'
         ) % (
-            left_margin * ' ', status, episode['description'],
+            left_margin * ' ', episode['description'], status,
             left_margin * ' ', no_encs, first_encounter['started'].Format('%m/%Y'), last_encounter['last_affirmed'].Format('%m/%Y'),
             left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M')
         )
@@ -1140,7 +1140,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.59  2005-07-02 18:18:26  ncq
+# Revision 1.60  2005-07-04 11:14:36  ncq
+# - improved episode summary yet again
+#
+# Revision 1.59  2005/07/02 18:18:26  ncq
 # - improve EMR tree right side info pane according to user
 #   testing and ideas gleaned from TransHIS
 #
