@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/install.sh,v $
-# $Id: install.sh,v 1.3 2005-07-10 18:24:48 ncq Exp $
-# $Revision: 1.3 $
+# $Id: install.sh,v 1.4 2005-07-10 18:26:12 ncq Exp $
+# $Revision: 1.4 $
 # license: GPL
 # sebastian.hilbert@gmx.net
 
@@ -121,9 +121,15 @@ cp -R ./GNUmed-$REV/client/usr/bin/gnumed /usr/bin &> $LOG
 cp -R ./check-prerequisites.py $docdir &> $LOG
 cp -R ./check-prerequisites.sh $docdir &> $LOG
 
+echo "In case of problems there is a log file here:"
+echo $LOG
+
 #================================================
 # $Log: install.sh,v $
-# Revision 1.3  2005-07-10 18:24:48  ncq
+# Revision 1.4  2005-07-10 18:26:12  ncq
+# - announce the log file at the end
+#
+# Revision 1.3  2005/07/10 18:24:48  ncq
 # - log what we do into a log file
 #
 # Revision 1.2  2005/07/10 17:54:04  ncq
