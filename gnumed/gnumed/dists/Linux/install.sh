@@ -1,8 +1,9 @@
 #!/bin/sh
 
-# $Source: 
-# $Revision: 1.1 $
-# GPL
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/install.sh,v $
+# $Id: install.sh,v 1.2 2005-07-10 17:54:04 ncq Exp $
+# $Revision: 1.2 $
+# license: GPL
 # sebastian.hilbert@gmx.net
 
 # todo: 
@@ -106,5 +107,11 @@ cp -R ./GNUmed-$REV/client/usr/share/locale $localedir
 cp -R ./GNUmed-$REV/client/usr/bin/gnumed /usr/bin
 
 # FIXME: put this some decent place
-cp -R ./check-prerequisites.py /usr/bin
-cp -R ./check-prerequisites.sh /usr/bin
+cp -R ./check-prerequisites.py $dfltdocdir
+cp -R ./check-prerequisites.sh $dfltdocdir
+
+#================================================
+# $Log: install.sh,v $
+# Revision 1.2  2005-07-10 17:54:04  ncq
+# - put check-* into doc dir for now
+#
