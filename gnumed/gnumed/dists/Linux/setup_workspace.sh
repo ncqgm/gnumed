@@ -1,15 +1,19 @@
 #!/bin/sh
 
-# $Source: 
-# $Id:
+#====================================================
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
+# $Id: setup_workspace.sh,v 1.2 2005-07-10 17:42:32 ncq Exp $
+# license: GPL
+#====================================================
+REV=0.1
 
+# clean up
+rm -r ./GNUmed-$REV/
+
+# create client package
 echo "____________"
 echo "=> client <="
 echo "============"
-
-
-REV=0.1
-rm -r ./GNUmed-$REV/client
 
 mkdir -p ./GNUmed-$REV/client
 mkdir -p ./GNUmed-$REV/client/usr/share/gnumed/
@@ -59,7 +63,6 @@ echo "____________"
 echo "=> server <="
 echo "============"
 
-rm -r ./GNUmed-$REV/server
 mkdir -p ./GNUmed-$REV/server
 mkdir -p ./GNUmed-$REV/server/usr/lib/python/site-packages/Gnumed/
 mkdir -p ./GNUmed-$REV/server/usr/share/gnumed/install/server/bootstrap
@@ -68,11 +71,18 @@ cp -R ../../client/pycommon ./GNUmed-$REV/server/usr/lib/python/site-packages/Gn
 cp -R ../../server/sql ./GNUmed-$REV/server/usr/share/gnumed/install/server
 cp -R ../../server/bootstrap/ ./GNUmed-$REV/server/usr/share/gnumed/install/server/
 
+#----------------------------------
+ln -s ../check-prerequisites.py ../check-prerequisites.sh ../install.sh ../GnuPublicLicense.txt ./GNUmed-$REV/
+
+#----------------------------------
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.1  2005-07-07 20:19:04  shilbert
+# Revision 1.2  2005-07-10 17:42:32  ncq
+# - move README style files directly below GNUmed-0.1 directory
+#
+# Revision 1.1  2005/07/07 20:19:04  shilbert
 # - script to create packaging environment
 #
