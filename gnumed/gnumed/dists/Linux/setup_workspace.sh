@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
-# $Id: setup_workspace.sh,v 1.2 2005-07-10 17:42:32 ncq Exp $
+# $Id: setup_workspace.sh,v 1.3 2005-07-10 18:46:39 ncq Exp $
 # license: GPL
 #====================================================
 REV=0.1
@@ -49,7 +49,11 @@ cp -R ../../../check-prerequisites.py ./
 cp -R ../../../check-prerequisites.sh ./
 
 # build up2date *.po and *.mo language files
-# ah maybe next time
+cd ../../client/locale/
+./create-gnumed_mo.sh de
+./create-gnumed_mo.sh es
+./create-gnumed_mo.sh fr
+cd -
 
 cp ../../client/locale/de-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/de/LC_MESSAGES/gnumed.mo
 cp ../../client/locale/de-gnumed.mo ./GNUmed-$REV/client/usr/share/locale/de_DE/LC_MESSAGES/gnumed.mo
@@ -80,7 +84,10 @@ find ./ -name '*.pyc' -exec rm -v '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.2  2005-07-10 17:42:32  ncq
+# Revision 1.3  2005-07-10 18:46:39  ncq
+# - build mo-files, too
+#
+# Revision 1.2  2005/07/10 17:42:32  ncq
 # - move README style files directly below GNUmed-0.1 directory
 #
 # Revision 1.1  2005/07/07 20:19:04  shilbert
