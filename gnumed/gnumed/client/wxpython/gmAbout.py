@@ -1,14 +1,11 @@
-#!/usr/bin/python
-
 #====================================================================
-# About GNUMed
-# licence: GPL
-# Changelog:
-# 30/01/03: inital version
+# About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-__version__ = "$Revision: 1.13 $"
+# $Id: gmAbout.py,v 1.14 2005-07-11 09:04:27 ncq Exp $
+__version__ = "$Revision: 1.14 $"
 __author__ = "M.Bonert"
+__license__ = "GPL"
 
 from wxPython.wx import *
 import zlib, cPickle
@@ -16,7 +13,6 @@ import zlib, cPickle
 ID_MENU = wxNewId()
 ID_EXIT = wxNewId()
 #====================================================================
-
 class ScrollTxtWin (wxWindow):
 	"""
 	Scrolling Text!
@@ -157,8 +153,62 @@ class AboutFrame (wxFrame):
 	def OnClose (self, event):
 		self.win.timer.Stop ()
 		self.Destroy ()
+#====================================================================
+class cContributorsDlg(wx.wxDialog):
+	# people who don't want to be listed here:
+	# ...
+	contributors = _(
+'The following people kindly contributed to GNUmed.\n'
+'Please write to <gnumed-devel@gnu.org> to have your\n'
+'contribution duly recognized in this list or to have\n'
+'your name removed from it for, say, privacy reasons.\n\n'
+'Note that this list is sorted alphabetically by last\n'
+'name, first name. If the only identifier is an email\n'
+'address it is sorted under the first character of\n'
+'the user name.\n'
+'%s'
+) % """
+== F ===========================================
 
+Joachim Fischer
+ GP Fischer + Lintz
+ Fachärzte Allgemeinmedizin
+ Wolfschlugen
 
+ - Karteieintragsarten passend für Deutschland
+
+== P ===========================================
+
+Martin Preuss
+
+ - Chipkartenansteuerung
+
+== T ===========================================
+
+Andreas Tille
+
+ - Debian packages
+ - encouragement, wisdom
+
+"""
+	#----------------------------------------------
+	def __init__(self, *args, **kwargs):
+		wx.wxDialog.__init__(self, *args, **kwargs)
+		contributor_listing = wx.wxTextCtrl (
+			self,
+			-1,
+			cContributorsDlg.contributors,
+			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY
+		)
+#		contributor_listing.SetFont(wx.wxFont(12, wx.wxMODERN, wx.wxNORMAL, wx.wxNORMAL))
+		# arrange widgets
+		szr_outer = wx.wxBoxSizer(wx.wxVERTICAL)
+		szr_outer.Add(contributor_listing, 1, wx.wxEXPAND, 0)
+		# and do layout
+		self.SetAutoLayout(1)
+		self.SetSizerAndFit(szr_outer)
+		#szr_outer.SetSizeHints(self)
+		self.Layout()
 #====================================================================
 # Main
 #====================================================================
@@ -176,7 +226,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.13  2005-07-02 18:19:01  ncq
+# Revision 1.14  2005-07-11 09:04:27  ncq
+# - add contributors dialog
+#
+# Revision 1.13  2005/07/02 18:19:01  ncq
 # - one more GnuMed -> GNUmed
 #
 # Revision 1.12  2005/06/30 10:05:47  cfmoro
@@ -206,3 +259,4 @@ if __name__ == '__main__':
 # Revision 1.6  2003/05/17 18:18:19  michaelb
 # added $Log statement
 #
+# 30/01/03: inital version
