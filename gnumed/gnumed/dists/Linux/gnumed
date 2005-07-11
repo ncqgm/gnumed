@@ -1,39 +1,45 @@
 #!/bin/sh
-OPTIONS=$@
 
-name=`basename $0`
-CONFSOURCE=/etc/gnumed/${name}.conf
+#==================================================
+# This shell script is intended to be placed in
+# /usr/bin/ and should be run to start a GNUmed
+# client.
+#
+# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
+# $Id: gnumed,v 1.2 2005-07-11 16:46:41 ncq Exp $
+# license: GPL
+# Karsten Hilbert, Sebastian Hilbert
+#--------------------------------------------------
 
 # set -x
 
-# check for explicite conffile option
-if echo $OPTIONS | grep -q -- "--conf-file[[:space:]]*=" ; then
-    CONFFILE=`echo $OPTIONS | sed -e 's/^.*--conf-file[[:space:]]*=[[:space:]]*\([^[:space:]]\+\).*/\1/'`
-    if [ ! -s ${CONFFILE} ] ; then
-        echo "Given config file ${CONFFILE} missing."
-	exit
-    fi
-    CONFFILE="--conf-file=${CONFFILE}"
-    OPTIONS=`echo $OPTIONS | sed -e 's/--conf-file[[:space:]]*=[[:space:]]*[^[:space:]]\+//'`
-else
-    # copy global config file to user directory because /etc/gnumed is not writable
-    if [ ! -s ${HOME}/.gnumed/${name}.conf ] ; then
-        if [ ! -e ${CONFSOURCE} ] ; then
-	    echo "Global config file ${CONFSOURCE} missing."
-	    exit
+CONFSOURCE="/etc/gnumed/gnumed.conf"
+
+echo "GNUmed startup"
+
+# - make sure standard config file is there
+# - people using --conf-file=<FILE> are on their own
+if [ ! -s ${HOME}/.gnumed/gnumed.conf ] ; then
+	if [ ! -e ${CONFSOURCE} ] ; then
+		echo "Global config file ${CONFSOURCE} missing."
+	else
+		cp -v ${CONFSOURCE} ${HOME}/.gnumed/gnumed.conf
 	fi
-        cp -a ${CONFSOURCE} ${HOME}/.gnumed/${name}.conf
-    fi
-    CONFFILE="--conf-file=${HOME}/.gnumed/${name}.conf"
 fi
 
-# check for explicite --unicode-gettext option
-if echo $OPTIONS | grep -q -- "--unicode-gettext[[:space:]]*=" ; then
-    ## just for debugging
-    echo $OPTIONS
-else
-    OPTIONS="--unicode-gettext=0 $OPTIONS"
-fi
-
+# this ugly hack needs to go once we use proper
+# distutil installation for the Python part
 export PYTHONPATH="${PYTHONPATH}:/usr/lib/python/site-packages/Gnumed:/usr/lib/python/site-packages/Gnumed/wxpython:/usr/lib/python/site-packages/Gnumed/pycommon"
-python /usr/lib/python/site-packages/Gnumed/wxpython/gnumed.py ${CONFFILE} ${OPTIONS}
+
+# now run it
+python /usr/lib/python/site-packages/Gnumed/wxpython/gnumed.py $@
+#--unicode-gettext=0
+#--log-file=somewhere.log
+#--conf-file=somewhere.conf
+#--debug
+
+#==================================================
+# $Log: gnumed,v $
+# Revision 1.2  2005-07-11 16:46:41  ncq
+# - make more dumb but more robust
+#
