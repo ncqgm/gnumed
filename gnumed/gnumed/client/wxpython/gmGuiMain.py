@@ -13,15 +13,22 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.209 2005-07-02 18:21:36 ncq Exp $
-__version__ = "$Revision: 1.209 $"
+# $Id: gmGuiMain.py,v 1.210 2005-07-11 09:05:31 ncq Exp $
+__version__ = "$Revision: 1.210 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
 import sys, time, os, cPickle, zlib
-from wxPython import wx
+
+try:
+	from wxPython import wx
+except ImportError:
+	print "GNUmed startup: Cannot import wxPython library."
+	print "GNUmed startup: Make sure wxPython is installed."
+	print 'CRITICAL ERROR: Error importing wxPython. Halted.'
+	raise
 
 from Gnumed.pycommon import gmLog, gmCfg, gmWhoAmI, gmPG, gmDispatcher, gmSignals, gmCLI, gmGuiBroker, gmI18N
 from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmRichardSpace, gmEMRBrowser, gmDemographicsWidgets, gmEMRStructWidgets, gmEditArea
@@ -56,6 +63,7 @@ if timezone is not None:
 	gmPG.set_default_client_timezone(timezone)
 
 ID_ABOUT = wx.wxNewId ()
+ID_CONTRIBUTORS = wx.wxNewId()
 ID_EXIT = wx.wxNewId ()
 ID_HELP = wx.wxNewId ()
 ID_NOTEBOOK = wx.wxNewId ()
@@ -316,12 +324,17 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.mainmenu.Append(self.menu_reference, _("&Reference"))
 
 		# menu "Help"
-		self.menu_help = wx.wxMenu()
-		self.menu_help.Append(ID_ABOUT, _("About GNUmed"), "")
+		help_menu = wx.wxMenu()
+		# - about
+		help_menu.Append(ID_ABOUT, _('About GNUmed'), "")
 		wx.EVT_MENU (self, ID_ABOUT, self.OnAbout)
-		self.menu_help.AppendSeparator()
-		self.__gb['main.helpmenu'] = self.menu_help
-		self.mainmenu.Append(self.menu_help, "&Help")
+		# - contributors
+		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
+		wx.EVT_MENU (self, ID_CONTRIBUTORS, self.__on_show_contributors)
+		# - among other things the Manual is added from a plugin
+		help_menu.AppendSeparator()
+		self.__gb['main.helpmenu'] = help_menu
+		self.mainmenu.Append(help_menu, "&Help")
 
 		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
@@ -361,6 +374,19 @@ class gmTopLevelFrame(wx.wxFrame):
 		gmAbout.Centre(wx.wxBOTH)
 		gmTopLevelFrame.otherWin = gmAbout
 		gmAbout.Show(True)
+		del gmAbout
+	#----------------------------------------------
+	def __on_show_contributors(self, event):
+		from Gnumed.wxpython import gmAbout
+		contribs = gmAbout.cContributorsDlg (
+			parent = self,
+			id = -1,
+			title = _('GNUmed contributors'),
+			size = wx.wxSize(400,600),
+			style = wx.wxDEFAULT_DIALOG_STYLE | wx.wxRESIZE_BORDER
+		)
+		contribs.ShowModal()
+		del contribs
 		del gmAbout
 	#----------------------------------------------
 	def OnFileExit(self, event):
@@ -874,7 +900,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.209  2005-07-02 18:21:36  ncq
+# Revision 1.210  2005-07-11 09:05:31  ncq
+# - be more careful about failing to import wxPython
+# - make contributors list accessible from main menu
+#
+# Revision 1.209  2005/07/02 18:21:36  ncq
 # - GnuMed -> GNUmed
 #
 # Revision 1.208  2005/06/30 10:21:01  cfmoro
