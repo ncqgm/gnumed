@@ -14,7 +14,7 @@ def resultset_functional_batchgene rator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.49 $"
+__version__ = "$Revision: 1.50 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -63,8 +63,8 @@ except ImportError:
 			dbapi = pgdb
 			_isPGDB = 1
 		except ImportError:
-			print "Cannot find any Python module for connecting to the database server. Program halted."
 			_log.LogException("No Python database adapter found.", sys.exc_info(), verbose=1)
+			print "CRITICAL ERROR: Cannot find any Python module for connecting to the database server."
 			raise
 
 # FIXME: DBMS should eventually be configurable
@@ -1215,7 +1215,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.49 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.50 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1442,7 +1442,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.49  2005-06-12 22:18:36  ncq
+# Revision 1.50  2005-07-11 08:34:11  ncq
+# - better messages on failing to import a DB-API module
+#
+# Revision 1.49  2005/06/12 22:18:36  ncq
 # - allow importers to set default client timezone
 #
 # Revision 1.48  2005/06/09 21:32:12  ncq
