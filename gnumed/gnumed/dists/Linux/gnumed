@@ -6,7 +6,7 @@
 # client.
 #
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/gnumed,v $
-# $Id: gnumed,v 1.3 2005-07-11 16:53:03 ncq Exp $
+# $Id: gnumed,v 1.4 2005-07-11 16:55:27 ncq Exp $
 # license: GPL
 # Karsten Hilbert, Sebastian Hilbert
 #--------------------------------------------------
@@ -31,7 +31,12 @@ fi
 # distutil installation for the Python part
 export PYTHONPATH="${PYTHONPATH}:/usr/lib/python/site-packages/Gnumed:/usr/lib/python/site-packages/Gnumed/wxpython:/usr/lib/python/site-packages/Gnumed/pycommon"
 
-# source local startup shell script if it exists
+# source systemwide startup extension shell script if it exists
+if [ -r /etc/gnumed/gnumed-startup-local.sh ] ; then
+	. /etc/gnumed/gnumed-startup-local.sh
+fi
+
+# source local startup extension shell script if it exists
 if [ -r ${HOME}/.gnumed/gnumed-startup-local.sh ] ; then
 	. ${HOME}/.gnumed/gnumed-startup-local.sh
 fi
@@ -45,7 +50,10 @@ python /usr/lib/python/site-packages/Gnumed/wxpython/gnumed.py $@
 
 #==================================================
 # $Log: gnumed,v $
-# Revision 1.3  2005-07-11 16:53:03  ncq
+# Revision 1.4  2005-07-11 16:55:27  ncq
+# - allow systemwide startup extension shell script, too
+#
+# Revision 1.3  2005/07/11 16:53:03  ncq
 # - include user-local startup shell script
 # - use cp -R
 #
