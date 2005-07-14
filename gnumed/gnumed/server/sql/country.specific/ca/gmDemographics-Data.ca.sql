@@ -9,7 +9,7 @@
 -- Code source:   Canadian Postal Guide
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/ca/gmDemographics-Data.ca.sql,v $
--- $Id: gmDemographics-Data.ca.sql,v 1.1 2005-06-07 21:58:58 ncq Exp $
+-- $Id: gmDemographics-Data.ca.sql,v 1.2 2005-07-14 21:31:43 ncq Exp $
 -- author: Karsten Hilbert
 -- license: GPL
 
@@ -45,10 +45,13 @@ select i18n_upd_tx('fr_CA', 'Yukon Territory', 'Territoire du Yukon');
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.ca.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.ca.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-Data.ca.sql,v $', '$Revision: 1.2 $', False);
 
 -- ===================================================================
 -- $Log: gmDemographics-Data.ca.sql,v $
--- Revision 1.1  2005-06-07 21:58:58  ncq
+-- Revision 1.2  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.1  2005/06/07 21:58:58  ncq
 -- - Canadian provinces in English and French :-)
 --

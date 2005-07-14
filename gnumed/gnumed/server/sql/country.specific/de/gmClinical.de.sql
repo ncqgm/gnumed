@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmClinical.de.sql,v $
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -47,11 +47,14 @@ COMMENT ON COLUMN lab_test_GNR.id_test IS
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmClinical.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinical.de.sql,v $', '$Revision: 1.13 $', True);
 
 -- =============================================
 -- $Log: gmClinical.de.sql,v $
--- Revision 1.12  2004-09-29 19:15:45  ncq
+-- Revision 1.13  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.12  2004/09/29 19:15:45  ncq
 -- - id -> pk
 --
 -- Revision 1.11  2004/01/09 02:59:28  ncq

@@ -7,7 +7,7 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -324,11 +324,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.22 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.23 $', True);
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.22  2005-06-03 13:36:11  cfmoro
+-- Revision 1.23  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.22  2005/06/03 13:36:11  cfmoro
 -- Pass state and country codes instead of their names, safer and more consistent
 --
 -- Revision 1.21  2005/05/19 16:33:34  ncq

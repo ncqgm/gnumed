@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.145 2005-06-19 13:36:10 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.146 2005-07-14 21:31:42 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -2005,11 +2005,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.145 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.146 $', True);
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.145  2005-06-19 13:36:10  ncq
+-- Revision 1.146  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.145  2005/06/19 13:36:10  ncq
 -- - allow updating clin_root_item directly as Syan showed it to be working
 -- - fix problem list to only include real problems
 --

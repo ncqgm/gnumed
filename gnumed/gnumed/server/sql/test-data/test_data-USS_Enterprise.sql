@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-USS_Enterprise.sql,v $
--- $Revision: 1.17 $
+-- $Revision: 1.18 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -300,11 +300,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-USS_Enterprise.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.17 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: test_data-USS_Enterprise.sql,v $', '$Revision: 1.18 $', False);
 
 -- =============================================
 -- $Log: test_data-USS_Enterprise.sql,v $
--- Revision 1.17  2005-02-13 15:08:23  ncq
+-- Revision 1.18  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.17  2005/02/13 15:08:23  ncq
 -- - add names of actors and some comments
 --
 -- Revision 1.16  2005/02/12 13:49:14  ncq

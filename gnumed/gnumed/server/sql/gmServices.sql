@@ -1,7 +1,7 @@
 -- =============================================
 -- GnuMed service discovery tables
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmServices.sql,v $
--- $Id: gmServices.sql,v 1.6 2005-03-01 20:38:19 ncq Exp $
+-- $Id: gmServices.sql,v 1.7 2005-07-14 21:31:42 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ---------------------------------------------
@@ -32,11 +32,14 @@ comment on column gm_services.version is
 -- =============================================
 \unset ON_ERROR_STOP
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmServices.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmServices.sql,v $', '$Revision: 1.7 $', True);
 
 -- =============================================
 -- $Log: gmServices.sql,v $
--- Revision 1.6  2005-03-01 20:38:19  ncq
+-- Revision 1.7  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.6  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.5  2003/06/10 08:56:59  ncq

@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- part of GnuMed
 -- license: GPL
@@ -155,11 +155,14 @@ comment on table prax_geb_paid is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.5 $', True);
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.4  2005-04-14 16:48:33  ncq
+-- Revision 1.5  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.4  2005/04/14 16:48:33  ncq
 -- - name_gender_map moved to generic demographics script
 --
 -- Revision 1.3  2005/02/12 13:49:14  ncq

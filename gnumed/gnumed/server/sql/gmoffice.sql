@@ -5,7 +5,7 @@
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.10 $ $Date: 2005-03-01 20:38:19 $ $Author: ncq $
+-- $Revision: 1.11 $ $Date: 2005-07-14 21:31:42 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -156,11 +156,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.10 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.11 $', True);
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.10  2005-03-01 20:38:19  ncq
+-- Revision 1.11  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.10  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.9  2005/01/29 18:45:22  ncq

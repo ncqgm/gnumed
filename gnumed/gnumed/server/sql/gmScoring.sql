@@ -1,7 +1,7 @@
 -- GnuMed phrasewheel scoring functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmScoring.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -82,11 +82,14 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmScoring.sql,v $', '$Revision: 1.2 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmScoring.sql,v $', '$Revision: 1.3 $', False);
 
 -- ===================================================================
 -- $Log: gmScoring.sql,v $
--- Revision 1.2  2004-07-17 20:57:53  ncq
+-- Revision 1.3  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.2  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --

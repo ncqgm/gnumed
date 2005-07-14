@@ -1,7 +1,7 @@
 -- Project: GnuMed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -310,11 +310,14 @@ TO GROUP "gm-public";
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.20 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmReference.sql,v $', '$Revision: 1.21 $', True);
 
 -- =============================================
 -- $Log: gmReference.sql,v $
--- Revision 1.20  2005-03-01 20:38:19  ncq
+-- Revision 1.21  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.20  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.19  2005/02/21 18:48:23  ncq

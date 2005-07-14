@@ -270,11 +270,14 @@ insert into country(code, name) values('US', i18n('United States'));
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%phics-GIS-data%';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.5 $', True);
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.4  2005-05-04 08:56:55  ncq
+-- Revision 1.5  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.4  2005/05/04 08:56:55  ncq
 -- - properly capsify country names
 --
 -- Revision 1.3  2004/02/27 07:05:30  ihaywood

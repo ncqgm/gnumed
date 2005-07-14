@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.46 $ $Date: 2005-02-12 13:49:13 $ $Author: ncq $
+-- $Revision: 1.47 $ $Date: 2005-07-14 21:31:42 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -120,7 +120,7 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.46 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.47 $', True);
 
 -- =============================================
 -- questions:
@@ -140,7 +140,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.46  2005-02-12 13:49:13  ncq
+-- Revision 1.47  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.46  2005/02/12 13:49:13  ncq
 -- - identity.id -> identity.pk
 -- - allow NULL for identity.fk_marital_status
 -- - subsequent schema changes

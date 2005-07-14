@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.160 $
+-- $Revision: 1.161 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -1314,11 +1314,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.160 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.161 $', True);
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.160  2005-06-19 13:33:51  ncq
+-- Revision 1.161  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.160  2005/06/19 13:33:51  ncq
 -- - manually inherit foreign keys into clin_root_item children
 --
 -- Revision 1.159  2005/04/17 16:40:36  ncq

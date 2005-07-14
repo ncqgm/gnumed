@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -89,11 +89,14 @@ insert into enum_ext_id_types (name, issuer, context) values ('ACN', 'ATO', 'o')
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics.au.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.11 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.au.sql,v $', '$Revision: 1.12 $', False);
 
 -- ===================================================================
 -- $Log: gmDemographics.au.sql,v $
--- Revision 1.11  2004-06-17 11:31:07  ihaywood
+-- Revision 1.12  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.11  2004/06/17 11:31:07  ihaywood
 -- A new form template for the new form markup.
 -- Basically @...@ where any Python expression can exist
 -- between the "@" signs. The other form templates will be changed over eventually.

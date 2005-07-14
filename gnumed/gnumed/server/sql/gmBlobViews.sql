@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.8 $ $Date: 2004-10-29 22:37:02 $ $Author: ncq $
+-- $Revision: 1.9 $ $Date: 2005-07-14 21:31:42 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -152,11 +152,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.9 $', True);
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.8  2004-10-29 22:37:02  ncq
+-- Revision 1.9  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.8  2004/10/29 22:37:02  ncq
 -- - propagate xmin to the relevant views to business classes can
 --   use it for concurrency conflict detection
 -- - fix v_problem_list to properly display a patient's problems

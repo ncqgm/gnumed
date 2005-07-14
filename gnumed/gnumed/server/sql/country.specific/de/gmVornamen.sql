@@ -2,7 +2,7 @@
 -- GnuMed first name to gender mappings
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmVornamen.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -3481,11 +3481,14 @@ INSERT INTO name_gender_map(name,gender) VALUES ('Zyhra', 'f');
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmVornamen.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES ('$rcsfile: gmvornamen.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES ('$rcsfile: gmvornamen.sql,v $', '$Revision: 1.5 $', False);
 
 -- =============================================
 -- $Log: gmVornamen.sql,v $
--- Revision 1.4  2005-04-12 12:13:47  ncq
+-- Revision 1.5  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.4  2005/04/12 12:13:47  ncq
 -- - some manual cleanup
 --
 -- Revision 1.3  2005/04/12 10:44:26  ncq

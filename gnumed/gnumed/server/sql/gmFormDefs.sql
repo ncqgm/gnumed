@@ -5,7 +5,7 @@
 -- author: Ian Haywood <>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmFormDefs.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 
 -- Note: this is office related while gmFormData.sql is clinical content
 -- ===================================================
@@ -27,7 +27,7 @@ comment on table lnk_form2discipline is
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmFormDefs.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.8 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmFormDefs.sql,v $', '$Revision: 1.9 $', True);
 
 -- =============================================
 -- * do we need "form_defs.iso_countrycode" ?
@@ -35,7 +35,10 @@ INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmFormDefs.
 
 -- =============================================
 -- $Log: gmFormDefs.sql,v $
--- Revision 1.8  2004-03-09 09:31:41  ncq
+-- Revision 1.9  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.8  2004/03/09 09:31:41  ncq
 -- - merged most form def tables into reference service schema
 --
 -- Revision 1.7  2004/03/08 17:04:23  ncq

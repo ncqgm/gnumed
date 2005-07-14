@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.53 $
+-- $Revision: 1.54 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -579,11 +579,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
---INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.53 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.54 $', True);
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.53  2005-06-09 21:09:45  ncq
+-- Revision 1.54  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.53  2005/06/09 21:09:45  ncq
 -- - there is no sensible reason to make state.code varchar(10)
 --   instead of text so put it back
 --

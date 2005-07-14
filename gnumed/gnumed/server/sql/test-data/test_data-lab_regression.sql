@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -93,12 +93,17 @@ insert into lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename like '$RCSfile: test_data-lab_regression.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.16 $');
+select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.17 $', False);
+
+--delete from gm_schema_revision where filename like '$RCSfile: test_data-lab_regression.sql,v $';
+--INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.17 $', False);
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.16  2005-03-31 20:09:32  ncq
+-- Revision 1.17  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.16  2005/03/31 20:09:32  ncq
 -- - lab_request not requires non-null status
 --
 -- Revision 1.15  2005/03/14 14:47:37  ncq

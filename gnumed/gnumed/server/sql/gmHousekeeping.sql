@@ -1,7 +1,7 @@
 -- Project: GnuMed - database housekeeping TODO tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmHousekeeping.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -71,11 +71,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmHousekeeping.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.7 $', True);
 
 -- =============================================
 -- $Log: gmHousekeeping.sql,v $
--- Revision 1.6  2004-07-17 20:57:53  ncq
+-- Revision 1.7  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.6  2004/07/17 20:57:53  ncq
 -- - don't use user/_user workaround anymore as we dropped supporting
 --   it (but we did NOT drop supporting readonly connections on > 7.3)
 --

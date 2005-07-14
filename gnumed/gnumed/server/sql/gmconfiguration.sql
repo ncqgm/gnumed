@@ -2,7 +2,7 @@
 -- GnuMed distributed database configuration tables
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmconfiguration.sql,v $
--- $Revision: 1.35 $
+-- $Revision: 1.36 $
 
 -- structure of configuration database for GnuMed
 -- neccessary to allow for distributed servers
@@ -241,11 +241,14 @@ comment on table cfg_data is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.35 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmconfiguration.sql,v $', '$Revision: 1.36 $', True);
 
 --=====================================================================
 -- $Log: gmconfiguration.sql,v $
--- Revision 1.35  2005-03-01 20:38:19  ncq
+-- Revision 1.36  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.35  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.34  2005/01/09 19:51:24  ncq

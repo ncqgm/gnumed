@@ -1,5 +1,5 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmATC.sql,v $
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 
 -- part of GnuMed
 -- GPL
@@ -95,10 +95,13 @@ Mail: posteingang@dimdi.de'
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmATC.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmATC.sql,v $', '$Revision: 1.1 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmATC.sql,v $', '$Revision: 1.2 $', False);
 
 -- =============================================
 -- $Log: gmATC.sql,v $
--- Revision 1.1  2004-06-26 21:14:27  ncq
+-- Revision 1.2  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.1  2004/06/26 21:14:27  ncq
 -- German ATC data
 --

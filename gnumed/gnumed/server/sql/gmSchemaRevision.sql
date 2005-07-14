@@ -1,7 +1,7 @@
 -- =============================================
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevision.sql,v $
--- $Id: gmSchemaRevision.sql,v 1.13 2005-07-14 21:29:40 ncq Exp $
+-- $Id: gmSchemaRevision.sql,v 1.14 2005-07-14 21:31:42 ncq Exp $
 -- license: GPL
 -- author: Karsten.Hilbert@gmx.net
 
@@ -11,14 +11,12 @@
 -- this will allow for a simplistic manual database schema revision control,
 -- that may come in handy when debugging live production databases,
 
--- TODO: add log_script_insertion(text, text, boolean)
-
 -- for your convenience, just copy/paste the following lines:
 -- (don't worry about the filename/revision that's in there, it will
 --  be replaced automagically with the proper data by "cvs commit")
 
 -- do simple schema revision tracking
--- select log_script_insertion('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.13 $', True/False);
+-- select log_script_insertion('$RCSfile: gmSchemaRevision.sql,v $', '$Revision: 1.14 $', True/False);
 
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -149,7 +147,10 @@ TO group "gm-public";
 
 -- =============================================
 -- $Log: gmSchemaRevision.sql,v $
--- Revision 1.13  2005-07-14 21:29:40  ncq
+-- Revision 1.14  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.13  2005/07/14 21:29:40  ncq
 -- - add database revision tracking by md5 hash over gm_schema_revision
 -- - enhance gm_schema_revision with is_core to allow for easy ignoring of non-schema-relevant skripts
 -- - documentation, cleanup

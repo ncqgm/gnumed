@@ -1,7 +1,7 @@
 -- GnuMed auditing functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -162,11 +162,14 @@ to group "gm-doctors";
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.9 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmAudit.sql,v $', '$Revision: 1.10 $', True);
 
 -- ===================================================================
 -- $Log: gmAudit.sql,v $
--- Revision 1.9  2005-03-01 20:38:19  ncq
+-- Revision 1.10  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.9  2005/03/01 20:38:19  ncq
 -- - varchar -> text
 --
 -- Revision 1.8  2004/09/22 14:10:38  ncq

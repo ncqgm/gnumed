@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -138,11 +138,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.8 $', False);
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.7  2005-06-10 07:21:35  ncq
+-- Revision 1.8  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.7  2005/06/10 07:21:35  ncq
 -- - better docs
 --
 -- Revision 1.6  2005/06/07 20:59:18  ncq

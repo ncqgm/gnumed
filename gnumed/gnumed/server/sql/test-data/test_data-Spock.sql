@@ -5,7 +5,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Spock.sql,v $
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -35,11 +35,14 @@ values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '$RCSfile: test_data-Spock.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-Spock.sql,v $', '$Revision: 1.6 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: test_data-Spock.sql,v $', '$Revision: 1.7 $', False);
 
 -- =============================================
 -- $Log: test_data-Spock.sql,v $
--- Revision 1.6  2005-02-13 15:08:23  ncq
+-- Revision 1.7  2005-07-14 21:31:43  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.6  2005/02/13 15:08:23  ncq
 -- - add names of actors and some comments
 --
 -- Revision 1.5  2005/02/12 13:49:14  ncq

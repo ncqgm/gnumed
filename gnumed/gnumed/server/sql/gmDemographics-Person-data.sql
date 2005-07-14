@@ -4,7 +4,7 @@
 -- identity related data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-data.sql,v $
--- $Id: gmDemographics-Person-data.sql,v 1.7 2005-04-14 17:45:21 ncq Exp $
+-- $Id: gmDemographics-Person-data.sql,v 1.8 2005-07-14 21:31:42 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -56,11 +56,14 @@ insert into gender_label (tag, label, sort_weight, comment) values (
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.7 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-Person-data.sql,v $', '$Revision: 1.8 $', True);
 
 -- =============================================
 -- $Log: gmDemographics-Person-data.sql,v $
--- Revision 1.7  2005-04-14 17:45:21  ncq
+-- Revision 1.8  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.7  2005/04/14 17:45:21  ncq
 -- - gender_label.sort_rank -> sort_weight
 --
 -- Revision 1.6  2005/04/14 16:57:50  ncq

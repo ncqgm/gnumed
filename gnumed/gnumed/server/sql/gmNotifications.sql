@@ -1,7 +1,7 @@
 -- GnuMed table change notification functionality
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/Attic/gmNotifications.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -84,11 +84,14 @@ comment on function add_table_for_notifies (name, name) is
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmNotifications.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmNotifications.sql,v $', '$Revision: 1.4 $');
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmNotifications.sql,v $', '$Revision: 1.5 $', True);
 
 -- ===================================================================
 -- $Log: gmNotifications.sql,v $
--- Revision 1.4  2004-08-16 19:58:01  ncq
+-- Revision 1.5  2005-07-14 21:31:42  ncq
+-- - partially use improved schema revision tracking
+--
+-- Revision 1.4  2004/08/16 19:58:01  ncq
 -- - allow the same notification to be sent from different
 --   tables (but not from the same one)
 --
