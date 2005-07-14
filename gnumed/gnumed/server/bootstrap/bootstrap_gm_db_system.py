@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -158,16 +158,16 @@ script, and run again as that user.
 """
 
 no_clues = """
-Logging on the the PostgreSQL database returned this error
+Logging on to the PostgreSQL database returned this error
 %s
 on %s
 
-Please contact the GNUMed development team on gnumed-devel@gnu.org.
+Please contact the GNUmed development team on gnumed-devel@gnu.org.
 Make sure you include this error message in your mail.
 """
 
 welcome_sermon = """
-Welcome to the GNUMed server instllation script.
+Welcome to the GNUmed server instllation script.
 
 You must have a PostgreSQL server running and
 administrator access.
@@ -195,29 +195,30 @@ def connect (host, port, db, user, passwd, superuser=0):
 	conn = None
 	dsn = dsn_format % (host, port, db, user, passwd)
 	try:
+		_log.Log (gmLog.lInfo, "trying DB connection to %s on %s as %s" % (db, host or 'localhost', user))
 		conn = dbapi.connect(dsn)
 		cached_host = (host, port) # learn from past successes
 		cached_passwd[user] = passwd
-		_log.Log (gmLog.lInfo, "DB connection to %s on %s as %s" % (db, host or 'localhost', user))
+		_log.Log (gmLog.lInfo, 'successfully connected')
 	except db_error, message:
+		_log.LogException('connection failed', sys.exc_info(), verbose = False)
 		m = str(message)
 		if re.search ("^FATAL:  No pg_hba.conf entry for host.*", m):
 			# this pretty much means we're screwed
 			if _interactive:
 				print pg_hba_sermon
-			_log.Log (gmLog.lErr, "rejected by pg_hba.conf with DSN [%s]" % dsn)
 		elif re.search ("no password supplied", m):
 			# didn't like blank password trick
-			_log.Log (gmLog.lWarn, "blank password failed -- retrying")
+			_log.Log (gmLog.lWarn, "attempt w/o password failed, retrying")
 			passwd = getpass.getpass ("I need the password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("^FATAL:.*Password authentication failed.*", m):
 			# didn't like supplied password
-			_log.Log (gmLog.lWarn, "password failed -- retrying")
+			_log.Log (gmLog.lWarn, "password not accepted, retrying")
 			passwd = getpass.getpass ("I need the correct password for the GNUmed database user [%s].\nPlease type password: " % user)
 			conn = connect (host, port, db, user, passwd)
 		elif re.search ("could not connect to server", m):
-			if len (host) == 0:
+			if len(host) == 0:
 				# try again on TCP/IP loopback
 				_log.Log (gmLog.lWarn , "UNIX socket connection failed, retrying on 127.0.0.1")
 				conn = connect ("127.0.0.1", port, db, user, passwd)
@@ -240,13 +241,10 @@ def connect (host, port, db, user, passwd, superuser=0):
 					print superuser_sermon % user
 				else:
 					print pg_hba_sermon
-			_log.Log (gmLog.lErr, "IDENT failed with DSN [%s]" % dsn)
 		else:
 			if _interactive:
 				print no_clues % (message, sys.platform)
-			_log.Log (gmLog.lErr, message)
 	return conn
-
 #==================================================================
 class user:
 	def __init__(self, anAlias = None, aPassword = None):
@@ -620,7 +618,7 @@ class database:
 
 		overrider = self.cfg.get(self.section, 'override name by')
 		if overrider is not None:
-			_log.Log(gmLog.lInfo, 'environment variable [%s] overrides database name in config file' % overrider)
+			_log.Log(gmLog.lInfo, 'if environment variable [%s] exists, it override database name in config file' % overrider)
 			self.name = os.getenv(overrider)
 			if self.name is None:
 				_log.Log(gmLog.lInfo, 'environment variable [%s] is not set, using database name from config file' % overrider)
@@ -1480,7 +1478,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.6  2005-06-01 23:17:43  ncq
+# Revision 1.7  2005-07-14 21:26:16  ncq
+# - cleanup, better logging/strings
+#
+# Revision 1.6  2005/06/01 23:17:43  ncq
 # - support overriding target database name via environment variable
 #
 # Revision 1.5  2005/04/02 22:08:00  ncq
