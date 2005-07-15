@@ -267,14 +267,23 @@ insert into country(code, name) values('AE', i18n('United Arab Emirates'));
 insert into country(code, name) values('GB', i18n('United Kingdom'));
 insert into country(code, name) values('US', i18n('United States'));
 
+-- FIXME: move to it's own file
+insert into state (code, country, name) values ('S', 'NZ', 'South Island');
+insert into state (code, country, name) values ('N', 'NZ', 'North Island');
+
 -- ===================================================================
 -- do simple schema revision tracking
-delete from gm_schema_revision where filename like '%phics-GIS-data%';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.5 $', True);
+select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.6 $', False);
+
+-- delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-GIS-data.sql,v $';
+-- INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.6 $', True);
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.5  2005-07-14 21:31:42  ncq
+-- Revision 1.6  2005-07-15 21:16:55  ncq
+-- - add "dummy" states for NZ for now
+--
+-- Revision 1.5  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.4  2005/05/04 08:56:55  ncq
