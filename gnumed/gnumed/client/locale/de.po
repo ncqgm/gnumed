@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.49 $
+# $Revision: 1.50 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
-"POT-Creation-Date: 2005-07-15 23:39+CEST\n"
-"PO-Revision-Date: 2005-07-16 00:23+0100\n"
+"POT-Creation-Date: 2005-07-16 12:19+CEST\n"
+"PO-Revision-Date: 2005-07-16 13:50+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -1138,9 +1138,8 @@ msgid "Date of birth"
 msgstr "Geburtsdatum"
 
 #: ../wxpython/gmDemographicsWidgets.py:1189
-#, fuzzy
 msgid "required: date of birth, if unknown or aliasing wanted then invent one (yyyy-mm-dd)"
-msgstr "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung gewünscht - einfacherfinden"
+msgstr "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung gewünscht - einfach erfinden (JJJJ-MM-DD)"
 
 #: ../wxpython/gmDemographicsWidgets.py:1192
 #: ../wxpython/gmDemographicsWidgets.py:1970
@@ -1248,9 +1247,8 @@ msgstr "Stammdaten"
 
 #: ../wxpython/gmDemographicsWidgets.py:1532
 #: ../wxpython/gmDemographicsWidgets.py:2112
-#, fuzzy
 msgid "Invalid date"
-msgstr "ungültige Eingabe"
+msgstr "ungültiges Datum"
 
 #: ../wxpython/gmDemographicsWidgets.py:1559
 #: ../wxpython/gmDemographicsWidgets.py:2413
@@ -1265,19 +1263,16 @@ msgid "Required fields"
 msgstr "Pflichtfelder"
 
 #: ../wxpython/gmDemographicsWidgets.py:1822
-#, fuzzy
 msgid "Identity"
-msgstr "Überempfindlichkeit"
+msgstr "Identität"
 
 #: ../wxpython/gmDemographicsWidgets.py:1839
-#, fuzzy
 msgid "Occupations"
-msgstr "Beruf"
+msgstr "Berufe"
 
 #: ../wxpython/gmDemographicsWidgets.py:1967
-#, fuzzy
 msgid "required: date of birth, if unknown or aliasing wanted then invent one (Y-m-d)"
-msgstr "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung gewünscht - einfacherfinden"
+msgstr "Pflichtfeld: Geburtsdatum; falls unbekannt oder Pseudonymisierung gewünscht - einfach erfinden (J-M-D)"
 
 #: ../wxpython/gmDemographicsWidgets.py:2053
 msgid ""
@@ -1287,9 +1282,8 @@ msgstr ""
 
 #: ../wxpython/gmDemographicsWidgets.py:2055
 #: ../wxpython/gmDemographicsWidgets.py:2058
-#, fuzzy
 msgid "Identity invalid input"
-msgstr "ungültige Eingabe"
+msgstr "Identität: ungültige Eingabe"
 
 #: ../wxpython/gmDemographicsWidgets.py:2061
 msgid ""
@@ -1309,9 +1303,8 @@ msgstr ""
 
 #: ../wxpython/gmDemographicsWidgets.py:2355
 #: ../wxpython/gmDemographicsWidgets.py:2358
-#, fuzzy
 msgid "Contacts invalid input"
-msgstr "ungültige Eingabe"
+msgstr "Kontakte: ungültige Eingabe"
 
 #: ../wxpython/gmDemographicsWidgets.py:2361
 msgid ""
@@ -1320,9 +1313,8 @@ msgid ""
 msgstr ""
 
 #: ../wxpython/gmDemographicsWidgets.py:2362
-#, fuzzy
 msgid "Contacts saving error"
-msgstr "Konfigurationsfehler"
+msgstr "Kontakte: Speicherfehler"
 
 #: ../wxpython/gmDemographicsWidgets.py:2518
 msgid ""
@@ -1346,7 +1338,6 @@ msgid "Occupations saving error"
 msgstr ""
 
 #: ../wxpython/gmDemographicsWidgets.py:2624
-#, fuzzy
 msgid "&Restore"
 msgstr "&Zurücksetzen"
 
@@ -1355,9 +1346,8 @@ msgid "restore fields with current values from backend"
 msgstr ""
 
 #: ../wxpython/gmDemographicsWidgets.py:2628
-#, fuzzy
 msgid "save patient information"
-msgstr "speichere Konfiguration"
+msgstr "Patientendaten speichern"
 
 #: ../wxpython/gmEMRBrowser.py:39
 msgid "Cannot export EMR. No active patient."
@@ -1429,7 +1419,6 @@ msgid "Renaming episode ..."
 msgstr "Episode umbenennen ..."
 
 #: ../wxpython/gmEMRBrowser.py:373
-#, fuzzy
 msgid ""
 "Cannot rename episode from\n"
 "\n"
@@ -1438,12 +1427,19 @@ msgid ""
 "to\n"
 "\n"
 " [%s]."
-msgstr "Kann Patienten nicht aus xDT-Datei laden: [%s]"
+msgstr ""
+"Kann Episode nicht von\n"
+"\n"
+"[%s]\n"
+"\n"
+"in\n"
+"\n"
+"[%s]\n"
+"umbenennen."
 
 #: ../wxpython/gmEMRBrowser.py:374
-#, fuzzy
 msgid "Error renaming episode ..."
-msgstr "Episode umbenennen"
+msgstr "Fehler beim Umbenennen der Episode ..."
 
 #: ../wxpython/gmEMRBrowser.py:408
 msgid "Reordering EMR ..."
@@ -2182,27 +2178,24 @@ msgid "Text document"
 msgstr "Textdatei"
 
 #: ../wxpython/gmGuiMain.py:271
-#, fuzzy
 msgid "Export the EMR of the active patient into a text file"
-msgstr "Kartei des aktiven Patienten in eine Textdatei exportieren"
+msgstr "Karteikarte des aktiven Patienten als Textdatei exportieren"
 
 #: ../wxpython/gmGuiMain.py:277
 msgid "Journal"
 msgstr "Journal"
 
 #: ../wxpython/gmGuiMain.py:278
-#, fuzzy
 msgid "Export the EMR of the active patient as a chronological journal into a text file"
-msgstr "Kartei des aktiven Patienten als chronologisches Journal in eine Textdatei exportieren"
+msgstr "Karteikarte des aktiven Patienten als chronologisches Journal in eine Textdatei exportieren"
 
 #: ../wxpython/gmGuiMain.py:284
 msgid "MEDISTAR import format"
 msgstr ""
 
 #: ../wxpython/gmGuiMain.py:285
-#, fuzzy
 msgid "GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file."
-msgstr "Kartei des aktiven Patienten als chronologisches Journal in eine Textdatei exportieren"
+msgstr "GNUmed -> MEDISTAR. Export der Verlaufsnotizen der aktiven APK des aktiven Patienten in eine Textdatei."
 
 #: ../wxpython/gmGuiMain.py:290
 msgid "Show as ..."
@@ -2213,9 +2206,8 @@ msgid "Search"
 msgstr "Suche"
 
 #: ../wxpython/gmGuiMain.py:298
-#, fuzzy
 msgid "Search for data in the EMR of the active patient"
-msgstr "Kartei des aktiven Patienten in eine Textdatei exportieren"
+msgstr "Kartei des aktiven Patienten durchsuchen"
 
 #: ../wxpython/gmGuiMain.py:305
 msgid "Add a health issue (pHx item) to the EMR of the active patient"
@@ -2260,23 +2252,20 @@ msgid "EMR journal export"
 msgstr "Journalexport der Karteikarte"
 
 #: ../wxpython/gmGuiMain.py:493
-#, fuzzy
 msgid "Cannot export EMR for Medistar. No active patient."
-msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
+msgstr "Kann Kartei nicht für MEDISTAR exportieren. Kein Patient aktiv."
 
 #: ../wxpython/gmGuiMain.py:510
-#, fuzzy
 msgid "Save patient's EMR for MEDISTAR as..."
-msgstr "Speichere Karteikarte des Patienten in ..."
+msgstr "Speichere Karteikarte des Patienten für MEDISTAR in ..."
 
 #: ../wxpython/gmGuiMain.py:530
 msgid "Error exporting progress notes of current encounter for MEDISTAR import."
 msgstr ""
 
 #: ../wxpython/gmGuiMain.py:531
-#, fuzzy
 msgid "MEDISTAR progress notes export"
-msgstr "Editor für Verlaufsnotizen"
+msgstr "Export Verlaufsnotizen an MEDISTAR"
 
 #: ../wxpython/gmGuiMain.py:631
 msgid "no patient"
