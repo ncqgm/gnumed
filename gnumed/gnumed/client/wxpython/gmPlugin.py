@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.43 2005-06-30 10:11:51 cfmoro Exp $
-__version__ = "$Revision: 1.43 $"
+# $Id: gmPlugin.py,v 1.44 2005-07-16 22:49:52 ncq Exp $
+__version__ = "$Revision: 1.44 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -344,7 +344,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 
 	if defaults is None:
 		_log.Log(gmLog.lInfo, "plugin load order not found in DB, scanning directory and storing in DB")
-		
+
 		# parse plugin directory
 		gb = gmGuiBroker.GuiBroker()
 		search_path = os.path.join(gb['gnumed_dir'], 'wxpython', plugin_dir)
@@ -387,7 +387,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.43  2005-06-30 10:11:51  cfmoro
+# Revision 1.44  2005-07-16 22:49:52  ncq
+# - cleanup
+#
+# Revision 1.43  2005/06/30 10:11:51  cfmoro
 # String corrections
 #
 # Revision 1.42  2005/06/12 22:17:24  ncq

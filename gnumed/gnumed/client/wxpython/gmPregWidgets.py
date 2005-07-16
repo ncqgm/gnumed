@@ -13,8 +13,8 @@ ideally, tool should query backend for parity, race, etc. for exact measurement
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPregWidgets.py,v $
-# $Id: gmPregWidgets.py,v 1.2 2005-06-16 07:39:46 rterry Exp $
-__version__ = "$Revision: 1.2 $"
+# $Id: gmPregWidgets.py,v 1.3 2005-07-16 22:49:52 ncq Exp $
+__version__ = "$Revision: 1.3 $"
 __author__ = "M. Bonert, R. Terry, I. Haywood"
 __licence__ = "GPL"
 
@@ -60,7 +60,7 @@ class cPregCalcFrame (wxFrame):
 	#	make movement between fields possible with 'tab' & 'enter'
 
 	def __init__ (self, parent):
-		myStyle = wxMINIMIZE_BOX | wxSYSTEM_MENU | wxCAPTION | wxALIGN_CENTER | \
+		myStyle = wxMINIMIZE_BOX | wxCAPTION | wxALIGN_CENTER | \
 			wxALIGN_CENTER_VERTICAL | wxTAB_TRAVERSAL | wxSTAY_ON_TOP
 		wxFrame.__init__(self, parent, -1, _("Pregnancy Calculator"), style=myStyle)
 
@@ -445,7 +445,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmPregWidgets.py,v $
-# Revision 1.2  2005-06-16 07:39:46  rterry
+# Revision 1.3  2005-07-16 22:49:52  ncq
+# - cleanup
+#
+# Revision 1.2  2005/06/16 07:39:46  rterry
 # Fixed spacer values to run under wxPython 2.6
 # e.g .Add(10,0,0,0) now .Add((10,0),0,0)
 # Richard Terry
