@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/install.sh,v $
-# $Id: install.sh,v 1.4 2005-07-10 18:26:12 ncq Exp $
-# $Revision: 1.4 $
+# $Id: install.sh,v 1.5 2005-07-16 10:57:34 shilbert Exp $
+# $Revision: 1.5 $
 # license: GPL
 # sebastian.hilbert@gmx.net
 
@@ -85,6 +85,7 @@ else
 fi
 echo "GNUmed documentation directory: $docdir" &> $LOG
 
+cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual $docdir/client &> $LOG
 cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/medical_knowledge $docdir &> $LOG
 cp -R ./GnuPublicLicense.txt $docdir &> $LOG
 
@@ -126,7 +127,10 @@ echo $LOG
 
 #================================================
 # $Log: install.sh,v $
-# Revision 1.4  2005-07-10 18:26:12  ncq
+# Revision 1.5  2005-07-16 10:57:34  shilbert
+# - install user manual from wiki instead of old stuff in CVS
+#
+# Revision 1.4  2005/07/10 18:26:12  ncq
 # - announce the log file at the end
 #
 # Revision 1.3  2005/07/10 18:24:48  ncq
