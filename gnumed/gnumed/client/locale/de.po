@@ -2,12 +2,12 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/locale/de.po,v $
-# $Revision: 1.50 $
+# $Revision: 1.51 $
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuMed 0.1\n"
 "POT-Creation-Date: 2005-07-16 12:19+CEST\n"
-"PO-Revision-Date: 2005-07-16 13:50+0100\n"
+"PO-Revision-Date: 2005-07-16 21:26+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "MIME-Version: 1.0\n"
@@ -338,6 +338,9 @@ msgid ""
 "\n"
 "There are no encounters for this health issue.\n"
 msgstr ""
+"\n"
+"\n"
+"Es gibt für diese Grunderkrankung keine APK.\n"
 
 #: ../exporters/gmPatientExporter.py:565
 msgid ""
@@ -374,6 +377,9 @@ msgid ""
 "%sEncounters: %s (%s - %s)\n"
 "%sLast worked on: %s\n"
 msgstr ""
+"%sEpisode \"%s\" [%s]\n"
+"%sAPKs: %s (%s - %s)\n"
+"%sZuletzt bearbeitet: %s\n"
 
 #: ../exporters/gmPatientExporter.py:615
 msgid "RFE"
@@ -1343,7 +1349,7 @@ msgstr "&Zurücksetzen"
 
 #: ../wxpython/gmDemographicsWidgets.py:2625
 msgid "restore fields with current values from backend"
-msgstr ""
+msgstr "Setze Eingabefelder auf Werte in der Datenbank"
 
 #: ../wxpython/gmDemographicsWidgets.py:2628
 msgid "save patient information"
@@ -1413,6 +1419,8 @@ msgid ""
 "Old: \"%s\"\n"
 "Please type the new description:\n"
 msgstr ""
+"Bisher: \"%s\"\n"
+"Bitte neue Beschreibung eintippen:\n"
 
 #: ../wxpython/gmEMRBrowser.py:359
 msgid "Renaming episode ..."
@@ -1470,6 +1478,14 @@ msgid ""
 "\n"
 " [%s]."
 msgstr ""
+"Kann Grunderkrankung nicht von\n"
+"\n"
+"[%s]\n"
+"\n"
+"in\n"
+"\n"
+"[%s]\n"
+"umbenennen."
 
 #: ../wxpython/gmEMRBrowser.py:454
 msgid "Error renaming health issue ..."
@@ -2191,7 +2207,7 @@ msgstr "Karteikarte des aktiven Patienten als chronologisches Journal in eine Te
 
 #: ../wxpython/gmGuiMain.py:284
 msgid "MEDISTAR import format"
-msgstr ""
+msgstr "Importformat für MEDISTAR"
 
 #: ../wxpython/gmGuiMain.py:285
 msgid "GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file."
@@ -2199,7 +2215,7 @@ msgstr "GNUmed -> MEDISTAR. Export der Verlaufsnotizen der aktiven APK des aktiv
 
 #: ../wxpython/gmGuiMain.py:290
 msgid "Show as ..."
-msgstr ""
+msgstr "Zeige als ..."
 
 #: ../wxpython/gmGuiMain.py:297
 msgid "Search"
@@ -2211,7 +2227,7 @@ msgstr "Kartei des aktiven Patienten durchsuchen"
 
 #: ../wxpython/gmGuiMain.py:305
 msgid "Add a health issue (pHx item) to the EMR of the active patient"
-msgstr ""
+msgstr "Eine Grunderkrankung (EA) in der Karteikarte des aktiven Patienten anlegen"
 
 #: ../wxpython/gmGuiMain.py:319
 msgid "&Tools"
@@ -2228,12 +2244,12 @@ msgstr "Über GNUmed"
 
 #: ../wxpython/gmGuiMain.py:332
 msgid "show GNUmed contributors"
-msgstr ""
+msgstr "GNUmed-Helfer zeigen"
 
 #: ../wxpython/gmGuiMain.py:332
 #: ../wxpython/gmGuiMain.py:384
 msgid "GNUmed contributors"
-msgstr ""
+msgstr "GNUmed-Helfer"
 
 #: ../wxpython/gmGuiMain.py:445
 msgid "Cannot export EMR journal. No active patient."
@@ -2965,11 +2981,11 @@ msgstr "Patienten wählen"
 
 #: ../wxpython/gmPhraseWheel.py:478
 msgid "Cannot auto-select from list. There are several matches for the input."
-msgstr ""
+msgstr "Kann nicht aus Liste vorwählen. Mehrere Treffer für Eingabe gefunden."
 
 #: ../wxpython/gmPhraseWheel.py:481
 msgid "There are no matches for this input."
-msgstr ""
+msgstr "Keine Treffer für Eingabe gefunden."
 
 #: ../wxpython/gmPlugin.py:32
 msgid "GNUmed: configuring [%s] (%s plugins)"
@@ -3237,6 +3253,8 @@ msgid ""
 "Need a name for the new episode to save new progress note under.\n"
 "Please type a new episode name or select an existing one from the list."
 msgstr ""
+"Um die neue Verlaufsnotiz zu speichern, ist eine Bezeichnung für die neue Episode nötig.\n"
+"Bitte eine neue Bezeichnung tippen oder eine existierende Episode aus der Liste wählen."
 
 #: ../wxpython/gmSOAPWidgets.py:837
 #: ../wxpython/gmSOAPWidgets.py:842
