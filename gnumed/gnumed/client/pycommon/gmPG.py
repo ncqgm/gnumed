@@ -14,7 +14,7 @@ def resultset_functional_batchgene rator(cursor, size=100):
 """
 # =======================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.50 $"
+__version__ = "$Revision: 1.51 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -80,11 +80,14 @@ assert(dbapi.paramstyle == 'pyformat')
 _listener_api = None
 
 # default encoding for connections
+_default_client_encoding = None
 try:
 	_default_client_encoding = locale.nl_langinfo(locale.CODESET)
 	_log.Log(gmLog.lInfo, 'client encoding according to locale system: [%s]' % _default_client_encoding)
-except ValueError:
-	_default_client_encoding = None
+except ValueError, AttributeError:
+	_log.LogException('cannot get client encoding from locale system', sys.exc_info(), verbose=0)
+except:
+	_log.LogException('error getting client encoding from locale system', sys.exc_info(), verbose=0)
 
 # default time zone for connections
 # OR: mxDT.now().gmtoffset()
@@ -1215,7 +1218,7 @@ def table_exists(source, table):
 	return exists
 #---------------------------------------------------
 def add_housekeeping_todo(
-	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.50 $',
+	reporter='$RCSfile: gmPG.py,v $ $Revision: 1.51 $',
 	receiver='DEFAULT',
 	problem='lazy programmer',
 	solution='lazy programmer',
@@ -1442,7 +1445,10 @@ if __name__ == "__main__":
 
 #==================================================================
 # $Log: gmPG.py,v $
-# Revision 1.50  2005-07-11 08:34:11  ncq
+# Revision 1.51  2005-07-16 18:35:55  ncq
+# - catch more errors around locale access
+#
+# Revision 1.50  2005/07/11 08:34:11  ncq
 # - better messages on failing to import a DB-API module
 #
 # Revision 1.49  2005/06/12 22:18:36  ncq
