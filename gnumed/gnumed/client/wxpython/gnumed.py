@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.80 $"
+__version__ = "$Revision: 1.81 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -160,8 +160,10 @@ def setup_locale():
 	for code in info_codes.keys():
 		try:
 			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
-		except ValueError:
+		except ValueError, AttributeError:
 			_log.Log(gmLog.lData, 'locale does not support [%s] info' % info_codes[code])
+		except:
+			_log.LogException('error getting locale info', sys.exc_info(), verbose=0)
 
 	return True
 #==========================================================
@@ -425,7 +427,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.80  2005-07-04 11:27:57  ncq
+# Revision 1.81  2005-07-16 18:36:35  ncq
+# - more careful error catching around locale access
+#
+# Revision 1.80  2005/07/04 11:27:57  ncq
 # - GnuMed -> GNUmed
 #
 # Revision 1.79  2005/06/29 15:11:05  ncq
