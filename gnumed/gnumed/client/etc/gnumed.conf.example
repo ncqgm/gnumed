@@ -1,24 +1,19 @@
-# GnuMed client config file
+# GNUmed client config file
 # -------------------------------------------------------------
 
 [workplace]
-help desk = GnuMed developers <gnumed-devel@gnu.org>
+help desk = GNUmed developers <gnumed-devel@gnu.org>
 name = <config file example workplace>
 
-[profile gnumed at localhost]
+[profile GNUmed at localhost]
 host = localhost
 port = 5432
-database = gnumed
+database = <gnumed_v1>
 
-[profile GnuMed - Public DB at anubis.homeunix.com]
-host = anubis.homeunix.com
-port = 5432
-database = gnumed
-
-[profile GnuMed - Public DB at salaam.homeunix.com]
+[profile GNUmed - Public DB at salaam.homeunix.com]
 host = salaam.homeunix.com
 port = 5432
-database = gnumed
+database = <gnumed_v1>
 
 [backend]
 logins = $logins$
@@ -26,9 +21,8 @@ any-doc
 $logins$
 
 profiles = $profiles$
-gnumed at localhost
-GnuMed - Public DB at anubis.homeunix.com
-GnuMed - Public DB at salaam.homeunix.com
+GNUmed at localhost
+GNUmed - Public DB at salaam.homeunix.com
 $profiles$
 
 # If the system locale matches this value a mismatch
@@ -47,4 +41,4 @@ client encoding = ISO-8859-15
 # If you don't want to change the timezone GNUmed detects
 # in the system you need to remove, rename or comment out
 # this option.
-client timezone = 'CETDST'
+client timezone = CETDST
