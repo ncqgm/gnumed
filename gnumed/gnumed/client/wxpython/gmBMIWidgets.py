@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.5 2005-06-16 07:03:19 rterry Exp $
-__version__ = "$Revision: 1.5 $"
+# $Id: gmBMIWidgets.py,v 1.6 2005-07-16 11:34:47 ncq Exp $
+__version__ = "$Revision: 1.6 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -106,7 +106,14 @@ class BMICalc_Panel(wxPanel):
 		self.upp_norm_mass=''	# mass for given height if BMI=25
 		self.focus=0		# set to avoid error on 'Reset'
 
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER | wxTAB_TRAVERSAL)
+		wxPanel.__init__ (
+			self,
+			parent = parent,
+			id = id,
+			pos = wxDefaultPosition,
+			size = wxDefaultSize,
+			style = wxSIMPLE_BORDER | wxTAB_TRAVERSAL
+		)
 		#------------------------------
 		#sizer with heading label
 		#------------------------------
@@ -415,15 +422,13 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 	def __init__(self, parent):
 		# default frame style - maximize box + float on parent + centering + tabbing
 		# wxFRAME_FLOAT_ON_PARENT makes it modal
-		myStyle = wxMINIMIZE_BOX | wxRESIZE_BORDER | wxSYSTEM_MENU | wxCAPTION | wxALIGN_CENTER | wxALIGN_CENTER_VERTICAL | wxTAB_TRAVERSAL | wxSTAY_ON_TOP
 		wxFrame.__init__(
 			self,
 			parent,
 			-1,
 			_("BMI Calculator"),
-			style = myStyle
+			style = wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxRESIZE_BORDER | wxCAPTION | wxALIGN_CENTER | wxALIGN_CENTER_VERTICAL | wxTAB_TRAVERSAL | wxSTAY_ON_TOP
 		)
-
 		EVT_CLOSE(self, self.OnCloseWindow)
 
 		#-----------------------------------------------------
@@ -461,7 +466,7 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 			(wxButton(self, 1010, _('&Reset')), 0, wxEXPAND),
 			(wxButton(self, 1011, _('&Print')), 0, wxEXPAND),
 			(wxButton(self, 1012, _('&Save')), 0, wxEXPAND),
-			(wxButton(self, 1013, _('&Handout')), 0, wxEXPAND),
+			(wxButton(self, 1013, _('&Handout')), 0, wxEXPAND)
 		])
 
 		EVT_BUTTON(self,1010,self.EvtReset)
@@ -543,7 +548,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.5  2005-06-16 07:03:19  rterry
+# Revision 1.6  2005-07-16 11:34:47  ncq
+# - just cleanup
+#
+# Revision 1.5  2005/06/16 07:03:19  rterry
 # Fixed Sizer syntax to work with 2.6.1 (eg (10,0,0,0) should be ((10,0),0,0)
 # multiple occurence
 # Note this form cannot be closed currently needs fixing-
