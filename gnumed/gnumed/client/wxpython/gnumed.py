@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.81 $"
+__version__ = "$Revision: 1.82 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -294,37 +294,46 @@ def get_base_dir():
 	print "GNUmed startup: Determining GNUmed base directory ..."
 	# environment variable
 	if os.environ.has_key('GNUMED_DIR'):
-		tmp = os.environ['GNUMED_DIR']
+		var = os.environ['GNUMED_DIR']
+		# - expand '~' and '~user'
+		# - expand '$var' and '${var}'
+		# - make absolute (normalizes slashes, too)
+		# - normalize case
+		tmp = os.path.normcase (os.path.abspath (
+			os.path.expandvars(os.path.expanduser(var))
+		))
+		print '- environment variable GNUMED_DIR contains [%s]' % tmp
+		print '  this expands to [%s]' % tmp
 		# - however, we don't want any random rogue to throw us off
-		#   balance so we check whether that's a valid path,
+		#   balance so we check whether that's a valid path
 		# - note that it may still be the wrong directory
 		if os.path.exists(tmp):
-			return os.path.abspath(tmp)
-		print '- environment variable GNUMED_DIR contains [%s]' % tmp
+			return tmp
 		print '  (this is not a valid path, however)'
 	else:
 		print '- environment variable GNUMED_DIR not set'
 		print '  (only necessary if nothing else works, though)'
 
-	# standard path
-	# - normalize and convert slashes to local filesystem convention
-	tmp = os.path.normcase('/usr/share/gnumed/')
+	# standard POSIX path
+	# - only works on POSIX where the given string is a valid path definition
+	tmp = '/usr/share/gnumed/'
 	# - sanity check
 	if os.path.exists(tmp):
-		return os.path.abspath(tmp)
+		return tmp
 
 	print '- standard path [%s] not accessible' % tmp
 	print '- seems like we are running from an arbitrary'
-	print '  directory (like a CVS tree or on Windows)'
+	print '  directory (like a CVS tree or on Windows), namely:'
 
 	# get path to binary
-	tmp = os.path.abspath(os.path.dirname(sys.argv[0]))
+	bin = sys.argv[0]
+	tmp = os.path.dirname(os.path.abspath(bin))
 	# strip one directory level
-	# this is a rather neat trick :-)
 	tmp = os.path.normpath(os.path.join(tmp, '..'))
+	print '  [%s] -> [%s]' % (bin, tmp)
 	# sanity check (paranoia rulez)
 	if os.path.exists(tmp):
-		return os.path.abspath(tmp)
+		return tmp
 
 	print '- application installation path [%s] not accessible' % tmp
 	print ''
@@ -427,7 +436,12 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.81  2005-07-16 18:36:35  ncq
+# Revision 1.82  2005-07-17 17:22:04  ncq
+# - handle path expansion/normalization more carefully to
+#   hopefully cope with MS Windows shortcomings
+# - be slightly more informative on startup re paths
+#
+# Revision 1.81  2005/07/16 18:36:35  ncq
 # - more careful error catching around locale access
 #
 # Revision 1.80  2005/07/04 11:27:57  ncq
