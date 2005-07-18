@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.45 2005-07-18 16:48:26 ncq Exp $
-__version__ = "$Revision: 1.45 $"
+# $Id: gmPlugin.py,v 1.46 2005-07-18 17:13:38 ncq Exp $
+__version__ = "$Revision: 1.46 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -262,6 +262,22 @@ def raise_notebook_plugin(plugin_name = None):
 		return True
 	return False
 #------------------------------------------------------------------
+def __gm_import(module_name):
+	"""Import a module.
+
+	I am not sure *why* we need this. But the docs
+	and Google say so. It's got something to do with
+	package imports returning the toplevel package name."""
+	try:
+		mod = __import__(module_name)
+	except ImportError:
+		_log.LogException ('Cannot __import__() module [%s].' % module_name, sys.exc_info(), verbose=0)
+		return None
+	components = module_name.split('.')
+	for component in components[1:]:
+		mod = getattr(mod, component)
+	return mod
+#------------------------------------------------------------------
 def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	"""Instantiates a plugin object from a package directory, returning the object.
 
@@ -287,25 +303,28 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 	if not 'horstspace.notebook.pages' in gb.keylist():
 		gb['horstspace.notebook.pages'] = []
 
-	try:
+	module_from_package = __gm_import('Gnumed.wxpython.%s.%s' % (aPackage, plugin_name))
+
+#	try:
 		# use __import__() so we can dynamically calculate the module name
-#		module_from_package = __import__(name = '%s.%s' % (aPackage, plugin_name))
-		module_from_package = __import__ (
-			'Gnumed.wxpython.%s' % aPackage,
-			globals(),
-			locals(),
-			[plugin_name]
-		)
-	except ImportError:
-		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
-		return None
+##		module_from_package = __import__('%s.%s' % (aPackage, plugin_name))
+#		module_from_package = __import__ (
+#			'Gnumed.wxpython.%s' % aPackage,
+#			globals(),
+#			locals(),
+#			[plugin_name]
+#		)
+#	except ImportError:
+#		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
+#		return None
 
 	# find name of class of plugin (must be the same as the plugin module filename)
 	# 1) get module name
 	print aPackage, '+', plugin_name, '=', module_from_package
-	plugin_module_name = module_from_package.__dict__[plugin_name]
+#	plugin_module_name = module_from_package.__dict__[plugin_name]
 	# 2) get class name
-	plugin_class = plugin_module_name.__dict__[plugin_name]
+#	plugin_class = plugin_module_name.__dict__[plugin_name]
+	plugin_class = module_from_package.__dict__[plugin_name]
 
 	if not issubclass(plugin_class, cNotebookPlugin):
 		_log.Log(gmLog.lErr, "[%s] not a subclass of cNotebookPlugin" % plugin_name)
@@ -395,7 +414,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.45  2005-07-18 16:48:26  ncq
+# Revision 1.46  2005-07-18 17:13:38  ncq
+# - improved import works but... better do what the docs tell us to do
+#
+# Revision 1.45  2005/07/18 16:48:26  ncq
 # - hopefully improve __import__ of modules
 #
 # Revision 1.44  2005/07/16 22:49:52  ncq
