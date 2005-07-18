@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.7 2005-04-24 15:48:47 ncq Exp $
+# $Id: gmI18N.py,v 1.8 2005-07-18 09:12:12 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -54,6 +54,8 @@ if __name__ == "__main__":
 
 system_locale = ''
 system_locale_level = {}
+
+__tag__ = 'translate this or i18n will not work properly !'
 
 # Q: I can't use non-ascii characters in labels and menus.
 # A: This can happen if your Python's sytem encoding is ascii and
@@ -125,7 +127,8 @@ def __get_system_locale():
 
 	# use locale system
 	import locale
-	system_locale = locale.setlocale(locale.LC_CTYPE)
+#	system_locale = locale.setlocale(locale.LC_CTYPE)
+	system_locale = locale.setlocale(locale.LC_ALL, '')
 
 	# did we find any locale setting ? assume en_EN if not
 	if system_locale in [None, 'C']:
@@ -135,7 +138,7 @@ def __get_system_locale():
 	# generate system locale levels
 	__split_locale_into_levels()
 #---------------------------------------------------------------------------
-def __install_domain():
+def __install_domain_old():
 	"""Install a text domain suitable for the main script.
 	"""
 	text_domain = ""
@@ -223,6 +226,76 @@ def __install_domain():
 	dummy = gettext.NullTranslations()
 	dummy.install()
 	return 1
+#---------------------------------------------------------------------------
+def __install_domain():
+	"""Install a text domain suitable for the main script.
+	"""
+	text_domain = ''
+	# text domain given on command line ?
+	if gmCLI.has_arg('--text-domain'):
+		text_domain = gmCLI.arg['--text-domain']
+	# else get text domain from name of script 
+	else:
+		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+
+	_log.Log(gmLog.lInfo, 'text domain is [%s]' % text_domain)
+
+	# search for message catalog
+	_log.Log(gmLog.lData, 'Searching message catalog file for system locale [%s].' % system_locale)
+	candidates = []
+	# 1) try standard places first
+	if os.name == 'posix':
+		_log.Log(gmLog.lData, 'system is POSIX, looking in standard locations (see Python Manual)')
+		# if this is reported to segfault/fail/except on some
+		# systems we may have to assume "sys.prefix/share/locale/"
+		candidates.append(gettext.bindtextdomain(text_domain))
+	else:
+		_log.Log(gmLog.lData, 'No use looking in standard POSIX locations - not a POSIX system.')
+	# 2) $(<script-name>_DIR)/
+	env_key = "%s_DIR" % string.upper(os.path.splitext(os.path.basename(sys.argv[0]))[0])
+	_log.Log(gmLog.lData, 'looking at ${%s}' % env_key)
+	if os.environ.has_key(env_key):
+		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'locale'))
+		_log.Log(gmLog.lData, '${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
+		candidates.append(loc_dir)
+	else:
+		_log.Log(gmLog.lInfo, "${%s} not set" % env_key)
+	# 3) one level above path to binary
+	#    last resort for inferior operating systems such as DOS/Windows
+	#    strip one directory level
+	#    this is a rather neat trick :-)
+	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'locale'))
+	_log.Log(gmLog.lData, 'looking above binary install directory [%s]' % loc_dir)
+	candidates.append(loc_dir)
+	# 4) in path to binary
+	loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'locale' ))
+	_log.Log(gmLog.lData, 'looking in binary install directory [%s]' % loc_dir)
+	candidates.append(loc_dir)
+
+	# now try to actually install it
+	for candidate in candidates:
+		_log.Log(gmLog.lData, 'trying [%s]' % candidate)
+		if not os.path.exists(candidate):
+			continue
+		try:
+			gettext.install(text_domain, candidate, unicode=unicode_flag)
+		except:
+			_log.LogException('installing textdomain [%s] failed from [%s]' % (text_domain, candidate), sys.exc_info(), verbose=0)
+			continue
+		# does it translate ?
+		if _(__tag__) == __tag__:
+			_log.Log(gmLog.lData, 'does not translate')
+			continue
+		else:
+			_log.Log(gmLog.lData, 'found msg catalog: [%s] => [%s]' % (__tag__, _(__tag__)))
+			return True
+
+	# 5) install a dummy translation class
+	_log.Log(gmLog.lWarn, "Giving up and falling back to NullTranslations() class in despair.")
+	# this shouldn't fail
+	dummy = gettext.NullTranslations()
+	dummy.install()
+	return True
 #===========================================================================
 # Main
 #---------------------------------------------------------------------------
@@ -237,6 +310,8 @@ __install_domain()
 gmTimeformat = _("%Y-%m-%d  %H:%M:%S")
 _log.Log(gmLog.lData, 'local time format set to "%s"' % gmTimeformat)
 
+tmp = _('translate this or i18n will not work properly !')
+
 if __name__ == "__main__":
 	print "======================================================================"
 	print __doc__
@@ -247,7 +322,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.7  2005-04-24 15:48:47  ncq
+# Revision 1.8  2005-07-18 09:12:12  ncq
+# - make __install_domain more robust
+#
+# Revision 1.7  2005/04/24 15:48:47  ncq
 # - change unicode_flag default to 0
 # - add comment on proper fix involving sitecustomize.py
 #
