@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/install.sh,v $
-# $Id: install.sh,v 1.5 2005-07-16 10:57:34 shilbert Exp $
-# $Revision: 1.5 $
+# $Id: install.sh,v 1.6 2005-07-18 19:35:25 shilbert Exp $
+# $Revision: 1.6 $
 # license: GPL
 # sebastian.hilbert@gmx.net
 
@@ -27,13 +27,13 @@ echo "##########################################################################
 
 echo "Installing GNUmed $REV ..." > $LOG
 
-mkdir -p /usr/lib/python/site-packages/Gnumed/ &> $LOG
-mkdir -p /usr/share/doc/gnumed/client &> $LOG
-mkdir -p /usr/lib/python/site-packages/Gnumed/exporters/ &> $LOG
-mkdir -p /usr/lib/python/site-packages/Gnumed/importers/ &> $LOG
-mkdir -p /etc/gnumed/ &> $LOG
-mkdir -p /usr/lib/python/site-packages/Gnumed/ &> $LOG
-mkdir -p /usr/share/gnumed/pixmaps/ &> $LOG
+#mkdir -p /usr/lib/python/site-packages/Gnumed/ &> $LOG
+#mkdir -p /usr/share/doc/gnumed/client &> $LOG
+#mkdir -p /usr/lib/python/site-packages/Gnumed/exporters/ &> $LOG
+#mkdir -p /usr/lib/python/site-packages/Gnumed/importers/ &> $LOG
+#mkdir -p /etc/gnumed/ &> $LOG
+#mkdir -p /usr/lib/python/site-packages/Gnumed/ &> $LOG
+#mkdir -p /usr/share/gnumed/pixmaps/ &> $LOG
 #mkdir -p ./GNUmed-$REV/client/usr/share/locale/de/LC_MESSAGES/
 #mkdir -p ./GNUmed-$REV/client/usr/share/locale/de_DE/LC_MESSAGES/
 #mkdir -p ./GNUmed-$REV/client/usr/share/locale/fr/LC_MESSAGES/
@@ -53,7 +53,9 @@ else
 fi
 echo "GNUmed directory: $gmdir" &> $LOG
 
+mkdir -p $gmdir &> $LOG
 cp -R ./GNUmed-$REV/client/usr/share/gnumed/bitmaps $gmdir &> $LOG
+mkdir -p $gmdir/pixmaps &> $LOG
 cp -R ./GNUmed-$REV/client/usr/share/gnumed/pixmaps/gnumed.xpm $gmdir/pixmaps/gnumed.xpm &> $LOG
 #####################################
 dfltpythondir=/usr/lib/python/site-packages/Gnumed
@@ -66,11 +68,16 @@ else
 fi
 echo "GNUmed Python directory: $pythondir" &> $LOG
 
+mkdir -p $pythondir/business &> $LOG
 cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/business $pythondir &> $LOG
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/exporters/*.py $pythondir/exporters/
+mkdir -p $pythondir/exporters &> $LOG
+cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/exporters/*.py $pythondir/exporters/ &> $LOG
+mkdir -p $pythondir/importers &> $LOG
 cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/importers/*.py $pythondir/importers/ &> $LOG
 cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/sitecustomize.py $pythondir &> $LOG
+mkdir -p $pythondir/pycommon &> $LOG
 cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/pycommon $pythondir &> $LOG
+mkdir -p $pythondir/wxpython &> $LOG
 cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/wxpython $pythondir &> $LOG
 cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/__init__.py $pythondir &> $LOG
 
@@ -85,6 +92,7 @@ else
 fi
 echo "GNUmed documentation directory: $docdir" &> $LOG
 
+mkdir -p $docdir/client &> $LOG
 cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual $docdir/client &> $LOG
 cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/medical_knowledge $docdir &> $LOG
 cp -R ./GnuPublicLicense.txt $docdir &> $LOG
@@ -100,6 +108,7 @@ else
 fi
 echo "GNUmed configuration directory: $confdir" &> $LOG
 
+mkdir -p $confdir &> $LOG
 cp -R ./GNUmed-$REV/client/etc/gnumed/*.conf $confdir &> $LOG
 
 #######################################
@@ -113,6 +122,7 @@ else
 fi
 echo "GNUmed locale directory: $localedir" &> $LOG
 
+mkdir $localedir &> $LOG
 cp -R ./GNUmed-$REV/client/usr/share/locale $localedir &> $LOG
 #######################################
 
@@ -127,7 +137,10 @@ echo $LOG
 
 #================================================
 # $Log: install.sh,v $
-# Revision 1.5  2005-07-16 10:57:34  shilbert
+# Revision 1.6  2005-07-18 19:35:25  shilbert
+# - now respects user input for destination paths
+#
+# Revision 1.5  2005/07/16 10:57:34  shilbert
 # - install user manual from wiki instead of old stuff in CVS
 #
 # Revision 1.4  2005/07/10 18:26:12  ncq
