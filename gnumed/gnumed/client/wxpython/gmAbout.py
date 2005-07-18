@@ -2,8 +2,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.15 2005-07-11 16:16:21 ncq Exp $
-__version__ = "$Revision: 1.15 $"
+# $Id: gmAbout.py,v 1.16 2005-07-18 20:45:25 ncq Exp $
+__version__ = "$Revision: 1.16 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -199,7 +199,7 @@ Andreas Tille
 			-1,
 			cContributorsDlg.contributors,
 			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY,
-			size = wx.wxSize(400,300)
+			size = wx.wxSize(500, 300)
 		)
 #		contributor_listing.SetFont(wx.wxFont(12, wx.wxMODERN, wx.wxNORMAL, wx.wxNORMAL))
 		# arrange widgets
@@ -227,7 +227,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.15  2005-07-11 16:16:21  ncq
+# Revision 1.16  2005-07-18 20:45:25  ncq
+# - make contributors dialog slightly larger
+#
+# Revision 1.15  2005/07/11 16:16:21  ncq
 # - display contributor dialog in a proper size
 #
 # Revision 1.14  2005/07/11 09:04:27  ncq
