@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.8 2005-02-01 19:20:23 ncq Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmHorstSpace.py,v 1.9 2005-07-18 20:47:41 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -180,12 +180,14 @@ class cHorstSpaceLayoutMgr(wxPanel):
 		_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
 		# let's try a trick
 		if id_old_page != id_new_page:
-			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(id_old_page)')
-			event.SetSelection(id_old_page)
+			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(id_old_page)')
+#			event.SetSelection(id_old_page)
+			wx.CallAfter(self.nb.SetSelection, id_old_page)
 		# or two
 		elif self.__id_prev_page != id_new_page:
-			_log.Log(gmLog.lInfo, 'veto()ing with SetSelection(self.__id_prev_page)')
-			event.SetSelection(self.__id_prev_page)
+			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(self.__id_prev_page)')
+#			event.SetSelection(self.__id_prev_page)
+			wx.CallAfter(self.nb.SetSelection, self.__id_prev_page)
 		else:
 			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
 		event.Skip()
@@ -248,7 +250,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.8  2005-02-01 19:20:23  ncq
+# Revision 1.9  2005-07-18 20:47:41  ncq
+# - try to improve notebook page changing trick
+#   needed on Windows
+#
+# Revision 1.8  2005/02/01 19:20:23  ncq
 # - just silly cleanup
 #
 # Revision 1.7  2005/02/01 10:16:07  ihaywood
