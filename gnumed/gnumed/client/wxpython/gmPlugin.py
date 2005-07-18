@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.44 2005-07-16 22:49:52 ncq Exp $
-__version__ = "$Revision: 1.44 $"
+# $Id: gmPlugin.py,v 1.45 2005-07-18 16:48:26 ncq Exp $
+__version__ = "$Revision: 1.45 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -289,15 +289,23 @@ def instantiate_plugin(aPackage='xxxDEFAULTxxx', plugin_name='xxxDEFAULTxxx'):
 
 	try:
 		# use __import__() so we can dynamically calculate the module name
-		mod_from_pkg = __import__("%s.%s" % (aPackage, plugin_name))
-		# find name of class of plugin (must be the same as the plugin module filename)
-		# 1) get module name
-		plugin_module_name = mod_from_pkg.__dict__[plugin_name]
-		# 2) get class name
-		plugin_class = plugin_module_name.__dict__[plugin_name]
+#		module_from_package = __import__(name = '%s.%s' % (aPackage, plugin_name))
+		module_from_package = __import__ (
+			'Gnumed.wxpython.%s' % aPackage,
+			globals(),
+			locals(),
+			[plugin_name]
+		)
 	except ImportError:
 		_log.LogException ('Cannot __import__() module "%s.%s".' % (aPackage, plugin_name), sys.exc_info(), verbose=0)
 		return None
+
+	# find name of class of plugin (must be the same as the plugin module filename)
+	# 1) get module name
+	print aPackage, '+', plugin_name, '=', module_from_package
+	plugin_module_name = module_from_package.__dict__[plugin_name]
+	# 2) get class name
+	plugin_class = plugin_module_name.__dict__[plugin_name]
 
 	if not issubclass(plugin_class, cNotebookPlugin):
 		_log.Log(gmLog.lErr, "[%s] not a subclass of cNotebookPlugin" % plugin_name)
@@ -387,7 +395,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.44  2005-07-16 22:49:52  ncq
+# Revision 1.45  2005-07-18 16:48:26  ncq
+# - hopefully improve __import__ of modules
+#
+# Revision 1.44  2005/07/16 22:49:52  ncq
 # - cleanup
 #
 # Revision 1.43  2005/06/30 10:11:51  cfmoro
