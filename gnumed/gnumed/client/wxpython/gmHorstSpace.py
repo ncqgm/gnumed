@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.9 2005-07-18 20:47:41 ncq Exp $
-__version__ = "$Revision: 1.9 $"
+# $Id: gmHorstSpace.py,v 1.10 2005-07-19 17:06:35 ncq Exp $
+__version__ = "$Revision: 1.10 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -25,7 +25,8 @@ from wxPython.wx import *
 import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmLog, gmWhoAmI
-from Gnumed.wxpython import gmPlugin, gmTopPanel
+from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
+from Gnumed.business import gmPerson
 
 _log = gmLog.gmDefLog
 _log.Log(gmLog.lInfo, __version__)
@@ -148,6 +149,14 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			# returns, hence we don't have any way of knowing which
 			# page is going to be it, so we just return assuming things are fine
 			_log.Log(gmLog.lInfo, 'cannot check whether page change needs to be veto()ed')
+			pat = gmPerson.gmCurrentPatient()
+			if not pat.is_connected():
+				gmGuiHelpers.gm_show_warning (
+					_('Cannot change notebook tabs. No active patient.\nThis only appears on Windows.\nIt is an incomplete check, too, by principle.'),
+					_('Windows-only tab changing check.')
+				)
+				event.Veto()
+				return
 			event.Skip()
 			return
 		# check new page
@@ -164,6 +173,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 
 		FIXME: we can maybe change title bar information here
 		"""
+		# FIXME: maybe get selection from notebook ?
 		id_new_page = event.GetSelection()
 		id_old_page = event.GetOldSelection()
 		_log.Log(gmLog.lData, 'switching notebook tabs: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
@@ -179,17 +189,15 @@ class cHorstSpaceLayoutMgr(wxPanel):
 
 		_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
 		# let's try a trick
-		if id_old_page != id_new_page:
-			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(id_old_page)')
-#			event.SetSelection(id_old_page)
-			wx.CallAfter(self.nb.SetSelection, id_old_page)
-		# or two
-		elif self.__id_prev_page != id_new_page:
-			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(self.__id_prev_page)')
-#			event.SetSelection(self.__id_prev_page)
-			wx.CallAfter(self.nb.SetSelection, self.__id_prev_page)
-		else:
-			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
+#		if id_old_page != id_new_page:
+#			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(id_old_page)')
+#			wx.CallAfter(self.nb.SetSelection, id_old_page)
+#		# or two
+#		elif self.__id_prev_page != id_new_page:
+#			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(self.__id_prev_page)')
+#			wx.CallAfter(self.nb.SetSelection, self.__id_prev_page)
+#		else:
+#			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
 		event.Skip()
 	#----------------------------------------------
 	def _on_right_click(self, evt):
@@ -250,7 +258,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.9  2005-07-18 20:47:41  ncq
+# Revision 1.10  2005-07-19 17:06:35  ncq
+# - try again to make windows behave regarding notebook tab switching
+#
+# Revision 1.9  2005/07/18 20:47:41  ncq
 # - try to improve notebook page changing trick
 #   needed on Windows
 #
