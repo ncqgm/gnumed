@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
-# $Id: setup_workspace.sh,v 1.4 2005-07-16 10:56:38 shilbert Exp $
+# $Id: setup_workspace.sh,v 1.5 2005-07-19 15:31:14 ncq Exp $
 # license: GPL
 #====================================================
 REV=0.1
@@ -49,8 +49,10 @@ cp -R ../../../check-prerequisites.py ./
 cp -R ../../../check-prerequisites.sh ./
 
 # copy user manual from wiki
-# wget ...
-unzip ./Main.TWikiGuest_Gnumed.zip -d ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual
+echo "downloading Manual zip file from the web"
+rm -vf Main.TWikiGuest_Gnumed.zip
+wget -v http://salaam.homeunix.com/gm-manual/Main.TWikiGuest_Gnumed.zip
+unzip Main.TWikiGuest_Gnumed.zip -d ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual
 
 # build up2date *.po and *.mo language files
 cd ../../client/locale/
@@ -88,7 +90,10 @@ find ./ -name '*.pyc' -exec rm -v '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.4  2005-07-16 10:56:38  shilbert
+# Revision 1.5  2005-07-19 15:31:14  ncq
+# - retrieve manual zip file from the web with wget
+#
+# Revision 1.4  2005/07/16 10:56:38  shilbert
 # - copy user manual from wiki to workplace
 #
 # Revision 1.3  2005/07/10 18:46:39  ncq
