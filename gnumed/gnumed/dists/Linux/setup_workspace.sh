@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
-# $Id: setup_workspace.sh,v 1.6 2005-07-19 17:16:06 shilbert Exp $
+# $Id: setup_workspace.sh,v 1.7 2005-07-19 20:43:21 ncq Exp $
 # license: GPL
 #====================================================
 REV=0.1
@@ -53,8 +53,9 @@ echo "downloading Manual zip file from the web"
 rm -vf Main.TWikiGuest_Gnumed.zip
 wget -v http://salaam.homeunix.com/gm-manual/Main.TWikiGuest_Gnumed.zip
 unzip Main.TWikiGuest_Gnumed.zip -d ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual
-cp ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/Release-01.html ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/index.html 
-rm ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/Release-01.html
+cd ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/
+ln -s Release-01.html index.html
+cd -
 
 # build up2date *.po and *.mo language files
 cd ../../client/locale/
@@ -92,7 +93,10 @@ find ./ -name '*.pyc' -exec rm -v '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.6  2005-07-19 17:16:06  shilbert
+# Revision 1.7  2005-07-19 20:43:21  ncq
+# - make index.html link to Release-0.1.html
+#
+# Revision 1.6  2005/07/19 17:16:06  shilbert
 # - gmManual now actually displays some content again
 #
 # Revision 1.5  2005/07/19 15:31:14  ncq
