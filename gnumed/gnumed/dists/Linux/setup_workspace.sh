@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
-# $Id: setup_workspace.sh,v 1.5 2005-07-19 15:31:14 ncq Exp $
+# $Id: setup_workspace.sh,v 1.6 2005-07-19 17:16:06 shilbert Exp $
 # license: GPL
 #====================================================
 REV=0.1
@@ -37,7 +37,7 @@ cp -R ../../client/doc/medical_knowledge ./GNUmed-$REV/client/usr/share/doc/gnum
 cp -R ../../client/exporters/*.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/exporters/
 cp -R ../../client/importers/*.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/importers/
 cp -R ../../client/exporters/gmPatientExporter.conf ./GNUmed-$REV/client/etc/gnumed/
-cp -R ../../client/etc/gnumed.conf.example ./GNUmed-$REV/client/etc/gnumed/gnumed.conf
+cp -R ../../client/gm-0_1.conf ./GNUmed-$REV/client/etc/gnumed/gnumed.conf
 cp -R ../../client/pycommon ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
 cp -R ../../client/wxpython ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
 cp -R ../../client/sitecustomize.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
@@ -53,6 +53,8 @@ echo "downloading Manual zip file from the web"
 rm -vf Main.TWikiGuest_Gnumed.zip
 wget -v http://salaam.homeunix.com/gm-manual/Main.TWikiGuest_Gnumed.zip
 unzip Main.TWikiGuest_Gnumed.zip -d ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual
+cp ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/Release-01.html ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/index.html 
+rm ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual/Release-01.html
 
 # build up2date *.po and *.mo language files
 cd ../../client/locale/
@@ -90,7 +92,10 @@ find ./ -name '*.pyc' -exec rm -v '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.5  2005-07-19 15:31:14  ncq
+# Revision 1.6  2005-07-19 17:16:06  shilbert
+# - gmManual now actually displays some content again
+#
+# Revision 1.5  2005/07/19 15:31:14  ncq
 # - retrieve manual zip file from the web with wget
 #
 # Revision 1.4  2005/07/16 10:56:38  shilbert
