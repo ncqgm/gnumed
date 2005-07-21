@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.49 2005-06-20 13:15:02 cfmoro Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmSOAPWidgets.py,v 1.50 2005-07-21 21:01:26 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -147,9 +147,10 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 	#--------------------------------------------------------
 	def _on_activating_patient(self):
 		"""Another patient is about to be activated."""
-		print "[%s]: another patient is about to become active" % self.__class__.__name__
-		print "need code to:"
-		print "- ask user about unsaved progress notes"
+#		print "[%s]: another patient is about to become active" % self.__class__.__name__
+#		print "need code to:"
+#		print "- ask user about unsaved progress notes"
+		pass
 	#--------------------------------------------------------
 	def _on_patient_selected(self):
 		"""Patient changed."""
@@ -158,17 +159,19 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
-		print "[%s]: episode modified" % self.__class__.__name__
-		print "need code to deal with:"
-		print "- deleted episode that we show so we can notify the user"
-		print "- renamed episode so we can update our episode label"
+#		print "[%s]: episode modified" % self.__class__.__name__
+#		print "need code to deal with:"
+#		print "- deleted episode that we show so we can notify the user"
+#		print "- renamed episode so we can update our episode label"
 #		self._schedule_data_reget()
+		pass
 	#--------------------------------------------------------
 	def _on_application_closing(self):
 		"""Patient changed."""
-		print "[%s]: the application is closing down" % self.__class__.__name__
-		print "need code to:"
-		print "- ask user about unsaved data"
+#		print "[%s]: the application is closing down" % self.__class__.__name__
+#		print "need code to:"
+#		print "- ask user about unsaved data"
+		pass
 	#--------------------------------------------------------
 #============================================================
 class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
@@ -1605,7 +1608,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.49  2005-06-20 13:15:02  cfmoro
+# Revision 1.50  2005-07-21 21:01:26  ncq
+# - cleanup
+#
+# Revision 1.49  2005/06/20 13:15:02  cfmoro
 # Port to changes in cEpisodeSelector
 #
 # Revision 1.48  2005/05/17 08:10:44  ncq
