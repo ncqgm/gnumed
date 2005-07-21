@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.10 2005-07-19 17:06:35 ncq Exp $
-__version__ = "$Revision: 1.10 $"
+# $Id: gmHorstSpace.py,v 1.11 2005-07-21 16:21:01 ncq Exp $
+__version__ = "$Revision: 1.11 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -136,51 +136,64 @@ class cHorstSpaceLayoutMgr(wxPanel):
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed.
 		"""
-		self.__new_page_is_checked = False
+		self.__new_page_already_checked = False
 		# FIXME: this is the place to tell the old page to
 		# make it's state permanent somehow, in general, call
 		# any "validators" for the old page here
 		self.__id_prev_page = event.GetOldSelection()
 		id_new_page = event.GetSelection()
-		_log.Log(gmLog.lData, 'about to switch notebook tabs: %s -> %s' % (self.__id_prev_page, id_new_page))
+		# instrumentation:
+		_log.Log(gmLog.lData, 'about to switch notebook tabs')
+		_log.Log(gmLog.lData, sys.platform)
+		_log.Log(gmLog.lData, wxPlatform)
+		_log.Log(gmLog.lData, 'page IDs from event:   %s -> %s' % (self.__id_prev_page, id_new_page))
+		_log.Log(gmLog.lData, 'current notebook page: %s' % self.nb.GetSelection())
+		self.__id_prev_nb_page = self.nb.GetSelection()
+
+		# the docs say that on Windows GetSelection() returns the
+		# old page ID, eg. the same value that GetOldSelection()
+		# returns, hence we don't have any way of knowing which
+		# page is going to be it, so we just test for an active patient
+		# and assume that's a sufficient check
 		if id_new_page == self.__id_prev_page:
-			# the docs say that on Windows GetSelection() returns the
-			# old page ID, eg. the same value that GetOldSelection()
-			# returns, hence we don't have any way of knowing which
-			# page is going to be it, so we just return assuming things are fine
 			_log.Log(gmLog.lInfo, 'cannot check whether page change needs to be veto()ed')
 			pat = gmPerson.gmCurrentPatient()
 			if not pat.is_connected():
 				gmGuiHelpers.gm_show_warning (
 					_('Cannot change notebook tabs. No active patient.\nThis only appears on Windows.\nIt is an incomplete check, too, by principle.'),
-					_('Windows-only tab changing check.')
+					_('Windows-only tab changing check')
 				)
 				event.Veto()
 				return
 			event.Skip()
 			return
+
 		# check new page
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
 		if not new_page.can_receive_focus():
 			_log.Log(gmLog.lData, 'veto()ing page change')
 			event.Veto()
 			return
-		self.__new_page_is_checked = True
+		self.__new_page_already_checked = True
 		event.Skip()
+		return
 	#----------------------------------------------
 	def _on_notebook_page_changed(self, event):
-		"""Called when notebook changes.
+		"""Called when notebook page changes.
 
 		FIXME: we can maybe change title bar information here
 		"""
 		# FIXME: maybe get selection from notebook ?
 		id_new_page = event.GetSelection()
 		id_old_page = event.GetOldSelection()
-		_log.Log(gmLog.lData, 'switching notebook tabs: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
+		_log.Log(gmLog.lData, 'notebook tabs were switched')
+		_log.Log(gmLog.lData, 'page IDs from event: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
+		_log.Log(gmLog.lData, 'notebook page IDs  :   (%s) -> %s' % (self.__id_prev_nb_page, self.nb.GetSelection()))
+
 		# get access to selected page
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
 		# do we need to check the new page ?
-		if self.__new_page_is_checked or new_page.can_receive_focus():
+		if self.__new_page_already_checked or new_page.can_receive_focus():
 			new_page.receive_focus()
 			# activate toolbar of new page
 			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
@@ -199,6 +212,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 #		else:
 #			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
 		event.Skip()
+		return
 	#----------------------------------------------
 	def _on_right_click(self, evt):
 		load_menu = wxMenu()
@@ -258,7 +272,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.10  2005-07-19 17:06:35  ncq
+# Revision 1.11  2005-07-21 16:21:01  ncq
+# - log everything there is to know about changing notebook tabs,
+#   debugging on Windows is in order
+#
+# Revision 1.10  2005/07/19 17:06:35  ncq
 # - try again to make windows behave regarding notebook tab switching
 #
 # Revision 1.9  2005/07/18 20:47:41  ncq
