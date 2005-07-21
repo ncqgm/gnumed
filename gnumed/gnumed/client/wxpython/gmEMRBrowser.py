@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.36 2005-07-02 18:20:52 ncq Exp $
-__version__ = "$Revision: 1.36 $"
+# $Id: gmEMRBrowser.py,v 1.37 2005-07-21 21:00:46 ncq Exp $
+__version__ = "$Revision: 1.37 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -407,10 +407,10 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			-1,
 			caption = _('Reordering EMR ...'),
 			msg = _(
-				'Some EMR entries of this encounter were attached to episode\n "%s"\n'
-				"Please select the episode you want to move the entries to."
+				'The EMR entries in this encounter were attached to episode:\n "%s"\n'
+				"Please select the episode you want to move them to:"
 			) % curr_episode['description'],
-			action_txt = _('move data'),
+			action_txt = _('move entries'),
 			pk_health_issue = curr_episode['pk_health_issue']
 		)
 		retval = episode_selector.ShowModal() # Shows it
@@ -419,7 +419,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			target = episode_selector.get_selected_episode()
 			self.__selected_encounter.transfer_clinical_data(from_episode = curr_episode, to_episode = target)
 		elif retval == dialog_CANCELLED:
-			print 'User canceled'
+			pass
 		else:
 			raise Exception('Invalid dialog return code [%s]' % retval)
 		episode_selector.Destroy() # finally destroy it when finished.
@@ -605,7 +605,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.36  2005-07-02 18:20:52  ncq
+# Revision 1.37  2005-07-21 21:00:46  ncq
+# - cleanup, better strings
+#
+# Revision 1.36  2005/07/02 18:20:52  ncq
 # - quite some cleanup
 #
 # Revision 1.35  2005/06/29 18:35:17  cfmoro
