@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.11 2005-07-21 16:21:01 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmHorstSpace.py,v 1.12 2005-07-23 19:08:36 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -136,71 +136,89 @@ class cHorstSpaceLayoutMgr(wxPanel):
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed.
 		"""
-		self.__new_page_already_checked = False
+		_log.Log(gmLog.lData, 'about to switch notebook tabs')
+
 		# FIXME: this is the place to tell the old page to
 		# make it's state permanent somehow, in general, call
 		# any "validators" for the old page here
+
+		self.__new_page_already_checked = False
+		self.__id_prev_nb_page = self.nb.GetSelection()
 		self.__id_prev_page = event.GetOldSelection()
 		id_new_page = event.GetSelection()
-		# instrumentation:
-		_log.Log(gmLog.lData, 'about to switch notebook tabs')
-		_log.Log(gmLog.lData, sys.platform)
-		_log.Log(gmLog.lData, wxPlatform)
-		_log.Log(gmLog.lData, 'page IDs from event:   %s -> %s' % (self.__id_prev_page, id_new_page))
-		_log.Log(gmLog.lData, 'current notebook page: %s' % self.nb.GetSelection())
-		self.__id_prev_nb_page = self.nb.GetSelection()
 
-		# the docs say that on Windows GetSelection() returns the
-		# old page ID, eg. the same value that GetOldSelection()
-		# returns, hence we don't have any way of knowing which
-		# page is going to be it, so we just test for an active patient
-		# and assume that's a sufficient check
-		if id_new_page == self.__id_prev_page:
-			_log.Log(gmLog.lInfo, 'cannot check whether page change needs to be veto()ed')
+		# can we check the target page ?
+		if id_new_page == self.__id_prev_nb_page:
+			# no, so complain
+			# (the docs say that on Windows GetSelection() returns the
+			#  old page ID, eg. the same value GetOldSelection() returns)
+			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
+			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
+			_log.Log(gmLog.lData, 'sys: [%s] wx: [%s]' (sys.platform, wxPlatform))
+			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_prev_page)
+			_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
+			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_nb_page)
+			# but let's do a basic check, at least
 			pat = gmPerson.gmCurrentPatient()
 			if not pat.is_connected():
-				gmGuiHelpers.gm_show_warning (
-					_('Cannot change notebook tabs. No active patient.\nThis only appears on Windows.\nIt is an incomplete check, too, by principle.'),
-					_('Windows-only tab changing check')
-				)
+				gmGuiHelpers.gm_beep_statustext (_('Cannot change notebook tabs. No active patient.'))
 				event.Veto()
 				return
+			# that test passed, so let's hope things are fine
 			event.Skip()
 			return
 
-		# check new page
+		# check target page
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
 		if not new_page.can_receive_focus():
 			_log.Log(gmLog.lData, 'veto()ing page change')
 			event.Veto()
 			return
+
+		# everything seems fine so switch
 		self.__new_page_already_checked = True
 		event.Skip()
 		return
 	#----------------------------------------------
 	def _on_notebook_page_changed(self, event):
 		"""Called when notebook page changes.
-
-		FIXME: we can maybe change title bar information here
 		"""
-		# FIXME: maybe get selection from notebook ?
+		_log.Log(gmLog.lData, 'notebook tabs were switched')
+
+		# FIXME: we can maybe change title bar information here
+
 		id_new_page = event.GetSelection()
 		id_old_page = event.GetOldSelection()
-		_log.Log(gmLog.lData, 'notebook tabs were switched')
-		_log.Log(gmLog.lData, 'page IDs from event: %s (%s) -> %s' % (id_old_page, self.__id_prev_page, id_new_page))
-		_log.Log(gmLog.lData, 'notebook page IDs  :   (%s) -> %s' % (self.__id_prev_nb_page, self.nb.GetSelection()))
-
-		# get access to selected page
+		curr_nb_page = self.nb.GetSelection()
 		new_page = self.__gb['horstspace.notebook.pages'][id_new_page]
-		# do we need to check the new page ?
-		if self.__new_page_already_checked or new_page.can_receive_focus():
+
+		# well-behaving wxPython port ?
+		if self.__new_page_already_checked:
 			new_page.receive_focus()
 			# activate toolbar of new page
 			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
 			event.Skip()
 			return
 
-		_log.Log(gmLog.lWarn, "new page cannot receive focus but too late for veto (typically happens on Windows and Mac OSX)")
+		# no, complain
+		_log.Log(gmLog.lData, 'target page not checked for focussability yet')
+		_log.Log(gmLog.lData, 'old page from event  : %s' % id_old_page)
+		_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
+		_log.Log(gmLog.lData, 'current notebook page: %s' % curr_nb_page)
+
+		# check the new page just for good measure
+		if new_page.can_receive_focus():
+			_log.Log(gmLog.lData, 'we are lucky: new page *can* receive focus :-)')
+			new_page.receive_focus()
+			# activate toolbar of new page
+			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
+			event.Skip()
+			return
+
+		_log.Log(gmLog.lWarn, 'new page cannot receive focus but too late for veto')
+		# we should try the following trick now to de-advance the selection
+		#wx.CallAfter(self.nb.SetSelection, self.__id_prev_nb_page)
+
 		# let's try a trick
 #		if id_old_page != id_new_page:
 #			_log.Log(gmLog.lInfo, 'faking veto() with SetSelection(id_old_page)')
@@ -211,6 +229,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 #			wx.CallAfter(self.nb.SetSelection, self.__id_prev_page)
 #		else:
 #			_log.Log(gmLog.lInfo, 'cannot even veto page change with tricks')
+
 		event.Skip()
 		return
 	#----------------------------------------------
@@ -272,7 +291,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.11  2005-07-21 16:21:01  ncq
+# Revision 1.12  2005-07-23 19:08:36  ncq
+# - robust detection of lossy notebook tab switching wxPython code
+#
+# Revision 1.11  2005/07/21 16:21:01  ncq
 # - log everything there is to know about changing notebook tabs,
 #   debugging on Windows is in order
 #
