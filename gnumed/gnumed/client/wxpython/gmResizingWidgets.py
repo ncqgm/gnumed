@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.29 2005-06-29 15:11:59 ncq Exp $
-__version__ = "$Revision: 1.29 $"
+# $Id: gmResizingWidgets.py,v 1.30 2005-07-23 21:10:58 ncq Exp $
+__version__ = "$Revision: 1.30 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -541,7 +541,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			self.__handle_keyword(fragment)
 			return
 		# else restart timer for match list
-		self.__timer.Start(oneShot = True)
+		self.__timer.Start(milliseconds=-1, oneShot = True)
 #		event.Skip()
 		return
 	#------------------------------------------------
@@ -1065,7 +1065,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.29  2005-06-29 15:11:59  ncq
+# Revision 1.30  2005-07-23 21:10:58  ncq
+# - explicitely use milliseconds=-1 in timer.Start()
+#
+# Revision 1.29  2005/06/29 15:11:59  ncq
 # - better scoping of variables
 #
 # Revision 1.28  2005/06/12 22:17:55  ncq
