@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.12 2005-07-23 19:08:36 ncq Exp $
-__version__ = "$Revision: 1.12 $"
+# $Id: gmHorstSpace.py,v 1.13 2005-07-23 21:44:21 shilbert Exp $
+__version__ = "$Revision: 1.13 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -154,7 +154,7 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			#  old page ID, eg. the same value GetOldSelection() returns)
 			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
 			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
-			_log.Log(gmLog.lData, 'sys: [%s] wx: [%s]' (sys.platform, wxPlatform))
+			_log.Log(gmLog.lData, 'sys: %s wx: %s' (sys.platform, wxPlatform))
 			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_prev_page)
 			_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
 			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_nb_page)
@@ -291,7 +291,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.12  2005-07-23 19:08:36  ncq
+# Revision 1.13  2005-07-23 21:44:21  shilbert
+# - silly typo
+#
+# Revision 1.12  2005/07/23 19:08:36  ncq
 # - robust detection of lossy notebook tab switching wxPython code
 #
 # Revision 1.11  2005/07/21 16:21:01  ncq
