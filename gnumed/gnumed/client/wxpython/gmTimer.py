@@ -4,8 +4,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.1 2004-12-23 15:07:36 ncq Exp $
-__version__ = "$Revision: 1.1 $"
+# $Id: gmTimer.py,v 1.2 2005-07-23 20:47:02 ncq Exp $
+__version__ = "$Revision: 1.2 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -57,20 +57,31 @@ class cTimer(wxTimer):
 #===========================================================================
 if __name__ == '__main__':
 	import time
+	from wxPython.wx import wxApp
 	#-----------------------------------------------------------------------
 	def cb_timer(cookie):
 		print "timer <%s> fired" % cookie
 		return 1
 	#-----------------------------------------------------------------------
-	print "setting up timer"
-	timer = cTimer(callback = cb_timer)
-	print "starting timer"
-	timer.Start(oneShot = True)
-	print "waiting for timer to trigger"
-	time.sleep(2)
+	class cApp(wxApp):
+		def OnInit(self):
+			print "setting up timer"
+			timer = cTimer(callback = cb_timer)
+			print "starting timer"
+			timer.Start(oneShot = True)
+			print "waiting for timer to trigger"
+			time.sleep(2)
+			return True
+	#-----------------------------------------------------------------------
+	app = cApp(0)
+	# and enter the main event loop
+	app.MainLoop()
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.1  2004-12-23 15:07:36  ncq
+# Revision 1.2  2005-07-23 20:47:02  ncq
+# - start wxApp instance when testing - needed in windows
+#
+# Revision 1.1  2004/12/23 15:07:36  ncq
 # - provide a convenient wxTimer proxy object
 #
 #
