@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.52 2005-07-04 11:20:59 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmPhraseWheel.py,v 1.53 2005-07-23 19:24:58 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -314,11 +314,13 @@ class cPhraseWheel (wxTextCtrl):
 	#--------------------------------------------------------
 	# individual key handlers
 	#--------------------------------------------------------
-	def __on_enter (self):
+	def __on_enter (self, *args, **kwargs):
 		"""Called when the user pressed <ENTER>.
 
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
+		print args
+		print kwargs
 		for callback in self._on_enter_callbacks:
 			try:
 				callback()
@@ -560,7 +562,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.52  2005-07-04 11:20:59  ncq
+# Revision 1.53  2005-07-23 19:24:58  ncq
+# - debug timer start() on windows
+#
+# Revision 1.52  2005/07/04 11:20:59  ncq
 # - cleanup cruft
 # - on_set_focus() set value to first match if previously empty
 # - on_lose_focus() set value if selection_only and only one match and not yet selected
