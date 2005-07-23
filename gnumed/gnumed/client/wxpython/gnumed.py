@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.82 $"
+__version__ = "$Revision: 1.83 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -141,22 +141,27 @@ def setup_locale():
 
 	_log.Log(gmLog.lInfo, 'user default locale settings: %s' % locale.setlocale(locale.LC_ALL))
 	_log.Log(gmLog.lData, 'local conventions: %s' % locale.localeconv())
-	info_codes = {
-		locale.CODESET: 'codeset',
-		locale.D_T_FMT : 'date/time format',
-		locale.D_FMT : 'date format',
-		locale.T_FMT : 'time format',
-		locale.T_FMT_AMPM : 'time format am/pm',
-		locale.RADIXCHAR : 'radix character',
-		locale.THOUSEP : 'thousand separator',
-		locale.YESEXPR : 'regex for "yes"',
-		locale.NOEXPR : 'regex for "no"',
-		locale.CRNCYSTR : 'currency symbol'
-#		, locale.ERA : 'era',
-#		locale.ERA_D_T_FMT : 'date/time format for era',
-#		locale.ERA_D_FMT : 'date format for era',
-#		locale.ALT_DIGITS : 'alternative digit representation'
-	}
+	try:
+		info_codes = {
+			locale.CODESET: 'codeset',
+			locale.D_T_FMT : 'date/time format',
+			locale.D_FMT : 'date format',
+			locale.T_FMT : 'time format',
+			locale.T_FMT_AMPM : 'time format am/pm',
+			locale.RADIXCHAR : 'radix character',
+			locale.THOUSEP : 'thousand separator',
+			locale.YESEXPR : 'regex for "yes"',
+			locale.NOEXPR : 'regex for "no"',
+			locale.CRNCYSTR : 'currency symbol'
+#			, locale.ERA : 'era',
+#			locale.ERA_D_T_FMT : 'date/time format for era',
+#			locale.ERA_D_FMT : 'date format for era',
+#			locale.ALT_DIGITS : 'alternative digit representation'
+		}
+	except:
+		info_codes = {}
+		_log.Log(gmLog.lData, 'locale setup failed. Maybe we are on MS Windows')
+		
 	for code in info_codes.keys():
 		try:
 			_log.Log(gmLog.lData, '%s: %s' % (info_codes[code], locale.nl_langinfo(code)))
@@ -436,7 +441,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.82  2005-07-17 17:22:04  ncq
+# Revision 1.83  2005-07-23 14:41:13  shilbert
+# - locale setup failed on MS Windows
+#
+# Revision 1.82  2005/07/17 17:22:04  ncq
 # - handle path expansion/normalization more carefully to
 #   hopefully cope with MS Windows shortcomings
 # - be slightly more informative on startup re paths
