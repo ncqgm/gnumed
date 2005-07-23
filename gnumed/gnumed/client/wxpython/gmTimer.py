@@ -4,8 +4,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.3 2005-07-23 21:08:28 ncq Exp $
-__version__ = "$Revision: 1.3 $"
+# $Id: gmTimer.py,v 1.4 2005-07-23 21:12:19 ncq Exp $
+__version__ = "$Revision: 1.4 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 			print "setting up timer"
 			timer = cTimer(callback = cb_timer)
 			print "starting timer"
-			timer.Start(milliseconds=-1, oneShot = True)
+			timer.Start(-1, True)
 			print "waiting for timer to trigger"
 			time.sleep(2)
 			return True
@@ -78,7 +78,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.3  2005-07-23 21:08:28  ncq
+# Revision 1.4  2005-07-23 21:12:19  ncq
+# - no keywords for Windows in Start()
+#
+# Revision 1.3  2005/07/23 21:08:28  ncq
 # - explicitely use milliseconds=-1 as Windows seems to require it
 #
 # Revision 1.2  2005/07/23 20:47:02  ncq
