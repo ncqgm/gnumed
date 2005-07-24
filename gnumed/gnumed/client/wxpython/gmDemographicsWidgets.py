@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.56 2005-07-04 11:26:50 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmDemographicsWidgets.py,v 1.57 2005-07-24 18:54:18 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2115,7 +2115,7 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 			pageCtrl.TTC_dob.SetFocus()
 			return False
 			
-		# valid date		
+		# valid date
 		pageCtrl.TTC_dob.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		pageCtrl.TTC_dob.Refresh()		
 		return True
@@ -2873,7 +2873,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.56  2005-07-04 11:26:50  ncq
+# Revision 1.57  2005-07-24 18:54:18  ncq
+# - cleanup
+#
+# Revision 1.56  2005/07/04 11:26:50  ncq
 # - re-enable auto-setting gender from firstname, and speed it up, too
 #
 # Revision 1.55  2005/07/02 18:20:22  ncq
