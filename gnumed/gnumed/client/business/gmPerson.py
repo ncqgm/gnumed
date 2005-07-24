@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.48 2005-06-04 09:30:08 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmPerson.py,v 1.49 2005-07-24 18:38:42 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -124,6 +124,12 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 				"""
 		}
 	}
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		if attribute == 'dob':
+			if type(value) != type(mxDT.now()):
+				_log.Log(gmLog.lErr, 'type of value [%s] for field "dob" is [%s]' % (value, type(value)))
+		gmBusinessDBObject.cBusinessDBObject(self, attribute, value)
 	#--------------------------------------------------------
 	def cleanup(self):
 		pass
@@ -1478,7 +1484,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.48  2005-06-04 09:30:08  ncq
+# Revision 1.49  2005-07-24 18:38:42  ncq
+# - look out for strings being stuffed into datetime objects
+#
+# Revision 1.48  2005/06/04 09:30:08  ncq
 # - just silly whitespace cleanup
 #
 # Revision 1.47  2005/06/03 15:24:27  cfmoro
