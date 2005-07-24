@@ -15,8 +15,8 @@ TODO:
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.6 2005-07-16 11:34:47 ncq Exp $
-__version__ = "$Revision: 1.6 $"
+# $Id: gmBMIWidgets.py,v 1.7 2005-07-24 18:52:55 ncq Exp $
+__version__ = "$Revision: 1.7 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -463,16 +463,17 @@ class BMI_Frame(wxFrame):#, BMICalc_Panel):
 		# buttons
 		gszr_right_buttons = wxGridSizer(1, 4, 1, 4)  # rows, cols, hgap, vgap
 		gszr_right_buttons.AddMany([
-			(wxButton(self, 1010, _('&Reset')), 0, wxEXPAND),
-			(wxButton(self, 1011, _('&Print')), 0, wxEXPAND),
-			(wxButton(self, 1012, _('&Save')), 0, wxEXPAND),
-			(wxButton(self, 1013, _('&Handout')), 0, wxEXPAND)
+			(wxButton(self, 1010, _('&Reset')), 0, wxEXPAND)
+#			,
+#			(wxButton(self, 1011, _('&Print')), 0, wxEXPAND),
+#			(wxButton(self, 1012, _('&Save')), 0, wxEXPAND),
+#			(wxButton(self, 1013, _('&Handout')), 0, wxEXPAND)
 		])
 
 		EVT_BUTTON(self,1010,self.EvtReset)
-		EVT_BUTTON(self,1011,self.EvtPrint)
-		EVT_BUTTON(self,1012,self.EvtSave)
-		EVT_BUTTON(self,1013,self.EvtHandout)
+#		EVT_BUTTON(self,1011,self.EvtPrint)
+#		EVT_BUTTON(self,1012,self.EvtSave)
+#		EVT_BUTTON(self,1013,self.EvtHandout)
 
 		# arrange them
 		szr_right_col = wxBoxSizer(wxVERTICAL)
@@ -548,7 +549,10 @@ if __name__ == '__main__':
 
 #=====================================================================
 # $Log: gmBMIWidgets.py,v $
-# Revision 1.6  2005-07-16 11:34:47  ncq
+# Revision 1.7  2005-07-24 18:52:55  ncq
+# - comment out not-yet-functional buttons
+#
+# Revision 1.6  2005/07/16 11:34:47  ncq
 # - just cleanup
 #
 # Revision 1.5  2005/06/16 07:03:19  rterry
