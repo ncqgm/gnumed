@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.211 2005-07-24 11:35:59 ncq Exp $
-__version__ = "$Revision: 1.211 $"
+# $Id: gmGuiMain.py,v 1.212 2005-07-24 18:57:48 ncq Exp $
+__version__ = "$Revision: 1.212 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -72,6 +72,7 @@ ID_EXPORT_EMR = wx.wxNewId()
 ID_EXPORT_EMR_JOURNAL = wx.wxNewId()
 ID_EXPORT_MEDISTAR = wx.wxNewId()
 ID_CREATE_PATIENT = wx.wxNewId()
+ID_SEARCH_PATIENT = wx.wxNewId()
 ID_SEARCH_EMR = wx.wxNewId()
 ID_ADD_HEALTH_ISSUE_TO_EMR = wx.wxNewId()
 #==============================================================================
@@ -252,8 +253,13 @@ class gmTopLevelFrame(wx.wxFrame):
 
 		# menu "Patient"
 		menu_patient = wx.wxMenu()
+
+		menu_patient.Append(ID_SEARCH_PATIENT, _('Search patient'), _('Go to patient search field'))
+		wx.EVT_MENU(self, ID_SEARCH_PATIENT, self.__on_search_patient)
+
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
+
 		self.mainmenu.Append(menu_patient, '&Patient')
 		self.__gb['main.patientmenu'] = menu_patient
 
@@ -532,21 +538,19 @@ class gmTopLevelFrame(wx.wxFrame):
 				gmLog.lErr
 			)
 			return False
-
-#		else:
-#			gmGuiHelpers.gm_show_info (
-#				'Heutige Karteieinträge erfolgreich für Medistar exportiert. Datei:\n\n[%s]' % fname,
-#				'Medistar-Export',
-#				gmLog.lInfo
-#			)
 		return True
 	#----------------------------------------------
 	def __on_create_patient(self, event):
-		"""
-		Launch create patient wizard
+		"""Launch create patient wizard.
 		"""
 		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
 		wiz.RunWizard(activate=True)
+	#----------------------------------------------
+	def __on_search_patient(self, event):
+		"""Focus patient search widget."""
+		# FIXME: directly accessing the top panel is ugly as sin
+		searcher = self.__gb['horstspace.top_panel'].patient_selector
+		searcher.SetFocus()
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -900,7 +904,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.211  2005-07-24 11:35:59  ncq
+# Revision 1.212  2005-07-24 18:57:48  ncq
+# - add "search" to "patient" menu - all it does is focus the search box ...
+#
+# Revision 1.211  2005/07/24 11:35:59  ncq
 # - use robustified gmTimer.Start() interface
 #
 # Revision 1.210  2005/07/11 09:05:31  ncq
