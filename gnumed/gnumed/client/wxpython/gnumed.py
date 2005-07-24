@@ -48,7 +48,7 @@ Command line arguments:
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.83 $"
+__version__ = "$Revision: 1.84 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -160,7 +160,7 @@ def setup_locale():
 		}
 	except:
 		info_codes = {}
-		_log.Log(gmLog.lData, 'locale setup failed. Maybe we are on MS Windows')
+		_log.Log(gmLog.lData, 'Locale setup failed. Maybe we are on MS Windows.')
 		
 	for code in info_codes.keys():
 		try:
@@ -441,7 +441,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.83  2005-07-23 14:41:13  shilbert
+# Revision 1.84  2005-07-24 11:36:44  ncq
+# - cleanup
+#
+# Revision 1.83  2005/07/23 14:41:13  shilbert
 # - locale setup failed on MS Windows
 #
 # Revision 1.82  2005/07/17 17:22:04  ncq
