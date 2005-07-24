@@ -4,8 +4,8 @@
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.4 2005-07-23 21:12:19 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+# $Id: gmTimer.py,v 1.5 2005-07-24 09:21:09 ncq Exp $
+__version__ = "$Revision: 1.5 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -46,6 +46,11 @@ class cTimer(wxTimer):
 
 		wxTimer.__init__(self)
 	#-----------------------------------------------------------------------
+	def Start(self, milliseconds=-1, oneShot=False):
+		if milliseconds == -1:
+			milliseconds = self.__delay
+		wxTimer.Start(self, milliseconds=milliseconds, oneShot=oneShot)
+	#-----------------------------------------------------------------------
 	def Notify(self):
 		self.__callback(self.__cookie)
 	#-----------------------------------------------------------------------
@@ -68,7 +73,7 @@ if __name__ == '__main__':
 			print "setting up timer"
 			timer = cTimer(callback = cb_timer)
 			print "starting timer"
-			timer.Start(-1, True)
+			timer.Start(oneShot=True)
 			print "waiting for timer to trigger"
 			time.sleep(2)
 			return True
@@ -78,7 +83,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #===========================================================================
 # $Log: gmTimer.py,v $
-# Revision 1.4  2005-07-23 21:12:19  ncq
+# Revision 1.5  2005-07-24 09:21:09  ncq
+# - use proxy Start() to work around Windows timer Start() glitches
+#
+# Revision 1.4  2005/07/23 21:12:19  ncq
 # - no keywords for Windows in Start()
 #
 # Revision 1.3  2005/07/23 21:08:28  ncq
