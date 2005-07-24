@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.60 2005-06-24 22:17:08 shilbert Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmTopPanel.py,v 1.61 2005-07-24 11:40:21 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -22,7 +22,6 @@ _log.Log(gmLog.lInfo, __version__)
 
 [	ID_BTN_pat_demographics,
 	ID_CBOX_consult_type,
-	#ID_CBOX_episode = wxNewId()
 	ID_BMITOOL,
 	ID_BMIMENU,
 	ID_PREGTOOL,
@@ -163,33 +162,18 @@ class cMainTopPanel(wxPanel):
 #		self.szr_bottom_row.Add(tb, 0, wxRIGHT, 0)
 
 		# pregnancy calculator button
-		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'preg_calculator.png')
-		img = wxImage(fname, wxBITMAP_TYPE_ANY)
-		bmp = wxBitmapFromImage(img)
-		self.btn_preg = wxBitmapButton (
-			parent = self,
-			id = ID_PREGTOOL,
-			bitmap = bmp,
-			style = wxBU_EXACTFIT | wxNO_BORDER
-		)
-		self.btn_preg.SetToolTip(wxToolTip(_("Pregnancy Calculator")))
-		self.szr_bottom_row.Add(self.btn_preg, 0)
-		
-#		# episode selector
-#		# FIXME: handle input -> new episode
-#		# FIXME: should be cEpisodeSelector class
-#		self.combo_episodes = wxComboBox (
-#			self,
-#			ID_CBOX_episode,
-#			'',
-#			wxPyDefaultPosition,
-#			wxPyDefaultSize,
-#			[],
-#			wxCB_DROPDOWN
+#		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'preg_calculator.png')
+#		img = wxImage(fname, wxBITMAP_TYPE_ANY)
+#		bmp = wxBitmapFromImage(img)
+#		self.btn_preg = wxBitmapButton (
+#			parent = self,
+#			id = ID_PREGTOOL,
+#			bitmap = bmp,
+#			style = wxBU_EXACTFIT | wxNO_BORDER
 #		)
-#		tt = wxToolTip(_('choose problem to work on\nsubsequent input is attached to the corresponding episode'))
-#		self.combo_episodes.SetToolTip(tt)
-#		self.szr_bottom_row.Add(self.combo_episodes, 3, wxEXPAND, 0)
+#		self.btn_preg.SetToolTip(wxToolTip(_("Pregnancy Calculator")))
+#		self.szr_bottom_row.Add(self.btn_preg, 0)
+		
 		# consultation type selector
 		self.combo_consultation_type = wxComboBox (
 			self,
@@ -271,12 +255,9 @@ class cMainTopPanel(wxPanel):
 		EVT_MENU(main_frame, ID_BMIMENU, self._on_show_BMI)
 
 		# - pregnancy calculator
-		EVT_BUTTON(self, ID_PREGTOOL, self._on_show_Preg_Calc)
-		tools_menu.Append(ID_PREGMENU, _("EDC"), _("Pregnancy Calculator"))
-		EVT_MENU(main_frame, ID_PREGMENU, self._on_show_Preg_Calc)
-
-#		# - episode selector
-#		EVT_COMBOBOX(self, ID_CBOX_episode, self._on_episode_selected)
+#		EVT_BUTTON(self, ID_PREGTOOL, self._on_show_Preg_Calc)
+#		tools_menu.Append(ID_PREGMENU, _("EDC"), _("Pregnancy Calculator"))
+#		EVT_MENU(main_frame, ID_PREGMENU, self._on_show_Preg_Calc)
 
 		# - lock button
 		EVT_BUTTON(self, ID_LOCKBUTTON, self._on_lock)
@@ -454,7 +435,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.60  2005-06-24 22:17:08  shilbert
+# Revision 1.61  2005-07-24 11:40:21  ncq
+# - comment out edc/pregnancy calculator
+#
+# Revision 1.60  2005/06/24 22:17:08  shilbert
 # - deuglyfied , reclaim wasted gui sapce in TopPanel
 #
 # Revision 1.59  2005/05/17 08:12:11  ncq
