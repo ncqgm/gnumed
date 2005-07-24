@@ -2,8 +2,8 @@
 # About GNUmed
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmAbout.py,v $
-# $Id: gmAbout.py,v 1.16 2005-07-18 20:45:25 ncq Exp $
-__version__ = "$Revision: 1.16 $"
+# $Id: gmAbout.py,v 1.17 2005-07-24 11:35:59 ncq Exp $
+__version__ = "$Revision: 1.17 $"
 __author__ = "M.Bonert"
 __license__ = "GPL"
 
@@ -54,7 +54,7 @@ class ScrollTxtWin (wxWindow):
 		EVT_TIMER(self, -1, self.OnTimer)
 		self.timer = wxTimer(self, -1)
 		#self.timer.Start(self.__scroll_speed)
-		self.timer.Start(1./self.__scroll_speed)
+		self.timer.Start(milliseconds = 1./self.__scroll_speed)
 
 	def OnTimer(self, evt):
 		if(self.__scroll_ctr<-2 and self.__delay_ctr<self.__delay_ctr_reset):
@@ -227,7 +227,10 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------
 # $Log: gmAbout.py,v $
-# Revision 1.16  2005-07-18 20:45:25  ncq
+# Revision 1.17  2005-07-24 11:35:59  ncq
+# - use robustified gmTimer.Start() interface
+#
+# Revision 1.16  2005/07/18 20:45:25  ncq
 # - make contributors dialog slightly larger
 #
 # Revision 1.15  2005/07/11 16:16:21  ncq

@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.210 2005-07-11 09:05:31 ncq Exp $
-__version__ = "$Revision: 1.210 $"
+# $Id: gmGuiMain.py,v 1.211 2005-07-24 11:35:59 ncq Exp $
+__version__ = "$Revision: 1.211 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -641,7 +641,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.timer = wx.wxPyTimer(self._cb_update_clock)
 		self._cb_update_clock()
 		#update every second
-		self.timer.Start(1000)
+		self.timer.Start(milliseconds=1000)
 	#----------------------------------------------
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
@@ -900,7 +900,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.210  2005-07-11 09:05:31  ncq
+# Revision 1.211  2005-07-24 11:35:59  ncq
+# - use robustified gmTimer.Start() interface
+#
+# Revision 1.210  2005/07/11 09:05:31  ncq
 # - be more careful about failing to import wxPython
 # - make contributors list accessible from main menu
 #

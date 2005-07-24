@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.55 2005-07-23 21:55:40 shilbert Exp $
-__version__ = "$Revision: 1.55 $"
+# $Id: gmPhraseWheel.py,v 1.56 2005-07-24 11:35:59 ncq Exp $
+__version__ = "$Revision: 1.56 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -402,7 +402,7 @@ class cPhraseWheel (wxTextCtrl):
 		else:
 			# start timer for delayed match retrieval
 			# milliseconds needed for Windows bug
-			self.__timer.Start(milliseconds=500, oneShot = True)
+			self.__timer.Start(oneShot = True)
 
 		if self.notified_listeners:
 			# Aargh! we told the listeners that we selected <foo>
@@ -563,7 +563,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.55  2005-07-23 21:55:40  shilbert
+# Revision 1.56  2005-07-24 11:35:59  ncq
+# - use robustified gmTimer.Start() interface
+#
+# Revision 1.55  2005/07/23 21:55:40  shilbert
 # *** empty log message ***
 #
 # Revision 1.54  2005/07/23 21:10:58  ncq
