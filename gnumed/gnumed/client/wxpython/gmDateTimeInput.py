@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.19 2005-06-08 22:01:42 cfmoro Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmDateTimeInput.py,v 1.20 2005-07-27 15:17:06 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -234,30 +234,25 @@ Date input field
 	#--------------------------------------------------------
 	def __validate(self):
 		# skip empty value
-		if self.GetValue() == '':
+		if self.GetValue().strip() == '':
 			return True
-		# don't allow invalid input
 		try:
-			# FIXME: make this way more generous in accepting data input
+			# FIXME: make this way more generous in accepting date input
 			date = mxDT.strptime(self.GetValue(), self.__display_format)
 		except:
-			# invalid date			
+			_log.LogException('Invalid date. [%s] does not match [%s].' % (self.GetValue(), self.__display_format))
 			# FIXME: Gtk-WARNING **: GtkEntry - did not receive focus-out-event
 			#        in wxwindows 2.4.x
-			#gmGuiHelpers.gm_show_error(msg, _('Invalid date format'), gmLog.lErr)						
+			#gmGuiHelpers.gm_show_error(msg, _('Invalid date format'), gmLog.lErr)
 			msg = _('Invalid date. Date format: %s ' % self.__display_format)
-			gmGuiHelpers.gm_beep_statustext(msg, gmLog.lErr)
+			gmGuiHelpers.gm_beep_statustext(msg)
 			self.SetBackgroundColour('pink')
 			self.Refresh()
-#			if not event is None:
-#				event.Skip()
 			return False
 			
 		# valid date		
 		self.SetBackgroundColour(wxSystemSettings_GetColour(wxSYS_COLOUR_WINDOW))
 		self.Refresh()
-#		if not event is None:
-#			event.Skip()
 		return True
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
@@ -358,7 +353,11 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.19  2005-06-08 22:01:42  cfmoro
+# Revision 1.20  2005-07-27 15:17:06  ncq
+# - properly catch date input error such that we
+#   may find the bug on Windows
+#
+# Revision 1.19  2005/06/08 22:01:42  cfmoro
 # Avoid validating when empty date
 #
 # Revision 1.18  2005/06/08 21:19:50  cfmoro
