@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.17 2005-07-26 19:24:26 hinnef Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmRegetMixin.py,v 1.18 2005-07-27 09:53:30 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -55,7 +55,7 @@ class cRegetOnPaintMixin:
 	#-----------------------------------------------------
 	def _on_paint_event(self, event):
 		"""Repopulate UI if data is stale."""
-		dc = wx.wxPaintDC (self)
+		dc = wx.wxPaintDC(self)
 		if self._data_stale:
 			self.__populate_with_data()
 #		event.Skip()		# FIXME: needed ?
@@ -86,7 +86,7 @@ class cRegetOnPaintMixin:
 		- if visible redisplay immediately
 		"""
 		self._data_stale = True
-		# Master Robin Dunn says this is The Way.
+		# Master Robin Dunn says this is The Way(tm).
 		# The issues I have with this are:
 		# 1) It appears to cause refreshes "too often", eg whenever
 		#    *any*  child of self calls this method - but this may
@@ -110,7 +110,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.17  2005-07-26 19:24:26  hinnef
+# Revision 1.18  2005-07-27 09:53:30  ncq
+# - petty cleanup
+#
+# Revision 1.17  2005/07/26 19:24:26  hinnef
 # - fixed refresh bug on MSW platform
 #
 # Revision 1.16  2005/06/07 09:05:53  ncq
