@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.22 2005-07-31 15:32:50 ncq Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmDateTimeInput.py,v 1.23 2005-07-31 16:04:19 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -238,7 +238,7 @@ Date input field
 			return True
 		try:
 			# FIXME: make this way more generous in accepting date input
-			date = mxDT.strptime(self.GetValue(), self.__display_format)
+			date = time.strptime(self.GetValue(), self.__display_format)
 		except:
 			_log.LogException('Invalid date. [%s] does not match [%s].' % (self.GetValue(), self.__display_format), sys.exc_info())
 			# FIXME: Gtk-WARNING **: GtkEntry - did not receive focus-out-event
@@ -353,7 +353,11 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.22  2005-07-31 15:32:50  ncq
+# Revision 1.23  2005-07-31 16:04:19  ncq
+# - on some platforms, notably MS Windows mx.DateTime does not support
+#   strptime(), hence use time.strptime()
+#
+# Revision 1.22  2005/07/31 15:32:50  ncq
 # - cleanup
 #
 # Revision 1.21  2005/07/31 15:23:40  ncq
