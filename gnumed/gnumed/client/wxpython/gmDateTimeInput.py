@@ -10,12 +10,12 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.23 2005-07-31 16:04:19 ncq Exp $
-__version__ = "$Revision: 1.23 $"
+# $Id: gmDateTimeInput.py,v 1.24 2005-07-31 16:22:25 ncq Exp $
+__version__ = "$Revision: 1.24 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
-import re, string, sys
+import re, string, sys, time
 
 import mx.DateTime as mxDT
 from wxPython.wx import *
@@ -353,7 +353,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.23  2005-07-31 16:04:19  ncq
+# Revision 1.24  2005-07-31 16:22:25  ncq
+# - need to import "time"
+#
+# Revision 1.23  2005/07/31 16:04:19  ncq
 # - on some platforms, notably MS Windows mx.DateTime does not support
 #   strptime(), hence use time.strptime()
 #
