@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.18 2005-07-27 09:53:30 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmRegetMixin.py,v 1.19 2005-07-31 16:23:27 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -55,10 +55,10 @@ class cRegetOnPaintMixin:
 	#-----------------------------------------------------
 	def _on_paint_event(self, event):
 		"""Repopulate UI if data is stale."""
-		dc = wx.wxPaintDC(self)
+#		dc = wx.wxPaintDC(self)
 		if self._data_stale:
 			self.__populate_with_data()
-#		event.Skip()		# FIXME: needed ?
+		event.Skip()		# FIXME: needed ?
 	#-----------------------------------------------------
 	def _on_focus_event(self, event):
 		"""Doubtful whether that's the proper way to do it but seems OK."""
@@ -110,7 +110,10 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.18  2005-07-27 09:53:30  ncq
+# Revision 1.19  2005-07-31 16:23:27  ncq
+# - Hilmar's latest refresh fixes
+#
+# Revision 1.18  2005/07/27 09:53:30  ncq
 # - petty cleanup
 #
 # Revision 1.17  2005/07/26 19:24:26  hinnef
