@@ -12,8 +12,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmHorstSpace.py,v $
-# $Id: gmHorstSpace.py,v 1.14 2005-07-23 22:03:08 shilbert Exp $
-__version__ = "$Revision: 1.14 $"
+# $Id: gmHorstSpace.py,v 1.15 2005-07-31 16:22:57 ncq Exp $
+__version__ = "$Revision: 1.15 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -152,12 +152,12 @@ class cHorstSpaceLayoutMgr(wxPanel):
 			# no, so complain
 			# (the docs say that on Windows GetSelection() returns the
 			#  old page ID, eg. the same value GetOldSelection() returns)
-			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
-			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
-			_log.Log(gmLog.lData, 'sys: [%s] wx: [%s]' % (sys.platform, wxPlatform))
 			_log.Log(gmLog.lData, 'old page from event  : %s' % self.__id_prev_page)
 			_log.Log(gmLog.lData, 'new page from event  : %s' % id_new_page)
 			_log.Log(gmLog.lData, 'current notebook page: %s' % self.__id_prev_nb_page)
+			_log.Log(gmLog.lData, 'this is one of the platforms that have no clue which notebook page they are switching to')
+			_log.Log(gmLog.lData, 'sys: [%s] wx: [%s]' % (sys.platform, wxPlatform))
+			_log.Log(gmLog.lInfo, 'cannot check whether notebook page change needs to be vetoed')
 			# but let's do a basic check, at least
 			pat = gmPerson.gmCurrentPatient()
 			if not pat.is_connected():
@@ -291,7 +291,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmHorstSpace.py,v $
-# Revision 1.14  2005-07-23 22:03:08  shilbert
+# Revision 1.15  2005-07-31 16:22:57  ncq
+# - cleanup
+#
+# Revision 1.14  2005/07/23 22:03:08  shilbert
 # - yet another typo
 #
 # Revision 1.13  2005/07/23 21:44:21  shilbert
