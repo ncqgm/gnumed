@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.57 2005-07-24 18:54:18 ncq Exp $
-__version__ = "$Revision: 1.57 $"
+# $Id: gmDemographicsWidgets.py,v 1.58 2005-07-31 14:48:44 ncq Exp $
+__version__ = "$Revision: 1.58 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -2091,13 +2091,17 @@ class cPatIdentityPanelValidator(wx.PyValidator):
 		The default implementation returns False, indicating that an error
 		occurred.  We simply return True, as we don't do any data transfer.
 		"""
-		pageCtrl = self.GetWindow().GetParent()
-		pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
-		pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].Format(DATE_FORMAT))
-		pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
-		pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
-		pageCtrl.PRW_title.SetValue(self.__dtd['title'])
-		pageCtrl.PRW_nick.SetValue(self.__dtd['nick'])
+		try:
+			pageCtrl = self.GetWindow().GetParent()
+			pageCtrl.PRW_gender.SetValue(self.__dtd['gender'])
+			pageCtrl.TTC_dob.SetValue(self.__dtd['dob'].Format(DATE_FORMAT))
+			pageCtrl.PRW_lastname.SetValue(self.__dtd['lastnames'])
+			pageCtrl.PRW_firstname.SetValue(self.__dtd['firstnames'])
+			pageCtrl.PRW_title.SetValue(self.__dtd['title'])
+			pageCtrl.PRW_nick.SetValue(self.__dtd['nick'])
+		except:
+			_log.LogException('cannot transfer dtd to form', sys.exc_info(), verbose=0)
+			return False
 		return True
 	#--------------------------------------------------------
 	def Validate(self, parent = None):
@@ -2873,7 +2877,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.57  2005-07-24 18:54:18  ncq
+# Revision 1.58  2005-07-31 14:48:44  ncq
+# - catch exceptions in TransferToWindow
+#
+# Revision 1.57  2005/07/24 18:54:18  ncq
 # - cleanup
 #
 # Revision 1.56  2005/07/04 11:26:50  ncq
