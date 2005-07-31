@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.20 2005-07-27 15:17:06 ncq Exp $
-__version__ = "$Revision: 1.20 $"
+# $Id: gmDateTimeInput.py,v 1.21 2005-07-31 15:23:40 ncq Exp $
+__version__ = "$Revision: 1.21 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -240,7 +240,7 @@ Date input field
 			# FIXME: make this way more generous in accepting date input
 			date = mxDT.strptime(self.GetValue(), self.__display_format)
 		except:
-			_log.LogException('Invalid date. [%s] does not match [%s].' % (self.GetValue(), self.__display_format))
+			_log.LogException('Invalid date. [%s] does not match [%s].' % (self.GetValue(), self.__display_format), sys.exc_info())
 			# FIXME: Gtk-WARNING **: GtkEntry - did not receive focus-out-event
 			#        in wxwindows 2.4.x
 			#gmGuiHelpers.gm_show_error(msg, _('Invalid date format'), gmLog.lErr)
@@ -287,7 +287,7 @@ Date input field
 	#--------------------------------------------------------		
 	def SetValue(self, val):
 		gmPhraseWheel.cPhraseWheel.SetValue(self, val)
-		if len(val.strip()) and val != self.__default_text > 0:
+		if (len(val.strip()) > 0) and (val != self.__default_text):
 			self.__validate()		
 	#----------------------------------------------
 	def __selected(self, data):
@@ -353,7 +353,11 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.20  2005-07-27 15:17:06  ncq
+# Revision 1.21  2005-07-31 15:23:40  ncq
+# - fixed long-standing validation logic bug
+# - logging is best done using proper syntax, too
+#
+# Revision 1.20  2005/07/27 15:17:06  ncq
 # - properly catch date input error such that we
 #   may find the bug on Windows
 #
