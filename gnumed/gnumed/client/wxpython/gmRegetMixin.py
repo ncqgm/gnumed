@@ -23,8 +23,8 @@ repopulated with content.
 """
 #===========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.19 2005-07-31 16:23:27 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmRegetMixin.py,v 1.20 2005-08-03 20:02:11 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -82,12 +82,19 @@ class cRegetOnPaintMixin:
 	def _schedule_data_reget(self):
 		"""Flag data as stale and redisplay if needed.
 
-		- if not visible schedule reget only
-		- if visible redisplay immediately
+		- if not visible schedules reget only
+		- if visible redisplays immediately (virtue of Refresh() calling _on_paint_event())
 		"""
 		self._data_stale = True
-		# Master Robin Dunn says this is The Way(tm).
-		# The issues I have with this are:
+
+		# Master Robin Dunn says this is The Way(tm) but
+		# neither this:
+#		wx.wxGetApp().GetTopWindow().Refresh()
+		# nor this:
+		#top_parent = wx.wxGetTopLevelParent(self)
+		#top_parent.Refresh()
+		# appear to work as expected :-(
+		# The issues I have with them are:
 		# 1) It appears to cause refreshes "too often", eg whenever
 		#    *any*  child of self calls this method - but this may
 		#    not matter much as only those that have self._data_stale
@@ -95,12 +102,19 @@ class cRegetOnPaintMixin:
 		# 2) Even this does not in all cases cause a proper redraw
 		#    of the visible widgets - likely because nothing has
 		#    really changed in them, visually.
-		# neither this:
-		wx.wxGetApp().GetTopWindow().Refresh()
-		# nor this:
-		#top_parent = wx.wxGetTopLevelParent(self)
-		#top_parent.Refresh()
-		# appears to work as expected :-(
+
+		# further testing by Hilmar revealed, that the
+		# following appears to work:
+		self.Refresh()
+		# the logic should go like this:
+		# database insert -> after-insert trigger
+		# -> notify
+		# -> middleware listener
+		# -> flush middleware cache
+		# -> dispatcher signal to frontend listener*s*
+		# -> frontend listeners schedule a data reget and a Refresh()
+		# problem: those that are not visible are refreshed, too
+		# FIXME: is this last assumption true ?
 		return True
 #===========================================================================
 # main
@@ -110,7 +124,11 @@ if __name__ == '__main__':
 
 #===========================================================================
 # $Log: gmRegetMixin.py,v $
-# Revision 1.19  2005-07-31 16:23:27  ncq
+# Revision 1.20  2005-08-03 20:02:11  ncq
+# - Hilmar eventually seems to have found a way to
+#   update data in visible widgets immediately
+#
+# Revision 1.19  2005/07/31 16:23:27  ncq
 # - Hilmar's latest refresh fixes
 #
 # Revision 1.18  2005/07/27 09:53:30  ncq
