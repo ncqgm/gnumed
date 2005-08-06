@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.175 2005-05-08 21:40:27 ncq Exp $
-__version__ = "$Revision: 1.175 $"
+# $Id: gmClinicalRecord.py,v 1.176 2005-08-06 16:03:31 ncq Exp $
+__version__ = "$Revision: 1.176 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -207,11 +207,11 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	def _db_callback_episodes_modified(self):
 		try:
-			del self.__db_cache['episodes']			
+			del self.__db_cache['episodes']
 		except KeyError:
 			pass
 		try:
-			del self.__db_cache['problems']			
+			del self.__db_cache['problems']
 		except KeyError:
 			pass
 		gmDispatcher.send(signal = gmSignals.episodes_modified(), sender = self.__class__.__name__)
@@ -705,19 +705,21 @@ class cClinicalRecord:
 		try:
 			self.__db_cache['episodes']
 		except KeyError:
-			self.__db_cache['episodes'] = []
-
 			cmd = "select pk_episode from v_pat_episodes where pk_patient=%s"
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading episodes for patient [%s]' % self.pk_patient)
 				del self.__db_cache['episodes']
 				return None
+			self.__db_cache['episodes'] = []
 			for row in rows:
 				try:
 					self.__db_cache['episodes'].append(gmEMRStructItems.cEpisode(aPK_obj=row[0]))
 				except gmExceptions.ConstructorError, msg:
 					_log.LogException(str(msg), sys.exc_info(), verbose=0)
+				except KeyError:
+					_log.LogException('concurrency error reloading episodes', sys.exc_info(), verbose=0)
+					self.__db_cache['episodes'] = []
 
 		if id_list is None and issues is None:
 			return self.__db_cache['episodes']
@@ -1654,7 +1656,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.175  2005-05-08 21:40:27  ncq
+# Revision 1.176  2005-08-06 16:03:31  ncq
+# - guard against concurrent cache flushing
+#
+# Revision 1.175  2005/05/08 21:40:27  ncq
 # - robustify get_first/last_encounter() as there may really be None
 #
 # Revision 1.174  2005/04/27 12:24:23  sjtan
