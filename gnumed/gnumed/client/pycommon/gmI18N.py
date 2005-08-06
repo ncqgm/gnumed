@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.8 2005-07-18 09:12:12 ncq Exp $
+# $Id: gmI18N.py,v 1.9 2005-08-06 16:26:50 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -128,7 +128,7 @@ def __get_system_locale():
 	# use locale system
 	import locale
 #	system_locale = locale.setlocale(locale.LC_CTYPE)
-	system_locale = locale.setlocale(locale.LC_ALL, '')
+	system_locale = locale.setlocale(locale.LC_MESSAGES, '')
 
 	# did we find any locale setting ? assume en_EN if not
 	if system_locale in [None, 'C']:
@@ -322,7 +322,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.8  2005-07-18 09:12:12  ncq
+# Revision 1.9  2005-08-06 16:26:50  ncq
+# - read locale for messages from LC_MESSAGES, not LC_ALL
+#
+# Revision 1.8  2005/07/18 09:12:12  ncq
 # - make __install_domain more robust
 #
 # Revision 1.7  2005/04/24 15:48:47  ncq
