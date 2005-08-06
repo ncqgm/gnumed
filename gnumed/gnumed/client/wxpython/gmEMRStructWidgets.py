@@ -8,8 +8,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRStructWidgets.py,v $
-# $Id: gmEMRStructWidgets.py,v 1.11 2005-06-29 15:06:38 ncq Exp $
-__version__ = "$Revision: 1.11 $"
+# $Id: gmEMRStructWidgets.py,v 1.12 2005-08-06 16:50:51 ncq Exp $
+__version__ = "$Revision: 1.12 $"
 __author__ = "cfmoro1976@yahoo.es"
 __license__ = "GPL"
 
@@ -322,7 +322,7 @@ class cEpisodePicker(wx.wxPanel):
 		szr_input.AddGrowableCol(1)		
 		szr_input.Add(self.__STT_description, 0, wx.wxSHAPED)
 		szr_input.Add(self.__PRW_description, 1, wx.wxEXPAND)
-		szr_input.AddSpacer(0,0)
+#		szr_input.AddSpacer(0,0)
 		szr_input.Add(szr_actions, 0, wx.wxALIGN_CENTER | wx.wxTOP, border = 4)
 		# - episodes list and new note for selected episode button
 		self.__LST_episodes = wx.wxListCtrl(
@@ -876,7 +876,11 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing notes input...")
 #================================================================
 # $Log: gmEMRStructWidgets.py,v $
-# Revision 1.11  2005-06-29 15:06:38  ncq
+# Revision 1.12  2005-08-06 16:50:51  ncq
+# - zero-size spacer seems pointless and besides it
+#   don't work like that in wx2.5
+#
+# Revision 1.11  2005/06/29 15:06:38  ncq
 # - defaults for edit area popup/editarea2 __init__
 #
 # Revision 1.10  2005/06/28 17:14:56  cfmoro
