@@ -1,5 +1,16 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/CHANGELOG,v $
-$Id: CHANGELOG,v 1.1 2005-08-07 16:48:32 ncq Exp $
+$Id: CHANGELOG,v 1.2 2005-08-07 19:06:59 ncq Exp $
+=================================================================
+client 0.1rc4 -> rc5
+====================
+
+health issue edit area _patient bug
+-----------------------------------
+So 07 Aug 2005 21:05:22 CEST
+
+The cEditArea2 class *used* self._patient but did
+not *instantiate* it ...
+
 =================================================================
 So 07 Aug 2005 18:35:12 CEST
 
