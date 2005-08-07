@@ -1,0 +1,27 @@
+$Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/CHANGELOG,v $
+$Id: CHANGELOG,v 1.1 2005-08-07 16:48:32 ncq Exp $
+=================================================================
+So 07 Aug 2005 18:35:12 CEST
+
+client 0.1rc3 -> rc4
+====================
+
+locale LC_ALL bug
+-----------------
+
+On Suse 9.3 python locale.setlocale(LC_ALL) returns the
+entire locale set (as it should). We wrongly assumed it only
+returns LC_MESSAGES and hence were unable to properly sync
+with the database locale settings. Fixed.
+
+episode display refresh
+-----------------------
+
+When adding an episode in one client while displaying the
+EMR tree in another one an error occurred in the latter when
+trying to refresh the health issue/episode tree from the
+backend due to concurrent variable access in the
+middleware. Dramatically shortened the window for this to be
+possible to occur.
+
+=================================================================
