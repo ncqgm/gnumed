@@ -8,7 +8,7 @@
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "GNUmed-client"
 !define PRODUCT_VERSION "0.1"
-!define PRODUCT_SUBREV "rc3"
+!define PRODUCT_SUBREV "rc4"
 !define PRODUCT_PUBLISHER "GNUmed Systemhaus"
 !define PRODUCT_WEB_SITE "http://www.gnumed.de"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -91,7 +91,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "${PRODUCT_NAME}-${PRODUCT_VERSION}-${PRODUCT_SUBREV}.exe"
+OutFile "${PRODUCT_NAME}.${PRODUCT_VERSION}-${PRODUCT_SUBREV}.exe"
 InstallDir "$PROGRAMFILES\GNUmed-client"
 ShowInstDetails show
 ShowUnInstDetails show
