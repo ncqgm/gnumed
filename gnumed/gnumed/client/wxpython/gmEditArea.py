@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.91 2005-06-29 20:03:11 ncq Exp $
-__version__ = "$Revision: 1.91 $"
+# $Id: gmEditArea.py,v 1.92 2005-08-07 19:01:48 ncq Exp $
+__version__ = "$Revision: 1.92 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -363,6 +363,7 @@ class cEditArea2(wxPanel):
 		self._short_error = None
 		self._long_error = None
 		self._summary = None
+		self._patient = gmPerson.gmCurrentPatient()
 
 		self._wxID_BTN_OK = wx.wxNewId()
 		self._wxID_BTN_Clear = wx.wxNewId()
@@ -2314,7 +2315,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.91  2005-06-29 20:03:11  ncq
+# Revision 1.92  2005-08-07 19:01:48  ncq
+# - EditArea2 lacked self._patient which it used and hence produced errors, duh
+#
+# Revision 1.91  2005/06/29 20:03:11  ncq
 # - add proper __init__ defaults to edit area and edit area popup
 #
 # Revision 1.90  2005/05/05 06:27:00  ncq
