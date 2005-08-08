@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.31 2005-07-24 11:35:59 ncq Exp $
-__version__ = "$Revision: 1.31 $"
+# $Id: gmResizingWidgets.py,v 1.32 2005-08-08 08:07:55 ncq Exp $
+__version__ = "$Revision: 1.32 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -509,30 +509,30 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		true_txt_height = (self.PointFromPosition(last_char_pos).y - self.PointFromPosition(0).y) + line_height
 		x, visible_height = self.GetSizeTuple()
 		if visible_height < true_txt_height:
-			print "line:", line_height
-			print "before resize: too small"
-			print "visible height", visible_height
-			print "true text hgt", true_txt_height
+#			print "line:", line_height
+#			print "before resize: too small"
+#			print "visible height", visible_height
+#			print "true text hgt", true_txt_height
 			n, remainder = divmod((true_txt_height - visible_height), line_height)
 			if remainder > 0: n = n + 1
 			target_height = visible_height + (n * line_height)
 			self.__parent.ReSize(self, target_height)
-			print "after resize"
+#			print "after resize"
 			x, y = self.GetSizeTuple()
-			print "visible height", y
+#			print "visible height", y
 
 		if ((visible_height - line_height) > true_txt_height):
-			print "line:", line_height
-			print "before resize: too big"
-			print "visible height", visible_height
-			print "true text hgt", true_txt_height
+#			print "line:", line_height
+#			print "before resize: too big"
+#			print "visible height", visible_height
+#			print "true text hgt", true_txt_height
 #			n, delta = divmod((visible_height - true_txt_height), line_height)
 #			target_height = visible_height - (n * line_height)
 			target_height = visible_height - line_height
 			self.__parent.ReSize(self, target_height)
-			print "after resize"
+#			print "after resize"
 			x, y = self.GetSizeTuple()
-			print "visible height", y
+#			print "visible height", y
 
 		# is currently relevant term a keyword for popping up an edit area or something ?
 		fragment = self.__get_focussed_fragment()
@@ -695,11 +695,11 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 #		self.__popup = None
 	#------------------------------------------------
 	def _on_timer_fired(self, cookie):
-		print 'timer <%s> fired' % cookie
+#		print 'timer <%s> fired' % cookie
 		fragment = self.__get_focussed_fragment()
 		if fragment.strip() == '':
 			return 1
-		print 'should popup context pick list on <%s> now' % fragment
+#		print 'should popup context pick list on <%s> now' % fragment
 
 		return 1
 
@@ -744,22 +744,22 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		return text[self.fragment_start:self.fragment_end].strip()
 	#------------------------------------------------
 	def __get_best_popup_geom(self):
-		print "calculating optimal popup geometry"
+#		print "calculating optimal popup geometry"
 		parent_width, parent_height = self.__parent.GetSizeTuple()
-		print "parent size is %sx%s pixel" % (parent_width, parent_height)
+#		print "parent size is %sx%s pixel" % (parent_width, parent_height)
 		# FIXME: this should be gotten from ourselves, not the parent, but how ?
 		parent_char_height = self.__parent.GetCharHeight()
-		print "char height in parent is", parent_char_height, "pixel"
+#		print "char height in parent is", parent_char_height, "pixel"
 		# make popup 9 lines of height parent_char_height high
 		# FIXME: better detect this, but how ?
 		popup_height = parent_char_height * 9
-		print "hence intended popup height is", popup_height, "pixel"
+#		print "hence intended popup height is", popup_height, "pixel"
 		# get STC displacement inside parent
 		stc_origin_x, stc_origin_y = self.GetPositionTuple()
-		print "inside parent STC is @ %s:%s" % (stc_origin_x, stc_origin_y)
+#		print "inside parent STC is @ %s:%s" % (stc_origin_x, stc_origin_y)
 		# get current cursor position inside STC in pixels
 		curs_pos = self.PointFromPosition(self.GetCurrentPos())
-		print "inside STC cursor is @ %s:%s" % (curs_pos.x, curs_pos.y)
+#		print "inside STC cursor is @ %s:%s" % (curs_pos.x, curs_pos.y)
 		# find best placement
 		# - height
 		if (popup_height + parent_char_height) > parent_height:
@@ -784,7 +784,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 			popup_x_pos = parent_width - popup_width
 		else:
 			popup_x_pos = curs_pos.x + stc_origin_x
-		print "optimal geometry = %sx%s @ %s:%s" % (popup_width, popup_height, popup_x_pos, popup_y_pos)
+#		print "optimal geometry = %sx%s @ %s:%s" % (popup_width, popup_height, popup_x_pos, popup_y_pos)
 		return (wx.wxPoint(popup_x_pos, popup_y_pos), wx.wxSize(popup_width, popup_height))
 	#------------------------------------------------
 	def __handle_keyword(self, kwd=None):
@@ -833,6 +833,7 @@ class cResizingSTC(stc.wxStyledTextCtrl):
 		if result == wx.wxID_OK:
 			summary = popup.get_summary()
 			wx.wxCallAfter(self.Embed, summary)
+		popup.Destroy()
 	#------------------------------------------------
 	def __userlist (self, text, data=None):
 		# this is a callback
@@ -1065,7 +1066,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.31  2005-07-24 11:35:59  ncq
+# Revision 1.32  2005-08-08 08:07:55  ncq
+# - cleanup
+#
+# Revision 1.31  2005/07/24 11:35:59  ncq
 # - use robustified gmTimer.Start() interface
 #
 # Revision 1.30  2005/07/23 21:10:58  ncq

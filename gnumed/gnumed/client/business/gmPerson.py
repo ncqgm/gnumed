@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.50 2005-07-24 18:44:33 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmPerson.py,v 1.51 2005-08-08 08:06:44 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -503,7 +503,7 @@ class cPerson:
 			_log.LogException('cannot instantiate clinical record for person [%s]' % self.__ID, sys.exc_info())
 			return None
 		duration = time.time() - tstart
-		print "get_clinical_record() took %s seconds" % duration
+		print "retrieved EMR in %.3f seconds" % duration
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
 	def get_clinical_record(self):
@@ -1484,7 +1484,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.50  2005-07-24 18:44:33  ncq
+# Revision 1.51  2005-08-08 08:06:44  ncq
+# - cleanup
+#
+# Revision 1.50  2005/07/24 18:44:33  ncq
 # - actually, make it an outright error to stuff strings
 #   into DateTime objects - as we can't know the format
 #   we couldn't do much about it anyways ... callers better

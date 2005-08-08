@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.58 2005-07-31 14:48:44 ncq Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmDemographicsWidgets.py,v 1.59 2005-08-08 08:08:35 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1614,8 +1614,6 @@ class cBasicPatDetailsPageValidator(wx.PyValidator):
 			self.form_DTD['state'] = pageCtrl.PRW_state.GetData()
 			self.form_DTD['country'] = pageCtrl.PRW_country.GetData()
 			self.form_DTD['phone'] = pageCtrl.TTC_phone.GetValue()
-			#print self.form_DTD
-			#sys.exit(0)
 		except:
 			return False
 		return True
@@ -1808,8 +1806,6 @@ class cPatEditionNotebook(wx.Notebook):
 		Build patient edition notebook pages.
 		"""
 		ident = self.__pat.get_identity()
-		print 'Creando paginas con ident: %s' % ident
-		print 'Patient: %s' % self.__pat
 		# identity page
 		new_page = cPatIdentityPanel (
 			parent = self,
@@ -1861,12 +1857,14 @@ class cPatEditionNotebook(wx.Notebook):
 	#--------------------------------------------------------
 	def _on_activating_patient(self):
 		"""Another patient is about to be activated."""
-		print "[%s]: another patient is about to become active" % self.__class__.__name__
-		print "need code to ask user about unsaved patient details"
+#		print "[%s]: another patient is about to become active" % self.__class__.__name__
+#		print "need code to ask user about unsaved patient details"
+		pass
 	#--------------------------------------------------------
 	def _on_application_closing(self):
-		print "[%s]: the application is closing down" % self.__class__.__name__
-		print "need code to  ask user about unsaved patient details"
+#		print "[%s]: the application is closing down" % self.__class__.__name__
+#		print "need code to  ask user about unsaved patient details"
+		pass
 #============================================================
 class cPatIdentityPanel(wx.Panel):
 	"""
@@ -2814,7 +2812,6 @@ def get_name_gender_map():
 	"""
 	Build from backend a cached dictionary of pairs 'firstname' : gender_tag
 	"""	
-	print "get_name_gender_map()"
 	global _name_gender_map
 	if _name_gender_map is None:
 		#cmd = "select lower(name), gender from name_gender_map"
@@ -2877,7 +2874,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.58  2005-07-31 14:48:44  ncq
+# Revision 1.59  2005-08-08 08:08:35  ncq
+# - cleanup
+#
+# Revision 1.58  2005/07/31 14:48:44  ncq
 # - catch exceptions in TransferToWindow
 #
 # Revision 1.57  2005/07/24 18:54:18  ncq

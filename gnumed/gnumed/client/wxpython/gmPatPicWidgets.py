@@ -5,8 +5,8 @@
 #embryonic gmGP_PatientPicture.py
 #=====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatPicWidgets.py,v $
-# $Id: gmPatPicWidgets.py,v 1.8 2005-02-05 10:58:09 ihaywood Exp $
-__version__ = "$Revision: 1.8 $"
+# $Id: gmPatPicWidgets.py,v 1.9 2005-08-08 08:07:11 ncq Exp $
+__version__ = "$Revision: 1.9 $"
 __author__  = "R.Terry <rterry@gnumed.net>,\
 			   I.Haywood <i.haywood@ugrad.unimelb.edu.au>,\
 			   K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -169,7 +169,7 @@ class cPatientPicture(wx.wxStaticBitmap):
 		)
 	#-----------------------------------------------------------------
 	def _on_patient_selected(self):
-		print "pulling patient photo from DB, needs to be implemented, async"
+#		print "pulling patient photo from DB, needs to be implemented, async"
 		self.__set_pic_from_file()
 
 #====================================================
@@ -181,7 +181,10 @@ if __name__ == "__main__":
 	app.MainLoop()
 #====================================================
 # $Log: gmPatPicWidgets.py,v $
-# Revision 1.8  2005-02-05 10:58:09  ihaywood
+# Revision 1.9  2005-08-08 08:07:11  ncq
+# - cleanup
+#
+# Revision 1.8  2005/02/05 10:58:09  ihaywood
 # fixed patient picture problem (gratutious use of a named parameter)
 # more rationalisation of loggin in gmCfg
 #
