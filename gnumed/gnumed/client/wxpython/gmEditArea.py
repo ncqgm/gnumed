@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.93 2005-08-08 08:10:22 ncq Exp $
-__version__ = "$Revision: 1.93 $"
+# $Id: gmEditArea.py,v 1.94 2005-08-08 08:26:17 ncq Exp $
+__version__ = "$Revision: 1.94 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -323,6 +323,7 @@ class cEditAreaPopup(wx.wxDialog):
 	#--------------------------------------------------------
 	def _on_SAVE_btn_pressed(self, evt):
 		if self.__editarea.save_data():
+			self.__editarea.Close()
 			self.EndModal(wx.wxID_OK)
 			return
 		short_err = self.__editarea.get_short_error()
@@ -339,6 +340,7 @@ class cEditAreaPopup(wx.wxDialog):
 			gmGuiHelpers.gm_show_error(long_err, _('saving clinical data'), gmLog.lErr)
 	#--------------------------------------------------------
 	def _on_CANCEL_btn_pressed(self, evt):
+		self.__editarea.Close()
 		self.EndModal(wx.wxID_CANCEL)
 	#--------------------------------------------------------
 	def _on_RESET_btn_pressed(self, evt):
@@ -419,14 +421,14 @@ class cEditArea2(wxPanel):
 	#--------------------------------------------------------
 	def __deregister_events(self):
 		gmDispatcher.disconnect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
-		gmDispatcher.disconnect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
 		gmDispatcher.disconnect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+		gmDispatcher.disconnect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
 	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
 	def _on_close(self, event):
-		event.Skip()
 		self.__deregister_events()
+		event.Skip()
 	#--------------------------------------------------------
 	def _on_OK_btn_pressed(self, event):
 		"""Only active if _make_standard_buttons was called in child class."""
@@ -470,7 +472,6 @@ class cEditArea2(wxPanel):
 	#--------------------------------------------------------
 	def _on_activating_patient(self, **kwds):
 		"""Just before new patient becomes active."""
-		self.__deregister_events()
 		# remember wxCallAfter
 		if not self._patient.is_connected():
 			return True
@@ -486,7 +487,6 @@ class cEditArea2(wxPanel):
 		"""Just after new patient became active."""
 		# remember to use wxCallAfter()
 		self.reset_ui()
-		self.__register_events()
 	#----------------------------------------------------------------
 	# internal helpers
 	#----------------------------------------------------------------
@@ -2342,7 +2342,10 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.93  2005-08-08 08:10:22  ncq
+# Revision 1.94  2005-08-08 08:26:17  ncq
+# - explicitely class Close() on edit area in popup so signals are deregistered
+#
+# Revision 1.93  2005/08/08 08:10:22  ncq
 # - cleanup, commenting
 # - deregister signals on close()
 #
