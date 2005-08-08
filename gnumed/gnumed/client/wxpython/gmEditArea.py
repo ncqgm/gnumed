@@ -3,8 +3,8 @@
 # GPL
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEditArea.py,v $
-# $Id: gmEditArea.py,v 1.92 2005-08-07 19:01:48 ncq Exp $
-__version__ = "$Revision: 1.92 $"
+# $Id: gmEditArea.py,v 1.93 2005-08-08 08:10:22 ncq Exp $
+__version__ = "$Revision: 1.93 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -374,6 +374,7 @@ class cEditArea2(wxPanel):
 	# external API
 	#--------------------------------------------------------
 	def save_data(self):
+		"""This needs to be overridden by child classes."""
 		self._long_error = _(
 			'Cannot save data from edit area.\n\n'
 			'Programmer forgot to override method:\n'
@@ -406,24 +407,38 @@ class cEditArea2(wxPanel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# client internal signals
-		gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+		if self._patient.is_connected():
+			gmDispatcher.connect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+			gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
 		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
-		gmDispatcher.connect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+
+		# wxPython events
+		wx.EVT_CLOSE(self, self._on_close)
 
 		return 1
 	#--------------------------------------------------------
+	def __deregister_events(self):
+		gmDispatcher.disconnect(signal = gmSignals.activating_patient(), receiver = self._on_activating_patient)
+		gmDispatcher.disconnect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
+		gmDispatcher.disconnect(signal = gmSignals.patient_selected(), receiver = self.on_patient_selected)
+	#--------------------------------------------------------
 	# handlers
 	#--------------------------------------------------------
+	def _on_close(self, event):
+		event.Skip()
+		self.__deregister_events()
+	#--------------------------------------------------------
 	def _on_OK_btn_pressed(self, event):
+		"""Only active if _make_standard_buttons was called in child class."""
 		# FIXME: this try: except: block seems to large
 		try:
 			event.Skip()
 			if self.data is None:
 				self._save_new_entry()
-				self.set_data()
+				self.reset_ui()
 			else:
 				self._save_modified_entry()
-				self.set_data()
+				self.reset_ui()
 		except gmExceptions.InvalidInputError, err:
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
@@ -432,34 +447,46 @@ class cEditArea2(wxPanel):
 			except:
 				_log.LogException ('', sys.exc_info (), verbose = 0)
 		except:
-			gmLog.gmDefLog.LogException( "save data  problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
+			gmLog.gmDefLog.LogException( "save data problem in [%s]" % self.__class__.__name__, sys.exc_info(), verbose=0)
 	#--------------------------------------------------------
 	def _on_clear_btn_pressed(self, event):
+		"""Only active if _make_standard_buttons was called in child class."""
 		# FIXME: check for unsaved data
-		self.set_data()
+		self.reset_ui()
 		event.Skip()
 	#--------------------------------------------------------
-	def on_patient_selected( self, **kwds):
-		# remember to use wxCallAfter()
-		self.set_data()
-	#--------------------------------------------------------
 	def _on_application_closing(self, **kwds):
+		self.__deregister_events()
 		# remember wxCallAfter
 		if not self._patient.is_connected():
 			return True
-		if self._save_data():
-			return True
+		# FIXME: should do this:
+#		if self.user_wants_save():
+#			if self.save_data():
+#				return True
+		return True
 		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
 	def _on_activating_patient(self, **kwds):
+		"""Just before new patient becomes active."""
+		self.__deregister_events()
 		# remember wxCallAfter
 		if not self._patient.is_connected():
 			return True
-		if self._save_data():
-			return True
+		# FIXME: should do this:
+#		if self.user_wants_save():
+#			if self.save_data():
+#				return True
+		return True
 		_log.Log(gmLog.lErr, '[%s] lossage' % self.__class__.__name__)
 		return False
+	#--------------------------------------------------------
+	def on_patient_selected( self, **kwds):
+		"""Just after new patient became active."""
+		# remember to use wxCallAfter()
+		self.reset_ui()
+		self.__register_events()
 	#----------------------------------------------------------------
 	# internal helpers
 	#----------------------------------------------------------------
@@ -2315,7 +2342,11 @@ if __name__ == "__main__":
 #	app.MainLoop()
 #====================================================================
 # $Log: gmEditArea.py,v $
-# Revision 1.92  2005-08-07 19:01:48  ncq
+# Revision 1.93  2005-08-08 08:10:22  ncq
+# - cleanup, commenting
+# - deregister signals on close()
+#
+# Revision 1.92  2005/08/07 19:01:48  ncq
 # - EditArea2 lacked self._patient which it used and hence produced errors, duh
 #
 # Revision 1.91  2005/06/29 20:03:11  ncq
