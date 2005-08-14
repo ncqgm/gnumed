@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.47 2005-07-21 16:21:29 ncq Exp $
-__version__ = "$Revision: 1.47 $"
+# $Id: gmPlugin.py,v 1.48 2005-08-14 15:00:08 ncq Exp $
+__version__ = "$Revision: 1.48 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -355,7 +355,29 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 
 		# parse plugin directory
 		gb = gmGuiBroker.GuiBroker()
-		search_path = os.path.join(gb['gnumed_dir'], 'wxpython', plugin_dir)
+		candidates = []
+		# find candidate plugins directories
+		for path in sys.path:
+			# make sure it's a system path, not a user defined one
+			if path.find(sys.prefix) == -1:
+				continue
+			if path.find('site-packages') == -1:
+				continue
+			candidates.append(path)
+		if len(candidates) == 0:
+			_log.Log(gmLog.lErr, 'unable to determine the directory to scan for plugins')
+			return []
+		# among them find the one holding plugins
+		search_path = None
+		for candidate in candidates:
+			tmp = os.path.join(candidate, 'wxpython', plugin_dir)
+			if os.path.exists(tmp):
+				search_path = tmp
+				break
+		if search_path is None:
+			_log.Log(gmLog.lErr, 'unable to determine the directory to scan for plugins')
+			return []
+		# now scan it
 		files = os.listdir(search_path)
 		_log.Log(gmLog.lData, "plugin set: %s, gnumed_dir: %s" % (plugin_dir, gb['gnumed_dir']))
 		_log.Log(gmLog.lInfo, "scanning plugin directory [%s]" % search_path)
@@ -395,7 +417,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.47  2005-07-21 16:21:29  ncq
+# Revision 1.48  2005-08-14 15:00:08  ncq
+# - fix plugin directory scanning
+#
+# Revision 1.47  2005/07/21 16:21:29  ncq
 # - remove debugging cruft
 #
 # Revision 1.46  2005/07/18 17:13:38  ncq
