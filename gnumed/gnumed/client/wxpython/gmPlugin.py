@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.49 2005-08-14 16:03:00 ncq Exp $
-__version__ = "$Revision: 1.49 $"
+# $Id: gmPlugin.py,v 1.50 2005-08-14 16:20:44 ncq Exp $
+__version__ = "$Revision: 1.50 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -371,7 +371,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 		# among them find (the) one holding plugins
 		search_path = None
 		for candidate in candidates:
-			tmp = os.path.join(candidate, 'wxpython', plugin_dir)
+			tmp = os.path.join(candidate, 'Gnumed', 'wxpython', plugin_dir)
 			if os.path.exists(tmp):
 				search_path = tmp
 				break
@@ -419,7 +419,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.49  2005-08-14 16:03:00  ncq
+# Revision 1.50  2005-08-14 16:20:44  ncq
+# - missing "Gnumed" directory
+#
+# Revision 1.49  2005/08/14 16:03:00  ncq
 # - improved logging in case of error
 #
 # Revision 1.48  2005/08/14 15:00:08  ncq
