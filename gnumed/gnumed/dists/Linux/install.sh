@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/install.sh,v $
-# $Id: install.sh,v 1.7 2005-08-03 20:42:57 ncq Exp $
-# $Revision: 1.7 $
+# $Id: install.sh,v 1.8 2005-08-14 16:44:29 shilbert Exp $
+# $Revision: 1.8 $
 # license: GPL
 # sebastian.hilbert@gmx.net
 
@@ -93,9 +93,11 @@ fi
 echo "GNUmed documentation directory: $docdir" >> $LOG 2>&1
 
 mkdir -p $docdir/client >> $LOG 2>&1
+mkdir -p $docdir/examples >> $LOG 2>&1
 cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual $docdir/client >> $LOG 2>&1
 cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/medical_knowledge $docdir >> $LOG 2>&1
 cp -R ./GnuPublicLicense.txt $docdir >> $LOG 2>&1
+cp -R ./GNUmed-$REV/client/etc/gnumed/*.conf $docdir/examples >> $LOG 2>&1
 
 #######################################
 dfltconfdir=/etc/gnumed
@@ -137,7 +139,10 @@ echo $LOG
 
 #================================================
 # $Log: install.sh,v $
-# Revision 1.7  2005-08-03 20:42:57  ncq
+# Revision 1.8  2005-08-14 16:44:29  shilbert
+# - add cfg file examples to documentation directory
+#
+# Revision 1.7  2005/08/03 20:42:57  ncq
 # - actually capture log output
 #
 # Revision 1.6  2005/07/18 19:35:25  shilbert
