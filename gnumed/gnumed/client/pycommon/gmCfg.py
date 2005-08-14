@@ -53,7 +53,7 @@ permanent you need to call store() on the file object.
 # - optional arg for set -> type
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg.py,v $
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -527,7 +527,7 @@ class cCfgFile:
 			from Gnumed.pycommon import gmCLI
 			gmCLI_ = gmCLI
 		if aContents:
-			if not self.__parse_conf (aContents.split ("\n")):
+			if not self.__parse_conf(aContents.split('\n')):
 				raise SyntaxError, "cannot parse config file"
 		else:
 			# get conf file name
@@ -1257,7 +1257,10 @@ else:
 
 #=============================================================
 # $Log: gmCfg.py,v $
-# Revision 1.26  2005-02-05 10:58:09  ihaywood
+# Revision 1.27  2005-08-14 15:35:31  ncq
+# - cleanup
+#
+# Revision 1.26  2005/02/05 10:58:09  ihaywood
 # fixed patient picture problem (gratutious use of a named parameter)
 # more rationalisation of loggin in gmCfg
 #

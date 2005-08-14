@@ -9,8 +9,8 @@ This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPhraseWheel.py,v $
-# $Id: gmPhraseWheel.py,v 1.56 2005-07-24 11:35:59 ncq Exp $
-__version__ = "$Revision: 1.56 $"
+# $Id: gmPhraseWheel.py,v 1.57 2005-08-14 15:37:36 ncq Exp $
+__version__ = "$Revision: 1.57 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 
 import string, types, time, sys, re
@@ -319,8 +319,6 @@ class cPhraseWheel (wxTextCtrl):
 
 		FIXME: this might be exploitable for some nice statistics ...
 		"""
-		print args
-		print kwargs
 		for callback in self._on_enter_callbacks:
 			try:
 				callback()
@@ -563,7 +561,10 @@ if __name__ == '__main__':
 
 #==================================================
 # $Log: gmPhraseWheel.py,v $
-# Revision 1.56  2005-07-24 11:35:59  ncq
+# Revision 1.57  2005-08-14 15:37:36  ncq
+# - cleanup
+#
+# Revision 1.56  2005/07/24 11:35:59  ncq
 # - use robustified gmTimer.Start() interface
 #
 # Revision 1.55  2005/07/23 21:55:40  shilbert
