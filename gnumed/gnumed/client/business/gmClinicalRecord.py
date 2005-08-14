@@ -9,10 +9,23 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.176 2005-08-06 16:03:31 ncq Exp $
-__version__ = "$Revision: 1.176 $"
+# $Id: gmClinicalRecord.py,v 1.177 2005-08-14 15:34:32 ncq Exp $
+__version__ = "$Revision: 1.177 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
+
+#===================================================
+# TODO
+# Basically we'll probably have to:
+#
+# a) serialize access to re-getting data from the cache so
+#   that later-but-concurrent cache accesses spin until
+#   the first one completes the refetch from the database
+#
+# b) serialize access to the cache per-se such that cache
+#    flushes vs. cache regets happen atomically (where
+#    flushes would abort/restart current regets)
+#===================================================
 
 # standard libs
 import sys, string, time, copy
@@ -1656,7 +1669,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.176  2005-08-06 16:03:31  ncq
+# Revision 1.177  2005-08-14 15:34:32  ncq
+# - TODO item
+#
+# Revision 1.176  2005/08/06 16:03:31  ncq
 # - guard against concurrent cache flushing
 #
 # Revision 1.175  2005/05/08 21:40:27  ncq
