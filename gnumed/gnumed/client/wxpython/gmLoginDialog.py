@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.58 2005-06-10 16:09:36 shilbert Exp $
-__version__ = "$Revision: 1.58 $"
+# $Id: gmLoginDialog.py,v 1.59 2005-08-14 14:31:53 ncq Exp $
+__version__ = "$Revision: 1.59 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -31,9 +31,9 @@ class cLoginParamChoices:
 		"""init parmeters with reasonable defaults"""
 		self.userlist = ['any-doc']
 		self.password = ''
-		self.profilelist = ['local - default fallback']
+		self.profilelist = [_('default fallback: public GNUmed database')]
 		self.profiles = {
-			'local - default fallback': {'host': 'localhost', 'port': 5432, 'database': 'gnumed'}
+			_('default fallback: public GNUmed database'): {'host': 'salaam.homeunix.com', 'port': 5432, 'database': 'gnumed_v1'}
 		}
 
 #====================================================
@@ -218,9 +218,20 @@ class LoginPanel(wx.wxPanel):
 		self.loginparams = cLoginParamChoices()
 
 		# check if there is a non-empty config file
-		if str(_cfg.getCfg()) == "Null":
-			# this will probably never happen, as gmCfg creates a default config-file when none was found
-			_log.Log(gmLog.lErr, _("No config file specified or config file empty. Falling back to local default profile."))
+		if isinstance(_cfg, gmNull.cNull):
+			# this will probably never happen as gmCfg creates a
+			# default config-file when none was found, nevertheless
+			# fall back to default values
+			msg = _(
+				"Cannot find the configuration file:\n\n"
+				"%s"
+				"Your setup procedure may not have completed or your\n"
+				"configuration file may be damaged.\n\n"
+				"You can find an example configuration file included with\n"
+				"the GNUmed documentation which you may use to fix things.\n\n"
+				"Falling back to default profile using public server."
+			) % _cfg.cfgName
+			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
 			return self.loginparams
 
 		# read login options from config file
@@ -242,13 +253,13 @@ class LoginPanel(wx.wxPanel):
 				"Cannot find server profiles in the configuration file.\n"
 				"Your setup procedure may not have completed or your\n"
 				"configuration file may be damaged.\n\n"
-				"You can find an example configuration file in\n"
-				"[<gnumed installation dir>/client/etc/] which you may\n"
-				"use to repair [<your homedir>/.gnumed/gnumed.conf].\n\n"
-				"Falling back to default profile using local server."
-			)
+				"You can find an example configuration file included with\n"
+				"the GNUmed documentation which you may use to fix\n"
+				"[%s].\n\n"
+				"Falling back to default profile using public server."
+			) % _cfg.cfgName
 			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
-			_log.Log(gmLog.lErr, str(tmp))
+			_log.Log(gmLog.lData, str(tmp))
 			return self.loginparams
 
 		# - details for each profile
@@ -456,7 +467,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.58  2005-06-10 16:09:36  shilbert
+# Revision 1.59  2005-08-14 14:31:53  ncq
+# - better handling of missing/malformed config file
+#
+# Revision 1.58  2005/06/10 16:09:36  shilbert
 # foo.AddSizer()-> foo.Add() such that wx2.5 works
 #
 # Revision 1.57  2005/03/06 14:54:19  ncq
