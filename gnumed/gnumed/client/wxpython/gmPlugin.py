@@ -4,8 +4,8 @@
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPlugin.py,v $
-# $Id: gmPlugin.py,v 1.48 2005-08-14 15:00:08 ncq Exp $
-__version__ = "$Revision: 1.48 $"
+# $Id: gmPlugin.py,v 1.49 2005-08-14 16:03:00 ncq Exp $
+__version__ = "$Revision: 1.49 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -365,9 +365,10 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 				continue
 			candidates.append(path)
 		if len(candidates) == 0:
-			_log.Log(gmLog.lErr, 'unable to determine the directory to scan for plugins')
+			_log.Log(gmLog.lErr, 'no candidate directories to scan for plugins found among the following')
+			_log.Log(gmLog.lErr, str(sys.path))
 			return []
-		# among them find the one holding plugins
+		# among them find (the) one holding plugins
 		search_path = None
 		for candidate in candidates:
 			tmp = os.path.join(candidate, 'wxpython', plugin_dir)
@@ -375,7 +376,8 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None):
 				search_path = tmp
 				break
 		if search_path is None:
-			_log.Log(gmLog.lErr, 'unable to determine the directory to scan for plugins')
+			_log.Log(gmLog.lErr, 'unable to find any candidate directory matching [$candidate/wxpython/%s/]' % plugin_dir)
+			_log.Log(gmLog.lErr, 'candidates: %s' % str(candidates))
 			return []
 		# now scan it
 		files = os.listdir(search_path)
@@ -417,7 +419,10 @@ if __name__ == '__main__':
 
 #==================================================================
 # $Log: gmPlugin.py,v $
-# Revision 1.48  2005-08-14 15:00:08  ncq
+# Revision 1.49  2005-08-14 16:03:00  ncq
+# - improved logging in case of error
+#
+# Revision 1.48  2005/08/14 15:00:08  ncq
 # - fix plugin directory scanning
 #
 # Revision 1.47  2005/07/21 16:21:29  ncq
