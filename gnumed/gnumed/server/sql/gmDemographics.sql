@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.54 $
+-- $Revision: 1.55 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -49,6 +49,7 @@ COMMENT ON COLUMN state.country IS
 	'2 character ISO 3166-1 country code';
 
 -- ===================================================================
+-- FIXME: remodel according to XMeld
 create table urb (
 	id serial primary key,
 	id_state integer
@@ -291,6 +292,7 @@ comment on column lnk_identity2ext_id.fk_origin is
 	'originating system';
 
 -- ==========================================================
+-- FIXME: rebuild according to OpenEHR and XMeld
 create table names (
 	id serial primary key,
 	id_identity integer
@@ -579,11 +581,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.54 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.55 $', True);
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.54  2005-07-14 21:31:42  ncq
+-- Revision 1.55  2005-08-14 15:37:56  ncq
+-- - comments
+--
+-- Revision 1.54  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.53  2005/06/09 21:09:45  ncq
