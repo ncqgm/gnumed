@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.59 2005-08-14 14:31:53 ncq Exp $
-__version__ = "$Revision: 1.59 $"
+# $Id: gmLoginDialog.py,v 1.60 2005-08-14 15:22:04 ncq Exp $
+__version__ = "$Revision: 1.60 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -16,7 +16,7 @@ import os.path, time, cPickle, zlib, types
 
 from wxPython import wx
 
-from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmWhoAmI, gmI18N
+from Gnumed.pycommon import gmLoginInfo, gmGuiBroker, gmCfg, gmLog, gmWhoAmI, gmI18N, gmNull
 from Gnumed.wxpython import gmGuiHelpers
 
 _log = gmLog.gmDefLog
@@ -467,7 +467,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.59  2005-08-14 14:31:53  ncq
+# Revision 1.60  2005-08-14 15:22:04  ncq
+# - need to import gmNull
+#
+# Revision 1.59  2005/08/14 14:31:53  ncq
 # - better handling of missing/malformed config file
 #
 # Revision 1.58  2005/06/10 16:09:36  shilbert
