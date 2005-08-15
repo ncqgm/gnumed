@@ -8,7 +8,7 @@
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "GNUmed-client"
 !define PRODUCT_VERSION "0.1"
-!define PRODUCT_SUBREV "rc4" 
+!define PRODUCT_SUBREV "rc5" 
 !define PRODUCT_PUBLISHER "GNUmed Systemhaus"
 !define PRODUCT_WEB_SITE "http://www.gnumed.de"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -300,21 +300,21 @@ Section "Programmdateien" SEC01
   CreateShortCut "$SMPROGRAMS\GNUmed\GNUmed.lnk" "$INSTDIR\gnumed.bat"
 SectionEnd
 
-;Section "Sprachdateien" SEC02
-;  SetOutPath "$INSTDIR\locale\de\LC_MESSAGES"
-;  SetOverwrite try
-;  File "gnumed\gnumed\client\locale\de\LC_MESSAGES\gnumed.mo"
-;  SetOutPath "$INSTDIR\locale\de_DE\LC_MESSAGES"
-;  File "gnumed\gnumed\client\locale\de_DE\LC_MESSAGES\gnumed.mo"
-;  SetOutPath "$INSTDIR\locale\es\LC_MESSAGES"
-;  File "gnumed\gnumed\client\locale\es\LC_MESSAGES\gnumed.mo"
-;  SetOutPath "$INSTDIR\locale\es_ES\LC_MESSAGES"
-;  File "gnumed\gnumed\client\locale\es_ES\LC_MESSAGES\gnumed.mo"
-;  SetOutPath "$INSTDIR\locale\fr\LC_MESSAGES"
-;  File "gnumed\gnumed\client\locale\fr\LC_MESSAGES\gnumed.mo"
-;  SetOutPath "$INSTDIR\locale\fr_FR\LC_MESSAGES"
-;  File "gnumed\gnumed\client\locale\fr_FR\LC_MESSAGES\gnumed.mo"
-;SectionEnd
+Section "Sprachdateien" SEC02
+  SetOutPath "$INSTDIR\locale\de\LC_MESSAGES"
+  SetOverwrite try
+  File "mofiles\GNUmed-0.1\client\usr\share\locale\de\LC_MESSAGES\gnumed.mo"
+  SetOutPath "$INSTDIR\locale\de_DE\LC_MESSAGES"
+  File "mofiles\GNUmed-0.1\client\usr\share\locale\de_DE\LC_MESSAGES\gnumed.mo"
+  SetOutPath "$INSTDIR\locale\es\LC_MESSAGES"
+  File "mofiles\GNUmed-0.1\client\usr\share\locale\es\LC_MESSAGES\gnumed.mo"
+  SetOutPath "$INSTDIR\locale\es_ES\LC_MESSAGES"
+  File "mofiles\GNUmed-0.1\client\usr\share\locale\es_ES\LC_MESSAGES\gnumed.mo"
+  SetOutPath "$INSTDIR\locale\fr\LC_MESSAGES"
+  File "mofiles\GNUmed-0.1\client\usr\share\locale\fr\LC_MESSAGES\gnumed.mo"
+  SetOutPath "$INSTDIR\locale\fr_FR\LC_MESSAGES"
+  File "mofiles\GNUmed-0.1\client\usr\share\locale\fr_FR\LC_MESSAGES\gnumed.mo"
+SectionEnd
 
 Section "Dokumentation" SEC03
   SetOutPath "$INSTDIR\doc\medical_knowledge\de\STIKO"
