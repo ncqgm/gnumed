@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.146 2005-07-14 21:31:42 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.147 2005-08-15 16:30:42 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -106,107 +106,6 @@ create index idx_clin_medication on clin_medication(discontinued) where disconti
 \set ON_ERROR_STOP 1
 
 -- =============================================
--- encounters
-
-\unset ON_ERROR_STOP
-drop index idx_pat_per_encounter;
-drop index idx_encounter_started;
-drop index idx_encounter_affirmed;
-\set ON_ERROR_STOP 1
-
-create index idx_pat_per_encounter on clin_encounter(fk_patient);
-create index idx_encounter_started on clin_encounter(started);
-create index idx_encounter_affirmed on clin_encounter(last_affirmed);
-
-
-\unset ON_ERROR_STOP
-drop trigger tr_set_encounter_timezone on clin_encounter;
-drop function f_set_encounter_timezone();
-\set ON_ERROR_STOP 1
-
-create function f_set_encounter_timezone() returns opaque as '
-begin
-	if TG_OP = ''INSERT'' then
-		NEW.source_time_zone := (select (extract(timezone from (select now()))::text || ''seconds'')::interval);
-	else
-		NEW.source_time_zone := OLD.source_time_zone;
-	end if;
-	return NEW;
-end;
-' language 'plpgsql';
-
-create trigger tr_set_encounter_timezone
-	before insert or update
-	on clin_encounter
-	for each row
-		execute procedure f_set_encounter_timezone()
-;
-
--- per patient
-\unset ON_ERROR_STOP
-drop view v_pat_encounters;
-\set ON_ERROR_STOP 1
-
-create view v_pat_encounters as
-select
-	cle.id as pk_encounter,
-	cle.fk_patient as pk_patient,
-	cle.started as started,
-	et.description as type,
-	_(et.description) as l10n_type,
-	cle.description as description,
-	cle.last_affirmed as last_affirmed,
-	cle.fk_location as pk_location,
-	cle.fk_provider as pk_provider,
-	cle.fk_type as pk_type,
-	cle.xmin as xmin_clin_encounter
-from
-	clin_encounter cle,
-	encounter_type et
-where
-	cle.fk_type = et.pk
-;
-
--- current ones
-\unset ON_ERROR_STOP
-drop view v_most_recent_encounters;
-\set ON_ERROR_STOP 1
-
-create view v_most_recent_encounters as
-select distinct on (last_affirmed)
-	ce1.id as pk_encounter,
-	ce1.fk_patient as pk_patient,
-	ce1.description as description,
-	et.description as type,
-	_(et.description) as l10n_type,
-	ce1.started as started,
-	ce1.last_affirmed as last_affirmed,
-	ce1.fk_type as pk_type,
-	ce1.fk_location as pk_location,
-	ce1.fk_provider as pk_provider
-from
-	clin_encounter ce1,
-	encounter_type et
-where
-	ce1.fk_type = et.pk
-		and
-	ce1.started = (
-		-- find max of started in ...
-		select max(started)
-		from clin_encounter ce2
-		where
-			ce2.last_affirmed = (
-				-- ... max of last_affirmed for patient
-				select max(last_affirmed)
-				from clin_encounter ce3
-				where
-					ce3.fk_patient = ce1.fk_patient
-			)
-		limit 1
-	)
-;
-
--- =============================================
 -- episodes stuff
 
 -- speed up access by fk_health_issue
@@ -217,10 +116,14 @@ create index idx_episode_valid_issue on clin_episode(fk_health_issue) where fk_h
 \set ON_ERROR_STOP 1
 create index idx_episode_issue on clin_episode(fk_health_issue);
 
+\unset ON_ERROR_STOP
+drop index idx_uniq_open_epi_per_issue;
+\set ON_ERROR_STOP 1
+create unique index idx_uniq_open_epi_per_issue on clin_episode(is_open, fk_health_issue) where fk_health_issue is not null and is_open;
+
 
 \unset ON_ERROR_STOP
-drop trigger tr_episode_mod on clin_episode;
-drop function trf_announce_episode_mod();
+drop function trf_announce_episode_mod() cascade;
 \set ON_ERROR_STOP 1
 
 create function trf_announce_episode_mod() returns opaque as '
@@ -264,7 +167,6 @@ create trigger tr_episode_mod
 
 \unset ON_ERROR_STOP
 drop view v_pat_episodes cascade;
-drop view v_pat_episodes;
 \set ON_ERROR_STOP 1
 
 create view v_pat_episodes as
@@ -309,8 +211,7 @@ where
 -- =============================================
 -- clin_root_item stuff
 \unset ON_ERROR_STOP
-drop trigger TR_clin_item_mod on clin_root_item;
-drop function f_announce_clin_item_mod();
+drop function f_announce_clin_item_mod() cascade;
 \set ON_ERROR_STOP 1
 
 create function F_announce_clin_item_mod() returns opaque as '
@@ -346,13 +247,11 @@ create trigger TR_clin_item_mod
 -- protect from direct inserts/updates/deletes which the
 -- inheritance system can't handle properly
 \unset ON_ERROR_STOP
-drop function f_protect_clin_root_item();
-drop rule clin_ritem_no_ins on clin_root_item cascade;
-drop rule clin_ritem_no_ins;
---drop rule clin_ritem_no_upd on clin_root_item cascade;
---drop rule clin_ritem_no_upd;
-drop rule clin_ritem_no_del on clin_root_item cascade;
-drop rule clin_ritem_no_del;
+drop function f_protect_clin_root_item() cascade;
+--drop rule clin_ritem_no_ins on clin_root_item cascade;
+--drop rule clin_ritem_no_ins;
+--drop rule clin_ritem_no_del on clin_root_item cascade;
+--drop rule clin_ritem_no_del;
 \set ON_ERROR_STOP 1
 
 create function f_protect_clin_root_item() returns opaque as '
@@ -375,10 +274,6 @@ create rule clin_ritem_no_del as
 	do instead select f_protect_clin_root_item();
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_pat_items;
-\set ON_ERROR_STOP 1
-
 create view v_pat_items as
 select
 	extract(epoch from cri.clin_when) as age,
@@ -414,7 +309,6 @@ order by
 
 \unset ON_ERROR_STOP
 drop view v_test_type_unified cascade;
-drop view v_test_type_unified;
 \set ON_ERROR_STOP 1
 
 create view v_test_type_unified as
@@ -435,12 +329,6 @@ where
 
 comment on view v_test_type_unified is
 	'denormalized view of test_type_unified and link table to test_type';
-
---
-\unset ON_ERROR_STOP
-drop view v_unified_test_types cascade;
-drop view v_unified_test_types;
-\set ON_ERROR_STOP 1
 
 create view v_unified_test_types as
 select
@@ -472,13 +360,6 @@ comment on view v_unified_test_types is
 	 corresponding unified name if any, if not linked to a
 	 unified test type name the original name is used';
 
-
---
-\unset ON_ERROR_STOP
-drop view v_test_org_profile cascade;
-drop view v_test_org_profile;
-\set ON_ERROR_STOP 1
-
 create view v_test_org_profile as
 select
 	torg.pk as pk_test_org,
@@ -505,12 +386,6 @@ where
 comment on view v_test_org_profile is
 	'the tests a given test org provides';
 
-
---
-\unset ON_ERROR_STOP
-drop view v_test_results cascade;
-drop view v_test_results;
-\set ON_ERROR_STOP 1
 
 create view v_test_results as
 select
@@ -601,11 +476,6 @@ comment on view v_test_results is
 	 type and patient/episode/encounter keys';
 
 
---
-\unset ON_ERROR_STOP
-drop view v_lab_requests;
-\set ON_ERROR_STOP 1
-
 create view v_lab_requests as
 select
 	vpi.pk_patient as pk_patient,
@@ -643,11 +513,6 @@ where
 comment on view v_lab_requests is
 	'denormalizes lab requests per test organization';
 
-
---
-\unset ON_ERROR_STOP
-drop view v_results4lab_req;
-\set ON_ERROR_STOP 1
 
 create view v_results4lab_req as
 select
@@ -720,8 +585,7 @@ comment on view v_results4lab_req is
 -- ==========================================================
 -- health issues stuff
 \unset ON_ERROR_STOP
-drop trigger TR_h_issues_modified on clin_health_issue;
-drop function F_announce_h_issue_mod();
+drop function F_announce_h_issue_mod() cascade;
 \set ON_ERROR_STOP 1
 
 create function F_announce_h_issue_mod() returns opaque as '
@@ -749,9 +613,6 @@ create trigger TR_h_issues_modified
 
 -- ==========================================================
 -- allergy stuff
-\unset ON_ERROR_STOP
-drop view v_pat_allergies;
-\set ON_ERROR_STOP 1
 
 create view v_pat_allergies as
 select
@@ -795,7 +656,6 @@ where
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
 drop view v_vacc_regimes cascade;
-drop view v_vacc_regimes;
 \set ON_ERROR_STOP 1
 
 create view v_vacc_regimes as
@@ -821,7 +681,7 @@ comment on view v_vacc_regimes is
 
 -- -----------------------------------------------------
 \unset ON_ERROR_STOP
-drop view v_vacc_defs4reg;
+drop view v_vacc_defs4reg cascade;
 \set ON_ERROR_STOP 1
 
 create view v_vacc_defs4reg as
@@ -857,10 +717,6 @@ comment on view v_vacc_defs4reg is
 	'vaccination event definitions for all schedules known to the system';
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_vacc_regs4pat;
-\set ON_ERROR_STOP 1
-
 create view v_vacc_regs4pat as
 select
 	lp2vr.fk_patient as pk_patient,
@@ -882,10 +738,6 @@ comment on view v_vacc_regs4pat is
 	'selection of configured vaccination schedules a patient is actually on';
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_vaccs_scheduled4pat;
-\set ON_ERROR_STOP 1
-
 create view v_vaccs_scheduled4pat as
 select
 	vvr4p.pk_patient as pk_patient,
@@ -915,10 +767,6 @@ comment on view v_vaccs_scheduled4pat is
 	 to the vaccination schedules he/she is on';
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_pat_vacc4ind;
-\set ON_ERROR_STOP 1
-
 create view v_pat_vacc4ind as
 select
 	v.fk_patient as pk_patient,
@@ -962,10 +810,6 @@ comment on view v_pat_vacc4ind is
 	 given counts toward base immunisation, eg. all shots are valid';
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_pat_missing_vaccs;
-\set ON_ERROR_STOP 1
-
 create view v_pat_missing_vaccs as
 select
 	vvs4p.pk_patient,
@@ -1018,10 +862,6 @@ comment on view v_pat_missing_vaccs is
 	 received vaccinations';
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_pat_missing_boosters;
-\set ON_ERROR_STOP 1
-
 -- FIXME: only list those that DO HAVE a previous vacc (max(date) is not null)
 create view v_pat_missing_boosters as
 select
@@ -1082,11 +922,8 @@ comment on view v_pat_missing_boosters is
 -- ==========================================================
 -- current encounter stuff
 \unset ON_ERROR_STOP
-drop trigger at_curr_encounter_ins on curr_encounter;
-drop function f_curr_encounter_force_ins();
-
-drop trigger at_curr_encounter_upd on curr_encounter;
-drop function f_curr_encounter_force_upd();
+drop function f_curr_encounter_force_ins() cascade;
+drop function f_curr_encounter_force_upd() cascade;
 \set ON_ERROR_STOP 1
 
 create function f_curr_encounter_force_ins() returns opaque as '
@@ -1122,7 +959,7 @@ create trigger at_curr_encounter_upd
 -- coded narrative
 \unset ON_ERROR_STOP
 drop index idx_coded_terms;
-drop function add_coded_term(text, text, text);
+drop function add_coded_term(text, text, text) cascade;
 \set ON_ERROR_STOP 1
 
 create index idx_coded_terms on coded_narrative(term);
@@ -1146,9 +983,6 @@ end;' language 'plpgsql';
 
 -- =============================================
 -- diagnosis views
-\unset ON_ERROR_STOP
-drop view v_pat_diag;
-\set ON_ERROR_STOP 1
 
 create view v_pat_diag as
 select
@@ -1182,10 +1016,6 @@ comment on view v_pat_diag is
 	'denormalizing view over diagnoses per patient';
 
 -- -----------------------
-\unset ON_ERROR_STOP
-drop view v_codes4diag;
-\set ON_ERROR_STOP 1
-
 create view v_codes4diag as
 select distinct on (diagnosis, code, xfk_coding_system)
 	con.term as diagnosis,
@@ -1204,10 +1034,6 @@ comment on view v_codes4diag is
 
 -- =============================================
 -- types of narrative
-
-\unset ON_ERROR_STOP
-drop view v_pat_rfe;
-\set ON_ERROR_STOP 1
 
 create view v_pat_rfe as
 select
@@ -1230,10 +1056,6 @@ where
 ;
 
 
-\unset ON_ERROR_STOP
-drop view v_pat_aoe;
-\set ON_ERROR_STOP 1
-
 create view v_pat_aoe as
 select
 	vpi.pk_patient as pk_patient,
@@ -1254,11 +1076,107 @@ where
 	cn.pk_item = vpi.pk_item
 ;
 
+-- =============================================
+-- encounters
+
 \unset ON_ERROR_STOP
-drop view v_pat_narrative;
+drop index idx_pat_per_encounter;
+drop index idx_encounter_started;
+drop index idx_encounter_affirmed;
 \set ON_ERROR_STOP 1
 
--- might be slow
+create index idx_pat_per_encounter on clin_encounter(fk_patient);
+create index idx_encounter_started on clin_encounter(started);
+create index idx_encounter_affirmed on clin_encounter(last_affirmed);
+
+
+\unset ON_ERROR_STOP
+drop function f_set_encounter_timezone() cascade;
+\set ON_ERROR_STOP 1
+
+create function f_set_encounter_timezone() returns opaque as '
+begin
+	if TG_OP = ''INSERT'' then
+		NEW.source_time_zone := (select (extract(timezone from (select now()))::text || ''seconds'')::interval);
+	else
+		NEW.source_time_zone := OLD.source_time_zone;
+	end if;
+	return NEW;
+end;
+' language 'plpgsql';
+
+create trigger tr_set_encounter_timezone
+	before insert or update
+	on clin_encounter
+	for each row
+		execute procedure f_set_encounter_timezone()
+;
+
+-- per patient
+\unset ON_ERROR_STOP
+drop view v_pat_encounters cascade;
+\set ON_ERROR_STOP 1
+
+create view v_pat_encounters as
+select
+	cle.id as pk_encounter,
+	cle.fk_patient as pk_patient,
+	cle.started as started,
+	et.description as type,
+	_(et.description) as l10n_type,
+	cle.description as description,
+	cle.last_affirmed as last_affirmed,
+	cle.fk_location as pk_location,
+	cle.fk_provider as pk_provider,
+	cle.fk_type as pk_type,
+	cle.xmin as xmin_clin_encounter
+from
+	clin_encounter cle,
+	encounter_type et
+where
+	cle.fk_type = et.pk
+;
+
+-- current ones
+\unset ON_ERROR_STOP
+drop view v_most_recent_encounters cascade;
+\set ON_ERROR_STOP 1
+
+create view v_most_recent_encounters as
+select distinct on (last_affirmed)
+	ce1.id as pk_encounter,
+	ce1.fk_patient as pk_patient,
+	ce1.description as description,
+	et.description as type,
+	_(et.description) as l10n_type,
+	ce1.started as started,
+	ce1.last_affirmed as last_affirmed,
+	ce1.fk_type as pk_type,
+	ce1.fk_location as pk_location,
+	ce1.fk_provider as pk_provider
+from
+	clin_encounter ce1,
+	encounter_type et
+where
+	ce1.fk_type = et.pk
+		and
+	ce1.started = (
+		-- find max of started in ...
+		select max(started)
+		from clin_encounter ce2
+		where
+			ce2.last_affirmed = (
+				-- ... max of last_affirmed for patient
+				select max(last_affirmed)
+				from clin_encounter ce3
+				where
+					ce3.fk_patient = ce1.fk_patient
+			)
+		limit 1
+	)
+;
+
+-- -----------------------------
 create view v_pat_narrative as
 select
 	vpi.pk_patient as pk_patient,
@@ -1293,9 +1211,7 @@ comment on view v_pat_narrative is
 -- ---------------------------------------------
 -- custom referential integrity
 \unset ON_ERROR_STOP
-drop trigger tr_rfi_type2item on lnk_type2item cascade;
-drop trigger tr_rfi_type2item on lnk_type2item;
-drop function f_rfi_type2item();
+drop function f_rfi_type2item() cascade;
 \set ON_ERROR_STOP 1
 
 create function f_rfi_type2item() returns opaque as '
@@ -1336,10 +1252,6 @@ comment on function f_rfi_type2item() is
 --	 lnk_type2item to clin_root_item';
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_pat_item_types;
-\set ON_ERROR_STOP 1
-
 create view v_pat_item_types as
 select
 	items.pk_item as pk_item,
@@ -1353,10 +1265,6 @@ from
 ;
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_types4item;
-\set ON_ERROR_STOP 1
-
 create view v_types4item as
 select distinct on (narrative, code, type, src_table)
 	items.code as code,
@@ -1426,10 +1334,6 @@ from
 --comment on trigger tr_rfi_type2item is
 --	'trigger to check referential integrity from
 --	 lnk_type2item to clin_root_item';
-
-\unset ON_ERROR_STOP
-drop view v_hx_family;
-\set ON_ERROR_STOP 1
 
 create view v_hx_family as
 -- those not linked to another patient as relative
@@ -1545,16 +1449,12 @@ where
 		and
 	hxfi.fk_relative is null
 		and
-	v_basic_person.pk_identity = vpn.pk_patient
+	vbp.pk_identity = vpn.pk_patient
 ;
 
 
 -- =============================================
 -- problem list
-
-\unset ON_ERROR_STOP
-drop view v_problem_list;
-\set ON_ERROR_STOP 1
 
 create view v_problem_list as
 select	-- all the (open) episodes
@@ -1590,9 +1490,6 @@ where
 
 -- =============================================
 -- *complete* narrative for searching
-\unset ON_ERROR_STOP
-drop view v_narrative4search;
-\set ON_ERROR_STOP 1
 
 create view v_narrative4search as
 -- clin_root_items
@@ -1665,9 +1562,6 @@ comment on view v_narrative4search is
 
 -- =============================================
 -- complete narrative for display as a journal
-\unset ON_ERROR_STOP
-drop view v_emr_journal;
-\set ON_ERROR_STOP 1
 
 create view v_emr_journal as
 
@@ -2005,11 +1899,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.146 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.147 $', True);
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.146  2005-07-14 21:31:42  ncq
+-- Revision 1.147  2005-08-15 16:30:42  ncq
+-- - cleanup
+-- - enforce "only one open episode per health issue at any time"
+--
+-- Revision 1.146  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.145  2005/06/19 13:36:10  ncq
