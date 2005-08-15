@@ -7,8 +7,8 @@ copyright: authors
 """
 #============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/Attic/gmLoginDialog.py,v $
-# $Id: gmLoginDialog.py,v 1.60 2005-08-14 15:22:04 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmLoginDialog.py,v 1.61 2005-08-15 15:15:25 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "H.Herb, H.Berger, R.Terry, K.Hilbert"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -301,10 +301,10 @@ class LoginPanel(wx.wxPanel):
 			# fallback to default, ignores all login information in the config file
 			self.loginparams = cLoginParamChoices()
 			msg = _(
-				"No valid profile information found in configuration file.\n"
-				"Please refer to the example configuration file at\n"
-				"[<gnumed installation dir>/client/etc/] for information\n"
-				"on how profiles should be specified.\n\n"
+				"No valid profile information found in configuration file.\n\n"
+				"Please refer to the example configuration file (included\n"
+				"with the GNUmed documentation) for information on how\n"
+				"profiles are to be specified.\n\n"
 				"Falling back to default profile using local server."
 			)
 			gmGuiHelpers.gm_show_error(msg, _('Configuration Error'), gmLog.lErr)
@@ -467,7 +467,10 @@ if __name__ == '__main__':
 
 #############################################################################
 # $Log: gmLoginDialog.py,v $
-# Revision 1.60  2005-08-14 15:22:04  ncq
+# Revision 1.61  2005-08-15 15:15:25  ncq
+# - improved error message
+#
+# Revision 1.60  2005/08/14 15:22:04  ncq
 # - need to import gmNull
 #
 # Revision 1.59  2005/08/14 14:31:53  ncq
