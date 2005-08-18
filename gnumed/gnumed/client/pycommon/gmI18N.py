@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.9 2005-08-06 16:26:50 ncq Exp $
+# $Id: gmI18N.py,v 1.10 2005-08-18 18:10:52 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -242,6 +242,11 @@ def __install_domain():
 
 	# search for message catalog
 	_log.Log(gmLog.lData, 'Searching message catalog file for system locale [%s].' % system_locale)
+	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
+		if os.environ.has_key(env_var):
+			_log.Log(gmLog.lData, '${%s} = [%s]' % (env_var, os.environ[env_var]))
+		else:
+			_log.Log(gmLog.lData, '${%s} not set' % env_var)
 	candidates = []
 	# 1) try standard places first
 	if os.name == 'posix':
@@ -284,7 +289,7 @@ def __install_domain():
 			continue
 		# does it translate ?
 		if _(__tag__) == __tag__:
-			_log.Log(gmLog.lData, 'does not translate')
+			_log.Log(gmLog.lData, 'does not translate: [%s] => [%s]' % (__tag__, _(__tag__)))
 			continue
 		else:
 			_log.Log(gmLog.lData, 'found msg catalog: [%s] => [%s]' % (__tag__, _(__tag__)))
@@ -322,7 +327,11 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.9  2005-08-06 16:26:50  ncq
+# Revision 1.10  2005-08-18 18:10:52  ncq
+# - explicitely dump l10n related env vars as Windows
+#   is dumb and needs to be debugged
+#
+# Revision 1.9  2005/08/06 16:26:50  ncq
 # - read locale for messages from LC_MESSAGES, not LC_ALL
 #
 # Revision 1.8  2005/07/18 09:12:12  ncq
