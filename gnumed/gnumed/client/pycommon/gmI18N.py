@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.10 2005-08-18 18:10:52 ncq Exp $
+# $Id: gmI18N.py,v 1.11 2005-08-18 18:30:57 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -230,23 +230,31 @@ def __install_domain_old():
 def __install_domain():
 	"""Install a text domain suitable for the main script.
 	"""
+	# set up environment
 	text_domain = ''
 	# text domain given on command line ?
 	if gmCLI.has_arg('--text-domain'):
 		text_domain = gmCLI.arg['--text-domain']
-	# else get text domain from name of script 
+	# else get text domain from name of script
 	else:
 		text_domain = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-
 	_log.Log(gmLog.lInfo, 'text domain is [%s]' % text_domain)
 
-	# search for message catalog
-	_log.Log(gmLog.lData, 'Searching message catalog file for system locale [%s].' % system_locale)
+	_log.Log(gmLog.lData, 'searching message catalog file for system locale [%s]' % system_locale)
 	for env_var in ['LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG']:
-		if os.environ.has_key(env_var):
-			_log.Log(gmLog.lData, '${%s} = [%s]' % (env_var, os.environ[env_var]))
-		else:
+		tmp = os.getenv(env_var)
+		if env_var is None:
 			_log.Log(gmLog.lData, '${%s} not set' % env_var)
+		else:
+			_log.Log(gmLog.lData, '${%s} = [%s]' % (env_var, tmp))
+
+	if gmCLI.has_arg('--lang-gettext'):
+		lang = gmCLI.arg['--lang-gettext']
+		_log.Log(gmLog.lInfo, 'explicit setting of ${LANG} requested: [%s]' % lang)
+		_log.Log(gmLog.lInfo, 'this overrides the system locale setting')
+		os.environ['LANG'] = lang
+
+	# search for message catalog
 	candidates = []
 	# 1) try standard places first
 	if os.name == 'posix':
@@ -327,7 +335,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.10  2005-08-18 18:10:52  ncq
+# Revision 1.11  2005-08-18 18:30:57  ncq
+# - allow explicit setting of $LANG by --lang-gettext
+#
+# Revision 1.10  2005/08/18 18:10:52  ncq
 # - explicitely dump l10n related env vars as Windows
 #   is dumb and needs to be debugged
 #
