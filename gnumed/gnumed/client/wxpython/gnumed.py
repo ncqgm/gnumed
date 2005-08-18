@@ -43,12 +43,16 @@ Command line arguments:
 --unicode-gettext=<0 | 1>
  Use unicode (1) or non-unicode (0) gettext. This is needed for older
  (< 2.5) and non-unicode compiled wxWidgets/wxPython libraries.
+--lang-gettext=<language>
+Explicitely set the language to use in gettext translation. The very
+same effect can be achieved by setting the environment variable $LANG
+from a launcher script.
 --help, -h, or -?
  Well, show this help.
 """
 #==========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gnumed.py,v $
-__version__ = "$Revision: 1.84 $"
+__version__ = "$Revision: 1.85 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -441,7 +445,10 @@ _log.Log(gmLog.lInfo, 'Normally shutting down as main module.')
 
 #==========================================================
 # $Log: gnumed.py,v $
-# Revision 1.84  2005-07-24 11:36:44  ncq
+# Revision 1.85  2005-08-18 18:57:58  ncq
+# - document --lang-gettext
+#
+# Revision 1.84  2005/07/24 11:36:44  ncq
 # - cleanup
 #
 # Revision 1.83  2005/07/23 14:41:13  shilbert
