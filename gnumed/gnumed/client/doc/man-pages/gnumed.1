@@ -14,6 +14,7 @@ You have been warned.
 .RB [--log-file=FILE]
 .RB [--conf-file=FILE]
 .RB [--unicode-gettext=0|1]
+.RB [--lang-gettext=LANGUAGE]
 .RB [--help]
 .RB [-h|?]
 
@@ -55,11 +56,15 @@ log file would be <~/.gnumed/gnumed.log>.
 Use configuration file FILE instead of searching for it in
 standard locations.
 .TP
-.B
---unicode-gettext=0|1
+.B \--unicode-gettext=0|1
 Use unicode (1) or non-unicode (0) gettext. This is needed for older
 (< 2.5) and non-unicode compiled wxWidgets/wxPython libraries. The
 default is 1, eg. do use unicode.
+.TP
+.B \--lang-gettext=LANGUAGE
+Explicitely set the language to use in gettext translation. The very
+same effect can be achieved by setting the environment variable $LANG
+from a launcher script.
 .TP
 .B \--help, -h, or -?
 Well, show this help.
@@ -122,4 +127,4 @@ You have been warned.
 
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/man-pages/gnumed.1,v $
 
-$Id: gnumed.1,v 1.7 2005-03-29 07:16:14 ncq Exp $
+$Id: gnumed.1,v 1.8 2005-08-18 18:55:37 ncq Exp $
