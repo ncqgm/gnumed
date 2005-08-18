@@ -38,9 +38,9 @@ variables by the locale system.
 @copyright: authors
 """
 #===========================================================================
-# $Id: gmI18N.py,v 1.11 2005-08-18 18:30:57 ncq Exp $
+# $Id: gmI18N.py,v 1.12 2005-08-18 18:41:48 ncq Exp $
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmI18N.py,v $
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -128,7 +128,10 @@ def __get_system_locale():
 	# use locale system
 	import locale
 #	system_locale = locale.setlocale(locale.LC_CTYPE)
-	system_locale = locale.setlocale(locale.LC_MESSAGES, '')
+	try:
+		system_locale = locale.setlocale(locale.LC_MESSAGES, '')
+	except AttributeError:
+		_log.LogException('Windows does not support $LC_MESSAGES', sys.exc_info(), verbose=0)
 
 	# did we find any locale setting ? assume en_EN if not
 	if system_locale in [None, 'C']:
@@ -335,7 +338,10 @@ if __name__ == "__main__":
 
 #=====================================================================
 # $Log: gmI18N.py,v $
-# Revision 1.11  2005-08-18 18:30:57  ncq
+# Revision 1.12  2005-08-18 18:41:48  ncq
+# - Windows does not know proper i18n
+#
+# Revision 1.11  2005/08/18 18:30:57  ncq
 # - allow explicit setting of $LANG by --lang-gettext
 #
 # Revision 1.10  2005/08/18 18:10:52  ncq
