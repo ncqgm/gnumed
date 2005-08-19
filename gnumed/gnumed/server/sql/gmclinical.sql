@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.161 $
+-- $Revision: 1.162 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -124,7 +124,8 @@ comment on column clin_episode.description is
 	'description/name of this episode';
 comment on column clin_episode.is_open is
 	'whether the episode is open (eg. there is activity for it),
-	 means open in a temporal sense as in "not closed yet"';
+	 means open in a temporal sense as in "not closed yet";
+	 only one episode can be open per health issue';
 
 -- -------------------------------------------------------------------
 create table last_act_episode (
@@ -1314,11 +1315,14 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.161 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.162 $', True);
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.161  2005-07-14 21:31:42  ncq
+-- Revision 1.162  2005-08-19 08:23:04  ncq
+-- - comment update
+--
+-- Revision 1.161  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.160  2005/06/19 13:33:51  ncq
