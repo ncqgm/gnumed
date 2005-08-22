@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.50 2005-07-21 21:01:26 ncq Exp $
-__version__ = "$Revision: 1.50 $"
+# $Id: gmSOAPWidgets.py,v 1.51 2005-08-22 13:27:47 ncq Exp $
+__version__ = "$Revision: 1.51 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1278,9 +1278,8 @@ class cResizingSoapPanel(wx.wxPanel):
 		"""
 		if isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
 			self.__set_heading(txt)
-		else:
-			msg = _('Cannot change the episode description for current note.')
-			gmGuiHelpers.gm_show_error(msg, _('changing episode description'), gmLog.lErr)			
+			return True
+		return False
 	#--------------------------------------------------------
 	def is_unassociated_editor(self):
 		"""
@@ -1608,7 +1607,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.50  2005-07-21 21:01:26  ncq
+# Revision 1.51  2005-08-22 13:27:47  ncq
+# - properly return error from SetHeadingTxt
+#
+# Revision 1.50  2005/07/21 21:01:26  ncq
 # - cleanup
 #
 # Revision 1.49  2005/06/20 13:15:02  cfmoro
