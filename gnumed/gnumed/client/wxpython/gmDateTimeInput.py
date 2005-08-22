@@ -10,8 +10,8 @@ transparently add features.
 """
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.24 2005-07-31 16:22:25 ncq Exp $
-__version__ = "$Revision: 1.24 $"
+# $Id: gmDateTimeInput.py,v 1.25 2005-08-22 13:03:46 ncq Exp $
+__version__ = "$Revision: 1.25 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL (details at http://www.gnu.org)"
 
@@ -25,6 +25,22 @@ from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
 from Gnumed.pycommon.gmPyCompat import *
 
 _log = gmLog.gmDefLog
+
+month_length = {
+	1: 31,
+	2: 28,		# FIXME: make leap year aware
+	3: 31,
+	4: 30,
+	5: 31,
+	6: 30,
+	7: 31,
+	8: 31,
+	9: 30,
+	10: 31,
+	11: 30,
+	12: 31
+}
+
 #============================================================
 class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 	def __init__(self):
@@ -76,27 +92,31 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 		val = int(val.replace('\t', ''))
 
 		matches = []
-		# nth day of this month (if larger than today or past explicitely allowed)
-		if (self.__now.day <= val) or (self.__allow_past):
-			target_date = self.__now + mxDT.RelativeDateTime(day = val)
+
+		# day X of this month (if later than today or past explicitely allowed)
+		if (val <= month_length[self.__now.month]) and (val > 0):
+			if (self.__now.day <= val) or (self.__allow_past):
+				target_date = self.__now + mxDT.RelativeDateTime(day = val)
+				tmp = {
+					'data': target_date,
+					'label': _('day %d this month (a %s)') % (val, target_date.strftime('%A'))
+				}
+				matches.append(tmp)
+
+		# day X of next month
+		if (val <= month_length[(self.__now + mxDT.RelativeDateTime(months = 1)).month]) and (val > 0):
+			target_date = self.__now + mxDT.RelativeDateTime(months = 1, day = val)
 			tmp = {
 				'data': target_date,
-				'label': _('day %d of this month (a %s)') % (val, target_date.strftime('%A'))
+				'label': _('day %d next month (a %s)') % (val, target_date.strftime('%A'))
 			}
 			matches.append(tmp)
-		# day of next month
-		target_date = self.__now + mxDT.RelativeDateTime(months = 1, day = val)
-		tmp = {
-			'data': target_date,
-			'label': _('day %d of next month (a %s)') % (val, target_date.strftime('%A'))
-		}
-		matches.append(tmp)
 		# X days from now (if <32)
 		if val < 32:
 			target_date = self.__now + mxDT.RelativeDateTime(days = val)
 			tmp = {
 				'data': target_date,
-				'label': _('in %d days (a %s)') % (val, target_date.strftime('%A'))
+				'label': _('in %d day(s) (a %s)') % (val, target_date.strftime('%A'))
 			}
 			matches.append(tmp)
 		# X weeks from now (if <5)
@@ -104,7 +124,7 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 			target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
 			tmp = {
 				'data': target_date,
-				'label': _('in %d weeks (a %s)') % (val, target_date.strftime('%A'))
+				'label': _('in %d week(s) (a %s)') % (val, target_date.strftime('%A'))
 			}
 			matches.append(tmp)
 		# day of this week
@@ -127,24 +147,24 @@ class cMatchProvider_Date(gmMatchProvider.cMatchProvider):
 		if re.search('[dt]', aFragment):
 			if is_future:
 				target_date = self.__now + mxDT.RelativeDateTime(days = val)
-				label = _('in %d days (a %s)') % (val, target_date.strftime('%A'))
+				label = _('in %d day(s) (on a %s)') % (val, target_date.strftime('%A'))
 			else:
 				target_date = self.__now - mxDT.RelativeDateTime(days = val)
-				label = _('%d days ago (a %s)') % (val, target_date.strftime('%A'))
+				label = _('%d day(s) ago (on a %s)') % (val, target_date.strftime('%A'))
 		elif re.search('[w]', aFragment):
 			if is_future:
 				target_date = self.__now + mxDT.RelativeDateTime(weeks = val)
-				label = _('in %d weeks (a %s)') % (val, target_date.strftime('%A'))
+				label = _('in %d week(s) (on a %s)') % (val, target_date.strftime('%A'))
 			else:
 				target_date = self.__now - mxDT.RelativeDateTime(weeks = val)
-				label = _('%d weeks ago (a %s)') % (val, target_date.strftime('%A'))
+				label = _('%d week(s) ago (on a %s)') % (val, target_date.strftime('%A'))
 		elif re.search('[m]', aFragment):
 			if is_future:
 				target_date = self.__now + mxDT.RelativeDateTime(months = val)
-				label = _('in %d months (a %s)') % (val, target_date.strftime('%A'))
+				label = _('in %d month(s) (on a %s)') % (val, target_date.strftime('%A'))
 			else:
 				target_date = self.__now - mxDT.RelativeDateTime(months = val)
-				label = _('%d months (a %s)') % (val, target_date.strftime('%A'))
+				label = _('%d month(s) ago (on a %s)') % (val, target_date.strftime('%A'))
 		if target_date is None:
 			return None
 		tmp = {
@@ -261,7 +281,6 @@ Date input field
 	#----------------------------------------------
 	def __on_key_pressed (self, key):
 		"""Is called when a key is pressed."""
-		print "on key pressed"
 		if key.GetKeyCode in (ord('h'), ord('H')):
 			date = mxDT.now()
 			self.SetValue(date.strftime(self.__display_format))
@@ -353,7 +372,10 @@ if __name__ == '__main__':
 # - free text input: start string with "
 #==================================================
 # $Log: gmDateTimeInput.py,v $
-# Revision 1.24  2005-07-31 16:22:25  ncq
+# Revision 1.25  2005-08-22 13:03:46  ncq
+# - set bounds on "day of month" calculations
+#
+# Revision 1.24  2005/07/31 16:22:25  ncq
 # - need to import "time"
 #
 # Revision 1.23  2005/07/31 16:04:19  ncq
