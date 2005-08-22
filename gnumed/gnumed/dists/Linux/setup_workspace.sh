@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
-# $Id: setup_workspace.sh,v 1.7 2005-07-19 20:43:21 ncq Exp $
+# $Id: setup_workspace.sh,v 1.8 2005-08-22 13:51:11 ncq Exp $
 # license: GPL
 #====================================================
 REV=0.1
@@ -44,9 +44,6 @@ cp -R ../../client/sitecustomize.py ./GNUmed-$REV/client/usr/lib/python/site-pac
 cp -R ../../client/__init__.py ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/
 cp -R ./gnumed.xpm ./GNUmed-$REV/client/usr/share/gnumed/pixmaps/
 cp -R ./gnumed ./GNUmed-$REV/client/usr/bin/
-cp -R ../../../GnuPublicLicense.txt ./
-cp -R ../../../check-prerequisites.py ./
-cp -R ../../../check-prerequisites.sh ./
 
 # copy user manual from wiki
 echo "downloading Manual zip file from the web"
@@ -85,7 +82,12 @@ cp -R ../../server/sql ./GNUmed-$REV/server/usr/share/gnumed/install/server
 cp -R ../../server/bootstrap/ ./GNUmed-$REV/server/usr/share/gnumed/install/server/
 
 #----------------------------------
-ln -s ../check-prerequisites.py ../check-prerequisites.sh ../install.sh ../GnuPublicLicense.txt ./GNUmed-$REV/
+cp -R ../../../GnuPublicLicense.txt ./GNUmed-$REV/
+cp -R ../../../check-prerequisites.py ./GNUmed-$REV/
+cp -R ../../../check-prerequisites.sh ./GNUmed-$REV/
+cp -R ../../../CHANGELOG ./GNUmed-$REV/
+
+#ln -s ../CHANGELOG ../check-prerequisites.py ../check-prerequisites.sh ../install.sh ../GnuPublicLicense.txt ./GNUmed-$REV/
 
 #----------------------------------
 echo "cleaning out debris"
@@ -93,7 +95,10 @@ find ./ -name '*.pyc' -exec rm -v '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.7  2005-07-19 20:43:21  ncq
+# Revision 1.8  2005-08-22 13:51:11  ncq
+# - include CHANGELOG
+#
+# Revision 1.7  2005/07/19 20:43:21  ncq
 # - make index.html link to Release-0.1.html
 #
 # Revision 1.6  2005/07/19 17:16:06  shilbert
