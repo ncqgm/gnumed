@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.58 $"
+__version__ = "$Revision: 1.59 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -65,7 +65,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 		if not isinstance(description, types.StringType) or description.strip() == '':
 			_log.Log(gmLog.lErr, '<description> must be a non empty string instance')
 			return False
-		# update the episode description
+		# update the issue description
 		old_description = self._payload[self._idx['description']]
 		self._payload[self._idx['description']] = description.strip()
 		self._is_modified = True
@@ -84,6 +84,7 @@ class cEpisode(gmClinItem.cClinItem):
 		"""select 1 from clin_episode where pk=%(pk_episode)s and xmin=%(xmin_clin_episode)s for update"""
 	]
 	_cmds_store_payload = [
+#		"""select %(pk_episode)s""",
 		"""update clin_episode set
 				fk_health_issue=%(pk_health_issue)s,
 				is_open=%(episode_open)s::boolean,
@@ -109,6 +110,17 @@ class cEpisode(gmClinItem.cClinItem):
 			pk = rows[0][0]
 		# instantiate class
 		gmClinItem.cClinItem.__init__(self, aPK_obj=pk)
+	#--------------------------------------------------------
+#	def save_payload(self, conn=None):
+#		if self._payload[self._idx['episode_open']]:
+#			self._cmds_store_payload[0] = """
+#				update clin_episode set
+#					is_open = false
+#				where
+#					is_open = true and pk=%(pk_episode)s"""
+#		else:
+#			self._cmds_store_payload[0] = """select %(pk_episode)s"""
+#		gmClinItem.cClinItem.save_payload(self, conn=conn)
 	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
@@ -548,7 +560,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.58  2005-07-02 18:16:58  ncq
+# Revision 1.59  2005-08-22 13:02:46  ncq
+# - prepare for 0.2
+#
+# Revision 1.58  2005/07/02 18:16:58  ncq
 # - default encounter type "in surgery" for 0.1, to become
 #   "in surgery"-on-write later on
 #
