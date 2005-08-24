@@ -2,7 +2,7 @@
 
 #====================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/setup_workspace.sh,v $
-# $Id: setup_workspace.sh,v 1.8 2005-08-22 13:51:11 ncq Exp $
+# $Id: setup_workspace.sh,v 1.9 2005-08-24 09:33:53 ncq Exp $
 # license: GPL
 #====================================================
 REV=0.1
@@ -92,10 +92,14 @@ cp -R ../../../CHANGELOG ./GNUmed-$REV/
 #----------------------------------
 echo "cleaning out debris"
 find ./ -name '*.pyc' -exec rm -v '{}' ';'
+find ./GNUmed-$REV/ -name 'CVS' -type d -exec rm -v -r '{}' ';'
 
 #------------------------------------------
 # $Log: setup_workspace.sh,v $
-# Revision 1.8  2005-08-22 13:51:11  ncq
+# Revision 1.9  2005-08-24 09:33:53  ncq
+# - remove CVS/ debris as requested by Debian packager
+#
+# Revision 1.8  2005/08/22 13:51:11  ncq
 # - include CHANGELOG
 #
 # Revision 1.7  2005/07/19 20:43:21  ncq
