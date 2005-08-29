@@ -1,20 +1,30 @@
 #!/bin/sh
+set -e
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/dists/Linux/Attic/install.sh,v $
-# $Id: install.sh,v 1.8 2005-08-14 16:44:29 shilbert Exp $
-# $Revision: 1.8 $
+# $Id: install.sh,v 1.9 2005-08-29 12:23:58 shilbert Exp $
+# $Revision: 1.9 $
 # license: GPL
 # sebastian.hilbert@gmx.net
 
 # todo: 
 # log install path for uninstall file
-# log installation
 
 # change this to match GNUmed version
 REV=0.1
+## cp ./GNUmed-$REV/... for all copy statements makes no sense
+cd GNUmed-$REV
 
-LOG="install-GNUmed-$REV.log"
+LOG=${LOG:-"install-GNUmed-$REV.log"}
 
+gmsrc=${gmsrc:-"."}
+
+askuser=true
+if [ _"$prefix" != _"" ] ; then
+    askuser=false
+fi
+
+if $askuser ; then
 echo "######################################################################################
 #                                                                                    # 
 # Welcome. You are about to install GNUmed. Please observe the output on the screen  #
@@ -24,122 +34,144 @@ echo "##########################################################################
 #                                                      - GNUmed release team -       #
 #                                                                                    #
 ######################################################################################"
+fi
 
 echo "Installing GNUmed $REV ..." > $LOG
 
-#mkdir -p /usr/lib/python/site-packages/Gnumed/ >> $LOG 2>&1
-#mkdir -p /usr/share/doc/gnumed/client >> $LOG 2>&1
-#mkdir -p /usr/lib/python/site-packages/Gnumed/exporters/ >> $LOG 2>&1
-#mkdir -p /usr/lib/python/site-packages/Gnumed/importers/ >> $LOG 2>&1
-#mkdir -p /etc/gnumed/ >> $LOG 2>&1
-#mkdir -p /usr/lib/python/site-packages/Gnumed/ >> $LOG 2>&1
-#mkdir -p /usr/share/gnumed/pixmaps/ >> $LOG 2>&1
-#mkdir -p ./GNUmed-$REV/client/usr/share/locale/de/LC_MESSAGES/
-#mkdir -p ./GNUmed-$REV/client/usr/share/locale/de_DE/LC_MESSAGES/
-#mkdir -p ./GNUmed-$REV/client/usr/share/locale/fr/LC_MESSAGES/
-#mkdir -p ./GNUmed-$REV/client/usr/share/locale/fr_FR/LC_MESSAGES/
-#mkdir -p ./GNUmed-$REV/client/usr/share/locale/es/LC_MESSAGES/
-#mkdir -p ./GNUmed-$REV/client/usr/share/locale/es_ES/LC_MESSAGES/
-
 #####################################
 
-dfltgmdir=/usr/share/gnumed
-echo "client bitmap target directory [$dfltgmdir]:" 
-read newgmdir
-if [ "$newgmdir" = "" ]; then
+prefix=${prefix:-""}
+dfltgmdir=${dfltgmdir:-"${prefix}/usr/share/gnumed"}
+if $askuser ; then
+    echo "client bitmap target directory [$dfltgmdir]:"
+    read newgmdir
+    if [ "$newgmdir" = "" ]; then
 	gmdir=$dfltgmdir
-else
+    else
 	gmdir=$newgmdir
+    fi
+    echo "GNUmed directory: $gmdir" >> $LOG 2>&1
+else
+    gmdir=$dfltgmdir
 fi
-echo "GNUmed directory: $gmdir" >> $LOG 2>&1
 
 mkdir -p $gmdir >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/share/gnumed/bitmaps $gmdir >> $LOG 2>&1
+cp -a $gmsrc/client/usr/share/gnumed/bitmaps $gmdir >> $LOG 2>&1
 mkdir -p $gmdir/pixmaps >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/share/gnumed/pixmaps/gnumed.xpm $gmdir/pixmaps/gnumed.xpm >> $LOG 2>&1
+cp -a $gmsrc/client/usr/share/gnumed/pixmaps/gnumed.xpm $gmdir/pixmaps/gnumed.xpm >> $LOG 2>&1
 #####################################
-dfltpythondir=/usr/lib/python/site-packages/Gnumed
-echo "python directory [$dfltpythondir]:" 
-read newpythondir
-if [ "$newpythondir" = "" ]; then
+
+dfltpythondir=${dfltpythondir:-"${prefix}/usr/lib/python/site-packages/Gnumed"}
+if $askuser ; then
+    echo "python directory [$dfltpythondir]:" 
+    read newpythondir
+    if [ "$newpythondir" = "" ]; then
             pythondir=$dfltpythondir
-else
+    else
             pythondir=$newpythondir
+    fi
+    echo "GNUmed Python directory: $pythondir" >> $LOG 2>&1
+else
+    pythondir=$dfltpythondir
 fi
-echo "GNUmed Python directory: $pythondir" >> $LOG 2>&1
 
 mkdir -p $pythondir/business >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/business $pythondir >> $LOG 2>&1
+cp -a $gmsrc/client/usr/lib/python/site-packages/Gnumed/business $pythondir >> $LOG 2>&1
 mkdir -p $pythondir/exporters >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/exporters/*.py $pythondir/exporters/ >> $LOG 2>&1
+cp -a $gmsrc/client/usr/lib/python/site-packages/Gnumed/exporters/*.py $pythondir/exporters/ >> $LOG 2>&1
 mkdir -p $pythondir/importers >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/importers/*.py $pythondir/importers/ >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/sitecustomize.py $pythondir >> $LOG 2>&1
+cp -a $gmsrc/client/usr/lib/python/site-packages/Gnumed/importers/*.py $pythondir/importers/ >> $LOG 2>&1
+cp -a $gmsrc/client/usr/lib/python/site-packages/Gnumed/sitecustomize.py $pythondir >> $LOG 2>&1
 mkdir -p $pythondir/pycommon >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/pycommon $pythondir >> $LOG 2>&1
+cp -a $gmsrc/client/usr/lib/python/site-packages/Gnumed/pycommon $pythondir >> $LOG 2>&1
 mkdir -p $pythondir/wxpython >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/wxpython $pythondir >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/lib/python/site-packages/Gnumed/__init__.py $pythondir >> $LOG 2>&1
+cp -a $gmsrc/client/usr/lib/python/site-packages/Gnumed/wxpython $pythondir >> $LOG 2>&1
+cp -a $gmsrc/client/usr/lib/python/site-packages/Gnumed/__init__.py $pythondir >> $LOG 2>&1
 
 #######################################
-dfltdocdir=/usr/share/doc/gnumed
-echo "client documentation target directory [$dfltdocdir]:" 
-read newdocdir
-if [ "$newdocdir" = "" ]; then
+
+dfltdocdir=${dfltdocdir:-"${prefix}/usr/share/doc/gnumed"}
+if $askuser ; then
+    echo "client documentation target directory [$dfltdocdir]:" 
+    read newdocdir
+    if [ "$newdocdir" = "" ]; then
             docdir=$dfltdocdir
-else
+    else
             docdir=$newdocdir
+    fi
+    echo "GNUmed documentation directory: $docdir" >> $LOG 2>&1
+else
+    docdir=$dfltdocdir
 fi
-echo "GNUmed documentation directory: $docdir" >> $LOG 2>&1
 
 mkdir -p $docdir/client >> $LOG 2>&1
 mkdir -p $docdir/examples >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/client/user-manual $docdir/client >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/share/doc/gnumed/medical_knowledge $docdir >> $LOG 2>&1
-cp -R ./GnuPublicLicense.txt $docdir >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/etc/gnumed/*.conf $docdir/examples >> $LOG 2>&1
+cp -a $gmsrc/client/usr/share/doc/gnumed/client/user-manual $docdir/client >> $LOG 2>&1
+cp -a $gmsrc/client/usr/share/doc/gnumed/medical_knowledge $docdir >> $LOG 2>&1
+cp -a $gmsrc/GnuPublicLicense.txt $docdir >> $LOG 2>&1
+cp -a $gmsrc/client/etc/gnumed/*.conf $docdir/examples >> $LOG 2>&1
 
 #######################################
-dfltconfdir=/etc/gnumed
-echo "client config files target directory [$dfltconfdir]:" 
-read newconfdir
-if [ "$newconfdir" = "" ]; then
+
+dfltconfdir=${dfltconfdir:-"${prefix}/etc/gnumed"}
+if $askuser ; then
+    echo "client config files target directory [$dfltconfdir]:" 
+    read newconfdir
+    if [ "$newconfdir" = "" ]; then
             confdir=$dfltconfdir
-else
+    else
             confdir=$newconfdir
+    fi
+    echo "GNUmed configuration directory: $confdir" >> $LOG 2>&1
+else
+    confdir=$dfltconfdir
+
 fi
-echo "GNUmed configuration directory: $confdir" >> $LOG 2>&1
 
 mkdir -p $confdir >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/etc/gnumed/*.conf $confdir >> $LOG 2>&1
+cp -a $gmsrc/client/etc/gnumed/*.conf $confdir >> $LOG 2>&1
 
 #######################################
-dfltlocaledir=/usr/share/locale
-echo "client language files target directory [$dfltlocaledir]:" 
-read newlocaledir
-if [ "$newlocaledir" = "" ]; then
+
+dfltlocaledir=${dfltlocaledir:-"${prefix}/usr/share/locale"}
+if $askuser ; then
+    echo "client language files target directory [$dfltlocaledir]:" 
+    read newlocaledir
+    if [ "$newlocaledir" = "" ]; then
             localedir=$dfltlocaledir
-else
+    else
             localedir=$newlocaledir
+    fi
+    echo "GNUmed locale directory: $localedir" >> $LOG 2>&1
+else
+    localedir=$dfltlocaledir
 fi
-echo "GNUmed locale directory: $localedir" >> $LOG 2>&1
 
 mkdir $localedir >> $LOG 2>&1
-cp -R ./GNUmed-$REV/client/usr/share/locale $localedir >> $LOG 2>&1
+cp -a $gmsrc/client/usr/share/locale $localedir >> $LOG 2>&1
 #######################################
 
-cp -R ./GNUmed-$REV/client/usr/bin/gnumed /usr/bin >> $LOG 2>&1
+cp -a $gmsrc/client/usr/bin/gnumed /usr/bin >> $LOG 2>&1
 
 # FIXME: put this some decent place
-cp -R ./check-prerequisites.py $docdir >> $LOG 2>&1
-cp -R ./check-prerequisites.sh $docdir >> $LOG 2>&1
+cp -a $gmsrc/check-prerequisites.py $docdir >> $LOG 2>&1
+cp -a $gmsrc/check-prerequisites.sh $docdir >> $LOG 2>&1
 
 echo "In case of problems there is a log file here:"
 echo $LOG
 
 #================================================
 # $Log: install.sh,v $
-# Revision 1.8  2005-08-14 16:44:29  shilbert
+# Revision 1.9  2005-08-29 12:23:58  shilbert
+# - check-in of Andreas' modifications to cater better for Debian
+#
+# Revision 1.9  2005/08/29 08:29:29  atille
+# - allow offline execution by evaluating environment variables
+# - cd to GNUmed source dir - some files where copied from
+#   GNUmed-$REV, some from '.', use $gmsrc for cp source files
+# - -e to fail in case of an error
+#
+# Revision 1.8  2005/08/14 16:44:29  shilbert
 # - add cfg file examples to documentation directory
 #
 # Revision 1.7  2005/08/03 20:42:57  ncq
