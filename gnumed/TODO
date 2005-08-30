@@ -1,6 +1,6 @@
 $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/Attic/TODO,v $
-$Id: TODO,v 1.12 2005-06-20 20:45:29 ncq Exp $
-$Revision: 1.12 $
+$Id: TODO,v 1.13 2005-08-30 17:52:28 ncq Exp $
+$Revision: 1.13 $
 ====================================================
 post-0.1
 
@@ -184,3 +184,8 @@ Richard space INBOX
 --------------------
 lab link
  - Standard ASTM E1394-91 (frei: Datenaustausch-Formate zwischen Laborgeräten und PC-Systemen)
+
+------------------------
+vaccination
+ - allow linking lab results (immunity) to vaccination status
+ 
