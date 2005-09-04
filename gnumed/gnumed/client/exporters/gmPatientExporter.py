@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.60 2005-07-04 11:14:36 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmPatientExporter.py,v 1.61 2005-09-04 07:28:51 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -486,7 +486,7 @@ class cEmrExport:
         # unlinked episodes
         if len(unlinked_episodes) > 0:
             h_issues.insert(0, {
-                'description': _('episodes w/o health issue'),
+                'description': _('free-standing episodes'),
                 'id': None
             })
         # existing issues        
@@ -629,13 +629,13 @@ class cEmrExport:
                 exclude_rfe_aoe = True
             )            
             if soap_cat_narratives is None:
-				continue
+                continue
 
             if len(soap_cat_narratives) == 0:
                 continue
 
             for soap_entry in soap_cat_narratives:
-                narr = soap_entry['narrative'].replace (
+                narr = soap_entry['date'].Format('<%H:%M> ') + soap_entry['narrative'].replace (
                     '\n',
                     '\n' + (' ' * (left_margin+3))
                 )
@@ -677,7 +677,7 @@ class cEmrExport:
         # unlinked episodes
         unlinked_episodes = emr.get_episodes(issues = [None])
         if len(unlinked_episodes) > 0:
-            h_issues.insert(0, {'description':_('episodes w/o health issues'), 'id':None})        
+            h_issues.insert(0, {'description':_('free-standing episodes'), 'id':None})        
         for a_health_issue in h_issues:
             self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['id']])
@@ -1140,7 +1140,11 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.60  2005-07-04 11:14:36  ncq
+# Revision 1.61  2005-09-04 07:28:51  ncq
+# - better naming of dummy health issue for unassociated episodes
+# - display time of entry in front of SOAP notes
+#
+# Revision 1.60  2005/07/04 11:14:36  ncq
 # - improved episode summary yet again
 #
 # Revision 1.59  2005/07/02 18:18:26  ncq
