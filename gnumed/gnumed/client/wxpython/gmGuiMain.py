@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.212 2005-07-24 18:57:48 ncq Exp $
-__version__ = "$Revision: 1.212 $"
+# $Id: gmGuiMain.py,v 1.213 2005-09-04 07:30:24 ncq Exp $
+__version__ = "$Revision: 1.213 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -254,8 +254,8 @@ class gmTopLevelFrame(wx.wxFrame):
 		# menu "Patient"
 		menu_patient = wx.wxMenu()
 
-		menu_patient.Append(ID_SEARCH_PATIENT, _('Search patient'), _('Go to patient search field'))
-		wx.EVT_MENU(self, ID_SEARCH_PATIENT, self.__on_search_patient)
+#		menu_patient.Append(ID_SEARCH_PATIENT, _('Search patient'), _('Go to patient search field'))
+#		wx.EVT_MENU(self, ID_SEARCH_PATIENT, self.__on_search_patient)
 
 		menu_patient.Append(ID_CREATE_PATIENT, _('Register new patient'), _("Register a new patient with this practice"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_patient)
@@ -904,7 +904,10 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.212  2005-07-24 18:57:48  ncq
+# Revision 1.213  2005-09-04 07:30:24  ncq
+# - comment out search-patient menu item for now
+#
+# Revision 1.212  2005/07/24 18:57:48  ncq
 # - add "search" to "patient" menu - all it does is focus the search box ...
 #
 # Revision 1.211  2005/07/24 11:35:59  ncq
