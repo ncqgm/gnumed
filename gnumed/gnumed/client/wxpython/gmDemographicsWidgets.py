@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.60 2005-08-14 15:36:54 ncq Exp $
-__version__ = "$Revision: 1.60 $"
+# $Id: gmDemographicsWidgets.py,v 1.61 2005-09-04 07:29:53 ncq Exp $
+__version__ = "$Revision: 1.61 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1285,13 +1285,18 @@ class cBasicPatDetailsPage(wizard.wxWizardPageSimple):
 		queries.append("""
 		select distinct on (code, name) code, name from (
 			select * from (
-				select code_state as code, state as name, 1 as rank from v_zip2data where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
-					union
-				select code as code, name as name, 2 as rank from state where name %(fragment_condition)s and country ilike %%(country)s
+				select code_state as code, state as name, 1 as rank from v_zip2data
+					where state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
+				union select code as code, name as name, 2 as rank from state
+					where name %(fragment_condition)s and country ilike %%(country)s
+				union select code_state as code, state as name, 3 as rank from v_zip2data
+					where code_state %(fragment_condition)s and country ilike %%(country)s and zip ilike %%(zip)s
+				union select code as code, name as name, 3 as rank from state
+					where code %(fragment_condition)s and country ilike %%(country)s
 			) as q2 order by rank, name
 		) as q1""")
 		mp = gmMatchProvider.cMatchProvider_SQL2 ('demographics', queries)
-		mp.setThresholds(3, 5, 6)
+		mp.setThresholds(2, 5, 6)
 		self.PRW_state = gmPhraseWheel.cPhraseWheel (
 			parent = PNL_form,
 			id = -1,
@@ -2872,7 +2877,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.60  2005-08-14 15:36:54  ncq
+# Revision 1.61  2005-09-04 07:29:53  ncq
+# - allow phrasewheeling states by abbreviation in new-patient wizard
+#
+# Revision 1.60  2005/08/14 15:36:54  ncq
 # - fix phrasewheel queries for country matching
 #
 # Revision 1.59  2005/08/08 08:08:35  ncq
