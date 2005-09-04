@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.17 2005-05-05 06:29:22 ncq Exp $
-__version__ = "$Revision: 1.17 $"
+# $Id: gmPatSearchWidgets.py,v 1.18 2005-09-04 07:31:14 ncq Exp $
+__version__ = "$Revision: 1.18 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -415,7 +415,7 @@ and hit <ENTER>
 			ident = self.curr_pat.get_identity()
 			self.SetValue(ident['description'])
 		else:
-			self.SetValue(_('no active patient'))
+			self.SetValue('')
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -715,7 +715,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.17  2005-05-05 06:29:22  ncq
+# Revision 1.18  2005-09-04 07:31:14  ncq
+# - Richard requested the "no active patient" tag be removed
+#   when no patient is active
+#
+# Revision 1.17  2005/05/05 06:29:22  ncq
 # - if patient not found invoke new patient wizard with activate=true
 #
 # Revision 1.16  2005/03/08 16:54:13  ncq
