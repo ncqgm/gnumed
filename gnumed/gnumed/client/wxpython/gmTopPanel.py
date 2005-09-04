@@ -2,8 +2,8 @@
 
 #===========================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTopPanel.py,v $
-# $Id: gmTopPanel.py,v 1.61 2005-07-24 11:40:21 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmTopPanel.py,v 1.62 2005-09-04 07:34:31 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -89,35 +89,35 @@ class cMainTopPanel(wxPanel):
 #		self.szr_top_row.Add (self.btn_pat_demographics, 0, wxEXPAND | wxBOTTOM, 3)
 
 		# padlock button - Dare I say HIPAA ?
-		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'padlock_closed.png')
-		img = wxImage(fname, wxBITMAP_TYPE_ANY)
-		bmp = wxBitmapFromImage(img)
-		self.btn_lock = wxBitmapButton (
-			parent = self,
-			id = ID_LOCKBUTTON,
-			bitmap = bmp,
-			style = wxBU_EXACTFIT | wxNO_BORDER
-		)
-		self.btn_lock.SetToolTip(wxToolTip(_('lock client')))
-		self.szr_top_row.Add(self.btn_lock, 0, wxALL, 3)
+#		fname = os.path.join(self.__gb['gnumed_dir'], 'bitmaps', 'padlock_closed.png')
+#		img = wxImage(fname, wxBITMAP_TYPE_ANY)
+#		bmp = wxBitmapFromImage(img)
+#		self.btn_lock = wxBitmapButton (
+#			parent = self,
+#			id = ID_LOCKBUTTON,
+#			bitmap = bmp,
+#			style = wxBU_EXACTFIT | wxNO_BORDER
+#		)
+#		self.btn_lock.SetToolTip(wxToolTip(_('lock client')))
+#		self.szr_top_row.Add(self.btn_lock, 0, wxALL, 3)
 
 		#  - patient selector
+		lbl_pat = wxStaticText (self, -1, _('Patient'), style = wxALIGN_CENTER_VERTICAL)
+		lbl_pat.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.patient_selector = gmPatSearchWidgets.cPatientSelector(self, -1)
 		if self.__gb['main.slave_mode']:
 			self.patient_selector.SetEditable(0)
 			self.patient_selector.SetToolTip(None)
 		self.patient_selector.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
+		self.szr_top_row.Add (lbl_pat, 0, wxALL, 3)
 		self.szr_top_row.Add (self.patient_selector, 5, wxBOTTOM, 3)
 		#  - age
-#		self.lbl_age = wxStaticText (self, -1, _("Age"), style = wxALIGN_CENTER_VERTICAL)
-#		self.lbl_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
-		self.txt_age = wxTextCtrl (self, -1, "", size = (50,-1), style = wxTE_READONLY)
+		self.txt_age = wxTextCtrl(self, -1, '', size = (50,-1), style = wxTE_READONLY)
 		self.txt_age.SetFont (wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.txt_age.SetBackgroundColour(bg_col)
-#		self.szr_top_row.Add (self.lbl_age, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxALL, 3)
 		self.szr_top_row.Add (self.txt_age, 0, wxBOTTOM | wxLEFT | wxRIGHT, 3)
 		#  - allergies (substances only, like "makrolides, penicillins, eggs")
-		self.lbl_allergies = wxStaticText (self, -1, _("Allergies"), style = wxALIGN_CENTER_VERTICAL)
+		self.lbl_allergies = wxStaticText (self, -1, _('Caveat'), style = wxALIGN_CENTER_VERTICAL)
 		self.lbl_allergies.SetFont(wxFont(12, wxSWISS, wxNORMAL, wxBOLD, False, ''))
 		self.lbl_allergies.SetBackgroundColour(bg_col)
 		self.lbl_allergies.SetForegroundColour(col_brightred)
@@ -311,16 +311,6 @@ class cMainTopPanel(wxPanel):
 		# a timer here that updates the age in increments of 1 minute ... :-)
 		self.txt_age.SetValue(age)
 		self.patient_selector.SetValue(ident['description'])
-
-#		# update episode selector
-#		self.combo_episodes.Clear()
-#		epr = self.curr_pat.get_clinical_record()
-#		if epr is None:
-#			return None
-#		episodes = epr.get_episodes()
-#		for episode in episodes:
-#			self.combo_episodes.Append(episode['description'], str(episode['pk_episode']))
-#		self.combo_episodes.SetValue(epr.get_active_episode()['description'])
 	#-------------------------------------------------------
 	def __on_display_demographics(self, evt):
 		print "display patient demographic window now"
@@ -435,7 +425,11 @@ if __name__ == "__main__":
 	app.MainLoop()
 #===========================================================
 # $Log: gmTopPanel.py,v $
-# Revision 1.61  2005-07-24 11:40:21  ncq
+# Revision 1.62  2005-09-04 07:34:31  ncq
+# - comment out padlock button for now
+# - add label "Patient" in front of patient search field as per Hilmar's request
+#
+# Revision 1.61  2005/07/24 11:40:21  ncq
 # - comment out edc/pregnancy calculator
 #
 # Revision 1.60  2005/06/24 22:17:08  shilbert
