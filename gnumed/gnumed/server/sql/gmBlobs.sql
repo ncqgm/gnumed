@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.47 $ $Date: 2005-07-14 21:31:42 $ $Author: ncq $
+-- $Revision: 1.48 $ $Date: 2005-09-04 07:27:03 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -100,7 +100,34 @@ COMMENT ON COLUMN doc_obj.comment IS
 	'optional tiny comment for this
 	 object, such as "page 1"';
 COMMENT ON COLUMN doc_obj.data IS
-	'actual binary object data';
+	'actual binary object data;
+	 here is why we use bytea:
+== --------------------------------------------------
+To: leon@oss.minimetria.com
+Cc: pgsql-sql@postgresql.org
+Subject: Re: [SQL] Recommendation on bytea or blob for binary data like images 
+Date: Fri, 02 Sep 2005 16:33:09 -0400
+Message-ID: <17794.1125693189@sss.pgh.pa.us>
+From: Tom Lane <tgl@sss.pgh.pa.us>
+List-Archive: <http://archives.postgresql.org/pgsql-sql>
+List-Help: <mailto:majordomo@postgresql.org?body=help>
+List-ID: <pgsql-sql.postgresql.org>
+
+leon@oss.minimetria.com writes:
+> Hi, I"d like to know what the official recommendation is on which binary
+> datatype to use for common small-binary size use.
+
+If bytea will work for you, it"s definitely the thing to use.  The only
+real drawback to bytea is that there"s currently no API to read and
+write bytea values in a streaming fashion.  If your objects are small
+enough that you can load and store them as units, bytea is fine.
+
+BLOBs, on the other hand, have a number of drawbacks --- hard to dump,
+impossible to secure, etc.
+
+			regards, tom lane
+== --------------------------------------------------
+	 ';
 
 -- =============================================
 CREATE TABLE doc_desc (
@@ -120,7 +147,7 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.47 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.48 $', True);
 
 -- =============================================
 -- questions:
@@ -140,7 +167,10 @@ INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gm
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.47  2005-07-14 21:31:42  ncq
+-- Revision 1.48  2005-09-04 07:27:03  ncq
+-- - document rationale for using bytea
+--
+-- Revision 1.47  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.46  2005/02/12 13:49:13  ncq
