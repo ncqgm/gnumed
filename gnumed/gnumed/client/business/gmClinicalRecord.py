@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.177 2005-08-14 15:34:32 ncq Exp $
-__version__ = "$Revision: 1.177 $"
+# $Id: gmClinicalRecord.py,v 1.178 2005-09-05 16:26:36 ncq Exp $
+__version__ = "$Revision: 1.178 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -878,8 +878,9 @@ where
 		@param problem: The problem to retrieve its related episode for
 		@type problem: A gmEMRStructItems.cProblem instance
 		"""
-		if problem['type'] != 'episode':
+		if (not isinstance(problem, gmEMRStructItems.cProblem)) or (problem['type'] != 'episode'):
 			_log.Log(gmLog.lErr, 'cannot convert non episode problem to episode: problem [%s] type [%s]' % (problem['problem'], problem['type']))
+			# FIXME: raise TypeError (see below)
 			return None
 		return self.get_episodes(id_list=[problem['pk_episode']])[0]
 	#--------------------------------------------------------
@@ -933,10 +934,23 @@ where
 		@param problem: The problem to retrieve the corresponding issue for
 		@type problem: A gmEMRStructItems.cProblem instance
 		"""
-		if problem['type'] != 'issue':
-			_log.Log(gmLog.lErr, 'cannot convert non issue problem to issue: problem [%s] type [%s]' % (problem['problem'], problem['type']))
+		if (not isinstance(problem, gmEMRStructItems.cProblem)) or (problem['type'] != 'issue'):
+			_log.Log(gmLog.lErr, 'cannot convert type [%s] to issue: problem [%s]' % (problem['type'], problem['problem']))
+			# FIXME: raise TypeError (see below)
 			return None
 		return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
+	#--------------------------------------------------------
+	def reclass_problem(self, problem):
+		"""Transform given problem into either episode or health issue instance.
+		"""
+		if not isinstance(problem, gmEMRStructItems.cProblem):
+			_log.Log(gmLog.lData, str(problem))
+			raise TypeError, 'cannot reclass [%s] instance to problem' % type(problem)
+		if problem['type'] == 'episode':
+			return self.get_episodes(id_list=[problem['pk_episode']])[0]
+		if problem['type'] == 'issue':
+			return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
+		return None
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
@@ -1669,7 +1683,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.177  2005-08-14 15:34:32  ncq
+# Revision 1.178  2005-09-05 16:26:36  ncq
+# - add reclass_problem()
+# - improve problem2(episode | issue)
+#
+# Revision 1.177  2005/08/14 15:34:32  ncq
 # - TODO item
 #
 # Revision 1.176  2005/08/06 16:03:31  ncq
