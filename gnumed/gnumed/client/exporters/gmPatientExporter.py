@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.61 2005-09-04 07:28:51 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmPatientExporter.py,v 1.62 2005-09-05 15:56:27 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -892,7 +892,7 @@ select
 	vemrj.*,
 	(select rank from soap_cat_ranks where soap_cat=vemrj.soap_cat) as scr
 from v_emr_journal vemrj
-where pk_patient=%s order by date, scr"""
+where pk_patient=%s order by date, pk_episode, scr"""
 		rows, idx = gmPG.run_ro_query (
 			'clinical',
 			cmd,
@@ -1140,7 +1140,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.61  2005-09-04 07:28:51  ncq
+# Revision 1.62  2005-09-05 15:56:27  ncq
+# - sort journal by episode within encounters
+#
+# Revision 1.61  2005/09/04 07:28:51  ncq
 # - better naming of dummy health issue for unassociated episodes
 # - display time of entry in front of SOAP notes
 #
