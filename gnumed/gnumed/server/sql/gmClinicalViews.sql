@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.147 2005-08-15 16:30:42 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.148 2005-09-08 17:02:37 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1181,6 +1181,7 @@ create view v_pat_narrative as
 select
 	vpi.pk_patient as pk_patient,
 	cn.clin_when as date,
+	vpi.modified_by as provider,
 	cn.soap_cat as soap_cat,
 	cn.narrative as narrative,
 	cn.is_aoe as is_aoe,
@@ -1899,11 +1900,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.147 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.148 $', True);
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.147  2005-08-15 16:30:42  ncq
+-- Revision 1.148  2005-09-08 17:02:37  ncq
+-- - include provider in v_pat_narrative
+--
+-- Revision 1.147  2005/08/15 16:30:42  ncq
 -- - cleanup
 -- - enforce "only one open episode per health issue at any time"
 --
