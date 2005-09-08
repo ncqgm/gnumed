@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.37 2005-07-21 21:00:46 ncq Exp $
-__version__ = "$Revision: 1.37 $"
+# $Id: gmEMRBrowser.py,v 1.38 2005-09-08 16:57:48 ncq Exp $
+__version__ = "$Revision: 1.38 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -503,7 +503,7 @@ class cEMRJournalPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 			_('No EMR data loaded.'),
 			style = wx.wxTE_MULTILINE | wx.wxTE_READONLY
 		)
-		self.__journal.SetFont(wx.wxFont(12, wx.wxMODERN, wx.wxNORMAL, wx.wxNORMAL))
+		self.__journal.SetFont(wx.wxFont(10, wx.wxMODERN, wx.wxNORMAL, wx.wxNORMAL))
 		# arrange widgets
 		szr_outer = wx.wxBoxSizer(wx.wxVERTICAL)
 		szr_outer.Add(self.__journal, 1, wx.wxEXPAND, 0)
@@ -605,7 +605,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.37  2005-07-21 21:00:46  ncq
+# Revision 1.38  2005-09-08 16:57:48  ncq
+# - smaller font in journal display
+#
+# Revision 1.37  2005/07/21 21:00:46  ncq
 # - cleanup, better strings
 #
 # Revision 1.36  2005/07/02 18:20:52  ncq
