@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.62 2005-09-05 15:56:27 ncq Exp $
-__version__ = "$Revision: 1.62 $"
+# $Id: gmPatientExporter.py,v 1.63 2005-09-08 16:57:06 ncq Exp $
+__version__ = "$Revision: 1.63 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -620,6 +620,7 @@ class cEmrExport:
             'a': _('Assessment'),
             'p': _('Plan'),
         }
+        eol_w_margin = '\n' + (' ' * (left_margin+3))
         for soap_cat in 'soap':
             txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
             soap_cat_narratives = emr.get_clin_narrative (
@@ -630,16 +631,15 @@ class cEmrExport:
             )            
             if soap_cat_narratives is None:
                 continue
-
             if len(soap_cat_narratives) == 0:
                 continue
-
             for soap_entry in soap_cat_narratives:
-                narr = soap_entry['date'].Format('<%H:%M> ') + soap_entry['narrative'].replace (
-                    '\n',
-                    '\n' + (' ' * (left_margin+3))
-                )
-                txt += (' ' * (left_margin+3)) + narr + '\n'
+                txt += (
+                    (' ' * (left_margin+3)) +
+                    soap_entry['date'].Format(_('%.7s at %H:%M ')) % soap_entry['provider'] +
+                    soap_entry['narrative'].replace('\n', eol_w_margin) +
+                    '\n'
+                )		# FIXME: turn 'provider' into abbreviation via v_staff
 
         # aoe
         aoes = encounter.get_aoes()               
@@ -1140,7 +1140,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.62  2005-09-05 15:56:27  ncq
+# Revision 1.63  2005-09-08 16:57:06  ncq
+# - improve progress note display in tree widget
+#
+# Revision 1.62  2005/09/05 15:56:27  ncq
 # - sort journal by episode within encounters
 #
 # Revision 1.61  2005/09/04 07:28:51  ncq
