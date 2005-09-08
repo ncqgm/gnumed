@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
--- $Revision: 1.55 $
+-- $Revision: 1.56 $
 -- license: GPL
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
@@ -41,11 +41,13 @@ create table state (
 
 select add_table_for_audit('state');
 
-COMMENT ON TABLE state IS
-	'state codes (country specific)';
-COMMENT ON COLUMN state.code IS
+COMMENT on table state is
+	'state codes (country specific);
+	 Richard agreed we should require pre-existence,
+	 allow user to mail details for adding a state to developers';
+COMMENT on column state.code is
 	'state code';
-COMMENT ON COLUMN state.country IS
+COMMENT on column state.country is
 	'2 character ISO 3166-1 country code';
 
 -- ===================================================================
@@ -581,11 +583,14 @@ COMMENT ON COLUMN lnk_person_org_address.id_type IS
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.55 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.sql,v $', '$Revision: 1.56 $', True);
 
 -- ===================================================================
 -- $Log: gmDemographics.sql,v $
--- Revision 1.55  2005-08-14 15:37:56  ncq
+-- Revision 1.56  2005-09-08 17:03:29  ncq
+-- - add comment
+--
+-- Revision 1.55  2005/08/14 15:37:56  ncq
 -- - comments
 --
 -- Revision 1.54  2005/07/14 21:31:42  ncq
