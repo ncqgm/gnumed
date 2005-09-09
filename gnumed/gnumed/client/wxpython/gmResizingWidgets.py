@@ -4,8 +4,8 @@ Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.32 2005-08-08 08:07:55 ncq Exp $
-__version__ = "$Revision: 1.32 $"
+# $Id: gmResizingWidgets.py,v 1.33 2005-09-09 13:55:29 ncq Exp $
+__version__ = "$Revision: 1.33 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL  (details at http://www.gnu.org)'
 
@@ -127,7 +127,7 @@ class cPopupFrame(wx.wxFrame):
 #====================================================================
 class cSTCval:
 	def __init__(self):
-		self.value = None
+		self.text = None
 		self.data = None
 #====================================================================
 class cResizingWindow(wx.wxScrolledWindow):
@@ -245,7 +245,8 @@ class cResizingWindow(wx.wxScrolledWindow):
 						widget['instance'].SetValue(values[widget['ID']])
 	#------------------------------------------------
 	def GetValue(self):
-		"""
+		"""Return dict of values of inner widgets.
+
 		Returns a dictionary of the results of GetValue()
 		called on all widgets, keyed by label
 		Unlabelled widgets don't get called
@@ -258,10 +259,10 @@ class cResizingWindow(wx.wxScrolledWindow):
 					continue
 				result = cSTCval()
 				if isinstance(widget['instance'], cResizingSTC):
-					result.value = widget['instance'].GetText()
+					result.text = widget['instance'].GetText()
 					result.data = widget['instance'].GetData()
 				elif isinstance(widget['instance'], stc.wxStyledTextCtrl):
-					result.value = widget['instance'].GetText()
+					result.text = widget['instance'].GetText()
 				elif isinstance(widget['instance'], (wx.wxChoice, wx.wxRadioBox)):
 					result.selection = widget['instance'].GetSelection()
 				else:
@@ -1066,7 +1067,10 @@ if __name__ == '__main__':
 	app.MainLoop()
 #====================================================================
 # $Log: gmResizingWidgets.py,v $
-# Revision 1.32  2005-08-08 08:07:55  ncq
+# Revision 1.33  2005-09-09 13:55:29  ncq
+# - better variable naming
+#
+# Revision 1.32  2005/08/08 08:07:55  ncq
 # - cleanup
 #
 # Revision 1.31  2005/07/24 11:35:59  ncq
