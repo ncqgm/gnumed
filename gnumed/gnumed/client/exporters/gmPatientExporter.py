@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.63 2005-09-08 16:57:06 ncq Exp $
-__version__ = "$Revision: 1.63 $"
+# $Id: gmPatientExporter.py,v 1.64 2005-09-09 13:50:07 ncq Exp $
+__version__ = "$Revision: 1.64 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -555,14 +555,21 @@ class cEmrExport:
             txt += left_margin * ' ' + _('There are no episodes for this health issue.\n')
             return txt
 
-        txt += _('%sEpisodes: %s ') % (left_margin * ' ', no_epis)
         first_encounter = emr.get_first_encounter(issue_id = issue['id'])
         last_encounter = emr.get_last_encounter(issue_id = issue['id'])
         if first_encounter is None or last_encounter is None:
-            txt += left_margin * ' ' + _('\n\nThere are no encounters for this health issue.\n')
+            txt += _('%s%s episode(s)\n\n%sNo encounters found for this health issue.\n') % (
+                left_margin * ' ' +
+                no_epis,
+                left_margin * ' ')
             return txt
-        txt += '(%s - %s)\n' % (first_encounter['started'].Format('%m/%Y'), last_encounter['last_affirmed'].Format('%m/%Y'))
-        txt += _('%sLast treated: %s\n\n') % (left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'))
+        txt += _('%s%s episode(s) between %s and %s\n') % (
+            left_margin * ' ',
+            no_epis,
+            first_encounter['started'].Format('%m/%Y'),
+            last_encounter['last_affirmed'].Format('%m/%Y')
+        )
+        txt += _('%sLast seen: %s\n\n') % (left_margin * ' ', last_encounter['last_affirmed'].Format('%Y-%m-%d %H:%M'))
         # FIXME: list each episode with range of time
         return txt
     #--------------------------------------------------------
@@ -622,7 +629,6 @@ class cEmrExport:
         }
         eol_w_margin = '\n' + (' ' * (left_margin+3))
         for soap_cat in 'soap':
-            txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
             soap_cat_narratives = emr.get_clin_narrative (
                 episodes = [episode['pk_episode']],
                 encounters = [encounter['pk_encounter']],
@@ -633,10 +639,11 @@ class cEmrExport:
                 continue
             if len(soap_cat_narratives) == 0:
                 continue
+            txt += (' ' * left_margin) + soap_cat_labels[soap_cat] + ':\n'
             for soap_entry in soap_cat_narratives:
                 txt += (
                     (' ' * (left_margin+3)) +
-                    soap_entry['date'].Format(_('%.7s at %H:%M ')) % soap_entry['provider'] +
+                    soap_entry['date'].Format(_('%H:%M %.7s: ')) % soap_entry['provider'] +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
                 )		# FIXME: turn 'provider' into abbreviation via v_staff
@@ -1140,7 +1147,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.63  2005-09-08 16:57:06  ncq
+# Revision 1.64  2005-09-09 13:50:07  ncq
+# - detail improvements in tree widget progress note output
+#
+# Revision 1.63  2005/09/08 16:57:06  ncq
 # - improve progress note display in tree widget
 #
 # Revision 1.62  2005/09/05 15:56:27  ncq
