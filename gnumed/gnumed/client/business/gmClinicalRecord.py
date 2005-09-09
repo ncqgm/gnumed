@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.178 2005-09-05 16:26:36 ncq Exp $
-__version__ = "$Revision: 1.178 $"
+# $Id: gmClinicalRecord.py,v 1.179 2005-09-09 13:49:25 ncq Exp $
+__version__ = "$Revision: 1.179 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -769,7 +769,7 @@ class cClinicalRecord:
 			return None
 		return episode
 	#--------------------------------------------------------
-	def get_most_recent_episode():
+	def get_most_recent_episode(issue=None):
 		episode = None
 		# try to find the episode with the most recently modified clinical item
 		cmd = """
@@ -826,6 +826,9 @@ where
 						_log.Log(str(msg), sys.exc_info(), verbose=0)
 						episode = None
 		return episode
+	#--------------------------------------------------------
+	def episode2problem(self, episode=None):
+		return self.get_problems(episodes = [episode['pk_episode']])
 	#--------------------------------------------------------
 	# problems API
 	#--------------------------------------------------------
@@ -884,6 +887,32 @@ where
 			return None
 		return self.get_episodes(id_list=[problem['pk_episode']])[0]
 	#--------------------------------------------------------
+	def problem2issue(self, problem):
+		"""
+		Retrieve the cIssue instance equivalent to the given problem.
+		The problem's type attribute must be 'issue'.
+		
+		@param problem: The problem to retrieve the corresponding issue for
+		@type problem: A gmEMRStructItems.cProblem instance
+		"""
+		if (not isinstance(problem, gmEMRStructItems.cProblem)) or (problem['type'] != 'issue'):
+			_log.Log(gmLog.lErr, 'cannot convert type [%s] to issue: problem [%s]' % (problem['type'], problem['problem']))
+			# FIXME: raise TypeError (see below)
+			return None
+		return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
+	#--------------------------------------------------------
+	def reclass_problem(self, problem):
+		"""Transform given problem into either episode or health issue instance.
+		"""
+		if not isinstance(problem, gmEMRStructItems.cProblem):
+			_log.Log(gmLog.lData, str(problem))
+			raise TypeError, 'cannot reclass [%s] instance to problem' % type(problem)
+		if problem['type'] == 'episode':
+			return self.get_episodes(id_list=[problem['pk_episode']])[0]
+		if problem['type'] == 'issue':
+			return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
+		return None
+	#--------------------------------------------------------
 	# health issues API
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
@@ -926,31 +955,8 @@ where
 			return None
 		return issue
 	#--------------------------------------------------------
-	def problem2issue(self, problem):
-		"""
-		Retrieve the cIssue instance equivalent to the given problem.
-		The problem's type attribute must be 'issue'.
-		
-		@param problem: The problem to retrieve the corresponding issue for
-		@type problem: A gmEMRStructItems.cProblem instance
-		"""
-		if (not isinstance(problem, gmEMRStructItems.cProblem)) or (problem['type'] != 'issue'):
-			_log.Log(gmLog.lErr, 'cannot convert type [%s] to issue: problem [%s]' % (problem['type'], problem['problem']))
-			# FIXME: raise TypeError (see below)
-			return None
-		return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
-	#--------------------------------------------------------
-	def reclass_problem(self, problem):
-		"""Transform given problem into either episode or health issue instance.
-		"""
-		if not isinstance(problem, gmEMRStructItems.cProblem):
-			_log.Log(gmLog.lData, str(problem))
-			raise TypeError, 'cannot reclass [%s] instance to problem' % type(problem)
-		if problem['type'] == 'episode':
-			return self.get_episodes(id_list=[problem['pk_episode']])[0]
-		if problem['type'] == 'issue':
-			return self.get_health_issues(id_list=[problem['pk_health_issue']])[0]
-		return None
+	def health_issue2problem(self, issue=None):
+		return self.get_problems(issues = [issue['id']])
 	#--------------------------------------------------------
 	# vaccinations API
 	#--------------------------------------------------------
@@ -1683,7 +1689,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.178  2005-09-05 16:26:36  ncq
+# Revision 1.179  2005-09-09 13:49:25  ncq
+# - add instance casts from/to episode/issue/problem
+#
+# Revision 1.178  2005/09/05 16:26:36  ncq
 # - add reclass_problem()
 # - improve problem2(episode | issue)
 #
