@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.51 2005-08-22 13:27:47 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmSOAPWidgets.py,v 1.52 2005-09-09 13:53:03 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -104,14 +104,24 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
-	def add_editor(self, episode=None):
+	def add_editor(self, problem=None):
 		"""Add a progress note editor page."""
 		label = _('new episode')
-		if episode is not None:
-			label = episode['description']
+		if problem is not None:
+			emr = self.__pat.get_emr()
+			if isinstance(problem, gmEMRStructItems.cEpisode):
+				problem = emr.episode2problem(episode = problem)
+			elif isinstance(problem, gmEMRStructItems.cHealthIssue):
+				problem = emr.health_issue2problem(issue = problem)
+			if isinstance(problem, gmEMRStructItems.cProblem):
+				label = problem['problem']
+			else:
+				_log.Log(gmLog.lErr, 'cannot open progress note editor for [%s] (TypeError)' % str(problem))
+				return False
+			# FIXME: configure length
 			if len(label) > 23:
 				label = label[:20] + '...'
-		new_page = cResizingSoapPanel(parent = self, episode = episode)
+		new_page = cResizingSoapPanel(parent = self, problem = problem)
 		return self.AddPage (
 			page = new_page,
 			text = label,
@@ -129,7 +139,7 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		print "re-populating notebook with data - nothing to do, really..."
+		print '[%s._populate_with_data] nothing to do, really...' % self.__class__.__name__
 		return True
 	#--------------------------------------------------------
 	# event handling
@@ -172,10 +182,9 @@ class cProgressNoteInputNotebook(wx.wxNotebook, gmRegetMixin.cRegetOnPaintMixin)
 #		print "need code to:"
 #		print "- ask user about unsaved data"
 		pass
-	#--------------------------------------------------------
 #============================================================
 class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
-	"""Notebook based progress note input panel.
+	"""A progress note input panel.
 
 	Left hand side:
 	- problem list (health issues and active episodes)
@@ -372,67 +381,45 @@ class cNotebookedProgressNoteInputPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMi
 
 		when the user selects a problem in the problem list:
 			- check whether selection is issue or episode
-			- if issue: create episode
 			- if editor for episode exists: focus it
 			- if no editor for episode exists: create one and focus it
-			- if currently selected editor is an unassociated one and its episode name is empty,
-			  set its episode name in phrasewheel
 		"""
 		problem_idx = self.__LST_problems.GetSelection()
 		problem = self.__LST_problems.GetClientData(problem_idx)
 		emr = self.__pat.get_clinical_record()
 
-		# make sure we have an episode
-		if problem['type'] == 'episode':
-			selected_episode = emr.get_episodes(id_list=[problem['pk_episode']])[0]
-		elif problem['type'] == 'issue':
+		title = _('opening progress note editor')
+		msg = _('Cannot open progress note editor for\n\n'
+				'[%s].\n\n') % problem['problem']
+
+		if problem['type'] == 'issue':
 			# health issue selected: user wants to start new episode
-			# FIXME: ask whether closing "previous" episodes for issue
-			pk_issue = problem['pk_health_issue']
-			episode_selector = gmEMRStructWidgets.cEpisodeSelectorDlg (
-				None,
-				-1,
-				caption = _('Create or select episode'),
-				action_txt = _(' start progress note'),
-				pk_health_issue = pk_issue
-			)
-			retval = episode_selector.ShowModal()
-			if retval == gmEMRStructWidgets.dialog_OK:
-				# FIXME refresh only if episode selector action button was performed
-				print "would be refreshing problem list now"
-#				self.__refresh_problem_list()
-				selected_episode = episode_selector.get_selected_episode()
-			elif retval == gmEMRStructWidgets.dialog_CANCELLED:
-				return False
-			else:
-				raise Exception('Invalid dialog return code [%s]' % retval)
-#			episode_selector.Destroy() # finally destroy it when finished.
-		else:
-			msg = _('Cannot open progress note editor for problem:\n%s') % problem
-			gmGuiHelpers.gm_show_error(msg, _('opening progress note editor'), gmLog.lErr)
-			_log.Log(gmLog.lErr, 'invalid problem type [%s]' % type(problem))
+			if self.__soap_notebook.add_editor(problem = problem):
+				# FIXME: ask whether closing "previous" episodes for issue
+				return True
+			gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = title)
 			return False
 
-		# editor for this episode already there ?
+		# must be episode, then
+		# editor for it already there ?
 		for page_idx in range(self.__soap_notebook.GetPageCount()):
 			page = self.__soap_notebook.GetPage(page_idx)
-			pnl_epi = page.GetEpisode()
-			if pnl_epi is None:
+			pnl_problem = page.get_problem()
+			# skip unassociated
+			if pnl_problem is None:
 				continue
-			if pnl_epi['pk_episode'] == selected_episode['pk_episode']:
+			# skip issues
+			if pnl_problem['type'] != 'episode':
+				continue
+			if pnl_problem['pk_episode'] == problem['pk_episode']:
 				# yes, so raise that editor (returns idx of old page)
 				self.__soap_notebook.SetSelection(page_idx)
 				return True
 
 		# no, add editor for episode
-		# FIXME: actually, if the raised editor is unassociated and the heading
-		# FIXME: is empty we should use selected_episode to associate it
-		if self.__soap_notebook.add_editor(episode = selected_episode):
+		if self.__soap_notebook.add_editor(problem = problem):
 			return True
-		# error
-		msg = _('Cannot open progress note editor for\n\n'
-				'[%s].\n\n') % selected_episode['description']
-		gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('opening progress note editor'))
+		gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = title)
 		return False
 	#--------------------------------------------------------
 	def __on_save(self, event):
@@ -1020,6 +1007,7 @@ class cSOAPLineDef:
 		self.label = _('label missing')
 		self.text = ''
 		self.soap_cat = _('soap cat missing')
+		self.is_rfe = False		# later support via types
 		self.data = None
 #============================================================
 class cResizingSoapWin (gmResizingWidgets.cResizingWindow):
@@ -1081,7 +1069,7 @@ class cResizingSoapPanel(wx.wxPanel):
 		create a new soap note for the given episode (or unassociated)
 	"""
 	#--------------------------------------------------------
-	def __init__(self, parent, episode=None, input_defs=None):
+	def __init__(self, parent, problem=None, input_defs=None):
 		"""
 		Construct a new SOAP input widget.
 
@@ -1095,18 +1083,15 @@ class cResizingSoapPanel(wx.wxPanel):
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 		"""
-		# problem -> episode conversion
-		if isinstance(episode, gmEMRStructItems.cProblem):
-			problem = episode
-			pat = gmPerson.gmCurrentPatient()
-			emr = pat.get_clinical_record()
-			episode = emr.problem2episode(problem)
-			if episode is None:
-				raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(problem)
-		# sanity check
-		if not isinstance(episode, (gmEMRStructItems.cEpisode, types.NoneType)):
-			raise gmExceptions.ConstructorError, 'cannot make progress note editor for [%s]' % str(episode)
-		self.__episode = episode
+		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEMRStructItems.cEpisode, gmEMRStructItems.cProblem, types.NoneType)):
+			raise gmExceptions.ConstructorError, 'problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem))
+
+		self.__problem = problem
+		if isinstance(problem, gmEMRStructItems.cEpisode):
+			self.__problem = emr.episode2problem(episode = problem)
+		elif isinstance(problem, gmEMRStructItems.cHealthIssue):
+			self.__problem = emr.health_issue2problem(issue = problem)
+
 		self.__is_saved = False
 		self.__pat = gmPerson.gmCurrentPatient()
 		# do layout
@@ -1118,24 +1103,6 @@ class cResizingSoapPanel(wx.wxPanel):
 			wx.wxDefaultSize,
 			wx.wxNO_BORDER | wx.wxTAB_TRAVERSAL
 		)
-		# - heading
-		if episode is None:
-			mp = gmMatchProvider.cMatchProvider_Func (
-				get_candidates = self.get_episode_list
-			)
-			self.__soap_heading = gmPhraseWheel.cPhraseWheel (
-				self,
-				-1,
-				aMatchProvider = mp
-			)
-			# drop down to progress note STC on <ENTER>
-			self.__soap_heading.add_callback_on_enter(self._prw_enter_cb)
-		else:
-			self.__soap_heading = wx.wxStaticText (
-				self,
-				-1,
-				_('episode: %s') % self.__episode['description']
-			)
 		# - editor
 		if input_defs is None:
 			soap_lines = []
@@ -1144,6 +1111,7 @@ class cResizingSoapPanel(wx.wxPanel):
 			line = cSOAPLineDef()
 			line.label = _('Patient Request')
 			line.soap_cat = 's'
+			line.is_rfe = True
 			soap_lines.append(line)
 
 			line = cSOAPLineDef()
@@ -1167,142 +1135,114 @@ class cResizingSoapPanel(wx.wxPanel):
 			soap_lines.append(line)
 		else:
 			soap_lines = input_defs
-		self.__soap_text_editor = cResizingSoapWin (
+		self.__soap_editor = cResizingSoapWin (
 			self,
 			size = wx.wxDefaultSize,
 			input_defs = soap_lines
 		)
 		# - arrange
 		self.__szr_main = wx.wxBoxSizer(wx.wxVERTICAL)
-		self.__szr_main.Add(self.__soap_heading, 0, wx.wxEXPAND)
-		self.__szr_main.Add(self.__soap_text_editor, 1, wx.wxEXPAND)
+		self.__szr_main.Add(self.__soap_editor, 1, wx.wxEXPAND)
 		self.SetSizerAndFit(self.__szr_main)
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
 	def save(self):
 		"""Save data into backend."""
-		# do we need to create a new episode ?
+
+		# fill progress_note for import
+		progress_note = []
+		aoe = ''
+		rfe = ''
+		has_rfe = False
+		has_plan = False
+		soap_lines_contents = self.__soap_editor.GetValue()
+		for line_content in soap_lines_contents.values():
+			if line_content.text.strip() == '':
+				continue
+			progress_note.append ({
+				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: line_content.data.soap_cat,
+				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
+				gmSOAPimporter.soap_bundle_TEXT_KEY: line_content.text.rstrip(),
+				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY: {}	# this data needs to come from the editor
+			})
+			if line_content.data.is_rfe:
+				rfe += line_content.text.rstrip()
+				has_rfe = True
+			if line_content.data.soap_cat == 'p':
+				has_plan = True
+			if line_content.data.soap_cat == 'a':
+				aoe += line_content.text.rstrip()
+		if not (has_rfe and has_plan):
+			msg = _('Progress note must have Reason for Encounter and Plan.')
+			gmGuiHelpers.gm_show_info(msg, _('saving progress note'), gmLog.lErr)
+			return False
+
+		# work out episode name
 		emr = self.__pat.get_clinical_record()
-		if self.__episode is None:
-			episode_name = self.__soap_heading.GetValue()
-			if episode_name is None or episode_name.strip() == '':
-				msg = _('Need a name for the new episode to save new progress note under.\n'
-						'Please type a new episode name or select an existing one.')
+		episode = None
+		problem = self.__problem
+		# - new episode, must get from narrative (or user)
+		if (problem is None) or (problem['type'] == 'issue'):
+			if len(aoe) != 0:
+				epi_name = aoe
+			else:
+				epi_name = rfe
+			if problem is None:
+				episode = emr.add_episode(episode_name = epi_name[:45])		# FIXME: un-hardcode length ?
+			else:
+				episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'])
+				# FIXME:
+				# close episode if any open and > 6 months
+				# ask user: close continue if any open and > 1 week
+				# continue open episode if < 1 week
+			if episode is None:
+				msg = _('Cannot create episode [%s] to save progress note under.' % epi_name)
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
 				return False
-			self.__episode = emr.add_episode(episode_name = episode_name)
-			if self.__episode is None:
-				msg = _('Cannot create episode [%s] to save progress note under.' % episode_name)
-				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
-				return False
-		# set up clinical context in soap bundle
+			epi_id = episode['pk_episode']
+		else:
+			epi_id = problem['pk_episode']
+
+		# set up clinical context in progress note
 		encounter = emr.get_active_encounter()
 		staff_id = _whoami.get_staff_ID()
 		clin_ctx = {
-			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: self.__episode['pk_episode'],
+			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: epi_id,
 			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: encounter['pk_encounter'],
 			gmSOAPimporter.soap_bundle_STAFF_ID_KEY: staff_id
 		}
-		# fill bundle for import
-		bundle = []
-		editor_content = self.__soap_text_editor.GetValue()
-		for editor_val in editor_content.values():
-			bundle.append ({
-				gmSOAPimporter.soap_bundle_SOAP_CAT_KEY: editor_val.data.soap_cat,
-				gmSOAPimporter.soap_bundle_TYPES_KEY: [],		# these types need to come from the editor
-				gmSOAPimporter.soap_bundle_TEXT_KEY: editor_val.value,
-				gmSOAPimporter.soap_bundle_CLIN_CTX_KEY: clin_ctx,
-				gmSOAPimporter.soap_bundle_STRUCT_DATA_KEY: {}	# this data needs to come from the editor
-			})
-		# dump soap contents
+		for line in progress_note:
+			line[gmSOAPimporter.soap_bundle_CLIN_CTX_KEY] = clin_ctx
+
+		# dump progress note to backend
 		importer = gmSOAPimporter.cSOAPImporter()
-		if not importer.import_soap(bundle):
+		if not importer.import_soap(progress_note):
 			gmGuiHelpers.gm_show_error(_('Error saving progress note.'), _('saving progress note'), gmLog.lErr)
 			return False
 		return True
 	#--------------------------------------------------------
-	def SetEpisode(self, episode):
+	def get_problem(self):
+		"""Retrieve the related problem for this SOAP input widget.
 		"""
-		Set the related episode for this SOAP input widget.
-		Update heading label with episode descriptive text.
-		
-		@param episode: SOAP input widget's related episode
-		@type episode: gmEMRStructItems.cEpisode		
-		"""
-		if episode is None:
-			# FIXME: need handling when unsetting episode
-			return False
-		self.__episode = episode
-		# display episode
-		txt = _('episode: %s') % self.__episode['description']
-		self.__set_heading(txt)
-		# flag indicating saved state
-		self.__is_saved = False
-	#--------------------------------------------------------
-	def GetEpisode(self):
-		"""
-		Retrieve the related episode for this SOAP input widget.
-		"""
-		return self.__episode
-	#--------------------------------------------------------
-	def get_episode_list(self):
-		# match provider helper
-		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_clinical_record()
-		episodes = emr.get_episodes()
-		epi_list = []
-		for epi in episodes:
-			epi_list.append({'label': epi['description'], 'data': epi['description']})
-		return epi_list
-	#--------------------------------------------------------
-	def GetHeadingTxt(self):
-		"""
-		Retrieve the header displayed text. Typically useful to obtain
-		the entered episode text in an unassociated progress note.
-		"""
-		txt = ''
-		if self.__episode is None:
-			txt = self.__soap_heading.GetValue()
-		else:
-			txt = self.__soap_heading.GetLabel()
-		return txt
-	#--------------------------------------------------------
-	def SetHeadingTxt(self, txt):
-		"""
-		Set the header displayed text (only for an unassociated
-		progress note).
-
-		@param txt: The heading text to set (episode name)
-		@param txt: StringType
-		"""
-		if isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
-			self.__set_heading(txt)
-			return True
-		return False
+		return self.__problem
 	#--------------------------------------------------------
 	def is_unassociated_editor(self):
 		"""
-		Retrieves wether the current editor is not associated to any 
-		episode and thus displaying the phrasewheel layout.
-
-		@param txt: The heading text to set (episode name)
-		@param txt: StringType
+		Retrieves whether the current editor is not associated
+		with any episode.
 		"""
-		if isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
-			return True
-		return False
+		return ((self.__problem is None) or (self.__problem['type'] == 'issue'))
 	#--------------------------------------------------------
 	def get_editor(self):
+		"""Retrieves widget's SOAP text editor.
 		"""
-		Retrieves widget's SOAP text editor
-		"""
-		return self.__soap_text_editor
+		return self.__soap_editor
 	#--------------------------------------------------------
 	def Clear(self):
 		"""Clear any entries in widget's SOAP text editor
 		"""
-		self.__soap_text_editor.Clear()
+		self.__soap_editor.Clear()
 	#--------------------------------------------------------
 	def SetSaved(self, is_saved):
 		"""
@@ -1313,41 +1253,13 @@ class cResizingSoapPanel(wx.wxPanel):
 		@type is_saved: boolean
 		"""
 		self.__is_saved = is_saved
-		self.__set_heading('')
 		self.Clear()
-		# avoid setting saved state on unassociated, so we wont be able
-		# to restore to not saved in an easy way
-		if not isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
-			self.__episode = NOTE_SAVED
 	#--------------------------------------------------------
 	def IsSaved(self):
 		"""
 		Check SOAP input widget saved (dumped to backend) state
 		"""
 		return self.__is_saved
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def _prw_enter_cb(self):
-		# FIXME: why does this not work ?
-		self.__soap_text_editor.SetFocus()
-	#--------------------------------------------------------
-	def __set_heading(self, txt):
-		"""
-		Configure SOAP widget's heading title (both for associated
-		and unassociated progress note).
-
-		@param txt: New widget's heading title to set
-		@type txt: string
-		"""
-		if isinstance(self.__soap_heading, gmPhraseWheel.cPhraseWheel):
-			self.__soap_heading.SetValue(txt)
-		else:
-			self.__soap_heading.SetLabel(txt)
-			size = self.__soap_heading.GetBestSize()
-			self.__szr_main.SetItemMinSize(self.__soap_heading, size.width, size.height)
-			self.Layout()
-		
 #============================================================
 class cSingleBoxSOAP(wx.wxTextCtrl):
 	"""if we separate it out like this it can transparently gain features"""
@@ -1607,7 +1519,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.51  2005-08-22 13:27:47  ncq
+# Revision 1.52  2005-09-09 13:53:03  ncq
+# - make progress note editor deal with cProblem instances and
+#   add appropriate casts in callers, thereby simplifying code
+# - auto-generate episode names where appropriate
+#
+# Revision 1.51  2005/08/22 13:27:47  ncq
 # - properly return error from SetHeadingTxt
 #
 # Revision 1.50  2005/07/21 21:01:26  ncq
