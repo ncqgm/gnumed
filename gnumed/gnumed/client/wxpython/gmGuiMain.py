@@ -13,8 +13,8 @@ copyright: authors
 """
 #==============================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiMain.py,v $
-# $Id: gmGuiMain.py,v 1.213 2005-09-04 07:30:24 ncq Exp $
-__version__ = "$Revision: 1.213 $"
+# $Id: gmGuiMain.py,v 1.214 2005-09-11 17:34:10 ncq Exp $
+__version__ = "$Revision: 1.214 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
@@ -166,8 +166,7 @@ class gmTopLevelFrame(wx.wxFrame):
 		self.vbox.Add(self.LayoutMgr, 10, wx.wxEXPAND | wx.wxALL, 1)
 
 		self.SetAutoLayout(True)
-		self.SetSizer(self.vbox)
-		self.vbox.Fit(self)
+		self.SetSizerAndFit(self.vbox)
 
 		# don't allow the window to get too small
 		# setsizehints only allows minimum size, therefore window can't become small enough
@@ -359,7 +358,8 @@ class gmTopLevelFrame(wx.wxFrame):
 		wx.EVT_MAXIMIZE(self, self.OnMaximize)
 
 		# intra-client signals
-		gmDispatcher.connect(self.on_patient_selected, gmSignals.patient_selected())
+		gmDispatcher.connect(self._on_activating_patient, gmSignals.pre_patient_selection())
+		gmDispatcher.connect(self.on_patient_selected, gmSignals.post_patient_selection())
 	#-----------------------------------------------
 	def on_patient_selected(self, **kwargs):
 		wx.wxCallAfter(self.__on_patient_selected, **kwargs)
@@ -370,9 +370,34 @@ class gmTopLevelFrame(wx.wxFrame):
 			pat.get_clinical_record()
 			pat.get_identity()
 		except:
-			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=4)
-			return None
+			_log.LogException("Unable to process signal. Is gmCurrentPatient up to date yet?", sys.exc_info(), verbose=1)
+			return False
 		self.updateTitle()
+	#----------------------------------------------
+	def _on_activating_patient(self, **kwargs):
+		wx.wxCallAfter(self.__on_activating_patient, **kwargs)
+	#----------------------------------------------
+	def __on_activating_patient(self, **kwargs):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.is_connected():
+			return True
+		# update encounter summary
+		emr = pat.get_emr()
+		enc = emr.get_active_encounter()
+		# - work out suitable default
+		epis = emr.get_episodes_by_encounter()
+		if len(epis) == 0:
+			enc_summary = enc['description']
+		else:
+			enc_summary = ''
+			for epi in epis:
+				enc_summary += '%s; ' % epi['description']
+		# - make this an optional modal dialog
+		if ('auto-created' in enc['description']) or (len(enc['description'].strip()) == 0):
+			enc['description'] = enc_summary
+			if not enc.save_payload():
+				gmGuiHelpers.gm_beep_statustext(_('Cannot update encounter summary.'), gmLog.lErr)
+		return True
 	#----------------------------------------------
 	def OnAbout(self, event):
 		from Gnumed.wxpython import gmAbout
@@ -546,11 +571,11 @@ class gmTopLevelFrame(wx.wxFrame):
 		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
 		wiz.RunWizard(activate=True)
 	#----------------------------------------------
-	def __on_search_patient(self, event):
-		"""Focus patient search widget."""
-		# FIXME: directly accessing the top panel is ugly as sin
-		searcher = self.__gb['horstspace.top_panel'].patient_selector
-		searcher.SetFocus()
+#	def __on_search_patient(self, event):
+#		"""Focus patient search widget."""
+#		# FIXME: directly accessing the top panel is ugly as sin
+#		searcher = self.__gb['horstspace.top_panel'].patient_selector
+#		searcher.SetFocus()
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -681,13 +706,13 @@ class gmTopLevelFrame(wx.wxFrame):
 	def OnPanelSize (self, event):
 		wx.wxLayoutAlgorithm().LayoutWindow (self.LayoutMgr, self.nb)
 	#------------------------------------------------
-	def OnSashDrag (self, event):
-		if event.GetDragStatus() == wx.wxSASH_STATUS_OUT_OF_RANGE:
-			return
-		self.leftbox.SetDefaultSize(wxSize(event.GetDragRect().width, 1000))
-		self.bar_width = event.GetDragRect().width
-		wx.wxLayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
-		self.nb.Refresh()
+#	def OnSashDrag (self, event):
+#		if event.GetDragStatus() == wx.wxSASH_STATUS_OUT_OF_RANGE:
+#			return
+#		self.leftbox.SetDefaultSize(wxSize(event.GetDragRect().width, 1000))
+#		self.bar_width = event.GetDragRect().width
+#		wx.wxLayoutAlgorithm().LayoutWindow(self.LayoutMgr, self.nb)
+#		self.nb.Refresh()
 
 #==============================================================================
 class gmApp(wx.wxApp):
@@ -904,7 +929,11 @@ if __name__ == '__main__':
 
 #==============================================================================
 # $Log: gmGuiMain.py,v $
-# Revision 1.213  2005-09-04 07:30:24  ncq
+# Revision 1.214  2005-09-11 17:34:10  ncq
+# - support consultation summary generation just before
+#   switching to the next patient
+#
+# Revision 1.213  2005/09/04 07:30:24  ncq
 # - comment out search-patient menu item for now
 #
 # Revision 1.212  2005/07/24 18:57:48  ncq
