@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.18 2005-09-04 07:31:14 ncq Exp $
-__version__ = "$Revision: 1.18 $"
+# $Id: gmPatSearchWidgets.py,v 1.19 2005-09-11 17:35:05 ncq Exp $
+__version__ = "$Revision: 1.19 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -356,6 +356,7 @@ and hit <ENTER>
 
 		self._lclick_count = 0
 
+		# get configuration
 		self.__always_dismiss_after_search = False
 		value, set = gmCfg.getDBParam (
 			workplace = _whoami.get_workplace(),
@@ -368,7 +369,22 @@ and hit <ENTER>
 				workplace = _whoami.get_workplace()
 			)
 		else:
-			try: self.__always_dismiss_after_search = int(value)
+			try: self.__always_dismiss_after_search = bool(value)
+			except: pass
+
+		self.__always_reload_after_search = False
+		value, set = gmCfg.getDBParam (
+			workplace = _whoami.get_workplace(),
+			option = 'patient_search.always_reload_new_patient'
+		)
+		if set is None:
+			gmCfg.setDBParam (
+				option = 'patient_search.always_reload_new_patient',
+				value = False,
+				workplace = gmCfg.cfg_DEFAULT
+			)
+		else:
+			try: self.__always_reload_after_search = bool(value)
 			except: pass
 
 		self.__register_events()
@@ -393,7 +409,7 @@ and hit <ENTER>
 		wx.wxCallAfter(self._display_name)
 	#--------------------------------------------------------
 	def SetActivePatient(self, pat):
-		if not gmPerson.set_active_patient(pat):
+		if not gmPerson.set_active_patient(pat, forced_reload = self.__always_reload_after_search):
 			_log.Log (gmLog.lErr, 'cannot change active patient')
 			return None
 		# keep list of identities
@@ -715,7 +731,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.18  2005-09-04 07:31:14  ncq
+# Revision 1.19  2005-09-11 17:35:05  ncq
+# - support "patient_search.always_reload_new_patient"
+#
+# Revision 1.18  2005/09/04 07:31:14  ncq
 # - Richard requested the "no active patient" tag be removed
 #   when no patient is active
 #
