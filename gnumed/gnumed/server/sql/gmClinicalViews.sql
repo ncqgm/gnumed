@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.148 2005-09-08 17:02:37 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.149 2005-09-11 17:41:20 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -248,10 +248,6 @@ create trigger TR_clin_item_mod
 -- inheritance system can't handle properly
 \unset ON_ERROR_STOP
 drop function f_protect_clin_root_item() cascade;
---drop rule clin_ritem_no_ins on clin_root_item cascade;
---drop rule clin_ritem_no_ins;
---drop rule clin_ritem_no_del on clin_root_item cascade;
---drop rule clin_ritem_no_del;
 \set ON_ERROR_STOP 1
 
 create function f_protect_clin_root_item() returns opaque as '
@@ -264,10 +260,6 @@ end;
 create rule clin_ritem_no_ins as
 	on insert to clin_root_item
 	do instead select f_protect_clin_root_item();
-
---create rule clin_ritem_no_upd as
---	on update to clin_root_item
---	do instead select f_protect_clin_root_item();
 
 create rule clin_ritem_no_del as
 	on delete to clin_root_item
@@ -1181,7 +1173,10 @@ create view v_pat_narrative as
 select
 	vpi.pk_patient as pk_patient,
 	cn.clin_when as date,
-	vpi.modified_by as provider,
+	case when ((select 1 from v_staff where db_user = cn.modified_by) is null)
+		then '<' || cn.modified_by || '>'
+		else (select sign from v_staff where db_user = cn.modified_by)
+	end as provider,
 	cn.soap_cat as soap_cat,
 	cn.narrative as narrative,
 	cn.is_aoe as is_aoe,
@@ -1900,11 +1895,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.148 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.149 $', True);
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.148  2005-09-08 17:02:37  ncq
+-- Revision 1.149  2005-09-11 17:41:20  ncq
+-- - cleanup
+-- - display provider sign in v_pat_narrative, not db account
+--
+-- Revision 1.148  2005/09/08 17:02:37  ncq
 -- - include provider in v_pat_narrative
 --
 -- Revision 1.147  2005/08/15 16:30:42  ncq
