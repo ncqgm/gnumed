@@ -10,8 +10,8 @@ TODO:
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.64 2005-09-09 13:50:07 ncq Exp $
-__version__ = "$Revision: 1.64 $"
+# $Id: gmPatientExporter.py,v 1.65 2005-09-11 17:28:20 ncq Exp $
+__version__ = "$Revision: 1.65 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -646,7 +646,7 @@ class cEmrExport:
                     soap_entry['date'].Format(_('%H:%M %.7s: ')) % soap_entry['provider'] +
                     soap_entry['narrative'].replace('\n', eol_w_margin) +
                     '\n'
-                )		# FIXME: turn 'provider' into abbreviation via v_staff
+                )
 
         # aoe
         aoes = encounter.get_aoes()               
@@ -1147,7 +1147,10 @@ if __name__ == "__main__":
         _log.LogException('unhandled exception caught', sys.exc_info(), verbose=1)
 #============================================================
 # $Log: gmPatientExporter.py,v $
-# Revision 1.64  2005-09-09 13:50:07  ncq
+# Revision 1.65  2005-09-11 17:28:20  ncq
+# - tree widget now display provider sign, not database account
+#
+# Revision 1.64  2005/09/09 13:50:07  ncq
 # - detail improvements in tree widget progress note output
 #
 # Revision 1.63  2005/09/08 16:57:06  ncq
