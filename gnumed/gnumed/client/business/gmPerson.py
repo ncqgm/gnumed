@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.51 2005-08-08 08:06:44 ncq Exp $
-__version__ = "$Revision: 1.51 $"
+# $Id: gmPerson.py,v 1.52 2005-09-11 17:25:31 ncq Exp $
+__version__ = "$Revision: 1.52 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -563,7 +563,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 	There may be many instances of this but they all share state.
 	"""
-	def __init__(self, person=None):
+	def __init__(self, person=None, forced_reload=False):
 		"""Change or get currently active patient.
 
 		person:
@@ -605,7 +605,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			_log.Log(gmLog.lErr, 'cannot set active patient to [%s], must be either None, -1 or cPerson instance' % str(person))
 
 		# same ID, no change needed
-		if self._person['pk_identity'] == person['pk_identity']:
+		if (self._person['pk_identity'] == person['pk_identity']) and not forced_reload:
 			return None
 
 		# user wants different patient
@@ -1323,7 +1323,7 @@ def create_dummy_identity():
 		return None
 	return gmDemographicRecord.cIdentity (aPK_obj = int(data[0][0]))
 #============================================================
-def set_active_patient(person = None):
+def set_active_patient(person = None, forced_reload=False):
 	"""Set active patient.
 
 	If person is -1 the active patient will be unset.
@@ -1336,7 +1336,7 @@ def set_active_patient(person = None):
 	# attempt to switch
 	tstart = time.time()
 	try:
-		pat = gmCurrentPatient(person)
+		pat = gmCurrentPatient(person, forced_reload=forced_reload)
 	except:
 		_log.LogException('error changing active patient', sys.exc_info())
 		return False
@@ -1484,7 +1484,11 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.51  2005-08-08 08:06:44  ncq
+# Revision 1.52  2005-09-11 17:25:31  ncq
+# - support force_reload in gmCurrentPatient - needed since Richard wants to
+#   reload data when finding the same patient again
+#
+# Revision 1.51  2005/08/08 08:06:44  ncq
 # - cleanup
 #
 # Revision 1.50  2005/07/24 18:44:33  ncq
