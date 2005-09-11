@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.59 $"
+__version__ = "$Revision: 1.60 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -75,6 +75,24 @@ class cHealthIssue(gmClinItem.cClinItem):
 			self._payload[self._idx['description']] = old_description
 			return False
 		return True
+	#--------------------------------------------------------
+	def close_expired_episodes(self, ttl=90):
+		"""ttl in days"""
+		cmd = """
+update clin_episode set is_open = false where pk in (
+	select pk_episode from v_pat_items where
+			pk_health_issue = %(issue)s and
+			age > (%(ttl)s || ' days')::interval
+	except
+		select pk from clin_episode where
+			fk_health_issue = %('issue')s and
+			age(modified_when) < (%('ttl')s || ' days')::interval
+)"""
+		args = {'issue': self.pk_obj, 'ttl': tll}
+		success, msg = gmGP.run_commit ('historica', [(cmd, [args])], True)
+		if success:
+			return True
+		return False
 #============================================================
 class cEpisode(gmClinItem.cClinItem):
 	"""Represents one clinical episode.
@@ -373,7 +391,7 @@ def create_health_issue(patient_id=None, description=None):
 		return (False, _('internal error, check log'))
 	return (True, h_issue)
 #-----------------------------------------------------------
-def create_episode(pk_health_issue=None, episode_name=None, patient_id=None):
+def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_open=False):
 	"""Creates a new episode for a given patient's health issue.
 
 	pk_health_issue - given health issue PK
@@ -382,18 +400,23 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None):
 	# already there ?
 	try:
 		episode = cEpisode(id_patient=patient_id, name=episode_name)
+		if episode['is_open'] != is_open:
+			episode['is_open'] = is_open
+			episode.save_payload()
 		return (True, episode)
-	except gmExceptions.ConstructorError, msg:
-		_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
+	except gmExceptions.ConstructorError:
+		pass
+	#, msg:
+#		_log.LogException('%s, will create new episode' % str(msg), sys.exc_info(), verbose=0)
 	# generate queries
 	queries = []
 	# insert episode
 	if patient_id is None:
-		cmd = """insert into clin_episode (fk_health_issue, description) values (%s, %s)"""
-		queries.append((cmd, [pk_health_issue, episode_name]))
+		cmd = """insert into clin_episode (fk_health_issue, description, is_open) values (%s, %s, %s::boolean)"""
+		queries.append((cmd, [pk_health_issue, episode_name, is_open]))
 	else:
-		cmd = """insert into clin_episode (fk_health_issue, fk_patient, description) values (%s, %s, %s)"""
-		queries.append((cmd, [pk_health_issue, patient_id, episode_name]))
+		cmd = """insert into clin_episode (fk_health_issue, fk_patient, description, is_open) values (%s, %s, %s, %s::boolean)"""
+		queries.append((cmd, [pk_health_issue, patient_id, episode_name, is_open]))
 	# retrieve PK
 	cmd = "select currval('clin_episode_pk_seq')"
 	queries.append((cmd, []))
@@ -560,7 +583,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.59  2005-08-22 13:02:46  ncq
+# Revision 1.60  2005-09-11 17:23:53  ncq
+# - close_expired_episodes()
+# - support is_open when adding episode
+#
+# Revision 1.59  2005/08/22 13:02:46  ncq
 # - prepare for 0.2
 #
 # Revision 1.58  2005/07/02 18:16:58  ncq
