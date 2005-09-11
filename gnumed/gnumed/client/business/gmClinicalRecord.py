@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.179 2005-09-09 13:49:25 ncq Exp $
-__version__ = "$Revision: 1.179 $"
+# $Id: gmClinicalRecord.py,v 1.180 2005-09-11 17:21:55 ncq Exp $
+__version__ = "$Revision: 1.180 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -742,12 +742,27 @@ class cClinicalRecord:
 		if issues is not None:
 			filtered_episodes = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_episodes)
 		if id_list is not None:
-			if id_list == []:
-				_log.Log(gmLog.lErr, 'id_list to filter by is empty, most likely a programming error')
 			filtered_episodes = filter(lambda epi: epi['pk_episode'] in id_list, filtered_episodes)
 		return filtered_episodes
 	#------------------------------------------------------------------
-	def add_episode(self, episode_name=None, pk_health_issue=None):
+	def get_episodes_by_encounter(self, pk_encounter=None):
+		cmd = """select distinct pk_episode
+					from v_pat_items
+					where pk_encounter=%(enc)s and pk_patient=%(pat)s"""
+		rows = gmPG.run_ro_query (
+			'historica',
+			cmd,
+			None,
+			{'enc': self.__encounter['pk_encounter'], 'pat': self.pk_patient}
+		)
+		if len(rows) == 0:
+			return []
+		epis = []
+		for row in rows:
+			epis.append(row[0])
+		return self.get_episodes(id_list=epis)
+	#------------------------------------------------------------------
+	def add_episode(self, episode_name=None, pk_health_issue=None, is_open=False):
 		"""Add episode 'episode_name' for a patient's health issue.
 
 		- silently returns if episode already exists
@@ -756,13 +771,15 @@ class cClinicalRecord:
 			# create unattached episode for the current patient
 			success, episode = gmEMRStructItems.create_episode (
 				episode_name = episode_name,
-				patient_id = self.pk_patient
+				patient_id = self.pk_patient,
+				is_open = is_open
 			)
 		else:
 			# create episode for given health issue
 			success, episode = gmEMRStructItems.create_episode (
 				pk_health_issue = pk_health_issue,
-				episode_name = episode_name
+				episode_name = episode_name,
+				is_open = is_open
 			)			
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot create episode [%s] for patient [%s] and health issue [%s]' % (episode_name, self.pk_patient, pk_health_issue))
@@ -1689,7 +1706,11 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.179  2005-09-09 13:49:25  ncq
+# Revision 1.180  2005-09-11 17:21:55  ncq
+# - get_episodes_by_encounter()
+# - support is_open when adding episodes
+#
+# Revision 1.179  2005/09/09 13:49:25  ncq
 # - add instance casts from/to episode/issue/problem
 #
 # Revision 1.178  2005/09/05 16:26:36  ncq
