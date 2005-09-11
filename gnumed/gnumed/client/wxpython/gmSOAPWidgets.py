@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.52 2005-09-09 13:53:03 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmSOAPWidgets.py,v 1.53 2005-09-11 17:39:54 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1189,13 +1189,17 @@ class cResizingSoapPanel(wx.wxPanel):
 			else:
 				epi_name = rfe
 			if problem is None:
-				episode = emr.add_episode(episode_name = epi_name[:45])		# FIXME: un-hardcode length ?
+				episode = emr.add_episode(episode_name = epi_name[:45], is_open = True)		# FIXME: un-hardcode length ?
 			else:
-				episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'])
+				issue = emr.problem2issue(problem)
+				# FIXME: make ttl configurable
+				if issue.close_expired_episodes(ttl=90):
+					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
 				# FIXME:
-				# close episode if any open and > 6 months
-				# ask user: close continue if any open and > 1 week
-				# continue open episode if < 1 week
+				# if we still have open episodes we must ask the user
+				# - close old open episode and continue with new one ?
+				# - use old open episode as is ?
+				# - use old open episode but rename ?
 			if episode is None:
 				msg = _('Cannot create episode [%s] to save progress note under.' % epi_name)
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
@@ -1519,7 +1523,12 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.52  2005-09-09 13:53:03  ncq
+# Revision 1.53  2005-09-11 17:39:54  ncq
+# - auto-close episodes older than 90 days when a new episode
+#   for the same health issue is started by the user,
+#   still lacking user interaction for "old" episodes younger than that
+#
+# Revision 1.52  2005/09/09 13:53:03  ncq
 # - make progress note editor deal with cProblem instances and
 #   add appropriate casts in callers, thereby simplifying code
 # - auto-generate episode names where appropriate
