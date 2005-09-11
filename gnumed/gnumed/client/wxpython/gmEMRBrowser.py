@@ -2,8 +2,8 @@
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmEMRBrowser.py,v $
-# $Id: gmEMRBrowser.py,v 1.38 2005-09-08 16:57:48 ncq Exp $
-__version__ = "$Revision: 1.38 $"
+# $Id: gmEMRBrowser.py,v 1.39 2005-09-11 17:30:02 ncq Exp $
+__version__ = "$Revision: 1.39 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -206,9 +206,7 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_episodes_modified(self):
 		"""Episode changed."""
-		# FIXME: should *actually* be self._schedule_data_reget() but does not work properly yet
 		self._schedule_data_reget()
-		#self.refresh_tree()
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		"""
@@ -537,7 +535,7 @@ class cEMRJournalPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		# get data from backend
 		txt = StringIO.StringIO()
 		exporter = gmPatientExporter.cEMRJournalExporter()
-		# FIXME: if journal is large this will error out
+		# FIXME: if journal is large this will error out, use generator/yield etc
 		successful = exporter.export(txt)
 		if not successful:
 			_log.Log(gmLog.lErr, 'cannot get EMR journal')
@@ -605,7 +603,10 @@ if __name__ == '__main__':
 
 #================================================================
 # $Log: gmEMRBrowser.py,v $
-# Revision 1.38  2005-09-08 16:57:48  ncq
+# Revision 1.39  2005-09-11 17:30:02  ncq
+# - cleanup
+#
+# Revision 1.38  2005/09/08 16:57:48  ncq
 # - smaller font in journal display
 #
 # Revision 1.37  2005/07/21 21:00:46  ncq
