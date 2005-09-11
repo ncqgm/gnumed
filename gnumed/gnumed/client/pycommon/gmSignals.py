@@ -12,7 +12,7 @@ not being dispatched. It would allow to do messenging house keeping as well.
 # to anybody else.
 #=============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/Attic/gmSignals.py,v $
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __author__  = "H. Herb <hherb@gnumed.net>"
 
 #=============================================================
@@ -90,13 +90,19 @@ def clin_item_updated():
 	"""Frontend signal for clin_root_item cache update."""
 	return 'clin_item_updated'
 #-------------------------------------------------------------
-def patient_selected():
+def pre_patient_selection():
+	"""the currently active patient is about to be changed"""
+	return 'activating_patient'
+
+def activating_patient():
+	return pre_patient_selection()
+
+def post_patient_selection():
 	"""another patient has been selected to be the currently active patient"""
 	return 'patient_selected'
 
-def activating_patient():
-	"""the currently active patient is about to be changed"""
-	return 'activating_patient'
+def patient_selected():
+	return post_patient_selection()
 
 def patient_modified():
 	"the current patients demographic data has been modified"
@@ -203,7 +209,11 @@ if __name__ == "__main__":
 
 #======================================================================
 # $Log: gmSignals.py,v $
-# Revision 1.10  2005-05-06 15:29:47  ncq
+# Revision 1.11  2005-09-11 17:29:16  ncq
+# - pre/post_patient_selection() make much more sense than activating_patient()
+#   and patient_selected()
+#
+# Revision 1.10  2005/05/06 15:29:47  ncq
 # - cleanup
 #
 # Revision 1.9  2005/04/14 08:51:51  ncq
