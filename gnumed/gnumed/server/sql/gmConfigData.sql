@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -178,14 +178,44 @@ values (
 	0
 );
 
+-- reload patient data after search even if same patient
+insert into cfg_template
+	(name, type, description)
+values (
+	'patient_search.always_reload_new_patient',
+	'numeric',
+	'1/0, meaning true/false,
+	 if true: reload patient data after search even if the new patient is the same as the previous one,
+	 if false: do not reload data if new patient matches previous one'
+);
+
+insert into cfg_item
+	(id_template, owner, workplace)
+values (
+	currval('cfg_template_id_seq'),
+	'xxxDEFAULTxxx',
+	'xxxDEFAULTxxx'
+);
+
+-- default to false
+insert into cfg_numeric
+	(id_item, value)
+values (
+	currval('cfg_item_id_seq'),
+	0
+);
+
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.14 $', False);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.15 $', False);
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.14  2005-07-14 21:31:42  ncq
+-- Revision 1.15  2005-09-11 17:44:02  ncq
+-- - add patient_search.always_reload_new_patient option
+--
+-- Revision 1.14  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.13  2005/05/30 09:14:52  ncq
