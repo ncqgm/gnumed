@@ -4,8 +4,8 @@ The code in here is independant of gmPG.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.53 2005-09-11 17:39:54 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmSOAPWidgets.py,v 1.54 2005-09-12 15:10:43 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1193,13 +1193,29 @@ class cResizingSoapPanel(wx.wxPanel):
 			else:
 				issue = emr.problem2issue(problem)
 				# FIXME: make ttl configurable
-				if issue.close_expired_episodes(ttl=90):
+				ttl = 90	# 90 days, 3 months
+				all_closed = issue.close_expired_episodes(ttl=ttl)
+				if all_closed:
+					gmGuiHelpers.gm_beep_statustext(_('Closed episodes older than %s days on health issue [%s]') % (ttl, issue['description']))
 					episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
-				# FIXME:
-				# if we still have open episodes we must ask the user
-				# - close old open episode and continue with new one ?
-				# - use old open episode as is ?
-				# - use old open episode but rename ?
+				else:
+					# either error or non-expired open episode exists
+					open_epis = emr.get_episodes(issue = [issue['id']], open_status = True)
+					if len(open_epis) > 1:
+						_log.Log(gmLog.lErr, 'there is more than one open episode for health issue [%s]' % str(issue))
+						for e in open_epis:
+							_log.Log(gmLog.lData, str(e))
+					if len(open_epis) == 1:
+						# need to ask user what to do
+						# - close old open episode and continue with new one ?
+						# - use old open episode as is ?
+						# - use old open episode but rename ?
+						#xxxxxxxxxxxxxxxxxxxx
+						print "FIXME"
+					else:
+						# error, close all and hope things work out ...
+						issue.close_expired_episodes(ttl=-1)
+						episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = problem['pk_health_issue'], is_open = True)
 			if episode is None:
 				msg = _('Cannot create episode [%s] to save progress note under.' % epi_name)
 				gmGuiHelpers.gm_show_error(msg, _('saving progress note'), gmLog.lErr)
@@ -1523,7 +1539,10 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmSOAPWidgets.py,v $
-# Revision 1.53  2005-09-11 17:39:54  ncq
+# Revision 1.54  2005-09-12 15:10:43  ncq
+# - robustify auto-closing of episodes
+#
+# Revision 1.53  2005/09/11 17:39:54  ncq
 # - auto-close episodes older than 90 days when a new episode
 #   for the same health issue is started by the user,
 #   still lacking user interaction for "old" episodes younger than that
