@@ -11,8 +11,8 @@ to anybody else.
 """
 # ========================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmGuiHelpers.py,v $
-# $Id: gmGuiHelpers.py,v 1.22 2005-06-10 16:11:14 shilbert Exp $
-__version__ = "$Revision: 1.22 $"
+# $Id: gmGuiHelpers.py,v 1.23 2005-09-12 15:09:42 ncq Exp $
+__version__ = "$Revision: 1.23 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL (details at http://www.gnu.org)"
 
@@ -123,6 +123,7 @@ def gm_show_question(aMessage = None, aTitle = None):
 	else:
 		return False
 #-------------------------------------------------------------------------
+# FIXME: actually make this use a signal !
 def gm_beep_statustext(aMessage=None, aLogLevel=None):
 	if aMessage is None:
 		aMessage = _('programmer forgot to specify alert message')
@@ -275,7 +276,10 @@ class cTextObjectValidator(wxPyValidator):
 		return			
 # ========================================================================
 # $Log: gmGuiHelpers.py,v $
-# Revision 1.22  2005-06-10 16:11:14  shilbert
+# Revision 1.23  2005-09-12 15:09:42  ncq
+# - cleanup
+#
+# Revision 1.22  2005/06/10 16:11:14  shilbert
 # szr.AddWindow() -> Add() such that wx2.5 works
 #
 # Revision 1.21  2005/06/08 01:27:50  cfmoro
