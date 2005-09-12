@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.60 $"
+__version__ = "$Revision: 1.61 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -76,7 +76,7 @@ class cHealthIssue(gmClinItem.cClinItem):
 			return False
 		return True
 	#--------------------------------------------------------
-	def close_expired_episodes(self, ttl=90):
+	def close_expired_episodes(self, ttl=180):
 		"""ttl in days"""
 		cmd = """
 update clin_episode set is_open = false where pk in (
@@ -85,11 +85,12 @@ update clin_episode set is_open = false where pk in (
 			age > (%(ttl)s || ' days')::interval
 	except
 		select pk from clin_episode where
+			is_open and
 			fk_health_issue = %('issue')s and
 			age(modified_when) < (%('ttl')s || ' days')::interval
 )"""
 		args = {'issue': self.pk_obj, 'ttl': tll}
-		success, msg = gmGP.run_commit ('historica', [(cmd, [args])], True)
+		success, msg = gmGP.run_commit2 ('historica', [(cmd, [args])])
 		if success:
 			return True
 		return False
@@ -583,7 +584,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.60  2005-09-11 17:23:53  ncq
+# Revision 1.61  2005-09-12 15:05:58  ncq
+# - improve close_expired_episodes()
+#
+# Revision 1.60  2005/09/11 17:23:53  ncq
 # - close_expired_episodes()
 # - support is_open when adding episode
 #
