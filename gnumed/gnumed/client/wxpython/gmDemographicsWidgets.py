@@ -8,8 +8,8 @@ Widgets dealing with patient demographics.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDemographicsWidgets.py,v $
-# $Id: gmDemographicsWidgets.py,v 1.61 2005-09-04 07:29:53 ncq Exp $
-__version__ = "$Revision: 1.61 $"
+# $Id: gmDemographicsWidgets.py,v 1.62 2005-09-12 15:09:00 ncq Exp $
+__version__ = "$Revision: 1.62 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL (details at http://www.gnu.org)'
 
@@ -1721,6 +1721,7 @@ class cPatEditionNotebook(wx.Notebook):
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__do_layout()
 		self.__register_interests()
+		self.SetSelection(0)
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -2877,7 +2878,10 @@ if __name__ == "__main__":
 #	app2.MainLoop()
 #============================================================
 # $Log: gmDemographicsWidgets.py,v $
-# Revision 1.61  2005-09-04 07:29:53  ncq
+# Revision 1.62  2005-09-12 15:09:00  ncq
+# - make first tab display first in demographics editor
+#
+# Revision 1.61  2005/09/04 07:29:53  ncq
 # - allow phrasewheeling states by abbreviation in new-patient wizard
 #
 # Revision 1.60  2005/08/14 15:36:54  ncq
