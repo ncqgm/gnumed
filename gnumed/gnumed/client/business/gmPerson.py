@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.52 2005-09-11 17:25:31 ncq Exp $
-__version__ = "$Revision: 1.52 $"
+# $Id: gmPerson.py,v 1.53 2005-09-12 15:06:20 ncq Exp $
+__version__ = "$Revision: 1.53 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -200,7 +200,7 @@ class cIdentity (gmBusinessDBObject.cBusinessDBObject):
 		if title is None:
 			title = ''
 		else:
-			title = title[:4] + '.'
+			title = title[:4] + '. '
 		return "%s%s %s" % (title, self._payload[self._idx['firstnames']], self._payload[self._idx['lastnames']])
 	#-------------------------------------------------------- 	
 	def add_name(self, firstnames, lastnames, active=True, nickname=None):
@@ -1484,7 +1484,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.52  2005-09-11 17:25:31  ncq
+# Revision 1.53  2005-09-12 15:06:20  ncq
+# - add space after title
+#
+# Revision 1.52  2005/09/11 17:25:31  ncq
 # - support force_reload in gmCurrentPatient - needed since Richard wants to
 #   reload data when finding the same patient again
 #
