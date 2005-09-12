@@ -10,8 +10,8 @@ generator.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPatSearchWidgets.py,v $
-# $Id: gmPatSearchWidgets.py,v 1.19 2005-09-11 17:35:05 ncq Exp $
-__version__ = "$Revision: 1.19 $"
+# $Id: gmPatSearchWidgets.py,v 1.20 2005-09-12 15:18:05 ncq Exp $
+__version__ = "$Revision: 1.20 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://www.gnu.org/)'
 
@@ -552,7 +552,7 @@ and hit <ENTER>
 		wx.wxBeginBusyCursor()
 
 		if self.__always_dismiss_after_search:
-			self.SetActivePatient(-1, None)
+			self.SetActivePatient(-1)
 
 		curr_search_term = self.GetValue()
 		# do nothing on empty fragments
@@ -731,7 +731,11 @@ if __name__ == "__main__":
 
 #============================================================
 # $Log: gmPatSearchWidgets.py,v $
-# Revision 1.19  2005-09-11 17:35:05  ncq
+# Revision 1.20  2005-09-12 15:18:05  ncq
+# - fix faulty call to SetActivePatient() found by Richard when using
+#   always_dismiss_after_search
+#
+# Revision 1.19  2005/09/11 17:35:05  ncq
 # - support "patient_search.always_reload_new_patient"
 #
 # Revision 1.18  2005/09/04 07:31:14  ncq
