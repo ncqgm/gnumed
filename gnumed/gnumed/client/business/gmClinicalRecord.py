@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.180 2005-09-11 17:21:55 ncq Exp $
-__version__ = "$Revision: 1.180 $"
+# $Id: gmClinicalRecord.py,v 1.181 2005-09-12 15:05:44 ncq Exp $
+__version__ = "$Revision: 1.181 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -709,16 +709,17 @@ class cClinicalRecord:
 	#--------------------------------------------------------
 	# episodes API
 	#--------------------------------------------------------
-	def get_episodes(self, id_list=None, issues = None):
+	def get_episodes(self, id_list=None, issues=None, open_status=None):
 		"""Fetches from backend patient episodes.
 
-		id_list - Episodes' PKs
-		issues - Health issues' PKs to filter episodes by
+		id_list - Episodes' PKs list
+		issues - Health issues' PKs list to filter episodes by
+		open_status - return all episodes, only open or closed one(s)
 		"""
 		try:
 			self.__db_cache['episodes']
 		except KeyError:
-			cmd = "select pk_episode from v_pat_episodes where pk_patient=%s"
+			cmd = """select pk_episode from v_pat_episodes where pk_patient=%s"""
 			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
 			if rows is None:
 				_log.Log(gmLog.lErr, 'error loading episodes for patient [%s]' % self.pk_patient)
@@ -734,11 +735,13 @@ class cClinicalRecord:
 					_log.LogException('concurrency error reloading episodes', sys.exc_info(), verbose=0)
 					self.__db_cache['episodes'] = []
 
-		if id_list is None and issues is None:
+		if id_list is None and issues is None and open_status is None:
 			return self.__db_cache['episodes']
 		# ok, let's filter episode list
 		filtered_episodes = []
 		filtered_episodes.extend(self.__db_cache['episodes'])
+		if open_status is not None:
+			filtered_episodes = filter(lambda epi: epi['episode_open'] == open_status, filtered_episodes)
 		if issues is not None:
 			filtered_episodes = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_episodes)
 		if id_list is not None:
@@ -1706,7 +1709,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.180  2005-09-11 17:21:55  ncq
+# Revision 1.181  2005-09-12 15:05:44  ncq
+# - enhance get_episodes() to allow selection by is_open
+#
+# Revision 1.180  2005/09/11 17:21:55  ncq
 # - get_episodes_by_encounter()
 # - support is_open when adding episodes
 #
