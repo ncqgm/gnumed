@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.9 $ $Date: 2005-07-14 21:31:42 $ $Author: ncq $
+-- $Revision: 1.10 $ $Date: 2005-09-13 11:55:46 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -12,7 +12,7 @@
 
 -- =============================================
 \unset ON_ERROR_STOP
-drop view v_doc_type;
+drop view v_doc_type cascade;
 \set ON_ERROR_STOP 1
 
 create view v_doc_type as
@@ -25,10 +25,6 @@ from
 ;
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop view v_doc_med;
-\set ON_ERROR_STOP 1
-
 create view v_doc_med as
 select
 	dm.patient_id as pk_patient,
@@ -48,10 +44,6 @@ where
 ;
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop view v_obj4doc;
-\set ON_ERROR_STOP 1
-
 create view v_obj4doc as
 select
 	vdm.pk_patient as pk_patient,
@@ -76,10 +68,6 @@ where
 ;
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop view v_latest_mugshot;
-\set ON_ERROR_STOP 1
-
 create view v_latest_mugshot as
 select
 	vo4d.pk_patient as pk_patient,
@@ -152,11 +140,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.9 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.10 $', True);
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.9  2005-07-14 21:31:42  ncq
+-- Revision 1.10  2005-09-13 11:55:46  ncq
+-- - properly drop views so re-running/updating works
+--
+-- Revision 1.9  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.8  2004/10/29 22:37:02  ncq
