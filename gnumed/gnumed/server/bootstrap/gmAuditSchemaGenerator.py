@@ -18,7 +18,7 @@ audited table.
 """
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.22 $"
+__version__ = "$Revision: 1.23 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL"		# (details at http://www.gnu.org)
 
@@ -85,8 +85,8 @@ ORDER BY pga.attnum"""
 #==================================================================
 # SQL statements for auditing setup script
 #------------------------------------------------------------------
-drop_trigger = "DROP TRIGGER %s ON %s"
-drop_function = "DROP FUNCTION %s()"
+#drop_trigger = "DROP TRIGGER %s ON %s"
+drop_function = "DROP FUNCTION %s() cascade"
 
 # insert
 template_insert_trigger = """CREATE TRIGGER %s
@@ -226,7 +226,7 @@ def trigger_schema(aCursor, audited_table):
 	schema.append(template_insert_function % (func_name_insert))
 	schema.append('')
 
-	schema.append(drop_trigger % (trigger_name_insert, audited_table))
+#	schema.append(drop_trigger % (trigger_name_insert, audited_table))
 	schema.append(template_insert_trigger % (trigger_name_insert, audited_table, func_name_insert))
 	schema.append('')
 
@@ -238,7 +238,7 @@ def trigger_schema(aCursor, audited_table):
 	schema.append(template_update_function % (func_name_update, audit_trail_table, columns_clause, values_clause))
 	schema.append('')
 
-	schema.append(drop_trigger % (trigger_name_update, audited_table))
+#	schema.append(drop_trigger % (trigger_name_update, audited_table))
 	schema.append(template_update_trigger % (trigger_name_update, audited_table, func_name_update))
 	schema.append('')
 
@@ -250,7 +250,7 @@ def trigger_schema(aCursor, audited_table):
 	schema.append(template_delete_function % (func_name_delete, audit_trail_table, columns_clause, values_clause))
 	schema.append('')
 
-	schema.append(drop_trigger % (trigger_name_delete, audited_table))
+#	schema.append(drop_trigger % (trigger_name_delete, audited_table))
 	schema.append(template_delete_trigger % (trigger_name_delete, audited_table, func_name_delete))
 	schema.append('')
 
@@ -317,7 +317,10 @@ if __name__ == "__main__" :
 	file.close()
 #==================================================================
 # $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.22  2004-07-17 21:23:49  ncq
+# Revision 1.23  2005-09-13 11:51:06  ncq
+# - use "drop function ... cascade;"
+#
+# Revision 1.22  2004/07/17 21:23:49  ncq
 # - run_query now has verbosity argument, so use it
 #
 # Revision 1.21  2004/06/28 13:31:17  ncq
