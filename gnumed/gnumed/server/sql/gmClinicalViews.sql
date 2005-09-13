@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.149 2005-09-11 17:41:20 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.150 2005-09-13 11:56:20 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1199,7 +1199,9 @@ where
 ;
 
 comment on view v_pat_narrative is
-	'patient SOAP narrative';
+	'patient SOAP narrative;
+	 this view aggregates all clin_narrative rows
+	 and adds denormalized context';
 
 -- =============================================
 -- types of clin_root_item
@@ -1314,20 +1316,20 @@ from
 --	end if;
 --	return NEW;
 --end;
---' language 'plpgsql';
+-- ' language 'plpgsql';
 
---create trigger tr_rfi_type2item
+-- create trigger tr_rfi_type2item
 --	after insert or update
 --	on lnk_type2item
 --	for each row
 --		execute procedure f_rfi_type2item()
 --;
 
---comment on function f_rfi_type2item() is
+-- comment on function f_rfi_type2item() is
 --	'function used to check referential integrity from
 --	 lnk_type2item to clin_root_item with a custom trigger';
 
---comment on trigger tr_rfi_type2item is
+-- comment on trigger tr_rfi_type2item is
 --	'trigger to check referential integrity from
 --	 lnk_type2item to clin_root_item';
 
@@ -1551,8 +1553,8 @@ from
 ;
 
 comment on view v_narrative4search is
-	'*complete* narrative for patients including
-	 health issue/episode/encounter descriptions,
+	'unformatted *complete* narrative for patients
+	 including health issue/episode/encounter descriptions,
 	 mainly for searching the narrative';
 
 
@@ -1895,11 +1897,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.149 $', True);
+INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.150 $', True);
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.149  2005-09-11 17:41:20  ncq
+-- Revision 1.150  2005-09-13 11:56:20  ncq
+-- - cleanup/comments
+--
+-- Revision 1.149  2005/09/11 17:41:20  ncq
 -- - cleanup
 -- - display provider sign in v_pat_narrative, not db account
 --
