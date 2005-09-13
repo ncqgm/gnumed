@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -79,9 +79,6 @@ from Gnumed.pycommon.gmPyCompat import *
 # local imports
 import gmAuditSchemaGenerator
 aud_gen = gmAuditSchemaGenerator
-
-#import gmScoringSchemaGenerator
-#score_gen = gmScoringSchemaGenerator
 
 import gmNotificationSchemaGenerator
 notify_gen = gmNotificationSchemaGenerator
@@ -304,9 +301,9 @@ class db_server:
 	def __bootstrap(self):
 		self.superuser = user(anAlias = self.cfg.get(self.section, "super user alias"))
 
-		# connect to template
-		if not self.__connect_to_template():
-			_log.Log(gmLog.lErr, "Cannot connect to template database.")
+		# connect to server level template database
+		if not self.__connect_to_srv_template():
+			_log.Log(gmLog.lErr, "Cannot connect to server template database.")
 			return None
 
 		# FIXME: test for features (eg. dblink/schema/...)
@@ -322,10 +319,10 @@ class db_server:
 			return None
 
 		self.conn.close()
-		return 1
+		return True
 	#--------------------------------------------------------------
-	def __connect_to_template(self):
-		_log.Log(gmLog.lInfo, "connecting to template database")
+	def __connect_to_srv_template(self):
+		_log.Log(gmLog.lInfo, "connecting to server template database")
 
 		# sanity checks
 		self.template_db = self.cfg.get(self.section, "template database")
@@ -346,7 +343,7 @@ class db_server:
 		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
 
 		_log.Log(gmLog.lInfo, "successfully connected to template database [%s]" % self.template_db)
-		return 1
+		return True
 	#--------------------------------------------------------------
 	# procedural languages related
 	#--------------------------------------------------------------
@@ -362,7 +359,7 @@ class db_server:
 		aCursor.close()
 		if tmp == 1:
 			_log.Log(gmLog.lInfo, "Language %s exists." % aLanguage)
-			return 1
+			return True
 
 		_log.Log(gmLog.lInfo, "Language %s does not exist." % aLanguage)
 		return None
@@ -381,7 +378,7 @@ class db_server:
 
 		# FIXME: what about *.so.1.3.5 ?
 		if self.__lang_exists(lib_name.replace(".so", "", 1)):
-			return 1
+			return True
 
 		# do we check for library file existence ?
 		check_for_lib = self.cfg.get(self.section, "procedural language library check")
@@ -434,7 +431,7 @@ class db_server:
 			return None
 
 		_log.Log(gmLog.lInfo, "procedural language [%s] successfully installed" % aLanguage)
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def __bootstrap_proc_langs(self):
 		_log.Log(gmLog.lInfo, "bootstrapping procedural languages")
@@ -443,7 +440,7 @@ class db_server:
 		# FIXME: better separation
 		if (lang_aliases is None) or (len(lang_aliases) == 0):
 			_log.Log(gmLog.lWarn, "No procedural languages to activate or error loading language list.")
-			return 1
+			return True
 
 		lib_dirs = _cfg.get("GnuMed defaults", "language library dirs")
 		if lib_dirs is None:
@@ -455,7 +452,7 @@ class db_server:
 				_log.Log(gmLog.lErr, "Error installing procedural language [%s]." % lang)
 				return None
 
-		return 1
+		return True
 	#--------------------------------------------------------------
 	# user and group related
 	#--------------------------------------------------------------
@@ -482,7 +479,7 @@ class db_server:
 #			_log.Log(gmLog.lErr, "Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
 #			return None
 
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def __user_exists(self, aCursor, aUser):
 		cmd = "SELECT usename FROM pg_user WHERE usename='%s'" % aUser
@@ -494,7 +491,7 @@ class db_server:
 		res = aCursor.fetchone()
 		if aCursor.rowcount == 1:
 			_log.Log(gmLog.lInfo, "User [%s] exists." % aUser)
-			return 1
+			return True
 		_log.Log(gmLog.lInfo, "User [%s] does not exist." % aUser)
 		return None
 	#--------------------------------------------------------------
@@ -523,7 +520,7 @@ class db_server:
 		# does this user already exist ?
 		if self.__user_exists(cursor, _dbowner.name):
 			cursor.close()
-			return 1
+			return True
 
 		cmd = "CREATE USER \"%s\" WITH PASSWORD '%s' CREATEDB" % (_dbowner.name, _dbowner.password)
 		try:
@@ -541,7 +538,7 @@ class db_server:
 
 		self.conn.commit()
 		cursor.close()
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def __group_exists(self, aCursor, aGroup):
 		cmd = "SELECT groname FROM pg_group WHERE groname='%s'" % aGroup
@@ -553,14 +550,14 @@ class db_server:
 		res = aCursor.fetchone()
 		if aCursor.rowcount == 1:
 			_log.Log(gmLog.lInfo, "Group %s exists." % aGroup)
-			return 1
+			return True
 		_log.Log(gmLog.lInfo, "Group %s does not exist." % aGroup)
 		return None
 	#--------------------------------------------------------------
 	def __create_group(self, aCursor, aGroup):
 		# does this group already exist ?
 		if self.__group_exists(aCursor, aGroup):
-			return 1
+			return True
 
 		cmd = "CREATE GROUP \"%s\"" % aGroup
 		try:
@@ -573,7 +570,7 @@ class db_server:
 		if not self.__group_exists(aCursor, aGroup):
 			return None
 
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def __create_groups(self, aCfg = None, aSection = None):
 		if aCfg is None:
@@ -600,7 +597,7 @@ class db_server:
 
 		self.conn.commit()
 		cursor.close()
-		return 1
+		return True
 #==================================================================
 class database:
 	def __init__(self, aDB_alias, aCfg):
@@ -633,6 +630,11 @@ class database:
 		self.server_alias = self.cfg.get(self.section, "server alias")
 		if self.server_alias is None:
 			_log.Log(gmLog.lErr, "Server alias missing.")
+			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
+
+		self.template_db = self.cfg.get(self.section, "template database")
+		if self.template_db is None:
+			_log.Log(gmLog.lErr, "Template database name missing.")
 			raise ConstructorError, "database.__init__(): Cannot bootstrap database."
 
 		# make sure server is bootstrapped
@@ -685,14 +687,14 @@ class database:
 			_log.Log(gmLog.lErr, "cannot import schema definition for database [%s]" % (self.name))
 			return None
 
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def __connect_owner_to_template(self):
 		srv = self.server
 		if self.conn is not None:
 			self.conn.close()
 
-		self.conn = connect (srv.name, srv.port, srv.template_db, self.owner.name, self.owner.password) 
+		self.conn = connect (srv.name, srv.port, self.template_db, self.owner.name, self.owner.password) 
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __connect_owner_to_db(self):
@@ -718,7 +720,7 @@ class database:
 		aCursor.close()
 		if tmp == 1:
 			_log.Log(gmLog.lInfo, "Database [%s] exists." % self.name)
-			return 1
+			return True
 
 		_log.Log(gmLog.lInfo, "Database [%s] does not exist." % self.name)
 		return None
@@ -726,13 +728,20 @@ class database:
 	def __create_db(self):
 		if self.__db_exists():
 			# FIXME: verify that database is owned by "gm-dbo"
-			return 1
+			return True
 
 		# create database
 		# NOTE: we need to pull this nasty trick of ending and restarting
 		# the current transaction to work around pgSQL automatically associating
 		# cursors with transactions
-		cmd = "commit; create database \"%s\" with encoding='unicode'; begin" % self.name
+		cmd = """
+commit;
+create database \"%s\" with
+	owner = \"%s\"
+	template = \"%s\"
+	encoding = 'unicode';
+begin
+""" % (self.name, self.owner.name, self.template_db)
 
 		cursor = self.conn.cursor()
 		try:
@@ -749,7 +758,7 @@ class database:
 		if not self.__db_exists():
 			return None
 		_log.Log(gmLog.lInfo, "Successfully created GNUmed database [%s]." % self.name)
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
 		# get audit trail configuration
@@ -758,7 +767,7 @@ class database:
 		if tmp is not None:
 			# if we don't want auditing on these tables, return without error
 			if int(tmp) == 1:
-				return 1
+				return True
 
 		tmp = _cfg.get(self.section, 'audit trail parent table')
 		if tmp is None:
@@ -796,62 +805,14 @@ class database:
 			return None
 
 		if _keep_temp_files:
-			return 1
+			return True
 
 		try:
 			os.remove('/tmp/audit-trail-schema.sql')
 			pass
 		except StandardError:
 			_log.LogException('cannot remove audit trail schema file [/tmp/audit-trail-schema.sql]', sys.exc_info(), verbose = 0)
-		return 1
-	#--------------------------------------------------------------
-#	def bootstrap_scoring(self):
-#		# get configuration
-#		tmp = _cfg.get(self.section, 'scoring disable')
-#		# if this option is not given, assume we want scoring
-#		if tmp is not None:
-#			# if we don't want scoring on these tables, return without error
-#			if int(tmp) == 1:
-#				return 1
-#
-#		tmp = _cfg.get(self.section, 'scoring table prefix')
-#		if tmp is None:
-#			return None
-#		score_gen.scoring_table_prefix = tmp
-#
-#		tmp = _cfg.get(self.section, 'scoring fields table')
-#		if tmp is None:
-#			return None
-#		score_gen.scoring_fields_table = tmp
-#		# create scoring schema
-#		curs = self.conn.cursor()
-#		scoring_schema = score_gen.create_scoring_schema(curs)
-#		curs.close()
-#		if scoring_schema is None:
-#			_log.Log(gmLog.lErr, 'cannot generate scoring schema for GNUmed database [%s]' % self.name)
-#			return None
-#
-#		# write schema to file
-#		file = open ('/tmp/scoring-schema.sql', 'wb')
-#		for line in scoring_schema:
-#			file.write("%s;\n" % line)
-#		file.close()
-#
-#		# import scoring schema
-#if not _import_schema_file(anSQL_file = '/tmp/scoring-schema.sql', aSrv = self.server.name, aDB = self.name, aUser = self.owner.name):
-#		psql = gmPsql.Psql (self.conn)
-#		if psql.run('/tmp/scoring-schema.sql') != 0:
-#			_log.Log(gmLog.lErr, "cannot import scoring schema definition for database [%s]" % (self.name))
-#			return None
-#
-#		if _keep_temp_files:
-#			return 1
-#
-#		try:
-#			os.remove('/tmp/scoring-schema.sql')
-#		except StandardError:
-#			_log.LogException('cannot remove scoring schema file [/tmp/scoring-schema.sql]', sys.exc_info(), verbose = 0)
-#		return 1
+		return True
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
 		# get configuration
@@ -860,7 +821,7 @@ class database:
 		if tmp is not None:
 			# if we don't want notification on these tables, return without error
 			if int(tmp) == 1:
-				return 1
+				return True
 
 		# create notification schema
 		curs = self.conn.cursor()
@@ -884,13 +845,13 @@ class database:
 			return None
 
 		if _keep_temp_files:
-			return 1
+			return True
 
 		try:
 			os.remove('/tmp/notification-schema.sql')
 		except StandardError:
 			_log.LogException('cannot remove notification schema file [/tmp/notification-schema.sql]', sys.exc_info(), verbose = 0)
-		return 1
+		return True
 #==================================================================
 class gmService:
 	def __init__(self, aServiceAlias = None):
@@ -921,7 +882,7 @@ class gmService:
 		result = self.__service_exists()
 		if result == 1:
 			_log.Log(gmLog.lWarn, "service [%s] already exists" % self.alias)
-			return 1
+			return True
 		elif result == -1:
 			_log.Log(gmLog.lWarn, "error detecting status of service [%s]" % self.alias)
 			return None
@@ -937,7 +898,7 @@ class gmService:
 			_log.Log(gmLog.lErr, "Cannot import schema definition for service [%s] into database [%s]." % (self.alias, database_alias))
 			return None
 
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def __service_exists(self):
 		"""Do we exist in the database already ?
@@ -1003,7 +964,7 @@ class gmService:
 		if existing_version == required_version:
 			_log.Log(gmLog.lInfo, "version [%s] of service [%s] already exists (created <%s>)" % (existing_version, name, created))
 			curs.close()
-			return 1
+			return True
 		_log.Log(gmLog.lErr, "service [%s] exists (created <%s>) but version mismatch" % (name, created))
 		_log.Log(gmLog.lErr, "required: [%s]")
 		_log.Log(gmLog.lErr, "existing: [%s]")
@@ -1026,14 +987,14 @@ class gmService:
 		if existing_version is None:
 			_log.Log(gmLog.lWarn, 'DB adapter does not support version checking')
 			_log.Log(gmLog.lWarn, 'assuming installed PostgreSQL server is compatible with required version %s' % required_version)
-			return 1
+			return True
 
 		if existing_version < required_version:
 			_log.Log(gmLog.lErr, "Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (existing_version, required_version))
 			return None
 
 		_log.Log(gmLog.lInfo, "installed PostgreSQL version: [%s] - this is fine with me" % existing_version)
-		return 1
+		return True
 	#--------------------------------------------------------------
 	def register(self):
 		# FIXME - register service
@@ -1083,7 +1044,7 @@ class gmService:
 			_log.Log(gmLog.lInfo, "Service [%s] resides in core database." % self.name)
 			_log.Log(gmLog.lInfo, "It will be automatically recognized by GNUmed.")
 			curs.close()
-			return 1
+			return True
 		# if not, insert database definition in table db
 		else:
 			cmd = "select id from db where name='%s' limit 1" % self.db.name
@@ -1147,7 +1108,7 @@ class gmService:
 			coreDB.conn.commit()
 
 		_log.Log(gmLog.lInfo, "Service [%s] has been successfully registered." % self.alias )
-		return 1
+		return True
 #==================================================================
 def bootstrap_services():
 	# get service list
@@ -1162,7 +1123,7 @@ def bootstrap_services():
 			return None
 		if not service.register():
 			return None
-	return 1
+	return True
 #--------------------------------------------------------------
 def bootstrap_auditing():
 	"""bootstrap auditing in all bootstrapped databases"""
@@ -1170,15 +1131,7 @@ def bootstrap_auditing():
 		db = _bootstrapped_dbs[db_key]
 		if not db.bootstrap_auditing():
 			return None
-	return 1
-#--------------------------------------------------------------
-#def bootstrap_scoring():
-#	"""bootstrap scoring in all bootstrapped databases"""
-#	for db_key in _bootstrapped_dbs.keys():
-#		db = _bootstrapped_dbs[db_key]
-#		if not db.bootstrap_scoring():
-#			return None
-#	return 1
+	return True
 #--------------------------------------------------------------
 def bootstrap_notifications():
 	"""bootstrap notification in all bootstrapped databases"""
@@ -1186,7 +1139,7 @@ def bootstrap_notifications():
 		db = _bootstrapped_dbs[db_key]
 		if not db.bootstrap_notifications():
 			return None
-	return 1
+	return True
 #------------------------------------------------------------------
 def _run_query(aCurs, aQuery):
 	try:
@@ -1194,12 +1147,12 @@ def _run_query(aCurs, aQuery):
 	except:
 		_log.LogException(">>>%s<<< failed" % aQuery, sys.exc_info(), verbose=1)
 		return None
-	return 1
+	return True
 #------------------------------------------------------------------
 def ask_for_confirmation():
 	services = _cfg.get("installation", "services")
 	if services is None:
-		return 1
+		return True
 	print "You are about to install the following parts of GNUmed:"
 	print "-------------------------------------------------------"
 	for service in services:
@@ -1218,10 +1171,10 @@ def ask_for_confirmation():
 		print "Do you really want to install this database setup ?"
 		answer = raw_input("Type yes or no: ")
 		if answer == "yes":
-			return 1
+			return True
 		else:
 			return None
-	return 1
+	return True
 #--------------------------------------------------------------
 def _import_schema (aSection, aConn):
 	# load schema
@@ -1253,7 +1206,7 @@ def _import_schema (aSection, aConn):
 		else:
 			_log.Log (gmLog.lErr, 'failed to import [%s]' % the_file)
 			return None
-	return 1
+	return True
 #--------------------------------------------------------------
 #def _import_schema_file(anSQL_file = None, aSrv = None, aDB = None, aUser = None):
 	# sanity checks
@@ -1302,7 +1255,7 @@ def _import_schema (aSection, aConn):
 #		_log.Log(gmLog.lInfo, "shell level exit code: %s" % exitcode)
 #		if exitcode == 0:
 #			_log.Log(gmLog.lInfo, "success")
-#			return 1
+#			return True
 
 #		if exitcode == 1:
 #			_log.Log(gmLog.lErr, "failed: psql internal error")
@@ -1417,9 +1370,6 @@ def handle_cfg():
 	if not bootstrap_auditing():
 		exit_with_msg("Cannot bootstrap audit trail.")
 
-#	if not bootstrap_scoring():
-#		exit_with_msg("Cannot bootstrap scoring tables.")
-
 	if not bootstrap_notifications():
 		exit_with_msg("Cannot bootstrap notification tables.")
 
@@ -1478,7 +1428,14 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.7  2005-07-14 21:26:16  ncq
+# Revision 1.8  2005-09-13 11:48:59  ncq
+# - remove scoring support for good
+# - seperate server level template database from database
+#   to use as template for creating new database thus enabling
+#   great things when updating a database schema :-)
+# - return 1 -> return True
+#
+# Revision 1.7  2005/07/14 21:26:16  ncq
 # - cleanup, better logging/strings
 #
 # Revision 1.6  2005/06/01 23:17:43  ncq
@@ -1520,7 +1477,7 @@ else:
 #
 # Revision 1.56  2004/06/14 18:58:06  ncq
 # - cleanup
-# - fix "return self.conn and 1" in self.__connect_to_template()
+# - fix "return self.conn and 1" in self.__connect_to_srv_template()
 #   which in some Python versions doesn't evaluate to TRUE,
 #   bug reported by Michael Bonert
 #
