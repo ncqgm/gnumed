@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.61 $"
+__version__ = "$Revision: 1.62 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -210,7 +210,9 @@ class cEncounter(gmClinItem.cClinItem):
 				last_affirmed=%(last_affirmed)s,
 				pk_location=%(pk_location)s,
 				pk_provider=%(pk_provider)s,
-				pk_type=%(pk_type)s
+				pk_type=%(pk_type)s,
+				rfe=%(rfe)s,
+				aoe=%(aoe)s
 			where id=%(pk_encounter)s""",
 		"""select xmin_clin_encounter from v_pat_encounters where pk_encounter=%(pk_encounter)s"""
 	]
@@ -220,7 +222,9 @@ class cEncounter(gmClinItem.cClinItem):
 		'last_affirmed',
 		'pk_location',
 		'pk_provider',
-		'pk_type'
+		'pk_type',
+		'rfe',
+		'aoe'
 	]
 	#--------------------------------------------------------
 	def set_active(self, staff_id=None):
@@ -242,36 +246,6 @@ class cEncounter(gmClinItem.cClinItem):
 			_log.Log(gmLog.lErr, str(msg))
 			return False
 		return True
-	#--------------------------------------------------------
-	def get_rfes(self):
-		"""
-			Get RFEs pertinent to this encounter.
-		"""
-		vals = {'enc': self.pk_obj}
-		cmd = """select pk_narrative from v_pat_rfe where pk_encounter=%(enc)s"""
-		rows = gmPG.run_ro_query('historica', cmd, None, vals)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get RFEs for encounter [%s]' % (self.pk_obj))
-			return None
-		rfes = []
-		for row in rows:
-			rfes.append(gmClinNarrative.cRFE(aPK_obj=row[0]))
-		return rfes
-	#--------------------------------------------------------
-	def get_aoes(self):
-		"""
-			Get AOEs pertinent to this encounter.
-		"""
-		vals = {'enc': self.pk_obj}
-		cmd = """select pk_narrative from v_pat_aoe where pk_encounter=%(enc)s"""
-		rows = gmPG.run_ro_query('historica', cmd, None, vals)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get AOEs for encounter [%s]' % (self.pk_obj))
-			return None
-		aoes = []
-		for row in rows:
-		  aoes.append(gmClinNarrative.cAOE(aPK_obj=row[0]))
-		return aoes
 	#--------------------------------------------------------
 	def transfer_clinical_data(self, from_episode, to_episode):
 		"""
@@ -558,25 +532,6 @@ if __name__ == '__main__':
 			print field, ':', encounter[field]
 		print "updatable:", encounter.get_updatable_fields()
 
-		rfes = encounter.get_rfes()
-		print "rfes: "
-		for rfe in rfes:
-			print "\n   rfe test"
-			print "   --------"
-			for field in rfe.get_fields():
-				print '  ', field, ':', rfe[field]
-			print "   updatable:", rfe.get_updatable_fields()
-
-		aoes = encounter.get_aoes()
-		for aoe in aoes:
-			print "\n   aoe test"
-			print "   --------"
-			for field in aoe.get_fields():
-				print '  ', field, ':', aoe[field]
-			print "   updatable:", aoe.get_updatable_fields()
-			print "   is diagnosis: " , aoe.is_diagnosis()
-			if aoe.is_diagnosis():
-				print "   diagnosis: ", aoe.get_diagnosis()
 	#--------------------------------------------------------
 	# run them
 	test_episode()
@@ -584,7 +539,11 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.61  2005-09-12 15:05:58  ncq
+# Revision 1.62  2005-09-19 16:32:42  ncq
+# - add rfe/aoe support to clin_encounter
+# - remove get_aoes()/get_rfes()
+#
+# Revision 1.61  2005/09/12 15:05:58  ncq
 # - improve close_expired_episodes()
 #
 # Revision 1.60  2005/09/11 17:23:53  ncq
