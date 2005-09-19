@@ -94,5 +94,7 @@ for line in lines:
 	)
 	print cmd
 
+print "\nselect gm_upd_default_states();"
+
 if begun:
 	pass

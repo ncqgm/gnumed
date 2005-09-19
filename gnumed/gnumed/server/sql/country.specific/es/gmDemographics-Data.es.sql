@@ -3,7 +3,7 @@
 
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/es/gmDemographics-Data.es.sql,v $
--- $Id: gmDemographics-Data.es.sql,v 1.3 2005-07-14 21:31:43 ncq Exp $
+-- $Id: gmDemographics-Data.es.sql,v 1.4 2005-09-19 16:27:05 ncq Exp $
 -- author: Carlos Moro
 -- license: GPL
 
@@ -66,14 +66,19 @@ INSERT INTO state(code,country,name) VALUES ('48','ES',i18n('Vizcaya'));
 INSERT INTO state(code,country,name) VALUES ('49','ES',i18n('Zamora'));
 INSERT INTO state(code,country,name) VALUES ('50','ES',i18n('Zaragoza'));
 
+select gm_upd_default_states();
+
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.es.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-Data.es.sql,v $', '$Revision: 1.3 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmDemographics-Data.es.sql,v $', '$Revision: 1.4 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-Data.es.sql,v $
--- Revision 1.3  2005-07-14 21:31:43  ncq
+-- Revision 1.4  2005-09-19 16:27:05  ncq
+-- - update default states
+--
+-- Revision 1.3  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.2  2005/06/10 07:22:53  ncq

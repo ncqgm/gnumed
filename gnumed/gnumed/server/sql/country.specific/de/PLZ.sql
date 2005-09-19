@@ -3,7 +3,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -42,6 +42,8 @@ insert into state (code, country, name) values ('Sbg', 'AT', 'Salzburg');
 insert into state (code, country, name) values ('Vlbg', 'AT', 'Vorarlberg');
 insert into state (code, country, name) values ('Bgld', 'AT', 'Burgenland');
 insert into state (code, country, name) values ('Ktn', 'AT', 'K‰rnten');			-- Carinthia
+
+select gm_upd_default_states();
 
 ------------------
 -- Groﬂ S‰rchen --
@@ -138,11 +140,14 @@ insert into street (id_urb, name, postcode) values (
 -- ===================================================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.8 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: PLZ.sql,v $
--- Revision 1.8  2005-07-14 21:31:43  ncq
+-- Revision 1.9  2005-09-19 16:26:07  ncq
+-- - update default states
+--
+-- Revision 1.8  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.7  2005/06/10 07:21:35  ncq
