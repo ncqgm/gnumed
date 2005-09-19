@@ -273,14 +273,17 @@ insert into state (code, country, name) values ('N', 'NZ', 'North Island');
 
 -- ===================================================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.6 $', False);
+select log_script_insertion('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.7 $');
 
 -- delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-GIS-data.sql,v $';
--- INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.6 $', True);
+-- INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-data.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-data.sql,v $
--- Revision 1.6  2005-07-15 21:16:55  ncq
+-- Revision 1.7  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.6  2005/07/15 21:16:55  ncq
 -- - add "dummy" states for NZ for now
 --
 -- Revision 1.5  2005/07/14 21:31:42  ncq

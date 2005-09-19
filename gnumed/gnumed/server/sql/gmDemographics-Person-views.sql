@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
--- $Id: gmDemographics-Person-views.sql,v 1.40 2005-07-14 21:31:42 ncq Exp $
+-- $Id: gmDemographics-Person-views.sql,v 1.41 2005-09-19 16:38:51 ncq Exp $
 
 -- ==========================================================
 \unset ON_ERROR_STOP
@@ -433,11 +433,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.40 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-views.sql,v $', '$Revision: 1.41 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-views.sql,v $
--- Revision 1.40  2005-07-14 21:31:42  ncq
+-- Revision 1.41  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.40  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.39  2005/06/10 07:21:05  ncq

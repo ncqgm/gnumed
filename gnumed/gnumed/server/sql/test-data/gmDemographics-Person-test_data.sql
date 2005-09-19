@@ -4,7 +4,7 @@
 -- identity related test data
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/gmDemographics-Person-test_data.sql,v $
--- $Id: gmDemographics-Person-test_data.sql,v 1.6 2005-07-14 21:31:43 ncq Exp $
+-- $Id: gmDemographics-Person-test_data.sql,v 1.7 2005-09-19 16:38:52 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -22,11 +22,14 @@ insert into v_basic_person (firstnames, lastnames, dob, cob, gender) values ('Hi
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Person-test_data.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-Person-test_data.sql,v $', '$Revision: 1.6 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Person-test_data.sql,v $', '$Revision: 1.7 $');
 
 -- =============================================
 -- $Log: gmDemographics-Person-test_data.sql,v $
--- Revision 1.6  2005-07-14 21:31:43  ncq
+-- Revision 1.7  2005-09-19 16:38:52  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.6  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.5  2004/06/02 13:46:45  ncq

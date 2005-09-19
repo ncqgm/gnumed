@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigViews.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 -- ======================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -169,11 +169,14 @@ to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmConfigViews.sql,v $', '$Revision: 1.5 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigViews.sql,v $', '$Revision: 1.6 $');
 
 --=====================================================================
 -- $Log: gmConfigViews.sql,v $
--- Revision 1.5  2005-07-14 21:31:42  ncq
+-- Revision 1.6  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.5  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.4  2005/01/10 11:53:28  ncq

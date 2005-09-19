@@ -1,7 +1,7 @@
 -- Project: GnuMed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -145,11 +145,14 @@ comment on column x_db_fk_violation.description is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.9 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmCrossDB_FKs.sql,v $', '$Revision: 1.10 $');
 
 -- =============================================
 -- $Log: gmCrossDB_FKs.sql,v $
--- Revision 1.9  2005-07-14 21:31:42  ncq
+-- Revision 1.10  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.9  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.8  2005/01/12 14:47:48  ncq

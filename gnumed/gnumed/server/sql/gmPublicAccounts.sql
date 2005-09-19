@@ -10,7 +10,7 @@
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPublicAccounts.sql,v $
--- $Id: gmPublicAccounts.sql,v 1.6 2005-07-14 21:31:42 ncq Exp $
+-- $Id: gmPublicAccounts.sql,v 1.7 2005-09-19 16:38:51 ncq Exp $
 -- GPL
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
@@ -28,11 +28,14 @@ CREATE USER "any-doc"
 
 -- ===================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.6 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmPublicAccounts.sql,v $', '$Revision: 1.7 $');
 
 -- ===================================================
 -- $Log: gmPublicAccounts.sql,v $
--- Revision 1.6  2005-07-14 21:31:42  ncq
+-- Revision 1.7  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.6  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.5  2004/07/17 20:57:53  ncq

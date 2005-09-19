@@ -4,7 +4,7 @@
 -- author: Christof Meigen <christof@nicht-ich.de>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.45 $
+-- $Revision: 1.46 $
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -455,11 +455,14 @@ create table lnk_result2lab_req (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmMeasurements.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.45 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmMeasurements.sql,v $', '$Revision: 1.46 $');
 
 -- =============================================
 -- $Log: gmMeasurements.sql,v $
--- Revision 1.45  2005-07-14 21:31:42  ncq
+-- Revision 1.46  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.45  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.44  2005/06/19 13:34:42  ncq

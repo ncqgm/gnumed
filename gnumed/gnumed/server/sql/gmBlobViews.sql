@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $
--- $Revision: 1.10 $ $Date: 2005-09-13 11:55:46 $ $Author: ncq $
+-- $Revision: 1.11 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -140,11 +140,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmBlobViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.10 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmBlobViews.sql,v $
--- Revision 1.10  2005-09-13 11:55:46  ncq
+-- Revision 1.11  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.10  2005/09/13 11:55:46  ncq
 -- - properly drop views so re-running/updating works
 --
 -- Revision 1.9  2005/07/14 21:31:42  ncq

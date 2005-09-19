@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobs.sql,v $
--- $Revision: 1.48 $ $Date: 2005-09-04 07:27:03 $ $Author: ncq $
+-- $Revision: 1.49 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -147,7 +147,7 @@ COMMENT ON TABLE doc_desc is
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.48 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobs.sql,v $', '$Revision: 1.49 $');
 
 -- =============================================
 -- questions:
@@ -167,7 +167,10 @@ INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gm
 -- - it is helpful to structure text in doc_desc to be able to identify source/content etc.
 -- =============================================
 -- $Log: gmBlobs.sql,v $
--- Revision 1.48  2005-09-04 07:27:03  ncq
+-- Revision 1.49  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.48  2005/09/04 07:27:03  ncq
 -- - document rationale for using bytea
 --
 -- Revision 1.47  2005/07/14 21:31:42  ncq

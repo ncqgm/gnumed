@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigData.sql,v $
--- $Revision: 1.15 $
+-- $Revision: 1.16 $
 -- ===================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -208,11 +208,14 @@ values (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmConfigData.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.15 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmConfigData.sql,v $', '$Revision: 1.16 $');
 
 -- =============================================
 -- $Log: gmConfigData.sql,v $
--- Revision 1.15  2005-09-11 17:44:02  ncq
+-- Revision 1.16  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.15  2005/09/11 17:44:02  ncq
 -- - add patient_search.always_reload_new_patient option
 --
 -- Revision 1.14  2005/07/14 21:31:42  ncq

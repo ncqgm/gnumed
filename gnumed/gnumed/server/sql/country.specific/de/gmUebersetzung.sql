@@ -2,7 +2,7 @@
 -- GNUmed German translations
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -275,11 +275,14 @@ select i18n_upd_tx('de_DE', 'hermaphrodite', 'Hermaphrodit');
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmUebersetzung.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.8 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.9 $');
 
 -- =============================================
 -- $Log: gmUebersetzung.sql,v $
--- Revision 1.8  2005-07-14 21:31:43  ncq
+-- Revision 1.9  2005-09-19 16:38:52  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.8  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.7  2005/06/10 07:22:09  ncq

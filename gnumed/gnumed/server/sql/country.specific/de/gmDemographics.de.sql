@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics.de.sql,v $
--- $Revision: 1.5 $
+-- $Revision: 1.6 $
 
 -- part of GnuMed
 -- license: GPL
@@ -155,11 +155,14 @@ comment on table prax_geb_paid is
 
 -- =============================================
 -- do simple revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.5 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics.de.sql,v $', '$Revision: 1.6 $');
 
 -- =============================================
 -- $Log: gmDemographics.de.sql,v $
--- Revision 1.5  2005-07-14 21:31:43  ncq
+-- Revision 1.6  2005-09-19 16:38:52  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.5  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.4  2005/04/14 16:48:33  ncq

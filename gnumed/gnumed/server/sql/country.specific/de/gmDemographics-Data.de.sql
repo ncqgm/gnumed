@@ -1,6 +1,6 @@
 -- GnuMed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDemographics-Data.de.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 
 -- license: GPL
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -20,11 +20,14 @@ insert into enum_ext_id_types (name, issuer, context) values ('BLZ', 'Bank', 'o'
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.de.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-Data.de.sql,v $', '$Revision: 1.4 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-Data.de.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: gmDemographics-Data.de.sql,v $
--- Revision 1.4  2005-07-14 21:31:43  ncq
+-- Revision 1.5  2005-09-19 16:38:52  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.4  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.3  2005/03/31 20:10:16  ncq

@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalData.sql,v $
--- $Id: gmClinicalData.sql,v 1.38 2005-07-14 21:31:42 ncq Exp $
+-- $Id: gmClinicalData.sql,v 1.39 2005-09-19 16:38:51 ncq Exp $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb
 
@@ -629,11 +629,14 @@ values
 
 -- ===================================================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.38 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalData.sql,v $', '$Revision: 1.39 $');
 
 -- =============================================
 -- $Log: gmClinicalData.sql,v $
--- Revision 1.38  2005-07-14 21:31:42  ncq
+-- Revision 1.39  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.38  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.37  2005/05/17 08:13:49  ncq

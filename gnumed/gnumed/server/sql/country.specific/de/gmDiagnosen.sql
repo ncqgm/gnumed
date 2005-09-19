@@ -2,7 +2,7 @@
 -- GNUmed: Diagnosen
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmDiagnosen.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 
 -- license: GPL
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
@@ -42,11 +42,14 @@ select add_coded_term('Leistungsknick', 'R53', 'ICD-10-GM 2004');
 -- =============================================
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDiagnosen.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES ('$RCSfile: gmDiagnosen.sql,v $', '$Revision: 1.2 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmDiagnosen.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: gmDiagnosen.sql,v $
--- Revision 1.2  2005-07-14 21:31:43  ncq
+-- Revision 1.3  2005-09-19 16:38:52  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.2  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.1  2005/04/06 10:41:19  ncq

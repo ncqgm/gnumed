@@ -1,7 +1,7 @@
 -- Project: GnuMed - database housekeeping TODO tables
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmHousekeeping.sql,v $
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -- license: GPL
 -- author: Karsten Hilbert
 
@@ -71,11 +71,14 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmHousekeeping.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.7 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmHousekeeping.sql,v $', '$Revision: 1.8 $');
 
 -- =============================================
 -- $Log: gmHousekeeping.sql,v $
--- Revision 1.7  2005-07-14 21:31:42  ncq
+-- Revision 1.8  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.7  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.6  2004/07/17 20:57:53  ncq

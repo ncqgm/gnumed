@@ -6,12 +6,15 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmrecalls.sql,v $
--- $Id: gmrecalls.sql,v 1.4 2005-07-14 21:31:42 ncq Exp $
--- $Revision: 1.4 $ $Date: 2005-07-14 21:31:42 $ $Author: ncq $
+-- $Id: gmrecalls.sql,v 1.5 2005-09-19 16:38:51 ncq Exp $
+-- $Revision: 1.5 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $
 --
 -- =============================================
 -- $Log: gmrecalls.sql,v $
--- Revision 1.4  2005-07-14 21:31:42  ncq
+-- Revision 1.5  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.4  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.3  2005/03/01 20:38:19  ncq
@@ -196,4 +199,4 @@ comment on column recall_managed.recorded_by is
 
 
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmrecalls.sql,v $', '$Revision: 1.4 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmrecalls.sql,v $', '$Revision: 1.5 $');

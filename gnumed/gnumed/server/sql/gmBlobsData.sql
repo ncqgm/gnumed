@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $
--- $Revision: 1.10 $ $Date: 2005-07-14 21:31:42 $ $Author: ncq $
+-- $Revision: 1.11 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -45,11 +45,14 @@ INSERT into doc_type(pk, name) values(26, i18n('patient photograph'));
 
 -- =============================================
 -- do simple schema revision tracking
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.10 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmBlobsData.sql,v $', '$Revision: 1.11 $');
 
 -- =============================================
 -- $Log: gmBlobsData.sql,v $
--- Revision 1.10  2005-07-14 21:31:42  ncq
+-- Revision 1.11  2005-09-19 16:38:51  ncq
+-- - adjust to removed is_core from gm_schema_revision
+--
+-- Revision 1.10  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.9  2004/10/11 19:02:31  ncq
