@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-James_Kirk.sql,v $
--- $Revision: 1.54 $
+-- $Revision: 1.55 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -117,31 +117,18 @@ insert into clin_encounter (
 	fk_provider,
 	fk_type,
 	started,
-	last_affirmed
+	last_affirmed,
+	rfe,
+	aoe
 ) values (
 	currval('identity_pk_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
 	'2000-9-17 17:13',
-	'2000-9-17 19:33'
-);
-
--- RFE
-insert into clin_narrative (
-	clin_when,
-	fk_encounter,
-	fk_episode,
-	narrative,
-	soap_cat,
-	is_rfe
-) values (
-	'2000-9-17 17:14:32',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	'2000-9-17 19:33',
 	'bleeding cut forearm L',
-	's',
-	'true'::boolean
+	'?contaminated laceration L forearm'
 );
 
 -- subjective
@@ -211,24 +198,21 @@ insert into clin_narrative (
 	'p'
 );
 
--- AOE
+-- diagnoses
 insert into clin_narrative (
 	clin_when,
 	fk_encounter,
 	fk_episode,
 	narrative,
-	soap_cat,
-	is_aoe
+	soap_cat
 ) values (
-	'2000-9-17 17:14:32',
+	'2000-9-17 17:21:19',
 	currval('clin_encounter_id_seq'),
 	currval('clin_episode_pk_seq'),
 	'?contaminated laceration L forearm',
-	'a',
-	'true'::boolean
+	'a'
 );
 
--- diagnoses
 insert into clin_diag (
 	fk_narrative,
 	laterality,
@@ -425,51 +409,35 @@ insert into clin_encounter (
 	fk_provider,
 	fk_type,
 	started,
-	last_affirmed
+	last_affirmed,
+	rfe,
+	aoe
 ) values (
 	currval('identity_pk_seq'),
 	-1,
 	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='in surgery'),
 	'2000-9-18 8:13',
-	'2000-9-18 8:47'
-);
-
--- RFE
-insert into clin_narrative (
-	clin_when,
-	fk_encounter,
-	fk_episode,
-	narrative,
-	soap_cat,
-	is_rfe
-) values (
-	'2000-9-18 8:14:32',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
+	'2000-9-18 8:47',
 	'knife cut follow-up, pain/swelling',
-	's',
-	'true'::boolean
-);
-
--- AOE
-insert into clin_narrative (
-	clin_when,
-	fk_encounter,
-	fk_episode,
-	narrative,
-	soap_cat,
-	is_aoe
-) values (
-	'2000-9-18 8:17:32',
-	currval('clin_encounter_id_seq'),
-	currval('clin_episode_pk_seq'),
-	'postop infected laceration L forearm',
-	'a',
-	'true'::boolean
+	'postop infected laceration L forearm'
 );
 
 -- diagnoses
+insert into clin_narrative (
+	clin_when,
+	fk_encounter,
+	fk_episode,
+	narrative,
+	soap_cat
+) values (
+	'2000-9-18 8:44:19',
+	currval('clin_encounter_id_seq'),
+	currval('clin_episode_pk_seq'),
+	'postop infected laceration L forearm',
+	'a'
+);
+
 insert into clin_diag (
 	fk_narrative,
 	laterality,
@@ -639,11 +607,14 @@ insert into doc_obj (
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename like '%James_Kirk%';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.54 $', False);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: test_data-James_Kirk.sql,v $', '$Revision: 1.55 $');
 
 -- =============================================
 -- $Log: test_data-James_Kirk.sql,v $
--- Revision 1.54  2005-07-14 21:31:43  ncq
+-- Revision 1.55  2005-09-19 16:27:48  ncq
+-- - adjust to rfe/aoe
+--
+-- Revision 1.54  2005/07/14 21:31:43  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.53  2005/04/08 10:01:28  ncq
