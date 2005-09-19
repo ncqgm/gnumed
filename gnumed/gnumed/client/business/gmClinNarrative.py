@@ -2,7 +2,7 @@
 
 """
 #============================================================
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL (for details see http://gnu.org)'
 
@@ -84,8 +84,6 @@ class cNarrative(gmClinItem.cClinItem):
 		"""update clin_narrative set
 				narrative=%(narrative)s,
 				clin_when=%(date)s,
-				is_rfe=%(is_rfe)s::boolean,
-				is_aoe=%(is_aoe)s::boolean,
 				soap_cat=lower(%(soap_cat)s)
 			where pk=%(pk_narrative)s""",
 		"""select xmin_clin_narrative from v_pat_narrative where pk_narrative=%(pk_narrative)s"""
@@ -94,8 +92,6 @@ class cNarrative(gmClinItem.cClinItem):
 	_updatable_fields = [
 		'narrative',
 		'date',
-		'is_rfe',
-		'is_aoe',
 		'soap_cat'
 	]
 	#--------------------------------------------------------
@@ -124,100 +120,6 @@ class cNarrative(gmClinItem.cClinItem):
 		if result is None:
 			return (False, msg)
 		return (True, msg)
-#============================================================
-class cRFE(gmClinItem.cClinItem):
-	"""Represents one Reason For Encounter.
-	"""
-	_cmd_fetch_payload = """
-		select *, xmin_clin_narrative from v_pat_rfe
-		where pk_narrative=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
-	]
-	_cmds_store_payload = [
-		"""update clin_narrative set
-				narrative=%(narrative)s,
-				clin_when=%(clin_when)s
-			where pk=%(pk_narrative)s""",
-		"""select xmin_clin_narrative from v_pat_rfe where pk_narrative=%(pk_narrative)s"""
-	]
-	_updatable_fields = [
-		'narrative',
-		'clin_when'
-	]
-#============================================================
-class cAOE(gmClinItem.cClinItem):
-	"""Represents one Assessment Of Encounter.
-	"""
-	_cmd_fetch_payload = """
-		select *, xmin_clin_narrative from v_pat_aoe
-		where pk_narrative=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from clin_narrative where pk=%(pk_narrative)s and xmin=%(xmin_clin_narrative)s for update"""
-	]
-	_cmds_store_payload = [
-		"""update clin_narrative set
-				narrative=%(narrative)s,
-				clin_when=%(clin_when)s
-			where pk=%(pk_narrative)s""",
-		"""select xmin_clin_narrative from v_pat_aoe where pk_narrative=%(pk_narrative)s"""
-	]
-	_updatable_fields = [
-		'narrative',
-		'clin_when'
-	]
-	#--------------------------------------------------------
-	def is_diagnosis(self):
-		"""
-			Checks if the AOE is a real diagosis
-		"""
-		# Note: caching is dangerous in absence of a cache invalidation mechanism
-		try:
-			self.__diagnosis
-			loaded = True
-		except:
-			loaded = self.__load_diagnosis()
-		if loaded:
-			return True
-		return False
-	#--------------------------------------------------------
-	def get_diagnosis(self):
-		"""
-			Returns diagnosis for this AOE
-		"""
-		# Note: caching is dangerous in absence of a cache invalidation mechanism
-		try:
-			self.__diagnosis
-			loaded = True
-		except:
-			loaded = self.__load_diagnosis()
-		if loaded:
-			return self.__diagnosis
-		return None
-	#--------------------------------------------------------
-	def __load_diagnosis(self):
-		"""
-			Fetches from backend diagnosis associated with this AOE
-		"""
-		self.__diagnosis = None
-		queries = []
-		vals = {'pk_narrative': self['pk_narrative']}
-		cmd = "select distinct on (diagnosis) pk_diag from v_pat_diag where pk_narrative=%(pk_narrative)s"
-		rows = gmPG.run_ro_query('historica', cmd, None, vals)
-		if rows is None:
-			_log.Log(gmLog.lErr, 'cannot get diagnosis for AOE [%s]' % self.pk_obj)
-			del self.__diagnosis
-			return False
-		if len(rows) > 0:
-			try:
-				self.__diagnosis = cDiag(aPK_obj = rows[0][0])
-				return True
-			except gmExceptions.ConstructorError:
-				_log.Log(gmLog.lErr, 'cannot instantiate diagnosis [%s] for AOE [%s]' % (rows[0][0], self.pk_obj))
-				del self.__diagnosis
-				return False
-		del self.__diagnosis
-		return None
 #============================================================
 # convenience functions
 #============================================================
@@ -314,11 +216,12 @@ if __name__ == '__main__':
 	#status, new_narrative = create_clin_narrative(narrative = 'Test narrative', soap_cat = 'a', episode_id=1, encounter_id=2)
 	#print new_narrative
 	
-	# FIXME cRFE and cAOE tests
-	
 #============================================================
 # $Log: gmClinNarrative.py,v $
-# Revision 1.16  2005-06-09 21:29:16  ncq
+# Revision 1.17  2005-09-19 16:32:02  ncq
+# - remove is_rfe/is_aoe/cRFE/cAOE
+#
+# Revision 1.16  2005/06/09 21:29:16  ncq
 # - added missing s in %()s
 #
 # Revision 1.15  2005/05/17 08:00:09  ncq
