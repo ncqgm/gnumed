@@ -6,7 +6,7 @@
 #----------------------------------
 [revision control]
 file = $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap-standard.conf.template,v $
-version = $Revision: 1.23 $
+version = $Revision: 1.24 $
 
 #----------------------------------
 [installation]
@@ -104,15 +104,6 @@ audit trail table prefix = log_
 # all audited tables must inherit from this table
 audit fields table = audit_fields
 
-# phrase wheel scoring related tables:
-# setting this to 1 will disable creation of
-# scoring related tables
-scoring disable = 0
-# all scoring tables start with this prefix
-scoring table prefix = score_
-# all scoring tables inherit from this table
-scoring fields table = scoring_fields
-
 # setting this to 1 will disable creation
 # of change notification triggers/functions
 notification disable = 0
@@ -121,6 +112,7 @@ notification disable = 0
 # such as revision tracking, translation, auditing etc.
 schema = $schema$
 sql/gmSchemaRevision.sql
+gmSchemaRevisionViews.sql
 sql/gmServices.sql
 sql/gmI18N.sql
 sql/gmAudit.sql
@@ -285,7 +277,10 @@ $language activation$
 
 #----------------------------------
 # $Log: bootstrap-standard.conf.template,v $
-# Revision 1.23  2005-06-01 23:17:43  ncq
+# Revision 1.24  2005-09-19 16:29:53  ncq
+# - update
+#
+# Revision 1.23  2005/06/01 23:17:43  ncq
 # - support overriding target database name via environment variable
 #
 # Revision 1.22  2005/04/02 22:12:53  ncq
