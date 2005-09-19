@@ -6,8 +6,8 @@ API crystallize from actual use in true XP fashion.
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPerson.py,v $
-# $Id: gmPerson.py,v 1.53 2005-09-12 15:06:20 ncq Exp $
-__version__ = "$Revision: 1.53 $"
+# $Id: gmPerson.py,v 1.54 2005-09-19 16:33:31 ncq Exp $
+__version__ = "$Revision: 1.54 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -503,7 +503,7 @@ class cPerson:
 			_log.LogException('cannot instantiate clinical record for person [%s]' % self.__ID, sys.exc_info())
 			return None
 		duration = time.time() - tstart
-		print "retrieved EMR in %.3f seconds" % duration
+		print "got EMR class instance in %.3f seconds" % duration
 		return self.__db_cache['clinical record']
 	#--------------------------------------------------------
 	def get_clinical_record(self):
@@ -1484,7 +1484,10 @@ if __name__ == '__main__':
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmPerson.py,v $
-# Revision 1.53  2005-09-12 15:06:20  ncq
+# Revision 1.54  2005-09-19 16:33:31  ncq
+# - less incorrect message re EMR loading
+#
+# Revision 1.53  2005/09/12 15:06:20  ncq
 # - add space after title
 #
 # Revision 1.52  2005/09/11 17:25:31  ncq
