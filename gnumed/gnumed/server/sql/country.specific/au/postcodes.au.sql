@@ -9206,3 +9206,5 @@ insert into urb (id_state, postcode, name) values ((select id from state where c
 insert into urb (id_state, postcode, name) values ((select id from state where country='AU' and code='VIC'), 8009, 'FLINDERS LANE');
 insert into urb (id_state, postcode, name) values ((select id from state where country='AU' and code='VIC'), 8010, 'LAW COURTS');
 insert into urb (id_state, postcode, name) values ((select id from state where country='AU' and code='QLD'), 9726, 'GOLD COAST MC');
+
+select gm_upd_default_states();
