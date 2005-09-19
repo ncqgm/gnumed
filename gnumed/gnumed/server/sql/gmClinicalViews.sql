@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.150 2005-09-13 11:56:20 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.151 2005-09-19 16:19:58 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -85,15 +85,11 @@ drop index idx_narr_s;
 drop index idx_narr_o;
 drop index idx_narr_a;
 drop index idx_narr_p;
-drop index idx_narr_rfe;
-drop index idx_narr_aoe;
 
 create index idx_narr_s on clin_narrative(soap_cat) where soap_cat='s';
 create index idx_narr_o on clin_narrative(soap_cat) where soap_cat='o';
 create index idx_narr_a on clin_narrative(soap_cat) where soap_cat='a';
 create index idx_narr_p on clin_narrative(soap_cat) where soap_cat='p';
-create index idx_narr_rfe on clin_narrative(is_rfe) where is_rfe is true;
-create index idx_narr_aoe on clin_narrative(is_aoe) where is_aoe is true;
 
 \set ON_ERROR_STOP 1
 
@@ -911,42 +907,6 @@ comment on view v_pat_missing_boosters is
 	 to the schedules a patient is on and the previously
 	 received vaccinations';
 
--- ==========================================================
--- current encounter stuff
-\unset ON_ERROR_STOP
-drop function f_curr_encounter_force_ins() cascade;
-drop function f_curr_encounter_force_upd() cascade;
-\set ON_ERROR_STOP 1
-
-create function f_curr_encounter_force_ins() returns opaque as '
-begin
-	NEW.started := CURRENT_TIMESTAMP;
-	NEW.last_affirmed := CURRENT_TIMESTAMP;
-	return NEW;
-end;
-' language 'plpgsql';
-
-create trigger at_curr_encounter_ins
-	before insert on curr_encounter
-	for each row execute procedure f_curr_encounter_force_ins()
-;
--- should really be "for each statement" but that isn't supported yet by PostgreSQL
-
-create function f_curr_encounter_force_upd() returns opaque as '
-begin
-	NEW.fk_encounter := OLD.fk_encounter;
-	NEW.started := OLD.started;
-	NEW.last_affirmed := CURRENT_TIMESTAMP;
-	return NEW;
-end;
-' language 'plpgsql';
-
-create trigger at_curr_encounter_upd
-	before update on curr_encounter
-	for each row execute procedure f_curr_encounter_force_upd()
-;
--- should really be "for each statement" but that isn't supported yet by PostgreSQL
-
 -- =============================================
 -- coded narrative
 \unset ON_ERROR_STOP
@@ -1025,50 +985,6 @@ comment on view v_codes4diag is
 	  namely once per associated code';
 
 -- =============================================
--- types of narrative
-
-create view v_pat_rfe as
-select
-	vpi.pk_patient as pk_patient,
-	cn.pk as pk_narrative,
-	cn.clin_when as clin_when,
-	cn.soap_cat as soap_cat,
-	cn.narrative as rfe,
-	cn.fk_encounter as pk_encounter,
-	cn.fk_episode as pk_episode,
-	cn.pk_item as pk_item,
-	cn.xmin as xmin_clin_narrative
-from
-	clin_narrative cn,
-	v_pat_items vpi
-where
-	cn.is_rfe is true
-		and
-	cn.pk_item = vpi.pk_item
-;
-
-
-create view v_pat_aoe as
-select
-	vpi.pk_patient as pk_patient,
-	cn.pk as pk_narrative,
-	cn.clin_when as clin_when,
-	cn.soap_cat as soap_cat,
-	cn.narrative as aoe,
-	cn.fk_encounter as pk_encounter,
-	cn.fk_episode as pk_episode,
-	cn.pk_item as pk_item,
-	cn.xmin as xmin_clin_narrative
-from
-	clin_narrative cn,
-	v_pat_items vpi
-where
-	cn.is_aoe is true
-		and
-	cn.pk_item = vpi.pk_item
-;
-
--- =============================================
 -- encounters
 
 \unset ON_ERROR_STOP
@@ -1116,7 +1032,8 @@ select
 	cle.started as started,
 	et.description as type,
 	_(et.description) as l10n_type,
-	cle.description as description,
+	cle.rfe as rfe,
+	cle.aoe as aoe,
 	cle.last_affirmed as last_affirmed,
 	cle.fk_location as pk_location,
 	cle.fk_provider as pk_provider,
@@ -1138,7 +1055,8 @@ create view v_most_recent_encounters as
 select distinct on (last_affirmed)
 	ce1.id as pk_encounter,
 	ce1.fk_patient as pk_patient,
-	ce1.description as description,
+	ce1.rfe as rfe,
+	ce1.aoe as aoe,
 	et.description as type,
 	_(et.description) as l10n_type,
 	ce1.started as started,
@@ -1179,8 +1097,6 @@ select
 	end as provider,
 	cn.soap_cat as soap_cat,
 	cn.narrative as narrative,
-	cn.is_aoe as is_aoe,
-	cn.is_rfe as is_rfe,
 	cn.pk_item as pk_item,
 	cn.pk as pk_narrative,
 	vpi.pk_health_issue as pk_health_issue,
@@ -1518,13 +1434,11 @@ union	-- encounters
 select
 	cenc.fk_patient as pk_patient,
 	's' as soap_cat,
-	cenc.description as narrative,
+	cenc.rfe || '; ' || cenc.aoe as narrative,
 	cenc.id as src_pk,
 	'clin_encounter' as src_table
 from
 	clin_encounter cenc
-where
-	trim(coalesce(cenc.description, '')) != ''
 
 union	-- episodes
 select
@@ -1573,10 +1487,7 @@ select
 		else (select sign from v_staff where db_user = cn.modified_by)
 	end as modified_by,
 	cn.soap_cat as soap_cat,
-	case when cn.is_rfe
-		then _('RFE') || ': ' || cn.narrative
-		else cn.narrative
-	end as narrative,
+	cn.narrative,
 	cn.fk_encounter as pk_encounter,
 	cn.fk_episode as pk_episode,
 	vpi.pk_health_issue as pk_health_issue,
@@ -1620,7 +1531,7 @@ select
 		else (select sign from v_staff where db_user = cenc.modified_by)
 	end as modified_by,
 	's' as soap_cat,
-	_('encounter') || ': ' || cenc.description as narrative,
+	_('encounter') || ': ' || _('RFE') || ': ' || cenc.rfe || '; ' || _('AOE') || ':' as narrative,
 	cenc.id as pk_encounter,
 	-1 as pk_episode,
 	-1 as pk_health_issue,
@@ -1628,8 +1539,6 @@ select
 	'clin_encounter'::text as src_table
 from
 	clin_encounter cenc
-where
-	cenc.description is not null
 
 union	-- episodes
 select
@@ -1790,8 +1699,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, encounter_type_pk_seq
 	, clin_encounter
 	, clin_encounter_id_seq
-	, curr_encounter
-	, curr_encounter_id_seq
 	, clin_root_item
 	, clin_root_item_pk_item_seq
 	, clin_item_type
@@ -1883,8 +1790,6 @@ grant select on
 	, v_test_org_profile
 	, v_pat_diag
 	, v_codes4diag
-	, v_pat_rfe
-	, v_pat_aoe
 	, v_pat_item_types
 	, v_types4item
 	, v_problem_list
@@ -1897,11 +1802,15 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.150 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.151 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.150  2005-09-13 11:56:20  ncq
+-- Revision 1.151  2005-09-19 16:19:58  ncq
+-- - cleanup
+-- - support rfe/aoe in clin_encounter and adjust to that
+--
+-- Revision 1.150  2005/09/13 11:56:20  ncq
 -- - cleanup/comments
 --
 -- Revision 1.149  2005/09/11 17:41:20  ncq

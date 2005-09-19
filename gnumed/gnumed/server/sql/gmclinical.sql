@@ -1,7 +1,7 @@
 -- Project: GnuMed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.162 $
+-- $Revision: 1.163 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -185,9 +185,12 @@ create table clin_encounter (
 		on delete restrict,
 	fk_location integer,
 	source_time_zone interval,
-	description text
-		default null
-		check (trim(both from coalesce(description, 'xxxDEFAULTxxx')) != ''),
+	rfe text
+		not null
+		check (trim(both from coalesce(rfe, 'xxxDEFAULTxxx')) != ''),
+	aoe text
+		not null
+		check (trim(both from coalesce(aoe, 'xxxDEFAULTxxx')) != ''),
 	started timestamp with time zone
 		not null
 		default CURRENT_TIMESTAMP,
@@ -213,39 +216,13 @@ comment on COLUMN clin_encounter.fk_location is
 comment on column clin_encounter.source_time_zone is
 	'time zone of location, used to approximate source time
 	 zone for all timestamps in this encounter';
-comment on column clin_encounter.description is
-	'descriptive name of this encounter, may change over time;
-	 could be RFE, if "xxxDEFAULTxxx" applications should
-	 display "<date> (<provider>): <type>" plus some marker for "default"';
-
--- -------------------------------------------------------------------
-create table curr_encounter (
-	id serial primary key,
-	fk_encounter integer
-		not null
-		references clin_encounter(id)
-		on update cascade
-		on delete cascade,
-	started timestamp with time zone
-		not null
-		default CURRENT_TIMESTAMP,
-	last_affirmed timestamp with time zone
-		not null
-		default CURRENT_TIMESTAMP,
-	comment text default 'affirmed'
-);
-
-comment on table curr_encounter is
-	'currently ongoing encounters are stored in this table,
-	 clients are supposed to check this table or create a
-	 new encounter if appropriate';
-comment on column curr_encounter.last_affirmed is
-	'clients are supposed to update this field when appropriate
-	 such that the encounter detection heuristics in other clients
-	 has something to work with';
-comment on column curr_encounter."comment" is
-	'clients may save an arbitrary comment here when
-	 updating last_affirmed, useful for later perusal';
+comment on column clin_encounter.rfe is
+	'the RFE for this encounter as stated by the patient';
+comment on column clin_encounter.aoe is
+	'the Assessment of Encounter (eg consultation summary)
+	 as determined by the provider, may simply be a
+	 concatenation of soAp narrative, this assessment
+	 should go across all problems';
 
 -- ===================================================================
 -- EMR items root with narrative aggregation
@@ -364,12 +341,6 @@ create table soap_cat_ranks (
 -- narrative
 create table clin_narrative (
 	pk serial primary key,
-	is_rfe boolean
-		not null
-		default false,
-	is_aoe boolean
-		not null
-		default false,
 	unique(fk_encounter, fk_episode, narrative, soap_cat)
 ) inherits (clin_root_item);
 
@@ -381,12 +352,6 @@ alter table clin_narrative add foreign key (fk_episode)
 		references clin_episode(pk)
 		on update cascade
 		on delete restrict;
-alter table clin_narrative add constraint aoe_xor_rfe
-	check (not (is_rfe is true and is_aoe is true));
-alter table clin_narrative add constraint rfe_is_subj
-	check ((is_rfe is false) or (is_rfe is true and soap_cat='s'));
-alter table clin_narrative add constraint aoe_is_assess
-	check ((is_aoe is false) or (is_aoe is true and soap_cat='a'));
 alter table clin_narrative add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
 
@@ -399,12 +364,6 @@ comment on TABLE clin_narrative is
 	 via link tables.';
 comment on column clin_narrative.clin_when is
 	'when did the item reach clinical reality';
-comment on column clin_narrative.is_rfe is
-	'if TRUE the narrative stores a Reason for Encounter
-	 which also implies soap_cat = s';
-comment on column clin_narrative.is_aoe is
-	'if TRUE the narrative stores an Assessment of Encounter
-	 which also implies soap_cat = a';
 
 -- --------------------------------------------
 -- coded narrative
@@ -426,37 +385,14 @@ select add_table_for_audit('coded_narrative');
 select add_x_db_fk_def('coded_narrative', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
 
 comment on table coded_narrative is
-	'associates codes with text snippets which may be in use in clinical tables';
+	'associates codes with text snippets
+	 which may be in use in clinical tables';
 comment on column coded_narrative.term is
 	'the text snippet that is to be coded';
 comment on column coded_narrative.code is
 	'the code in the coding system';
 comment on column coded_narrative.xfk_coding_system is
 	'the coding system used to code the text snippet';
-
---create table lnk_code2narr (
---	pk serial primary key,
---	fk_narrative integer
---		not null
---		references clin_narrative(pk)
---		on update cascade
---		on delete cascade,
---	code text
---		not null,
---	xfk_coding_system text
---		not null,
---	unique (fk_narrative, code, xfk_coding_system)
---) inherits (audit_fields);
-
---select add_table_for_audit('lnk_code2narr');
---select add_x_db_fk_def('lnk_code2narr', 'xfk_coding_system', 'reference', 'ref_source', 'name_short');
-
---comment on table lnk_code2narr is
---	'links codes to narrative items';
---comment on column lnk_code2narr.code is
---	'the code in the coding system';
---comment on column lnk_code2narr.xfk_coding_system is
---	'the coding system used to code the narrative item';
 
 -- --------------------------------------------
 -- general FH storage
@@ -1315,11 +1251,15 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.162 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.163 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.162  2005-08-19 08:23:04  ncq
+-- Revision 1.163  2005-09-19 16:19:58  ncq
+-- - cleanup
+-- - support rfe/aoe in clin_encounter and adjust to that
+--
+-- Revision 1.162  2005/08/19 08:23:04  ncq
 -- - comment update
 --
 -- Revision 1.161  2005/07/14 21:31:42  ncq
