@@ -7,10 +7,46 @@
 -- droppable components of gmGIS schema
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-views.sql,v $
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -- ###################################################################
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
+
+-- ===================================================================
+create or replace function gm_upd_default_states()
+	returns boolean
+	language 'plpgsql'
+	as '
+declare
+	_state_code text;
+	_state_name text;
+	_country_row record;
+begin
+	_state_code := ''??'';
+	_state_name := ''default state/territory/province'';
+
+	-- remove default state rows
+	delete from state where
+		(select count(*) from state s1
+			where
+				s1.code = quote_literal(_state_code) and
+				s1.id=state.id
+		) > 1
+		and not exists(select 1 from urb where id_state=state.id)
+	;
+
+	-- add default state to countries needing one
+	for _country_row in select * from country where code not in (select country from state) loop
+		execute ''insert into state (code, country, name) values (''
+				|| quote_literal(_state_code) || '', ''
+				|| quote_literal(_country_row.code) || '', ''
+				|| quote_literal(_state_name) || '');'';
+	end loop;
+	return true;
+end;
+';
+
+select gm_upd_default_states();
 
 -- ===================================================================
 -- if you suffer from performance problems when selecting from this view,
@@ -324,11 +360,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmDemographics-GIS-views.sql,v $';
-INSERT INTO gm_schema_revision (filename, version, is_core) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.23 $', True);
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmDemographics-GIS-views.sql,v $', '$Revision: 1.24 $');
 
 -- ===================================================================
 -- $Log: gmDemographics-GIS-views.sql,v $
--- Revision 1.23  2005-07-14 21:31:42  ncq
+-- Revision 1.24  2005-09-19 16:20:47  ncq
+-- - gm_upd_default_states()
+--
+-- Revision 1.23  2005/07/14 21:31:42  ncq
 -- - partially use improved schema revision tracking
 --
 -- Revision 1.22  2005/06/03 13:36:11  cfmoro
