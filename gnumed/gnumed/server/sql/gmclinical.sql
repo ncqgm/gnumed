@@ -1,7 +1,7 @@
--- Project: GnuMed
+-- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.163 $
+-- $Revision: 1.164 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -1249,13 +1249,19 @@ comment on column referral.fk_form is 'foreign key to the form instance of
 this referral.';
 
 -- =============================================
+\i gmWaitingList.sql
+
+-- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.163 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.164 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.163  2005-09-19 16:19:58  ncq
+-- Revision 1.164  2005-09-21 10:21:16  ncq
+-- - include waiting list
+--
+-- Revision 1.163  2005/09/19 16:19:58  ncq
 -- - cleanup
 -- - support rfe/aoe in clin_encounter and adjust to that
 --
