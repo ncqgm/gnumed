@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.2 $
+-- $Revision: 1.3 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -110,12 +110,6 @@ alter table clin_narrative
 alter table clin_narrative
 	drop constraint rfe_is_subj;
 
--- delete is_rfe=true rows from clin_narrative
-\unset ON_ERROR_STOP
-delete from clin_narrative
-	where is_rfe is true;
-\set ON_ERROR_STOP 1
-
 -- -- AOE ----------------------------------------------
 alter table clin_encounter
 	rename column description to aoe;
@@ -149,11 +143,14 @@ alter table clin_encounter
 alter table clin_narrative
 	drop constraint aoe_is_assess;
 
--- delete is_aoe=true rows from clin_narrative
-\unset ON_ERROR_STOP
+-- drop old data ---------------------------------------
+-- delete is_rfe/is_aoe=true rows from clin_narrative
 delete from clin_narrative
-	where is_aoe is true;
-\set ON_ERROR_STOP 1
+	where
+		(clin_narrative.is_rfe or clin_narrative.is_aoe)
+		and not exists (select 1 from clin_diag cd where cd.fk_narrative = clin_narrative.pk)
+		and not exists (select 1 from hx_family_item hxf where hxf.fk_narrative_condition = clin_narrative.pk)
+;
 
 -- drop columns ----------------------------------------
 -- is_rfe from clin_narrative ...
@@ -172,15 +169,22 @@ alter table gm_schema_revision
 	drop column is_core cascade;
 
 -- ===================================================================
+\i gmWaitingList.sql
+
+-- ===================================================================
 \unset ON_ERROR_STOP
 
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: update_db-v1_v2.sql,v $';
-insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.2 $');
+insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.2  2005-09-19 16:23:08  ncq
+-- Revision 1.3  2005-09-21 10:22:34  ncq
+-- - selectively delete is_rfe/is_aoe rows in clin_narrative
+-- - include waiting list
+--
+-- Revision 1.2  2005/09/19 16:23:08  ncq
 -- - adjust to rfe/aoe changes (clin_encounter)
 -- - adjust to dropping is_core
 --
