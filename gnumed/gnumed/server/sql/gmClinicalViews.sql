@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.151 2005-09-19 16:19:58 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.152 2005-09-21 10:20:51 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1687,6 +1687,30 @@ comment on view v_emr_journal is
 	 encounter descriptions, mainly for display as a journal';
 
 -- =============================================
+-- a waiting list
+
+--create view 
+
+
+
+--	fk_patient integer
+--		not null
+--		references xlnk_identity(xfk_identity)
+--		on update cascade
+--		on delete cascade,
+--	registered timestamp with time zone
+--		not null
+--		default CURRENT_TIMESTAMP,
+--	urgency integer
+--		not null
+--		default 0,
+--	list_position integer
+--		unique
+--		not null
+--		check (list_position > 0),
+--	comment text
+
+-- =============================================
 -- tables
 GRANT SELECT, INSERT, UPDATE, DELETE ON
 	clin_health_issue
@@ -1745,6 +1769,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
 	, clin_medication_pk_seq
 	, constituent
 	, soap_cat_ranks
+	, waiting_list
+	, waiting_list_pk_seq
 TO GROUP "gm-doctors";
 
 -- measurements
@@ -1802,11 +1828,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.151 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.152 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.151  2005-09-19 16:19:58  ncq
+-- Revision 1.152  2005-09-21 10:20:51  ncq
+-- - waiting list grants
+--
+-- Revision 1.151  2005/09/19 16:19:58  ncq
 -- - cleanup
 -- - support rfe/aoe in clin_encounter and adjust to that
 --
