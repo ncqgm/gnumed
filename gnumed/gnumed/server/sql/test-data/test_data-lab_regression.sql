@@ -4,7 +4,7 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-lab_regression.sql,v $
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -41,14 +41,12 @@ values (currval('identity_pk_seq'), currval('identity_pk_seq'));
 insert into clin_encounter (
 	fk_patient,
 	fk_location,
-	fk_provider,
 	fk_type,
 	rfe,
 	aoe
 ) values (
 	currval('identity_pk_seq'),
 	-1,
-	(select pk_staff from v_staff where firstnames='Leonard Horatio' and lastnames='McCoy' and dob='1920-1-20+2:00'),
 	(select pk from encounter_type where description='chart review'),
 	'first for this RFE',
 	'lab regression testing'
@@ -95,11 +93,14 @@ insert into lab_request (
 
 -- =============================================
 -- do simple schema revision tracking
-select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.18 $');
+select log_script_insertion('$RCSfile: test_data-lab_regression.sql,v $', '$Revision: 1.19 $');
 
 -- =============================================
 -- $Log: test_data-lab_regression.sql,v $
--- Revision 1.18  2005-09-19 16:28:23  ncq
+-- Revision 1.19  2005-09-22 15:42:38  ncq
+-- - remove fk_provider
+--
+-- Revision 1.18  2005/09/19 16:28:23  ncq
 -- - adjust to rfe/aoe
 --
 -- Revision 1.17  2005/07/14 21:31:43  ncq
