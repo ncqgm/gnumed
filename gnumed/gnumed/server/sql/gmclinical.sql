@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmclinical.sql,v $
--- $Revision: 1.164 $
+-- $Revision: 1.165 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -175,8 +175,6 @@ create table clin_encounter (
 		references xlnk_identity(xfk_identity)
 		on update cascade
 		on delete restrict,
-	-- FIXME: probably remove this field ...
-	fk_provider integer,
 	fk_type integer
 		not null
 		default 1
@@ -189,7 +187,7 @@ create table clin_encounter (
 		not null
 		check (trim(both from coalesce(rfe, 'xxxDEFAULTxxx')) != ''),
 	aoe text
-		not null
+		default null
 		check (trim(both from coalesce(aoe, 'xxxDEFAULTxxx')) != ''),
 	started timestamp with time zone
 		not null
@@ -201,14 +199,11 @@ create table clin_encounter (
 
 -- remote foreign keys
 select add_x_db_fk_def('clin_encounter', 'fk_location', 'personalia', 'org', 'id');
-select add_x_db_fk_def('clin_encounter', 'fk_provider', 'personalia', 'staff', 'pk');
 
 comment on table clin_encounter is
 	'a clinical encounter between a person and the health care system';
 comment on COLUMN clin_encounter.fk_patient is
 	'PK of subject of care, should be PUPIC, actually';
-comment on COLUMN clin_encounter.fk_provider is
-	'PK of (main) provider of care';
 comment on COLUMN clin_encounter.fk_type is
 	'PK of type of this encounter';
 comment on COLUMN clin_encounter.fk_location is
@@ -217,7 +212,9 @@ comment on column clin_encounter.source_time_zone is
 	'time zone of location, used to approximate source time
 	 zone for all timestamps in this encounter';
 comment on column clin_encounter.rfe is
-	'the RFE for this encounter as stated by the patient';
+	'the RFE for the encounter as related by either
+	 the patient or the provider (say, in a chart
+	 review)';
 comment on column clin_encounter.aoe is
 	'the Assessment of Encounter (eg consultation summary)
 	 as determined by the provider, may simply be a
@@ -1254,11 +1251,18 @@ this referral.';
 -- =============================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmclinical.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.164 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmclinical.sql,v $', '$Revision: 1.165 $');
 
 -- =============================================
 -- $Log: gmclinical.sql,v $
--- Revision 1.164  2005-09-21 10:21:16  ncq
+-- Revision 1.165  2005-09-22 15:40:43  ncq
+-- - clin_encounter
+--   - aoe must be default null because we don't know
+--     it yet when starting an encounter
+--   - improve comments
+--   - remove fk_provider
+--
+-- Revision 1.164  2005/09/21 10:21:16  ncq
 -- - include waiting list
 --
 -- Revision 1.163  2005/09/19 16:19:58  ncq
