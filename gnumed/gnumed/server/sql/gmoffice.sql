@@ -1,11 +1,10 @@
--- GnuMed office related/administrative tables
+-- GNUmed office related/administrative tables
 
--- Copyright 2002 by Dr. Horst Herb
 -- This is free software in the sense of the General Public License (GPL)
 -- For details regarding GPL licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.12 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $
+-- $Revision: 1.13 $ $Date: 2005-09-22 15:38:21 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -156,11 +155,14 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: gmoffice.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.12 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmoffice.sql,v $', '$Revision: 1.13 $');
 
 --=====================================================================
 -- $Log: gmoffice.sql,v $
--- Revision 1.12  2005-09-19 16:38:51  ncq
+-- Revision 1.13  2005-09-22 15:38:21  ncq
+-- - cleanup
+--
+-- Revision 1.12  2005/09/19 16:38:51  ncq
 -- - adjust to removed is_core from gm_schema_revision
 --
 -- Revision 1.11  2005/07/14 21:31:42  ncq
