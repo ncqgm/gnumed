@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.3 $
+-- $Revision: 1.4 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -42,8 +42,9 @@ values (
 
 -- == service clinical ====================================
 
--- -- RFE ----------------------------------------------
--- add clin_encounter.rfe
+-- -- clin_encounter -----------------------------------
+
+-- -- RFE --
 alter table clin_encounter
 	add column rfe text;
 
@@ -104,15 +105,15 @@ alter table clin_encounter
 	alter column rfe
 		set not null;
 
--- drop rfe constraints
-alter table clin_narrative
-	drop constraint aoe_xor_rfe;
-alter table clin_narrative
-	drop constraint rfe_is_subj;
-
--- -- AOE ----------------------------------------------
+-- -- AOE --
 alter table clin_encounter
 	rename column description to aoe;
+
+comment on column clin_encounter.aoe is
+	'the Assessment of Encounter (eg consultation summary)
+	 as determined by the provider, may simply be a
+	 concatenation of soAp narrative, this assessment
+	 should go across all problems';
 
 -- move clin_narrative.is_aoe rows into it
 create or replace function concat_aoes(integer) returns text as '
@@ -134,17 +135,23 @@ update clin_encounter set
 
 drop function concat_aoes(integer);
 
--- disallow nulls
+-- -- fk_provider --
 alter table clin_encounter
-	alter column aoe
-		set not null;
+	drop column fk_provider;
+
+-- clin_narrative ---------------------------------
+
+-- drop rfe constraints
+alter table clin_narrative
+	drop constraint aoe_xor_rfe;
+alter table clin_narrative
+	drop constraint rfe_is_subj;
 
 -- drop aoe constraints
 alter table clin_narrative
 	drop constraint aoe_is_assess;
 
--- drop old data ---------------------------------------
--- delete is_rfe/is_aoe=true rows from clin_narrative
+-- delete is_rfe/is_aoe=true rows
 delete from clin_narrative
 	where
 		(clin_narrative.is_rfe or clin_narrative.is_aoe)
@@ -152,12 +159,11 @@ delete from clin_narrative
 		and not exists (select 1 from hx_family_item hxf where hxf.fk_narrative_condition = clin_narrative.pk)
 ;
 
--- drop columns ----------------------------------------
--- is_rfe from clin_narrative ...
+-- drop is_rfe ...
 alter table clin_narrative
 	drop column is_rfe cascade;
 
--- is_aoe from clin_narrative ...
+-- drop is_aoe ...
 alter table clin_narrative
 	drop column is_aoe cascade;
 
@@ -176,11 +182,16 @@ alter table gm_schema_revision
 
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: update_db-v1_v2.sql,v $';
-insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.3 $');
+insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.4 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.3  2005-09-21 10:22:34  ncq
+-- Revision 1.4  2005-09-22 15:41:58  ncq
+-- - cleanup
+-- - sync comments
+-- - drop fk_provider
+--
+-- Revision 1.3  2005/09/21 10:22:34  ncq
 -- - selectively delete is_rfe/is_aoe rows in clin_narrative
 -- - include waiting list
 --
