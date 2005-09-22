@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.152 2005-09-21 10:20:51 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.153 2005-09-22 15:43:48 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1036,7 +1036,6 @@ select
 	cle.aoe as aoe,
 	cle.last_affirmed as last_affirmed,
 	cle.fk_location as pk_location,
-	cle.fk_provider as pk_provider,
 	cle.fk_type as pk_type,
 	cle.xmin as xmin_clin_encounter
 from
@@ -1063,7 +1062,6 @@ select distinct on (last_affirmed)
 	ce1.last_affirmed as last_affirmed,
 	ce1.fk_type as pk_type,
 	ce1.fk_location as pk_location,
-	ce1.fk_provider as pk_provider
 from
 	clin_encounter ce1,
 	encounter_type et
@@ -1689,26 +1687,39 @@ comment on view v_emr_journal is
 -- =============================================
 -- a waiting list
 
---create view 
+\unset ON_ERROR_STOP
+drop view v_waiting_list cascade;
+\set ON_ERROR_STOP 1
 
-
-
---	fk_patient integer
---		not null
---		references xlnk_identity(xfk_identity)
---		on update cascade
---		on delete cascade,
---	registered timestamp with time zone
---		not null
---		default CURRENT_TIMESTAMP,
---	urgency integer
---		not null
---		default 0,
---	list_position integer
---		unique
---		not null
---		check (list_position > 0),
---	comment text
+create view v_waiting_list as
+select
+	wl.list_position as list_position,
+	wl.urgency as urgency,
+	i.title as title,
+	n.firstnames as firstnames,
+	n.lastnames as lastnames,
+	n.preferred as preferred,
+	i.dob as dob,
+	i.gender as gender,
+	_(i.gender) as l10n_gender,
+	wl.registered as registered,
+	vmre.rfe as rfe,
+	wl.comment as comment,
+	i.pk as pk_identity,
+	n.id as pk_name,
+	i.pupic as pupic
+from
+	waiting_list wl,
+	identity i,
+	names n,
+	v_most_recent_encounters vmre
+where
+	wl.fk_patient = i.pk and
+	wl.fk_patient = n.id_identity and
+	wl.fk_patient = vmre.pk_patient and
+	i.deceased is NULL and
+	n.active is true
+;
 
 -- =============================================
 -- tables
@@ -1822,17 +1833,22 @@ grant select on
 	, v_narrative4search
 	, v_emr_journal
 	, v_hx_family
+	, v_waiting_list
 to group "gm-doctors";
 
 -- =============================================
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.152 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.153 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.152  2005-09-21 10:20:51  ncq
+-- Revision 1.153  2005-09-22 15:43:48  ncq
+-- - remove clin_encounter.fk_provider
+-- - add v_waiting_list
+--
+-- Revision 1.152  2005/09/21 10:20:51  ncq
 -- - waiting list grants
 --
 -- Revision 1.151  2005/09/19 16:19:58  ncq
