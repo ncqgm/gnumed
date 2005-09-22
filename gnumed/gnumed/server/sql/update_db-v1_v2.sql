@@ -1,7 +1,7 @@
 -- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -- license: GPL
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
@@ -137,7 +137,7 @@ drop function concat_aoes(integer);
 
 -- -- fk_provider --
 alter table clin_encounter
-	drop column fk_provider;
+	drop column fk_provider cascade;
 
 -- clin_narrative ---------------------------------
 
@@ -182,11 +182,14 @@ alter table gm_schema_revision
 
 -- do simple schema revision tracking
 delete from gm_schema_revision where filename='$RCSfile: update_db-v1_v2.sql,v $';
-insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.4 $');
+insert into gm_schema_revision (filename, version) values('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.5 $');
 
 -- =============================================
 -- $Log: update_db-v1_v2.sql,v $
--- Revision 1.4  2005-09-22 15:41:58  ncq
+-- Revision 1.5  2005-09-22 15:50:00  ncq
+-- - cascade column drop
+--
+-- Revision 1.4  2005/09/22 15:41:58  ncq
 -- - cleanup
 -- - sync comments
 -- - drop fk_provider
