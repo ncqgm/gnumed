@@ -3,7 +3,7 @@
 license: GPL
 """
 #============================================================
-__version__ = "$Revision: 1.62 $"
+__version__ = "$Revision: 1.63 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 
 import types, sys, string
@@ -237,10 +237,9 @@ class cEncounter(gmClinItem.cClinItem):
 		staff_id - Provider's primary key
 		"""
 		cmd = """update clin_encounter set
-					fk_provider=%s,
 					last_affirmed=now()
 				where id=%s"""
-		success, msg = gmPG.run_commit('historica', [(cmd, [staff_id, self.pk_obj])], True)
+		success, msg = gmPG.run_commit('historica', [(cmd, [self.pk_obj])], True)
 		if not success:
 			_log.Log(gmLog.lErr, 'cannot reaffirm encounter [%s]' % self.pk_obj)
 			_log.Log(gmLog.lErr, str(msg))
@@ -411,12 +410,11 @@ def create_episode(pk_health_issue=None, episode_name=None, patient_id=None, is_
 		return (False, _('internal error, check log'))
 	return (True, episode)
 #-----------------------------------------------------------
-def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, description=None, enc_type=None):
+def create_encounter(fk_patient=None, fk_location=-1, description=None, enc_type=None):
 	"""Creates a new encounter for a patient.
 
 	fk_patient - patient PK
 	fk_location - encounter location
-	fk_provider - who was the patient seen by
 	description - name or description for the encounter
 	enc_type - type of encounter
 
@@ -434,19 +432,19 @@ def create_encounter(fk_patient=None, fk_location=-1, fk_provider=None, descript
 		enc_type = int(enc_type)
 		cmd = """
 			insert into clin_encounter (
-				fk_patient, fk_location, fk_provider, description, fk_type
+				fk_patient, fk_location, description, fk_type
 			) values (
-				%s, -1, %s, %s,	%s
+				%s, -1, %s,	%s
 			)"""
 	except ValueError:
 		enc_type = str(enc_type)
 		cmd = """
 			insert into clin_encounter (
-				fk_patient, fk_location, fk_provider, description, fk_type
+				fk_patient, fk_location, description, fk_type
 			) values (
-				%s, -1, %s, %s,	coalesce((select pk from encounter_type where description=%s), 0)
+				%s, -1, %s,	coalesce((select pk from encounter_type where description=%s), 0)
 			)"""
-	queries.append((cmd, [fk_patient, fk_provider, description, enc_type]))
+	queries.append((cmd, [fk_patient, description, enc_type]))
 	cmd = "select currval('clin_encounter_id_seq')"
 	queries.append((cmd, []))
 	result, msg = gmPG.run_commit('historica', queries, True)
@@ -539,7 +537,10 @@ if __name__ == '__main__':
 
 #============================================================
 # $Log: gmEMRStructItems.py,v $
-# Revision 1.62  2005-09-19 16:32:42  ncq
+# Revision 1.63  2005-09-22 15:45:11  ncq
+# - clin_encounter.fk_provider removed
+#
+# Revision 1.62  2005/09/19 16:32:42  ncq
 # - add rfe/aoe support to clin_encounter
 # - remove get_aoes()/get_rfes()
 #

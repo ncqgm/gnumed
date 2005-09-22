@@ -9,8 +9,8 @@ called for the first time).
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmClinicalRecord.py,v $
-# $Id: gmClinicalRecord.py,v 1.181 2005-09-12 15:05:44 ncq Exp $
-__version__ = "$Revision: 1.181 $"
+# $Id: gmClinicalRecord.py,v 1.182 2005-09-22 15:45:11 ncq Exp $
+__version__ = "$Revision: 1.182 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -1248,10 +1248,7 @@ where
 		if self.__activate_fairly_recent_encounter():
 			return True
 		# 3) no encounter yet or too old, create new one
-		successful, enc = gmEMRStructItems.create_encounter (
-			fk_patient = self.pk_patient,
-			fk_provider = _whoami.get_staff_ID()
-		)
+		successful, enc = gmEMRStructItems.create_encounter (fk_patient = self.pk_patient)
 		if not successful:
 			return False
 		self.__encounter = enc
@@ -1709,7 +1706,10 @@ if __name__ == "__main__":
 	gmPG.ConnectionPool().StopListeners()
 #============================================================
 # $Log: gmClinicalRecord.py,v $
-# Revision 1.181  2005-09-12 15:05:44  ncq
+# Revision 1.182  2005-09-22 15:45:11  ncq
+# - clin_encounter.fk_provider removed
+#
+# Revision 1.181  2005/09/12 15:05:44  ncq
 # - enhance get_episodes() to allow selection by is_open
 #
 # Revision 1.180  2005/09/11 17:21:55  ncq
