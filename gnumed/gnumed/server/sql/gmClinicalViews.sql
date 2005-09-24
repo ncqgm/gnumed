@@ -5,7 +5,7 @@
 -- license: GPL (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmClinicalViews.sql,v $
--- $Id: gmClinicalViews.sql,v 1.153 2005-09-22 15:43:48 ncq Exp $
+-- $Id: gmClinicalViews.sql,v 1.154 2005-09-24 09:07:02 ncq Exp $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
@@ -1061,7 +1061,7 @@ select distinct on (last_affirmed)
 	ce1.started as started,
 	ce1.last_affirmed as last_affirmed,
 	ce1.fk_type as pk_type,
-	ce1.fk_location as pk_location,
+	ce1.fk_location as pk_location
 from
 	clin_encounter ce1,
 	encounter_type et
@@ -1100,16 +1100,15 @@ select
 	vpi.pk_health_issue as pk_health_issue,
 	cn.fk_episode as pk_episode,
 	cn.fk_encounter as pk_encounter,
-	vpe.pk_provider as pk_provider,
 	cn.xmin as xmin_clin_narrative
 from
 	clin_narrative cn,
-	v_pat_items vpi,
-	v_pat_encounters vpe
+	v_pat_items vpi
+--	,v_pat_encounters vpe
 where
 	cn.pk_item = vpi.pk_item
-		and
-	vpi.pk_encounter = vpe.pk_encounter
+--		and
+--	vpi.pk_encounter = vpe.pk_encounter
 ;
 
 comment on view v_pat_narrative is
@@ -1840,11 +1839,14 @@ to group "gm-doctors";
 -- do simple schema revision tracking
 \unset ON_ERROR_STOP
 delete from gm_schema_revision where filename='$RCSfile: gmClinicalViews.sql,v $';
-INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.153 $');
+INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.154 $');
 
 -- =============================================
 -- $Log: gmClinicalViews.sql,v $
--- Revision 1.153  2005-09-22 15:43:48  ncq
+-- Revision 1.154  2005-09-24 09:07:02  ncq
+-- - removed left-over reference to clin_encounter.fk_provider
+--
+-- Revision 1.153  2005/09/22 15:43:48  ncq
 -- - remove clin_encounter.fk_provider
 -- - add v_waiting_list
 --
