@@ -31,7 +31,7 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 #==================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/bootstrap_gm_db_system.py,v $
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -183,6 +183,7 @@ def connect (host, port, db, user, passwd, superuser=0):
 			host, port = cached_host
 		else:
 			host = ''
+			port = '' # to allow local connections
 	if passwd == 'blank' or passwd is None or len(passwd) == 0:
 		if cached_passwd.has_key (user):
 			passwd = cached_passwd[user]
@@ -1428,7 +1429,10 @@ else:
 
 #==================================================================
 # $Log: bootstrap_gm_db_system.py,v $
-# Revision 1.8  2005-09-13 11:48:59  ncq
+# Revision 1.9  2005-09-24 23:16:55  ihaywood
+# fix for UNIX local socket connections
+#
+# Revision 1.8  2005/09/13 11:48:59  ncq
 # - remove scoring support for good
 # - seperate server level template database from database
 #   to use as template for creating new database thus enabling
